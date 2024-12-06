@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Set a fancy title
+gum style --border double --padding "1 2" --margin "1" --align center --width 50 --foreground 212 --background 0 \
+    "Welcome to the Fancy TODO Manager"
+
+# Ask for the user's name
+USERNAME=$(gum input --placeholder "What's your name?")
+
+# Greet the user
+gum style --border rounded --margin "1" --padding "1" --align center --width 50 \
+    "Hello, $USERNAME! Let's get productive!"
+
+# Prompt to create a new task
+while true; do
+    gum confirm "Do you want to add a new task to your TODO list?" || break
+
+    # Input for the task title
+    TASK=$(gum input --placeholder "Enter the task title" --width 50)
+
+    # Choose priority
+    PRIORITY=$(gum choose "Low" "Medium" "High" --margin "1" --cursor.foreground 208)
+
+    # Confirm task details
+    gum style --border normal --padding "1" --margin "1" --align left --width 50 --foreground 45 \
+        "You added a task:\nTask: $TASK\nPriority: $PRIORITY"
+    
+    gum confirm "Save this task?" && echo "$TASK ($PRIORITY priority)" >> todo_list.txt
+done
+
+# Show current TODO list
+gum style --border double --padding "1 2" --margin "1" --align center --width 50 \
+    "Your TODO List"
+gum file todo_list.txt --width 50
+
+# Progress bar
+gum spin --title "Saving tasks..." -- sleep 2
+
+# Farewell message
+gum style --border normal --padding "1" --margin "1" --align center --width 50 --foreground 212 --background 0 \
+    "Great job, $USERNAME! Your tasks are saved!"

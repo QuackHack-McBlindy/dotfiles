@@ -1,0 +1,37 @@
+#!/usr/bin/env cached-nix-shell
+#! nix-shell -i python3 -p python3Packages.psutil
+
+import time
+
+import psutil
+
+battery = psutil.sensors_battery()
+is_plugged = battery.power_plugged
+percentage = battery.percent
+
+LEVEL = ["", "", "", "", ""]
+
+battery_icon = ""
+
+if percentage < 20:
+    battery_icon = LEVEL[0]
+elif 20 <= percentage < 40:
+    battery_icon = LEVEL[1]
+elif 40 <= percentage < 65:
+    battery_icon = LEVEL[2]
+elif 65 <= percentage < 95:
+    battery_icon = LEVEL[3]
+else:
+    battery_icon = LEVEL[4]
+
+
+def battery_level():
+    if is_plugged == False:
+        print(battery_icon, round(percentage, 2), "%")
+    else:
+        print(" ", round(percentage, 2), "%")
+
+
+while True:
+    battery_level()
+    time.sleep(60)

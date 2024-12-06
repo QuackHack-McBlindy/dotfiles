@@ -1,0 +1,40 @@
+/home/.config/Yubico/
+**/keys.txt
+**/key.txt
+**/passwd
+**/log
+/modules/dump/
+/modules/docker/
+/home/.config/
+.DS_Store          # macOS file system metadata
+Thumbs.db          # Windows thumbnail cache
+__pycache__/       # Python bytecode cache folder
+env/               # Virtual environment directory
+venv/              # Virtual environment directory
+node_modules/      # Node.js dependencies
+*.log              # General log files
+package-lock.json  # npm lock file
+yarn.lock          # Yarn lock file
+pnpm-lock.yaml     # pnpm lock file
+/dist/             # Build artifacts
+/build/            # Build output
+*.bundle.js        # Bundled JavaScript files
+*.map               # Source map files
+*.class            # Java bytecode files
+*.o                # Object files
+*.a                # Static libraries
+*~                 # Temporary files (emacs, vi, etc.)
+*.bak              # Backup files
+*.tmp              # Temporary files
+.env               # Environment variables
+*.env              # Any .env file containing secrets
+.dockerignore      # Docker ignore file
+Dockerfile         # Dockerfile (if you don’t want it tracked)
+docker-compose.yml # Docker compose config
+/test-output/      # Output of test frameworks (e.g., pytest, Mocha)
+*.iml              # IntelliJ IDEA module files
+target/            # Rust target folder
+build/             # Build output for C++ projects
+*.pid              # Process ID files
+*.sock             # Unix socket files
+

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+read -p $'\e[32m(D)\e[0mownload\n\e[31m(U)\e[0mpload\nChoose an action: ' action
+
+
+if [ "$action" == "D" ] || [ "$action" == "d" ]; then
+
+    read -p $'Path file/folder?\n\e[32m/home/pungis/file.txt\e[0m: ' remote_path
+
+
+    remote_user=$(echo $remote_path | cut -d'/' -f3)
+
+    read -p $'\e[32mHost?\e[0m: ' remote_host
+
+    destination="/home/pungkula/scp"
+
+    scp -r ${remote_user}@${remote_host}:${remote_path} ${destination}
+
+    echo -e "\e[1;32mDownload complete.\e[0m"
+
+
+elif [ "$action" == "U" ] || [ "$action" == "u" ]; then
+
+    read -p "Enter the local path to the file/folder to transfer (e.g., /home/user/file.txt or /home/user/folder): " local_path
+
+    read -p "Username to transfer TO: " remote_user
+
+    read -p "Enter the computer (hostname or IP address) you want to transfer TO: " remote_host
+
+    read -p "Enter the destination folder on the remote host: " remote_dest
+
+    scp -r "$local_path" "$remote_user@$remote_host:$remote_dest"
+
+    echo "Transfer complete!"
+
+else
+    echo "Invalid action. Please enter D for download or U for upload."
+    exit 1
+fi
+

@@ -1,0 +1,122 @@
+#!/bin/bash
+
+# ANSI escape codes for bold and red text
+BOLD=$(tput bold)
+RED=$(tput setaf 1)
+GREEN=$(tput setaf 2)
+RESET=$(tput sgr0)
+
+# Step 1: Remove dangling images, unused volumes (but keep running containers intact)
+echo "Cleaning up dangling images and unused volumes..."
+docker image prune -f
+docker volume prune -f
+
+# Step 2: Retrieve all image IDs
+all_images=$(docker images -q)
+
+if [ -z "$all_images" ]; then
+    echo "No images found after cleanup."
+    exit 0
+fi
+
+# Step 3: Try to remove all images (without force) but only if they are NOT in use by containers
+echo "Attempting to remove all unused images without force..."
+docker rmi $(docker images -q --filter "dangling=true") 2>/dev/null
+
+# Step 4: Retrieve all image IDs again (after first removal attempt)
+remaining_images=$(docker images -q)
+
+if [ -z "$remaining_images" ]; then
+    echo "No images remain after initial removal."
+    exit 0
+fi
+
+# Initialize a flag for 'Remove All' option
+remove_all=false
+
+# Step 5: Loop through remaining images
+for image_id in $remaining_images; do
+    # Get the stopped containers using the image
+    containers=$(docker ps -a -q --filter "ancestor=$image_id")
+
+    if [ -n "$containers" ]; then
+        container_names=$(docker ps -a --filter "ancestor=$image_id" --format "{{.Names}}")
+
+        # Step 6: Prompt user (with existing prompt style)
+        if [ "$remove_all" = false ]; then
+            echo "The following containers are using image $image_id:"
+            echo "${BOLD}${RED}$container_names${RESET}"  # Make the container names bold and red
+            echo "Do you want to forcefully remove this image and its containers? (Y/N/A)"
+            read -p "(Y = Yes, N = No, A = Remove all remaining images with force): " choice
+        fi
+
+        # Handle user choice (case-insensitive)
+        case "$choice" in
+            [Yy])  # Handle Y or y as "Yes"
+                docker rm $containers
+                docker rmi -f $image_id
+                echo -e "\nRemoved image $image_id and its containers.\n"
+                ;;
+            [Aa])  # Handle A or a as "Remove all remaining images with force"
+                remove_all=true
+                docker rm $containers
+                docker rmi -f $image_id
+                echo -e "\nForcefully removed image $image_id and its containers.\n"
+                ;;
+            *)  # Handle any other input (N or invalid) as "No"
+                echo -e "\nSkipping image $image_id.\n"
+                ;;
+        esac
+    else
+        echo "No containers found for image $image_id. Attempting to remove..."
+        docker rmi $image_id
+        if [ $? -eq 0 ]; then
+            echo "Image $image_id removed successfully."
+        else
+            echo "Failed to remove image $image_id."
+        fi
+    fi
+done
+
+echo "Process completed."
+
+# Run docker system df to display current Docker disk usage
+echo -e "\nCurrent Docker disk usage:"
+docker system df
+
+# Prompt user if they want to prune the build cache
+read -p "Do you want to prune the Docker build cache? This will free up build cache layers (Y/N): " prune_choice
+
+# If the user chooses 'Y' or 'y', run docker builder prune -a -f
+if [[ "$prune_choice" =~ ^[Yy]$ ]]; then
+    echo "Pruning Docker build cache..."
+    docker builder prune -a -f
+    echo "Build cache pruned."
+fi
+
+# Run docker system df again to show the new disk usage
+echo -e "\nUpdated Docker disk usage after pruning:"
+docker system df
+
+# Display free space and percentage in /home with color coding
+df -h ~ | awk 'NR==2 {
+    free_space=$4;
+    used_percent=$5;
+    gsub("%", "", used_percent); # Strip the percentage sign for comparison
+
+    # Define color codes
+    green="\033[32m";
+    red="\033[31m";
+    reset="\033[0m";
+
+    # Color output based on free space percentage (used percentage > 65 is red, < 65 is green)
+    if (used_percent > 65) {
+        color=red;
+    } else {
+        color=green;
+    }
+
+    # Print free space and used percentage with color
+    printf "Free space: %s, Used: %s%s%s\n", free_space, color, $5, reset;
+}'
+
