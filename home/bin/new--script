@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Ensure gum is installed
+if ! command -v gum &>/dev/null; then
+  echo "Gum is not installed. Please install it first: https://github.com/charmbracelet/gum"
+  exit 1
+fi
+
+# Prompt for script type
+script_type=$(gum choose "bash" "python" "other")
+
+# Prompt for script name
+script_name=$(gum input --placeholder "Enter script name (without extension)")
+
+# Determine the full script path
+script_path="/home/pungkula/dotfiles/home/bin/${script_name}"
+
+# Set the shebang based on the script type
+if [[ "$script_type" == "bash" ]]; then
+  shebang="#!/bin/bash"
+elif [[ "$script_type" == "python" ]]; then
+  shebang="#!/usr/bin/env python3"
+else
+  shebang="#!/usr/bin/env sh"
+fi
+
+# Create the script with the appropriate shebang
+echo "$shebang" >"$script_path"
+
+# Open the script in nano
+nano "$script_path"
+
+# Make the script executable
+chmod +x "$script_path"
+
+# Add the path to ~/.bashrc if not already added
+if ! grep -q "/home/pungkula/dotfiles/home/bin" ~/.bashrc; then
+  echo 'export PATH="/home/pungkula/dotfiles/home/bin:$PATH"' >>~/.bashrc
+fi
+
+# Source ~/.bashrc to apply changes
+source ~/.bashrc
+
+# Inform the user
+gum style --foreground 212 "Script created and made executable: $script_path"
+gum style --bold "Path added to your environment and sourced!"
