@@ -6,10 +6,10 @@
   services.timesyncd = {
     enable = lib.mkDefault true;
     servers = [
-      "0.de.pool.ntp.org"
-      "1.de.pool.ntp.org"
-      "2.de.pool.ntp.org"
-      "3.de.pool.ntp.org"
+      "0.se.pool.ntp.org"
+      "1.se.pool.ntp.org"
+      "2.se.pool.ntp.org"
+      "3.se.pool.ntp.org"
     ];
   };
 }

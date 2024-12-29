@@ -1,10 +1,10 @@
 #!/bin/bash
-FLAKEDIR="/home/pungkula/flake"
+FLAKEDIR="/home/pungkula/dotfiles"
 
 
 # Get the hostname
 HOSTNAME=$(hostname)
 
 # Ensure nixos-rebuild runs from /home/pungkula/dotfiles
-env -C "${FLAKEDIR}" sudo nixos-rebuild switch --flake .#"${HOSTNAME}" --show-trace
+env -C "${FLAKEDIR}" sudo nixos-rebuild switch --flake .#"${HOSTNAME}" --show-trace --impure
 

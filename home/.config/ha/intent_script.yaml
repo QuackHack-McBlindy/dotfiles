@@ -1,0 +1,889 @@
+### -->     INTENT_SCRIPT   <--     ###
+duckduckfind:
+  action:   
+    - service: shell_command.duckduckfind
+      data: 
+        query: "{{ query }}"
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response   
+  speech:
+    text: "{{ action_response['stdout'] }}"
+
+
+# Error message 
+#DefaultIntent:
+#  speech:
+#    text: >
+#      {% set a = "va?!" %}{% set b = "Kompis du pratar japanska jag fattar ingenting" %}{% set c = "Förlåt?!" %}  {% set d = "Va säger du" %}  {{ [a, b, c, d] | random }} 
+fetchStore:
+  action:   
+    - service: shell_command.fetchstore
+      data: 
+        store: >
+          {{ store }}
+        location: >
+          {{ location }}
+        radius: >
+          {{ radius }}
+##################################    
+##### -> TV CONTROL <- ######
+##################################
+MediaController:
+  action:   
+    - service: shell_command.media_controller
+      data: 
+        player: >
+          {% if states('sensor.presence_media_player') == 'shield' %}
+            192.168.1.223
+          {% elif states('sensor.presence_media_player') == 'android_tv' %}
+            192.168.1.152
+          {% else %}
+            192.168.1.223
+          {% endif %}
+        search: >
+          {% if typ == 'playlist' %}
+            https://qwackify.duckdns.org/Playlists/MyPlaylist2.m3u
+          {% else %}
+            {{ search.replace(',', '').replace('!', '').replace('.', '').replace('?', '').strip() | default(0) }}
+          {% endif %}
+          
+        typ: >
+          {{ typ.replace(',', '').replace('!', '').replace('.', '').replace('?', '').strip() | default('tv') }}
+        #player: remote.{{ states('sensor.presence_media_player') }}
+
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response   
+  speech:
+    text: "{{ action_response['stdout'] }}"
+
+#      else:
+#        - service: shell_command.media_controller_away
+#          data: 
+ #           search: >
+ #               {{ search | default(0) }}
+
+  #          typ: "{{ typ }}"
+   #         player: media_player.watch2_watch_player
+   #   #    response_variable: action_response
+   #   #  - stop: ""
+   #  #     response_variable: action_response            
+  #speech:
+  #  text: "{{ action_response['stdout'] }}"   #
+
+#MediaController:
+#  action:
+#    - if:
+#        - condition: state
+#          entity_id: person.admin
+#          state: "home"
+#      then:
+#        - service: shell_command.media_controller
+#          data: 
+#            search: >
+#              {% if typ == 'playlist' %}
+#                https://qwackify.duckdns.org/Playlists/MyPlaylist2.m3u
+#              {% else %}
+#                {{ search | default(0) }}
+#              {% endif %}
+#            typ: "{{ typ }}"
+#            player: remote.{{ states('sensor.presence_media_player') }}
+#          response_variable: action_response
+#        - stop: ""
+#          response_variable: action_response   
+#      else:
+#        - service: shell_command.media_controller_away
+#          data: 
+ #           search: >
+ #               {{ search | default(0) }}
+  #          typ: "{{ typ }}"
+   #         player: media_player.watch2_watch_player
+   #   #    response_variable: action_response
+   #   #  - stop: ""
+   #  #     response_variable: action_response            
+  #speech:
+  #  text: "{{ action_response['stdout'] }}"   #
+
+# Plays specified Media
+#MediaController:
+#  action:
+#    - service: shell_command.media_controller
+#      data: 
+#        search: >
+#          {% if typ == 'playlist' %}
+#            https://qwackify.duckdns.org/Playlists/MyPlaylist2.m3u
+#          {% else %}
+#            {{ search | default(0) }}
+#          {% endif %}
+#        typ: "{{ typ }}"
+#        player: remote.{{ states('sensor.presence_media_player') }}
+#        #player: remote.shield        
+#      response_variable: action_response
+#    - stop: ""
+#      response_variable: action_response                   
+#  speech:
+#    text: "{{ action_response['stdout'] }}"   
+
+##################################    
+##### -> MUSIC GENERATOR <- ######
+##################################
+MusicGenerator:
+  action:
+    - service: shell_command.music_generator
+      data: 
+        genre: >
+          {{ genre | default(bass) }} bass singer
+        prompt: >
+          {{ prompt }}
+    - service: tts.speak
+      data:
+          cache: true
+          media_player_entity_id: media_player.watch1338_player
+          message: skoj du är. . häng kvar 
+      target:
+          entity_id: tts.piper
+    - delay:        
+        hours: 0
+        minutes: 0
+        seconds: 12
+        milliseconds: 0      
+    - service: shell_command.music_generator_part2
+      data: {}
+###################################
+##### -> ZIGBEE CONTROL <- ######
+###################################
+# Lights Off
+Lightsoff:
+  action:
+    - service: script.turn_off_all
+      data: {}
+    - service: tts.speak
+      data:
+          cache: true
+          media_player_entity_id: media_player.tts
+          message: nemas problemas bruschaan
+      target:
+          entity_id: tts.piper
+  speech:
+    text: "nemas problemas bruschaan"
+    
+# Lights On
+Lightsmax:
+  action:
+    - service: scene.turn_on
+      data: {}
+      target:
+          entity_id: scene.maxat_ljus
+    - service: tts.speak
+      data:
+          cache: true
+          media_player_entity_id: media_player.tts
+          message: inga problem ja fixar det mannen
+      target:
+          entity_id: tts.piper
+  speech:
+    text: "inga problem ja fixar det mannen"
+
+# Chill Scene
+MysPys:
+  action:
+    - service: scene.turn_on
+      data: {}
+      target:
+          entity_id: scene.vardags_scene_1            
+    - service: tts.speak
+      data:
+          cache: true
+          media_player_entity_id: media_player.tts
+          message: inga problem ja fixar det mannen
+      target:
+          entity_id: tts.piper
+  speech:
+    text: "inga problem ja fixar det mannen"
+
+# Blinds Up / Persienner upp
+BlindsUp:
+  action:
+    - service: tts.speak
+      data:
+          cache: true
+          media_player_entity_id: media_player.tts
+          message: inga problem ja fixar det mannen
+      target:
+          entity_id: tts.piper  
+    - service: script.blinds_up
+      data: {}
+  speech:
+    text: "inga problem ja fixar det mannen "            
+      
+# Blinds Down / Persienner Ned      
+BlindsDown:
+  action:
+    - service: tts.speak
+      data:
+          cache: true
+          media_player_entity_id: media_player.tts
+          message: inga problem ja fixar det mannen
+      target:
+          entity_id: tts.piper  
+    - service: script.blinds_down
+      data: {}
+  speech:
+    text: "inga problem ja fixar de mannen "      
+
+# Good Morning!
+# TTS morning, DiTV, tv4 nyhetsmorgon.
+Godmorgon:
+  action:
+    - service: script.godmorgon
+      data: {}
+    - service: input_boolean.turn_off
+      data: {}
+      target:
+        entity_id: input_boolean.i_am_bedroom 
+    - if:
+        - condition: state
+          entity_id: remote.shield
+          state: "off"
+      then:
+        - service: remote.turn_on
+          metadata: {}
+          data: {}
+          target:
+            entity_id: remote.shield
+        - delay:
+            hours: 0
+            minutes: 0
+            seconds: 17
+            milliseconds: 0
+    - service: shell_command.media_controller
+      data: 
+        search: ""
+        typ: news
+        player: remote.shield      
+  speech:
+    text: "morsning korsning "
+
+# Good Night!
+Godnatt:
+  action:
+    - service: script.godnatt
+      data: {}
+    - service: input_boolean.turn_on
+      data: {}
+      target:
+        entity_id: input_boolean.i_am_bedroom    
+  speech:
+    text: "natti natti puss puss"
+      
+###################################
+##### -> EVENTS <- ######
+###################################
+# Taxi
+taxi:
+  speech:
+    text: " Eco Taxi har telefon 090 . 911 . 911 . Jag skickar din nuvarande adress och några taxi bolag till din telefon."
+  action:
+    - service: notify.mobile_app_antons_iphonetest
+      data:
+        data:
+          push:
+            sound:
+              name: default
+              critical: 1
+              volume: 0.6
+        message: >
+          [ Eco Taxi 090-911911 ]
+          Din adress: {{ states('sensor.antons_iphonetest_geocoded_location') }}
+        title: Taxi
+
+
+# VCF Helper / Contact Info 
+VCFHelper:
+  action:
+    - service: shell_command.contacts
+      data: 
+        contact: "{{contact}}"
+
+# Send Message 
+SendMessage:
+  action:
+    - service: shell_command.send_message
+      data: 
+        text: "{{text}}"
+        number: "{{number}}"
+  speech:
+    text: "qwack qwack"
+
+# Simple Reminder / Sets Calendar entry for tomorrow.
+SimpleReminder:
+  action:
+    - service: calendar.create_event
+      target:
+        entity_id: calendar.ha
+      data:
+        summary: "{{reminder}}"
+        start_date_time: "{{ today_at('18:00') + timedelta(hours=24) }}"
+        end_date_time: "{{ today_at('20:00') + timedelta(hours=24) }}"
+  speech:
+    text: " Jag Ser till att du inte glömmer {{reminder}} . Jag kommer påminna dig imorgon . "
+
+# Lists 7 day calendar events
+CalendarWeek:
+  action:
+    - service: shell_command.py_calendar
+      data: {}
+      response_variable: result      
+    - service: notify.mobile_app_antons_iphonetest
+      data:
+        message: "{{ result['stdout'] }} "
+        title: "Kalender"
+        data:
+          push:
+            sound:
+              name: default
+              critical: 1
+              volume: 1         
+    - service: tts.speak
+      data:
+          message: "{{ result['stdout'] }}"
+          media_player_entity_id: media_player.tts
+      target:
+          entity_id: tts.piper   # Simple Reminder / Sets Calendar entry for tomorrow.
+
+# Find TV Remote
+FindTVRemote:
+  action:
+    - service: script.find_tvremote
+      data: {}
+  speech:
+    text: "walla balla bruschan använd öronen då"
+
+#Find iPhone
+FindPhone:
+  action:
+    - service: script.find_my_iphone
+      data: {}
+  speech:
+    text: "walla balla bruschan använd öronen då"
+    
+##########################
+
+# Lists all Voice Commands
+ListAllCommands:
+  action:
+    - service: shell_command.list_all_voice_commands
+      data: {}
+      response_variable: result      
+    - service: notify.mobile_app_antons_iphonetest
+      data:
+        message: "{{ result['stdout'] }} "
+        title: "Kommandon"
+        data:
+          push:
+            sound:
+              name: default
+              critical: 1
+              volume: 1     
+  speech:
+    text: "{{ result['stdout'] }}" 
+###################################
+##### -> STATES <- ######
+###################################
+# Ask Your Search Engine, get an answer
+Ask:
+  action:
+    - service: shell_command.ask
+      data: 
+        question: "{{question}}"
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response                   
+  speech:
+    text: "{{ action_response['stdout'] }}"  
+
+# Ask when store open/closes
+openinghours:
+  action:
+    - service: shell_command.openinghours
+      data: 
+        question: "när stänger {{question}}"
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response                   
+  speech:
+    text: "{{ action_response['stdout'] }}"  
+
+
+# Ask Wikipedia a question, get an answer
+AskWiki:
+  action:
+    - service: shell_command.ask_wiki
+      data: 
+        question: "{{question}}"
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response                   
+  speech:
+    text: "{{ action_response['stdout'] }}"  
+    
+# Vad kostar strömmen
+Elpris:
+  speech:
+    text: " Strömmen  kostar {{ states('sensor.electricity_price_bagen') }}"    
+
+helphome:
+  action:
+    - service: shell_command.resrobot
+      data:
+          departure: home
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response                   
+  speech:
+    text: "{{ action_response['stdout'] }}"   
+
+#helphometrain:
+#  action:
+#    - service: shell_command.resrobot
+#      data:
+#          departure: trainhome
+#      response_variable: action_response
+#    - stop: ""
+#      response_variable: action_response                   
+ # speech:
+ #   text: "{{ action_response['stdout'] }}"   
+
+
+# Säg ett skämt
+Joke:
+  action:
+    - service: tts.speak
+      data:
+          message: "  {{ states('sensor.joke') }} "  
+          media_player_entity_id: media_player.tts
+      target:
+          entity_id: tts.piper           
+  speech:
+    text: "  {{ states('sensor.joke') }} "    
+
+# Vad är klockan
+Time:
+  action:
+    - service: tts.speak
+      data:
+          message:  Klockan är {{ states('sensor.time')| replace(":", "  ") }} .  Det är{% if now().weekday() in (0,) %} Måndag {% elif now().weekday() in (1,) %} Tisdag {% elif now().weekday() in (2,) %} Onsdag {% elif now().weekday() in (3,) %} Torsdag {% elif now().weekday() in (4,) %} Fredag {% elif now().weekday() in (5,) %} Lördag {% elif now().weekday() in (6,) %} Söndag {% endif %} {{  as_timestamp(now())| timestamp_custom('%-d')}} {% if now().month in (1,) %}Januari {% elif now().month in (2,) %} Februari {% elif now().month in (3,) %} Mars {% elif now().month in (4,) %} April {% elif now().month in (5,) %} Maj {% elif now().month in (6,) %} Juni {% elif now().month in (7,) %} Juli {% elif now().month in (8,) %} Augusti {% elif now().month in (9,) %} September {% elif now().month in (10,) %} Oktober {% elif now().month in (11,) %} November {% elif now().month in (12,) %} December{% endif %}
+          media_player_entity_id: media_player.tts
+      target:
+          entity_id: tts.piper  
+  speech:
+    text:  Klockan är {{ states('sensor.time')| replace(":", "  ") }} .  Det är{% if now().weekday() in (0,) %} Måndag {% elif now().weekday() in (1,) %} Tisdag {% elif now().weekday() in (2,) %} Onsdag {% elif now().weekday() in (3,) %} Torsdag {% elif now().weekday() in (4,) %} Fredag {% elif now().weekday() in (5,) %} Lördag {% elif now().weekday() in (6,) %} Söndag {% endif %} {{  as_timestamp(now())| timestamp_custom('%-d')}} {% if now().month in (1,) %}Januari {% elif now().month in (2,) %} Februari {% elif now().month in (3,) %} Mars {% elif now().month in (4,) %} April {% elif now().month in (5,) %} Maj {% elif now().month in (6,) %} Juni {% elif now().month in (7,) %} Juli {% elif now().month in (8,) %} Augusti {% elif now().month in (9,) %} September {% elif now().month in (10,) %} Oktober {% elif now().month in (11,) %} November {% elif now().month in (12,) %} December{% endif %}
+
+# CPU Temperatures
+CPUTemp:      
+  action:
+    - service: tts.speak
+      data:
+          message: " Vatten datorn är just nu  {{states('sensor.intel_core_i5_10600kf_cpu_package_temperature')  }} grader. och  Hem datorn är {{states('sensor.processor_temperature') }} grader."          
+          media_player_entity_id: media_player.tts
+      target:
+          entity_id: tts.piper   
+  speech:
+    text: " Vatten datorn är just nu  {{states('sensor.intel_core_i5_10600kf_cpu_package_temperature')  }} grader. och  Hem datorn är {{states('sensor.processor_temperature') }} grader."               
+
+#GetOutsideTemp:
+#  action:
+  #  - service: tts.speak
+  #    data:
+  #        media_player_entity_id: media_player.tts
+  #        message: " Det är {{ states('weather.smhi_home')| replace("sunny", "soligt ")| replace("cloudy", "molnigt ")| replace("clear-night", "natt klart ")| replace("fog", "dimmigt ")| replace("hail", "hagel ")| replace("lightning", "blixtrar ")| replace("lightning-rainy", "blixt och regn ")| replace("partlycloudy", "delvis molnigt ")| replace("pouring", "spö regn ")| replace("rainy", "regnigt ")| replace("snowy", "snöigt ")| replace("snowy-rainy", "blöt snö slask ")| replace("windy", "blåsigt ")| replace("windy-variant", "jätte blåsigt ") }} och temperaturen är {{ state_attr('weather.smhi_home', 'temperature')| replace("-", "minus ") }} grader.   "
+  #    target:
+ #         entity_id: tts.piper
+  #speech:
+    #text: "Det är {{ states('weather.smhi_home')| replace("sunny", "soligt ")| replace("cloudy", "molnigt ")| replace("clear-night", "natt klart ")| replace("fog", "dimmigt ")| replace("hail", "hagel ")| replace("lightning", "blixtrar ")| replace("lightning-rainy", "blixt och regn ")| replace("partlycloudy", "delvis molnigt ")| replace("pouring", "spö regn ")| replace("rainy", "regnigt ")| replace("snowy", "snöigt ")| replace("snowy-rainy", "blöt snö slask ")| replace("windy", "blåsigt ")| replace("windy-variant", "jätte blåsigt ") }} och temperaturen är {{ state_attr('weather.smhi_home', 'temperature')| replace("-", "minus ") }} grader.   Luftfuktigheten är {{ state_attr('weather.smhi_home', 'humidity') }}%. Molntäcket är {{ state_attr('weather.smhi_home', 'cloud_coverage') }}%. Lufttrycket är {{ state_attr('weather.smhi_home', 'pressure') }} {{ state_attr('weather.smhi_home', 'pressure_unit') }}.  Vindarna kommer från {{ state_attr('weather.smhi_home', 'wind_bearing') }} grader med en hastighet av {{ state_attr('weather.smhi_home', 'wind_speed') }} {{ state_attr('weather.smhi_home', 'wind_speed_unit') }} och vindbyar upp till {{ state_attr('weather.smhi_home', 'wind_gust_speed') }} {{ state_attr('weather.smhi_home', 'wind_speed_unit') }}. Sikten är {{ state_attr('weather.smhi_home', 'visibility') }} {{ state_attr('weather.smhi_home', 'visibility_unit') }}. Nederbörden mäts i {{ state_attr('weather.smhi_home', 'precipitation_unit') }} och åskrisken är {{ state_attr('weather.smhi_home', 'thunder_probability') }}%. "
+
+# Mail Delivery    
+MailDelivery:
+  action:
+    - service: tts.speak
+      data:
+          media_player_entity_id: media_player.tts
+          message: " Posten kommer {{states('input_text.post') }} . {% if is_state('sensor.seventeentrack_packages_in_transit','0') %}{% else %}{{states('sensor.seventeentrack_packages_in_transit')}}{% endif %}" 
+      target:
+          entity_id: tts.piper
+  speech:
+    text: " Posten kommer {{states('input_text.post') }} . {% if is_state('sensor.seventeentrack_packages_in_transit','0') %}{% else %}{{states('sensor.seventeentrack_packages_in_transit')}}{% endif %}"
+
+# Björklävens Next Game
+NextGame:
+  action:
+    - service: tts.speak
+      data:
+          media_player_entity_id: media_player.tts
+          message: " Nästa Löven match är på {{ states('sensor.game_in_days') }} . Det är {{ states('sensor.next_game_vs') }}. För Evigt För Alltid Björklöven!"
+      target:
+          entity_id: tts.piper
+  speech:
+    text: " Nästa Löven match är på {{ states('sensor.game_in_days') }} . Det är {{ states('sensor.next_game_vs')}}. För Evigt För Alltid. Björklöven!"
+
+# Buss: Räbäck - Vasaplan    
+#BussRbkVasa:
+#  action:
+#    - service: homeassistant.update_entity
+#      target:
+#        entity_id: "{{ states.sensor | selectattr('object_id', 'match', 'resrobot_roback_vasaplan') | map(attribute='entity_id') | list }}"
+#      data: {}  
+#    - service: tts.speak
+#      data:
+#          message: "{% set next_bus_time_str = states('sensor.resrobot_roback_vasaplan_1_2') %}{% set current_time_str = states('sensor.time') %}{% if next_bus_time_str != 'unavailable' %}{% set next_bus_time = strptime(next_bus_time_str, '%H:%M') %}{% set current_time = strptime(current_time_str, '%H:%M') %}{% set time_difference = next_bus_time - current_time %}{% set minutes_left = time_difference.total_seconds() / 60 %}{% if minutes_left > 0 %}Nästa buss till Vasaplan avgår om {{ minutes_left | round(0) }} minuter {% elif minutes_left == 0 %}Bussen går just nu. Nästa avgår {{states('sensor.resrobot_roback_vasaplan_2_2')}}{% else %}Nästa buss har redan gått.{% endif %}{% else %}Buss tabellen är tydligen inte tillgänglig just nu.{% endif %}Sedan avgår bussen  . .{{states('sensor.resrobot_roback_vasaplan_2_2')}} . . {{states('sensor.resrobot_roback_vasaplan_3_2')}} {{states('sensor.resrobot_roback_vasaplan_4_2')}} ."   
+#          media_player_entity_id: media_player.tts
+#      target:
+#          entity_id: tts.piper  
+
+# Buss: Vasaplan - Röbäck
+#BussVasaRbk:
+#  action:
+#    - service: homeassistant.update_entity
+#      target:
+#        entity_id: "{{ states.sensor | selectattr('object_id', 'match', 'resrobot_vasaplan_roback') | map(attribute='entity_id') | list }}"
+#      data: {}
+#    - service: tts.speak
+#      data:
+#          message: "{% set next_bus_time_str = states('sensor.resrobot_vasaplan_roback_1') %}{% set current_time_str = states('sensor.time') %}{% if next_bus_time_str != 'unavailable' %}{% set next_bus_time = strptime(next_bus_time_str, '%H:%M') %}{% set current_time = strptime(current_time_str, '%H:%M') %}{% set time_difference = next_bus_time - current_time %}{% set minutes_left = time_difference.total_seconds() / 60 %}{% if minutes_left > 0 %}Nästa buss till Röbäck avgår om {{ minutes_left | round(0) }} minuter{% elif minutes_left == 0 %}Bussen går just nu. Nästa avgår {{states('sensor.resrobot_vasaplan_roback_2')}}{% else %}Nästa buss har redan gått.{% endif %}{% else %}Buss tabellen är tydligen inte tillgänglig just nu.{% endif %} . . {{states('sensor.resrobot_vasaplan_roback_2')}} . {{states('sensor.resrobot_vasaplan_roback_3')}} . . {{states('sensor.resrobot_vasaplan_roback_4')}}"  
+#          media_player_entity_id: media_player.tts
+#      target:
+#          entity_id: tts.piper  
+
+smoothdestinations:
+  action:
+    - service: shell_command.resrobot
+      data: 
+        departure: >
+          vasaplan
+        destination: >
+          {{ destination }} 
+      response_variable: action_response
+    - stop: ""
+      response_variable: action_response                   
+  speech:
+    text: "{{ action_response['stdout'] }}"   
+
+
+#smoothdepartures:
+#  action:
+#    - service: shell_command.resrobot
+#      data: 
+#        departure: >
+#          {{ departure }} 
+#        destination: >
+#          vasaplan
+#      response_variable: action_response
+#    - stop: ""
+#      response_variable: action_response                   
+#  speech:
+#    text: "{{ action_response['stdout'] }}"   
+
+
+# BussDepartures
+BussDepartures:
+  action:
+    - service: shell_command.resrobot
+      data: 
+        departure: "{{departure}}"
+        destination: "{{destination}}"
+      #response_variable: result   
+    #- stop: ""
+    #  response_variable: result         
+    #- delay:
+    #    hours: 0
+    #    minutes: 0
+    #    seconds: 3
+     #   milliseconds: 0
+ # speech:
+  #  text: "{{ result }}" 
+#  speech:
+#    text: |
+#      {% if result is defined %}
+#        {% set stdout_lines = result['stdout'].split('\n') %}
+#        {% set departures = stdout_lines[1:] %}
+#        {% set departure_times = [] %}
+#        {% for departure in departures %}
+#          {% if 'Departure' in departure %}
+#            {% set departure_time = departure.split(': ')[1] %}
+#            {% set departure_times = departure_times + [departure_time] %}
+#          {% endif %}
+#        {% endfor %}
+#        {% set next_bus_time_str = departure_times[0] %}
+#        {% set current_time_str = states('sensor.time') %}
+#        {% if next_bus_time_str != 'unavailable' %}
+#          {% set next_bus_time = strptime(next_bus_time_str, '%H:%M') %}
+#          {% set current_time = strptime(current_time_str, '%H:%M') %}
+#          {% set time_difference = next_bus_time - current_time %}
+#          {% set minutes_left = time_difference.total_seconds() / 60 %}
+#          {% if minutes_left > 0 %}
+#            Nästa buss till {{ destination }} avgår om {{ minutes_left | round(0) }} minuter . . Sedan har den avgångstid {% for time in departure_times[1:] %}{{ time }} . . {% endfor %}
+#          {% elif minutes_left == 0 %}
+#            Bussen går just nu. Nästa avgångstid är {% for time in departure_times[1:] %}{{ time }} . . {% endfor %}
+#          {% else %}
+#            Nästa buss har redan gått.
+#          {% endif %}
+#        {% else %}
+#          Buss tabellen är tydligen inte tillgänglig just nu.
+#        {% endif %}
+#      {% else %}
+#        Ingen information tillgänglig för tillfället.
+#      {% endif %}
+
+
+###################################
+##### -> MISC <- ######
+###################################
+# Greeting
+#Hello:
+#  action:
+#    - service: tts.speak
+#      data:
+#          message: "Hejsan Hoppsan, jag är Butler Ankan, bruschan. . Vilken underbar dag, eller hur? Hur kan jag stå till tjänst idag då kompis?" 
+#          media_player_entity_id: media_player.tts
+ #     target:
+#          entity_id: tts.piper           
+
+# Higher HA Volume
+HigherVolume:
+  action:
+    - service: counter.increment
+      target:
+        entity_id: counter.ha_volume
+      data: {}
+    - service: counter.increment
+      target:
+        entity_id: counter.ha_volume
+      data: {}
+    - service: counter.increment
+      target:
+        entity_id: counter.ha_volume
+      data: {}    
+
+# Lower HA Volume
+LowerVolume:
+  action:
+    - service: counter.decrement
+      target:
+        entity_id: counter.ha_volume
+      data: {}
+    - service: counter.decrement
+      target:
+        entity_id: counter.ha_volume
+      data: {}
+    - service: counter.decrement
+      target:
+        entity_id: counter.ha_volume
+      data: {}            
+
+# Stop Talking
+SlutaBabbla:
+  action:
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.babbla
+      data: {}
+  speech:
+    text: "ja ska va tyst.."
+
+###################################
+###################################
+###################################
+###################################
+##### -> PAUSED INTENTS <- ######
+###################################
+  
+#StockInfo:
+#  action:
+#    - service: tts.speak
+#      data:
+#          message: "Din värdeförändring idag är likamed {{ states('sensor.value_change_papermoney')| replace("-", " minus nedgång ") }} Stockholm O M X S P I .  Värdeförändring idag {{ states('sensor.omxspi_changepercent')| replace("-", " minus nedgång ") }} %  . . . Nasdak . Värdeförändring idag {{ states('sensor.nasdaq_changepercent')| replace("-", " minus nedgång ") }} % . . . Olja . {{ states('sensor.olja_brent')|round(0) }} dollar . . . Krypto! .  . .. Ethereum . {{ states('sensor.crypto_eth')|round(0) }} dollar . . . Bitcoin . {{ states('sensor.crypto_btc')|round(0) }} dollar . . . XMR . {{ states('sensor.crypto_xmr')|round(0) }} dollar . . ."
+#          media_player_entity_id: media_player.tts
+#      target:
+#          entity_id: tts.piper           
+#  speech:
+#    text: "Din värdeförändring idag är likamed {{ states('sensor.value_change_papermoney')| replace("-", " minus nedgång ") }} Stockholm O M X S P I .  Värdeförändring idag {{ states('sensor.omxspi_changepercent')| replace("-", " minus nedgång ") }} %  . . . Nasdak . Värdeförändring idag {{ states('sensor.nasdaq_changepercent')| replace("-", " minus nedgång ") }} % . . . Olja . {{ states('sensor.olja_brent')|round(0) }} dollar . . . Krypto! .  . .. Ethereum . {{ states('sensor.crypto_eth')|round(0) }} dollar . . . Bitcoin . {{ states('sensor.crypto_btc')|round(0) }} dollar . . . XMR . {{ states('sensor.crypto_xmr')|round(0) }} dollar . . . "
+
+
+#Morgonkoll:
+#  action:
+#    - service: switch.toggle
+#      data: {}
+#      target:
+#          entity_id: switch.cli_rename_di
+#    - service: tts.speak
+#      data:
+#          cache: true
+#          media_player_entity_id: media_player.KIOSK_TAB
+#          message: sansa dig sansa dig kompis de kommer de kommer mannen
+#      target:
+#          entity_id: tts.piper
+
+#SetVolume:
+#  action:
+#    service: "media_player.volume_set"
+#    data:
+#      entity_id: "{{ media_player }}"
+#      volume_level: "{{ volume / 100.0 }}"
+#  speech:
+#    text: "Volymen ändrad till {{ volume }} procent"
+
+#ToDoList:
+#  action:
+#    - service: todo.get_items
+#      target:
+#        entity_id: todo.att_gora
+#      data:
+#        status: needs_action
+#      response_variable: result                     # get service response
+#    - stop: ""
+#      response_variable: result                     # and return it
+#  speech:
+#    #text: "{{ result }}"   # use the action's response  
+#    text: "Your to-do list includes: {% for item in result['todo.att_gora']['items'] %} {{ item.summary }} {% endfor %} "
+
+#EventCountToday:
+#  action:
+#    - service: calendar.list_events
+#      target:
+#        entity_id: calendar.hem
+#      data_template:
+#        start_date_time: "{{ today_at('00:00') }}"
+#        duration: { "hours": 24 }
+#      response_variable: result                     # get service response
+#    - stop: ""
+#      response_variable: result                     # and return it 
+#    - service: tts.speak
+#      data:
+#          media_player_entity_id: media_player.tts
+#          message: "{{ action_response.events | length }}" 
+#      target:
+#          entity_id: tts.piper          
+#  speech:
+#    text: "{{ action_response['todo_att.gora'].events | length }}"
+#    
+#intent_script:
+#CheckVariableIntent:
+#  action:
+#    - if:
+#        - "{{ alarm_timer }}" == "alarm"
+#        - then:
+#            - service: input_datetime.set_datetime
+#              data:
+#                time: "{{hours}}:{{minutes | default(00)}}:00"
+#              target:
+##                entity_id: >
+#                  {% set wakeupalarm1_state = states('input_boolean.wakeupalarm1') %}
+#                  {% set wakeupalarm2_state = states('input_boolean.wakeupalarm2') %}
+#                  {% set wakeupalarm3_state = states('input_boolean.wakeupalarm3') %}
+#
+#                  {% if wakeupalarm1_state == 'on' %}
+#                    {% if wakeupalarm2_state == 'on' %}
+#                      input_datetime.wakeupalarm3
+#                    {% else %}
+#                      input_datetime.wakeupalarm2
+#                    {% endif %}
+#                  {% else %}
+#                    input_datetime.wakeupalarm1
+#                  {% endif %} 
+#            - service: input_boolean.turn_on
+#              data: {}
+#              target:
+#                entity_id: >
+#                  {% set wakeupalarm1_state = states('input_boolean.wakeupalarm1') %}
+#                  {% set wakeupalarm2_state = states('input_boolean.wakeupalarm2') %}
+#                  {% set wakeupalarm3_state = states('input_boolean.wakeupalarm3') %}
+#
+#                  {% if wakeupalarm1_state == 'on' %}
+#                    {% if wakeupalarm2_state == 'on' %}
+#                      input_boolean.wakeupalarm3
+#                    {% else %}
+#                      input_boolean.wakeupalarm2
+#                    {% endif %}
+#                  {% else %}
+#                    input_boolean.wakeupalarm1
+#                  {% endif %}
+#      - if:
+#          - "{{ alarm_timer }}" == "timer"
+#          - then:
+#              - service: timer.start
+#                data:
+#                  duration: "{{hours | default(00)}}:{{minutes}}:00"
+#                target:
+#                  entity_id: >
+#                    {% set timer1_state = states('timer.timer1') %}
+#                    {% set timer2_state = states('timer.timer2') %}
+#                    {% set timer3_state = states('timer.timer3') %}
+#
+#                    {% if timer1_state == 'active' %}
+#                      {% if timer2_state == 'active' %}
+#                        timer.timer3
+#                      {% else %}
+#                        timer.timer2
+#                      {% endif %}
+#                    {% else %}
+ #                     timer.timer1
+#                    {% endif %}      
+#          - else:
+#              - service: script.sequence_if_false
+#                # Add parameters or data if needed
+#    speech:
+#      text: "Performing actions based on the state of the variable."
+#
+#    
+#    
+#
+#intent_script:
+#  CheckVariableIntent:
+#    action:
+#      - if:
+#          - condition: state
+#            entity_id: input_boolean.wakeupalarm1
+#            state: "example_state"
+#          - then:
+#              - service: script.sequence_if_true
+#                # Add parameters or data if needed
+#      - if:
+#          - condition: state
+#            entity_id: input_boolean.wakeupalarm2
+#            state: "or_this_state"
+#          - then:
+#              - service: script.sequence_if_true
+#                # Add parameters or data if needed
+#      - if:
+#          - condition: state
+#            entity_id: input_boolean.wakeupalarm3
+#            state: "or_maybe_this_state"
+#          - then:
+#              - service: script.sequence_if_true
+#                # Add parameters or data if needed
+#          - else:
+#              - service: script.sequence_if_false
+#                # Add parameters or data if needed
+#    speech:
+#      text: "Performing actions based on the state of the entity."
+#    
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+

@@ -1,0 +1,16 @@
+{
+    "protocol": "wireguard",
+    "killswitch": 0,
+    "custom_dns": {
+        "enabled": false,
+        "ip_list": []
+    },
+    "ipv6": true,
+    "anonymous_crash_reports": false,
+    "features": {
+        "netshield": 2,
+        "moderate_nat": false,
+        "vpn_accelerator": true,
+        "port_forwarding": true
+    }
+}

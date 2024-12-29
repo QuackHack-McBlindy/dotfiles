@@ -1,0 +1,16 @@
+#!/bin/bash
+#!/bin/bash
+
+# List directory names
+directories=$(find . -maxdepth 1 -type d ! -name .)
+files=$(find . -maxdepth 1 -type f)
+
+# Combine directories and files into a single list
+combined="$directories $files"
+
+# Print directories and files to the terminal
+echo "Files in this directory:"
+echo "$files"
+
+# Output directories and files using spd-say
+spd-say "Directories are: $directories. Files are: $files."

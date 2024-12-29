@@ -61,3 +61,30 @@ def _pull_for_host(ctx, hostname):
         ctx.run(f"ssh {hostname} 'cd /path/to/repo && git pull'", warn=True, echo=True)
     except Exception as e:
         print(f"Failed to pull for host {hostname}: {e}")
+        
+
+@task
+def install(ctx, host=None):
+    """
+    Install NixOS on the specified host.
+
+    :param ctx: Invoke context.
+    :param host: hostname to install NixOS on.
+    """
+    hosts = [
+        "desktop",
+        "lappy",
+        "usb",
+    ]
+
+    if host:
+        print(f"Installing on: {host}")
+        # Adjust the Nix command accordingly
+        nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{host} --target-host root@{host}"
+        print(f"Running: {nix_run_command}")
+    else:
+        for hostname in hosts:
+            print(f"Installing on: {hostname}")
+            # Adjust the Nix command accordingly
+            nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{hostname} --target-host root@usb"
+            print(f"Running: {nix_run_command}")

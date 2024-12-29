@@ -1,11 +1,17 @@
-/home/.config/Yubico/
+# Ignore everything in the develop folder
+develop/*
+
+# Include specific files in the develop folder
+!develop/flake.nix
+!develop/.envrc
+
+home/.config/Yubico/*
+
 **/keys.txt
 **/key.txt
 **/passwd
 **/log
-/modules/dump/
-/modules/docker/
-/home/.config/
+
 .DS_Store          # macOS file system metadata
 Thumbs.db          # Windows thumbnail cache
 __pycache__/       # Python bytecode cache folder

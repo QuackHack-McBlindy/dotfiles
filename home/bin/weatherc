@@ -1,0 +1,60 @@
+# Parse weather data
+current_condition=$(echo "$weather" | jq '.current_condition[0]')
+weather_code=$(echo "$current_condition" | jq -r '.weatherCode // "Unknown"')
+temp_feels_like=$(echo "$current_condition" | jq -r '.FeelsLikeC // 0')
+weather_desc=$(echo "$current_condition" | jq -r '.weatherDesc[0].value // "No description"')
+windspeed=$(echo "$current_condition" | jq -r '.windspeedKmph // 0')
+humidity=$(echo "$current_condition" | jq -r '.humidity // 0')
+
+# Format current weather
+extrachar=""
+if [[ $temp_feels_like -gt 0 && $temp_feels_like -lt 10 ]]; then
+    extrachar="+"
+fi
+
+text=" ${WEATHER_CODES[$weather_code]} ${extrachar}${temp_feels_like}°"
+
+tooltip="<b>${weather_desc} $(echo "$current_condition" | jq -r '.temp_C // 0')°</b>\n"
+tooltip+="Feels like: $temp_feels_like°\n"
+tooltip+="Wind: ${windspeed}Km/h\n"
+tooltip+="Humidity: ${humidity}%\n"
+
+# Iterate over forecast data (Today and Tomorrow)
+for i in $(seq 0 1); do
+    day=$(echo "$weather" | jq -r ".weather[$i]")
+    date=$(echo "$day" | jq -r '.date // "Unknown"')
+    max_temp=$(echo "$day" | jq -r '.maxtempF // 0')
+    min_temp=$(echo "$day" | jq -r '.mintempF // 0')
+    sunrise=$(echo "$day" | jq -r '.astronomy[0].sunrise // "Unknown"')
+    sunset=$(echo "$day" | jq -r '.astronomy[0].sunset // "Unknown"')
+
+    if [ $i -eq 0 ]; then
+        tooltip+="\n<b>Today, $date</b>\n"
+    else
+        tooltip+="\n<b>Tomorrow, $date</b>\n"
+    fi
+    tooltip+="⬆️ $max_temp° ⬇️ $min_temp° 🌅 $sunrise 🌇 $sunset\n"
+
+    # Hourly data
+    hours=$(echo "$day" | jq -r '.hourly[]')
+    for hour in $(echo "$hours" | jq -c -r '.'); do
+        hour_time=$(echo "$hour" | jq -r '.time // "Unknown"')
+        hour_weather_code=$(echo "$hour" | jq -r '.weatherCode // 0')
+        hour_feels_like=$(echo "$hour" | jq -r '.FeelsLikeC // 0')
+        hour_desc=$(echo "$hour" | jq -r '.weatherDesc[0].value // "No description"')
+
+        # Skip hours in the past
+        if [ $(format_time $(echo "$hour_time" | cut -d: -f1)) -lt $(date +%H) ]; then
+            continue
+        fi
+
+        tooltip+=$(printf "%s ${WEATHER_CODES[$hour_weather_code]} %s %s, %s\n" \
+            "$(format_time $(echo "$hour_time" | cut -d: -f1))" \
+            "$(format_temp $hour_feels_like)" \
+            "$hour_desc" \
+            "$(format_chances "$hour")")
+    done
+done
+
+# Output result
+echo "{\"text\":\"$text\",\"tooltip\":\"$tooltip\"}"

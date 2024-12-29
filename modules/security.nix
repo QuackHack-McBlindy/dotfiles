@@ -49,7 +49,6 @@
     kernelModules = ["tcp_bbr"];
   };
 
-  user.initialPassword = "nixos";
   users.users.root.initialPassword = "nixos";
 
   security = {

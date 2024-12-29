@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Directory containing the scripts
+SCRIPT_DIR="/home/pungkula/dotfiles/home/bin"
+
+# Check if the directory exists
+if [[ ! -d "$SCRIPT_DIR" ]]; then
+  echo "Error: Directory '$SCRIPT_DIR' not found."
+  exit 1
+fi
+
+echo "Listing all scripts in '$SCRIPT_DIR' with descriptions:"
+
+# Loop through all files in the directory
+for script in "$SCRIPT_DIR"/*; do
+  # Only consider regular files (scripts)
+  if [[ -f "$script" && -x "$script" ]]; then
+    # Get the first 20 lines that start with '#' (comments), until the first empty line or end of comment block
+    description=$(head -n 20 "$script" | sed -n '/^#/,/^$/p' | sed 's/^#\s*//')
+
+    # If no description is found, use a default message
+    if [[ -z "$description" ]]; then
+      description="No description available."
+    fi
+    
+    # Print the filename and description
+    echo -e "$(basename "$script")\t- $description"
+  fi
+done

@@ -1,0 +1,9 @@
+language: "sv"
+intents:
+  FindPhone:
+    data:
+      - sentences: 
+          - "var är min telefon"
+          - "vart är telefonen"
+
+          

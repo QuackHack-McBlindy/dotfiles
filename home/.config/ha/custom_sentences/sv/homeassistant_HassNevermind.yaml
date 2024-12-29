@@ -1,0 +1,8 @@
+language: "sv"
+intents:
+  HassNevermind:
+    data:
+      - sentences:
+          - "(struntsamma|strunt samma)"
+          - "(skit samma¦skitsamma)"
+          - "det var inget"

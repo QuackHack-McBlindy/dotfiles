@@ -1,0 +1,61 @@
+- defaults:
+    link:
+      create: true
+      relink: true
+
+- clean: ['~', '~/.config']
+
+- link:
+    ~$HOME/.bash: home/.bash
+    ~/.bash_profile: home/.bash_profile
+    ~/.bashrc: home/.bashrc
+    ~/dotfiles: ./
+    ~/.editrc: home/.editrc
+    ~/.gitconfig: home/.gitconfig
+    ~/.gitignore_global: home/.gitignore_global
+    #~/.gnupg/dirmngr.conf: gnupg/dirmngr.conf
+    #~/.gnupg/gpg.conf: gnupg/gpg.conf
+    ~/.inputrc: home/.inputrc
+    ~/.pythonrc: home/.pythonrc
+    ~/.screenrc: home/.screenrc
+    ~/.shell: home/.shell
+    ~/.config/vesktop: home/.config/vesktop
+    
+
+- create:
+  - ~/projects
+  - ~/Downloads/transmission/torrents
+  - ~/Downloads/transmission/incomplete
+  - ~/Downloads/transmission/complete
+  - ~/Downloads/transmission/torrents/watch
+  - ~/scp
+  - ~/.local/share/orca
+  - ~/.config/speech-dispatcher
+  
+- shell:
+  - spd-say "Dina punktfiler är uppdaterade."
+#  - git submodule sync --recursive
+#  # the following have to run after linking ~/.gitconfig
+#  - git update-submodules
+#  - >
+#    git cleanall -f
+#    shell/plugins/
+
+
+- pip:
+    file: /home/pungkula/dotfiles/home/.config/pip3/requirements.txt
+    binary: /usr/local/bin/pip3
+    user: true    # Like --user
+    stdout: false # Print the execution stdout
+    stderr: true  # Print the execution stderr
+
+# Also supports pipsi and pipx, make sure they appear after `pip`!
+#- pipsi:
+#    file: requirements-pipsi.txt
+#    stdout: false # Print the execution stdout
+#    stderr: true  # Print the execution stderr
+
+#- pipx:
+#    file: requirements-pipx.txt
+#    stdout: false
+#    stderr: true

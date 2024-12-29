@@ -1,0 +1,13 @@
+language: "sv"
+intents:
+  VCFHelper:
+    data:
+      - sentences:
+          - "kontakt info {contact} "
+          - "adressbok {contact} "
+
+       
+lists:
+  contact:
+    wildcard: true
+

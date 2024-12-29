@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Monitor journal logs for critical priority
+journalctl -f -p crit | while read line; do
+    # Extract the message (you can customize the message extraction)
+    message=$(echo "$line" | sed 's/.*\] \([^:]*\): \(.*\)/\2/')
+    
+    # Send the notification
+    send_notify "Critical Log Alert" "$message"
+done

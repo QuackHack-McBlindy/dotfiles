@@ -1,0 +1,17 @@
+language: "sv"
+intents:
+  Lightsmax:
+    data:
+      - sentences:
+          - "tänd allt"
+          - "tänk allt"
+          - "tänd all"
+          - "tänd alla lampor"
+          - "tänk alla lampor"
+          - "ljus"
+          - "jus"
+          - "tänd"
+          - "starta alla lampor"
+          - "tända la lampor"
+          - "tånd alla lampor"
+          - "tånda alla lampor"

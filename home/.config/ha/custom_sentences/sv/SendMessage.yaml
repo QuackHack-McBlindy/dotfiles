@@ -1,0 +1,35 @@
+language: "sv"
+intents:
+  SendMessage:
+    data:
+      - sentences:
+          - "skriv till {number} {text}"
+       
+lists:
+  number:
+    values:
+      - in: "(mig|mej|anton|ankton)"
+        out: "+4672514453"
+      - in: "(kasper|casper|kaparn|vega)"
+        out: "+46737391318"
+      - in: "(spöket|laban|timo)"
+        out: "+46737331337"        
+      - in: "rasmus"
+        out: "+46702566732"
+#      - in: "(andreas|dea|fremling)"
+ #       out: "+46"
+
+  text:
+    wildcard: true
+
+
+
+
+#      - in: "(casper|kasper|vega)"
+#        out: ""
+#      - in: "rasmus"
+#        out: ""  
+#      - in: "(mig|mej|ankton|anton)"
+#        out: "725172777"
+#      - in: "(laban|spöket|timo)"
+#        out: "

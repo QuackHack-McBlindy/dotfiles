@@ -1,12 +1,14 @@
-{ config, pkgs, ... }:
+{ config, inputs, pkgs, ... }:
 
 {
   imports =[ 
+   # ./hardware-configuraiton.nix
     ./hardware-configuration.nix
-    ./../../modules/hardware/battery.nix
-    ./../../modules/nixos/users.nix
-  #  ./disk-config.nix
- #   inputs.disko.nixosModules.disko
+  #  ./disk-config.nix 
+  #  ../../modules/nixos/users.nix
+    #"${dotfiles}/hosts/lappy/hardware-configuration.nix"
+ #   "${dotfiles}/modules/hardware/battery.nix"
+  #  "${dotfiles}/modules/nixos/users.nix"
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -15,7 +17,10 @@
 
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";
-  boot.loader.grub.useOSProber = true;
+  boot.loader.grub.efiSupport = true;  # Enable if using UEFI
+ # boot.initrd.lvm = true;  # Enable LVM support during initrd
+
+  #boot.loader.grub.useOSProber = true;
 
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -24,11 +29,14 @@
   nix.optimise.automatic = true;
   nixpkgs.config.allowUnfree = true;
   nix = {
-    package = pkgs.nixFlakes;
+   # package = pkgs.nixFlakes;
     extraOptions = ''
       experimental-features = nix-command flakes
     '';
   };
+  users.users.pungkula.isSystemUser = true;
+  users.users.pungkula.group = "pungkula";
+  users.groups.pungkula = {};
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 
@@ -107,10 +115,10 @@
 
 
   # Configure keymap in X11
-  services.xserver = {
-    layout = "se";
-    xkbVariant = "";
-  };
+#  services.xserver = {
+#    layout = "se";
+ #   xkbVariant = "";
+ # };
 
   # Configure console keymap
   console.keyMap = "sv-latin1";
@@ -150,23 +158,23 @@
       gnome-photos
       gnome-tour
     ]) ++ (with pkgs.gnome; [
-      cheese # webcam tool
-      gnome-music
-      file-roller
-      epiphany # web browser
-      geary # email reader
-      evince # document viewer
-      gnome-characters
-      totem # video player
-      tali # poker game
-      iagno # go game
-      hitori # sudoku game
-      atomix # puzzle game
-      rygel
-      yelp
-      gnome-logs
-      gnome-clocks
-      gnome-contacts
+      pkgs.cheese # webcam tool
+      pkgs.gnome-music
+      pkgs.file-roller
+      pkgs.epiphany # web browser
+      pkgs.geary # email reader
+      pkgs.evince # document viewer
+      pkgs.gnome-characters
+      pkgs.totem # video player
+      pkgs.tali # poker game
+      pkgs.iagno # go game
+      pkgs.hitori # sudoku game
+      pkgs.atomix # puzzle game
+      pkgs.rygel
+      pkgs.yelp
+      pkgs.gnome-logs
+      pkgs.gnome-clocks
+      pkgs.gnome-contacts
     ]);
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -177,8 +185,15 @@
     curl
     wget
     iwd
-    gnome.gnome-terminal
-    snapcast
+    pkgs.gcc
+  #  pkgs.dmraid
+    pkgs.cmake
+    pkgs.glib
+    pkgs.cmake
+    pkgs.buildkit
+    pkgs.nixos-generators
+    pkgs.gnome-terminal
+   # snapcast
   ];
 
   system.stateVersion = "22.11";

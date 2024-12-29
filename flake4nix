@@ -1,0 +1,168 @@
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+{ #°✶.•°••─→ FLAKE.NIX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    description = "QuackHack-McBlindy's Nix OS Configuration Dotfiles with Flakes.";
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+    inputs = {
+        # Principle inputs (updated by `nix run .#update`)
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+        home-manager.url = "github:nix-community/home-manager";
+        home-manager.inputs.nixpkgs.follows = "nixpkgs";
+
+        nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
+
+        agenix.url = "github:ryantm/agenix";
+        sops-nix.url = "github:Mic92/sops-nix";
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+        disko.url = "github:nix-community/disko";
+        disko.inputs.nixpkgs.follows = "nixpkgs";
+
+        flake-parts.url = "github:hercules-ci/flake-parts";
+        nixos-unified.url = "github:srid/nixos-unified";
+    };
+    #outputs = { self, nixpkgs, nixos-unified, sops-nix, disko, home-manager, ... }: 
+            #flake =    
+               # let
+    outputs = inputs@{ self, sops-nix, home-manager, disko, ... }:
+        inputs.flake-parts.lib.mkFlake { inherit inputs; } {
+       #     inherit user;
+            #inherit inputs; root = ./.;
+            systems = [ "x86_64-linux" "aarch64-linux" ];
+            imports = [ inputs.nixos-unified.flakeModules.default ];
+
+            flake =
+                let
+                    user = "pungkula";
+                  #  inherit { user; }  
+                in
+                {
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ DESKTOP ←── (Water Cool Contest Build) •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+                    nixosConfigurations."desktop" =
+                        self.nixos-unified.lib.mkLinuxSystem
+                            { home-manager = true; }
+                            {
+                                nixpkgs.hostPlatform = "x86_64-linux";
+                                imports = [ ./hosts/desktop/configuration.nix
+                                    ./modules/services/ssh.nix 
+
+                                    ./hosts/desktop/modules/syslogd.nix
+                                    ./modules/programs/thunar.nix
+                                    ./modules/hardware/pam.nix
+                                    ./modules/nixos/nix.nix
+                                    ./modules/nixos/users.nix
+                                    ./modules/nixos/i18n.nix    
+                                    ./modules/nixos/fonts/default.nix
+                                    ./modules/virtualization/docker.nix
+                                    ./modules/virtualization/vm.nix      
+                                    ./modules/services/dns.nix  
+                                    ./modules/security.nix
+                 #     "${toString ./modules/services/firefox-syncserver.nix}"
+                #      ./modules/services/avahi-client.nix
+
+                                  #  {
+                                 #       home-manager.users.${user} = {
+                                 #           imports = [ ./home-manager/home.nix ];
+                                 #       };
+                                 #   }
+                                ];
+                            };
+                            
+                            
+####################### NEW HOST
+
+                    nixosConfigurations."newHost" =  
+                        self.nixos-unified.lib.mkLinuxSystem
+                            
+                            { home-manager = true; }
+                            {
+                                nixpkgs.hostPlatform = "x86_64-linux";
+                                imports = [ 
+                                    ./hosts/lappy/configuration.nix
+                                    #./configuration.nix
+                                    #./hardware-configuration.nix
+                                    ./modules/services/ssh.nix 
+                                 #   ./modules/services/firefox-syncserver.nix
+                               #     ./modules/services/avahi-client.nix
+                              #      ./modules/services/dns.nix   
+                                    disko.nixosModules.disko
+                                #    nixos-facter-modules.nixosModules.facter
+                               #     { config.facter.reportPath = ./hosts/lappy/facter.json }
+                                    sops-nix.nixosModules.sops
+                                    home-manager.nixosModules.home-manager
+                                        {
+                                          disko.devices = {
+                                            disk.disk1 = {
+                                              device = "/dev/sda";
+                                              type = "disk";
+                                              content = {
+                                                type = "gpt";  # Using GPT as the disklabel type
+                                                partitions = {
+                                                  boot = {
+                                                    name = "boot";
+                                                    size = "512M";  # Boot partition size
+                                                    type = "8300";  # Type for Linux filesystem (MBR)
+                                                    content = {
+                                                      type = "filesystem";
+                                                      format = "vfat";
+                                                      mountpoint = "/boot";
+                                                    };
+                                                  };
+                                                  root = {
+                                                    name = "root";
+                                                    size = "100%";  # The remaining space
+                                                    content = {
+                                                      type = "filesystem";
+                                                     format = "ext4";
+                                                      mountpoint = "/";
+                                                      mountOptions = [ "defaults" ];
+                                                    };
+                                                  };
+                                                };
+                                              };
+                                            };
+                                          };
+                                        }
+       
+                                  #  {
+                                  #      home-manager.users.${user} = {
+                                  #          imports = [ ./home-manager/home.nix ];
+                                  #      };
+                                  #  }
+                                ];
+                            };
+
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ PHONEY  ←── (PinePhone) •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•
+              #      nixosConfigurations."phoney" =
+               #         self.nixos-unified.lib.mkLinuxSystem
+                #            { home-manager = true; }
+               #             {
+                #                nixpkgs.hostPlatform = "aarch64-linux";
+               #                 imports = [ ./hosts/phoney/configuration.nix
+               #                     {
+                #                        home-manager.users.${user} = {
+               #                             imports = [ ./home-manager/home.nix ];
+              #                          };
+               #                     }
+               #                 ];
+              #              };
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ LAPPY  ←── (Crappy Laptop) •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•
+                    nixosConfigurations."lappy" =
+                        self.nixos-unified.lib.mkLinuxSystem
+                            { home-manager = true; }
+                            {
+                                nixpkgs.hostPlatform = "x86_64-linux";
+                                imports = [ ./hosts/lappy/configuration.nix
+                                    ./modules/services/ssh.nix
+                                    {
+                                        home-manager.users.${user} = {
+                                            imports = [ ./home-manager/home.nix ];
+                                        };
+                                    }
+                                ];
+                            };
+                };
+        };
+}
+

@@ -1,0 +1,7 @@
+language: "sv"
+intents:
+  CPUTemp:
+    data:
+      - sentences:
+          - "hur varm är datorn" 
+          - "cpu temps"

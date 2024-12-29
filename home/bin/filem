@@ -1,0 +1,97 @@
+#!/bin/bash
+
+# Custom styling functions using gum style
+info_style() {
+  gum style --border="rounded" --foreground=234 --background=117 --padding="1 2" "$1"
+}
+
+warning_style() {
+  gum style --border="rounded" --foreground=white --background=161 --padding="1 2" "$1"
+}
+
+success_style() {
+  gum style --border="rounded" --foreground=black --background=2 --padding="1 2" "$1"
+}
+
+error_style() {
+  gum style --border="rounded" --foreground=white --background=196 --padding="1 2" "$1"
+}
+
+# Function to ask for confirmation with custom styling
+ask_confirmation() {
+  gum confirm --style "border=rounded,foreground=255,background=69,padding=1 2" "$1"
+}
+
+# Function to ask for forced removal with a spinner
+ask_force_removal() {
+  gum spin --spinner "dots" --style "foreground=white,background=235" --title "Attempting to remove..." -- sleep 2
+  gum confirm --style "border=rounded,foreground=255,background=160,padding=1 2" "Force removal of this file?"
+}
+
+# Custom 'rm' with confirmation and force options
+rm_custom() {
+  local file="$1"
+  
+  if ask_confirmation "Are you sure you want to delete the file '$file'?" ; then
+    rm "$file"
+    success_style "File '$file' deleted successfully."
+  else
+    error_style "File deletion aborted."
+  fi
+}
+
+# Custom 'cp' with overwrite confirmation
+cp_custom() {
+  local source="$1"
+  local destination="$2"
+  
+  if [ -e "$destination" ]; then
+    if ask_confirmation "The file '$destination' already exists. Do you want to overwrite it?" ; then
+      cp -f "$source" "$destination"
+      success_style "File '$source' copied to '$destination' (overwritten)."
+    else
+      warning_style "File copy canceled."
+    fi
+  else
+    cp "$source" "$destination"
+    success_style "File '$source' copied to '$destination'."
+  fi
+}
+
+# Custom 'mv' with overwrite confirmation
+mv_custom() {
+  local source="$1"
+  local destination="$2"
+  
+  if [ -e "$destination" ]; then
+    if ask_confirmation "The file '$destination' already exists. Do you want to overwrite it?" ; then
+      mv -f "$source" "$destination"
+      success_style "File '$source' moved to '$destination' (overwritten)."
+    else
+      warning_style "File move canceled."
+    fi
+  else
+    mv "$source" "$destination"
+    success_style "File '$source' moved to '$destination'."
+  fi
+}
+
+# Main script - demonstrating usage
+gum style --border="rounded" --foreground=white --background=59 --padding="1 2" "Welcome to the Custom File Management Script!"
+
+# Ask for file deletion
+file_to_delete=$(gum input --placeholder "Enter the file name to delete")
+rm_custom "$file_to_delete"
+
+# Ask for file copy
+source_file=$(gum input --placeholder "Enter the source file to copy")
+destination_file=$(gum input --placeholder "Enter the destination path")
+cp_custom "$source_file" "$destination_file"
+
+# Ask for file move
+source_file_move=$(gum input --placeholder "Enter the source file to move")
+destination_file_move=$(gum input --placeholder "Enter the destination path")
+mv_custom "$source_file_move" "$destination_file_move"
+
+# Wrap up
+gum style --border="rounded" --foreground=white --background=59 --padding="1 2" "Thank you for using the script!"

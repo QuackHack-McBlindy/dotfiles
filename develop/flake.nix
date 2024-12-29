@@ -18,40 +18,44 @@
       devShell.${system} = pkgs.mkShell {
         buildInputs = [
 
-          pkgs.lsof
-          pkgs.python312Packages.numpy
-          pkgs.python312Packages.sounddevice
-          pkgs.python312Packages.rapidfuzz
-          pkgs.python3Packages.rich
+       #   pkgs.lsof
+       #   pkgs.python312Packages.numpy
+        #  pkgs.python312Packages.sounddevice
+        #  pkgs.python312Packages.rapidfuzz
+        # pkgs.python3Packages.rich
 
   
-          pkgs.python3Packages.black
+      #    pkgs.python3Packages.black
           pkgs.python3Packages.isort
+          pkgs.python312Packages.pip
+          
+       #   pkgs.python312Packages.argparse
           pkgs.python312Packages.cryptography
           pkgs.python312Packages.duckdb
-          pkgs.python312Packages.uvicorn
-          pkgs.python312Packages.fastapi
+          pkgs.python312Packages.pygobject-stubs
+       #   pkgs.python312Packages.uvicorn
+       #   pkgs.python312Packages.fastapi
           pkgs.python312Packages.colorlog
-          pkgs.python312Packages.yubico
-          pkgs.python312Packages.fido2
-          pkgs.python312Packages.httpx
-          pkgs.python312Packages.requests
-          pkgs.python312Packages.setuptools
+      #    pkgs.python312Packages.yubico
+      #    pkgs.python312Packages.fido2
+     #     pkgs.python312Packages.httpx
+      #    pkgs.python312Packages.requests
+       #   pkgs.python312Packages.setuptools
           pkgs.python312Packages.webauthn
           pkgs.python312Packages.invoke
           pkgs.python312Packages.deploykit
+          pkgs.python312Packages.dbus-python
           pkgs.rye
-          pkgs.python312Packages.playsound
+       #   pkgs.python312Packages.playsound
           #pkgs.python312Packages.asyncio
-          pkgs.python312Packages.cython
           pkgs.python312Packages.psutil
           pkgs.python312Packages.pyaudio
-          pkgs.python312Packages.keyboard
-          pkgs.python312Packages.openai-whisper
-          pkgs.python312Packages.python-jose
-          pkgs.python312Packages.passlib
+         # pkgs.python312Packages.keyboard
+         # pkgs.python312Packages.openai-whisper
+       #   pkgs.python312Packages.python-jose
+        #  pkgs.python312Packages.passlib
           pkgs.python312Packages.python-multipart
-          pkgs.python312Packages.aiofiles
+      #    pkgs.python312Packages.aiofiles
           pkgs.python312Packages.cmake
           pkgs.xorg.libXinerama
           
@@ -59,12 +63,13 @@
           pkgs.xorg.x11perf
           pkgs.gcc 
           pkgs.gnumake
-          pkgs.python312Packages.ipython
+          pkgs.liboqs
+      #    pkgs.python312Packages.ipython
           pkgs.python312Packages.setuptools
-          pkgs.python312Packages.pybind11
+       #   pkgs.python312Packages.pybind11
           #pkgs.python312Packages.hyperscan
           pkgs.python312Packages.cython
-          pkgs.python312Packages.flask
+    #      pkgs.python312Packages.flask
 #         pkgs.python312Packages.pywebview
         ];
 

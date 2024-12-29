@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# Starting directory (default to home)
+current_dir=~
+
+# Function to list files and directories
+list_items() {
+  # Show both files and directories using find
+  find "$current_dir" -maxdepth 1
+}
+
+# Function to go back to parent directory
+go_back() {
+  current_dir=$(dirname "$current_dir")
+}
+
+# Main loop
+while true; do
+  # List files and directories using fzf
+  selection=$(list_items | fzf --preview 'cat {}' --bind "left:execute(go_back)" --bind "right:execute(change_dir)")
+
+  # Check if selection is empty (e.g., if user pressed ESC or canceled)
+  if [ -z "$selection" ]; then
+    echo "Exiting..."
+    break
+  fi
+
+  # Output the best match to spd-say
+  spd-say "You selected $selection"
+
+  # If the selection is a directory, change into it
+  if [ -d "$selection" ]; then
+    current_dir="$selection"
+  elif [ -f "$selection" ]; then
+    # If the selection is a file, open it in vim
+    vim "$selection"
+  fi
+done

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+# Define Piper parameters
+PIPER_BINARY="/etc/profiles/per-user/pungkula/bin/piper"
+VOICE_MODEL="sv_SE-nst-medium"  # Use voice name
+DATA_DIR="/home/pungkula/piper/data"  # Directory for Piper data
+DOWNLOAD_DIR="/home/pungkula/piper/data"  # Directory for downloading models
+
+# Monitor DBus for notifications
+dbus-monitor "interface='org.freedesktop.Notifications'" | \
+grep --line-buffered "string" | \
+sed -u 's/.*string "//;s/"//' | \
+while read -r notification; do
+    # Skip unwanted messages
+    if [[ "$notification" != "" && "$notification" != "BODY" && "$notification" != "SUMMARY" ]]; then
+        echo "Speaking: $notification"
+        echo "$notification" | wyoming-piper \
+            --piper "$PIPER_BINARY" \
+            --voice "$VOICE_MODEL" \
+            --data-dir "$DATA_DIR" \
+            --download-dir "$DOWNLOAD_DIR" \
+            --auto-punctuation true
+    fi
+done
+

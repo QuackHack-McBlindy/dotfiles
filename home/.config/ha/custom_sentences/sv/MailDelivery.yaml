@@ -1,0 +1,8 @@
+language: "sv"
+intents:
+  MailDelivery:
+    data:
+      - sentences:
+          - "när kommer posten"
+          - "kommer posten idag"
+          - "vilken dag komemr posten"

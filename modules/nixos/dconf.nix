@@ -97,7 +97,7 @@ with lib.hm.gvariant;
       invert-lightness = false;
       lens-mode = true;
       mag-factor = 4.0;
-      mouse-tracking = "proportional";
+      mouse-tracking = "centred";   # modes: centred, push, proportional, and none. 
       scroll-at-edges = false;
       show-cross-hairs = false;
     };
@@ -207,7 +207,7 @@ with lib.hm.gvariant;
 
     "org/gnome/desktop/peripherals/mouse" = {
       accel-profile = "default";
-      natural-scroll = true;
+      natural-scroll = false;
       speed = -0.867133;
     };
 

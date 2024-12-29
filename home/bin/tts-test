@@ -1,0 +1,31 @@
+#!/usr/bin/env python3
+from flask import Flask, request, jsonify
+import subprocess
+
+app = Flask(__name__)
+
+@app.route('/tts', methods=['POST'])
+def tts():
+    data = request.get_json()
+    text_to_speak = data.get('text')
+    if not text_to_speak:
+        return jsonify({"error": "No text provided"}), 400
+    
+    # Assuming you are using wyoming-piper or a similar tool
+    piper_command = [
+        "wyoming-piper",
+        "--piper", "/path/to/piper",
+        "--voice", "sv_SE-nst-medium",
+        "--data-dir", "/path/to/data",
+        "--auto-punctuation", "true"
+    ]
+    # Send the text to piper via stdin
+    result = subprocess.run(piper_command, input=text_to_speak, text=True)
+    
+    if result.returncode != 0:
+        return jsonify({"error": "Failed to process text"}), 500
+    
+    return jsonify({"message": "Text spoken successfully"}), 200
+
+if __name__ == '__main__':
+    app.run(debug=True, port=8000)
