@@ -1,0 +1,235 @@
+[ca/desrt/dconf-editor]
+saved-pathbar-path='/org/gnome/'
+saved-view='/org/gnome/'
+show-warning=false
+window-height=500
+window-is-maximized=false
+window-width=540
+
+[com/github/stunkymonkey/nautilus-open-any-terminal]
+terminal='gnome-terminal'
+
+[org/gnome/TextEditor]
+show-line-numbers=true
+tab-width=uint32 4
+
+[org/gnome/control-center]
+last-panel='universal-access'
+window-state=(980, 640, false)
+
+[org/gnome/desktop/a11y/applications]
+screen-magnifier-enabled=true
+screen-reader-enabled=true
+
+[org/gnome/desktop/a11y/interface]
+high-contrast=false
+
+[org/gnome/desktop/a11y/keyboard]
+mousekeys-enable=false
+
+[org/gnome/desktop/a11y/magnifier]
+brightness-blue=-0.048611111111111049
+brightness-green=-0.048611111111111049
+brightness-red=-0.048611111111111049
+contrast-blue=0.0
+contrast-green=0.0
+contrast-red=0.0
+lens-mode=false
+mag-factor=5.0
+mouse-tracking='proportional'
+scroll-at-edges=true
+
+[org/gnome/desktop/app-folders]
+folder-children=['Utilities', 'YaST', 'Pardus']
+
+[org/gnome/desktop/app-folders/folders/Pardus]
+categories=['X-Pardus-Apps']
+name='X-Pardus-Apps.directory'
+translate=true
+
+[org/gnome/desktop/app-folders/folders/Utilities]
+apps=['org.freedesktop.GnomeAbrt.desktop', 'nm-connection-editor.desktop', 'org.gnome.baobab.desktop', 'org.gnome.Connections.desktop', 'org.gnome.DejaDup.desktop', 'org.gnome.DiskUtility.desktop', 'org.gnome.Evince.desktop', 'org.gnome.FileRoller.desktop', 'org.gnome.font-viewer.desktop', 'org.gnome.Loupe.desktop', 'org.gnome.seahorse.Application.desktop', 'org.gnome.tweaks.desktop', 'org.gnome.Usage.desktop']
+categories=['X-GNOME-Utilities']
+name='X-GNOME-Utilities.directory'
+translate=true
+
+[org/gnome/desktop/app-folders/folders/YaST]
+categories=['X-SuSE-YaST']
+name='suse-yast.directory'
+translate=true
+
+[org/gnome/desktop/input-sources]
+show-all-sources=true
+sources=[('xkb', 'se')]
+xkb-options=['eurosign:e']
+
+[org/gnome/desktop/interface]
+accent-color='green'
+clock-show-weekday=true
+color-scheme='prefer-dark'
+cursor-theme='Bibata-Modern-Classic'
+enable-hot-corners=false
+font-hinting='full'
+font-name='TeX Gyre Adventor 10 10'
+gtk-theme='Yaru-magenta-dark'
+icon-theme='Papirus-Dark'
+toolkit-accessibility=true
+
+[org/gnome/desktop/notifications]
+application-children=['gnome-power-panel']
+
+[org/gnome/desktop/notifications/application/ca-desrt-dconf-editor]
+application-id='ca.desrt.dconf-editor.desktop'
+
+[org/gnome/desktop/notifications/application/gnome-power-panel]
+application-id='gnome-power-panel.desktop'
+
+[org/gnome/desktop/notifications/application/org-gnome-tweaks]
+application-id='org.gnome.tweaks.desktop'
+
+[org/gnome/desktop/peripherals/keyboard]
+repeat=false
+
+[org/gnome/desktop/peripherals/mouse]
+accel-profile='flat'
+speed=-0.1171875
+
+[org/gnome/desktop/peripherals/touchpad]
+two-finger-scrolling-enabled=true
+
+[org/gnome/desktop/wm/preferences]
+visual-bell=false
+
+[org/gnome/evolution-data-server]
+migrated=true
+
+[org/gnome/mutter]
+dynamic-workspaces=true
+
+[org/gnome/nautilus/preferences]
+default-folder-viewer='icon-view'
+migrated-gtk-settings=true
+search-filter-time-type='last_modified'
+
+[org/gnome/settings-daemon/plugins/color]
+night-light-enabled=true
+night-light-schedule-automatic=false
+night-light-temperature=uint32 3670
+
+[org/gnome/settings-daemon/plugins/media-keys]
+custom-keybindings=['/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/']
+magnifier-zoom-in=['KP_Add']
+magnifier-zoom-out=['KP_Subtract']
+screenreader=['KP_Divide']
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0]
+binding='section'
+command='/etc/profiles/per-user/pungkula/bin/gnome-terminal'
+name='terminal'
+
+[org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1]
+binding='section'
+command='/etc/profiles/per-user/pungkula/bin/gnome-terminal'
+name='binbash'
+
+[org/gnome/shell]
+app-picker-layout=[{'io.bassi.Amberol.desktop': <{'position': <0>}>, 'ipscan.desktop': <{'position': <1>}>, 'btop.desktop': <{'position': <2>}>, 'thunar-bulk-rename.desktop': <{'position': <3>}>, 'org.gnome.Snapshot.desktop': <{'position': <4>}>, 'chromium-browser.desktop': <{'position': <5>}>, 'com.github.maoschanz.drawing.desktop': <{'position': <6>}>, 'com.mattjakeman.ExtensionManager.desktop': <{'position': <7>}>, 'org.gnome.Calculator.desktop': <{'position': <8>}>, 'org.gnome.Extensions.desktop': <{'position': <9>}>, 'simple-scan.desktop': <{'position': <10>}>, 'org.gnome.Settings.desktop': <{'position': <11>}>, 'org.gnome.SystemMonitor.desktop': <{'position': <12>}>, 'thunar-settings.desktop': <{'position': <13>}>, 'gscriptor.desktop': <{'position': <14>}>, 'keepass.desktop': <{'position': <15>}>, 'kitty.desktop': <{'position': <16>}>, 'nvim.desktop': <{'position': <17>}>, 'virtualbox.desktop': <{'position': <18>}>, 'com.system76.Popsicle.desktop': <{'position': <19>}>}, {'thunar-volman-settings.desktop': <{'position': <0>}>, 'org.gnome.Software.desktop': <{'position': <1>}>, 'org.gnome.TextEditor.desktop': <{'position': <2>}>, 'thunar.desktop': <{'position': <3>}>, 'typora.desktop': <{'position': <4>}>, 'vim.desktop': <{'position': <5>}>, 'vlc.desktop': <{'position': <6>}>, 'xterm.desktop': <{'position': <7>}>, 'com.yubico.authenticator.desktop': <{'position': <8>}>, 'ykman-gui.desktop': <{'position': <9>}>, 'org.gnome.Calendar.desktop': <{'position': <10>}>, 'yubikey-personalization-gui.desktop': <{'position': <11>}>, 'ca.desrt.dconf-editor.desktop': <{'position': <12>}>, 'librewolf.desktop': <{'position': <13>}>, 'org.gnome.Connections.desktop': <{'position': <14>}>, 'org.gnome.Console.desktop': <{'position': <15>}>, 'org.gnome.baobab.desktop': <{'position': <16>}>, 'org.gnome.DiskUtility.desktop': <{'position': <17>}>, 'org.gnome.font-viewer.desktop': <{'position': <18>}>, 'org.gnome.Loupe.desktop': <{'position': <19>}>, 'org.gnome.Logs.desktop': <{'position': <20>}>, 'org.gnome.seahorse.Application.desktop': <{'position': <21>}>, 'org.gnome.tweaks.desktop': <{'position': <22>}>}]
+enabled-extensions=['emoji-copy@felipeftn', 'openbar@neuromorph', 'space-bar@luchrioh', 'todo.txt@bart.libert.gmail.com', 'user-theme@gnome-shell-extensions.gcampax.github.com', 'window-list@gnome-shell-extensions.gcampax.github.com', 'windowsNavigator@gnome-shell-extensions.gcampax.github.com', 'gnome-wireguard-extension@SJBERTRAND.github.com']
+last-selected-power-profile='power-saver'
+welcome-dialog-last-shown-version='47.2'
+
+[org/gnome/shell/extensions/emoji-copy]
+recently-used=['☺️', '😂', '❤️', '😍', '😭', '😊', '😒', '😘', '😩', '🤔', '👌']
+
+[org/gnome/shell/extensions/gsconnect]
+enabled=false
+id='61120df1-9564-4e64-ac80-6a0773643da1'
+name='desktop'
+
+[org/gnome/shell/extensions/openbar]
+bg-change=true
+bguri='file:///nix/store/il8jj170xlg5pg280nvzgbymlncz5nc1-simple-dark-gray-2016-02-19/share/backgrounds/nixos/nix-wallpaper-simple-dark-gray.png'
+count1=490635
+count10=17
+count11=2
+count12=0
+count2=40893
+count3=18847
+count4=8682
+count5=455
+count6=238
+count7=73
+count8=39
+count9=26
+dark-bguri='file:///nix/store/il8jj170xlg5pg280nvzgbymlncz5nc1-simple-dark-gray-2016-02-19/share/backgrounds/nixos/nix-wallpaper-simple-dark-gray.png'
+dark-hscd-color=['0.718', '0.835', '0.561']
+dark-palette1=['44', '52', '44']
+dark-palette10=['148', '148', '148']
+dark-palette11=['142', '140', '140']
+dark-palette12=['92', '92', '84']
+dark-palette2=['52', '52', '52']
+dark-palette3=['61', '60', '59']
+dark-palette4=['68', '68', '68']
+dark-palette5=['76', '73', '72']
+dark-palette6=['68', '68', '60']
+dark-palette7=['206', '206', '205']
+dark-palette8=['114', '112', '111']
+dark-palette9=['92', '92', '92']
+dark-vw-color=['0.718', '0.835', '0.561']
+fitts-widgets=false
+hscd-color=['0.718', '0.835', '0.561']
+import-export=false
+light-bguri='file:///nix/store/01296d3j2nbxyf1c1mj5603aqqdfyd9s-simple-blue-2016-02-19/share/backgrounds/nixos/nix-wallpaper-simple-blue.png'
+light-hscd-color=['0.718', '0.835', '0.561']
+light-palette1=['60', '76', '164']
+light-palette10=['92', '116', '173']
+light-palette11=['164', '172', '212']
+light-palette12=['60', '84', '176']
+light-palette2=['60', '84', '164']
+light-palette3=['68', '90', '168']
+light-palette4=['68', '100', '171']
+light-palette5=['224', '229', '240']
+light-palette6=['128', '150', '194']
+light-palette7=['101', '127', '180']
+light-palette8=['107', '136', '188']
+light-palette9=['154', '172', '206']
+light-vw-color=['0.718', '0.835', '0.561']
+palette1=['44', '52', '44']
+palette10=['148', '148', '148']
+palette11=['142', '140', '140']
+palette12=['92', '92', '84']
+palette2=['52', '52', '52']
+palette3=['61', '60', '59']
+palette4=['68', '68', '68']
+palette5=['76', '73', '72']
+palette6=['68', '68', '60']
+palette7=['206', '206', '205']
+palette8=['114', '112', '111']
+palette9=['92', '92', '92']
+pause-reload=false
+reloadstyle=true
+vw-color=['0.718', '0.835', '0.561']
+
+[org/gnome/shell/extensions/space-bar/appearance]
+application-styles='.space-bar {\n  -natural-hpadding: 12px;\n}\n\n.space-bar-workspace-label.active {\n  margin: 0 4px;\n  background-color: rgba(255,255,255,0.3);\n  color: rgba(255,255,255,1);\n  border-color: rgba(0,0,0,0);\n  font-weight: 700;\n  border-radius: 4px;\n  border-width: 0px;\n  padding: 3px 8px;\n}\n\n.space-bar-workspace-label.inactive {\n  margin: 0 4px;\n  background-color: rgba(0,0,0,0);\n  color: rgba(255,255,255,1);\n  border-color: rgba(0,0,0,0);\n  font-weight: 700;\n  border-radius: 4px;\n  border-width: 0px;\n  padding: 3px 8px;\n}\n\n.space-bar-workspace-label.inactive.empty {\n  margin: 0 4px;\n  background-color: rgba(0,0,0,0);\n  color: rgba(255,255,255,0.5);\n  border-color: rgba(0,0,0,0);\n  font-weight: 700;\n  border-radius: 4px;\n  border-width: 0px;\n  padding: 3px 8px;\n}'
+
+[org/gnome/shell/extensions/space-bar/state]
+version=31
+
+[org/gnome/software]
+check-timestamp=int64 1734203613
+first-run=false
+
+[org/gnome/terminal/legacy/profiles:/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9]
+background-color='rgb(6,41,17)'
+bold-is-bright=true
+foreground-color='rgb(0,255,0)'
+palette=['rgb(23,20,33)', 'rgb(192,28,40)', 'rgb(38,162,105)', 'rgb(162,115,76)', 'rgb(18,72,139)', 'rgb(163,71,186)', 'rgb(42,161,179)', 'rgb(208,207,204)', 'rgb(94,92,100)', 'rgb(246,97,81)', 'rgb(51,209,122)', 'rgb(233,173,12)', 'rgb(42,123,222)', 'rgb(192,97,203)', 'rgb(51,199,222)', 'rgb(255,255,255)']
+use-theme-colors=false
+
+[org/gtk/gtk4/settings/file-chooser]
+show-hidden=false
+
+[org/gtk/settings/color-chooser]
+custom-colors=[(0.021866666666666673, 0.16, 0.064800000000000024, 1.0), (0.93725490196078431, 0.16078431372549015, 0.16078431372549015, 1.0), (0.93725490196078431, 0.16078431372549021, 0.16078431372549021, 1.0)]
+selected-color=(true, 0.021866666666666673, 0.16, 0.064800000000000024, 1.0)

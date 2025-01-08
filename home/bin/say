@@ -1,0 +1,55 @@
+#!/bin/bash
+
+# Default language (set to English in this case)
+default_language="en"
+
+# Function to detect language using langid
+detect_language() {
+    local text="$1"
+    # Echo the text and pipe it to langid to simulate interactive input
+    langid <<< "$text" | awk -F", " '{print $1}' | tr -d "('"
+}
+
+# Function to set Piper language based on detected language
+set_piper_language() {
+    local language="$1"
+    local text="$2"
+
+    # Use the default language if the detected language is unsupported
+    case $language in
+        en)
+            # English command (modify input)
+            export XDATA="$text"
+            echo "$XDATA" | sed -z 's/\n/ /g' | piper -q -m "/home/pungkula/dotfiles/home/.config/.piper/en_US-amy-medium.onnx" -c "/home/pungkula/dotfiles/home/.config/.piper/en_US-amy-medium-onnx.json" -s 21 -f - | aplay
+            ;;
+        sv)
+            # Swedish command (modify input)
+            export XDATA="$text"
+            echo "$XDATA" | sed -z 's/\n/ /g' | piper -q -m "/home/pungkula/dotfiles/home/.config/.piper/sv_SE-nst-medium.onnx" -c "/home/pungkula/dotfiles/home/.config/.piper/sv_SE-nst-medium.onnx.json" -s 21 -f - | aplay
+            ;;
+        *)
+            echo "Unsupported language: $language, using default language."
+            # Default language (English) if unsupported
+            export XDATA="$text"
+            echo "$XDATA" | sed -z 's/\n/ /g' | piper -q -m "/home/pungkula/dotfiles/home/.config/.piper/en_US-amy-medium.onnx" -c "/home/pungkula/dotfiles/home/.config/.piper/en_US-amy-medium-onnx.json" -s 21 -f - | aplay
+            ;;
+    esac
+}
+
+# Main script logic: Take the text from the first argument
+if [ -z "$1" ]; then
+    echo "Please provide some text as an argument."
+    exit 1
+fi
+
+text="$1"  # Get the first argument as the input text
+detected_language=$(detect_language "$text")
+
+if [[ -n $detected_language ]]; then
+    echo "Detected language: $detected_language"
+    set_piper_language "$detected_language" "$text"
+else
+    echo "Could not detect language, using default language."
+    set_piper_language "$default_language" "$text"
+fi
+

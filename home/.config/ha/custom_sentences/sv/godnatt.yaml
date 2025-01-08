@@ -1,0 +1,15 @@
+language: "sv"
+intents:
+  Godnatt:
+    data:
+      - sentences:
+          - "god natt"
+          - "godnatt"
+          - "natti natti"
+          - "natt"
+          - "god night"
+          - "god not"
+          - "sov gott"
+          - "hejdå och godnatt"
+          - "natti"
+

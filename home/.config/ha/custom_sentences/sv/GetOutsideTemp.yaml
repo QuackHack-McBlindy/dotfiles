@@ -1,0 +1,14 @@
+language: "sv"
+intents:
+  GetOutsideTemp:
+    data:
+      - sentences:
+          - "hur kallt är det ute"
+          - "hur varmt är det ute"
+          - "vad är temperaturen ute"
+          - "vilken temperatur är det ute"
+          - "hur mycket är det ute"
+          - "hur kallt är det just nu utomhus"
+          - "vad är det för väder ute"
+          - "temp ute"
+          - "väder [ute]"

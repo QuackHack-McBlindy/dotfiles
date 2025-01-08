@@ -1,0 +1,66 @@
+#!/usr/bin/env python3
+
+import os
+
+def print_directory_tree(root_dir, print_files=True, print_folders=True, indent_level=0, is_last=True, prefix=""):
+    # Print the current directory
+    if indent_level == 0:
+        print(root_dir)
+    if print_folders:
+        print(prefix + ("└── " if is_last else "├── ") + os.path.basename(root_dir))
+
+    # Prepare the new prefix and indent for subdirectories and files
+    new_prefix = prefix + ("    " if is_last else "│   ")
+    
+    try:
+        entries = sorted(os.scandir(root_dir), key=lambda e: (e.is_file(), e.name.lower()))
+        count = len(entries)
+        for index, entry in enumerate(entries):
+            if entry.is_dir():
+                if print_folders:
+                    # Recursive call for directories
+                    print_directory_tree(entry.path, print_files, print_folders, indent_level + 1, is_last=(index == count - 1), prefix=new_prefix)
+            elif entry.is_file() and print_files:
+                # Print the file with appropriate indentation
+                print(new_prefix + ("└── " if index == count - 1 else "├── ") + entry.name)
+    except PermissionError:
+        # Handle permission errors
+        print(new_prefix + "[Permission Denied]")
+
+def get_user_choice():
+    print("Select an option to print:")
+    print("1. Files only")
+    print("2. Folders only")
+    print("3. Both files and folders")
+    
+    while True:
+        try:
+            choice = int(input("Enter your choice (1, 2, or 3): "))
+            if choice in (1, 2, 3):
+                return choice
+            else:
+                print("Invalid choice. Please enter 1, 2, or 3.")
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+
+if __name__ == "__main__":
+    # Get the current working directory
+    current_directory = os.getcwd()
+
+    # Get user choice
+    choice = get_user_choice()
+
+    # Determine what to print based on user choice
+    if choice == 1:
+        print_files = True
+        print_folders = False
+    elif choice == 2:
+        print_files = False
+        print_folders = True
+    elif choice == 3:
+        print_files = True
+        print_folders = True
+
+    # Print the directory tree based on user choice
+    print_directory_tree(current_directory, print_files=print_files, print_folders=print_folders)
+

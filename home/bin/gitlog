@@ -1,0 +1,1 @@
+git log --oneline | fzf --preview 'git show --stat --color=always {1}'
