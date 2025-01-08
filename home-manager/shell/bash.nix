@@ -59,7 +59,7 @@
 
       # IP addresses
       ip = "dig +short myip.opendns.com @resolver1.opendns.com";
-      localip = "ifonfig getifaddr en0";
+      localip = "nmcli device show | grep -oP 'IP4.ADDRESS\[1\]:\s+\K192\.168\.1\.[0-9]+\/24'";
       ips = "ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'";
       
       # Enable aliases to be sudo’ed
