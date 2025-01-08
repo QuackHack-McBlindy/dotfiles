@@ -7,64 +7,6 @@ GITHUB_REPO = "dotfiles"
 
 
 
-#def is_git_repo():
- #   """Check if the current directory is a Git repository."""
- #   return os.path.isdir(".git")
-
-
-#@task
-#def push(ctx, commit=None):
-#    """
-#    Push dotfiles directory to GitHub repo.
-
-#    :param ctx: Invoke context.
-#    :param commit: Commit message (optional). Defaults to "Updated files".
-#    """
-    # Default commit message if none provided
-#    commit_message = commit or "Updated files"
-
-    # Check if the directory is a Git repository
-#    if not is_git_repo():
- #       print("No Git repository found. Initializing new repository.")
-        # Initialize the repository if not found
- #       ctx.run("git init", echo=True)
-  #      ctx.run(f"git remote add origin https://github.com/{GITHUB_USER}/{GITHUB_REPO}.git", echo=True)
-    
-    # Ensure there's at least one commit in the repository
-  #  status = subprocess.run(
- #      ["git", "status", "--porcelain"], capture_output=True, text=True
- #   )
-    
-#   if not status.stdout.strip():
- #       print("No commits yet. Creating an initial commit.")
- #       # Create an initial commit if the repo is empty
-  #      ctx.run("git add .", echo=True)
- #       ctx.run(f'git commit -m "Initial commit"', echo=True)
-
-    # Check if there are changes to commit
- #   status = subprocess.run(
-#        ["git", "status", "--porcelain"], capture_output=True, text=True
- #   )
- #   if not status.stdout.strip():
-  #      print("No changes to commit. Exiting.")
- #      return
-
-    # Run Git commands
- #   ctx.run("git add .", echo=True)
-#    ctx.run(f'git commit -m "{commit_message}"', echo=True)
-    
-    # Check the current branch name (if not `main`, use the appropriate branch name)
- #   current_branch = subprocess.run(
-  #      ["git", "rev-parse", "--abbrev-ref", "HEAD"], capture_output=True, text=True
-#    ).stdout.strip()
-
-    # If the branch is still unnamed, we need to create a branch and push it
-#    if current_branch == "HEAD":
-#        ctx.run("git checkout -b main", echo=True)
-    
-    # Push to the correct branch
-#    ctx.run(f"git push origin {current_branch}", echo=True)
-
 
 def is_git_repo():
     """Check if the current directory is a Git repository."""
@@ -123,40 +65,53 @@ def push(ctx, commit=None):
     
     # Push to the correct branch
     ctx.run(f"git push origin {current_branch}", echo=True)
+
+
 @task
-def pull(ctx, host=None):
+def pull(ctx):
     """
-    Pull dotfiles from GitHub to a host, or all if none provided.
+    Pull's dotfiles from GitHub repo.
 
     :param ctx: Invoke context.
-    :param host: Optional hostname to pull from. If omitted, pulls from all available hosts.
     """
-    hosts = {
-        "desktop",
-        "lappy",
+    ctx.run(f"git checkout -- .", echo=True)
+    ctx.run(f"git pull origin main", echo=True)
+
+
+#@task
+#def pull(ctx, host=None):
+#    """
+#    Pull dotfiles from GitHub to a host, or all if none provided.
+
+#    :param ctx: Invoke context.
+#    :param host: Optional hostname to pull from. If omitted, pulls from all available hosts.
+#    """
+ #   hosts = {
+#        "desktop",
+#        "lappy",
         
-    }
+#    }
 
-    if host:
-        print(f"Pulling for specific host: {host}")
-        _pull_for_host(ctx, host)
-    else:
-        for name, hostname in hosts.items():
-            print(f"Pulling for host: {name} ({hostname})")
-            _pull_for_host(ctx, hostname)
+ #   if host:
+ #       print(f"Pulling for specific host: {host}")
+ #       _pull_for_host(ctx, host)
+  #  else:
+  #      for name, hostname in hosts.items():
+  #          print(f"Pulling for host: {name} ({hostname})")
+   #         _pull_for_host(ctx, hostname)
 
 
-def _pull_for_host(ctx, hostname):
-    """
-    Helper function to pull changes for a specific host.
+#def _pull_for_host(ctx, hostname):
+#    """
+#    Helper function to pull changes for a specific host.
 
-    :param ctx: Invoke context.
-    :param hostname: Hostname to pull from.
-    """
-    try:
-        ctx.run(f"ssh {hostname} 'cd /path/to/repo && git pull'", warn=True, echo=True)
-    except Exception as e:
-        print(f"Failed to pull for host {hostname}: {e}")
+#    :param ctx: Invoke context.
+ #   :param hostname: Hostname to pull from.
+ #   """
+ #  try:
+ #       ctx.run(f"ssh {hostname} 'cd /path/to/repo && git pull'", warn=True, echo=True)
+#   except Exception as e:
+#        print(f"Failed to pull for host {hostname}: {e}")
         
 
 @task
