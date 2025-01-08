@@ -12,6 +12,28 @@ def is_git_repo():
     """Check if the current directory is a Git repository."""
     return os.path.isdir(".git")
 
+def rainbow_text(text):
+    # ANSI color codes for rainbow colors
+    colors = [
+        "\033[38;5;196m",  # Red
+        "\033[38;5;202m",  # Orange
+        "\033[38;5;226m",  # Yellow
+        "\033[38;5;46m",   # Green
+        "\033[38;5;51m",   # Cyan
+        "\033[38;5;189m",  # Blue
+        "\033[38;5;99m",   # Purple
+        "\033[0m"          # Reset color
+    ]
+    
+    # Iterate over the text and assign each character a color
+    colored_text = ""
+    color_index = 0
+    for char in text:
+        colored_text += f"{colors[color_index % len(colors)]}{char}\033[0m"
+        color_index += 1
+
+    return colored_text
+
 
 @task
 def push(ctx, commit=None):
@@ -65,17 +87,31 @@ def push(ctx, commit=None):
     
     # Push to the correct branch
     ctx.run(f"git push origin {current_branch}", echo=True)
-
+    print(" ")
+    print(" ")
+    print("🚀🚀🚀🚀 ✨ ")
+    print(rainbow_text("✨✨ Successfully pushed to GitHub!"))
+    
 
 @task
 def pull(ctx):
     """
-    Pull's dotfiles from GitHub repo.
+    Pulls dotfiles from GitHub repo.
 
     :param ctx: Invoke context.
     """
-    ctx.run(f"git checkout -- .", echo=True)
-    ctx.run(f"git pull origin main", echo=True)
+    result_checkout = ctx.run("git checkout -- .", echo=True)
+    result_pull = ctx.run("git pull origin main", echo=True)
+
+    if result_checkout.return_code == 0 and result_pull.return_code == 0:
+        print(" ")
+        print(" ")
+        print("🚀🚀🚀🚀 ✨ ")
+        print(rainbow_text("✨✨ Successfully pulled the latest dotfiles repository!"))
+    else:
+        print("\033[1;31m [ WARNING! ] \033[0m")  
+        print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
+
 
 
 #@task
