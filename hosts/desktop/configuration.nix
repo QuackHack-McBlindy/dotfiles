@@ -95,7 +95,7 @@
   environment.systemPackages = with pkgs; [
     # Dev
     python3Full
-    pkgs.python312Packages.requests
+    python312Packages.requests
     python312Packages.invoke
         
     libnotify    
@@ -113,7 +113,7 @@
     unzip
     gnome-terminal
 
-# GNOME
+# GTK
     pkgs.gtk2
     pkgs.gtk3
     pkgs.gtk4
@@ -164,7 +164,6 @@
     pcscliteWithPolkit
     pcsc-tools
     acsccid    
-
 
   ];
 

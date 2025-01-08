@@ -30,8 +30,21 @@
     pcsc-tools
     acsccid
   ];
+  
+  
 ###################
-# PAM
+# > YUBIKEY-AGENT
+# Sets SSH_AUTH_SOCK to point at yubikey-agent.
+# Note that yubikey-agent will use whatever pinentry is specified in programs.gnupg.agent.pinentryPackage.
+
+  services.yubikey-agent = {
+    enable = true;
+    package = pkgs.yubikey-agent;
+  };
+
+
+###################
+# > PAM
   security.pam.u2f = {
     enable = true;
     cue = true;              # Prompts for Touch
@@ -83,8 +96,12 @@
 ###################
 # Touch Detector
   # Enable the yubikey-touch-detector service
-  programs.yubikey-touch-detector.enable = true;
-
+  programs.yubikey-touch-detector = {
+    enable = true;
+    unixSocket = true;
+    libnotify = true;
+    verbose = true;
+  };
   # Install the yubikey-touch-detector package
   systemd.packages = [ pkgs.yubikey-touch-detector ];
 
