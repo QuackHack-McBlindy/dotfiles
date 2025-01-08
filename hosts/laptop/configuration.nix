@@ -56,7 +56,7 @@
                           #    ?    ?    ?    ?    
           allowedUDPPorts = [ 1704 1705 6001 6002 ];
                           #    ?    ?                   
-          allowedTCPPorts = [ 1714 1715 ];
+          allowedTCPPorts = [  ];
       };
   };    
     

@@ -91,8 +91,7 @@
   systemd.services."autovt@tty1".enable = false;
 
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+
   environment.systemPackages = with pkgs; [
     # Dev
     python3Full
@@ -166,7 +165,7 @@
     pcsc-tools
     acsccid    
 
-    rage
+
   ];
 
   # Yubi
