@@ -81,7 +81,7 @@
       pack.threads = 1;  # Use single thread for git pack operations (adjust as needed)
       
       # Handling remotes
-      # url."git@github.com:".insteadOf = "https://github.com/";  # Use SSH instead of HTTPS for GitHub
+      url."git@github.com:".insteadOf = "https://github.com/";  # Use SSH instead of HTTPS for GitHub
 
       # Rebase instead of merge for pull requests
       pull.rebase = true;  # Use rebase instead of merge when pulling
