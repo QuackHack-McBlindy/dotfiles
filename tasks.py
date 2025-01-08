@@ -89,8 +89,8 @@ def push(ctx, commit=None):
     ctx.run(f"git push origin {current_branch}", echo=True)
     print(" ")
     print(" ")
-    print("🚀🚀🚀🚀 ✨ ")
-    print(rainbow_text("✨✨ Successfully pushed to GitHub!"))
+    print("🚀🚀🚀🚀💫 ")
+    print(rainbow_text("✨✨ Successfully pushed dotfiles to GitHub!"))
     
 
 @task
@@ -111,44 +111,7 @@ def pull(ctx):
     else:
         print("\033[1;31m [ WARNING! ] \033[0m")  
         print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
-
-
-
-#@task
-#def pull(ctx, host=None):
-#    """
-#    Pull dotfiles from GitHub to a host, or all if none provided.
-
-#    :param ctx: Invoke context.
-#    :param host: Optional hostname to pull from. If omitted, pulls from all available hosts.
-#    """
- #   hosts = {
-#        "desktop",
-#        "lappy",
-        
-#    }
-
- #   if host:
- #       print(f"Pulling for specific host: {host}")
- #       _pull_for_host(ctx, host)
-  #  else:
-  #      for name, hostname in hosts.items():
-  #          print(f"Pulling for host: {name} ({hostname})")
-   #         _pull_for_host(ctx, hostname)
-
-
-#def _pull_for_host(ctx, hostname):
-#    """
-#    Helper function to pull changes for a specific host.
-
-#    :param ctx: Invoke context.
- #   :param hostname: Hostname to pull from.
- #   """
- #  try:
- #       ctx.run(f"ssh {hostname} 'cd /path/to/repo && git pull'", warn=True, echo=True)
-#   except Exception as e:
-#        print(f"Failed to pull for host {hostname}: {e}")
-        
+      
 
 @task
 def install(ctx, host=None):

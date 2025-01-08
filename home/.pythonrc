@@ -82,6 +82,29 @@ def ls(path="."):
     """List files and directories in the given path."""
     return os.listdir(path)
 
+def rainbow_text(text):
+    # ANSI color codes for rainbow colors
+    colors = [
+        "\033[38;5;196m",  # Red
+        "\033[38;5;202m",  # Orange
+        "\033[38;5;226m",  # Yellow
+        "\033[38;5;46m",   # Green
+        "\033[38;5;51m",   # Cyan
+        "\033[38;5;189m",  # Blue
+        "\033[38;5;99m",   # Purple
+        "\033[0m"          # Reset color
+    ]
+    
+    # Iterate over the text and assign each character a color
+    colored_text = ""
+    color_index = 0
+    for char in text:
+        colored_text += f"{colors[color_index % len(colors)]}{char}\033[0m"
+        color_index += 1
+
+    return colored_text
+
+
 def now():
     """Return the current date and time."""
     return datetime.datetime.now()
