@@ -11,7 +11,7 @@ with lib.hm.gvariant;
     dconf.enable = true;
     dconf.settings = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#──→ Accessibility ←──
+#──→ Accessibility ←── xxx XXX
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
         "org/gnome/desktop/a11y/applications" = {
             screen-magnifier-enabled = true;
@@ -64,13 +64,13 @@ with lib.hm.gvariant;
             name = "terminal";
         };    
         # Copy
-        "org/gnome/terminal/legacy/keybindings".copy = ["<Primary>c"];
+        "org/gnome/terminal/legacy/keybindings".copy = [ "<Primary>c" ];
         # Paste
-        "org/gnome/terminal/legacy/keybindings".paste = ["<Primary>v"];
+        "org/gnome/terminal/legacy/keybindings".paste = [ "<Primary>v"] ;
         # Select All
-        "org/gnome/terminal/legacy/keybindings".select-all = ["<Primary>a"];
+        "org/gnome/terminal/legacy/keybindings".select-all = [ "<Primary>a" ];
     # Close Window
-        "org/gnome/desktop/wm/keybindings".close = ["<Control>q"];
+        "org/gnome/desktop/wm/keybindings".close = [ "<Control>q" ];
     # Switch Apps
         "org/gnome/desktop/wm/keybindings".switch-applications = ["<Super>Tab" "<Alt>Tab"];
     # Lockscreen    

@@ -59,7 +59,7 @@
                       home-manager.nixosModules.home-manager
                       
                       ./modules/security.nix
-                      ./modules/sshd/sshd.nix
+                      ./modules/services/ssh.nix
                       ./modules/programs/thunar.nix
                       ./modules/networking/samba.nix
                       ./modules/nixos/gnome-background.nix
@@ -82,7 +82,7 @@
                       home-manager.nixosModules.home-manager
                       
                       ./modules/security.nix
-                      ./modules/sshd/sshd.nix
+                      ./modules/services/ssh.nix
                      # ./modules/networking/samba.nix
                       ./modules/programs/thunar.nix
                       ./modules/nixos/gnome-background.nix

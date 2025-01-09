@@ -11,21 +11,6 @@
     target = "/.config/lsd";
     enable = true;
   };
-
-  # LSD Colors
-#  home.file."lsd-colors" = {
-#    source = ./../../home/.config/lsd/colors.yaml;
-#    target = "/.config/lsd/colors.yaml";
- #   enable = true;
-#  };
-
-  # LSD Icons
-#  home.file."lsd-icons" = {
-#    source = ./../../home/.config/lsd/icons.yaml;
-#    target = "/.config/lsd/icons.yaml";  
-#    enable = true;
- # };
-  
 } 
 
 

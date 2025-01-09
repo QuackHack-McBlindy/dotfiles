@@ -53,10 +53,10 @@
       firewall = {
           enable = true;
           logRefusedConnections = true;
-                          #    ?    ?    ?    ?    
-          allowedUDPPorts = [ 1704 1705 6001 6002 ];
-                          #    ?    ?                   
-          allowedTCPPorts = [  ];
+                          #      
+          allowedUDPPorts = [ ];
+                          #                  
+          allowedTCPPorts = [ ];
       };
   };    
     
@@ -75,9 +75,7 @@
     displayManager.autoLogin.user = "pungkula";
   };
 
-  # Configure console keymap
   console.keyMap = "sv-latin1";
-
 
   # Enable sound with pipewire.
   hardware.pulseaudio.enable = false;
@@ -101,8 +99,9 @@
   systemd.services."autovt@tty1".enable = false;
 
 
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ SYSTEM PACKAGES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
   environment.systemPackages = with pkgs; [
     # Dev
     python3Full
@@ -176,7 +175,6 @@
     pcsc-tools
     acsccid    
 
-    rage
   ];
 
   # Yubi
@@ -245,13 +243,13 @@
           group = "${user}";
           extraGroups = [ "networkmanager" "wheel" ];
           packages = with pkgs; [ ];
-          openssh.authorizedKeys.keys = [
-              "ssh-rsa x7qq8zRAH5jdxUduQ/ThAmvjYm91H42QVm70OCFjjb8dg9LIb/va2j1eakNlBiwCmUK7frmRkWjFj+2t5zCTd2iLpygLv7PvFVIidxAoXLdTxilAAg2ZlX/xSGvRPkaqX/ZQfR5j3OCVYy6aV4VonbIUids7kUynRz9SRN2AHmLpK/oniwlwhAS5aa0PvC8Ln7x3wzhH501sLKk+krNpOEr4E1AA/VwOMqSqU4KTMoYzkUix9YnnAf70AQV6rZ4NxNrqWcZve/UGqMxtUbxMP7rL8hxKihc0Zdus5zxDEZ36oXIDYq9kQ3KgJZx4aVPePEX68A8fxhx6zIOfsg0Hz6M3ko53MhG/qZhYmDvTG1548tgn24gQjEawRjUc2a6gEH+va+TP99260ELeWZD3AHzIzL+ln4BBGcYgNglkIxpI5gH7LqeQ+XHlW8iQbnlfRUYKo72MGA8KLDPP3IHhWa5cSN4DKBlgEJ8ijUbcYqES4dK34cqyM1JWVTnEdw== pungkula@desktop.com"
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV pungkula@desktop"
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV"     
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s your_email@example.com"
+         # openssh.authorizedKeys.keys = [
+        #      "ssh-rsa x7qq8zRAH5jdxUduQ/ThAmvjYm91H42QVm70OCFjjb8dg9LIb/va2j1eakNlBiwCmUK7frmRkWjFj+2t5zCTd2iLpygLv7PvFVIidxAoXLdTxilAAg2ZlX/xSGvRPkaqX/ZQfR5j3OCVYy6aV4VonbIUids7kUynRz9SRN2AHmLpK/oniwlwhAS5aa0PvC8Ln7x3wzhH501sLKk+krNpOEr4E1AA/VwOMqSqU4KTMoYzkUix9YnnAf70AQV6rZ4NxNrqWcZve/UGqMxtUbxMP7rL8hxKihc0Zdus5zxDEZ36oXIDYq9kQ3KgJZx4aVPePEX68A8fxhx6zIOfsg0Hz6M3ko53MhG/qZhYmDvTG1548tgn24gQjEawRjUc2a6gEH+va+TP99260ELeWZD3AHzIzL+ln4BBGcYgNglkIxpI5gH7LqeQ+XHlW8iQbnlfRUYKo72MGA8KLDPP3IHhWa5cSN4DKBlgEJ8ijUbcYqES4dK34cqyM1JWVTnEdw== pungkula@desktop.com"
+       #       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV pungkula@desktop"
+        #      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV"     
+        #      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s your_email@example.com"
            #   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLU9Ri6EVsKMHMXm1L5N0sU9qUVrQDgmC+o6vJnik9u pungis@nasty"
-          ];                                 
+      #    ];                                 
       }; 
       users.secretservice = {
           home = "/var/lib/secretservice";
@@ -280,12 +278,12 @@
 		auto-optimise-store = true;
 		sandbox = true;
         log-lines = 15;
-        min-free = 1073741824; # 1GiB
-        max-free = 8589934592; # 8GiB
+        min-free = 1073741824; # 1GB
+        max-free = 8589934592; # 8GB
         builders-use-substitutes = true;
         trusted-users = [
             "root"
-            "pungkula"
+            "${user}"
         ];
 	};
 	

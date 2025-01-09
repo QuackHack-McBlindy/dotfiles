@@ -43,7 +43,7 @@
        #   pkgs.python312Packages.setuptools
           pkgs.python312Packages.webauthn
           pkgs.python312Packages.invoke
-          pkgs.python312Packages.yaml
+       #   pkgs.python312Packages.yaml
           pkgs.python312Packages.deploykit
           pkgs.python312Packages.dbus-python
           pkgs.rye

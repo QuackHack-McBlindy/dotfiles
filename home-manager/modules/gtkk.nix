@@ -1,10 +1,11 @@
+#########
 { config, pkgs, ... }: 
 {
-  home.packages = with pkgs; [ pkgs.gtk3 pkgs.gtk4 ];
-
+  home.packages = with pkgs; [ pkgs.gtk3 ];
+  
   gtk = {
     enable = true;
- #   font.name = "Monospace 12";
+    font.name = "TeX Gyre Adventor 10";
     iconTheme = {
       name = "Papirus-Dark";
       package = pkgs.papirus-icon-theme;
@@ -31,195 +32,195 @@
       };
       extraCss = ''
  
-        /* Matrix-Themed Dark GTK Theme */
+        /* Custom CSS for GTK3 Dark and Teal Theme */
         
         /* General Window Styling */
         window {
-          background-color: #000000; /* Dark background for Matrix theme */
-          color: #00FF00; /* Neon green text */
-          font-family: "Monospace", sans-serif;
-          font-size: 14px;
-          font-weight: normal;
-          transition: all 0.2s ease;
+          background-color: #121212;
+          color: #FFFFFF;
+          font-family: "Arial", sans-serif;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.3s ease;
         }
         
         /* Content Area */
         .view {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
         }
         
         /* Button Styles */
         button {
-          background-color: #00A500; /* Matrix green */
-          color: #000000;
+          background-color: #006F72;
+          color: #FFFFFF;
           border-radius: 5px;
-          padding: 8px 12px;
-          border: 1px solid #009900;
+          padding: 10px 15px;
+          border: 1px solid #004D4A;
           font-weight: bold;
-          font-size: 14px;
+          font-size: 16px;
           transition: background-color 0.3s ease, color 0.3s ease;
         }
         
         /* Button Hover Effects */
         button:hover {
-          background-color: #009900;
+          background-color: #004D4A;
           color: #000000;
         }
         
         button:active {
-          background-color: #008800;
+          background-color: #003D3A;
         }
         
         button:focus {
           outline: none;
-          box-shadow: 0 0 5px 2px rgba(0, 255, 0, 0.8);
+          box-shadow: 0 0 5px 2px rgba(0, 111, 114, 0.8);
         }
         
         /* Entry Fields (Text Boxes) */
         entry, textview, textarea {
-          background-color: #1A1A1A; /* Darker gray for text inputs */
-          color: #00FF00;
-          border: 1px solid #00A500;
-          font-size: 14px;
-          font-weight: normal;
+          background-color: #2E2E2E;
+          color: #FFFFFF;
+          border: 1px solid #006F72;
+          font-size: 16px;
+          font-weight: bold;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
         
         /* Entry Focus Effect */
         entry:focus, textview:focus, textarea:focus {
-          border-color: #009900;
-          box-shadow: 0 0 5px 2px rgba(0, 255, 0, 0.8);
+          border-color: #004D4A;
+          box-shadow: 0 0 5px 2px rgba(0, 111, 114, 0.8);
         }
         
         /* Label and Other Text Elements */
         label {
-          font-size: 14px;
-          font-family: "Monospace", sans-serif;
-          color: #00FF00;
-          font-weight: normal;
+          font-size: 16px;
+          font-family: "Arial", sans-serif;
+          color: #FFFFFF;
+          font-weight: bold;
         }
         
         /* Scrollbar Styling */
         scrollbar {
-          background-color: #1A1A1A;
+          background-color: #2e2e2e;
           border-radius: 5px;
         }
         
         scrollbar slider {
-          background-color: #00FF00; /* Matrix green */
+          background-color: #006F72;
           border-radius: 5px;
         }
         
         scrollbar slider:hover {
-          background-color: #00A500;
+          background-color: #004D4A;
         }
         
         /* TreeView and ListView (Hover and Selected Item Effects) */
         treeview, listview {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
         }
         
         treeview:hover, listview:hover {
-          background-color: #009900;
+          background-color: #004D4A;
           cursor: pointer;
         }
         
         treeview:selected, listview:selected {
-          background-color: #00A500;
+          background-color: #006F72;
           color: #000000;
         }
         
         /* Tooltips */
         tooltip {
-          background-color: #00A500;
-          color: #000000;
+          background-color: #006F72;
+          color: #FFFFFF;
           border-radius: 5px;
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
         
         /* Statusbar Styling */
         statusbar {
-          background-color: #1A1A1A;
-          color: #00FF00;
+          background-color: #1a1a1a;
+          color: #FFFFFF;
           padding: 5px;
-          font-size: 12px;
+          font-size: 14px;
         }
         
         /* Dialog Boxes */
         dialog {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
           border-radius: 10px;
           box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
         }
         
         dialog label, dialog p {
-          color: #00FF00;
+          color: #FFFFFF;
         }
         
         /* Menu Bar and Items */
         menubar {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
         }
         
         menubar menuitem {
-          color: #00FF00;
-          font-size: 14px;
-          font-weight: normal;
+          color: #FFFFFF;
+          font-size: 16px;
+          font-weight: bold;
           transition: background-color 0.3s ease;
         }
         
         /* Menu Item Hover and Active States */
         menubar menuitem:hover {
-          background-color: #009900;
+          background-color: #004D4A;
         }
         
         menubar menuitem:active {
-          background-color: #00A500;
+          background-color: #006F72;
         }
         
         menu {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
         }
         
         menuitem {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
         }
         
         menuitem:hover {
-          background-color: #009900;
+          background-color: #004D4A;
         }
         
         menuitem:active, menuitem:focus {
-          background-color: #00A500;
+          background-color: #006F72;
           color: #000000;
         }
         
         /* Header Bars */
         headerbar {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
           padding: 5px;
-          font-size: 16px;
+          font-size: 18px;
           font-weight: bold;
-          border-bottom: 2px solid #00A500;
+          border-bottom: 2px solid #004D4A;
         }
         
         headerbar button {
           background-color: transparent;
-          color: #00FF00;
+          color: #FFFFFF;
           border: none;
-          font-size: 16px;
+          font-size: 18px;
         }
         
         headerbar button:hover {
-          background-color: #009900;
-          color: #00FF00;
+          background-color: #006F72;
+          color: #FFFFFF;
         }
         
         /* Smooth Transition Effects for Interactive Elements */
@@ -227,92 +228,103 @@
           transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        titlebar:active { 
-          background-color: #2a2a2a;  /* Dark gray background */
-        }  
-        titlebar:focus { 
-          background-color: #2a2a2a;  /* Dark gray background */
-        }
         /* Window Title Bar */
-        titlebar { 
-          background-color: #2a2a2a;  /* Dark gray background */
-          color: #D3D3D3;  /* Light gray text for contrast */
+        titlebar {
+          background-color: #121212;  /* Keep the dark background */
+          color: #FFFFFF;  /* White text for good contrast */
           font-size: 18px;
           font-weight: bold;
           padding: 10px;
-          border-bottom: 3px solid #00FF00; /* Bright green accent */
+          border-bottom: 3px solid #008080; /* Teal accent at the bottom */
         }
-       /*    background-color: #000000; */
-      /*     color: #00FF00; */
-      /*     font-size: 16px; */
-      /*     font-weight: normal; */
-      /*     padding: 10px; */
-      /*     border-bottom: 3px solid #00FF00; */
-      /*   } */
 
+        
         /* Focused Window Border */
         window:focus {
-          background-color: #2a2a2a;
-          border: 2px solid #00FF00;
-          box-shadow: 0 0 10px 4px rgba(0, 255, 0, 0.8);
+          border: 2px solid #006F72;
+          box-shadow: 0 0 10px 4px rgba(0, 111, 114, 0.8);
         }
         
         /* Notebook Tabs */
         notebook tab {
-          background-color: #00A500;
+       /*   background-color: #121212; */
+        /*  color: #FFFFFF; */
+          background-color: #006F72;
           color: #000000;
           padding: 8px;
           border-radius: 5px;
         }
         
+        
         notebook tab:focus {
-          background-color: #00A500;
+          background-color: #006F72;
           color: #000000;
         }
         
         /* Custom Frames */
         frame {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
           border-radius: 10px;
-          border: 1px solid #00A500;
+          border: 1px solid #006F72;
           padding: 10px;
         }
         
         frame header {
-          background-color: #00A500;
-          color: #000000;
+          background-color: #006F72;
+          color: #FFFFFF;
           font-weight: bold;
         }
         
         /* Context Menu and Right-click Styling */
         .context-menu {
-          background-color: #000000;
-          color: #00FF00;
+          background-color: #121212;
+          color: #FFFFFF;
           border-radius: 5px;
           box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         }
         
         .context-menu menuitem {
-          color: #00FF00;
-          background-color: #000000;
-          font-size: 14px;
-          font-weight: normal;
+          color: #FFFFFF;
+          background-color: #121212;
+          font-size: 16px;
+          font-weight: bold;
           padding: 8px;
           border-radius: 5px;
         }
         
         .context-menu menuitem:hover {
-          background-color: #009900;
+          background-color: #004D4A;
         }
         
         .context-menu menuitem:active, .context-menu menuitem:focus {
-          background-color: #00A500;
+          background-color: #121212;
           color: #000000;
         }
-
+        
+        /* Ensure properties dialog has dark background and visible text */
+        dialog .vbox, dialog .hbox {
+          background-color: #121212;
+        }
+        
+        dialog .label, dialog .textview {
+          color: #FFFFFF;
+        }
+        
+        dialog .button {
+          background-color: #006F72;
+          color: #FFFFFF;
+          border-radius: 5px;
+        }
+        
+        dialog .button:hover {
+          background-color: #004D4A;
+        }
+        
+    
       '';
     };
+    
     
     # GTK 4
     gtk4 = {
@@ -321,8 +333,7 @@
           gtk-application-prefer-dark-theme=1
           gtk-cursor-theme-name=Bibata-Modern-Classic
         '';
-      };
+      };  
     };
   };
 }
-
