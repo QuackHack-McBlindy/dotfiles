@@ -4,14 +4,14 @@ with lib.hm.gvariant;
   
 {
 
-    imports = [
-        ./keybindings/${hostname}.nix
-    ];
+ #   imports = [
+ #       ./keybindings/${hostname}.nix
+ #   ];
   
     dconf.enable = true;
     dconf.settings = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#──→ Accessibility ←── xxx XXX
+#──→ Accessibility ←── 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
         "org/gnome/desktop/a11y/applications" = {
             screen-magnifier-enabled = true;
@@ -66,7 +66,7 @@ with lib.hm.gvariant;
         # Copy
         "org/gnome/terminal/legacy/keybindings".copy = [ "<Primary>c" ];
         # Paste
-        "org/gnome/terminal/legacy/keybindings".paste = [ "<Primary>v"] ;
+        "org/gnome/terminal/legacy/keybindings".paste = [ "<Primary>v"];
         # Select All
         "org/gnome/terminal/legacy/keybindings".select-all = [ "<Primary>a" ];
     # Close Window
@@ -84,7 +84,7 @@ with lib.hm.gvariant;
         "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-down = [""];
         "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-up = [""];
     # Run
-        "org/gnome/desktop/wm/keybindings".panel-run-dialog = ["<Control>r"];
+        "org/gnome/desktop/wm/keybindings".panel-run-dialog = ["<Super>r"];
     # Show Desktop
         "org/gnome/desktop/wm/keybindings".show-desktop = ["<super>d"];
     # Print Screen
@@ -102,7 +102,6 @@ with lib.hm.gvariant;
         "org/gnome/desktop/wm/keybindings".switch-to-workspace-4 = ["<Control>4"];
     #   "org/gnome/desktop/wm/keybindings".move-to-workspace-left = ["<Super><Shift>Page_Up", "<Super><Shift><Alt>Left", "<Control><Shift><Alt>Left"];
     #   "org/gnome/desktop/wm/keybindings".move-to-workspace-right = ["<Super><Shift>Page_Down", "<Super><Shift><Alt>Right", "<Control><Shift><Alt>Right"];
-
 
      # Spew Mark / Do Not Use Marked
         "org/gnome/desktop/wm/keybindings".set-spew-mark = [];

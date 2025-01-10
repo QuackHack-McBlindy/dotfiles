@@ -12,7 +12,7 @@ in
       ./modules/rc.nix
       ./modules/session.nix
       ./modules/direnv.nix
-      ./modules/dconf.nix
+      ./modules/dconf-${hostname}.nix
       ./modules/myfox.nix
       ./modules/git.nix
       ./modules/gtk.nix
@@ -35,6 +35,7 @@ in
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°  
 
   home.packages = with pkgs; [
+      vscodium
       file
       chromium 		# yuck
       neovim

@@ -1,181 +1,58 @@
-{ lib, config, ... }:
-
-with lib.hm.gvariant;
-
 {
-  dconf.enable = true;
-  dconf.settings = {
-    #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    #──→ Accessibility ←──
-    #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    "org/gnome/desktop/wm/keybindings" = {
-      "activate-window-menu" = [ "<Alt>space" ];
-      "always-on-top" = [];
-      "begin-move" = [ "<Alt>F7" ];
-      "begin-resize" = [ "<Alt>F8" ];
-      "close" = [ "<Control>q" ];
-      "cycle-group" = [ "<Alt>F6" ];
-      "cycle-group-backward" = [ "<Shift><Alt>F6" ];
-      "cycle-panels" = [ "<Control><Alt>Escape" ];
-      "cycle-panels-backward" = [ "<Shift><Control><Alt>Escape" ];
-      "cycle-windows" = [ "<Alt>Escape" ];
-      "cycle-windows-backward" = [ "<Shift><Alt>Escape" ];
-      "lower" = [];
-      "maximize" = [ "<Super>Up" ];
-      "maximize-horizontally" = [];
-      "maximize-vertically" = [];
-      "minimize" = [ "<Super>h" ];
-      "move-to-center" = [];
-      "move-to-corner-ne" = [];
-      "move-to-corner-nw" = [];
-      "move-to-corner-se" = [];
-      "move-to-corner-sw" = [];
-      "move-to-monitor-down" = [ "<Super><Shift>Down" ];
-      "move-to-monitor-left" = [ "<Super><Shift>Left" ];
-      "move-to-monitor-right" = [ "<Super><Shift>Right" ];
-      "move-to-monitor-up" = [ "<Super><Shift>Up" ];
-      "move-to-side-e" = [];
-      "move-to-side-n" = [];
-      "move-to-side-s" = [];
-      "move-to-side-w" = [];
-      "move-to-workspace-1" = [ "<Super><Shift>Home" ];
-      "move-to-workspace-10" = [];
-      "move-to-workspace-11" = [];
-      "move-to-workspace-12" = [];
-      "move-to-workspace-2" = [];
-      "move-to-workspace-3" = [];
-      "move-to-workspace-4" = [];
-      "move-to-workspace-5" = [];
-      "move-to-workspace-6" = [];
-      "move-to-workspace-7" = [];
-      "move-to-workspace-8" = [];
-      "move-to-workspace-9" = [];
-      "move-to-workspace-down" = [ "<Control><Shift><Alt>Down" ];
-      "move-to-workspace-last" = [ "<Super><Shift>End" ];
-      "move-to-workspace-left" = [ "<Super><Shift>Page_Up', '<Super><Shift><Alt>Left', '<Control><Shift><Alt>Left" ];
-      "move-to-workspace-right" = [ "<Super><Shift>Page_Down', '<Super><Shift><Alt>Right', '<Control><Shift><Alt>Right" ];
-      "move-to-workspace-up" = [ "<Control><Shift><Alt>Up" ];
-      "panel-main-menu" = [];
-      "panel-run-dialog" = [ "<Control>r" ];
-      "raise" = [];
-      "raise-or-lower" = [];
-      "set-spew-mark" = [];
-      "show-desktop" = [ "<super>d" ];
-      "switch-applications" = [ "<Super>Tab', '<Alt>Tab" ];
-      "switch-applications-backward" = [ "<Shift><Super>Tab', '<Shift><Alt>Tab" ];
-      "switch-group" = [ "<Super>Above_Tab', '<Alt>Above_Tab" ];
-      "switch-group-backward" = [ "<Shift><Super>Above_Tab', '<Shift><Alt>Above_Tab" ];
-      "switch-input-source" = [ "<Super>space', 'XF86Keyboard" ];
-      "switch-input-source-backward" = [ "<Shift><Super>space', '<Shift>XF86Keyboard" ];
-      "switch-panels" = [ "<Control><Alt>Tab" ];
-      "switch-panels-backward" = [ "<Shift><Control><Alt>Tab" ];
-      "switch-to-workspace-1" = [ "<Control>1" ];
-      "switch-to-workspace-10" = [];
-      "switch-to-workspace-11" = [];
-      "switch-to-workspace-12" = [];
-      "switch-to-workspace-2" = [ "<Control>2" ];
-      "switch-to-workspace-3" = [ "<Control>3" ];
-      "switch-to-workspace-4" = [ "<Control>4" ];
-      "switch-to-workspace-5" = [];
-      "switch-to-workspace-6" = [];
-      "switch-to-workspace-7" = [];
-      "switch-to-workspace-8" = [];
-      "switch-to-workspace-9" = [];
-      "switch-to-workspace-down" = [ "<Control><Alt>Down" ];
-      "switch-to-workspace-last" = [ "<Super>End" ];
-      "switch-to-workspace-left" = [ "<Super>Page_Up', '<Super><Alt>Left', '<Control><Alt>Left" ];
-      "switch-to-workspace-right" = [ "<Super>Page_Down', '<Super><Alt>Right', '<Control><Alt>Right" ];
-      "switch-to-workspace-up" = [ "<Control><Alt>Up" ];
-      "switch-windows" = [];
-      "switch-windows-backward" = [];
-      "toggle-above" = [];
-      "toggle-fullscreen" = [];
-      "toggle-maximized" = [ "<Alt>F10" ];
-      "toggle-on-all-workspaces" = [];
-      "unmaximize" = [ "<Super>Down', '<Alt>F5" ];
-    };
-
-    "org/gnome/settings-daemon/plugins/media-keys" = {
-      "battery-status" = [ "" ];
-      "battery-status-static" = [ "XF86Battery" ];
-      "calculator" = [ "" ];
-      "calculator-static" = [ "XF86Calculator" ];
-      "control-center" = [ "" ];
-      "control-center-static" = [ "XF86Tools" ];
-      "custom-keybindings" = [ "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom0/" ];
-      "decrease-text-size" = [ "" ];
-      "eject" = [ "" ];
-      "eject-static" = [ "XF86Eject" ];
-      "email" = [ "" ];
-      "email-static" = [ "XF86Mail" ];
-      "help" = [ "', '<Super>F1" ];
-      "hibernate" = [ "" ];
-      "hibernate-static" = [ "XF86Suspend', 'XF86Hibernate" ];
-      "home" = [ "" ];
-      "home-static" = [ "XF86Explorer" ];
-      "increase-text-size" = [ "" ];
-      "keyboard-brightness-down" = [ "" ];
-      "keyboard-brightness-down-static" = [ "XF86KbdBrightnessDown" ];
-      "keyboard-brightness-toggle" = [ "" ];
-      "keyboard-brightness-toggle-static" = [ "XF86KbdLightOnOff" ];
-      "keyboard-brightness-up" = [ "" ];
-      "keyboard-brightness-up-static" = [ "XF86KbdBrightnessUp" ];
-      "logout" = [ "<Control><Alt>Delete" ];
-      "magnifier" = [ "<Control>KP_Subtract" ];
-      "magnifier-zoom-in" = [ "KP_Add" ];
-      "magnifier-zoom-out" = [ "KP_Subtract" ];
-      "media" = [ "" ];
-      "media-static" = [ "XF86AudioMedia" ];
-      "mic-mute" = [ "" ];
-      "mic-mute-static" = [ "XF86AudioMicMute" ];
-      "next" = [ "" ];
-      "next-static" = [ "XF86AudioNext', '<Ctrl>XF86AudioNext" ];
-      "on-screen-keyboard" = [ "" ];
-      "pause" = [ "" ];
-      "pause-static" = [ "XF86AudioPause" ];
-      "play" = [ "" ];
-      "play-static" = [ "XF86AudioPlay', '<Ctrl>XF86AudioPlay" ];
-      "playback-forward" = [ "" ];
-      "playback-forward-static" = [ "XF86AudioForward" ];
-      "playback-random" = [ "" ];
-      "playback-random-static" = [ "XF86AudioRandomPlay" ];
-      "playback-repeat" = [ "" ];
-      "playback-repeat-static" = [ "XF86AudioRepeat" ];
-      "playback-rewind" = [ "" ];
-      "playback-rewind-static" = [ "XF86AudioRewind" ];
-      "power" = [ "" ];
-      "power-static" = [ "XF86PowerOff" ];
-      "previous" = [ "" ];
-      "previous-static" = [ "XF86AudioPrev', '<Ctrl>XF86AudioPrev" ];
-      "rfkill" = [ "" ];
-      "rfkill-static" = [ "XF86RFKill" ];
-      "screen-lock" = [ "<Control><Alt>Delete" ];
-      "screenshot" = [ "<Print>" ];
-      "screenshot-clip" = [ "<Shift><Print>" ];
-      "screenshot-rectangle" = [ "<Control><Print>" ];
-      "screen-wake-up" = [ "" ];
-      "screensaver" = [ "<Control><Alt>L" ];
-      "search" = [ "<Super>s" ];
-      "suspend" = [ "<Super>p" ];
-      "switch-to-application-0" = [ "<Control>1" ];
-      "switch-to-application-1" = [ "<Control>2" ];
-      "switch-to-application-2" = [ "<Control>3" ];
-      "switch-to-application-3" = [ "<Control>4" ];
-      "switch-to-application-4" = [ "<Control>5" ];
-      "switch-to-application-5" = [ "<Control>6" ];
-      "switch-to-application-6" = [ "<Control>7" ];
-      "switch-to-application-7" = [ "<Control>8" ];
-      "switch-to-application-8" = [ "<Control>9" ];
-      "switch-to-application-9" = [ "<Control>0" ];
-      "toggle-keyboard" = [ "<Super>k" ];
-      "toggle-laptop-keyboard" = [ "<Control>Alt>K" ];
-      "toggle-monitor" = [ "<Control><Alt>KP_Enter" ];
-      "volume-down" = [ "<Control>XF86AudioLowerVolume" ];
-      "volume-mute" = [ "<Control>XF86AudioMute" ];
-      "volume-up" = [ "<Control>XF86AudioRaiseVolume" ];
-      "window-screenshot" = [ "<Shift>Print" ];
-      "window-screenshot-clip" = [ "<Control><Shift>Print" ];
-    };
-  };
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#──→ Keybindings ←──
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    # Acesssbility Shortcuts   
+        "org/gnome/settings-daemon/plugins/media-keys" = {
+            magnifier-zoom-in = [ "KP_Add" ];
+            magnifier-zoom-out = [ "KP_Subtract" ];
+            screenreader = [ "KP_Divide" ];     
+        };
+    # Terminal    
+        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
+            binding = "section";
+            #command = "/etc/profiles/per-user/pungkula/bin/gnome-terminal";
+            command = "gnome-terminal --tab";
+            name = "terminal";
+        };    
+        # Copy
+        "org/gnome/terminal/legacy/keybindings".copy = [ "<Primary>c" ];
+        # Paste
+        "org/gnome/terminal/legacy/keybindings".paste = [ "<Primary>v"];
+        # Select All
+        "org/gnome/terminal/legacy/keybindings".select-all = [ "<Primary>a" ];
+    # Close Window
+        "org/gnome/desktop/wm/keybindings".close = [ "<Control>q" ];
+    # Switch Apps
+        "org/gnome/desktop/wm/keybindings".switch-applications = ["<Super>Tab" "<Alt>Tab"];
+    # Lockscreen    
+        "org/gnome/settings-daemon/plugins/media-keys".screensaver = ["<Super>l"];
+    # Browser    
+        "org/gnome/settings-daemon/plugins/media-keys".www = ["<Control>w"];
+    # Screen Brightness    
+        "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-up = [""];
+        "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-down = [""];
+    # Keyboard Brightness    
+        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-down = [""];
+        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-up = [""];
+    # Run
+        "org/gnome/desktop/wm/keybindings".panel-run-dialog = ["<Super>r"];
+    # Show Desktop
+        "org/gnome/desktop/wm/keybindings".show-desktop = ["<super>d"];
+    # Print Screen
+        "org/gnome/shell/keybindings".screenshot = ["<Shift>Print"];
+        "org/gnome/shell/keybindings".screenshot-window = ["<Alt>Print"];
+        "org/gnome/shell/keybindings".show-screenshot-ui = ["Print"];
+    # Workspaces
+        "org/gnome/desktop/wm/keybindings".move-to-workspace-1 = ["<Super><Shift>Home"];
+        "org/gnome/desktop/wm/keybindings".move-to-workspace-2 = [];
+        "org/gnome/desktop/wm/keybindings".move-to-workspace-3 = [];
+        "org/gnome/desktop/wm/keybindings".move-to-workspace-4 = [];
+        "org/gnome/desktop/wm/keybindings".switch-to-workspace-1 = ["<Control>1"];
+        "org/gnome/desktop/wm/keybindings".switch-to-workspace-2 = ["<Control>2"];
+        "org/gnome/desktop/wm/keybindings".switch-to-workspace-3 = ["<Control>3"];
+        "org/gnome/desktop/wm/keybindings".switch-to-workspace-4 = ["<Control>4"];
+    #   "org/gnome/desktop/wm/keybindings".move-to-workspace-left = ["<Super><Shift>Page_Up", "<Super><Shift><Alt>Left", "<Control><Shift><Alt>Left"];
+    #   "org/gnome/desktop/wm/keybindings".move-to-workspace-right = ["<Super><Shift>Page_Down", "<Super><Shift><Alt>Right", "<Control><Shift><Alt>Right"];
+    
 }
-

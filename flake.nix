@@ -61,7 +61,7 @@
                       ./modules/security.nix
                       ./modules/services/ssh.nix
                       ./modules/services/syslogd.nix
-                      
+                      ./modules/services/syslog.nix
                       ./modules/programs/thunar.nix
                       ./modules/networking/samba.nix
                       ./modules/nixos/gnome-background.nix
