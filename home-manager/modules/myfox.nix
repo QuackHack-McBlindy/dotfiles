@@ -4,31 +4,23 @@
         enable = true;
         languagePacks = [ "en-US" ];
         package = pkgs.firefox-esr;
-    #    package = pkgs.firefox-esr.override {
-          # See nixpkgs' firefox/wrapper.nix to check which options you can use
-     #     nativeMessagingHosts = [
-            # Gnome shell native connector
-   #         pkgs.gnome-browser-connector
-            # Tridactyl native connector
-    #        pkgs.tridactyl-native
-    #      ];
-    #    };  
-      #  finalPackage = pkgs.librewolf;
 
 #########################################
 ###### > about:profiles < ###############
         profiles.default = {
+
          
           # Settings
-          settings = {
-          
+          settings = { # UA's: https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
+            "general.useragent.locale" = "en-GB";
+          #  "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+
+        # GENERAL            
             "browser.startup.homepage" = "http://192.168.1.181:3004";
             "browser.search.region" = "GB";
             "browser.search.isUS" = false;
             "distribution.searchplugins.defaultLocale" = "en-GB";
-            "general.useragent.locale" = "en-GB";
             "browser.bookmarks.showMobileBookmarks" = true;
-            
             "extensions.pocket.enabled" = false;
             "browser.toolbars.keyboard_navigation" = false;
             "browser.translations.automaticallyPopup" = false;
@@ -39,9 +31,10 @@
             "services.sync.prefs.sync.browser.uiCustomization.state" = true;
             "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
             "browser.download.dir" = "/home/pungkula/Downloads";
-          # Pass
+        # PASS
             "signon.rememberSignons" = false;
-            "identity.sync.tokenserver.uri" = http://localhost:5000/1.0/sync/1.5;
+        # FF Sync Server
+       #     "identity.sync.tokenserver.uri" = http://localhost:5000/1.0/sync/1.5;
             "browser.shell.checkDefaultBrowser" = false;
             "browser.newtabpage.enabled" = false;
             "browser.newtabpage.activity-stream.enabled" = false;
@@ -189,7 +182,7 @@
           };
         }; 
       
-        
+      
 #########################################        
 ####### > about:policies ################       
 

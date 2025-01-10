@@ -6,10 +6,10 @@
  # '';
 
 
-{ config, lib, pkgs, ... }:
-let
-  hostname = config.networking.hostName;  # Get the system hostname
-in
+{ config, lib, pkgs, hostname, ... }:
+#let
+#  hostname = config.networking.hostName;  
+#in
 {
   # Ensure syslogd does not conflict with rsyslogd (if it's enabled elsewhere)
   services.rsyslogd.enable = false;

@@ -60,6 +60,8 @@
                       
                       ./modules/security.nix
                       ./modules/services/ssh.nix
+                      ./modules/services/syslogd.nix
+                      
                       ./modules/programs/thunar.nix
                       ./modules/networking/samba.nix
                       ./modules/nixos/gnome-background.nix
@@ -83,7 +85,8 @@
                       
                       ./modules/security.nix
                       ./modules/services/ssh.nix
-                     # ./modules/networking/samba.nix
+                      ./modules/services/syslog.nix
+                      ./modules/networking/samba.nix
                       ./modules/programs/thunar.nix
                       ./modules/nixos/gnome-background.nix
                       ./modules/nixos/default-apps.nix
