@@ -23,7 +23,7 @@ in
 
         settings = {    
             AllowUsers = [ user ];  
-            PasswordAuthentication = lib.mkDefault false;
+            PasswordAuthentication = true;
             PermitRootLogin = "no"; 
             MaxAuthTries = "3";  
             # UsePAM = "yes"; 
