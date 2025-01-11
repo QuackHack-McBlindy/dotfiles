@@ -1,7 +1,7 @@
 { self, lib, pkgs, user, hostname, ... }:
 
 with lib.hm.gvariant;
-  
+
 {
 
     imports = [

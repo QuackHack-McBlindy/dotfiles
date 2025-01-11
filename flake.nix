@@ -34,6 +34,7 @@
       let
           user = "pungkula";
           system = "x86_64-linux";
+          hostname = self.networking.hostName;
           pkgs = import nixpkgs {
               inherit system;
               config.allowUnfree = true;

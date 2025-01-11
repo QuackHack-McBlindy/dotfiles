@@ -21,32 +21,32 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 
   networking = { 
-      hosts = {
-          "192.168.1.1" = [ "archer.lan" "archer.local" "archer" ];
-          "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" ];
-          "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
-          "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
-          "192.168.1.44" = [ "iphone.lan" "iphone.local" "iphone" ];
-          "192.168.1.45" = [ "phone.lan" "phone.local" "phone" ];
-          "192.168.1.150" = [ "usb.lan" "usb.local" "usb" ];
+    #  hosts = {
+        #  "192.168.1.1" = [ "archer.lan" "archer.local" "archer" ];
+        #  "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" ];
+        #  "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
+        #  "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
+       #   "192.168.1.44" = [ "iphone.lan" "iphone.local" "iphone" ];
+       #   "192.168.1.45" = [ "phone.lan" "phone.local" "phone" ];
+       #   "192.168.1.150" = [ "usb.lan" "usb.local" "usb" ];
         #  "192.168.1.155" = [ "arris.lan" "arris.local" "arris" ];
-          "192.168.1.159" = [ "pi.lan" "pi.local" "pi" ];
-          "192.168.1.181" = [ "ha.lan" "ha.local" "ha" ];
-          "192.168.1.99" = [ "sovrum.lan" "sovrum.local" "sovrum" ];
-          "192.168.1.100" = [ "shield.lan" "shield.local" "shield" ];
-          "192.168.1.11" = [ "sw1.lan" "sw1.local" "sw1" ];
-          "192.168.1.12" = [ "sw2.lan" "sw2.local" "sw2" ];
+       #   "192.168.1.159" = [ "pi.lan" "pi.local" "pi" ];
+        #  "192.168.1.181" = [ "ha.lan" "ha.local" "ha" ];
+       #   "192.168.1.99" = [ "sovrum.lan" "sovrum.local" "sovrum" ];
+       #   "192.168.1.100" = [ "shield.lan" "shield.local" "shield" ];
+       #   "192.168.1.11" = [ "sw1.lan" "sw1.local" "sw1" ];
+       #   "192.168.1.12" = [ "sw2.lan" "sw2.local" "sw2" ];
           
-      };   
-      hostName = hostname;
+     # };   
+      hostName = "desktop";
       networkmanager.enable = true; 
       firewall = {
           enable = true;
           logRefusedConnections = true;
-                          #    ?    ?    ?    ?    
-          allowedUDPPorts = [ 1704 1705 6001 6002 1717 1716 ];
-                          #    ?    ?    GSC  GSC             
-          allowedTCPPorts = [ 1714 1715 1717 1716 ];
+                          #      
+          allowedUDPPorts = [ ];
+                          #              
+          allowedTCPPorts = [ ];
       };
   };    
     
@@ -241,13 +241,13 @@
           group = "${user}";
           extraGroups = [ "networkmanager" "wheel" ];
           packages = with pkgs; [ ];
-         # openssh.authorizedKeys.keys = [
-         #     "ssh-rsa x7qq8zRAH5jdxUduQ/ThAmvjYm91H42QVm70OCFjjb8dg9LIb/va2j1eakNlBiwCmUK7frmRkWjFj+2t5zCTd2iLpygLv7PvFVIidxAoXLdTxilAAg2ZlX/xSGvRPkaqX/ZQfR5j3OCVYy6aV4VonbIUids7kUynRz9SRN2AHmLpK/oniwlwhAS5aa0PvC8Ln7x3wzhH501sLKk+krNpOEr4E1AA/VwOMqSqU4KTMoYzkUix9YnnAf70AQV6rZ4NxNrqWcZve/UGqMxtUbxMP7rL8hxKihc0Zdus5zxDEZ36oXIDYq9kQ3KgJZx4aVPePEX68A8fxhx6zIOfsg0Hz6M3ko53MhG/qZhYmDvTG1548tgn24gQjEawRjUc2a6gEH+va+TP99260ELeWZD3AHzIzL+ln4BBGcYgNglkIxpI5gH7LqeQ+XHlW8iQbnlfRUYKo72MGA8KLDPP3IHhWa5cSN4DKBlgEJ8ijUbcYqES4dK34cqyM1JWVTnEdw== pungkula@desktop.com"
-         #     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV pungkula@desktop"
-         #     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV"     
-         #     #"ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s your_email@example.com"
-           #   "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLU9Ri6EVsKMHMXm1L5N0sU9qUVrQDgmC+o6vJnik9u pungis@nasty"
-        #  ];                  
+          openssh.authorizedKeys.keys = [
+              "ssh-rsa x7qq8zRAH5jdxUduQ/ThAmvjYm91H42QVm70OCFjjb8dg9LIb/va2j1eakNlBiwCmUK7frmRkWjFj+2t5zCTd2iLpygLv7PvFVIidxAoXLdTxilAAg2ZlX/xSGvRPkaqX/ZQfR5j3OCVYy6aV4VonbIUids7kUynRz9SRN2AHmLpK/oniwlwhAS5aa0PvC8Ln7x3wzhH501sLKk+krNpOEr4E1AA/VwOMqSqU4KTMoYzkUix9YnnAf70AQV6rZ4NxNrqWcZve/UGqMxtUbxMP7rL8hxKihc0Zdus5zxDEZ36oXIDYq9kQ3KgJZx4aVPePEX68A8fxhx6zIOfsg0Hz6M3ko53MhG/qZhYmDvTG1548tgn24gQjEawRjUc2a6gEH+va+TP99260ELeWZD3AHzIzL+ln4BBGcYgNglkIxpI5gH7LqeQ+XHlW8iQbnlfRUYKo72MGA8KLDPP3IHhWa5cSN4DKBlgEJ8ijUbcYqES4dK34cqyM1JWVTnEdw== pungkula@desktop.com"
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV pungkula@desktop"
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV"     
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s your_email@example.com"
+              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLU9Ri6EVsKMHMXm1L5N0sU9qUVrQDgmC+o6vJnik9u pungis@nasty"
+          ];                  
       }; 
       users.secretservice = {
           home = "/var/lib/secretservice";

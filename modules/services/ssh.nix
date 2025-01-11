@@ -3,7 +3,7 @@ let
     pubkey = import ./pubkeys.nix;
 in
 {
-    # networking.firewall.allowedTCPPorts = [ 22 ];
+    networking.firewall.allowedTCPPorts = [ 22 ];
 
     users.users.${user}.openssh.authorizedKeys.keys = [ 
         pubkey.desktop
@@ -13,7 +13,7 @@ in
     services.openssh = {
         enable = true;
         ports = [ 22 ];
-        openFirewall = false;   
+        openFirewall = true;   
         knownHosts = {
             desktop.publicKey = pubkey.desktop;
             laptop.publicKey = pubkey.laptop;
