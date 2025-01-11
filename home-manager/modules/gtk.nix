@@ -227,12 +227,12 @@
           transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        titlebar:active { 
-          background-color: #2a2a2a;  /* Dark gray background */
-        }  
-        titlebar:focus { 
-          background-color: #2a2a2a;  /* Dark gray background */
+        /* Focused (Active) Window Titlebar */
+        titlebar:focus, titlebar:active {
+          background-color: #1a1a1a !important;  /* Darker gray for focused window */
+          color: #00FF00 !important; /* Green text for contrast */
         }
+        
         /* Window Title Bar */
         titlebar { 
           background-color: #2a2a2a;  /* Dark gray background */
@@ -242,13 +242,6 @@
           padding: 10px;
           border-bottom: 3px solid #00FF00; /* Bright green accent */
         }
-       /*    background-color: #000000; */
-      /*     color: #00FF00; */
-      /*     font-size: 16px; */
-      /*     font-weight: normal; */
-      /*     padding: 10px; */
-      /*     border-bottom: 3px solid #00FF00; */
-      /*   } */
 
         /* Focused Window Border */
         window:focus {
@@ -309,6 +302,18 @@
         .context-menu menuitem:active, .context-menu menuitem:focus {
           background-color: #00A500;
           color: #000000;
+        }
+
+        /* Menu and Dropdown Menus */
+        menu, menubar, menuitem, menuitem:focus {
+          background-color: #000000 !important;
+          color: #00FF00 !important;
+          border: 1px solid #00A500 !important;
+        }
+
+        menuitem:hover, menuitem:active {
+          background-color: #009900 !important;
+          color: #000000 !important;
         }
 
       '';

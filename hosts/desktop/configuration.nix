@@ -91,14 +91,17 @@
   systemd.services."autovt@tty1".enable = false;
 
 
-
-  environment.systemPackages = with pkgs; [
-    # Dev
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ SYSTEM PACKAGES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+  environment.systemPackages = with pkgs; [   
+   # Dev
     python3Full
     python312Packages.requests
     python312Packages.invoke
     python312Packages.langid
         
+    rsync    
     libnotify
     alsa-utils   
     nixos-facter
@@ -116,7 +119,6 @@
     unzip
     libgedit-tepl
     gedit
-    gnome-terminal
 
 # GTK
     pkgs.gtk2
@@ -149,7 +151,9 @@
     pkgs.glib
     pkgs.gsettings-desktop-schemas
     pkgs.nautilus
-
+    
+    
+    rage
     # Yubikey
     age-plugin-yubikey
     yubioath-flutter

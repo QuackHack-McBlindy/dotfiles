@@ -8,12 +8,13 @@
 #########################################
 ###### > about:profiles < ###############
         profiles.default = {
-
-         
+     
           # Settings
-          settings = { # UA's: https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
+          settings = { 
+          
+        # USER AGENT List: https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
             "general.useragent.locale" = "en-GB";
-          #  "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+            "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
 
         # GENERAL            
             "browser.startup.homepage" = "http://192.168.1.181:3004";
@@ -34,7 +35,7 @@
         # PASS
             "signon.rememberSignons" = false;
         # FF Sync Server
-       #     "identity.sync.tokenserver.uri" = http://localhost:5000/1.0/sync/1.5;
+           # "identity.sync.tokenserver.uri" = http://localhost:5000/1.0/sync/1.5;
             "browser.shell.checkDefaultBrowser" = false;
             "browser.newtabpage.enabled" = false;
             "browser.newtabpage.activity-stream.enabled" = false;
@@ -101,22 +102,10 @@
             
           };
           
-          
           # CSS STYLING 
-         # userChrome =
-        #  ''
-        #    /* Hide tab bar in FF Quantum */
-        #    @-moz-document url("chrome://browser/content/browser.xul") {
-        #      #TabsToolbar {
-        #        visibility: collapse !important;
-        #        margin-bottom: 21px !important;
-        #      }
-  
-        #      #sidebar-box[sidebarcommand="treestyletab_piro_sakura_ne_jp-sidebar-action"] #sidebar-header {
-        #      visibility: collapse !important;
-        #    }
-        #  }
-        #  '';
+ #         userChrome =
+  #        ''
+
           
           # SEARCH ENGINES
           search.default = "DuckDuckGo";
@@ -184,7 +173,7 @@
       
       
 #########################################        
-####### > about:policies ################       
+####### > about:policies > https://mozilla.github.io/policy-templates   
 
         policies = {
           NoDefaultBookmarks = true;

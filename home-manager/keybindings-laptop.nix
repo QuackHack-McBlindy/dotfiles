@@ -1,4 +1,12 @@
+#{ self, lib, pkgs, dotfiles, hostname, ... }:
+
+#with lib.hm.gvariant;
+  
 {
+
+ 
+    dconf.enable = true;
+    dconf.settings = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #──→ Keybindings ←──
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -52,7 +60,5 @@
         "org/gnome/desktop/wm/keybindings".switch-to-workspace-2 = ["<Control>2"];
         "org/gnome/desktop/wm/keybindings".switch-to-workspace-3 = ["<Control>3"];
         "org/gnome/desktop/wm/keybindings".switch-to-workspace-4 = ["<Control>4"];
-    #   "org/gnome/desktop/wm/keybindings".move-to-workspace-left = ["<Super><Shift>Page_Up", "<Super><Shift><Alt>Left", "<Control><Shift><Alt>Left"];
-    #   "org/gnome/desktop/wm/keybindings".move-to-workspace-right = ["<Super><Shift>Page_Down", "<Super><Shift><Alt>Right", "<Control><Shift><Alt>Right"];
-    
+    };
 }

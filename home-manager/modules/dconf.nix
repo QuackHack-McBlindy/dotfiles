@@ -1,12 +1,12 @@
-{ self, lib, pkgs, dotfiles, hostname, ... }:
+{ self, lib, pkgs, user, hostname, ... }:
 
 with lib.hm.gvariant;
   
 {
 
- #   imports = [
- #       ./keybindings/${hostname}.nix
- #   ];
+    imports = [
+        ./../keybindings-${hostname}.nix
+    ];
   
     dconf.enable = true;
     dconf.settings = {
@@ -51,55 +51,55 @@ with lib.hm.gvariant;
 #──→ Keybindings ←──
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     # Acesssbility Shortcuts   
-        "org/gnome/settings-daemon/plugins/media-keys" = {
-            magnifier-zoom-in = [ "KP_Add" ];
-            magnifier-zoom-out = [ "KP_Subtract" ];
-            screenreader = [ "KP_Divide" ];     
-        };
-    # Terminal    
-        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
-            binding = "section";
-            #command = "/etc/profiles/per-user/pungkula/bin/gnome-terminal";
-            command = "gnome-terminal --tab";
-            name = "terminal";
-        };    
-        # Copy
-        "org/gnome/terminal/legacy/keybindings".copy = [ "<Primary>c" ];
-        # Paste
-        "org/gnome/terminal/legacy/keybindings".paste = [ "<Primary>v"];
-        # Select All
-        "org/gnome/terminal/legacy/keybindings".select-all = [ "<Primary>a" ];
-    # Close Window
-        "org/gnome/desktop/wm/keybindings".close = [ "<Control>q" ];
-    # Switch Apps
-        "org/gnome/desktop/wm/keybindings".switch-applications = ["<Super>Tab" "<Alt>Tab"];
+#        "org/gnome/settings-daemon/plugins/media-keys" = {
+#            magnifier-zoom-in = [ "KP_Add" ];
+#            magnifier-zoom-out = [ "KP_Subtract" ];
+#            screenreader = [ "KP_Divide" ];     
+#        };
+#    # Terminal    
+#        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
+#            binding = "section";
+#            #command = "/etc/profiles/per-user/pungkula/bin/gnome-terminal";
+#            command = "gnome-terminal --tab";
+#            name = "terminal";
+#        };    
+#        # Copy
+#        "org/gnome/terminal/legacy/keybindings".copy = [ "<Primary>c" ];
+#        # Paste
+#        "org/gnome/terminal/legacy/keybindings".paste = [ "<Primary>v"];
+#        # Select All
+#        "org/gnome/terminal/legacy/keybindings".select-all = [ "<Primary>a" ];
+#    # Close Window
+#        "org/gnome/desktop/wm/keybindings".close = [ "<Control>q" ];
+#    # Switch Apps
+#        "org/gnome/desktop/wm/keybindings".switch-applications = ["<Super>Tab" "<Alt>Tab"];
     # Lockscreen    
-        "org/gnome/settings-daemon/plugins/media-keys".screensaver = ["<Super>l"];
-    # Browser    
-        "org/gnome/settings-daemon/plugins/media-keys".www = ["<Control>w"];
-    # Screen Brightness    
-        "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-up = [""];
-        "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-down = [""];
-    # Keyboard Brightness    
-        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-down = [""];
-        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-up = [""];
-    # Run
-        "org/gnome/desktop/wm/keybindings".panel-run-dialog = ["<Super>r"];
-    # Show Desktop
-        "org/gnome/desktop/wm/keybindings".show-desktop = ["<super>d"];
-    # Print Screen
-        "org/gnome/shell/keybindings".screenshot = ["<Shift>Print"];
-        "org/gnome/shell/keybindings".screenshot-window = ["<Alt>Print"];
-        "org/gnome/shell/keybindings".show-screenshot-ui = ["Print"];
-    # Workspaces
-        "org/gnome/desktop/wm/keybindings".move-to-workspace-1 = ["<Super><Shift>Home"];
-        "org/gnome/desktop/wm/keybindings".move-to-workspace-2 = [];
-        "org/gnome/desktop/wm/keybindings".move-to-workspace-3 = [];
-        "org/gnome/desktop/wm/keybindings".move-to-workspace-4 = [];
-        "org/gnome/desktop/wm/keybindings".switch-to-workspace-1 = ["<Control>1"];
-        "org/gnome/desktop/wm/keybindings".switch-to-workspace-2 = ["<Control>2"];
-        "org/gnome/desktop/wm/keybindings".switch-to-workspace-3 = ["<Control>3"];
-        "org/gnome/desktop/wm/keybindings".switch-to-workspace-4 = ["<Control>4"];
+#        "org/gnome/settings-daemon/plugins/media-keys".screensaver = ["<Super>l"];
+#    # Browser    
+#        "org/gnome/settings-daemon/plugins/media-keys".www = ["<Control>w"];
+#    # Screen Brightness    
+##        "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-up = [""];
+ #       "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-down = [""];
+#    # Keyboard Brightness    
+#        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-down = [""];
+#        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-up = [""];
+#    # Run
+#        "org/gnome/desktop/wm/keybindings".panel-run-dialog = ["<Super>r"];
+#    # Show Desktop
+#        "org/gnome/desktop/wm/keybindings".show-desktop = ["<super>d"];
+#    # Print Screen
+#        "org/gnome/shell/keybindings".screenshot = ["<Shift>Print"];
+#        "org/gnome/shell/keybindings".screenshot-window = ["<Alt>Print"];
+#        "org/gnome/shell/keybindings".show-screenshot-ui = ["Print"];
+#    # Workspaces
+#        "org/gnome/desktop/wm/keybindings".move-to-workspace-1 = ["<Super><Shift>Home"];
+#        "org/gnome/desktop/wm/keybindings".move-to-workspace-2 = [];
+#        "org/gnome/desktop/wm/keybindings".move-to-workspace-3 = [];
+#        "org/gnome/desktop/wm/keybindings".move-to-workspace-4 = [];
+#        "org/gnome/desktop/wm/keybindings".switch-to-workspace-1 = ["<Control>1"];
+#        "org/gnome/desktop/wm/keybindings".switch-to-workspace-2 = ["<Control>2"];
+#        "org/gnome/desktop/wm/keybindings".switch-to-workspace-3 = ["<Control>3"];
+#        "org/gnome/desktop/wm/keybindings".switch-to-workspace-4 = ["<Control>4"];
     #   "org/gnome/desktop/wm/keybindings".move-to-workspace-left = ["<Super><Shift>Page_Up", "<Super><Shift><Alt>Left", "<Control><Shift><Alt>Left"];
     #   "org/gnome/desktop/wm/keybindings".move-to-workspace-right = ["<Super><Shift>Page_Down", "<Super><Shift><Alt>Right", "<Control><Shift><Alt>Right"];
 
@@ -132,15 +132,7 @@ with lib.hm.gvariant;
         "org/gnome/settings-daemon/plugins/color".night-light-enabled = true;
         "org/gnome/settings-daemon/plugins/color".night-light-temperature = "3670";
     # Fav Apps
-        "org/gnome/shell".favorite-apps = ["firefox-esr.desktop" "org.gnome.Terminal.desktop" "org.gnome.Nautilus.desktop" "org.gnome.TextEditor.desktop"  "vesktop.desktop" "signal-desktop.desktop" "keepass.desktop"];
-    # Terminal Profile
-        "org/gnome/terminal/legacy/profiles/:b1dcc9dd-5262-4d8d-a863-c897e6d979b9" = {
-            use-theme-colors = true;    
-            background-color = "rgb(6,41,17)";
-            bold-is-bright = true;
-            foreground-color = "rgb(0,255,0)";
-            palette = ["rgb(23,20,33)" "rgb(192,28,40)" "rgb(38,162,105)" "rgb(162,115,76)" "rgb(18,72,139)" "rgb(163,71,186)" "rgb(42,161,179)" "rgb(208,207,204)" "rgb(94,92,100)" "rgb(246,97,81)" "rgb(51,209,122)" "rgb(233,173,12)" "rgb(42,123,222)" "rgb(192,97,203)" "rgb(51,199,222)" "rgb(255,255,255)"];  
-        }; 
+        "org/gnome/shell".favorite-apps = ["firefox-esr.desktop" "thunar.desktop" "org.gnome.TextEditor.desktop"  "vesktop.desktop" "signal-desktop.desktop" "keepass.desktop"];
      # Open Bar
         "org/gnome/shell/extensions/openbar" = {
             bg-change = true;
@@ -231,7 +223,7 @@ with lib.hm.gvariant;
             show-cpu = true;
             show-download = false;
             show-memory = true;
-            show-swap = true;
+            show-swap = false;
             show-upload = false;
         }; 
      # Emoji Copy
@@ -239,9 +231,38 @@ with lib.hm.gvariant;
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #──→ PROGRAMS ←──
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    # Text Editor  
-        "org/gnome/TextEditor".show-line-numbers = true;
-        "org/gnome/TextEditor".tab-width = "4";
+    # Text Editor      
+        "org/gnome/TextEditor" = {
+            custom-font = "VictorMono Nerd Font Propo Bold 14";
+            highlight-current-line = true;
+            restore-session = false;
+            last-save-directory = "file:///home/${user}/dotfiles";
+            show-grid = true;
+            show-line-numbers = true;
+            show-map = true;
+            style-scheme = "cobalt";
+            tab-width = "4";
+            use-system-font = false;
+        };
+        
+        
+    # GEDIT 
+        "org/gnome/gedit/plugins".active-plugins = [ "spell" "quickhighlight" "textsize" "filebrowser" "docinfo" "sort" ];
+        "org/gnome/gedit/plugins/filebrowser".filter-mode = [ "hide-binary" ];
+        "org/gnome/gedit/plugins/filebrowser".root = "file:///";
+        "org/gnome/gedit/plugins/filebrowser".tree-view = true;
+        "org/gnome/gedit/plugins/filebrowser".virtual-root = "file:///home/pungkula/dotfiles";
+        "org/gnome/gedit/preferences/editor".insert-spaces = true;
+        "org/gnome/gedit/preferences/editor".style-scheme-for-dark-theme-variant = "cobalt";
+        "org/gnome/gedit/preferences/editor".tabs-size = 4;
+        "org/gnome/gedit/preferences/editor".wrap-last-split-mode = "word";
+        "org/gnome/gedit/preferences/ui".bottom-panel-visible = false;
+        "org/gnome/gedit/preferences/ui".side-panel-visible = true;
+        "org/gnome/gedit/state/window".height = 700;
+        "org/gnome/gedit/state/window".maximized = true;
+        "org/gnome/gedit/state/window".width = 900;
+        
+        
     # Tasks
      #  "org/gnome/desktop/default-applications/office/tasks".exec = "evolution -c tasks";
      #  "org/gnome/desktop/default-applications/office/tasks".needs-term = false;

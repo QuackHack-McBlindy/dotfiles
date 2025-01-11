@@ -99,7 +99,7 @@ mv() {
   fi
 }
 
-# Read File
+# Systemctl service helper
 services() {
     # Get the service name using fzf
     local service=$(systemctl list-units --type=service | fzf --preview="systemctl status {1} | tail -20" | awk '{print $1}')
@@ -191,8 +191,6 @@ compress() {
 }
 
 
-
-
 # Color Helper
 color() {
     case $1 in
@@ -207,7 +205,6 @@ color() {
     esac
     echo -e "\e[${color_code}m$2\e[0m"
 }
-
 
 
 # The confirm function
@@ -284,11 +281,9 @@ flash() {
     sudo dd if=/dev/zero of=/dev/$selected_disk bs=1M status=progress
     echo "Disk /dev/$selected_disk has been wiped."
 
-    # Confirm removal and re-insertion of the USB stick (step 6)
     if gum confirm "REMOVE USB STICK AND INSERT AGAIN"; then
       echo "Action confirmed! Flashing the ISO..."
 
-      # Flash the selected ISO onto the USB (step 7)
       sudo dd if="./result/iso/$selected_iso" of="/dev/$selected_disk" bs=4M status=progress && echo "Flashed successfully!"
     else
       echo "Action canceled. No flashing performed."
@@ -300,10 +295,9 @@ flash() {
 
 
 req_sudo() {
-  # Check if the script is run as root
   if [ "$EUID" -ne 0 ]; then
     echo -e "\033[1;31m[ERROR]\033[0m YO SUDO PLZ!"
-    return 1  # Use return to avoid crashing the terminal
+    return 1  
   fi
 }
 
@@ -312,32 +306,26 @@ req_sudo() {
 killport() {
     local port="$1"
 
-    # Check if port is provided
     if [[ -z "$port" ]]; then
         echo "Error: No port number provided."
         return 1
     fi
 
-    # Find the PID and process name using lsof
     local pid process_name
     pid=$(lsof -t -i:$port)
 
-    # If no process found using the port
     if [[ -z "$pid" ]]; then
         echo "No process found using port $port."
         return 1
     fi
 
-    # Get the process name using lsof (directly extracting the process name from the PID)
     process_name=$(lsof -i:$port -sTCP:LISTEN -t | xargs -I {} ps -p {} -o comm= | head -n 1)
 
-    # If no process name could be found, print a message and return
     if [[ -z "$process_name" ]]; then
         echo "Unable to determine process name for PID $pid."
         return 1
     fi
 
-    # Show the process name and ask for confirmation
     if gum confirm "Do you want to kill the process '$process_name' (PID $pid) using port $port?"; then
         echo "Killing process '$process_name' (PID $pid) using port $port."
         kill -9 "$pid" &>/dev/null
@@ -346,3 +334,25 @@ killport() {
         echo "No action taken. Process not killed."
     fi
 }
+
+# File Decryption Using Yubikey & Age
+decrypt() {
+  local filepath="$1"
+  age-plugin-yubikey --identity --slot 1 > /home/pungkula/dotfiles/home/.config/Yubico/yubikey-identity.txt
+  rage -d "$filepath" -i /home/pungkula/dotfiles/home/.config/Yubico/yubikey-identity.txt
+}
+
+# File Encryption Using Yubikey & Age
+encrypt() {
+  local filepath="$1"
+  local decrypted_filepath="${filepath}_DECRYPTED"  # Rename the file to add _DECRYPTED suffix
+  mv "$filepath" "$decrypted_filepath"
+  if rage -r age1yubikey1q0ek47e26sg9eej2xlvxj308fgw8h8ajgx6ucagjzlm9tzgxtckdw35eg0m -o "$filepath" "$decrypted_filepath"; then
+    # Optional: Remove the renamed decrypted file after encryption
+    rm -f "$decrypted_filepath"
+    echo -e "\033[1;32m\033[5mSuccessfully encrypted \033[1;31m$filepath\033[0m \033[5m\033[1;32m!"
+  else
+    echo -e "\033[1;31mError: Encryption failed for \033[1;37m$filepath\033[0m"
+  fi
+}
+

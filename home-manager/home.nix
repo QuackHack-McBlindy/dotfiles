@@ -12,7 +12,7 @@ in
       ./modules/rc.nix
       ./modules/session.nix
       ./modules/direnv.nix
-      ./modules/dconf-${hostname}.nix
+      ./modules/dconf.nix
       ./modules/myfox.nix
       ./modules/git.nix
       ./modules/gtk.nix
@@ -27,7 +27,6 @@ in
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
   programs.home-manager.enable = true;
   home.username = "${user}";
-#  home.homeDirectory = "/home/pungkula";
   home.stateVersion = "22.11";
   nixpkgs.config = { allowUnfree = true; };
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -36,6 +35,7 @@ in
 
   home.packages = with pkgs; [
       vscodium
+      transmission_4-qt
       file
       chromium 		# yuck
       neovim
@@ -60,10 +60,10 @@ in
       nix-direnv 
       sops 		# secrets 
       age		# actually good encryption
-    #  syslogng
+      rage
+      syslogng
       gum		# scripts 
       pkgs.wyoming-piper # wy0ming server
-      pkgs.typora 	# view markdown
       ripgrep 		# Better `grep`
       fd
       sd
@@ -82,24 +82,19 @@ in
           "*.props:Java Properties"
         ];
         pager = "less -FR";
-  #      theme = "TwoDark"; 
-        theme = "Solarized (light)";
+        theme = "TwoDark"; 
       };
     };
     fzf = {
       enable = true; 	# Type `<ctrl> + r` to fuzzy search your shell history
       enableBashIntegration = true;
-      package = pkgs.fzf;
-      
-    #  defaultCommand = [ "fd --type f" ];
-      defaultOptions = [ "--height 40%" "--border" ];
-      
+      package = pkgs.fzf;     
+     # defaultCommand = [ "fd --type f" ];
+      defaultOptions = [ "--height 40%" "--border" ];     
      # changeDirWidgetCommand = [ "fd --type d" ];
-      changeDirWidgetOptions = [ "--preview 'tree -C {} | head -200'" ];
-      
-   #   fileWidgetCommand = [ "fd --type f" ];
-      fileWidgetOptions = [ "--preview 'head {}'" ];
-      
+      changeDirWidgetOptions = [ "--preview 'tree -C {} | head -200'" ];  
+     # fileWidgetCommand = [ "fd --type f" ];
+      fileWidgetOptions = [ "--preview 'head {}'" ]; 
       historyWidgetOptions = [ "--sort" "--exact" ];
       
       colors = {
@@ -121,8 +116,7 @@ in
         objects = "1;37";
       };
     };
-    btop.enable = true; # btop https://github.com/aristocratos/btop
-    
+    btop.enable = true; # btop https://github.com/aristocratos/btop    
   };
   
   editorconfig = {

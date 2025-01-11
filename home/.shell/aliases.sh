@@ -42,6 +42,10 @@ hm-logs() {
   fi
 }
 
+c() {
+  cat "$1" | xclip -selection clipboard
+}
+
 
 # Use original ls if any other arguments are provided
 #ls() {
