@@ -60,6 +60,7 @@
                       home-manager.nixosModules.home-manager  
                       ./modules/networking/default.nix 
                       ./modules/nixos/users.nix
+                      ./modules/nixos/nix.nix
                       ./modules/nixos/fonts/default.nix
                       ./modules/nixos/i18n.nix
                       ./modules/nixos/pipewire.nix
@@ -86,6 +87,7 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
                       ./modules/nixos/users.nix
+                      ./modules/nixos/nix.nix
                       ./modules/nixos/fonts/default.nix
                       ./modules/nixos/i18n.nix
                       ./modules/nixos/pipewire.nix     
