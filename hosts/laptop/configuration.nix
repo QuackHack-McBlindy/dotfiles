@@ -233,7 +233,7 @@
  #     defaultUserShell = pkgs.bash; 
  #     groups."${user}" = { };
 #      groups.secretservice = { };
-      mutableUsers = false;
+     # mutableUsers = false;
       
      # extraUsers.root.hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";   
       
