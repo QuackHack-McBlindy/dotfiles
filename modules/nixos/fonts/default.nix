@@ -2,11 +2,16 @@
 
 {
 
+
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ FONTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+
   fonts = {
       enableDefaultFonts = true;
       fontDir.enable = true;
       packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
-      fonts = with pkgs; [     
+      fonts = with pkgs; [
           fira-mono
           libertine
           open-sans
@@ -14,7 +19,6 @@
           liberation_ttf
           font-awesome 
           jetbrains-mono
-         # nerdfonts.JetBrainsMono
       ];
 
       fontconfig = {
@@ -29,4 +33,3 @@
      };
   };
 }
-

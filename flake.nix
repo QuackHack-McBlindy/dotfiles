@@ -57,8 +57,12 @@
                   modules = [ ./hosts/desktop/configuration.nix
                       homeConfigFiles
                       sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      
+                      home-manager.nixosModules.home-manager  
+                      ./modules/networking/default.nix 
+                      ./modules/nixos/users.nix
+                      ./modules/nixos/fonts/default.nix
+                      ./modules/nixos/i18n.nix
+                      ./modules/nixos/pipewire.nix
                       ./modules/security.nix
                       ./modules/services/ssh.nix
                       ./modules/services/syslogd.nix
@@ -69,8 +73,6 @@
                       ./modules/nixos/default-apps.nix
                       ./modules/virtualization/docker.nix
                       ./modules/virtualization/vm.nix
-                #      ./modules/services/nginx/default.nix
-
                   ];
               };
 
@@ -83,7 +85,10 @@
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
-                      
+                      ./modules/nixos/users.nix
+                      ./modules/nixos/fonts/default.nix
+                      ./modules/nixos/i18n.nix
+                      ./modules/nixos/pipewire.nix     
                       ./modules/security.nix
                       ./modules/services/ssh.nix
                       ./modules/services/syslog.nix
@@ -92,7 +97,7 @@
                       ./modules/nixos/gnome-background.nix
                       ./modules/nixos/default-apps.nix
                       ./modules/networking/iwd.nix
-                      
+                      ./modules/networking/default.nix 
                   ];
               };              
 

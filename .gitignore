@@ -5,6 +5,7 @@ develop/*
 !develop/flake.nix
 !develop/.envrc
 
+home/.config/Yubico/yubikey-identity.txt
 home/.config/Yubico/*
 
 **/keys.txt

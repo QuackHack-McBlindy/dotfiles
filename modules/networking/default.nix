@@ -1,90 +1,35 @@
+{ config, pkgs, lib, inputs, hostname, ... }:
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ NETWORKING ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 {
-  config,
-  options,
-  lib,
-  pkgs,
-  ...
-}: let
-  inherit (lib.meta) getExe;
-  inherit (lib.modules) mkDefault mkIf mkMerge;
-
-  cfg = config.modules.networking;
-in {
-  options.modules.networking = let
-    inherit (lib.options) mkEnableOption;
-  in {
-    iwd.enable = mkEnableOption "wpa_supplicant alt.";
-    networkd.enable = mkEnableOption "systemd network manager";
-    networkManager.enable = mkEnableOption "powerful network manager";
-  };
-
-  config = mkMerge [
-    {
-      # General networking settings we want available
-      networking.firewall.enable = true;
-    }
-
-    (mkIf cfg.iwd.enable {
-      networking.wireless.iwd = {
-        enable = true;
-        settings = {
-          General = {
-            AddressRandomization = "network";
-            AddressRandomizationRange = "full";
-            EnableNetworkConfiguration = true;
-            RoamRetryInterval = 15;
-          };
-          Network = {
-            EnableIPv6 = true;
-            RoutePriorityOffset = 300;
-            # NameResolvingService = "resolvconf";
-          };
-          Settings = {
-            AutoConnect = true;
-            # AlwaysRandomizeAddress = false;
-          };
-          Rank.BandModifier5Ghz = 2.0;
-          Scan.DisablePeriodicScan = true;
-        };
+  networking = { 
+      hosts = {
+          "192.168.1.1" = [ "router.lan" "router.local" "router" ];
+          "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" ];
+          "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
+          "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
+       #   "192.168.1.44" = [ "iphone.lan" "iphone.local" "iphone" ];
+       #   "192.168.1.45" = [ "phone.lan" "phone.local" "phone" ];
+       #   "192.168.1.150" = [ "usb.lan" "usb.local" "usb" ];
+        #  "192.168.1.155" = [ "arris.lan" "arris.local" "arris" ];
+       #   "192.168.1.159" = [ "pi.lan" "pi.local" "pi" ];
+          "192.168.1.181" = [ "ha.lan" "ha.local" "ha" ];
+       #   "192.168.1.99" = [ "sovrum.lan" "sovrum.local" "sovrum" ];
+       #   "192.168.1.100" = [ "shield.lan" "shield.local" "shield" ];
+       #   "192.168.1.11" = [ "sw1.lan" "sw1.local" "sw1" ];
+       #   "192.168.1.12" = [ "sw2.lan" "sw2.local" "sw2" ];
+          
+      };   
+      hostName = hostname;
+      networkmanager.enable = true; 
+      firewall = {
+          enable = true;
+          logRefusedConnections = true;
+                          #      
+          allowedUDPPorts = [ ];
+                          #              
+          allowedTCPPorts = [ ];
       };
-
-      # A GUI for easier network management:
-      user.packages = [pkgs.iwgtk];
-
-      # Launch indicator as a daemon on login:
-      systemd.user.services.iwgtk = {
-        serviceConfig.ExecStart = "${getExe pkgs.iwgtk} -i";
-        wantedBy = ["graphical-session.target"];
-        partOf = ["graphical-session.target"];
-      };
-    })
-
-    (mkIf cfg.networkManager.enable {
-      systemd.services.NetworkManager-wait-online.enable = false;
-
-      networking.networkmanager = {
-        enable = mkDefault true;
-        wifi.backend = "wpa_supplicant";
-      };
-
-      # Display a network-manager applet:
-      hm.services.network-manager-applet.enable = true;
-    })
-
-    # TODO: add network connections + ragenix.
-    (mkIf cfg.networkd.enable {
-      systemd.network.enable = true;
-
-      systemd.services = {
-        systemd-networkd-wait-online.enable = false;
-        systemd-networkd.restartIfChanged = false;
-        firewall.restartIfChanged = false;
-      };
-
-      networking.interfaces = {
-        enp1s0.useDHCP = true;
-        wlan0.useDHCP = true;
-      };
-    })
-  ];
+  };    
 }

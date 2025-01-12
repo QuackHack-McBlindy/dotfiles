@@ -20,7 +20,7 @@
 #°✶.•°••─→ NETWORKING ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 
-  networking = { 
+ # networking.hostName = "desktop"; 
     #  hosts = {
         #  "192.168.1.1" = [ "archer.lan" "archer.local" "archer" ];
         #  "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" ];
@@ -38,17 +38,17 @@
        #   "192.168.1.12" = [ "sw2.lan" "sw2.local" "sw2" ];
           
      # };   
-      hostName = "desktop";
-      networkmanager.enable = true; 
-      firewall = {
-          enable = true;
-          logRefusedConnections = true;
+  #    hostName = "desktop";
+  #    networkmanager.enable = true; 
+  #    firewall = {
+   #       enable = true;
+    #      logRefusedConnections = true;
                           #      
-          allowedUDPPorts = [ ];
+    #      allowedUDPPorts = [ ];
                           #              
-          allowedTCPPorts = [ ];
-      };
-  };    
+    #      allowedTCPPorts = [ ];
+   #   };
+#  };    
     
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ XSERVER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -67,24 +67,6 @@
 
   # Configure console keymap
   console.keyMap = "sv-latin1";
-
-
-  # Enable sound with pipewire.
-  hardware.pulseaudio.enable = false;
-  security.rtkit.enable = true;
-  services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
-
-    # use the example session manager (no others are packaged yet so this is enabled by default,
-    # no need to redefine it in your config for now)
-    #media-session.enable = true;
-  };
-
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
@@ -220,215 +202,6 @@
       ]);      
       
       
-
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ USERS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  users = {
-      defaultUserShell = pkgs.bash; 
-      groups."${user}" = { };
-      groups.secretservice = { };
-      mutableUsers = false;
-      
-      #extraUsers.root.hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";   
-      
-      users."${user}" = {
-          hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
-          isNormalUser = true;
-          description = "${user}";
-          group = "${user}";
-          extraGroups = [ "networkmanager" "wheel" ];
-          packages = with pkgs; [ ];
-          openssh.authorizedKeys.keys = [
-              "ssh-rsa x7qq8zRAH5jdxUduQ/ThAmvjYm91H42QVm70OCFjjb8dg9LIb/va2j1eakNlBiwCmUK7frmRkWjFj+2t5zCTd2iLpygLv7PvFVIidxAoXLdTxilAAg2ZlX/xSGvRPkaqX/ZQfR5j3OCVYy6aV4VonbIUids7kUynRz9SRN2AHmLpK/oniwlwhAS5aa0PvC8Ln7x3wzhH501sLKk+krNpOEr4E1AA/VwOMqSqU4KTMoYzkUix9YnnAf70AQV6rZ4NxNrqWcZve/UGqMxtUbxMP7rL8hxKihc0Zdus5zxDEZ36oXIDYq9kQ3KgJZx4aVPePEX68A8fxhx6zIOfsg0Hz6M3ko53MhG/qZhYmDvTG1548tgn24gQjEawRjUc2a6gEH+va+TP99260ELeWZD3AHzIzL+ln4BBGcYgNglkIxpI5gH7LqeQ+XHlW8iQbnlfRUYKo72MGA8KLDPP3IHhWa5cSN4DKBlgEJ8ijUbcYqES4dK34cqyM1JWVTnEdw== pungkula@desktop.com"
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV pungkula@desktop"
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIE6UXhj/qh1qSnHdAuPyOUr0OQyJ1QIy5QlZu3y7CaGV"     
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s your_email@example.com"
-              "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLU9Ri6EVsKMHMXm1L5N0sU9qUVrQDgmC+o6vJnik9u pungis@nasty"
-          ];                  
-      }; 
-      users.secretservice = {
-          home = "/var/lib/secretservice";
-          createHome = true;
-          isSystemUser = true;
-          group = "secretservice";
-      };    
-  };
-
-  programs.nautilus-open-any-terminal = {
-      enable = true;
-      terminal = "gnome-terminal";
-  };
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ NIX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  documentation.nixos.enable = false;
-  nixpkgs.config.allowUnfree = true;
-
-  nix = {
-	settings = {
-		warn-dirty = false;
-		experimental-features = [ "nix-command" "flakes" ];
-		auto-optimise-store = true;
-		sandbox = true;
-        log-lines = 15;
-        min-free = 1073741824; # 1GB
-        max-free = 8589934592; # 8GB
-        builders-use-substitutes = true;
-        trusted-users = [
-            "root"
-            "pungkula"
-        ];
-	};
-	
-	gc = {
-		automatic = true;
-		dates = "weekly";
-		options = "--delete-older-than 7d";
-	};
-  };
-
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ i18n ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-    services.locate.enable = true;
-    time.timeZone = "Europe/Stockholm";
-    i18n = {
-       # defaultLocale = "sv_SE.UTF-8";
-        defaultLocale = "en_US.UTF-8";
-        # consoleFont   = "lat9w-16";
-        consoleKeyMap = "sv-latin1";
-        extraLocaleSettings = {
-            LC_ADDRESS = "sv_SE.UTF-8";
-            LC_IDENTIFICATION = "sv_SE.UTF-8";
-            LC_MEASUREMENT = "sv_SE.UTF-8";
-            LC_MONETARY = "sv_SE.UTF-8";
-            LC_NAME = "sv_SE.UTF-8";
-            LC_NUMERIC = "sv_SE.UTF-8";
-            LC_PAPER = "sv_SE.UTF-8";
-            LC_TELEPHONE = "sv_SE.UTF-8";
-            LC_TIME = "sv_SE.UTF-8";
-        };
-    };
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ FONTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  fonts = {
-      enableDefaultFonts = true;
-      fontDir.enable = true;
-      packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
-      fonts = with pkgs; [
-          fira-mono
-          libertine
-          open-sans
-          twemoji-color-font
-          liberation_ttf
-          font-awesome 
-          jetbrains-mono
-      ];
-
-      fontconfig = {
-          enable = true;
-          antialias = true;
-          defaultFonts = {
-              monospace = [ "Fira Mono" ];
-              serif = [ "Linux Libertine" ];
-              sansSerif = [ "Open Sans" ];
-              emoji = [ "Twitter Color Emoji" ];
-          };
-     };
-  };
-
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ SECURITY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-  services.gnome.gnome-keyring.enable = true;
-  services.gvfs.enable = true; 
-
-  sops = {
-    defaultSopsFile = "/var/lib/sops-nix/.sops.yaml";
-    defaultSopsFormat = "yaml";
-    validateSopsFiles = false;
-    age.keyFile = "/var/lib/sops-nix/age.age";
-#    secrets = {
-#      SHADOWSOCKS_PASSWORD = {
-#        sopsFile = "/var/lib/sops-nix/secrets/SHADOWSOCKS_PASSWORD.json"; # Specify SOPS-encrypted secret file
-#        owner = config.users.users.secretservice.name;
-#        group = config.users.groups.secretservice.name;
-#        mode = "0440"; # Read-only for owner and group
-#      };
-#      secretservice = {
-#        sopsFile = "/var/lib/sops-nix/secrets/secretservice.json"; # Specify SOPS-encrypted secret file
-#        owner = config.users.users.secretservice.name;
-#        group = config.users.groups.secretservice.name;
-#        mode = "0440"; # Read-only for owner and group
-#      };
-#    };
-  };  
-#  systemd.services.secretservice = {
-#    script = ''
-#        echo "
-#        Hey bro! I'm a service, and imma send this secure password:
-#        $(cat ${config.sops.secrets.secretservice.path})
-#        located in:
-#        ${config.sops.secrets.secretservice.path}
-#        to database and hack the mainframe
-#        " > /var/lib/secretservice/testfile
-#   '';
-#    serviceConfig = {
-#      User = "secretservice";
-#      WorkingDirectory = "/var/lib/secretservice";
-#    };
-#  };
-
-
-  # swaylock pass verify
-#    security.pam.services.swaylock = {
- #     text = ''
- #     auth include login
- #     '';
- #   };
-  
-
-  #  security.sudo = {
-  #      enable = true;
-  #      extraConfig = ''
-  #          %wheel ALL=(ALL) NOPASSWD: ALL
-   #     '';
- #   };
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ OPTIONALS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  # Enable CUPS to print documents.
-#  services.printing.enable = true;
-
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ CROSS ENV  ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  # Ensure these packages are available in the PATH
-#  nixpkgs.config.packageOverrides = pkgs: {
-#    myCrossEnv = pkgs.stdenv.mkDerivation {
-#      name = "my-cross-env";
-#      buildInputs = [
-#        pkgs.glib
-#        pkgs.pkg-config
-#        pkgs.cmake
-#      ];
-#    };
-#  };
-
 
 
   # This value determines the NixOS release from which the default
