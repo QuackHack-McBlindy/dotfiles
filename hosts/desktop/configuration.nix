@@ -1,7 +1,3 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
 { config, lib, pkgs, user, host, hostname, ... }:
 
 {
@@ -16,40 +12,7 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ NETWORKING ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 
- # networking.hostName = "desktop"; 
-    #  hosts = {
-        #  "192.168.1.1" = [ "archer.lan" "archer.local" "archer" ];
-        #  "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" ];
-        #  "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
-        #  "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
-       #   "192.168.1.44" = [ "iphone.lan" "iphone.local" "iphone" ];
-       #   "192.168.1.45" = [ "phone.lan" "phone.local" "phone" ];
-       #   "192.168.1.150" = [ "usb.lan" "usb.local" "usb" ];
-        #  "192.168.1.155" = [ "arris.lan" "arris.local" "arris" ];
-       #   "192.168.1.159" = [ "pi.lan" "pi.local" "pi" ];
-        #  "192.168.1.181" = [ "ha.lan" "ha.local" "ha" ];
-       #   "192.168.1.99" = [ "sovrum.lan" "sovrum.local" "sovrum" ];
-       #   "192.168.1.100" = [ "shield.lan" "shield.local" "shield" ];
-       #   "192.168.1.11" = [ "sw1.lan" "sw1.local" "sw1" ];
-       #   "192.168.1.12" = [ "sw2.lan" "sw2.local" "sw2" ];
-          
-     # };   
-  #    hostName = "desktop";
-  #    networkmanager.enable = true; 
-  #    firewall = {
-   #       enable = true;
-    #      logRefusedConnections = true;
-                          #      
-    #      allowedUDPPorts = [ ];
-                          #              
-    #      allowedTCPPorts = [ ];
-   #   };
-#  };    
-    
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ XSERVER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -135,7 +98,7 @@
     pkgs.nautilus
     
     
-    rage
+
     # Yubikey
     age-plugin-yubikey
     yubioath-flutter
@@ -167,7 +130,7 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•° 
 
     services.udev.packages = [ pkgs.gnome-settings-daemon ];
- #   services.dbus.packages = with pkgs; [ gnome2.GConf ];
+  #  services.dbus.packages = with pkgs; [ gnome2.GConf ];
     services.gnome = {
   #      gnome-browser-connector.enable = true; 
         at-spi2-core.enable = true; # Required for orca
@@ -202,8 +165,6 @@
       ]);      
       
       
-
-
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
