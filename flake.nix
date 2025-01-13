@@ -4,7 +4,6 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
   inputs = {
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
 
       
       home-manager.url = "github:nix-community/home-manager";
@@ -19,7 +18,8 @@
       
       disko.url = "github:nix-community/disko";
       disko.inputs.nixpkgs.follows = "nixpkgs";
-   
+      nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
+      
       flake-utils.url = "github:numtide/flake-utils";
       flake-parts.url = "github:hercules-ci/flake-parts";
       
@@ -30,15 +30,15 @@
    
   };
     
-  outputs = { self, nixpkgs, sops-nix, home-manager, ... }: 
+  outputs = { self,  nixpkgs, sops-nix, disko, home-manager, ... }: 
       let
           user = "pungkula";
+          hostname = self.config.networking.hostName;
           system = "x86_64-linux";
-          hostname = self.networking.hostName;
           pkgs = import nixpkgs {
               inherit system;
               config.allowUnfree = true;
-          };
+          }; 
           homeConfigFiles = { hostname, ... }: {
               home-manager.useGlobalPkgs = true;
               home-manager.backupFileExtension = "bak";
@@ -48,32 +48,18 @@
           };
           lib = nixpkgs.lib;
       in {
+      #    defaultPackage.x86_64-linux = pkgs.callPackage ./modules/iso/auto-installer/flake.nix {};
           nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
               desktop = nixpkgs.lib.nixosSystem {
                   inherit system;
                   specialArgs = { inherit user; hostname = "desktop"; };
-                  modules = [ ./hosts/desktop/configuration.nix
+                  modules = [ ./hosts/desktop/configuration.nix   
+                      disko.nixosModules.disko
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
-                      ./modules/networking/default.nix 
-                      ./modules/nixos/users.nix
-                      ./modules/nixos/nix.nix
-                      ./modules/nixos/fonts/default.nix
-                      ./modules/nixos/i18n.nix
-                      ./modules/nixos/pipewire.nix
-                      ./modules/security.nix
-                      ./modules/services/ssh.nix
-                      ./modules/services/syslogd.nix
-                      ./modules/services/syslog.nix
-                      ./modules/programs/thunar.nix
-                      ./modules/networking/samba.nix
-                      ./modules/nixos/gnome-background.nix
-                      ./modules/nixos/default-apps.nix
-                      ./modules/virtualization/docker.nix
-                      ./modules/virtualization/vm.nix
                   ];
               };
 
@@ -82,32 +68,58 @@
               laptop = nixpkgs.lib.nixosSystem {
                   inherit system;
                   specialArgs = { inherit user; hostname = "laptop"; };
-                  modules = [ ./hosts/laptop/configuration.nix
+                  modules = [ ./hosts/laptop/configuration.nix      
+                      disko.nixosModules.disko
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
-                      ./modules/nixos/users.nix
-                      ./modules/nixos/nix.nix
-                      ./modules/nixos/fonts/default.nix
-                      ./modules/nixos/i18n.nix
-                      ./modules/nixos/pipewire.nix     
-                      ./modules/security.nix
-                      ./modules/services/ssh.nix
-                      ./modules/services/syslog.nix
-                      ./modules/networking/samba.nix
-                      ./modules/programs/thunar.nix
-                      ./modules/nixos/gnome-background.nix
-                      ./modules/nixos/default-apps.nix
-                      ./modules/networking/iwd.nix
-                      ./modules/networking/default.nix 
                   ];
               };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ HOMIE ←── •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-      
+   #           homie = nixpkgs.lib.nixosSystem {
+   #               inherit system;
+   #               specialArgs = { inherit user; hostname = "homie"; };
+   #               modules = [ ./hosts/homie/configuration.nix
+   #                   disko.nixosModules.disko
+    #                   homeConfigFiles
+    #                  sops-nix.nixosModules.sops
+    #                  home-manager.nixosModules.home-manager
+    #              ];
+    #          };              
 
-          
+
+
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+        #      nasty = nixpkgs.lib.nixosSystem {
+       #           inherit system;
+        #          specialArgs = { inherit user; hostname = "nasty"; };
+             #     modules = [ ./hosts/nasty/configuration.nix
+        #              homeConfigFiles
+        #              sops-nix.nixosModules.sops
+         #             home-manager.nixosModules.home-manager
+                       # Create Pool
+             #         fileSystems."/pool" = { 
+             #             fsType = "fuse.mergerfs";
+             #             device = "/mnt/disks/*";  # Throw it all in the Pool
+            #              options = ["cache.files=partial" "dropcacheonclose=true" "category.create=mfs"];
+             #         };    
+
+
+
+
+ # };
+   #               ];
+  #            };              
+
+
+
+
+    
+    
+    
           }; 
     };
 }

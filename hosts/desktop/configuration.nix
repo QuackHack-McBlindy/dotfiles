@@ -3,6 +3,26 @@
 {
   imports = [ ./hardware-configuration.nix
   
+                      ./../../modules/hardware/pam.nix
+                      ./../../modules/services/avahi-client.nix
+                      ./../../modules/services/dns.nix 
+                      ./../../modules/services/fail2ban.nix                       
+                      ./../../modules/nixos/users.nix
+                      ./../../modules/nixos/nix.nix
+                      ./../../modules/nixos/fonts/default.nix
+                      ./../../modules/nixos/i18n.nix
+                      ./../../modules/nixos/pipewire.nix
+                      ./../../modules/security.nix
+                      ./../../modules/services/ssh.nix
+                      ./../../modules/services/syslogd.nix
+                      ./../../modules/services/syslog.nix
+                      ./../../modules/programs/thunar.nix
+                      ./../../modules/networking/samba.nix
+                      ./../../modules/nixos/gnome-background.nix
+                      ./../../modules/nixos/default-apps.nix
+                      ./../../modules/virtualization/docker.nix
+                      ./../../modules/virtualization/vm.nix
+  
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -11,7 +31,7 @@
 
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
-
+  networking.hostName = "desktop";
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ XSERVER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -96,34 +116,12 @@
     pkgs.glib
     pkgs.gsettings-desktop-schemas
     pkgs.nautilus
-    
+    pkgs.nixos-anywhere
     
 
-    # Yubikey
-    age-plugin-yubikey
-    yubioath-flutter
-    yubikey-agent
-    yubikey-manager-qt
-    yubikey-touch-detector
-    yubikey-personalization-gui
-    yubikey-personalization    
-    yubikey-manager 
-    pam_u2f
-    libu2f-host
-    libykclient
-    yubico-pam
-    yubico-piv-tool
-    piv-agent
-    pcsclite
-    pcscliteWithPolkit
-    pcsc-tools
-    acsccid    
 
   ];
 
-  # Yubi
-  # smart card mode (CCID) for gpg keys
-  services.pcscd.enable = true;
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ GNOME ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

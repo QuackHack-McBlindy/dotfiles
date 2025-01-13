@@ -1,7 +1,9 @@
 { self, lib, pkgs, user, hostname, ... }:
 
 with lib.hm.gvariant;
-
+#let
+#  host = cfg.networking.hostName;
+#in  
 {
 
     imports = [

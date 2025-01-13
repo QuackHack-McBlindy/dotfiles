@@ -9,11 +9,11 @@ in
   imports = [
       ./shell/bash.nix
       ./modules/atuin.nix
-      ./modules/rc.nix
       ./modules/session.nix
       ./modules/direnv.nix
       ./modules/dconf.nix
       ./modules/myfox.nix
+      ./modules/rc.nix
       ./modules/git.nix
       ./modules/gtk.nix
       ./modules/lsd.nix
@@ -21,6 +21,7 @@ in
       ./modules/screen-reader.nix
       ./modules/starship.nix
       ./modules/gnome-terminal.nix 
+    #  ./modules/yubikey.nix
   ];
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ HOME-MANAGER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -71,8 +72,55 @@ in
       nil 		# Nix language server
       nix-info
       nixpkgs-fmt
+      
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ SCRIPTS BIN ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+    (pkgs.writeShellScriptBin "scpd" ''
+      bash "scpd"
+    '') 
+    (pkgs.writeShellScriptBin "decrypt" ''
+      bash "decrypt"
+    '')  
+    (pkgs.writeShellScriptBin "encrypt" ''
+      bash "encrypt"
+    '')
+    (pkgs.writeShellScriptBin "rb" ''
+      bash "switch"
+    '')
+    (pkgs.writeShellScriptBin "fz" ''
+      bash "fz"
+    '')
+    
   ];
   
+
+
+
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ DOTFILES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+ # home.file = { 
+#°✶.•°••─→ ~/HOME  ←──  •°•.✶°°✶.•°
+ #     ".torrc".source = ./../../home/.torrc;
+ #     ".wgetrc".source = ./../../home/.wgetrc;
+  #    ".hushlogin".source = ./../../home/.hushlogin;
+  #    ".pythonrc".source = ./../../home/.pythonrc;
+   #   ".xmrig.json".source = ./../../home/.xmrig.json;
+   #   ".face".source = ./../../home/.face;
+   #   ".direnvrc".source = ./../../home/.direnvrc;
+ 
+#°✶.•°••─→ ~/HOME/.CONFIG  ←──  •°•.✶°°✶.•°
+ #     ".config/vesktop/settings.json".source = ./../../home/.config/vesktop/settings.json;
+  #    ".config/vesktop/settings/settings.json".source = ./../../home/.config/vesktop/settings/settings.json;
+  #    ".config/vesktop/settings/quickcss.css".source = ./../../home/.config/vesktop/settings/quickcss.css;
+   #   ".config/vesktop/themes/FrostedGlass.theme.css".source = ./../../home/.config/vesktop/themes/FrostedGlass.theme.css;
+  #    ".config/user-dirs.dirs".source = ./../../home/.config/user-dirs.dirs;
+      
+#°✶.•°••─→ ~/HOME/.LOCAL  ←──  •°•.✶°°✶.•°
+  #    ".local/share/orca/user-settings.conf".source = ./../../home/.local/share/orca/user-settings.conf;
+      
+#  };
   programs = {  
     bat = {
       enable = true; 	# Better `cat` 

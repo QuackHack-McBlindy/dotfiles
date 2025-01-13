@@ -1,8 +1,8 @@
 { pkgs, ... }:
 {
   imports = [
-#    ./mosquitto.nix
-#    ./media.nix
+    ./mosquitto.nix
+    ./media.nix
   ];
 
   services.home-assistant = {
@@ -95,6 +95,8 @@
 
   networking.firewall.allowedTCPPorts = [ 8123 ];
   
+  # Create _cummon.yaml for Voice Assistant
+ # system.activationScripts.writeCommonFile = ''
   
   # Create _cummon.yaml for Voice Assistant
   system.activationScripts.writeCommonFile = ''
@@ -468,10 +470,23 @@
     " > /var/lib/hass/config/custom_sentences/sv/_common.yaml
   '';
 
-
-  sops.secrets."home-assistant-secrets.yaml" = {
-    owner = "hass";
-    path = "/var/lib/hass/config/secrets.yaml";
-    restartUnits = [ "home-assistant.service" ];
+  sops.secrets = {
+    ha-secrets = {
+      sopsFile = "/var/lib/sops-nix/secrets/ha-secrets.yaml"; 
+   #  owner = config.users.users.secretservice.name;
+      #group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+      owner = "hass";
+      path = "/var/lib/sops-nix/secrets/hasecrets.yaml";
+      restartUnits = [ "home-assistant.service" ];
+    };
   };
+
+#  config.sops.secrets.ha-secrets.path;
+
+#  sops.secrets."home-assistant-secrets.yaml" = {
+#    owner = "hass";
+#    path = "/var/lib/sops-nix/secrets/hasecrets.yaml";
+ #   restartUnits = [ "home-assistant.service" ];
+#  };
 }

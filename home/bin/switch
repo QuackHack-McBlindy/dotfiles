@@ -3,7 +3,7 @@ FLAKEDIR="/home/${USER}/dotfiles"
 
 
 # Get the hostname
-HOSTNAME=$(hostname)
+HOSTNAME=$(HOSTNAME)
 # FIXME does not work well with toybox
 env -C "${FLAKEDIR}" sudo nixos-rebuild switch --flake .#"${HOSTNAME}" --show-trace
 

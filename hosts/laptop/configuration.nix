@@ -1,6 +1,26 @@
 { config, lib, pkgs, user, host, hostname, ... }: {
   
-  imports = [ ./hardware-configuration.nix ];
+  imports = [ ./hardware-configuration.nix 
+  
+                      ./../../modules/services/avahi-client.nix
+                      ./../../modules/networking/default.nix 
+                      ./../../modules/services/dns.nix 
+                      ./../../modules/services/fail2ban.nix   
+                      ./../../modules/nixos/users.nix
+                      ./../../modules/nixos/nix.nix
+                      ./../../modules/nixos/fonts/default.nix
+                      ./../../modules/nixos/i18n.nix
+                      ./../../modules/nixos/pipewire.nix     
+                      ./../../modules/security.nix
+                      ./../../modules/services/ssh.nix
+                      ./../../modules/services/syslog.nix
+                      ./../../modules/networking/samba.nix
+                      ./../../modules/programs/thunar.nix
+                      ./../../modules/nixos/gnome-background.nix
+                      ./../../modules/nixos/default-apps.nix
+                      ./../../modules/networking/iwd.nix
+                      ./../../modules/networking/default.nix 
+  ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ BOOT LOADER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -14,6 +34,7 @@
   hardware.enableRedistributableFirmware = true;
   services.fwupd.enable = true;
   
+  networking.hostName = "laptop";
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ XSERVER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

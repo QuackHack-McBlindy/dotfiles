@@ -2,20 +2,20 @@
 
 {
   services.fail2ban = {
-    enable = lib.mkDefault true;
+    enable = true;
 
-    jails.DEFAULT =
-    ''
-      bantime  = 3600
-    '';
+  #  jails.DEFAULT =
+  #  ''
+  #    bantime  = 3600
+  #  '';
 
-    jails.sshd =
-    ''
-      filter = sshd
-      maxretry = 4
-      action   = iptables[name=ssh, port=ssh, protocol=tcp]
-      enabled  = true
-    '';
+  #  jails.sshd =
+  #  ''
+  #    filter = sshd
+  #    maxretry = 4
+  #    action   = iptables[name=ssh, port=ssh, protocol=tcp]
+  #    enabled  = true
+  #  '';
 
     jails.sshd-ddos =
     ''

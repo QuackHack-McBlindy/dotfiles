@@ -1,10 +1,16 @@
+{ config, pkgs, lib, user, ... }:
+let
+    pubkey = import ./../../../pubkeys.nix;
+in
 {
   users.users.hass-agent = {
     isSystemUser = true;
     group = "hass-agent";
     shell = "/run/current-system/sw/bin/bash";
     openssh.authorizedKeys.keys = [
-      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIA6vG7qFCKcdlB+0PdLc2IY7dBmD26NcSEUVwaoqLFNB"
+      pubkey.desktop
+      pubkey.laptop
+     # pubkey.nasty
     ];
   };
 

@@ -69,39 +69,39 @@
     defaultSopsFormat = "yaml";
     validateSopsFiles = false;
     age.keyFile = "/var/lib/sops-nix/age.age";
-#    secrets = {
+    secrets = {
 #      SHADOWSOCKS_PASSWORD = {
 #        sopsFile = "/var/lib/sops-nix/secrets/SHADOWSOCKS_PASSWORD.json"; # Specify SOPS-encrypted secret file
 #        owner = config.users.users.secretservice.name;
 #        group = config.users.groups.secretservice.name;
 #        mode = "0440"; # Read-only for owner and group
 #      };
-#      secretservice = {
-#        sopsFile = "/var/lib/sops-nix/secrets/secretservice.json"; # Specify SOPS-encrypted secret file
-#        owner = config.users.users.secretservice.name;
-#        group = config.users.groups.secretservice.name;
-#        mode = "0440"; # Read-only for owner and group
-#      };
-#    };
+      secretservice = {
+        sopsFile = "/var/lib/sops-nix/secrets/secretservice.yaml"; # Specify SOPS-encrypted secret file
+        owner = config.users.users.secretservice.name;
+        group = config.users.groups.secretservice.name;
+        mode = "0440"; # Read-only for owner and group
+      };
+    };
   };  
-#  systemd.services.secretservice = {
-#    script = ''
-#        echo "
-#        Hey bro! I'm a service, and imma send this secure password:
-#        $(cat ${config.sops.secrets.secretservice.path})
-#        located in:
-#        ${config.sops.secrets.secretservice.path}
-#        to database and hack the mainframe
-#        " > /var/lib/secretservice/testfile
-#   '';
-#    serviceConfig = {
-#      User = "secretservice";
-#      WorkingDirectory = "/var/lib/secretservice";
-#    };
-#  };
+  systemd.services.secretservice = {
+    script = ''
+        echo "
+        Hey bro! I'm a service, and imma send this secure password:
+        $(cat ${config.sops.secrets.secretservice.path})
+        located in:
+        ${config.sops.secrets.secretservice.path}
+        to database and hack the mainframe
+        " > /var/lib/secretservice/testfile
+   '';
+    serviceConfig = {
+      User = "secretservice";
+      WorkingDirectory = "/var/lib/secretservice";
+    };
+  };
 
 
-  # swaylock pass verify
+#   swaylock pass verify
 #    security.pam.services.swaylock = {
  #     text = ''
  #     auth include login

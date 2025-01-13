@@ -1,12 +1,38 @@
 { config, pkgs, lib, inputs, modulesPath, ... }:
 
 {
-  # Include the results of the hardware scan.
     imports = [ ./hardware-configuration.nix
-                 ./../../modules/nixos/battery.nix
-                # ./../../modules/nixos/shell.nix
-                 ./../../modules/nixos/users.nix
-         #        ./../../modules/home/gnome/firefox.nix
+                      ./../../modules/services/ntp.nix                      
+                      ./../../modules/services/jellyfin.nix
+                      ./../../modules/services/avahi-server.nix
+                      ./../../modules/services/avahi-client.nix
+                      ./../../modules/services/dns.nix 
+                      ./../../modules/services/adguardhome.nix 
+                      ./../../modules/networking/unbound.nix 
+                      ./../../modules/services/fail2ban.nix    
+                      ./../../modules/nixos/users.nix
+                      ./../../modules/nixos/nix.nix
+                      ./../../modules/nixos/fonts/default.nix
+                      ./../../modules/nixos/i18n.nix
+                      ./../../modules/nixos/pipewire.nix     
+                      ./../../modules/security.nix
+                      ./../../modules/services/ssh.nix
+                      ./../../modules/services/syslog.nix
+                      ./../../modules/services/syslogd.nix        
+                      ./../../modules/networking/samba.nix
+                      ./../../modules/nixos/default-apps.nix
+                      ./../../modules/networking/default.nix 
+                      
+                      # HA          
+                      ./modules/hass-agent.nix
+                      ./modules/tts.nix
+                      # ./hosts/homie/modules/voice.nix
+                      ./modules/home-assistant/default.nix
+                      ./modules/home-assistant/database.nix
+                      ./modules/home-assistant/zigbee2mqtt.nix
+                      ./home-assistant/mosquitto.nix
+                      # ./hosts/homie/modules/home-assistant/automations.nix
+                      # ./hosts/homie/modules/home-assistant/media.nix
 
     ];
 
@@ -15,16 +41,7 @@
   # fix
     boot.kernelParams = [ "intel_pstate=active" ];
 
-  # Nix
-    nix.optimise.automatic = true;
-    nixpkgs.config.allowUnfree = true;
-    nix = {
-      package = pkgs.nixFlakes;
-      extraOptions = ''
-        experimental-features = nix-command flakes
-      '';
-    };
- 
+
   # ntfs support
     boot.supportedFilesystems = [ "ntfs" ];
     
