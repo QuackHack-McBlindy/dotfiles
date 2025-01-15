@@ -213,8 +213,8 @@ def push(ctx, commit=None):
     :param ctx: Invoke context.
     :param commit: Commit message (optional). Defaults to "Updated files".
     """
-    update_host_readme()
-    insert_host_readme_content()
+  #  update_host_readme()
+ #   insert_host_readme_content()
     # Default commit message if none provided
     commit_message = commit or "Updated files"
 
