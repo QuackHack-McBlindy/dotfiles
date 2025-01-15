@@ -3,7 +3,7 @@
 <details>
 <summary>
 
-## ⁉️ Introduction
+## 🗒 Introduction
     
 </summary><br>
 
@@ -35,6 +35,31 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 </summary><br>
 
 **Usage:** <br>
+
+
+With Nix installed:<br><br>
+
+build auto-installer which can be flashed onto a USB drive,<br> 
+
+```
+nix build .#nixosConfigurations.auto-installer
+```
+
+<br><br>
+
+build phone-image which can be flashed onto a SD card,<br> 
+
+```
+nix build .#nixosConfigurations.phone-image
+```
+
+<br>
+Qucik test<br>
+
+```
+nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
+```
+
 
 
 </details>
@@ -112,7 +137,6 @@ Smaall fanless server to run my smart home devices and everything related. <br>
 
 <summary>Phone</summary><br>
 
-Work in Progress. <br>
 PinePhone <br>
 **System:** aarch64-linux <br>
 

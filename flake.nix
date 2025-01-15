@@ -148,17 +148,16 @@
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ Nix Build: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-          phone-image =
-              (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
-                  configuration = [ (import ./hosts/phone/configuration.nix user) ];
-                  device = "pine64-pinephone";
-                  pkgs = nixpkgs-mobile.legacyPackages.${system};
-              }).outputs.disk-image;
-          }; 
-          
+              phone-image = 
+                  (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
+                      configuration = [ (import ./hosts/phone/configuration.nix user) ];
+                      device = "pine64-pinephone";
+                      pkgs = nixpkgs-mobile.legacyPackages.${system};
+                  }).outputs.disk-image;
+              }; 
+
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-
     };
 }
 
