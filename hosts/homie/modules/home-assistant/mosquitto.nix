@@ -1,11 +1,13 @@
+{ config, lib, pkgs, ... }:
 {
   services.mosquitto = {
     enable = true;
     listeners = [
       {
         acl = [ "pattern readwrite #" ];
-        omitPasswordAuth = true;
+        #omitPasswordAuth = true;
         settings.allow_anonymous = true;
+        users.mqtt.password = config.sops.secrets.mosquitto.path;
       }
     ];
   };
@@ -15,15 +17,5 @@
     allowedTCPPorts = [ 1883 ];
   };
   
-  sops.secrets = {
-    MOSQUITTO = {
-      sopsFile = "/var/lib/sops-nix/secrets/mosquitto.yaml"; 
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
-  };
-
-  config.sops.secrets.mosuqitto.path;
 
 }

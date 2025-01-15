@@ -30,7 +30,7 @@
    
   };
     
-  outputs = { self,  nixpkgs, sops-nix, disko, home-manager, ... }: 
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, ... }: 
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -59,52 +59,48 @@
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
+                      nixos-facter-modules.nixosModules.facter
+                      { config.facter.reportPath = ./facter.json; }
                   ];
               };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-        #      nasty = nixpkgs.lib.nixosSystem {
-       #           inherit system;
-        #          specialArgs = { inherit user; hostname = "nasty"; };
-             #     modules = [ ./hosts/nasty/configuration.nix
-        #              homeConfigFiles
-        #              sops-nix.nixosModules.sops
-         #             home-manager.nixosModules.home-manager
-             #         fileSystems."/pool" = { 
-             #             fsType = "fuse.mergerfs";
-             #             device = "/mnt/disks/*";  # Throw it all in the Pool
-            #              options = ["cache.files=partial" "dropcacheonclose=true" "category.create=mfs"];
-             #         };    
-          #         ];     
-          #     }; 
+              nasty = nixpkgs.lib.nixosSystem {
+                  inherit system;
+                  specialArgs = { inherit user; hostname = "nasty"; };
+                  modules = [ ./hosts/nasty/configuration.nix
+                      homeConfigFiles
+                      sops-nix.nixosModules.sops
+                      home-manager.nixosModules.home-manager
+                  ];     
+               }; 
+               
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ HOMIE ←── •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-   #           homie = nixpkgs.lib.nixosSystem {
-   #               inherit system;
-   #               specialArgs = { inherit user; hostname = "homie"; };
-   #               modules = [ ./hosts/homie/configuration.nix
-   #                   disko.nixosModules.disko
-    #                   homeConfigFiles
-    #                  sops-nix.nixosModules.sops
-    #                  home-manager.nixosModules.home-manager
-    #              ];
-    #          };              
-
+              homie = nixpkgs.lib.nixosSystem {
+                  inherit system;
+                  specialArgs = { inherit user; hostname = "homie"; };
+                  modules = [ ./hosts/homie/configuration.nix
+                      disko.nixosModules.disko
+                       homeConfigFiles
+                      sops-nix.nixosModules.sops
+                      home-manager.nixosModules.home-manager
+                  ];
+              };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ TINY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#              tiny = nixpkgs.lib.nixosSystem {
-#                  system = "aarch64-linux"; 
-#                  specialArgs = { inherit user; hostname = "laptop"; };
-#                  modules = [ ./hosts/laptop/configuration.nix      
-#                      disko.nixosModules.disko
-#                      homeConfigFiles
-#                      sops-nix.nixosModules.sops
-#                      home-manager.nixosModules.home-manager
-#                  ];
-#              };              
-
+              tiny = nixpkgs.lib.nixosSystem {
+                  system = "aarch64-linux"; 
+                  specialArgs = { inherit user; hostname = "laptop"; };
+                  modules = [ ./hosts/laptop/configuration.nix      
+                      disko.nixosModules.disko
+                      homeConfigFiles
+                      sops-nix.nixosModules.sops
+                      home-manager.nixosModules.home-manager
+                  ];
+              };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ LAPTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -119,22 +115,8 @@
                   ];
               };              
 
-
-
-
-
-
-
-
- # };
-   #               ];
-  #            };              
-
-
-
-
-    
-    
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ bye! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     
           }; 
     };

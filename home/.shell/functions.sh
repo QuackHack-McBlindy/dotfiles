@@ -99,34 +99,24 @@ mv() {
   fi
 }
 
-# Systemctl service helper
 services() {
-    # Get the service name using fzf
     local service=$(systemctl list-units --type=service | fzf --preview="systemctl status {1} | tail -20" | awk '{print $1}')
     
-    # Check if a service was selected
     if [[ -n "$service" ]]; then
-        # Prompt for confirmation before restarting
+        local logfile=$(mktemp)
+        
+        journalctl -u "$service" -n 100 --no-pager > "$logfile"
+        
+        gum pager < "$logfile"
+        
+        rm "$logfile"
+        
         if gum confirm "Are you sure you want to restart the service: $service?"; then
             echo "Restarting service: $service"
             
-            # Restart the selected service
             sudo systemctl restart "$service"
             
-            # Wait for 15 seconds with the custom wait function
             wait 15
-            
-            # Create a temporary file to store the logs
-            local logfile=$(mktemp)
-            
-            # Save the last 100 lines of logs to the temporary file (adjust the number as needed)
-            journalctl -u "$service" -n 100 --no-pager > "$logfile"
-            
-            # Show the logs using gum pager
-            gum pager < "$logfile"
-            
-            # Clean up the temporary log file
-            rm "$logfile"
         else
             echo "Service restart canceled."
         fi

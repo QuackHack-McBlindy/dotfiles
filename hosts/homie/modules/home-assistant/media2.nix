@@ -1,4 +1,4 @@
-
+{ config, lib, pkgs, ... }:
 let
   # Define the presence media player conditionally
   player = if states.sensor.presence_media_player == "shield" then

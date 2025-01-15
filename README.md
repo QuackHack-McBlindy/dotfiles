@@ -36,7 +36,9 @@ This repo contains NixOS configuration flake for my host matchines on my home ne
 
 <details>
 <summary>Desktop</summary> <br>
+
 **Desktop** <br>
+
 Main machine. <br>
 **System:** x86_64x-linux <br>
 
@@ -45,7 +47,9 @@ Main machine. <br>
 
 <details>
 <summary>Laptop</summary><br>
+
 **Laptop** <br>
+
 Old crappy laptop.<br>
 **System:** x86_64x-linux <br>
 
@@ -54,7 +58,9 @@ Old crappy laptop.<br>
 
 <details>
 <summary>Nasty</summary><br>
+
 **Nasty** <br>
+
 Huge Mass Storage NAS - Creates big Pool with mergerfs.<br>
 15x 3.5" drives. Runs media servers and rreverse proxy.<br>
 **System:** x86_64x-linux <br>
@@ -64,23 +70,28 @@ Huge Mass Storage NAS - Creates big Pool with mergerfs.<br>
 
 <details>
 <summary>Tiny</summary><br>
+
 **Tiny** <br>
-Raspberry Pi 4 server with raid 1 - for personal data storage.
-**System:** aarch64-linux
+
+Raspberry Pi 4 server with raid 1 - for personal data storage. <br>
+**System:** aarch64-linux <br>
 
 ------------
 </details>
 
 <details>
 <summary>Homie</summary><br>
+
 **Homie** <br>
-Smaall fanless server to run my smart home devices and everything related.
-**System:** x86_64x-linus
+
+Smaall fanless server to run my smart home devices and everything related. <br>
+**System:** x86_64x-linux <br>
 
 ------------
 </details>
 
 <details>
+
 <summary>Phone</summary><br>
 
 Work in Progress. <br>
