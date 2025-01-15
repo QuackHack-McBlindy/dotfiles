@@ -1,7 +1,6 @@
 #!/bin/bash
 # [ Download Files Over Network ]
 # ------------------------
-#!/bin/bash
 
 # Prompt for the remote hostname or IP address
 read -p "Enter the remote host (hostname or IP): " remote_host
@@ -105,4 +104,5 @@ download_item() {
 
 # Start navigation from the home directory
 navigate_directory "~"
+
 

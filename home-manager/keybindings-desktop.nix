@@ -16,13 +16,25 @@
             magnifier-zoom-out = [ "KP_Subtract" ];
             screenreader = [ "KP_Divide" ];     
         };
-    # Terminal    
+    # [  ] Terminal 
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
             binding = "section";
-            #command = "/etc/profiles/per-user/pungkula/bin/gnome-terminal";
             command = "gnome-terminal --tab";
             name = "terminal";
-        };    
+        };      
+    # [ CTRL + E ] Editor new window    
+        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
+            binding = "<Primary>e";
+            command = "/run/current-system/sw/bin/gedit --new-window";
+            name = "Gedit New Window";
+        };   
+    # [ Shift + CTRL + D ] dotfiles File Manager 
+        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3" = {
+            binding = "<Primary><shift>d";
+            command = "/run/current-system/sw/bin/thunar /home/$USER/dotfiles";
+            name = "File Manager dotfiles";
+        };   
+                
         # Copy
         "org/gnome/terminal/legacy/keybindings".copy = [ "<Primary>c" ];
         # Paste

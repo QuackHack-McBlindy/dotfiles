@@ -101,6 +101,18 @@
   };
 
 
+  sops.secrets = {
+    mosquitto = {
+      sopsFile = "/var/lib/sops-nix/secrets/mosquitto.yaml"; 
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+  };
+
+
+
+
 #   swaylock pass verify
 #    security.pam.services.swaylock = {
  #     text = ''
