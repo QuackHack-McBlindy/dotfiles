@@ -1,5 +1,5 @@
 
-# ❄️🦆 **Flake**
+# ❄️🦆 **Flake** <br><br>
 <details>
 <summary>
 
@@ -30,7 +30,7 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 <details>
 <summary>
     
-## 🖥️ Usage
+## 🛠️ Usage
     
 </summary><br>
 
