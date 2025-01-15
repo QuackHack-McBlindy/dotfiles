@@ -60,7 +60,6 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
-                      { config.facter.reportPath = ./facter.json; }
                   ];
               };
 
@@ -73,6 +72,7 @@
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
+                      nixos-facter-modules.nixosModules.facter
                   ];     
                }; 
                
@@ -86,6 +86,7 @@
                        homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
+                      nixos-facter-modules.nixosModules.facter
                   ];
               };              
 
@@ -99,6 +100,7 @@
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
+                      nixos-facter-modules.nixosModules.facter
                   ];
               };              
 
@@ -112,6 +114,7 @@
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
+                      nixos-facter-modules.nixosModules.facter
                   ];
               };              
 

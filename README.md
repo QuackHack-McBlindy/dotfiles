@@ -1,5 +1,5 @@
 
-# ❄️ **Flake**
+# ❄️🦆 **Flake**
 <details>
 <summary>
 
@@ -7,14 +7,14 @@
     
 </summary><br>
 
-This repo contains NixOS configuration flake for my host matchines on my home network. <br>
+This repo contains NixOS configuration flake for my hosts on my home network/homelab. <br>
 
 <img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
 <img src="./home/screenshot2.png" width="48%" style="display: inline-block;">
 
 <br><br>
 
-**❄️ This flake naub focus will be:** 
+**❄️ This flake main focus will be on:** 
 
 - **Custom Accessibility**
 - **Good Reproducibility**
@@ -25,6 +25,21 @@ This repo contains NixOS configuration flake for my host matchines on my home ne
 ------------
 
 </details>
+
+
+<details>
+<summary>
+    
+## 🖥️ Usage
+    
+</summary><br>
+
+**Usage** <br>
+
+
+</details>
+
+
 
 <details>
 <summary>
@@ -143,8 +158,22 @@ data
     
 </summary><br>
 
+**Network** <br>
+
+</details>
+
 
 <details>
+<summary>
+    
+## 🧑‍🦯 Scripts
+    
+</summary><br>
+
+**Scripts** <br>
+
+</details>
+
 
 </details>
 
