@@ -54,8 +54,10 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 
 **Desktop** <br>
 
-Main machine. <br>
-**System:** x86_64x-linux <br>
+Main machine.  <br> 
+Brag build for SteelSeries World Championchip Builds. <br><br>
+
+**System:** x86_64-linux <br>
 
 ------------
 </details>
@@ -66,7 +68,8 @@ Main machine. <br>
 **Laptop** <br>
 
 Old crappy laptop.<br>
-**System:** x86_64x-linux <br>
+
+**System:** x86_64-linux <br>
 
 ------------
 </details>
@@ -76,9 +79,9 @@ Old crappy laptop.<br>
 
 **Nasty** <br>
 
-Huge Mass Storage NAS - Creates big Pool with mergerfs.<br>
+Huge Mass Storage NAS - Creates Pool with mergerfs.<br>
 15x 3.5" drives. Runs media servers and rreverse proxy.<br>
-**System:** x86_64x-linux <br>
+**System:** x86_64-linux <br>
 
 ------------
 </details>
@@ -141,8 +144,8 @@ Custom orca configuration, with Piper TTS and langid for auto detecting language
 
 <details>
 <summary>Secret Management</summary>
-sops-nix
-age-plugin-yubikey
+sops-nix <br>
+age-plugin-yubikey <br>
 
 ------------
 </details>
@@ -165,8 +168,6 @@ age-plugin-yubikey
 ```"<Ctrl>" + "E"``` = Open Editor <br>
 
 
-
-```"MUM" + "+"``` = Magnifier Zoom In
 
 ------------
 </details>

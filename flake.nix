@@ -1,10 +1,9 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 { #°✶.•°••─→ FLAKE.NIX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-  description = "Dotfiles & Nix OS Configuration Files.";
+  description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
   inputs = {
       nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
       
       home-manager.url = "github:nix-community/home-manager";
       home-manager.inputs.nixpkgs.follows = "nixpkgs";  
@@ -27,16 +26,31 @@
      # nixcord.url = "github:kaylorben/nixcord";
      # netboot.url = "path:./modules/iso";
      # auto-installer.url = "path:./modules/iso/auto-installer";
-   
+     
+     
+#°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
+    mobile-nixos.url = "github:mobile-nixos/mobile-nixos?ref=183ba24";
+    mobile-nixos.flake = false;
+    mobile-nixos-tools.url = "github:sergei-mironov/mobile-nixos-tools?ref=64db06a";
+    mobile-nixos-tools.flake = false;
+    nixpkgs-mobile.url = "github:nixos/nixpkgs?ref=6daa4a5c045d40e6eae60a3b6e427e8700f1c07f";
   };
-    
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, ... }: 
+  
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, librem-nixos, mobile-nixos-tools, ... }: 
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
           system = "x86_64-linux";
           pkgs = import nixpkgs {
               inherit system;
+              config.allowUnfree = true;
+          }; 
+          aarch64 = "aarch64-linux";
+          pkgs-mobile = import nixpkgs-mobile {
+              inherit aarch64;
               config.allowUnfree = true;
           }; 
           homeConfigFiles = { hostname, ... }: {
@@ -60,6 +74,20 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
+                  ];
+              };
+
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ PHONE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+              phone = nixpkgs-mobile.lib.nixosSystem {
+                  inherit aarch64;
+                  modules = [ (import ./hosts/phone/configuration.nix user)
+                      homeConfigFiles
+                      sops-nix.nixosModules.sops
+                      home-manager.nixosModules.home-manager  
+                      (import "${mobile-nixos}/lib/configuration.nix" {
+                          device = "pine64-pinephone";
+                      })
                   ];
               };
 
@@ -119,9 +147,18 @@
               };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ bye! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    
+#°✶.•°••─→ Nix Build: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+          phone-image =
+              (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
+                  configuration = [ (import ./hosts/phone/configuration.nix user) ];
+                  device = "pine64-pinephone";
+                  pkgs = nixpkgs-mobile.legacyPackages.${system};
+              }).outputs.disk-image;
           }; 
+          
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+
     };
 }
 

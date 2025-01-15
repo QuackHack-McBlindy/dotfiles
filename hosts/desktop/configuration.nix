@@ -5,14 +5,14 @@ let
 in
 {
   imports = [ ./hardware-configuration.nix
-                      ./modules/home-assistant/default.nix
+                    #  ./modules/home-assistant/default.nix
                      # ./modules/home-assistant/database.nix
                     #  ./modules/home-assistant/media2.nix
-                      ./modules/home-assistant/mosquitto.nix
-                      ./modules/home-assistant/zigbee2mqtt.nix
+                    #  ./modules/home-assistant/mosquitto.nix
+                    #  ./modules/home-assistant/zigbee2mqtt.nix
                       
-                      ./../../modules/networking/caddy.nix
-                      ./../../modules/services/nginx/default.nix
+                    #  ./../../modules/networking/caddy.nix
+                   #   ./../../modules/services/nginx/default.nix
                       ./../../modules/hardware/pam.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/dns.nix 
