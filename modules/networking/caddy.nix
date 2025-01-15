@@ -1,12 +1,11 @@
-{ 
+{ pkgs, config, ... }:
+{
+  networking.firewall.allowedTCPPorts = [ 80 443 ];
+  
   services.caddy = {
     enable = true;
-    package = (pkgs.callPackage /etc/caddy/custom-package.nix {
-      plugins = [
-        "github.com/caddy-dns/duckdns"
-        "github.com/caddyserver/forwardproxy"
-      ];
-      vendorSha256 = "0000000000000000000000000000000000000000000000000000";
-    });
+    virtualHosts."desktop.local".extraConfig = ''
+      reverse_proxy http://localhost:7888
+    '';
   };
 }

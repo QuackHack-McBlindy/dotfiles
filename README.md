@@ -18,7 +18,7 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 
 - **Custom Accessibility**
 - **Good Reproducibility**
-- **& Easy of Use**
+- **& Easy Usage**
 
 <br>
 
@@ -34,7 +34,7 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
     
 </summary><br>
 
-**Usage** <br>
+**Usage:** <br>
 
 
 </details>
@@ -100,7 +100,7 @@ Raspberry Pi 4 server with raid 1 - for personal data storage. <br>
 **Homie** <br>
 
 Smaall fanless server to run my smart home devices and everything related. <br>
-**System:** x86_64x-linux <br>
+**System:** x86_64-linux <br>
 
 ------------
 </details>
@@ -110,7 +110,9 @@ Smaall fanless server to run my smart home devices and everything related. <br>
 <summary>Phone</summary><br>
 
 Work in Progress. <br>
-PinePhone
+PinePhone <br>
+**System:** aarch64-linux <br>
+
 
 ------------
 </details>
@@ -129,8 +131,10 @@ PinePhone
 
 
 <details>
-<summary>Accessibility</summary>
-data
+<summary>Accessibility</summary><br>
+
+Custom orca configuration, with Piper TTS and langid for auto detecting language of text and provide correct model. <br>
+
 
 ------------
 </details>
@@ -145,7 +149,24 @@ age-plugin-yubikey
 
 <details>
 <summary>Keybindings</summary>
-data
+
+```"MUM_+"``` = Magnifier Zoom In <br>
+
+```"MUM_-"``` = Magnifier Zoom Out <br>
+
+```"MUM_*"``` = Screen Reader Toggle <br>
+
+```"§"``` = Open Terminal <br>
+
+```"<Ctrl>" + "Q"``` = Quit open window. <br>
+
+```"<Ctrl>" + "W"``` = Open Firefox <br>
+
+```"<Ctrl>" + "E"``` = Open Editor <br>
+
+
+
+```"MUM" + "+"``` = Magnifier Zoom In
 
 ------------
 </details>
@@ -155,11 +176,13 @@ data
 <details>
 <summary>
     
-## 🌐 Network
+## 🌐 Networking
     
 </summary><br>
 
-**Network** <br>
+**Reverse Proxy:** Caddy <br>
+**WireGuard**
+
 
 </details>
 
