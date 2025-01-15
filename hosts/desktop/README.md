@@ -1,9 +1,3 @@
-
-
-
-
-
-
 ### Modules:
 `hardware-configuration.nix` (link: https://github.com/your-repo/hardware-configuration.nix)
 `modules/home-assistant/default.nix` (link: https://github.com/your-repo/modules/home-assistant/default.nix)

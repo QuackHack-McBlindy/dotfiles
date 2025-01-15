@@ -1,29 +1,3 @@
-hej hej hej hej hallå
-
-
-hej hej hej hej hallå
-prutt
-
-hej hej hej hej hallå
-
-
-hej hej hej hej hallå
-
-
-hej hej hej hej hallå
-
-
-
-
-
-
-
-
-
-
-
-
-
 ### Modules:
 `hardware-configuration.nix` (link: https://github.com/your-repo/hardware-configuration.nix)
 `modules/services/avahi-client.nix` (link: https://github.com/your-repo/modules/services/avahi-client.nix)
