@@ -147,7 +147,7 @@
               };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ Nix Build: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°••─→ NiX BUILD! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
               phone-image = 
                   (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
                       configuration = [ (import ./hosts/phone/configuration.nix user) ];
@@ -155,6 +155,21 @@
                       pkgs = nixpkgs-mobile.legacyPackages.${system};
                   }).outputs.disk-image;
               }; 
+              
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ NiX RUN! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+      packages.x86_64-linux.ESP32-S3-Watch = nixpkgs.legacyPackages.${system}.hello;
+      apps.x86_64-linux.ESP32-S3-Watch = {
+          type = "app";
+          program = "${self.packages.${system}.ESP32-S3-Watch}/bin/hello";
+      };
+
+#°✶.•°••─→ ESP32-S3-Box3! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+      packages.x86_64-linux.ESP32-S3-Box3 = nixpkgs.legacyPackages.${system}.hello;
+      apps.x86_64-linux.ESP32-S3-Box3 = {
+          type = "app";
+          program = "${self.packages.${system}.ESP32-S3-Box3}/bin/hello";
+      };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

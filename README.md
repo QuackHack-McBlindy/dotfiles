@@ -39,7 +39,7 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 
 With Nix installed:<br><br>
 
-build auto-installer which can be flashed onto a USB drive,<br> 
+Build auto-installer which can be flashed onto a USB drive,<br> 
 
 ```
 nix build .#nixosConfigurations.auto-installer
@@ -47,20 +47,38 @@ nix build .#nixosConfigurations.auto-installer
 
 <br><br>
 
-build phone-image which can be flashed onto a SD card,<br> 
+Build phone-image which can be flashed onto a SD card,<br> 
 
 ```
 nix build .#nixosConfigurations.phone-image
 ```
 
-<br>
+<br><br>
+
+Build & flash ESP32-S3-Box3.<br> 
+
+```
+nix run .#ESP32-S3-Box3
+```
+
+<br><br>
+
+Build & flash ESP32-S3-Watch.<br> 
+
+```
+nix run .#ESP32-S3-Watch
+```
+
+<br><br>
+
+
 Qucik test<br>
 
 ```
 nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 ```
 
-
+<br>
 
 </details>
 
@@ -143,6 +161,33 @@ PinePhone <br>
 
 ------------
 </details>
+
+<details>
+<summary>Smart Watch</summary> <br>
+
+**Smart Watch** <br>
+
+ESP32 Smart Watch.  <br> 
+
+**System:** ESP32 device <br>
+
+------------
+</details>
+
+<details>
+<summary>Voice Assistant</summary> <br>
+
+**Voice Assistant** <br>
+
+A ESP32-S3-Box3 used as a voice assistant.  <br> 
+
+**System:** ESP32 device <br>
+
+------------
+</details>
+
+
+
 
 </details>
 
