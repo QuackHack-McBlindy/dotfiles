@@ -1,0 +1,26 @@
+#!/usr/bin/env python3
+# [ Description Here! ]
+# -----import aioesphomeapi
+import aioesphomeapi
+import asyncio
+
+async def main():
+    """Connect to an ESPHome device and get details."""
+
+    # Establish connection
+    api = aioesphomeapi.APIClient("api_test.local", 6053, "MyPassword")
+    await api.connect(login=True)
+
+    # Get API version of the device's firmware
+    print(api.api_version)
+
+    # Show device details
+    device_info = await api.device_info()
+    print(device_info)
+
+    # List all entities of the device
+    entities = await api.list_entities_services()
+    print(entities)
+
+ loop = asyncio.get_event_loop()
+ loop.run_until_complete(main())

@@ -205,6 +205,24 @@ def rainbow_text(text):
     return colored_text
 
 
+###############
+## BUILD
+@task
+def build(ctx, device):
+    """
+    Build & flash Watch/Box3 device.
+    """
+    if device == "watch":
+        subprocess.run(["esphome", "run", "./hosts/watch/configuration.yaml"], check=True)
+    elif device == "box3":
+        subprocess.run(["esphome", "run", "./hosts/box3/configuration.yaml"], check=True)
+    else:
+        print(f"Unknown device: {device}. Please specify either 'watch' or 'box3'.")
+
+###############
+
+
+
 @task
 def push(ctx, commit=None):
     """
@@ -284,40 +302,44 @@ def pull(ctx):
         print("\033[1;31m [ WARNING! ] \033[0m")  
         print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
       
+############
+## INSTALL 
+
+#@task
+#def install(ctx, host=None):
+#    """
+#    Install NixOS on the specified host.
+
+#    :param ctx: Invoke context.
+#    :param host: hostname to install NixOS on.
+#    """
+#    hosts = [
+#        "desktop",
+#        "lappy",
+#        "usb",
+#    ]
+
+#    if host:
+#        print(f"Installing on: {host}")
+#        # Adjust the Nix command accordingly
+#        nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{host} --target-host root@{host}"
+#        print(f"Running: {nix_run_command}")
+#    else:
+#        for hostname in hosts:
+#            print(f"Installing on: {hostname}")
+#            # Adjust the Nix command accordingly
+#            nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{hostname} --target-host root@usb"
+#            print(f"Running: {nix_run_command}")
+            
+            
+            
+######################
+# SWITCH 
 
 @task
-def install(ctx, host=None):
+def switch(ctx, host=None):
     """
-    Install NixOS on the specified host.
-
-    :param ctx: Invoke context.
-    :param host: hostname to install NixOS on.
-    """
-    hosts = [
-        "desktop",
-        "lappy",
-        "usb",
-    ]
-
-    if host:
-        print(f"Installing on: {host}")
-        # Adjust the Nix command accordingly
-        nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{host} --target-host root@{host}"
-        print(f"Running: {nix_run_command}")
-    else:
-        for hostname in hosts:
-            print(f"Installing on: {hostname}")
-            # Adjust the Nix command accordingly
-            nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{hostname} --target-host root@usb"
-            print(f"Running: {nix_run_command}")
-            
-            
-            
-
-@task
-def rebuild(ctx, host=None):
-    """
-    Rebuild and switch NixOS configuration on the specified host using flakes.
+    Rebuild and switch NixOS configuration on the specified host.
 
     :param ctx: Invoke context.
     :param host: Optional hostname to rebuild on. If omitted, defaults to 'laptop'.

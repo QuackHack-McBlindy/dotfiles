@@ -22,63 +22,36 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 
 <br>
 
-------------
+## 🔧 Components
 
-</details>
-
-
-<details>
-<summary>
-    
-## 🛠️ Usage
-    
-</summary><br>
-
-**Usage:** <br>
-
-
-With Nix installed:<br><br>
-
-Build auto-installer which can be flashed onto a USB drive,<br> 
-
-```
-nix build .#nixosConfigurations.auto-installer
-```
-
-<br><br>
-
-Build phone-image which can be flashed onto a SD card,<br> 
-
-```
-nix build .#nixosConfigurations.phone-image
-```
-
-<br><br>
-
-Build & flash ESP32-S3-Box3.<br> 
-
-```
-nix run .#ESP32-S3-Box3
-```
-
-<br><br>
-
-Build & flash ESP32-S3-Watch.<br> 
-
-```
-nix run .#ESP32-S3-Watch
-```
-
-<br><br>
-
-
-Qucik test<br>
-
-```
-nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
-```
+| Component        | Version/Name                   |
+| ---------------- | ------------------------------ |
+| Distro           | NixOS                          |
+| Shell            | Bash                           |
+| Display Server   | Wayland                        |
+| WM (Compositor)  |                       |
+| Bar              | OpenBar                        |
+| Notification     | notifyd                          |
+| Launcher         |                         |
+| Editor           | nano                        |
+| Terminal         | Gnome-Terminal                         |
+| Fetch Utility    | Neofetch                       |
+| Theme            |            |
+| Font             |   |
+| File Browser     | Thunar    |
+| Internet Browser | Customized Firefox                        |
+| Screenshot       |                        |
+| Clipboard        | wl-clipboard                   |
+| Idle             |                        |
+| Lock             |                        |
+| Logout menu      |                         |
+| Display Manager  | Gnome                        |
+| Containerization | Docker                         |
+| Virtualisation   | qemu + virt-manager + libvirtd |
 
 <br>
+
+------------
 
 </details>
 
@@ -102,6 +75,28 @@ Brag build for SteelSeries World Championchip Builds. <br><br>
 
 **System:** x86_64-linux <br>
 
+<details>
+<summary>⌨ Keybindings</summary>
+
+
+| Key Combination           | Action                                                                |
+| ------------------------- | --------------------------------------------------------------------- |
+| MUM +                      | Magnifier Zoom In                                                     |
+| MUM -                      | Magnifier Zoom Out                                                    |
+| MUM /
+| Screen Reader Toggle                                                  |
+| §                          | Open Terminal                                                          |
+| CTRL + Q                   | Close open window                                                      |
+| CTRL + W                   | Open Firefox                                                          |
+| CTRL + E                   | Open Editor                                                           |
+| ALT/SUPER + TAB            | Switch Windows                                                          |
+
+<br>
+All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-desktop.nix) <br>
+
+
+</details>
+
 ------------
 </details>
 
@@ -113,6 +108,30 @@ Brag build for SteelSeries World Championchip Builds. <br><br>
 Old crappy laptop.<br>
 
 **System:** x86_64-linux <br>
+
+
+<details>
+<summary>⌨ Keybindings</summary>
+
+
+| Key Combination           | Action                                                                |
+| ------------------------- | --------------------------------------------------------------------- |
+| MUM +                      | Magnifier Zoom In                                                     |
+| MUM -                      | Magnifier Zoom Out                                                    |
+| MUM /
+| Screen Reader Toggle                                                  |
+| §                          | Open Terminal                                                          |
+| CTRL + Q                   | Close open window                                                      |
+| CTRL + W                   | Open Firefox                                                          |
+| CTRL + E                   | Open Editor                                                           |
+| ALT/SUPER + TAB            | Switch Windows                                                          |
+
+<br>
+All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-laptop.nix) <br>
+
+
+</details>
+
 
 ------------
 </details>
@@ -218,23 +237,6 @@ age-plugin-yubikey <br>
 
 ------------
 </details>
-
-<details>
-<summary>Keybindings</summary>
-
-```"MUM_+"``` = Magnifier Zoom In <br>
-
-```"MUM_-"``` = Magnifier Zoom Out <br>
-
-```"MUM_*"``` = Screen Reader Toggle <br>
-
-```"§"``` = Open Terminal <br>
-
-```"<Ctrl>" + "Q"``` = Quit open window. <br>
-
-```"<Ctrl>" + "W"``` = Open Firefox <br>
-
-```"<Ctrl>" + "E"``` = Open Editor <br>
 
 
 

@@ -19,7 +19,7 @@ in
 
       # TODO change me!
       hashedPassword = "$6$zActsdzv754qmpNR$TVgNLHx4/0Q3GIqirequckS252LvYFomx11IimP8uuk.soV8CQFIUDcjhhF7lHz5BurJZJLj/QlGOHZTYAX8R1";
-
+     
       home = "/home/${defaultUserName}";
       createHome = true;
       extraGroups = [
@@ -70,7 +70,7 @@ in
     services.xserver.desktopManager.gnome.enable = true;
 
     # unpatched gnome-initial-setup is partially broken in small screens
-    services.gnome.gnome-initial-setup.enable = false;
+    #services.gnome.gnome-initial-setup.enable = false;
 
     programs.phosh.enable = true;
     environment.gnome.excludePackages = with pkgs.gnome3; [

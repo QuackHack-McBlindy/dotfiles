@@ -38,12 +38,6 @@ in
             # MACs = "hmac-sha2-256,hmac-sha2-512";
             # KexAlgorithms = "curve25519-sha256@libssh.org,diffie-hellman-group14-sha1";
             
-            # Configure X11 forwarding (useful for graphical applications)
-            # X11Forwarding = "yes";
-            # X11DisplayOffset = "10";
-            
-            # Disable DNS lookup for performance reasons (can be useful in some environments)
-            # UseDNS = "no";
             LogLevel = "VERBOSE";
         };
     };

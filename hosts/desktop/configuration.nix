@@ -8,12 +8,13 @@ in
                     #  ./modules/home-assistant/default.nix
                      # ./modules/home-assistant/database.nix
                     #  ./modules/home-assistant/media2.nix
-                    #  ./modules/home-assistant/mosquitto.nix
-                    #  ./modules/home-assistant/zigbee2mqtt.nix
+                      ./../../modules/services/mosquitto.nix
+                      ./../../modules/services/zigbee2mqtt.nix
                       
                     #  ./../../modules/networking/caddy.nix
                    #   ./../../modules/services/nginx/default.nix
                       ./../../modules/hardware/pam.nix
+                      ./../../modules/nixos/cross-env.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix                       
@@ -71,6 +72,8 @@ in
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
   environment.systemPackages = with pkgs; [   
    # Dev
+    esphome
+    python312Packages.aioesphomeapi
     python3Full
     python312Packages.requests
     python312Packages.invoke

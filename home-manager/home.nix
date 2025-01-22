@@ -149,8 +149,21 @@ in
       bash "switch"
     '')
 
-#°✶.•°••─→ RB ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    
+#°✶.•°••─→ watch ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "smart-watch" ''
+      esphome run /home/$USER/dotfiles/hosts/watch/configuration.yaml
+    '')
+
+#°✶.•°••─→ box3 ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "box3" ''
+      esphome run /home/$USER/dotfiles/hosts/box3/configuration.yaml
+    '')
+ 
+#°✶.•°••─→ pwd ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "pwdd" ''
+      pwd
+    '') 
+ 
   ];
   
 
