@@ -22,7 +22,9 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 
 <br>
 
+<details><summary>
 ## 🔧 Components
+</summary>
 
 | Component        | Version/Name                   |
 | ---------------- | ------------------------------ |
@@ -50,6 +52,8 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 | Virtualisation   | qemu + virt-manager + libvirtd |
 
 <br>
+</details>
+
 
 ------------
 
@@ -205,7 +209,7 @@ A ESP32-S3-Box3 used as a voice assistant.  <br>
 ------------
 </details>
 
-
+<br><br>
 
 
 </details>
