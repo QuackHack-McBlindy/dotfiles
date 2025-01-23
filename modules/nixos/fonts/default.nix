@@ -12,6 +12,11 @@
       fontDir.enable = true;
       packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
       fonts = with pkgs; [
+        #  (pkgs.stdenv.mkDerivation {
+         #     name = "Hellow Ducky";
+        #      src = ./fonts/hellow_ducky.ttf;
+        #  }) 
+          
           fira-mono
           libertine
           open-sans

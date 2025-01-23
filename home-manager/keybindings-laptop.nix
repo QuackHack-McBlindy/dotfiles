@@ -12,8 +12,8 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     # Acesssbility Shortcuts   
         "org/gnome/settings-daemon/plugins/media-keys" = {
-            magnifier-zoom-in = [ "KP_Add" ];
-            magnifier-zoom-out = [ "KP_Subtract" ];
+            magnifier-zoom-in = [ "<Conrol>Page_Up" ];
+            magnifier-zoom-out = [ "<Conrol>Page_Down" ];
             screenreader = [ "KP_Divide" ];     
         };
     # Terminal    

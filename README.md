@@ -79,15 +79,25 @@ Brag build for SteelSeries World Championchip Builds. <br><br>
 
 **System:** x86_64-linux <br>
 
+<details><summary>
+**Build** </summary> <br>
+
+```Auto Installer ISO (formats, partitions & installs)
+sudo nix build .#desktop
+```
+
+<br></details>
+
+
 <details>
-<summary>⌨ Keybindings</summary>
+<summary>⌨ **Keybindings**</summary>
 
 
 | Key Combination           | Action                                                                |
 | ------------------------- | --------------------------------------------------------------------- |
-| MUM +                      | Magnifier Zoom In                                                     |
-| MUM -                      | Magnifier Zoom Out                                                    |
-| MUM /
+| NUM +                      | Magnifier Zoom In                                                     |
+| NUM -                      | Magnifier Zoom Out                                                    |
+| NUM /
 | Screen Reader Toggle                                                  |
 | §                          | Open Terminal                                                          |
 | CTRL + Q                   | Close open window                                                      |
@@ -96,7 +106,9 @@ Brag build for SteelSeries World Championchip Builds. <br><br>
 | ALT/SUPER + TAB            | Switch Windows                                                          |
 
 <br>
-All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-desktop.nix) <br>
+
+All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-desktop.nix)
+<br>
 
 
 </details>
@@ -113,16 +125,25 @@ Old crappy laptop.<br>
 
 **System:** x86_64-linux <br>
 
+<details><summary>
+**Build** </summary> <br>
+
+```Auto Installer ISO (formats, partitions & installs)
+sudo nix build .#laptop
+```
+
+<br></details>
+
 
 <details>
-<summary>⌨ Keybindings</summary>
+<summary>⌨ **Keybindings**</summary>
 
 
 | Key Combination           | Action                                                                |
 | ------------------------- | --------------------------------------------------------------------- |
-| MUM +                      | Magnifier Zoom In                                                     |
-| MUM -                      | Magnifier Zoom Out                                                    |
-| MUM /
+| Page_Up                      | Magnifier Zoom In                                                     |
+| Page_Down                      | Magnifier Zoom Out                                                    |
+| NUM /
 | Screen Reader Toggle                                                  |
 | §                          | Open Terminal                                                          |
 | CTRL + Q                   | Close open window                                                      |
@@ -131,7 +152,9 @@ Old crappy laptop.<br>
 | ALT/SUPER + TAB            | Switch Windows                                                          |
 
 <br>
-All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-laptop.nix) <br>
+
+All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-laptop.nix)
+<br>
 
 
 </details>
@@ -149,6 +172,16 @@ Huge Mass Storage NAS - Creates Pool with mergerfs.<br>
 15x 3.5" drives. Runs media servers and rreverse proxy.<br>
 **System:** x86_64-linux <br>
 
+<details><summary>
+**Build** </summary> <br>
+
+```Auto Installer ISO (formats, partitions & installs)
+sudo nix build .#nasty
+```
+
+<br></details>
+
+
 ------------
 </details>
 
@@ -159,6 +192,16 @@ Huge Mass Storage NAS - Creates Pool with mergerfs.<br>
 
 Raspberry Pi 4 server with raid 1 - for personal data storage. <br>
 **System:** aarch64-linux <br>
+
+<details><summary>
+**Build** </summary> <br>
+
+```Auto Installer ISO (formats, partitions & installs)
+sudo nix build .#tiny
+```
+
+<br></details>
+
 
 ------------
 </details>
@@ -171,6 +214,16 @@ Raspberry Pi 4 server with raid 1 - for personal data storage. <br>
 Smaall fanless server to run my smart home devices and everything related. <br>
 **System:** x86_64-linux <br>
 
+<details><summary>
+**Build** </summary> <br>
+
+```Auto Installer ISO (formats, partitions & installs)
+sudo nix build .#homie
+```
+
+<br></details>
+
+
 ------------
 </details>
 
@@ -180,6 +233,15 @@ Smaall fanless server to run my smart home devices and everything related. <br>
 
 PinePhone <br>
 **System:** aarch64-linux <br>
+
+<details><summary>
+**Build** </summary> <br>
+
+```Installer ISO (flash to SD card & install on internal)
+sudo nix build .#phone
+```
+
+<br></details>
 
 
 ------------
@@ -192,19 +254,38 @@ PinePhone <br>
 
 ESP32 Smart Watch.  <br> 
 
-**System:** ESP32 device <br>
+**System:** ESP32-S3 T-Watch LoRa <br>
+
+<details><summary>
+**Build** </summary> <br>
+
+```Build & flash USB Connected ESP Watch
+invoke build watcg
+```
+
+<br></details>
 
 ------------
 </details>
 
 <details>
-<summary>Voice Assistant</summary> <br>
+<summary>Box3</summary> <br>
 
-**Voice Assistant** <br>
+**Box3** <br>
 
 A ESP32-S3-Box3 used as a voice assistant.  <br> 
 
-**System:** ESP32 device <br>
+**System:** ESP32-S3-Box3 <br>
+
+<details><summary>
+**Build** </summary> <br>
+
+```Build & flash USB Connected ESP Watch
+invoke build box3
+```
+
+<br></details>
+
 
 ------------
 </details>
@@ -270,7 +351,63 @@ age-plugin-yubikey <br>
     
 </summary><br>
 
-**Scripts** <br>
+**Some fun and lazy helpers** <br>
+
+<details><summary>
+**Navigation / File Management** </summary><br>
+
+``` cd ``` Fuzzy & lazy navigation with fzf. <br>
+``` cp ``` Lazy cp. <br>
+``` mv ``` Lazy mv <br>
+``` rm ``` Lazy rm. <br
+``` scpd ``` Local file transfering made easy using SSH, SCP & Gum. <br>
+``` extract <file_path> ``` Extract compressed files <br>
+``` compress <files> ``` Compress selected files. <br> 
+``` mp3 ``` lists mp3 files and plays chosen file. <br>
+
+<br> </details>
+
+<details><summary>
+**OS** </summary><br>
+
+``` rb ``` Rebuild & switch current system. <br>
+``` services ``` Lists systemd servces with log preview and optionally restart selected service. <br>
+``` hm-logs ``` Searches home-manager logs and renames backup files if any conflict is found. <br>
+``` flash ``` Lazy flasher. <br>
+
+<br> </details>
+
+
+
+<details><summary>
+**Secrets** </summary><br>
+``` new-secret ``` Helper to create new sops-nix secret. <br>
+``` encrypt <file_path> ``` Encrypt file wuth AGE and Yubikey. <br>
+``` decrypt <file_path> ``` Decrypt file wuth AGE and Yubikey. <br>
+
+<br> </details>
+
+
+<details><summary>
+**Misc** </summary><br>
+
+``` say <text>``` Text to Speech with Piper and LangID for language detection. <br>
+``` weather ``` Tiny weather report. <br>
+
+<br> </details>
+
+
+<details><summary>
+**Clean-up** </summary><br>
+
+``` clean``` Nix OS garbage collection <br>
+``` cleand``` Nix OS garbage collection <br>
+``` flush``` Clears tmp and empty trash. <br>
+``` docker-prune ``` Extensive prompted Docker clean-up using Gum. <br>
+
+<br> </details>
+
+
 
 </details>
 
