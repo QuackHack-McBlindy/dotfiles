@@ -1,8 +1,9 @@
-# ❄️🦆 **Flake: Just4qwackz** <span style="font-size: small;">_by blind noob_</span> <br><br>>
+# ❄️🦆 **Flake: Just4qwackz** <br>
 
-# ❄️🦆 **Flake: Just4qwackz** _by blind noob_ <br><br>
+<div align="right">
+  <sub>_by blind noob_</sub>
+</div>
 
-# ❄️🦆 **Flake: Just4qwackz** _by blind noob_ <br>
 
 <details>
 <summary>
