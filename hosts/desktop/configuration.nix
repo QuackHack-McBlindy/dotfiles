@@ -104,6 +104,7 @@ in
     pkgs.gtk2
     pkgs.gtk3
     pkgs.gtk4
+    pkgs.nixos-icons
   
   # Gnome
     dconf-editor

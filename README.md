@@ -23,7 +23,7 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 <br>
 
 <details><summary>
-## 🔧 Components
+🔧 Components
 </summary>
 
 | Component        | Version/Name                   |
@@ -79,10 +79,16 @@ Brag build for SteelSeries World Championchip Builds. <br><br>
 
 **System:** x86_64-linux <br>
 
+```bash
+sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
+```
+
 <details><summary>
 **Build** </summary> <br>
 
-```Auto Installer ISO (formats, partitions & installs)
+*Auto Installer ISO (formats, partitions & installs)* 
+
+```bash
 sudo nix build .#desktop
 ```
 
@@ -125,11 +131,16 @@ Old crappy laptop.<br>
 
 **System:** x86_64-linux <br>
 
+```bash
+sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
+```
+
 <details><summary>
 **Build** </summary> <br>
 
-```Auto Installer ISO (formats, partitions & installs)
-sudo nix build .#laptop
+*Auto Installer ISO (formats, partitions & installs)*
+```bash
+nix build .#laptop
 ```
 
 <br></details>
@@ -141,10 +152,9 @@ sudo nix build .#laptop
 
 | Key Combination           | Action                                                                |
 | ------------------------- | --------------------------------------------------------------------- |
-| Page_Up                      | Magnifier Zoom In                                                     |
-| Page_Down                      | Magnifier Zoom Out                                                    |
-| NUM /
-| Screen Reader Toggle                                                  |
+| Page_Up                    | Magnifier Zoom In                                                     |
+| Page_Down                  | Magnifier Zoom Out                                                    |
+| NUM /                      | Screen Reader Toggle                                                  |
 | §                          | Open Terminal                                                          |
 | CTRL + Q                   | Close open window                                                      |
 | CTRL + W                   | Open Firefox                                                          |
@@ -172,10 +182,16 @@ Huge Mass Storage NAS - Creates Pool with mergerfs.<br>
 15x 3.5" drives. Runs media servers and rreverse proxy.<br>
 **System:** x86_64-linux <br>
 
+```bash
+sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
+```
+
 <details><summary>
 **Build** </summary> <br>
 
-```Auto Installer ISO (formats, partitions & installs)
+*Auto Installer ISO (formats, partitions & installs)*
+
+```bash
 sudo nix build .#nasty
 ```
 
@@ -193,11 +209,18 @@ sudo nix build .#nasty
 Raspberry Pi 4 server with raid 1 - for personal data storage. <br>
 **System:** aarch64-linux <br>
 
+```bash
+sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
+```
+
+
 <details><summary>
 **Build** </summary> <br>
 
-```Auto Installer ISO (formats, partitions & installs)
-sudo nix build .#tiny
+*build rpi4 iso*
+
+```bash
+...
 ```
 
 <br></details>
@@ -214,10 +237,16 @@ sudo nix build .#tiny
 Smaall fanless server to run my smart home devices and everything related. <br>
 **System:** x86_64-linux <br>
 
+```bash
+sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
+```
+
 <details><summary>
 **Build** </summary> <br>
 
-```Auto Installer ISO (formats, partitions & installs)
+*Auto Installer ISO (formats, partitions & installs)*
+
+```bash
 sudo nix build .#homie
 ```
 
@@ -337,8 +366,8 @@ age-plugin-yubikey <br>
     
 </summary><br>
 
-**Reverse Proxy:** Caddy <br>
-**WireGuard**
+
+wip
 
 
 </details>
@@ -354,56 +383,65 @@ age-plugin-yubikey <br>
 **Some fun and lazy helpers** <br>
 
 <details><summary>
-**Navigation / File Management** </summary><br>
+**Navigation / File Management** 
+</summary><br>
 
-``` cd ``` Fuzzy & lazy navigation with fzf. <br>
-``` cp ``` Lazy cp. <br>
-``` mv ``` Lazy mv <br>
-``` rm ``` Lazy rm. <br
-``` scpd ``` Local file transfering made easy using SSH, SCP & Gum. <br>
-``` extract <file_path> ``` Extract compressed files <br>
-``` compress <files> ``` Compress selected files. <br> 
-``` mp3 ``` lists mp3 files and plays chosen file. <br>
+```cd``` Fuzzy & lazy navigation with fzf. <br>
+```cp``` Lazy cp. <br>
+```mv``` Lazy mv <br>
+```rm``` Lazy rm. <br
+```scpd``` Local file transfering made easy using SSH, SCP & Gum. <br>
+```extract <file_path>``` Extract compressed files <br>
+```compress <files>``` Compress selected files. <br> 
+```mp3``` lists mp3 files and plays chosen file. <br>
 
 <br> </details>
 
 <details><summary>
-**OS** </summary><br>
+**OS** 
+</summary><br>
 
-``` rb ``` Rebuild & switch current system. <br>
-``` services ``` Lists systemd servces with log preview and optionally restart selected service. <br>
-``` hm-logs ``` Searches home-manager logs and renames backup files if any conflict is found. <br>
-``` flash ``` Lazy flasher. <br>
+```rb``` Rebuild & switch current system. <br>
+```services``` Lists systemd servces with log preview and optionally restart selected service. <br>
+```hm-logs``` Searches home-manager logs and renames backup files if any conflict is found. <br>
+```flash``` Lazy flasher. <br>
 
 <br> </details>
 
 
 
 <details><summary>
-**Secrets** </summary><br>
-``` new-secret ``` Helper to create new sops-nix secret. <br>
-``` encrypt <file_path> ``` Encrypt file wuth AGE and Yubikey. <br>
-``` decrypt <file_path> ``` Decrypt file wuth AGE and Yubikey. <br>
 
-<br> </details>
-
-
-<details><summary>
-**Misc** </summary><br>
-
-``` say <text>``` Text to Speech with Piper and LangID for language detection. <br>
-``` weather ``` Tiny weather report. <br>
+**Secrets** 
+</summary><br>
+```new-secret``` Helper to create new sops-nix secret. <br>
+```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
+```decrypt <file_path>``` Decrypt file wuth AGE and Yubikey. <br>
 
 <br> </details>
 
 
 <details><summary>
-**Clean-up** </summary><br>
 
-``` clean``` Nix OS garbage collection <br>
-``` cleand``` Nix OS garbage collection <br>
-``` flush``` Clears tmp and empty trash. <br>
-``` docker-prune ``` Extensive prompted Docker clean-up using Gum. <br>
+**Misc** 
+
+</summary><br>
+
+```say <text>``` Text to Speech with Piper and LangID for language detection. <br>
+```weather``` Tiny weather report. <br>
+
+<br> </details>
+
+
+<details><summary>
+
+**Clean-up** 
+</summary><br>
+
+```clean``` Nix OS garbage collection <br>
+```cleand``` Nix OS garbage collection <br>
+```flush``` Clears tmp and empty trash. <br>
+```docker-prune``` Extensive prompted Docker clean-up using Gum. <br>
 
 <br> </details>
 

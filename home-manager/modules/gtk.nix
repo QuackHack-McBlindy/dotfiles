@@ -1,13 +1,23 @@
 { config, pkgs, ... }: 
+
 {
+
   home.packages = with pkgs; [ pkgs.gtk3 pkgs.gtk4 ];
 
   gtk = {
     enable = true;
+ 
  #   font.name = "Monospace 12";
     iconTheme = {
-      name = "Papirus-Dark";
-      package = pkgs.papirus-icon-theme;
+      #name = "Papirus-Dark";
+      #package = pkgs.papirus-icon-theme;
+   #   name = "gruvbox";
+   #   package = pkgs.gruvbox-dark-icons-gtk;
+ #     name = "sweet-folders";
+#      package = pkgs.sweet-folders;
+      name = "elementary-xfce-icon-theme";
+      package = pkgs.elementary-xfce-icon-theme;
+             
     };
     cursorTheme = {
       name = "Bibata-Modern-Classic";
@@ -15,13 +25,14 @@
     };
     
     gtk3 = {
+
       bookmarks = [
-        "file:///home/pungkula/dotfiles dotfiles"
-        "file:///home/pungkula/.config .config"
-        "file:///etc/nixos nixos"
-        "smb://192.168.1.181/config/ HA"
-        "smb://192.168.1.28/pool/ Media"
-        "smb://192.168.1.159/files/ PiNAS"
+        "file:///home/pungkula/dotfiles ❄️ - 𝒹𝑜𝓉𝒻𝒾𝓁ℯ𝓈"
+        "file:///home/pungkula/.config 🛠️ - .config"
+   #    "file:///etc/nixos nixos"
+  #      "smb://192.168.1.181/config/ HA"
+        "smb://192.168.1.28/pool/ 💾 - Pool"
+        "smb://192.168.1.159/files/ 🛡️ - PiNAS"
       ];
       extraConfig = {
         Settings = ''

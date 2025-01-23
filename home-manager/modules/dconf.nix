@@ -357,8 +357,10 @@
         "org/gnome/desktop/interface".enable-animations = true;
         "org/gnome/desktop/interface".enable-hot-corners = false;
         "org/gnome/desktop/interface".font-name = "TeX Gyre Adventor 10 10";
-        "org/gnome/desktop/interface".gtk-theme = "Yaru-magenta-dark";
-        "org/gnome/desktop/interface".icon-theme = "Papirus-Dark";
+    #    "org/gnome/desktop/interface".gtk-theme = "Yaru-magenta-dark";
+    #    "org/gnome/desktop/interface".icon-theme = "Papirus-Dark";
+        "org/gnome/desktop/interface".icon-theme = "elementary-xfce-icon-theme";
+    
         "org/gnome/desktop/interface".monospace-font-name = "Source Code Pro 10";
         "org/gnome/desktop/interface".show-battery-percentage = false;
         "org/gnome/desktop/interface".toolkit-accessibility = true;
