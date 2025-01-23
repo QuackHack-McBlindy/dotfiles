@@ -1,7 +1,7 @@
 # ❄️🦆 **Flake: Just4qwackz** <br>
 
-<div align="right">
-  <sub>_by blind noob_</sub>
+<div align="center">
+  <sub>  *by blind noob* </sub>
 </div>
 
 
