@@ -380,10 +380,12 @@ wip
     
 </summary><br>
 
-**Some fun and lazy helpers** <br>
+**Some fun and lazy beginner helpers** <br>
 
 <details><summary>
+
 **Navigation / File Management** 
+
 </summary><br>
 
 ```cd``` Fuzzy & lazy navigation with fzf. <br>
@@ -414,6 +416,7 @@ wip
 <details><summary>
 
 **Secrets** 
+
 </summary><br>
 ```new-secret``` Helper to create new sops-nix secret. <br>
 ```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
@@ -423,7 +426,9 @@ wip
 
 
 <details><summary>
+
 **Misc** 
+
 </summary><br>
 
 ```say <text>``` Text to Speech with Piper and LangID for language detection. <br>
@@ -433,13 +438,15 @@ wip
 
 
 <details><summary>
+
 **Clean-up** 
+
 </summary><br>
 
 ```clean``` Nix OS garbage collection <br>
 ```cleand``` Nix OS garbage collection <br>
-```flush``` Clears tmp and empty trash. <br>
-```docker-prune``` Extensive prompted Docker clean-up using Gum. <br>
+```flush``` Cleans tmp and empty trash. <br>
+```docker-prune``` Very Extensive gum Interactive Docker clean-up script with before and after quick disk analyzing. <br>
 
 <br> </details>
 
