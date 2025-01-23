@@ -1,49 +1,41 @@
-{ config, lib, pkgs, user, host, hostname, ... }:
-let
-  user = "pungkula";
-  hostname = "desktop";
-in
-{
-  imports = [ ./hardware-configuration.nix
-                    #  ./modules/home-assistant/default.nix
-                     # ./modules/home-assistant/database.nix
-                    #  ./modules/home-assistant/media2.nix
-                      ./../../modules/services/mosquitto.nix
-                      ./../../modules/services/zigbee2mqtt.nix
-                      
-                    #  ./../../modules/networking/caddy.nix
-                   #   ./../../modules/services/nginx/default.nix
-                      ./../../modules/hardware/pam.nix
-                      ./../../modules/nixos/cross-env.nix
+{ config, lib, pkgs, user, host, hostname, ... }: {
+  
+  imports = [ ./hardware-configuration.nix 
+                     
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
+                      ./../../modules/networking/default.nix 
                       ./../../modules/services/dns.nix 
-                      ./../../modules/services/fail2ban.nix                       
+                      ./../../modules/services/fail2ban.nix   
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
-                      ./../../modules/nixos/pipewire.nix
+                      ./../../modules/nixos/pipewire.nix     
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
-                      ./../../modules/services/syslogd.nix
                       ./../../modules/services/syslog.nix
-                      ./../../modules/programs/thunar.nix
                       ./../../modules/networking/samba.nix
+                      ./../../modules/programs/thunar.nix
                       ./../../modules/nixos/gnome-background.nix
                       ./../../modules/nixos/default-apps.nix
-                      ./../../modules/virtualization/docker.nix
-                      ./../../modules/virtualization/vm.nix
-  
+                      ./../../modules/networking/iwd.nix
+                      ./../../modules/networking/default.nix 
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ BOOT LOADER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
-  networking.hostName = "desktop";
+  boot.initrd.systemd.enable = true;
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.tmp.cleanOnBoot = true;
+  
+  hardware.cpu.intel.updateMicrocode = pkgs.stdenv.isx86_64;
+  hardware.enableAllFirmware = true;
+  hardware.enableRedistributableFirmware = true;
+  services.fwupd.enable = true;
+  
+  networking.hostName = "nixos";
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ XSERVER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -60,8 +52,8 @@ in
     displayManager.autoLogin.user = "pungkula";
   };
 
-  # Configure console keymap
   console.keyMap = "sv-latin1";
+
 
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
@@ -74,9 +66,9 @@ in
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•° 
 
     services.udev.packages = [ pkgs.gnome-settings-daemon ];
-  #  services.dbus.packages = with pkgs; [ gnome2.GConf ];
+   # services.dbus.packages = with pkgs; [ gnome2.GConf ];
     services.gnome = {
-  #      gnome-browser-connector.enable = true; 
+   #     gnome-browser-connector.enable = true; 
         at-spi2-core.enable = true; # Required for orca
     };    
     environment.gnome.excludePackages = 
@@ -92,6 +84,7 @@ in
         pkgs.cheese # webcam tool
         pkgs.gnome-music
         pkgs.file-roller
+        pkgs.gedit # text editor
         pkgs.epiphany # web browser
         pkgs.geary # email reader
         pkgs.evince # document viewer
@@ -108,7 +101,7 @@ in
         pkgs.gnome-contacts
       ]);      
       
-      
+     
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
@@ -116,5 +109,5 @@ in
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "24.05"; # Did you read the comment?
-
 }
+

@@ -23,6 +23,8 @@
       flake-parts.url = "github:hercules-ci/flake-parts";
       
       nixos-unified.url = "github:srid/nixos-unified";
+      auto-installer.url = "./hosts";
+      
      # nixcord.url = "github:kaylorben/nixcord";
      # netboot.url = "path:./modules/iso";
      # auto-installer.url = "path:./modules/iso/auto-installer";
@@ -39,7 +41,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, ... }:  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, auto-installer, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, ... }:  
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -157,29 +159,10 @@
               }; 
               
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ SMART-WATCH ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-          
-         # packages.x86_64-linux.smart-watch = {
-       #       type = "app";
-     #         program = "${self.packages.${system}.box3}/bin/box3";
-     #     };
+#°✶.•°••─→ AUTO-INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+              auto-installer = auto-installer.packages.x86_64-linux.installer-iso;
 
-#°✶.•°••─→ BOX3 ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-       #   packages.x86_64-linux.box3 = nixpkgs.legacyPackages.${system}.box3;
-      #    apps.x86_64-linux.box3 = {
-     #         type = "app";
-     #         program = "${self.packages.${system}.box3}/bin/box3";
-    #      };
-
-###########
-          
-          packages.x86_64-linux.box3 = nixpkgs.legacyPackages.${system}.box3;
-          apps.x86_64-linux.box3 = {
-              type = "app";
-              program = "./home/bin/box3";
-          };
-
-
+               
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     };

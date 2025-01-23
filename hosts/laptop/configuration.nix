@@ -1,7 +1,8 @@
 { config, lib, pkgs, user, host, hostname, ... }: {
   
   imports = [ ./hardware-configuration.nix 
-  
+                     
+                      ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/networking/default.nix 
                       ./../../modules/services/dns.nix 
@@ -59,90 +60,6 @@
   systemd.services."autovt@tty1".enable = false;
 
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ SYSTEM PACKAGES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-  environment.systemPackages = with pkgs; [
-    # Dev
-    python3Full
-    pkgs.python312Packages.requests
-    python312Packages.invoke
-     
-     python312Packages.langid
-    alsa-utils  
-    libnotify    
-    glibc    
-    nixos-facter
-    dig
-    nmap
-    busybox
-    catimg # ascii art from img
-    ncurses
-    dialog
-    vim
-    wget
-    curl
-    git
-    unzip
-    gnome-terminal
-
-# GNOME
-    pkgs.gtk2
-    pkgs.gtk3
-    pkgs.gtk4
-  
-  # Gnome
-    dconf-editor
-    pkgs.gnome-shell
-    pkgs.gnome-system-monitor 
-    gnomeExtensions.gsconnect
-    pkgs.gnomeExtensions.docker
-    pkgs.gnomeExtensions.wireguard-vpn-extension
-    pkgs.gnomeExtensions.gsconnect
-    pkgs.gnomeExtensions.open-bar
-   # pkgs.gnomeExtensions.duckduckgo-search-provider
-   # pkgs.gnome-extension-manager
-    pkgs.gnomeExtensions.dashbar
-   # pkgs.gnome-extensions-cli
-    pkgs.gnomeExtensions.task-up
-    pkgs.gnomeExtensions.emoji-copy
-    pkgs.gnomeExtensions.todotxt
-    pkgs.gnomeExtensions.space-bar
-    pkgs.gnomeExtensions.vitals
-    pkgs.gnomeExtensions.appindicator 
-    pkgs.gnomeExtensions.systemd-manager
-    pkgs.dconf2nix # dconf2nix -i dconf.settings -o output/dconf.nix
-    pkgs.dconf-editor
-    pkgs.dconf
-    pkgs.glib
-    pkgs.gsettings-desktop-schemas
-    pkgs.nautilus
-
-    # Yubikey
-    age-plugin-yubikey
-    yubioath-flutter
-    yubikey-agent
-    yubikey-manager-qt
-    yubikey-touch-detector
-    yubikey-personalization-gui
-    yubikey-personalization    
-    yubikey-manager 
-    pam_u2f
-    libu2f-host
-    libykclient
-    yubico-pam
-    yubico-piv-tool
-    piv-agent
-    pcsclite
-    pcscliteWithPolkit
-    pcsc-tools
-    acsccid    
-
-  ];
-
-  # Yubi
-  # smart card mode (CCID) for gpg keys
-  services.pcscd.enable = true;
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ GNOME ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

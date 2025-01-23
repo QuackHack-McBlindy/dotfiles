@@ -1,10 +1,10 @@
 { config, pkgs, lib, modulesPath, ... }:
 let
-  # can't use pkgs.nixos because we're setting nixpkgs config settings
-  # (at least allowUnfree) in install config.
+ #  can't use pkgs.nixos because we're setting nixpkgs config settings
+ #  (at least allowUnfree) in install config.
   evaluatedSystem = import (pkgs.path + "/nixos/lib/eval-config.nix") {
     system = "x86_64-linux";
-    modules = [ ./configuration/configuration.nix ];
+    modules = [ ./newHost/configuration.nix ];
   };
 in
 {
@@ -84,9 +84,11 @@ in
       mkdir /mnt/boot
       wait-for mount /dev/disk/by-label/boot /mnt/boot
 
-
+      mkdir -p /mnt/home/$USER/dotfiles
+      cp -r ${./..}/* /mnt/home/$USER/dotfiles/
+      chmod -R 755 /mnt/home/$USER/dotfiles
       mkdir -p /mnt/etc/nixos
-      cp -r ${./configuration}/* /mnt/etc/nixos/
+      cp -r ${./newHost}/* /mnt/etc/nixos/
       chmod -R 755 /mnt/etc/nixos
 
       # add parameters so that nix does not try to contact a cache as we expect
