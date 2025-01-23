@@ -396,9 +396,10 @@ wip
 ```mp3``` lists mp3 files and plays chosen file. <br>
 
 <br> </details>
-
 <details><summary>
+
 **OS** 
+
 </summary><br>
 
 ```rb``` Rebuild & switch current system. <br>
@@ -422,9 +423,7 @@ wip
 
 
 <details><summary>
-
 **Misc** 
-
 </summary><br>
 
 ```say <text>``` Text to Speech with Piper and LangID for language detection. <br>
@@ -434,7 +433,6 @@ wip
 
 
 <details><summary>
-
 **Clean-up** 
 </summary><br>
 
