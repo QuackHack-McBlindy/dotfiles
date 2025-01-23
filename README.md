@@ -388,10 +388,10 @@ wip
 
 </summary><br>
 
-```cd``` Fuzzy & lazy navigation with fzf. <br>
-```cp``` Lazy cp. <br>
-```mv``` Lazy mv <br>
-```rm``` Lazy rm. <br
+```cd``` Fuzzy & Lazy navigation with fzf. <br>
+```cp``` Lazy & safe cp. <br>
+```mv``` Lazy & safe mv <br>
+```rm``` Lazy & safe rm. <br>
 ```scpd``` Local file transfering made easy using SSH, SCP & Gum. <br>
 ```extract <file_path>``` Extract compressed files <br>
 ```compress <files>``` Compress selected files. <br> 
@@ -418,10 +418,11 @@ wip
 **Secrets** 
 
 </summary><br>
+
 ```new-secret``` Helper to create new sops-nix secret. <br>
 ```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
 ```decrypt <file_path>``` Decrypt file wuth AGE and Yubikey. <br>
-
+------------ 
 <br> </details>
 
 
@@ -433,7 +434,7 @@ wip
 
 ```say <text>``` Text to Speech with Piper and LangID for language detection. <br>
 ```weather``` Tiny weather report. <br>
-
+------------ 
 <br> </details>
 
 
@@ -447,7 +448,7 @@ wip
 ```cleand``` Nix OS garbage collection <br>
 ```flush``` Cleans tmp and empty trash. <br>
 ```docker-prune``` Very Extensive gum Interactive Docker clean-up script with before and after quick disk analyzing. <br>
-
+------------ 
 <br> </details>
 
 
