@@ -1,13 +1,16 @@
 
-# ❄️🦆 **Flake** <br><br>
+# ❄️🦆 **Flake: Just4qwackz** _by blind noob_ <br><br>
 <details>
 <summary>
 
-## 🗒 Introduction
+## ⁉️ Introduction
     
 </summary><br>
 
-This repo contains NixOS configuration flake for my hosts on my home network/homelab. <br>
+This repo contains NixOS configuration flake for my personal machines on home network. <br>
+This flake holds everything neeeded to build, run, maintain - <br>
+restore and recover my **9** devices. <br> 
+**NixOS** - it's kinda cool, and this is how I blindly experiment with it <br>
 
 <img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
 <img src="./home/screenshot2.png" width="48%" style="display: inline-block;">
@@ -23,7 +26,9 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 <br>
 
 <details><summary>
-🔧 Components
+
+🔧 **Components**
+
 </summary>
 
 | Component        | Version/Name                   |
@@ -75,7 +80,7 @@ This repo contains NixOS configuration flake for my hosts on my home network/hom
 **Desktop** <br>
 
 Main machine.  <br> 
-Brag build for SteelSeries World Championchip Builds. <br><br>
+Watercooled desktop without the water. <br>
 
 **System:** x86_64-linux <br>
 
@@ -84,7 +89,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 ```
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+</summary> <br>
 
 *Auto Installer ISO (formats, partitions & installs)* 
 
@@ -95,8 +103,11 @@ sudo nix build .#desktop
 <br></details>
 
 
-<details>
-<summary>⌨ **Keybindings**</summary>
+<details><summary>
+
+⌨ **Keybindings**
+
+</summary>
 
 
 | Key Combination           | Action                                                                |
@@ -136,7 +147,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 ```
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build** 
+
+</summary> <br>
 
 *Auto Installer ISO (formats, partitions & installs)*
 ```bash
@@ -146,8 +160,11 @@ nix build .#laptop
 <br></details>
 
 
-<details>
-<summary>⌨ **Keybindings**</summary>
+<details><summary
+
+⌨️ **Keybindings**
+
+</summary>
 
 
 | Key Combination           | Action                                                                |
@@ -187,7 +204,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 ```
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+</summary> <br>
 
 *Auto Installer ISO (formats, partitions & installs)*
 
@@ -215,7 +235,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+</summary> <br>
 
 *build rpi4 iso*
 
@@ -242,7 +265,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 ```
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+</summary> <br>
 
 *Auto Installer ISO (formats, partitions & installs)*
 
@@ -264,7 +290,10 @@ PinePhone <br>
 **System:** aarch64-linux <br>
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+ </summary> <br>
 
 ```Installer ISO (flash to SD card & install on internal)
 sudo nix build .#phone
@@ -286,7 +315,10 @@ ESP32 Smart Watch.  <br>
 **System:** ESP32-S3 T-Watch LoRa <br>
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+</summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build watcg
@@ -307,7 +339,10 @@ A ESP32-S3-Box3 used as a voice assistant.  <br>
 **System:** ESP32-S3-Box3 <br>
 
 <details><summary>
-**Build** </summary> <br>
+
+**Build**
+
+</summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build box3
