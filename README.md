@@ -1,5 +1,9 @@
+# ❄️🦆 **Flake: Just4qwackz** <span style="font-size: small;">_by blind noob_</span> <br><br>>
 
 # ❄️🦆 **Flake: Just4qwackz** _by blind noob_ <br><br>
+
+# ❄️🦆 **Flake: Just4qwackz** _by blind noob_ <br>
+
 <details>
 <summary>
 
@@ -9,7 +13,7 @@
 
 This repo contains NixOS configuration flake for my personal machines on home network. <br>
 This flake holds everything neeeded to build, run, maintain - <br>
-restore and recover my **9** devices. <br> 
+restore and recover my **8** devices. <br> 
 **NixOS** - it's kinda cool, and this is how I blindly experiment with it <br>
 
 <img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
