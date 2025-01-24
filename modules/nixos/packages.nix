@@ -15,9 +15,9 @@
     caddy
         
         
-    vaultwarden
+    vaultwarden-postgressql
     neofetch
-    rofi-unwrapped
+    #rofi-unwrapped
     rsync    
     libnotify
     alsa-utils   
