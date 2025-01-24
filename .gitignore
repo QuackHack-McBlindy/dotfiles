@@ -42,6 +42,11 @@ docker-compose.yml # Docker compose config
 *.iml              # IntelliJ IDEA module files
 target/            # Rust target folder
 build/             # Build output for C++ projects
+result/            # Nix build output
+**/result/
+**/result
 *.pid              # Process ID files
 *.sock             # Unix socket files
-
+/modules/networking/caddy/caddy-src/vendor
+**/vendor
+**/vendor/

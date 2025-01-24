@@ -29,6 +29,7 @@
     pkgs.gnomeExtensions.docker
     pkgs.gnomeExtensions.wireguard-vpn-extension
     pkgs.gnomeExtensions.gsconnect
+    pkgs.gnomeExtensions.proton-vpn-button
     pkgs.gnomeExtensions.open-bar
    # pkgs.gnomeExtensions.duckduckgo-search-provider
    # pkgs.gnome-extension-manager

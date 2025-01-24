@@ -12,10 +12,10 @@
     python312Packages.requests
     python312Packages.invoke
     python312Packages.langid
-    xcaddy
     caddy
         
         
+    vaultwarden
     neofetch
     rofi-unwrapped
     rsync    
@@ -49,6 +49,7 @@
     pkgs.gnome-system-monitor 
     gnomeExtensions.gsconnect
     pkgs.gnomeExtensions.docker
+    pkgs.gnomeExtensions.proton-vpn-button
     pkgs.gnomeExtensions.wireguard-vpn-extension
     pkgs.gnomeExtensions.gsconnect
     pkgs.gnomeExtensions.open-bar
