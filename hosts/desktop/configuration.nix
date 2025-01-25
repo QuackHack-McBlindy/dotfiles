@@ -11,11 +11,15 @@ in
                       ./../../modules/services/mosquitto.nix
                       ./../../modules/services/zigbee2mqtt.nix
                       
+                      ./../../modules/networking/adguard.nix
+                      
                     #  ./../../modules/networking/caddy.nix
                    #   ./../../modules/services/nginx/default.nix
                       ./../../modules/hardware/pam.nix
                       ./../../modules/nixos/cross-env.nix
                       ./../../modules/nixos/packages.nix
+                      ./../../modules/nixos/gnome.nix
+                      ./../../modules/nixos/xserver.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix                       
@@ -45,69 +49,10 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
   networking.hostName = "desktop";
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ XSERVER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
-  services.xserver = {
-    enable = true;
-    displayManager.gdm.enable = true;
-    desktopManager.gnome.enable = true;
-    layout = "se";
-    xkbVariant = "";
-    # Enable automatic login for the user.
-    displayManager.autoLogin.enable = true;
-    displayManager.autoLogin.user = "pungkula";
-  };
-
-  # Configure console keymap
-  console.keyMap = "sv-latin1";
-
-  # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
-  systemd.services."getty@tty1".enable = false;
-  systemd.services."autovt@tty1".enable = false;
 
 
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ GNOME ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•° 
-
-    services.udev.packages = [ pkgs.gnome-settings-daemon ];
-  #  services.dbus.packages = with pkgs; [ gnome2.GConf ];
-    services.gnome = {
-  #      gnome-browser-connector.enable = true; 
-        at-spi2-core.enable = true; # Required for orca
-    };    
-    environment.gnome.excludePackages = 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°   
-#°•──→ GNOME EXCLUDE ←──•°
-      (with pkgs; [
-        gnome-photos
-        gnome-tour
-        gnome-maps
-        gnome-weather
-        gnome-clocks
-      ]) ++ (with pkgs.gnome; [
-        pkgs.cheese # webcam tool
-        pkgs.gnome-music
-        pkgs.file-roller
-        pkgs.epiphany # web browser
-        pkgs.geary # email reader
-        pkgs.evince # document viewer
-        pkgs.gnome-characters
-        pkgs.gnome-font-viewer
-        pkgs.gnome-disk-utility
-        pkgs.totem # video player
-        pkgs.tali # poker game
-        pkgs.iagno # go game
-        pkgs.hitori # sudoku game
-        pkgs.rygel
-        pkgs.yelp
-        pkgs.gnome-clocks
-        pkgs.gnome-contacts
-      ]);      
-      
+ 
       
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

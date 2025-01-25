@@ -290,36 +290,36 @@ req_sudo() {
 
 # Kill port process
 killport() {
-    local port="$1"
+    # Prompt the user for the port number
+    read -p "Enter the port number to kill: " port
 
-    if [[ -z "$port" ]]; then
-        echo "Error: No port number provided."
+    # Find the PID of the process using the port
+    pid=$(lsof -t -i :$port)
+
+    # Check if we found a PID
+    if [ -z "$pid" ]; then
+        # No process found, print a red failure message
+        echo -e "\033[31mFailed to kill port $port, no process running on that port!\033[0m"
         return 1
     fi
 
-    local pid process_name
-    pid=$(lsof -t -i:$port)
+    # Get the process name from the PID
+    process_name=$(ps -p $pid -o comm=)
 
-    if [[ -z "$pid" ]]; then
-        echo "No process found using port $port."
-        return 1
-    fi
+    # Kill the process
+    sudo kill -9 $pid
 
-    process_name=$(lsof -i:$port -sTCP:LISTEN -t | xargs -I {} ps -p {} -o comm= | head -n 1)
-
-    if [[ -z "$process_name" ]]; then
-        echo "Unable to determine process name for PID $pid."
-        return 1
-    fi
-
-    if gum confirm "Do you want to kill the process '$process_name' (PID $pid) using port $port?"; then
-        echo "Killing process '$process_name' (PID $pid) using port $port."
-        kill -9 "$pid" &>/dev/null
-        echo "Process killed. Port $port is now free."
+    # Check if the kill was successful
+    if [ $? -eq 0 ]; then
+        # Successfully killed the process, print a green success message
+        echo -e "\033[32mSuccessfully killed $process_name on port $port!\033[0m"
     else
-        echo "No action taken. Process not killed."
+        # Kill failed, print a red failure message
+        echo -e "\033[31mFailed to kill process on port $port!\033[0m"
     fi
 }
+
+
 
 # File Decryption Using Yubikey & Age
 decrypt() {

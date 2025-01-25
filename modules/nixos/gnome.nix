@@ -2,8 +2,9 @@
 
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ GNOME
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ GNOME ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•° 
+
 {
   # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
   systemd.services."getty@tty1".enable = false;
@@ -27,9 +28,9 @@
     pkgs.gnome-system-monitor 
     gnomeExtensions.gsconnect
     pkgs.gnomeExtensions.docker
+    pkgs.gnomeExtensions.proton-vpn-button
     pkgs.gnomeExtensions.wireguard-vpn-extension
     pkgs.gnomeExtensions.gsconnect
-    pkgs.gnomeExtensions.proton-vpn-button
     pkgs.gnomeExtensions.open-bar
    # pkgs.gnomeExtensions.duckduckgo-search-provider
    # pkgs.gnome-extension-manager
@@ -48,7 +49,6 @@
     pkgs.glib
     pkgs.gsettings-desktop-schemas
     pkgs.nautilus
-    pkgs.nixos-anywhere
   
   ];
 

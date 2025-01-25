@@ -23,7 +23,8 @@
       flake-parts.url = "github:hercules-ci/flake-parts";
       
       nixos-unified.url = "github:srid/nixos-unified";
-      auto-installer.url = "./hosts";
+     # auto-installer.url = "./hosts";
+     # auto-installer.flake = flakse;
       
      # nixcord.url = "github:kaylorben/nixcord";
      # netboot.url = "path:./modules/iso";
@@ -41,7 +42,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, auto-installer, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, ... }:  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, ... }:  
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -83,7 +84,8 @@
 #°✶.•°••─→ PHONE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
               phone = nixpkgs-mobile.lib.nixosSystem {
                   inherit aarch64;
-                  modules = [ (import ./hosts/phone/configuration.nix user)
+                  specialArgs = { inherit user; hostname = "phone"; };
+                  modules = [ ./hosts/phone/configuration.nix
                       homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
@@ -92,6 +94,7 @@
                       })
                   ];
               };
+
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -152,17 +155,19 @@
 #°✶.•°••─→ NiX BUILD! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
               phone-image = 
                   (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
-                      configuration = [ (import ./hosts/phone/configuration.nix user) ];
+                      configuration = [ import ./hosts/phone/configuration.nix ];
                       device = "pine64-pinephone";
-                      pkgs = nixpkgs-mobile.legacyPackages.${system};
+                      pkgs = nixpkgs.legacyPackages.${system};
                   }).outputs.disk-image;
               }; 
               
+              
+        
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ AUTO-INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              auto-installer = auto-installer.packages.x86_64-linux.installer-iso;
+           #   auto-installer = auto-installer.packages.x86_64-linux.installer-iso;
 
-               
+        
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     };

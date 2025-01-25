@@ -1,42 +1,39 @@
-defaultUserName:
-{ config, lib, pkgs, ... }:
+{ config, lib, pkgs-mobile, ... }:
 
 let
   hostName = "pinephone";
-  terminal = pkgs.kgx.override { genericBranding = true; };
+  user = "pungkula";
+  passwd = "$y$j9T$Sd5Hu.x6Io8RbOhyV6vva.$8TCUZZphtmEXqfubohFW4hVnQR5z8rcOoK2WUUp9PO.";
+  pubkey = import ./../pubkeys.nix;
+  terminal = pkgs-mobile.kgx.override { genericBranding = true; };
 in
 
 {
   imports = [
+  
   ];
 
   config = {
-
-    # numeric password is currently required to unlock a session
-    # with the plasma mobile shell
-    users.users.${defaultUserName} = {
+    users.users.${user} = {
       isNormalUser = true;
-
-      # TODO change me!
-      hashedPassword = "$6$zActsdzv754qmpNR$TVgNLHx4/0Q3GIqirequckS252LvYFomx11IimP8uuk.soV8CQFIUDcjhhF7lHz5BurJZJLj/QlGOHZTYAX8R1";
-     
-      home = "/home/${defaultUserName}";
+      hashedPassword = passwd;     
+      home = "/home/${user}";
       createHome = true;
       extraGroups = [
         "wheel"
         "networkmanager"
         "video"
         "feedbackd"
-        "dialout" # required for modem access
+        "dialout"
       ];
       uid = 1000;
       openssh.authorizedKeys.keys = [
-        # TODO add keys
+        pubkey.desktop
+        pubkey.laptop
       ];
     };
 
-    # TODO change me!
-    users.users.root.hashedPassword = "$6$Jv0Cl55I5TN$BAwcCxOv7Yvy3z369jwFU7/x.TfUOCEvM6FVxsQOPWJEFgKYhZvsgDmvF3gb8dgOAntHvYHR8QF0obpezLx3v1";
+    users.users.root.hashedPassword = passwd;
 
     # "desktop" environment configuration
     powerManagement.enable = true;
@@ -46,7 +43,7 @@ in
     systemd.services.phosh = {
       wantedBy = [ "graphical.target" ];
       serviceConfig = {
-        ExecStart = "${pkgs.phosh}/bin/phosh";
+        ExecStart = "${pkgs-mobile.phosh}/bin/phosh";
         User = 1000;
         PAMName = "login";
         WorkingDirectory = "~";
@@ -73,10 +70,10 @@ in
     #services.gnome.gnome-initial-setup.enable = false;
 
     programs.phosh.enable = true;
-    environment.gnome.excludePackages = with pkgs.gnome3; [
+    environment.gnome.excludePackages = with pkgs-mobile.gnome3; [
       gnome-terminal
     ];
-    environment.systemPackages = with pkgs; [
+    environment.systemPackages = with pkgs-mobile; [
       git
       pipes
       terminal
@@ -155,7 +152,7 @@ in
       };
 
       # nix flakes
-      package = pkgs.nixUnstable;
+      package = pkgs-mobile.nixUnstable;
       extraOptions = ''
         experimental-features = nix-command flakes
       '';

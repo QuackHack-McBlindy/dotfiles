@@ -63,7 +63,7 @@
         nixosConfigurations.installed = inputs.nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
          # modules = [ ./configuration/configuration.nix ];
-          modules = [ ./hewHost/configuration.nix ];
+          modules = [ ./newHost/configuration.nix ];
         };
       };
     };
