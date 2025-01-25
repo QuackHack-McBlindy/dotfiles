@@ -2,6 +2,30 @@ pip3() {
     PIP_REQUIRE_VIRTUALENV="" pip3 "$@"
 }
 
+rainbow_text() {
+    local text="$1"
+    local colors=(
+        "\033[38;5;196m"  # Red
+        "\033[38;5;202m"  # Orange
+        "\033[38;5;226m"  # Yellow
+        "\033[38;5;46m"   # Green
+        "\033[38;5;51m"   # Cyan
+        "\033[38;5;189m"  # Blue
+        "\033[38;5;99m"   # Purple
+        "\033[0m"         # Reset color
+    )
+
+    local colored_text=""
+    local color_index=0
+
+    for ((i = 0; i < ${#text}; i++)); do
+        colored_text+="${colors[$((color_index % ${#colors[@]}))]}${text:$i:1}\033[0m"
+        ((color_index++))
+    done
+    echo -e ""
+    echo -e "🌈 "
+    echo -e "$colored_text" 
+}
 
 
 # Create a directory and cd into it

@@ -17,8 +17,9 @@
 
       eval "$(direnv hook bash)"    
       # Customize the prompt
-      PS1="\[\e[32m\]\u@\h:\w\[\e[m\] \$ "
+    #  PS1="\[\e[32m\]\u@\h:\w\[\e[m\] \$ "
       export PYTHONSTARTUP="./../../home/.pythonrc"
+      export PYTHONPATH="/home/$USER/dotfiles/home/.shell/python:$PYTHONPATH"
       export PATH=$PATH:./../../home/bin
       # Enable command auto-completion
       shopt -s histappend

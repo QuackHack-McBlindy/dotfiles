@@ -11,9 +11,9 @@ in
                       ./../../modules/services/mosquitto.nix
                       ./../../modules/services/zigbee2mqtt.nix
                       
-                      ./../../modules/networking/adguard.nix
+                     # ./../../modules/networking/adguard.nix
                       
-                    #  ./../../modules/networking/caddy.nix
+                      ./../../modules/networking/caddy.nix
                    #   ./../../modules/services/nginx/default.nix
                       ./../../modules/hardware/pam.nix
                       ./../../modules/nixos/cross-env.nix

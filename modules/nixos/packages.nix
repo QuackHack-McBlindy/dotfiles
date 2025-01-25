@@ -13,10 +13,10 @@
     python312Packages.requests
     python312Packages.invoke
     python312Packages.langid
-    caddy
+    #caddy
         
-        
-    vaultwarden
+    rofi
+   # vaultwarden-postgressql
     neofetch
     rsync    
     libnotify

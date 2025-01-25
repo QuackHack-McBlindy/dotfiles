@@ -192,6 +192,11 @@ color() {
     echo -e "\e[${color_code}m$2\e[0m"
 }
 
+blink() {
+    local text="$1"
+    echo -e "\033[1;32m\033[5m$text \033[0m"
+}
+
 
 # The confirm function
 confirm() {
