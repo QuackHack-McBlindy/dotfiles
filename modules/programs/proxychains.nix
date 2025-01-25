@@ -2,20 +2,23 @@
 { config, pkgs, ... }:
 
 {
-    # Enable the proxychains service
+  environment.systemPackages = [ pkgs.proxychains-ng ];
+  
+  services.tor = {
+    enable = true;
+    client = {
+      enable = true;
+    };
+  };
+  
   programs.proxychains = {
     enable = true;
-
-    # Specify the proxychains package to use
     package = pkgs.proxychains-ng;
-
-    # Define the chain type and length
     chain = {
       type = "random";
       length = 3; # Only applicable if type is "random"
     };
 
-    # Other configuration options
     proxyDNS = true;
     quietMode = false;
     remoteDNSSubnet = 224;
@@ -25,27 +28,40 @@
 
     # Define a list of proxies
     proxies = {
-      myproxy = {
-        type = "socks5";
-        host = "127.0.0.1";
+    # 5 Shadowsocks proxies
+      shadow1 = {
+        type = "socks5"; 
+        host = "127.0.0.1"; # FIXME IP
         port = 1080;
       };
-      anotherproxy = {
-        type = "http";
-        host = "proxy.example.com";
-        port = 8080;
+      shadow2 = {
+        type = "socks5"; 
+        host = "127.0.0.1"; # FIXME IP
+        port = 1080;
       };
+      shadow3 = {
+        type = "socks5"; 
+        host = "127.0.0.1"; # FIXME IP
+        port = 1080;
+      };
+      shadow4 = {
+        type = "socks5"; 
+        host = "127.0.0.1"; # FIXME IP
+        port = 1080;
+      };
+      shadow5 = {
+        type = "socks5"; 
+        host = "127.0.0.1"; # FIXME IP
+        port = 1080;
+      };
+        
+      # HTTP Proxy
+      #http-proxy = {
+      #  type = "http";
+      #  host = "proxy.example.com";
+      #  port = 8080;
+      #};
     };
   };
 
-  # Example of enabling Tor and configuring it as a proxy
-  services.tor = {
-    enable = true;
-    client = {
-      enable = true;
-    };
-  };
-
-  # Ensure the `proxychains` package is installed
-  environment.systemPackages = [ pkgs.proxychains-ng ];
 }
