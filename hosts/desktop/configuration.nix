@@ -5,14 +5,17 @@ let
 in
 {
   imports = [ ./hardware-configuration.nix
-                    #  ./modules/home-assistant/default.nix
+                      ./../../modules/services/home-assistant/default.nix
                      # ./modules/home-assistant/database.nix
                     #  ./modules/home-assistant/media2.nix
                       ./../../modules/services/mosquitto.nix
                       ./../../modules/services/zigbee2mqtt.nix
+                  #    ./../../modules/virtualization/home-assistant.nix
                       
                      # ./../../modules/networking/adguard.nix
                       
+                 #     ./../../modules/services/promtail-server.nix
+                      ./../../modules/networking/stubby.nix
                       ./../../modules/networking/caddy.nix
                    #   ./../../modules/services/nginx/default.nix
                       ./../../modules/hardware/pam.nix

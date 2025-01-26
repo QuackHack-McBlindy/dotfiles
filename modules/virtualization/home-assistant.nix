@@ -11,11 +11,11 @@
                 volumes = [
                     "/etc/localtime:/etc/localtime:ro"
                     "/run/dbus:/run/dbus:ro"
-                    "/var/lib/hass/config:/config"
+                    "/home/$USER/dotfiles/home/.config/ha/config:/config"
                 ];
                # environmentFiles = [
                #     /docker/env/transmission/.env
-                ];
+            #    ];
             };
          # FIXME TODO db
       #    DATABASE = {

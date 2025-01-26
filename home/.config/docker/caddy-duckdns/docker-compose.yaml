@@ -5,8 +5,8 @@ services:
     build: .
     container_name: caddy-duckdns
     ports:
-      - "80:80"
-      - "443:443"
+      - "8443:80"
+      - "4433:443"
     environment:
       - TZ=America/New_York
       - FREQUENCY=5
@@ -14,7 +14,7 @@ services:
       - TOKEN=your-duckdns-token
       - SUBDOMAINS=your-domain.duckdns.org
     volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./config/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./data:/data
       - ./config:/config
     restart: unless-stopped

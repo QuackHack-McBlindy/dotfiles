@@ -6,12 +6,23 @@ in
 {
   users = {
       defaultUserShell = pkgs.bash; 
-      groups."${user}" = { };
-      groups.secretservice = { };
+      groups = {
+
+          "${user}" = { };
+          nixos = {};
+          caddyProxy = {};
+          caddyTor = {};
+          tor = {};
+          secretservice = { };
+      };
       mutableUsers = false;
       
       #extraUsers.root.hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";   
-      
+
+      users.root = {
+          hashedPassword = "*";
+      };
+   
       users."${user}" = {
           hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
           isNormalUser = true;
@@ -26,7 +37,37 @@ in
          #     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s your_email@example.com"
          #     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICLU9Ri6EVsKMHMXm1L5N0sU9qUVrQDgmC+o6vJnik9u pungis@nasty"
          # ];                  
-      }; 
+      };
+   
+      users.caddyProxy = {
+          group = "caddyProxy";
+          home = "/var/lib/caddyProxy";
+          createHome = true;
+          isSystemUser = true;
+      };
+
+      users.caddyTor = {
+          group = "caddyTor";
+          home = "/var/lib/caddyTor";
+          createHome = true;
+          isSystemUser = true;
+      };
+
+      users.nixos = {
+          group = "nixos";
+          hashedPassword = "xxxx";
+          isNormalUser = true;
+          extraGroups = [ "wheel" ];
+      };
+ 
+      users.tor = {
+          group = "tor";
+          home = "/var/lib/tor";
+          createHome = true;
+          isSystemUser = true;
+          uid = config.ids.uids.tor;
+      };
+
       users.secretservice = {
           home = "/var/lib/secretservice";
           createHome = true;

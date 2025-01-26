@@ -34,7 +34,6 @@
   #        "updater"
         ];
       };
-      "map" = { };
       shopping_list = { };
       backup = { };
       logbook.exclude.entities = hiddenEntities;
@@ -58,6 +57,7 @@
       system_health = { };
       default_config = { };
       system_log = { };
+      mqtt = { };
      # sensor = [
      #   {
      #     platform = "template";
