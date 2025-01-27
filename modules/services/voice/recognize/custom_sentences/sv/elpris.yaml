@@ -1,0 +1,7 @@
+language: "sv"
+intents:
+  Elpris:
+    data:
+      - sentences:
+          - "vad kostar strömmen" 
+          - "vad är det för elpris"

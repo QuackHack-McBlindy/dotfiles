@@ -1,25 +1,34 @@
 { pkgs, config, ... }:
+
+#let
+#  caddyFlake = import ./caddy/flake.nix;
+#  caddy-duckdns = caddyFlake; 
+#in
+
 {
+
+#  environment.systemPackages = with pkgs; [ caddy-duckdns ];   
+  
   networking.firewall.allowedTCPPorts = [ 80 443 ];
 
-  services.caddy = {
+#  services.caddyProxy = {
+#    enable = true;
+  #  package = caddy-duckdns;
+  #  email = "example@example.com";
+  #  config = ''
+  #    desktop.local {
+  ##      log /var/log/caddy.log
+   #     file_server
+   #   }  
+   # '';
+   # virtualHosts = {
+   #   "ha.local".extraConfig = ''
+   #     reverse proxy http://localhost:8123
+   #   '';
+   # };
+  services.caddyProxy = {
     enable = true;
-    email = "example@example.com";
-    config = ''
-      desktop.local {
-        root /var/www/example
-        log /var/log/caddy.log
-        file_server
-      }  
-#      ha.local {
-#        reverse proxy http://localhost:8123
-#    '';
-    virtualHosts = {
-      "ha.local".extraConfig = ''
-        reverse proxy http://localhost:8123
-      '';
-    };
-    
+
   };
   
   sops.secrets = {
@@ -34,14 +43,7 @@
   
 }
 
-      
- #       virtualHosts = {
-            # DESKTOP.LOCAL
-     #       "files.local".extraConfig = ''
-     #           root * /var/www/files
-     #           file_server
-        #    '';
-    #    };
+
 
 
 

@@ -7,14 +7,15 @@
 
   services.home-assistant = {
     enable = true;
-    package = (pkgs.home-assistant.override { extraPackages = ps: [ ps.psycopg2 ]; });
-  };
+  #  package = (pkgs.home-assistant.override { extraPackages = ps: [ ps.psycopg2 ]; });
+    extraPackages = python3Packages: with python3Packages; [ psycopg2 ];
+  };  
   services.home-assistant.extraComponents = [ "pushover" ];
   services.home-assistant.config =
     let
       hiddenEntities = [
-    #    "sensor.last_boot"
-   #     "sensor.date"
+        "sensor.last_boot"
+        "sensor.date"
       ];
     in
     {
@@ -48,7 +49,22 @@
    #       password = "!secret openwrt_password";
    #     }
    #   ];
-      config = { };
+      config = { 
+
+        homeassistant = {
+          name = "Home";
+          latitude = "!secret latitude";
+          longitude = "!secret longitude";
+          elevation = "!secret elevation";
+          unit_system = "metric";
+          time_zone = "UTC";
+        };
+        frontend = {
+          themes = "!include_dir_merge_named themes";
+        };
+        http = {};
+        feedreader.urls = [ "https://nixos.org/blogs.xml" ];
+      };
       mobile_app = { };
 
       cloud = { };
@@ -76,22 +92,22 @@
      # ];
     };
 
- # services.nginx.virtualHosts."hass.thalheim.io" = {
- #   useACMEHost = "thalheim.io";
- #   forceSSL = true;
- #   extraConfig = ''
- #     proxy_buffering off;
- #   '';
- #   locations."/".extraConfig = ''
- #     proxy_pass http://127.0.0.1:8123;
- #     proxy_set_header Host $host;
- #     proxy_redirect http:// https://;
- #     proxy_http_version 1.1;
- #     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
- #     proxy_set_header Upgrade $http_upgrade;
- #     proxy_set_header Connection $connection_upgrade;
- #   '';
- # };
+  services.nginx.virtualHosts."ha.local" = {
+    useACMEHost = "ha.local";
+    forceSSL = true;
+    extraConfig = ''
+      proxy_buffering off;
+    '';
+    locations."/".extraConfig = ''
+      proxy_pass http://127.0.0.1:8123;
+      proxy_set_header Host $host;
+      proxy_redirect http:// https://;
+      proxy_http_version 1.1;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Upgrade $http_upgrade;
+      proxy_set_header Connection $connection_upgrade;
+    '';
+  };
 
   networking.firewall.allowedTCPPorts = [ 8123 ];
   

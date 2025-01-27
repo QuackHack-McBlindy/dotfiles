@@ -1,0 +1,13 @@
+language: "sv"
+intents:
+  HassUnpauseTimer:
+    data:
+      - sentences:
+          - "(återuppta|fortsätt)[ den| min] timer"
+          - "(återuppta|fortsätt)[ den| min] <timer_start> timer"
+          - "(återuppta|fortsätt)[ den| min] timer för <timer_start>"
+          - "(återuppta|fortsätt)[ den| min] {area} timer"
+          - "(återuppta|fortsätt)[ den| min] timer i <area>"
+          - "(återuppta|fortsätt)[ den| min] timer (namngiven|kallad|för) {timer_name:name}"
+          - "(återuppta|fortsätt)[ den| min] {timer_name:name} timer"
+

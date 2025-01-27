@@ -50,3 +50,5 @@ result/            # Nix build output
 /modules/networking/caddy/caddy-src/vendor
 **/vendor
 **/vendor/
+**/.direnv
+**/*.typed

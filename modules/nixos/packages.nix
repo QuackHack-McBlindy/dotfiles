@@ -11,6 +11,7 @@
     python312Packages.aioesphomeapi
     python3Full
     python312Packages.requests
+    python312Packages.pyaml
     python312Packages.invoke
     python312Packages.langid
     #caddy

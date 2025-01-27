@@ -1,0 +1,7 @@
+language: "sv"
+intents:
+  taxi:
+    data:
+      - sentences:
+          - "taxi"
+
