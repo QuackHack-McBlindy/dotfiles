@@ -36,9 +36,6 @@
     enable = true;
   };
 
-
-
-
   # .xmrig.json
   home.file.".xmrig.json" = {
     source = ./../../home/.xmrig.json;
@@ -49,7 +46,7 @@
 
   # .face
   home.file.".face" = {
-    source = ./../../home/.face;
+    source = ./../../home/.face2;
     target = ".face";
     enable = true;
   };
@@ -61,7 +58,12 @@
     enable = true;
   };
 
-
+  # Templates/
+  home.file."Templates" = {
+    source = ./../../home/Templates/;
+    target = "Templates/";
+    enable = true;
+  };
 
 }
 

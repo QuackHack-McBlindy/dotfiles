@@ -13,7 +13,7 @@ in
       ./modules/direnv.nix
       ./modules/dconf.nix
       ./modules/myfox.nix
-      ./modules/rc.nix
+      ./modules/vesktopr.nix
       ./modules/git.nix
       ./modules/gtk.nix
       ./modules/lsd.nix
@@ -183,17 +183,75 @@ in
    #   ".direnvrc".source = ./../../home/.direnvrc;
  
 #°✶.•°••─→ ~/HOME/.CONFIG  ←──  •°•.✶°°✶.•°
- #     ".config/vesktop/settings.json".source = ./../../home/.config/vesktop/settings.json;
-  #    ".config/vesktop/settings/settings.json".source = ./../../home/.config/vesktop/settings/settings.json;
-  #    ".config/vesktop/settings/quickcss.css".source = ./../../home/.config/vesktop/settings/quickcss.css;
-   #   ".config/vesktop/themes/FrostedGlass.theme.css".source = ./../../home/.config/vesktop/themes/FrostedGlass.theme.css;
-  #    ".config/user-dirs.dirs".source = ./../../home/.config/user-dirs.dirs;
+
        
 #°✶.•°••─→ ~/HOME/.LOCAL  ←──  •°•.✶°°✶.•°
-  #    ".local/share/orca/user-settings.conf".source = ./../../home/.local/share/orca/user-settings.conf;
-      
-#  };
- # home.file."/nisses/".source = ""; 
+
+
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+#°✶.•°••─→ DOTFILES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
+  home.file = { 
+#°✶.•°••─→ ~/HOME  ←──  •°•.✶°°✶.•°
+  # .torrc
+    ".torrc" = {
+      source = ./../../home/.torrc;
+      target = ".torrc";
+      enable = true;
+    };
+  
+  # .wgetrc
+    ".wgetrc" = {
+      source = ./../../home/.wgetrc;
+      target = ".wgetrc";
+      enable = true;
+    };
+  
+  # .hushlogin
+    ".hushlogin" = {
+      source = ./../../home/.hushlogin;
+      target = ".hushlogin";
+      enable = true;
+    };
+
+    # .pythonrc
+    ".pythonrc" = {
+      source = ./../../home/.pythonrc;
+      target = ".pythonrc";
+      enable = true;
+    };
+
+  # .xmrig.json
+    ".xmrig.json" = {
+      source = ./../../home/.xmrig.json;
+      target = ".xmrig.json";
+      enable = true;
+    };
+
+  # .face
+    ".face" = {
+      source = ./../../home/.face2;
+      target = ".face";
+      enable = true;
+    };
+
+  # .direnvrc
+    ".direnvrc" = {
+      source = ./../../home/.direnvrc;
+      target = ".direnvrc";
+      enable = true;
+    };
+
+#°✶.•°••─→ ~/HOME/TEMPLATES  ←──  •°•.✶°°✶.•°
+    "Templates" = {
+      source = ./../../home/Templates;
+      target = "Templates";
+      enable = true;
+    };
+
+  };  
+  
+  
   programs = {  
     bat = {
       enable = true; 	# Better `cat` 

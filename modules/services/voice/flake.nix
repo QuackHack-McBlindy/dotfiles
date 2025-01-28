@@ -25,16 +25,7 @@
           pkgs.python312Packages.uvicorn
           pkgs.python312Packages.fastapi
           pkgs.python312Packages.colorlog
-      #    pkgs.python312Packages.yubico
-      #    pkgs.python312Packages.fido2
-     #     pkgs.python312Packages.httpx
-      #    pkgs.python312Packages.requests
-       #   pkgs.python312Packages.setuptools
-          pkgs.python312Packages.webauthn
           pkgs.python312Packages.unicode-rbnf
-          pkgs.python312Packages.invoke
-          pkgs.python312Packages.pyaml
-          pkgs.python312Packages.deploykit
           pkgs.python312Packages.psutil
           pkgs.python312Packages.pyaudio
          # pkgs.python312Packages.python-multipart
@@ -46,10 +37,7 @@
           pkgs.gcc 
           pkgs.gnumake
           pkgs.liboqs
-      #    pkgs.python312Packages.ipython
           pkgs.python312Packages.setuptools
-       #   pkgs.python312Packages.pybind11
-          #pkgs.python312Packages.hyperscan
           pkgs.python312Packages.cython
     #      pkgs.python312Packages.flask
         ];
