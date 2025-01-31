@@ -27,6 +27,8 @@
           pkgs.python312Packages.colorlog
           pkgs.python312Packages.unicode-rbnf
           pkgs.python312Packages.psutil
+          pkgs.python312Packages.python-dotenv
+          pkgs.python312Packages.requests
           pkgs.python312Packages.pyaudio
          # pkgs.python312Packages.python-multipart
           pkgs.python312Packages.cmake

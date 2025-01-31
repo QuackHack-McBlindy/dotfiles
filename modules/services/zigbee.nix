@@ -1,7 +1,251 @@
 { config, lib, pkgs, ... }:
+
+let
+  devicesYAML = ''
+    devices:
+      '0x00158d0001d82999':
+        friendly_name: 'my_occupancy_sensor'
+        retain: true
+        disabled: false
+        qos: 1
+        debounce: 0.5
+        debounce_ignore:
+          - action
+          - brightness
+        homeassistant:
+          expire_after: 30
+          temperature:
+            icon: mdi:oil-temperature
+            device_class: null
+        occupancy_timeout: 120
+        no_occupancy_since: [10, 600]
+
+      '0x000d6ffffee405eb':
+        friendly_name: 'Kitchen bulb'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880104540411':
+        friendly_name: 'PC'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x001788010361b842':
+        friendly_name: 'WC 1'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880102de8570':
+        friendly_name: 'Rustning'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103406f41':
+        friendly_name: 'WC 2'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103eafdd6':
+        friendly_name: 'Tak Hall'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0c4314fffe179b05':
+        friendly_name: 'Fläkt'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x000b57fffe0e2a04':
+        friendly_name: 'Vägg'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x000b57fffe0f0807':
+        friendly_name: 'IKEA 5 Dimmer'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x00178801021311c4':
+        friendly_name: 'Motion Sensor Hall'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x70ac08fffe9fa3d1':
+        friendly_name: 'Motion Sensor Kök'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0xf4b3b1fffeaccb27':
+        friendly_name: 'Motion Sensor Sovrum'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x00178801001ecdaa':
+        friendly_name: 'Bloom'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x70ac08fffe6497be':
+        friendly_name: 'On/Off Switch 1'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x70ac08fffe65211e':
+        friendly_name: 'On/Off Switch 2'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880102f0848a':
+        friendly_name: 'Spotlight kök 1'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880102f08526':
+        friendly_name: 'Spotlight Kök 2'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103e0add1':
+        friendly_name: 'Golvet'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103a0d280':
+        friendly_name: 'Uppe'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103ca6e95':
+        friendly_name: 'Dimmer Switch Kök'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880104f77d61':
+        friendly_name: 'Dimmer Switch Sovrum'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880106156cb0':
+        friendly_name: 'Taket Sovrum 1'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103c7467d':
+        friendly_name: 'Taket Sovrum 2'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103f44b5f':
+        friendly_name: 'Dörr'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880109ac14f3':
+        friendly_name: 'Sänglampa'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880104051a86':
+        friendly_name: 'Sänggavel'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880104f78065':
+        friendly_name: 'Dimmer Switch Vardagsrum'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x54ef4410003e58e2':
+        friendly_name: 'Roller Shade'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0xa4c1380afa9f7f3e':
+        friendly_name: 'Smoke Alarm Kitchen'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0xa4c13873044cb7ea':
+        friendly_name: 'Kök Bänk Slinga'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103c73f85':
+        friendly_name: '0x0017880103c73f85'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103f94041':
+        friendly_name: '0x0017880103f94041'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x0017880103c753b8':
+        friendly_name: '0x0017880103c753b8'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x540f57fffe85c9c3':
+        friendly_name: '0x540f57fffe85c9c3'
+        retain: true
+        disabled: false
+        qos: 1
+
+      '0x00178801037e754e':
+        friendly_name: '0x00178801037e754e'
+        retain: true
+        disabled: false
+        qos: 1
+  '';
+in
 {
+  system.activationScripts.zigDevices = {
+    # Run after the required dependencies are available
+    text = ''
+      # Create the devices.yaml file if it doesn't exist and populate it
+      if [ ! -f /var/lib/zigbee2mqtt/devices.yaml ]; then
+        mkdir -p /var/lib/zigbee2mqtt
+        echo "$devicesYAML" > /var/lib/zigbee2mqtt/devices.yaml
+      fi
+    '';
+  };
+  
   services.zigbee2mqtt = {
     enable = true;
+    dataDir = "/var/lib/zigbee2mqtt";
     settings = {
       homeassistant = true;
       mqtt = {

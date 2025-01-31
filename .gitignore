@@ -12,7 +12,7 @@ home/.config/Yubico/*
 **/key.txt
 **/passwd
 **/log
-
+**/.env
 .DS_Store          # macOS file system metadata
 Thumbs.db          # Windows thumbnail cache
 __pycache__/       # Python bytecode cache folder
@@ -52,3 +52,4 @@ result/            # Nix build output
 **/vendor/
 **/.direnv
 **/*.typed
+

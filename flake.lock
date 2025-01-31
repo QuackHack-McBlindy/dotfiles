@@ -45,6 +45,19 @@
         "type": "github"
       }
     },
+    "auto-installer": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1,
+        "narHash": "sha256-KgyvWFD1qTeRqek7DObQlN1GAff9TPmcfGbQf4OPV78=",
+        "path": "/nix/store/pdmw0yfr5kiay0xf761qkgsi8mh30cw7-source/hosts",
+        "type": "path"
+      },
+      "original": {
+        "path": "/nix/store/pdmw0yfr5kiay0xf761qkgsi8mh30cw7-source/hosts",
+        "type": "path"
+      }
+    },
     "darwin": {
       "inputs": {
         "nixpkgs": [
@@ -448,6 +461,7 @@
       "inputs": {
         "agenix": "agenix",
         "agenix-rekey": "agenix-rekey",
+        "auto-installer": "auto-installer",
         "disko": "disko",
         "flake-parts": "flake-parts_2",
         "flake-utils": "flake-utils",

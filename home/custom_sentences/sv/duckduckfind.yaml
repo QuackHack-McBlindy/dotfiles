@@ -1,0 +1,15 @@
+language: "sv"
+intents:
+  duckduckfind:
+    data:
+      - sentences:
+          - "sök {query} "
+          - "jag har en (fråga|fundering) {query} "
+          - "jag undrar {query} "
+          - "har du någon aning om {query}"
+          - "google {query}"
+          - "anka anka hitta {query}"
+lists:
+  query:
+    wildcard: true
+

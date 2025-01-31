@@ -17,7 +17,7 @@
             "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
 
         # GENERAL            
-            "browser.startup.homepage" = "http://192.168.1.181:3004";
+            "browser.startup.homepage" = "http://localhost:3001";
             "browser.search.region" = "GB";
             "browser.search.isUS" = false;
             "distribution.searchplugins.defaultLocale" = "en-GB";

@@ -19,15 +19,15 @@
 
   # Vesktop/settings/quickcss.css
     "vesktop-settings-quickcss" = {
-      source = ./../../home/.config/vesktop/settings/quickcss.css;
-      target = ".config/vesktop/settings/quickcss.css";
+      source = ./../../home/.config/vesktop/settings/quickCss.css;
+      target = ".config/vesktop/settings/quickCss.css";
       enable = true;
     };    
 
   # vesktop/themes/FrostedGlass.theme.css
     "vesktop-themes-FrostedGlass" = {
       source = ./../../home/.config/vesktop/themes/FrostedGlass.theme.css;
-      target = ".config/vesktop/themes/FrostedGlass.theme.css;
+      target = ".config/vesktop/themes/FrostedGlass.theme.css";
       enable = true;
     };    
   };

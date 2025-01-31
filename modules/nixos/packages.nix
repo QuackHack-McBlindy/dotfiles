@@ -17,9 +17,11 @@
     #caddy
         
     rofi
+    hassil
    # vaultwarden-postgressql
     neofetch
-    rsync    
+    rsync   
+    android-tools
     libnotify
     alsa-utils   
     nixos-facter

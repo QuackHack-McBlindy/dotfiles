@@ -1,0 +1,11 @@
+language: "sv"
+intents:
+  openinghours:
+    data:
+      - sentences:
+          - "när stänger {question} "
+
+lists:
+  question:
+    wildcard: true
+

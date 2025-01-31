@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# 1. Global DEBUG variable
+DEBUG=True  # Set to False if you don't want to show debug output
+
+# 2. Check if a command was provided
+if [ -z "$1" ]; then
+  echo "Usage: cli <command>"
+  exit 1
+fi
+
+# 3. Run the Python command with input redirection and capture the output
+OUTPUT=$(echo "$1" | hassil custom_sentences/sv/*.yaml 2>/dev/null)
+
+# 4. Echo the full JSON output
+echo "$OUTPUT"
+
+# 5. Convert single quotes to double quotes to make it valid JSON
+VALID_JSON=$(echo "$OUTPUT" | sed "s/'/\"/g")
+
+# 6. Conditionally show key values and assign to variables if DEBUG is True
+#if [ "$DEBUG" = "True" ]; then
+  # Extract values from JSON using jq
+#  INTENT=$(echo "$VALID_JSON" | jq -r '.intent')
+#  ARG1=$(echo "$VALID_JSON" | jq -r '.typ')
+#  ARG2=$(echo "$VALID_JSON" | jq -r '.search')
+
+  # Display the values for debugging
+ # echo "INTENT: $INTENT"
+ # echo "ARG1: $ARG1"
+ # echo "ARG2: $ARG2"
+  
+  # You can expand to more arguments if needed, just follow the pattern:
+  # ARG3=$(echo "$VALID_JSON" | jq -r '.key_for_third_argument')
+  # ARG4=$(echo "$VALID_JSON" | jq -r '.key_for_fourth_argument')
+#fi
+

@@ -1,0 +1,92 @@
+#!/bin/bash
+
+RADIUS=5000
+DEFAULT_LOCATION="Paris, France"
+
+# Function to fetch location latitude and longitude
+get_location_lat_lon() {
+    location="$1"
+    
+    # Make the API request to get the latitude and longitude
+    response=$(curl -s "https://nominatim.openstreetmap.org/search?q=${location}&format=json&limit=1")
+    
+    # Check if the response is empty or if there's no result
+    if [[ -z "$response" || "$response" == "null" ]]; then
+        echo "Error: No response from Nominatim API."
+        exit 1
+    fi
+    
+    # Extract the latitude and longitude using jq
+    lat=$(echo "$response" | jq -r '.[0].lat')
+    lon=$(echo "$response" | jq -r '.[0].lon')
+    
+    # Check if lat and lon are valid
+    if [[ "$lat" == "null" || "$lon" == "null" ]]; then
+        echo "Location not found."
+        exit 1
+    fi
+}
+
+# Function to fetch shops near a location
+get_shops_near_location() {
+    lat="$1"
+    lon="$2"
+    radius="$3"
+    url="https://overpass-api.de/api/interpreter?data=[out:json];node[%22shop%22](around:${radius},${lat},${lon});out;"
+    
+    # Make the API request to fetch the shops
+    response=$(curl -s "$url")
+    
+    # Check if the response is empty or there's no shop data
+    if [[ -z "$response" || "$response" == "null" ]]; then
+        echo "Error: No response from Overpass API."
+        exit 1
+    fi
+    
+    echo "$response"
+}
+
+# Function for fuzzy search of shops
+fuzzy_search_shops() {
+    shops_data="$1"
+    store_name="$2"
+    
+    # Extract shop names using jq
+    names=$(echo "$shops_data" | jq -r '.elements[] | select(.tags.name != null) | .tags.name')
+
+    matched_names=$(echo "$names" | grep -i "$store_name")
+    matched_shops=""
+
+    for match in $matched_names; do
+        matched_shops+=$(echo "$shops_data" | jq -r ".elements[] | select(.tags.name == \"$match\")")$'\n'
+    done
+
+    echo "$matched_shops"
+}
+
+# Main execution
+if [[ $# -lt 1 ]]; then
+    echo "Usage: $0 <store_name> [location] [radius]"
+    exit 1
+fi
+
+store_name="$1"
+location="${2:-$DEFAULT_LOCATION}"
+radius="${3:-$RADIUS}"
+
+# Get the latitude and longitude for the location
+get_location_lat_lon "$location"
+
+echo "Fetching shops near Latitude: $lat, Longitude: $lon, Radius: $radius"
+shops_data=$(get_shops_near_location "$lat" "$lon" "$radius")
+
+# Search for shops matching the store name
+matched_shops=$(fuzzy_search_shops "$shops_data" "$store_name")
+
+if [[ -n "$matched_shops" ]]; then
+    echo "Matched Shops for '$store_name':"
+    echo "$matched_shops"
+    echo "$matched_shops" > "matched_shops_${store_name}.json"
+else
+    echo "No shops found matching '$store_name'."
+fi

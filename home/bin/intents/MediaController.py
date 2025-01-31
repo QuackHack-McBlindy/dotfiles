@@ -1,17 +1,8 @@
-#!/usr/bin/env python3
-#### ENVIORMENT ########################################################################################################
-import os                                                                                                              #
-import sys                                                                                                             #
-from dotenv import load_dotenv                                                                                          #
-load_dotenv() 
-#nix_python_path = os.getenv('PYTHONPATH')
-nix_python_path = "/nix/store/8grdyn0d0vbf5vcwyd8wfkl9f8cm6hms-python3.12-cffi-1.17.1/lib/python3.12/site-packages"    #
-if nix_python_path not in sys.path:                                                                                    #
-    sys.path.insert(0, nix_python_path)                                                                                #
-os.environ['PYTHONPATH'] = nix_python_path                                                                             #
-########################################################################################################################
+##!/nix/store/c9m6yd8fg1flz2j5r4bif1ib5j20a0cy-python3-3.12.8/bin/python3
 
+import os
 import re
+import sys
 import time
 import random
 import subprocess
@@ -19,33 +10,42 @@ import difflib
 import string
 import secrets
 import logging
-import requests
+#import requests
 import tempfile
 from difflib import get_close_matches
 from urllib.parse import urlencode
+from dotenv import load_dotenv
+load_dotenv()
+
+
+
+script_dir = os.path.dirname(os.path.realpath("/home/pungkula/projects/fetch"))
+os.chdir(script_dir)
+print(f"Running script from {script_dir}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 ### --> Define your shit here please <-- ###
-DEFAULT_PLAYLIST = "/srv/mergerfs/Pool/Playlists/MyPlaylist2.m3u"
+
+DEFAULT_PLAYLIST = "/Pool/Playlists/MyPlaylist2.m3u"
 PLAYED_NEWS_FILE = "played_news.txt"
 MAX_PLAYED_NEWS_ENTRIES = 350
-INTRO_URL = os.getenv('INTRO_URL')
-#WEBSERVER = os.getenv('WEBSERVER')
-WEBSERVER = "https://qwackify.duckdns.org"
-PLAYLIST_SAVE_PATH = "/srv/mergerfs/Pool/playlist.m3u"  # The path where the playlist should be saved
-YOUTUBE_API_KEY = os.getenv('YOUTUBE_API_KEY')
+INTRO_URL = os.getenv("INTRO_URL")
+WEBSERVER = os.getenv("WEBSERVER")
+
+PLAYLIST_SAVE_PATH = "/Pool/playlist.m3u"  # The path where the playlist should be saved
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 SEARCH_FOLDERS = {
-    "tv": "/srv/mergerfs/Pool/TV",
-    "music": "/srv/mergerfs/Pool/Music",
-    "movie": "/srv/mergerfs/Pool/Movies",
-    "podcast": "/srv/mergerfs/Pool/Podcasts",
-    "musicvideo": "/srv/mergerfs/Pool/Music_Videos",
-    "audiobooks": "/srv/mergerfs/Pool/Audiobooks",
-    "othervideos": "/srv/mergerfs/Pool/Other_Videos",
-    "jukebox": "/srv/mergerfs/Pool/Music",
+    "tv": "/Pool/TV",
+    "music": "/Pool/Music",
+    "movie": "/Pool/Movies",
+    "podcast": "/Pool/Podcasts",
+    "musicvideo": "/Pool/Music_Videos",
+    "audiobooks": "/Pool/Audiobooks",
+    "othervideos": "/Pool/Other_Videos",
+    "jukebox": "/Pool/Music",
 }
 livetv_channels = {
-    "1": "http://example.com",
+
 }
 NEWS_API_LIST = [
     "http://api.sr.se/api/v2/news/episodes?format=json",
@@ -89,8 +89,14 @@ CORRECTIONS = {
     "tolv": "12", 
 }
 
+
+
 ### --> Thank you! <-- ###
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+
+
+
 def adb_connect(device_ip):
     command = f"adb connect {device_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)

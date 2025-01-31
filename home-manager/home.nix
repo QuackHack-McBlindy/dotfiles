@@ -8,12 +8,13 @@ in
 {
   imports = [
       ./shell/bash.nix
+      ./modules/rc.nix
       ./modules/atuin.nix
       ./modules/session.nix
       ./modules/direnv.nix
       ./modules/dconf.nix
       ./modules/myfox.nix
-      ./modules/vesktopr.nix
+      ./modules/vesktop.nix
       ./modules/git.nix
       ./modules/gtk.nix
       ./modules/lsd.nix
@@ -164,6 +165,23 @@ in
       pwd
     '') 
  
+#°✶.•°••─→ media ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "media" ''
+      #!/bin/bash
+      python3 /home/$USER/dotfiles/home/bin/intents/MediaController.py "$@"
+    '')
+ 
+ #°✶.•°••─→ media ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "con" ''
+      #!/bin/bash
+      cd /home/pungkula/dotfiles/modules/services/voice || exit
+      if [ -z "$1" ]; then
+        echo "Please provide an argument."
+        exit 1
+      fi
+      bash con "$1" 
+     '')
+     
   ];
   
 
@@ -191,65 +209,7 @@ in
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ DOTFILES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-  home.file = { 
-#°✶.•°••─→ ~/HOME  ←──  •°•.✶°°✶.•°
-  # .torrc
-    ".torrc" = {
-      source = ./../../home/.torrc;
-      target = ".torrc";
-      enable = true;
-    };
-  
-  # .wgetrc
-    ".wgetrc" = {
-      source = ./../../home/.wgetrc;
-      target = ".wgetrc";
-      enable = true;
-    };
-  
-  # .hushlogin
-    ".hushlogin" = {
-      source = ./../../home/.hushlogin;
-      target = ".hushlogin";
-      enable = true;
-    };
 
-    # .pythonrc
-    ".pythonrc" = {
-      source = ./../../home/.pythonrc;
-      target = ".pythonrc";
-      enable = true;
-    };
-
-  # .xmrig.json
-    ".xmrig.json" = {
-      source = ./../../home/.xmrig.json;
-      target = ".xmrig.json";
-      enable = true;
-    };
-
-  # .face
-    ".face" = {
-      source = ./../../home/.face2;
-      target = ".face";
-      enable = true;
-    };
-
-  # .direnvrc
-    ".direnvrc" = {
-      source = ./../../home/.direnvrc;
-      target = ".direnvrc";
-      enable = true;
-    };
-
-#°✶.•°••─→ ~/HOME/TEMPLATES  ←──  •°•.✶°°✶.•°
-    "Templates" = {
-      source = ./../../home/Templates;
-      target = "Templates";
-      enable = true;
-    };
-
-  };  
   
   
   programs = {  
