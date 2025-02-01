@@ -5,7 +5,8 @@ let
 in
 {
   imports = [ ./hardware-configuration.nix
-
+                  
+                      ./../../modules/nixos/mount.nix
                       ./../../modules/networking/stubby.nix
                       ./../../modules/hardware/pam.nix
                       ./../../modules/nixos/cross-env.nix
