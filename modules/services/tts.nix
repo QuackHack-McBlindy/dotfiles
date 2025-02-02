@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+
+  environment.systemPackages = with pkgs; [ pkgs.wyoming-piper ]; 
+
   services.wyoming.piper = {
     package = pkgs.wyoming-piper;
     servers = {

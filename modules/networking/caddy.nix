@@ -21,11 +21,12 @@
    #     file_server
    #   }  
    # '';
-   # virtualHosts = {
-   #   "ha.local".extraConfig = ''
-   #     reverse proxy http://localhost:8123
-   #   '';
-   # };
+    virtualHosts = {
+      "quackpass.local".extraConfig = ''
+        reverse proxy http://192.168.1.28:5001
+
+      '';
+    };
   services.caddyProxy = {
     enable = true;
 

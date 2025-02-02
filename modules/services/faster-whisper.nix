@@ -1,6 +1,9 @@
 { config, pkgs, ... }:
 
 {
+
+  environment.systemPackages = with pkgs; [ pkgs.wyoming-faster-whisper ]; 
+  
   services.wyoming.faster-whisper = {
     package = pkgs.wyoming-faster-whisper;
     servers = {

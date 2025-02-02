@@ -19,7 +19,7 @@
     # [  ] Terminal 
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
             binding = "section";
-            command = "gnome-terminal --tab";
+            command = "/run/current-system/sw/bin/ghostty";
             name = "terminal";
         };      
     # [ CTRL + E ] Editor new window    

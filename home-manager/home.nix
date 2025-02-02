@@ -160,10 +160,10 @@ in
       esphome run /home/$USER/dotfiles/hosts/box3/configuration.yaml
     '')
  
-#°✶.•°••─→ pwd ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    (pkgs.writeShellScriptBin "pwdd" ''
-      pwd
-    '') 
+#°✶.•°••─→ jump ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "jump" ''
+      thunar $pwd
+    '')
  
 #°✶.•°••─→ media ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     (pkgs.writeShellScriptBin "media" ''

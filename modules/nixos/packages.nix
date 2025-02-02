@@ -15,7 +15,9 @@
     python312Packages.invoke
     python312Packages.langid
     #caddy
-        
+    
+    pkgs.ghostty
+    gnome-screenshot    
     rofi
     hassil
    # vaultwarden-postgressql

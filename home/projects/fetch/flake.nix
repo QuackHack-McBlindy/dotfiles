@@ -1,192 +1,75 @@
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-{ #°✶.•°••─→ FLAKE.NIX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-  description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+{
+  description = "Python development environment flake for Nix/NixOS";
+
   inputs = {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      
-      home-manager.url = "github:nix-community/home-manager";
-      home-manager.inputs.nixpkgs.follows = "nixpkgs";  
-      
-      agenix.url = "github:ryantm/agenix";
-      agenix-rekey.url = "github:oddlama/agenix-rekey";
-      agenix-rekey.inputs.nixpkgs.follows = "nixpkgs";
-      
-      sops-nix.url = "github:Mic92/sops-nix";
-      sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
-      
-      disko.url = "github:nix-community/disko";
-      disko.inputs.nixpkgs.follows = "nixpkgs";
-      nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
-      
-      flake-utils.url = "github:numtide/flake-utils";
-      flake-parts.url = "github:hercules-ci/flake-parts";
-      
-      nixos-unified.url = "github:srid/nixos-unified";
-      auto-installer.url = "./hosts";
-      auto-installer.flake = false;
-      
-     # nixcord.url = "github:kaylorben/nixcord";
-     # netboot.url = "path:./modules/iso";
-     # auto-installer.url = "path:./modules/iso/auto-installer";
-
-
-#°✶.•°••─→ RPi4 INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-   # pi-flake.url = "path:./hosts/rpi4;
-     
-#°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
-    mobile-nixos.url = "github:mobile-nixos/mobile-nixos?ref=183ba24";
-    mobile-nixos.flake = false;
-    mobile-nixos-tools.url = "github:sergei-mironov/mobile-nixos-tools?ref=64db06a";
-    mobile-nixos-tools.flake = false;
-    nixpkgs-mobile.url = "github:nixos/nixpkgs?ref=6daa4a5c045d40e6eae60a3b6e427e8700f1c07f";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable"; # Specify the version if needed
   };
-  
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }:  
-      let
-          user = "pungkula";
-          hostname = self.config.networking.hostName;
-          system = "x86_64-linux";
-          pkgs = import nixpkgs {
-              inherit system;
-              config.allowUnfree = true;
-          }; 
-          aarch64 = "aarch64-linux";
-          pkgs-mobile = import nixpkgs-mobile {
-              inherit aarch64;
-              config.allowUnfree = true;
-          }; 
-          homeConfigFiles = { hostname, ... }: {
-              home-manager.useGlobalPkgs = true;
-              home-manager.backupFileExtension = "bak";
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit user hostname; };
-              home-manager.users.${user} = import ./home-manager/home.nix;
-          };
-          lib = nixpkgs.lib;
-      in {
-          nixosConfigurations = {
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              desktop = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "desktop"; };
-                  modules = [ ./hosts/desktop/configuration.nix   
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager  
-                      nixos-facter-modules.nixosModules.facter
 
-                      
-                   #   ./modules/services/home-assistant/home-assistant.nix
-                      ./modules/services/homepage.nix
-                      ./modules/services/mosquitto.nix
-                      ./modules/services/zigbee2mqtt.nix
-                      ./modules/networking/caddy/caddy.nix
-                      ./modules/networking/caddy.nix
-                    # ./modules/services/nginx/default.nix  
-                    # ./modules/networking/adguard.nix
-            
-            
-            
-                      
-                  ];
-              };
+  outputs = { self, nixpkgs }:
+    let
+      system = "x86_64-linux"; # Adjust according to your system
+      pkgs = import nixpkgs { inherit system; };
+      lib = pkgs.lib;
+    in {
+      # Home Manager or NixOS configuration for Python development
+      homeManagerConfigurations.default = pkgs.lib.mkIf pkgs.stdenv.isLinux (import ./dev-python.nix { inherit pkgs lib; });
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ PHONE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              phone = nixpkgs-mobile.lib.nixosSystem {
-                  inherit aarch64;
-                  specialArgs = { inherit user; hostname = "phone"; };
-                  modules = [ ./hosts/phone/configuration.nix
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager  
-                      (import "${mobile-nixos}/lib/configuration.nix" {
-                          device = "pine64-pinephone";
-                      })
-                  ];
-              };
+      # DevShell for on-demand usage
+      devShell.${system} = pkgs.mkShell {
+        buildInputs = [
 
+          pkgs.python312Packages.cryptography
+          pkgs.python312Packages.unicode-rbnf
+          pkgs.python312Packages.pyyaml
+          pkgs.python312Packages.pydantic
+          pkgs.python312Packages.uvicorn
+          pkgs.python312Packages.fastapi
+          pkgs.python312Packages.colorlog
+      #    pkgs.python312Packages.yubico
+      #    pkgs.python312Packages.fido2
+     #     pkgs.python312Packages.httpx
+      #    pkgs.python312Packages.requests
+       #   pkgs.python312Packages.setuptools
+          pkgs.python312Packages.webauthn
+          pkgs.python312Packages.unicode-rbnf
+          pkgs.python312Packages.invoke
+          pkgs.python312Packages.pyaml
+          pkgs.python312Packages.deploykit
+          pkgs.python312Packages.psutil
+          pkgs.python312Packages.pyaudio
+         # pkgs.python312Packages.python-multipart
+          pkgs.python312Packages.cmake
+         # pkgs.xorg.libXinerama
+          
+          pkgs.cmake
+          pkgs.xorg.x11perf
+          pkgs.gcc 
+          pkgs.gnumake
+          pkgs.liboqs
+      #    pkgs.python312Packages.ipython
+          pkgs.python312Packages.setuptools
+       #   pkgs.python312Packages.pybind11
+          #pkgs.python312Packages.hyperscan
+          pkgs.python312Packages.cython
+    #      pkgs.python312Packages.flask
+        ];
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              nasty = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "nasty"; };
-                  modules = [ ./hosts/nasty/configuration.nix
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-                  ];     
-               }; 
-               
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ HOMIE ←── •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              homie = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "homie"; };
-                  modules = [ ./hosts/homie/configuration.nix
-                      disko.nixosModules.disko
-                       homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-                  ];
-              };              
+        shellHook = ''
+          alias kill="lsof -t -i:43334 | xargs kill -9"
+          alias py="python"
+          alias ipy="ipython --no-banner"
+          alias ipylab="ipython --pylab=qt5 --no-banner"
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ TINY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              tiny = nixpkgs.lib.nixosSystem {
-                  system = "aarch64-linux"; 
-                  specialArgs = { inherit user; hostname = "laptop"; };
-                  modules = [ ./hosts/laptop/configuration.nix      
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-                  ];
-              };              
+          # XDG environment variables if needed
+          export PYTHONSTARTUP="/home/pungkula/duckOS/flake/bin/pythonrc"
+          export PYTHON_HISTORY_FILE="$XDG_CONFIG_HOME/python/history"
+          export JUPYTER_CONFIG_DIR="$XDG_CONFIG_HOME/jupyter"
+          export IPYTHONDIR="$XDG_CONFIG_HOME/ipython"
+        '';
+      };
 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ LAPTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              laptop = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "laptop"; };
-                  modules = [ ./hosts/laptop/configuration.nix      
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-                  ];
-              };              
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ NiX BUILD! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              phone-image = 
-                  (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
-                      configuration = [ import ./hosts/phone/configuration.nix ];
-                      device = "pine64-pinephone";
-                      pkgs = nixpkgs.legacyPackages.${system};
-                  }).outputs.disk-image;
-              }; 
-              
-              
-        
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ AUTO-INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              auto-installer = auto-installer.packages.x86_64-linux.installer-iso;
-        #  images.pi = pi-flake.images.pi;  
- 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+      # Default output if needed
+      defaultPackage.${system} = self.devShell.${system};
     };
 }
 

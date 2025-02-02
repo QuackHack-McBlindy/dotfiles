@@ -34,6 +34,16 @@
       options = [ "fmask=0022" "dmask=0022" ];
     };
 
+  fileSystems."/Pool" =
+    { device = "smb://192.168.1.28/Pool";
+      fsType = "cifs";
+      mountPoint = "/Pool";
+      #options = [ 
+     #   "fmask=0022" 
+     #   "dmask=0022"
+     # ];
+    };
+
   swapDevices = [ ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking

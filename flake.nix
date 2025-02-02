@@ -23,17 +23,19 @@
       flake-parts.url = "github:hercules-ci/flake-parts";
       
       nixos-unified.url = "github:srid/nixos-unified";
-      auto-installer.url = "./hosts";
-      auto-installer.flake = false;
       
      # nixcord.url = "github:kaylorben/nixcord";
      # netboot.url = "path:./modules/iso";
-     # auto-installer.url = "path:./modules/iso/auto-installer";
 
 
-#°✶.•°••─→ RPi4 INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-   # pi-flake.url = "path:./hosts/rpi4;
-     
+#°✶.•°••─→ RPi4 INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    pi-flake.url = "github:QuackHack-McBlindy/raspberry-pi-nix";
+    pi-flake.flake = false;
+
+#°✶.•°••─→ x86_64-linux AUTO INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    auto-installer.url = "./hosts";
+    auto-installer.flake = false;
+          
 #°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
     mobile-nixos.url = "github:mobile-nixos/mobile-nixos?ref=183ba24";
@@ -45,7 +47,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }:  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, ... }:  
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -59,6 +61,11 @@
               inherit aarch64;
               config.allowUnfree = true;
           }; 
+          
+      #    rpi4b_sd_image = pi-flake.nixosConfigurations.rpi-4b.config.system.build.sdImage;
+      #    auto_installer_iso = auto-installer.nixosConfigurations.installer.config.system.build.isoImage; # packages.x86_64-linux.installer-iso
+         # phone_sd_image = mobile-nixos.nixosConfigurations.pinephone.config.system.build.sdImage
+
           homeConfigFiles = { hostname, ... }: {
               home-manager.useGlobalPkgs = true;
               home-manager.backupFileExtension = "bak";
@@ -81,19 +88,9 @@
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
 
-                      
-                   #   ./modules/services/home-assistant/home-assistant.nix
-                      ./modules/services/homepage.nix
                       ./modules/services/mosquitto.nix
                       ./modules/services/zigbee2mqtt.nix
-                      ./modules/networking/caddy/caddy.nix
-                      ./modules/networking/caddy.nix
-                    # ./modules/services/nginx/default.nix  
-                    # ./modules/networking/adguard.nix
-            
-            
-            
-                      
+                      ./modules/services/homepage.nix                      
                   ];
               };
 
@@ -112,7 +109,6 @@
                   ];
               };
 
-
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
               nasty = nixpkgs.lib.nixosSystem {
@@ -123,6 +119,16 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter
+               #       environment.systemPackages = with pkgs; [ mergerfs ];
+               #       fileSystems."/Pool" = {
+               #           fsType = "fuse.mergerfs";
+              #            device = "/mnt/disks/*";
+             #             options = ["cache.files=partial" "dropcacheonclose=true" "category.create=mfs"];
+            #          };
+                      
+                      ./modules/virtualization/docker.nix
+                      ./modules/virtualization/arr.nix
+                      ./modules/virtualization/glue-shadow-socks.nix            
                   ];     
                }; 
                
@@ -137,6 +143,17 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter
+                      
+                      ./modules/services/tts.nix
+                      ./modules/services/openwakeword.nix
+                      ./modules/services/faster-whisper.nix
+                      ./modules/services/homepage.nix
+                      ./modules/services/mosquitto.nix
+                      ./modules/services/zigbee2mqtt.nix
+                      ./modules/networking/caddy/caddy.nix
+                      ./modules/networking/caddy.nix
+                      ./modules/services/nginx/default.nix  
+                      ./modules/networking/adguard.nix
                   ];
               };              
 
@@ -151,6 +168,12 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter
+                      
+                     # networking.interfaces.eth0.ipv6.addresses = [
+                     # {
+                     #     address = "2001:db8:abcd:dead::1";
+                     #     prefixLength = 64;
+                     # }];
                   ];
               };              
 
@@ -176,15 +199,15 @@
                       device = "pine64-pinephone";
                       pkgs = nixpkgs.legacyPackages.${system};
                   }).outputs.disk-image;
-              }; 
+              };             
               
-              
-        
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-#°✶.•°••─→ AUTO-INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              auto-installer = auto-installer.packages.x86_64-linux.installer-iso;
-        #  images.pi = pi-flake.images.pi;  
- 
+         #     packages.aarch64-linux = {
+         #         pi-sd-image = rpi4b_sd_image;
+                 # phone-image = phone_sd_image;
+         #     };
+      #        packages.x86_64-linux = {
+       #           installer-iso = auto_installer_iso;
+      #       };
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     };

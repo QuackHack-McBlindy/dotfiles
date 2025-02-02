@@ -11,9 +11,128 @@
         listenPort = 3001;
         openFirewall = false;
         #package 
-        #settings = { };
+        settings = {
+            title = "Homeducks";
+       #     favicon = ./../../home/.config/wallpaper.png;
+      #      background = ./../../home/icons/favicons/favicon.ico;
+            backgroundOpacity = "0.3";
+        };
         #docker = { };
-        #customCSS = { };
+        customCSS = ''
+        {
+        /* General body styling */
+          body {
+            background-color: #1e2a34; /* Dark greenish background */
+            color: #d1e7e6; /* Light teal text */
+            font-family: 'Arial', sans-serif;
+          }
+          
+          /* Header styling */
+          header {
+            background-color: #006d5b; /* Teal */
+            color: #ffffff; /* White text */
+            padding: 15px;
+            text-align: center;
+          }
+          
+          /* Navigation links */
+          nav a {
+            color: #ffffff; /* White text */
+            text-decoration: none;
+            padding: 10px 15px;
+            display: inline-block;
+          }
+          
+          nav a:hover {
+            background-color: #004d42; /* Dark teal hover effect */
+          }
+          
+          /* Card and box styling */
+          .card {
+            background-color: #003830; /* Dark green */
+            border-radius: 10px;
+            margin: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+          }
+          
+          .card h3 {
+            color: #00b1a1; /* Teal */
+          }
+          
+          .card p {
+            color: #b5e7e0; /* Lighter teal */
+          }
+          
+          /* Buttons */
+          button {
+            background-color: #00b1a1; /* Teal */
+            color: #ffffff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+          }
+          
+          button:hover {
+            background-color: #008f82; /* Dark teal hover effect */
+          }
+          
+          /* Links */
+          a {
+            color: #00b1a1; /* Teal */
+            text-decoration: none;
+          }
+          
+          a:hover {
+            color: #007c66; /* Darker teal */
+          }
+          
+          /* Footer styling */
+          footer {
+            background-color: #006d5b; /* Teal */
+            color: #ffffff; /* White text */
+            padding: 15px;
+            text-align: center;
+          }
+          
+          /* Widgets styling */
+          .widget {
+            background-color: #003830; /* Dark green */
+            padding: 10px;
+            border-radius: 8px;
+          }
+          
+          .widget h4 {
+            color: #00b1a1; /* Teal */
+          }
+          
+          .widget p {
+            color: #b5e7e0; /* Lighter teal */
+          }
+          
+          /* Table styling */
+          table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          
+          table th, table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #444;
+          }
+          
+          table th {
+            background-color: #006d5b; /* Teal */
+            color: #ffffff;
+          }
+          
+          table tr:hover {
+            background-color: #005c50; /* Dark teal hover */
+          }
+        }
+        '';
         widgets = [
           {
             resources = {
@@ -39,7 +158,7 @@
                 Github = [
                   {
                     abbr = "GH";
-                    href = "https://github.com/";
+                    href = "https://github.com/QuackHack-McBlindy";
                   }
                 ];
               }
@@ -48,10 +167,34 @@
           {
             Entertainment = [
               {
-                YouTube = [
+                Spreadsheet = [
                   {
-                    abbr = "YT";
-                    href = "https://youtube.com/";
+                    abbr = "Poké";
+                    href = "https://docs.google.com/spreadsheets/d/1U2oEwJZ1ShrA0RvFWLMyLboLX2GWG2y2AhXd7IUIpSc/edit#gid=705464364";
+                  }
+                ];
+              }
+            ];
+          }
+          {
+            Mail = [
+              {
+                PRotonMail = [
+                  {
+                    abbr = "PM";
+                    href = "https://docs.google.com/spreadsheets/d/1U2oEwJZ1ShrA0RvFWLMyLboLX2GWG2y2AhXd7IUIpSc/edit#gid=705464364";
+                  }
+                ];
+              }
+            ];
+          }
+          {
+            Misc = [
+              {
+                ICA = [
+                  {
+                    abbr = "ICA";
+                    href = "https://docs.google.com/spreadsheets/d/1U2oEwJZ1ShrA0RvFWLMyLboLX2GWG2y2AhXd7IUIpSc/edit#gid=705464364";
                   }
                 ];
               }

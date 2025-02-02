@@ -66,18 +66,18 @@
   };
   
     # projects/fetch/envrc
-  home.file."projects-envrc" = {
-    source = ./../../home/projects/fetch/.envrc;
-    target = "projects/fetch/.envrc";
-    enable = true;
-  };
+#  home.file."projects-envrc" = {
+#    source = ./../../home/projects/fetch/.envrc;
+#    target = "projects/fetch/.envrc";
+#    enable = true;
+#  };
   
     # projects/fetch/flake
-  home.file."projects-flake" = {
-    source = ./../../home/projects/fetch/flake.nix;
-    target = "projects/fetch/flake.nix";
-    enable = true;
-  };
+#  home.file."projects-flake" = {
+#    source = ./../../home/projects/fetch/flake.nix;
+#    target = "projects/fetch/flake.nix";
+#    enable = true;
+#  };
 
 }
 
