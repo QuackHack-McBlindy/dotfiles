@@ -17,7 +17,7 @@ This flake holds everything neeeded to build, run, maintain - <br>
 restore and recover my devices. <br> 
 🧑‍🦯 🧑‍🦯 🧑‍🦯  <br>
 
-<center> <img src="./home/screenshot-lock.png" width="40%" style="display: inline-block; margin-right: 2%;"></center>
+<center> <img src="./home/screenshot-lock.png" width="40%" style="display: inline-block; margin-right: 2%;"></center> <br>
 <img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
 <img src="./home/screenshot2.png" width="48%" style="display: inline-block;">
 
