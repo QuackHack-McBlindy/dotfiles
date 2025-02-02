@@ -11,9 +11,9 @@
       source ~/dotfiles/home/.shell/aliases.sh
 
       # If interactive, source functions
-    #  if [[ $- == *i* ]]; then
-    #    source ~/bash_functions.sh
-    #  fi
+      if [[ $- == *i* ]]; then
+        source ~/dotfiles/home/.shell/functions.sh
+      fi
 
       eval "$(direnv hook bash)"    
       # Customize the prompt
@@ -36,7 +36,7 @@
       
 
       # Automatically call the handler on shell startup
-      # trap 'handle_port_conflict' ERR
+   #   trap 'handle_port_conflict' ERR
       
       echo "🦆🦆🦆🦆🦆🦆🦆"
       echo "😻😻😻😻😻😻😻"
@@ -87,7 +87,7 @@
       dcu = "docker compose up";
       dcd = "docker compose down";
     };
- #   shellOptions = [
+  #  shellOptions = [
       # "histappend": Ensures that the command history is appended to the history file (usually ~/.bash_history) 
       # instead of overwriting it when a new shell session starts.
 #      "histappend"

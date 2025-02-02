@@ -226,11 +226,11 @@ disabled = false
 read_only = "🔒"
 read_only_style = "red"
 truncation_symbol = ""
-home_symbol = "~"
+home_symbol = "🏠 HOME"
 use_os_path_sep = true
 
 [directory.substitutions]
-
+"dotfiles" = "❄️ DOTFILES"
 [direnv]
 format = "[$symbol$loaded/$allowed]($style) "
 symbol = "direnv "
@@ -244,6 +244,8 @@ not_allowed_msg = "not allowed"
 denied_msg = "denied"
 loaded_msg = "loaded"
 unloaded_msg = "not loaded"
+
+
 
 [docker_context]
 symbol = "🐳 "
@@ -1188,4 +1190,3 @@ detect_files = []
 detect_folders = []
 
 [custom]
-

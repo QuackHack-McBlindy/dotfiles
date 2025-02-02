@@ -15,6 +15,8 @@
       sops-nix.url = "github:Mic92/sops-nix";
       sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
       
+      yubi-tocuh.url = "github:QuackHack-McBlindy/yubikey-touch-detector";
+      
       disko.url = "github:nix-community/disko";
       disko.inputs.nixpkgs.follows = "nixpkgs";
       nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
@@ -33,8 +35,8 @@
     pi-flake.flake = false;
 
 #°✶.•°••─→ x86_64-linux AUTO INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    auto-installer.url = "./hosts";
-    auto-installer.flake = false;
+    auto-installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
+    #auto-installer.flake = false;
           
 #°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
@@ -47,7 +49,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, ... }:  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }:  
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -63,7 +65,7 @@
           }; 
           
       #    rpi4b_sd_image = pi-flake.nixosConfigurations.rpi-4b.config.system.build.sdImage;
-      #    auto_installer_iso = auto-installer.nixosConfigurations.installer.config.system.build.isoImage; # packages.x86_64-linux.installer-iso
+          auto_installer_iso = auto-installer.nixosConfigurations.installer.config.system.build.isoImage; 
          # phone_sd_image = mobile-nixos.nixosConfigurations.pinephone.config.system.build.sdImage
 
           homeConfigFiles = { hostname, ... }: {
@@ -75,6 +77,7 @@
           };
           lib = nixpkgs.lib;
       in {
+          
           nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -87,9 +90,11 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
-
+                      
+                      
                       ./modules/services/mosquitto.nix
                       ./modules/services/zigbee2mqtt.nix
+                   #   ./modules/virtualization/zigbee2mqtt.nix
                       ./modules/services/homepage.nix                      
                   ];
               };
@@ -188,6 +193,7 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter
+
                   ];
               };              
 
@@ -199,15 +205,21 @@
                       device = "pine64-pinephone";
                       pkgs = nixpkgs.legacyPackages.${system};
                   }).outputs.disk-image;
-              };             
+              };
               
-         #     packages.aarch64-linux = {
+              installer = auto-installer.nixosConfigurations.installer;
+              
+             
+          #    packages.aarch64-linux = {
          #         pi-sd-image = rpi4b_sd_image;
                  # phone-image = phone_sd_image;
          #     };
-      #        packages.x86_64-linux = {
-       #           installer-iso = auto_installer_iso;
-      #       };
+       #       packages.x86_64-linux = {
+            #      installer-iso = auto_installer_iso;
+        #     };
+      
+
+      
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     };

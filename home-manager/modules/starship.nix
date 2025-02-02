@@ -2,9 +2,9 @@
 {
   home.packages = with pkgs; [ pkgs.starship ];
   
-  programs.starship = {
-    enable = true;
-  };
+#  programs.starship = {
+#    enable = true;
+ # };
 
   # Starship.toml
 #  home.file."starship-config" = {

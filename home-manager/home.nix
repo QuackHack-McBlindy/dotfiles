@@ -8,6 +8,7 @@ in
 {
   imports = [
       ./shell/bash.nix
+      ./modules/ghostty.nix
       ./modules/rc.nix
       ./modules/atuin.nix
       ./modules/session.nix
@@ -147,7 +148,8 @@ in
 
 #°✶.•°••─→ RB ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     (pkgs.writeShellScriptBin "rb" ''
-      bash "switch"
+      cd /home/pungkula/dotfiles
+      sudo nixos-rebuild switch --flake . --show-trace
     '')
 
 #°✶.•°••─→ watch ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

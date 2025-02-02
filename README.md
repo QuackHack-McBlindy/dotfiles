@@ -41,23 +41,17 @@ restore and recover my **8** devices. <br>
 | Distro           | NixOS                          |
 | Shell            | Bash                           |
 | Display Server   | Wayland                        |
-| WM (Compositor)  |                       |
+| WM (Compositor)  |                                |
 | Bar              | OpenBar                        |
-| Notification     | notifyd                          |
-| Launcher         |                         |
-| Editor           | nano                        |
-| Terminal         | Gnome-Terminal                         |
+| Notification     | libnotify                      |
+| Editor           | vim / Getty                    |
+| Terminal         | Ghostty                        |
 | Fetch Utility    | Neofetch                       |
-| Theme            |            |
-| Font             |   |
-| File Browser     | Thunar    |
-| Internet Browser | Customized Firefox                        |
-| Screenshot       |                        |
-| Clipboard        | wl-clipboard                   |
-| Idle             |                        |
-| Lock             |                        |
-| Logout menu      |                         |
-| Display Manager  | Gnome                        |
+| Theme            | Custom                         |
+| File Browser     | Thunar                         |
+| Internet Browser | Custom Firefox                 |
+| Clipboard        | nix-shell -p xclip (optional)  |
+| Display Manager  | Gnome                          |
 | Containerization | Docker                         |
 | Virtualisation   | qemu + virt-manager + libvirtd |
 
@@ -80,6 +74,14 @@ restore and recover my **8** devices. <br>
 
 
 <details>
+<summary>*Auto Installer ISO (formats, partitions & installs)* </summary> <br>
+
+```bash
+sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfigurations.installer.config.system.build.isoImage
+```
+
+
+<details>
 <summary>Desktop</summary> <br>
 
 **Desktop** <br>
@@ -93,17 +95,6 @@ Watercooled desktop without the water. <br>
 sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 ```
 
-<details><summary>
-
-**Build**
-
-</summary> <br>
-
-*Auto Installer ISO (formats, partitions & installs)* 
-
-```bash
-sudo nix build .#desktop
-```
 
 <br></details>
 
@@ -151,18 +142,7 @@ Old crappy laptop.<br>
 sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 ```
 
-<details><summary>
-
-**Build** 
-
-</summary> <br>
-
-*Auto Installer ISO (formats, partitions & installs)*
-```bash
-nix build .#laptop
-```
-
-<br></details>
+<br>
 
 
 <details><summary
@@ -208,19 +188,7 @@ Huge Mass Storage NAS - Creates Pool with mergerfs.<br>
 sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 ```
 
-<details><summary>
-
-**Build**
-
-</summary> <br>
-
-*Auto Installer ISO (formats, partitions & installs)*
-
-```bash
-sudo nix build .#nasty
-```
-
-<br></details>
+<br>
 
 
 ------------
@@ -239,19 +207,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 ```
 
 
-<details><summary>
-
-**Build**
-
-</summary> <br>
-
-*build rpi4 iso*
-
-```bash
-...
-```
-
-<br></details>
+<br>
 
 
 ------------
@@ -269,19 +225,7 @@ Smaall fanless server to run my smart home devices and everything related. <br>
 sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 ```
 
-<details><summary>
-
-**Build**
-
-</summary> <br>
-
-*Auto Installer ISO (formats, partitions & installs)*
-
-```bash
-sudo nix build .#homie
-```
-
-<br></details>
+<br>
 
 
 ------------
@@ -294,17 +238,9 @@ sudo nix build .#homie
 PinePhone <br>
 **System:** aarch64-linux <br>
 
-<details><summary>
 
-**Build**
 
- </summary> <br>
-
-```Installer ISO (flash to SD card & install on internal)
-sudo nix build .#phone
-```
-
-<br></details>
+<br>
 
 
 ------------
@@ -406,8 +342,7 @@ age-plugin-yubikey <br>
     
 </summary><br>
 
-
-wip
+Reverse proxy with Caddy.
 
 
 </details>
@@ -474,6 +409,8 @@ wip
 
 ```say <text>``` Text to Speech with Piper and LangID for language detection. <br>
 ```weather``` Tiny weather report. <br>
+```con``` Conversation (text) agent. <br>
+
 ------------ 
 <br> </details>
 

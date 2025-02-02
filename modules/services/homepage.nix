@@ -148,7 +148,127 @@
             };
           }
         ];
-   #     services = { };
+
+        services = {
+          GroupA = [
+            {
+              Sonarr = {
+                href = "http://sonarr.host";
+                icon = "sonarr.png";
+                description = "Series management";
+                widget = {
+                  type = "sonarr";
+                  url = "http://sonarr.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+            {
+              Radarr = {
+                href = "http://radarr.host";
+                icon = "radarr.png";
+                description = "Movie management";
+                widget = {
+                  type = "radarr";
+                  url = "http://radarr.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+          ];
+
+          GroupB = [
+            {
+              Lidarr = {
+                href = "http://lidarr.host";
+                icon = "lidarr.png";
+                description = "Music management";
+                widget = {
+                  type = "lidarr";
+                  url = "http://lidarr.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+            {
+              Readarr = {
+                href = "http://readarr.host";
+                icon = "readarr.png";
+                description = "Ebook management";
+                widget = {
+                  type = "readarr";
+                  url = "http://readarr.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+          ];
+
+          GroupC = [
+            {
+              Prowlarr = {
+                href = "http://prowlarr.host";
+                icon = "prowlarr.png";
+                description = "Indexer management";
+                widget = {
+                  type = "prowlarr";
+                  url = "http://prowlarr.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+            {
+              Jellyfin = {
+                href = "http://jellyfin.host";
+                icon = "jellyfin.png";
+                description = "Media server";
+                widget = {
+                  type = "jellyfin";
+                  url = "http://jellyfin.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+          ];
+
+          GroupD = [
+            {
+              Navidrome = {
+                href = "http://navidrome.host";
+                icon = "navidrome.png";
+                description = "Music streaming server";
+                widget = {
+                  type = "navidrome";
+                  url = "http://navidrome.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+            {
+              Zigbee2mqtt = {
+                href = "http://zigbee2mqtt.host";
+                description = "Zigbee gateway";
+                widget = {
+                  type = "zigbee2mqtt";
+                  url = "http://zigbee2mqtt.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+            {
+              Mosquitto = {
+                href = "http://mosquitto.host";
+                icon = "mosquitto.png";
+                description = "MQTT broker";
+                widget = {
+                  type = "mosquitto";
+                  url = "http://mosquitto.host";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                };
+              };
+            }
+          ];
+        };
    #     kubernetes = { };
    #     customJS = { };
         bookmarks = [

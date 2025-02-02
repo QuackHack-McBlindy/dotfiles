@@ -1,5 +1,4 @@
-
-##!/nix/store/c9m6yd8fg1flz2j5r4bif1ib5j20a0cy-python3-3.12.8/bin/python3
+#!/nix/store/bfslm177xz9s55l7gry9gf42899skx2b-nix-shell
 
 import os
 import re
@@ -11,7 +10,6 @@ import difflib
 import string
 import secrets
 import logging
-#import requests
 import tempfile
 import requests
 from difflib import get_close_matches

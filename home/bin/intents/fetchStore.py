@@ -1,4 +1,4 @@
-##!/nix/store/c9m6yd8fg1flz2j5r4bif1ib5j20a0cy-python3-3.12.8/bin/python3
+#!/nix/store/bfslm177xz9s55l7gry9gf42899skx2b-nix-shell
 import os
 script_dir = os.path.dirname(os.path.realpath("/home/pungkula/projects/fetch"))
 os.chdir(script_dir)

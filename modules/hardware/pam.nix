@@ -18,7 +18,7 @@ in
     yubioath-flutter
     yubikey-agent
     yubikey-manager-qt
-    yubikey-touch-detector
+  #  yubikey-touch-detector
     yubikey-personalization-gui
     yubikey-personalization    
     yubikey-manager    
@@ -121,7 +121,7 @@ in
     verbose = true;
   };
   # Install the yubikey-touch-detector package
-  systemd.packages = [ pkgs.yubikey-touch-detector ];
+#  systemd.packages = [ pkgs.yubikey-touch-detector ];
 
   # Configure the systemd user service for yubikey-touch-detector
 #  systemd.user.services.yubikey-touch-detector = {
@@ -135,10 +135,10 @@ in
 #  };
 
   # Configure the systemd user socket for yubikey-touch-detector
-  systemd.user.sockets.yubikey-touch-detector = {
-    description = "YubiKey Touch Detector Socket";
-    wantedBy = [ "sockets.target" ]; # Start the socket when the systemd socket target is reached
-  };
+ # systemd.user.sockets.yubikey-touch-detector = {
+#    description = "YubiKey Touch Detector Socket";
+ #   wantedBy = [ "sockets.target" ]; # Start the socket when the systemd socket target is reached
+#  };
 
   # Optionally, ensure `gnupg` is installed
  # environment.systemPackages = [ pkgs.gnupg ];

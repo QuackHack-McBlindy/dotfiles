@@ -135,7 +135,7 @@
         "org/gnome/settings-daemon/plugins/color".night-light-enabled = true;
         "org/gnome/settings-daemon/plugins/color".night-light-temperature = "3670";
     # Fav Apps
-        "org/gnome/shell".favorite-apps = ["firefox-esr.desktop" "thunar.desktop" "org.gnome.TextEditor.desktop"  "vesktop.desktop" "signal-desktop.desktop" "keepass.desktop"];
+        "org/gnome/shell".favorite-apps = ["firefox-esr.desktop" "thunar.desktop" "com.mitchellh.ghostty.desktop" "org.gnome.TextEditor.desktop"  "vesktop.desktop" "signal-desktop.desktop" "keepass.desktop"];
      # Open Bar
         "org/gnome/shell/extensions/openbar" = {
             bg-change = true;
