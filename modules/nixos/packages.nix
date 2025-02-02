@@ -8,6 +8,8 @@
    # Dev
     pkgs.npth
     esphome
+    pkgs.python312Packages.httpx
+    pkgs.python312Packages.aiocron
     python312Packages.aioesphomeapi
     python3Full
     python312Packages.requests

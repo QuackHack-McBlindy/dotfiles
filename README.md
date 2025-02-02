@@ -1,4 +1,4 @@
-# ❄️🦆 **Flake: Just4qwackz** <br>
+# ❄️🦆 **Flake: Just4Quackz** <br>
 
 <div align="center">
   <sub>  *by blind noob* </sub>
@@ -14,8 +14,8 @@
 
 This repo contains NixOS configuration flake for my personal machines on home network. <br>
 This flake holds everything neeeded to build, run, maintain - <br>
-restore and recover my **8** devices. <br> 
-**NixOS** - it's kinda cool, and this is how I blindly experiment with it <br>
+restore and recover my devices. <br> 
+I am 🧑‍🦯 so go ahead steal, if you find anything you like. <br> 
 
 <img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
 <img src="./home/screenshot2.png" width="48%" style="display: inline-block;">
@@ -24,7 +24,7 @@ restore and recover my **8** devices. <br>
 
 **❄️ This flake main focus will be on:** 
 
-- **Custom Accessibility**
+- **Custom Accessibility** 
 - **Good Reproducibility**
 - **& Easy Usage**
 
@@ -54,7 +54,7 @@ restore and recover my **8** devices. <br>
 | Display Manager  | Gnome                          |
 | Containerization | Docker                         |
 | Virtualisation   | qemu + virt-manager + libvirtd |
-
+| VPN              | WireGuard
 <br>
 </details>
 
@@ -110,8 +110,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 | ------------------------- | --------------------------------------------------------------------- |
 | NUM +                      | Magnifier Zoom In                                                     |
 | NUM -                      | Magnifier Zoom Out                                                    |
-| NUM /
-| Screen Reader Toggle                                                  |
+| NUM /                      | Screen Reader Toggle                                                  |
 | §                          | Open Terminal                                                          |
 | CTRL + Q                   | Close open window                                                      |
 | CTRL + W                   | Open Firefox                                                          |
@@ -301,8 +300,6 @@ invoke build box3
 </details>
 
 
-
-
 <details>
 <summary>
     
@@ -313,17 +310,25 @@ invoke build box3
 
 <details>
 <summary>Accessibility</summary><br>
-
+*Text To Speech* <br>
 Custom orca configuration, with Piper TTS and langid for auto detecting language of text and provide correct model. <br>
+This wide TTS configuration icludes: Discord TTS, Conversation agent responses, notifications, some terminal commands and of course the screen reader. <br> <br>
 
+*Voice Control* <br>
+Microphones on every device, and wide range of custom voice commands to handle everday tasks. <br>
+Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
 
 ------------
 </details>
 
 <details>
 <summary>Secret Management</summary>
+File encryption and secrets management is handled with three core components. <br>
+AGE <br>
 sops-nix <br>
-age-plugin-yubikey <br>
+Yubikey <br> <br>
+
+With effective and secure bash scripts creating and maintaing secrets and keys is as easy as touching a key, or typing `encrypt`. <br>
 
 ------------
 </details>
@@ -355,7 +360,7 @@ Reverse proxy with Caddy.
     
 </summary><br>
 
-**Some fun and lazy beginner helpers** <br>
+**Some fun, lazy & crazy beginner friendly helpers** <br>
 
 <details><summary>
 
@@ -364,6 +369,7 @@ Reverse proxy with Caddy.
 </summary><br>
 
 ```cd``` Fuzzy & Lazy navigation with fzf. <br>
+```jump``` Opens File Manager in current directory. <br>
 ```cp``` Lazy & safe cp. <br>
 ```mv``` Lazy & safe mv <br>
 ```rm``` Lazy & safe rm. <br>
@@ -394,7 +400,8 @@ Reverse proxy with Caddy.
 
 </summary><br>
 
-```new-secret``` Helper to create new sops-nix secret. <br>
+```new-secret``` Helper to create new sops-nix secrets. <br>
+```sopsd <secret_name>```  Returns temporary decrypted sops secret. <br>
 ```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
 ```decrypt <file_path>``` Decrypt file wuth AGE and Yubikey. <br>
 ------------ 

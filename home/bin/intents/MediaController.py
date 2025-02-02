@@ -1,4 +1,5 @@
-#!/nix/store/bfslm177xz9s55l7gry9gf42899skx2b-nix-shell
+#! /usr/bin/env nix-shell
+#! nix-shell -i python3 -p python3 python312Packages.requests python312Packages.python-dotenv 
 
 import os
 import re
