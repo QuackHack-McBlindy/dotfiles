@@ -294,6 +294,7 @@ invoke build box3
 
 <br></details>
 
+</details>
 
 ------------
 </details>
