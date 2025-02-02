@@ -69,6 +69,7 @@ style = "bold red"
 disabled = false
 detect_extensions = []
 detect_files = [
+    "bun.lock",
     "bun.lockb",
     "bunfig.toml",
 ]
@@ -226,17 +227,19 @@ disabled = false
 read_only = "🔒"
 read_only_style = "red"
 truncation_symbol = ""
-home_symbol = "🏠 HOME"
+home_symbol = "🏠  HOME"
 use_os_path_sep = true
 
 [directory.substitutions]
-"dotfiles" = "❄️ DOTFILES"
+dotfiles = "❄️ DOTFILES "
+
 [direnv]
 format = "[$symbol$loaded/$allowed]($style) "
 symbol = "direnv "
 style = "bold bright-yellow"
 disabled = true
 detect_extensions = []
+detect_env_vars = ["DIRENV_FILE"]
 detect_files = [".envrc"]
 detect_folders = []
 allowed_msg = "allowed"
@@ -244,8 +247,6 @@ not_allowed_msg = "not allowed"
 denied_msg = "denied"
 loaded_msg = "loaded"
 unloaded_msg = "not loaded"
-
-
 
 [docker_context]
 symbol = "🐳 "
@@ -782,6 +783,7 @@ Amazon = "🙂 "
 Android = "🤖 "
 Arch = "🎗️ "
 Artix = "🎗️ "
+CachyOS = "🎗️ "
 CentOS = "💠 "
 Debian = "🌀 "
 DragonFly = "🐉 "
@@ -803,6 +805,7 @@ MidnightBSD = "🌘 "
 Mint = "🌿 "
 NetBSD = "🚩 "
 NixOS = "❄️ "
+Nobara = "🎩 "
 OpenBSD = "🐡 "
 OpenCloudOS = "☁️ "
 openEuler = "🦉 "
@@ -819,6 +822,7 @@ SUSE = "🦎 "
 Ubuntu = "🎯 "
 Ultramarine = "🔷 "
 Unknown = "❓ "
+Uos = "🐲 "
 Void = "  "
 Windows = "🪟 "
 
@@ -1086,7 +1090,7 @@ map_symbol = false
 recognize_signal_code = true
 pipestatus = false
 pipestatus_separator = "|"
-pipestatus_format = '\[$pipestatus\] => [$symbol$common_meaning$signal_name$maybe_int]($style)'
+pipestatus_format = '\[$pipestatus\] => [$symbol$common_meaning$signal_name$maybe_int]($style) '
 disabled = true
 
 [sudo]
@@ -1121,13 +1125,12 @@ detect_files = []
 detect_folders = [".terraform"]
 
 [time]
-format = "[$time]($style) "
+format = "[$time]($sstyle) "
 style = "bold yellow"
 use_12hr = false
 disabled = false
 utc_time_offset = "local"
 time_range = "-"
-time_format = "%H:%M"
 
 [typst]
 format = "via [$symbol($version )]($style)"
@@ -1190,3 +1193,6 @@ detect_files = []
 detect_folders = []
 
 [custom]
+
+
+

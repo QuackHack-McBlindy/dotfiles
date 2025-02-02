@@ -15,8 +15,9 @@
 This repo contains NixOS configuration flake for my personal machines on home network. <br>
 This flake holds everything neeeded to build, run, maintain - <br>
 restore and recover my devices. <br> 
-I am 🧑‍🦯 so go ahead steal, if you find anything you like. <br> 
+🧑‍🦯 🧑‍🦯 🧑‍🦯  <br>
 
+<center> <img src="./home/screenshot-lock.png" width="40%" style="display: inline-block; margin-right: 2%;"></center>
 <img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
 <img src="./home/screenshot2.png" width="48%" style="display: inline-block;">
 
@@ -46,6 +47,7 @@ I am 🧑‍🦯 so go ahead steal, if you find anything you like. <br>
 | Notification     | libnotify                      |
 | Editor           | vim / Getty                    |
 | Terminal         | Ghostty                        |
+| Prompt           | Starship
 | Fetch Utility    | Neofetch                       |
 | Theme            | Custom                         |
 | File Browser     | Thunar                         |
@@ -73,13 +75,15 @@ I am 🧑‍🦯 so go ahead steal, if you find anything you like. <br>
 </summary><br>
 
 
-<details>
-<summary>*Auto Installer ISO (formats, partitions & installs)* </summary> <br>
+*Auto Installer ISO*  __(formats, partitions & installs)__ 
+
+<br>
 
 ```bash
 sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfigurations.installer.config.system.build.isoImage
 ```
 
+<br>
 
 <details>
 <summary>Desktop</summary> <br>
@@ -87,7 +91,7 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 **Desktop** <br>
 
 Main machine.  <br> 
-Watercooled desktop without the water. <br>
+Custom Waterloop, without the water.  <br>
 
 **System:** x86_64-linux <br>
 
@@ -198,7 +202,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 
 **Tiny** <br>
 
-Raspberry Pi 4 server with raid 1 - for personal data storage. <br>
+Raspberry Pi 4B with hardware raid. <br>
 **System:** aarch64-linux <br>
 
 ```bash

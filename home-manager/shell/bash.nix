@@ -14,7 +14,8 @@
       if [[ $- == *i* ]]; then
         source ~/dotfiles/home/.shell/functions.sh
       fi
-
+       
+      eval -- "$(/etc/profiles/per-user/pungkula/bin/starship init bash --print-full-init)" 
       eval "$(direnv hook bash)"    
       # Customize the prompt
     #  PS1="\[\e[32m\]\u@\h:\w\[\e[m\] \$ "
@@ -32,11 +33,11 @@
       # Enable auto-suggestions (using zsh-like autocompletion)
       #source /usr/share/bash-completion/completions/git
       # Enable colorful `ls` output
-      export LS_COLORS="di=1;34:ln=1;36:so=1;32:pi=1;33:ex=1;31"
+     # export LS_COLORS="di=1;34:ln=1;36:so=1;32:pi=1;33:ex=1;31"
       
 
       # Automatically call the handler on shell startup
-   #   trap 'handle_port_conflict' ERR
+   #r   trap 'handle_port_conflict' ERR
       
       echo "🦆🦆🦆🦆🦆🦆🦆"
       echo "😻😻😻😻😻😻😻"
