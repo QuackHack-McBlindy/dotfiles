@@ -11,13 +11,18 @@
     
     # Ghostty settings
     settings = {
-      theme = "catppuccin-mocha";
+      #theme = "catppuccin-mocha";
+      theme = "Solarized Light";
       font-size = 11;
-      font-family = "JetBrainsMono Nerd Font";
+      #font-family = "JetBrainsMono Nerd Font";
+      font-family = "FiraCode Nerd Font";
       font-feature = ["-liga" "-dlig" "-calt"];   
       unfocused-split-opacity = 0.96;
       window-theme = "dark";
       macos-option-as-alt = true;
+
+      clipboard-read = "allow";
+      clipboard-write = "allow";
 
       keybind = [
         "ctrl+h=goto_split:left"

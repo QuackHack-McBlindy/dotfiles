@@ -85,6 +85,8 @@
                   inherit system;
                   specialArgs = { inherit user; hostname = "desktop"; };
                   modules = [ ./hosts/desktop/configuration.nix   
+                  #    inputs.nixos-facter-modules.nixosModules.facter
+                #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            
                       disko.nixosModules.disko
                       homeConfigFiles
                       sops-nix.nixosModules.sops
@@ -93,8 +95,8 @@
                       
                       
                       ./modules/services/mosquitto.nix
-                      ./modules/services/zigbee2mqtt.nix
-                   #   ./modules/virtualization/zigbee2mqtt.nix
+                     # ./modules/services/zigbee2mqtt.nix
+                      ./modules/virtualization/zigbee2mqtt.nix
                       ./modules/services/homepage.nix                      
                   ];
               };
