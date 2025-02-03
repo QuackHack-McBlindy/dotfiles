@@ -1,10 +1,16 @@
 import os
 import re
+import json
 import subprocess
 from invoke import task
 
 GITHUB_USER = "QuackHack-McBlindy"
 GITHUB_REPO = "dotfiles"
+
+
+AGEKEYS_PATH = './hosts/agekeys.nix'
+SECRETS_DIR = './secrets'
+SOPS_CONFIG_PATH = '.sops.yaml'
 
 
 def is_git_repo():
@@ -33,50 +39,6 @@ def rainbow_text(text):
 
 
 ###############
-## BUILD
-
-@task
-def build(ctx, device):
-    """
-    Build an USB installer that will automatically & unattended format, partition and install NixOS when booted. Other options are to Build & flash ESP devices. (watch/box3)
-    """
-    if device == "watch":
-        result = subprocess.run(["esphome", "run", "./hosts/watch/configuration.yaml"], check=False)
-        if result.returncode == 0:
-            print(" ")
-            print("🚀🚀🚀🚀 ✨ ")
-            print(rainbow_text("✨✨ Successfully built & flashed the Smart-Watch, and it's ready to be used!"))
-        else:
-            print("\033[1;31m [ WARNING! ] \033[0m")
-            print("\033[1;31m An error occurred while building/flashing the Smart-Watch! \033[0m")
-            
-    elif device == "box3":
-        result = subprocess.run(["esphome", "run", "./hosts/box3/configuration.yaml"], check=False)
-        if result.returncode == 0:
-            print(" ")
-            print("🚀🚀🚀🚀 ✨ ")
-            print(rainbow_text("✨✨ Successfully built & flashed the Box3, and it's ready to be used!"))
-        else:
-            print("\033[1;31m [ WARNING! ] \033[0m")
-            print("\033[1;31m An error occurred while building/flashing the Box3! \033[0m")
-            
-    elif device == "auto-installer":
-        result = subprocess.run(["sudo", "nix", "build", ".#auto-installer", "--impure", "--show-trace"], check=False)
-        
-        if result.returncode == 0:
-            print(" ")
-            print(" ")
-            print("🚀🚀🚀🚀 ✨ ")
-            print(rainbow_text("✨✨ Successfully built the USB auto-installer!"))
-            print(rainbow_text("✨ You can now dd the resulting iso image onto a USB drive! HINT: just type flash"))      
-            print("\033[1;31m [ WARNING READ BELOW CAREFULLY! ] \033[0m")  
-            print("\033[1;31m [ THE ISO IMAGE YOU ARE ABOUT TO USE IS 100% DESTRUCTIVE! ] \033[0m")  
-            print("\033[1;31m [ IT WILL AUTOMATICALLY REMOVE ALL DATA CURRENTLY ON THE MACHINE WITHOUT ASKING! ] \033[0m")  
-        else:
-            print("\033[1;31m [ WARNING! ] \033[0m")  
-            print("\033[1;31m An error occurred while building the USB auto installer! \033[0m")
-    else:
-        print(f"Unknown device: {device}. Please specify either 'watch', 'box3' or 'auto-installer'.")
 
 
 ###############
@@ -159,63 +121,154 @@ def pull(ctx):
         print("\033[1;31m [ WARNING! ] \033[0m")  
         print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
       
-############
-## INSTALL 
-
-#@task
-#def install(ctx, host=None):
-#    """
-#    Install NixOS on the specified host.
-
-#    :param ctx: Invoke context.
-#    :param host: hostname to install NixOS on.
-#    """
-#    hosts = [
-#        "desktop",
-#        "lappy",
-#        "usb",
-#    ]
-
-#    if host:
-#        print(f"Installing on: {host}")
-#        # Adjust the Nix command accordingly
-#        nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{host} --target-host root@{host}"
-#        print(f"Running: {nix_run_command}")
-#    else:
-#        for hostname in hosts:
-#            print(f"Installing on: {hostname}")
-#            # Adjust the Nix command accordingly
-#            nix_run_command = f"nix run github:nix-community/nixos-anywhere -- --generate-hardware-config nixos-generate-config ./hardware-configuration.nix --flake github:user/repo#{hostname} --target-host root@usb"
-#            print(f"Running: {nix_run_command}")
-            
-            
-            
-######################
-# SWITCH 
+                  
 
 @task
 def switch(ctx, host=None):
     """
-    Rebuild and switch NixOS configuration on the specified host.
+    --host [hostname]
 
     :param ctx: Invoke context.
     :param host: Optional hostname to rebuild on. If omitted, defaults to 'laptop'.
     """
-    # Default host (flake) is 'laptop' if not specified
     target_host = host or "laptop"
-    
     print(f"Rebuilding and switching on: {target_host}")
-
-    # Construct the nixos-rebuild command
     nixos_rebuild_command = f"sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#{target_host}"
-
-    # Run the command on the specified host
     if host:
-        # If a host is provided, rebuild on that specific host
         print(f"Running: {nixos_rebuild_command} on {host}")
         ctx.run(f"ssh {host} '{nixos_rebuild_command}'", echo=True)
     else:
-        # Run the rebuild for the default host (laptop)
         print(f"Running: {nixos_rebuild_command} on {target_host}")
         ctx.run(f"ssh {target_host} '{nixos_rebuild_command}'", echo=True)
+
+
+
+## BUILD
+
+@task
+def build(ctx, device):
+    """
+    --device [auto-installer] [watch] [box3] 
+    """
+    if device == "watch":
+        result = subprocess.run(["esphome", "run", "./hosts/watch/configuration.yaml"], check=False)
+        if result.returncode == 0:
+            print(" ")
+            print("🚀🚀🚀🚀 ✨ ")
+            print(rainbow_text("✨✨ Successfully built & flashed the Smart-Watch, and it's ready to be used!"))
+        else:
+            print("\033[1;31m [ WARNING! ] \033[0m")
+            print("\033[1;31m An error occurred while building/flashing the Smart-Watch! \033[0m")
+            
+    elif device == "box3":
+        result = subprocess.run(["esphome", "run", "./hosts/box3/configuration.yaml"], check=False)
+        if result.returncode == 0:
+            print(" ")
+            print("🚀🚀🚀🚀 ✨ ")
+            print(rainbow_text("✨✨ Successfully built & flashed the Box3, and it's ready to be used!"))
+        else:
+            print("\033[1;31m [ WARNING! ] \033[0m")
+            print("\033[1;31m An error occurred while building/flashing the Box3! \033[0m")
+            
+    elif device == "auto-installer":
+        result = subprocess.run(["sudo", "nix", "build", ".#auto-installer", "--impure", "--show-trace"], check=False)
+        
+        if result.returncode == 0:
+            print(" ")
+            print(" ")
+            print("🚀🚀🚀🚀 ✨ ")
+            print(rainbow_text("✨✨ Successfully built the USB auto-installer!"))
+            print(rainbow_text("✨ You can now dd the resulting iso image onto a USB drive! HINT: just type flash"))      
+            print("\033[1;31m [ WARNING READ BELOW CAREFULLY! ] \033[0m")  
+            print("\033[1;31m [ THE ISO IMAGE YOU ARE ABOUT TO USE IS 100% DESTRUCTIVE! ] \033[0m")  
+            print("\033[1;31m [ IT WILL AUTOMATICALLY REMOVE ALL DATA CURRENTLY ON THE MACHINE WITHOUT ASKING! ] \033[0m")  
+        else:
+            print("\033[1;31m [ WARNING! ] \033[0m")  
+            print("\033[1;31m An error occurred while building the USB auto installer! \033[0m")
+    else:
+        print(f"Unknown device: {device}. Please specify either 'watch', 'box3' or 'auto-installer'.")
+
+
+
+
+def read_agekeys():
+    with open(AGEKEYS_PATH, 'r') as f:
+        nix_content = f.read()
+
+    # Parse the JSON-like Nix content, which we assume is a valid Nix expression that can be evaluated
+    # This requires some custom handling or can be done with a Nix interpreter if needed.
+    # For simplicity, here we just assume the data is valid JSON.
+    try:
+        keys = json.loads(nix_content)
+        return keys
+    except json.JSONDecodeError:
+        raise ValueError("Failed to parse agekeys.nix. Ensure it's a valid JSON-like structure.")
+
+# Generate .sops.yaml file content
+def generate_sops_yaml(keys):
+    sops_yaml = {
+        "keys": [{"&" + k: v} for k, v in keys.items()],
+        "creation_rules": [
+            {
+                "path_regex": r"\.yaml$",
+                "key_groups": [
+                    {"age": [{"*" + k: v} for k, v in keys.items()]}
+                ]
+            }
+        ]
+    }
+    return sops_yaml
+
+# Write the .sops.yaml file
+def write_sops_yaml(sops_yaml):
+    with open(SOPS_CONFIG_PATH, 'w') as f:
+        json.dump(sops_yaml, f, indent=2)
+
+# Decrypt files in ./secrets
+def decrypt_secrets():
+    # This assumes you are using sops to decrypt the files
+    # Ensure you have a method to decrypt with old keys before proceeding
+    for root, _, files in os.walk(SECRETS_DIR):
+        for file in files:
+            if file.endswith('.yaml'):
+                file_path = os.path.join(root, file)
+                print(f"Decrypting {file_path}...")
+                subprocess.run(["sops", "--decrypt", file_path, "--output", file_path], check=True)
+
+# Encrypt files in ./secrets with new keys
+def encrypt_secrets():
+    # Assuming that after updating .sops.yaml, we will encrypt using the new keys
+    for root, _, files in os.walk(SECRETS_DIR):
+        for file in files:
+            if file.endswith('.yaml'):
+                file_path = os.path.join(root, file)
+                print(f"Encrypting {file_path}...")
+                subprocess.run(["sops", "--encrypt", file_path, "--output", file_path], check=True)
+
+@task
+def update_keys(c):
+    """
+    Updates sops-nix config. Invoke this after updating agekeys.nix
+    """
+    # Step 1: Extract keys from agekeys.nix
+    print("Reading keys from agekeys.nix...")
+    keys = read_agekeys()
+
+    # Step 2: Generate new .sops.yaml content
+    print("Generating .sops.yaml...")
+    sops_yaml = generate_sops_yaml(keys)
+
+    # Step 3: Decrypt all secrets in ./secrets
+    print("Decrypting existing secrets...")
+    decrypt_secrets()
+
+    # Step 4: Write the new .sops.yaml file
+    print("Writing new .sops.yaml...")
+    write_sops_yaml(sops_yaml)
+
+    # Step 5: Re-encrypt all secrets in ./secrets
+    print("Re-encrypting secrets with new keys...")
+    encrypt_secrets()
+
+    print("Process completed successfully.")
 

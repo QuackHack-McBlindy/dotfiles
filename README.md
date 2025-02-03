@@ -52,7 +52,10 @@ restore and recover my devices. <br>
 | Theme            | Custom                         |
 | File Browser     | Thunar                         |
 | Internet Browser | Custom Firefox                 |
-| Clipboard        | nix-shell -p xclip (optional)  |
+| Intent Recognition | Hassil                       |
+| Speech To Text   | Faster Whisper                 |
+| Wakeword         | Open Wake Word                 |
+| Clipboard        | nix-shell -p (optional)        |
 | Display Manager  | Gnome                          |
 | Containerization | Docker                         |
 | Virtualisation   | qemu + virt-manager + libvirtd |
@@ -68,11 +71,11 @@ restore and recover my devices. <br>
 
 
 <details>
-<summary>
+    <summary>
     
 ## 🖥️ Hosts
     
-</summary><br>
+    </summary><br>
 
 
 *Auto Installer ISO*  __(formats, partitions & installs)__ 
@@ -85,8 +88,8 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 <br>
 
-
-<summary>Desktop</summary> <br>
+    <details>
+    <summary>Desktop</summary> <br>
 
 **Desktop** <br>
 
@@ -100,14 +103,14 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 ```
 
 
-<br></details>
+    <br></details>
 
 
-<details><summary>
+    <details><summary>
 
 ⌨ **Keybindings**
 
-</summary>
+    </summary>
 
 
 | Key Combination           | Action                                                                |
@@ -127,13 +130,13 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-</details>
+    </details>
 
 ------------
-</details>
+    </details>
 
-<details>
-<summary>Laptop</summary><br>
+    <details>
+    <summary>Laptop</summary><br>
 
 **Laptop** <br>
 
@@ -148,11 +151,11 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 <br>
 
 
-<details><summary
+    <details><summary
 
 ⌨️ **Keybindings**
 
-</summary>
+    </summary>
 
 
 | Key Combination           | Action                                                                |
@@ -172,14 +175,14 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-</details>
+    </details>
 
 
 ------------
-</details>
+    </details>
 
-<details>
-<summary>Nasty</summary><br>
+    <details>
+    <summary>Nasty</summary><br>
 
 **Nasty** <br>
 
@@ -195,10 +198,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 
 
 ------------
-</details>
+    </details>
 
-<details>
-<summary>Tiny</summary><br>
+    <details>
+    <summary>Tiny</summary><br>
 
 **Tiny** <br>
 
@@ -214,10 +217,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 
 
 ------------
-</details>
+    </details>
 
-<details>
-<summary>Homie</summary><br>
+    <details>
+    <summary>Homie</summary><br>
 
 **Homie** <br>
 
@@ -232,11 +235,11 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 
 
 ------------
-</details>
+    </details>
 
-<details>
+    <details>
 
-<summary>Phone</summary><br>
+    <summary>Phone</summary><br>
 
 PinePhone <br>
 **System:** aarch64-linux <br>
@@ -247,10 +250,10 @@ PinePhone <br>
 
 
 ------------
-</details>
+    </details>
 
-<details>
-<summary>Smart Watch</summary> <br>
+    <details>
+    <summary>Smart Watch</summary> <br>
 
 **Smart Watch** <br>
 
@@ -258,23 +261,23 @@ ESP32 Smart Watch.  <br>
 
 **System:** ESP32-S3 T-Watch LoRa <br>
 
-<details><summary>
+    <details><summary>
 
 **Build**
 
-</summary> <br>
+    </summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build watcg
 ```
 
-<br></details>
+    <br></details>
 
 ------------
-</details>
+    </details>
 
-<details>
-<summary>Box3</summary> <br>
+    <details>
+    <summary>Box3</summary> <br>
 
 **Box3** <br>
 
@@ -282,22 +285,22 @@ A ESP32-S3-Box3 used as a voice assistant.  <br>
 
 **System:** ESP32-S3-Box3 <br>
 
-<details><summary>
+     <details><summary>
 
 **Build**
 
-</summary> <br>
+    </summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build box3
 ```
 
-<br></details>
+    <br></details>
 
-</details>
+    </details>
 
 ------------
-</details>
+    </details>
 
 <br><br>
 

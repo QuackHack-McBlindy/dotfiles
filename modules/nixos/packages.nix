@@ -18,6 +18,7 @@
     python312Packages.langid
     #caddy
     
+
     pkgs.ghostty
     gnome-screenshot    
     rofi

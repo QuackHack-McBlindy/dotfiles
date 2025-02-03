@@ -182,7 +182,25 @@ in
         exit 1
       fi
       bash con "$1" 
-     '')
+    '')
+  
+
+ #°✶.•°••─→ sopsd ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "sopsd" ''  
+      #!/bin/bash
+      if [ -z "$1" ]; then
+        echo "Usage: $0 <secret_name>"
+        exit 1
+      fi
+      SECRET_NAME="$1"
+      SECRET_PATH="/home/pungkula/dotfiles/secrets/$SECRET_NAME.yaml"
+      if [ ! -f "$SECRET_PATH" ]; then
+        echo "Error: Secret file '$SECRET_PATH' does not exist."
+        exit 1
+      fi
+      sops -d "$SECRET_PATH"
+    '')
+     
      
   ];
   
