@@ -98,7 +98,7 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 **Desktop** <br>
 
-<img src="https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm">
+[Watc](https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm)
 
 <br>
 
@@ -139,9 +139,10 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 </details>
-</details>
 
 ------------
+
+</details>
 
 <details><summary>Laptop</summary><br>
 
@@ -181,11 +182,12 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-laptop.nix)
 <br>
 
-
-</details>
 </details>
 
 ------------
+
+</details>
+
 
 <details><summary>Nasty</summary><br>
 
