@@ -134,7 +134,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 
 <details><summary>
 
-⌨ **Keybindings**
+### ⌨ **Keybindings**
 
 </summary>
 
@@ -182,7 +182,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 
 <details><summary>
 
-⌨️ **Keybindings**
+### ⌨️ **Keybindings**
 
 </summary>
 
@@ -219,7 +219,7 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 **Nasty** <br>
 
 Huge Mass Storage NAS - Creates Pool with mergerfs.<br>
-15x 3.5" drives. Runs media servers and rreverse proxy.<br>
+15x 3.5" drives. Runs media servers and rreverse proxy.<br><br>
 **System:** x86_64-linux <br>
 
 ```bash
@@ -239,7 +239,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 
 **Tiny** <br>
 
-Raspberry Pi 4B with hardware raid. <br>
+Raspberry Pi 4B with hardware raid. <br><br>
 **System:** aarch64-linux <br>
 
 ```bash
@@ -286,6 +286,8 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 </summary><br>
 
 PinePhone <br>
+
+wip.... <br><br>
 **System:** aarch64-linux <br>
 
 
@@ -307,14 +309,9 @@ ESP32 Smart Watch.  <br>
 
 **System:** ESP32-S3 T-Watch LoRa <br>
 
-<summary>
-
-**Build**
-
-</summary> <br>
 
 ```Build & flash USB Connected ESP Watch
-invoke build watcg
+invoke build watch
 ```
 
 <br>
@@ -334,11 +331,6 @@ A ESP32-S3-Box3 used as a voice assistant.  <br>
 
 **System:** ESP32-S3-Box3 <br>
 
-<summary>
-
-**Build**
-
-</summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build box3
@@ -468,10 +460,12 @@ Reverse proxy with Caddy.
 </summary><br>
 
 ```new-secret``` Helper to create new sops-nix secrets. <br>
-```sopsd <secret_name>```  Returns temporary decrypted sops secret. <br>
-```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
-```decrypt <file_path>``` Decrypt file wuth AGE and Yubikey. <br>
+```sopsd secret_name```  Returns temporary decrypted sops secret. <br>
+```encrypt file_path``` Encrypt file wuth AGE and Yubikey. <br>
+```decrypt file_path``` Decrypt file wuth AGE and Yubikey. <br>
+
 ------------ 
+
 <br> </details>
 
 
@@ -486,6 +480,7 @@ Reverse proxy with Caddy.
 ```con``` Conversation (text) agent. <br>
 
 ------------ 
+
 <br> </details>
 
 
@@ -499,7 +494,9 @@ Reverse proxy with Caddy.
 ```cleand``` Nix OS garbage collection <br>
 ```flush``` Cleans tmp and empty trash. <br>
 ```docker-prune``` Very Extensive gum Interactive Docker clean-up script with before and after quick disk analyzing. <br>
+
 ------------ 
+
 <br> </details>
 
 
