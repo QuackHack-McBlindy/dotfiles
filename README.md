@@ -5,7 +5,7 @@
 
  _by blind noob_ 
  
-</sub></div>
+</sub></div><br>
 
 
 > [!CAUTION]
@@ -70,7 +70,7 @@ and restore and recover my devices. <br>
 <br>
 
 </details>
-
+<br>
 
 ------------
 
