@@ -40,7 +40,7 @@ and restore and recover my devices. <br>
 
 <details><summary>
 
-🔧 **Components**
+### 🔧 **Components**
 
 <br>
 </summary>
@@ -363,7 +363,7 @@ invoke build box3
 <details>
 <summary>
 
-__Accessibility__
+### __Accessibility__
 
 </summary><br>
 
@@ -383,7 +383,7 @@ Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
 <details>
 <summary>
 
-__Secret Management__
+### __Secret Management__
 
 </summary>
 File encryption and secrets management is handled with three core components. <br>
