@@ -459,10 +459,10 @@ Reverse proxy with Caddy.
 
 </summary><br>
 
-```new-secret``` Helper to create new sops-nix secrets. <br>
-```sopsd secret_name```  Returns temporary decrypted sops secret. <br>
-```encrypt file_path``` Encrypt file wuth AGE and Yubikey. <br>
-```decrypt file_path``` Decrypt file wuth AGE and Yubikey. <br>
+```sudo new-secret``` Helper to create new sops-nix secrets. <br>
+```sopsd <secret_name>```  Returns temporary decrypted sops secret. <br>
+```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
+```decrypt <file_path>``` Decrypt file wuth AGE and Yubikey. <br>
 
 ------------ 
 
@@ -477,7 +477,7 @@ Reverse proxy with Caddy.
 
 ```say <text>``` Text to Speech with Piper and LangID for language detection. <br>
 ```weather``` Tiny weather report. <br>
-```con``` Conversation (text) agent. <br>
+```con <words>``` Conversation (text) agent. <br>
 
 ------------ 
 
