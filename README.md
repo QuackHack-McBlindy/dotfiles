@@ -98,13 +98,17 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 **Desktop** <br>
 
-
-https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm
-
 <br>
 
 Main machine.  <br> 
 Custom Waterloop, without the water.  <br>
+
+<br>
+
+[![Watch the video](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm)
+
+<br>
+
 
 **System:** x86_64-linux <br>
 
