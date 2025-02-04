@@ -88,7 +88,7 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 <br>
 
-<summary>Desktop</summary> <br>
+<details><summary>Desktop</summary> <br>
 
 **Desktop** <br>
 
@@ -129,10 +129,10 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-
-
 ------------
-<summary>Laptop</summary><br>
+</details>
+
+<<details>summary>Laptop</summary><br>
 
 **Laptop** <br>
 
@@ -171,11 +171,11 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-
-
 ------------
+</details>
 
-<summary>Nasty</summary><br>
+
+<<details>summary>Nasty</summary><br>
 
 **Nasty** <br>
 
@@ -189,10 +189,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 
 <br>
 
-
 ------------
+</details>
 
-<summary>Tiny</summary><br>
+<details><summary>Tiny</summary><br>
 
 **Tiny** <br>
 
@@ -206,9 +206,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 
 <br>
 
-
 ------------
-<summary>Homie</summary><br>
+</details>
+
+<details><summary>Homie</summary><br>
 
 **Homie** <br>
 
@@ -221,9 +222,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 
 <br>
 
-
 ------------
-<summary>Phone</summary><br>
+</details>
+
+<details><summary>Phone</summary><br>
 
 PinePhone <br>
 **System:** aarch64-linux <br>
@@ -232,9 +234,10 @@ PinePhone <br>
 
 <br>
 
-
 ------------
-<summary>Smart Watch</summary> <br>
+</details>
+
+<details><summary>Smart Watch</summary> <br>
 
 **Smart Watch** <br>
 
@@ -255,7 +258,9 @@ invoke build watcg
 <br>
 
 ------------
-<summary>Box3</summary> <br>
+</details>
+
+<details><summary>Box3</summary> <br>
 
 **Box3** <br>
 
@@ -278,10 +283,10 @@ invoke build box3
 
 
 ------------
-
+</details>
 </details>
 
-<br><br>
+<br>
 
 
 
