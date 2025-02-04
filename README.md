@@ -105,7 +105,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 <br>
 
 
-<summary>
+<details><summary>
 
 ⌨ **Keybindings**
 
@@ -131,6 +131,7 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 
 ------------
 </details>
+</details>
 
 <details><summary>Laptop</summary><br>
 
@@ -147,7 +148,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 <br>
 
 
-<summary>
+<details><summary>
 
 ⌨️ **Keybindings**
 
@@ -172,6 +173,7 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 
 
 ------------
+</details>
 </details>
 
 
@@ -285,9 +287,6 @@ invoke build box3
 ------------
 </details>
 </details>
-
-<br>
-
 
 
 
