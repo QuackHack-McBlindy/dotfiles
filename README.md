@@ -98,7 +98,11 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 <br>
 
-<details><summary>Desktop</summary> <br>
+<details><summary>
+
+__Desktop__
+
+</summary> <br>
 
 **Desktop** <br>
 
@@ -153,7 +157,11 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 
 </details>
 
-<details><summary>Laptop</summary><br>
+<details><summary>
+
+__Laptop__
+
+</summary><br>
 
 **Laptop** <br>
 
@@ -336,13 +344,11 @@ __Accessibility__
 
 __Text To Speech__
 
-<br>
 Custom orca configuration, with Piper TTS and langid for auto detecting language of text and provide correct model. <br>
 This wide TTS configuration icludes: Discord TTS, Conversation agent responses, notifications, some terminal commands and of course the screen reader. <br> <br>
 
 __Voice Control__
 
-<br>
 Microphones on every device, and wide range of custom voice commands to handle everday tasks. <br>
 Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
 
@@ -350,7 +356,11 @@ Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
 </details>
 
 <details>
-<summary>Secret Management</summary>
+<summary>
+
+__Secret Management__
+
+</summary>
 File encryption and secrets management is handled with three core components. <br>
 AGE <br>
 sops-nix <br>
