@@ -98,7 +98,7 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 **Desktop** <br>
 
-[Watch the video](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/hosts/desktop/video.mp4)
+<img src="https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm">
 
 <br>
 
@@ -138,10 +138,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 All keybindings for this device are listed [here](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home-manager/keybindings-desktop.nix)
 <br>
 
+</details>
+</details>
 
 ------------
-</details>
-</details>
 
 <details><summary>Laptop</summary><br>
 
@@ -182,10 +182,10 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-------------
 </details>
 </details>
 
+------------
 
 <details><summary>Nasty</summary><br>
 
@@ -225,10 +225,13 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 
 **Homie** <br>
 
-<img src="./home/hosts/homie/pic.jpg" width="48%" style="display: inline-block;">
+
+Smaall fanless server to run my smart home devices and everything related. <br> 
+
+<img src="./home/hosts/homie/pic.jpg" width="30%" style="display: inline-block;">
 <br>
 
-Smaall fanless server to run my smart home devices and everything related. <br>
+
 **System:** x86_64-linux <br>
 
 ```bash
