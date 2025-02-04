@@ -99,7 +99,7 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 <br>
 
 <details>
-<summary>__Desktop__</summary>
+<summary>## Desktop</summary>
 <br>
 
 **Desktop** <br>
