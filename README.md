@@ -386,10 +386,11 @@ Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
 ### __Secret Management__
 
 </summary>
-File encryption and secrets management is handled with three core components. <br>
-AGE <br>
-sops-nix <br>
-Yubikey <br> <br>
+File encryption and secrets management is handled with three core components. <br><br>
+
+- __AGE__ <br>
+- __sops-nix__ <br>
+- __Yubikey__ <br> <br>
 
 With effective and secure bash scripts creating and maintaing secrets and keys is as easy as touching a key, or typing `encrypt`. <br>
 
@@ -427,7 +428,7 @@ Reverse proxy with Caddy.
 
 <details><summary>
 
-**Navigation / File Management** 
+### **Navigation / File Management** 
 
 </summary><br>
 
@@ -444,7 +445,7 @@ Reverse proxy with Caddy.
 <br> </details>
 <details><summary>
 
-**OS** 
+### **OS** 
 
 </summary><br>
 
@@ -459,7 +460,7 @@ Reverse proxy with Caddy.
 
 <details><summary>
 
-**Secrets** 
+### **Secrets** 
 
 </summary><br>
 
@@ -473,7 +474,7 @@ Reverse proxy with Caddy.
 
 <details><summary>
 
-**Misc** 
+### **Misc** 
 
 </summary><br>
 
@@ -487,7 +488,7 @@ Reverse proxy with Caddy.
 
 <details><summary>
 
-**Clean-up** 
+### **Clean-up** 
 
 </summary><br>
 
