@@ -98,7 +98,8 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 **Desktop** <br>
 
-[Watc](https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm)
+
+https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm
 
 <br>
 
@@ -229,9 +230,10 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 
 
 Smaall fanless server to run my smart home devices and everything related. <br> 
+<br>
 
 <img src="./home/hosts/homie/pic.jpg" width="30%" style="display: inline-block;">
-<br>
+<br><br>
 
 
 **System:** x86_64-linux <br>
