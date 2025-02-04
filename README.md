@@ -206,7 +206,11 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 </details>
 
 
-<details><summary>Nasty</summary><br>
+<details><summary>
+
+__Nasty__
+
+</summary><br>
 
 **Nasty** <br>
 
@@ -240,7 +244,11 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 ------------
 </details>
 
-<details><summary>Homie</summary><br>
+<details><summary>
+
+__Homie__
+
+</summary><br>
 
 **Homie** <br>
 
@@ -275,7 +283,11 @@ PinePhone <br>
 ------------
 </details>
 
-<details><summary>Smart Watch</summary> <br>
+<details><summary>
+
+__Smart Watch__
+
+</summary> <br>
 
 **Smart Watch** <br>
 
@@ -298,7 +310,11 @@ invoke build watcg
 ------------
 </details>
 
-<details><summary>Box3</summary> <br>
+<details><summary>
+
+__Box3__
+
+</summary> <br>
 
 **Box3** <br>
 
