@@ -30,11 +30,11 @@ and restore and recover my devices. <br>
 
 <br><br>
 
-**❄️ This flake main focus will be on:** 
+## **❄️ This flake main focus will be on:** 
 
 - **Custom Accessibility** 
 - **Good Reproducibility**
-- **& Easy Usage**
+- **Easy Usage**
 
 <br>
 
@@ -87,7 +87,7 @@ and restore and recover my devices. <br>
 
 __Auto Installer ISO__
 <br>
-Flash to USB. Boot. <br>
+Flash to USB. Boot. Wait until shutdown. Done.<br>
 _(formats, partitions & installs Nix OS)_
 
 <br>
