@@ -1,9 +1,13 @@
 # ❄️🦆 **Flake: Just4Quackz** <br>
 
 <div align="center">
-  <sub>  *by blind noob* </sub>
+  <sub>  _by blind noob_ </sub>
 </div>
 
+
+> [!CAUTION]
+> Do not use this flake with my hardware files. <br>
+> Use your own! <br>
 
 <details>
 <summary>
@@ -129,9 +133,8 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-
-</details>
 ------------
+</details>
 </details>
 
 <details><summary>Laptop</summary><br>
@@ -173,9 +176,8 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-
-</details>
 ------------
+</details>
 </details>
 
 
