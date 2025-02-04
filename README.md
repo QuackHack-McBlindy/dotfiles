@@ -132,7 +132,7 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 ------------
 </details>
 
-<<details>summary>Laptop</summary><br>
+<details><summary>Laptop</summary><br>
 
 **Laptop** <br>
 
