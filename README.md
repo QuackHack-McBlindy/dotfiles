@@ -1,12 +1,15 @@
 # ❄️🦆 **Flake: Just4Quackz** <br>
 
 <div align="center">
-  <sub>  _by blind noob_ </sub>
-</div>
+<sub>
+
+ _by blind noob_ 
+ 
+</sub></div>
 
 
 > [!CAUTION]
-> Do not use this flake with my hardware files. <br>
+> __Do not__ use this flake with my hardware files. <br>
 > Use your own! <br>
 
 <details>
@@ -18,12 +21,12 @@
 
 This repo contains NixOS configuration flake for my personal machines on home network. <br>
 This flake holds everything neeeded to build, run, maintain - <br>
-restore and recover my devices. <br> 
+and restore and recover my devices. <br> 
 🧑‍🦯 🧑‍🦯 🧑‍🦯  <br>
 
-<center> <img src="./home/screenshot-lock.png" width="40%" style="display: inline-block; margin-right: 2%;"></center> <br>
-<img src="./home/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
-<img src="./home/screenshot2.png" width="48%" style="display: inline-block;">
+<p align="center"> <img src="./home/hosts/desktop/screenshot-lock.png" width="40%" style="display: inline-block; margin-right: 2%;"></p> <br>
+<img src="./home/hosts/desktop/screenshot1.png" width="48%" style="display: inline-block; margin-right: 2%;">
+<img src="./home/hosts/desktop/screenshot2.png" width="48%" style="display: inline-block;">
 
 <br><br>
 
@@ -46,7 +49,6 @@ restore and recover my devices. <br>
 | Distro           | NixOS                          |
 | Shell            | Bash                           |
 | Display Server   | Wayland                        |
-| WM (Compositor)  |                                |
 | Bar              | OpenBar                        |
 | Notification     | libnotify                      |
 | Editor           | vim / Getty                    |
@@ -95,6 +97,10 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 <details><summary>Desktop</summary> <br>
 
 **Desktop** <br>
+
+[Watch the video](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/hosts/desktop/video.mp4)
+
+<br>
 
 Main machine.  <br> 
 Custom Waterloop, without the water.  <br>
@@ -218,6 +224,9 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 <details><summary>Homie</summary><br>
 
 **Homie** <br>
+
+<img src="./home/hosts/homie/pic.jpg" width="48%" style="display: inline-block;">
+<br>
 
 Smaall fanless server to run my smart home devices and everything related. <br>
 **System:** x86_64-linux <br>
