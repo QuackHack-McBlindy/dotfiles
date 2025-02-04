@@ -71,11 +71,11 @@ restore and recover my devices. <br>
 
 
 <details>
-    <summary>
+<summary>
     
 ## 🖥️ Hosts
     
-    </summary><br>
+</summary><br>
 
 
 *Auto Installer ISO*  __(formats, partitions & installs)__ 
@@ -88,8 +88,7 @@ sudo nix build github:QuackHack-McBlindy/auto-installer-nixos#nixosConfiguration
 
 <br>
 
-    <details>
-    <summary>Desktop</summary> <br>
+<summary>Desktop</summary> <br>
 
 **Desktop** <br>
 
@@ -103,14 +102,14 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#desktop
 ```
 
 
-    <br></details>
+<br>
 
 
-    <details><summary>
+<summary>
 
 ⌨ **Keybindings**
 
-    </summary>
+</summary>
 
 
 | Key Combination           | Action                                                                |
@@ -130,13 +129,10 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-    </details>
+
 
 ------------
-    </details>
-
-    <details>
-    <summary>Laptop</summary><br>
+<summary>Laptop</summary><br>
 
 **Laptop** <br>
 
@@ -151,11 +147,11 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#laptop
 <br>
 
 
-    <details><summary
+<summary>
 
 ⌨️ **Keybindings**
 
-    </summary>
+</summary>
 
 
 | Key Combination           | Action                                                                |
@@ -175,14 +171,11 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-    </details>
 
 
 ------------
-    </details>
 
-    <details>
-    <summary>Nasty</summary><br>
+<summary>Nasty</summary><br>
 
 **Nasty** <br>
 
@@ -198,10 +191,8 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 
 
 ------------
-    </details>
 
-    <details>
-    <summary>Tiny</summary><br>
+<summary>Tiny</summary><br>
 
 **Tiny** <br>
 
@@ -217,10 +208,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 
 
 ------------
-    </details>
-
-    <details>
-    <summary>Homie</summary><br>
+<summary>Homie</summary><br>
 
 **Homie** <br>
 
@@ -235,11 +223,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 
 
 ------------
-    </details>
-
-    <details>
-
-    <summary>Phone</summary><br>
+<summary>Phone</summary><br>
 
 PinePhone <br>
 **System:** aarch64-linux <br>
@@ -250,10 +234,7 @@ PinePhone <br>
 
 
 ------------
-    </details>
-
-    <details>
-    <summary>Smart Watch</summary> <br>
+<summary>Smart Watch</summary> <br>
 
 **Smart Watch** <br>
 
@@ -261,23 +242,20 @@ ESP32 Smart Watch.  <br>
 
 **System:** ESP32-S3 T-Watch LoRa <br>
 
-    <details><summary>
+<summary>
 
 **Build**
 
-    </summary> <br>
+</summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build watcg
 ```
 
-    <br></details>
+<br>
 
 ------------
-    </details>
-
-    <details>
-    <summary>Box3</summary> <br>
+<summary>Box3</summary> <br>
 
 **Box3** <br>
 
@@ -285,31 +263,32 @@ A ESP32-S3-Box3 used as a voice assistant.  <br>
 
 **System:** ESP32-S3-Box3 <br>
 
-     <details><summary>
+<summary>
 
 **Build**
 
-    </summary> <br>
+</summary> <br>
 
 ```Build & flash USB Connected ESP Watch
 invoke build box3
 ```
 
-    <br></details>
+<br>
 
-    </details>
+
 
 ------------
-    </details>
+
+</details>
 
 <br><br>
 
 
-</details>
 
 
 <details>
 <summary>
+
     
 ## 🚀 Features
     
