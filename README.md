@@ -78,9 +78,7 @@ restore and recover my devices. <br>
 </summary><br>
 
 
-_Auto Installer ISO_
-
-__(formats, partitions & installs)__
+__Auto Installer ISO__ _(formats, partitions & installs)_
 
 <br>
 
