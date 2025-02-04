@@ -227,7 +227,11 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#nasty
 ------------
 </details>
 
-<details><summary>Tiny</summary><br>
+<details><summary>
+
+__Tiny__
+
+</summary><br>
 
 **Tiny** <br>
 
@@ -271,7 +275,11 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#homie
 ------------
 </details>
 
-<details><summary>Phone</summary><br>
+<details><summary>
+
+__Phone__
+
+</summary><br>
 
 PinePhone <br>
 **System:** aarch64-linux <br>
