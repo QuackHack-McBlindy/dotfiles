@@ -42,6 +42,7 @@ and restore and recover my devices. <br>
 
 🔧 **Components**
 
+<br>
 </summary>
 
 | Component        | Version/Name                   |
@@ -79,7 +80,7 @@ and restore and recover my devices. <br>
 <details>
 <summary>
     
-## 🖥️ Hosts
+## 🖥️ __Machines__
     
 </summary><br>
 
@@ -108,7 +109,7 @@ Custom Waterloop, without the water.  <br>
 
 <br>
 
-[![Watch](./home/hosts/desktop/pic.jpg)](blob:https://drive.proton.me/3647897e-087b-4d90-934b-aa8c191ec63b)
+[![Watch](./home/hosts/desktop/pic.jpg)](https://drive.proton.me/3647897e-087b-4d90-934b-aa8c191ec63b)
 
 <br>
 
@@ -327,12 +328,16 @@ invoke build box3
 
 
 <details>
-<summary>Accessibility</summary><br>
-*Text To Speech* <br>
+<summary>
+__Accessibility__
+</summary><br>
+__Text To Speech__
+<br>
 Custom orca configuration, with Piper TTS and langid for auto detecting language of text and provide correct model. <br>
 This wide TTS configuration icludes: Discord TTS, Conversation agent responses, notifications, some terminal commands and of course the screen reader. <br> <br>
 
-*Voice Control* <br>
+__Voice Control__
+<br>
 Microphones on every device, and wide range of custom voice commands to handle everday tasks. <br>
 Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
 
