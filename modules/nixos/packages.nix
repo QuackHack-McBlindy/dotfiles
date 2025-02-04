@@ -19,6 +19,7 @@
     #caddy
     
 
+    pkgs.gthumb
     pkgs.ghostty
     gnome-screenshot    
     rofi

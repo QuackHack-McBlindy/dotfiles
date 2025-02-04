@@ -84,7 +84,10 @@ and restore and recover my devices. <br>
 </summary><br>
 
 
-__Auto Installer ISO__ _(formats, partitions & installs)_
+__Auto Installer ISO__
+<br>
+Flash to USB. Boot. <br>
+_(formats, partitions & installs Nix OS)_
 
 <br>
 
@@ -105,7 +108,7 @@ Custom Waterloop, without the water.  <br>
 
 <br>
 
-[![Watch the video](https://img.youtube.com/vi/dQw4w9WgXcQ/0.jpg)](https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm)
+[![Watch](./home/hosts/desktop/pic.jpg)](blob:https://drive.proton.me/3647897e-087b-4d90-934b-aa8c191ec63b)
 
 <br>
 
@@ -236,7 +239,7 @@ sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#tiny
 Smaall fanless server to run my smart home devices and everything related. <br> 
 <br>
 
-<img src="./home/hosts/homie/pic.jpg" width="30%" style="display: inline-block;">
+<img src="./home/hosts/homie/pic.jpg" width="25%" style="display: inline-block;">
 <br><br>
 
 
