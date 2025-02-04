@@ -78,7 +78,9 @@ restore and recover my devices. <br>
 </summary><br>
 
 
-*Auto Installer ISO*  __(formats, partitions & installs)__ 
+_Auto Installer ISO_
+
+__(formats, partitions & installs)__
 
 <br>
 
@@ -129,8 +131,9 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-------------
+
 </details>
+------------
 </details>
 
 <details><summary>Laptop</summary><br>
@@ -172,8 +175,9 @@ All keybindings for this device are listed [here](https://github.com/QuackHack-M
 <br>
 
 
-------------
+
 </details>
+------------
 </details>
 
 
