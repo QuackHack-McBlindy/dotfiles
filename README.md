@@ -1,6 +1,6 @@
 # ❄️🦆 **Flake: Just4Quackz** <br>
 
-<div align="center">
+<div align="right">
 <sub>
 
  _by blind noob_ 
@@ -68,11 +68,13 @@ and restore and recover my devices. <br>
 | Virtualisation   | qemu + virt-manager + libvirtd |
 | VPN              | WireGuard
 <br>
+
 </details>
 
 
 ------------
 
+<br>
 </details>
 
 
@@ -88,6 +90,7 @@ and restore and recover my devices. <br>
 ### __Auto Installer ISO__
 <br>
 Flash to USB. Boot. Wait until shutdown. Done.<br>
+
 _(formats, partitions & installs Nix OS)_
 
 <br>
