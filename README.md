@@ -109,7 +109,7 @@ Custom Waterloop, without the water.  <br>
 
 <br>
 
-[![Watch](./home/hosts/desktop/pic.jpg)](https://drive.proton.me/3647897e-087b-4d90-934b-aa8c191ec63b)
+[![Watch](./home/hosts/desktop/pic.jpg)](https://drive.proton.me/urls/JWCZ3V4RXC#SWOA0zI4eRlm)
 
 <br>
 
@@ -329,14 +329,19 @@ invoke build box3
 
 <details>
 <summary>
+
 __Accessibility__
+
 </summary><br>
+
 __Text To Speech__
+
 <br>
 Custom orca configuration, with Piper TTS and langid for auto detecting language of text and provide correct model. <br>
 This wide TTS configuration icludes: Discord TTS, Conversation agent responses, notifications, some terminal commands and of course the screen reader. <br> <br>
 
 __Voice Control__
+
 <br>
 Microphones on every device, and wide range of custom voice commands to handle everday tasks. <br>
 Make a friendly request to the assistant by yelling `YO BITCH!` <br> <br>
