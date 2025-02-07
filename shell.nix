@@ -6,5 +6,6 @@ pkgs.mkShell {
     pkgs.python3
     pkgs.python3Packages.requests
     pkgs.python3Packages.python-dotenv
+    pkgs.python312Packages.sh
   ];
 }

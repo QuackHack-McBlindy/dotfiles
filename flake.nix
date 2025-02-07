@@ -211,16 +211,10 @@
               
               installer = auto-installer.nixosConfigurations.installer;
               
-             
-          #    packages.aarch64-linux = {
-         #         pi-sd-image = rpi4b_sd_image;
-                 # phone-image = phone_sd_image;
-         #     };
-       #       packages.x86_64-linux = {
-            #      installer-iso = auto_installer_iso;
-        #     };
-      
-
+              devShells."x86_64-linux".default = nixpkgs.legacyPackages."x86_64-linux".mkShell {
+                 # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
+                  packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh ];
+              };
       
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

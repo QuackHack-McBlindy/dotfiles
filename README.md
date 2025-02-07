@@ -461,6 +461,7 @@ Reverse proxy with Caddy.
 
 ```sudo new-secret``` Helper to create new sops-nix secrets. <br>
 ```sopsd <secret_name>```  Returns temporary decrypted sops secret. <br>
+```sopsc <secret_name>```  Execute content of a secret as terminal command.  <br><br>
 ```encrypt <file_path>``` Encrypt file wuth AGE and Yubikey. <br>
 ```decrypt <file_path>``` Decrypt file wuth AGE and Yubikey. <br>
 

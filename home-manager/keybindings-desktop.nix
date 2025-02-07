@@ -53,8 +53,8 @@
         "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-up = [""];
         "org/gnome/settings-daemon/plugins/media-keys".screen-brightness-down = [""];
     # Keyboard Brightness    
-        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-down = [""];
-        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-up = [""];
+        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-up = [ "<Primary>KP_Add" ];  
+        "org/gnome/settings-daemon/plugins/media-keys".keyboard-brightness-down = [ "<Primary>KP_Subtract" ];
     # Run
         "org/gnome/desktop/wm/keybindings".panel-run-dialog = ["<Super>r"];
     # Show Desktop

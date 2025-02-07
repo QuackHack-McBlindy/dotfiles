@@ -5,7 +5,7 @@
   programs.ghostty = {
     enable = true;
 
-    clearDefaultKeybinds = true;
+    clearDefaultKeybinds = false;
     enableBashIntegration = true;
     installBatSyntax = true;
     
@@ -46,7 +46,7 @@
        # "ctrl+l=goto_split:right"
         "ctrl+a=select_all"
         "ctrl+c=copy_to_clipboard"
-      #  "ctrl+v="
+      #  "ctrl+v=paste"
         "ctrl+q=close_all_windows"
       ];
 

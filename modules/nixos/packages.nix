@@ -18,7 +18,7 @@
     python312Packages.langid
     #caddy
     
-
+    pkgs.cheat
     pkgs.gthumb
     pkgs.ghostty
     gnome-screenshot    
