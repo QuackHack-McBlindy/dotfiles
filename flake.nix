@@ -25,7 +25,8 @@
       flake-parts.url = "github:hercules-ci/flake-parts";
       
       nixos-unified.url = "github:srid/nixos-unified";
-      
+      nixinate.url = "github:QuackHack-McBlindy/nixinate";
+  
      # nixcord.url = "github:kaylorben/nixcord";
      # netboot.url = "path:./modules/iso";
 
@@ -49,7 +50,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }:  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, nixinate, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }:  
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -77,7 +78,7 @@
           };
           lib = nixpkgs.lib;
       in {
-          
+          apps = nixinate.nixinate.x86_64-linux self; 
           nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -96,7 +97,7 @@
                       
                       ./modules/services/mosquitto.nix
                      # ./modules/services/zigbee2mqtt.nix
-                      ./modules/virtualization/zigbee2mqtt.nix
+                #      ./modules/virtualization/zigbee2mqtt.nix
                       ./modules/services/homepage.nix                      
                   ];
               };
@@ -133,9 +134,9 @@
              #             options = ["cache.files=partial" "dropcacheonclose=true" "category.create=mfs"];
             #          };
                       
-                      ./modules/virtualization/docker.nix
-                      ./modules/virtualization/arr.nix
-                      ./modules/virtualization/glue-shadow-socks.nix            
+                   #   ./modules/virtualization/docker.nix
+                   #   ./modules/virtualization/arr.nix
+                    #  ./modules/virtualization/glue-shadow-socks.nix            
                   ];     
                }; 
                
@@ -151,16 +152,16 @@
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter
                       
-                      ./modules/services/tts.nix
-                      ./modules/services/openwakeword.nix
-                      ./modules/services/faster-whisper.nix
-                      ./modules/services/homepage.nix
-                      ./modules/services/mosquitto.nix
-                      ./modules/services/zigbee2mqtt.nix
-                      ./modules/networking/caddy/caddy.nix
-                      ./modules/networking/caddy.nix
-                      ./modules/services/nginx/default.nix  
-                      ./modules/networking/adguard.nix
+               #       ./modules/services/tts.nix
+                #      ./modules/services/openwakeword.nix
+                #      ./modules/services/faster-whisper.nix
+               #       ./modules/services/homepage.nix
+               #       ./modules/services/mosquitto.nix
+               #       ./modules/services/zigbee2mqtt.nix
+               #       ./modules/networking/caddy/caddy.nix
+               #       ./modules/networking/caddy.nix
+                #      ./modules/services/nginx/default.nix  
+                 #     ./modules/networking/adguard.nix
                   ];
               };              
 

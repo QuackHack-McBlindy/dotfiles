@@ -189,37 +189,20 @@ in
     (pkgs.writeShellScriptBin "sopsd" ''  
       #!/bin/bash
       if [ -z "$1" ]; then
-        echo "Usage: $0 <secret_name>"
-        exit 1
+          echo "Usage: sopsd <filename>"
+          exit 1
       fi
-      SECRET_NAME="$1"
-      SECRET_PATH="/home/pungkula/dotfiles/secrets/$SECRET_NAME.yaml"
-      if [ ! -f "$SECRET_PATH" ]; then
-        echo "Error: Secret file '$SECRET_PATH' does not exist."
-        exit 1
-      fi
-      sops -d "$SECRET_PATH"
+      sudo cat "/run/secrets/$1"
     '')
      
  #°✶.•°••─→ sopsc ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     (pkgs.writeShellScriptBin "sopsc" ''  
       #!/bin/bash
       if [ -z "$1" ]; then
-        echo "Usage: $0 <secret_name>"
-        exit 1
+          echo "Usage: sopsc <filename>"
+          exit 1
       fi
-      SECRET_NAME="$1"
-      SECRET_PATH="/home/pungkula/dotfiles/secrets/$SECRET_NAME.yaml"
-      if [ ! -f "$SECRET_PATH" ]; then
-        echo "Error: Secret file '$SECRET_PATH' does not exist."
-        exit 1
-      fi
-      COMMAND=$(sops -d "$SECRET_PATH" | awk -F 'smb: ' '{print $2}')
-      if [ -z "$COMMAND" ]; then
-        echo "Error: No smb command found in the secret."
-        exit 1
-      fi
-      eval $COMMAND
+      sudo bash "/run/secrets/$1"
     '')
      
      
