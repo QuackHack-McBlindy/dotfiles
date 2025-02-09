@@ -7,11 +7,12 @@ from invoke import task
 GITHUB_USER = "QuackHack-McBlindy"
 GITHUB_REPO = "dotfiles"
 
+SSH_USER = os.getenv("USER") or subprocess.run(["whoami"], capture_output=True, text=True).stdout.strip()
+DOTFILES_DIR = f"/home/{SSH_USER}/dotfiles"
 
 AGEKEYS_PATH = './hosts/agekeys.nix'
 SECRETS_DIR = './secrets'
 SOPS_CONFIG_PATH = '.sops.yaml'
-
 
 def is_git_repo():
     """Check if the current directory is a Git repository."""
@@ -37,8 +38,6 @@ def rainbow_text(text):
 
     return colored_text
 
-
-###############
 
 
 ###############
@@ -121,25 +120,38 @@ def pull(ctx):
         print("\033[1;31m [ WARNING! ] \033[0m")  
         print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
       
-                  
+
 
 @task
-def switch(ctx, host=None):
+def deploy(c, hostname, local=False):
     """
-    --host [hostname]
+    [hostname] --local (to builö on the target machine, optional)
 
-    :param ctx: Invoke context.
-    :param host: Optional hostname to rebuild on. If omitted, defaults to 'laptop'.
+    Usage:
+        invoke deploy HOSTNAME         # Build locally and deploy
+        invoke deploy HOSTNAME --local # Sync dotfiles and rebuild remotely
     """
-    target_host = host or "laptop"
-    print(f"Rebuilding and switching on: {target_host}")
-    nixos_rebuild_command = f"sudo nixos-rebuild switch --flake github:QuackHack-McBlindy/dotfiles#{target_host}"
-    if host:
-        print(f"Running: {nixos_rebuild_command} on {host}")
-        ctx.run(f"ssh {host} '{nixos_rebuild_command}'", echo=True)
+    ssh_target = f"{SSH_USER}@{hostname}"
+
+    if local:
+        print(f"🔄 Syncing dotfiles to {hostname} via rsync...")
+        subprocess.run(["rsync", "-avz", DOTFILES_DIR, f"{ssh_target}:{DOTFILES_DIR}"], check=True)
+
+        print(f"🚀 Rebuilding configuration on {hostname} using flakes...")
+        subprocess.run(["ssh", ssh_target, f"sudo nixos-rebuild switch --flake {DOTFILES_DIR}#{hostname}"], check=True)
+
     else:
-        print(f"Running: {nixos_rebuild_command} on {target_host}")
-        ctx.run(f"ssh {target_host} '{nixos_rebuild_command}'", echo=True)
+        print("🔨 Building NixOS configuration locally using flakes...")
+        subprocess.run(["nix", "build", f"{DOTFILES_DIR}#nixosConfigurations.{hostname}.config.system.build.toplevel"], check=True)
+
+        print(f"🚀 Copying system closure to {hostname}...")
+        subprocess.run(["rsync", "-avz", "result", f"{ssh_target}:/nix/store/"], check=True)
+
+        print(f"🔄 Activating configuration on {hostname}...")
+        subprocess.run(["ssh", ssh_target, f"sudo nix-env --profile /nix/var/nix/profiles/system --set /nix/store/result"], check=True)
+        subprocess.run(["ssh", ssh_target, "sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch"], check=True)
+
+    print("✅ Deployment complete!")
 
 
 

@@ -25,8 +25,7 @@
       flake-parts.url = "github:hercules-ci/flake-parts";
       
       nixos-unified.url = "github:srid/nixos-unified";
-      nixinate.url = "github:QuackHack-McBlindy/nixinate";
-  
+   
      # nixcord.url = "github:kaylorben/nixcord";
      # netboot.url = "path:./modules/iso";
 
@@ -50,7 +49,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, nixinate, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }:  
+  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }: 
       let
           user = "pungkula";
           hostname = self.config.networking.hostName;
@@ -78,7 +77,6 @@
           };
           lib = nixpkgs.lib;
       in {
-          apps = nixinate.nixinate.x86_64-linux self; 
           nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -94,11 +92,25 @@
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
                       
+                  #    system.activationScripts = {
+                 #     {
+                 #         mount = {
+                          # Run after /dev has been mounted
+                 #             deps = [ "specialfs" ];
+                 #             text =
+                 #             ''
+                 #                 bash sopsc smb
+                 #             '';
+                 #         };
+                 #     }
                       
+                      ./modules/networking/shadowsocks.nix
+                      ./modules/services/systemd/tts-notifications.nix
                       ./modules/services/mosquitto.nix
                      # ./modules/services/zigbee2mqtt.nix
-                #      ./modules/virtualization/zigbee2mqtt.nix
-                      ./modules/services/homepage.nix                      
+                      ./modules/virtualization/home-assistant.nix
+                      ./modules/services/homepage.nix        
+                      
                   ];
               };
 

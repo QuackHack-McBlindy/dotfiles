@@ -8,10 +8,13 @@
                 hostname = "home-assistant";
             #   dependsOn = [ "db" ]; # FIXME database
                 autoStart = true;
+                ports = [
+                  "8123:8123"
+                ];
                 volumes = [
                     "/etc/localtime:/etc/localtime:ro"
                     "/run/dbus:/run/dbus:ro"
-                    "/home/$USER/dotfiles/home/.config/ha/config:/config"
+                    "/home/pungkula/dotfiles/home/.config/home-assistant/config:/config"
                 ];
                # environmentFiles = [
                #     /docker/env/transmission/.env

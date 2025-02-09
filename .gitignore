@@ -8,6 +8,9 @@ develop/*
 home/.config/Yubico/yubikey-identity.txt
 home/.config/Yubico/*
 
+home/.config/ha
+home/.config/home-assistant
+
 **/keys.txt
 **/key.txt
 **/passwd

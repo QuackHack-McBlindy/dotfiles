@@ -18,6 +18,9 @@
     python312Packages.langid
     #caddy
     
+    pkgs.inotify-tools
+    pkgs.brave
+    pkgs.systemctl-tui
     pkgs.cheat
     pkgs.gthumb
     pkgs.ghostty

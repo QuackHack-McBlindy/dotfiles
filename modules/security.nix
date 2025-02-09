@@ -130,7 +130,18 @@
     };
   };
 
+  sops.secrets = {
+    smbb = {
+      sopsFile = "/var/lib/sops-nix/secrets/smbb.yaml"; 
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+  };
+
+#  config.sops.secrets.smbb.path;
   
+
 
 
 

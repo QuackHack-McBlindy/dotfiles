@@ -29,6 +29,8 @@
       bookmarks = [
         "file:///home/pungkula/dotfiles ❄️ - 𝒹𝑜𝓉𝒻𝒾𝓁ℯ𝓈"
         "file:///home/pungkula/.config 🛠️ - .𝒸ℴ𝓃𝒻𝒾𝑔"
+        "file:///home/pungkula/projects 💡 - 𝑃𝓇𝑜𝒿𝑒𝒸𝓉𝓈"
+        
    #    "file:///etc/nixos nixos"
   #      "smb://192.168.1.181/config/ HA"
         "smb://192.168.1.28/pool/ 💾 - /ℙℴℴ𝓁"

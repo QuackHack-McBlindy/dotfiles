@@ -197,6 +197,13 @@ blink() {
     echo -e "\033[1;32m\033[5m$text \033[0m"
 }
 
+warning() {
+    notify-send "warning"
+    local warn="⚠️ WARNING ! ⚠️"
+    local text="$1"
+    echo -e "\033[1;35m\033[5m$warn\033[0m"
+    echo -e "\033[1;35m\033[5m$text\033[0m"
+}
 
 # The confirm function
 confirm() {
@@ -346,4 +353,6 @@ encrypt() {
     echo -e "\033[1;31mError: Encryption failed for \033[1;37m$filepath\033[0m"
   fi
 }
+
+
 

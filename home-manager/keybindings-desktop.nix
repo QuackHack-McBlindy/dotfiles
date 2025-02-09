@@ -28,10 +28,11 @@
             command = "/run/current-system/sw/bin/gedit --new-window";
             name = "Gedit New Window";
         };   
-    # [ Shift + CTRL + D ] dotfiles File Manager 
+    # [ CTRL + D ] dotfiles File Manager 
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3" = {
-            binding = "<Primary><shift>d";
-            command = "/run/current-system/sw/bin/thunar /home/$USER/dotfiles";
+         #   binding = "<Primary><shift>d";
+            binding = "<Primary>d";
+            command = "/run/current-system/sw/bin/thunar /home/pungkula/dotfiles";
             name = "File Manager dotfiles";
         };   
                 
