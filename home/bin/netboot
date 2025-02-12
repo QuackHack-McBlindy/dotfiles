@@ -1,0 +1,34 @@
+#! /nix/store/dzrvibwj2vjwqmc34wk3x1ffsjpp4av7-bash-4.4-p23/bin/bash
+set -e  
+set -o pipefail  
+
+UDP_PORTS="67,69,4011"
+TCP_PORT="64172"
+
+open_ports() {
+    echo "Opening necessary ports..."
+    sudo iptables -w -I nixos-fw -p udp -m multiport --dports 67,69,4011 -j ACCEPT
+    sudo iptables -w -I nixos-fw -p tcp -m tcp --dport 64172 -j ACCEPT
+}
+
+close_ports() {
+    echo "Closing opened ports..."
+    sudo iptables -w -D nixos-fw -p udp -m multiport --dports 67,69,4011 -j ACCEPT
+    sudo iptables -w -D nixos-fw -p tcp -m tcp --dport 64172 -j ACCEPT
+}
+
+
+
+trap close_ports EXIT
+
+if [ ! -f /tmp/run-pixiecore ]; then
+    echo "Building netboot..."
+    sudo nix build -f system.nix -o /tmp/run-pixiecore
+fi
+
+open_ports
+
+echo "Starting pixiecore..."
+sudo /tmp/run-pixiecore
+
+

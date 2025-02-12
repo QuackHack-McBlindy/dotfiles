@@ -19,20 +19,20 @@
     # [  ] Terminal 
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
             binding = "section";
-            command = "/run/current-system/sw/bin/ghostty";
+            command = "/etc/profiles/per-user/pungkula/bin/ghostty";
             name = "terminal";
         };      
     # [ CTRL + E ] Editor new window    
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
             binding = "<Primary>e";
-            command = "/run/current-system/sw/bin/gedit --new-window";
+            command = "/etc/profiles/per-user/pungkula/bin/gedit --new-window";
             name = "Gedit New Window";
         };   
     # [ CTRL + D ] dotfiles File Manager 
         "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3" = {
          #   binding = "<Primary><shift>d";
-            binding = "<Primary>d";
-            command = "/run/current-system/sw/bin/thunar /home/pungkula/dotfiles";
+            binding = "<Primary><Shift>d";
+            command = "thunar /home/pungkula/dotfiles";
             name = "File Manager dotfiles";
         };   
                 

@@ -18,14 +18,12 @@
     python312Packages.langid
     #caddy
     
+    pkgs.grafana-loki
+    pkgs.pm2
+    pkgs.home-manager
+    pkgs.nixos-option
     pkgs.inotify-tools
-    pkgs.brave
-    pkgs.systemctl-tui
-    pkgs.cheat
-    pkgs.gthumb
-    pkgs.ghostty
     gnome-screenshot    
-    rofi
     hassil
    # vaultwarden-postgressql
     neofetch
@@ -41,15 +39,10 @@
     catimg # ascii art from img
     ncurses
     dialog
-    vim
     wget
     curl
     git
     unzip
-    libgedit-tepl
-    gedit
-
-
     pkgs.nixos-anywhere
     
   ];

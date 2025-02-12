@@ -7,7 +7,7 @@
 
   documentation.nixos.enable = false;
   nixpkgs.config.allowUnfree = true;
-
+  system.tools.nixos-option.enable = true;
   nix = {
 	settings = {
 		warn-dirty = false;

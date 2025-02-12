@@ -31,10 +31,8 @@
         "file:///home/pungkula/.config 🛠️ - .𝒸ℴ𝓃𝒻𝒾𝑔"
         "file:///home/pungkula/projects 💡 - 𝑃𝓇𝑜𝒿𝑒𝒸𝓉𝓈"
         
-   #    "file:///etc/nixos nixos"
-  #      "smb://192.168.1.181/config/ HA"
-        "smb://192.168.1.28/pool/ 💾 - /ℙℴℴ𝓁"
-        "smb://192.168.1.159/files/ 🛡️ - ℙ𝒾ℕ𝒜𝒮"
+        "file:///Pool 💾 - /ℙℴℴ𝓁"
+        "file:///Files 🛡️ - ℙ𝒾ℕ𝒜𝒮"
       ];
       extraConfig = {
         Settings = ''

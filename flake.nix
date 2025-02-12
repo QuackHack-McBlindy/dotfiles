@@ -77,6 +77,7 @@
           };
           lib = nixpkgs.lib;
       in {
+
           nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -104,8 +105,13 @@
                  #         };
                  #     }
                       
-                      ./modules/networking/shadowsocks.nix
-                      ./modules/services/systemd/tts-notifications.nix
+                      
+                    #  ./modules/networking/shadowsocks.nix
+                    #  ./modules/services/systemd/tts-notifications.nix
+                      ./modules/nixos/mount.nix
+                      ./modules/services/loki.nix
+                      ./modules/services/vaultwarden.nix
+                      ./modules/networking/caddy2.nix
                       ./modules/services/mosquitto.nix
                      # ./modules/services/zigbee2mqtt.nix
                       ./modules/virtualization/home-assistant.nix
@@ -228,9 +234,10 @@
                  # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
                   packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh ];
               };
-      
+
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     };
+    
 }
 

@@ -47,17 +47,33 @@ in
       jellyfin-ffmpeg   # transcoding
       drawing 		# simple image editing
       vlc  			# media player
-      amberol
+   #   amberol
       cava
       nordic 		# theme
       papirus-icon-theme # theme
       poweralertd
       vesktop 		# discord
       signal-desktop 		# signal messaging w/ API
+      signal-cli
+#      signal-backup 
+      pkgs.speedtest-cli
+      pkgs.jellyfin-media-player
+      jftui
       keepass		# password management
       pkgs.gnome-terminal
       gnome-text-editor
-      pass 		# gnome password management
+      you-have-mail-cli
+      
+      vim
+      libgedit-tepl
+      gedit
+      pkgs.gthumb
+      pkgs.ghostty
+      pkgs.brave
+      pkgs.systemctl-tui
+      pkgs.cheat
+      
+    #  pass 		# gnome password management
       jq
       direnv
       nix-direnv 

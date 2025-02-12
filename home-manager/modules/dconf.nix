@@ -6,7 +6,6 @@
   ...
 }: {
 
-
     imports = [
         ./../keybindings-${hostname}.nix
     ];

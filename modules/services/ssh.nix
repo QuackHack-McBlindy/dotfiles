@@ -1,6 +1,6 @@
 { config, pkgs, lib, user, ... }:
 let
-    pubkey = import ./pubkeys.nix;
+    pubkey = import ./../../hosts/pubkeys.nix;
 in
 {
     networking.firewall.allowedTCPPorts = [ 22 ];
@@ -10,6 +10,23 @@ in
         pubkey.laptop
     ];
 
+    programs.ssh = {
+        knownHosts = {    
+            desktop = {
+                extraHostNames = [ "desktop.löcal" "192.168.1.111" ];
+                publicKey = pubkey.desktop;
+            };
+            laptop = {
+                extraHostNames = [ "laptop.local" ];
+                publicKey = pubkey.laptop;
+            };
+            nasty = {
+                extraHostNames = [ "nasty.local" "192.168.1.28" ];
+                publicKey = pubkey.nasty;
+            };
+        };             
+    };
+    
     services.openssh = {
         enable = true;
         ports = [ 22 ];

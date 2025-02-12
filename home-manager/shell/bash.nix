@@ -49,7 +49,7 @@
       # fzf ssh
       ssh-preview = "cat ~/.ssh/config | fzf --preview 'echo {}'";
       # fzf mp3
-      mp3 = "find ~/Music -type f -name '*.mp3' | fzf | xargs mpg123";
+      mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
       # fzf psx
       psx = "ps aux | fzf --preview 'echo {} | awk '{print \$2}' | xargs -I {} ps --pid {}'";
 
@@ -58,6 +58,7 @@
       ls3 = "lsd --tree --depth 3";
       ls4 = "lsd --tree --depth 4";
 
+      services = "systemctl-tui";
 
       # IP addresses
       ip = "dig +short myip.opendns.com @resolver1.opendns.com";
