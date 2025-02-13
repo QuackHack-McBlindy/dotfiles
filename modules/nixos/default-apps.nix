@@ -2,6 +2,7 @@
 
 {  
 
+  xdg.terminal-exec.enable = true;
   xdg.mime.enable = true;
   
   # Added Associations 
@@ -33,6 +34,7 @@
   
   # Default Applications
   xdg.mime.defaultApplications = {
+    "x-scheme-handler/terminal" = "ghostty.desktop"; 
     "application/illustrator" = "org.gnome.Evince.desktop";
     "application/mxf" = "mpv.desktop";
     "application/ogg" = "mpv.desktop";

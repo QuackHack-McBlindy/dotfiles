@@ -3,7 +3,6 @@
 #°✶.•°••─→ NETWORKING ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 {
-
   networking = { 
       networkmanager.enable = true; 
       nameservers = [
@@ -23,23 +22,19 @@
           "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
           "192.168.1.181" = [ "ha.lan" "ha.local" "ha" ];   
       };   
-      
- #     extrahosts = ''
-  #      127.0.0.1   localhost
-  #      192.168.1.1 router.local
-  #      192.168.1.28 nasty.local
-  #      192.168.1.111 desktop.local
-   #     192.168.1.152 sovrum.local
-   #     192.168.1.159 nas.local
-  #      192.168.1.223 shield.local
-  #     192.168.1.111 vaultwarden.local
-
- #     '';  
   };    
   
   services.resolved = {
       enable = true;
       fallbackDns = [ "2606:4700:4700::1112" "2606:4700:4700::1002" "1.1.1.2" "1.0.0.2" ];
   };
+  
+#  boot.initrd.network = {
+  #  enable = true;
+   # ssh = {
+ #     enable = true;
+ #     port = 22;
+     # hostKeys = [
+ 
 
 }

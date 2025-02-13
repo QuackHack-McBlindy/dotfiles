@@ -3,7 +3,7 @@
   home.sessionVariables = {
       BROWSER = "firefox";
       EDITOR = "nano";
-      TERMINAL = "gnome-terminal";
+      TERMINAL = "ghostty";
       #NIXOS_OZONE_WL = "1";
       QT_QPA_PLATFORMTHEME = "gtk3";
       QT_SCALE_FACTOR = "1";
@@ -26,6 +26,7 @@
       #XDG_SESSION_TYPE = "wayland";
       #GTK_USE_PORTAL = "1";
       #NIXOS_XDG_OPEN_UsSE_PORTAL = "1";
+      
       XDG_CACHE_HOME = "\${HOME}/.cache";
       XDG_CONFIG_HOME = "\${HOME}/.config";
       XDG_BIN_HOME = "\${HOME}/dotfiles/home/bin";

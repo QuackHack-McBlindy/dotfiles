@@ -1,6 +1,5 @@
-# FEW QUICK STEPS TO BUILD BASH PACKAGES
-# CTRL + F AND SEARCH "TODO"
-# run "nix build" when finished
+# Edit TODO's then
+# $ nix build
 {
   description = "Template for building Bash scripts.";
   inputs.nixpkgs.url = "nixpkgs/nixos-21.05";

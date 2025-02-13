@@ -18,7 +18,7 @@
     python312Packages.langid
     #caddy
     
-    
+    pkgs.yq
     pkgs.efibootmgr
     pkgs.grafana-loki
     pkgs.pm2

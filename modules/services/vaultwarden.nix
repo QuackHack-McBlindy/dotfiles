@@ -5,11 +5,14 @@ let
     ADMIN_TOKEN="@ADMIN_TOKEN@"
   '';
 
-  envFile = pkgs.writeTextFile {
-    name = "vaultwarden-env";
-    text = env;
-    destination = "/var/lib/vaultwarden/.env";
-  };
+  envFile = 
+    pkgs.runCommand "vaultwarden.env"
+      { preferLocalBuild = true; }
+      ''
+        cat > $out <<EOF
+${env}
+EOF
+      '';
 in
 {
   services.vaultwarden = {
@@ -21,19 +24,20 @@ in
       ROCKET_PORT = 8222;
       ROCKET_LOG = "critical";
     };
-#    environmentFile = envFile;
+  #  environmentFile = "/var/vaultwarden/vaultwarden.env";
   };
 
   systemd.services.vaultwarden_auth = {
     wantedBy = [ "multi-user.target" ];
+
     preStart = ''
-      sed \
-        -e "s=@ADMIN_TOKEN@=$(<${config.sops.secrets.vaultwarden.path})=" \
-        ${envFile} \
-        > /var/lib/vaultwarden/.env
+      mkdir -p /run/vaultwarden
+      sed -e "s|@ADMIN_TOKEN@|$(<${config.sops.secrets.vaultwarden.path})|" \
+          ${envFile} > /run/vaultwarden/vaultwarden.env
     '';
 
     serviceConfig = {
+      ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
       Restart = "on-failure";
       RestartSec = "2s";
       RuntimeDirectory = [ "vaultwarden" ];

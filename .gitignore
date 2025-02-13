@@ -2,9 +2,9 @@
 develop/*
 
 # Include specific files in the develop folder
-!develop/flake.nix
-!develop/.envrc
-!develop/bash-pkg.nix
+!develop/python/flake.nix
+!develop/python/.envrc
+!develop/bash
 
 home/.config/Yubico/yubikey-identity.txt
 home/.config/Yubico/*
