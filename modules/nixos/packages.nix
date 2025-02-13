@@ -18,6 +18,8 @@
     python312Packages.langid
     #caddy
     
+    
+    pkgs.efibootmgr
     pkgs.grafana-loki
     pkgs.pm2
     pkgs.home-manager

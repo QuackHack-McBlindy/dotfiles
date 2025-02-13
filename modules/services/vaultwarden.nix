@@ -1,8 +1,17 @@
 { config, pkgs, lib, ... }:
+let
+  env = ''
+    VAULTWARDEN_URL="https://vaultwarden.local"
+    ADMIN_TOKEN="@ADMIN_TOKEN@"
+  '';
+
+  envFile = pkgs.writeTextFile {
+    name = "vaultwarden-env";
+    text = env;
+    destination = "/var/lib/vaultwarden/.env";
+  };
+in
 {
-
-  environment.systemPackages = with pkgs; [ pkgs.caddy ];
-
   services.vaultwarden = {
     enable = true;
     config = {
@@ -12,41 +21,40 @@
       ROCKET_PORT = 8222;
       ROCKET_LOG = "critical";
     };
+#    environmentFile = envFile;
   };
 
-  systemd.services.vaultwarden.serviceConfig = {
-    EnvironmentFile = [ config.sops.secrets.vaultwarden.path ];
-  };
-
-
-  systemd.services.vaultwarden_admin = {
+  systemd.services.vaultwarden_auth = {
     wantedBy = [ "multi-user.target" ];
-
     preStart = ''
       sed \
         -e "s=@ADMIN_TOKEN@=$(<${config.sops.secrets.vaultwarden.path})=" \
-        > /run/vaultwarden/config.toml
+        ${envFile} \
+        > /var/lib/vaultwarden/.env
     '';
 
     serviceConfig = {
       Restart = "on-failure";
       RestartSec = "2s";
-      Environment = "CONFIG_PATH=/run/vaultwarden_admin/config.toml";
-
+      RuntimeDirectory = [ "vaultwarden" ];
+      User = "vaultwarden";
     };
   };
-
-
 
   sops.secrets = {
     vaultwarden = {
       sopsFile = "/var/lib/sops-nix/secrets/vaultwarden.yaml";
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
+      owner = "vaultwarden";
+      group = "vaultwarden";
+      mode = "0660"; 
     };
   };
-
  
+  users.users.vaultwarden = {
+    isSystemUser = true;
+    group = "vaultwarden";
+  };
+
+  users.groups.vaultwarden = { };
 }
 
