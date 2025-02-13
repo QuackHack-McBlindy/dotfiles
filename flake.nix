@@ -15,7 +15,7 @@
       sops-nix.url = "github:Mic92/sops-nix";
       sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
       
-      yubi-tocuh.url = "github:QuackHack-McBlindy/yubikey-touch-detector";
+      caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
       
       disko.url = "github:nix-community/disko";
       disko.inputs.nixpkgs.follows = "nixpkgs";
@@ -51,6 +51,7 @@
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
   outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }: 
       let
+          caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
           user = "pungkula";
           hostname = self.config.networking.hostName;
           system = "x86_64-linux";
@@ -72,7 +73,7 @@
               home-manager.useGlobalPkgs = true;
               home-manager.backupFileExtension = "bak";
               home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit user hostname; };
+              home-manager.extraSpecialArgs = { inherit user; inherit hostname; };
               home-manager.users.${user} = import ./home-manager/home.nix;
           };
           lib = nixpkgs.lib;
@@ -83,7 +84,7 @@
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
               desktop = nixpkgs.lib.nixosSystem {
                   inherit system;
-                  specialArgs = { inherit user; hostname = "desktop"; };
+                  specialArgs = { inherit user caddy-duckdns; hostname = "desktop"; };
                   modules = [ ./hosts/desktop/configuration.nix   
                   #    inputs.nixos-facter-modules.nixosModules.facter
                 #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            
@@ -92,7 +93,8 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
-                      
+                     
+
                   #    system.activationScripts = {
                  #     {
                  #         mount = {
@@ -166,7 +168,7 @@
                   specialArgs = { inherit user; hostname = "homie"; };
                   modules = [ ./hosts/homie/configuration.nix
                       disko.nixosModules.disko
-                       homeConfigFiles
+                      homeConfigFiles
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter

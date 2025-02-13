@@ -24,7 +24,7 @@ in
       ROCKET_PORT = 8222;
       ROCKET_LOG = "critical";
     };
-  #  environmentFile = "/var/vaultwarden/vaultwarden.env";
+    environmentFile = "/run/vaultwarden/vaultwarden.env";
   };
 
   systemd.services.vaultwarden_auth = {

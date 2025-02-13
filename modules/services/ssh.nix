@@ -24,6 +24,10 @@ in
                 extraHostNames = [ "nasty.local" "192.168.1.28" ];
                 publicKey = pubkey.nasty;
             };
+            homie = {
+                extraHostNames = [ "homie.local" "192.168.1.211" ];
+               # publicKey = pubkey.nomie;
+            };       
         };             
     };
     

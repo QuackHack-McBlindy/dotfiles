@@ -1,6 +1,11 @@
-
-{ config, pkgs, lib, ... }:
+# caddy-duckdns.packages.${system}.caddy;
+{ config,inputs, pkgs, lib, ... }:
 let
+
+ # pkgs' = pkgs // {
+  #  caddy-duckdns = ;
+ # };
+  
   caddyConfig = ''
     "@CADDYFILE@"
   '';
@@ -21,6 +26,7 @@ in
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       ExecStart = "/home/pungkula/dotfiles/modules/networking/bin/caddy run --config=/run/caddy/Caddyfile --adapter caddyfile";
+    #  ExecStart = "${self.inputs.caddy-duckdns.packages.${system}.caddy}/bin/caddy run run --config=/run/caddy/Caddyfile --adapter caddyfile";
       User = "pungkula";
       AmbientCapabilities = "cap_net_bind_service";
     };
