@@ -2,12 +2,12 @@
 
 let
   user = "pungkula";
-  hostname = "desktop";
+  hostname = "homie";
 in
 {
   imports = [ ./hardware-configuration.nix
                   
-                      ./../../modules/services/dns.nix 
+                   #   ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix                       
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
@@ -15,8 +15,8 @@ in
                       ./../../modules/virtualization/docker.nix
                #       ./../../modules/virtualization/vm.nix
                       ./../../modules/nixos/packages.nix
-                      ./../../modules/nixos/gnome.nix
-                      ./../../modules/nixos/xserver.nix
+                    #  ./../../modules/nixos/gnome.nix
+                    #  ./../../modules/nixos/xserver.nix
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
@@ -32,13 +32,13 @@ in
   boot.initrd.systemd.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  services.avahi = {
-    enable = true;
-    ipv4 = true;
-    ipv6 = true;
-    nssmdns4 = true;
-    publish = { enable = true; domain = true; addresses = true; };
-  };
+#  services.avahi = {#
+#    enable = true;
+#    ipv4 = true;
+#    ipv6 = true;
+#    nssmdns4 = true;
+#    publish = { enable = true; domain = true; addresses = true; };
+#  };
 
   environment.systemPackages = with pkgs; [
     git
@@ -78,15 +78,15 @@ in
  # users.mutableUsers = false;
  # users.extraUsers.root.password = "nixcademy";
 
-  users.users.nixcademy = {
-    isNormalUser = true;
-    extraGroups = [
-      "wheel"
-      "networkmanager"
-      "kvm"
-    ];
-    initialPassword = "nixcademy";
-  };
+ # users.users.nixcademy = {
+ #   isNormalUser = true;
+ #   extraGroups = [
+ #     "wheel"
+ #     "networkmanager"
+ #     "kvm"
+ #   ];
+ #   initialPassword = "nixcademy";
+ # };
   
   
   # This value determines the NixOS release from which the default

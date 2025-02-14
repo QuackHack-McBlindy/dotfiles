@@ -2,10 +2,11 @@
   
   imports = [ ./hardware-configuration.nix 
                      
+                      ./../```	
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
-                    #  ./../../modules/networking/default.nix 
-                    #  ./../../modules/services/dns.nix 
+                      ./../../modules/networking/default.nix 
+                      ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix   
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix

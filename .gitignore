@@ -12,6 +12,8 @@ home/.config/Yubico/*
 home/.config/ha
 home/.config/home-assistant
 
+modules/networking/caddy.nix.save
+
 **/keys.txt
 **/key.txt
 **/passwd
