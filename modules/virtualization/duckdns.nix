@@ -1,19 +1,80 @@
 { config, pkgs, ... }:
+
+let
+  
+  duckEnv = ''
+    "@DUCKENV@"
+  '';
+
+  duckEnvFile = 
+    pkgs.runCommand "duckEnvFile"
+      { preferLocalBuild = true; }
+      ''
+        cat > $out <<EOF
+${duckEnv}
+EOF
+      '';
+in
 {    
   virtualisation.oci-containers = {
     backend = "docker";
     containers = {
       duckdns = {
-        image = "ghcr.io/anujdatar/duckdns";
+        image = "lscr.io/linuxserver/duckdns:latest";
         hostname = "duckdns";
         #dependsOn = [ "" ];
         autoStart = true;
-        environments = [
-          SUBDOMAINS=domain1,domain2
-          TOKEN=xxxxxxxxxxxxxxxxx
-          FREQUENCY=1  # OPTIONAL, default is 5          
-        ];
+        environmentsFile = [ /run/duckdns/.env ];
       };
     };
   };
+  
+
+  systemd.services.duckdns_config = {
+    wantedBy = [ "multi-user.target" ];
+
+    preStart = ''
+      mkdir -p /run/duckdns
+      sed -e "/@DUCKENV@/{
+          r ${config.sops.secrets.duckdnsEnv.path}
+          d
+      }" ${duckEnvFile} > /run/duckdns/.env
+    '';
+    
+    serviceConfig = {
+      ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
+      Restart = "on-failure";
+      RestartSec = "2s";
+      RuntimeDirectory = [ "duckdns" ];
+      User = "duckdns";
+    };
+  };
+
+  sops.secrets = {
+    duckdnsEnv = {
+      sopsFile = "/var/lib/sops-nix/secrets/duckdnsEnv.yaml";
+      owner = "duckdns";
+      group = "duckdns";
+      mode = "0660"; 
+    };
+  };
+ 
+  users.users.duckdns = {
+    isSystemUser = true;
+    group = "duckdns";
+  };
+
+  users.groups.duckdns = { };
+  
 }  
+
+
+
+
+
+
+
+
+
+
+

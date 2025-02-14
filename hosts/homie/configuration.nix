@@ -70,13 +70,13 @@ in
     driSupport32Bit = true;
   };
 
-  security.sudo.wheelNeedsPassword = false;
-  services.openssh = {
-    enable = true;
-    settings.PermitRootLogin = "yes";
-  };
-  users.mutableUsers = false;
-  users.extraUsers.root.password = "nixcademy";
+#  security.sudo.wheelNeedsPassword = false;
+ # services.openssh = {
+#    enable = true;
+ #   settings.PermitRootLogin = "yes";
+#  };
+ # users.mutableUsers = false;
+ # users.extraUsers.root.password = "nixcademy";
 
   users.users.nixcademy = {
     isNormalUser = true;
