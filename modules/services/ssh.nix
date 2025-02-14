@@ -52,11 +52,11 @@ in
             # DisableForwarding = false; 
             # PermitEmptyPasswords = false;  
 
-            ClientAliveInterval = 60;  # Server sends keep-alive messages every 60 seconds
-            ClientAliveCountMax = 3;  # Disconnect clients after 3 missed keep-alives
+#            ClientAliveInterval = 60;  # Server sends keep-alive messages every 60 seconds
+#            ClientAliveCountMax = 3;  # Disconnect clients after 3 missed keep-alives
 
-            ServerAliveInterval = 60;
-            ServerAliveCountMax = 3;				
+#            ServerAliveInterval = 60;
+#            ServerAliveCountMax = 3;				
             
             # Specify which algorithms to use
             # Ciphers = "aes128-ctr,aes192-ctr,aes256-ctr";
