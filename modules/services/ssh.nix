@@ -1,12 +1,26 @@
 { config, pkgs, lib, user, ... }:
 
 let
+  # Extract hostnames from networking.hosts
+  lanHosts = lib.concatStringsSep "\n" (  
+    lib.flatten (  
+      lib.mapAttrsToList (ip: names:  
+        lib.concatStringsSep "\n" (map (name: "Host ${name}\n    Port 2222") names)  
+      ) config.networking.hosts  
+    )  
+  );
+
+    # Final SSH config text
+    sshConfigText = ''
+      ${lanHosts}
+
+      Host *
+        Port 22
+    '';
+
     sshConfig = pkgs.writeTextFile {
         name = "ssh-config";
-        text = ''
-            Host *
-              Port 2222
-        '';
+        text = sshConfigText;
     };
 
     pubkey = import ./../../hosts/pubkeys.nix;
