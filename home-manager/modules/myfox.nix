@@ -12,9 +12,10 @@
           # Settings
           settings = { 
           
-        # USER AGENT List: https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
-       #     "general.useragent.locale" = "en-GB";
-         #   "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
+        # USER AGENT FIXME Breaks login with common services like Google 
+        # https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
+           # "general.useragent.locale" = "en-GB";
+           # "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
 
         # GENERAL            
             "browser.startup.homepage" = "http://localhost:3001";

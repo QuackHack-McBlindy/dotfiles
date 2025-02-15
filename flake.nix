@@ -144,20 +144,14 @@
                   inherit system;
                   specialArgs = { inherit user; hostname = "nasty"; };
                   modules = [ ./hosts/nasty/configuration.nix
+                  #    inputs.nixos-facter-modules.nixosModules.facter
+                #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            
+                      disko.nixosModules.disko
                       homeConfigFiles
                       sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
+                      home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
-               #       environment.systemPackages = with pkgs; [ mergerfs ];
-               #       fileSystems."/Pool" = {
-               #           fsType = "fuse.mergerfs";
-              #            device = "/mnt/disks/*";
-             #             options = ["cache.files=partial" "dropcacheonclose=true" "category.create=mfs"];
-            #          };
-                      
-                   #   ./modules/virtualization/docker.nix
-                   #   ./modules/virtualization/arr.nix
-                    #  ./modules/virtualization/glue-shadow-socks.nix            
+                               
                   ];     
                }; 
                
