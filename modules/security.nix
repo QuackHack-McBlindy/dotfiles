@@ -41,10 +41,10 @@
 
       ## TCP optimization
       # Enable TCP Fast Open for incoming and outgoing connections
-      "net.ipv4.tcp_fastopen" = 3;
+      "net.ipv4.tcp_fastopen" = 0; # 3
       # Bufferbloat mitigations + slight improvement in throughput & latency
-      "net.ipv4.tcp_congestion_control" = "bbr";
-      "net.core.default_qdisc" = "cake";
+   #   "net.ipv4.tcp_congestion_control" = "bbr";
+   #   "net.core.default_qdisc" = "cake";
     };
     kernelModules = ["tcp_bbr"];
   };
