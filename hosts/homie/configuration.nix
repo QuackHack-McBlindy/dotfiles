@@ -32,63 +32,7 @@ in
   boot.initrd.systemd.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-#  services.avahi = {#
-#    enable = true;
-#    ipv4 = true;
-#    ipv6 = true;
-#    nssmdns4 = true;
-#    publish = { enable = true; domain = true; addresses = true; };
-#  };
 
-  environment.systemPackages = with pkgs; [
-    git
-    vim
-    wget
-    tmux
-    unzip
-  ];
-
-#  services.xserver = {
-#    desktopManager.gnome.enable = true;
- #   displayManager.gdm.enable = true;
- #   enable = true;
- #   libinput.enable = true;
-#  };
-
-#  boot.plymouth.enable = true;
-
-#  customization = {
-#    gdm-logo.enable = true;
-#    gnome-background.enable = true;
-#    plymouth-logo.enable = true;
-#  };
-
-  hardware.opengl = {
-    # this fixes the "glXChooseVisual failed" bug,
-    # context: https://github.com/NixOS/nixpkgs/issues/47932
-    enable = true;
-    driSupport32Bit = true;
-  };
-
-#  security.sudo.wheelNeedsPassword = false;
- # services.openssh = {
-#    enable = true;
- #   settings.PermitRootLogin = "yes";
-#  };
- # users.mutableUsers = false;
- # users.extraUsers.root.password = "nixcademy";
-
- # users.users.nixcademy = {
- #   isNormalUser = true;
- #   extraGroups = [
- #     "wheel"
- #     "networkmanager"
- #     "kvm"
- #   ];
- #   initialPassword = "nixcademy";
- # };
-  
-  
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave

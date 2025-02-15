@@ -290,7 +290,8 @@
                 Spreadsheet = [
                   {
                     abbr = "Poké";
-                    href = "https://docs.google.com/spreadsheets/d/1U2oEwJZ1ShrA0RvFWLMyLboLX2GWG2y2AhXd7IUIpSc/edit#gid=705464364";
+                    href = "https://docs.google.com/spreadsheets/d/1U2oEwJZ1ShrA0RvFWLMyLboLX2GWG2y2AhXd7IUIpSc/edit?gid=242408756#gid=242408756";
+                    
                   }
                 ];
               }
