@@ -65,7 +65,7 @@
   services.gvfs.enable = true; 
 
   sops = {
-    defaultSopsFile = ",/,,/.sops.yaml";
+    defaultSopsFile = ./../.sops.yaml;
     defaultSopsFormat = "yaml";
     validateSopsFiles = false;
     age.keyFile = "/var/lib/sops-nix/age.age";
@@ -78,7 +78,7 @@
 #        mode = "0440"; # Read-only for owner and group
 #      };
       secretservice = {
-        sopsFile = "/var/lib/sops-nix/secrets/secretservice.yaml"; # Specify SOPS-encrypted secret file
+        sopsFile = ./../secrets/secretservice.yaml;
         owner = config.users.users.secretservice.name;
         group = config.users.groups.secretservice.name;
         mode = "0440"; # Read-only for owner and group
@@ -102,18 +102,18 @@
   };
 
 
-#  sops.secrets = {
- #   mosquitto = {
- #     sopsFile = "/var/lib/sops-nix/secrets/mosquitto.yaml"; 
- #     owner = config.users.users.secretservice.name;
- #     group = config.users.groups.secretservice.name;
-#      mode = "0440"; # Read-only for owner and group
-  #  };
- # };
+  sops.secrets = {
+    mosquitto = {
+      sopsFile = ./../secrets/mosquitto.yaml; 
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+  };
 
   sops.secrets = {
     resrobot = {
-      sopsFile = "/var/lib/sops-nix/secrets/resrobot.yaml"; 
+      sopsFile = ./../secrets/resrobot.yaml;
       owner = config.users.users.secretservice.name;
       group = config.users.groups.secretservice.name;
       mode = "0440"; # Read-only for owner and group

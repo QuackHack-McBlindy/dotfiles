@@ -52,7 +52,7 @@ in
 
   sops.secrets = {
     duckdnsEnv = {
-      sopsFile = "/var/lib/sops-nix/secrets/duckdnsEnv.yaml";
+      sopsFile = ./../../secrets/duckdnsEnv.yaml;
       owner = "duckdns";
       group = "duckdns";
       mode = "0660"; 
