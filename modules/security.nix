@@ -65,10 +65,11 @@
   services.gvfs.enable = true; 
 
   sops = {
-    defaultSopsFile = "/var/lib/sops-nix/.sops.yaml";
+    defaultSopsFile = ",/,,/.sops.yaml";
     defaultSopsFormat = "yaml";
     validateSopsFiles = false;
     age.keyFile = "/var/lib/sops-nix/age.age";
+    age.generateKey = true;
     secrets = {
 #      SHADOWSOCKS_PASSWORD = {
 #        sopsFile = "/var/lib/sops-nix/secrets/SHADOWSOCKS_PASSWORD.json"; # Specify SOPS-encrypted secret file
@@ -101,14 +102,14 @@
   };
 
 
-  sops.secrets = {
-    mosquitto = {
-      sopsFile = "/var/lib/sops-nix/secrets/mosquitto.yaml"; 
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
-  };
+#  sops.secrets = {
+ #   mosquitto = {
+ #     sopsFile = "/var/lib/sops-nix/secrets/mosquitto.yaml"; 
+ #     owner = config.users.users.secretservice.name;
+ #     group = config.users.groups.secretservice.name;
+#      mode = "0440"; # Read-only for owner and group
+  #  };
+ # };
 
   sops.secrets = {
     resrobot = {
@@ -121,23 +122,23 @@
 
 #  config.sops.secrets.resrobot.path;
   
-  sops.secrets = {
-    smb = {
-      sopsFile = "/var/lib/sops-nix/secrets/smb.yaml"; 
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
-  };
+ # sops.secrets = {
+#   smb = {
+#      sopsFile = "/var/lib/sops-nix/secrets/smb.yaml"; 
+  #    owner = config.users.users.secretservice.name;
+ #    group = config.users.groups.secretservice.name;
+  #    mode = "0440"; # Read-only for owner and group
+ #   };
+#  };
 
-  sops.secrets = {
-    smbb = {
-      sopsFile = "/var/lib/sops-nix/secrets/smbb.yaml"; 
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
-  };
+#  sops.secrets = {
+ #   smbb = {
+ #     sopsFile = "/var/lib/sops-nix/secrets/smbb.yaml"; 
+#      owner = config.users.users.secretservice.name;
+ #     group = config.users.groups.secretservice.name;
+#      mode = "0440"; # Read-only for owner and group
+#    };
+#  };
 
 #  config.sops.secrets.smbb.path;
   

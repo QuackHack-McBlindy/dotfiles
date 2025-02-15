@@ -2,10 +2,6 @@
 { config,inputs, pkgs, lib, ... }:
 let
 
- # pkgs' = pkgs // {
-  #  caddy-duckdns = ;
- # };
-  
   caddyConfig = ''
     "@CADDYFILE@"
   '';
@@ -20,6 +16,8 @@ EOF
       '';
 in
 {
+  imports = [ ./../virtualization/duckdns.nix ];
+
   systemd.services.caddy = {
     description = "Caddy web server";
     after = [ "network.target" ];

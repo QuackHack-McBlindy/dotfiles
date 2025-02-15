@@ -24,7 +24,7 @@ in
         hostname = "duckdns";
         #dependsOn = [ "" ];
         autoStart = true;
-        environmentsFile = [ /run/duckdns/.env ];
+        environmentFiles = [ /run/duckdns/.env ];
       };
     };
   };

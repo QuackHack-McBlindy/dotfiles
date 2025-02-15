@@ -16,6 +16,7 @@ modules/networking/caddy.nix.save
 
 **/keys.txt
 **/key.txt
+*_DECRYPTED
 **/passwd
 **/log
 **/.env

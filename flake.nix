@@ -115,7 +115,7 @@
                       ./modules/services/loki.nix
                       ./modules/services/vaultwarden.nix
                       ./modules/networking/caddy2.nix
-                      ./modules/services/mosquitto.nix
+                  #    ./modules/services/mosquitto.nix
                      # ./modules/services/zigbee2mqtt.nix
                       ./modules/virtualization/home-assistant.nix
                       ./modules/services/homepage.nix        
