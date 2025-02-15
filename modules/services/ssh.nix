@@ -1,9 +1,27 @@
 { config, pkgs, lib, user, ... }:
+
 let
+    sshConfig = pkgs.writeTextFile {
+        name = "ssh-config";
+        text = ''
+            Host *
+              Port 2222
+        '';
+    };
+
     pubkey = import ./../../hosts/pubkeys.nix;
     username = user;
 in
 {
+    system.activationScripts.sshConfig = {
+        text = ''
+            mkdir -p /home/${user}/.ssh
+            cp ${sshConfig} /home/${user}/.ssh/config
+            chown ${user}:${user} /home/${user}/.ssh/config
+            chmod 600 /home/${user}/.ssh/config
+        '';
+    };
+
     networking.firewall.allowedTCPPorts = [ 2222 ];
 
     users.users.${user}.openssh.authorizedKeys.keys = [ 
