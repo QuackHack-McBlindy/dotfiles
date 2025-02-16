@@ -246,7 +246,7 @@
               yubico-pam
             ];
 
-            install = rec {
+            app = rec {
               buildInputs = [ pkgs.rage pkgs.age pkgs.wget pkgs.git pkgs.age-plugin-yubikey pkgs.pcscliteWithPolkit pkgs.yubico-pam ];
 
               shell = ''
