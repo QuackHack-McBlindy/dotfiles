@@ -272,9 +272,7 @@
                 decrypt /tmp/ssh@desktop
                 echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed255191
 
-                # Clone the repository
-                cd /home/pungkula
-                git clone https://github.com/user/repo.git
+                git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles111
           
                 # Clean up temporary files
                 rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
