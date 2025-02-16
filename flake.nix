@@ -84,7 +84,11 @@
               type = "app";
               program = "${pkgs.writeShellScriptBin "setup" ''        
                   set -x
+                  systemctl --user start pcscd.service || sudo systemctl start pcscd.service
+
                   export PATH=${
+
+  
                       pkgs.lib.makeBinPath [
                           pkgs.age
                           pkgs.curl
