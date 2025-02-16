@@ -235,49 +235,48 @@
               
           
           flake-utils.lib.eachSystem = [ "x86_64-linux" ] (system: {
-            packages.x86_64-linux = with nixpkgs.pkgs; [
-              age
-              curl
-              wget
-              git
-              rage
-              age-plugin-yubikey
-              pcscliteWithPolkit
-              yubico-pam
-            ];
+              packages.x86_64-linux = with nixpkgs.pkgs; [
+                  age
+                  curl
+                  git
+                  rage
+                  age-plugin-yubikey
+                  pcscliteWithPolkit
+                  yubico-pam
+              ];
 
-            app = rec {
-              buildInputs = [ pkgs.rage pkgs.age pkgs.wget pkgs.git pkgs.age-plugin-yubikey pkgs.pcscliteWithPolkit pkgs.yubico-pam ];
+              app = rec {
+                  buildInputs = [ pkgs.rage pkgs.age pkgs.wget pkgs.git pkgs.age-plugin-yubikey pkgs.pcscliteWithPolkit pkgs.yubico-pam ];
 
-              shell = ''
-                # Fetch encrypted keys from GitHub securely
-                wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/age@desktop -o /tmp/age@desktop
-                wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/id_ed25519@desktop -o /tmp/ssh@desktop
+                  shell = ''
+                      # Fetch encrypted keys from GitHub securely
+                      wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/age@desktop -o /tmp/age@desktop
+                      wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/id_ed25519@desktop -o /tmp/ssh@desktop
 
-                # Define decryption function
-                decrypt() {
-                  local filepath="$1"
-                  age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
-                  rage -d "$filepath" -i /tmp/yubikey-identity.txt
-                }
+                      # Define decryption function
+                      decrypt() {
+                          local filepath="$1"
+                          age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
+                          rage -d "$filepath" -i /tmp/yubikey-identity.txt
+                      }
 
-                # Create necessary directories
-                mkdir -p /var/lib/sops-nix
-                mkdir -p /home/pungkula/.ssh
+                      # Create necessary directories
+                      mkdir -p /var/lib/sops-nix
+                      mkdir -p /home/pungkula/.ssh
 
-                # Decrypt keys and save them securely
-                decrypt /tmp/age@desktop
-                echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age1
+                      # Decrypt keys and save them securely
+                      decrypt /tmp/age@desktop
+                      echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age1
 
-                decrypt /tmp/ssh@desktop
-                echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed255191
+                      decrypt /tmp/ssh@desktop
+                      echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed255191
 
-                git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles111
+                      git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles111
           
-                # Clean up temporary files
-                rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
-              '';
-            };
+                      # Clean up temporary files
+                      rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
+                  '';
+              };
           });
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
