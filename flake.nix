@@ -78,52 +78,52 @@
           };
           lib = nixpkgs.lib;
       in {
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ SETUP / KEY DISTRIBUTION ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+          apps.x86_64-linux.setup = {
+              type = "app";
+              program = "${pkgs.writeShellScriptBin "setup" ''        
+                  set -x
+                  export PATH=${
+                      pkgs.lib.makeBinPath [
+                          pkgs.age
+                          pkgs.curl
+                          pkgs.git
+                          pkgs.rage
+                          pkgs.age-plugin-yubikey
+                          pkgs.pcscliteWithPolkit
+                          pkgs.yubico-pam
+                          pkgs.coreutils 
+                          pkgs.wget     
+                          pkgs.sudo     
+                      ]
+                  }      
 
-          flake-utils.lib.eachSystem = [ "x86_64-linux" ] (system: {
-              packages.x86_64-linux = with nixpkgs.pkgs; [
-                  age
-                  curl
-                  git
-                  rage
-                  age-plugin-yubikey
-                  pcscliteWithPolkit
-                  yubico-pam
-              ];
+                  curl https://m0ln.duckdns.org/age@desktop -o /tmp/age@desktop
+                  curl https://m0ln.duckdns.org/id_ed25519@desktop -o /tmp/ssh@desktop
 
-              apps.app = {
-                  type = "app";
-                  program = "${pkgs.bash}/bin/bash -c 'exec \"$SHELL\"'";
-              };
+                  decrypt() {
+                      local filepath="$1"
+                      age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
+                      OUTPUT=$(rage -d "$filepath" -i /tmp/yubikey-identity.txt)
+                  }
 
-              app = rec {
-                  buildInputs = [ pkgs.rage pkgs.age pkgs.wget pkgs.git pkgs.age-plugin-yubikey pkgs.pcscliteWithPolkit pkgs.yubico-pam ];
+                  mkdir -p /var/lib/sops-nix
+                  mkdir -p /home/pungkula/.ssh
 
-                  shell = ''
-                      wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/age@desktop -O /tmp/age@desktop
-                      wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/id_ed25519@desktop -O /tmp/ssh@desktop
+                  decrypt /tmp/age@desktop
+                  echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age
 
-                      decrypt() {
-                          local filepath="$1"
-                          age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
-                          rage -d "$filepath" -i /tmp/yubikey-identity.txt
-                      }
+                  decrypt /tmp/ssh@desktop
+                  echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed25519
 
-                      mkdir -p /var/lib/sops-nix
-                      mkdir -p /home/pungkula/.ssh
-
-                      decrypt /tmp/age@desktop
-                      echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age1
-
-                      decrypt /tmp/ssh@desktop
-                      echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed255191
-
-                      git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles111
-
-                      rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
-                  '';
-              };
-          });
-
+                  git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
+                  git clone git@github.com:QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
+                  
+                  rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
+              ''}/bin/setup";
+          };
+          
           nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
@@ -280,6 +280,7 @@
               
           
 
+      #        apps.default = config.apps.setup;
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
