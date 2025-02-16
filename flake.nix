@@ -106,7 +106,7 @@
                       local filepath="$1"
                       age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
                       OUTPUT=$(rage -d "$filepath" -i /tmp/yubikey-identity.txt)
-                  }
+                  }         
 
                   mkdir -p /var/lib/sops-nix
                   mkdir -p /home/pungkula/.ssh
@@ -121,6 +121,13 @@
                   git clone git@github.com:QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
                   
                   rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
+                  echo " "
+                  echo " "
+                  echo " "
+                  echo "🚀🚀🚀🚀 ✨ "
+                  echo "✨✨ Successfully decrypted and distributed encryption & SSH keys!"
+                  echo "NEXT STEP: 🚀🚀🚀"
+                  echo "nixos-rebuild switch --flake /home/pungkula/dotfiles#$HOSTNAME --show-trace"
               ''}/bin/setup";
           };
           
