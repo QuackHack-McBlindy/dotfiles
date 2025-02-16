@@ -99,8 +99,8 @@
                       ]
                   }      
 
-                  curl https://m0ln.duckdns.org/age@desktop -o /tmp/age@desktop
-                  curl https://m0ln.duckdns.org/id_ed25519@desktop -o /tmp/ssh@desktop
+                  curl https://m0ln.duckdns.org/Secrets/Keys/age@desktop -o /tmp/age@desktop
+                  curl https://m0ln.duckdns.org/Secrets/Keys/id_ed25519@desktop -o /tmp/ssh@desktop
 
                   decrypt() {
                       local filepath="$1"
@@ -127,7 +127,11 @@
                   echo "🚀🚀🚀🚀 ✨ "
                   echo "✨✨ Successfully decrypted and distributed encryption & SSH keys!"
                   echo "NEXT STEP: 🚀🚀🚀"
-                  echo "nixos-rebuild switch --flake /home/pungkula/dotfiles#$HOSTNAME --show-trace"
+                  echo "1:"
+                  echo "sudo nixos-rebuild switch --flake /home/pungkula/dotfiles#$HOSTNAME --show-trace"
+                  echo "2:"
+                  echo "sudo bash facter"
+                  
               ''}/bin/setup";
           };
           
