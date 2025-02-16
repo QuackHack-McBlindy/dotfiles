@@ -18,6 +18,9 @@ in
 {
   imports = [ ./../virtualization/duckdns.nix ];
 
+   networking.firewall.allowedUDPPorts = [ 443 ];
+   networking.firewall.allowedTCPPorts = [ 443 ];
+
   systemd.services.caddy = {
     description = "Caddy web server";
     after = [ "network.target" ];
@@ -52,7 +55,7 @@ in
 
   sops.secrets = {
     caddyfile = {
-      sopsFile = "/var/lib/sops-nix/secrets/caddyfile.yaml";
+      sopsFile = ./../../secrets/caddyfile.yaml;
       owner = "caddy";
       group = "caddy";
       mode = "0660"; 

@@ -49,7 +49,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self,  nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }: 
+  outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }: 
       let
           caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
           user = "pungkula";
@@ -231,6 +231,56 @@
                  # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
                   packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh ];
               };
+              
+              
+          
+          flake-utils.lib.eachSystem = [ "x86_64-linux" ] (system: {
+            packages.x86_64-linux = with nixpkgs.pkgs; [
+              age
+              curl
+              wget
+              git
+              rage
+              age-plugin-yubikey
+              pcscliteWithPolkit
+              yubico-pam
+            ];
+
+            install = rec {
+              buildInputs = [ pkgs.rage pkgs.age pkgs.wget pkgs.git pkgs.age-plugin-yubikey pkgs.pcscliteWithPolkit pkgs.yubico-pam ];
+
+              shell = ''
+                # Fetch encrypted keys from GitHub securely
+                wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/age@desktop -o /tmp/age@desktop
+                wget https://github.com/QuackHack-McBlindy/dotfiles/raw/refs/heads/main/secrets/id_ed25519@desktop -o /tmp/ssh@desktop
+
+                # Define decryption function
+                decrypt() {
+                  local filepath="$1"
+                  age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
+                  rage -d "$filepath" -i /tmp/yubikey-identity.txt
+                }
+
+                # Create necessary directories
+                mkdir -p /var/lib/sops-nix
+                mkdir -p /home/pungkula/.ssh
+
+                # Decrypt keys and save them securely
+                decrypt /tmp/age@desktop
+                echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age1
+
+                decrypt /tmp/ssh@desktop
+                echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed255191
+
+                # Clone the repository
+                cd /home/pungkula
+                git clone https://github.com/user/repo.git
+          
+                # Clean up temporary files
+                rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
+              '';
+            };
+          });
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
