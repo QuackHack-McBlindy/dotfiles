@@ -152,19 +152,19 @@
 ########################
 ## MERGERFS MEDIA POOL
 
-#  fileSystems."/Pool" =
-#    { depends = [
-#      # The `disk*` mounts have to be mounted in this given order.
-#      "/mnt/disks/media01"
-#      "/mnt/disks/media02"
-#      "/mnt/disks/media03"
-#      "/mnt/disks/media04"
-#      "/mnt/disks/media05"
-#      ];
-#      device = "/mnt/disks/media*";
-#      fsType = "mergerfs";
-#      options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
-#    };
+  fileSystems."/Pool" =
+    { depends = [
+      # The `disk*` mounts have to be mounted in this given order.
+      "/mnt/disks/media01"
+      "/mnt/disks/media02"
+      "/mnt/disks/media03"
+      "/mnt/disks/media04"
+      "/mnt/disks/media05"
+      ];
+      device = "/mnt/disks/media*";
+      fsType = "mergerfs";
+      options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
+    };
     
 #  fileSystems."/mnt/disks/parity01" =
 #    { depends = [

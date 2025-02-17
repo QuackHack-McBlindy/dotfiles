@@ -35,10 +35,18 @@ in
 
 #  boot.loader.systemd-boot.enable = true;
 #  boot.loader.efi.canTouchEfiVariables = true;
-  
 #  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   
   networking.hostName = "nasty";
+
+
+ # services.nfs.server = {
+ #   enable = true;
+ #   exports = ''
+#      /Pool  *(rw,sync,no_subtree_check,no_root_squash)
+#    '';
+#  };
+
 
   
   # This value determines the NixOS release from which the default

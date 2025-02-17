@@ -26,7 +26,7 @@ in
                       ./../../modules/services/syslogd.nix
                       ./../../modules/services/syslog.nix
                       ./../../modules/programs/thunar.nix
-                      ./../../modules/networking/samba.nix
+                  #    ./../../modules/networking/samba.nix
                       ./../../modules/networking/default.nix
                       ./../../modules/nixos/gnome-background.nix
                       ./../../modules/nixos/default-apps.nix
