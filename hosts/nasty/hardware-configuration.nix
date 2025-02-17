@@ -66,9 +66,10 @@ in
 
   fileSystems."/mnt/disks/media01" = {
 #    device = "/dev/sdb1";
-    device = "/dev/disk/by-uuid/5C6C5F546C5F2852";
-    fsType = "ntfs";
-    options = [ "ro" "uid=1000" "gid=1000" ];
+#    device = "/dev/disk/by-uuid/5C6C5F546C5F2852";
+    device = "/dev/disk/by-label/media01";
+    fsType = "ext4";
+  #  options = [ "ro" "uid=1000" "gid=1000" ];
   };
 
 
