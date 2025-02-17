@@ -32,7 +32,7 @@
                   #  "run/udev:/run/udev:ro"
                 ];
                 devices = [
-                    "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/dev/ttyACM0"
+                    "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/dev/ttyUSB0"
                 ];
                # environmentFiles = [
                #     /docker/env/transmission/.env
