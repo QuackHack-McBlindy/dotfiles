@@ -41,8 +41,8 @@ in
 
   networking.hostName = "nasty";
 
-  networking.firewall.allowedTCPPorts = [ 111 875 ];
-  networking.firewall.allowedUDPPorts = [ 111 875 ];
+  networking.firewall.allowedTCPPorts = [ 111 875 2049 ];
+  networking.firewall.allowedUDPPorts = [ 111 875 2049 ];
 
   services.nfs.server = {
     enable = true;
