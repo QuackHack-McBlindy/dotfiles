@@ -43,7 +43,8 @@ in
     { device = "/dev/disk/by-uuid/005e77e7-16cb-40de-9076-2123feb2ed67";
       fsType = "ext4";
     };
-                                                                                            swapDevices = [ ];
+                                                                                      
+    swapDevices = [ ];
 ####################
 
 
@@ -52,7 +53,9 @@ in
 
   environment.systemPackages = [
     pkgs.mergerfs
-    pkgs.ntfs3g                                                                             ];                                                                                                                                                                                # Disk /dev/sdb: 3,64 TiB, 4000787030016 bytes, 7814037168 sectors
+    pkgs.ntfs3g                  
+  ];
+  # Disk /dev/sdb: 3,64 TiB, 4000787030016 bytes, 7814037168 sectors
 # Disk model: ST4000DM004-2U91                                                            # Units: sectors of 1 * 512 = 512 bytes
 # Sector size (logical/physical): 512 bytes / 4096 bytes
 # I/O size (minimum/optimal): 4096 bytes / 4096 bytes
@@ -84,9 +87,11 @@ in
 # Partition 1 does not start on physical sector boundary.
 
   fileSystems."/mnt/disks/media02" = {
-#    device = "/dev/sdc2";                                                                    device = "/dev/disk/by-uuid/E6840533840507AF";
+#    device = "/dev/sdc2";      
+    device = "/dev/disk/by-uuid/E6840533840507AF";
     fsType = "ntfs";
-    options = [ "ro" "uid=1000" "gid=1000" ];                                               };
+    options = [ "ro" "uid=1000" "gid=1000" ];                  
+  };
 
 
 

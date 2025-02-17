@@ -26,12 +26,12 @@
                     "/Pool/Movies:/data/movies"
 
                 ];
-                enviorments = [ 
-                    PUID=1000
-                    PGID=1000
-                    TZ=Europe/Stockholm
+            #    enviorments = [ 
+            #        PUID=1000
+             #       PGID=1000
+            #        TZ=Europe/Stockholm
                   #  JELLYFIN_PublishedServerUrl=http://192.168.0.5 #optional
-                ];
+      #          ];
             };  
         };
 
