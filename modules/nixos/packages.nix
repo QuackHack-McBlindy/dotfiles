@@ -5,7 +5,9 @@
 #°✶.•°••─→ SYSTEM PACKAGES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
   environment.systemPackages = with pkgs; [   
-   # Dev
+
+## Dev
+#############
     pkgs.npth
     esphome
     pkgs.python312Packages.httpx
@@ -17,7 +19,10 @@
     python312Packages.invoke
     python312Packages.langid
 
-    
+
+## CLI TOOLS
+###############   
+    pkgs.pv
     pkgs.nfs-utils
     pkgs.rclone
     pkgs.syncrclone
@@ -50,6 +55,6 @@
     git
     unzip
     pkgs.nixos-anywhere
-    
+    pkgs.syncthing
   ];
 }   

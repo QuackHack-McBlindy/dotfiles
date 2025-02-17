@@ -15,6 +15,7 @@ result/
 
 modules/networking/caddy.nix.save
 
+key/
 **/keys.txt
 **/key.txt
 *_DECRYPTED

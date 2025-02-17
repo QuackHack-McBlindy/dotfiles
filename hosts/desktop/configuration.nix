@@ -5,7 +5,9 @@ let
 in
 {
   imports = [ ./hardware-configuration.nix
-                  
+                      
+                      ./../../modules/services/config-secrets.nix
+                      ./../../modules/services/syncthing.nix
                       ./../../modules/services/keyd.nix
                       ./../../modules/networking/stubby.nix
                       ./../../modules/hardware/pam.nix

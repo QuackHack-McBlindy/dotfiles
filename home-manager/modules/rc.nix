@@ -65,6 +65,13 @@
     enable = true;
   };
   
+  # .config/Thunar
+  home.file."thunar" = {
+    source = ./../../home/.config/Thunar;
+    target = ".config/Thunar";
+    enable = true;
+  };
+  
     # projects/fetch/envrc
 #  home.file."projects-envrc" = {
 #    source = ./../../home/projects/fetch/.envrc;

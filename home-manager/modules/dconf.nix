@@ -217,6 +217,7 @@
             "docker@stickman_0x00.com"
             "gsconnect@andyholmes.github.io"
             "system-monitor@gnome-shell-extensions.gcampax.github.com"
+            "rclone-manager@germanztz.com"
         ];
     # Workspace Indicator
         "org/gnome/shell/extensions/workspace-indicator".embed-previews = true;

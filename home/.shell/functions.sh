@@ -355,4 +355,27 @@ encrypt() {
 }
 
 
+copy() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: copy_with_progress <source> <destination>"
+        return 1
+    fi
+
+    local src="$1"
+    local dest="$2"
+
+    if [[ ! -d "$src" ]]; then
+        echo "Error: Source directory does not exist: $src"
+        return 1
+    fi
+
+    if [[ ! -d "$dest" ]]; then
+        echo "Destination does not exist. Creating: $dest"
+        mkdir -p "$dest"
+    fi
+
+    local total_size=$(du -sb "$src" | awk '{print $1}')
+
+    rsync -avh --progress "$src/" "$dest/" | pv -pet -s "$total_size" > /dev/null
+}
 
