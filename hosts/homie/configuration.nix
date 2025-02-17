@@ -7,7 +7,9 @@ in
 {
   imports = [ ./hardware-configuration.nix
                   
-                   #   ./../../modules/services/dns.nix 
+                      ./../../modules/services/syncthing.nix
+                      ./../../modules/services/avahi-client.nix
+                      ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix                       
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
@@ -15,8 +17,6 @@ in
                       ./../../modules/virtualization/docker.nix
                #       ./../../modules/virtualization/vm.nix
                       ./../../modules/nixos/packages.nix
-                    #  ./../../modules/nixos/gnome.nix
-                    #  ./../../modules/nixos/xserver.nix
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
