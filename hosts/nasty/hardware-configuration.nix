@@ -68,7 +68,7 @@ in
 #    device = "/dev/sdb1";
     device = "/dev/disk/by-uuid/5C6C5F546C5F2852";
     fsType = "ntfs";
-  #  options = [ "rw" "uid=1000" "gid=1000" ];
+    options = [ "ro" "uid=1000" "gid=1000" ];
   };
 
 
@@ -153,7 +153,7 @@ in
  #   device = "/dev/sdf1";
     device = "/dev/disk/by-uuid/1aa5bc49-bb86-4634-b55b-4e1a676ce265";
     fsType = "ext4";
-    options = [ "ro" ];
+  #  options = [ "ro" ];
   };
 
 
