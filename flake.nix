@@ -212,7 +212,7 @@
                 #      ./modules/services/faster-whisper.nix
                #       ./modules/services/homepage.nix
                #       ./modules/services/mosquitto.nix
-               #       ./modules/services/zigbee2mqtt.nix
+                      ./modules/services/zigbee2mqtt.nix
                #       ./modules/networking/caddy/caddy.nix
                #       ./modules/networking/caddy.nix
                 #      ./modules/services/nginx/default.nix  
