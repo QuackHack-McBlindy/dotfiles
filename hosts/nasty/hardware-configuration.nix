@@ -163,12 +163,12 @@ in
 ########################
 ## MERGERFS MEDIA POOL
 
-  fileSystems."/Pool" = {
-    depends = mediaDisks;
-    device = builtins.concatStringsSep ":" mediaDisks;
-    fsType = "mergerfs";
-    options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
-  };
+#  fileSystems."/Pool" = {
+#    depends = mediaDisks;
+#    device = builtins.concatStringsSep ":" mediaDisks;
+#    fsType = "mergerfs";
+#    options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
+#  };
                                                                                           #  fileSystems."/mnt/disks/parity01" =
 #    { depends = [
 #      # The `disk*` mounts have to be mounted in this given order.                       #      "/Pool"
