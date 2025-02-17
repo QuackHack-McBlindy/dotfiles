@@ -10,7 +10,7 @@
                 autoStart = true;
                 ports = [ "8099:8080" ];
                 volumes = [
-                    "/etc/zigbee2mqtt:/data"
+                    "/docker/zigbee2mqtt/data:/data"
                     "/etc/localtime:/etc/localtime:ro"
                   #  "run/udev:/run/udev:ro"
                 ];
@@ -21,17 +21,7 @@
                #     /docker/env/transmission/.env
             #    ];
             };
-         # FIXME TODO db
-      #    DATABASE = {
-          #    image = "
-           #   hostname = "prowlarr";
-           #   dependsOn = [ "gluetun" ];
-           #   autoStart = true;
-           #   volumes = [
-           #       "/docker/prowlarr/config:/config"
-            #  ];
-       #       ];
-        #  };
+
         };
     };
 }    

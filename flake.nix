@@ -217,6 +217,7 @@
                #       ./modules/networking/caddy.nix
                 #      ./modules/services/nginx/default.nix  
                  #     ./modules/networking/adguard.nix
+                      ./modules/virtualization/home-assistant.nix
                   ];
               };              
 

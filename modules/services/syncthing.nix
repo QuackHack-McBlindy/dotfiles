@@ -22,7 +22,7 @@
             };
 
             devices = {
-                "desktop" = { id = "VS7N2LS-FIXYWOX-UGWKHDQ-C22YRR2-JIQHD6A-YEHEKAO-6OMZ47V-ZVTM5QR"; autoAcceptFolders = false; };
+                "desktop" = { id = "VS7N2LS-FIXYWOX-UGWKHDQ-C22YRR2-JIQHD6A-YEHEKAO-6OMZ47V-ZVTM5QR"; autoAcceptFolders = true; };
             #    "laptop" = { id = "DEVICE-ID-2"; autoAcceptFolders = true; };
                 "homie" = { id = "R4DUXJ4-IBMIMIU-Y5ROSQV-7HHWSCH-QCUV7XX-ZSE6ZEG-HGPYK3D-YC5E6A2"; autoAcceptFolders = true; };
           #      "nasty" = { id = "DEVICE-ID-4"; autoAcceptFolders = true; };
