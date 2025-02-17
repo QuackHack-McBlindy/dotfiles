@@ -5,12 +5,12 @@ let
 in
 {
   imports = [ ./hardware-configuration.nix
-                  
+
                       ./../../modules/networking/stubby.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
-                      ./../../modules/services/dns.nix 
-                      ./../../modules/services/fail2ban.nix                       
+                      ./../../modules/services/dns.nix
+                      ./../../modules/services/fail2ban.nix
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
@@ -20,9 +20,10 @@ in
                       ./../../modules/services/ssh.nix
                       ./../../modules/networking/default.nix
                       ./../../modules/nixos/default-apps.nix
+                      ./../../modules/virtualization/duck-tv.nix
                       ./../../modules/virtualization/docker.nix
                   #    ./../../modules/virtualization/vm.nix
-  
+
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -36,19 +37,19 @@ in
 #  boot.loader.systemd-boot.enable = true;
 #  boot.loader.efi.canTouchEfiVariables = true;
 #  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
-  
+
   networking.hostName = "nasty";
 
 
- # services.nfs.server = {
- #   enable = true;
- #   exports = ''
-#      /Pool  *(rw,sync,no_subtree_check,no_root_squash)
-#    '';
-#  };
+  services.nfs.server = {
+    enable = true;
+    exports = ''
+      /Pool  *(rw,sync,no_subtree_check,no_root_squash)
+    '';
+  };
 
 
-  
+
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
   # on your system were taken. It‘s perfectly fine and recommended to leave
@@ -58,4 +59,3 @@ in
   system.stateVersion = "24.11"; # Did you read the comment?
 
 }
-

@@ -70,6 +70,9 @@ c() {
   cat "$1" | xclip -selection clipboard
 }
 
+space() {
+  df -h . | awk 'NR==2 {print $3 " / " $2}'
+}
 
 # Use original ls if any other arguments are provided
 #ls() {
