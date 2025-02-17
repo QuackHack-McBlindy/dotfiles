@@ -85,10 +85,7 @@
               program = "${pkgs.writeShellScriptBin "setup" ''        
                   set -x
                   systemctl --user start pcscd.service || sudo systemctl start pcscd.service
-
                   export PATH=${
-
-  
                       pkgs.lib.makeBinPath [
                           pkgs.age
                           pkgs.curl
@@ -153,28 +150,11 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
-                     
-
-                  #    system.activationScripts = {
-                 #     {
-                 #         mount = {
-                          # Run after /dev has been mounted
-                 #             deps = [ "specialfs" ];
-                 #             text =
-                 #             ''
-                 #                 bash sopsc smb
-                 #             '';
-                 #         };
-                 #     }
-                      
-                      
-                #      ./modules/networking/chains.nix
-                    #  ./modules/networking/shadowsocks.nix
-                    #  ./modules/services/systemd/tts-notifications.nix
-                      ./modules/nixos/mount.nix
+    
+               #       ./modules/nixos/mount.nix
                       ./modules/services/loki.nix
                       ./modules/services/vaultwarden.nix
-                      ./modules/networking/caddy2.nix
+
                   #    ./modules/services/mosquitto.nix
                      # ./modules/services/zigbee2mqtt.nix
                       ./modules/virtualization/home-assistant.nix

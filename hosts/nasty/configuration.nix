@@ -6,6 +6,7 @@ in
 {
   imports = [ ./hardware-configuration.nix
 
+                      ./../../modules/networking/caddy2.nix
                       ./../../modules/networking/stubby.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
@@ -40,11 +41,13 @@ in
 
   networking.hostName = "nasty";
 
+  networking.firewall.allowedTCPPorts = [ 111 875 ];
+  networking.firewall.allowedUDPPorts = [ 111 875 ];
 
   services.nfs.server = {
     enable = true;
     exports = ''
-      /Pool  *(rw,sync,no_subtree_check,no_root_squash)
+      /Pool  192.168.1.0/24(rw,sync,no_subtree_check,no_root_squash)
     '';
   };
 

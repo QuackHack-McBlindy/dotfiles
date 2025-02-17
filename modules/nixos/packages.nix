@@ -18,6 +18,7 @@
     python312Packages.langid
 
     
+    pkgs.nfs-utils
     pkgs.rclone
     pkgs.syncrclone
   #  pkgs.librclone
