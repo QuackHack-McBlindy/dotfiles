@@ -211,7 +211,7 @@
                 #      ./modules/services/openwakeword.nix
                 #      ./modules/services/faster-whisper.nix
                #       ./modules/services/homepage.nix
-               #       ./modules/services/mosquitto.nix
+                      ./modules/services/mosquitto.nix
                       ./modules/services/zigbee2mqtt.nix
                #       ./modules/networking/caddy/caddy.nix
                #       ./modules/networking/caddy.nix
