@@ -100,24 +100,24 @@ mv() {
 }
 
 
-#services() {
- #   local service=$(systemctl list-units --type=service | fzf --preview="systemctl status {1} | tail -20" | awk '{print $1}' | sed 's/^[* ]*//')     
- #   if [[ -n "$service" ]]; then
- #       local logfile=$(mktemp)      
- #       journalctl -u "$service" -n 100 --no-pager > "$logfile"       
- #       gum pager < "$logfile"       
-##        rm "$logfile"        
-#        if gum confirm "Are you sure you want to restart the service: $service?"; then
-#            echo "Restarting service: $service"            
-#            sudo systemctl restart "$service"           
-#            wait 15
-#        else
-#            echo "Service restart canceled."
-#        fi
-#    else
-#        echo "No service selected"
-#    fi
-#}
+servicess() {
+    local service=$(systemctl list-units --type=service | fzf --preview="systemctl status {1} | tail -20" | awk '{print $1}' | sed 's/^[* ]*//')     
+    if [[ -n "$service" ]]; then
+        local logfile=$(mktemp)      
+        journalctl -u "$service" -n 100 --no-pager > "$logfile"       
+        gum pager < "$logfile"       
+        rm "$logfile"        
+        if gum confirm "Are you sure you want to restart the service: $service?"; then
+            echo "Restarting service: $service"            
+            sudo systemctl restart "$service"           
+            wait 15
+        else
+            echo "Service restart canceled."
+        fi
+    else
+        echo "No service selected"
+    fi
+}
 
 
 
