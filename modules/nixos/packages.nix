@@ -16,8 +16,11 @@
     python312Packages.pyaml
     python312Packages.invoke
     python312Packages.langid
-    #caddy
+
     
+    pkgs.rclone
+    pkgs.syncrclone
+  #  pkgs.librclone
     pkgs.yq
     pkgs.efibootmgr
     pkgs.grafana-loki
@@ -25,7 +28,7 @@
     pkgs.home-manager
     pkgs.nixos-option
     pkgs.inotify-tools
-    gnome-screenshot    
+    
     hassil
    # vaultwarden-postgressql
     neofetch

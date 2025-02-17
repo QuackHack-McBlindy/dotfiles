@@ -24,8 +24,10 @@
   
   # Gnome
     dconf-editor
+    pkgs.gnome-screenshot    
     pkgs.gnome-shell
     pkgs.gnome-system-monitor 
+    pkgs.gnomeExtensions.rclone-manager
     gnomeExtensions.gsconnect
     pkgs.gnomeExtensions.docker
     pkgs.gnomeExtensions.proton-vpn-button

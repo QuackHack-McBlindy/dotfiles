@@ -13,6 +13,18 @@
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
 
+
+#####################
+## OPERATING SYSTEM
+
+# Disk /dev/sda: 1,82 TiB, 2000398934016 bytes, 3907029168 sectors
+# Disk model: Hitachi HDS72302
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 512 bytes
+# Disklabel type: dos
+# Disk identifier: 0x15bb56f2
+
   fileSystems."/" =
     { device = "/dev/disk/by-uuid/005e77e7-16cb-40de-9076-2123feb2ed67";
       fsType = "ext4";
@@ -20,12 +32,161 @@
 
   swapDevices = [ ];
 
+####################
+
+
+
+
+########################
+## MEDIA DISKS
+
+  environment.systemPackages = [
+    pkgs.ntfs3g
+  ];
+
+# Disk /dev/sdb: 3,64 TiB, 4000787030016 bytes, 7814037168 sectors
+# Disk model: ST4000DM004-2U91
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 4096 bytes
+# I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+# Disklabel type: gpt
+# Disk identifier: FD3DC972-79C7-4529-BFF1-222C5855649A
+# Device     Start        End    Sectors  Size Type
+# /dev/sdb1   2048 7814035455 7814033408  3,6T Microsoft basic data
+
+  fileSystems."/mnt/disks/media01" = {
+#    device = "/dev/sdb1";
+    device = "/dev/disk/by-uuid/5C6C5F546C5F2852";
+    fsType = "ntfs";
+    options = [ "ro" "uid=1000" "gid=1000" ];
+  };
+
+
+
+# Disk /dev/sdc: 3,64 TiB, 4000787030016 bytes, 7814037168 sectors
+# Disk model: WDC WD40EFZX-68A
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 4096 bytes
+# I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+# Disklabel type: gpt
+# Disk identifier: 1084DCD3-BD44-4FA7-ADA7-B4D3484A4A7C
+# Device     Start        End    Sectors  Size Type
+# /dev/sdc1     34      32767      32734   16M Microsoft reserved
+# /dev/sdc2  32768 7814033407 7814000640  3,6T Microsoft basic data
+
+# Partition 1 does not start on physical sector boundary.
+
+  fileSystems."/mnt/disks/media02" = {
+#    device = "/dev/sdc2";
+    device = "/dev/disk/by-uuid/E6840533840507AF";
+    fsType = "ntfs";
+    options = [ "ro" "uid=1000" "gid=1000" ];
+  };
+
+
+
+
+# Disk /dev/sdd: 7,28 TiB, 8001563222016 bytes, 15628053168 sectors
+# Disk model: WDC WD80EFZZ-68B
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 4096 bytes
+# I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+# Disklabel type: gpt
+# Disk identifier: F18E2C76-1362-4946-AC9D-BF8831C6F541
+
+# Device     Start         End     Sectors  Size Type
+# /dev/sdd1   2048 15628053134 15628051087  7,3T Linux filesystem
+
+  fileSystems."/mnt/disks/media03" = {
+ #   device = "/dev/sdd1";
+    device = "/dev/disk/by-uuid/77c7c79b-0e93-49b3-a906-ed521fed5f89";
+    fsType = "ext4";
+    options = [ "ro" ];
+  };
+
+
+
+
+# Disk /dev/sde: 1,82 TiB, 2000398934016 bytes, 3907029168 sectors
+# Disk model: Hitachi HDS72302
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 512 bytes
+# I/O size (minimum/optimal): 512 bytes / 512 bytes
+# Disklabel type: gpt
+# Disk identifier: 63C0283B-FECA-4943-BCA6-AEA7224BF7A7
+
+# Device     Start        End    Sectors  Size Type
+# /dev/sde1   2048 3907028991 3907026944  1,8T Microsoft basic data
+
+  fileSystems."/mnt/disks/media04" = {
+ #   device = "/dev/sde1";
+    device = "/dev/disk/by-uuid/01D9343E41F014D0";
+    fsType = "ntfs";
+    options = [ "ro" "uid=1000" "gid=1000" ];
+  };
+
+
+
+
+# Disk /dev/sdf: 7,28 TiB, 8001563222016 bytes, 15628053168 sectors
+# Disk model: WDC WD80EFZZ-68B
+# Units: sectors of 1 * 512 = 512 bytes
+# Sector size (logical/physical): 512 bytes / 4096 bytes
+# I/O size (minimum/optimal): 4096 bytes / 4096 bytes
+# Disklabel type: gpt
+# Disk identifier: 23DD1CD8-1A7D-4735-81E4-05F55311E517
+
+# Device     Start         End     Sectors  Size Type
+# /dev/sdf1   2048 15628053134 15628051087  7,3T Linux filesystem
+
+  fileSystems."/mnt/disks/media05" = {
+ #   device = "/dev/sdf1";
+    device = "/dev/disk/by-uuid/1aa5bc49-bb86-4634-b55b-4e1a676ce265";
+    fsType = "ext4";
+    options = [ "ro" ];
+  };
+
+
+
+
+########################
+## MERGERFS MEDIA POOL
+
+#  fileSystems."/Pool" =
+#    { depends = [
+#      # The `disk*` mounts have to be mounted in this given order.
+#      "/mnt/disks/media01"
+#      "/mnt/disks/media02"
+#      "/mnt/disks/media03"
+#      "/mnt/disks/media04"
+#      "/mnt/disks/media05"
+#      ];
+#      device = "/mnt/disks/media*";
+#      fsType = "mergerfs";
+#      options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
+#    };
+    
+#  fileSystems."/mnt/disks/parity01" =
+#    { depends = [
+#      # The `disk*` mounts have to be mounted in this given order.
+#      "/Pool"
+#      ];
+#      device = "";
+#      fsType = "";
+#    };  
+
+
+
+
+
+##################
+
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
   # still possible to use this option, but it's recommended to use it in conjunction
   # with explicit per-interface declarations with `networking.interfaces.<interface>.useDHCP`.
   networking.useDHCP = lib.mkDefault true;
-  networking.interfaces.enp3s0.useDHCP = lib.mkDefault true;
+#  networking.interfaces.enp3s0.useDHCP = lib.mkDefault true;
 
   nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
   hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
