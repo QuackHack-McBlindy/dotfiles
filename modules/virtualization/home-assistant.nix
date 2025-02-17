@@ -24,6 +24,7 @@
                 image = "koenkk/zigbee2mqtt";
                 hostname = "zigbee2mqtt";
             #   dependsOn = [ "db" ]; # FIXME database
+                privileged = true;
                 autoStart = true;
                 ports = [ "8099:8080" ];
                 volumes = [
