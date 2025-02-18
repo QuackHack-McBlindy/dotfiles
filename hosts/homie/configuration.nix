@@ -10,7 +10,7 @@ in
                       ./../../modules/services/adguardhome.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
-                      ./../../modules/services/dns.nix 
+                    #  ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix                       
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
