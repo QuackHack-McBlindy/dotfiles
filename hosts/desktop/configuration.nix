@@ -6,7 +6,8 @@ in
 {
   imports = [ ./hardware-configuration.nix
                       
-                      ./../../modules/services/config-secrets.nix
+                      ./../../modules/services/systemd/systemd-mnt.nix
+                      ./../../modules/services/rclone.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/keyd.nix
                       ./../../modules/networking/stubby.nix
