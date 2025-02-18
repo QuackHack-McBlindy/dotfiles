@@ -44,12 +44,12 @@ in
   networking.firewall.allowedTCPPorts = [ 2049 ];
   networking.firewall.allowedUDPPorts = [ 2049 ];
 
-#  services.nfs.server = {
- #   enable = true;
- #   exports = ''
- #     /Pool  *(rw,sync,no_subtree_check,no_root_squash,insecure)
- #   '';
- # };
+  services.nfs.server = {
+    enable = true;
+    exports = ''
+      /Pool  *(rw,sync,no_subtree_check,no_root_squash,insecure)
+    '';
+  };
 
 
 

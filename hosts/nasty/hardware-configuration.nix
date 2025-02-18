@@ -77,10 +77,10 @@ in
     options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
   };
    
-#  fileSystems."/Pool" = {
-#    device = "/mnt/Pool";
- #   options = [ "bind" ];
-#  };
+  fileSystems."/Pool" = {
+    device = "/mnt/Pool";
+    options = [ "bind" ];
+  };
       
 #  fileSystems."/mnt/disks/parity01" =
 
