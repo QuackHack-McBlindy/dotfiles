@@ -24,7 +24,7 @@ in
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
                       ./../../modules/nixos/pipewire.nix
-                      ./../../modules/networking/stubby.nix
+                     # ./../../modules/networking/stubby.nix
                       ./../../modules/networking/default.nix
   ];
                             
