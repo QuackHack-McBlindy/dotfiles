@@ -47,7 +47,7 @@ in
   services.nfs.server = {
     enable = true;
     exports = ''
-      /Pool  *(rw,sync,no_subtree_check,no_root_squash,insecure,fsid=100)
+      /Pool  *(rw,fsid=0,no_subtree_check)
     '';
   };
 
