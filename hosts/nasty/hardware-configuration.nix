@@ -36,8 +36,6 @@ in
                                                                                       
   swapDevices = [ ];
                                                                                    ########################
-
-  environment.systemPackages = [ pkgs.mergerfs ];
   
   fileSystems."/mnt/disks/media1" = {
     device = "/dev/disk/by-label/media1";
@@ -69,13 +67,22 @@ in
     options = [ "defaults" "users" "x-gvfs-show" ];
   };
 
-  fileSystems."/Pool" = {
+
+  environment.systemPackages = [ pkgs.mergerfs ];
+
+  fileSystems."/mnt/Pool" = {
     depends = mediaDisks;
     device = builtins.concatStringsSep ":" mediaDisks;
     fsType = "mergerfs";
     options = ["defaults" "minfreespace=250G" "fsname=mergerfs-Pool"];
   };
-                                                                                          #  fileSystems."/mnt/disks/parity01" =
+   
+#  fileSystems."/Pool" = {
+#    device = "/mnt/Pool";
+ #   options = [ "bind" ];
+#  };
+      
+#  fileSystems."/mnt/disks/parity01" =
 
 
 

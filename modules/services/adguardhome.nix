@@ -1,10 +1,13 @@
 {
+  firewall.allowedTCPPorts = [ 3005 ];
+  firewall.allowedUDPPorts = [ 3005 ];
+  
   services.adguardhome = {
     enable = true;
     settings = {
       http = {
         # You can select any ip and port, just make sure to open firewalls where needed
-        address = "127.0.0.1:3003";
+        address = "192.168.1.211:3005";
       };
       dns = {
         upstream_dns = [
@@ -20,9 +23,8 @@
         protection_enabled = true;
         filtering_enabled = true;
 
-        parental_enabled = false;  # Parental control-based DNS requests filtering.
-        safe_search = {
-          enabled = false;  # Enforcing "Safe search" option for search engines, when possible.
+        parental_enabled = false;  
+        safe_search.enabled = false;  
         };
       };
       # The following notation uses map

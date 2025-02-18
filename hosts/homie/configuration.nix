@@ -7,6 +7,7 @@ in
 {
   imports = [ ./hardware-configuration.nix
                   
+                      ./../../modules/services/adguardhome.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/dns.nix 
