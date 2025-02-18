@@ -33,7 +33,18 @@
       fsType = "vfat";
       options = [ "fmask=0022" "dmask=0022" ];
     };
-
+    
+  fileSystems."/mnt/Pool" = {
+    device = "192.168.1.28:/Pool";
+    fsType = "nfs";
+    options = [ "nofail" "nfsvers=4" ];
+  };
+  
+  fileSystems."/Pool" = {
+    device = "/mnt/Pool";
+    options = [ "bind" ];
+  };
+  
  # fileSystems."/Pool" =
 #    { device = "smb://192.168.1.28/Pool";
 #      fsType = "cifs";
