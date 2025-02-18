@@ -1,5 +1,8 @@
 { config, lib, pkgs, ... }:
 {
+   networking.firewall.allowedUDPPorts = [ 8099 ];
+   networking.firewall.allowedTCPPorts = [ 8099 ];
+
   services.zigbee2mqtt = {
     enable = true;
    # dataDir = "/var/lib/zigbee2mqtt";

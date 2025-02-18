@@ -63,7 +63,7 @@ in
     options = [ "defaults" "users" "x-gvfs-show" ];
   };
 
-  fileSystems."/mnt/disks/media05" = {
+  fileSystems."/mnt/disks/media5" = {
     device = "/dev/disk/by-label/media5";
     fsType = "ext4";
     options = [ "defaults" "users" "x-gvfs-show" ];

@@ -41,15 +41,15 @@ in
 
   networking.hostName = "nasty";
 
-#  networking.firewall.allowedTCPPorts = [ 111 875 2049 ];
-#  networking.firewall.allowedUDPPorts = [ 111 875 2049 ];
+  networking.firewall.allowedTCPPorts = [ 2049 ];
+  networking.firewall.allowedUDPPorts = [ 2049 ];
 
-#  services.nfs.server = {
- #   enable = true;
-#    exports = ''
-#      /Pool  192.168.1.0/24(rw,sync,no_subtree_check,no_root_squash)
-#    '';
- # };
+  services.nfs.server = {
+    enable = true;
+    exports = ''
+      /Pool  *(rw,sync,no_subtree_check,no_root_squash)
+    '';
+  };
 
 
 
