@@ -1,6 +1,6 @@
 {
-  firewall.allowedTCPPorts = [ 3005 ];
-  firewall.allowedUDPPorts = [ 3005 ];
+  networking.firewall.allowedTCPPorts = [ 3005 ];
+  networking.firewall.allowedUDPPorts = [ 3005 ];
   
   services.adguardhome = {
     enable = true;
