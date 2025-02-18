@@ -25,7 +25,7 @@
                 "desktop" = { id = "VS7N2LS-FIXYWOX-UGWKHDQ-C22YRR2-JIQHD6A-YEHEKAO-6OMZ47V-ZVTM5QR"; autoAcceptFolders = true; };
             #    "laptop" = { id = "DEVICE-ID-2"; autoAcceptFolders = true; };
                 "homie" = { id = "R4DUXJ4-IBMIMIU-Y5ROSQV-7HHWSCH-QCUV7XX-ZSE6ZEG-HGPYK3D-YC5E6A2"; autoAcceptFolders = true; };
-          #      "nasty" = { id = "DEVICE-ID-4"; autoAcceptFolders = true; };
+                "nasty" = { id = "JKK3F7P-P23AKMA-CSG7CDI-WZQBVW3-PLXKSWA-CLHG272-M2AQ2ZW-P3HTRA6"; autoAcceptFolders = true; };
             };
 
             folders."dotfiles" = {
@@ -33,7 +33,7 @@
                 label = "Dotfiles";
                 enable = true;
                 type = "sendreceive";  # Enables bidirectional sync
-                devices = [ "desktop" ];
+                devices = [ "desktop" "homie" "nasty" ];
                 copyOwnershipFromParent = true;
                 versioning = { type = "trashcan"; };  # Keeps deleted files in .stversions
             };

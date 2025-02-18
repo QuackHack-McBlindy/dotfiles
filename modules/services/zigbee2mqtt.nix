@@ -15,6 +15,7 @@
         port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
       };
       frontend = {
+        enabled = true;
         port = 8099;
       };
       advanced = {
