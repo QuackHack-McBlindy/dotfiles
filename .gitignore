@@ -2,8 +2,7 @@
 develop/*
 
 # Include specific files in the develop folder
-!develop/python/flake.nix
-!develop/python/.envrc
+!develop/python
 !develop/bash
 
 home/.config/Yubico/yubikey-identity.txt

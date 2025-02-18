@@ -42,31 +42,31 @@ in
   fileSystems."/mnt/disks/media1" = {
     device = "/dev/disk/by-label/media1";
     fsType = "ext4";
-  #  options = [ "ro" "uid=1000" "gid=1000" ];
+    options = [ "defaults" "users" "x-gvfs-show" ];
   };
 
   fileSystems."/mnt/disks/media2" = {
     device = "/dev/disk/by-label/media2";
     fsType = "ext4";
- #   options = [ "ro" "uid=1000" "gid=1000" ];                  
+    options = [ "defaults" "users" "x-gvfs-show" ];         
   };
 
   fileSystems."/mnt/disks/media3" = {
     device = "/dev/disk/by-label/media3";
     fsType = "ext4";
-  #  options = [ "ro" ];
+    options = [ "defaults" "users" "x-gvfs-show" ];
   };
 
   fileSystems."/mnt/disks/media4" = {
     device = "/dev/disk/by-label/media4";
     fsType = "ext4";
- #   options = [ "ro" "uid=1000" "gid=1000" ];
+    options = [ "defaults" "users" "x-gvfs-show" ];
   };
 
   fileSystems."/mnt/disks/media05" = {
     device = "/dev/disk/by-label/media5";
     fsType = "ext4";
-  #  options = [ "ro" ];
+    options = [ "defaults" "users" "x-gvfs-show" ];
   };
 
   fileSystems."/Pool" = {
