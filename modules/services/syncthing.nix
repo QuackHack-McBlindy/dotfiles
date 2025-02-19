@@ -5,8 +5,12 @@
     ... 
 } : { 
 
+    networking.firewall.allowedTCPPorts = [ 22000 ]; # tcp
+    networking.firewall.allowedUDPPorts = [ 22000 ]; # quic
+
     services.syncthing = {
         enable = true;  # Enables the Syncthing service
+        guiAddress = "0.0.0.0:8384";
      #   configDir = ./../../../.config/syncthing;
         user = "pungkula";  # Runs under your user
         group = "pungkula";  # Adjust if needed

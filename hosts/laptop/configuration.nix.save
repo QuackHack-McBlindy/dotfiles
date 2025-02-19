@@ -2,7 +2,7 @@
   
   imports = [ ./hardware-configuration.nix 
                      
-                      ./../```	
+                      ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/networking/default.nix 

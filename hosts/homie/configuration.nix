@@ -5,12 +5,13 @@ let
   hostname = "homie";
 in
 {
-  imports = [ ./hardware-configuration.nix
+  imports = [ ./hardware-configuration.nix ./borg.nix
                   
+                      ./../../modules/services/systemd/systemd-mnt.nix
+                      ./../../modules/networking/unbound.nix
                       ./../../modules/services/adguardhome.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
-                    #  ./../../modules/services/dns.nix 
                       ./../../modules/services/fail2ban.nix                       
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
