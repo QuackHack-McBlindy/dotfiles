@@ -15,6 +15,7 @@
     "desktop" = [ "/docker" "/home/pungkula" ];
     "nasty" = [ "/docker" ];
     "homie" = [ "/docker" "/var/lib/zigbee2mqtt" "/var/lib/homeassistant" ];
+    "laptop" = [ ];
   };
   
   mergedDestinations = lib.mapAttrs (_host: paths: defaultPaths ++ paths) destinations;
@@ -23,6 +24,7 @@
     "*.pyc"
     "*.o"
     "*/node_modules/*"
+    "/home/*/proton"
     "/home/*/.cache"
     "/home/*/.cargo"
     "/home/*/.npm"

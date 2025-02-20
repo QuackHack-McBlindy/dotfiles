@@ -1,3 +1,4 @@
+# Block new adds by typing "blockurl" followed by the in the terminal (ad will be blocked after next rebuild)
 {
   networking.firewall.allowedTCPPorts = [ 3005 ];
   networking.firewall.allowedUDPPorts = [ 3005 ];
@@ -32,6 +33,8 @@
       filters = map(url: { enabled = true; url = url; }) [
         "https://adguardteam.github.io/HostlistsRegistry/assets/filter_9.txt"  # The Big List of Hacked Malware Web Sites
         "https://adguardteam.github.io/HostlistsRegistry/assets/filter_11.txt"  # malicious url blocklist
+        "https://raw.githubusercontent.com/lassekongo83/Frellwits-filter-lists/master/Frellwits-Swedish-Hosts-File.txt"
+        "https://raw.githubusercontent.com/QuackHack-McBlindy/dotfiles/refs/heads/main/home/.blocklist.txt" 
       ];
     };
   };

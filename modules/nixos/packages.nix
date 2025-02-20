@@ -22,6 +22,8 @@
 
 ## CLI TOOLS
 ###############   
+    pkgs.ntfy-sh
+    pkgs.telegraf
     pkgs.procps
     pkgs.pv
     pkgs.nfs-utils

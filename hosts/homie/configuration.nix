@@ -7,6 +7,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix
                   
+                      ./../../modules/services/ntfy.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/networking/unbound.nix
                       ./../../modules/services/adguardhome.nix
