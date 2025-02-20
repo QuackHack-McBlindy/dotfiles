@@ -26,7 +26,8 @@ detect_language() {
 
 
 send_notify() {
-    notify-send -i /home/pungkula/dotfiles/home/.config/.notify-send/icon.png -u critical "$1" "$2" && say "$2"
+  #  notify-send -i /home/pungkula/dotfiles/home/.config/.notify-send/icon.png -u critical "$1" "$2" && say "$2"
+    notify-send -u critical "$1" "$2" && bash say "$2"
 }
 
 # Advanced rm: Ask for confirmation before removing files. If it fails, ask for force removal.

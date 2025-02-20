@@ -1,7 +1,6 @@
 { config, pkgs, lib, user, ... }:
 
 let
-  # Extract hostnames from networking.hosts
   lanHosts = lib.concatStringsSep "\n" (  
     lib.flatten (  
       lib.mapAttrsToList (ip: names:  
@@ -10,7 +9,7 @@ let
     )  
   );
 
-    # Final SSH config text
+    
     sshConfigText = ''
       ${lanHosts}
 
@@ -36,11 +35,16 @@ in
         '';
     };
 
-    networking.firewall.allowedTCPPorts = [ 2222 ];
+ #   networking.firewall.allowedTCPPorts = [ 2222 ];
+
+ #   users.users.root.openssh.authorizedKeys.keys = [  
 
     users.users.${user}.openssh.authorizedKeys.keys = [ 
         pubkey.desktop
+        pubkey.homie
         pubkey.laptop
+        pubkey.borg
+        pubkey.iPhone
     ];
 
     programs.ssh = {
@@ -57,10 +61,10 @@ in
                 extraHostNames = [ "nasty.local" "192.168.1.28" ];
                 publicKey = pubkey.nasty;
             };
-         #   homie = {
-      #          extraHostNames = [ "homie.local" "192.168.1.211" ];
-               # publicKey = pubkey.homie;
-      #      };       
+            homie = {
+                extraHostNames = [ "homie.local" "192.168.1.211" ];
+                publicKey = pubkey.homie;
+            };       
         };             
     };
     

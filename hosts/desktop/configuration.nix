@@ -4,8 +4,11 @@ let
   hostname = "desktop";
 in
 {
-  imports = [ ./hardware-configuration.nix
-                      
+  imports = [ ./hardware-configuration.nix ./borg.nix 
+
+
+                      ./../../modules/services/telegraf.nix
+                      ./../../hosts/desktop/borg.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/services/rclone.nix
                       ./../../modules/services/syncthing.nix
