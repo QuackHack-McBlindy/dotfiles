@@ -3,16 +3,14 @@
     lib, 
     pkgs, 
     ... 
-} : 
-
-let
-  backupServer = "borg@192.168.1.100"; 
-  sshKey = "/root/.ssh/borg-backup-key";
+} : let
+  backupServer = "pungkula@192.168.1.211"; 
+  sshKey = "/home/pungkula/.ssh/borg_ed25519";
 
   defaultPaths = [
     "/etc"
     "/var"
-    "/root"
+#    "/root"
   ];
 
   destinations = {
@@ -83,7 +81,7 @@ let
     
     config.systemd.timers = flip mapAttrs' config.services.borgbackup.jobs (name: value:
       nameValuePair "borgbackup-job-${name}" {
-        timerConfig.Persistent = true;
+        timerConfig.Persistent = lib.mkForce true;
       }
     );
   };
@@ -95,11 +93,11 @@ in
   services.borgbackup.jobs = lib.mapAttrs' (host: paths:
     lib.nameValuePair "backup-${host}" {
       repo = "${backupServer}:/borg/${host}";
-      encryption = "none";
+      encryption.mode = "none";
       paths = paths; 
       exclude = excludePaths; 
       compression = "auto,zstd";
-      environment.BORG_RSH = "ssh -o 'StrictHostKeyChecking=no' -i ${sshKey}";
+      environment.BORG_RSH = "ssh -p 2222";
 
       preHook = lib.optionalString config.networking.networkmanager.enable ''
         while ! ${pkgs.networkmanager}/bin/nm-online --quiet || ${pkgs.networkmanager}/bin/nmcli --terse --fields GENERAL.METERED dev show 2>/dev/null | grep --quiet "yes"; do
@@ -122,6 +120,30 @@ in
   ) mergedDestinations;
 
   systemd.services."borgbackup-job".serviceConfig.ReadWritePaths = [ "/var/log/telegraf" ];
-}
 
+#  systemd.services.borgbackup-job.preStart = ''
+#    mkdir -p /var/log/telegraf
+#    chown telegraf:telegraf /var/log/telegraf
+#    chmod 0755 /var/log/telegraf
+#
+#    if [ ! -f /root/.ssh/borg-backup-key ]; then
+#      mkdir -p /root/.ssh
+#      ssh-keygen -t ed25519 -N "" -f /root/.ssh/borg-backup-key
+#      chmod 600 /root/.ssh/borg-backup-key
+#      chown root:root /root/.ssh/borg-backup-key
+#    fi
+#  '';
+
+#  sops.secrets = {
+#    borg@homie = {
+#      sopsFile = "/var/lib/sops-nix/secrets/borg@homie.yaml";
+#      owner = config.users.users.secretservice.name;
+#      group = config.users.groups.secretservice.name;
+#      mode = "0440"; # Read-only for owner and group
+#    };
+#  };
+
+#  config.sops.secrets.borg@homie.path;
+
+}
 
