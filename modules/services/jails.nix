@@ -1,3 +1,9 @@
+{ 
+    config, 
+    lib, 
+    pkgs, 
+    ... 
+} : {
     services.fail2ban = {
         enable = true;
 
@@ -54,7 +60,7 @@
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NO HOME ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
-        jails.apache-nohome-iptables = {
+        jails."apache-nohome-iptables" = {
             enabled = true;
             filter  = "apache-nohome";
             action  = ''iptables-multiport[name=HTTP, port="http,https"]'';
@@ -67,7 +73,7 @@
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NGINX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
-        jails.nginx-url-probe = {
+        jails."nginx-url-probe" = {
             enabled = true;
             filter  = "nginx-url-probe";
             logpath = "/var/log/nginx/access.log";
@@ -187,5 +193,4 @@
   #      '';
  #     };
 #    };
-
-    };
+    };}

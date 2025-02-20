@@ -22,6 +22,7 @@
 
 ## CLI TOOLS
 ###############   
+    pkgs.procps
     pkgs.pv
     pkgs.nfs-utils
     pkgs.rclone

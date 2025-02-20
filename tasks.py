@@ -284,3 +284,38 @@ def update_keys(c):
 
     print("Process completed successfully.")
 
+
+
+# Define the list of backup hosts
+HOSTS = [
+    "192.168.1.111",
+    "192.168.1.28",
+    "192.168.1.211"
+]
+
+@task
+def backup(c, host=None):
+    """Trigger a backup for all hosts or a specific host."""
+    if host:
+        if host in HOSTS:
+            command = f"sudo systemctl start backup-{host}"
+            print(f"Executing: {command}")
+            subprocess.run(command, shell=True, check=True)
+        else:
+            print(f"Error: Host {host} not recognized.")
+    else:
+        for h in HOSTS:
+            command = f"sudo systemctl start backup-{h}"
+            print(f"Executing: {command}")
+            subprocess.run(command, shell=True, check=True)
+
+@task
+def log(c, host):
+    """Show logs for a specific backup job."""
+    if host in HOSTS:
+        command = f"sudo journalctl -u backup-{host} --no-pager --reverse"
+        print(f"Executing: {command}")
+        subprocess.run(command, shell=True, check=True)
+    else:
+        print(f"Error: Host {host} not recognized.")
+

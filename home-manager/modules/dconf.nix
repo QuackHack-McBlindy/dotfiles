@@ -231,6 +231,14 @@
         }; 
      # Emoji Copy
         "org/gnome/shell/extensions/emoji-copy".recently-used = ["🦆" "🧑‍🦯" "🥹" "🚀" "✨" "😊" "😘" "❤️" "😍" "🛡️" "🔒"];
+     # RClone
+        "org/gnome/shell/extensions/rclone-manager" = {
+            prefkey001-rconfig-file-path = "~/.config/rclone/rclone.conf";
+          #  hiddenkey012-profile-registry = "{"proton":{"syncType":"MOUNTED"}}";
+            prefkey010-rclone-mount = "bash ~/.config/rclone/upd.sh && rclone --password-command %pcmd mount %profile: %source --volname %profile --file-perms 0777 --write-back-cache --no-modtime --daemon --daemon-timeout 30s";
+            prefkey005-external-file-browser = "thunar";
+        };    
+        
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #──→ PROGRAMS ←──
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°

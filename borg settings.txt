@@ -1,0 +1,1082 @@
+    services.borgbackup.package
+
+Name
+
+services.borgbackup.package
+
+Description
+
+The borgbackup package to use.
+Type
+
+package
+
+Default
+
+pkgs.borgbackup
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs
+
+Name
+
+services.borgbackup.jobs
+
+Description
+
+Deduplicating backups using BorgBackup. Adding a job will cause a borg-job-NAME wrapper to be added to your system path, so that you can perform maintenance easily. See also the chapter about BorgBackup in the NixOS manual.
+Type
+
+attribute set of (submodule)
+
+Default
+
+{ }
+
+Example
+
+  { # for a local backup
+    rootBackup = {
+      paths = "/";
+      exclude = [ "/nix" ];
+      repo = "/path/to/local/repo";
+      encryption = {
+        mode = "repokey";
+        passphrase = "secret";
+      };
+      compression = "auto,lzma";
+      startAt = "weekly";
+    };
+  }
+  { # Root backing each day up to a remote backup server. We assume that you have
+    #   * created a password less key: ssh-keygen -N "" -t ed25519 -f /path/to/ssh_key
+    #     best practices are: use -t ed25519, /path/to = /run/keys
+    #   * the passphrase is in the file /run/keys/borgbackup_passphrase
+    #   * you have initialized the repository manually
+    paths = [ "/etc" "/home" ];
+    exclude = [ "/nix" "'**/.cache'" ];
+    doInit = false;
+    repo =  "user3@arep.repo.borgbase.com:repo";
+    encryption = {
+      mode = "repokey-blake2";
+      passCommand = "cat /path/to/passphrase";
+    };
+    environment = { BORG_RSH = "ssh -i /path/to/ssh_key"; };
+    compression = "auto,lzma";
+    startAt = "daily";
+};
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.repos
+
+Name
+
+services.borgbackup.repos
+
+Description
+
+Serve BorgBackup repositories to given public SSH keys, restricting their access to the repository only. See also the chapter about BorgBackup in the NixOS manual. Also, clients do not need to specify the absolute path when accessing the repository, i.e. user@machine:. is enough. (Note colon and dot.)
+Type
+
+attribute set of (submodule)
+
+Default
+
+{ }
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.startAt
+
+Name
+
+services.borgbackup.jobs.<name>.startAt
+
+Description
+
+When or how often the backup should run. Must be in the format described in systemd.time(7). If you do not want the backup to start automatically, use [ ]. It will generate a systemd service borgbackup-job-NAME. You may trigger it manually via systemctl restart borgbackup-job-NAME.
+Type
+
+string or list of string
+
+Default
+
+"daily"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.repos.<name>.user
+
+Name
+
+services.borgbackup.repos.<name>.user
+
+Description
+
+The user borg serve is run as. User or group needs write permission for the specified path.
+Type
+
+string
+
+Default
+
+"borg"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.repos.<name>.quota
+
+Name
+
+services.borgbackup.repos.<name>.quota
+
+Description
+
+Storage quota for the repository. This quota is ensured for all sub-repositories if allowSubRepos is enabled but not for the overall storage space used.
+Type
+
+null or string matching the pattern [[:digit:].]+[KMGTP]?
+
+Default
+
+null
+
+Example
+
+"100G"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+
+    services.borgbackup.repos.<name>.path
+
+Name
+
+services.borgbackup.repos.<name>.path
+
+Description
+
+Where to store the backups. Note that the directory is created automatically, with correct permissions.
+Type
+
+absolute path
+
+Default
+
+"/var/lib/borgbackup"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.repos.<name>.group
+
+Name
+
+services.borgbackup.repos.<name>.group
+
+Description
+
+The group borg serve is run as. User or group needs write permission for the specified path.
+Type
+
+string
+
+Default
+
+"borg"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.repos.<name>.authorizedKeysAppendOnly
+
+Name
+
+services.borgbackup.repos.<name>.authorizedKeysAppendOnly
+
+Description
+
+Public SSH keys that can only be used to append new data (archives) to the repository. Note that archives can still be marked as deleted and are subsequently removed from disk upon accessing the repo with full write access, e.g. when pruning.
+Type
+
+list of string
+
+Default
+
+[ ]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.repos.<name>.authorizedKeys
+
+Name
+
+services.borgbackup.repos.<name>.authorizedKeys
+
+Description
+
+Public SSH keys that are given full write access to this repository. You should use a different SSH key for each repository you write to, because the specified keys are restricted to running borg serve and can only access this single repository.
+Type
+
+list of string
+
+Default
+
+[ ]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.repos.<name>.allowSubRepos
+
+Name
+
+services.borgbackup.repos.<name>.allowSubRepos
+
+Description
+
+Allow clients to create repositories in subdirectories of the specified path. These can be accessed using user@machine:path/to/subrepo. Note that a quota applies to repositories independently. Therefore, if this is enabled, clients can create multiple repositories and upload an arbitrary amount of data.
+Type
+
+boolean
+
+Default
+
+false
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.jobs.<name>.user
+
+Name
+
+services.borgbackup.jobs.<name>.user
+
+Description
+
+The user borg is run as. User or group need read permission for the specified paths.
+Type
+
+string
+
+Default
+
+"root"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.jobs.<name>.repo
+
+Name
+
+services.borgbackup.jobs.<name>.repo
+
+Description
+
+Remote or local repository to back up to.
+Type
+
+string
+
+Example
+
+"user@machine:/path/to/repo"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.removableDevice
+
+Name
+
+services.borgbackup.jobs.<name>.removableDevice
+
+Description
+
+Whether the repo (which must be local) is a removable device.
+Type
+
+boolean
+
+Default
+
+false
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.readWritePaths
+
+Name
+
+services.borgbackup.jobs.<name>.readWritePaths
+
+Description
+
+By default, borg cannot write anywhere on the system but $HOME/.config/borg and $HOME/.cache/borg. If, for example, your preHook script needs to dump files somewhere, put those directories here.
+Type
+
+list of absolute path
+
+Default
+
+[ ]
+
+Example
+
+[
+  "/var/backup/mysqldump"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.jobs.<name>.prune.prefix
+
+Name
+
+services.borgbackup.jobs.<name>.prune.prefix
+
+Description
+
+Only consider archive names starting with this prefix for pruning. By default, only archives created by this job are considered. Use "" or null to consider all archives.
+Type
+
+null or string
+
+Default
+
+archiveBaseName
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.prune.keep
+
+Name
+
+services.borgbackup.jobs.<name>.prune.keep
+
+Description
+
+Prune a repository by deleting all archives not matching any of the specified retention options. See borg help prune for the available options.
+Type
+
+attribute set of (signed integer or string matching the pattern [[:digit:]]+[Hdwmy])
+
+Default
+
+{ }
+
+Example
+
+{
+  within = "1d"; # Keep all archives from the last day
+  daily = 7;
+  weekly = 4;
+  monthly = -1;  # Keep at least one archive for each month
+}
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.privateTmp
+
+Name
+
+services.borgbackup.jobs.<name>.privateTmp
+
+Description
+
+Set the PrivateTmp option for the systemd-service. Set to false if you need sockets or other files from global /tmp.
+Type
+
+boolean
+
+Default
+
+true
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.preHook
+
+Name
+
+services.borgbackup.jobs.<name>.preHook
+
+Description
+
+Shell commands to run before the backup. This can for example be used to mount file systems.
+Type
+
+strings concatenated with "\n"
+
+Default
+
+""
+
+Example
+
+''
+  # To add excluded paths at runtime
+  extraCreateArgs+=("--exclude" "/some/path")
+''
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.postPrune
+
+Name
+
+services.borgbackup.jobs.<name>.postPrune
+
+Description
+
+Shell commands to run after borg prune.
+Type
+
+strings concatenated with "\n"
+
+Default
+
+""
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.postInit
+
+Name
+
+services.borgbackup.jobs.<name>.postInit
+
+Description
+
+Shell commands to run after borg init.
+Type
+
+strings concatenated with "\n"
+
+Default
+
+""
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.postHook
+
+Name
+
+services.borgbackup.jobs.<name>.postHook
+
+Description
+
+Shell commands to run just before exit. They are executed even if a previous command exits with a non-zero exit code. The latter is available as $exitStatus.
+Type
+
+strings concatenated with "\n"
+
+Default
+
+""
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.postCreate
+
+Name
+
+services.borgbackup.jobs.<name>.postCreate
+
+Description
+
+Shell commands to run after borg create. The name of the created archive is stored in $archiveName.
+Type
+
+strings concatenated with "\n"
+
+Default
+
+""
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.persistentTimer
+
+Name
+
+services.borgbackup.jobs.<name>.persistentTimer
+
+Description
+
+Set the Persistent option for the systemd.timer(5) which triggers the backup immediately if the last trigger was missed (e.g. if the system was powered down).
+Type
+
+boolean
+
+Default
+
+false
+
+Example
+
+true
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.patterns
+
+Name
+
+services.borgbackup.jobs.<name>.patterns
+
+Description
+
+Include/exclude paths matching the given patterns. The first matching patterns is used, so if an include pattern (prefix +) matches before an exclude pattern (prefix -), the file is backed up. See borg help patterns for pattern syntax.
+Type
+
+list of string
+
+Default
+
+[ ]
+
+Example
+
+[
+  "+ /home/susan"
+  "- /home/*"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.paths
+
+Name
+
+services.borgbackup.jobs.<name>.paths
+
+Description
+
+Path(s) to back up. Mutually exclusive with dumpCommand.
+Type
+
+null or ((list of string) or string convertible to it)
+
+Default
+
+null
+
+Example
+
+"/home/user"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.inhibitsSleep
+
+Name
+
+services.borgbackup.jobs.<name>.inhibitsSleep
+
+Description
+
+Prevents the system from sleeping while backing up.
+Type
+
+boolean
+
+Default
+
+false
+
+Example
+
+true
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.group
+
+Name
+
+services.borgbackup.jobs.<name>.group
+
+Description
+
+The group borg is run as. User or group needs read permission for the specified paths.
+Type
+
+string
+
+Default
+
+"root"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.failOnWarnings
+
+Name
+
+services.borgbackup.jobs.<name>.failOnWarnings
+
+Description
+
+Fail the whole backup job if any borg command returns a warning (exit code 1), for example because a file changed during backup.
+Type
+
+boolean
+
+Default
+
+true
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.extraPruneArgs
+
+Name
+
+services.borgbackup.jobs.<name>.extraPruneArgs
+
+Description
+
+Additional arguments for borg prune. Can also be set at runtime using $extraPruneArgs.
+Type
+
+string or (list of string) convertible to it
+
+Default
+
+[ ]
+
+Example
+
+[
+  "--save-space"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.extraInitArgs
+
+Name
+
+services.borgbackup.jobs.<name>.extraInitArgs
+
+Description
+
+Additional arguments for borg init. Can also be set at runtime using $extraInitArgs.
+Type
+
+string or (list of string) convertible to it
+
+Default
+
+[ ]
+
+Example
+
+[
+  "--append-only"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.extraCreateArgs
+
+Name
+
+services.borgbackup.jobs.<name>.extraCreateArgs
+
+Description
+
+Additional arguments for borg create. Can also be set at runtime using $extraCreateArgs.
+Type
+
+string or (list of string) convertible to it
+
+Default
+
+[ ]
+
+Example
+
+[
+  "--stats"
+  "--checkpoint-interval 600"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.extraCompactArgs
+
+Name
+
+services.borgbackup.jobs.<name>.extraCompactArgs
+
+Description
+
+Additional arguments for borg compact. Can also be set at runtime using $extraCompactArgs.
+Type
+
+string or (list of string) convertible to it
+
+Default
+
+[ ]
+
+Example
+
+[
+  "--cleanup-commits"
+]
+
+Declared in
+
+
+
+    services.borgbackup.jobs.<name>.extraArgs
+
+Name
+
+services.borgbackup.jobs.<name>.extraArgs
+
+Description
+
+Additional arguments for all borg calls the service has. Handle with care.
+Type
+
+string or (list of string) convertible to it
+
+Default
+
+[ ]
+
+Example
+
+[
+  "--remote-path=/path/to/borg"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.exclude
+
+Name
+
+services.borgbackup.jobs.<name>.exclude
+
+Description
+
+Exclude paths matching any of the given patterns. See borg help patterns for pattern syntax.
+Type
+
+list of string
+
+Default
+
+[ ]
+
+Example
+
+[
+  "/home/*/.cache"
+  "/nix"
+]
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.environment
+
+Name
+
+services.borgbackup.jobs.<name>.environment
+
+Description
+
+Environment variables passed to the backup script. You can for example specify which SSH key to use.
+Type
+
+attribute set of string
+
+Default
+
+{ }
+
+Example
+
+{
+  BORG_RSH = "ssh -i /path/to/key";
+}
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.encryption.passphrase
+
+Name
+
+services.borgbackup.jobs.<name>.encryption.passphrase
+
+Description
+
+The passphrase the backups are encrypted with. Mutually exclusive with passCommand. If you do not want the passphrase to be stored in the world-readable Nix store, use passCommand.
+Type
+
+null or string
+
+Default
+
+null
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.encryption.passCommand
+
+Name
+
+services.borgbackup.jobs.<name>.encryption.passCommand
+
+Description
+
+A command which prints the passphrase to stdout. Mutually exclusive with passphrase.
+Type
+
+null or string
+
+Default
+
+null
+
+Example
+
+"cat /path/to/passphrase_file"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.encryption.mode
+
+Name
+
+services.borgbackup.jobs.<name>.encryption.mode
+
+Description
+
+Encryption mode to use. Setting a mode other than "none" requires you to specify a passCommand or a passphrase.
+Type
+
+one of "repokey", "keyfile", "repokey-blake2", "keyfile-blake2", "authenticated", "authenticated-blake2", "none"
+
+Example
+
+"repokey-blake2"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.dumpCommand
+
+Name
+
+services.borgbackup.jobs.<name>.dumpCommand
+
+Description
+
+Backup the stdout of this program instead of filesystem paths. Mutually exclusive with paths.
+Type
+
+null or absolute path
+
+Default
+
+null
+
+Example
+
+"/path/to/createZFSsend.sh"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.doInit
+
+Name
+
+services.borgbackup.jobs.<name>.doInit
+
+Description
+
+Run borg init if the specified repo does not exist. You should set this to false if the repository is located on an external drive that might not always be mounted.
+Type
+
+boolean
+
+Default
+
+true
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+    services.borgbackup.jobs.<name>.dateFormat
+
+Name
+
+services.borgbackup.jobs.<name>.dateFormat
+
+Description
+
+Arguments passed to date to create a timestamp suffix for the archive name.
+Type
+
+string
+
+Default
+
+"+%Y-%m-%dT%H:%M:%S"
+
+Example
+
+"-u +%s"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.compression
+
+Name
+
+services.borgbackup.jobs.<name>.compression
+
+Description
+
+Compression method to use. Refer to borg help compression for all available options.
+Type
+
+string matching the pattern none|(auto,)?(lz4|zstd|zlib|lzma)(,[[:digit:]]{1,2})?
+
+Default
+
+"lz4"
+
+Example
+
+"auto,lzma"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+    services.borgbackup.jobs.<name>.archiveBaseName
+
+Name
+
+services.borgbackup.jobs.<name>.archiveBaseName
+
+Description
+
+How to name the created archives. A timestamp, whose format is determined by dateFormat, will be appended. The full name can be modified at runtime ($archiveName). Placeholders like {hostname} must not be used. Use null for no base name.
+Type
+
+null or string matching the pattern [^/{}]+
+
+Default
+
+"${config.networking.hostName}-<name>"
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
+
+    services.borgbackup.jobs.<name>.appendFailedSuffix
+
+Name
+
+services.borgbackup.jobs.<name>.appendFailedSuffix
+
+Description
+
+Append a .failed suffix to the archive name, which is only removed if borg create has a zero exit status.
+Type
+
+boolean
+
+Default
+
+true
+
+Declared in
+nixos/modules/services/backup/borgbackup.nix
+
+
