@@ -221,10 +221,20 @@ in
       sudo bash "/run/secrets/$1"
     '')
      
-     
+ #°✶.•°••─→ BLOCKURL ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "blockurl" ''  
+      #!/bin/bash
+      if [ -z "$1" ]; then
+        echo "Usage: $0 <URL>"
+        exit 1
+      fi
+      clean_url=$(echo "$1" | sed -E 's|https?://||')
+      block_entry="||$clean_url^"
+      echo "$block_entry" >> ~/dotfiles/home/.blocklist.txt
+      echo "Added: $block_entry to ~/Public/blocklist.txt"
+    '')
   ];
   
-
 
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°

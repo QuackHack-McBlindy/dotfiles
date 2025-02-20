@@ -21,7 +21,7 @@ in
                       ./../../modules/nixos/xserver.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/dns.nix 
-                      ./../../modules/services/jails.nix                       
+                      ./../../modules/services/fail2ban.nix                       
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix

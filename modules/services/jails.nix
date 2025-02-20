@@ -40,71 +40,71 @@
         
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ CADDY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
-        jails.caddy = {
-            enabled = true;
+      #  jails.caddy = {
+    #        enabled = true;
             # Adjust the log path if your Caddy access log is stored elsewhere.
-            logpath = "/var/log/caddy/access.log";
-            findtime = 600;
-            bantime = 3600;
-            maxretry = 10;
-            backend = "auto";
+    ##        logpath = "/var/log/caddy/access.log";
+    #        findtime = 600;
+    #        bantime = 3600;
+   #         maxretry = 10;
+  #          backend = "auto";
             # Use the custom filter defined below.
-            filter = "caddy";
+#            filter = "caddy";
             # Custom action: here we chain the built-in iptables-block combined with our own ntfy notification.
             # You can adjust the action string if you want to use different ban methods.
-            action = ''
-                %(action_)s[blocktype=DROP]
-                ntfy
-            '';
-        };
+    #        action = ''
+   #             %(action_)s[blocktype=DROP]
+  #              ntfy
+    #        '';
+    #    };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NO HOME ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
-        jails."apache-nohome-iptables" = {
-            enabled = true;
-            filter  = "apache-nohome";
-            action  = ''iptables-multiport[name=HTTP, port="http,https"]'';
-            logpath = "/var/log/httpd/error_log*";
-            backend = "auto";
-            findtime = 600;
-            bantime  = 600;
-            maxretry = 5;
-        };
+  #      jails."apache-nohome-iptables" = {
+  #          enabled = true;
+ #           filter  = "apache-nohome";
+  #          action  = ''iptables-multiport[name=HTTP, port="http,https"]'';
+ #           logpath = "/var/log/httpd/error_log*";
+ #           backend = "auto";
+ #           findtime = 600;
+ #           bantime  = 600;
+ #           maxretry = 5;
+#        };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NGINX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
-        jails."nginx-url-probe" = {
-            enabled = true;
-            filter  = "nginx-url-probe";
-            logpath = "/var/log/nginx/access.log";
-            action  = ''
-                %(action_)s[blocktype=DROP]
-                ntfy
-            '';
-            backend = "auto";
-            findtime = 600;
-            maxretry = 5;
-        };
+  #      jails."nginx-url-probe" = {
+   #         enabled = true;
+  #          filter  = "nginx-url-probe";
+  #          logpath = "/var/log/nginx/access.log";
+ #           action  = ''
+  #              %(action_)s[blocktype=DROP]
+  #              ntfy
+  #          '';
+#            backend = "auto";
+#            findtime = 600;
+#            maxretry = 5;
+#        };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DOVECAT ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
         # Additional custom jail: Dovecot authentication failures.
         # This jail demonstrates how to use multiple actions.
-        jails.dovecot = {
-            enabled = true;
-            filter  = "dovecot-auth";  # custom filter defined below.
-            logpath = "/var/log/dovecot.log";
+ #       jails.dovecot = {
+ #           enabled = true;
+ #           filter  = "dovecot-auth";  # custom filter defined below.
+  #          logpath = "/var/log/dovecot.log";
             # Use a custom iptables rule and then log the ban event.
-            action = ''
-                iptables-multiport[name=Dovecot, port="pop3,pop3s,imap,imaps"]
-                %(action_)s[blocktype=DROP] # reusing the built-in syntax for extra backup
-                custom-syslog
-            '';
-            backend  = "auto";
-            findtime = 600;
-            maxretry = 3; # be a bit more aggressive on Dovecot
-        };
-    };
+ #           action = ''
+#                iptables-multiport[name=Dovecot, port="pop3,pop3s,imap,imaps"]
+#                %(action_)s[blocktype=DROP] # reusing the built-in syntax for extra backup
+#                custom-syslog
+#            '';
+#            backend  = "auto";
+#            findtime = 600;
+#            maxretry = 3; # be a bit more aggressive on Dovecot
+#        };
+#    };
 
 
 
@@ -147,11 +147,11 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ SYSLOG ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶° 
         # Custom action to log blocked IPs to syslog.
-        "fail2ban/action.d/custom-syslog.local".text = pkgs.lib.mkForce ''
-            [Definition]
-            actionban = logger -t fail2ban "Banned <ip> on jail <name> after <failures> failures"
-            actionunban = logger -t fail2ban "Unbanned <ip> on jail <name> after ban duration expired"
-        '';
+       # "fail2ban/action.d/custom-syslog.local".text = pkgs.lib.mkForce ''
+       #     [Definition]
+       #     actionban = logger -t fail2ban "Banned <ip> on jail <name> after <failures> failures"
+       #     actionunban = logger -t fail2ban "Unbanned <ip> on jail <name> after ban duration expired"
+       # '';
         
         
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
@@ -168,7 +168,7 @@
             (?i)^ . "(GET|POST) .(&|?)((pass=)|(pwd=)|(password=))."
             ignoreregex =
         '';
-        
+    };}        
 
 
       #  "fail2ban/filter.d/vaultwarden.conf";
@@ -192,5 +192,5 @@
    #       journalmatch = _SYSTEMD_UNIT=gitea.service
   #      '';
  #     };
-#    };
-    };}
+ #   };
+
