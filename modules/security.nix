@@ -49,6 +49,7 @@
     kernelModules = ["tcp_bbr"];
   };
 
+  networking.firewall.logRefusedConnections = true;
   users.users.root.initialPassword = "nixos";
 
   security = {

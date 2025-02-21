@@ -23,8 +23,8 @@
     },
     "bluetooth": [
       {
-        "index": 54,
-        "attached_to": 66,
+        "index": 55,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "bluetooth"
@@ -107,8 +107,8 @@
         "module_alias": "usb:v8087p0029d0001dcE0dsc01dp01icE0isc01ip01in00"
       },
       {
-        "index": 67,
-        "attached_to": 66,
+        "index": 68,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "bluetooth"
@@ -1294,8 +1294,8 @@
     ],
     "chip_card": [
       {
-        "index": 58,
-        "attached_to": 50,
+        "index": 60,
+        "attached_to": 51,
         "class_list": [
           "chip_card",
           "usb"
@@ -1369,10 +1369,6 @@
           "interface_alternate_setting": 0
         },
         "hotplug": "usb",
-        "driver": "usbfs",
-        "drivers": [
-          "usbfs"
-        ],
         "module_alias": "usb:v1050p0407d0527dc00dsc00dp00ic0Bisc00ip00in02"
       }
     ],
@@ -1595,7 +1591,6 @@
           "/dev/disk/by-path/pci-0000:76:00.0-nvme-1",
           "/dev/nvme0n1"
         ],
-        "rom_id": "0x80",
         "resources": [
           {
             "type": "disk_geo",
@@ -1620,6 +1615,102 @@
         "driver_modules": [
           "nvme"
         ]
+      },
+      {
+        "index": 50,
+        "attached_to": 46,
+        "class_list": [
+          "disk",
+          "usb",
+          "scsi",
+          "block_device"
+        ],
+        "bus_type": {
+          "hex": "0084",
+          "name": "SCSI",
+          "value": 132
+        },
+        "slot": {
+          "bus": 8,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0106",
+          "name": "Mass Storage Device",
+          "value": 262
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Disk",
+          "value": 0
+        },
+        "vendor": {
+          "hex": "13fe",
+          "value": 5118
+        },
+        "device": {
+          "hex": "6300",
+          "name": "USB DISK 3.0",
+          "value": 25344
+        },
+        "revision": {
+          "hex": "0000",
+          "name": "PMAP",
+          "value": 0
+        },
+        "serial": "0A7603730060",
+        "model": "USB DISK 3.0",
+        "sysfs_id": "/class/block/sda",
+        "sysfs_bus_id": "8:0:0:0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:14.0/usb2/2-9/2-9.3/2-9.3:1.0/host8/target8:0:0/8:0:0:0",
+        "unix_device_name": "/dev/sda",
+        "unix_device_number": {
+          "type": 98,
+          "major": 8,
+          "minor": 0,
+          "range": 16
+        },
+        "unix_device_names": [
+          "/dev/disk/by-diskseq/10",
+          "/dev/disk/by-id/usb-_USB_DISK_3.0_0707063F85D7A633-0:0",
+          "/dev/disk/by-path/pci-0000:00:14.0-usb-0:9.3:1.0-scsi-0:0:0:0",
+          "/dev/disk/by-path/pci-0000:00:14.0-usbv3-0:9.3:1.0-scsi-0:0:0:0",
+          "/dev/sda"
+        ],
+        "unix_device_name2": "/dev/sg0",
+        "unix_device_number2": {
+          "type": 99,
+          "major": 21,
+          "minor": 0,
+          "range": 1
+        },
+        "resources": [
+          {
+            "type": "disk_geo",
+            "cylinders": 14808,
+            "heads": 64,
+            "sectors": 32,
+            "size": 0,
+            "geo_type": "logical"
+          },
+          {
+            "type": "size",
+            "unit": "sectors",
+            "value_1": 30326784,
+            "value_2": 512
+          }
+        ],
+        "driver": "usb-storage",
+        "driver_module": "usb_storage",
+        "drivers": [
+          "sd",
+          "usb-storage"
+        ],
+        "driver_modules": [
+          "sd_mod",
+          "usb_storage"
+        ],
+        "module_alias": "usb:v13FEp6300d0110dc00dsc00dp00ic08isc06ip50in00"
       }
     ],
     "graphics_card": [
@@ -1746,8 +1837,8 @@
     ],
     "hub": [
       {
-        "index": 50,
-        "attached_to": 66,
+        "index": 51,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "hub"
@@ -1828,8 +1919,8 @@
         "module_alias": "usb:v174Cp2074d0200dc09dsc00dp02ic09isc00ip02in00"
       },
       {
-        "index": 55,
-        "attached_to": 66,
+        "index": 56,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "hub"
@@ -1910,7 +2001,7 @@
         "module_alias": "usb:v174Cp2074d0200dc09dsc00dp02ic09isc00ip02in00"
       },
       {
-        "index": 56,
+        "index": 57,
         "attached_to": 45,
         "class_list": [
           "usb",
@@ -1932,7 +2023,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.12.11 xhci-hcd",
+          "name": "Linux 6.12.13 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -1946,7 +2037,7 @@
           "value": 0
         },
         "serial": "0000:03:00.2",
-        "model": "Linux 6.12.11 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.12.13 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:01.0/0000:01:00.0/0000:02:00.0/0000:03:00.2/usb3/3-0:1.0",
         "sysfs_bus_id": "3-0:1.0",
         "resources": [
@@ -1993,8 +2084,8 @@
         "module_alias": "usb:v1D6Bp0002d0612dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 57,
-        "attached_to": 72,
+        "index": 58,
+        "attached_to": 76,
         "class_list": [
           "usb",
           "hub"
@@ -2065,8 +2156,8 @@
         "module_alias": "usb:v174Cp3074d0200dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 62,
-        "attached_to": 72,
+        "index": 64,
+        "attached_to": 76,
         "class_list": [
           "usb",
           "hub"
@@ -2137,7 +2228,7 @@
         "module_alias": "usb:v174Cp3074d0200dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 63,
+        "index": 65,
         "attached_to": 45,
         "class_list": [
           "usb",
@@ -2159,7 +2250,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.12.11 xhci-hcd",
+          "name": "Linux 6.12.13 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2173,7 +2264,7 @@
           "value": 0
         },
         "serial": "0000:03:00.2",
-        "model": "Linux 6.12.11 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.12.13 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:01.0/0000:01:00.0/0000:02:00.0/0000:03:00.2/usb4/4-0:1.0",
         "sysfs_bus_id": "4-0:1.0",
         "detail": {
@@ -2210,7 +2301,7 @@
         "module_alias": "usb:v1D6Bp0003d0612dc09dsc00dp03ic09isc00ip00in00"
       },
       {
-        "index": 66,
+        "index": 67,
         "attached_to": 46,
         "class_list": [
           "usb",
@@ -2232,7 +2323,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.12.11 xhci-hcd",
+          "name": "Linux 6.12.13 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2246,7 +2337,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.12.11 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.12.13 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-0:1.0",
         "sysfs_bus_id": "1-0:1.0",
         "resources": [
@@ -2293,7 +2384,7 @@
         "module_alias": "usb:v1D6Bp0002d0612dc09dsc00dp01ic09isc00ip00in00"
       },
       {
-        "index": 72,
+        "index": 76,
         "attached_to": 46,
         "class_list": [
           "usb",
@@ -2315,7 +2406,7 @@
         },
         "vendor": {
           "hex": "1d6b",
-          "name": "Linux 6.12.11 xhci-hcd",
+          "name": "Linux 6.12.13 xhci-hcd",
           "value": 7531
         },
         "device": {
@@ -2329,7 +2420,7 @@
           "value": 0
         },
         "serial": "0000:00:14.0",
-        "model": "Linux 6.12.11 xhci-hcd xHCI Host Controller",
+        "model": "Linux 6.12.13 xhci-hcd xHCI Host Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb2/2-0:1.0",
         "sysfs_bus_id": "2-0:1.0",
         "detail": {
@@ -2368,8 +2459,8 @@
     ],
     "keyboard": [
       {
-        "index": 60,
-        "attached_to": 50,
+        "index": 62,
+        "attached_to": 51,
         "class_list": [
           "keyboard",
           "usb"
@@ -2411,18 +2502,18 @@
         "model": "Yubico YubiKey OTP+FIDO+CCID",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-9/1-9.4/1-9.4:1.0",
         "sysfs_bus_id": "1-9.4:1.0",
-        "unix_device_name": "/dev/input/event27",
+        "unix_device_name": "/dev/input/event15",
         "unix_device_number": {
           "type": 99,
           "major": 13,
-          "minor": 91,
+          "minor": 79,
           "range": 1
         },
         "unix_device_names": [
           "/dev/input/by-id/usb-Yubico_YubiKey_OTP+FIDO+CCID-event-kbd",
           "/dev/input/by-path/pci-0000:00:14.0-usb-0:9.4:1.0-event-kbd",
           "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:9.4:1.0-event-kbd",
-          "/dev/input/event27"
+          "/dev/input/event15"
         ],
         "resources": [
           {
@@ -2475,115 +2566,6 @@
           "xkb_model": "pc104"
         },
         "module_alias": "usb:v1050p0407d0527dc00dsc00dp00ic03isc01ip01in00"
-      },
-      {
-        "index": 71,
-        "attached_to": 66,
-        "class_list": [
-          "keyboard",
-          "usb"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0108",
-          "name": "Keyboard",
-          "value": 264
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Keyboard",
-          "value": 0
-        },
-        "vendor": {
-          "hex": "04d9",
-          "name": "Holtek Microelectronics Inc.",
-          "value": 1241
-        },
-        "device": {
-          "hex": "1836",
-          "name": "Mechanical Keyboard",
-          "value": 6198
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "0.01",
-          "value": 0
-        },
-        "model": "Holtek Microelectronics Mechanical Keyboard",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0",
-        "sysfs_bus_id": "1-1:1.0",
-        "unix_device_name": "/dev/input/event0",
-        "unix_device_number": {
-          "type": 99,
-          "major": 13,
-          "minor": 64,
-          "range": 1
-        },
-        "unix_device_names": [
-          "/dev/input/by-id/usb-LogoTech_Mechanical_Keyboard-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.0-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:1:1.0-event-kbd",
-          "/dev/input/event0"
-        ],
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 1500000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_protocol": 0,
-          "interface_class": {
-            "hex": "0003",
-            "name": "hid",
-            "value": 3
-          },
-          "interface_subclass": {
-            "hex": "0001",
-            "name": "audio",
-            "value": 1
-          },
-          "interface_protocol": 1,
-          "interface_number": 0,
-          "interface_alternate_setting": 0
-        },
-        "hotplug": "usb",
-        "driver": "usbhid",
-        "driver_module": "usbhid",
-        "drivers": [
-          "usbhid"
-        ],
-        "driver_modules": [
-          "usbhid"
-        ],
-        "driver_info": {
-          "type": "keyboard",
-          "xkb_rules": "xfree86",
-          "xkb_model": "pc104"
-        },
-        "module_alias": "usb:v04D9p1836d0001dc00dsc00dp00ic03isc01ip01in00"
       }
     ],
     "memory": [
@@ -2608,7 +2590,7 @@
           {
             "type": "mem",
             "base": 0,
-            "range": 33555755008,
+            "range": 33553350656,
             "enabled": true,
             "access": "read_write",
             "prefetch": "unknown"
@@ -2805,8 +2787,8 @@
     ],
     "mouse": [
       {
-        "index": 52,
-        "attached_to": 50,
+        "index": 53,
+        "attached_to": 51,
         "class_list": [
           "mouse",
           "usb"
@@ -2860,11 +2842,11 @@
         "unix_device_names": [
           "/dev/input/mice"
         ],
-        "unix_device_name2": "/dev/input/mouse0",
+        "unix_device_name2": "/dev/input/mouse2",
         "unix_device_number2": {
           "type": 99,
           "major": 13,
-          "minor": 32,
+          "minor": 34,
           "range": 1
         },
         "resources": [
@@ -2926,8 +2908,125 @@
         "module_alias": "usb:v3233p0009d0210dc00dsc00dp00ic03isc01ip02in00"
       },
       {
-        "index": 70,
-        "attached_to": 50,
+        "index": 72,
+        "attached_to": 67,
+        "class_list": [
+          "mouse",
+          "usb"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0105",
+          "name": "Mouse",
+          "value": 261
+        },
+        "sub_class": {
+          "hex": "0003",
+          "name": "USB Mouse",
+          "value": 3
+        },
+        "vendor": {
+          "hex": "3233",
+          "name": "Ducky",
+          "value": 12851
+        },
+        "device": {
+          "hex": "1311",
+          "name": "Ducky One 3 RGB",
+          "value": 4881
+        },
+        "serial": "DK-V1.11-220819",
+        "compat_vendor": "Unknown",
+        "compat_device": "Generic USB Mouse",
+        "model": "Ducky One 3 RGB",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.2",
+        "sysfs_bus_id": "1-1:1.2",
+        "unix_device_name": "/dev/input/mice",
+        "unix_device_number": {
+          "type": 99,
+          "major": 13,
+          "minor": 63,
+          "range": 1
+        },
+        "unix_device_names": [
+          "/dev/input/mice"
+        ],
+        "unix_device_name2": "/dev/input/mouse0",
+        "unix_device_number2": {
+          "type": 99,
+          "major": 13,
+          "minor": 32,
+          "range": 1
+        },
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 2,
+          "interface_number": 2,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "driver_info": {
+          "type": "mouse",
+          "db_entry_0": [
+            "explorerps/2",
+            "exps2"
+          ],
+          "xf86": "explorerps/2",
+          "gpm": "exps2",
+          "buttons": -1,
+          "wheels": -1
+        },
+        "module_alias": "usb:v3233p1311d0000dc00dsc00dp00ic03isc00ip02in02"
+      },
+      {
+        "index": 74,
+        "attached_to": 51,
         "class_list": [
           "mouse",
           "usb"
@@ -3221,7 +3320,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 55
+            "address": 49
           },
           {
             "type": "irq",
@@ -3456,72 +3555,7 @@
     ],
     "network_interface": [
       {
-        "index": 74,
-        "attached_to": 0,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Loopback",
-          "value": 0
-        },
-        "model": "Loopback network interface",
-        "sysfs_id": "/class/net/lo",
-        "unix_device_name": "lo",
-        "unix_device_names": [
-          "lo"
-        ]
-      },
-      {
-        "index": 75,
-        "attached_to": 27,
-        "class_list": [
-          "network_interface"
-        ],
-        "base_class": {
-          "hex": "0107",
-          "name": "Network Interface",
-          "value": 263
-        },
-        "sub_class": {
-          "hex": "0001",
-          "name": "Ethernet",
-          "value": 1
-        },
-        "model": "Ethernet network interface",
-        "sysfs_id": "/class/net/enp119s0",
-        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.4/0000:77:00.0",
-        "unix_device_name": "enp119s0",
-        "unix_device_names": [
-          "enp119s0"
-        ],
-        "resources": [
-          {
-            "type": "hwaddr",
-            "address": 97
-          },
-          {
-            "type": "phwaddr",
-            "address": 97
-          }
-        ],
-        "driver": "atlantic",
-        "driver_module": "atlantic",
-        "drivers": [
-          "atlantic"
-        ],
-        "driver_modules": [
-          "atlantic"
-        ]
-      },
-      {
-        "index": 77,
+        "index": 80,
         "attached_to": 30,
         "class_list": [
           "network_interface"
@@ -3546,7 +3580,7 @@
         "resources": [
           {
             "type": "hwaddr",
-            "address": 55
+            "address": 49
           },
           {
             "type": "phwaddr",
@@ -3563,7 +3597,7 @@
         ]
       },
       {
-        "index": 78,
+        "index": 82,
         "attached_to": 44,
         "class_list": [
           "network_interface"
@@ -3602,6 +3636,71 @@
         ],
         "driver_modules": [
           "r8169"
+        ]
+      },
+      {
+        "index": 84,
+        "attached_to": 0,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Loopback",
+          "value": 0
+        },
+        "model": "Loopback network interface",
+        "sysfs_id": "/class/net/lo",
+        "unix_device_name": "lo",
+        "unix_device_names": [
+          "lo"
+        ]
+      },
+      {
+        "index": 85,
+        "attached_to": 27,
+        "class_list": [
+          "network_interface"
+        ],
+        "base_class": {
+          "hex": "0107",
+          "name": "Network Interface",
+          "value": 263
+        },
+        "sub_class": {
+          "hex": "0001",
+          "name": "Ethernet",
+          "value": 1
+        },
+        "model": "Ethernet network interface",
+        "sysfs_id": "/class/net/enp119s0",
+        "sysfs_device_link": "/devices/pci0000:00/0000:00:1d.4/0000:77:00.0",
+        "unix_device_name": "enp119s0",
+        "unix_device_names": [
+          "enp119s0"
+        ],
+        "resources": [
+          {
+            "type": "hwaddr",
+            "address": 97
+          },
+          {
+            "type": "phwaddr",
+            "address": 97
+          }
+        ],
+        "driver": "atlantic",
+        "driver_module": "atlantic",
+        "drivers": [
+          "atlantic"
+        ],
+        "driver_modules": [
+          "atlantic"
         ]
       }
     ],
@@ -3655,7 +3754,7 @@
         "resources": [
           {
             "type": "irq",
-            "base": 163,
+            "base": 162,
             "triggered": 0,
             "enabled": true
           },
@@ -3673,7 +3772,7 @@
           "command": 1030,
           "header_type": 0,
           "secondary_bus": 0,
-          "irq": 163,
+          "irq": 162,
           "prog_if": 0
         },
         "driver": "mei_me",
@@ -3736,7 +3835,7 @@
         "resources": [
           {
             "type": "irq",
-            "base": 162,
+            "base": 163,
             "triggered": 0,
             "enabled": true
           },
@@ -3754,7 +3853,7 @@
           "command": 1030,
           "header_type": 0,
           "secondary_bus": 0,
-          "irq": 162,
+          "irq": 163,
           "prog_if": 0
         },
         "driver": "i2c-designware-pci",
@@ -4136,7 +4235,7 @@
         "resources": [
           {
             "type": "irq",
-            "base": 176,
+            "base": 190,
             "triggered": 0,
             "enabled": true
           },
@@ -4154,7 +4253,7 @@
           "command": 1030,
           "header_type": 0,
           "secondary_bus": 0,
-          "irq": 176,
+          "irq": 190,
           "prog_if": 0
         },
         "driver": "snd_hda_intel",
@@ -4215,7 +4314,7 @@
         "resources": [
           {
             "type": "irq",
-            "base": 175,
+            "base": 189,
             "triggered": 0,
             "enabled": true
           },
@@ -4241,7 +4340,7 @@
           "command": 1030,
           "header_type": 0,
           "secondary_bus": 0,
-          "irq": 175,
+          "irq": 189,
           "prog_if": 0
         },
         "driver": "snd_hda_intel",
@@ -4595,8 +4694,8 @@
     },
     "usb": [
       {
-        "index": 51,
-        "attached_to": 50,
+        "index": 52,
+        "attached_to": 51,
         "class_list": [
           "usb",
           "unknown"
@@ -4638,18 +4737,15 @@
         "model": "DuckyChannel International Ducky Feather",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-9/1-9.3/1-9.3:1.2",
         "sysfs_bus_id": "1-9.3:1.2",
-        "unix_device_name": "/dev/input/event25",
+        "unix_device_name": "/dev/input/event13",
         "unix_device_number": {
           "type": 99,
           "major": 13,
-          "minor": 89,
+          "minor": 77,
           "range": 1
         },
         "unix_device_names": [
-          "/dev/input/by-id/usb-DuckyChannel_International_Co.__Ltd._Ducky_Feather-if02-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usb-0:9.3:1.2-event-kbd",
-          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:9.3:1.2-event-kbd",
-          "/dev/input/event25"
+          "/dev/input/event13"
         ],
         "resources": [
           {
@@ -4699,8 +4795,8 @@
         "module_alias": "usb:v3233p0009d0210dc00dsc00dp00ic03isc00ip00in02"
       },
       {
-        "index": 53,
-        "attached_to": 66,
+        "index": 54,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "unknown"
@@ -4792,7 +4888,7 @@
       },
       {
         "index": 59,
-        "attached_to": 66,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "unknown"
@@ -4817,23 +4913,19 @@
           "value": 0
         },
         "vendor": {
-          "hex": "04d9",
-          "name": "Holtek Microelectronics Inc.",
-          "value": 1241
+          "hex": "3233",
+          "name": "Ducky",
+          "value": 12851
         },
         "device": {
-          "hex": "1836",
-          "name": "Mechanical Keyboard",
-          "value": 6198
+          "hex": "1311",
+          "name": "Ducky One 3 RGB",
+          "value": 4881
         },
-        "revision": {
-          "hex": "0000",
-          "name": "0.01",
-          "value": 0
-        },
-        "model": "Holtek Microelectronics Mechanical Keyboard",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1",
-        "sysfs_bus_id": "1-1:1.1",
+        "serial": "DK-V1.11-220819",
+        "model": "Ducky One 3 RGB",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.3",
+        "sysfs_bus_id": "1-1:1.3",
         "unix_device_name": "/dev/input/event3",
         "unix_device_number": {
           "type": 99,
@@ -4842,12 +4934,15 @@
           "range": 1
         },
         "unix_device_names": [
+          "/dev/input/by-id/usb-Ducky_Ducky_One_3_RGB_DK-V1.11-220819-if03-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.3-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:1:1.3-event-kbd",
           "/dev/input/event3"
         ],
         "resources": [
           {
             "type": "baud",
-            "speed": 1500000,
+            "speed": 12000000,
             "bits": 0,
             "stop_bits": 0,
             "parity": 0,
@@ -4876,7 +4971,107 @@
             "name": "per_interface",
             "value": 0
           },
-          "interface_protocol": 0,
+          "interface_protocol": 1,
+          "interface_number": 3,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "module_alias": "usb:v3233p1311d0000dc00dsc00dp00ic03isc00ip01in03"
+      },
+      {
+        "index": 61,
+        "attached_to": 67,
+        "class_list": [
+          "usb",
+          "unknown"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "vendor": {
+          "hex": "3233",
+          "name": "Ducky",
+          "value": 12851
+        },
+        "device": {
+          "hex": "1311",
+          "name": "Ducky One 3 RGB",
+          "value": 4881
+        },
+        "serial": "DK-V1.11-220819",
+        "model": "Ducky One 3 RGB",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.1",
+        "sysfs_bus_id": "1-1:1.1",
+        "unix_device_name": "/dev/input/event1",
+        "unix_device_number": {
+          "type": 99,
+          "major": 13,
+          "minor": 65,
+          "range": 1
+        },
+        "unix_device_names": [
+          "/dev/input/by-id/usb-Ducky_Ducky_One_3_RGB_DK-V1.11-220819-if01-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.1-event-kbd",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:1:1.1-event-kbd",
+          "/dev/input/event1"
+        ],
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 1,
           "interface_number": 1,
           "interface_alternate_setting": 0
         },
@@ -4889,11 +5084,11 @@
         "driver_modules": [
           "usbhid"
         ],
-        "module_alias": "usb:v04D9p1836d0001dc00dsc00dp00ic03isc00ip00in01"
+        "module_alias": "usb:v3233p1311d0000dc00dsc00dp00ic03isc00ip01in01"
       },
       {
-        "index": 61,
-        "attached_to": 66,
+        "index": 63,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "unknown"
@@ -4978,117 +5173,8 @@
         "module_alias": "usb:v26CEp01B1d0000dc00dsc00dp00ic03isc00ip00in00"
       },
       {
-        "index": 64,
-        "attached_to": 55,
-        "class_list": [
-          "usb",
-          "unknown"
-        ],
-        "bus_type": {
-          "hex": "0086",
-          "name": "USB",
-          "value": 134
-        },
-        "slot": {
-          "bus": 0,
-          "number": 0
-        },
-        "base_class": {
-          "hex": "0007",
-          "name": "Communication controller",
-          "value": 7
-        },
-        "sub_class": {
-          "hex": "0000",
-          "name": "Serial controller",
-          "value": 0
-        },
-        "pci_interface": {
-          "hex": "0080",
-          "value": 128
-        },
-        "vendor": {
-          "hex": "10c4",
-          "name": "Silicon Labs",
-          "value": 4292
-        },
-        "device": {
-          "hex": "ea60",
-          "name": "Sonoff Zigbee 3.0 USB Dongle Plus",
-          "value": 60000
-        },
-        "revision": {
-          "hex": "0000",
-          "name": "1.00",
-          "value": 0
-        },
-        "serial": "0001",
-        "model": "Silicon Sonoff Zigbee 3.0 USB Dongle Plus",
-        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-6/1-6.4/1-6.4:1.0",
-        "sysfs_bus_id": "1-6.4:1.0",
-        "unix_device_name": "/dev/ttyUSB0",
-        "unix_device_number": {
-          "type": 99,
-          "major": 188,
-          "minor": 0,
-          "range": 1
-        },
-        "unix_device_names": [
-          "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0",
-          "/dev/serial/by-path/pci-0000:00:14.0-usb-0:6.4:1.0-port0",
-          "/dev/serial/by-path/pci-0000:00:14.0-usbv2-0:6.4:1.0-port0",
-          "/dev/ttyUSB0"
-        ],
-        "resources": [
-          {
-            "type": "baud",
-            "speed": 12000000,
-            "bits": 0,
-            "stop_bits": 0,
-            "parity": 0,
-            "handshake": 0
-          }
-        ],
-        "detail": {
-          "device_class": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "device_protocol": 0,
-          "interface_class": {
-            "hex": "00ff",
-            "name": "vendor_spec",
-            "value": 255
-          },
-          "interface_subclass": {
-            "hex": "0000",
-            "name": "per_interface",
-            "value": 0
-          },
-          "interface_protocol": 0,
-          "interface_number": 0,
-          "interface_alternate_setting": 0
-        },
-        "hotplug": "usb",
-        "driver": "cp210x",
-        "driver_module": "cp210x",
-        "drivers": [
-          "cp210x"
-        ],
-        "driver_modules": [
-          "cp210x"
-        ],
-        "module_alias": "usb:v10C4pEA60d0100dc00dsc00dp00icFFisc00ip00in00"
-      },
-      {
-        "index": 65,
-        "attached_to": 50,
+        "index": 66,
+        "attached_to": 51,
         "class_list": [
           "usb",
           "unknown"
@@ -5178,8 +5264,8 @@
         "module_alias": "usb:v3233p0009d0210dc00dsc00dp00ic03isc00ip00in01"
       },
       {
-        "index": 68,
-        "attached_to": 66,
+        "index": 70,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "unknown"
@@ -5262,8 +5348,108 @@
         "module_alias": "usb:v0CF2pA200d0100dc00dsc00dp00icFFiscFFipFFin00"
       },
       {
-        "index": 69,
-        "attached_to": 50,
+        "index": 71,
+        "attached_to": 67,
+        "class_list": [
+          "usb",
+          "unknown"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "vendor": {
+          "hex": "3233",
+          "name": "Ducky",
+          "value": 12851
+        },
+        "device": {
+          "hex": "1311",
+          "name": "Ducky One 3 RGB",
+          "value": 4881
+        },
+        "serial": "DK-V1.11-220819",
+        "model": "Ducky One 3 RGB",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.4",
+        "sysfs_bus_id": "1-1:1.4",
+        "unix_device_name": "/dev/input/event4",
+        "unix_device_number": {
+          "type": 99,
+          "major": 13,
+          "minor": 68,
+          "range": 1
+        },
+        "unix_device_names": [
+          "/dev/input/by-id/usb-Ducky_Ducky_One_3_RGB_DK-V1.11-220819-event-if04",
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.4-event",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:1:1.4-event",
+          "/dev/input/event4"
+        ],
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 0,
+          "interface_number": 4,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "module_alias": "usb:v3233p1311d0000dc00dsc00dp00ic03isc00ip00in04"
+      },
+      {
+        "index": 73,
+        "attached_to": 51,
         "class_list": [
           "usb",
           "unknown"
@@ -5353,8 +5539,108 @@
         "module_alias": "usb:v1050p0407d0527dc00dsc00dp00ic03isc00ip00in01"
       },
       {
-        "index": 73,
-        "attached_to": 66,
+        "index": 75,
+        "attached_to": 67,
+        "class_list": [
+          "usb",
+          "unknown"
+        ],
+        "bus_type": {
+          "hex": "0086",
+          "name": "USB",
+          "value": 134
+        },
+        "slot": {
+          "bus": 0,
+          "number": 0
+        },
+        "base_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "sub_class": {
+          "hex": "0000",
+          "name": "Unclassified device",
+          "value": 0
+        },
+        "vendor": {
+          "hex": "3233",
+          "name": "Ducky",
+          "value": 12851
+        },
+        "device": {
+          "hex": "1311",
+          "name": "Ducky One 3 RGB",
+          "value": 4881
+        },
+        "serial": "DK-V1.11-220819",
+        "model": "Ducky One 3 RGB",
+        "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-1/1-1:1.0",
+        "sysfs_bus_id": "1-1:1.0",
+        "unix_device_name": "/dev/input/js0",
+        "unix_device_number": {
+          "type": 99,
+          "major": 13,
+          "minor": 0,
+          "range": 1
+        },
+        "unix_device_names": [
+          "/dev/input/by-id/usb-Ducky_Ducky_One_3_RGB_DK-V1.11-220819-joystick",
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:1:1.0-joystick",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:1:1.0-joystick",
+          "/dev/input/js0"
+        ],
+        "resources": [
+          {
+            "type": "baud",
+            "speed": 12000000,
+            "bits": 0,
+            "stop_bits": 0,
+            "parity": 0,
+            "handshake": 0
+          }
+        ],
+        "detail": {
+          "device_class": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "device_protocol": 0,
+          "interface_class": {
+            "hex": "0003",
+            "name": "hid",
+            "value": 3
+          },
+          "interface_subclass": {
+            "hex": "0000",
+            "name": "per_interface",
+            "value": 0
+          },
+          "interface_protocol": 0,
+          "interface_number": 0,
+          "interface_alternate_setting": 0
+        },
+        "hotplug": "usb",
+        "driver": "usbhid",
+        "driver_module": "usbhid",
+        "drivers": [
+          "usbhid"
+        ],
+        "driver_modules": [
+          "usbhid"
+        ],
+        "module_alias": "usb:v3233p1311d0000dc00dsc00dp00ic03isc00ip00in00"
+      },
+      {
+        "index": 77,
+        "attached_to": 67,
         "class_list": [
           "usb",
           "unknown"
@@ -5392,15 +5678,18 @@
         "model": "ASRock LED Controller",
         "sysfs_id": "/devices/pci0000:00/0000:00:14.0/usb1/1-13/1-13:1.0",
         "sysfs_bus_id": "1-13:1.0",
-        "unix_device_name": "/dev/input/js0",
+        "unix_device_name": "/dev/input/event11",
         "unix_device_number": {
           "type": 99,
           "major": 13,
-          "minor": 0,
+          "minor": 75,
           "range": 1
         },
         "unix_device_names": [
-          "/dev/input/js0"
+          "/dev/input/by-id/usb-ASRock_LED_Controller_A02019100900-event-if00",
+          "/dev/input/by-path/pci-0000:00:14.0-usb-0:13:1.0-event",
+          "/dev/input/by-path/pci-0000:00:14.0-usbv2-0:13:1.0-event",
+          "/dev/input/event11"
         ],
         "resources": [
           {
@@ -5589,7 +5878,7 @@
         "resources": [
           {
             "type": "irq",
-            "base": 131,
+            "base": 132,
             "triggered": 0,
             "enabled": true
           },
@@ -5607,7 +5896,7 @@
           "command": 1030,
           "header_type": 0,
           "secondary_bus": 0,
-          "irq": 131,
+          "irq": 132,
           "prog_if": 48
         },
         "driver": "xhci_hcd",

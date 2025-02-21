@@ -6,7 +6,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix 
 
-
+                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/telegraf.nix
                       ./../../hosts/desktop/borg.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
@@ -21,7 +21,7 @@ in
                       ./../../modules/nixos/xserver.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/dns.nix 
-                      ./../../modules/services/fail2ban.nix                       
+                      ./../../modules/services/jails.nix                       
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix

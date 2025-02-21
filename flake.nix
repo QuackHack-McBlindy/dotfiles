@@ -143,8 +143,8 @@
                   inherit system;
                   specialArgs = { inherit user caddy-duckdns; hostname = "desktop"; };
                   modules = [ ./hosts/desktop/configuration.nix   
-                  #    inputs.nixos-facter-modules.nixosModules.facter
-                #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            
+                  #    nixos-facter-modules.nixosModules.facter
+                   #   { config.facter.reportPath = ./hosts/desktop/facter.json; }            
                       disko.nixosModules.disko
                       homeConfigFiles
                       sops-nix.nixosModules.sops
