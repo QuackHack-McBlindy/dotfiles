@@ -26,8 +26,12 @@
         {
           name = ".";
           forward-addr = [
-            "9.9.9.9#dns.quad9.net"
-            "149.112.112.112#dns.quad9.net"
+          #  "4.4.4.4" # Google
+          #  "4.4.8.8" # Google
+          #  "9.9.9.9" # Quad9
+          #  "149.112.112.112" #Quad9
+            "1.1.1.2" # Cloudflare
+            "1.0.0.2" # Cloudflare
           ];
           forward-tls-upstream = true;  # Protected DNS
         }
