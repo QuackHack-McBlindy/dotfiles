@@ -8,6 +8,7 @@
 
 ## Dev
 #############
+    
     pkgs.npth
     esphome
     pkgs.python312Packages.httpx
@@ -22,7 +23,13 @@
 
 ## CLI TOOLS
 ###############   
+
     pkgs.ntfy-sh
+    
+    
+    pkgs.xoscope
+    pkgs.mdns
+    pkgs.nssmdns
     pkgs.telegraf
     pkgs.procps
     pkgs.pv
@@ -38,6 +45,7 @@
     pkgs.nixos-option
     pkgs.inotify-tools
     
+    mpg123
     hassil
    # vaultwarden-postgressql
     neofetch

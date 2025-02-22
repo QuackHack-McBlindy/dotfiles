@@ -7,7 +7,14 @@ in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix
                   
-                     # ./../../modules/services/tts.nix
+                      ./../../modules/services/telegraf.nix                      ./../../modules/services/telegraf.nix
+                      ./../../modules/services/homepage.nix  
+                      ./../../modules/services/satellite.nix
+                      ./../../modules/services/loki.nix
+                      ./../../modules/services/mosquitto.nix
+                      ./../../modules/services/zigbee2mqtt.nix
+                      ./../../modules/virtualization/home-assistant.nix
+                      ./../../modules/services/vaultwarden.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/ntfy.nix

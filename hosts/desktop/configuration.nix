@@ -7,8 +7,6 @@ in
   imports = [ ./hardware-configuration.nix ./borg.nix 
                       
 
-                      ./../../modules/services/telegraf.nix
-                      ./../../hosts/desktop/borg.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/services/rclone.nix
                       ./../../modules/services/syncthing.nix
@@ -20,7 +18,6 @@ in
                       ./../../modules/nixos/gnome.nix
                       ./../../modules/nixos/xserver.nix
                       ./../../modules/services/avahi-client.nix
-                      ./../../modules/services/dns.nix 
                       ./../../modules/services/jails.nix                       
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
@@ -32,7 +29,6 @@ in
                       ./../../modules/services/syslogd.nix
                       ./../../modules/services/syslog.nix
                       ./../../modules/programs/thunar.nix
-                  #    ./../../modules/networking/samba.nix
                       ./../../modules/networking/default.nix
                       ./../../modules/nixos/gnome-background.nix
                       ./../../modules/nixos/default-apps.nix

@@ -82,7 +82,7 @@
 #°✶.•°••─→ SETUP / KEY DISTRIBUTION ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
           apps.x86_64-linux.setup = {
               type = "app";
-              program = "${pkgs.writeShellScriptBin "setup" ''        
+              program = "${pkgs.writeShellScriptBin "bootstrap" ''        
                   set -x
                   systemctl --user start pcscd.service || sudo systemctl start pcscd.service
                   export PATH=${
@@ -150,16 +150,7 @@
                       sops-nix.nixosModules.sops
                       home-manager.nixosModules.home-manager  
                       nixos-facter-modules.nixosModules.facter
-    
-               #       ./modules/nixos/mount.nix
-                      ./modules/services/loki.nix
-                      ./modules/services/vaultwarden.nix
-
-                  #    ./modules/services/mosquitto.nix
-                     # ./modules/services/zigbee2mqtt.nix
-                      ./modules/virtualization/home-assistant.nix
-                      ./modules/services/homepage.nix        
-                      
+                          
                   ];
               };
 
@@ -207,17 +198,7 @@
                       home-manager.nixosModules.home-manager
                       nixos-facter-modules.nixosModules.facter
                       
-               #       ./modules/services/tts.nix
-                #      ./modules/services/openwakeword.nix
-                #      ./modules/services/faster-whisper.nix
-               #       ./modules/services/homepage.nix
-                      ./modules/services/mosquitto.nix
-                      ./modules/services/zigbee2mqtt.nix
-               #       ./modules/networking/caddy/caddy.nix
-               #       ./modules/networking/caddy.nix
-                #      ./modules/services/nginx/default.nix  
-                 #     ./modules/networking/adguard.nix
-                      ./modules/virtualization/home-assistant.nix
+
                   ];
               };              
 
