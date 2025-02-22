@@ -1,7 +1,7 @@
 { config, pkgs, lib, ... }:
 let
   env = ''
-    VAULTWARDEN_URL="https://vaultwarden.local"
+    VAULTWARDEN_URL="https://hemlis.duckdns.org"
     ADMIN_TOKEN="@ADMIN_TOKEN@"
   '';
 
