@@ -5,7 +5,7 @@
 
   services.zigbee2mqtt = {
     enable = true;
-   # dataDir = "/var/lib/zigbee2mqtt";
+    dataDir = "/var/lib/zigbee";
     settings = {
       homeassistant = true;
       mqtt = {
