@@ -5,8 +5,8 @@ let
 in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix 
+                      
 
-                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/telegraf.nix
                       ./../../hosts/desktop/borg.nix
                       ./../../modules/services/systemd/systemd-mnt.nix

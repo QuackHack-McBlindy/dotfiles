@@ -1,6 +1,7 @@
 { config, pkgs, ... }:
 
 {
+  networking.firewall.allowedTCPPorts = [ 10300 ];
 
   environment.systemPackages = with pkgs; [ pkgs.wyoming-faster-whisper ]; 
   

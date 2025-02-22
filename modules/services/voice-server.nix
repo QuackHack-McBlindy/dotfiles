@@ -33,9 +33,11 @@
         #enable = true;
         package = pkgs.wyoming-openwakeword;
         uri = "tcp://0.0.0.0:10400";
-        customModelsDirectories = [ "/home/pungkula/models/yo_bitch.tflite" ];
+        preloadModels = [ "yo_bitch" ];
+        customModelsDirectories = [ "/etc/openwakeword" ];
+        #customModelsDirectories = [ "/home/pungkula/models/yo_bitch.tflite" ];
         # preloadModels = [ "yo_bitch" ];
-        threshold = 0.7;
+        threshold = 0.5;
         triggerLevel = 1;
         extraArgs = [ ];
     };

@@ -15,7 +15,7 @@
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
                       ./../../modules/services/syslog.nix
-                      ./../../modules/networking/samba.nix
+                 #     ./../../modules/networking/samba.nix
                       ./../../modules/programs/thunar.nix
                       ./../../modules/nixos/gnome-background.nix
                       ./../../modules/nixos/default-apps.nix

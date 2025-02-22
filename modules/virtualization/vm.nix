@@ -16,6 +16,7 @@
     spice-protocol
     win-virtio
     win-spice
+    virtualbox
     adwaita-icon-theme
     #bridge-utils
   ];
