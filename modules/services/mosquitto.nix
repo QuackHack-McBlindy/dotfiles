@@ -5,9 +5,10 @@
     listeners = [
       {
         acl = [ "pattern readwrite #" ];
-        #omitPasswordAuth = true;
+        omitPasswordAuth = true;
         settings.allow_anonymous = true;
-        users.mqtt.password = config.sops.secrets.mosquitto.path;
+        #users.mqtt.password = config.sops.secrets.mosquitto.path;
+        
       }
     ];
   };

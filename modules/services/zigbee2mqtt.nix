@@ -11,7 +11,7 @@
       mqtt = {
         server = "mqtt://localhost:1883";
         user = "mqtt";
-        password =  config.sops.secrets.mosquitto.path;
+       # password =  config.sops.secrets.mosquitto.path;
         base_topic = "zigbee2mqtt";
       };
       serial = {

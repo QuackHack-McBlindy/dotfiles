@@ -9,6 +9,7 @@
     servers = {
       "piper" = {
         enable = true;
+        user = "pungkula";
         piper = pkgs.piper-tts;
         voice = "sv_SE-nst-medium";
         uri = "tcp://0.0.0.0:10200";

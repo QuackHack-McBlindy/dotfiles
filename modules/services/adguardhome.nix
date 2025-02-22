@@ -8,7 +8,7 @@
     settings = {
       http = {
         # You can select any ip and port, just make sure to open firewalls where needed
-        address = "192.168.1.211:3005";
+        address = "localhost:3005";
       };
       dns = {
         upstream_dns = [
