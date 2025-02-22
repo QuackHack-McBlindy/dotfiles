@@ -1,7 +1,7 @@
-# Block new adds by typing "blockurl" followed by the in the terminal (ad will be blocked after next rebuild)
+
 {
-  networking.firewall.allowedTCPPorts = [ 3005 ];
-  networking.firewall.allowedUDPPorts = [ 3005 ];
+networking.firewall.allowedTCPPorts = [ 53 3005 ];
+networking.firewall.allowedUDPPorts = [ 53 3005 ];
   
   services.adguardhome = {
     enable = true;
@@ -12,12 +12,9 @@
       };
       dns = {
         upstream_dns = [
-          # Example config with quad9
-          "9.9.9.9"
-          "149.112.112.112"
-          # Uncomment the following to use a local DNS service (e.g. Unbound)
-          # Additionally replace the address & port as needed
-          # "127.0.0.1:5335"
+
+          "127.0.0.1:5335"
+        #  "149.112.112.112"
         ];
       };
       filtering = {

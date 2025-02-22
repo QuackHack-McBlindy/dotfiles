@@ -47,7 +47,7 @@ in
 
   sops.secrets = {
     vaultwarden = {
-      sopsFile = "/var/lib/sops-nix/secrets/vaultwarden.yaml";
+      sopsFile = ./../../secrets/vaultwarden.yaml;
       owner = "vaultwarden";
       group = "vaultwarden";
       mode = "0660"; 
