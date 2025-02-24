@@ -19,7 +19,7 @@
     python312Packages.pyaml
     python312Packages.invoke
     python312Packages.langid
-
+    python312Packages.pysilero-vad
 
 ## CLI TOOLS
 ###############   
@@ -44,7 +44,7 @@
     pkgs.home-manager
     pkgs.nixos-option
     pkgs.inotify-tools
-    
+    pkgs.wyoming-satellite
     mpg123
     hassil
    # vaultwarden-postgressql

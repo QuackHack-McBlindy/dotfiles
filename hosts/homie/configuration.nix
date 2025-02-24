@@ -7,7 +7,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix
 
-                      ./../../modules/services/telegraf.nix                      ./../../modules/services/telegraf.nix
+                      ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
                     #  ./../../modules/services/satellite.nix
                     #  ./../../modules/services/loki.nix
@@ -16,7 +16,7 @@ in
                       ./../../modules/virtualization/home-assistant.nix
                       ./../../modules/services/vaultwarden.nix
                       ./../../modules/services/openwakeword.nix
-                     # ./../../modules/services/faster-whisper.nix
+                      ./../../modules/services/faster-whisper.nix
                      # ./../../modules/services/ntfy.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/networking/unbound.nix

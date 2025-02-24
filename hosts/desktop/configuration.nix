@@ -6,7 +6,9 @@ in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix 
                       
-
+                      ./../../modules/virtualization/home-assistant.nix
+                      ./../../modules/services/faster-whisper.nix
+                      ./../../modules/services/openwakeword.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/services/rclone.nix
                       ./../../modules/services/syncthing.nix
