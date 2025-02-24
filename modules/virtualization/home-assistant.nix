@@ -15,7 +15,7 @@
                 volumes = [
                     "/etc/localtime:/etc/localtime:ro"
                     "/run/dbus:/run/dbus:ro"
-                    "/home/pungkula/dotfiles/home/.config/home-assistant/config:/config"
+                    "/docker/home-assistant/config:/config"
                 ];
                # environmentFiles = [
                #     /docker/env/transmission/.env
