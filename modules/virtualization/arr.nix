@@ -12,7 +12,17 @@
           "8388:8388" # shadowsocks
           "8001:8000" # http proxy?
           "51413:51413" # vpn forwarding
-          "8118:8118" # browserVPN
+        #  "8118:8118" # browserVPN
+          "7878;7878"  # Radarr
+          "8989:8989" # Sonarr:
+          "8686:8686" # Lidarr:
+          "8787:8787" # Readarr:
+          "6767:6767" # Bazarr: 
+          "4533:4533" # Navidrome: 
+          "5055:5055" # Jellyseer:
+          "4545:4545" # Requestrr:
+          "8191:8191"   # Flaresolverr  
+        
         ]; 
         volumes = [
           "/docker/gluetun/config:/gluetun"
@@ -38,13 +48,21 @@
         autoStart = true;
         volumes = [
           "/docker/transmission/config:/config"
-          "/srv/mergerfs/Pool/Downloads:/downloads"
-          "/srv/mergerfs/Pool/Watch:/watch"
+          "/Pool/Downloads:/downloads"
+          "/Pool/Watch:/watch"
         ];
-        environmentFiles = [
-          /docker/env/transmission/.env
-          /docker/env/transmission/.env.secret
-        ];
+  #      environmentFiles = [
+ #   environment:
+ #     - PUID=1000
+ #     - PGID=1000
+ #     - TZ=Etc/UTC
+  #    - TRANSMISSION_WEB_HOME= #optional
+  #    - USER= #optional
+  #    - PASS= #optional
+  #    - WHITELIST= #optional
+   #   - PEERPORT= #optional
+   #   - HOST_WHITELIST= #optional
+  #      ];
       };
       prowlarr = {
         image = "lscr.io/linuxserver/prowlarr:latest";
@@ -54,10 +72,10 @@
         volumes = [
           "/docker/prowlarr/config:/config"
         ];
-        environmentFiles = [
-          /docker/env/prowlarr/.env
-          /docker/env/prowlarr/.env.secret     
-        ];
+     #   environmentFiles = [
+     #     /docker/env/prowlarr/.env
+    #      /docker/env/prowlarr/.env.secret     
+    #    ];
       };
       radarr = {
         image = "lscr.io/linuxserver/radarr:latest";
@@ -66,13 +84,13 @@
         autoStart = true;
         volumes = [
           "/docker/radarr/config:/config"
-          "/srv/mergerfs/Pool/Movies:/movies" #optional
-          "/srv/mergerfs/Pool/Downloads:/downloads" #optional
+          "/Pool/Movies:/movies" #optional
+          "/Pool/Downloads:/downloads" #optional
         ];
-        environmentFiles = [
-          /docker/env/radarr/.env
-          /docker/env/radarr/.env.secret     
-        ];
+       # environmentFiles = [
+     #     /docker/env/radarr/.env
+    #      /docker/env/radarr/.env.secret     
+  #      ];
       };
       lidarr = {
         image = "lscr.io/linuxserver/lidarr:latest";
@@ -81,13 +99,13 @@
         autoStart = true;
         volumes = [
           "/docker/lidarr/config:/config"
-          "/srv/mergerfs/Pool/Music:/music" #optional
-          "/srv/mergerfs/Pool/Downloads:/downloads" #optional
+          "/Pool/Music:/music" #optional
+          "/Pool/Downloads:/downloads" #optional
         ];
-        environmentFiles = [
-          /docker/env/lidarr/.env
-          /docker/env/lidarr/.env.secret     
-        ];
+     #   environmentFiles = [
+     #     /docker/env/lidarr/.env
+     #     /docker/env/lidarr/.env.secret     
+     #   ];
       };
       sonarr = {
         image = "lscr.io/linuxserver/sonarr:latest";
@@ -96,13 +114,13 @@
         autoStart = true;
         volumes = [
           "/docker/sonarr/config:/config"
-          "/srv/mergerfs/Pool/TV:/tv" #optional
-          "/srv/mergerfs/Pool/Downloads:/downloads" #optional
+          "/Pool/TV:/tv" #optional
+          "/Pool/Downloads:/downloads" #optional
         ];
-        environmentFiles = [
-          /docker/env/sonarr/.env
-          /docker/env/sonarr/.env.secret     
-        ];
+     #   environmentFiles = [
+    #      /docker/env/sonarr/.env
+   #       /docker/env/sonarr/.env.secret     
+     #   ];
       };
       readarr = {
         image = "lscr.io/linuxserver/readarr:develop";
@@ -111,13 +129,13 @@
         autoStart = true;
         volumes = [
           "/docker/readarr/config:/config"
-          "/srv/mergerfs/Pool/Books:/books" #optional
-          "/srv/mergerfs/Pool/Downloads:/downloads" #optional
+          "/Pool/Books:/books" #optional
+          "/Pool/Downloads:/downloads" #optional
         ];
-        environmentFiles = [
-          /docker/env/readarr/.env
-          /docker/env/readarr/.env.secret     
-        ];
+     #   environmentFiles = [
+    #      /docker/env/readarr/.env
+    #      /docker/env/readarr/.env.secret     
+    #    ];
       };
       requestrr = {
         image = "thomst08/requestrr:latest";
@@ -127,20 +145,20 @@
         volumes = [
           "/docker/requestrr/config:/root/config"
         ];
-        environmentFiles = [
-          /docker/env/requestrr/.env
-          /docker/env/requestrr/.env.secret     
-        ];
+     #   environmentFiles = [
+      #    /docker/env/requestrr/.env
+      #    /docker/env/requestrr/.env.secret     
+      #  ];
       };
       flaresolverr = {
         image = "ghcr.io/flaresolverr/flaresolverr:latest";
         hostname = "flaresolverr";
         dependsOn = [ "gluetun" ];
         autoStart = true;
-        environmentFiles = [
-          /docker/env/flaresolverr/.env
-          /docker/env/flaresolverr/.env.secret     
-        ];
+     #   environmentFiles = [
+     #     /docker/env/flaresolverr/.env
+    #      /docker/env/flaresolverr/.env.secret     
+   #     ];
       };
       podgrab = {
         image = "akhilrex/podgrab";
@@ -149,12 +167,12 @@
         autoStart = true;
         volumes = [
           "/docker/podgrab/config:/config"
-          "/srv/mergerfs/Pool/Podcasts:/assets"
+          "/Pool/Podcasts:/assets"
         ];
-        environmentFiles = [
-          /docker/env/podgrab/.env
-          /docker/env/podgrab/.env.secret     
-        ];
+ #       environmentFiles = [
+ #         /docker/env/podgrab/.env
+#          /docker/env/podgrab/.env.secret     
+  #      ];
       };
       bazarr = {
         image = "lscr.io/linuxserver/bazarr:latest";
@@ -163,13 +181,13 @@
         autoStart = true;
         volumes = [
           "/docker/bazarr/config:/config"
-          "/srv/mergerfs/Pool/Movies:/movies" #optional
-          "/srv/mergerfs/Pool/TV:/tv" #optional
+          "/Pool/Movies:/movies" #optional
+          "/Pool/TV:/tv" #optional
         ];
-        environmentFiles = [
-          /docker/env/bazarr/.env
-          /docker/env/bazarr/.env.secret     
-        ];
+     #   environmentFiles = [
+    #      /docker/env/bazarr/.env
+    #      /docker/env/bazarr/.env.secret     
+  #     ];
       };
       jellyseerr = {
         image = "";
@@ -183,10 +201,10 @@
          #       - /mnt/data/supervisor/addons/local/jellyserr/logo_stacked.svg:/app/public/logo_stacked.svg
          #       - /mnt/data/supervisor/addons/local/jellyserr/duck2.png:/app/public/os_logo_square.png
         ];
-        environmentFiles = [
-          /docker/env/jellyseerr/.env
-          /docker/env/jellyseerr/.env.secret     
-        ];
+  #      environmentFiles = [
+    #      /docker/env/jellyseerr/.env
+   #       /docker/env/jellyseerr/.env.secret     
+   #     ];
       };
       navidrome = {
         image = "deluan/navidrome:latest";
@@ -194,15 +212,15 @@
         dependsOn = [ "gluetun" ];
         volumes = [
           "/docker/navidrome/config:/data"
-          "/srv/mergerfs/Pool/Music:/music:ro"     
+          "/Pool/Music:/music:ro"     
         ];
      #   ports = [ 
      #     "4533:4533"
      #   ];
-        environmentFiles = [
-          /docker/env/navidrome/.env
-          /docker/env/navidrome/.env.secret     
-        ];
+  #      environmentFiles = [
+  #        /docker/env/navidrome/.env
+ #         /docker/env/navidrome/.env.secret     
+#        ];
       };   
     };
   };

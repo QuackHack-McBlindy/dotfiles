@@ -5,6 +5,7 @@
     ... 
 } : { 
 
+    networking.firewall.allowedTCPPorts = [ 10400 ];
     environment.systemPackages = with pkgs; [ pkgs.wyoming-openwakeword ]; 
 
     services.wyoming.openwakeword = {

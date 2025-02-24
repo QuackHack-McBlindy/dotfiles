@@ -4,8 +4,10 @@
   lib,
   ...
 } : {
+ 
+    networking.firewall.allowedTCPPorts = [ 10500 ];
 
-    environment.systemPackages = [ pkgs.wyoming-satellite pkgs.alsa-utils pkgs.python312Packages.pysilero-vad pkgs.python312Packages.webrtcvad pkgs.webrtc-audio-processing pkgs.python312Packages.webrtc-models pkgs.python312Packages.webrtc-noise-gain pkgs.python312Packages.webrtc-noise-gain pkgs.wyoming-satellite pkgs.python312Packages.wyoming pkgs.wyoming-piper pkgs.webrtc-audio-processing pkgs.webrtc-audio-processing_1 pkgs.python312Packages.webrtc-models pkgs.python312Packages.webrtcvad ];
+    environment.systemPackages = [ pkgs.wyoming-satellite pkgs.alsa-utils ];
 
     services.wyoming.satellite = {
         enable = true;
