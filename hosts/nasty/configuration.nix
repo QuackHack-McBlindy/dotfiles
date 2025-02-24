@@ -6,11 +6,13 @@ in
 {
   imports = [ ./hardware-configuration.nix
 
+                     # ./../../modules/services/satellite.nix
+                      ./../../modules/services/openwakeword.nix
                       ./../../modules/networking/caddy2.nix
                       ./../../modules/networking/stubby.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
-                      ./../../modules/services/dns.nix
+                    #  ./../../modules/services/dns.nix
                       ./../../modules/services/fail2ban.nix
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
