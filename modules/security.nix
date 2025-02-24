@@ -110,6 +110,24 @@
       group = config.users.groups.secretservice.name;
       mode = "0440"; # Read-only for owner and group
     };
+    SHADOWSOCKS_PASSWORD = {
+      sopsFile = ./../secrets/SHADOWSOCKS_PASSWORD.yaml;
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+    PROTON_OPENVPN_PASSWORD = {
+      sopsFile = ./../secrets/PROTON_OPENVPN_PASSWORD.yaml;
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+    PROTON_OPENVPN_USER = {
+      sopsFile = ./../secrets/PROTON_OPENVPN_USER.yaml;
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
   };
 
   sops.secrets = {

@@ -7,5 +7,7 @@ pkgs.mkShell {
     pkgs.python3Packages.requests
     pkgs.python3Packages.python-dotenv
     pkgs.python312Packages.sh
+    pkgs.python312Packages.pysilero-vad
+    pkgs.python312Packages.webrtc-noise-gain
   ];
 }

@@ -6,7 +6,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./borg.nix 
                       
-
+                 #     ./../../modules/services/satellite.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
