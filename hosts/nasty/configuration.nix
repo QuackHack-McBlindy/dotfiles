@@ -6,6 +6,7 @@ in
 {
   imports = [ ./hardware-configuration.nix
 
+
                      # ./../../modules/services/satellite.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/networking/caddy2.nix
@@ -24,6 +25,7 @@ in
                       ./../../modules/networking/default.nix
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/virtualization/duck-tv.nix
+                      ./../../modules/virtualization/arr.nix
                       ./../../modules/virtualization/docker.nix
                   #    ./../../modules/virtualization/vm.nix
 
