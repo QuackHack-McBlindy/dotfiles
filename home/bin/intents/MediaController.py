@@ -20,9 +20,9 @@ load_dotenv()
 
 
 
-script_dir = os.path.dirname(os.path.realpath("/home/pungkula/projects/fetch"))
-os.chdir(script_dir)
-print(f"Running script from {script_dir}")
+#script_dir = os.path.dirname(os.path.realpath("/home/pungkula/projects/fetch"))
+#os.chdir(script_dir)
+#print(f"Running script from {script_dir}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 ### --> Define your shit here please <-- ###
 

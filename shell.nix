@@ -9,5 +9,6 @@ pkgs.mkShell {
     pkgs.python312Packages.sh
     pkgs.python312Packages.pysilero-vad
     pkgs.python312Packages.webrtc-noise-gain
+    pkgs.python312Packages.aiozeroconf
   ];
 }

@@ -2,8 +2,15 @@
 
 let 
   user = "pungkula";
-in  
+  dirs = import ./directories.nix;
+in
 {
+  system.activationScripts.createDirs = ''
+    for dir in ${builtins.concatStringsSep " " dirs}; do
+      mkdir -p /home/${user}/$dir
+      chown ${user}:users /home/${user}/$dir
+    done
+  '';
   users = {
       defaultUserShell = pkgs.bash; 
       groups = {

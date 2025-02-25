@@ -1,8 +1,8 @@
 { 
-    config, 
-    lib, 
-    pkgs, 
-    ... 
+  config, 
+  lib, 
+  pkgs, 
+  ... 
 } : let
 
   pubkey = import ./../pubkeys.nix;
@@ -90,17 +90,26 @@ in
       path = "/var/lib/borgbackup";
       quota = "100G";
       allowSubRepos = true;
-      authorizedKeys = [ pubkey.desktop pubkey.homie pubkey.homie pubkey.laptop pubkey.nasty ];
+      authorizedKeys = [
+        "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.desktop}"
+        "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.homie}"
+        "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.laptop}"
+        "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.nasty}"
+      ];
       authorizedKeysAppendOnly = [ ];
     };
   };
 
   users.users.borg = {
     home = "/var/lib/borgbackup";
-    createHome = false;
+    createHome = true;
     isSystemUser = true;
     group = "borg";
-    openssh.authorizedKeys.keys = [ pubkey.desktop pubkey.nasty pubkey.homie ];
+    openssh.authorizedKeys.keys = [
+      "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.desktop}"
+      "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.nasty}"
+      "command=\"borg serve --restrict-to-path /var/lib/borgbackup\" ${pubkey.homie}"
+    ];
   };  
 
   services.borgbackup.jobs = lib.mapAttrs' (host: paths:
@@ -134,33 +143,35 @@ in
 
   systemd.services."borgbackup-job".serviceConfig.ReadWritePaths = [ "/var/log/telegraf" ];
 
-#  sops.secrets = {
-#    borg_ed25519pub = {
-#      sopsFile = ./../../secrets/borg_ed25519pub.yaml";
-#      owner = config.users.users.borg.name;
- #     group = config.users.users.borg.group;
- #     mode = "0440"; # Read-only for owner and group
-#    };
-#    borg_ed25519 = {
-#      sopsFile = ./../../secrets/borg_ed25519.yaml";
-#      owner = config.users.users.borg.name;
-#      group = config.users.users.borg.group;
-#      mode = "0440"; # Read-only for owner and group
-#    };
-#  };
+  systemd.services.borg-key = {
+    description = "Ensure SSH key for BorgBackup exists";
+    after = [ "network.target" ];
+    before = [ "borgbackup-job.service" ];
+    wantedBy = [ "multi-user.target" ];
+  
+    script = ''
+      echo "  
+      $(cat ${config.sops.secrets.borg_ed25519.path})
+      " > /var/lib/borgbackup/borg_ed25519
+      chmod 600 /var/lib/borgbackup/borg_ed25519
+      chown borg:borg /var/lib/borgbackup/borg_ed25519
+    '';
 
-#  systemd.services.borg-key = {
-#    script = ''
-#        echo "
-#        $(cat ${config.sops.secrets.borg_ed25519.path})
-#        " > /var/lib/borgbackup/borg_ed25519
-            
-                
- #  '';
- #   serviceConfig = {
- #     User = "borg";
-#      WorkingDirectory = "/var/lib/borgbackup";
-#    };
-#  };
-
+    serviceConfig = {
+      Type = "oneshot";
+      User = "borg";
+      Group = "borg";
+      WorkingDirectory = "/var/lib/borgbackup";
+    };
+  };
+  
+  sops.secrets = {
+    borg_ed25519 = {
+      sopsFile = ./../../secrets/borg_ed25519.yaml; 
+      owner = "borg";
+      group = "borg";
+      mode = "0440"; # Read-only for owner and group
+    };
+  };  
 }
+

@@ -5,7 +5,7 @@
   outputs = { self, nixpkgs }:
     let
       # TODO Name your script.
-      SCRIPTNAME = "p";
+      SCRIPTNAME = "satellite";
       
       # TODO Define your imports and script here
       SCRIPTCONTENT =
@@ -31,25 +31,8 @@
         import io
         import colorlog
         import logger
+        import webrtc
 
-        def main():
-            if len(sys.argv) < 2:
-                print("Usage: p <script_path> [arguments...]")
-                sys.exit(1)
-
-            script_path = sys.argv[1]  # The first argument is the script path
-
-            if not os.path.isfile(script_path):
-                print(f"Error: Script '{script_path}' not found.")
-                sys.exit(1)
-
-            args = sys.argv[2:]  # Remaining arguments to pass to the script
-            python_bin = sys.executable  # Path to the current Python interpreter
-
-            # Execute the script with the provided arguments
-            subprocess.run([python_bin, script_path] + args, check=True)
-        if __name__ == "__main__":
-            main()
         '';
 
       lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
@@ -69,12 +52,12 @@
             name = "${SCRIPTNAME}-${version}";
             src = pkgs.runCommand "source" {} "mkdir -p $out; echo '${SCRIPTCONTENT}' > $out/${SCRIPTNAME}.py";
             # TODO Insert Dependencies here!
-            buildInputs = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.colorlog pkgs.python3Packages.python-dotenv pkgs.python3Packages.pyaudio ];
+            buildInputs = [ pkgs.python3Packages.webrtc_noise_gain pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.colorlog pkgs.python3Packages.python-dotenv pkgs.python3Packages.pyaudio ];
             
             # TODO Insert Dependencies once again below
             installPhase = ''
               mkdir -p $out/bin
-              echo "#!${pkgs.python3.withPackages (ps: [ ps.colorlog ps.pyaudio ps.requests ps.python-dotenv ])}/bin/python3" > $out/bin/${SCRIPTNAME}
+              echo "#!${pkgs.python3.withPackages (ps: [ ps.webrtc_noise_gain ps.colorlog ps.pyaudio ps.requests ps.python-dotenv ])}/bin/python3" > $out/bin/${SCRIPTNAME}
               cat $src/${SCRIPTNAME}.py >> $out/bin/${SCRIPTNAME}
               chmod +x $out/bin/${SCRIPTNAME}
             '';

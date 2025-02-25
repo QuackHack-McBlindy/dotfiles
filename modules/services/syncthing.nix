@@ -5,42 +5,31 @@
     ... 
 } : { 
 
-    networking.firewall.allowedTCPPorts = [ 22000 ]; # tcp
-    networking.firewall.allowedUDPPorts = [ 22000 ]; # quic
+   networking.firewall.allowedTCPPorts = [ 8384 22000 ];
+   networking.firewall.allowedUDPPorts = [ 22000 21027 ];
 
     services.syncthing = {
         enable = true;  # Enables the Syncthing service
-        guiAddress = "0.0.0.0:8384";
-     #   configDir = ./../../../.config/syncthing;
-        user = "pungkula";  # Runs under your user
-        group = "pungkula";  # Adjust if needed
-        systemService = false;  # Runs as a user service (not system-wide)
-        openDefaultPorts = true;  # Opens required ports in firewall
+        user = "pungkula";
+        group = "pungkula";
+        dataDir = "/home/pungkula/Documents";  
+        configDir = "/home/pungkula/.config/syncthing";   
+        overrideDevices = true;     # overrides any devices added or deleted through the WebUI
+        overrideFolders = true;     # overrides any folders added or deleted through the WebUI
 
         settings = {
-            options = {
-                urAccepted = 0;  # Accept Syncthing usage reporting (optional)
-                relaysEnabled = false;  # Disable public relay servers (LAN only)
-                localAnnounceEnabled = true;  # Enable LAN discovery
-                limitBandwidthInLan = false;  # No bandwidth limit for LAN sync
-            };
-
             devices = {
-                "desktop" = { id = "VS7N2LS-FIXYWOX-UGWKHDQ-C22YRR2-JIQHD6A-YEHEKAO-6OMZ47V-ZVTM5QR"; autoAcceptFolders = true; };
+                "desktop" = { id = "6RIE3DZ-XWAP6NX-OF2JF4Z-N35U3RZ-IL5FX7H-AFWROYH-5HMM35U-WQHY4Q3"; };
             #    "laptop" = { id = "DEVICE-ID-2"; autoAcceptFolders = true; };
-                "homie" = { id = "R4DUXJ4-IBMIMIU-Y5ROSQV-7HHWSCH-QCUV7XX-ZSE6ZEG-HGPYK3D-YC5E6A2"; autoAcceptFolders = true; };
-                "nasty" = { id = "JKK3F7P-P23AKMA-CSG7CDI-WZQBVW3-PLXKSWA-CLHG272-M2AQ2ZW-P3HTRA6"; autoAcceptFolders = true; };
+                "homie" = { id = "R4DUXJ4-IBMIMIU-Y5ROSQV-7HHWSCH-QCUV7XX-ZSE6ZEG-HGPYK3D-YC5E6A2"; };
+                "nasty" = { id = "JKK3F7P-P23AKMA-CSG7CDI-WZQBVW3-PLXKSWA-CLHG272-M2AQ2ZW-P3HTRA6"; };
             };
 
             folders."dotfiles" = {
                 path = "/home/pungkula/dotfiles";
-                label = "Dotfiles";
-                enable = true;
-                type = "sendreceive";  # Enables bidirectional sync
                 devices = [ "desktop" "homie" "nasty" ];
-                copyOwnershipFromParent = true;
-                versioning = { type = "trashcan"; };  # Keeps deleted files in .stversions
             };
         };
+
 
     };}
