@@ -6,8 +6,9 @@
     containers = {      
       transmission = {
         image = "lscr.io/linuxserver/transmission:latest";
-        hostname = "transmission";
+        #hostname = "transmission";
         dependsOn = [ "gluetun" ];
+        extraOptions = [ "--network=container:gluetun" ];
         autoStart = true;
         volumes = [
           "/docker/transmission/config:/config"
@@ -29,7 +30,8 @@
       };
       prowlarr = {
         image = "lscr.io/linuxserver/prowlarr:latest";
-        hostname = "prowlarr";
+        #hostname = "prowlarr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -42,7 +44,8 @@
       };
       radarr = {
         image = "lscr.io/linuxserver/radarr:latest";
-        hostname = "radarr";
+        #hostname = "radarr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -57,7 +60,8 @@
       };
       lidarr = {
         image = "lscr.io/linuxserver/lidarr:latest";
-        hostname = "lidarr";
+        #hostname = "lidarr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -72,7 +76,8 @@
       };
       sonarr = {
         image = "lscr.io/linuxserver/sonarr:latest";
-        hostname = "sonarr";
+        #hostname = "sonarr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -87,7 +92,8 @@
       };
       readarr = {
         image = "lscr.io/linuxserver/readarr:develop";
-        hostname = "readarr";
+        #hostname = "readarr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -102,7 +108,8 @@
       };
       requestrr = {
         image = "thomst08/requestrr:latest";
-        hostname = "requestrr";
+        #hostname = "requestrr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -115,8 +122,9 @@
       };
       flaresolverr = {
         image = "ghcr.io/flaresolverr/flaresolverr:latest";
-        hostname = "flaresolverr";
+        #hostname = "flaresolverr";
         dependsOn = [ "gluetun" ];
+        extraOptions = [ "--network=container:gluetun" ];
         autoStart = true;
      #   environmentFiles = [
      #     /docker/env/flaresolverr/.env
@@ -125,7 +133,8 @@
       };
       podgrab = {
         image = "akhilrex/podgrab";
-        hostname = "podgrab";
+        #hostname = "podgrab";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -139,7 +148,8 @@
       };
       bazarr = {
         image = "lscr.io/linuxserver/bazarr:latest";
-        hostname = "bazarr";
+        #hostname = "bazarr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -154,7 +164,8 @@
       };
       jellyseerr = {
         image = "";
-        hostname = "jellyseerr";
+        #hostname = "jellyseerr";
+        extraOptions = [ "--network=container:gluetun" ];
         dependsOn = [ "gluetun" ];
         autoStart = true;
         volumes = [
@@ -169,22 +180,22 @@
    #       /docker/env/jellyseerr/.env.secret     
    #     ];
       };
-      navidrome = {
-        image = "deluan/navidrome:latest";
-        hostname = "navidrome";
-        dependsOn = [ "gluetun" ];
-        volumes = [
-          "/docker/navidrome/config:/data"
-          "/Pool/Music:/music:ro"     
-        ];
-     #   ports = [ 
-     #     "4533:4533"
-     #   ];
+#      navidrome = {
+#       image = "deluan/navidrome:latest";
+        #hostname = "navidrome";
+       # dependsOn = [ "gluetun" ];
+  #      volumes = [
+  #        "/docker/navidrome/config:/data"
+ #         "/Pool/Music:/music:ro"     
+ #       ];
+  #      ports = [ 
+  #        "4533:4533"
+    #    ];
   #      environmentFiles = [
   #        /docker/env/navidrome/.env
  #         /docker/env/navidrome/.env.secret     
 #        ];
-      };   
+#      };   
     };
   };
   

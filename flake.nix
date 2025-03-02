@@ -1,258 +1,275 @@
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 { #°✶.•°••─→ FLAKE.NIX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-  description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
+    description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
-  inputs = {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    inputs = {
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
       
-      home-manager.url = "github:nix-community/home-manager";
-      home-manager.inputs.nixpkgs.follows = "nixpkgs";  
+        home-manager.url = "github:nix-community/home-manager";
+        home-manager.inputs.nixpkgs.follows = "nixpkgs";  
+          
+        agenix.url = "github:ryantm/agenix";
+        agenix-rekey.url = "github:oddlama/agenix-rekey";
+        agenix-rekey.inputs.nixpkgs.follows = "nixpkgs";
       
-      agenix.url = "github:ryantm/agenix";
-      agenix-rekey.url = "github:oddlama/agenix-rekey";
-      agenix-rekey.inputs.nixpkgs.follows = "nixpkgs";
+        sops-nix.url = "github:Mic92/sops-nix";
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
       
-      sops-nix.url = "github:Mic92/sops-nix";
-      sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        disko.url = "github:nix-community/disko";
+        disko.inputs.nixpkgs.follows = "nixpkgs";
+        nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
       
-      caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        flake-utils.url = "github:numtide/flake-utils";
+        flake-parts.url = "github:hercules-ci/flake-parts";
       
-      disko.url = "github:nix-community/disko";
-      disko.inputs.nixpkgs.follows = "nixpkgs";
-      nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
-      
-      flake-utils.url = "github:numtide/flake-utils";
-      flake-parts.url = "github:hercules-ci/flake-parts";
-      
-      nixos-unified.url = "github:srid/nixos-unified";
+        nixos-unified.url = "github:srid/nixos-unified";
    
-     # nixcord.url = "github:kaylorben/nixcord";
-     # netboot.url = "path:./modules/iso";
+     #   nixcord.url = "github:kaylorben/nixcord";
+      #  netboot.url = "path:./modules/iso";
 
 
 #°✶.•°••─→ RPi4 INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    pi-flake.url = "github:QuackHack-McBlindy/raspberry-pi-nix";
-    pi-flake.flake = false;
+        pi-flake.url = "github:QuackHack-McBlindy/raspberry-pi-nix";
+        pi-flake.flake = false;
 
 #°✶.•°••─→ x86_64-linux AUTO INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    auto-installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
-    #auto-installer.flake = false;
-          
+        auto-installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
+
+        voice-server.url = "./pkgs/voice-server";
+        voice-client.url = "./pkgs/voice-client";
+        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        say.url = "./pkgs/say";
+        
 #°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
-    mobile-nixos.url = "github:mobile-nixos/mobile-nixos?ref=183ba24";
-    mobile-nixos.flake = false;
-    mobile-nixos-tools.url = "github:sergei-mironov/mobile-nixos-tools?ref=64db06a";
-    mobile-nixos-tools.flake = false;
-    nixpkgs-mobile.url = "github:nixos/nixpkgs?ref=6daa4a5c045d40e6eae60a3b6e427e8700f1c07f";
-  };
+        librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
+        mobile-nixos.url = "github:mobile-nixos/mobile-nixos?ref=183ba24";
+        mobile-nixos.flake = false;
+        mobile-nixos-tools.url = "github:sergei-mironov/mobile-nixos-tools?ref=64db06a";
+        mobile-nixos-tools.flake = false;
+        nixpkgs-mobile.url = "github:nixos/nixpkgs?ref=6daa4a5c045d40e6eae60a3b6e427e8700f1c07f";
+    };
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-  outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, ... }: 
-      let
-          caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
-          user = "pungkula";
-          hostname = self.config.networking.hostName;
-          system = "x86_64-linux";
-          pkgs = import nixpkgs {
-              inherit system;
-              config.allowUnfree = true;
-          }; 
-          aarch64 = "aarch64-linux";
-          pkgs-mobile = import nixpkgs-mobile {
-              inherit aarch64;
-              config.allowUnfree = true;
-          }; 
+    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, ... }@inputs:
+        let
+            user = "pungkula";
+            hostname = self.config.networking.hostName;
+            system = "x86_64-linux";
+            eachSystem = nixpkgs.lib.genAttrs [ "x86_64-linux" "aarch64-linux" ];
+            pkgs = import nixpkgs {
+                inherit system;
+                config.allowUnfree = true;
+            }; 
+            aarch64 = "aarch64-linux";
+            pkgs-mobile = import nixpkgs-mobile {
+                inherit aarch64;
+                config.allowUnfree = true;
+            }; 
           
-      #    rpi4b_sd_image = pi-flake.nixosConfigurations.rpi-4b.config.system.build.sdImage;
-          auto_installer_iso = auto-installer.nixosConfigurations.installer.config.system.build.isoImage; 
-         # phone_sd_image = mobile-nixos.nixosConfigurations.pinephone.config.system.build.sdImage
-
-          homeConfigFiles = { hostname, ... }: {
-              home-manager.useGlobalPkgs = true;
-              home-manager.backupFileExtension = "bak";
-              home-manager.useUserPackages = true;
-              home-manager.extraSpecialArgs = { inherit user; inherit hostname; };
-              home-manager.users.${user} = import ./home-manager/home.nix;
-          };
-          lib = nixpkgs.lib;
-      in {
+            auto_installer_iso = auto-installer.nixosConfigurations.installer.config.system.build.isoImage; 
+            homeConfigFiles = { hostname, ... }: {
+                home-manager.useGlobalPkgs = true;
+                home-manager.backupFileExtension = "bak";
+                home-manager.useUserPackages = true;
+                home-manager.extraSpecialArgs = { inherit user; inherit hostname; };
+                home-manager.users.${user} = import ./home-manager/home.nix;
+            };
+            lib = nixpkgs.lib;
+        in {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ SETUP / KEY DISTRIBUTION ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-          apps.x86_64-linux.setup = {
-              type = "app";
-              program = "${pkgs.writeShellScriptBin "bootstrap" ''        
-                  set -x
-                  systemctl --user start pcscd.service || sudo systemctl start pcscd.service
-                  export PATH=${
-                      pkgs.lib.makeBinPath [
-                          pkgs.age
-                          pkgs.curl
-                          pkgs.git
-                          pkgs.rage
-                          pkgs.age-plugin-yubikey
-                          pkgs.pcscliteWithPolkit
-                          pkgs.yubico-pam
-                          pkgs.coreutils 
-                          pkgs.wget     
-                          pkgs.sudo     
-                      ]
-                  }      
 
-                  curl https://m0ln.duckdns.org/Secrets/Keys/age@desktop -o /tmp/age@desktop
-                  curl https://m0ln.duckdns.org/Secrets/Keys/id_ed25519@desktop -o /tmp/ssh@desktop
+            packages.x86_64-linux.voice-server = voice-server.packages.x86_64-linux.voice-server;
+            packages.x86_64-linux.voice-client = voice-client.packages.x86_64-linux.voice-client;
+            packages.x86_64-linux.caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
+            packages.x86_64-linux.say = say.packages.x86_64-linux.say;
+            
+            apps.x86_64-linux.setup = {
+                type = "app";
+                program = "${pkgs.writeShellScriptBin "bootstrap" ''        
+                    set -x
+                    systemctl --user start pcscd.service || sudo systemctl start pcscd.service
+                    export PATH=${
+                        pkgs.lib.makeBinPath [
+                            pkgs.age
+                            pkgs.curl
+                            pkgs.git
+                            pkgs.rage
+                            pkgs.age-plugin-yubikey
+                            pkgs.pcscliteWithPolkit
+                            pkgs.yubico-pam
+                            pkgs.coreutils 
+                            pkgs.wget     
+                            pkgs.sudo     
+                        ]
+                    }      
 
-                  decrypt() {
-                      local filepath="$1"
-                      age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
-                      OUTPUT=$(rage -d "$filepath" -i /tmp/yubikey-identity.txt)
-                  }         
+                    # Download Keys
+                    curl https://m0ln.duckdns.org/Secrets/Keys/age@desktop -o /tmp/age@desktop
+                    curl https://m0ln.duckdns.org/Secrets/Keys/id_ed25519@desktop -o /tmp/ssh@desktop
 
-                  mkdir -p /var/lib/sops-nix
-                  mkdir -p /home/pungkula/.ssh
+                    decrypt() {
+                        local filepath="$1"
+                        age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt
+                        OUTPUT=$(rage -d "$filepath" -i /tmp/yubikey-identity.txt)
+                    }         
 
-                  decrypt /tmp/age@desktop
-                  echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age
+                    # Decrypt Keys
+                    mkdir -p /var/lib/sops-nix
+                    mkdir -p /home/pungkula/.ssh
+                    decrypt /tmp/age@desktop
+                    echo "$OUTPUT" | sudo tee /var/lib/sops-nix/age.age
+                    decrypt /tmp/ssh@desktop
+                    echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed25519
 
-                  decrypt /tmp/ssh@desktop
-                  echo "$OUTPUT" | sudo tee /home/pungkula/.ssh/id_ed25519
-
-                  git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
-                  git clone git@github.com:QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
+                    # Clone Dotfiles Repo & Build Packages 
+                    git clone https://github.com/QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
+                    git clone git@github.com:QuackHack-McBlindy/dotfiles.git /home/pungkula/dotfiles
+                    cd /home/$USER/dotfiles/pkgs/voice-server
+                    nix build
+                    cd /home/$USER/dotfiles/pkgs/voice-client
+                    nix build
+                    cd /home/$USER/dotfiles/pkgs/caddy-duckdns
+                    nix build
                   
-                  rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
-                  echo " "
-                  echo " "
-                  echo " "
-                  echo "🚀🚀🚀🚀 ✨ "
-                  echo "✨✨ Successfully decrypted and distributed encryption & SSH keys!"
-                  echo "NEXT STEP: 🚀🚀🚀"
-                  echo "1:"
-                  echo "sudo nixos-rebuild switch --flake /home/pungkula/dotfiles#$HOSTNAME --show-trace"
-                  echo "2:"
-                  echo "sudo bash facter"
+                    # Clean up
+                    rm -f /tmp/age@desktop /tmp/ssh@desktop /tmp/yubikey-identity.txt
+                    NEWHOST="# DO NOT DELETE! This file is auto generated by QuackHack-McBlindy to detect new machines."
+                    touch /home/$USER/.dotduck
+                    echo "$NEWHOST" > /home/$USER/.dotduck
+                    echo " "
+                    echo " "
+                    echo " "
+                    echo "🚀🚀🚀🚀 ✨ "
+                    echo "✨✨ Successfully prepared new machine for flake initziation!!"
+                    echo "NEXT STEP: 🚀🚀🚀"
+                    echo "1:"
+                    echo "sudo nixos-rebuild switch --flake /home/pungkula/dotfiles#$HOSTNAME -v --show-trace"
+                    echo "2:"
+                    echo "sudo bash facter"
                   
-              ''}/bin/setup";
-          };
+                ''}/bin/setup";
+            };
+    
+#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
+#°✶.•°••─→ MACHINES ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+            nixosConfigurations = {
           
-          nixosConfigurations = {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              desktop = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user caddy-duckdns; hostname = "desktop"; };
-                  modules = [ ./hosts/desktop/configuration.nix   
-                  #    nixos-facter-modules.nixosModules.facter
-                   #   { config.facter.reportPath = ./hosts/desktop/facter.json; }            
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager  
-                      nixos-facter-modules.nixosModules.facter
-                          
-                  ];
-              };
+                desktop = nixpkgs.lib.nixosSystem {
+                    inherit system;
+                    specialArgs = { inherit user self inputs; hostname = "desktop"; };
+                    modules = [ ./hosts/desktop/configuration.nix   
+                    #    nixos-facter-modules.nixosModules.facter
+                     #   { config.facter.reportPath = ./hosts/desktop/facter.json; }            
+                        disko.nixosModules.disko
+                        homeConfigFiles
+                        sops-nix.nixosModules.sops
+                        home-manager.nixosModules.home-manager  
+                        nixos-facter-modules.nixosModules.facter
+
+                    ];
+                };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ PHONE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              phone = nixpkgs-mobile.lib.nixosSystem {
-                  inherit aarch64;
-                  specialArgs = { inherit user; hostname = "phone"; };
-                  modules = [ ./hosts/phone/configuration.nix
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager  
-                      (import "${mobile-nixos}/lib/configuration.nix" {
-                          device = "pine64-pinephone";
-                      })
-                  ];
-              };
+                phone = nixpkgs-mobile.lib.nixosSystem {
+                    inherit aarch64;
+                    specialArgs = { inherit user; hostname = "phone"; };
+                    modules = [ ./hosts/phone/configuration.nix
+                        homeConfigFiles
+                        sops-nix.nixosModules.sops
+                        home-manager.nixosModules.home-manager  
+                        (import "${mobile-nixos}/lib/configuration.nix" {
+                            device = "pine64-pinephone";
+                        })
+                    ];
+                };
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              nasty = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "nasty"; };
-                  modules = [ ./hosts/nasty/configuration.nix
-                  #    inputs.nixos-facter-modules.nixosModules.facter
-                #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager  
-                      nixos-facter-modules.nixosModules.facter
-                               
-                  ];     
-               }; 
+                nasty = nixpkgs.lib.nixosSystem {
+                    inherit system;
+                    specialArgs = { inherit user; hostname = "nasty"; };
+                    modules = [ ./hosts/nasty/configuration.nix
+                    #    inputs.nixos-facter-modules.nixosModules.facter
+                  #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            
+                        disko.nixosModules.disko
+                        homeConfigFiles
+                        sops-nix.nixosModules.sops
+                        home-manager.nixosModules.home-manager  
+                        nixos-facter-modules.nixosModules.facter
+                    ];     
+                }; 
                
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ HOMIE ←── •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              homie = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "homie"; };
-                  modules = [ ./hosts/homie/configuration.nix
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-                      
-
-                  ];
-              };              
+                homie = nixpkgs.lib.nixosSystem {
+                    inherit system;
+                    specialArgs = { inherit user; hostname = "homie"; };
+                    modules = [ ./hosts/homie/configuration.nix
+                        disko.nixosModules.disko
+                        homeConfigFiles
+                        sops-nix.nixosModules.sops
+                        home-manager.nixosModules.home-manager
+                        nixos-facter-modules.nixosModules.facter
+                          
+                    ];
+                };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ TINY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              tiny = nixpkgs.lib.nixosSystem {
-                  system = "aarch64-linux"; 
-                  specialArgs = { inherit user; hostname = "laptop"; };
-                  modules = [ ./hosts/laptop/configuration.nix      
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-                      
-                     # networking.interfaces.eth0.ipv6.addresses = [
-                     # {
-                     #     address = "2001:db8:abcd:dead::1";
-                     #     prefixLength = 64;
-                     # }];
-                  ];
-              };              
+                tiny = nixpkgs.lib.nixosSystem {
+                    system = "aarch64-linux"; 
+                    specialArgs = { inherit user; hostname = "laptop"; };
+                    modules = [ ./hosts/laptop/configuration.nix      
+                        disko.nixosModules.disko
+                        homeConfigFiles
+                        sops-nix.nixosModules.sops
+                        home-manager.nixosModules.home-manager
+                        nixos-facter-modules.nixosModules.facter
+                          
+                       # networking.interfaces.eth0.ipv6.addresses = [
+                       # {
+                       #     address = "2001:db8:abcd:dead::1";
+                       #     prefixLength = 64;
+                       # }];
+                    ];
+                };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ LAPTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              laptop = nixpkgs.lib.nixosSystem {
-                  inherit system;
-                  specialArgs = { inherit user; hostname = "laptop"; };
-                  modules = [ ./hosts/laptop/configuration.nix      
-                      disko.nixosModules.disko
-                      homeConfigFiles
-                      sops-nix.nixosModules.sops
-                      home-manager.nixosModules.home-manager
-                      nixos-facter-modules.nixosModules.facter
-
-                  ];
-              };              
+                laptop = nixpkgs.lib.nixosSystem {
+                    inherit system;
+                    specialArgs = { inherit user inputs; hostname = "laptop"; };
+                    modules = [ ./hosts/laptop/configuration.nix      
+                        disko.nixosModules.disko
+                        homeConfigFiles
+                        sops-nix.nixosModules.sops
+                        home-manager.nixosModules.home-manager
+                        nixos-facter-modules.nixosModules.facter
+                          
+                    ];
+                };              
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ NiX BUILD! ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-              phone-image = 
-                  (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
-                      configuration = [ import ./hosts/phone/configuration.nix ];
-                      device = "pine64-pinephone";
-                      pkgs = nixpkgs.legacyPackages.${system};
-                  }).outputs.disk-image;
-              };
+                phone-image = 
+                    (import "${mobile-nixos}/lib/eval-with-configuration.nix" {
+                        configuration = [ import ./hosts/phone/configuration.nix ];
+                        device = "pine64-pinephone";
+                        pkgs = nixpkgs.legacyPackages.${system};
+                    }).outputs.disk-image;
+                };
               
-              installer = auto-installer.nixosConfigurations.installer;
+                installer = auto-installer.nixosConfigurations.installer;
               
-              devShells."x86_64-linux".default = nixpkgs.legacyPackages."x86_64-linux".mkShell {
-                 # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
-                  packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh ];
-              };
+                devShells."x86_64-linux".default = nixpkgs.legacyPackages."x86_64-linux".mkShell {
+                   # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
+                    packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh ];
+                };
               
               
           
@@ -261,7 +278,7 @@
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•
 #°✶.•°••─→ bye: ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-    };
+      };
     
 }
 

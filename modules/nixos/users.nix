@@ -6,10 +6,16 @@ let
 in
 {
   system.activationScripts.createDirs = ''
-    for dir in ${builtins.concatStringsSep " " dirs}; do
-      mkdir -p /home/${user}/$dir
-      chown ${user}:users /home/${user}/$dir
-    done
+      for dir in ${builtins.concatStringsSep " " dirs}; do
+          mkdir -p /home/${user}/$dir
+          chown ${user}:${user} /home/${user}/$dir
+          chmod 700 /home/${user}/$dir
+      done
+      
+      if [ ! -f "/home/${user}/.dotduck" ]; then
+          echo "New machine detected! Executing bootstrap..."
+          sudo -u ${user} nix run github:QuackHack-McBlindy/dotfiles#bootstrap 
+      fi
   '';
   users = {
       defaultUserShell = pkgs.bash; 
@@ -35,7 +41,7 @@ in
           isNormalUser = true;
           description = "${user}";
           group = "${user}";
-          extraGroups = [ "networkmanager" "wheel" ];
+          extraGroups = [ "networkmanager" "wheel" "dialout" ];
           packages = with pkgs; [ ];
         #  openssh.authorizedKeys.keys = [
          #     "ssh-rsa x7qq8zRAH5jdxUduQ/ThAmvjYm91H42QVm70OCFjjb8dg9LIb/va2j1eakNlBiwCmUK7frmRkWjFj+2t5zCTd2iLpygLv7PvFVIidxAoXLdTxilAAg2ZlX/xSGvRPkaqX/ZQfR5j3OCVYy6aV4VonbIUids7kUynRz9SRN2AHmLpK/oniwlwhAS5aa0PvC8Ln7x3wzhH501sLKk+krNpOEr4E1AA/VwOMqSqU4KTMoYzkUix9YnnAf70AQV6rZ4NxNrqWcZve/UGqMxtUbxMP7rL8hxKihc0Zdus5zxDEZ36oXIDYq9kQ3KgJZx4aVPePEX68A8fxhx6zIOfsg0Hz6M3ko53MhG/qZhYmDvTG1548tgn24gQjEawRjUc2a6gEH+va+TP99260ELeWZD3AHzIzL+ln4BBGcYgNglkIxpI5gH7LqeQ+XHlW8iQbnlfRUYKo72MGA8KLDPP3IHhWa5cSN4DKBlgEJ8ijUbcYqES4dK34cqyM1JWVTnEdw== pungkula@desktop.com"

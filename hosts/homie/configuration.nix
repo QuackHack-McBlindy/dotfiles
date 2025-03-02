@@ -5,11 +5,11 @@ let
   hostname = "homie";
 in
 {
-  imports = [ ./hardware-configuration.nix ./borg.nix
+  imports = [ ./hardware-configuration.nix
 
                       ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
-                    #  ./../../modules/services/satellite.nix
+                      ./../../modules/services/systemd/voice-server.nix
                     #  ./../../modules/services/loki.nix
                       ./../../modules/services/mosquitto.nix
                       ./../../modules/services/zigbee2mqtt.nix

@@ -1,4 +1,4 @@
-{ config, lib, pkgs, ... }:
+{ config, inputs, self, lib, pkgs, ... }:
 
 {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -8,7 +8,7 @@
 
 ## Dev
 #############
-    
+
     pkgs.npth
     esphome
     pkgs.python312Packages.httpx
@@ -25,7 +25,7 @@
 ###############   
 
     pkgs.ntfy-sh
-    
+
     
     pkgs.xoscope
     pkgs.mdns
@@ -67,5 +67,7 @@
     unzip
     pkgs.nixos-anywhere
     pkgs.syncthing
+    inputs.voice-client.packages.x86_64-linux.voice-client
+    inputs.say.packages.x86_64-linux.say
   ];
 }   

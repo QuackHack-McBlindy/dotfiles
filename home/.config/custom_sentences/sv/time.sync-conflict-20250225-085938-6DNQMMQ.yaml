@@ -1,0 +1,9 @@
+language: "sv"
+intents:
+  Time:
+    data:
+      - sentences:
+          - "vad är klockan"
+          - "vad är det för dag"
+          - "vilken dag är det"
+    

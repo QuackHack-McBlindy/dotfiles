@@ -1,12 +1,13 @@
-{ config, lib, pkgs, user, host, hostname, ... }:
+{ config, lib, pkgs, user, inputs, host, hostname, ... }:
 let
   user = "pungkula";
   hostname = "desktop";
 in
 {
-  imports = [ ./hardware-configuration.nix ./borg.nix 
+  imports = [ ./hardware-configuration.nix 
+
                       
-                   #   ./../../modules/services/voice.nix
+                      ./../../modules/services/systemd/voice-server.nix
                  #     ./../../modules/services/satellite.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix
@@ -37,6 +38,8 @@ in
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/virtualization/docker.nix
                       ./../../modules/virtualization/vm.nix
+                      ./../../modules/virtualization/arr.nix
+                      ./../../modules/virtualization/gluetun.nix
   
   ];
 
@@ -52,7 +55,10 @@ in
   networking.hostName = "desktop";
 
 
+  environment.systemPackages = with pkgs; [
+    inputs.voice-server.packages.x86_64-linux.voice-server
 
+  ];
 
  
       

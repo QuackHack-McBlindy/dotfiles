@@ -20,7 +20,7 @@
         settings = {
             devices = {
                 "desktop" = { id = "6RIE3DZ-XWAP6NX-OF2JF4Z-N35U3RZ-IL5FX7H-AFWROYH-5HMM35U-WQHY4Q3"; };
-            #    "laptop" = { id = "DEVICE-ID-2"; autoAcceptFolders = true; };
+                "laptop" = { id = "DEVICE-ID-2"; };
                 "homie" = { id = "LSSUP2H-ZAWQAKQ-C65EX37-ITHGKG6-2BGOHXW-LDLV24B-JXRRTO5-IFJUEQV"; };
                 "nasty" = { id = "6DNQMMQ-MGUYQRJ-PIDGQLA-7ZLSJMO-L4E5LC3-RKAZEBE-LAAIA2A-PH5ZLQR"; };
             };

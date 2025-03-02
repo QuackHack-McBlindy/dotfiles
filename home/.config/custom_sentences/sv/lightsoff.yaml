@@ -1,0 +1,18 @@
+    language: "sv"
+    intents:
+      Lightsoff:
+        data:
+          - sentences: 
+              - "släck allt"
+              - "släck all"
+              - "släck alla lampor"
+              - "släcka alla lampor"
+              - "ge mig mörker"
+              - "stäng allt"
+              - "stäng all"
+              - "natti"
+              - "stäng alla lampor"
+              - "turn off all lamps"
+              - "släck"
+    
+              

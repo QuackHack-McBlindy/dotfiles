@@ -12,8 +12,8 @@
       firewall = {
           enable = true;
           logRefusedConnections = true;
-    #      allowedUDPPorts = [ ];
-   #       allowedTCPPorts = [ ];
+          allowedUDPPorts = [ 6222 ];
+          allowedTCPPorts = [ 6262 ];
       };
       hosts = {
           "192.168.1.1" = [ "router.lan" "router.local" "router" ];
