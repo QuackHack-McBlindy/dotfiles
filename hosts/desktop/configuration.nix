@@ -4,10 +4,10 @@ let
   hostname = "desktop";
 in
 {
-  imports = [ ./hardware-configuration.nix 
+  imports = [ ./hardware-configuration.nix ./backup.nix
 
                       
-                      ./../../modules/services/systemd/voice-server.nix
+                     # ./../../modules/services/systemd/voice-server.nix
                  #     ./../../modules/services/satellite.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix

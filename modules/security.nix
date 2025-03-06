@@ -116,6 +116,12 @@
       group = config.users.groups.secretservice.name;
       mode = "0440"; # Read-only for owner and group
     };
+    w = {
+      sopsFile = ./../secrets/w.yaml;
+      owner = config.users.users.secretservice.name;
+      group = config.users.groups.secretservice.name;
+      mode = "0440"; # Read-only for owner and group
+    };
     PROTON_OPENVPN_PASSWORD = {
       sopsFile = ./../secrets/PROTON_OPENVPN_PASSWORD.yaml;
       owner = config.users.users.secretservice.name;

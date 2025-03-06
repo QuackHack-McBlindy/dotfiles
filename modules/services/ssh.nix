@@ -24,6 +24,7 @@ let
 
     pubkey = import ./../../hosts/pubkeys.nix;
     username = user;
+    hostkey = import ./../../hosts/hostkeys.nix;
 in
 {
     system.activationScripts.sshConfig = {
@@ -43,7 +44,6 @@ in
         pubkey.desktop
         pubkey.homie
         pubkey.laptop
-        pubkey.borg
         pubkey.iPhone
     ];
 
@@ -51,19 +51,19 @@ in
         knownHosts = {    
             desktop = {
                 extraHostNames = [ "desktop.löcal" "192.168.1.111" ];
-                publicKey = pubkey.desktop;
+                publicKey = hostkey.desktop;
             };
             laptop = {
                 extraHostNames = [ "laptop.local" ];
-                publicKey = pubkey.laptop;
+                publicKey = hostkey.laptop;
             };
             nasty = {
                 extraHostNames = [ "nasty.local" "192.168.1.28" ];
-                publicKey = pubkey.nasty;
+                publicKey = hostkey.nasty;
             };
             homie = {
                 extraHostNames = [ "homie.local" "192.168.1.211" ];
-                publicKey = pubkey.homie;
+                publicKey = hostkey.homie;
             };       
         };             
     };
@@ -81,7 +81,7 @@ in
 
         settings = {    
             AllowUsers = [ username ];  
-            PasswordAuthentication = true;
+            PasswordAuthentication = false;
             PermitRootLogin = "no"; 
             MaxAuthTries = "3";  
             # UsePAM = "yes"; 

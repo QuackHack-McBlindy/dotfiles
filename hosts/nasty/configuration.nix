@@ -4,7 +4,7 @@ let
   hostname = "nasty";
 in
 {
-  imports = [ ./hardware-configuration.nix
+  imports = [ ./hardware-configuration.nix ./borg.nix
 
 
                      # ./../../modules/services/satellite.nix

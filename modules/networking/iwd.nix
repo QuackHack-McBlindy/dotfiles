@@ -1,4 +1,6 @@
 {
+
+  networking.wireless.networks."pungkula2".psk = config.sops.secrets.w.path;; 
   networking.wireless.iwd = {
     enable = true;
    # settings = {
@@ -9,4 +11,5 @@
 
   # if network manager is used
   networking.networkmanager.wifi.backend = "iwd";
+  
 }

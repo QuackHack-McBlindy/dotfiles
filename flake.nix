@@ -192,7 +192,7 @@
 #°✶.•°••─→ NASTY ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
                 nasty = nixpkgs.lib.nixosSystem {
                     inherit system;
-                    specialArgs = { inherit user; hostname = "nasty"; };
+                    specialArgs = { inherit inputs user; hostname = "nasty"; };
                     modules = [ ./hosts/nasty/configuration.nix
                     #    inputs.nixos-facter-modules.nixosModules.facter
                   #      { config.facter.reportPath = ./hosts/desktop/facter.json; }            

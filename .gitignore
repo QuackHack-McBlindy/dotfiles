@@ -14,6 +14,9 @@ home/.config/home-assistant
 result/
 
 modules/networking/caddy.nix.save
+borg_settings.txt
+flake.sync-conflict-20250228-033924-6RIE3DZ.lock
+flake.sync-conflict-20250228-033925-6RIE3DZ.lock
 
 key/
 **/keys.txt

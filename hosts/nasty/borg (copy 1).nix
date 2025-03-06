@@ -6,7 +6,7 @@
 } : let
 
   pubkey = import ./../pubkeys.nix;
-  backupServer = "borg@homie"; 
+  backupServer = "borg@nasty"; 
 
   defaultPaths = [
     "/etc"
