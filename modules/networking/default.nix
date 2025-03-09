@@ -27,7 +27,7 @@
   services.resolved = {
       enable = true;
       fallbackDns = [ "192.168.1.1" ];
-      dnsovertls = "true";
+      dnsovertls = true;
    };
   
 #  boot.initrd.network = {
@@ -39,3 +39,4 @@
  
 
 }
+

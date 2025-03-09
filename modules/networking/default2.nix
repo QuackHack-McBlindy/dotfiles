@@ -37,11 +37,11 @@ in {
           Network = {
             EnableIPv6 = true;
             RoutePriorityOffset = 300;
-            # NameResolvingService = "resolvconf";
+            NameResolvingService = "resolvconf";
           };
           Settings = {
             AutoConnect = true;
-            # AlwaysRandomizeAddress = false;
+            #AlwaysRandomizeAddress = false;
           };
           Rank.BandModifier5Ghz = 2.0;
           Scan.DisablePeriodicScan = true;
