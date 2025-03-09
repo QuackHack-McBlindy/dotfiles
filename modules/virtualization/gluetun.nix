@@ -67,7 +67,9 @@ in {
                     "/docker/gluetun/config:/gluetun"
                 ];
                 environmentFiles = [ "/docker/gluetun/.env" ];
-                environment = { VPN_PORT_FORWARDING_UP_COMMAND = {capture-gluetun-port} };
+                environment = { 
+                    VPN_PORT_FORWARDING_UP_COMMAND = "${capture-gluetun-port}";
+                };
             };
         };
     };}
