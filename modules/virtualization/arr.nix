@@ -7,7 +7,7 @@
 
 
 {
-  import = [ ./gluetun.nix ];
+  imports = [ ./gluetun.nix ];
 
   virtualisation.oci-containers = {
     backend = "docker";
