@@ -13,7 +13,7 @@
 #  forwarded = import ./gluetun-port.nix;
 
 #in
-{
+
   systemd.services.capture-gluetun-port = {
     description = "Capture Gluetun forwarded port";
     after = [ "docker-gluetun.service" ];
