@@ -6,6 +6,7 @@
 } : let
     capturePortScript = pkgs.writeShellScript "capture-gluetun-port" ''
         #!/bin/bash
+        touch /home/pungkula/dotfiles/modules/virtualization/gluetun-port.nix
         journalctl -u docker-gluetun.service --no-pager -f | grep --line-buffered "port forwarded" | \
         while read -r line; do
             line=$(journalctl -u docker-gluetun.service --no-pager | grep -i "port forwarded is" | tail -n 1)
