@@ -127,24 +127,24 @@
     #      /docker/env/bazarr/.env.secret
   #     ];
       };
-      jellyseerr = {
-        image = "";
+#      jellyseerr = {
+#        image = "";
         #hostname = "jellyseerr";
-        extraOptions = [ "--network=container:gluetun" ];
-        dependsOn = [ "gluetun" ];
-        autoStart = true;
-        volumes = [
-          "/docker/jellyserr/config:/app/config"
+#        extraOptions = [ "--network=container:gluetun" ];
+#        dependsOn = [ "gluetun" ];
+#        autoStart = true;
+#        volumes = [
+#          "/docker/jellyserr/config:/app/config"
          #    - /mnt/data/supervisor/addons/local/jellyserr/duck2.svg:/app/public/logo_full.svg
          #       - /mnt/data/supervisor/addons/local/jellyserr/duck2.png:/app/public/logo_full.png
          #       - /mnt/data/supervisor/addons/local/jellyserr/logo_stacked.svg:/app/public/logo_stacked.svg
          #       - /mnt/data/supervisor/addons/local/jellyserr/duck2.png:/app/public/os_logo_square.png
-        ];
+#        ];
   #      environmentFiles = [
     #      /docker/env/jellyseerr/.env
    #       /docker/env/jellyseerr/.env.secret
    #     ];
-      };
+#      };
 #      navidrome = {
 #       image = "deluan/navidrome:latest";
         #hostname = "navidrome";
