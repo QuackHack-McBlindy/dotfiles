@@ -84,6 +84,17 @@ in
       
 #  fileSystems."/mnt/disks/parity01" =
 
+  fileSystems."/mnt/backup" = {
+    device = "/dev/disk/by-label/backup";
+    fsType = "ext4";
+    options = [ "defaults" "users" "x-gvfs-show" ];
+  };
+
+  fileSystems."/backup" = {
+    device = "/mnt/backup";
+    options = [ "bind" ];
+  };
+  
 
 
   networking.useDHCP = lib.mkDefault true;

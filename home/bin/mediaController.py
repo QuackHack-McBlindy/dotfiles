@@ -385,6 +385,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
             print("No matching movie found.")
     
     elif type_or_entity_id == "tv":
+        #adb_connect(device_ip)
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
 #        wait(3)
         closest_directory = find_closest_directory(query_or_file, os.listdir(SEARCH_FOLDERS["tv"]))

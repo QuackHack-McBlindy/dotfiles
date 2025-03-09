@@ -101,55 +101,37 @@ def push(ctx, commit=None):
     print(rainbow_text("✨✨ Successfully pushed dotfiles to GitHub!"))
     
 
-@task
-def pull(ctx):
-    """
-    Pulls dotfiles from GitHub repo.
 
-    :param ctx: Invoke context.
-    """
-    result_checkout = ctx.run("git checkout -- .", echo=True)
-    result_pull = ctx.run("git pull origin main", echo=True)
 
-    if result_checkout.return_code == 0 and result_pull.return_code == 0:
-        print(" ")
-        print(" ")
-        print("🚀🚀🚀🚀 ✨ ")
-        print(rainbow_text("✨✨ Successfully pulled the latest dotfiles repository!"))
-    else:
-        print("\033[1;31m [ WARNING! ] \033[0m")  
-        print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
-      
+
+
+
 
 
 @task
 def deploy(c, hostname, local=False):
     """
-    [hostname] --local (to builö on the target machine, optional)
+    [hostname] --local (to build on the target machine, optional)
 
     Usage:
         invoke deploy HOSTNAME         # Build locally and deploy
-        invoke deploy HOSTNAME --local # Sync dotfiles and rebuild remotely
+        invoke deploy HOSTNAME --local # Rebuild remotely and apply configuration
     """
     ssh_target = f"{SSH_USER}@{hostname}"
 
     if local:
-        print(f"🔄 Syncing dotfiles to {hostname} via rsync...")
-        subprocess.run(["rsync", "-avz", DOTFILES_DIR, f"{ssh_target}:{DOTFILES_DIR}"], check=True)
-
         print(f"🚀 Rebuilding configuration on {hostname} using flakes...")
         subprocess.run(["ssh", ssh_target, f"sudo nixos-rebuild switch --flake {DOTFILES_DIR}#{hostname}"], check=True)
 
     else:
-        print("🔨 Building NixOS configuration locally using flakes...")
-        subprocess.run(["nix", "build", f"{DOTFILES_DIR}#nixosConfigurations.{hostname}.config.system.build.toplevel"], check=True)
+        print(f"🔨 Building NixOS configuration locally for {hostname} using flakes...")
+        subprocess.run(["nix", "build", f"{hostname}"], check=True)
 
         print(f"🚀 Copying system closure to {hostname}...")
-        subprocess.run(["rsync", "-avz", "result", f"{ssh_target}:/nix/store/"], check=True)
+        subprocess.run(["nix", "copy", "--substitute-on-destination", "--to", f"ssh://{ssh_target}", "/run/current-system"], check=True)
 
         print(f"🔄 Activating configuration on {hostname}...")
-        subprocess.run(["ssh", ssh_target, f"sudo nix-env --profile /nix/var/nix/profiles/system --set /nix/store/result"], check=True)
-        subprocess.run(["ssh", ssh_target, "sudo /nix/var/nix/profiles/system/bin/switch-to-configuration switch"], check=True)
+        subprocess.run(["ssh", ssh_target, "sudo nixos-rebuild switch --target-host", hostname], check=True)
 
     print("✅ Deployment complete!")
 

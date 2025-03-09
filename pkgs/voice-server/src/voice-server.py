@@ -146,8 +146,18 @@ INTENTS = {
         'speech': 'Jag genererar några låter åt dig, och återkommer med musiken när dom är klara.',
         'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
     },
+    'BussDepartures': {
+        'script': 'travel.py "när går bussen från {{ departure }} till {{ destination }} "',
+        'speech': 'Here are the bus departures: {output}',
+        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
+    },
+    'openinghours': {
+        'script': 'stores "{{ question }}" "Umeå, Sweden" 5000 | grep -oP "\'opening_hours\': \'\K[^\']+"',
+        'speech': '{{ question }} har följande öppettider: {output}',
+        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
+    },
     'noIntent': {
-        'script': 'noIntent.py {input}',
+        'script': 'noIntent.py " transcribed_text "',
         'speech': '{output}',
         'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
     }
@@ -252,6 +262,11 @@ def execute_intent(intent_data):
     for key, value in intent_data.items():
         script_command = script_command.replace(f"{{{{ {key} }}}}", str(value))
 
+   # Handle transcribed_text if passed
+  #  if transcribed_text in script_command:
+   #     script_command = script_command.replace('{{ transcribed_text }}', transcribed_text)
+
+
     dt.debug(f"Formatted script command: {script_command}")
 
     parts = script_command.split()
@@ -298,7 +313,8 @@ def execute_intent(intent_data):
     return output, speech_response
 
 
-def send_to_hassil(transcribed_text):
+@app.post("/hassil")
+def send_to_hassil(transcribed_text: str):
     """Send transcribed text to Hassil, parse its JSON response, and execute the corresponding intent."""
     transcribed_text = re.sub(r"[^a-z0-9\såäö&]", "", transcribed_text.lower())
     dt.info(f"Sending to Hassil: {transcribed_text}")

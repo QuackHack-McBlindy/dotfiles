@@ -9,7 +9,7 @@ import requests
 from difflib import get_close_matches
 
 RADIUS = 5000  
-DEFAULT_LOCATION = "Paris, France"
+DEFAULT_LOCATION = "Umeå, Sweden"
 
 def get_location_lat_lon(location):
     """Fetches the latitude and longitude of a given location using Nominatim API."""
@@ -58,7 +58,7 @@ def save_to_json(data, filename):
         json.dump(data, json_file, indent=4)
 
 def fuzzy_search_shops(shops_data, store_name):
-    """Returns shops matching the fuzzy search for the store name."""
+    """Returns shops matching the fuzzy search for the store name and extracts opening hours."""
     shops = shops_data.get('elements', [])
     names = [shop['tags'].get('name', '') for shop in shops if 'tags' in shop]
     
@@ -68,7 +68,11 @@ def fuzzy_search_shops(shops_data, store_name):
     for match in matched_names:
         for shop in shops:
             if shop['tags'].get('name') == match:
-                results.append(shop)
+                shop_info = {
+                    'name': match,
+                    'opening_hours': shop['tags'].get('opening_hours', 'N/A')  # Extract opening hours if available
+                }
+                results.append(shop_info)
     
     return results
 

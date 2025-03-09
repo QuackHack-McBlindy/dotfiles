@@ -39,6 +39,7 @@
         voice-client.url = "./pkgs/voice-client";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         say.url = "./pkgs/say";
+        api.url = "./pkgs/api";
         
 #°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
         librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
@@ -51,7 +52,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, ... }@inputs:
+    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, api, ... }@inputs:
         let
             user = "pungkula";
             hostname = self.config.networking.hostName;
@@ -84,8 +85,62 @@
             packages.x86_64-linux.voice-client = voice-client.packages.x86_64-linux.voice-client;
             packages.x86_64-linux.caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
             packages.x86_64-linux.say = say.packages.x86_64-linux.say;
+            packages.x86_64-linux.api = api.packages.x86_64-linux.api;
+ 
+            apps.x86_64-linux.box = {
+                type = "app";
+                program = "${pkgs.writeShellScriptBin "box" ''        
+                    set -x
+                    #systemctl --user start pcscd.service || sudo systemctl start pcscd.service
+
+                    export PATH=${
+                        pkgs.lib.makeBinPath [
+
+                            pkgs.esphome
+                            pkgs.arduino
+                            pkgs.platformio
+                            pkgs.nrfutil
+                            pkgs.stm32flash
+                            pkgs.curl
+                            pkgs.git 
+                            pkgs.wget     
+                            pkgs.sudo     
+                        ]
+                    }      
+                    CONFIG_FILE="./hosts/box/configuration.yaml"
+                    USB_PATHS=(
+                        "/dev/ttyUSB0"
+                        "/dev/ttyACM0"
+                        "/dev/ttyUSB1"
+                        "/dev/ttyACM1"
+                    )
+                    flash_device() {
+                        esphome $CONFIG_FILE run --port $1
+                    }
+                    nixpkgs.config.allowUnfree = true;
+                    nixpkgs.config.segger-jlink.acceptLicense = true;
+                    echo "🚀 Attempting to flash automatically..."
+                    if esphome $CONFIG_FILE run; then
+                        echo "✨ Successfully flashed ESP32S3-BOX3!! 🚀"
+                        exit 0
+                    else
+                        echo "⚠️ Automatic flash failed. Trying USB paths..."
+                    fi
+                    for path in $USB_PATHS; do
+                        echo "🚀 Trying to flash on $path..."
+                        if flash_device "$path"; then
+                            echo "✨ Successfully flashed ESP32S3-BOX3 on $path!! 🚀"
+                            exit 0
+                        else
+                            echo "⚠️ Flashing failed on $path. Trying next path..."
+                        fi
+                    done
+                    echo "❌ Failed to flash ESP32S3-BOX3. Please check your device connection and paths."
+                    exit 1
+                ''}/bin/box";
+            };
             
-            apps.x86_64-linux.setup = {
+            apps.x86_64-linux.bootstrap = {
                 type = "app";
                 program = "${pkgs.writeShellScriptBin "bootstrap" ''        
                     set -x
@@ -149,7 +204,7 @@
                     echo "2:"
                     echo "sudo bash facter"
                   
-                ''}/bin/setup";
+                ''}/bin/bootstrap";
             };
     
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•

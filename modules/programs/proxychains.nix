@@ -16,7 +16,7 @@
     package = pkgs.proxychains-ng;
     chain = {
       type = "random";
-      length = 3; # Only applicable if type is "random"
+    #  length = 3; # Only applicable if type is "random"
     };
 
     proxyDNS = true;

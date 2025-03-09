@@ -4,6 +4,8 @@ intents:
     data:
       - sentences:
           - "när stänger {question} "
+          - "när öppnar {question} "
+          - "vad har {question} för öppettider"
 
 lists:
   question:

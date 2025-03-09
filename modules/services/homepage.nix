@@ -3,18 +3,25 @@
     lib, 
     pkgs, 
     ... 
-} : { 
+} : 
+let
+  host.desktop = "http://192.168.1.111";
+  host.laptop = "http://192.168.1.222";
+  host.homie = "http://192.168.1.211";
+  host.nasty = "http://192.168.1.28";
+  host.localhost = "http://localhost";
+in
+{ 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
     services.homepage-dashboard = {
         enable = true;
         listenPort = 3001;
         openFirewall = false;
-        #package 
         settings = {
-            title = "Homeducks";
-       #     favicon = ./../../home/.config/wallpaper.png;
-      #      background = ./../../home/icons/favicons/favicon.ico;
+            title = "Start";
+            #favicon = ./../../home/icons/favicons/duck.ico;
+            background = ./../../home/.config/wallpaper.png;
             backgroundOpacity = "0.3";
         };
         #docker = { };
@@ -137,7 +144,7 @@
           {
             resources = {
               cpu = true;
-              disk = "/";
+              disk = "/Pool";
               memory = true;
             };
           }
@@ -149,126 +156,80 @@
           }
         ];
 
-        services = {
-          GroupA = [
-            {
-              Sonarr = {
-                href = "http://sonarr.host";
-                icon = "sonarr.png";
-                description = "Series management";
-                widget = {
-                  type = "sonarr";
-                  url = "http://sonarr.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
+        services = [
+          {
+            "Pirat Arrr'! Transmission" = [
+              {
+                "Transmission" = {
+                  description = "Torrent Client";
+                  href = "http://192.168.1.28:9091";
+                  widgets = [
+                    {
+                      type = "transmission";
+                      url = "http://192.168.1.28:9091";
+                    }
+                  ];
                 };
-              };
-            }
-            {
-              Radarr = {
-                href = "http://radarr.host";
-                icon = "radarr.png";
-                description = "Movie management";
-                widget = {
-                  type = "radarr";
-                  url = "http://radarr.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
+              }
+            ];
+          }
+          {
+            "Pirat Arrr'! Sonarr" = [
+              {
+                "Sonarr" = {
+                  icon = "sonarr";
+                  description = "TV Shows";
+                  href = "http://192.168.1.28:8989";
+                  widgets = [
+                    {
+                      type = "sonarr";
+                      url = "http://192.168.1.28:8989";
+                      key = "apikeyapikeyapikeyapikeyapikey";
+                    }
+                  ];
                 };
-              };
-            }
-          ];
+                
+                
+                "Radarr" = {
+                  icon = "radarr";
+                  description = "Movies";
+                  href = "http://192.168.1.28:8989";
+                  widgets = [
+                    {
+                      type = "Radarr";
+                      url = "http://192.168.1.28:8989";
+                      key = "apikeyapikeyapikeyapikeyapikey";
+                    }
+                  ];
+                };
+          
 
-          GroupB = [
-            {
-              Lidarr = {
-                href = "http://lidarr.host";
-                icon = "lidarr.png";
-                description = "Music management";
-                widget = {
-                  type = "lidarr";
-                  url = "http://lidarr.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
+                "Lidarr" = {
+                  icon = "lidarr";
+                  description = "Music";
+                  href = "http://192.168.1.28:8989";
+                  widgets = [
+                    {
+                      type = "Lidarr";
+                      url = "http://192.168.1.28:8989";
+                      key = "apikeyapikeyapikeyapikeyapikey";
+                    }
+                  ];
                 };
-              };
-            }
-            {
-              Readarr = {
-                href = "http://readarr.host";
-                icon = "readarr.png";
-                description = "Ebook management";
-                widget = {
-                  type = "readarr";
-                  url = "http://readarr.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
-                };
-              };
-            }
-          ];
 
-          GroupC = [
-            {
-              Prowlarr = {
-                href = "http://prowlarr.host";
-                icon = "prowlarr.png";
-                description = "Indexer management";
-                widget = {
-                  type = "prowlarr";
-                  url = "http://prowlarr.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
-                };
-              };
-            }
-            {
-              Jellyfin = {
-                href = "http://jellyfin.host";
-                icon = "jellyfin.png";
-                description = "Media server";
-                widget = {
-                  type = "jellyfin";
-                  url = "http://jellyfin.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
-                };
-              };
-            }
-          ];
 
-          GroupD = [
-            {
-              Navidrome = {
-                href = "http://navidrome.host";
-                icon = "navidrome.png";
-                description = "Music streaming server";
-                widget = {
-                  type = "navidrome";
-                  url = "http://navidrome.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
-                };
-              };
-            }
-            {
-              Zigbee2mqtt = {
-                href = "http://zigbee2mqtt.host";
-                description = "Zigbee gateway";
-                widget = {
-                  type = "zigbee2mqtt";
-                  url = "http://zigbee2mqtt.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
-                };
-              };
-            }
-            {
-              Mosquitto = {
-                href = "http://mosquitto.host";
-                icon = "mosquitto.png";
-                description = "MQTT broker";
-                widget = {
-                  type = "mosquitto";
-                  url = "http://mosquitto.host";
-                  key = "apikeyapikeyapikeyapikeyapikey";
-                };
-              };
-            }
-          ];
-        };
+                
+              }
+            ];
+          }
+
+          
+          
+          
+          
+        ]; 
+        
+        
    #     kubernetes = { };
    #     customJS = { };
         bookmarks = [

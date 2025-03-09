@@ -13,12 +13,8 @@
           "/docker/gluetun1/config:/gluetun"
           "/docker/gluetun1/forwardedports.txt:/tmp/gluetun/forwardedport.txt"
         ];  
-        environment = [
-          SHADOWSOCKS=on
-          SHADOWSOCKS_PASSWORD=config.sops.secrets.SHADOWSOCKS_PASSWORD.path;
-          VPN_SERVICE_PROVIDER=protonvpn;
-          OPENVPN_USER=config.sops.secrets.PROTON_OPENVPN_USER.path;
-          OPENVPN_PASSWORD=config.sops.secrets.PROTON_OPENVPN_PASSWORD.path;
+        environmentFiles = [
+          "/docker/gluetun/.env"
         ];
       };
 
@@ -31,15 +27,10 @@
           "/docker/gluetun2/config:/gluetun"
           "/docker/gluetun2/forwardedports.txt:/tmp/gluetun/forwardedport.txt"
         ];  
-        environment = [
-          SHADOWSOCKS=on
-          SHADOWSOCKS_PASSWORD=config.sops.secrets.SHADOWSOCKS_PASSWORD.path;
-          VPN_SERVICE_PROVIDER=protonvpn;
-          OPENVPN_USER=config.sops.secrets.PROTON_OPENVPN_USER.path;
-          OPENVPN_PASSWORD=config.sops.secrets.PROTON_OPENVPN_PASSWORD.path;
+        environmentFiles = [
+          "/docker/gluetun/.env"
         ];
       };
-
       gluetun3 = {
         image = "qmcgaw/gluetun";
         hostname = "gluetun3";
@@ -49,12 +40,8 @@
           "/docker/gluetun3/config:/gluetun"
           "/docker/gluetun3/forwardedports.txt:/tmp/gluetun/forwardedport.txt"
         ];  
-        environment = [
-          SHADOWSOCKS=on
-          SHADOWSOCKS_PASSWORD=config.sops.secrets.SHADOWSOCKS_PASSWORD.path;
-          VPN_SERVICE_PROVIDER=protonvpn;
-          OPENVPN_USER=config.sops.secrets.PROTON_OPENVPN_USER.path;
-          OPENVPN_PASSWORD=config.sops.secrets.PROTON_OPENVPN_PASSWORD.path;
+        environmentFiles = [
+          "/docker/gluetun/.env"
         ];
       };
 
@@ -67,12 +54,8 @@
           "/docker/gluetun4/config:/gluetun"
           "/docker/gluetun4/forwardedports.txt:/tmp/gluetun/forwardedport.txt"
         ];  
-        environment = [
-          SHADOWSOCKS=on
-          SHADOWSOCKS_PASSWORD=config.sops.secrets.SHADOWSOCKS_PASSWORD.path;
-          VPN_SERVICE_PROVIDER=protonvpn;
-          OPENVPN_USER=config.sops.secrets.PROTON_OPENVPN_USER.path;
-          OPENVPN_PASSWORD=config.sops.secrets.PROTON_OPENVPN_PASSWORD.path;
+        environmentFiles = [
+          "/docker/gluetun/.env"
         ];
       };
 
@@ -85,12 +68,8 @@
           "/docker/gluetun5/config:/gluetun"
           "/docker/gluetun5/forwardedports.txt:/tmp/gluetun/forwardedport.txt"
         ];  
-        environment = [
-          SHADOWSOCKS=on
-          SHADOWSOCKS_PASSWORD=config.sops.secrets.SHADOWSOCKS_PASSWORD.path;
-          VPN_SERVICE_PROVIDER=protonvpn;
-          OPENVPN_USER=config.sops.secrets.PROTON_OPENVPN_USER.path;
-          OPENVPN_PASSWORD=config.sops.secrets.PROTON_OPENVPN_PASSWORD.path;
+        environmentFiles = [
+          "/docker/gluetun/.env"
         ];
       };
     };
@@ -100,10 +79,10 @@
     enable = true;
     package = pkgs.proxychains-ng;
 
-    chain = {
-      type = "random";
-      length = 3; # Only applicable if type is "random"
-    };
+ #  chain = {
+ #     type = "random";
+  #    length = 3; # Only applicable if type is "random"
+ #   };
 
     proxyDNS = true;
     quietMode = false;

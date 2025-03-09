@@ -5,7 +5,7 @@ let
   hostname = "homie";
 in
 {
-  imports = [ ./hardware-configuration.nix
+  imports = [ ./hardware-configuration.nix ./../backup.nix
 
                       ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix

@@ -1,7 +1,7 @@
 { config, lib, pkgs, user, host, hostname, ... }: {
   
   imports = [ ./hardware-configuration.nix 
-                     
+                      ./../../modules/services/syncthing.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
                     #  ./../../modules/networking/default.nix 

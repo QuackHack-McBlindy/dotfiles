@@ -171,7 +171,17 @@
 
 
 
-
+  security.sudo.extraRules = [
+    {
+      users = [ "pungkula" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/smartctl";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 
 
 #   swaylock pass verify

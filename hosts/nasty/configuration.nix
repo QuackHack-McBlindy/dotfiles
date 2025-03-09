@@ -4,7 +4,7 @@ let
   hostname = "nasty";
 in
 {
-  imports = [ ./hardware-configuration.nix ./borg.nix
+  imports = [ ./hardware-configuration.nix ./../backup.nix
 
 
                      # ./../../modules/services/satellite.nix
@@ -53,6 +53,8 @@ in
     enable = true;
     exports = ''
       /Pool  *(rw,fsid=0,no_subtree_check)
+      /backup  *(rw,fsid=0,no_subtree_check)
+      
     '';
   };
 

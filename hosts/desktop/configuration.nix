@@ -4,15 +4,14 @@ let
   hostname = "desktop";
 in
 {
-  imports = [ ./hardware-configuration.nix ./backup.nix
+  imports = [ ./hardware-configuration.nix ./../backup.nix
 
-                      
-                     # ./../../modules/services/systemd/voice-server.nix
-                 #     ./../../modules/services/satellite.nix
+
+                      ./../../modules/services/homepage.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
-                      ./../../modules/services/rclone.nix
+                    #  ./../../modules/services/rclone.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/keyd.nix
                       ./../../modules/networking/stubby.nix
@@ -22,6 +21,7 @@ in
                       ./../../modules/nixos/gnome.nix
                       ./../../modules/nixos/xserver.nix
                       ./../../modules/services/avahi-client.nix
+                      ./../../modules/services/avahi-server.nix
                       ./../../modules/services/jails.nix                       
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix

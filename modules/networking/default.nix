@@ -6,14 +6,14 @@
   networking = { 
       networkmanager.enable = true; 
       nameservers = [
-          "::1"
-          "127.0.0.1"
+          "192.168.1.1"
+    #      "127.0.0.1"
       ];
       firewall = {
           enable = true;
           logRefusedConnections = true;
-          allowedUDPPorts = [ 6222 ];
-          allowedTCPPorts = [ 6262 ];
+          allowedUDPPorts = [ 6222 443 53 ];
+          allowedTCPPorts = [ 6262 443 53 ];
       };
       hosts = {
           "192.168.1.1" = [ "router.lan" "router.local" "router" ];
@@ -24,10 +24,11 @@
       };   
   };    
   
-#  services.resolved = {
- #     enable = true;
- #     fallbackDns = [ "2606:4700:4700::1112" "2606:4700:4700::1002" "1.1.1.2" "1.0.0.2" ];
- # };
+  services.resolved = {
+      enable = true;
+      fallbackDns = [ "192.168.1.1" ];
+      dnsovertls = "true";
+   };
   
 #  boot.initrd.network = {
   #  enable = true;
@@ -38,4 +39,3 @@
  
 
 }
-

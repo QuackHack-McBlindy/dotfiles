@@ -11,7 +11,7 @@
         backend = "docker";
         containers = {
             duck-tv = {
-                image = "lscr.io/linuxserver/jellyfin:latest";
+                image = "jellyfin/jellyfin:latest";
                 hostname = "duck-tv";
                 autoStart = true;
                 ports = [
@@ -22,8 +22,10 @@
                 ];
                 volumes = [
                     "/docker/duck-tv/config:/config"
+                    "/docker/duck-tv/jellyfin-web:/jellyfin-web:ro"
                     "/Pool/TV:/data/tvshows"
                     "/Pool/Movies:/data/movies"
+                    
 
                 ];
             #    enviorments = [ 

@@ -35,6 +35,12 @@
       # Enable colorful `ls` output
      # export LS_COLORS="di=1;34:ln=1;36:so=1;32:pi=1;33:ex=1;31"
       
+      if [[ $- == *i* ]]; then
+          # Interactive-only commands go here
+          bind 'set show-all-if-ambiguous on'
+          bind 'set completion-ignore-case on'
+      fi
+
 
       # Automatically call the handler on shell startup
    #r   trap 'handle_port_conflict' ERR
