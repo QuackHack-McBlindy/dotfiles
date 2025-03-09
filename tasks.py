@@ -105,6 +105,25 @@ def push(ctx, commit=None):
 
 
 
+@task
+def pull(ctx):
+    """
+    Pulls dotfiles from GitHub repo.
+
+    :param ctx: Invoke context.
+    """
+    result_checkout = ctx.run("git checkout -- .", echo=True)
+    result_pull = ctx.run("git pull origin main", echo=True)
+
+    if result_checkout.return_code == 0 and result_pull.return_code == 0:
+        print(" ")
+        print(" ")
+        print("🚀🚀🚀🚀 ✨ ")
+        print(rainbow_text("✨✨ Successfully pulled the latest dotfiles repository!"))
+    else:
+        print("\033[1;31m [ WARNING! ] \033[0m")
+        print("\033[1;31mAn error occurred while pulling the latest changes.\033[0m")
+
 
 
 
