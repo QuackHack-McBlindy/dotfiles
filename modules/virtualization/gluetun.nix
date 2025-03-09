@@ -63,9 +63,9 @@
 
         ];
         environmentFiles = [ "/docker/gluetun/.env" ];
-        enviorments = {
+  #      enviorments = {
 
-        };
+ #       };
       };
     };
   };
