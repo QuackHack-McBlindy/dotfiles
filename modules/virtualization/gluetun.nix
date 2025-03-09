@@ -14,14 +14,14 @@
 
 #in
 
-  systemd.services.capture-gluetun-port = {
-    description = "Capture Gluetun forwarded port";
-    after = [ "docker-gluetun.service" ];
-    serviceConfig.ExecStart = "${capturePortScript}";
-    serviceConfig.Restart = "always";
-    serviceConfig.User = "root";
-    wantedBy = [ "multi-user.target" ];
-  };
+#  systemd.services.capture-gluetun-port = {
+#    description = "Capture Gluetun forwarded port";
+#    after = [ "docker-gluetun.service" ];
+#    serviceConfig.ExecStart = "${capturePortScript}";
+#    serviceConfig.Restart = "always";
+#    serviceConfig.User = "root";
+#    wantedBy = [ "multi-user.target" ];
+#  };
 
   virtualisation.oci-containers = {
     backend = "docker";
@@ -43,7 +43,7 @@
           "8888:8888" # gluetun
           "8388:8388" # shadowsocks
           "8001:8000" # http proxy?
-          "${forwarded.port}:${forwarded.port}"  # vpn forwarding
+    #      "${forwarded.port}:${forwarded.port}"  # vpn forwarding
         #  "8118:8118" # browserVPN
           "7878:7878"  # Radarr
           "8989:8989" # Sonarr:
@@ -55,12 +55,14 @@
           "4545:4545" # Requestrr:
           "8191:8191"   # Flaresolverr
           "9091:9091" # transmission
+          "51413:51413" # transmission
+          "51413:51413/udp" # transmission
         ];
         volumes = [
           "/docker/gluetun/config:/gluetun"
 
         ];
-        environmentFiles = [ "/docker/gluetun.env" ];
+        environmentFiles = [ "/docker/gluetun/.env" ];
         enviorments = {
 
         };
