@@ -67,7 +67,7 @@ in {
     system.activationScripts.sshConfig = {
         text = ''
            mkdir -p /docker/borg
-           ${pkgs.docker}/bin/docker build -t borg-borgbackup:latest /docker/borg
+           /run/current-system/sw/bin/docker build -t borg-borgbackup:latest /docker/borg
         '';
     };
     
