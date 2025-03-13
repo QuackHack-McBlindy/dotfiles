@@ -15,8 +15,6 @@
         };
     };
 
-  
-
     services.borgbackup.jobs = {
         backupJob = {
             paths = "/";
@@ -38,8 +36,9 @@
                 "/mnt"             # Mounted external storage (ensure you want this excluded)
                 "/media"           # Removable media
                 "/swapfile"        # Swap file (not useful in backups)
+                "/mnt"
             ];
-            repo = "/backup/borg/${config.networking.hostName}";
+            repo = "borg@10.10.10.2:/${config.networking.hostName}";
             doInit = true;
             encryption = {
                 mode = "repokey";

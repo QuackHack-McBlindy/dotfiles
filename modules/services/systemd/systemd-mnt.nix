@@ -14,7 +14,7 @@
             Type = "oneshot";
             RemainAfterExit = true;
             ExecStart = [
-                "${pkgs.bash}/bin/bash -c '/run/current-system/sw/bin/sleep 30 && /run/wrappers/bin/mount -t nfs4 192.168.1.28:/ /mnt/Pool && /run/wrappers/bin/mount --bind /mnt/Pool /Pool && /run/wrappers/bin/mount -t nfs4 192.168.1.28:/ /mnt/backup && /run/wrappers/bin/mount --bind /mnt/backup /backup'"
+                "${pkgs.bash}/bin/bash -c '/run/current-system/sw/bin/sleep 30 && /run/wrappers/bin/mount -t nfs4 192.168.1.28:/ /mnt/Pool && /run/wrappers/bin/mount --bind /mnt/Pool /Pool'"
             ];
             Restart = "on-failure";
             RestartSec = "2s";

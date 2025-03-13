@@ -8,7 +8,7 @@
 } : {
     environment.systemPackages = with pkgs; [   
         pkgs.npth
-        esphome
+     #   esphome
         pkgs.python312Packages.httpx
         pkgs.python312Packages.aiocron
         python312Packages.aioesphomeapi
@@ -66,12 +66,13 @@
         curl
         git
         unzip
+        wireguard-tools
         pkgs.nixos-anywhere
         pkgs.syncthing
         inputs.voice-client.packages.x86_64-linux.voice-client
         inputs.say.packages.x86_64-linux.say
         
-        inputs.api.packages.x86_64-linux.api
+   #     inputs.api.packages.x86_64-linux.api
    
     ];
 }   

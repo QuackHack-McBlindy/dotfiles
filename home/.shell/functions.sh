@@ -14,7 +14,7 @@ cd() {
     if [ -z "$1" ]; then
         builtin cd "$(find ~ -type d | fzf)"
     else
-        builtin cd "$1"
+        builtin cd "$1" && ls
     fi
 }
 

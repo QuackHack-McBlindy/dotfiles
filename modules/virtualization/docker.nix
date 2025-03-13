@@ -3,6 +3,7 @@
   virtualisation = {
       docker = {
           enable = true;
+          extraOptions = "--iptables=false --ip-masq=false";
           autoPrune = {
               enable = true;
               dates = "weekly";

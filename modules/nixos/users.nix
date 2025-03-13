@@ -5,18 +5,18 @@ let
   dirs = import ./directories.nix;
 in
 {
-  system.activationScripts.createDirs = ''
-      for dir in ${builtins.concatStringsSep " " dirs}; do
-          mkdir -p /home/${user}/$dir
-          chown ${user}:${user} /home/${user}/$dir
-          chmod 700 /home/${user}/$dir
-      done
+  #system.activationScripts.createDirs = ''
+  #    for dir in ${builtins.concatStringsSep " " dirs}; do
+  #        mkdir -p /home/${user}/$dir
+  #        chown ${user}:${user} /home/${user}/$dir
+  #        chmod 700 /home/${user}/$dir
+  #    done
       
-      if [ ! -f "/home/${user}/.dotduck" ]; then
-          echo "New machine detected! Executing bootstrap..."
-          sudo -u ${user} nix run github:QuackHack-McBlindy/dotfiles#bootstrap 
-      fi
-  '';
+ #     if [ ! -f "/home/${user}/.dotduck" ]; then
+ #         echo "New machine detected! Executing bootstrap..."
+ #         sudo -u ${user} nix run github:QuackHack-McBlindy/dotfiles#bootstrap 
+ #     fi
+  #'';
   users = {
       defaultUserShell = pkgs.bash; 
       groups = {

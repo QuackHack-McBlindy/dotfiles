@@ -21,7 +21,14 @@
     target = "/.config/speech-dispatcher/modules/piper-tts-generic.conf";
     enable = true;
   };
-  
+
+
+  home.file."custom-module" = {
+    source = ./../../home/.config/speech-dispatcher/modules/custom-tts.conf;
+    target = "/.config/speech-dispatcher/modules/custom-tts.conf";
+    enable = true;
+  };
+    
   # en_US Female Amy
 #  home.file.piper = {
 #    enable = true;

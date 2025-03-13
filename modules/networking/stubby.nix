@@ -10,7 +10,6 @@
         settings = {
         # ::1 cause error, use 0::1 instead
             listen_addresses = [ "127.0.0.1" "0::1" ];
-    # https://github.com/getdnsapi/stubby/blob/develop/stubby.yml.example
             resolution_type = "GETDNS_RESOLUTION_STUB";
             dns_transport_list = [ "GETDNS_TRANSPORT_TLS" ];
             tls_authentication = "GETDNS_AUTHENTICATION_REQUIRED";
@@ -20,6 +19,7 @@
             tls_min_version = "GETDNS_TLS1_3";
             dnssec = "GETDNS_EXTENSION_TRUE";
             upstream_recursive_servers = [
+
             {
                 address_data = "1.1.1.2";
                 tls_auth_name = "cloudflare-dns.com";

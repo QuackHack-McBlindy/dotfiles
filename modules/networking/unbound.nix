@@ -1,6 +1,8 @@
-# unbound
 
 {
+  networking.firewall.allowedUDPPorts = [ 53 5335 3005 ];
+  networking.firewall.allowedTCPPorts = [ 53 5335 3005 ];
+
   services.unbound = {
     enable = true;
     settings = {
@@ -17,12 +19,10 @@
         prefetch = true;
         edns-buffer-size = 1232;
 
-        # Custom settings
         hide-identity = true;
         hide-version = true;
       };
       forward-zone = [
-        # Example config with quad9
         {
           name = ".";
           forward-addr = [
@@ -31,9 +31,9 @@
           #  "9.9.9.9" # Quad9
           #  "149.112.112.112" #Quad9
             "1.1.1.2" # Cloudflare
-            "1.0.0.2" # Cloudflare
+            "1.0.0.2" # Cloudlare
           ];
-          forward-tls-upstream = true;  # Protected DNS
+          forward-tls-upstream = true;  
         }
       ];
     };

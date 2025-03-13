@@ -7,10 +7,8 @@ in
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
 
-                     # ./../../modules/services/satellite.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/networking/caddy2.nix
-                      ./../../modules/networking/stubby.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
                     #  ./../../modules/services/dns.nix
@@ -26,9 +24,10 @@ in
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/virtualization/duck-tv.nix
                       ./../../modules/virtualization/arr.nix
+                      ./../../modules/virtualization/borg.nix
                       ./../../modules/virtualization/docker.nix
                   #    ./../../modules/virtualization/vm.nix
-
+c    
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -52,8 +51,6 @@ in
     enable = true;
     exports = ''
       /Pool  *(rw,fsid=0,no_subtree_check)
-      /backup  *(rw,fsid=0,no_subtree_check)
-      
     '';
   };
 

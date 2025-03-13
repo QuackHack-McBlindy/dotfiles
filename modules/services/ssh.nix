@@ -21,7 +21,6 @@ let
         name = "ssh-config";
         text = sshConfigText;
     };
-
     pubkey = import ./../../hosts/pubkeys.nix;
     username = user;
     hostkey = import ./../../hosts/hostkeys.nix;
@@ -36,9 +35,7 @@ in
         '';
     };
 
- #   networking.firewall.allowedTCPPorts = [ 2222 ];
-
- #   users.users.root.openssh.authorizedKeys.keys = [  
+    networking.firewall.allowedTCPPorts = [ 2222 ];
 
     users.users.${user}.openssh.authorizedKeys.keys = [ 
         pubkey.desktop
@@ -72,19 +69,13 @@ in
         enable = true;
         ports = [ 2222 ];
         openFirewall = true;   
-  #      knownHosts = {
-  #          desktop.publicKey = pubkey.desktop;
-  #          laptop.publicKey = pubkey.laptop;
-  #          nasty.publicKey = pubkey.nasty;
-            # homie.publicKey = pubkey.homie;
-#        };
 
         settings = {    
             AllowUsers = [ username ];  
             PasswordAuthentication = false;
             PermitRootLogin = "no"; 
-            MaxAuthTries = "3";  
-            # UsePAM = "yes"; 
+            MaxAuthTries = "5";  
+         #   UsePAM = "no"; 
             LogLevel = "VERBOSE";
         };
         

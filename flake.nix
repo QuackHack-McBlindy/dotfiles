@@ -8,9 +8,9 @@
         home-manager.url = "github:nix-community/home-manager";
         home-manager.inputs.nixpkgs.follows = "nixpkgs";  
           
-        agenix.url = "github:ryantm/agenix";
-        agenix-rekey.url = "github:oddlama/agenix-rekey";
-        agenix-rekey.inputs.nixpkgs.follows = "nixpkgs";
+        #agenix.url = "github:ryantm/agenix";
+        #agenix-rekey.url = "github:oddlama/agenix-rekey";
+        #agenix-rekey.inputs.nixpkgs.follows = "nixpkgs";
       
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
@@ -39,7 +39,7 @@
         voice-client.url = "./pkgs/voice-client";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         say.url = "./pkgs/say";
-        api.url = "./pkgs/api";
+     #   api.url = "./pkgs/api";
         
 #°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
         librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
@@ -52,7 +52,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, api, ... }@inputs:
+    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, ... }@inputs:
         let
             user = "pungkula";
             hostname = self.config.networking.hostName;
@@ -85,7 +85,7 @@
             packages.x86_64-linux.voice-client = voice-client.packages.x86_64-linux.voice-client;
             packages.x86_64-linux.caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
             packages.x86_64-linux.say = say.packages.x86_64-linux.say;
-            packages.x86_64-linux.api = api.packages.x86_64-linux.api;
+           # packages.x86_64-linux.api = api.packages.x86_64-linux.api;
  
             apps.x86_64-linux.box = {
                 type = "app";
@@ -106,7 +106,8 @@
                             pkgs.wget     
                             pkgs.sudo     
                         ]
-                    }      
+                    }    
+                    export SEGGER_JLINK_ACCEPT_LICENSE=true
                     CONFIG_FILE="./hosts/box/configuration.yaml"
                     USB_PATHS=(
                         "/dev/ttyUSB0"
@@ -119,6 +120,9 @@
                     }
                     nixpkgs.config.allowUnfree = true;
                     nixpkgs.config.segger-jlink.acceptLicense = true;
+                    export NIXPKGS_ALLOW_UNFREE=true
+
+
                     echo "🚀 Attempting to flash automatically..."
                     if esphome $CONFIG_FILE run; then
                         echo "✨ Successfully flashed ESP32S3-BOX3!! 🚀"

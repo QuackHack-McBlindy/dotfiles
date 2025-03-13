@@ -81,9 +81,7 @@ in
     device = "/mnt/Pool";
     options = [ "bind" ];
   };
-      
-#  fileSystems."/mnt/disks/parity01" =
-
+   
   fileSystems."/mnt/backup" = {
     device = "/dev/disk/by-label/backup";
     fsType = "ext4";
@@ -94,7 +92,8 @@ in
     device = "/mnt/backup";
     options = [ "bind" ];
   };
-  
+   
+#  fileSystems."/mnt/disks/parity01" =
 
 
   networking.useDHCP = lib.mkDefault true;

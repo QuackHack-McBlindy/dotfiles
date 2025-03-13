@@ -10,6 +10,8 @@
       # Aliases
       source ~/dotfiles/home/.shell/aliases.sh
 
+      source ~/dotfiles/home/.gumrc
+
       # If interactive, source functions
       if [[ $- == *i* ]]; then
         source ~/dotfiles/home/.shell/functions.sh
@@ -52,10 +54,10 @@
     '';   
     
     shellAliases = {
-      # fzf ssh
-      ssh-preview = "cat ~/.ssh/config | fzf --preview 'echo {}'";
       # fzf mp3
       mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
+      video = "find /Pool/Videos -type f \( -iname '*.mp4' -o -iname '*.avi' -o -iname '*.mkv' -o -iname '*.mov' -o -iname '*.wmv' -o -iname '*.flv' -o -iname '*.webm' \) | fzf | xargs mpv";
+
       # fzf psx
       psx = "ps aux | fzf --preview 'echo {} | awk '{print \$2}' | xargs -I {} ps --pid {}'";
 
@@ -67,7 +69,7 @@
       services = "systemctl-tui";
 
       # IP addresses
-      ip = "dig +short myip.opendns.com @resolver1.opendns.com";
+      ipnr = "dig +short myip.opendns.com @resolver1.opendns.com";
       localip = "nmcli device show | grep -oP 'IP4.ADDRESS\[1\]:\s+\K192\.168\.1\.[0-9]+\/24'";
       ips = "ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[0-9]\+\)\|[a-fA-F0-9:]\+\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'";
       

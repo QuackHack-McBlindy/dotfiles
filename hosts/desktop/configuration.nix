@@ -11,10 +11,8 @@ in
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
-                    #  ./../../modules/services/rclone.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/keyd.nix
-                      ./../../modules/networking/stubby.nix
                       ./../../modules/hardware/pam.nix
                       ./../../modules/nixos/cross-env.nix
                       ./../../modules/nixos/packages.nix
@@ -38,15 +36,12 @@ in
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/virtualization/docker.nix
                       ./../../modules/virtualization/vm.nix
-                      #/../../modules/virtualization/arr.nix
-                    #  ./../../modules/virtualization/gluetun.nix
   
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ BOOT LOADER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
   

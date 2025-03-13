@@ -9,6 +9,9 @@ develop/*
 home/.config/Yubico/yubikey-identity.txt
 home/.config/Yubico/*
 
+hosts/box/secrets.yaml
+hosts/watch/secrets.yaml
+
 home/.config/ha
 home/.config/home-assistant
 result/
