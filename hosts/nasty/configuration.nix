@@ -27,7 +27,7 @@ in
                       ./../../modules/virtualization/borg.nix
                       ./../../modules/virtualization/docker.nix
                   #    ./../../modules/virtualization/vm.nix
-c    
+   
   ];
 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
