@@ -75,7 +75,7 @@ in {
         backend = "docker";
         containers = {
             borgbackup = {
-                image = "borg-borgbackup:latest";
+                image = "borg-borgbackup";
                 autoStart = true;
                 ports = [ "2225:2222" ];
                 environment = {
