@@ -12,6 +12,9 @@ home/.config/Yubico/*
 hosts/box/secrets.yaml
 hosts/watch/secrets.yaml
 
+home/.local/share/piper/
+home/.local/share/piper/*
+
 home/.config/ha
 home/.config/home-assistant
 result/
