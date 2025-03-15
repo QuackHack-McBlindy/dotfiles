@@ -67,7 +67,7 @@ in {
         containers = {
             borgbackup = {
                 image = "borg-borgbackup";
-                hostname = "borg"
+                hostname = "borg";
                 user = "977:968"; 
                 autoStart = true;
                 ports = [ "2225:2222" ];
