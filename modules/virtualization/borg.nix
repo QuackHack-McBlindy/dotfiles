@@ -85,10 +85,10 @@ in {
         containers = {
             borgbackup = {
                # image = "borg-borgbackup";
-                imageFile = borg-image;
+               # imageFile = borg-image;
                 hostname = "borg";
                 user = "977:968"; 
-                autoStart = true;
+                autoStart = false;
                 ports = [ "2225:2222" ];
                 environment = {                
                     AUTHORIZED_KEYS = "${pubkey.desktop} ${pubkey.homie} ${pubkey.nasty}";
