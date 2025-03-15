@@ -61,6 +61,8 @@
     '';
     
 in {
+# sudo chown -R dockeruser:dockeruser /docker/borg
+# sudo chmod -R 755 /docker/borg
 
     virtualisation.oci-containers = {
         backend = "docker";
@@ -83,6 +85,7 @@ in {
                    "--network=borgnet"
                    "--ip=10.10.10.2"    
                 ];
+                entrypoint = [ "${entrypoint}" ];
             };
         };    
     };

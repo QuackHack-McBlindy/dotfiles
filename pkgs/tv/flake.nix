@@ -14,6 +14,7 @@
           pythonEnv = pkgs.python3.withPackages (ps: [
             ps.sounddevice
             ps.requests
+            ps.python-dotenv
           ]);
         in
         pkgs.stdenv.mkDerivation {
@@ -32,7 +33,7 @@
           meta = {
             description = "ADB Controller";
             license = pkgs.lib.licenses.mit;
-            maintainers = [ "your-name" ];
+            maintainers = [ "QuackHack-McBlindy" ];
           };
         };
 
