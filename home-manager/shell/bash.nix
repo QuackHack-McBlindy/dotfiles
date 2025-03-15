@@ -18,12 +18,16 @@
       fi
        
       eval -- "$(/etc/profiles/per-user/pungkula/bin/starship init bash --print-full-init)" 
-      eval "$(direnv hook bash)"    
+      eval "$(direnv hook bash)"   
+      
       # Customize the prompt
-    #  PS1="\[\e[32m\]\u@\h:\w\[\e[m\] \$ "
+      # PS1="\[\e[32m\]\u@\h:\w\[\e[m\] \$ "
+    
       export PYTHONSTARTUP="./../../home/.pythonrc"
       export PYTHONPATH="/home/$USER/dotfiles/home/.shell/python:$PYTHONPATH"
       export PATH=$PATH:./../../home/bin
+      export PATH="/home/pungkula/dotfiles/home/bin:$PATH"
+      
       # Enable command auto-completion
       shopt -s histappend
       shopt -s autocd  # auto-cd to directories
@@ -56,7 +60,7 @@
     shellAliases = {
       # fzf mp3
       mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
-      video = "find /Pool/Videos -type f \( -iname '*.mp4' -o -iname '*.avi' -o -iname '*.mkv' -o -iname '*.mov' -o -iname '*.wmv' -o -iname '*.flv' -o -iname '*.webm' \) | fzf | xargs mpv";
+      #video = "find /Pool/Videos -type f \( -iname '*.mp4' -o -iname '*.avi' -o -iname '*.mkv' -o -iname '*.mov' -o -iname '*.wmv' -o -iname '*.flv' -o -iname '*.webm' \) | fzf | xargs mpv";
 
       # fzf psx
       psx = "ps aux | fzf --preview 'echo {} | awk '{print \$2}' | xargs -I {} ps --pid {}'";
@@ -82,7 +86,6 @@
       month = "(date +%m)";      
       date = "(date +%d)";
       day_of_week = "(date +%A)";
-     
 
       # Clear Terminal
       clr = "clear";

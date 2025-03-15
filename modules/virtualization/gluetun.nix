@@ -4,43 +4,35 @@
   pkgs,
   ...
 } : let
-    capturePortScript = pkgs.writeShellScript "capture-gluetun-port" ''
-        #!/bin/bash
-        touch /home/pungkula/dotfiles/modules/virtualization/gluetun-port.nix
-        journalctl -u docker-gluetun.service --no-pager -f | grep --line-buffered "port forwarded" | \
-        while read -r line; do
-            line=$(journalctl -u docker-gluetun.service --no-pager | grep -i "port forwarded is" | tail -n 1)
-            port=$(echo "$line" | sed -E 's/.*port forwarded is ([0-9]+).*/\1/')
-            echo '{' > /home/pungkula/dotfiles/modules/virtualization/gluetun-port.nix
-            echo '  port = "$port";' >> /home/pungkula/dotfiles/modules/virtualization/gluetun-port.nix
-            echo '}' >> /home/pungkula/dotfiles/modules/virtualization/gluetun-port.nix
-            ${pkgs.docker}/bin/docker run -d \
-                --name transmission \
-                --network container:gluetun \
-                -v /docker/transmission/config:/config \
-                -v /Pool/Downloads:/downloads \
-                -v /Pool/Watch:/watch \
-                -e PEERPORT=$port \
-                --restart always \
-                lscr.io/linuxserver/transmission:latest
-        done
+    env = pkgs.writeText ".env" ''
+        VPN_SERVICE_PROVIDER="protonvpn"
+        VPN_TYPE="openvpn"
+        OPENVPN_USER="@VPNUSER@"
+        OPENVPN_PASSWORD="@VPNPASS@"
+        SERVER_COUNTRIES="Netherlands"
+        BLOCK_SURVEILLANCE="on"
+        BLOCK_MALICIOUS="on"
+        BLOCK_ADS="on"
+        HTTPPROXY="on"
+        SHADOWSOCKS="on"
+        SHADOWSOCKS_PASSWORD="@SHADOWPASS@"
+        FIREWALL_OUTBOUND_SUBNETS="255.255.255.0/24"
+        TZ="Europe/Berlin"
+        PUID="977"
+        PGID="968"
+        VPN_PORT_FORWARDING="on"
+        PORT_FORWARD_ONLY="on"  
+        TRANS="@TRANS@"
     '';
-    forwarded = import ./gluetun-port.nix;
-in {
-    systemd.services.capture-gluetun-port = {
-        description = "Capture Gluetun forwarded port";
-        after = [ "docker-gluetun.service" ];
-        serviceConfig.ExecStart = "${capturePortScript}";
-        serviceConfig.Restart = "always";
-        serviceConfig.User = "root";
-        wantedBy = [ "multi-user.target" ];
-    };
+    
+in { 
 
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
             gluetun = {
-                image = "qmcgaw/gluetun";
+                image = "ghcr.io/qdm12/gluetun:latest";
+                user = "0:0";
                 hostname = "gluetun";
                 privileged = true;
                 capabilities = { NET_ADMIN = true; };
@@ -48,8 +40,7 @@ in {
                 ports = [
                     "8888:8888" # Gluetun
                     "8388:8388" # Shadowsocks
-                    "8001:8000" # HTTP Control API
-                    "${forwarded.port}:${forwarded.port}"  # vpn forwarding
+                    "8000:8000" # HTTP Control API
                     "8118:8118" # browserVPN
                     "7878:7878"  # Radarr
                     "8989:8989" # Sonarr:
@@ -66,11 +57,85 @@ in {
                 ];
                 volumes = [
                     "/docker/gluetun/config:/gluetun"
+                    "/docker/gluetun/logs:/var/log/gluetun"
                 ];
                 environmentFiles = [ "/docker/gluetun/.env" ];
                 environment = { 
-                    VPN_PORT_FORWARDING_UP_COMMAND = "${capturePortScript}";
+                    VPN_PORT_FORWARDING_UP_COMMAND = ''
+                        /bin/sh -c "
+                            echo FORWARDED PORT: {{PORTS}};
+                            FORWARDED={{PORTS}};
+                            sleep 30;
+                            SESSION_ID=\$(wget -qO- --user=admin --password=admin --server-response http://localhost:9091/transmission/rpc 2>&1 | grep -o 'X-Transmission-Session-Id: .*' | head -n1 | cut -d ' ' -f2);
+                            sleep 5;
+                            RESPONSE=\$(wget -qO- --user='\$TRANS' --password='\$TRANS' --header=\"X-Transmission-Session-Id: \$SESSION_ID\" \
+                                --header=\"Content-Type: application/json\" \
+                                --post-data='{\"method\": \"session-set\", \"arguments\": {\"peer-port\": '\$FORWARDED' }}' \
+                                http://localhost:9091/transmission/rpc);
+                            echo \"Transmission RPC Response: \$RESPONSE\";
+                            if echo \"\$RESPONSE\" | grep -q '\"result\":\"success\"'; then
+                                echo '✅ Port updated successfully!';
+                            else
+                                echo '❌ Failed to update port!';
+                            fi
+                        "
+                    '';
+ 
                 };
-            };
+            };          
+        };     
+    };
+    
+    systemd.services.glue-conf = {
+        wantedBy = [ "multi-user.target" ];
+        preStart = ''
+            mkdir -p /docker/gluetun
+            sed -e "/@VPNUSER@/{
+                s|@VPNUSER@|$(cat ${config.sops.secrets.PROTON_OPENVPN_USER.path})|
+            }" \
+            -e "/@VPNPASS@/{
+                s|@VPNPASS@|$(cat ${config.sops.secrets.PROTON_OPENVPN_PASSWORD.path})|
+            }" \
+            -e "/@TRANS@/{
+                s|@TRANS@|$(cat ${config.sops.secrets.transmission.path})|
+            }" \
+            -e "/@SHADOWPASS@/{
+                s|@SHADOWPASS@|$(cat ${config.sops.secrets.SHADOWSOCKS_PASSWORD.path})|
+            }" ${env} > /docker/gluetun/.env                
+        '';
+    
+        serviceConfig = {
+            ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
+            Restart = "on-failure";
+            RestartSec = "2s";
+            RuntimeDirectory = [ "dockeruser" ];
+            User = "dockeruser";
+        };
+    };
+    
+    sops.secrets = {
+        PROTON_OPENVPN_USER = {
+            sopsFile = ./../../secrets/PROTON_OPENVPN_USER.yaml;
+            owner = "dockeruser";
+            group = "dockeruser";
+            mode = "0440"; 
+        };    
+        PROTON_OPENVPN_PASSWORD = {
+            sopsFile = ./../../secrets/PROTON_OPENVPN_PASSWORD.yaml;
+            owner = "dockeruser";
+            group = "dockeruser";
+            mode = "0440"; 
+        };      
+        SHADOWSOCKS_PASSWORD = {
+            sopsFile = ./../../secrets/SHADOWSOCKS_PASSWORD.yaml;
+            owner = "dockeruser";
+            group = "dockeruser";
+            mode = "0440"; 
+        };
+        transmission = {
+            sopsFile = ./../../secrets/transmission.yaml;
+            owner = "dockeruser";
+            group = "dockeruser";
+            mode = "0440"; 
         };
     };}

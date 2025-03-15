@@ -72,12 +72,6 @@
     age.keyFile = "/var/lib/sops-nix/age.age";
     age.generateKey = true;
     secrets = {
-#      SHADOWSOCKS_PASSWORD = {
-#        sopsFile = "/var/lib/sops-nix/secrets/SHADOWSOCKS_PASSWORD.json"; # Specify SOPS-encrypted secret file
-#        owner = config.users.users.secretservice.name;
-#        group = config.users.groups.secretservice.name;
-#        mode = "0440"; # Read-only for owner and group
-#      };
       secretservice = {
         sopsFile = ./../secrets/secretservice.yaml;
         owner = config.users.users.secretservice.name;
@@ -110,33 +104,13 @@
       group = config.users.groups.secretservice.name;
       mode = "0440"; # Read-only for owner and group
     };
-    SHADOWSOCKS_PASSWORD = {
-      sopsFile = ./../secrets/SHADOWSOCKS_PASSWORD.yaml;
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
+
     w = {
       sopsFile = ./../secrets/w.yaml;
       owner = config.users.users.secretservice.name;
       group = config.users.groups.secretservice.name;
       mode = "0440"; # Read-only for owner and group
     };
-    PROTON_OPENVPN_PASSWORD = {
-      sopsFile = ./../secrets/PROTON_OPENVPN_PASSWORD.yaml;
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
-    PROTON_OPENVPN_USER = {
-      sopsFile = ./../secrets/PROTON_OPENVPN_USER.yaml;
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
-      mode = "0440"; # Read-only for owner and group
-    };
-  };
-
-  sops.secrets = {
     resrobot = {
       sopsFile = ./../secrets/resrobot.yaml;
       owner = config.users.users.secretservice.name;
@@ -168,15 +142,21 @@
 #  config.sops.secrets.smbb.path;
   
 
-
-
-
   security.sudo.extraRules = [
     {
       users = [ "pungkula" ];
       commands = [
         {
           command = "/run/current-system/sw/bin/smartctl";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+    {
+      users = [ "dockeruser" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/systemctl restart docker-transmission";
           options = [ "NOPASSWD" ];
         }
       ];

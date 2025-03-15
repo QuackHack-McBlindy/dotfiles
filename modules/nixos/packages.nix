@@ -71,7 +71,7 @@
         pkgs.syncthing
         inputs.voice-client.packages.x86_64-linux.voice-client
         inputs.say.packages.x86_64-linux.say
-        
+        inputs.tv.packages.x86_64-linux.tv
    #     inputs.api.packages.x86_64-linux.api
    
     ];

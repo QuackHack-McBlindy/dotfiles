@@ -19,24 +19,13 @@
           "/docker/gluetun/config:/gluetun"
           "/docker/gluetun/forwardedports.txt:/tmp/gluetun/forwardedport.txt"
         ];  
-        environment = [
-          SHADOWSOCKS=on
-          SHADOWSOCKS_PASSWORD=config.sops.secrets.SHADOWSOCKS_PASSWORD.path;
-          VPN_SERVICE_PROVIDER=protonvpn;
-          OPENVPN_USER=config.sops.secrets.PROTON_OPENVPN_USER.path;
-          OPENVPN_PASSWORD=config.sops.secrets.PROTON_OPENVPN_PASSWORD.path;
-          VPN_PORT_FORWARDING=on;
-          VPN_PORT_FORWARDING_PROVIDER=protonvpn;
-          #PRIVATE_INTERNET_ACCESS_VPN_PORT_FORWARDING=on;
-          #FIREWALL_OUTBOUND_SUBNETS=255.255.255.0/24;
-          #HTTPPROXY=on;        
-        ];
+        environmentFiles = [ /docker/gluetun/.env ];
       };	   
       browserVPN = {
         image = "lscr.io/linuxserver/firefox:latest";
         hostname = "browserVPN";
         dependsOn = [ "gluetun" ];
-        shm_size = [ "2gb" ];
+      #  shm_size = [ "2gb" ];
         volumes = [
           "docker/saferBrowser/config:/config"
         ];  

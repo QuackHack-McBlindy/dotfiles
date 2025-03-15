@@ -4,13 +4,7 @@
         data:
           - sentences:
               - "(skapa|skapat|skapar|generera|gör|fixa) en {genre} låt om {prompt}"
-           #   - "(spel|spell|spela|spera) upp {typ} {search}"
-            #  - "(spel|spell|spela|spera) [upp] {typ} {search}"
-             # - "(start|starta|startar) {typ} {search}"
-            #  - "jag vill se {typ} {search}"
-           #   - "(spel|spell|spela|spera) [upp] {typ} "
-           #   - "jag vill höra {typ} {search}"
-           #   - "{typ}"
+
     lists:
       prompt:
         wildcard: true

@@ -39,7 +39,8 @@
         voice-client.url = "./pkgs/voice-client";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         say.url = "./pkgs/say";
-     #   api.url = "./pkgs/api";
+        tv.url = "./pkgs/tv";
+      #  api.url = "./pkgs/api";
         
 #°✶.•°••─→ MOBILE INPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
         librem-nixos.url = "github:zhaofengli/librem-nixos?ref=d7e3010";
@@ -52,7 +53,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, ... }@inputs:
+    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, tv, ... }@inputs:
         let
             user = "pungkula";
             hostname = self.config.networking.hostName;
@@ -85,6 +86,7 @@
             packages.x86_64-linux.voice-client = voice-client.packages.x86_64-linux.voice-client;
             packages.x86_64-linux.caddy-duckdns = caddy-duckdns.packages.x86_64-linux.caddy;
             packages.x86_64-linux.say = say.packages.x86_64-linux.say;
+            packages.x86_64-linux.tv = tv.packages.x86_64-linux.tv;
            # packages.x86_64-linux.api = api.packages.x86_64-linux.api;
  
             apps.x86_64-linux.box = {

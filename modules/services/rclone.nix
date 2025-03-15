@@ -21,7 +21,7 @@ in
             
             echo 'OTP_CODE=$(ykman oath accounts code | grep "ProtonMail" | awk '"'"'{print $NF}'"'"')' > ~/.config/rclone/testing12
             echo 'sed -i "s/\(2fa = \).*/\1$OTP_CODE/" /home/pungkula/.config/rclone/rclone.conf' >> ~/.config/rclone/testing12
-    '';
+        '';
    
 
    

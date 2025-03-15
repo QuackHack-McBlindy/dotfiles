@@ -133,7 +133,7 @@ except Exception as e:
 INTENTS = {
     'MediaController': {
         'script': 'mediaController.py 192.168.1.223 "{{ search }}" "{{ typ }}" ',
-        'speech': 'Jag fixar det.',
+        'speech': 'Jag fixar det, bruschan',
         'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
     },
     'Time': {

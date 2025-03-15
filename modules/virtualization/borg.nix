@@ -79,7 +79,6 @@ in {
                 autoStart = true;
                 ports = [ "2225:2222" ];
                 environment = {
-                    #AUTHORIZED_KEYS = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
                     AUTHORIZED_KEYS = "${pubkey.desktop} ${pubkey.homie} ${pubkey.nasty}";
                 };
                 volumes = [
@@ -87,8 +86,8 @@ in {
                     "/backup/borg:/home/borg"
                 ];
                 extraOptions = [
-                   "--network=borgnet"  # Attach to the custom network
-                    "--ip=10.10.10.2"    # Assign a static IP
+                   "--network=borgnet"
+                    "--ip=10.10.10.2"    
                 ];
             };
         };    

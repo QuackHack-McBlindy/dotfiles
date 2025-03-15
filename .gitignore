@@ -70,4 +70,4 @@ result/            # Nix build output
 **/vendor/
 **/.direnv
 **/*.typed
-
+played_news.txt

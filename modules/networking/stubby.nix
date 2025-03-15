@@ -29,6 +29,10 @@
                 tls_auth_name = "cloudflare-dns.com";
             }
             {
+                address_data = "1.1.1.1";
+                tls_auth_name = "lookup.cloudflare.com";
+            } 
+            {
                 address_data = "2606:4700:4700::1112";
                 tls_auth_name = "cloudflare-dns.com";
             }
