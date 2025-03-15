@@ -1,8 +1,7 @@
 { config, pkgs, lib, ... }:
 
 {
-  system.activationScripts.createDirs = {
-    text = ''
+  boot.postBootCommands = ''
       directories=(${builtins.readFile ./folders.nix})
       
       for dir in $directories; do
@@ -13,7 +12,7 @@
           echo "Directory already exists: $dir"
         fi
       done
-    '';
+  '';
   };
 }
 

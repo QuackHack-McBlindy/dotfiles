@@ -6,7 +6,7 @@
 } : let
     pubkey = import ./../../hosts/pubkeys.nix;
     
-    textDockerfile = ''
+    Dockerfile = pkgs.writeText "Dockerfile" ''
         FROM ubuntu:latest
         RUN apt-get update && apt-get install -y \
             openssh-server \
@@ -35,51 +35,44 @@
             fi
         RUN echo "Host Public Key (RSA):" && cat /etc/ssh/keys/ssh_host_rsa_key.pub && \
             echo "Host Public Key (ECDSA):" && cat /etc/ssh/keys/ssh_host_ecdsa_key.pub && \
-            echo "Host Public Key (ED25519):" && cat /etc/ssh/keys/ssh_host_ed25519_key.pu
+            echo "Host Public Key (ED25519):" && cat /etc/ssh/keys/ssh_host_ed25519_key.pub
         COPY entrypoint.sh /entrypoint.sh
         RUN chmod +x /entrypoint.sh
         ENTRYPOINT ["/entrypoint.sh"]
     '';
     
-    textentrypoint = ''    
+    entrypoint = pkgs.writeText "entrypoint.sh" ''
         #!/bin/bash
         if [ -n "$AUTHORIZED_KEYS" ]; then
             echo "$AUTHORIZED_KEYS" > /home/borg/.ssh/authorized_keys
             chmod 600 /home/borg/.ssh/authorized_keys
             chown borg:borg /home/borg/.ssh/authorized_keys
         fi
+
+        if [ "$PROTECTION" = "on" ]; then
+            echo "PROTECTION mode enabled: Only public key authentication allowed."
+            sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
+        elif [ "$PROTECTION" = "off" ]; then
+            echo "PROTECTION mode disabled: Allowing password authentication."
+            sed -i "s/#PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
+            echo "borg:borg" | chpasswd
+        fi
         exec /usr/sbin/sshd -D
     '';
-
-    Dockerfile = pkgs.writeTextFile {
-        name = "Dockerfile";
-        text = textDockerfile;
-        destination = "/docker/borg";
-    };
-
-    entrypoint = pkgs.writeTextFile {
-        name = "entrypoint.sh";
-        text = textentrypoint;
-        destination = "/docker/borg";
-    };    
     
 in {
-    system.activationScripts.sshConfig = {
-        text = ''
-           mkdir -p /docker/borg
-           /run/current-system/sw/bin/docker build -t borg-borgbackup:latest /docker/borg
-        '';
-    };
-    
+
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
             borgbackup = {
                 image = "borg-borgbackup";
+                user = "977:968"; 
                 autoStart = true;
                 ports = [ "2225:2222" ];
-                environment = {
+                environment = {                
                     AUTHORIZED_KEYS = "${pubkey.desktop} ${pubkey.homie} ${pubkey.nasty}";
+                    PROTECTION="on";
                 };
                 volumes = [
                     "/docker/borg:/etc/ssh/keys"
@@ -87,9 +80,27 @@ in {
                 ];
                 extraOptions = [
                    "--network=borgnet"
-                    "--ip=10.10.10.2"    
+                   "--ip=10.10.10.2"    
                 ];
             };
         };    
-    };}
+    };
+    
+    systemd.services.borg-setup = {
+        wantedBy = [ "multi-user.target" ];
+        preStart = ''
+            ${pkgs.coreutils}/bin/mkdir -p /docker/borg
+            ${pkgs.coreutils}/bin/cp ${Dockerfile} /docker/borg/Dockerfile
+            ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
+            ${pkgs.docker}/bin/docker build -t borg-borgbackup /docker/borg         
+        '';
+    
+        serviceConfig = {
+            ExecStart = "${pkgs.bash}/bin/bash -c 'echo Sucessfully setup borg backup server; '";
+            Restart = "on-failure";
+            RestartSec = "2s";
+            #RuntimeDirectory = [ "dockeruser" ];
+            User = "dockeruser";
+        };
+    };
 
