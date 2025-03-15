@@ -36,9 +36,6 @@
         RUN echo "Host Public Key (RSA):" && cat /etc/ssh/keys/ssh_host_rsa_key.pub && \
             echo "Host Public Key (ECDSA):" && cat /etc/ssh/keys/ssh_host_ecdsa_key.pub && \
             echo "Host Public Key (ED25519):" && cat /etc/ssh/keys/ssh_host_ed25519_key.pub
-        COPY entrypoint.sh /entrypoint.sh
-        RUN chmod +x /entrypoint.sh
-        ENTRYPOINT ["/entrypoint.sh"]
     '';
     
     entrypoint = pkgs.writeText "entrypoint.sh" ''
@@ -85,7 +82,7 @@ in {
                    "--network=borgnet"
                    "--ip=10.10.10.2"    
                 ];
-                entrypoint = [ "${entrypoint}" ];
+                entrypoint = [ "/docker/borg/entrypoint.sh" ];
             };
         };    
     };
