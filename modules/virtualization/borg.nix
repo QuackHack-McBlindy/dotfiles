@@ -5,7 +5,7 @@
     ...
 } : let
     pubkey = import ./../../hosts/pubkeys.nix;
-    
+    borg-image = import /docker/borg/borg.tar;
     Dockerfile = pkgs.writeText "Dockerfile" ''
         FROM ubuntu:latest
         RUN apt-get update && apt-get install -y \
@@ -61,11 +61,13 @@ in {
 # sudo chown -R dockeruser:dockeruser /docker/borg
 # sudo chmod -R 755 /docker/borg
 
+
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
             borgbackup = {
-                image = "borg-borgbackup";
+               # image = "borg-borgbackup";
+                imageFile = pkgs.dockerTools.loadImage borg-image;
                 hostname = "borg";
                 user = "977:968"; 
                 autoStart = true;
@@ -76,13 +78,14 @@ in {
                 };
                 volumes = [
                     "/docker/borg:/etc/ssh/keys"
+                    "/docker/borg/entrypoint.sh:/bin/entrypoint.sh"
                     "/backup/borg:/home/borg"
                 ];
                 extraOptions = [
                    "--network=borgnet"
                    "--ip=10.10.10.2"    
                 ];
-                entrypoint = "/docker/borg/entrypoint.sh";
+                entrypoint = "/bin/entrypoint.sh";
             };
         };    
     };

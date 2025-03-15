@@ -69,10 +69,10 @@ MAX_PLAYED_NEWS_ENTRIES = os.getenv("MAX_PLAYED_NEWS_ENTRIES")
 INTRO_URL = os.getenv("INTRO_URL")
 WEBSERVER = os.getenv("WEBSERVER")
 
-search_folders = json.loads(os.getenv("SEARCH_FOLDERS", "{}"))
-livetv_channels = json.loads(os.getenv("LIVETV_CHANNELS", "{}"))
-news_api_list = json.loads(os.getenv("NEWS_API_LIST", "[]"))
-corrections = json.loads(os.getenv("CORRECTIONS", "{}"))
+SEARCH_FOLDERS = json.loads(os.getenv("SEARCH_FOLDERS", "{}"))
+LIVETV_CHANNELS = json.loads(os.getenv("LIVETV_CHANNELS", "{}"))
+NEWS_API_LIST = json.loads(os.getenv("NEWS_API_LIST", "[]"))
+CORRECTIONS = json.loads(os.getenv("CORRECTIONS", "{}"))
 
 PLAYLIST_SAVE_PATH = os.getenv("PLAYLIST_SAVE_PATH")  # The path where the playlist should be saved
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
