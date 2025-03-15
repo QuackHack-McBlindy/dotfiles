@@ -67,7 +67,7 @@ in {
         containers = {
             borgbackup = {
                # image = "borg-borgbackup";
-                imageFile = pkgs.dockerTools.loadImage borg-image;
+                imageFile = borg-image;
                 hostname = "borg";
                 user = "977:968"; 
                 autoStart = true;
@@ -95,7 +95,7 @@ in {
         preStart = ''
             ${pkgs.coreutils}/bin/mkdir -p /docker/borg
             ${pkgs.coreutils}/bin/cp ${Dockerfile} /docker/borg/Dockerfile
-           # ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
+            ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
             ${pkgs.docker}/bin/docker build -t borg-borgbackup /docker/borg     
             
             if ! ${pkgs.docker}/bin/docker network ls | grep -q "borgnet"; then
