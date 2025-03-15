@@ -82,7 +82,7 @@ in {
                    "--network=borgnet"
                    "--ip=10.10.10.2"    
                 ];
-                entrypoint = [ "/docker/borg/entrypoint.sh" ];
+                entrypoint = "/docker/borg/entrypoint.sh";
             };
         };    
     };

@@ -588,7 +588,10 @@ def search_youtube(query):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 if __name__ == "__main__":
     if len(sys.argv) < 4:
-        print("Usage: media_controller.py <device_ip> <search_query/m3u_file> <type>")
+        print("🚀🚀 🦆📺❗DUCK-TV❗🦆📺  🚀🚀")
+        print("If isssues arise edit config file at /home/pungkula/.dotenv/tv")
+        print("🦆📺 USAGE: tv <device> <search> <media type>")
+        
         sys.exit(1)
 
     device_ip = sys.argv[1]
