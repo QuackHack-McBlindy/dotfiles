@@ -67,6 +67,7 @@ in {
         containers = {
             borgbackup = {
                 image = "borg-borgbackup";
+                hostname = "borg"
                 user = "977:968"; 
                 autoStart = true;
                 ports = [ "2225:2222" ];
@@ -91,8 +92,13 @@ in {
         preStart = ''
             ${pkgs.coreutils}/bin/mkdir -p /docker/borg
             ${pkgs.coreutils}/bin/cp ${Dockerfile} /docker/borg/Dockerfile
-            ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
-            ${pkgs.docker}/bin/docker build -t borg-borgbackup /docker/borg         
+           # ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
+            ${pkgs.docker}/bin/docker build -t borg-borgbackup /docker/borg     
+            
+            if ! ${pkgs.docker}/bin/docker network ls | grep -q "borgnet"; then
+                ${pkgs.docker}/bin/docker network create --subnet=10.10.10.0/24 borgnet
+            fi
+
         '';
     
         serviceConfig = {
