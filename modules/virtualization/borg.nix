@@ -5,7 +5,7 @@
     ...
 } : let
     pubkey = import ./../../hosts/pubkeys.nix;
-    borg-image = import /docker/borg/borg.tar;
+    #borg-image = import /docker/borg/borg.tar;
     Dockerfile = pkgs.writeText "Dockerfile" ''
         FROM ubuntu:latest
         RUN apt-get update && apt-get install -y \
@@ -36,6 +36,24 @@
         RUN echo "Host Public Key (RSA):" && cat /etc/ssh/keys/ssh_host_rsa_key.pub && \
             echo "Host Public Key (ECDSA):" && cat /etc/ssh/keys/ssh_host_ecdsa_key.pub && \
             echo "Host Public Key (ED25519):" && cat /etc/ssh/keys/ssh_host_ed25519_key.pub
+    '';
+
+    run = pkgs.writeText "run.sh" ''
+        docker run -d \
+            --name borgbackup \
+            --hostname borg \
+            --user 977:968 \
+            --restart unless-stopped \
+            -p 2225:2222 \
+            -e AUTHORIZED_KEYS="${pubkey.desktop} ${pubkey.homie} ${pubkey.nasty}" \
+            -e PROTECTION="on" \
+            -v /docker/borg:/etc/ssh/keys \
+            -v /docker/borg/entrypoint.sh:/bin/entrypoint.sh \
+            -v /backup/borg:/home/borg \
+            --network=borgnet \
+            --ip=10.10.10.2 \
+            borg-borgbackup \
+            /bin/entrypoint.sh
     '';
     
     entrypoint = pkgs.writeText "entrypoint.sh" ''
@@ -95,8 +113,11 @@ in {
         preStart = ''
             ${pkgs.coreutils}/bin/mkdir -p /docker/borg
             ${pkgs.coreutils}/bin/cp ${Dockerfile} /docker/borg/Dockerfile
-            ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
-            ${pkgs.docker}/bin/docker build -t borg-borgbackup /docker/borg     
+            ${pkgs.coreutils}/bin/cp ${run} /docker/borg/run.sh
+            ${pkgs.coreutils}/bin/cp ${entrypoint} /docker/borg/entrypoint.sh
+            
+          #  ${pkgs.docker}/bin/docker images -q borg-borgbackup:latest || \
+         #   ${pkgs.docker}/bin/docker build -t borg-borgbackup /docker/borg     
             
             if ! ${pkgs.docker}/bin/docker network ls | grep -q "borgnet"; then
                 ${pkgs.docker}/bin/docker network create --subnet=10.10.10.0/24 borgnet
@@ -105,10 +126,11 @@ in {
         '';
     
         serviceConfig = {
-            ExecStart = "${pkgs.bash}/bin/bash -c 'echo Sucessfully setup borg backup server; '";
+            ExecStart = "${pkgs.bash}/bin/bash -c 'bash run.sh'";
+         #   ${pkgs.docker}/bin/bash -c 'echo Sucessfully setup borg backup server; '";
             Restart = "on-failure";
             RestartSec = "2s";
-            #RuntimeDirectory = [ "dockeruser" ];
+            RuntimeDirectory = [ "/docker/borg" ];
             User = "dockeruser";
         };
     };}

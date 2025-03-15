@@ -34,7 +34,7 @@ in
                       ./../../modules/networking/default.nix
                       ./../../modules/nixos/gnome-background.nix
                       ./../../modules/nixos/default-apps.nix
-                      ./../../modules/virtualization/docker.nix
+                      ./../../modules/virtualization/dockerr.nix
                       ./../../modules/virtualization/vm.nix
   
   ];
