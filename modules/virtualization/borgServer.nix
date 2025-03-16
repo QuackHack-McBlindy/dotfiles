@@ -156,7 +156,7 @@ in {
         containers = {
             borgbackup = {
                 imageFile = borgImage;
-                image = "borg:latest";
+               # image = "borg:latest";
                 hostname = "borg";
                 user = "977:968"; 
                 autoStart = true;

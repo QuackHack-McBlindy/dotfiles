@@ -517,11 +517,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-Xkjlxbd6SiGCvaaQ7QqFWVv2UpW5KkvhU/bAnohO9Qc=",
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/say",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/say",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/say",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/say",
         "type": "path"
       }
     },
@@ -581,12 +581,12 @@
       },
       "locked": {
         "lastModified": 1,
-        "narHash": "sha256-6if3vPPBYOsBQM6IxjcOLTljy7dNslZlmlea9zvj18Q=",
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/tv",
+        "narHash": "sha256-yW9AufhIlClzs5/atutKzfPOMWGtkfzJ9rgx58J98L8=",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/tv",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/tv",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/tv",
         "type": "path"
       }
     },
@@ -612,11 +612,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-T++MYbV3qF2F4EQKpDG6i7FUd7QRgNt8vUmz6mQIxCY=",
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/voice-client",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/voice-client",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/voice-client",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/voice-client",
         "type": "path"
       }
     },
@@ -627,11 +627,11 @@
       "locked": {
         "lastModified": 1,
         "narHash": "sha256-mfac4OFkau8MuZEsBpRZfmb5Pkgd1nvYffeFY7BuMAs=",
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/voice-server",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/voice-server",
         "type": "path"
       },
       "original": {
-        "path": "/nix/store/akf221phfm7rdv3vp00f2cf7d8vqg4pn-source/pkgs/voice-server",
+        "path": "/nix/store/bw8q3dm593l0fdjs9bffhn4jmkglcymr-source/pkgs/voice-server",
         "type": "path"
       }
     }

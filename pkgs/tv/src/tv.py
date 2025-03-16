@@ -78,6 +78,11 @@ CORRECTIONS = json.loads(os.getenv("CORRECTIONS", "{}"))
 PLAYLIST_SAVE_PATH = os.getenv("PLAYLIST_SAVE_PATH")  # The path where the playlist should be saved
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
+DEVICE_MAP = {
+    "shield": "192.168.1.223", 
+    "arris": "192.168.1.152",
+}
+
 #SEARCH_FOLDERS = {
 #    "tv": "/Pool/TV",
 #    "music": "/Pool/Music",
@@ -139,15 +144,21 @@ YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
-def resolve_hostname(device_ip):
-    try:
-        return socket.gethostbyname(device_ip)
-    except socket.gaierror:
-        logging.error(f"Failed to resolve hostname: {device_ip}")
-        return None
+def is_valid_ip(address):
+    """Check if the input is a valid IP address."""
+    ip_pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
+    return bool(ip_pattern.match(address))
+
+def resolve_device(device_ip):
+    """Resolve device name to IP if it exists in DEVICE_MAP, else return as-is."""
+    if is_valid_ip(device_ip):
+        return device_ip  # Return as-is if it's already an IP
+    return DEVICE_MAP.get(device_ip, device_ip)  # Use mapped IP or return original input
+    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
 
 def adb_connect(device_ip):
-    resolved_ip = resolve_hostname(device_ip) or device_ip  # Use resolved IP if available
+    resolved_ip = resolve_device(device_ip)
     command = f"adb connect {resolved_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
@@ -158,7 +169,7 @@ def adb_connect(device_ip):
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
 def adb_disconnect(device_ip):
-    resolved_ip = resolve_hostname(device_ip) or device_ip  # Use resolved IP if available
+    resolved_ip = resolve_device(device_ip)
     command = f"adb disconnect {resolved_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
