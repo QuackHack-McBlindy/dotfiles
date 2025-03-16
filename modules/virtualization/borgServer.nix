@@ -1,3 +1,6 @@
+
+        
+        
 { 
   config,
   lib,
@@ -102,6 +105,8 @@ in {
           "/docker/borg:/etc/ssh/keys"
           "/docker/borg/entrypoint.sh:/bin/entrypoint.sh"
           "/backup/borg:/home/borg"
+          "/home/borg/.ssh:/home/borg/.ssh" # Bind-mount the .ssh directory
+          "/docker/borg/sshd_config:/etc/ssh/sshd_config" # Bind-mount a writable sshd_config
         ];
         extraOptions = [
           "--network=borgnet"
@@ -117,7 +122,7 @@ in {
     wantedBy = [ "multi-user.target" ];
     preStart = ''
       ${pkgs.coreutils}/bin/mkdir -p /docker/borg
-      ${pkgs.coreutils}/bin/chown -R dockeruser:dockeruser /docker/borg
+      ${pkgs.coreutils}/bin/chown -R $(whoami):$(whoami) /docker/borg
       ${pkgs.coreutils}/bin/chmod -R 755 /docker/borg
       ${pkgs.coreutils}/bin/cp ${entrypointScript} /docker/borg/entrypoint.sh
       ${pkgs.coreutils}/bin/chmod +x /docker/borg/entrypoint.sh
@@ -132,7 +137,7 @@ in {
       Restart = "on-failure";
       RestartSec = "2s";
       RuntimeDirectory = [ "/docker/borg" ];
-      User = "dockeruser";
+      User = "$(whoami)"; # Use your current user
     };
   };
 }
