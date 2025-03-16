@@ -4,7 +4,7 @@
     pkgs,
     ...
 } : let
-
+    borg = import ./borgImage.nix;
     pubkey = import ./../../hosts/pubkeys.nix;
 
     borgImage = pkgs.dockerTools.buildImage {
@@ -153,13 +153,13 @@ in {
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
-            borgbackup = {
-                imageFile = borgImage;
+            borg = {
+                imageFile = borg;
                 image = "borg:latest";
                 hostname = "borg";
                 user = "977:968"; 
-                autoStart = false;
-                ports = [ "2225:2222" ];
+                autoStart = true;
+                ports = [ "2223:2222" ];
                 environment = {                
                     AUTHORIZED_KEYS = "${pubkey.desktop} ${pubkey.homie} ${pubkey.nasty}";
                     PROTECTION="on";
