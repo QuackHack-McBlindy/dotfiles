@@ -76,24 +76,6 @@
     };
 
 
-    entrypointScript = pkgs.writeScript "entrypoint.sh" ''
-        #!/bin/bash
-        if [ -n "$AUTHORIZED_KEYS" ]; then
-            echo "$AUTHORIZED_KEYS" > /home/borg/.ssh/authorized_keys
-            chmod 600 /home/borg/.ssh/authorized_keys
-            chown borg:borg /home/borg/.ssh/authorized_keys
-        fi
-
-        if [ "$PROTECTION" = "on" ]; then
-            echo "PROTECTION mode enabled: Only public key authentication allowed."
-            sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
-        elif [ "$PROTECTION" = "off" ]; then
-            echo "PROTECTION mode disabled: Allowing password authentication."
-            sed -i "s/#PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
-            echo "borg:borg" | chpasswd
-        fi
-        exec /usr/sbin/sshd -D
-    '';
 
 
     Dockerfile = pkgs.writeText "Dockerfile" ''
