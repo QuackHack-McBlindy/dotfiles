@@ -15,7 +15,7 @@ in {
 
     services.openssh.settings = {
         AllowUsers = [ "borg" ];  
-        sftpServerExecutable = "internal-sftp";
+    #    sftpServerExecutable = "internal-sftp";
 
     };
     
