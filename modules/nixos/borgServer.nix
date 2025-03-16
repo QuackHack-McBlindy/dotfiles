@@ -15,11 +15,8 @@ in {
 
     services.openssh.settings = {
         AllowUsers = [ "borg" ];  
-      #  Match User borg
-      #  ChrootDirectory /backup
-      #  ForceCommand internal-sftp
-      #  X11Forwarding no
-      #  AllowTCPForwarding no
+        sftpServerExecutable = "internal-sftp";
+
     };
     
     users = {
