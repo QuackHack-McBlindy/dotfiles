@@ -189,11 +189,10 @@ in {
             if ! ${pkgs.docker}/bin/docker network ls | grep -q "borgnet"; then
                 ${pkgs.docker}/bin/docker network create --subnet=10.10.10.0/24 borgnet
             fi 
-
         '';
     
         serviceConfig = {
-            ExecStart = "${pkgs.docker}/bin/bash -c 'echo Sucessfully setup borg backup server; '";
+            ExecStart = "${pkgs.bash}/bin/bash -c 'echo Ready to receieve backups! at borg@10.10.10.2; '";
             Restart = "on-failure";
             RestartSec = "2s";
             RuntimeDirectory = [ "/docker/borg" ];
