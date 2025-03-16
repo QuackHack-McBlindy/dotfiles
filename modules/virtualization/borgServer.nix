@@ -7,10 +7,31 @@
 
     pubkey = import ./../../hosts/pubkeys.nix;
 
+
+    entrypointScript = pkgs.writeScript "entrypoint.sh" ''
+        #!/bin/bash
+        mkdir -p /home/borg/.ssh
+        if [ -n "$AUTHORIZED_KEYS" ]; then
+            echo "$AUTHORIZED_KEYS" > /home/borg/.ssh/authorized_keys
+            chmod 600 /home/borg/.ssh/authorized_keys
+            chown borg:borg /home/borg/.ssh/authorized_keys
+        fi
+
+        if [ "$PROTECTION" = "on" ]; then
+            echo "PROTECTION mode enabled: Only public key authentication allowed."
+            sed -i "s/#PasswordAuthentication yes/PasswordAuthentication no/" /etc/ssh/sshd_config
+        elif [ "$PROTECTION" = "off" ]; then
+            echo "PROTECTION mode disabled: Allowing password authentication."
+            sed -i "s/#PasswordAuthentication no/PasswordAuthentication yes/" /etc/ssh/sshd_config
+            echo "borg:borg" | chpasswd
+        fi
+        exec /usr/sbin/sshd -D
+    '';
+
+
     borgImage = pkgs.dockerTools.buildImage {
         name = "borg";
         tag = "latest";
-
         contents = [
             pkgs.bash
             pkgs.shadow
@@ -32,6 +53,7 @@
             chmod 700 /home/borg/.ssh
             chown borg:borg /home/borg/.ssh
             echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
+            chmod 644 /etc/ssh/sshd_config # Ensure the file is writable
             mkdir -p /etc/ssh/keys
             ${pkgs.openssh}/bin/ssh-keygen -t rsa -b 4096 -f /etc/ssh/keys/ssh_host_rsa_key -N ""
             ${pkgs.openssh}/bin/ssh-keygen -t ecdsa -b 521 -f /etc/ssh/keys/ssh_host_ecdsa_key -N ""
@@ -45,13 +67,14 @@
             ExposedPorts = {
                 "2222/tcp" = {};
             };
-            WorkingDir = "/home/borg";
+            WorkingDir = "/home/borg"; # Absolute path
             Volumes = {
                 "/etc/ssh/keys" = {};
                 "/home/borg" = {};
             };
         };
     };
+
 
     entrypointScript = pkgs.writeScript "entrypoint.sh" ''
         #!/bin/bash

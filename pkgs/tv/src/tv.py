@@ -143,16 +143,25 @@ DEVICE_MAP = {
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+
+
 def is_valid_ip(address):
     """Check if the input is a valid IP address."""
     ip_pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
     return bool(ip_pattern.match(address))
 
 def resolve_device(device_ip):
-    """Resolve device name to IP if it exists in DEVICE_MAP, else return None if invalid."""
+    """Resolve device name to IP if it exists in DEVICE_MAP, else return the input if it's a valid IP."""
     if is_valid_ip(device_ip):
+        logging.debug(f"Using direct IP: {device_ip}")
         return device_ip  # Use the input if it's a valid IP
-    return DEVICE_MAP.get(device_ip)  # Return mapped IP if name exists, else None
+    resolved_ip = DEVICE_MAP.get(device_ip)
+    if resolved_ip:
+        logging.debug(f"Resolved {device_ip} -> {resolved_ip}")  # Forced logging
+        return resolved_ip
+    logging.error(f"Unknown device: {device_ip}")
+    return None  # Prevent sending unknown names to ADB
 
 def adb_connect(device_ip):
     resolved_ip = resolve_device(device_ip)
@@ -161,6 +170,7 @@ def adb_connect(device_ip):
         return None
 
     command = f"adb connect {resolved_ip}"
+    logging.info(f"Executing: {command}")  # Forced logging
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
     if result.returncode != 0:
@@ -176,6 +186,7 @@ def adb_disconnect(device_ip):
         return None
 
     command = f"adb disconnect {resolved_ip}"
+    logging.info(f"Executing: {command}")  # Forced logging
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
     if result.returncode != 0:
