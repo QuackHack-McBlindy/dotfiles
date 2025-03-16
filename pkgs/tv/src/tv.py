@@ -10,6 +10,7 @@ import subprocess
 import difflib
 import string
 import secrets
+import socket
 import logging
 import tempfile
 import requests
@@ -138,19 +139,29 @@ YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 
-
+def resolve_hostname(device_ip):
+    try:
+        return socket.gethostbyname(device_ip)
+    except socket.gaierror:
+        logging.error(f"Failed to resolve hostname: {device_ip}")
+        return None
 
 def adb_connect(device_ip):
-    command = f"adb connect {device_ip}"
+    resolved_ip = resolve_hostname(device_ip) or device_ip  # Use resolved IP if available
+    command = f"adb connect {resolved_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    
     if result.returncode != 0:
         logging.error(f"Failed to connect to {device_ip}: {result.stderr.strip()}")
         return None
     return result.stdout.strip()
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
 def adb_disconnect(device_ip):
-    command = f"adb disconnect {device_ip}"
+    resolved_ip = resolve_hostname(device_ip) or device_ip  # Use resolved IP if available
+    command = f"adb disconnect {resolved_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
+    
     if result.returncode != 0:
         logging.error(f"Failed to disconnect from {device_ip}: {result.stderr.strip()}")
         return None

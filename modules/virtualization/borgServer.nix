@@ -4,26 +4,8 @@
     pkgs,
     ...
 } : let
-    borg = import ./borgImage.nix;
-    pubkey = import ./../../hosts/pubkeys.nix;
 
-# RUN AS ROOT (from below)
-            #!${pkgs.runtimeShell}
-#            ${pkgs.dockerTools.shadowSetup}
-#            groupadd sudo
-#            useradd -m -s ${pkgs.bash}/bin/bash borg
-#            adduser borg sudo
-#            mkdir -p /run/sshd
-#            mkdir -p /home/borg/.ssh
-#            chmod 700 /home/borg/.ssh
-#            chown borg:borg /home/borg/.ssh
-#            echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
-#            mkdir -p /etc/ssh/keys
-#            ${pkgs.openssh}/bin/ssh-keygen -t rsa -b 4096 -f /etc/ssh/keys/ssh_host_rsa_key -N ""
-#            ${pkgs.openssh}/bin/ssh-keygen -t ecdsa -b 521 -f /etc/ssh/keys/ssh_host_ecdsa_key -N ""
-#            ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f /etc/ssh/keys/ssh_host_ed25519_key -N ""
-#            cp ${entrypointScript} /bin/entrypoint.sh
-#            chmod +x /bin/entrypoint.sh
+    pubkey = import ./../../hosts/pubkeys.nix;
 
     borgImage = pkgs.dockerTools.buildImage {
         name = "borg";
@@ -45,6 +27,7 @@
 
         runAsRoot = ''
             #!${pkgs.runtimeShell}
+            ${pkgs.dockerTools.shadowSetup}
             groupadd sudo
             useradd -m -s ${pkgs.bash}/bin/bash borg
             adduser borg sudo
@@ -54,9 +37,12 @@
             chown borg:borg /home/borg/.ssh
             echo "PubkeyAuthentication yes" >> /etc/ssh/sshd_config
             mkdir -p /etc/ssh/keys
-            ssh-keygen -t rsa -b 4096 -f /etc/ssh/keys/ssh_host_rsa_key -N ""
-            ssh-keygen -t ecdsa -b 521 -f /etc/ssh/keys/ssh_host_ecdsa_key -N ""
-            ssh-keygen -t ed25519 -f /etc/ssh/keys/ssh_host_ed25519_key -N ""
+            ${pkgs.openssh}/bin/ssh-keygen -t rsa -b 4096 -f /etc/ssh/keys/ssh_host_rsa_key -N ""
+            ${pkgs.openssh}/bin/ssh-keygen -t ecdsa -b 521 -f /etc/ssh/keys/ssh_host_ecdsa_key -N ""
+            ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f /etc/ssh/keys/ssh_host_ed25519_key -N ""
+            cp ${entrypointScript} /bin/entrypoint.sh
+            chmod +x /bin/entrypoint.sh
+
         '';
 
         config = {
