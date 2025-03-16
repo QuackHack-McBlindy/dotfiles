@@ -11,19 +11,15 @@
         name = "borg";
         tag = "latest";
 
-        copyToRoot = pkgs.buildEnv {
-            name = "image-root";
-            paths = with pkgs; [
-                bash
-                shadow
-                openssh
-                sudo
-                toybox
-                busybox
-                debianutils
-            ];
-            pathsToLink = [ "/bin" "/etc" "/usr" "/var" ];
-        };
+        contents = [
+            pkgs.bash
+            pkgs.shadow
+            pkgs.openssh
+            pkgs.sudo
+            pkgs.toybox
+            pkgs.busybox
+            pkgs.debianutils
+        ];
 
         runAsRoot = ''
             #!${pkgs.runtimeShell}
@@ -42,7 +38,6 @@
             ${pkgs.openssh}/bin/ssh-keygen -t ed25519 -f /etc/ssh/keys/ssh_host_ed25519_key -N ""
             cp ${entrypointScript} /bin/entrypoint.sh
             chmod +x /bin/entrypoint.sh
-
         '';
 
         config = {
@@ -52,8 +47,8 @@
             };
             WorkingDir = "/home/borg";
             Volumes = {
-               "/etc/ssh/keys" = {};
-               "/home/borg" = {};
+                "/etc/ssh/keys" = {};
+                "/home/borg" = {};
             };
         };
     };
@@ -156,7 +151,7 @@ in {
         containers = {
             borgbackup = {
                 imageFile = borgImage;
-               # image = "borg:latest";
+                image = "borg:latest";
                 hostname = "borg";
                 user = "977:968"; 
                 autoStart = true;

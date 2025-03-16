@@ -10,7 +10,6 @@ import subprocess
 import difflib
 import string
 import secrets
-import socket
 import logging
 import tempfile
 import requests
@@ -50,7 +49,7 @@ CORRECTIONS='{"2,5 men": "two and a half men", "2,5 m": "two and a half men", "t
             env_file.write(env_content)
         print(f"Created .env file at {dotenv_path}")
     else:
-        print(f".env file already exists at {dotenv_path}")
+        print(f"")
 
 
 dotenv_path = "/home/pungkula/.dotenv/tv.env"
@@ -150,31 +149,37 @@ def is_valid_ip(address):
     return bool(ip_pattern.match(address))
 
 def resolve_device(device_ip):
-    """Resolve device name to IP if it exists in DEVICE_MAP, else return as-is."""
+    """Resolve device name to IP if it exists in DEVICE_MAP, else return None if invalid."""
     if is_valid_ip(device_ip):
-        return device_ip  # Return as-is if it's already an IP
-    return DEVICE_MAP.get(device_ip, device_ip)  # Use mapped IP or return original input
-    
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+        return device_ip  # Use the input if it's a valid IP
+    return DEVICE_MAP.get(device_ip)  # Return mapped IP if name exists, else None
 
 def adb_connect(device_ip):
     resolved_ip = resolve_device(device_ip)
+    if not resolved_ip:
+        logging.error(f"Invalid device identifier: {device_ip}")
+        return None
+
     command = f"adb connect {resolved_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
     if result.returncode != 0:
-        logging.error(f"Failed to connect to {device_ip}: {result.stderr.strip()}")
+        logging.error(f"Failed to connect to {resolved_ip}: {result.stderr.strip()}")
         return None
     return result.stdout.strip()
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
 def adb_disconnect(device_ip):
     resolved_ip = resolve_device(device_ip)
+    if not resolved_ip:
+        logging.error(f"Invalid device identifier: {device_ip}")
+        return None
+
     command = f"adb disconnect {resolved_ip}"
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
     
     if result.returncode != 0:
-        logging.error(f"Failed to disconnect from {device_ip}: {result.stderr.strip()}")
+        logging.error(f"Failed to disconnect from {resolved_ip}: {result.stderr.strip()}")
         return None
     return result.stdout.strip()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
