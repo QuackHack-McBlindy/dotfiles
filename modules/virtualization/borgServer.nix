@@ -142,26 +142,3 @@ in {
   };
 }
 
-
-    
-    systemd.services.borg-setup = {
-        wantedBy = [ "multi-user.target" ];
-        preStart = ''
-            ${pkgs.coreutils}/bin/mkdir -p /docker/borg
-            ${pkgs.coreutils}/bin/cp ${Dockerfile} /docker/borg/Dockerfile
-            ${pkgs.coreutils}/bin/cp ${run} /docker/borg/run.sh
-            ${pkgs.coreutils}/bin/cp ${entrypoint} /docker/borg/entrypoint.sh
-            
-            if ! ${pkgs.docker}/bin/docker network ls | grep -q "borgnet"; then
-                ${pkgs.docker}/bin/docker network create --subnet=10.10.10.0/24 borgnet
-            fi 
-        '';
-    
-        serviceConfig = {
-            ExecStart = "${pkgs.bash}/bin/bash -c 'echo Ready to receieve backups! at borg@10.10.10.2; '";
-            Restart = "on-failure";
-            RestartSec = "2s";
-            #RuntimeDirectory = [ "/docker/borg" ];
-
-        };
-    };}
