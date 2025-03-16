@@ -154,7 +154,7 @@ in {
         backend = "docker";
         containers = {
             borg = {
-                imageFile = borg;
+                imageFile = borgImage;
                 image = "borg:latest";
                 hostname = "borg";
                 user = "977:968"; 
