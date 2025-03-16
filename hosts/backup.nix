@@ -38,7 +38,7 @@
                 "/swapfile"        # Swap file (not useful in backups)
                 "/mnt"
             ];
-            repo = "borg@10.10.10.2:/${config.networking.hostName}";
+            repo = "borg@nasty";
             doInit = true;
             encryption = {
                 mode = "repokey";
