@@ -35,15 +35,19 @@ let
     name = "borg";
     tag = "latest";
 
-    contents = [
-      pkgs.bash
-      pkgs.shadow
-      pkgs.openssh
-      pkgs.sudo
-      pkgs.toybox
-      pkgs.busybox
-      pkgs.debianutils
-    ];
+    copyToRoot = pkgs.buildEnv {
+      name = "image-root";
+      paths = with pkgs; [
+        bash
+        shadow
+        openssh
+        sudo
+        toybox
+        busybox
+        debianutils
+      ];
+      pathsToLink = [ "/bin" "/etc" "/usr" "/var" ];
+    };
 
     runAsRoot = ''
       #!${pkgs.runtimeShell}
