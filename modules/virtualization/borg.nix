@@ -5,6 +5,8 @@
     ...
 } : let
 
+    pubkey = import ./../../hosts/pubkeys.nix;
+
     borgImage = pkgs.dockerTools.buildImage {
         name = "borg";
         tag = "latest";
@@ -147,7 +149,6 @@
 in {
 # sudo chown -R dockeruser:dockeruser /docker/borg
 # sudo chmod -R 755 /docker/borg
-    pubkey = import ./../../hosts/pubkeys.nix;
 
     virtualisation.oci-containers = {
         backend = "docker";
