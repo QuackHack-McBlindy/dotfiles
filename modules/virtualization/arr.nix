@@ -4,16 +4,17 @@
   pkgs,
   ...
 } : let 
-
+  
+      #  TRANSMISSION_WEB_HOME="/combustion-release/"
+      #  WHITELIST="192.168.1.111"
+      
    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
         PUID="2000"
         PGID="2000"
         USER="@TRANS@"
-        PASS="@TRANS@"         
+        PASS="@TRANS@" 
         SHADOWPASS="@SHADOWPASS@"
-        TRANSMISSION_WEB_HOME="/combustion-release/"
-        WHITELIST="192.168.1.111"
     '';
   
 in {
