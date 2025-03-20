@@ -17,26 +17,26 @@ in {
         };
     };
 
-    services.borgbackup.repos = {
-        desktop = {
-            authorizedKeys = [
-               pubkey.desktop
-            ];
-            path = "/backup/desktop";
-        };
-        homie = {
-            authorizedKeys = [
-               pubkey.homie
-            ];
-            path = "/backup/homie";
-        };
-        nasty = {
-            authorizedKeys = [
-               pubkey.nasty
-            ];
-            path = "/backup/nasty";
-        };
-    };
+   # services.borgbackup.repos = {
+  #      desktop = {
+   #         authorizedKeys = [
+  #             pubkey.desktop
+  #          ];
+  #          path = "/backup/desktop";
+  #      };
+  #      homie = {
+  #          authorizedKeys = [
+  #             pubkey.homie
+   #         ];
+   #         path = "/backup/homie";
+  #      };
+ #       nasty = {
+  #          authorizedKeys = [
+   #            pubkey.nasty
+  #          ];
+  #          path = "/backup/nasty";
+  #      };
+#    };
 
     services.borgbackup.jobs = {
         backupJob = {
