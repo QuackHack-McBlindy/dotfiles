@@ -7,8 +7,8 @@
 
    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
-        PUID="977"
-        PGID="968"
+        PUID="982"
+        PGID="993"
         USER="@TRANS@"
         PASS="@TRANS@"         SHADOWPASS="@SHADOWPASS@"
         TRANSMISSION_WEB_HOME="/combustion-release/"
@@ -53,7 +53,7 @@ in {
         containers = {
             transmission = {
                 image = "lscr.io/linuxserver/transmission:latest";
-                user = "977:968";
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -67,7 +67,7 @@ in {
       
             prowlarr = {
                 image = "lscr.io/linuxserver/prowlarr:latest";
-                user = "977:968";
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -79,7 +79,7 @@ in {
       
             radarr = {
                 image = "lscr.io/linuxserver/radarr:latest";
-                user = "977:968";
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -93,7 +93,7 @@ in {
       
             lidarr = {
                 image = "lscr.io/linuxserver/lidarr:latest";
-                user = "977:968";
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -107,7 +107,7 @@ in {
       
             sonarr = {
                 image = "lscr.io/linuxserver/sonarr:latest";
-                user = "977:968"; 
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -121,7 +121,7 @@ in {
       
             readarr = {
                 image = "lscr.io/linuxserver/readarr:develop";
-                user = "977:968"; 
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -135,7 +135,7 @@ in {
       
             requestrr = {
                 image = "thomst08/requestrr:latest";
-                user = "977:968"; 
+                user = "982:993"; 
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -147,7 +147,7 @@ in {
       
             flaresolverr = {
                 image = "ghcr.io/flaresolverr/flaresolverr:latest";
-                user = "977:968";
+                user = "982:993";
                 dependsOn = [ "gluetun" ];
                 extraOptions = [ "--network=container:gluetun" ];
                 autoStart = true;
@@ -156,7 +156,7 @@ in {
       
             podgrab = {
                 image = "akhilrex/podgrab";
-                user = "977:968";
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -169,7 +169,7 @@ in {
       
             bazarr = {
                 image = "lscr.io/linuxserver/bazarr:latest";
-                user = "977:968";
+                user = "982:993";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
