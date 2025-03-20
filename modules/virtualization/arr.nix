@@ -59,7 +59,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/transmission/config:/config"
+                    "/docker/transmission/config:/config"
                     "/Pool/Downloads:/downloads"
                     "/Pool/Watch:/watch"
                 ];
@@ -73,7 +73,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/prowlarr/config:/config"
+                    "/docker/prowlarr/config:/config"
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
             };
@@ -85,7 +85,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/radarr/config:/config"
+                    "/docker/radarr/config:/config"
                     "/Pool/Movies:/movies" #optional
                     "/Pool/Downloads:/downloads" #optional
                 ];
@@ -99,7 +99,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/lidarr/config:/config"
+                    "/docker/lidarr/config:/config"
                     "/Pool/Music:/music" 
                     "/Pool/Downloads:/downloads" 
                 ];
@@ -113,7 +113,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/sonarr/config:/config"
+                    "/docker/sonarr/config:/config"
                     "/Pool/TV:/tv" 
                    "/Pool/Downloads:/downloads"
                 ];
@@ -127,7 +127,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/readarr/config:/config"
+                    "/docker/readarr/config:/config"
                     "/Pool/Books:/books"
                     "/Pool/Downloads:/downloads"
                 ];
@@ -141,7 +141,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/requestrr/config:/root/config"
+                    "/docker/requestrr/config:/root/config"
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
             };
@@ -162,7 +162,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/podgrab/config:/config"
+                    "/docker/podgrab/config:/config"
                     "/Pool/Podcasts:/assets"
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
@@ -175,7 +175,7 @@ in {
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
                 volumes = [
-                    "/docker/docker/bazarr/config:/config"
+                    "/docker/bazarr/config:/config"
                     "/Pool/Movies:/movies"
                     "/Pool/TV:/tv" 
                 ];
