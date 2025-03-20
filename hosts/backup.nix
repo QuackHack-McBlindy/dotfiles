@@ -3,7 +3,9 @@
     lib, 
     pkgs, 
     ... 
-} : { 
+} : let 
+    pubkey = ./pubkeys.nix;
+in { 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
     sops.secrets = {
@@ -12,6 +14,27 @@
             owner = config.users.users.secretservice.name;
             group = config.users.groups.secretservice.name;
             mode = "0440"; # Read-only for owner and group;
+        };
+    };
+
+    services.borgbackup.repos = {
+        desktop = {
+            authorizedKeys = [
+               pubkey.desktop
+            ];
+            path = "/backup/desktop";
+        };
+        homie = {
+            authorizedKeys = [
+               pubkey.homie
+            ];
+            path = "/backup/homie";
+        };
+        nasty = {
+            authorizedKeys = [
+               pubkey.nasty
+            ];
+            path = "/backup/nasty";
         };
     };
 
@@ -38,12 +61,17 @@
                 "/swapfile"        # Swap file (not useful in backups)
                 "/mnt"
             ];
-            repo = "borg@nasty";
+            repo = "borg@nasty:/backup/${config.networking.hostName}";
             doInit = true;
             encryption = {
                 mode = "repokey";
                 passphrase = config.sops.secrets.borg.path;
             };
+            prune = {
+                keep = {
+                    daily = 7;  
+                };
+            };    
             compression = "auto,lzma";
             startAt = "weekly";
         };

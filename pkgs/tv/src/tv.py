@@ -1,5 +1,3 @@
-#! /usr/bin/env nix-shell
-#! nix-shell -i python3 -p python3 python312Packages.requests python312Packages.python-dotenv 
 
 import os
 import re
@@ -20,15 +18,13 @@ from dotenv import load_dotenv
 from pathlib import Path
 
 def ensure_dotenv_exists(dotenv_path):
-    # Check if the file exists
     if not os.path.exists(dotenv_path):
-        # Create the directory if it doesn't exist
         os.makedirs(os.path.dirname(dotenv_path), exist_ok=True)
         
-        # Define the content to be written to the .env file
         env_content = """YOUTUBE_API_KEY="XXXXXXXXXXXXXXXXXX"
 INTRO_URL="https://example.mydomain.org/intro.mp4"
 WEBSERVER="https://example.mydomain.org"
+DEVICE_MAP={"shield": "192.168.1.223", "arris": "192.168.1.152"}
 
 DEFAULT_PLAYLIST="/Pool/Playlists/MyPlaylist2.m3u"
 PLAYED_NEWS_FILE="played_news.txt"
@@ -44,7 +40,7 @@ NEWS_API_LIST='["http://api.sr.se/api/v2/news/episodes?format=json", "http://api
 CORRECTIONS='{"2,5 men": "two and a half men", "2,5 m": "two and a half men", "två och en halv män": "two and a half men", "test": "House", "2 och en halv män": "two and a half men", "oss": "Oz", "lag och ordning": "Law & Order - Special Victims Unit", "law and order": "Law & Order - Special Victims Unit", "Haus": "House", "haus": "House", "bajskorv": "House", "hus": "House", "färska prinsen": "The Fresh Prince of Bel-Air (1990)", "Pokémon": "Pokémon (1997)", "löven 1": "sport 1", "löven 2": "sport 2", "löven 3": "sport 3", "löven 4": "sport 4", "löven 5": "tv4 hockey", "löven 6": "sportkanalen", "ett": "1", "två": "2", "tre": "3", "fyra": "4", "fem": "5", "sex": "6", "sju": "7", "åtta": "8", "nio": "9", "tio": "10", "elva": "11", "tolv": "12"}'
 """
         
-        # Write the content to the .env file
+
         with open(dotenv_path, 'w') as env_file:
             env_file.write(env_content)
         print(f"Created .env file at {dotenv_path}")
@@ -56,13 +52,7 @@ dotenv_path = "/home/pungkula/.dotenv/tv.env"
 ensure_dotenv_exists(dotenv_path)
 load_dotenv(dotenv_path=dotenv_path)
 
-
-#script_dir = os.path.dirname(os.path.realpath("/home/pungkula/projects/fetch"))
-#os.chdir(script_dir)
-#print(f"Running script from {script_dir}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-### --> Define your shit here please <-- ###
-
 DEFAULT_PLAYLIST = os.getenv("DEFAULT_PLAYLIST")
 PLAYED_NEWS_FILE = os.getenv("PLAYED_NEWS_FILE")
 MAX_PLAYED_NEWS_ENTRIES = os.getenv("MAX_PLAYED_NEWS_ENTRIES")
@@ -77,79 +67,21 @@ CORRECTIONS = json.loads(os.getenv("CORRECTIONS", "{}"))
 PLAYLIST_SAVE_PATH = os.getenv("PLAYLIST_SAVE_PATH")  # The path where the playlist should be saved
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-DEVICE_MAP = {
-    "shield": "192.168.1.223", 
-    "arris": "192.168.1.152",
-}
-
-#SEARCH_FOLDERS = {
-#    "tv": "/Pool/TV",
-#    "music": "/Pool/Music",
-#    "movie": "/Pool/Movies",
-#    "podcast": "/Pool/Podcasts",
-#    "musicvideo": "/Pool/Music_Videos",
-#    "audiobooks": "/Pool/Audiobooks",
-#    "othervideos": "/Pool/Other_Videos",
-#    "jukebox": "/Pool/Music",
-#}
-#livetv_channels = {
-
-#}
-#NEWS_API_LIST = [
-#    "http://api.sr.se/api/v2/news/episodes?format=json",
-#    "http://api.sr.se/api/v2/podfiles?programid=178&format=json",
-#    "http://api.sr.se/api/v2/podfiles?programid=5524&format=json",
-#    "http://api.sr.se/api/v2/podfiles?programid=5413&format=json"
-#]
-#CORRECTIONS = {
-#    "2,5 men": "two and a half men",
-#    "2,5 m": "two and a half men",
-#    "två och en halv män": "two and a half men",
-#    "test": "House",    
-#    "2 och en halv män": "two and a half men",
-#    "två och en halv män": "two and a half men",
-#    "oss": "Oz",
-#    "lag och ordning": "Law & Order - Special Victims Unit",
-#    "law and order": "Law & Order - Special Victims Unit",
-#    "Haus": "House",
-#    "haus": "House",
-#    "bajskorv": "House",
-#    "hus": "House",
-#    "färska prinsen": "The Fresh Prince of Bel-Air (1990)",
-#    "Pokémon": "Pokémon (1997)",
-#    "löven 1": "sport 1",
-#    "löven 2": "sport 2",
-#    "löven 3": "sport 3",
-#    "löven 4": "sport 4",
-#    "löven 5": "tv4 hockey",
-#    "löven 6": "sportkanalen",
-#    "ett": "1",
-#    "två": "2",
-#    "tre": "3",
-#    "fyra": "4",
-#    "fem": "5",
-#    "sex": "6",
-#    "sju": "7",
-#    "åtta": "8",
-#    "nio": "9",
-#    "tio": "10",
-#    "elva": "11",
-#    "tolv": "12", 
-#}
-
-
-
-### --> Thank you! <-- ###
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+DEVICE_MAP = json.loads(os.getenv("DEVICE_MAP", "{}"))
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
-
-
 def is_valid_ip(address):
     """Check if the input is a valid IP address."""
     ip_pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
-    return bool(ip_pattern.match(address))
+    if not ip_pattern.match(address):
+        return False
+    # Check each octet is between 0 and 255
+    octets = address.split('.')
+    for octet in octets:
+        if not 0 <= int(octet) <= 255:
+            return False
+    return True
 
 def resolve_device(device_ip):
     """Resolve device name to IP if it exists in DEVICE_MAP, else return the input if it's a valid IP."""
@@ -162,6 +94,15 @@ def resolve_device(device_ip):
         return resolved_ip
     logging.error(f"Unknown device: {device_ip}")
     return None  # Prevent sending unknown names to ADB
+
+    # Resolve the device name to an IP address using DEVICE_MAP
+    if device_ip in DEVICE_MAP:
+        device_ip = DEVICE_MAP[device_ip]  # Replace the device name with its corresponding IP
+    elif not is_valid_ip(device_ip):  # Check if it's already a valid IP
+        logging.error(f"Invalid device identifier: {device_ip}")
+        sys.exit(1)
+
+    print(f"Using device IP: {device_ip}")#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
 def adb_connect(device_ip):
     resolved_ip = resolve_device(device_ip)
@@ -178,7 +119,8 @@ def adb_connect(device_ip):
         return None
     return result.stdout.strip()
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
 def adb_disconnect(device_ip):
     resolved_ip = resolve_device(device_ip)
     if not resolved_ip:
@@ -193,15 +135,15 @@ def adb_disconnect(device_ip):
         logging.error(f"Failed to disconnect from {resolved_ip}: {result.stderr.strip()}")
         return None
     return result.stdout.strip()
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
 def get_current_playing(ip_address):
     try:
-        # Run the ADB command with timeout and capture the output
         command = f"timeout 1s adb -s {ip_address} logcat | grep -m 1 'Fetching media from mrl' | awk -F 'mrl: ' '{{print $2}}'"
         result = subprocess.check_output(command, shell=True, text=True).strip()
         
         if result:
-            # Parse the result and format it
+
             print(parse_and_format_response(result))
         else:
             print("No media currently being played or unable to fetch media info.")
@@ -212,13 +154,8 @@ def get_current_playing(ip_address):
 
 
 def parse_and_format_response(url):
-    # Remove URL encoding (e.g., %20 -> space)
     url = re.sub(r'%20', ' ', url)
-
-    # Split the URL path to identify its parts
     path_parts = url.split('/')
-
-    # Identify the media type based on folder name
     for media_type, folder_path in SEARCH_FOLDERS.items():
         if media_type in url.lower():
             if media_type == "music":
@@ -254,10 +191,7 @@ def parse_and_format_response(url):
                 song = re.sub(r'\.(flac|mp3|wav)$', '', path_parts[-1])
                 return f"Jukebox: {artist} - {song}"
 
-    # Fallback if no specific pattern is matched
     return "Unknown media type or format."
-
-
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def wait(seconds):
@@ -350,19 +284,15 @@ def save_media_content_urls(media_content_urls):
 #######################################
 # FZF
 def find_closest_directory(query, directories):
-    # Use a temporary file to store the list of directories
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
         temp_file.write("\n".join(directories))
         temp_file_path = temp_file.name
     
-    # Use fzf to filter the directories based on the query, reading from the temp file
     fzf_command = f'fzf --filter="{query}" < {temp_file_path}'
     result = subprocess.run(fzf_command, shell=True, stdout=subprocess.PIPE, text=True)
     
-    # Clean up the temporary file
     os.remove(temp_file_path)
     
-    # Get the closest match (top result)
     closest_match = result.stdout.strip().split(os.linesep)
     
     if closest_match:
@@ -637,6 +567,15 @@ if __name__ == "__main__":
     type_or_entity_id = sys.argv[3].lower()
 
     preprocess_search_query()
+
+    # Resolve the device name to an IP address using DEVICE_MAP
+    if device_ip in DEVICE_MAP:
+        device_ip = DEVICE_MAP[device_ip]  # Replace the device name with its corresponding IP
+    elif not is_valid_ip(device_ip):  # Check if it's already a valid IP
+        logging.error(f"Invalid device identifier: {device_ip}")
+        sys.exit(1)
+
+    print(f"Using device IP: {device_ip}")
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     if type_or_entity_id == "whats":
