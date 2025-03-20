@@ -15,6 +15,15 @@
           
       };
   };
+  
+  systemd.tmpfiles.rules = [
+    # Create the /docker directory (if it doesn't exist)
+    # Set ownership to dockeruser:dockeruser
+    # Set permissions to 775 (rwxrwxr-x)
+    "d /docker 0775 dockeruser dockeruser - -"
+  ];
+  
+  
   virtualisation = {
       docker = {
           enable = true;
