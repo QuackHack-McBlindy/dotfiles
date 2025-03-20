@@ -1,9 +1,9 @@
 homeassistant:
   enabled: true
 mqtt:
-  server: mqtt://192.168.1.211
+  server: mqtt://192.168.1.181
   user: mqtt
-  password: 
+  password: QwertY123
 serial:
   port: >-
     /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0
@@ -141,4 +141,4 @@ groups:
     friendly_name: kitchen_spotlight_group
   '7':
     friendly_name: kitchen_spotlights
-version: 4
+version: 3

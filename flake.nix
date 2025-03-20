@@ -269,7 +269,7 @@
 #°✶.•°••─→ HOMIE ←── •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
                 homie = nixpkgs.lib.nixosSystem {
                     inherit system;
-                    specialArgs = { inherit user; hostname = "homie"; };
+                    specialArgs = { inherit user inputs; hostname = "homie"; };
                     modules = [ ./hosts/homie/configuration.nix
                         disko.nixosModules.disko
                         homeConfigFiles
