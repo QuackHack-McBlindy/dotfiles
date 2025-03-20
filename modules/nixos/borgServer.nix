@@ -25,7 +25,7 @@ in {
     users = {
         groups.borg = { };
         users.borg = {
-            isSystemUser = false;
+            isNormalUser = true;
             shell = pkgs.bash;
             home = "/backup";
             createHome = false;
