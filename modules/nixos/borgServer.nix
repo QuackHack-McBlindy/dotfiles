@@ -15,11 +15,11 @@ in {
 
     services.openssh.settings = {
         AllowUsers = [ "borg" ];  
-        extraConfig = ''
-            Match User borg
-            ChrootDirectory /backup
-            ForceCommand internal-sftp
-        '';
+    #    extraConfig = ''
+    #        Match User borg
+    #        ChrootDirectory /backup
+    #        ForceCommand internal-sftp
+    #    '';
     };
     
     users = {
@@ -40,4 +40,5 @@ in {
                 pubkey.nasty
             ];
         };  
+        
     };}
