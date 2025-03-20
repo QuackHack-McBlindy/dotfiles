@@ -27,7 +27,7 @@
     
 in { 
 
-    networking.firewall.allowedTCPPorts = [ "8118" "7878" "8989" "8686" "8787" "6767" "4533" "5055" "4545" "8191" "9091" ];
+   # networking.firewall.allowedTCPPorts = [ "8118" "7878" "8989" "8686" "8787" "6767" "4533" "5055" "4545" "8191" "9091" ];
 
     virtualisation.oci-containers = {
         backend = "docker";
