@@ -3,7 +3,7 @@
 
   users = {
       groups.dockeruser = {
-          gid = 993;
+          gid = 2000;
       };
       users.dockeruser = {
           group = "dockeruser";
@@ -11,7 +11,7 @@
           createHome = true;
           isSystemUser = true;
           extraGroups = [ "docker" ]; 
-          uid = 982;
+          uid = 2000;
           
       };
   };
