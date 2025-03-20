@@ -18,9 +18,6 @@
 in {
     imports = [ ./gluetun.nix ];
 
-    networking.firewall.allowedTCPPorts = [ 9091 ];
-   # networking.firewall.allowedUDPPorts = [];
-
     systemd.services.arr-conf = {
         wantedBy = [ "multi-user.target" ];
         preStart = ''
