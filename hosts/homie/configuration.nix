@@ -20,7 +20,7 @@ in
                      # ./../../modules/services/ntfy.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/networking/unbound.nix
-                      ./../../modules/services/adguardhome.nix
+                     # ./../../modules/services/adguardhome.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/services/fail2ban.nix
