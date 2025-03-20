@@ -12,6 +12,8 @@
         USER="@TRANS@"
         PASS="@TRANS@" 
         SHADOWPASS="@SHADOWPASS@"
+        TRANSMISSION_WEB_HOME="/combustion-release/"
+        WHITELIST="192.168.1.*"
     '';
   
 in {

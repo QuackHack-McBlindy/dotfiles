@@ -66,6 +66,7 @@
         curl
         git
         unzip
+        sox
         wireguard-tools
         pkgs.nixos-anywhere
         pkgs.syncthing
