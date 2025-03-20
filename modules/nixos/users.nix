@@ -10,7 +10,6 @@ in
       groups = {
 
           "${user}" = { };
-          dockeruser = {};
           nixos = {};
           caddyProxy = {};
           caddyTor = {};
@@ -40,13 +39,6 @@ in
          # ];                  
       };
    
-      users.dockeruser = {
-          group = "dockeruser";
-          home = "/docker";
-          createHome = true;
-          isSystemUser = true;
-          extraGroups = [ "docker" ]; 
-      };
    
       users.caddyProxy = {
           group = "caddyProxy";

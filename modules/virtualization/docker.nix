@@ -1,5 +1,20 @@
 { config, pkgs, lib, ... }:
 {
+
+  users = {
+      groups.dockeruser = {
+          gid = 993;
+      };
+      users.dockeruser = {
+          group = "dockeruser";
+          home = "/docker";
+          createHome = true;
+          isSystemUser = true;
+          extraGroups = [ "docker" ]; 
+          uid = 982;
+          
+      };
+  };
   virtualisation = {
       docker = {
           enable = true;
