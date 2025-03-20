@@ -4,20 +4,22 @@
   pkgs,
   ...
 } : let 
-        #USER="@TRANS@"
-        #PASS="@TRANS@" 
+
    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
         PUID="977"
         PGID="968"
-
-        SHADOWPASS="@SHADOWPASS@"
+        USER="@TRANS@"
+        PASS="@TRANS@"         SHADOWPASS="@SHADOWPASS@"
         TRANSMISSION_WEB_HOME="/combustion-release/"
         WHITELIST="192.168.1.111"
     '';
   
 in {
     imports = [ ./gluetun.nix ];
+
+    networking.firewall.allowedTCPPorts = [ 9091 ];
+   # networking.firewall.allowedUDPPorts = [];
 
     systemd.services.arr-conf = {
         wantedBy = [ "multi-user.target" ];
