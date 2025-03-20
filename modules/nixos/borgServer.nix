@@ -25,7 +25,7 @@ in {
     users = {
         groups.borg = { };
         users.borg = {
-            isNormalUser = true;
+            isNormalUser = lib.mkForce true;
             shell = pkgs.bash;
             home = "/backup";
             createHome = false;
