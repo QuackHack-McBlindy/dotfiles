@@ -20,13 +20,12 @@ in {
             ChrootDirectory /backup
             ForceCommand internal-sftp
         '';
-
     };
     
     users = {
         groups.borg = { };
         users.borg = {
-            isNormalUser = true;
+            isSystemUser = false;
             shell = pkgs.bash;
             home = "/backup";
             createHome = false;
