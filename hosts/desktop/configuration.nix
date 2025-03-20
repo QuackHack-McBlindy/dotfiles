@@ -6,6 +6,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
+                      ./../../modules/virtualization/arr.nix
                     #  ./../../modules/virtualization/gluetun.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/faster-whisper.nix
