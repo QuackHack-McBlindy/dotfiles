@@ -10,8 +10,8 @@
       
    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
-        PUID=${dockerUID}
-        PGID=${dockerGID}
+        PUID=${toString dockerUID}  
+        PGID=${toString dockerGID}
         USER="admin"
         PASS="admin" 
         SHADOWPASS="@SHADOWPASS@"
