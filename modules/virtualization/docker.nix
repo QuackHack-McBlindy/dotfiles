@@ -10,7 +10,7 @@
           home = "/docker";
           createHome = true;
           isSystemUser = true;
-          extraGroups = [ "docker" ]; 
+         # extraGroups = [ "docker" ]; 
           uid = 2000;
           
       };
@@ -46,12 +46,12 @@
       };
   };
   
-  system.activationScripts = {
-    dockerPermissions = lib.stringAfter [ "users" "groups" ] ''
-      echo "Setting ownership and permissions for /docker..."
-      chown -R dockeruser:dockeruser /docker
-      chmod -R 750 /docker
-    '';
-  };
+#  system.activationScripts = {
+#    dockerPermissions = lib.stringAfter [ "users" "groups" ] ''
+#      echo "Setting ownership and permissions for /docker..."
+#      chown -R dockeruser:dockeruser /docker
+#      chmod -R 750 /docker
+#    '';
+#  };
   
 }
