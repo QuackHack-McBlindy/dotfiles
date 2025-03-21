@@ -36,7 +36,6 @@ in
                       ./../../modules/nixos/gnome-background.nix
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/virtualization/docker.nix
-                      ./../../modules/virtualization/duckdns.nix
                       ./../../modules/virtualization/vm.nix
   
   ];
