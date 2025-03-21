@@ -57,10 +57,10 @@ in
         #dependsOn = [ "" ];
         autoStart = true;
         environmentFiles = [ /run/duckdns/.1.env ];
-        environment = [
-          PUID="${dockerUID}"
-          PGID="${dockerGID}"
-        ];
+        environment = {
+          PUID = "${dockerUID}";
+          PGID = "${dockerGID}";
+        };
       };
       duckdns2 = {
         image = "lscr.io/linuxserver/duckdns:latest";
@@ -69,10 +69,10 @@ in
         #dependsOn = [ "" ];
         autoStart = true;
         environmentFiles = [ /run/duckdns/.2.env ];
-        environment = [
-          PUID="${dockerUID}"
-          PGID="${dockerGID}"
-        ];
+        environment = {
+          PUID = "${dockerUID}";
+          PGID = "${dockerGID}";
+        };
       };      
       duckdns3 = {
         image = "lscr.io/linuxserver/duckdns:latest";
@@ -81,10 +81,10 @@ in
         #dependsOn = [ "" ];
         autoStart = true;
         environmentFiles = [ /run/duckdns/.3.env ];
-        environment = [
-          PUID="${dockerUID}"
-          PGID="${dockerGID}"
-        ];
+        environment = {
+          PUID = "${dockerUID}";
+          PGID = "${dockerGID}";
+        };
       };          
       
     };
