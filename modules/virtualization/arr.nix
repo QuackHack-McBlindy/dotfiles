@@ -5,13 +5,13 @@
   ...
 } : let 
   
-   dockerUID = config.users.users.dockeruser.uid;
-   dockerGID = config.users.groups.dockeruser.gid;
+ #  dockerUID = config.users.users.dockeruser.uid;
+#   dockerGID = config.users.groups.dockeruser.gid;
       
    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
-        PUID=${toString dockerUID}  
-        PGID=${toString dockerGID}
+        PUID="2000"  
+        PGID="2000"
         USER="admin"
         PASS="admin" 
         SHADOWPASS="@SHADOWPASS@"
@@ -56,7 +56,7 @@ in {
         containers = {
             transmission = {
                 image = "lscr.io/linuxserver/transmission:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -70,7 +70,7 @@ in {
       
             prowlarr = {
                 image = "lscr.io/linuxserver/prowlarr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -82,7 +82,7 @@ in {
       
             radarr = {
                 image = "lscr.io/linuxserver/radarr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -96,7 +96,7 @@ in {
       
             lidarr = {
                 image = "lscr.io/linuxserver/lidarr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -110,7 +110,7 @@ in {
       
             sonarr = {
                 image = "lscr.io/linuxserver/sonarr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -124,7 +124,7 @@ in {
       
             readarr = {
                 image = "lscr.io/linuxserver/readarr:develop";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -138,7 +138,7 @@ in {
       
             requestrr = {
                 image = "thomst08/requestrr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}"; 
+                user = "2000:2000"; 
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -150,7 +150,7 @@ in {
       
             flaresolverr = {
                 image = "ghcr.io/flaresolverr/flaresolverr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 dependsOn = [ "gluetun" ];
                 extraOptions = [ "--network=container:gluetun" ];
                 autoStart = true;
@@ -159,7 +159,7 @@ in {
       
             podgrab = {
                 image = "akhilrex/podgrab";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -172,7 +172,7 @@ in {
       
             bazarr = {
                 image = "lscr.io/linuxserver/bazarr:latest";
-                user = "${toString dockerUID}:${toString dockerGID}";
+                user = "2000:2000";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
