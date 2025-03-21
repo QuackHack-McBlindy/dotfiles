@@ -2,6 +2,9 @@
 
 let
   
+  duckdnsUID = config.users.users.duckdns.uid;
+  duckdnsGID = config.users.groups.duckdns.gid;
+        
   duckEnv1 = ''
     "@DUCKENV1@"
   '';
@@ -30,7 +33,6 @@ EOF
       '';
       
 
-
   duckEnv3 = ''
     "@DUCKENV3@"
   '';
@@ -50,24 +52,39 @@ in
     containers = {
       duckdns1 = {
         image = "lscr.io/linuxserver/duckdns:latest";
+        user = "${toString duckdnsUID}:${toString duckdnsGID}";
         hostname = "duckdns1";
         #dependsOn = [ "" ];
         autoStart = true;
         environmentFiles = [ /run/duckdns/.1.env ];
+        environment = [
+          PUID="${dockerUID}"
+          PGID="${dockerGID}"
+        ];
       };
       duckdns2 = {
         image = "lscr.io/linuxserver/duckdns:latest";
-        hostname = "duckdns2";
+        user = "${toString duckdnsUID}:${toString duckdnsGID}";
+        hostname = "duckdns2"; 
         #dependsOn = [ "" ];
         autoStart = true;
         environmentFiles = [ /run/duckdns/.2.env ];
+        environment = [
+          PUID="${dockerUID}"
+          PGID="${dockerGID}"
+        ];
       };      
       duckdns3 = {
         image = "lscr.io/linuxserver/duckdns:latest";
+        user = "${toString duckdnsUID}:${toString duckdnsGID}";
         hostname = "duckdns3";
         #dependsOn = [ "" ];
         autoStart = true;
         environmentFiles = [ /run/duckdns/.3.env ];
+        environment = [
+          PUID="${dockerUID}"
+          PGID="${dockerGID}"
+        ];
       };          
       
     };
@@ -161,9 +178,12 @@ in
   users.users.duckdns = {
     isSystemUser = true;
     group = "duckdns";
+    uid = 2001;
   };
 
-  users.groups.duckdns = { };
+  users.groups.duckdns = { 
+    gid = 2001;
+  };
   
 }  
 
