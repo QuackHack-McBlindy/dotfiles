@@ -5,24 +5,20 @@
   ...
 } : let 
   
-      #  TRANSMISSION_WEB_HOME="/combustion-release/"
-      #  WHITELIST="192.168.1.111"
+   dockerUID = config.users.users.dockeruser.uid;
+   dockerGID = config.users.groups.dockeruser.gid;
       
    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
-        PUID="2000"
-        PGID="2000"
-        USER="@TRANS@"
-        PASS="@TRANS@" 
+        PUID=dockerUID
+        PGID=dockerGID
+        USER="admin"
+        PASS="admin" 
         SHADOWPASS="@SHADOWPASS@"
     '';
   
 in {
     imports = [ ./gluetun.nix ];
-
-    systemd.tmpfiles.rules = [
-        "d /docker 0755 dockeruser dockeruser - -"
-    ];
 
     systemd.services.arr-conf = {
         wantedBy = [ "multi-user.target" ];
@@ -54,12 +50,17 @@ in {
         };
     };
 
+  dockerUID = config.users.users.dockeruser.uid;
+  dockerGID = config.users.groups.dockeruser.gid;
+in
+{
+
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
             transmission = {
                 image = "lscr.io/linuxserver/transmission:latest";
-                user = "2000:2000";
+                user = "${toString dockerUID}:${toString dockerGID}";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
@@ -73,7 +74,7 @@ in {
       
             prowlarr = {
                 image = "lscr.io/linuxserver/prowlarr:latest";
-                user = "2000:2000";
+                user = "${toString dockerUID}:${toString dockerGID}";
                 extraOptions = [ "--network=container:gluetun" ];
                 dependsOn = [ "gluetun" ];
                 autoStart = true;
