@@ -20,6 +20,10 @@
 in {
     imports = [ ./gluetun.nix ];
 
+    systemd.tmpfiles.rules = [
+        "d /docker 0755 dockeruser dockeruser - -"
+    ];
+
     systemd.services.arr-conf = {
         wantedBy = [ "multi-user.target" ];
         preStart = ''
