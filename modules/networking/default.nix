@@ -48,6 +48,7 @@
     currentHost = "${config.networking.hostName}";
 in {
     imports = [ ./stubby.nix ];
+    
     services.resolved.fallbackDns = [ "8.8.8.8" ];
     services.resolved.dnsovertls = "true";
     
