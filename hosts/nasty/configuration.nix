@@ -26,6 +26,7 @@ in
                       ./../../modules/virtualization/arr.nix
                       ./../../modules/nixos/borgServer.nix
                       ./../../modules/virtualization/docker.nix
+                       ./../../modules/virtualization/duckdns.nix
                   #    ./../../modules/virtualization/vm.nix
    
   ];
