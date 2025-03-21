@@ -58,8 +58,8 @@ in
         autoStart = true;
         environmentFiles = [ /run/duckdns/.1.env ];
         environment = {
-          PUID = "${duckdnsUID}";
-          PGID = "${duckdnsGID}";
+          PUID = toString duckdnsUID; 
+          PGID = toString duckdnsGID;
         };
       };
       duckdns2 = {
@@ -70,8 +70,8 @@ in
         autoStart = true;
         environmentFiles = [ /run/duckdns/.2.env ];
         environment = {
-          PUID = "${duckdnsUID}";
-          PGID = "${duckdnsGID}";
+          PUID = toString duckdnsUID; 
+          PGID = toString duckdnsGID;
         };
       };      
       duckdns3 = {
@@ -82,8 +82,8 @@ in
         autoStart = true;
         environmentFiles = [ /run/duckdns/.3.env ];
         environment = {
-          PUID = "${duckdnsUID}";
-          PGID = "${duckdnsGID}";
+          PUID = toString duckdnsUID; 
+          PGID = toString duckdnsGID;
         };
       };          
       
