@@ -27,8 +27,8 @@ in
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
                       ./../../modules/services/syslogd.nix
-                      ./../../modules/virtualization/arr.nix
-                      ./../../modules/virtualization/docker.nix
+                  #    ./../../modules/virtualization/arr.nix
+                  #    ./../../modules/virtualization/docker.nix
                #       ./../../modules/virtualization/vm.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/nixos/default-apps.nix
