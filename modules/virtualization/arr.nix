@@ -65,7 +65,13 @@ in {
                     "/Pool/Downloads:/downloads"
                     "/Pool/Watch:/watch"
                 ];
-                environmentFiles = [ "/docker/arr.env" ];
+                #environmentFiles = [ "/docker/arr.env" ];
+                environment = {
+                    USER = "";
+                    PASS = "";
+                    PUID = "2000"; 
+                    PGID = "2000";
+                };
             }; 
       
             prowlarr = {
