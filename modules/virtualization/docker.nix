@@ -32,7 +32,7 @@
           };
           daemon = {
               settings = {
-                  data-root = "/docker";
+                  data-root = "/docker/deamon";
                   userland-proxy = false;
                   experimental = true;
                   metrics-addr = "0.0.0.0:9323";
