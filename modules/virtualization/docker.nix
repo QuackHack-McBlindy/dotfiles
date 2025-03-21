@@ -45,4 +45,12 @@
           };
       };
   };
+  
+  system.activationScripts = {
+    dockerPermissions = lib.stringAfter [ "users" "groups" ] ''
+      echo "Setting ownership and permissions for /docker..."
+      chown -R dockeruser:dockeruser /docker
+      chmod -R 750 /docker
+    '';
+  };
 }
