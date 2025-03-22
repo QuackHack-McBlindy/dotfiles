@@ -149,13 +149,6 @@ in {
             sudo chown -R 2000:2000 /docker/gluetun/logs
             sudo chmod -R 600 /docker/gluetun/config
             sudo chmod -R 700 /docker/gluetun/logs
-        '';    
+        '';  
     };}
     
-    
-
-        # OR
-        #    sudo chown -R root:root /docker/gluetun/config
-        #    sudo chown -R root:root /docker/gluetun/logs
-        #    sudo chmod -R 600 /docker/gluetun/config
-        #    sudo chmod -R 700 /docker/gluetun/logs
