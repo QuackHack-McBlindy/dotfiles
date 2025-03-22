@@ -4,17 +4,7 @@
     pkgs, 
     ... 
 } : let 
-
-    TextToBeWritten = ''
-      here goes text
-    '';
-
-    TextFile = pkgs.writeTextFile {
-        name = "TextFile";
-        text = TextToBeWritten;
-    };
-
-    cacheKeyPublic =  config.sops.secrets.nixcache_public.path;
+    cacheKeyPublic = config.sops.secrets.nixcache_public_desktop.path;
 in { 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
@@ -29,18 +19,18 @@ in {
     system.activationScripts.sshConfig = {
         text = ''
             mkdir -p /etc/nix
-            cp ${TextFile} /etc/nix/private-key.pem
+            cat ${config.sops.secrets.nixcache_private_desktop.path} > /etc/nix/private-key.pem
         '';
     };    
 
     sops.secrets = {
-        nixcache_public = {
+        nixcache_public_desktop = {
             sopsFile = ./../../secrets/nixcache_public_desktop.yaml; 
             owner = "pungkula";
             group = "pungkula";
             mode = "0440"; 
         };    
-        nixcache_private = {
+        nixcache_private_desktop = {
             sopsFile = ./../../secrets/nixcache_private_desktop.yaml; 
             owner = "pungkula";
             group = "pungkula";
@@ -48,13 +38,3 @@ in {
         };  
     };}
     
-    
-    
-    
-    
-    
-    
-    
-
-
-
