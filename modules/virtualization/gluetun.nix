@@ -138,7 +138,8 @@ in {
             group = "dockeruser";
             mode = "0440"; 
         };
-        
+    }; 
+     
     system.activationScripts.dockerPermissions = {
         text = ''
             while [ ! -d /docker/gluetun/config ]; do
