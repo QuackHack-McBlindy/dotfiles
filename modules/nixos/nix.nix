@@ -24,10 +24,7 @@
       mandatoryFeatures = [ "big-parallel" ];
     }];
  
-    nix.settings.substituters = [
-      "http://cache-duck:10000"
-      "https://cache.nixos.org/"
-    ];
+
  
 	settings = {
 	    warn-dirty = false;
@@ -46,6 +43,11 @@
           "root"
           "pungkula"
           "builder"
+        ];
+        
+        substituters = [
+            "http://cache-duck:10000"
+            "https://cache.nixos.org/"
         ];
 	};
 	
