@@ -24,13 +24,13 @@ in {
     };    
 
     sops.secrets = { 
-        nixcache_public_desktop = {
+        nix_cache_public_key = {
             sopsFile = ./../../secrets/nixcache_public_desktop.yaml; 
             owner = config.users.groups.secretservice.name;
             group = config.users.groups.secretservice.name;
             mode = "0440"; 
         };    
-        nixcache_private_desktop = {
+        nix_cache_private_key = {
             sopsFile = ./../../secrets/nixcache_private_desktop.yaml; 
             owner = config.users.groups.secretservice.name;
             group = config.users.groups.secretservice.name;
