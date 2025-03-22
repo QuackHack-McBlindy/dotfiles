@@ -23,17 +23,17 @@ in {
         '';
     };    
 
-    sops.secrets = {
+    sops.secrets = { 
         nixcache_public_desktop = {
             sopsFile = ./../../secrets/nixcache_public_desktop.yaml; 
-            owner = "pungkula";
-            group = "pungkula";
+            owner = config.users.groups.secretservice.name;
+            group = config.users.groups.secretservice.name;
             mode = "0440"; 
         };    
         nixcache_private_desktop = {
             sopsFile = ./../../secrets/nixcache_private_desktop.yaml; 
-            owner = "pungkula";
-            group = "pungkula";
+            owner = config.users.groups.secretservice.name;
+            group = config.users.groups.secretservice.name;
             mode = "0440"; 
         };  
     };}
