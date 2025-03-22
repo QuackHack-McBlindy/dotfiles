@@ -146,10 +146,10 @@ in {
                 sleep 1
             done
             echo "Setting permissions and ownership for /docker/gluetun directory..."               
-            sudo chown -R 2000:2000 /docker/gluetun/config
-            sudo chown -R 2000:2000 /docker/gluetun/logs
-            sudo chmod -R 600 /docker/gluetun/config
-            sudo chmod -R 700 /docker/gluetun/logs
+            chown -R 2000:2000 /docker/gluetun/config
+            chown -R 2000:2000 /docker/gluetun/logs
+            chmod -R 600 /docker/gluetun/config
+            chmod -R 700 /docker/gluetun/logs
         '';  
     };}
     
