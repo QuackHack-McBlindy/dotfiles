@@ -25,8 +25,8 @@ in
                    #   ./../../modules/virtualization/duck-tv.nix
                   #    ./../../modules/virtualization/arrr.nix
                       ./../../modules/nixos/borgServer.nix
-                #      ./../../modules/virtualization/arr.nix
-               #       ./../../modules/virtualization/docker.nix
+                      ./../../modules/virtualization/arr.nix
+                      ./../../modules/virtualization/docker.nix
                #        ./../../modules/virtualization/duckdns.nix
                   #    ./../../modules/virtualization/vm.nix
    

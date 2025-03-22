@@ -5,15 +5,12 @@
   ...
 } : let 
   
- #  dockerUID = config.users.users.dockeruser.uid;
-#   dockerGID = config.users.groups.dockeruser.gid;
-      
-   env = pkgs.writeText ".env" ''
+    env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
         PUID="2000"  
         PGID="2000"
-        USER="admin"
-        PASS="admin" 
+        USER=@TRANS@
+        PASS=@TRANS@ 
         SHADOWPASS="@SHADOWPASS@"
     '';
   
@@ -31,7 +28,6 @@ in {
                 s|@SHADOWPASS@|$(cat ${config.sops.secrets.SHADOWSOCKS_PASSWORD.path})|
             }" ${env} > /docker/arr.env                
         '';
-    
         serviceConfig = {
             ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
             Restart = "on-failure";
@@ -41,16 +37,6 @@ in {
         };
     };
     
-    sops.secrets = {
-        transmission = {
-            sopsFile = ./../../secrets/transmission.yaml;
-            owner = "dockeruser";
-            group = "dockeruser";
-            mode = "0440"; 
-        };
-    };
-
-
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
@@ -65,11 +51,11 @@ in {
                     "/Pool/Downloads:/downloads"
                     "/Pool/Watch:/watch"
                 ];
-                #environmentFiles = [ "/docker/arr.env" ];
-                environment = {
+                environmentFiles = [ "/docker/arr.env" ];
+                environment = { 
                     USER = "";
                     PASS = "";
-                    PUID = "2000"; 
+                    PUID = "2000" ; 
                     PGID = "2000";
                 };
             }; 
@@ -189,9 +175,29 @@ in {
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
             };
+        };    
+    };
+    
+    sops.secrets = {
+        transmission = {
+            sopsFile = ./../../secrets/transmission.yaml;
+            owner = "dockeruser";
+            group = "dockeruser";
+            mode = "0440"; 
         };
+    };
+
+    system.activationScripts.dockerPermissions = {
+        text = ''
+            echo "Setting permissions and ownership for /docker directories..."
+            mkdir -p /docker
+            chown -R dockeruser:dockeruser /docker
+            chmod -R 700 /docker
+        '';
     };}
     
+
+
 
 
     

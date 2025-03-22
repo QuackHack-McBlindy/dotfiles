@@ -18,17 +18,16 @@
         SHADOWSOCKS_PASSWORD="@SHADOWPASS@"
         FIREWALL_OUTBOUND_SUBNETS="255.255.255.0/24"
         TZ="Europe/Berlin"
-        PUID="977"
-        PGID="968"
+        PUID="2000"
+        PGID="2000"
         VPN_PORT_FORWARDING="on"
         PORT_FORWARD_ONLY="on"  
         TRANS="@TRANS@"
     '';
     
 in { 
-
-   # networking.firewall.allowedTCPPorts = [ "8118" "7878" "8989" "8686" "8787" "6767" "4533" "5055" "4545" "8191" "9091" ];
-
+    # networking.firewall.allowedTCPPorts = [ "8118" "7878" "8989" "8686" "8787" "6767" "4533" "5055" "4545" "8191" "9091" ];
+ 
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
@@ -40,21 +39,21 @@ in {
                 capabilities = { NET_ADMIN = true; };
                 extraOptions = [ "--device=/dev/net/tun:/dev/net/tun" ];
                 ports = [
-                    "8888:8888" # Gluetun
-                    "8388:8388" # Shadowsocks
-                    "8000:8000" # HTTP Control API
-                    "8118:8118" # browserVPN
-                    "7878:7878"  # Radarr
-                    "8989:8989" # Sonarr:
-                    "8686:8686" # Lidarr:
-                    "8787:8787" # Readarr:
-                    "6767:6767" # Bazarr:
-                    "4533:4533" # Navidrome:
-                    "5055:5055" # Jellyseer:
-                    "4545:4545" # Requestrr:
-                    "8191:8191" # Flaresolverr
-                    "9091:9091" # Transmission
-                    "51413:51413" # Transmission
+                    "8888:8888"       # Gluetun
+                    "8388:8388"       # Shadowsocks
+                    "8000:8000"       # HTTP Control API
+                    "8118:8118"       # browserVPN
+                    "7878:7878"       # Radarr
+                    "8989:8989"       # Sonarr:
+                    "8686:8686"       # Lidarr:
+                    "8787:8787"       # Readarr:
+                    "6767:6767"       # Bazarr:
+                    "4533:4533"       # Navidrome:
+                    "5055:5055"       # Jellyseer:
+                    "4545:4545"       # Requestrr:
+                    "8191:8191"       # Flaresolverr
+                    "9091:9091"       # Transmission
+                    "51413:51413"     # Transmission
                     "51413:51413/udp" # Transmission
                 ];
                 volumes = [
@@ -82,7 +81,6 @@ in {
                             fi
                         "
                     '';
- 
                 };
             };          
         };     
@@ -140,4 +138,24 @@ in {
             group = "dockeruser";
             mode = "0440"; 
         };
+        
+    system.activationScripts.dockerPermissions = {
+        text = ''
+            while [ ! -d /docker/gluetun/config ]; do
+                sleep 1
+            done
+            echo "Setting permissions and ownership for /docker/gluetun directory..."               
+            sudo chown -R 2000:2000 /docker/gluetun/config
+            sudo chown -R 2000:2000 /docker/gluetun/logs
+            sudo chmod -R 600 /docker/gluetun/config
+            sudo chmod -R 700 /docker/gluetun/logs
+        '';    
     };}
+    
+    
+
+        # OR
+        #    sudo chown -R root:root /docker/gluetun/config
+        #    sudo chown -R root:root /docker/gluetun/logs
+        #    sudo chmod -R 600 /docker/gluetun/config
+        #    sudo chmod -R 700 /docker/gluetun/logs
