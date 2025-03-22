@@ -40,15 +40,22 @@ in
          # ];                  
       };
    
-      users.builder = if config.networking.hostName == "desktop" then {
+   #   users.builder = if config.networking.hostName == "desktop" then {
+   #       isNormalUser = true;
+   #       home = "/home/builder";
+   #       shell = pkgs.bash;
+   #     #  openssh.authorizedKeys.keys = [ pubkey.desktop pubkey.laptop pubkey.homie pubkey.nasty ];
+   #       extraGroups = [ "wheel" "builders" ]; 
+   #   } else
+   #       {}; 
+ 
+      users.builder = {
           isNormalUser = true;
           home = "/home/builder";
           shell = pkgs.bash;
-        #  openssh.authorizedKeys.keys = [ pubkey.desktop pubkey.laptop pubkey.homie pubkey.nasty ];
           extraGroups = [ "wheel" "builders" ]; 
-      } else
-          {}; 
-    
+      };
+ 
       users.caddyProxy = {
           group = "caddyProxy";
           home = "/var/lib/caddyProxy";
