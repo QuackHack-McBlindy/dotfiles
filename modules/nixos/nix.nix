@@ -9,8 +9,28 @@
   nixpkgs.config.allowUnfree = true;
   system.tools.nixos-option.enable = true;
   nix = {
+    distributedBuilds = true;
+    
+    buildMachines = [{
+      protocol = "ssh";
+      hostName = "desktop";
+      sshUser = "builder";
+      sshKey = "/root/.ssh/id_desktop_builder";
+      publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUxkd1BrUlF4bGJyYlJHd0VPNXpNSjRtKzdRcVVRUFpnMWlxYmQ1SFJQMzQgcm9vdEBuaXhvcwo=";
+      system = "x86_64-linux";
+      maxJobs = 1;
+      speedFactor = 5;
+      supportedFeatures = [ "kvm" "big-parallel" ];
+      mandatoryFeatures = [ "big-parallel" ];
+    }];
+ 
+    nix.settings.substituters = [
+      "http://cache-duck:10000"
+      "https://cache.nixos.org/"
+    ];
+ 
 	settings = {
-		warn-dirty = false;
+	    warn-dirty = false;
 		experimental-features = [ "nix-command" "flakes" ];
 		auto-optimise-store = true;
 		sandbox = true;
@@ -18,11 +38,20 @@
         min-free = 1073741824; # 1GB
         max-free = 8589934592; # 8GB
         builders-use-substitutes = true;
+        allowed-users = [
+          "@wheel"
+          "@builders"
+        ];  
         trusted-users = [
-            "root"
-            "pungkula"
+          "root"
+          "pungkula"
+          "builder"
         ];
 	};
+	
+	extraOptions = ''
+	    download-buffer-size = 1048576
+	'';
 	
 	gc = {
 		automatic = true;

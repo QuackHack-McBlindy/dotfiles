@@ -40,6 +40,7 @@ in
     users.users.${user}.openssh.authorizedKeys.keys = [ 
         pubkey.desktop
         pubkey.homie
+        pubkey.builder
         pubkey.laptop
         pubkey.iPhone
     ];

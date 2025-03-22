@@ -7,6 +7,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
+                      ./../../modules/nixos/cache.nix
                       ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/systemd/voice-server.nix
