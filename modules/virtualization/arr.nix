@@ -200,7 +200,7 @@
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScriptBin "configure-apps" ''
         #!/bin/sh
-        ${pythonEnv}/bin/python -c "${pyScript}"
+        ${pythonEnv}/bin/python -c "${py}"
   '';
 in {
     # Creates VPN Network & Open port for Transmission
