@@ -4,7 +4,32 @@
   pkgs,
   ...
 } : let 
-  
+    radarrAPI = builtins.readFile (pkgs.runCommand "extract-api-key" {} ''
+        grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml > $out
+    ''); 
+    sonarrAPI = builtins.readFile (pkgs.runCommand "extract-api-key" {} ''
+        grep -oP '(?<=<ApiKey>)[^<]+' /docker/sonarr/config/config.xml > $out
+    '');    
+    lidarrAPI = builtins.readFile (pkgs.runCommand "extract-api-key" {} ''
+        grep -oP '(?<=<ApiKey>)[^<]+' /docker/lidarr/config/config.xml > $out
+    '');    
+
+    setupVar = pkgs.writeText "arrkeys.env" ''
+        RADARR="@RADARR@"
+        SONARR="@SONARR@"
+        LIDARR="@LIDARR@"
+    '';    
+    # Script to generate the .env file
+    envSetupScript = pkgs.writeScript "generate-env-file.sh" ''
+        #!/bin/sh
+        sed \
+            -e "s|@RADARR@|$(cat ${radarrAPI})|" \
+            -e "s|@SONARR@|$(cat ${sonarrAPI})|" \
+            -e "s|@LIDARR@|$(cat ${lidarrAPI})|" \
+            ${setupVar} > /docker/arrKeys.env
+            echo "Collected API keys for ARR Services."
+    '';
+    
     env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
         PUID="2000"  
@@ -14,8 +39,7 @@
         SHADOWPASS="@SHADOWPASS@"
     '';
  
-
-
+    # Transmission Settings
     transmissionSettings = pkgs.writeText "settings.json" ''
         {
             "alt-speed-down": 50,
@@ -97,10 +121,104 @@
             "utp-enabled": true
         }
     ''; 
- 
+
+    # Final script sending API calls to configure everything inside the applications while running
+    configureApplications = pkgs.writeScript "configure-applications.sh" ''
+        #!/bin/sh
+        LOG_FILE="/docker/arr-setup.log"
+
+        log() {
+            echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+        }
+
+        RADARR_HOST="localhost"
+        RADARR_PORT="7878"
+        RADARR_API_KEY="$(cat /docker/arrKeys.env | grep RADARR | cut -d '=' -f 2 | tr -d '"')"
+
+        # Validate API key
+        if [[ -z "$RADARR_API_KEY" ]]; then
+            log "Error: Radarr API key is empty!"
+            exit 1
+        fi
+
+        RADARR_API_URL="http://${RADARR_HOST}:${RADARR_PORT}/api/v3"
+
+        # Hardcoded quality definitions based on Trash Guide recommendations
+        # Format: "Quality Name|minSize|maxSize|preferredSize"
+        QUALITY_DEFINITIONS=(
+            "Bluray-1080p|0|2048|1024"
+            "Bluray-720p|0|1024|512"
+            "WEBRip-1080p|0|2048|1024"
+            "WEBRip-720p|0|1024|512"
+            "HDTV-1080p|0|1024|512"
+            "HDTV-720p|0|512|256"
+            "DVD|0|512|256"
+            "SDTV|0|256|128"
+        )
+
+        # Function to update quality definitions
+        update_quality_definitions() {
+            echo "Fetching current quality definitions from Radarr..."
+            QUALITY_RESPONSE=$(curl -s -H "X-Api-Key: ${RADARR_API_KEY}" "${RADARR_API_URL}/qualitydefinition")
+
+            # Check if the response is valid
+            if [[ -z "$QUALITY_RESPONSE" ]]; then
+                echo "Failed to fetch quality definitions. Check your Radarr API key and connection."
+                exit 1
+            fi
+
+            echo "Updating quality definitions..."
+            for QUALITY_DEF in "${QUALITY_DEFINITIONS[@]}"; do
+                IFS='|' read -r QUALITY_NAME MIN_SIZE MAX_SIZE PREFERRED_SIZE <<< "$QUALITY_DEF"
+
+                # Find the quality definition ID by name                                                  QUALITY_ID=$(echo "$QUALITY_RESPONSE" | jq -r ".[] | select(.quality.name == \"${QUALITY_NAME}\") | .id")
+
+                if [[ -z "$QUALITY_ID" ]]; then
+                    echo "Quality '${QUALITY_NAME}' not found in Radarr. Skipping..."                         continue
+                fi
+
+                # Prepare JSON payload for the update
+                JSON_PAYLOAD=$(jq -n \
+                    --argjson id "$QUALITY_ID" \
+                    --argjson minSize "$MIN_SIZE" \
+                    --argjson maxSize "$MAX_SIZE" \
+                    --argjson preferredSize "$PREFERRED_SIZE" \
+                    '{                                                                                            id: $id,
+                        minSize: $minSize,
+                        maxSize: $maxSize,
+                        preferredSize: $preferredSize,
+                        quality: {
+                            id: $id,
+                            name: "'"${QUALITY_NAME}"'"
+                        }
+                    }')
+
+                # Send the update request
+                UPDATE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
+                    -H "X-Api-Key: ${RADARR_API_KEY}" \
+                    -H "Content-Type: application/json" \
+                    -d "$JSON_PAYLOAD" \
+                    "${RADARR_API_URL}/qualitydefinition/${QUALITY_ID}")
+
+                if [[ "$UPDATE_RESPONSE" == "202" ]]; then
+                    echo "Updated ${QUALITY_NAME}: minSize=${MIN_SIZE}, maxSize=${MAX_SIZE}, preferredSize=${PREFERRED_SIZE}"
+                else
+                    echo "Failed to update ${QUALITY_NAME}. HTTP status: ${UPDATE_RESPONSE}"
+                fi
+            done
+
+            echo "Quality definitions update complete!"
+        }
+
+        # Run the update function
+        update_quality_definitions
+
+    ''; 
 in {
+    # Creates VPN Network & Open port for Transmission
     imports = [ ./gluetun.nix ];
 
+    # Sets variables needed for the containers
     systemd.services.arr-conf = {
         wantedBy = [ "multi-user.target" ];
         preStart = ''
@@ -113,14 +231,35 @@ in {
             }" ${env} > /docker/arr.env    
         '';
         serviceConfig = {
-            ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
+            ExecStart = "${pkgs.bash}/bin/bash -c 'echo Enviorment ready, starting containers; sleep 200'";
             Restart = "on-failure";
             RestartSec = "2s";
             RuntimeDirectory = [ "dockeruser" ];
             User = "dockeruser";
         };
     };
-    
+
+    # Configure the applications
+    systemd.services.configure-arr = {
+        description = "Configure ARR services and generate .env file";
+        wantedBy = [ "multi-user.target" ];
+        after = [ "docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" ];
+        requires = [ "docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" ];
+        
+        preStart = ''
+            ${envSetupScript}
+        '';
+        
+        serviceConfig = {
+            ExecStart = "${configureApplications}";
+            Restart = "on-failure";
+            RestartSec = "5s";
+            RuntimeDirectory = [ "dockeruser" ];
+            User = "dockeruser";
+        };
+    };    
+
+    # Container Configuration
     virtualisation.oci-containers = {
         backend = "docker";
         containers = {
@@ -164,8 +303,8 @@ in {
                 autoStart = true;
                 volumes = [
                     "/docker/radarr/config:/config"
-                    "/Pool/Movies:/movies" #optional
-                    "/Pool/Downloads:/downloads" #optional
+                    "/Pool/Movies:/movies" 
+                    "/Pool/Downloads:/downloads" 
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
             };
@@ -271,6 +410,7 @@ in {
         };
     };
 
+    # Set /Docker Ownersihp and Permissions 
     system.activationScripts.dockerPermissions = {
         text = ''
             touch /docker/transmission/config/settings.json
@@ -282,45 +422,3 @@ in {
         '';
     };}
     
-
-
-
-
-    
-#      jellyseerr = {
-#        image = "";
-        #hostname = "jellyseerr";
-#        extraOptions = [ "--network=container:gluetun" ];
-#        dependsOn = [ "gluetun" ];
-#        autoStart = true;
-#        volumes = [
-#          "/docker/jellyserr/config:/app/config"
-         #    - /mnt/data/supervisor/addons/local/jellyserr/duck2.svg:/app/public/logo_full.svg
-         #       - /mnt/data/supervisor/addons/local/jellyserr/duck2.png:/app/public/logo_full.png
-         #       - /mnt/data/supervisor/addons/local/jellyserr/logo_stacked.svg:/app/public/logo_stacked.svg
-         #       - /mnt/data/supervisor/addons/local/jellyserr/duck2.png:/app/public/os_logo_square.png
-#        ];
-  #      environmentFiles = [
-    #      /docker/env/jellyseerr/.env
-   #       /docker/env/jellyseerr/.env.secret
-   #     ];
-#      };
-#      navidrome = {
-#       image = "deluan/navidrome:latest";
-        #hostname = "navidrome";
-       # dependsOn = [ "gluetun" ];
-  #      volumes = [
-  #        "/docker/navidrome/config:/data"
- #         "/Pool/Music:/music:ro"
- #       ];
-  #      ports = [
-  #        "4533:4533"
-    #    ];
-  #      environmentFiles = [
-  #        /docker/env/navidrome/.env
- #         /docker/env/navidrome/.env.secret
-#        ];
-#      };
-#    };
-#  };
-#}
