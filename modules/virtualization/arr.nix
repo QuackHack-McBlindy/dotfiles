@@ -199,7 +199,6 @@
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScript "configure-applications.sh" ''
-        #!/bin/sh
         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
         export RADARR_API_KEY
 
