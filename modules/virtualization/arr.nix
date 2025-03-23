@@ -198,12 +198,10 @@
             
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     # Script to set up environment and run Python script
-    configureApplications = pkgs.writeScript "configure-applications.sh" ''
-        RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
-        export RADARR_API_KEY
-
-        ${pythonEnv}/bin/python -c  "${py}"
-    '';
+    configureApplications = pkgs.writeScriptBin "configure-apps" ''
+        #!/bin/sh
+        ${pythonEnv}/bin/python -c "${pyScript}"
+  '';
 in {
     # Creates VPN Network & Open port for Transmission
     imports = [ ./gluetun.nix ];
