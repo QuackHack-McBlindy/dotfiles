@@ -204,7 +204,7 @@
         #!/bin/sh
         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
         export RADARR_API_KEY
-        ${pkgs.python3}/bin/python3  ${py}
+        ${pythonEnv}/bin/python ${py}
   '';
 in {
     # Creates VPN Network & Open port for Transmission
