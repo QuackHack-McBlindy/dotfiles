@@ -196,23 +196,14 @@
             main()
     '';        
             
-
+    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScript "configure-applications.sh" ''
         #!/bin/sh
-        set -x
-        export PATH=${
-             pkgs.lib.makeBinPath [
-                 pkgs.python3
-                 pkgs.python312Packages.requests
-             ]
-        }
+        RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
+        export RADARR_API_KEY
 
-         # Extract API keys at runtime
-         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
-         export RADARR_API_KEY
-
-         ${pkgs.python3}/bin/python3 ${py}
+        ${pythonEnv}/bin/python -c  "${py}"
     '';
 in {
     # Creates VPN Network & Open port for Transmission
