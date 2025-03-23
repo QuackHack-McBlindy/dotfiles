@@ -108,11 +108,33 @@
         
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-        RADARR_HOST = "localhost"
+        HOST = "192.168.1.28"
         RADARR_PORT = "7878"
         RADARR_API_KEY = os.getenv("RADARR_API_KEY")
-        RADARR_API_URL = f"http://{RADARR_HOST}:{RADARR_PORT}/api/v3"
+        RADARR_API_URL = f"http://{HOST}:{RADARR_PORT}/api/v3"
 
+        SONARR_PORT = "8989"
+        SONARR_API_KEY = os.getenv("SONARR_API_KEY")
+        SONARR_API_URL = f"http://{HOST}:{SONARR_PORT}/api/v3"
+
+        LIDARR_PORT = "8686"
+        LIDARR_API_KEY = os.getenv("LIDARR_API_KEY")
+        LIDARR_API_URL = f"http://{HOST}:{LIDARR_PORT}/api/v3"
+
+        READARR_PORT = "8787"
+        READARR_API_KEY = os.getenv("READARR_API_KEY")
+        READARR_API_URL = f"http://{HOST}:{READARR_PORT}/api/v3"
+
+        PROWLARR_PORT = "9696"
+        PROWLARR_API_KEY = os.getenv("PROWLARR_API_KEY")
+        PROWLARR_API_URL = f"http://{HOST}:{PROWLARR_PORT}/api/v3"
+
+        TRANSMISSION_PORT = "9091"
+        TRANSMISSION_URL = f"http://{HOST}:{TRANSMISSION_PORT}"
+        
+        FLARESOLVERR_PORT = "8191"
+        FLARESOLVERR_URL = f"http://{HOST}:{FLARESOLVERR_PORT}"
+        
         def fetch_trash_guide_quality_definitions():
             url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
             try:
@@ -138,6 +160,7 @@
                     })
 
                 return quality_definitions
+                logging.info(quality_definitions)
             except requests.exceptions.RequestException as e:
                 logging.error(f"Failed to fetch quality definitions from Trash Guide: {e}")
                 return []
@@ -171,7 +194,6 @@
                         }
                     }
 
-                    # Send the update request
                     update_response = requests.put(
                         f"{RADARR_API_URL}/qualitydefinition/{radarr_quality['id']}",
                         headers={"X-Api-Key": RADARR_API_KEY, "Content-Type": "application/json"},
@@ -204,6 +226,44 @@
         #!/bin/sh
         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
         export RADARR_API_KEY
+        if grep -q "^RADARR_API_KEY=" apiKeys.env; then
+            sed -i "s|^RADARR_API_KEY=.*|RADARR_API_KEY=$RADARR_API_KEY|" apiKeys.env
+        else
+            echo "RADARR_API_KEY=$RADARR_API_KEY" >> apiKeys.env
+        fi
+
+        SONARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/sonarr/config/config.xml)
+        export SONARR_API_KEY        
+        if grep -q "^SONARR_API_KEY=" apiKeys.env; then
+            sed -i "s|^SONARR_API_KEY=.*|SONARR_API_KEY=$SONARR_API_KEY|" apiKeys.env
+        else
+            echo "SONARR_API_KEY=$SONARR_API_KEY" >> apiKeys.env
+        fi
+        
+        LIDARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/lidarr/config/config.xml)
+        export LIDARR_API_KEY   
+        if grep -q "^LIDARR_API_KEY=" apiKeys.env; then
+            sed -i "s|^LIDARR_API_KEY=.*|LIDARR_API_KEY=$LIDARR_API_KEY|" apiKeys.env
+        else
+            echo "LIDARR_API_KEY=$LIDARR_API_KEY" >> apiKeys.env
+        fi
+     
+        READARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/readarr/config/config.xml)
+        export READARR_API_KEY
+        if grep -q "^READARR_API_KEY=" apiKeys.env; then
+            sed -i "s|^READARR_API_KEY=.*|READARR_API_KEY=$READARR_API_KEY|" apiKeys.env
+        else
+            echo "READARR_API_KEY=$READARR_API_KEY" >> apiKeys.env
+        fi
+     
+        PROWLARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/prowlarr/config/config.xml)
+        export PROWLARR_API_KEY
+        if grep -q "^PROWLARR_API_KEY=" apiKeys.env; then
+            sed -i "s|^PROWLARR_API_KEY=.*|PROWLARR_API_KEY=$PROWLARR_API_KEY|" apiKeys.env
+        else
+            echo "PROWLARR_API_KEY=$PROWLARR_API_KEY" >> apiKeys.env
+        fi
+        
         ${pythonEnv}/bin/python ${py}
   '';
 in {
