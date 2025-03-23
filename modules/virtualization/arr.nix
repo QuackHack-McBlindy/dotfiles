@@ -128,7 +128,6 @@
         import logging
         import re
 
-        # Logging setup
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
         # Radarr API configuration
@@ -137,10 +136,6 @@
         RADARR_API_KEY = os.getenv("RADARR_API_KEY")
         RADARR_API_URL = f"http://{RADARR_HOST}:{RADARR_PORT}/api/v3"
 
-        # Validate API key
-        if not RADARR_API_KEY:
-            logging.error("Radarr API key is empty!")
-            exit(1)
 
         # Fetch quality definitions from Trash Guide                                              def fetch_trash_guide_quality_definitions():
             url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
