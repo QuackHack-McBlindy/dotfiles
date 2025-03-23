@@ -122,6 +122,7 @@
         }
     ''; 
     py = pkgs.writeText "config-apps.py" ''
+        #!/usr/bin/env python3
         import requests
         import json
         import os
@@ -130,19 +131,17 @@
 
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-        # Radarr API configuration
         RADARR_HOST = "localhost"
         RADARR_PORT = "7878"
         RADARR_API_KEY = os.getenv("RADARR_API_KEY")
         RADARR_API_URL = f"http://{RADARR_HOST}:{RADARR_PORT}/api/v3"
 
-
-        # Fetch quality definitions from Trash Guide                                              def fetch_trash_guide_quality_definitions():
+        # Fetch quality definitions from Trash Guide
+        def fetch_trash_guide_quality_definitions():
             url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
             try:
                 response = requests.get(url)
-                response.raise_for_status()
-                html_content = response.text
+                response.raise_for_status()                                                               html_content = response.text
 
                 # Use regex to extract quality definitions from the HTML table
                 quality_definitions = []
@@ -164,9 +163,8 @@
                 return quality_definitions
             except requests.exceptions.RequestException as e:
                 logging.error(f"Failed to fetch quality definitions from Trash Guide: {e}")
-                exit(1)
+                return []
 
-        # Update Radarr quality definitions
         def update_radarr_quality_definitions(quality_definitions):
             try:
                 # Fetch current quality definitions from Radarr
@@ -208,12 +206,15 @@
                 logging.info("Quality definitions update complete!")
             except requests.exceptions.RequestException as e:
                 logging.error(f"Failed to update Radarr quality definitions: {e}")
-                exit(1)
 
         # Main function
         def main():
             # Fetch quality definitions from Trash Guide
             quality_definitions = fetch_trash_guide_quality_definitions()
+
+            if not quality_definitions:
+                logging.error("No quality definitions found. Exiting.")
+                return
 
             # Update Radarr quality definitions
             update_radarr_quality_definitions(quality_definitions)
