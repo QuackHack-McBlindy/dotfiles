@@ -18,8 +18,6 @@ export GUM_CHOOSE_HEIGHT="12"  # Show more options
 export GUM_CHOOSE_SHOW_HELP="true"  # Show keybinds
 export GUM_CHOOSE_NO_LIMIT="true"  # Allow multiple selections
 
-echo "🎉 Fun Gum choose config loaded! Try: gum choose '🍕 Pizza' '🍔 Burger' '🌮 Taco'"
-
 ##################
 # GUM CONFIRM
 
@@ -37,7 +35,6 @@ export GUM_CONFIRM_SHOW_HELP="true"  # Show help keybinds
 # Behavior
 export GUM_CONFIRM_TIMEOUT="10s"  # Auto-cancel after 10s
 
-echo "✅ Fun Gum confirm config loaded! Try: gum confirm '🔥 Are you sure?'"
 
 ####################
 # GUM PAGER
@@ -55,7 +52,6 @@ export GUM_PAGER_SHOW_LINE_NUMBERS="true"  # Show line numbers
 export GUM_PAGER_SOFT_WRAP="true"  # Enable soft wrapping
 export GUM_PAGER_TIMEOUT="30s"  # Auto-exit after 30 seconds
 
-echo "📜 Fun Gum pager config loaded! Try: gum pager <filename>"
 
 #######################
 # GUM STYLE
@@ -73,8 +69,6 @@ export PADDING="1 2"  # Give text some breathing room
 export BOLD="true"  # Make text bold
 export ITALIC="true"  # Add style with italics
 export UNDERLINE="true"  # Emphasize text with underline
-
-echo "🎨 Fun Gum style config loaded! Try: gum style '🚀 Styled Text!'"
 
 
 ###################
@@ -100,8 +94,6 @@ export GUM_FILE_TIMEOUT="30s"  # Auto-exit after 30s
 export GUM_FILE_HEADER="🎉 Pick a file or folder! 🎉"
 export GUM_FILE_HEIGHT="15"  # Show more entries
 
-echo "🎨 Fun Gum config loaded! Run 'gum file' to start browsing."
-
 
 #########################
 # GUM LOG
@@ -119,8 +111,6 @@ export GUM_LOG_TIME="15:04:05"  # Show only time
 export GUM_LOG_MIN_LEVEL="debug"  # Show all logs
 export GUM_LOG_PREFIX="🚀 LOG"  # Fun prefix
 
-echo "📜 Fun Gum log config loaded! Try logging with: gum log 'Hello, world!'"
-
 
 #######################
 # GUM INPUT
@@ -137,6 +127,5 @@ export GUM_INPUT_WIDTH="30"  # Limit input width for a neat look
 export GUM_INPUT_SHOW_HELP="true"  # Show help keybinds
 export GUM_INPUT_TIMEOUT="20s"  # Auto-cancel after 20 seconds
 
-echo "⌨️ Fun Gum input config loaded! Try: gum input"
 
 #################

@@ -402,8 +402,6 @@ in {
     # Set /Docker Ownersihp and Permissions 
     system.activationScripts.dockerPermissions = {
         text = ''
-            touch /docker/transmission/config/settings.json
-            echo "${transmissionSettings}" > /docker/transmission/config/settings.json
             echo "Setting permissions and ownership for /docker directories..."
             mkdir -p /docker
             chown -R dockeruser:dockeruser /docker
