@@ -199,8 +199,10 @@
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScriptBin "configure-apps" ''
-        #!/bin/sh
-        ${pythonEnv}/bin/python -c "${py}"
+        #!${pythonEnv}
+        ${pkgs.python3}/bin/python3 <<EOF
+${py}
+EOF
   '';
 in {
     # Creates VPN Network & Open port for Transmission
