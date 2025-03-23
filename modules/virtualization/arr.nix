@@ -201,10 +201,10 @@
     
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScriptBin "configure-apps" ''
-        #!/bin/bash
-        ${pkgs.python3}/bin/python3 <<EOF
-${py}
-EOF
+        #!/bin/sh
+        RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
+        export RADARR_API_KEY
+        ${pkgs.python3}/bin/python3  ${py}
   '';
 in {
     # Creates VPN Network & Open port for Transmission
