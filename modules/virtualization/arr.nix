@@ -121,98 +121,124 @@
             "utp-enabled": true
         }
     ''; 
+    py = pkgs.writeText "config-apps.py" ''
+        import requests
+        import json
+        import os
+        import logging
+        import re
+
+        # Logging setup
+        logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+        # Radarr API configuration
+        RADARR_HOST = "localhost"
+        RADARR_PORT = "7878"
+        RADARR_API_KEY = os.getenv("RADARR_API_KEY")
+        RADARR_API_URL = f"http://{RADARR_HOST}:{RADARR_PORT}/api/v3"
+
+        # Validate API key
+        if not RADARR_API_KEY:
+            logging.error("Radarr API key is empty!")
+            exit(1)
+
+        # Fetch quality definitions from Trash Guide                                              def fetch_trash_guide_quality_definitions():
+            url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                html_content = response.text
+
+                # Use regex to extract quality definitions from the HTML table
+                quality_definitions = []
+                table_pattern = re.compile(r"<tr>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>", re.DOTALL)
+                matches = table_pattern.findall(html_content)
+
+                for match in matches:
+                    quality_name = match[0].strip()
+                    min_size = int(float(match[1].strip()) * 1024)  # Convert MB to KB
+                    max_size = int(float(match[2].strip()) * 1024)  # Convert MB to KB
+                    preferred_size = int(float(match[3].strip()) * 1024)  # Convert MB to KB
+
+                    quality_definitions.append({
+                        "name": quality_name,
+                        "minSize": min_size,
+                        "maxSize": max_size,                                                                      "preferredSize": preferred_size
+                    })
+
+                return quality_definitions
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Failed to fetch quality definitions from Trash Guide: {e}")
+                exit(1)
+
+        # Update Radarr quality definitions
+        def update_radarr_quality_definitions(quality_definitions):
+            try:
+                # Fetch current quality definitions from Radarr
+                response = requests.get(f"{RADARR_API_URL}/qualitydefinition", headers={"X-Api-Key": RADARR_API_KEY})
+                response.raise_for_status()
+                current_definitions = response.json()
+
+                # Update each quality definition
+                for trash_quality in quality_definitions:
+                    quality_name = trash_quality["name"]
+                    min_size = trash_quality["minSize"]
+                    max_size = trash_quality["maxSize"]
+                    preferred_size = trash_quality["preferredSize"]
+
+                    # Find the corresponding quality definition in Radarr                                     radarr_quality = next((q for q in current_definitions if q["quality"]["name"] == quality_name), None)
+                    if not radarr_quality:
+                        logging.warning(f"Quality '{quality_name}' not found in Radarr. Skipping...")
+                        continue
+
+                    # Prepare JSON payload for the update
+                    payload = {
+                        "id": radarr_quality["id"],
+                        "minSize": min_size,
+                        "maxSize": max_size,
+                        "preferredSize": preferred_size,                                                          "quality": {
+                            "id": radarr_quality["quality"]["id"],
+                            "name": quality_name                                                                  }
+                    }
+
+                    # Send the update request
+                    update_response = requests.put(
+                        f"{RADARR_API_URL}/qualitydefinition/{radarr_quality['id']}",
+                        headers={"X-Api-Key": RADARR_API_KEY, "Content-Type": "application/json"},
+                        data=json.dumps(payload))
+                    update_response.raise_for_status()
+
+                    logging.info(f"Updated {quality_name}: minSize={min_size}, maxSize={max_size}, preferredSize={preferred_size}")
+
+                logging.info("Quality definitions update complete!")
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Failed to update Radarr quality definitions: {e}")
+                exit(1)
+
+        # Main function
+        def main():
+            # Fetch quality definitions from Trash Guide
+            quality_definitions = fetch_trash_guide_quality_definitions()
+
+            # Update Radarr quality definitions
+            update_radarr_quality_definitions(quality_definitions)
+
+        if __name__ == "__main__":
+            main()
+    '';        
 
     # Final script sending API calls to configure everything inside the applications while running
     configureApplications = pkgs.writeScript "configure-applications.sh" ''
         #!/bin/sh
-        LOG_FILE="/docker/arr-setup.log"
-
-        log() {
-            echo "$(date '+%Y-%m-%d %H:%M:%S') - $1" >> "$LOG_FILE"
+        set -x
+        export PATH=${
+            pkgs.lib.makeBinPath [
+                pkgs.python3
+                pkgs.python312Packages.requests
+            ]
         }
-
-        RADARR_HOST="localhost"
-        RADARR_PORT="7878"
-        RADARR_API_KEY="$(cat /docker/arrKeys.env | grep RADARR | cut -d '=' -f 2 | tr -d '"')"
-
-        # Validate API key
-        if [[ -z "$RADARR_API_KEY" ]]; then
-            log "Error: Radarr API key is empty!"
-            exit 1
-        fi
-
-        RADARR_API_URL="http://${RADARR_HOST}:${RADARR_PORT}/api/v3"
-
-        # Hardcoded quality definitions based on Trash Guide recommendations
-        # Format: "Quality Name|minSize|maxSize|preferredSize"
-        QUALITY_DEFINITIONS=(
-            "Bluray-1080p|0|2048|1024"
-            "Bluray-720p|0|1024|512"
-            "WEBRip-1080p|0|2048|1024"
-            "WEBRip-720p|0|1024|512"
-            "HDTV-1080p|0|1024|512"
-            "HDTV-720p|0|512|256"
-            "DVD|0|512|256"
-            "SDTV|0|256|128"
-        )
-
-        # Function to update quality definitions
-        update_quality_definitions() {
-            echo "Fetching current quality definitions from Radarr..."
-            QUALITY_RESPONSE=$(curl -s -H "X-Api-Key: ${RADARR_API_KEY}" "${RADARR_API_URL}/qualitydefinition")
-
-            # Check if the response is valid
-            if [[ -z "$QUALITY_RESPONSE" ]]; then
-                echo "Failed to fetch quality definitions. Check your Radarr API key and connection."
-                exit 1
-            fi
-
-            echo "Updating quality definitions..."
-            for QUALITY_DEF in "${QUALITY_DEFINITIONS[@]}"; do
-                IFS='|' read -r QUALITY_NAME MIN_SIZE MAX_SIZE PREFERRED_SIZE <<< "$QUALITY_DEF"
-
-                # Find the quality definition ID by name                                                  QUALITY_ID=$(echo "$QUALITY_RESPONSE" | jq -r ".[] | select(.quality.name == \"${QUALITY_NAME}\") | .id")
-
-                if [[ -z "$QUALITY_ID" ]]; then
-                    echo "Quality '${QUALITY_NAME}' not found in Radarr. Skipping..."                         continue
-                fi
-
-                # Prepare JSON payload for the update
-                JSON_PAYLOAD=$(jq -n \
-                    --argjson id "$QUALITY_ID" \
-                    --argjson minSize "$MIN_SIZE" \
-                    --argjson maxSize "$MAX_SIZE" \
-                    --argjson preferredSize "$PREFERRED_SIZE" \
-                    '{                                                                                            id: $id,
-                        minSize: $minSize,
-                        maxSize: $maxSize,
-                        preferredSize: $preferredSize,
-                        quality: {
-                            id: $id,
-                            name: "'"${QUALITY_NAME}"'"
-                        }
-                    }')
-
-                # Send the update request
-                UPDATE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X PUT \
-                    -H "X-Api-Key: ${RADARR_API_KEY}" \
-                    -H "Content-Type: application/json" \
-                    -d "$JSON_PAYLOAD" \
-                    "${RADARR_API_URL}/qualitydefinition/${QUALITY_ID}")
-
-                if [[ "$UPDATE_RESPONSE" == "202" ]]; then
-                    echo "Updated ${QUALITY_NAME}: minSize=${MIN_SIZE}, maxSize=${MAX_SIZE}, preferredSize=${PREFERRED_SIZE}"
-                else
-                    echo "Failed to update ${QUALITY_NAME}. HTTP status: ${UPDATE_RESPONSE}"
-                fi
-            done
-
-            echo "Quality definitions update complete!"
-        }
-
-        # Run the update function
-        update_quality_definitions
-
+        export RADARR_API_KEY="$(cat ${radarrAPI})"
+        ${pkgs.python3}/bin/python3 ${py}
     ''; 
 in {
     # Creates VPN Network & Open port for Transmission
