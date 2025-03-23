@@ -99,7 +99,7 @@
     
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     py = pkgs.writeText "config-apps.py" ''
-        #!${pythonEnv}
+        #!${pythonEnv}/bin/python
         import requests
         import json
         import os
