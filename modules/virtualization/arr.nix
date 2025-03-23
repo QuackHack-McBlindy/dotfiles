@@ -9,8 +9,8 @@
         TZ="Europe/Berlin"
         PUID="2000"  
         PGID="2000"
-        USER=@TRANS@
-        PASS=@TRANS@ 
+        USER="@TRANS@"
+        PASS="@TRANS@" 
         SHADOWPASS="@SHADOWPASS@"
     '';
  
