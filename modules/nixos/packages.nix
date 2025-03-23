@@ -6,7 +6,9 @@
   pkgs,
   ...
 } : {
+
     environment.systemPackages = with pkgs; [   
+ #   environment.systemPackages = lib.mkIf (config.networking.hostName == "nasty") [
         pkgs.npth
      #   esphome
         pkgs.python312Packages.httpx

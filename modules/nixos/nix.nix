@@ -51,7 +51,6 @@
 	extraOptions = ''
 	    download-buffer-size = 1048576
 	    connect-timeout = 15
-
 	'';
 	
 	gc = {
