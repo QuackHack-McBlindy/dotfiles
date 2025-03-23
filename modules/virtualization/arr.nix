@@ -96,8 +96,10 @@
             "utp-enabled": true
         }
     ''; 
+    
+    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     py = pkgs.writeText "config-apps.py" ''
-        #!/usr/bin/env python3
+        #!${pythonEnv}
         import requests
         import json
         import os
@@ -196,10 +198,10 @@
             main()
     '';        
             
-    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
+    
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScriptBin "configure-apps" ''
-        #!${pythonEnv}
+        #!/bin/bash
         ${pkgs.python3}/bin/python3 <<EOF
 ${py}
 EOF
@@ -238,7 +240,7 @@ in {
         
         
         serviceConfig = {
-            ExecStart = "${configureApplications}";
+            ExecStart = "${configureApplications}/bin/configure-apps";
             Restart = "on-failure";
             RestartSec = "5s";
             RuntimeDirectory = [ "dockeruser" ];
