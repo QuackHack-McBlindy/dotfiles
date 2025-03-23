@@ -72,7 +72,7 @@ in
         openFirewall = true;   
 
         settings = {    
-            AllowUsers = [ username ];  
+            AllowUsers = [ username "builder" ];  
             PasswordAuthentication = false;
             PermitRootLogin = "no"; 
             MaxAuthTries = "5";  

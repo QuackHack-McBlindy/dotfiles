@@ -35,7 +35,8 @@
         builders-use-substitutes = true;
         allowed-users = [
           "@wheel"
-          "@builders"
+          "builder"
+          "pungkula"
         ];  
         trusted-users = [
           "root"
@@ -44,6 +45,7 @@
         ];
         
         substituters = [
+            "http://cache/"
             "https://cache.nixos.org/"
         ];
 	};

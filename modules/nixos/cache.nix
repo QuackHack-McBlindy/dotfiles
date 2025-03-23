@@ -13,7 +13,9 @@
         port = 10000; 
         secretKeyFile = "/etc/nix/private-key.pem";
     };
-
+    
+    networking.firewall.allowedTCPPorts = [ 80 ]; 
+    
     services.nginx = {
         enable = true;
         recommendedProxySettings = true;

@@ -35,7 +35,7 @@ in
    
       users.builder = lib.mkIf (config.networking.hostName == "desktop") {
           isNormalUser = true;
-          home = "/home/builder";
+          home = "/root";
           shell = pkgs.bash;
           openssh.authorizedKeys.keys = [ pubkey.desktop pubkey.laptop pubkey.homie pubkey.nasty ];
           extraGroups = [ "wheel" "builders" ]; 
@@ -70,6 +70,22 @@ in
           group = "secretservice";
       };    
   };
+
+  security.sudo = lib.mkIf (config.networking.hostName == "desktop") {
+    enable = true;
+    extraRules = [
+      {
+        users = [ "builder" ];
+        commands = [
+          {
+            command = "${pkgs.nix}/bin/nix";
+            options = [ "NOPASSWD" ];
+          }
+        ];
+      }
+    ];
+  };
+
 
   programs.nautilus-open-any-terminal = {
       enable = true;
