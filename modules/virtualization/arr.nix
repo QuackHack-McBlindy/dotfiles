@@ -204,22 +204,23 @@
         main()
   '';
 
-  # Script to set up environment and run Python script
-  configureApplications = pkgs.writeScript "configure-applications.sh" ''
-    #!/bin/sh
-    set -x
-    export PATH=${
-      pkgs.lib.makeBinPath [
-        pkgs.python3
-        pkgs.python312Packages.requests
-      ]
-    }
+    # Script to set up environment and run Python script
+    configureApplications = pkgs.writeScript "configure-applications.sh" ''
+        #!/bin/sh
+        set -x
+        export PATH=${
+             pkgs.lib.makeBinPath [
+                 pkgs.python3
+                 pkgs.python312Packages.requests
+             ]
+        }
 
-    # Extract API keys at runtime
-    RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
-    export RADARR_API_KEY
+         # Extract API keys at runtime
+         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
+         export RADARR_API_KEY
 
-    ${pkgs.python3}/bin/python3 ${py}
+         ${pkgs.python3}/bin/python3 ${py}
+    '';
 in {
     # Creates VPN Network & Open port for Transmission
     imports = [ ./gluetun.nix ];
@@ -252,9 +253,6 @@ in {
         after = [ "docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" ];
         requires = [ "docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" ];
         
-        preStart = ''
-        
-        '';
         
         serviceConfig = {
             ExecStart = "${configureApplications}";
