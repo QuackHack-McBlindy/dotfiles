@@ -3,15 +3,13 @@
     lib, 
     pkgs, 
     ... 
-} : 
-let
-  host.desktop = "http://192.168.1.111";
-  host.laptop = "http://192.168.1.222";
-  host.homie = "http://192.168.1.211";
-  host.nasty = "http://192.168.1.28";
-  host.localhost = "http://localhost";
-in
-{ 
+} : let
+    hostDesktop = "http://192.168.1.111";
+    hostLaptop = "http://192.168.1.222";
+    hostHomie = "http://192.168.1.211";
+    hostNasty = "http://192.168.1.28";
+    hostLocalhost = "http://localhost";
+in { 
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
     services.homepage-dashboard = {

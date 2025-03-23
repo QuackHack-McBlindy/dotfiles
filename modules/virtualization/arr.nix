@@ -13,7 +13,91 @@
         PASS=@TRANS@ 
         SHADOWPASS="@SHADOWPASS@"
     '';
-  
+ 
+
+
+    transmissionSettings = pkgs.writeText "settings.json" ''
+        {
+            "alt-speed-down": 50,
+            "alt-speed-enabled": false,
+            "alt-speed-time-begin": 540,
+            "alt-speed-time-day": 127,
+            "alt-speed-time-enabled": false,
+            "alt-speed-time-end": 1020,
+            "alt-speed-up": 50,
+            "announce-ip": "",
+            "announce-ip-enabled": false,
+            "anti-brute-force-enabled": false,
+            "anti-brute-force-threshold": 100,
+            "bind-address-ipv4": "0.0.0.0",
+            "bind-address-ipv6": "::",
+            "blocklist-enabled": false,
+            "blocklist-url": "http://www.example.com/blocklist",
+            "cache-size-mb": 4,
+            "default-trackers": "",
+            "dht-enabled": true,
+            "download-dir": "/root/Downloads",
+            "download-queue-enabled": true,
+            "download-queue-size": 5,
+            "encryption": 1,
+            "idle-seeding-limit": 30,
+            "idle-seeding-limit-enabled": false,
+            "incomplete-dir": "/root/Downloads",
+            "incomplete-dir-enabled": false,
+            "lpd-enabled": true,
+            "message-level": 4,
+            "peer-congestion-algorithm": "",
+            "peer-limit-global": 200,
+            "peer-limit-per-torrent": 50,
+            "peer-port": 51413,
+            "peer-port-random-high": 65535,
+            "peer-port-random-low": 49152,
+            "peer-port-random-on-start": false,
+            "peer-socket-tos": "le",
+            "pex-enabled": true,
+            "port-forwarding-enabled": true,
+            "preallocation": 1,
+            "prefetch-enabled": true,
+            "queue-stalled-enabled": true,
+            "queue-stalled-minutes": 30,
+            "ratio-limit": 2,
+            "ratio-limit-enabled": false,
+            "rename-partial-files": false,
+            "rpc-authentication-required": false,
+            "rpc-bind-address": "0.0.0.0",
+            "rpc-enabled": true,
+            "rpc-host-whitelist": "",
+            "rpc-host-whitelist-enabled": false,
+            "rpc-password": "{064ddf1bfa75eb61a0a677a0b0ed6c3637d0d1d4Wr8BjVrr",
+            "rpc-port": 9091,
+            "rpc-socket-mode": "0750",
+            "rpc-url": "/transmission/",
+            "rpc-username": "",
+            "rpc-whitelist": "127.0.0.1,::1",
+            "rpc-whitelist-enabled": false,
+            "scrape-paused-torrents-enabled": true,
+            "script-torrent-added-enabled": false,
+            "script-torrent-added-filename": "",
+            "script-torrent-done-enabled": false,
+            "script-torrent-done-filename": "",
+            "script-torrent-done-seeding-enabled": false,
+            "script-torrent-done-seeding-filename": "",
+            "seed-queue-enabled": false,
+            "seed-queue-size": 10,
+            "speed-limit-down": 100,
+            "speed-limit-down-enabled": false,
+            "speed-limit-up": 100,
+            "speed-limit-up-enabled": false,
+            "start-added-torrents": true,
+            "tcp-enabled": true,
+            "torrent-added-verify-mode": "fast",
+            "trash-original-torrent-files": false,
+            "umask": "022",
+            "upload-slots-per-torrent": 8,
+            "utp-enabled": true
+        }
+    ''; 
+ 
 in {
     imports = [ ./gluetun.nix ];
 
@@ -26,7 +110,7 @@ in {
             }" \
             -e "/@SHADOWPASS@/{
                 s|@SHADOWPASS@|$(cat ${config.sops.secrets.SHADOWSOCKS_PASSWORD.path})|
-            }" ${env} > /docker/arr.env                
+            }" ${env} > /docker/arr.env    
         '';
         serviceConfig = {
             ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
@@ -189,6 +273,8 @@ in {
 
     system.activationScripts.dockerPermissions = {
         text = ''
+            touch /docker/transmission/config/settings.json
+            echo "${transmissionSettings}" > /docker/transmission/config/settings.json
             echo "Setting permissions and ownership for /docker directories..."
             mkdir -p /docker
             chown -R dockeruser:dockeruser /docker
