@@ -212,7 +212,7 @@
          RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
          export RADARR_API_KEY
 
-         /run/current-system/sw/bin/nix-shell -p pkgs.python312Packages.requests --run '${pkgs.python3}/bin/python3 ${py}'
+         ${pkgs.python3}/bin/python3 ${py}
     '';
 in {
     # Creates VPN Network & Open port for Transmission
