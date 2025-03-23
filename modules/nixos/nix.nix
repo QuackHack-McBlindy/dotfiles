@@ -44,7 +44,7 @@
         ];
         
         substituters = [
-            "http://cache:10000"
+            "http://cache"
             "https://cache.nixos.org/"
         ];
 	};
