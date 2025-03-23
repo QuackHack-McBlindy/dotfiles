@@ -97,6 +97,7 @@
         }
     ''; 
     py = pkgs.writeText "config-apps.py" ''
+        #!/usr/bin/env python3
         import requests
         import json
         import os
@@ -211,7 +212,7 @@
          RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
          export RADARR_API_KEY
 
-         ${pkgs.python3}/bin/python3 ${py}
+         mix-shell -p python312Packages.requests --run '${pkgs.python3}/bin/python3 ${py}'
     '';
 in {
     # Creates VPN Network & Open port for Transmission
