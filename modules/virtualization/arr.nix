@@ -96,113 +96,105 @@
             "utp-enabled": true
         }
     ''; 
-  py = pkgs.writeText "config-apps.py" ''
-    import requests
-    import json
-    import os
-    import logging
-    import re
+    py = pkgs.writeText "config-apps.py" ''
+        import requests
+        import json
+        import os
+        import logging
+        import re
+        
+        logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        RADARR_HOST = "localhost"
+        RADARR_PORT = "7878"
+        RADARR_API_KEY = os.getenv("RADARR_API_KEY")
+        RADARR_API_URL = f"http://{RADARR_HOST}:{RADARR_PORT}/api/v3"
 
-    # Radarr API configuration
-    RADARR_HOST = "localhost"
-    RADARR_PORT = "7878"
-    RADARR_API_KEY = os.getenv("RADARR_API_KEY")
-    RADARR_API_URL = f"http://{RADARR_HOST}:{RADARR_PORT}/api/v3"
+        def fetch_trash_guide_quality_definitions():
+            url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
+            try:
+                response = requests.get(url)
+                response.raise_for_status()
+                html_content = response.text
 
-    # Fetch quality definitions from Trash Guide
-    def fetch_trash_guide_quality_definitions():
-        url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
-        try:
-            response = requests.get(url)
-            response.raise_for_status()
-            html_content = response.text
+                quality_definitions = []
+                table_pattern = re.compile(r"<tr>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>", re.DOTALL)
+                matches = table_pattern.findall(html_content)
 
-            # Use regex to extract quality definitions from the HTML table
-            quality_definitions = []
-            table_pattern = re.compile(r"<tr>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>", re.DOTALL)
-            matches = table_pattern.findall(html_content)
+                for match in matches:
+                    quality_name = match[0].strip()
+                    min_size = int(float(match[1].strip()) * 1024)  # Convert MB to KB
+                    max_size = int(float(match[2].strip()) * 1024)  # Convert MB to KB
+                    preferred_size = int(float(match[3].strip()) * 1024)  # Convert MB to KB
 
-            for match in matches:
-                quality_name = match[0].strip()
-                min_size = int(float(match[1].strip()) * 1024  # Convert MB to KB
-                max_size = int(float(match[2].strip()) * 1024  # Convert MB to KB
-                preferred_size = int(float(match[3].strip()) * 1024  # Convert MB to KB
+                    quality_definitions.append({
+                        "name": quality_name,
+                        "minSize": min_size,
+                        "maxSize": max_size,
+                        "preferredSize": preferred_size
+                    })
 
-                quality_definitions.append({
-                    "name": quality_name,
-                    "minSize": min_size,
-                    "maxSize": max_size,
-                    "preferredSize": preferred_size
-                })
+                return quality_definitions
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Failed to fetch quality definitions from Trash Guide: {e}")
+                return []
 
-            return quality_definitions
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to fetch quality definitions from Trash Guide: {e}")
-            return []
+        def update_radarr_quality_definitions(quality_definitions):  
+            try:
+                response = requests.get(f"{RADARR_API_URL}/qualitydefinition", headers={"X-Api-Key": RADARR_API_KEY})
+                response.raise_for_status()
+                current_definitions = response.json()
 
-    # Update Radarr quality definitions
-    def update_radarr_quality_definitions(quality_definitions):
-        try:
-            # Fetch current quality definitions from Radarr
-            response = requests.get(f"{RADARR_API_URL}/qualitydefinition", headers={"X-Api-Key": RADARR_API_KEY})
-            response.raise_for_status()
-            current_definitions = response.json()
+                for trash_quality in quality_definitions:
+                    quality_name = trash_quality["name"]
+                    min_size = trash_quality["minSize"]
+                    max_size = trash_quality["maxSize"]
+                    preferred_size = trash_quality["preferredSize"]
 
-            # Update each quality definition
-            for trash_quality in quality_definitions:
-                quality_name = trash_quality["name"]
-                min_size = trash_quality["minSize"]
-                max_size = trash_quality["maxSize"]
-                preferred_size = trash_quality["preferredSize"]
+                    radarr_quality = next((q for q in current_definitions if q["quality"]["name"] == quality_name), None)
+                    if not radarr_quality:
+                        logging.warning(f"Quality '{quality_name}' not found in Radarr. Skipping...")
+                        continue
 
-                # Find the corresponding quality definition in Radarr
-                radarr_quality = next((q for q in current_definitions if q["quality"]["name"] == quality_name), None)
-                if not radarr_quality:
-                    logging.warning(f"Quality '{quality_name}' not found in Radarr. Skipping...")
-                    continue
-
-                # Prepare JSON payload for the update
-                payload = {
-                    "id": radarr_quality["id"],
-                    "minSize": min_size,
-                    "maxSize": max_size,
-                    "preferredSize": preferred_size,
-                    "quality": {
-                        "id": radarr_quality["quality"]["id"],
-                        "name": quality_name
+                    # Prepare JSON payload for the update
+                    payload = {
+                        "id": radarr_quality["id"],
+                        "minSize": min_size,
+                        "maxSize": max_size,
+                        "preferredSize": preferred_size,
+                        "quality": {
+                            "id": radarr_quality["quality"]["id"],
+                            "name": quality_name
+                        }
                     }
-                }
 
-                # Send the update request
-                update_response = requests.put(
-                    f"{RADARR_API_URL}/qualitydefinition/{radarr_quality['id']}",
-                    headers={"X-Api-Key": RADARR_API_KEY, "Content-Type": "application/json"},
-                    data=json.dumps(payload))
-                update_response.raise_for_status()
+                    # Send the update request
+                    update_response = requests.put(
+                        f"{RADARR_API_URL}/qualitydefinition/{radarr_quality['id']}",
+                        headers={"X-Api-Key": RADARR_API_KEY, "Content-Type": "application/json"},
+                        data=json.dumps(payload))
+                    update_response.raise_for_status()
 
-                logging.info(f"Updated {quality_name}: minSize={min_size}, maxSize={max_size}, preferredSize={preferred_size}")
+                    logging.info(f"Updated {quality_name}: minSize={min_size}, maxSize={max_size}, preferredSize={preferred_size}")
 
-            logging.info("Quality definitions update complete!")
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to update Radarr quality definitions: {e}")
+                logging.info("Quality definitions update complete!")
+            except requests.exceptions.RequestException as e:
+                logging.error(f"Failed to update Radarr quality definitions: {e}")
 
-    # Main function
-    def main():
-        # Fetch quality definitions from Trash Guide
-        quality_definitions = fetch_trash_guide_quality_definitions()
+        # Main function
+        def main():
+            quality_definitions = fetch_trash_guide_quality_definitions()
 
-        if not quality_definitions:
-            logging.error("No quality definitions found. Exiting.")
-            return
+            if not quality_definitions:
+                logging.error("No quality definitions found. Exiting.")
+                return
 
-        # Update Radarr quality definitions
-        update_radarr_quality_definitions(quality_definitions)
+            update_radarr_quality_definitions(quality_definitions)
 
-    if __name__ == "__main__":
-        main()
-  '';
+        if __name__ == "__main__":
+            main()
+    '';        
+            
 
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScript "configure-applications.sh" ''
