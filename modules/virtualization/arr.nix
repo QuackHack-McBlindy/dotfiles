@@ -206,18 +206,182 @@
             except requests.exceptions.RequestException as e:
                 logging.error(f"Failed to update Radarr quality definitions: {e}")
 
+
+
         # Main function
-        def main():
-            quality_definitions = fetch_trash_guide_quality_definitions()
+       # def main():
+        #    quality_definitions = fetch_trash_guide_quality_definitions()
+        #    if not quality_definitions:
+        #        logging.error("No quality definitions found. Exiting.")
+        #        return
+        #    update_radarr_quality_definitions(quality_definitions)
 
-            if not quality_definitions:
-                logging.error("No quality definitions found. Exiting.")
-                return
 
-            update_radarr_quality_definitions(quality_definitions)
+
+
+
+  #      if __name__ == "__main__":
+  #          main()
+  
+
+
+        from typing import Dict, Any
+
+        # Configure logging
+        logging.basicConfig(
+            level=logging.INFO,
+            format='[%(asctime)s] %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
+        )
+        logger = logging.getLogger(__name__)
+
+        # Configuration - load from environment variables
+        CONFIG = {
+            "prowlarr": {
+                "url": "http://192.168.1.28:9696",
+                "api_key": os.environ.get("PROWLARR_API_KEY")
+            },
+            "services": {
+                "radarr": {"url": "http://192.168.1.28:7878", "api_key": os.environ.get("RADARR_API_KEY")},
+                "sonarr": {"url": "http://192.168.1.28:8989", "api_key": os.environ.get("SONARR_API_KEY")},
+                "lidarr": {"url": "http://192.168.1.28:8686", "api_key": os.environ.get("LIDARR_API_KEY")},
+                "readarr": {"url": "http://192.168.1.28:8787", "api_key": os.environ.get("READARR_API_KEY")}                                                                                    },
+            "transmission": {                                                                             "host": "192.168.1.28",
+                "port": 9091,                                                                             "username": os.environ.get("TRANSMISSION_USERNAME"),
+                "password": os.environ.get("TRANSMISSION_PASSWORD")                                   }
+        }
+
+        def make_request(method: str, url: str, headers: Dict[str, str], data: Dict[str, Any]) -> bool:
+            """Generic request handler with error catching"""
+            try:
+                response = requests.request(
+                    method=method,
+                    url=url,
+                    headers=headers,                                                                          json=data,
+                    timeout=10
+                )
+                response.raise_for_status()
+                logger.info(f"Success: {method} {url}")
+                return True
+            except Exception as e:
+                logger.error(f"Failed {method} {url} - {str(e)}")
+                return False
+
+        def configure_prowlarr_app(service_name: str, config: Dict[str, Any]) -> bool:
+            """Add service to Prowlarr"""
+            categories = {
+                "radarr": [2000, 2010, 2020, 2030, 2040, 2045, 2050, 2060],
+                "sonarr": [5000, 5010, 5020, 5030, 5040, 5045, 5050, 5070],
+                "lidarr": [3000, 3010, 3020, 3030, 3040],
+                "readarr": [7000, 7010, 7020, 7030, 7040, 7050, 7060]
+            }
+
+            data = {
+                "name": service_name.capitalize(),
+                "appType": service_name.capitalize(),
+                "syncLevel": "addOnly",
+                "baseUrl": config["url"],
+                "apiKey": config["api_key"],
+                "syncCategories": categories[service_name]
+            }
+
+            return make_request(
+                "POST",
+                f"{CONFIG['prowlarr']['url']}/api/v3/applications",
+                {
+                    "Content-Type": "application/json",
+                    "X-Api-Key": CONFIG["prowlarr"]["api_key"]
+                },
+                data
+            )
+
+        def configure_download_client(service_name: str, config: Dict[str, Any]) -> bool:
+            """Configure Transmission for an *Arr service"""
+            api_version = "v3" if service_name in ["radarr", "sonarr"] else "v1"
+
+            data = {
+                "name": "Transmission",
+                "enable": True,
+                "type": "transmission",
+                "host": CONFIG["transmission"]["host"],
+                "port": CONFIG["transmission"]["port"],
+                "useSsl": False,
+                "urlBase": "/transmission/",
+                "username": CONFIG["transmission"]["username"],
+                "password": CONFIG["transmission"]["password"]
+            }
+
+            return make_request(
+                "POST",
+                f"{config['url']}/api/{api_version}/downloadclient",
+                {
+                    "Content-Type": "application/json",
+                    "X-Api-Key": config["api_key"]
+                },
+                data
+            )
+
+        def configure_flaresolverr() -> bool:
+            """Configure Flaresolverr in Prowlarr"""
+            data = {
+                "host": "192.168.1.28",
+                "port": 8191,
+                "requestTimeout": 60
+            }
+
+            return make_request(
+                "PUT",
+                f"{CONFIG['prowlarr']['url']}/api/v3/config/flaresolverr",
+                {
+                    "Content-Type": "application/json",
+                    "X-Api-Key": CONFIG["prowlarr"]["api_key"]
+                },
+                data
+            )
+
+        def verify_configuration():
+            """Verify Prowlarr configuration"""
+            try:
+                # Verify applications
+                response = requests.get(
+                    f"{CONFIG['prowlarr']['url']}/api/v3/applications",
+                    headers={"X-Api-Key": CONFIG["prowlarr"]["api_key"]}
+                )
+                logger.info("Prowlarr Applications:\n%s",
+                            json.dumps(response.json(), indent=2))
+
+                # Verify system status
+                response = requests.get(
+                    f"{CONFIG['prowlarr']['url']}/api/v3/system/status",
+                    headers={"X-Api-Key": CONFIG["prowlarr"]["api_key"]}
+                )
+                logger.info("System Status:\n%s",
+                            json.dumps(response.json(), indent=2))
+
+            except Exception as e:
+                logger.error("Verification failed: %s", str(e))
 
         if __name__ == "__main__":
-            main()
+            logger.info("Starting ARR configuration...")
+
+            # Configure Prowlarr apps
+            for service in ["radarr", "sonarr", "lidarr", "readarr"]:
+                configure_prowlarr_app(service, CONFIG["services"][service])
+
+            # Configure Flaresolverr
+            configure_flaresolverr()
+
+            # Configure Download Clients
+            for service in ["radarr", "sonarr", "lidarr", "readarr"]:
+                configure_download_client(service, CONFIG["services"][service])
+
+            # Verification
+            logger.info("Verifying configuration...")
+            verify_configuration()
+
+            logger.info("Configuration process completed (check logs for errors)")
+
+  
     '';        
             
     
@@ -263,6 +427,9 @@
         else
             echo "PROWLARR_API_KEY=$PROWLARR_API_KEY" >> apiKeys.env
         fi
+        
+        export TRANSMISSION_USERNAME=""
+        export TRANSMISSION_PASSWORD=""
         
         ${pythonEnv}/bin/python ${py}
   '';
