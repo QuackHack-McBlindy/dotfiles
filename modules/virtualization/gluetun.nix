@@ -51,6 +51,7 @@ in {
                     "4533:4533"       # Navidrome:
                     "5055:5055"       # Jellyseer:
                     "4545:4545"       # Requestrr:
+                    "9696:9696"       # Prowlarr
                     "8191:8191"       # Flaresolverr
                     "9091:9091"       # Transmission
                     "51413:51413"     # Transmission

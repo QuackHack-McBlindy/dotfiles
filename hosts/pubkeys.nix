@@ -7,6 +7,23 @@
   "borg" = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVYczAOBSeS7WfSvzYDOS4Q9Ss+yxCf2G5MVfAALOx/";
   "builder" = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEc/ogUS0pQmT+ai4Gj7A39c9G5EApMniEm3GPvKnW2s";
   "iPhone" = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq";
+
+  "wireguard" = {
+    "desktop" = "Oq0ZaYAnOo5sLpV//OEFwLgjVCxPyeQqf8cZBASluWk=";
+    "homie" = "BlpQEu1MJbNmx32zgTFO0Otnkb+4XA1pwVdhjHtJBiQ=";
+    "iphone" = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw=";
+    "laptop" = "/n41MVtIQcQ0JuJkuh2SFlYN393KOWed76EwpnSugFk=";
+    "nasty" = "rP+XbuiiTPmsPB1yJ4BHHOtmVVOfn3ucnV4YdfbqAnw=";
+    "phone" = "0olEOyRxJ5jLkMZ2XOVeUevR7GYPEbF/WCucwX+/H2s=";
+    "tablet" = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4=";
+    "watch" = "K3UVUrOdM5i1upNyocTpzHnMZHcn2F9aLEFaXhDm/g4=";
+  };
+  "age" = {
+    "desktop" = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";
+    "laptop" = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";
+    "nasty" = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";
+    "homie" = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";  
+  };  
 }
 
 
