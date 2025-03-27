@@ -7,6 +7,9 @@ in
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
 
+                      ./../../modules/networking/wg-client.nix
+                   #   ./../../modules/networking/unbound.nix
+                  #    ./../../modules/services/adguardhome.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix

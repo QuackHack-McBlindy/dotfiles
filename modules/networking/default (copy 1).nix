@@ -115,6 +115,59 @@ in {
             };
         };  
         
+        # WireGuard
+        wireguard.interfaces.wg0 = lib.mkMerge [
+            (lib.mkIf (config.networking.hostName == "homie") {
+                # Server configuration
+                ips = [ "${host.wgip.homie}/24" ];
+                listenPort = 51820;
+                privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
+                peers = [
+                    {
+                      publicKey = pubkey.wireguard.desktop;
+                      allowedIPs = [ "${host.wgip.desktop}/32" ];
+                    }
+                    {
+                      publicKey = pubkey.wireguard.laptop;
+                      allowedIPs = [ "${host.wgip.laptop}/32" ];
+                    }
+                    {
+                      publicKey = pubkey.wireguard.nasty;
+                      allowedIPs = [ "${host.wgip.nasty}/32" ];
+                    }           
+                    {
+                      publicKey = pubkey.wireguard.iphone;
+                      allowedIPs = [ "${host.wgip.iphone}/32" ];
+                    }
+                    {
+                      publicKey = pubkey.wireguard.phone;
+                      allowedIPs = [ "${host.wgip.phone}/32" ];
+                    }
+                    {
+                      publicKey = pubkey.wireguard.watch;
+                      allowedIPs = [ "${host.wgip.watch}/32" ];
+                    }
+                    {
+                      publicKey = pubkey.wireguard.tablet;
+                      allowedIPs = [ "${host.wgip.tablet}/32" ];
+                    }
+                ];
+            })
+  
+            (lib.mkIf (config.networking.hostName != "homie") {
+                # Client configuration
+                ips = [ "${host.wgip.${config.networking.hostName}}/24" ];
+                privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
+                peers = [
+                   {
+                     publicKey = pubkey.wireguard.homie;
+                     allowedIPs = [ "10.0.0.0/24" ];
+                     endpoint = "${host.ip.homie}:51820";
+                     persistentKeepalive = 25;
+                   }
+                ];
+            })
+        ];
 
         nameservers = [ "127.0.0.1" ];
     #    nameservers = lib.mkMerge [
@@ -134,7 +187,59 @@ in {
             useLocalResolver = true;
         };
     };      
+   
+    services.nginx = lib.mkIf (config.networking.hostName == "homie") {
+        enable = true;
+        virtualHosts."wg-qr" = {
+            root = "/etc/wireguard/qr_codes";
+            extraConfig = ''
+                autoindex on;
+                autoindex_exact_size off;
+                autoindex_localtime on;
+            '';
+        };
+    };
+  
+    systemd.services.generate-wg-qr = lib.mkIf (config.networking.hostName == "homie") {
+        serviceConfig = {
+            Type = "oneshot";
+            User = "wgqr";
+            Group = "wgqr";
+            Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
+        };
+        script = ''
+            QR_DIR="/home/wgqr"
+            ${lib.concatMapStringsSep "\n" (device: ''
+                TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
+                ${pkgs.coreutils}/bin/rm -f "$QR_DIR/${device}.conf" "$QR_DIR/${device}.png"
 
+                ${pkgs.coreutils}/bin/cat > "$TEMP_DIR/template.conf" <<EOF
+                [Interface]
+                PrivateKey = @PRIVATE_KEY@
+                Address = ${host.wgip.${device}}/24
+                DNS = 192.168.1.211
+
+                [Peer]
+                PublicKey = ${pubkey.wireguard.homie}
+                AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
+                Endpoint = ${host.ip.homie}:51820
+                PersistentKeepalive = 25
+                EOF
+
+                ${pkgs.gnused}/bin/sed -i \
+                  -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
+                  "$TEMP_DIR/template.conf"
+
+                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "$QR_DIR/${device}.conf"
+                ${pkgs.qrencode}/bin/qrencode -t PNG -o "$QR_DIR/${device}.png" -r "$QR_DIR/${device}.conf"
+
+                ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
+                ${pkgs.coreutils}/bin/chmod 440 "$QR_DIR/${device}."*
+            '') mobileDevices}
+        '';
+        wantedBy = [ "multi-user.target" ];
+    };
+    
     systemd.services.initrd_setup = {
         wantedBy = [ "multi-user.target" ];
 
@@ -172,11 +277,18 @@ in {
 #    };
   
     users.groups.initrduser = { }; 
+    users.groups.wgqr = { }; 
 
     users.users.initrduser = {
         group = "initrduser";
         home = "/home/initrduser";
         createHome = true;
         isSystemUser = true;
-
+    };
+ #   users.users.wgqr = lib.mkIf (config.networking.hostName == "homie") {
+    users.users.wgqr = {
+        group = "wgqr";
+        home = "/home/wgqr";
+        createHome = true;
+        isSystemUser = true;
     };}

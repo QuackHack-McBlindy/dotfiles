@@ -7,6 +7,8 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
+                      ./../../modules/networking/wg-server.nix
+                      ./../../modules/networking/unbound.nix
                       ./../../modules/nixos/cache.nix
                       ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
@@ -20,11 +22,8 @@ in
                       ./../../modules/services/faster-whisper.nix
                      # ./../../modules/services/ntfy.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
-                      ./../../modules/networking/unbound.nix
-                     # ./../../modules/services/adguardhome.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
-                      ./../../modules/services/fail2ban.nix
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
                       ./../../modules/services/syslogd.nix
@@ -37,7 +36,7 @@ in
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
                       ./../../modules/nixos/pipewire.nix
-                     # ./../../modules/networking/stubby.nix
+                      ./../../modules/networking/unbound.nix
                       ./../../modules/networking/default.nix
   ];
 

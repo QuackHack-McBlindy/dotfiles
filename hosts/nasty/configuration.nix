@@ -6,13 +6,10 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
-
+                      ./../../modules/networking/wg-client.nix
                       ./../../modules/services/openwakeword.nix
-                      ./../../modules/networking/caddy2.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/services/avahi-client.nix
-                    #  ./../../modules/services/dns.nix
-                      ./../../modules/services/fail2ban.nix
                       ./../../modules/nixos/users.nix
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
@@ -20,10 +17,9 @@ in
                       ./../../modules/nixos/pipewire.nix
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
+                      ./../../modules/networking/caddy2.nix 
                       ./../../modules/networking/default.nix
                       ./../../modules/nixos/default-apps.nix
-                   #   ./../../modules/virtualization/duck-tv.nix
-                  #    ./../../modules/virtualization/arrr.nix
                       ./../../modules/nixos/borgServer.nix
                       ./../../modules/virtualization/arr.nix
                       ./../../modules/virtualization/docker.nix
