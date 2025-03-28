@@ -481,10 +481,10 @@ in {
                 autoStart = true;
                 environmentFiles = [ "/docker/arr.env" ];
                 environment = {
-                    CAPTCHA_SOLVER = ""
-                    LOG_LEVEL = "info"
-                    HOST = "0.0.0.0"
-                    PORT = "8191"
+                    CAPTCHA_SOLVER = "";
+                    LOG_LEVEL = "info";
+                    HOST = "0.0.0.0";
+                    PORT = "8191";
                 };
                 
             };
