@@ -479,6 +479,9 @@ in {
                 dependsOn = [ "gluetun" ];
                 extraOptions = [ "--network=container:gluetun" ];
                 autoStart = true;
+                volumes = [
+                    "/docker/flaresolverr/config:/.local/share/selenium"
+                ];
                 environmentFiles = [ "/docker/arr.env" ];
                 environment = {
                     CAPTCHA_SOLVER = "";
