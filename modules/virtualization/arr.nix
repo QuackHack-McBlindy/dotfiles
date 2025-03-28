@@ -184,6 +184,7 @@
         import os
         import logging
         import re
+        from pathlib import Path
         
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
