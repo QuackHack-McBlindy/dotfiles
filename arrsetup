@@ -1,3 +1,85 @@
+#################
+CONFIRMED
+#####################
+RADARR ADD DOWNLOAD CLIENT
+
+
+#!/bin/bash
+
+# Load API keys from environment file
+source /home/pungkula/arr.env
+
+# ARR Instances and API keys
+declare -A ARR_SERVICES=(
+  ["Radarr"]="http://192.168.1.28:7878 $RADARR_API_KEY"
+  ["Sonarr"]="http://192.168.1.28:8989 $SONARR_API_KEY"
+  ["Lidarr"]="http://192.168.1.28:8686 $LIDARR_API_KEY"
+  ["Readarr"]="http://192.168.1.28:8787 $READARR_API_KEY"
+)
+
+# Transmission configuration without authentication
+JSON_PAYLOAD=$(cat <<EOF
+{
+  "enable": true,
+  "name": "Transmission",
+  "implementation": "Transmission",
+  "configContract": "TransmissionSettings",
+  "fields": [
+    {
+      "name": "host",
+      "value": "localhost"
+    },
+    {
+      "name": "port",
+      "value": 9091
+    },
+    {
+      "name": "useSsl",
+      "value": false
+    },
+    {
+      "name": "urlBase",
+      "value": "/transmission/"
+    },
+    {
+      "name": "directory",
+      "value": "/downloads"
+    },
+    {
+      "name": "removeCompletedDownloads",
+      "value": true
+    },
+    {
+      "name": "removeFailedDownloads",
+      "value": true
+    }
+  ],
+  "protocol": "torrent",
+  "priority": 1,
+  "tags": []
+}
+EOF
+)
+
+# Iterate over all ARR services and configure Transmission
+for SERVICE in "${!ARR_SERVICES[@]}"; do
+  IFS=' ' read -r URL API_KEY <<< "${ARR_SERVICES[$SERVICE]}"
+  echo "Configuring Transmission for $SERVICE..."
+
+  curl -X POST "$URL/api/v3/downloadclient" \
+       -H "Content-Type: application/json" \
+       -H "X-Api-Key: $API_KEY" \
+       -d "$JSON_PAYLOAD"
+
+  echo -e "\n$SERVICE configuration completed.\n"
+done
+################
+
+
+
+
+
+
 curl -X POST "http://192.168.1.28:9696/api/v3/applications" \
   -H "Content-Type: application/json" \
   -H "X-Api-Key: YOUR_PROWLARR_API_KEY" \
@@ -105,7 +187,7 @@ curl -X POST "http://192.168.1.28:7878/api/v3/downloadclient" \
 
 curl -X POST "http://192.168.1.28:8989/api/v3/downloadclient" \  
   -H "Content-Type: application/json" \  
-  -H "X-Api-Key: YOUR_SONARR_API_KEY" \  
+  -H "X-Api-Key: $SONARR_API_KEY" \  
   -d '{  
     "name": "Transmission",  
     "enable": true,  
@@ -114,8 +196,8 @@ curl -X POST "http://192.168.1.28:8989/api/v3/downloadclient" \
     "port": 9091,  
     "useSsl": false,  
     "urlBase": "/transmission/",  
-    "username": "TRANSMISSION_USERNAME",  
-    "password": "TRANSMISSION_PASSWORD"  
+    "username": "",  
+    "password": ""  
   }'  
   
   
