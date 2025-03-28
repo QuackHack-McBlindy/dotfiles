@@ -283,7 +283,6 @@
     # Script to set up environment and run Python script
     configureApplications = pkgs.writeScriptBin "configure-apps" ''
         #!/bin/sh
-        touch /docker/apiKeys.env
         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
         export RADARR_API_KEY
         if grep -q "^RADARR_API_KEY=" apiKeys.env; then
@@ -338,6 +337,7 @@ in {
         wantedBy = [ "multi-user.target" ];
         preStart = ''
             touch /docker/arr.env
+            touch /docker/apiKeys.env
             sed -e "/@TRANS@/{
                 s|@TRANS@|$(cat ${config.sops.secrets.transmission.path})|
             }" \
@@ -476,7 +476,7 @@ in {
       
             flaresolverr = {
                 image = "ghcr.io/flaresolverr/flaresolverr:latest";
-                user = "2000:2000";
+                user = "0:0";
                 dependsOn = [ "gluetun" ];
                 capabilities = { NET_ADMIN = true; };
                 extraOptions = [ "--network=container:gluetun" ];
@@ -484,15 +484,16 @@ in {
                 volumes = [
                     "/docker/flaresolverr:/.local/share/selenium"
                 ];
-                environmentFiles = [ "/docker/arr.env" ];
+               # environmentFiles = [ "/docker/arr.env" ];
                 environment = {
-                    CAPTCHA_SOLVER = "";
+                    CAPTCHA_SOLVER = "hcaptcha";
                     LOG_LEVEL = "info";
                     HOST = "0.0.0.0";
                     PORT = "8191";
                     HEADLESS = "true";
                     TEST_URL = "https://google.com";
                     BROWSER = "firefox";
+                    USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36";
                 };
                 
             };
