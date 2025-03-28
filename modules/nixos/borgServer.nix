@@ -40,7 +40,7 @@ in {
                 pubkey.nasty
             ];
         };  
-    }:
+    };
    
     # Set /Docker Ownersihp and Permissions 
     system.activationScripts.dockerPermissions = {
