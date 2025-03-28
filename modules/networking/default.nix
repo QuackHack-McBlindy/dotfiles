@@ -65,17 +65,22 @@ in {
 
     imports = [
         ./../services/fail2ban.nix
-        ./stubby.nix
     ];
     sops.secrets = sopsSecrets;
     
-    services.resolved.fallbackDns = [ ]; # Empty to prevent bypass
-    services.resolved.dnsovertls = "true"; 
+    services.resolved = { 
+        enable = false;
+        domains = [ "~." ];
+        fallbackDns = [ ]; # Empty to prevent bypass
+        dnsovertls = "true"; 
+        dnssec = "allow-downgrade";
+    };    
     
     networking = { 
         search = [ "local" "duckdns.org" "lan" ];
         networkmanager = {
             enable = true;
+            dns = lib.mkDefault "none";
         };
         hosts = {
             "192.168.1.1" = [ "router.lan" "router.local" "router" ];
@@ -115,12 +120,10 @@ in {
             };
         };  
         
-
-        nameservers = [ "127.0.0.1" ];
-    #    nameservers = lib.mkMerge [
-   #         (lib.mkIf (config.networking.hostName == "homie") [ "127.0.0.1" ])
-   #         (lib.mkIf (config.networking.hostName != "homie") [ "192.168.1.211" ])
-     #   ];
+        nameservers = lib.mkMerge [
+            (lib.mkIf (config.networking.hostName == "homie") [ "127.0.0.1" ])
+            (lib.mkIf (config.networking.hostName != "homie") [ "192.168.1.211" ])
+        ];
         firewall = {
             enable = true;
             logRefusedConnections = true;

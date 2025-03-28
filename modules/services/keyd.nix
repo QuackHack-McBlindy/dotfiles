@@ -9,11 +9,9 @@
   #    main.rightalt = "oneshot(altgr)";
       main.capslock = "enter";
       main.insert = "S-insert";
-
-      
+   
     };
   };
-  # seems to break my keyboard after an upgrade
   systemd.services.keyd.restartIfChanged = false;
 }
 

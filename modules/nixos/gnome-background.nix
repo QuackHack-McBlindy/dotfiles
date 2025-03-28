@@ -17,8 +17,8 @@ in
       extraGSettingsOverrides = ''
         [org.gnome.desktop.background]
         picture-uri='file://${cfg.backgroundFile}'
-     #   [org.gnome.desktop.screensaver]
-     #   picture-uri='file://${cfg.backgroundFile}'
+        [org.gnome.desktop.screensaver]
+        picture-uri='file://${cfg.backgroundFile}'
       '';
     };
   };
