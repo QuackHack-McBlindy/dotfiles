@@ -307,30 +307,22 @@
 
 
         def configure_flaresolverr_proxy():
-            """Configure Flaresolverr proxy in Prowlarr"""
-            proxy_config = {
-                "name": "Flaresolverr",
-                "implementation": "Flaresolverr",
-                "configContract": "FlaresolverrSettings",
-                "fields": [
-                    {"name": "host", "value": "flaresolverr"},
-                    {"name": "port", "value": 8191},
-                    {"name": "requestTimeout", "value": 60000}
-                ]
+            proxy_settings = {
+                "enable": True,
+                "proxyType": "http",  
+                "hostname": "localhost",
+                "port": 8191,
+                "username": "",  
+                "password": "",
+                "bypassOnLocal": False,
+                "bypassFilter": "",
+                "useForIndexer": True  
             }
-
-            try:
-                prowlarr_url = f"{PROWLARR_API_URL}/applications"
-                response = requests.post(
-                    prowlarr_url,
-                    headers={"X-Api-Key": PROWLARR_API_KEY},
-                    json=proxy_config
-                )
-                response.raise_for_status()
-                logging.info("Flaresolverr proxy configured in Prowlarr")
-            except Exception as e:
-                logging.error(f"Failed to configure Flaresolverr: {str(e)}")
-
+            headers = {"X-Api-Key": PROWLARR_API_KEY, "Content-Type": "application/json"}
+            response = requests.put(f"{PROWLARR_URL}/api/v1/config/proxy", json=proxy_settings, headers=headers)
+            print(response.json())
+            
+            
         class ArrConfigurator:
             def __init__(self, app_name, api_url, api_key):
                 self.app_name = app_name
