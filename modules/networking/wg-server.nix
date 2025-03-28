@@ -125,6 +125,46 @@ in {
         };
     };
   
+#    systemd.services.generate-wg-qr = {
+#        serviceConfig = {
+#            Type = "oneshot";
+ #           User = "wgqr";
+ #           Group = "wgqr";
+ #           Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
+#        };
+ #       script = ''
+  #          QR_DIR="/home/wgqr"
+  #          ${pkgs.coreutils}/bin/rm -f "$QR_DIR/${device}.conf" "$QR_DIR/${device}.png"
+   #         ${lib.concatMapStringsSep "\n" (device: ''
+   #             TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
+                
+  #              ${pkgs.coreutils}/bin/cat > "$TEMP_DIR/template.conf" <<EOF
+  #              [Interface]
+  #              PrivateKey = @PRIVATE_KEY@
+  #              Address = ${host.wgip.${device}}/24
+  #              DNS = 192.168.1.211
+
+ #               [Peer]
+  #              PublicKey = ${pubkey.wireguard.homie}
+   #             AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
+ #               Endpoint = ${domain}:51820
+  #              PersistentKeepalive = 25
+  #              EOF
+
+   #             ${pkgs.gnused}/bin/sed -i \
+   #               -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
+  #                "$TEMP_DIR/template.conf"
+
+ #               ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "$QR_DIR/${device}.conf"
+  #             ${pkgs.qrencode}/bin/qrencode -t PNG -o "$QR_DIR/${device}.png" -r "$QR_DIR/${device}.conf"
+
+  #              ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
+   #             ${pkgs.coreutils}/bin/chmod 440 "$QR_DIR/${device}."*
+#            '') mobileDevices}
+#        '';
+  #      wantedBy = [ "multi-user.target" ];
+#    };
+ 
     systemd.services.generate-wg-qr = {
         serviceConfig = {
             Type = "oneshot";
@@ -132,13 +172,15 @@ in {
             Group = "wgqr";
             Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
         };
-        script = ''
-            QR_DIR="/home/wgqr"
-            ${pkgs.coreutils}/bin/rm -f "$QR_DIR/${device}.conf" "$QR_DIR/${device}.png"
-            ${lib.concatMapStringsSep "\n" (device: ''
+        script = let
+            # Delete existing QR files for all mobile devices
+            deleteCommands = lib.concatMapStringsSep "\n" (d: ''
+                ${pkgs.coreutils}/bin/rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png"
+            '') mobileDevices;
+            # Generate new QR files for each device
+            generateCommands = lib.concatMapStringsSep "\n" (device: ''
                 TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
-                
-                ${pkgs.coreutils}/bin/cat > "$TEMP_DIR/template.conf" <<EOF
+                cat > "$TEMP_DIR/template.conf" <<EOF
                 [Interface]
                 PrivateKey = @PRIVATE_KEY@
                 Address = ${host.wgip.${device}}/24
@@ -155,16 +197,18 @@ in {
                   -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
                   "$TEMP_DIR/template.conf"
 
-                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "$QR_DIR/${device}.conf"
-                ${pkgs.qrencode}/bin/qrencode -t PNG -o "$QR_DIR/${device}.png" -r "$QR_DIR/${device}.conf"
-
+                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
+                ${pkgs.qrencode}/bin/qrencode -t PNG -o "/home/wgqr/${device}.png" -r "/home/wgqr/${device}.conf"
                 ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
-                ${pkgs.coreutils}/bin/chmod 440 "$QR_DIR/${device}."*
-            '') mobileDevices}
+            '') mobileDevices;
+        in ''
+            ${deleteCommands}
+            ${generateCommands}
+            chmod 440 /home/wgqr/*.conf /home/wgqr/*.png
         '';
         wantedBy = [ "multi-user.target" ];
     };
-   
+ 
     users.groups.wgqr = { }; 
     users.users.wgqr = {
         group = "wgqr";
