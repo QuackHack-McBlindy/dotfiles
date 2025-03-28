@@ -225,7 +225,6 @@
 
         def configure_download_clients():
             """Configure Transmission as download client for all *Arr applications"""
-            print(f"\n{COLOR_OK}=== Configuring Download Clients ==={COLOR_END}")
 
             # Service configuration
             services = {
