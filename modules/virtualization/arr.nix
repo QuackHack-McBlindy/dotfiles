@@ -702,11 +702,7 @@ in {
             chown -R dockeruser:dockeruser /docker
             chmod -R 700 /docker
             
-            echo "Setting permissions and ownership for media directories..."
-            chown -R 2000:2000 /Pool /docker
-            chmod -R 775 /Pool
-            find /Pool -type d -exec chmod g+s {} \;
-            
+
         '';
     };}
     
