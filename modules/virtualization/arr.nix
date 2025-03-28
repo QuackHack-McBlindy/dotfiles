@@ -305,6 +305,34 @@
                     logging.error(f"{service_name} connection failed: {str(e)}")
                     print(f"{COLOR_FAIL}✗ {service_name.ljust(12)}: Connection failed{COLOR_END}")
 
+
+        def configure_flaresolverr_proxy():
+            """Configure Flaresolverr proxy in Prowlarr"""
+            print(f"\n{COLOR_OK}=== Configuring Flaresolverr Proxy ==={COLOR_END}")
+
+            proxy_config = {
+                "name": "Flaresolverr",
+                "implementation": "Flaresolverr",
+                "configContract": "FlaresolverrSettings",
+                "fields": [
+                    {"name": "host", "value": "flaresolverr"},
+                    {"name": "port", "value": 8191},
+                    {"name": "requestTimeout", "value": 60000}
+                ]
+            }
+
+            try:
+                prowlarr_url = f"{PROWLARR_API_URL}/applications"
+                response = requests.post(
+                    prowlarr_url,
+                    headers={"X-Api-Key": PROWLARR_API_KEY},
+                    json=proxy_config
+                )
+                response.raise_for_status()
+                logging.info("Flaresolverr proxy configured in Prowlarr")
+            except Exception as e:
+                logging.error(f"Failed to configure Flaresolverr: {str(e)}")
+
         class ArrConfigurator:
             def __init__(self, app_name, api_url, api_key):
                 self.app_name = app_name
@@ -403,7 +431,7 @@
                 configurator.configure_root_folder()
                 configurator.configure_download_client()
                 configure_download_clients()
-                
+                configure_flaresolverr_proxy()
 
         if __name__ == "__main__":
             main()
@@ -675,6 +703,12 @@ in {
             touch /docker/apiKeys.env
             chown -R dockeruser:dockeruser /docker
             chmod -R 700 /docker
+            
+            echo "Setting permissions and ownership for media directories..."
+            chown -R 2000:2000 /Pool /docker
+            chmod -R 775 /Pool
+            find /Pool -type d -exec chmod g+s {} \;
+            
         '';
     };}
     
