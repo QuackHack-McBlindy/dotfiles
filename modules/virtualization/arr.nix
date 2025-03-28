@@ -96,7 +96,15 @@
             "utp-enabled": true
         }
     ''; 
-    
+   
+    rootFolderConfig = mediaType: {
+        path = "/${mediaType}";
+        accessible = true;
+        freeSpace = 0;
+        unmappedFolders = [];
+    };
+ 
+   
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     pyTestSetup = pkgs.writeText "test-apps.py" ''
         #!${pythonEnv}/bin/python
@@ -206,76 +214,114 @@
         FLARESOLVERR_PORT = "8191"
         FLARESOLVERR_URL = f"http://{HOST}:{FLARESOLVERR_PORT}"
         
-        def fetch_trash_guide_quality_definitions():
-            url = "https://trash-guides.info/Radarr/Radarr-Quality-Settings-File-Size/"
-            try:
-                response = requests.get(url)
-                response.raise_for_status()
-                html_content = response.text
 
-                quality_definitions = []
-                table_pattern = re.compile(r"<tr>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>\s*<td[^>]*>(.*?)</td>", re.DOTALL)
-                matches = table_pattern.findall(html_content)
 
-                for match in matches:
-                    quality_name = match[0].strip()
-                    min_size = int(float(match[1].strip()) * 1024)  # Convert MB to KB
-                    max_size = int(float(match[2].strip()) * 1024)  # Convert MB to KB
-                    preferred_size = int(float(match[3].strip()) * 1024)  # Convert MB to KB
+        logging.basicConfig(
+            filename='/docker/arr-setup.log',
+            level=logging.INFO,
+            format='%(asctime)s - %(levelname)s - %(message)s'
+        )
 
-                    quality_definitions.append({
-                        "name": quality_name,
-                        "minSize": min_size,
-                        "maxSize": max_size,
-                        "preferredSize": preferred_size
-                    })
+        class ArrConfigurator:
+            def __init__(self, app_name, api_url, api_key):
+                self.app_name = app_name
+                self.api_url = api_url
+                self.headers = {"X-Api-Key": api_key}
+                self.root_folders = {
+                    "Radarr": "/movies",
+                    "Sonarr": "/tv",
+                    "Lidarr": "/music",
+                    "Readarr": "/books"
+                }
 
-                return quality_definitions
-                logging.info(quality_definitions)
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Failed to fetch quality definitions from Trash Guide: {e}")
-                return []
+            def configure_root_folder(self):
+                folder_path = self.root_folders.get(self.app_name, "")
+                if not folder_path:
+                    return
 
-        def update_radarr_quality_definitions(quality_definitions):  
-            try:
-                response = requests.get(f"{RADARR_API_URL}/qualitydefinition", headers={"X-Api-Key": RADARR_API_KEY})
-                response.raise_for_status()
-                current_definitions = response.json()
+                try:
+                    # Create physical directory
+                    Path(folder_path).mkdir(parents=True, exist_ok=True)
 
-                for trash_quality in quality_definitions:
-                    quality_name = trash_quality["name"]
-                    min_size = trash_quality["minSize"]
-                    max_size = trash_quality["maxSize"]
-                    preferred_size = trash_quality["preferredSize"]
+                    # Configure in application
+                    response = requests.get(
+                        f"{self.api_url}/rootFolder",
+                        headers=self.headers
+                    )
+                    existing_folders = [f['path'] for f in response.json()]
 
-                    radarr_quality = next((q for q in current_definitions if q["quality"]["name"] == quality_name), None)
-                    if not radarr_quality:
-                        logging.warning(f"Quality '{quality_name}' not found in Radarr. Skipping...")
-                        continue
-
-                    # Prepare JSON payload for the update
-                    payload = {
-                        "id": radarr_quality["id"],
-                        "minSize": min_size,
-                        "maxSize": max_size,
-                        "preferredSize": preferred_size,
-                        "quality": {
-                            "id": radarr_quality["quality"]["id"],
-                            "name": quality_name
+                    if folder_path not in existing_folders:
+                        payload = {
+                            "path": folder_path,
+                            "defaultQualityProfileId": 1,
+                            "defaultMetadataProfileId": 1,
+                            "defaultMonitorOption": "all"
                         }
-                    }
+                        requests.post(
+                            f"{self.api_url}/rootFolder",
+                            headers=self.headers,
+                            json=payload
+                        )
+                        logging.info(f"Created root folder for {self.app_name} at {folder_path}")
 
-                    update_response = requests.put(
-                        f"{RADARR_API_URL}/qualitydefinition/{radarr_quality['id']}",
-                        headers={"X-Api-Key": RADARR_API_KEY, "Content-Type": "application/json"},
-                        data=json.dumps(payload))
-                    update_response.raise_for_status()
+                except Exception as e:
+                    logging.error(f"{self.app_name} root folder config failed: {str(e)}")
 
-                    logging.info(f"Updated {quality_name}: minSize={min_size}, maxSize={max_size}, preferredSize={preferred_size}")
+            def configure_download_client(self):
+                client_config = {                                                                             "name": "Transmission",
+                    "enable": True,
+                    "protocol": "torrent",
+                    "configContract": "TransmissionSettings",
+                    "implementation": "Transmission",
+                    "fields": [
+                        {"name": "host", "value": "localhost"},
+                        {"name": "port", "value": 9091},
+                        {"name": "useSsl", "value": False},
+                        {"name": "urlBase", "value": "/transmission/"},
+                        {"name": "username", "value": ""},
+                        {"name": "password", "value": ""}
+                    ]
+                }
 
-                logging.info("Quality definitions update complete!")
-            except requests.exceptions.RequestException as e:
-                logging.error(f"Failed to update Radarr quality definitions: {e}") 
+                try:
+                    current_clients = requests.get(
+                        f"{self.api_url}/downloadclient",
+                        headers=self.headers
+                    ).json()
+
+                    if not any(c['implementation'] == "Transmission" for c in current_clients):
+                        requests.post(
+                            f"{self.api_url}/downloadclient",
+                            headers=self.headers,
+                            json=client_config
+                        )
+                        logging.info(f"Added Transmission client to {self.app_name}")
+                except Exception as e:
+                    logging.error(f"{self.app_name} download client config failed: {str(e)}")
+
+        # Main configuration logic
+        def main():
+            apps = {
+                "Radarr": {"port": 7878, "api_var": "RADARR_API_KEY"},
+                "Sonarr": {"port": 8989, "api_var": "SONARR_API_KEY"},
+                "Lidarr": {"port": 8686, "api_var": "LIDARR_API_KEY"},
+                "Readarr": {"port": 8787, "api_var": "READARR_API_KEY"}
+            }
+
+            for app, config in apps.items():
+                api_key = os.getenv(config["api_var"])
+                if not api_key:
+                    logging.warning(f"Skipping {app} configuration - missing API key")
+                    continue
+
+                api_url = f"http://localhost:{config['port']}/api/v3"
+                configurator = ArrConfigurator(app, api_url, api_key)
+
+                configurator.configure_root_folder()
+                configurator.configure_download_client()
+
+        if __name__ == "__main__":
+            main()
 
     '';        
             
