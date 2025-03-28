@@ -323,7 +323,7 @@
                     },
                     {
                         "name": "requestTimeout",
-                        "value": 60000
+                        "value": 180
                     }
                 ],
                 "enable": True,
