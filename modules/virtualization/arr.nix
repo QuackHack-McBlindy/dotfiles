@@ -208,6 +208,7 @@
         PROWLARR_PORT = "9696"
         PROWLARR_API_KEY = os.getenv("PROWLARR_API_KEY")
         PROWLARR_API_URL = f"http://{HOST}:{PROWLARR_PORT}/api/v3"
+        PROWLARR_URL = f"http://{HOST}:{PROWLARR_PORT}"
 
         TRANSMISSION_PORT = "9091"
         TRANSMISSION_URL = f"http://{HOST}:{TRANSMISSION_PORT}"
