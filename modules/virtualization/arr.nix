@@ -296,20 +296,18 @@
                     response.raise_for_status()
 
                     logging.info(f"Successfully configured Transmission in {service_name}")
-                    print(f"{COLOR_OK}✓ {service_name.ljust(12)}: Configuration successful{COLOR_END}")
+                    
 
                 except requests.exceptions.HTTPError as e:
                     logging.error(f"{service_name} config failed: {e.response.text}")
-                    print(f"{COLOR_FAIL}✗ {service_name.ljust(12)}: HTTP Error {e.response.status_code}{COLOR_END}")
+                    
                 except requests.exceptions.RequestException as e:
                     logging.error(f"{service_name} connection failed: {str(e)}")
-                    print(f"{COLOR_FAIL}✗ {service_name.ljust(12)}: Connection failed{COLOR_END}")
+                    
 
 
         def configure_flaresolverr_proxy():
             """Configure Flaresolverr proxy in Prowlarr"""
-            print(f"\n{COLOR_OK}=== Configuring Flaresolverr Proxy ==={COLOR_END}")
-
             proxy_config = {
                 "name": "Flaresolverr",
                 "implementation": "Flaresolverr",
