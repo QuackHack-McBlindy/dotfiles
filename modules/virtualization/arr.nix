@@ -485,6 +485,8 @@ in {
                     LOG_LEVEL = "info";
                     HOST = "0.0.0.0";
                     PORT = "8191";
+                    HEADLESS = "true";
+                    TEST_URL = "https://google.com";
                 };
                 
             };
