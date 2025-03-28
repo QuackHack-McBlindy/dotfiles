@@ -483,7 +483,6 @@ in {
                 autoStart = true;
                 volumes = [
                     "/docker/flaresolverr:/.local/share/selenium"
-                    "/docker/flaresolverr/app:/app"
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
                 environment = {
@@ -492,7 +491,6 @@ in {
                     HOST = "0.0.0.0";
                     PORT = "8191";
                     HEADLESS = "true";
-                    HOME = "/app";
                     TEST_URL = "https://google.com";
                     BROWSER = "firefox";
                 };
@@ -542,6 +540,7 @@ in {
         text = ''
             echo "Setting permissions and ownership for /docker directories..."
             mkdir -p /docker
+            touch /docker/apiKeys.env
             chown -R dockeruser:dockeruser /docker
             chmod -R 700 /docker
         '';
