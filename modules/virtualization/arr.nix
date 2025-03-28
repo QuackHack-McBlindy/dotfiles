@@ -97,7 +97,7 @@
         }
     ''; 
     
-    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ])
+    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     pyTestSetup = pkgs.writeText "test-apps.py" ''
         #!${pythonEnv}/bin/python
         import os
