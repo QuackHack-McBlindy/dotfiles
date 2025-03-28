@@ -487,6 +487,7 @@ in {
                     PORT = "8191";
                     HEADLESS = "true";
                     TEST_URL = "https://google.com";
+                    BROWSER = "firefox";
                 };
                 
             };
