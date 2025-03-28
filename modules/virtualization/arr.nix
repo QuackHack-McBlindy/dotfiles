@@ -450,7 +450,6 @@
                 configurator.configure_root_folder()
                 configurator.configure_download_client()
                 configure_download_clients()
-                configure_flaresolverr_proxy()
                 host_id = "1"
                 status, response_data = update_host_config(host_id)
                 print(status, response_data)
