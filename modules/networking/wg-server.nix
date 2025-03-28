@@ -30,23 +30,11 @@
         "@INITRDKEY@"
     '';
      
-    sopsSecrets = lib.listToAttrs (map (h: {
-        name = "${h}_wireguard_private";
-        value = sopsEntry h;
-    }) hosts) // {
-        initrd_ed25519_key = {
-            sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
-            owner = "initrduser";
-            group = "initrduser";
-            mode = "0440";
-        };
-    } // {
-        domain = {
-            sopsFile = ./../../secrets/domain.yaml;
-            owner = "wgqr";
-            group = "wgqr";
-            mode = "0440";
-        };
+    sopsEntry = hostName: {
+        sopsFile = ./../../secrets/hosts/${hostName}/${hostName}_wireguard_private.yaml;
+        owner = "wgqr";
+        group = "wgqr";
+        mode = "0440";
     };
 
     splitHorizon = lib.optionals (currentHost == "homie") [ ./unbound.nix ];
@@ -69,8 +57,24 @@ EOF
  
 in {
 
-    sops.secrets = sopsSecrets;
-
+    sops.secrets = lib.listToAttrs (map (h: {
+        name = "${h}_wireguard_private";
+        value = sopsEntry h;
+    }) hosts) // {
+        initrd_ed25519_key = {
+            sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
+            owner = "initrduser";
+            group = "initrduser";
+            mode = "0440";
+        };
+        domain = {
+            sopsFile = ./../../secrets/domain.yaml;
+            owner = "wgqr";
+            group = "wgqr";
+            mode = "0440";
+        };
+    };
+    
     networking = {   
         # WireGuard
         wireguard.interfaces.wg0 = {
