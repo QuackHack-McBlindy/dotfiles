@@ -223,6 +223,89 @@
             format='%(asctime)s - %(levelname)s - %(message)s'
         )
 
+        def configure_download_clients():
+            """Configure Transmission as download client for all *Arr applications"""
+            print(f"\n{COLOR_OK}=== Configuring Download Clients ==={COLOR_END}")
+
+            # Service configuration
+            services = {
+                "Radarr": {
+                    "url": f"http://{HOST}:7878/api/v3/downloadclient",
+                    "api_key": os.getenv("RADARR_API_KEY")
+                },
+                "Sonarr": {
+                    "url": f"http://{HOST}:8989/api/v3/downloadclient",
+                    "api_key": os.getenv("SONARR_API_KEY")
+                },
+                "Lidarr": {
+                    "url": f"http://{HOST}:8686/api/v1/downloadclient",
+                    "api_key": os.getenv("LIDARR_API_KEY")
+                },
+                "Readarr": {
+                    "url": f"http://{HOST}:8787/api/v1/downloadclient",
+                    "api_key": os.getenv("READARR_API_KEY")
+                }
+            }
+
+            # Transmission configuration payload
+            transmission_config = {
+                "enable": True,
+                "name": "Transmission",
+                "implementation": "Transmission",
+                "configContract": "TransmissionSettings",
+                "fields": [
+                    {"name": "host", "value": "localhost"},
+                    {"name": "port", "value": 9091},
+                    {"name": "useSsl", "value": False},
+                    {"name": "urlBase", "value": "/transmission/"},
+                    {"name": "directory", "value": "/downloads"},
+                    {"name": "removeCompletedDownloads", "value": False},
+                    {"name": "removeFailedDownloads", "value": True}
+                ],
+                "protocol": "torrent",
+                "priority": 1,
+                "tags": []
+            }
+
+            for service_name, config in services.items():
+                if not config["api_key"]:
+                    logging.warning(f"Skipping {service_name} - missing API key")
+                    continue
+
+                headers = {
+                    "X-Api-Key": config["api_key"],
+                    "Content-Type": "application/json"
+                }
+
+                try:
+                    # Check if Transmission already configured
+                    existing = requests.get(config["url"], headers=headers, timeout=10)
+                    existing.raise_for_status()
+
+                    if any(client["implementation"] == "Transmission"
+                           for client in existing.json()):
+                        logging.info(f"Transmission already configured in {service_name}")
+                        continue
+
+                    # Add new Transmission configuration
+                    response = requests.post(
+                        config["url"],
+                        headers=headers,
+                        json=transmission_config,
+                        timeout=15
+                    )
+                    response.raise_for_status()
+
+                    logging.info(f"Successfully configured Transmission in {service_name}")
+                    print(f"{COLOR_OK}✓ {service_name.ljust(12)}: Configuration successful{COLOR_END}")
+
+                except requests.exceptions.HTTPError as e:
+                    logging.error(f"{service_name} config failed: {e.response.text}")
+                    print(f"{COLOR_FAIL}✗ {service_name.ljust(12)}: HTTP Error {e.response.status_code}{COLOR_END}")
+                except requests.exceptions.RequestException as e:
+                    logging.error(f"{service_name} connection failed: {str(e)}")
+                    print(f"{COLOR_FAIL}✗ {service_name.ljust(12)}: Connection failed{COLOR_END}")
+
         class ArrConfigurator:
             def __init__(self, app_name, api_url, api_key):
                 self.app_name = app_name
@@ -320,6 +403,8 @@
 
                 configurator.configure_root_folder()
                 configurator.configure_download_client()
+                configure_download_clients()
+                
 
         if __name__ == "__main__":
             main()
