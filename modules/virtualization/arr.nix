@@ -328,7 +328,6 @@
         export TRANSMISSION_PASSWORD=""
         
         ${pythonEnv}/bin/python ${py}
-        ${pythonEnv}/bin/python ${pyTestSetup}
   '';
 in {
     # Creates VPN Network & Open port for Transmission
@@ -479,6 +478,7 @@ in {
                 image = "ghcr.io/flaresolverr/flaresolverr:latest";
                 user = "2000:2000";
                 dependsOn = [ "gluetun" ];
+                capabilities = { NET_ADMIN = true; };
                 extraOptions = [ "--network=container:gluetun" ];
                 autoStart = true;
                 volumes = [
@@ -492,6 +492,7 @@ in {
                     HOST = "0.0.0.0";
                     PORT = "8191";
                     HEADLESS = "true";
+                    HOME = "/app";
                     TEST_URL = "https://google.com";
                     BROWSER = "firefox";
                 };
