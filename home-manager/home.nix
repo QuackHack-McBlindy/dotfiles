@@ -210,7 +210,30 @@ in
       fi
       sudo cat "/run/secrets/$1"
     '')
-     
+ 
+ #°✶.•°••─→ sopse ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+    (pkgs.writeShellScriptBin "sopse" ''
+      #!/bin/bash
+      if [[ $# -eq 0 ]]; then
+          echo "Usage: $0 <input-file.yaml>"
+          exit 1
+      fi
+      input_file="$1"
+      output_file="''${input_file%.*}.enc.yaml"  # Nix-escaped parameter expansion
+      if [[ ! -f "$input_file" ]]; then
+          echo "Error: Input file '$input_file' not found!"
+          exit 1
+      fi
+      public_key=$(awk -F': ' '/public key:/ {print $2}' /var/lib/sops-nix/age.age)
+      if [[ -z "$public_key" ]]; then
+          echo "Error: Failed to extract Age public key from /var/lib/sops-nix/age.age"
+          exit 1
+      fi
+      sops --encrypt --age "$public_key" --output "$output_file" "$input_file"
+      echo "Encrypted: $input_file → $output_file"
+    '')
+  
+ 
  #°✶.•°••─→ sopsc ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
     (pkgs.writeShellScriptBin "sopsc" ''  
       #!/bin/bash

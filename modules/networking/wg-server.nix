@@ -30,23 +30,29 @@
         "@INITRDKEY@"
     '';
      
-    sopsEntry = host: {
-        sopsFile = ./../../secrets/hosts/${host}/${host}_wireguard_private.yaml;
-        owner = "wgqr";
-        group = "wgqr";
-        mode = "0440";
-    };
-    sopsSecrets = lib.listToAttrs (map (h: { name = "${h}_wireguard_private"; value = sopsEntry h; }) hosts) // {
+    sopsSecrets = lib.listToAttrs (map (h: {
+        name = "${h}_wireguard_private";
+        value = sopsEntry h;
+    }) hosts) // {
         initrd_ed25519_key = {
             sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
             owner = "initrduser";
             group = "initrduser";
             mode = "0440";
         };
+    } // {
+        domain = {
+            sopsFile = ./../../secrets/domain.yaml;
+            owner = "wgqr";
+            group = "wgqr";
+            mode = "0440";
+        };
     };
 
     splitHorizon = lib.optionals (currentHost == "homie") [ ./unbound.nix ];
     reverseProxy = lib.optionals (currentHost == "nasty") [ ./caddy2.nix ];
+    
+    domain = config.sops.secrets.domain.path; 
     
     currentInterface = host.face.${config.networking.hostName};
     currentIp = host.ip.${config.networking.hostName};
@@ -128,7 +134,6 @@ in {
             ${lib.concatMapStringsSep "\n" (device: ''
                 TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
                 
-
                 ${pkgs.coreutils}/bin/cat > "$TEMP_DIR/template.conf" <<EOF
                 [Interface]
                 PrivateKey = @PRIVATE_KEY@
@@ -138,7 +143,7 @@ in {
                 [Peer]
                 PublicKey = ${pubkey.wireguard.homie}
                 AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
-                Endpoint = ${host.ip.homie}:51820
+                Endpoint = ${domain}:51820
                 PersistentKeepalive = 25
                 EOF
 

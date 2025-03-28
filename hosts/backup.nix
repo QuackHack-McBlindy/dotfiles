@@ -11,8 +11,8 @@ in {
     sops.secrets = {
         borg = {
             sopsFile = ./../secrets/borg.yaml;
-            owner = config.users.users.secretservice.name;
-            group = config.users.groups.secretservice.name;
+            owner = "root";
+            group = "root";
             mode = "0440"; # Read-only for owner and group;
         };
     };
@@ -61,7 +61,7 @@ in {
                 "/swapfile"        # Swap file (not useful in backups)
                 "/mnt"
             ];
-            repo = "borg@nasty:/backup/${config.networking.hostName}";
+            repo = "borg@nasty:${config.networking.hostName}"; 
             doInit = true;
             encryption = {
                 mode = "repokey";

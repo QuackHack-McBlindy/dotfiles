@@ -15,11 +15,11 @@ in {
 
     services.openssh.settings = {
         AllowUsers = [ "borg" ];  
-    #    extraConfig = ''
-    #        Match User borg
-    #        ChrootDirectory /backup
-    #        ForceCommand internal-sftp
-    #    '';
+        extraConfig = ''
+            Match User borg
+            ChrootDirectory /backup
+            ForceCommand internal-sftp
+        '';
     };
     
     users = {
@@ -40,5 +40,14 @@ in {
                 pubkey.nasty
             ];
         };  
-        
+    }:
+   
+    # Set /Docker Ownersihp and Permissions 
+    system.activationScripts.dockerPermissions = {
+        text = ''
+            mkdir -p /backup
+            chown borg:borg /backup
+            chmod 700 /backup
+        '';
     };}
+    
