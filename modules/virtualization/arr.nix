@@ -285,42 +285,42 @@
         #!/bin/sh
         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
         export RADARR_API_KEY
-        if grep -q "^RADARR_API_KEY=" apiKeys.env; then
-            sed -i "s|^RADARR_API_KEY=.*|RADARR_API_KEY=$RADARR_API_KEY|" apiKeys.env
+        if grep -q "^RADARR_API_KEY=" /docker/apiKeys.env; then
+            sed -i "s|^RADARR_API_KEY=.*|RADARR_API_KEY=$RADARR_API_KEY|" /docker/apiKeys.env
         else
-            echo "RADARR_API_KEY=$RADARR_API_KEY" >> apiKeys.env
+            echo "RADARR_API_KEY=$RADARR_API_KEY" >> /docker/apiKeys.env
         fi
 
         SONARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/sonarr/config/config.xml)
         export SONARR_API_KEY        
-        if grep -q "^SONARR_API_KEY=" apiKeys.env; then
-            sed -i "s|^SONARR_API_KEY=.*|SONARR_API_KEY=$SONARR_API_KEY|" apiKeys.env
+        if grep -q "^SONARR_API_KEY=" /docker/apiKeys.env; then
+            sed -i "s|^SONARR_API_KEY=.*|SONARR_API_KEY=$SONARR_API_KEY|" /docker/apiKeys.env
         else
-            echo "SONARR_API_KEY=$SONARR_API_KEY" >> apiKeys.env
+            echo "SONARR_API_KEY=$SONARR_API_KEY" >> /docker/apiKeys.env
         fi
         
         LIDARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/lidarr/config/config.xml)
         export LIDARR_API_KEY   
-        if grep -q "^LIDARR_API_KEY=" apiKeys.env; then
-            sed -i "s|^LIDARR_API_KEY=.*|LIDARR_API_KEY=$LIDARR_API_KEY|" apiKeys.env
+        if grep -q "^LIDARR_API_KEY=" /docker/apiKeys.env; then
+            sed -i "s|^LIDARR_API_KEY=.*|LIDARR_API_KEY=$LIDARR_API_KEY|" /docker/apiKeys.env
         else
-            echo "LIDARR_API_KEY=$LIDARR_API_KEY" >> apiKeys.env
+            echo "LIDARR_API_KEY=$LIDARR_API_KEY" >> /docker/apiKeys.env
         fi
      
         READARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/readarr/config/config.xml)
         export READARR_API_KEY
-        if grep -q "^READARR_API_KEY=" apiKeys.env; then
-            sed -i "s|^READARR_API_KEY=.*|READARR_API_KEY=$READARR_API_KEY|" apiKeys.env
+        if grep -q "^READARR_API_KEY=" /docker/apiKeys.env; then
+            sed -i "s|^READARR_API_KEY=.*|READARR_API_KEY=$READARR_API_KEY|" /docker/apiKeys.env
         else
-            echo "READARR_API_KEY=$READARR_API_KEY" >> apiKeys.env
+            echo "READARR_API_KEY=$READARR_API_KEY" >> /docker/apiKeys.env
         fi
      
         PROWLARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/prowlarr/config/config.xml)
         export PROWLARR_API_KEY
-        if grep -q "^PROWLARR_API_KEY=" apiKeys.env; then
-            sed -i "s|^PROWLARR_API_KEY=.*|PROWLARR_API_KEY=$PROWLARR_API_KEY|" apiKeys.env
+        if grep -q "^PROWLARR_API_KEY=" /docker/apiKeys.env; then
+            sed -i "s|^PROWLARR_API_KEY=.*|PROWLARR_API_KEY=$PROWLARR_API_KEY|" /docker/apiKeys.env
         else
-            echo "PROWLARR_API_KEY=$PROWLARR_API_KEY" >> apiKeys.env
+            echo "PROWLARR_API_KEY=$PROWLARR_API_KEY" >> /docker/apiKeys.env
         fi
         
         export TRANSMISSION_USERNAME=""
