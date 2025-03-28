@@ -177,7 +177,7 @@
             print(f"\n{COLOR_OK}=== Test Suite Completed ==={COLOR_END}")       
     '';     
        
-    py = pkgs.writeText "config-apps.py" ''
+    pyBackup = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
         import os
         import requests
@@ -217,177 +217,135 @@
             if not api_key:
                 logging.warning(f"Skipping {app} configuration - missing API key")
 
-        def configure_download_clients():
-            """Configure Transmission as the download client for all *Arr applications"""
-            transmission_config = {
-                "enable": True,
-                "name": "Transmission",
-                "implementation": "Transmission",
-                "configContract": "TransmissionSettings",
-                "fields": [
-                    {"name": "host", "value": "localhost"},
-                    {"name": "port", "value": 9091},
-                    {"name": "useSsl", "value": False},
-                    {"name": "urlBase", "value": "/transmission/"},
-                    {"name": "directory", "value": "/downloads"},
-                    {"name": "removeCompletedDownloads", "value": False},
-                    {"name": "removeFailedDownloads", "value": True}
-                ],
-                "protocol": "torrent",
-                "priority": 1,
-                "tags": []
+        HOST_IP = "192.168.1.28"
+        OUTPUT_DIR = "/backup/arr"  
+        SERVICES = [
+            {
+                "name": "Prowlarr",
+                "port": 9696,
+                "api_version": "v1",
+                "api_key": $PROWLARR_API_KEY
+            },
+            {
+                "name": "Radarr",
+                "port": 7878,
+                "api_version": "v3",
+                "api_key": $RADARR_API_KEY
+            },
+            {
+                "name": "Sonarr",
+                "port": 8989,
+                "api_version": "v3",
+                "api_key": $SONARR_API_KEY
+            },
+            {
+                "name": "Lidarr",
+                "port": 8686,
+                "api_version": "v1",
+                "api_key": $LIDARR_API_KEY
+            },
+            {
+                "name": "Readarr",
+                "port": 8787,
+                "api_version": "v1",
+                "api_key": $READARR_API_KEY
             }
+        ]
 
-            services = {
-                "Radarr": API_URLS["Radarr"],
-                "Sonarr": API_URLS["Sonarr"],
-                "Lidarr": API_URLS["Lidarr"],
-                "Readarr": API_URLS["Readarr"]
-            }
+        def download_backup(service, backup):
+            try:
+                download_url = f"http://{HOST_IP}:{service['port']}/api/{service['api_version']}/system/backup/{backup['id']}"
 
-            for service, url in services.items():
-                api_key = API_KEYS.get(service)
-                if not api_key:
-                    continue
+                headers = {"X-Api-Key": service["api_key"]}
 
-                headers = {
-                    "X-Api-Key": api_key,
-                    "Content-Type": "application/json"
-                }
+                response = requests.get(download_url, headers=headers, stream=True)
+                response.raise_for_status()
+                                                                                                          os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-                try:
-                    existing_clients = requests.get(f"{url}/downloadclient", headers=headers, timeout=10)
-                    existing_clients.raise_for_status()
+                filename = f"{service['name']}_{backup['name']}".replace(" ", "_")
+                filename = "".join(c for c in filename if c.isalnum() or c in ('_', '-')) + ".zip"
+                filepath = os.path.join(OUTPUT_DIR, filename)
 
-                    if any(client["implementation"] == "Transmission" for client in existing_clients.json()):
-                        logging.info(f"Transmission already configured in {service}")
-                        continue
-                    response = requests.post(f"{url}/downloadclient", headers=headers, json=transmission_config, timeout=15)
-                    response.raise_for_status()
-                    logging.info(f"Successfully configured Transmission in {service}")
+                with open(filepath, "wb") as f:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        f.write(chunk)
 
-                except requests.exceptions.RequestException as e:
-                    logging.error(f"{service} config failed: {e}")
-        def update_host_config(host_id):
-            """Update host configuration for all *Arr services"""
-            data = {
-                "proxyEnabled": True,
-                "proxyType": "http",
-                "proxyHostname": "localhost",
-                "proxyPort": 8191,
-                "proxyUsername": "",
-                "proxyPassword": "",
-                "proxyBypassFilter": "",
-                "proxyBypassLocalAddresses": True
-            }
+                print(f"Downloaded {service['name']} backup: {filename}")
+                return True
 
-            headers = {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            }
+            except Exception as e:
+                print(f"Failed to download {service['name']} backup: {str(e)}")
+                return False
 
-            services = {
-                "Prowlarr": f"http://{HOST}:9696/api/v1/config/host/{host_id}",
-                "Sonarr": f"http://{HOST}:7878/api/v3/config/host/{host_id}",
-                "Lidarr": f"http://{HOST}:8686/api/v3/config/host/{host_id}"
-            }
-
-            responses = {}
-
-            for service, url in services.items():
-                api_key = API_KEYS.get(service)
-                if not api_key:
-                    continue
-
-                response = requests.put(url, json=data, headers={**headers, "Authorization": f"Bearer {api_key}"})
-                responses[service] = response.status_code
-
-            return responses
-
-        class ArrConfigurator:
-            def __init__(self, app_name, api_url, api_key):                                               self.app_name = app_name
-                self.api_url = api_url
-                self.headers = {"X-Api-Key": api_key}
-                self.root_folders = {
-                    "Radarr": "/movies",
-                    "Sonarr": "/tv",
-                    "Lidarr": "/music",
-                    "Readarr": "/books"
-                }
-
-            def configure_root_folder(self):
-                """Configure the root folder for the application"""
-                folder_path = self.root_folders.get(self.app_name)
-                if not folder_path:
-                    return
-
-                try:
-                    Path(folder_path).mkdir(parents=True, exist_ok=True)
-                    response = requests.get(f"{self.api_url}/rootFolder", headers=self.headers)
-                    existing_folders = [f['path'] for f in response.json()]
-
-                    if folder_path not in existing_folders:
-                        payload = {
-                            "path": folder_path,
-                            "defaultQualityProfileId": 1,
-                            "defaultMetadataProfileId": 1,
-                            "defaultMonitorOption": "all"
-                        }
-                        requests.post(f"{self.api_url}/rootFolder", headers=self.headers, json=payload)
-                        logging.info(f"Created root folder for {self.app_name} at {folder_path}")
-
-                except requests.exceptions.RequestException as e:
-                    logging.error(f"{self.app_name} root folder config failed: {e}")
-            def configure_download_client(self):
-                """Configure download client for the application"""
-                client_config = {
-                    "enable": True,
-                    "protocol": "torrent",
-                    "implementation": "Transmission",
-                    "configContract": "TransmissionSettings",
-                    "fields": [
-                        {"name": "host", "value": "localhost"},
-                        {"name": "port", "value": 9091},
-                        {"name": "useSsl", "value": False},
-                        {"name": "urlBase", "value": "/transmission/"},
-                        {"name": "username", "value": ""},
-                        {"name": "password", "value": ""}
-                    ]
-                }
-
-                try:
-                    current_clients = requests.get(f"{self.api_url}/downloadclient", headers=self.headers).json()
-
-                    if not any(c['implementation'] == "Transmission" for c in current_clients):
-                        requests.post(f"{self.api_url}/downloadclient", headers=self.headers, json=client_config)
-                        logging.info(f"Added Transmission client to {self.app_name}")
-                except requests.exceptions.RequestException as e:
-                    logging.error(f"{self.app_name} download client config failed: {e}")
         def main():
-            apps = {
-                "Radarr": API_URLS["Radarr"],
-                "Sonarr": API_URLS["Sonarr"],
-                "Lidarr": API_URLS["Lidarr"],
-                "Readarr": API_URLS["Readarr"]
-            }
+            for service in SERVICES:
+                print(f"\nProcessing {service['name']}...")
 
-            for app, api_url in apps.items():
-                api_key = API_KEYS.get(app)
-                if not api_key:
-                    continue
+                try:
+                    list_url = f"http://{HOST_IP}:{service['port']}/api/{service['api_version']}/system/backup"
+                    headers = {
+                        "Accept": "application/json",
+                        "X-Api-Key": service["api_key"]
+                    }
+                                                                                                              response = requests.get(list_url, headers=headers)
+                    response.raise_for_status()
+                    backups = response.json()
 
-                configurator = ArrConfigurator(app, api_url, api_key)
-                configurator.configure_root_folder()
-                configurator.configure_download_client()
+                    if not backups:
+                        print(f"No backups found for {service['name']}")
+                        continue
 
-            configure_download_clients()
+                    for backup in backups:
+                        download_backup(service, backup)
 
-            host_id = "1"
-            status = update_host_config(host_id)
-            print(status)
+                except requests.exceptions.HTTPError as e:
+                    print(f"HTTP error occurred ({service['name']}): {str(e)}")
+                except Exception as e:
+                    print(f"Error processing {service['name']}: {str(e)}")
 
         if __name__ == "__main__":
             main()
+    '';    
+       
+    py = pkgs.writeText "config-apps.py" ''
+        #!${pythonEnv}/bin/python
+        import os
+        import requests
+        import logging
+        from pathlib import Path
+
+        # Setup logging
+        logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+        # Base host and port configuration
+        HOST = "192.168.1.28"
+        PORTS = {
+            "Radarr": "7878",
+            "Sonarr": "8989",
+            "Lidarr": "8686",
+            "Readarr": "8787",
+            "Prowlarr": "9696",
+            "Transmission": "9091",
+            "FlareSolverr": "8191"
+        }
+
+        # API URLs
+        API_URLS = {app: f"http://{HOST}:{port}/api/v3" for app, port in PORTS.items()}
+        API_URLS["Prowlarr"] = f"http://{HOST}:9696/api/v1"
+
+        # Fetch API keys from environment variables
+        API_KEYS = {
+            "Radarr": os.getenv("RADARR_API_KEY"),
+            "Sonarr": os.getenv("SONARR_API_KEY"),
+            "Lidarr": os.getenv("LIDARR_API_KEY"),
+            "Readarr": os.getenv("READARR_API_KEY"),
+            "Prowlarr": os.getenv("PROWLARR_API_KEY")
+        }
+
+        # Check for missing API keys
+        for app, api_key in API_KEYS.items():
+            if not api_key:
+                logging.warning(f"Skipping {app} configuration - missing API key")
 
     '';        
             
@@ -438,7 +396,7 @@
         export TRANSMISSION_USERNAME=""
         export TRANSMISSION_PASSWORD=""
         
-        ${pythonEnv}/bin/python ${py}
+        ${pythonEnv}/bin/python ${pyBackup}
   '';
 in {
     # Creates VPN Network & Open port for Transmission
