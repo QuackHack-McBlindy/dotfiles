@@ -216,8 +216,6 @@
         FLARESOLVERR_PORT = "8191"
         FLARESOLVERR_URL = f"http://{HOST}:{FLARESOLVERR_PORT}"
         
-
-
         logging.basicConfig(
             filename='/docker/arr-setup.log',
             level=logging.INFO,
@@ -308,21 +306,75 @@
 
 
         def configure_flaresolverr_proxy():
-            proxy_settings = {
+            """Configure Flaresolverr as a proxy service in Prowlarr"""
+
+            flaresolverr_config = {
+                "name": "Flaresolverr",
+                "implementation": "Flaresolverr",
+                "configContract": "FlaresolverrSettings",
+                "fields": [
+                    {
+                        "name": "host",
+                        "value": "localhost"  # Use service name if in same Docker network
+                    },
+                    {
+                        "name": "port",
+                        "value": 8191
+                    },
+                    {
+                        "name": "requestTimeout",
+                        "value": 60000
+                    }
+                ],
                 "enable": True,
-                "proxyType": "http",  
-                "hostname": "localhost",
-                "port": 8191,
-                "username": "",  
-                "password": "",
-                "bypassOnLocal": False,
-                "bypassFilter": "",
-                "useForIndexer": True  
+                "syncLevel": "addOnly"
             }
-            headers = {"X-Api-Key": PROWLARR_API_KEY, "Content-Type": "application/json"}
-            response = requests.put(f"{PROWLARR_URL}/api/v1/config/proxy", json=proxy_settings, headers=headers)
-            print(response.json())
-            
+
+            try:
+                # First check if Flaresolverr already exists
+                existing = requests.get(
+                    f"{PROWLARR_URL}/api/v1/applications",
+                    headers={"X-Api-Key": PROWLARR_API_KEY}
+                )
+                existing.raise_for_status()
+
+                # Check if Flaresolverr is already configured
+                if not any(app['implementation'] == "Flaresolverr" for app in existing.json()):
+                    response = requests.post(
+                        f"{PROWLARR_URL}/api/v1/applications",
+                        headers={"X-Api-Key": PROWLARR_API_KEY, "Content-Type": "application/json"},
+                        json=flaresolverr_config
+                    )
+                    response.raise_for_status()
+                    logging.info("Successfully configured Flaresolverr in Prowlarr")
+                    logging.info("Flaresolverr already configured in Prowlarr")
+
+
+                # Configure indexers to use Flaresolverr
+                indexers = requests.get(
+                    f"{PROWLARR_URL}/api/v1/indexer",
+                    headers={"X-Api-Key": PROWLARR_API_KEY}
+                ).json()
+
+                for indexer in indexers:
+                    if indexer['enable'] and not indexer.get('appProfileId'):
+                        update_payload = {
+                            "appProfileId": next(app['id'] for app in existing.json()
+                                               if app['implementation'] == "Flaresolverr"),
+                            "id": indexer['id']
+                        }
+                        requests.put(
+                            f"{PROWLARR_URL}/api/v1/indexer/{indexer['id']}",
+                            headers={"X-Api-Key": PROWLARR_API_KEY},
+                            json=update_payload
+                        )
+
+            except requests.exceptions.HTTPError as e:
+                logging.error(f"Failed to configure Flaresolverr: {e.response.text}")
+
+            except Exception as e:
+                logging.error(f"Flaresolverr configuration error: {str(e)}")
+
             
         class ArrConfigurator:
             def __init__(self, app_name, api_url, api_key):
