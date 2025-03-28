@@ -396,7 +396,7 @@
         export TRANSMISSION_USERNAME=""
         export TRANSMISSION_PASSWORD=""
         
-        ${pythonEnv}/bin/python ${pyBackup}
+        ${pythonEnv}/bin/python ${py}
   '';
 in {
     # Creates VPN Network & Open port for Transmission
