@@ -23,7 +23,7 @@ let
     };
     pubkey = import ./../../hosts/pubkeys.nix;
     username = user;
-    hostkey = import ./../../hosts/hostkeys.nix;
+    hostkey = pubkey.host;
 in
 {
     system.activationScripts.sshConfig = {

@@ -96,15 +96,7 @@
             "utp-enabled": true
         }
     ''; 
-   
-    rootFolderConfig = mediaType: {
-        path = "/${mediaType}";
-        accessible = true;
-        freeSpace = 0;
-        unmappedFolders = [];
-    };
- 
-   
+      
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
     pyTestSetup = pkgs.writeText "test-apps.py" ''
         #!${pythonEnv}/bin/python
@@ -173,10 +165,56 @@
             test_prowlarr_config()
             test_download_clients()
             test_transmission_connection()
-
             print(f"\n{COLOR_OK}=== Test Suite Completed ==={COLOR_END}")       
     '';     
-       
+          
+    pyRestore = pkgs.writeText "restore-apps.py" ''
+      #!${pythonEnv}/bin/python
+      import os
+      import requests
+      import glob
+      import logging
+      from pathlib import Path
+
+      logging.basicConfig(filename='/docker/arr-restore.log', level=logging.INFO)
+
+      HOST = "192.168.1.28"
+      SERVICES = [
+          {"name": "Prowlarr", "port": 9696, "api": "v1"},
+          {"name": "Radarr", "port": 7878, "api": "v3"},
+          {"name": "Sonarr", "port": 8989, "api": "v3"},
+          {"name": "Lidarr", "port": 8686, "api": "v1"},
+          {"name": "Readarr", "port": 8787, "api": "v1"}
+      ]
+      BACKUP_DIR = "/backup/arr"
+
+      def restore_service(service):
+          backup_pattern = f"{BACKUP_DIR}/{service['name']}_*.zip"
+          backups = sorted(glob.glob(backup_pattern), key=os.path.getmtime, reverse=True)
+          if not backups:
+              return False
+          latest_backup = backups[0]
+          api_key = os.getenv(f"{service['name'].upper()}_API_KEY")
+          url = f"http://{HOST}:{service['port']}/api/{service['api']}/system/backup/restore/upload"
+          try:
+              with open(latest_backup, 'rb') as f:
+                  response = requests.post(
+                      url,
+                      headers={"X-Api-Key": api_key},
+                      files={"file": f}
+                  )
+              response.raise_for_status()
+              logging.info(f"Restored {service['name']} from {latest_backup}")
+              return True
+          except Exception as e:
+              logging.error(f"Failed to restore {service['name']}: {str(e)}")
+              return False
+
+      if __name__ == "__main__":
+          for service in SERVICES:
+              restore_service(service)
+    '';
+             
     pyBackup = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
         import os
@@ -184,10 +222,8 @@
         import logging
         from pathlib import Path
 
-        # Setup logging
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-        # Base host and port configuration
         HOST = "192.168.1.28"
         PORTS = {
             "Radarr": "7878",
@@ -198,12 +234,8 @@
             "Transmission": "9091",
             "FlareSolverr": "8191"
         }
-
-        # API URLs
         API_URLS = {app: f"http://{HOST}:{port}/api/v3" for app, port in PORTS.items()}
         API_URLS["Prowlarr"] = f"http://{HOST}:9696/api/v1"
-
-        # Fetch API keys from environment variables
         API_KEYS = {
             "Radarr": os.getenv("RADARR_API_KEY"),
             "Sonarr": os.getenv("SONARR_API_KEY"),
@@ -211,12 +243,9 @@
             "Readarr": os.getenv("READARR_API_KEY"),
             "Prowlarr": os.getenv("PROWLARR_API_KEY")
         }
-
-        # Check for missing API keys
         for app, api_key in API_KEYS.items():
             if not api_key:
                 logging.warning(f"Skipping {app} configuration - missing API key")
-
         HOST_IP = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"  
         SERVICES = [
@@ -329,11 +358,9 @@
             "FlareSolverr": "8191"
         }
 
-        # API URLs
         API_URLS = {app: f"http://{HOST}:{port}/api/v3" for app, port in PORTS.items()}
         API_URLS["Prowlarr"] = f"http://{HOST}:9696/api/v1"
 
-        # Fetch API keys from environment variables
         API_KEYS = {
             "Radarr": os.getenv("RADARR_API_KEY"),
             "Sonarr": os.getenv("SONARR_API_KEY"),
@@ -342,7 +369,6 @@
             "Prowlarr": os.getenv("PROWLARR_API_KEY")
         }
 
-        # Check for missing API keys
         for app, api_key in API_KEYS.items():
             if not api_key:
                 logging.warning(f"Skipping {app} configuration - missing API key")
@@ -395,8 +421,6 @@
         
         export TRANSMISSION_USERNAME=""
         export TRANSMISSION_PASSWORD=""
-        
-        ${pythonEnv}/bin/python ${py}
   '';
 in {
     # Creates VPN Network & Open port for Transmission
@@ -554,7 +578,6 @@ in {
                 volumes = [
                     "/docker/flaresolverr:/.local/share/selenium"
                 ];
-               # environmentFiles = [ "/docker/arr.env" ];
                 environment = {
                     CAPTCHA_SOLVER = "hcaptcha";
                     LOG_LEVEL = "info";
@@ -606,16 +629,50 @@ in {
         };
     };
 
+    # Automatic Backup
+    systemd.services.arr-backup = {
+        serviceConfig = {
+            Type = "oneshot";
+            User = "dockeruser";
+            ExecStart = "${pythonEnv}/bin/python ${pyBackup}";
+        };
+    };
+    systemd.timers.arr-backup = {
+        wantedBy = ["timers.target"];
+        timerConfig = {
+            OnCalendar = "daily";
+            Persistent = true;
+        };
+    };
+
+    # Automatic Restoration From Backup
+#    systemd.services.arr-restore = {
+#        wantedBy = ["multi-user.target"];
+#        after = ["docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" "docker-readarr.service" "docker-prowlarr.service"];
+#        requires = ["docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" "docker-readarr.service" "docker-prowlarr.service"];
+#        script = ''
+#            if [ ! -f /docker/.restored ]; then
+#                ${pythonEnv}/bin/python ${pyRestore}
+#                touch /docker/.restored
+#            fi
+#        '';
+#        serviceConfig = {
+#            Type = "oneshot";
+#            User = "dockeruser";
+#        };
+#    };
+
     # Set /Docker Ownersihp and Permissions 
     system.activationScripts.dockerPermissions = {
         text = ''
+            mkdir -p /backup/arr
+            chown -R dockeruser:dockeruser /backup/arr
+            chmod -R 700 /backup/arr
             echo "Setting permissions and ownership for /docker directories..."
             mkdir -p /docker
             touch /docker/apiKeys.env
             chown -R dockeruser:dockeruser /docker
             chmod -R 700 /docker
-            
-
         '';
     };}
     
