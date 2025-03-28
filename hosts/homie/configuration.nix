@@ -8,7 +8,7 @@ in
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
                       ./../../modules/networking/wg-server.nix
-                      ./../../modules/networking/unbound.nix
+                      ./../../modules/networking/dns.nix
                       ./../../modules/nixos/cache.nix
                       ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
@@ -36,7 +36,6 @@ in
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
                       ./../../modules/nixos/pipewire.nix
-                      ./../../modules/networking/unbound.nix
                       ./../../modules/networking/default.nix
   ];
 

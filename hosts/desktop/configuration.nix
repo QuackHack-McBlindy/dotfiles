@@ -8,8 +8,6 @@ in
 
 
                       ./../../modules/networking/wg-client.nix
-                      ./../../modules/networking/dns.nix
-                  #    ./../../modules/services/adguardhome.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix
