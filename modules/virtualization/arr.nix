@@ -289,7 +289,7 @@
 
             for backup in backups:
                 download_backup(service, backup)
-    ''';
+    '';
        
     py = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
