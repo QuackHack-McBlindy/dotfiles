@@ -98,14 +98,18 @@
         }
     ''; 
       
-    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
+    pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ps.python-dotenv ]);
     pyTestSetup = pkgs.writeText "test-apps.py" ''
         #!${pythonEnv}/bin/python
         import os
         import requests
         import json
+
+        import sys
         from datetime import datetime
         from urllib.parse import urljoin
+
+
 
         # Configuration
         HOST = "192.168.1.28"
@@ -219,6 +223,7 @@
     pyBackup = pkgs.writeText "backup-apps.py" ''
         #!${pythonEnv}/bin/python
         import os
+        import sys
         import requests
         import logging
         from pathlib import Path
@@ -226,11 +231,8 @@
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO,
                            format='%(asctime)s - %(levelname)s - %(message)s')
 
-        with open("/docker/apiKeys.env") as f:
-            for line in f:
-                if "=" in line and not line.strip().startswith("#"):
-                    key, val = line.strip().split("=", 1)
-                    os.environ[key] = val.strip('"''')
+        from dotenv import load_dotenv
+        load_dotenv("/docker/apiKeys.env") 
 
         HOST = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"
