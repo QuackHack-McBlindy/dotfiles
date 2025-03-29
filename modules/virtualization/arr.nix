@@ -257,35 +257,36 @@
     bashBackup = pkgs.writeScriptBin "backup-apps" ''
         #!/bin/sh
         export PATH="${pkgs.lib.makeBinPath [ pkgs.curl pkgs.jq pkgs.coreutils pkgs.gnugrep ]}"
+        mkdir -p /docker/backups
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8989/api/v3/system/backup" \
             -H "X-Api-Key: $(grep SONARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         SONARR_BACKUP_PATH="/docker/sonarr/config/Backups/scheduled/$BACKUP_NAME"
         echo "$SONARR_BACKUP_PATH"
-        cp "$SONARR_BACKUP_PATH" /backup/arr/sonarr.zip
+        cp "$SONARR_BACKUP_PATH" /docker/backups/sonarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:7878/api/v3/system/backup" \
             -H "X-Api-Key: $(grep RADARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         RADARR_BACKUP_PATH="/docker/radarr/config/Backups/scheduled/$BACKUP_NAME"
         echo "$RADARR_BACKUP_PATH"
-        cp "$RADARR_BACKUP_PATH" /backup/arr/radarr.zip
+        cp "$RADARR_BACKUP_PATH" /docker/backups/radarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8686/api/v1/system/backup" \
             -H "X-Api-Key: $(grep LIDARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         LIDARR_BACKUP_PATH="/docker/lidarr/config/Backups/scheduled/$BACKUP_NAME"
         echo "$LIDARR_BACKUP_PATH"
-        cp "$LIDARR_BACKUP_PATH" /backup/arr/lidarr.zip
+        cp "$LIDARR_BACKUP_PATH" /docker/backups/lidarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:9696/api/v1/system/backup" \
             -H "X-Api-Key: $(grep PROWLARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         PROWLARR_BACKUP_PATH="/docker/prowlarr/config/Backups/scheduled/$BACKUP_NAME"
         echo "$PROWLARR_BACKUP_PATH"
-        cp "$PROWLARR_BACKUP_PATH" /backup/arr/prowlarr.zip
+        cp "$PROWLARR_BACKUP_PATH" /docker/backups/prowlarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8787/api/v1/system/backup" \
             -H "X-Api-Key: $(grep READARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         READARR_BACKUP_PATH="/docker/readarr/config/Backups/scheduled/$BACKUP_NAME"
         echo "$READARR_BACKUP_PATH"
-        cp "$READARR_BACKUP_PATH" /backup/arr/readarr.zip
+        cp "$READARR_BACKUP_PATH" /docker/backups/readarr.zip
     '';
             
     
@@ -580,15 +581,10 @@ in {
         text = ''
             echo "Setting permissions and ownership for /docker directories..."
             mkdir -p /docker
+            
             touch /docker/apiKeys.env
             chown -R dockeruser:dockeruser /docker
             chmod -R 700 /docker
-            
-            echo "Creating directory for backup of Arr applications..."
-            mkdir -p /backup/arr
-            chown -R dockeruser:dockeruser /backup/arr
-            chmod -R 700 /backup/arr      
-            chmod 777 /backup/arr
         '';
     };}
     
