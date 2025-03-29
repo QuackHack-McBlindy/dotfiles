@@ -221,114 +221,75 @@
     '';
              
     pyBackup = pkgs.writeText "backup-apps.py" ''
-        #!${pythonEnv}/bin/python
+        #!${pkgs.python3}/bin/python
         import os
-        import sys
         import requests
-        import logging
-        from pathlib import Path
-
-        logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO,
-                           format='%(asctime)s - %(levelname)s - %(message)s')
-
-        from dotenv import load_dotenv
-        load_dotenv("/docker/apiKeys.env") 
 
         HOST = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"
+
+        # Simple env loader
+        with open("/docker/apiKeys.env") as f:
+            for line in f:
+                if "=" in line and not line.startswith("#"):
+                    key, val = line.strip().split("=", 1)
+                    os.environ[key] = val.strip('"').strip("'")
 
         SERVICES = [
             {
                 "name": "Prowlarr",
                 "port": 9696,
-                "api_version": "v1",
                 "api_key": os.getenv("PROWLARR_API_KEY")
             },
             {
                 "name": "Radarr",
                 "port": 7878,
-                "api_version": "v3",
                 "api_key": os.getenv("RADARR_API_KEY")
             },
             {
                 "name": "Sonarr",
                 "port": 8989,
-                "api_version": "v3",
                 "api_key": os.getenv("SONARR_API_KEY")
             },
             {
                 "name": "Lidarr",
                 "port": 8686,
-                "api_version": "v1",
                 "api_key": os.getenv("LIDARR_API_KEY")
             },
             {
                 "name": "Readarr",
                 "port": 8787,
-                "api_version": "v1",
                 "api_key": os.getenv("READARR_API_KEY")
             }
         ]
 
         def download_backup(service, backup):
             try:
-                if not service["api_key"]:
-                    logging.warning(f"Skipping {service['name']} backup - no API key")
-                    return False
+                url = f"http://{HOST}:{service['port']}/api/system/backup/{backup['id']}"
+                response = requests.get(url, headers={"X-Api-Key": service["api_key"]})
+                response.raise_for_status()
 
-                download_url = f"http://{HOST}:{service['port']}/api/{service['api_version']}/system/backup/{backup['id']}"
-                headers = {"X-Api-Key": service["api_key"]}
-
-                # Stream download with timeout
-                with requests.get(download_url, headers=headers, stream=True, timeout=30) as response:
-                    response.raise_for_status()
-                    # Secure path construction
-                    filename = f"{service['name']}_{backup['name']}.zip"
-                    filename = "".join([c if c.isalnum() or c in ('_', '-') else '_' for c in filename]) + ".zip"                                                                                       filepath = os.path.join(OUTPUT_DIR, filename)
-
-                    # Path traversal check
-                    if not os.path.realpath(filepath).startswith(os.path.realpath(OUTPUT_DIR)):
-                        raise ValueError("Invalid file path")
-                    os.makedirs(OUTPUT_DIR, exist_ok=True)
-                    Path(OUTPUT_DIR).chmod(0o755)
-
-                    with open(filepath, "wb") as f:                                                               for chunk in response.iter_content(chunk_size=8192):
-                            f.write(chunk)
-
-                    logging.info(f"Successfully backed up {service['name']} to {filename}")
-                    return True
+                filename = f"{service['name']}_{backup['name']}.zip"
+                with open(f"{OUTPUT_DIR}/{filename}", "wb") as f:
+                    f.write(response.content)
+                return True
 
             except Exception as e:
-                logging.error(f"Failed {service['name']} backup: {str(e)}")
+                print(f"Failed {service['name']}: {str(e)}")
                 return False
 
-        def main():
-            for service in SERVICES:
-                if not service["api_key"]:
-                    logging.error(f"Skipping {service['name']} - No API key configured")
-                    continue
+        for service in SERVICES:
+            if not service["api_key"]:
+                continue
 
-                try:
-                    list_url = f"http://{HOST}:{service['port']}/api/{service['api_version']}/system/backup"
-                    response = requests.get(list_url, headers={"X-Api-Key": service["api_key"]}, timeout=15)
-                    response.raise_for_status()
-                    backups = response.json()
+            backups = requests.get(
+                f"http://{HOST}:{service['port']}/api/system/backup",
+                headers={"X-Api-Key": service["api_key"]}
+            ).json()
 
-                    if not backups:
-                        logging.info(f"No backups available for {service['name']}")
-                        continue
-
-                    for backup in backups:
-                        download_backup(service, backup)
-
-                except requests.exceptions.RequestException as e:
-                    logging.error(f"Connection error for {service['name']}: {str(e)}")
-                except Exception as e:
-                    logging.error(f"Unexpected error with {service['name']}: {str(e)}")
-
-        if __name__ == "__main__":
-            main()
-    ''; 
+            for backup in backups:
+                download_backup(service, backup)
+    ''';
        
     py = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
