@@ -226,17 +226,11 @@
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO,
                            format='%(asctime)s - %(levelname)s - %(message)s')
 
-        # Load environment variables with error handling
-        try:
-            with open("/docker/apiKeys.env") as f:
-                 for line in f:
-                    line = line.strip()
-                    if line and not line.startswith("#"):
-                        try:
-                            key, value = line.split("=", 1)
-                            os.environ[key.strip()] = value.strip().strip('\\"\\'')  # Fix escaping
-                        except ValueError:
-                            logging.warning("Skipping malformed line: %s" % line)  # Remove f-string if using Python <3.6
+        with open("/docker/apiKeys.env") as f:
+            for line in f:
+                if "=" in line and not line.strip().startswith("#"):
+                    key, val = line.strip().split("=", 1)
+                    os.environ[key] = val.strip('"''')
 
         HOST = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"
