@@ -517,7 +517,32 @@ in {
         serviceConfig = {
             Type = "oneshot";
             User = "dockeruser";
-            ExecStart = "${pythonEnv}/bin/python ${pyBackup}";
+            ExecStart = ''
+                BACKUP_NAME=$(curl -s "http://192.168.1.28:8989/api/v3/system/backup" \
+                  -H "X-Api-Key: $(grep SONARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
+                export SONARR_BACKUP_PATH="/docker/sonarr/config/Backups/scheduled/$BACKUP_NAME"
+                cp -f $SONARR_BACKUP_PATH /backup/arr/sonarr.zip
+
+                BACKUP_NAME=$(curl -s "http://192.168.1.28:7878/api/v3/system/backup" \
+                  -H "X-Api-Key: $(grep RADARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
+                export RADARR_BACKUP_PATH="/docker/radarr/config/Backups/scheduled/$BACKUP_NAME"
+                cp -f $RADARR_BACKUP_PATH /backup/arr/radarr.zip
+
+                BACKUP_NAME=$(curl -s "http://192.168.1.28:8686/api/v1/system/backup" \
+                  -H "X-Api-Key: $(grep LIDARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
+                export LIDARR_BACKUP_PATH="/docker/lidarr/config/Backups/scheduled/$BACKUP_NAME"
+                cp -f $LIDARR_BACKUP_PATH /backup/arr/lidarr.zip
+
+                BACKUP_NAME=$(curl -s "http://192.168.1.28:9696/api/v1/system/backup" \
+                  -H "X-Api-Key: $(grep PROWLARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
+                export PROWLARR_BACKUP_PATH="/docker/prowlarr/config/Backups/scheduled/$BACKUP_NAME"
+                cp -f $PROWLARR_BACKUP_PATH /backup/arr/prowlarr.zip
+                
+                BACKUP_NAME=$(curl -s "http://192.168.1.28:8787/api/v1/system/backup" \
+                  -H "X-Api-Key: $(grep READARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
+                export READARR_BACKUP_PATH="/docker/readarr/config/Backups/scheduled/$BACKUP_NAME"
+                cp -f $READARR_BACKUP_PATH /backup/arr/readarr.zip     
+            '';
         };
     };
     systemd.timers.arr-backup = {
