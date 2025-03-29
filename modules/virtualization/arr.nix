@@ -254,7 +254,7 @@
                 f.write(response.content)
     '';
        
-    bashBackup = pkgs.writeText "backup-apps.sh" ''
+    bashBackup = pkgs.writeScriptBin "backup-apps" ''
         #!/bin/sh
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8989/api/v3/system/backup" \
             -H "X-Api-Key: $(grep SONARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
@@ -541,7 +541,7 @@ in {
         serviceConfig = {
             Type = "oneshot";
             User = "dockeruser";
-            ExecStart = "{bashBackup}";
+            ExecStart = "${bashBackup}/bin/backup-apps";
         };
     };
     systemd.timers.arr-backup = {
