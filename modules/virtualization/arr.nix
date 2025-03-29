@@ -541,7 +541,7 @@ in {
         serviceConfig = {
             Type = "oneshot";
             User = "dockeruser";
-            ExecStart = "${pkgs.bash}/bin/bash {bashBackup}";
+            ExecStart = "{bashBackup}";
         };
     };
     systemd.timers.arr-backup = {
