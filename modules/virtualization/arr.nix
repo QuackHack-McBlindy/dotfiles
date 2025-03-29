@@ -224,7 +224,7 @@
         from pathlib import Path
 
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+        source /docker/apiKeys.env
         HOST = "192.168.1.28"
         PORTS = {
             "Radarr": "7878",
