@@ -587,7 +587,8 @@ in {
             echo "Creating directory for backup of Arr applications..."
             mkdir -p /backup/arr
             chown -R dockeruser:dockeruser /backup/arr
-            chmod -R 700 /backup/arr       
+            chmod -R 700 /backup/arr      
+            chmod 777 /backup/arr
         '';
     };}
     
