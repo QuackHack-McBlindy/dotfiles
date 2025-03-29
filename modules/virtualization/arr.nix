@@ -283,7 +283,7 @@
                 with requests.get(download_url, headers=headers, stream=True, timeout=30) as response:
                     response.raise_for_status()
                     # Secure path construction
-                    filename = f"{service['name']}_{backup['name']}".replace(" ", "_")
+                    filename = f"{service['name']}_{backup['name']}.zip"
                     filename = "".join([c if c.isalnum() or c in ('_', '-') else '_' for c in filename]) + ".zip"                                                                                       filepath = os.path.join(OUTPUT_DIR, filename)
 
                     # Path traversal check
