@@ -24,6 +24,7 @@
                 use-caps-for-id = false;
                 prefetch = true;
                 edns-buffer-size = 1232;
+                remote-control.control-enable = true;
 
                 hide-identity = true;
                 hide-version = true;
@@ -54,8 +55,7 @@
                     #    "1.0.0.2"        # Cloudlare
                         "127.0.0.1@5300"  # Stubby?
                     ];
-                    forward-tls-upstream = true;  
-                }
+                } 
             ];
         };
     };
@@ -74,41 +74,41 @@
             tls_min_version = "GETDNS_TLS1_3";
             dnssec = "GETDNS_EXTENSION_TRUE";
             upstream_recursive_servers = [
-            {
-                address_data = "1.1.1.2";
-                tls_auth_name = "cloudflare-dns.com";
-            }
+   #         {
+#                address_data = "1.1.1.2";
+#                tls_auth_name = "cloudflare-dns.com";
+#            }
             {
                 address_data = "1.0.0.2";
                 tls_auth_name = "cloudflare-dns.com";
             }
-            {
-                address_data = "1.1.1.1";
-                tls_auth_name = "lookup.cloudflare.com";
-            } 
-            {
-                address_data = "2606:4700:4700::1112";
-                tls_auth_name = "cloudflare-dns.com";
-            }
-            {
-                address_data = "2606:4700:4700::1002";
-                tls_auth_name = "cloudflare-dns.com";
-            }
+#            {
+#                address_data = "1.1.1.1";
+ #               tls_auth_name = "lookup.cloudflare.com";
+ #           } 
+#            {
+#                address_data = "2606:4700:4700::1112";
+#                tls_auth_name = "cloudflare-dns.com";
+#            }
+   #         {
+  #              address_data = "2606:4700:4700::1002";
+  #              tls_auth_name = "cloudflare-dns.com";
+ #           }
             {
                 address_data = "9.9.9.9";
                 tls_auth_name = "dns.quad9.net";
-            }
-            {
-                address_data = "149.112.112.112";
-                tls_auth_name = "dns.quad9.net";
-            }
-            {
-                address_data = "2620:fe::fe";
-                tls_auth_name = "dns.quad9.net";
-            }
-            {
-                address_data = "2620:fe::9";
-                tls_auth_name = "dns.quad9.net";
+    #        }
+    #        {
+   #             address_data = "149.112.112.112";
+  #              tls_auth_name = "dns.quad9.net";
+#            }
+ #           {
+ #               address_data = "2620:fe::fe";
+ #               tls_auth_name = "dns.quad9.net";
+#            }
+ #           {
+  #              address_data = "2620:fe::9";
+     #           tls_auth_name = "dns.quad9.net";
             }];
         };    
     };
@@ -128,7 +128,6 @@
                 bind_host = "0.0.0.0";    
                 bind_port = 53;             
                 upstream_dns = [ "127.0.0.1:5335" ];
-                bootstrap_dns = "9.9.9.9";
             };
             filtering = {
                 protection_enabled = true;
@@ -141,7 +140,12 @@
                 "https://adguardteam.github.io/HostlistsRegistry/assets/filter_9.txt"  
                 "https://adguardteam.github.io/HostlistsRegistry/assets/filter_11.txt"  
                 "https://raw.githubusercontent.com/lassekongo83/Frellwits-filter-lists/master/Frellwits-Swedish-Hosts-File.txt"
-                "https://raw.githubusercontent.com/QuackHack-McBlindy/dotfiles/refs/heads/main/home/.blocklist.txt" 
+                "https://raw.githubusercontent.com/QuackHack-McBlindy/dotfiles/refs/heads/main/home/.blocklist.txt"      
+                "https://easylist.to/easylist/easylist.txt"  # Base filter
+                "https://easylist.to/easylist/easyprivacy.txt"  # Privacy protection
+                "https://raw.githubusercontent.com/Spam404/lists/master/main-blacklist.txt"  # Scam protection
+                "https://raw.githubusercontent.com/hoshsadiq/adblock-nocoin-list/master/nocoin.txt"  # Cryptominers
+                "https://osint.digitalside.it/Threat-Intel/lists/latestdomains.txt"  # Malware domains
             ];
         };
         

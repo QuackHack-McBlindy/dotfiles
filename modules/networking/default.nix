@@ -121,8 +121,8 @@ in {
         };  
         
         nameservers = lib.mkMerge [
-            (lib.mkIf (config.networking.hostName == "homie") [ "127.0.0.1" ])
-            (lib.mkIf (config.networking.hostName != "homie") [ "192.168.1.211" ])
+            (lib.mkIf (config.networking.hostName == "homie") (lib.mkForce [ "127.0.0.1" ]))
+            (lib.mkIf (config.networking.hostName != "homie") (lib.mkForce [ "192.168.1.211" ]))
         ];
         firewall = {
             enable = true;
@@ -157,7 +157,6 @@ in {
             User = "initrduser";
         };
     };
-
 
     boot.initrd.network = {
         enable = true;
