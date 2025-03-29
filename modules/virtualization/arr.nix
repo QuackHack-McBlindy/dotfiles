@@ -227,7 +227,7 @@
         from pathlib import Path
 
         HOST = "192.168.1.28"
-        OUTPUT_DIR = Path("/backup/arr")
+        OUTPUT_DIR = Path("/docker")
         OUTPUT_DIR.mkdir(exist_ok=True)
 
         # Load API keys directly (no error handling)
@@ -548,9 +548,6 @@ in {
     # Set /Docker Ownersihp and Permissions 
     system.activationScripts.dockerPermissions = {
         text = ''
-            mkdir -p /backup/arr
-            chown -R dockeruser:dockeruser /backup/arr
-            chmod -R 700 /backup/arr
             echo "Setting permissions and ownership for /docker directories..."
             mkdir -p /docker
             touch /docker/apiKeys.env
