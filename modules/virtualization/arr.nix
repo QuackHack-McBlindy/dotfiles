@@ -224,7 +224,12 @@
         from pathlib import Path
 
         logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-        source /docker/apiKeys.env
+        with open("/docker/apiKeys.env") as f:
+            for line in f:
+                if line.strip() and not line.startswith("#"):  # Ignore empty lines and comments
+                key, value = line.strip().split("=", 1)
+                os.environ[key] = value 
+
         HOST = "192.168.1.28"
         PORTS = {
             "Radarr": "7878",
