@@ -171,61 +171,49 @@ in {
               }
             ];
           }
-          {
-            "Pirat Arrr'! Sonarr" = [
-              {
-                "Sonarr" = {
-                  icon = "sonarr";
-                  description = "TV Shows";
-                  href = "http://192.168.1.28:8989";
-                  widgets = [
-                    {
-                      type = "sonarr";
-                      url = "http://192.168.1.28:8989";
-                      key = "apikeyapikeyapikeyapikeyapikey";
-                    }
-                  ];
-                };
-                
-                
-                "Radarr" = {
-                  icon = "radarr";
-                  description = "Movies";
-                  href = "http://192.168.1.28:8989";
-                  widgets = [
-                    {
-                      type = "Radarr";
-                      url = "http://192.168.1.28:8989";
-                      key = "apikeyapikeyapikeyapikeyapikey";
-                    }
-                  ];
-                };
-          
+          {            
+            "Lidarr" = {
+              icon = "lidarr";
+              description = "Music";
+              href = "http://192.168.1.28:8989";
+              widgets = [
+                {
+                  type = "Lidarr";
+                  url = "http://192.168.1.28:8989";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                }
+              ];
+            };
 
-                "Lidarr" = {
-                  icon = "lidarr";
-                  description = "Music";
-                  href = "http://192.168.1.28:8989";
-                  widgets = [
-                    {
-                      type = "Lidarr";
-                      url = "http://192.168.1.28:8989";
-                      key = "apikeyapikeyapikeyapikeyapikey";
-                    }
-                  ];
-                };
+            "Radarr" = {
+              icon = "radarr";
+              description = "Movies";
+              href = "http://192.168.1.28:7676";
+              widgets = [
+                {
+                  type = "Radarr";
+                  url = "http://192.168.1.28:7676";
+                  key = "apikeyapikeyapikeyapikeyapikey";
+                }
+              ];
+            };
 
+       #         "Sonarr" = {
+     #             icon = "sonarr";
+     #             description = "TV-Shows";
+    #              href = "http://192.168.1.28:8989";
+   #               widgets = [
+   #                 {
+   #                   type = "Sonarrr";
+  #                    url = "http://192.168.1.28:8989";
+  #                    key = "apikeyapikeyapikeyapikeyapikey";
+  #                  }
+  #                ];
+#                };
 
                 
-              }
-            ];
           }
-
-          
-          
-          
-          
-        ]; 
+        ];
         
         
    #     kubernetes = { };

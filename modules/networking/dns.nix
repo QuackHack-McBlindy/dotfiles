@@ -24,7 +24,6 @@
                 use-caps-for-id = false;
                 prefetch = true;
                 edns-buffer-size = 1232;
-                remote-control.control-enable = true;
 
                 hide-identity = true;
                 hide-version = true;

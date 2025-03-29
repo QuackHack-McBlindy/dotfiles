@@ -12,6 +12,7 @@
         USER="@TRANS@"
         PASS="@TRANS@" 
         SHADOWPASS="@SHADOWPASS@"
+        DOWNLOAD_DIR="/downloads"
     '';
  
     # Transmission Settings
@@ -246,59 +247,54 @@
         for app, api_key in API_KEYS.items():
             if not api_key:
                 logging.warning(f"Skipping {app} configuration - missing API key")
-        HOST_IP = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"  
         SERVICES = [
             {
                 "name": "Prowlarr",
                 "port": 9696,
                 "api_version": "v1",
-                "api_key": $PROWLARR_API_KEY
+                "api_key": PROWLARR_API_KEY
             },
             {
                 "name": "Radarr",
                 "port": 7878,
                 "api_version": "v3",
-                "api_key": $RADARR_API_KEY
+                "api_key": RADARR_API_KEY
             },
             {
                 "name": "Sonarr",
                 "port": 8989,
                 "api_version": "v3",
-                "api_key": $SONARR_API_KEY
+                "api_key": SONARR_API_KEY
             },
             {
                 "name": "Lidarr",
                 "port": 8686,
                 "api_version": "v1",
-                "api_key": $LIDARR_API_KEY
+                "api_key": LIDARR_API_KEY
             },
             {
                 "name": "Readarr",
                 "port": 8787,
                 "api_version": "v1",
-                "api_key": $READARR_API_KEY
+                "api_key": READARR_API_KEY
             }
         ]
 
         def download_backup(service, backup):
             try:
-                download_url = f"http://{HOST_IP}:{service['port']}/api/{service['api_version']}/system/backup/{backup['id']}"
-
+                download_url = f"http://{HOST}:{service['port']}/api/{service['api_version']}/system/backup/{backup['id']}"
                 headers = {"X-Api-Key": service["api_key"]}
-
                 response = requests.get(download_url, headers=headers, stream=True)
                 response.raise_for_status()
-                                                                                                          os.makedirs(OUTPUT_DIR, exist_ok=True)
+                os.makedirs(OUTPUT_DIR, exist_ok=True)
 
                 filename = f"{service['name']}_{backup['name']}".replace(" ", "_")
                 filename = "".join(c for c in filename if c.isalnum() or c in ('_', '-')) + ".zip"
                 filepath = os.path.join(OUTPUT_DIR, filename)
-
                 with open(filepath, "wb") as f:
                     for chunk in response.iter_content(chunk_size=8192):
                         f.write(chunk)
-
                 print(f"Downloaded {service['name']} backup: {filename}")
                 return True
 
@@ -311,12 +307,12 @@
                 print(f"\nProcessing {service['name']}...")
 
                 try:
-                    list_url = f"http://{HOST_IP}:{service['port']}/api/{service['api_version']}/system/backup"
+                    list_url = f"http://{HOST}:{service['port']}/api/{service['api_version']}/system/backup"
                     headers = {
                         "Accept": "application/json",
                         "X-Api-Key": service["api_key"]
                     }
-                                                                                                              response = requests.get(list_url, headers=headers)
+                    response = requests.get(list_url, headers=headers)
                     response.raise_for_status()
                     backups = response.json()
 
