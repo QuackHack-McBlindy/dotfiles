@@ -578,6 +578,11 @@ in {
             touch /docker/apiKeys.env
             chown -R dockeruser:dockeruser /docker
             chmod -R 700 /docker
+            
+            echo "Creating directory for backup of Arr applications..."
+            mkdir -p /backup/arr
+            chown -R dockeruser:dockeruser /backup/arr
+            chmod -R 700 /backup/arr       
         '';
     };}
     
