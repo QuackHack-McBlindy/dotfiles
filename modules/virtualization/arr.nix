@@ -260,26 +260,31 @@
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8989/api/v3/system/backup" \
             -H "X-Api-Key: $(grep SONARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         SONARR_BACKUP_PATH="/docker/sonarr/config/Backups/scheduled/$BACKUP_NAME"
+        echo "$SONARR_BACKUP_PATH"
         cp "$SONARR_BACKUP_PATH" /backup/arr/sonarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:7878/api/v3/system/backup" \
             -H "X-Api-Key: $(grep RADARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         RADARR_BACKUP_PATH="/docker/radarr/config/Backups/scheduled/$BACKUP_NAME"
+        echo "$RADARR_BACKUP_PATH"
         cp "$RADARR_BACKUP_PATH" /backup/arr/radarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8686/api/v1/system/backup" \
             -H "X-Api-Key: $(grep LIDARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         LIDARR_BACKUP_PATH="/docker/lidarr/config/Backups/scheduled/$BACKUP_NAME"
+        echo "$LIDARR_BACKUP_PATH"
         cp "$LIDARR_BACKUP_PATH" /backup/arr/lidarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:9696/api/v1/system/backup" \
             -H "X-Api-Key: $(grep PROWLARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         PROWLARR_BACKUP_PATH="/docker/prowlarr/config/Backups/scheduled/$BACKUP_NAME"
+        echo "$PROWLARR_BACKUP_PATH"
         cp "$PROWLARR_BACKUP_PATH" /backup/arr/prowlarr.zip
 
         BACKUP_NAME=$(curl -s "http://192.168.1.28:8787/api/v1/system/backup" \
             -H "X-Api-Key: $(grep READARR_API_KEY /docker/apiKeys.env | cut -d= -f2)" | jq -r '.[0].name')
         READARR_BACKUP_PATH="/docker/readarr/config/Backups/scheduled/$BACKUP_NAME"
+        echo "$READARR_BACKUP_PATH"
         cp "$READARR_BACKUP_PATH" /backup/arr/readarr.zip
     '';
             
