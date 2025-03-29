@@ -15,11 +15,7 @@
         DOWNLOAD_DIR="/downloads"
     '';
     
-    discordToken = config.sops.secrets.discordToken.path;
-    discordClientId = config.sops.secrets.discordClientId.path;
-    requestrrPassword = config.sops.secrets.requestrrPassword.path;
-    requestrrPrivateKey = config.sops.secrets.requestrrPrivateKey.path;
-    
+
     # Requestrr Settings
     requestrrSettingsScript = pkgs.writeShellScriptBin "generate-requestrr-settings" ''
         #!/bin/sh
@@ -29,13 +25,13 @@
         {
           "Authentication": {
             "Username": "admin",
-            "Password": requestrrPassword,  
-            "PrivateKey": requestrrPrivateKey
+            "Password": "${config.sops.secrets.requestrrPassword.path}",  
+            "PrivateKey": "${config.sops.secrets.requestrrPrivateKey.path}"
           },
           "ChatClients": {
             "Discord": {
-              "BotToken": discordToken,  
-              "ClientId": discordClientId,
+              "BotToken": "${config.sops.secrets.discordToken.path}",  
+              "ClientId": "${config.sops.secrets.discordClientId.path}",
               "StatusMessage": "/help",
               "EnableRequestsThroughDirectMessages": false,
               "AutomaticallyNotifyRequesters": true,
