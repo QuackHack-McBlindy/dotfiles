@@ -223,75 +223,36 @@
     pyBackup = pkgs.writeText "backup-apps.py" ''
         #!${pkgs.python3}/bin/python
         import os
-        import json
-        import sys
         import requests
+        from pathlib import Path
 
         HOST = "192.168.1.28"
-        OUTPUT_DIR = "/backup/arr"
+        OUTPUT_DIR = Path("/backup/arr")
+        OUTPUT_DIR.mkdir(exist_ok=True)
 
-        # Simple env loader
+        # Load API keys directly (no error handling)
+        api_keys = {}
         with open("/docker/apiKeys.env") as f:
             for line in f:
-                if "=" in line and not line.startswith("#"):
-                    key, val = line.strip().split("=", 1)
-                    os.environ[key] = val.strip('"').strip("'")
+                if "SONARR_API_KEY" in line and "=" in line:
+                    api_keys["sonarr"] = line.split("=", 1)[1].strip().strip('"')
 
-        SERVICES = [
-            {
-                "name": "Prowlarr",
-                "port": 9696,
-                "api_key": os.getenv("PROWLARR_API_KEY")
-            },
-            {
-                "name": "Radarr",
-                "port": 7878,
-                "api_key": os.getenv("RADARR_API_KEY")
-            },
-            {
-                "name": "Sonarr",
-                "port": 8989,
-                "api_key": os.getenv("SONARR_API_KEY")
-            },
-            {
-                "name": "Lidarr",
-                "port": 8686,
-                "api_key": os.getenv("LIDARR_API_KEY")
-            },
-            {
-                "name": "Readarr",
-                "port": 8787,
-                "api_key": os.getenv("READARR_API_KEY")
-            }
-        ]
+        # Fetch backup list
+        backups = requests.get(
+            f"http://{HOST}:8989/api/v3/system/backup",
+            headers={"X-Api-Key": api_keys["sonarr"]}
+        ).json()
 
-        def download_backup(service, backup):
-            try:
-                url = f"http://{HOST}:{service['port']}/api/system/backup/{backup['id']}"
-                response = requests.get(url, headers={"X-Api-Key": service["api_key"]})
-                response.raise_for_status()
-
-                filename = f"{service['name']}_{backup['name']}.zip"
-                with open(f"{OUTPUT_DIR}/{filename}", "wb") as f:
-                    f.write(response.content)
-                return True
-
-            except Exception as e:
-                print(f"Failed {service['name']}: {str(e)}")
-                return False
-
-        for service in SERVICES:
-            if not service["api_key"]:
-                continue
-
-            backups = requests.get(
-                f"http://{HOST}:{service['port']}/api/system/backup",
-                headers={"X-Api-Key": service["api_key"]}
-            ).json()
-
-            for backup in backups:
-                download_backup(service, backup)
-    '';
+        # Download first backup
+        if backups:
+            backup = backups[0]
+            response = requests.get(
+                f"http://{HOST}:8989/api/v3/system/backup/{backup['id']}",
+                headers={"X-Api-Key": api_keys["sonarr"]}
+            )
+            with open(OUTPUT_DIR / backup["name"], "wb") as f:
+                f.write(response.content)
+    ''';
        
     py = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
