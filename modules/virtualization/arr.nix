@@ -256,42 +256,7 @@
        
     py = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
-        import os
-        import requests
-        import logging
-        from pathlib import Path
-
-        # Setup logging
-        logging.basicConfig(filename='/docker/arr-setup.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
-        # Base host and port configuration
-        HOST = "192.168.1.28"
-        PORTS = {
-            "Radarr": "7878",
-            "Sonarr": "8989",
-            "Lidarr": "8686",
-            "Readarr": "8787",
-            "Prowlarr": "9696",
-            "Transmission": "9091",
-            "FlareSolverr": "8191"
-        }
-
-        API_URLS = {app: f"http://{HOST}:{port}/api/v3" for app, port in PORTS.items()}
-        API_URLS["Prowlarr"] = f"http://{HOST}:9696/api/v1"
-
-        API_KEYS = {
-            "Radarr": os.getenv("RADARR_API_KEY"),
-            "Sonarr": os.getenv("SONARR_API_KEY"),
-            "Lidarr": os.getenv("LIDARR_API_KEY"),
-            "Readarr": os.getenv("READARR_API_KEY"),
-            "Prowlarr": os.getenv("PROWLARR_API_KEY")
-        }
-
-        for app, api_key in API_KEYS.items():
-            if not api_key:
-                logging.warning(f"Skipping {app} configuration - missing API key")
-
-    '';        
+    '';
             
     
     # Script to set up environment and run Python script
