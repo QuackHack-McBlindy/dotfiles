@@ -239,7 +239,7 @@
                             logging.warning(f"Skipping malformed line: {line}")
         except FileNotFoundError:
             logging.error("apiKeys.env file not found!")
-            exit(1)
+
 
         HOST = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"
