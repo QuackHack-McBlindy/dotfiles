@@ -229,17 +229,14 @@
         # Load environment variables with error handling
         try:
             with open("/docker/apiKeys.env") as f:
-                for line in f:
+                 for line in f:
                     line = line.strip()
                     if line and not line.startswith("#"):
                         try:
                             key, value = line.split("=", 1)
-                            os.environ[key.strip()] = value.strip().strip('"\'')
+                            os.environ[key.strip()] = value.strip().strip('\\"\\'')  # Fix escaping
                         except ValueError:
-                            logging.warning(f"Skipping malformed line: {line}")
-        except FileNotFoundError:
-            logging.error("apiKeys.env file not found!")
-
+                            logging.warning("Skipping malformed line: %s" % line)  # Remove f-string if using Python <3.6
 
         HOST = "192.168.1.28"
         OUTPUT_DIR = "/backup/arr"
