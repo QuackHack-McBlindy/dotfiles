@@ -252,7 +252,7 @@
             )
             with open(OUTPUT_DIR / backup["name"], "wb") as f:
                 f.write(response.content)
-    ''';
+    '';
        
     py = pkgs.writeText "config-apps.py" ''
         #!${pythonEnv}/bin/python
