@@ -223,6 +223,8 @@
     pyBackup = pkgs.writeText "backup-apps.py" ''
         #!${pkgs.python3}/bin/python
         import os
+        import json
+        import sys
         import requests
 
         HOST = "192.168.1.28"
