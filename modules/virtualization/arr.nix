@@ -68,7 +68,7 @@
             }
           },
           "BotClient": {
-            "Client": "Discord" 
+            "Client": "" 
           },
           "Movies": {
             "Client": "Enabled" 
