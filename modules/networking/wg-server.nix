@@ -274,7 +274,6 @@ in {
         in ''
             ${deleteCommands}
             ${generateCommands}
-            chmod 440 /home/wgqr/*.conf /home/wgqr/*.png
         '';
         wantedBy = [ "multi-user.target" ];
     };
