@@ -24,6 +24,5 @@ in {
                 locations."/".proxyPass = "http://${localsend.ip}:${toString localsend.port}";
             };
         };
-    };
 
     };}
