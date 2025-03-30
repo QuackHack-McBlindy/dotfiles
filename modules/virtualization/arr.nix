@@ -31,7 +31,7 @@
           "ChatClients": {
             "Discord": {
               "BotToken": "$(cat ${config.sops.secrets.discordToken.path})",  
-              "ClientId": "$(cat ${config.sops.secrets.discordClientId.path})",
+              "ClientId": "1059139110054412349",
               "StatusMessage": "/help",
               "EnableRequestsThroughDirectMessages": false,
               "AutomaticallyNotifyRequesters": true,
@@ -502,12 +502,6 @@ in {
         };
         discordToken = {
             sopsFile = ./../../secrets/discordToken.yaml;
-            owner = "dockeruser";
-            group = "dockeruser";
-            mode = "0440"; 
-        };
-        discordClientId = {
-            sopsFile = ./../../secrets/discordClientId.yaml;
             owner = "dockeruser";
             group = "dockeruser";
             mode = "0440"; 
