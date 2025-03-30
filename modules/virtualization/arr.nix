@@ -68,7 +68,7 @@
             }
           },
           "BotClient": {
-            "Client": "" 
+            "Client": "Enabled" 
           },
           "Movies": {
             "Client": "Enabled" 
