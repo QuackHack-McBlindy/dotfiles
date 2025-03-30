@@ -267,10 +267,12 @@ in {
                 # Resize QR code to a reasonable size
                 magick "$TEMP_DIR/qr_shadow.png" -resize 300x300 "$TEMP_DIR/qr_resized.png"
 
-                magick "$TEMP_DIR/qr_resized.png" \
-                    /home/wgqr/duck.png -resize 50x50 -background none \
-                    -gravity center -composite \
-                    "/home/wgqr/${device}.png"
+                # Resize duck image while keeping transparency
+                magick /home/wgqr/duck.png -resize x60 -background none "$TEMP_DIR/duck_resized.png"
+
+                # Overlay resized duck on QR code
+                magick "$TEMP_DIR/qr_resized.png" "$TEMP_DIR/duck_resized.png" \
+                    -gravity center -composite "/home/wgqr/${device}.png"
 
                 rm -rf "$TEMP_DIR"
             '') mobileDevices;
