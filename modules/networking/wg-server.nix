@@ -265,7 +265,7 @@ in {
                     "$TEMP_DIR/qr_shadow.png"
 
                 # Resize QR code to a reasonable size
-                magick "$TEMP_DIR/qr_shadow.png" -resize 300x300 "$TEMP_DIR/qr_resized.png"
+                magick "$TEMP_DIR/qr_shadow.png" -resize 150x150 "$TEMP_DIR/qr_resized.png"
 
                 # Resize duck image while keeping transparency
                 magick /home/wgqr/duck.png -resize x60 -background none "$TEMP_DIR/duck_resized.png"
