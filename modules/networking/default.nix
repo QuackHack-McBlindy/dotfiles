@@ -59,8 +59,7 @@
                 cat > $out <<EOF
 ${initrdConfig}
 EOF
-            '';
- 
+            ''; 
 in {
 
     imports = [

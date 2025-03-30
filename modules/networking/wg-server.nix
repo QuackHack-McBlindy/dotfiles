@@ -165,49 +165,138 @@ in {
   #      wantedBy = [ "multi-user.target" ];
 #    };
  
+#    systemd.services.generate-wg-qr = {
+#        serviceConfig = {
+#            Type = "oneshot";
+#            User = "wgqr";
+#            Group = "wgqr";
+#            Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
+#        };
+#        script = let
+            # Delete existing QR files for all mobile devices
+#            deleteCommands = lib.concatMapStringsSep "\n" (d: ''
+#                ${pkgs.coreutils}/bin/rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png"
+#            '') mobileDevices;
+            # Generate new QR files for each device
+#            generateCommands = lib.concatMapStringsSep "\n" (device: ''
+#                TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
+#                cat > "$TEMP_DIR/template.conf" <<EOF
+#                [Interface]
+#                PrivateKey = @PRIVATE_KEY@
+#                Address = ${host.wgip.${device}}/24
+#                DNS = 192.168.1.211
+
+#                [Peer]
+#                PublicKey = ${pubkey.wireguard.homie}
+#                AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
+#                Endpoint = ${domain}:51820
+#                PersistentKeepalive = 25
+#                EOF
+
+#                ${pkgs.gnused}/bin/sed -i \
+#                  -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
+#                  "$TEMP_DIR/template.conf"
+
+#                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
+#                ${pkgs.qrencode}/bin/qrencode -t PNG -o "/home/wgqr/${device}.png" -r "/home/wgqr/${device}.conf"
+#                ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
+#            '') mobileDevices;
+#        in ''
+#            ${deleteCommands}
+#            ${generateCommands}
+#            chmod 440 /home/wgqr/*.conf /home/wgqr/*.png
+#        '';
+#        wantedBy = [ "multi-user.target" ];
+#    };
+
     systemd.services.generate-wg-qr = {
         serviceConfig = {
             Type = "oneshot";
             User = "wgqr";
             Group = "wgqr";
-            Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
+            Environment = "PATH=${lib.makeBinPath [
+                pkgs.coreutils
+                pkgs.qrencode
+                pkgs.gnused
+                pkgs.imagemagick
+            ]}";
         };
         script = let
-            # Delete existing QR files for all mobile devices
+            duckImage = pkgs.stdenvNoCC.mkDerivation {
+                name = "duck-icon";
+                src = ./../../home/icons/duck2.png;  # Update path to your duck image
+                dontUnpack = true;
+                installPhase = "install -Dm644 $src $out";
+            };
+
             deleteCommands = lib.concatMapStringsSep "\n" (d: ''
-                ${pkgs.coreutils}/bin/rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png"
+                rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png" "/home/wgqr/${d}_final.png"
             '') mobileDevices;
-            # Generate new QR files for each device
+
             generateCommands = lib.concatMapStringsSep "\n" (device: ''
-                TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
+                TEMP_DIR=$(mktemp -d)
+                
+                # Generate initial QR code
+                qrencode -l H -s 10 -o "$TEMP_DIR/${device}_qr.png" -r "/home/wgqr/${device}.conf"
+
+                # Generate random colors
+                FG_COLOR=$(od -vAn -N3 -tx /dev/urandom | tr -d ' ' | sed 's/^/0000/;s/........$//;s/^/#/')
+                BG_COLOR=$(od -vAn -N3 -tx /dev/urandom | tr -d ' ' | sed 's/^/0000/;s/........$//;s/^/#/')
+
+                # Apply colors and effects
+                magick "$TEMP_DIR/${device}_qr.png" \
+                    -fill "$FG_COLOR" -opaque black \
+                    -fill "$BG_COLOR" -opaque white \
+                    "$TEMP_DIR/${device}_colored.png"
+
+                # Add shadow
+                magick "$TEMP_DIR/${device}_colored.png" \
+                    \( +clone -background black -shadow 50x10+0+0 \) +swap \
+                    -background none -layers merge +repage \
+                    "$TEMP_DIR/${device}_shadow.png"
+
+                # Add overlay image
+                magick "$TEMP_DIR/${device}_shadow.png" \
+                    ${duckImage} -resize 25% -background none \
+                    -gravity center -composite \
+                    "/home/wgqr/${device}_final.png"
+
+                # Cleanup
+                rm -rf "$TEMP_DIR"
+            '') mobileDevices;
+        in ''
+            ${deleteCommands}
+            
+            # Generate config files first
+            ${lib.concatMapStringsSep "\n" (device: ''
+                TEMP_DIR=$(mktemp -d)
                 cat > "$TEMP_DIR/template.conf" <<EOF
                 [Interface]
-                PrivateKey = @PRIVATE_KEY@
+                PrivateKey = $(cat ${config.sops.secrets."${device}_wireguard_private".path})
                 Address = ${host.wgip.${device}}/24
                 DNS = 192.168.1.211
 
                 [Peer]
                 PublicKey = ${pubkey.wireguard.homie}
                 AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
-                Endpoint = ${domain}:51820
+                Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
                 PersistentKeepalive = 25
                 EOF
 
-                ${pkgs.gnused}/bin/sed -i \
-                  -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
-                  "$TEMP_DIR/template.conf"
+                mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
+                rm -rf "$TEMP_DIR"
+            '') mobileDevices}
 
-                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
-                ${pkgs.qrencode}/bin/qrencode -t PNG -o "/home/wgqr/${device}.png" -r "/home/wgqr/${device}.conf"
-                ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
-            '') mobileDevices;
-        in ''
-            ${deleteCommands}
+            # Generate enhanced QR codes
             ${generateCommands}
+
+            # Set permissions
             chmod 440 /home/wgqr/*.conf /home/wgqr/*.png
         '';
         wantedBy = [ "multi-user.target" ];
     };
+
+
  
     users.groups.wgqr = { }; 
     users.users.wgqr = {
