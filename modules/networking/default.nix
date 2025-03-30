@@ -84,7 +84,7 @@ in {
         hosts = {
             "192.168.1.1" = [ "router.lan" "router.local" "router" ];
             "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
-            "192.168.1.211" = [ "homie.lan" "homie.local" "homie" "cache" ];
+            "192.168.1.211" = [ "homie.lan" "homie.local" "homie" "cache" "semd" ];
             "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
             "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
             "192.169.1.223" = [ "shield.lan" "shield.local" "shield" ];
