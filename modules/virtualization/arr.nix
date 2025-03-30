@@ -31,7 +31,7 @@
           "ChatClients": {
             "Discord": {
               "BotToken": "${config.sops.secrets.discordToken.path}",  
-              "ClientId": "${config.sops.secrets.discordClientId.path}",
+              "ClientId": 
               "StatusMessage": "/help",
               "EnableRequestsThroughDirectMessages": false,
               "AutomaticallyNotifyRequesters": true,
@@ -506,12 +506,12 @@ in {
             group = "dockeruser";
             mode = "0440"; 
         };
-        discordClientId = {
-            sopsFile = ./../../secrets/discordClientId.yaml;
-            owner = "dockeruser";
-            group = "dockeruser";
-            mode = "0440"; 
-        };
+    #    discordClientId = {
+    #        sopsFile = ./../../secrets/discordClientId.yaml;
+   #         owner = "dockeruser";
+   #         group = "dockeruser";
+  #          mode = "0440"; 
+ #       };
         requestrrPassword = {
             sopsFile = ./../../secrets/requestrrPassword.yaml;
             owner = "dockeruser";
