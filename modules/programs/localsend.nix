@@ -4,24 +4,20 @@
     pkgs, 
     ... 
 } : let
-    localsend = {
+    pairdrop = {
         ip = "127.0.0.1";  
-        port = 53317;      
+        port = 3000;      
     };
 in { 
-    networking.firewall.allowedTCPPorts = [ localsend.port ];
-
-    programs.localsend = {
-        enable = true;
-        openFirewall = true;    
-    };
-        
+    environment.systemPackages = [ pkgs.pairdrop ];
+    networking.firewall.allowedTCPPorts = [ pairdrop.port ];
+ 
     services.nginx = {
         enable = true;
         recommendedProxySettings = true;
         virtualHosts = {
             "send" = {
-                locations."/".proxyPass = "http://${localsend.ip}:${toString localsend.port}";
+                locations."/".proxyPass = "http://${pairdrop.ip}:${toString pairdrop.port}";
             };
         };
 

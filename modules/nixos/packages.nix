@@ -13,6 +13,7 @@
         (lib.mkIf (config.networking.hostName == "desktop") [ pkgs.hello ])
         (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
         (lib.mkIf (config.networking.hostName == "laptop") [ pkgs.hello ])
+        (lib.mkIf (config.networking.hostName == "homie") [ pkgs.pairdrop ])
     
         [ 
             pkgs.npth
