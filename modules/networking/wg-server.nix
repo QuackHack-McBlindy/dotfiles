@@ -246,8 +246,8 @@ in {
 
                 mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
 
-                # Generate QR code
-                qrencode -l H -s 10 -o "$TEMP_DIR/qr.png" -r "/home/wgqr/${device}.conf"
+                # Generate QR code with smaller module size
+                qrencode -l H -s 5 -o "$TEMP_DIR/qr.png" -r "/home/wgqr/${device}.conf"
 
                 # Generate colors
                 FG_COLOR=$(printf "#%06X" $((RANDOM * 256 * 256 * 256 / 32768)))
