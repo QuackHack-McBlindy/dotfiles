@@ -209,94 +209,75 @@ in {
 #        wantedBy = [ "multi-user.target" ];
 #    };
 
+
     systemd.services.generate-wg-qr = {
         serviceConfig = {
             Type = "oneshot";
             User = "wgqr";
             Group = "wgqr";
-            Environment = "PATH=${lib.makeBinPath [
-                pkgs.coreutils
-                pkgs.qrencode
-                pkgs.gnused
-                pkgs.imagemagick
-            ]}";
+            Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused pkgs.imagemagick ]}";
         };
         script = let
-            duckImage = pkgs.stdenvNoCC.mkDerivation {
-                name = "duck-icon";
-                src = ./../../home/icons/duck2.png;  # Update path to your duck image
-                dontUnpack = true;
-                installPhase = "install -Dm644 $src $out";
-            };
-
             deleteCommands = lib.concatMapStringsSep "\n" (d: ''
-                rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png" "/home/wgqr/${d}_final.png"
+                ${pkgs.coreutils}/bin/rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png"
             '') mobileDevices;
 
             generateCommands = lib.concatMapStringsSep "\n" (device: ''
-                TEMP_DIR=$(mktemp -d)
-                
-                # Generate initial QR code
-                qrencode -l H -s 10 -o "$TEMP_DIR/${device}_qr.png" -r "/home/wgqr/${device}.conf"
-
-                # Generate random colors
-                FG_COLOR=$(od -vAn -N3 -tx /dev/urandom | tr -d ' ' | sed 's/^/0000/;s/........$//;s/^/#/')
-                BG_COLOR=$(od -vAn -N3 -tx /dev/urandom | tr -d ' ' | sed 's/^/0000/;s/........$//;s/^/#/')
-
-                # Apply colors and effects
-                magick "$TEMP_DIR/${device}_qr.png" \
-                    -fill "$FG_COLOR" -opaque black \
-                    -fill "$BG_COLOR" -opaque white \
-                    "$TEMP_DIR/${device}_colored.png"
-
-                # Add shadow
-                magick "$TEMP_DIR/${device}_colored.png" \
-                    \( +clone -background black -shadow 50x10+0+0 \) +swap \
-                    -background none -layers merge +repage \
-                    "$TEMP_DIR/${device}_shadow.png"
-
-                # Add overlay image
-                magick "$TEMP_DIR/${device}_shadow.png" \
-                    ${duckImage} -resize 25% -background none \
-                    -gravity center -composite \
-                    "/home/wgqr/${device}_final.png"
-
-                # Cleanup
-                rm -rf "$TEMP_DIR"
-            '') mobileDevices;
-        in ''
-            ${deleteCommands}
-            
-            # Generate config files first
-            ${lib.concatMapStringsSep "\n" (device: ''
-                TEMP_DIR=$(mktemp -d)
+                TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
                 cat > "$TEMP_DIR/template.conf" <<EOF
                 [Interface]
-                PrivateKey = $(cat ${config.sops.secrets."${device}_wireguard_private".path})
+                PrivateKey = @PRIVATE_KEY@
                 Address = ${host.wgip.${device}}/24
                 DNS = 192.168.1.211
 
                 [Peer]
                 PublicKey = ${pubkey.wireguard.homie}
                 AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
-                Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
+                Endpoint = ${domain}:51820
                 PersistentKeepalive = 25
                 EOF
 
-                mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
-                rm -rf "$TEMP_DIR"
-            '') mobileDevices}
+                ${pkgs.gnused}/bin/sed -i \
+                  -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
+                  "$TEMP_DIR/template.conf"
 
-            # Generate enhanced QR codes
+                CONF_PATH="/home/wgqr/${device}.conf"
+                QR_PATH="/home/wgqr/${device}.png"
+                FINAL_QR="/home/wgqr/${device}_styled.png"
+                ICON_PATH="/home/wgqr/duck.png"
+                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "$CONF_PATH"
+
+                # Generate QR code
+                ${pkgs.qrencode}/bin/qrencode -l H -s 10 -o "$QR_PATH" -r "$CONF_PATH"
+
+                # Generate random colors
+                FG_COLOR=$(printf "#%06X\n" $((RANDOM * 256 * 256 * 256 / 32768)))
+                BG_COLOR=$(printf "#%06X\n" $((RANDOM * 256 * 256 * 256 / 32768)))
+
+                # Apply colors to QR code
+                ${pkgs.imagemagick}/bin/magick "$QR_PATH" -fill "$FG_COLOR" -opaque black -fill "$BG_COLOR" -opaque white "${QR_PATH}_colored.png"
+
+                # Add shadow effect
+                ${pkgs.imagemagick}/bin/magick "${QR_PATH}_colored.png" \( +clone -background black -shadow 50x10+0+0 \) +swap -background none -layers merge +repage "${QR_PATH}_shadow.png"
+                                                                                                          # Resize and overlay icon
+                ${pkgs.imagemagick}/bin/magick "$ICON_PATH" -resize 25% -background none "${TEMP_DIR}/resized_icon.png"
+                ${pkgs.imagemagick}/bin/magick "${QR_PATH}_shadow.png" "${TEMP_DIR}/resized_icon.png" -gravity center -composite "$FINAL_QR"
+
+                ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
+            '') mobileDevices;
+        in ''
+            ${deleteCommands}
             ${generateCommands}
-
-            # Set permissions
-            chmod 440 /home/wgqr/*.conf /home/wgqr/*.png
+            chmod 440 /home/wgqr/*.conf /home/wgqr/*.png /home/wgqr/*_styled.png
         '';
         wantedBy = [ "multi-user.target" ];
     };
 
-
+    system.activationScripts.dockerPermissions = {
+        text = ''
+            cp /home/pungkula/dotfiles/home/icons/duck2.png /home/wgqr/duck.png
+        '';
+     };
  
     users.groups.wgqr = { }; 
     users.users.wgqr = {
