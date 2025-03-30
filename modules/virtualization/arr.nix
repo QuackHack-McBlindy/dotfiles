@@ -297,7 +297,7 @@
         
         export TRANSMISSION_USERNAME=""
         export TRANSMISSION_PASSWORD=""
-        "${requestrrSettingsScript}/bin/generate-requestrr-settings"
+
   '';
 in {
     # Creates VPN Network & Open port for Transmission
