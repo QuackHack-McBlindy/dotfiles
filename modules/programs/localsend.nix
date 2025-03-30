@@ -3,12 +3,12 @@
     lib, 
     pkgs, 
     ... 
-} : in
+} : let
     localsend = {
         ip = "127.0.0.1";  
         port = 53317;      
     };
-let { 
+in { 
     networking.firewall.allowedTCPPorts = [ localsend.port ];
 
     programs.localsend = {
