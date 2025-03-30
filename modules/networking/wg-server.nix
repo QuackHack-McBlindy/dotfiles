@@ -264,8 +264,11 @@ in {
                     -background none -layers merge +repage \
                     "$TEMP_DIR/qr_shadow.png"
 
-                magick "$TEMP_DIR/qr_shadow.png" \
-                    /home/wgqr/duck.png -resize 25% -background none \
+                # Resize QR code to a reasonable size
+                magick "$TEMP_DIR/qr_shadow.png" -resize 300x300 "$TEMP_DIR/qr_resized.png"
+
+                magick "$TEMP_DIR/qr_resized.png" \
+                    /home/wgqr/duck.png -resize 50x50 -background none \
                     -gravity center -composite \
                     "/home/wgqr/${device}.png"
 
