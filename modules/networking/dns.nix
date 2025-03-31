@@ -58,8 +58,8 @@
                     name = ".";
                     forward-tls-upstream = "yes"; 
                     forward-addr = [ 
-                        "8.8.8.8"
-                        "4.4.8.8"
+                        "8.8.8.8@853#dns.google" 
+                        "8.8.4.4@853#dns.google"
                     ]; 
                 } 
             ];
