@@ -61,19 +61,35 @@ in {
                 "/swapfile"        # Swap file (not useful in backups)
                 "/mnt"
             ];
-            repo = "borg@nasty:${config.networking.hostName}"; 
+            repo = "ssh://borg@nasty:2222/./${config.networking.hostName}";
             doInit = true;
             encryption = {
-                mode = "repokey";
+                mode = "repokey-blake2";
                 passphrase = config.sops.secrets.borg.path;
             };
+            
             prune = {
                 keep = {
                     daily = 7;  
+                    weekly = 4;
+                    monthly = 12;
                 };
             };    
-            compression = "auto,lzma";
+            compression = "auto,zstd";
             startAt = "weekly";
+            
+            environment = {
+                BORG_RSH = "ssh -o StrictHostKeyChecking=yes";
+                BORG_FILES_CACHE_TTL = "2000";
+            };
+            
+            preHook = ''
+                echo "=== Starting backup of ${config.networking.hostName} ===" | systemd-cat -t borgbackup
+            '';
+    
+            postHook = ''
+                curl -fsS -m 10 --retry 5 https://hc-ping.com/YOUR_UUID >/dev/null
+            '';
         };
 
     };}

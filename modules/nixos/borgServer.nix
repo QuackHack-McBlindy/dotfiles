@@ -42,8 +42,8 @@ in {
         };  
     };
    
-    # Set /Docker Ownersihp and Permissions 
-    system.activationScripts.dockerPermissions = {
+    # Set /backup Ownersihp and Permissions 
+    system.activationScripts.backupPermissions = {
         text = ''
             mkdir -p /backup
             chown borg:borg /backup
