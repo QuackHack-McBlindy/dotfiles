@@ -36,7 +36,7 @@ in
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
                       ./../../modules/nixos/pipewire.nix
-                      ./../../modules/programs/localsend.nix
+                      ./../../modules/services/pairdrop.nix
                       ./../../modules/networking/default.nix
   ];
 
