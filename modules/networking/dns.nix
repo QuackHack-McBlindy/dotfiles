@@ -16,51 +16,51 @@
         (builtins.readFile "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt")
     ];
     
- #   services.unbound = {
- #       enable = true;
- #       settings = {
- #           server = {
+    services.unbound = {
+        enable = true;
+        settings = {
+            server = {
                 #  When only using Unbound as DNS, make sure to replace 127.0.0.1 with your ip address
                 # When using Unbound in combination with pi-hole or Adguard, leave 127.0.0.1, and point Adguard to 127.0.0.1:PORT
- #               interface = [ "127.0.0.1" "::1" ];
- #               port = 5335;
-#                access-control = [ "127.0.0.1 allow" "192.168.1.0/24 allow" ]; 
+                interface = [ "127.0.0.1" "::1" ];
+                port = 5335;
+                access-control = [ "127.0.0.1 allow" "192.168.1.0/24 allow" ]; 
                 # Based on recommended settings in https://docs.pi-hole.net/guides/dns/unbound/#configure-unbound
- #               harden-glue = true;
- #               harden-dnssec-stripped = true;
-#                use-caps-for-id = false;
-#               prefetch = true;
- #               edns-buffer-size = 1232;
-  #              hide-identity = true;
- #               hide-version = true;
- #               tls-cert-bundle = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+                harden-glue = true;
+                harden-dnssec-stripped = true;
+                use-caps-for-id = false;
+                prefetch = true;
+                edns-buffer-size = 1232;
+                hide-identity = true;
+                hide-version = true;
+                tls-cert-bundle = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
                   
-   #             local-zone = [
-    #                "homie.lan static"
-   #                 "nasty.lan static"
-   #                 "desktop.lan static" 
-   #                 "laptop.lan static"
-  #              ];
-   #             local-data = [
-   #                 "\"homie.lan 3600 IN A 192.168.1.211\""
-   #                 "\"*.homie.lan 3600 IN A 192.168.1.211\""
-    #                "\"*.nasty.lan 3600 IN A 192.168.1.28\""
-    #                "\"*.desktop.lan 3600 IN A 192.168.1.111\""
-   #                 "\"*.laptop.lan 3600 IN A 192.168.1.222\""
-  #              ];
-  #          };
-   #         forward-zone = [
-  #              {
-  #                  name = ".";
-  #                  forward-tls-upstream = "yes"; 
-   #                 forward-addr = [ 
-   #                     "1.1.1.2@853#cloudflare-dns.com"
-  #                      "9.9.9.9@853#dns.quad9.net"    
-  #                  ]; 
-  #              } 
- #           ];
-#        };
-#    };
+                local-zone = [
+                    "homie.lan static"
+                    "nasty.lan static"
+                    "desktop.lan static" 
+                    "laptop.lan static"
+                ];
+                local-data = [
+                    "\"homie.lan 3600 IN A 192.168.1.211\""
+                    "\"*.homie.lan 3600 IN A 192.168.1.211\""
+                    "\"*.nasty.lan 3600 IN A 192.168.1.28\""
+                    "\"*.desktop.lan 3600 IN A 192.168.1.111\""
+                    "\"*.laptop.lan 3600 IN A 192.168.1.222\""
+                ];
+            };
+            forward-zone = [
+                {
+                    name = ".";
+                    forward-tls-upstream = "yes"; 
+                    forward-addr = [ 
+                        "1.1.1.2@853#cloudflare-dns.com"
+                        "9.9.9.9@853#dns.quad9.net"    
+                    ]; 
+                } 
+            ];
+        };
+    };
 
 
 
@@ -97,8 +97,7 @@
             dns = {
                 bind_host = "0.0.0.0";    
                 bind_port = 53;     
-                upstream_dns = [ "1.1.1.2:853" "9.9.9.9:853" ];
-             #   upstream_dns = [ "127.0.0.1:5335" ]; 
+                upstream_dns = [ "127.0.0.1:5335" ]; 
                 bootstrap_dns = [ "127.0.0.1:5335" ];
             };
             filtering = {
@@ -124,13 +123,13 @@
 
     networking.firewall.allowedUDPPorts = [ 53 5335 ];
     networking.firewall.allowedTCPPorts = [ 53 5335 ];
-  #  systemd.services.unbound.stopIfChanged = false;
+    systemd.services.unbound.stopIfChanged = false;
 
-#    systemd.services.adguardhome.serviceConfig = {
- #       After = [ "network.target" "unbound.service" ];
- #       Requires = [ "unbound.service" ];
+    systemd.services.adguardhome.serviceConfig = {
+        After = [ "network.target" "unbound.service" ];
+        Requires = [ "unbound.service" ];
 
-    }
+    };}
 
 
 
