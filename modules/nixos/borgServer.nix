@@ -13,14 +13,14 @@ in {
 # sudo chown borg:borg /backup
 # sudo chmod 700 /backup
 
-#    services.openssh.settings = {
-#        AllowUsers = [ "borg" ];  
+    services.openssh.settings = {
+        AllowUsers = [ "borg" ];  
 #        extraConfig = ''
 #            Match User borg
 #            ChrootDirectory /backup
 #            ForceCommand internal-sftp
 #        '';
-#    };
+    };
     
     users = {
         groups.borg = { };

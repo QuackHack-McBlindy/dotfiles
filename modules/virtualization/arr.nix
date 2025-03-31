@@ -13,7 +13,6 @@
         USER="@TRANS@"
         PASS="@TRANS@" 
         SHADOWPASS="@SHADOWPASS@"
-        DOWNLOAD_DIR="/downloads"
     '';
     
     # Requestrr Settings
@@ -267,7 +266,7 @@ in {
                 autoStart = true;
                 volumes = [
                     "/docker/transmission/config:/config"
-                    "/Pool/Downloads:/downloads"
+                    "/Pool/Downloads:/root/downloads"
                     "/Pool/Watch:/watch"
                 ];
                 environmentFiles = [ "/docker/arr.env" ];
