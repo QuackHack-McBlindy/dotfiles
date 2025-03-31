@@ -37,7 +37,7 @@
                 edns-buffer-size = 1232;
                 hide-identity = true;
                 hide-version = true;
-                tls-cert-bundle = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
+              #  tls-cert-bundle = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
                   
                 local-zone = [
                     "homie.lan static"
@@ -56,7 +56,7 @@
             forward-zone = [
                 {
                     name = ".";
-                    forward-tls-upstream = "yes"; 
+                    forward-tls-upstream = "no"; 
                     forward-addr = [ 
                         "8.8.8.8@853#dns.google" 
                         "8.8.4.4@853#dns.google"
