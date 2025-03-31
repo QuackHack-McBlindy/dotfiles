@@ -3,6 +3,9 @@
 # [Unbound] :5335 (local) → 
 # [Stubby] :5300 (local) → 
 # [Cloudflare/Quad9] over TLS
+                  #      "1.1.1.1@853#cloudflare-dns.com"
+                  #      "1.0.0.1@853#cloudflare-dns.com"
+
 {
     config,
     pkgs,
@@ -55,8 +58,8 @@
                     name = ".";
                     forward-tls-upstream = "yes"; 
                     forward-addr = [ 
-                        "1.1.1.1@853#cloudflare-dns.com"
-                        "1.0.0.1@853#cloudflare-dns.com"
+                        "8.8.8.8"
+                        "4.4.8.8"
                     ]; 
                 } 
             ];
