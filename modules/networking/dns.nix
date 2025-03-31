@@ -36,20 +36,20 @@
                 hide-version = true;
                 tls-cert-bundle = "${pkgs.cacert}/etc/ssl/certs/ca-bundle.crt";
                   
-            #    local-zone = [
-          #          "homie.lan static"
-          #          "nasty.lan static"
-          #          "desktop.lan static" 
-          #          "laptop.lan static"
-          #      ];
-          #      local-data = [
-          #          "\"homie.lan 3600 IN A 192.168.1.211\""
-          #          "\"*.homie.lan 3600 IN A 192.168.1.211\""
-          #          "\"*.nasty.lan 3600 IN A 192.168.1.28\""
-          #          "\"*.desktop.lan 3600 IN A 192.168.1.111\""
-          #          "\"*.laptop.lan 3600 IN A 192.168.1.222\""
-         #       ];
-      #      };
+                local-zone = [
+                    "homie.lan static"
+                    "nasty.lan static"
+                    "desktop.lan static" 
+                    "laptop.lan static"
+                ];
+                local-data = [
+                    "\"homie.lan 3600 IN A 192.168.1.211\""
+                    "\"*.homie.lan 3600 IN A 192.168.1.211\""
+                    "\"*.nasty.lan 3600 IN A 192.168.1.28\""
+                    "\"*.desktop.lan 3600 IN A 192.168.1.111\""
+                    "\"*.laptop.lan 3600 IN A 192.168.1.222\""
+                ];
+            };
             forward-zone = [
                 {
                     name = ".";
