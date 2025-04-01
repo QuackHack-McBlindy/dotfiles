@@ -14,14 +14,15 @@
            web-push-public-key = "BGxWiWgvfogQXS9Lz9diQe7G29jvuca0856U6Fb8m9NPUQj525BS62syNrBXUTFx4H32GQFomdVs0lHrHDIXD3U";
            web-push-private-key = config.sops.secrets.ntfy-private.path;
            web-push-file = "/var/cache/ntfy/webpush.db";
+           web-push-email-address = "example@mail.com";
        };
     };   
        
     sops.secrets = {
         ntfy-private = {
-            sopsFile = "/var/lib/sops-nix/secrets/ntfy-private.yaml";
-            owner = config.users.users.secretservice.name;
-            group = config.users.groups.secretservice.name;
+            sopsFile = ./../../secrets/ntfy-private.yaml;
+            owner = "ntfy-sh";
+            group = "ntfy-sh";
             mode = "0440"; # Read-only for owner and group
         };
 
