@@ -4,14 +4,15 @@
     pkgs, 
     ... 
 } : let 
-
     pubkey = import ./../../hosts/pubkeys.nix;
-
 in { 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-# sudo chown borg:borg /backup
-# sudo chmod 700 /backup
+    services.borgbackup.repos.backups = {
+        user = "borg";
+        quota = "1000G";
+        path = "/backup/backups";
+        authorizedKeys = [ pubkey.borg ];
+        allowSubRepos = true;
+    };    
 
     services.openssh.settings = {
         AllowUsers = [ "borg" ];  
@@ -30,11 +31,11 @@ in {
             group = "borg";
            # extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" ];
            # packages = with pkgs; [ ];
-            openssh.authorizedKeys.keys = [
-                pubkey.desktop
-                pubkey.homie
-                pubkey.nasty
-            ];
+     #       openssh.authorizedKeys.keys = [
+      #          pubkey.desktop
+      #          pubkey.homie
+      #          pubkey.nasty
+    #        ];
         };  
     };
    

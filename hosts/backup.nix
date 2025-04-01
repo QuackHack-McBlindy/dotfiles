@@ -5,6 +5,19 @@
     ... 
 } : let 
     pubkey = import ./pubkeys.nix;
+    
+    keyConfig = ''
+        "@SSHKEY@"
+    '';
+
+    ed25519File = 
+        pkgs.runCommand "ed25519File"
+            { preferLocalBuild = true; }
+            ''
+                cat > $out <<EOF
+${keyConfig}
+EOF
+            '';
 in { 
 # MANUALLY INITZIATE WITH:
 # borg init --encryption=repokey-blake2 ssh://borg@nasty:2222/./${HOSTNAME}
@@ -32,7 +45,7 @@ in {
                 "/swapfile"        # Swap file (not useful in backups)
                 "/mnt"
             ];
-            repo = "borg@nasty:./${config.networking.hostName}";
+            repo = "borg@nasty:./backups/${config.networking.hostName}";
             doInit = false;
             encryption = {
                 mode = "repokey-blake2";
@@ -50,7 +63,7 @@ in {
             startAt = "weekly";
             
             environment = {
-                BORG_RSH = "ssh -p 2222 -o StrictHostKeyChecking=yes";
+                BORG_RSH = "ssh -p 2222 -i /run/keys/id_ed25519";
             };
             
             preHook = ''
@@ -63,6 +76,24 @@ in {
         };
     };
 
+    systemd.services.borg_config = {
+        wantedBy = [ "multi-user.target" ];
+        preStart = ''
+            sed -e "/@SSHKEY@/{
+                r ${config.sops.secrets.borg_ed25519.path}
+                d
+            }" ${ed25519File} > /run/keys/id_ed25519           
+        '';
+    
+        serviceConfig = {
+             ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
+             Restart = "on-failure";
+             RestartSec = "2s";
+             RuntimeDirectory = [ "root" ];
+             User = "root";
+        };
+    };
+
     sops.secrets = {
         borg = {
             sopsFile = ./../secrets/borg.yaml;
@@ -70,5 +101,22 @@ in {
             group = "root";
             mode = "0440"; 
         };
+        borg_ed25519 = {
+            sopsFile = ./../secrets/borg_ed25519.yaml;
+            owner = "root";
+            group = "root";
+            mode = "0440"; 
+        };
 
     };}
+    
+    
+    
+    
+    
+    
+    
+    
+
+
+
