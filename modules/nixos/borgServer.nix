@@ -15,11 +15,7 @@ in {
 
     services.openssh.settings = {
         AllowUsers = [ "borg" ];  
-#        extraConfig = ''
-#            Match User borg
-#            ChrootDirectory /backup
-#            ForceCommand internal-sftp
-#        '';
+        KbdInteractiveAuthentication = false;
     };
     
     users = {

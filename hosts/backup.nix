@@ -33,7 +33,7 @@ in {
                 "/mnt"
             ];
             repo = "borg@nasty:./${config.networking.hostName}";
-            doInit = true;
+            doInit = false;
             encryption = {
                 mode = "repokey-blake2";
                 passCommand = "cat /run/secrets/borg";
@@ -50,16 +50,15 @@ in {
             startAt = "weekly";
             
             environment = {
-                BORG_RSH = "ssh -o StrictHostKeyChecking=yes";
-                BORG_FILES_CACHE_TTL = "2000";
+                BORG_RSH = "ssh -p 2222 -o StrictHostKeyChecking=yes";
             };
             
             preHook = ''
-                echo "=== Starting backup of ${config.networking.hostName} ===" | systemd-cat -t borgbackup
+                echo "=== Starting backup of $HOSTNAME ==="
             '';
     
             postHook = ''
-                curl -fsS -m 10 --retry 5 https://hc-ping.com/YOUR_UUID >/dev/null
+                echo "=== Finished backup of $HOSTNAME ==="
             '';
         };
     };
