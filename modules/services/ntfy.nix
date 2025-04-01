@@ -7,7 +7,7 @@
     services.ntfy-sh = {
        enable = true;
        settings = {
-           base-url = "https://pungkula.duckdns.org"; 
+           base-url = "https://notfy.duckdns.org"; 
            listen-http = ":5060";
            behind-proxy = true;
            
@@ -26,3 +26,4 @@
         };
 
     };}
+    

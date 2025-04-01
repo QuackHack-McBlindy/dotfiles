@@ -20,7 +20,7 @@ in
                       ./../../modules/services/vaultwarden.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/faster-whisper.nix
-                     # ./../../modules/services/ntfy.nix
+                      ./../../modules/services/ntfy.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
                       ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
