@@ -266,7 +266,7 @@ in {
                 autoStart = true;
                 volumes = [
                     "/docker/transmission/config:/config"
-                    "/Pool/Downloads:/root/downloads"
+                    "/Pool/Downloads:/root/Downloads"
                     "/Pool/Watch:/watch"
                 ];
                 environmentFiles = [ "/docker/arr.env" ];

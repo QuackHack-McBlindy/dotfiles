@@ -32,11 +32,11 @@ in {
                 "/swapfile"        # Swap file (not useful in backups)
                 "/mnt"
             ];
-            repo = "ssh://borg@nasty:2222/./${config.networking.hostName}";
+            repo = "borg@nasty:./${config.networking.hostName}";
             doInit = true;
             encryption = {
                 mode = "repokey-blake2";
-                passphrase = config.sops.secrets.borg.path;
+                passCommand = "cat /run/secrets/borg";
             };
             
             prune = {
