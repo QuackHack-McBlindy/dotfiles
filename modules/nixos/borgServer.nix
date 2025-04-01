@@ -23,7 +23,7 @@ in {
         groups.borg = { };
         users.borg = {
             isNormalUser = lib.mkForce true;
-         #   isSystemUser = false;
+            isSystemUser = false;
             shell = pkgs.bash;
             home = "/backup";
             createHome = false;
