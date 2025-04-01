@@ -6,37 +6,8 @@
 } : let 
     pubkey = import ./pubkeys.nix;
 in { 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-    sops.secrets = {
-        borg = {
-            sopsFile = ./../secrets/borg.yaml;
-            owner = "root";
-            group = "root";
-            mode = "0440"; # Read-only for owner and group;
-        };
-    };
-
-   # services.borgbackup.repos = {
-  #      desktop = {
-   #         authorizedKeys = [
-  #             pubkey.desktop
-  #          ];
-  #          path = "/backup/desktop";
-  #      };
-  #      homie = {
-  #          authorizedKeys = [
-  #             pubkey.homie
-   #         ];
-   #         path = "/backup/homie";
-  #      };
- #       nasty = {
-  #          authorizedKeys = [
-   #            pubkey.nasty
-  #          ];
-  #          path = "/backup/nasty";
-  #      };
-#    };
+# MANUALLY INITZIATE WITH:
+# borg init --encryption=repokey-blake2 ssh://borg@nasty:2222/./${HOSTNAME}
 
     services.borgbackup.jobs = {
         backupJob = {
@@ -90,6 +61,15 @@ in {
             postHook = ''
                 curl -fsS -m 10 --retry 5 https://hc-ping.com/YOUR_UUID >/dev/null
             '';
+        };
+    };
+
+    sops.secrets = {
+        borg = {
+            sopsFile = ./../secrets/borg.yaml;
+            owner = "root";
+            group = "root";
+            mode = "0440"; 
         };
 
     };}
