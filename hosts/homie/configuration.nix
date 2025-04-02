@@ -7,6 +7,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
+                       ./../../modules/services/navidrome.nix
                    #   ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/systemd/voice-server.nix
@@ -30,7 +31,7 @@ in
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
-               #       ./../../modules/nixos/pipewire.nix
+                      ./../../modules/nixos/pipewire.nix
                       ./../../modules/services/pairdrop.nix
                       ./../../modules/nixos/cache.nix
                       ./../../modules/networking/wg-server.nix

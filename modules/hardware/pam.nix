@@ -17,7 +17,7 @@ in
     age-plugin-yubikey
     yubioath-flutter
     yubikey-agent
-    yubikey-manager-qt
+    #yubikey-manager-qt
   #  yubikey-touch-detector
     yubikey-personalization-gui
     yubikey-personalization    
