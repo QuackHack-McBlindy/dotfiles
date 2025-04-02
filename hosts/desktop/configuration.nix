@@ -26,7 +26,7 @@ in
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
-                      ./../../modules/nixos/pipewire.nix
+                     # ./../../modules/nixos/pipewire.nix
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
                       ./../../modules/services/syslogd.nix
