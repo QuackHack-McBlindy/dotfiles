@@ -1,2 +1,0 @@
-sudo rm -f /etc/resolv.conf
-echo "nameserver 192.168.1.211" | sudo tee /etc/resolv.conf
