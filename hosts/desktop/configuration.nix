@@ -12,7 +12,7 @@ in
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
-                      ./../../modules/services/syncthing.nix
+                  #    ./../../modules/services/syncthing.nix
                       ./../../modules/services/keyd.nix
                       ./../../modules/hardware/pam.nix
                       ./../../modules/nixos/cross-env.nix
