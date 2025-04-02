@@ -43,7 +43,7 @@ in
   boot.initrd.systemd.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  services.udev.packages = [ pkgs.alsa-ucm-conf ];
+#  services.udev.packages = [ pkgs.alsa-ucm-conf ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
