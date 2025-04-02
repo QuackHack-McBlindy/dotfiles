@@ -75,6 +75,7 @@
             pkgs.curl
             pkgs.git
             pkgs.unzip
+            pkgs.dunst
             pkgs.sox
             pkgs.wireguard-tools
             pkgs.nixos-anywhere

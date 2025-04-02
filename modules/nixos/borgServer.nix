@@ -29,22 +29,7 @@ in {
             createHome = false;
             description = "borg Server";
             group = "borg";
-           # extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" ];
-           # packages = with pkgs; [ ];
-     #       openssh.authorizedKeys.keys = [
-      #          pubkey.desktop
-      #          pubkey.homie
-      #          pubkey.nasty
-    #        ];
         };  
-    };
-   
-    # Set /backup Ownersihp and Permissions 
-    system.activationScripts.backupPermissions = {
-        text = ''
-            mkdir -p /backup
-            chown borg:borg /backup
-            chmod 700 /backup
-        '';
+
     };}
     

@@ -7,22 +7,17 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
-                      ./../../modules/networking/wg-server.nix
-                      ./../../modules/networking/dns.nix
-                      ./../../modules/nixos/cache.nix
-                      ./../../modules/services/telegraf.nix
+                   #   ./../../modules/services/telegraf.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/systemd/voice-server.nix
                     #  ./../../modules/services/loki.nix
                       ./../../modules/services/mosquitto.nix
                       ./../../modules/services/zigbee2mqtt.nix
                       ./../../modules/virtualization/home-assistant.nix
-                      ./../../modules/services/vaultwarden.nix
                       ./../../modules/services/openwakeword.nix
                       ./../../modules/services/faster-whisper.nix
                       ./../../modules/services/ntfy.nix
                       ./../../modules/services/systemd/systemd-mnt.nix
-                      ./../../modules/services/syncthing.nix
                       ./../../modules/services/avahi-client.nix
                       ./../../modules/security.nix
                       ./../../modules/services/ssh.nix
@@ -37,6 +32,9 @@ in
                       ./../../modules/nixos/i18n.nix
                       ./../../modules/nixos/pipewire.nix
                       ./../../modules/services/pairdrop.nix
+                      ./../../modules/nixos/cache.nix
+                      ./../../modules/networking/wg-server.nix
+                      ./../../modules/networking/dns.nix
                       ./../../modules/networking/default.nix
   ];
 
@@ -45,6 +43,7 @@ in
   boot.initrd.systemd.enable = true;
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
+  services.udev.packages = [ pkgs.alsa-ucm-conf ];
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

@@ -25,6 +25,10 @@
     }];
  
 	settings = {
+	    # direnv
+	    keep-outputs = true;
+        keep-derivations = true;
+        
 	    warn-dirty = false;
 		experimental-features = [ "nix-command" "flakes" ];
 		auto-optimise-store = true;
