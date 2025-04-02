@@ -41,7 +41,8 @@ in
   networking.hostName = "homie";
 
   boot.initrd.systemd.enable = true;
-  boot.kernelPackages = pkgs.linuxPackages_latest;
+#  boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.kernelPackages = pkgs.linuxPackages_6_1; 
 
 #  services.udev.packages = [ pkgs.alsa-ucm-conf ];
 
