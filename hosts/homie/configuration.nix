@@ -30,7 +30,7 @@ in
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/i18n.nix
-                      ./../../modules/nixos/pipewire.nix
+               #       ./../../modules/nixos/pipewire.nix
                       ./../../modules/services/pairdrop.nix
                       ./../../modules/nixos/cache.nix
                       ./../../modules/networking/wg-server.nix
