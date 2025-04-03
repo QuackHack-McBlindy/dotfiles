@@ -40,7 +40,6 @@ in {
         chmod 600 /etc/nix/private-key.pem
         chmod 644 /etc/nix/public-key.pem
       '';
-      deps = ["sops-nix"];
     };
 
     # Rest of your configuration remains the same...
