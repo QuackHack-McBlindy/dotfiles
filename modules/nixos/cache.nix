@@ -53,7 +53,6 @@ in {
         cat ${config.sops.secrets.nix_cache_private_key.path} > /etc/nix/private-key.pem
         cat ${config.sops.secrets.nix_cache_public_key.path} > /etc/nix/public-key.pem
       '';
-      deps = ["sops-nix"];
     };
 
     sops.secrets = {
