@@ -3,7 +3,7 @@
 let
   inherit (lib) mkEnableOption mkOption types mkIf;
   cfg = config.modules.services.nixCache;
-  username = "pungkula";  # Hardcoded user
+  username = "pungkula";
 in {
   options.modules.services.nixCache = {
     enable = mkEnableOption "Nix binary cache with web interface";
@@ -16,28 +16,36 @@ in {
 
     publicKey = mkOption {
       type = types.str;
-      default = builtins.readFile /etc/nix/public-key.pem;
-      description = "Public key contents (read directly from file)";
-    };
-
-    secretsPath = mkOption {
-      type = types.path;
-      default = ./../../secrets;
-      description = "Path to secrets directory";
+      default = config.sops.secrets.nix_cache_public_key.path;
+      description = "Path to public key file in Nix store";
     };
   };
 
   config = mkIf cfg.enable {
-    nix.settings.trusted-public-keys = [ cfg.publicKey ];
+    nix.settings.trusted-public-keys = [ (builtins.readFile cfg.publicKey) ];
 
     services.nix-serve = {
       enable = true;
       port = cfg.port;
-      secretKeyFile = "/etc/nix/private-key.pem";
+      secretKeyFile = config.sops.secrets.nix_cache_private_key.path;
     };
 
-    networking.firewall.allowedTCPPorts = [ 80 cfg.port ];
+    # Keep the activation script to copy to /etc if needed by other services
+    system.activationScripts.sshConfig = {
+      text = ''
+        mkdir -p /etc/nix
+        cp ${config.sops.secrets.nix_cache_private_key.path} /etc/nix/private-key.pem
+        cp ${cfg.publicKey} /etc/nix/public-key.pem
+        chown ${username}:${username} /etc/nix/*.pem
+        chmod 600 /etc/nix/private-key.pem
+        chmod 644 /etc/nix/public-key.pem
+      '';
+      deps = ["sops-nix"];
+    };
 
+    # Rest of your configuration remains the same...
+    networking.firewall.allowedTCPPorts = [ 80 cfg.port ];
+    
     services.nginx = {
       enable = true;
       recommendedProxySettings = true;
@@ -47,23 +55,15 @@ in {
       };
     };
 
-    system.activationScripts.sshConfig = {
-      text = ''
-        mkdir -p /etc/nix
-        cat ${config.sops.secrets.nix_cache_private_key.path} > /etc/nix/private-key.pem
-        cat ${config.sops.secrets.nix_cache_public_key.path} > /etc/nix/public-key.pem
-      '';
-    };
-
     sops.secrets = {
       nix_cache_public_key = {
-        sopsFile = cfg.secretsPath + "/nixcache_public_desktop.yaml";
+        sopsFile = ./../../secrets/nixcache_public_desktop.yaml;
         owner = username;
         group = username;
         mode = "0440";
       };
       nix_cache_private_key = {
-        sopsFile = cfg.secretsPath + "/nixcache_private_desktop.yaml";
+        sopsFile = ./../../secrets/nixcache_private_desktop.yaml;
         owner = username;
         group = username;
         mode = "0440";
