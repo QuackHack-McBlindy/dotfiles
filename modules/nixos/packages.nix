@@ -10,7 +10,7 @@
     environment.systemPackages = lib.mkMerge [
 
     
-        (lib.mkIf (config.networking.hostName == "desktop") [ pkgs.hello ])
+        (lib.mkIf (config.networking.hostName == "desktop") [ pkgs.nix-prefetch-github ])
         (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
         (lib.mkIf (config.networking.hostName == "laptop") [ pkgs.hello ])
         (lib.mkIf (config.networking.hostName == "homie") [ pkgs.pairdrop ])
@@ -33,6 +33,7 @@
             pkgs.qrencode
             pkgs.ntfy-sh
 
+            pkgs.imagemagick
             pkgs.smartmontools
             pkgs.xoscope
             pkgs.mdns

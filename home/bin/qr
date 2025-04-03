@@ -1,0 +1,32 @@
+#!/bin/bash
+# [ Description Here! ]
+# ------------------------
+
+# Read input from file or stdin
+if [ $# -eq 0 ]; then
+    input_text=$(cat -)
+else
+    input_text=$(cat -- "$1")
+fi
+
+# Generate QR code from input text
+echo -n "$input_text" | qrencode -l H -s 10 -o qrcode.png
+
+# Generate random colors
+FG_COLOR=$(printf "#%06X" $(( RANDOM * 256 * 256 * 256 / 32768 )) )
+BG_COLOR=$(printf "#%06X" $(( RANDOM * 256 * 256 * 256 / 32768 )) )
+
+# Recolor QR code
+magick qrcode.png -fill "$FG_COLOR" -opaque black -fill "$BG_COLOR" -opaque white qrcode_colored.png
+
+# Add shadow
+magick qrcode_colored.png \( +clone -background black -shadow 50x10+0+0 \) +swap -background none -layers merge +repage qrcode_shadow.png
+
+# Add overlay (adjust path to your duck image)
+magick ~/dotfiles/home/icons/duck2.png -resize 25% -background none resized_duck.png
+magick qrcode_shadow.png resized_duck.png -gravity center -composite final_qr.png
+
+# Cleanup
+rm -f qrcode.png qrcode_colored.png qrcode_shadow.png resized_duck.png
+
+echo "QR code generated: final_qr.png"

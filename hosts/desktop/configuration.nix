@@ -6,7 +6,7 @@ in
 {
   imports = [ ./hardware-configuration.nix ./../backup.nix
 
-
+                #      ./../../modules/yo.nix
                       ./../../modules/networking/wg-client.nix
                       ./../../modules/services/homepage.nix
                       ./../../modules/services/faster-whisper.nix
@@ -55,8 +55,10 @@ in
     inputs.voice-server.packages.x86_64-linux.voice-server
 
   ];
-
-
+#  yo = {
+#    enable = true;
+#    rebuildFlake = "~/dotfiles#${config.networking.hostName}";
+#  };
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions

@@ -45,6 +45,7 @@ in
 #  boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelPackages = pkgs.linuxPackages_6_1; 
 
+  modules.services.nixCache.enable = true;
 #  services.udev.packages = [ pkgs.alsa-ucm-conf ];
 
   # This value determines the NixOS release from which the default
