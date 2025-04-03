@@ -80,6 +80,20 @@ in
             LogLevel = "VERBOSE";
         };
         
+        extraConfig = ''GSSAPIAuthentication no'';
+        moduliFile = pkgs.runCommand "filterModuliFile" {} ''
+            awk '$5 >= 3071' "${config.programs.ssh.package}/etc/ssh/moduli" >"$out"
+        '';
+        
+#        hostKeys = [
+#            {
+ #               comment = "${config.networking.hostName}.local";
+#                path = "/etc/ssh/ssh_host_ed25519_key";
+#                rounds = 100;
+ #               type = "ed25519";
+ #           }
+  #      ];
+        
         listenAddresses = [
             {
                 addr = "0.0.0.0";

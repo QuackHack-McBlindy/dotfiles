@@ -4,8 +4,7 @@
     pkgs, 
     ... 
 } : { 
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
+
     nix.settings.trusted-public-keys = [ "cache-1:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc=" ];
 
     services.nix-serve = {
