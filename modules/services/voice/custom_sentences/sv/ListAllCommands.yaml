@@ -1,7 +1,0 @@
-language: "sv"
-intents:
-  ListAllCommands:
-    data:
-      - sentences:
-          - "vad ska jag säga"
-          - "vad kan jag säga"

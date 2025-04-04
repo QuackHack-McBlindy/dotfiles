@@ -8,9 +8,12 @@
 } : {
 
     environment.systemPackages = lib.mkMerge [
-
-    
-        (lib.mkIf (config.networking.hostName == "desktop") [ pkgs.nix-prefetch-github ])
+ 
+        (lib.mkIf (config.networking.hostName == "desktop") [ 
+            pkgs.nix-prefetch-github 
+            inputs.voice-server.packages.x86_64-linux.voice-server
+        ])
+        
         (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
         (lib.mkIf (config.networking.hostName == "laptop") [ pkgs.hello ])
         (lib.mkIf (config.networking.hostName == "homie") [ pkgs.pairdrop ])
@@ -81,7 +84,7 @@
             pkgs.wireguard-tools
             pkgs.nixos-anywhere
             pkgs.nix-serve
-            pkgs.syncthing
+           # pkgs.syncthing
             inputs.voice-client.packages.x86_64-linux.voice-client
             inputs.say.packages.x86_64-linux.say
             inputs.tv.packages.x86_64-linux.tv

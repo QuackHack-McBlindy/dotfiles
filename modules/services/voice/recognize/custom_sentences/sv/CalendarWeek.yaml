@@ -1,8 +1,0 @@
-language: "sv"
-intents:
-  CalendarWeek:
-    data:
-      - sentences:
-          - "vad händer"
-          - "[min] (kalender|kalendern)"
-          - "[mitt] schema"

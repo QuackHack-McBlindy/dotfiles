@@ -32,6 +32,8 @@
         pi-flake.url = "github:QuackHack-McBlindy/raspberry-pi-nix";
         pi-flake.flake = false;
 
+        gradle2nix.url = "github:tadfisher/gradle2nix";
+
 #°✶.•°••─→ x86_64-linux AUTO INSTALLER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
         auto-installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
 
@@ -53,7 +55,7 @@
   
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ OUTPUTS ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
-    outputs = { self, flake-utils, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, tv, ... }@inputs:
+    outputs = { self, flake-utils, gradle2nix, nixpkgs, nixos-facter-modules, sops-nix, disko, home-manager, nixpkgs-mobile, mobile-nixos, mobile-nixos-tools, librem-nixos, auto-installer, voice-server, voice-client, caddy-duckdns, say, tv, ... }@inputs:
         let
             user = "pungkula";
             hostname = self.config.networking.hostName;
@@ -88,6 +90,72 @@
             packages.x86_64-linux.say = say.packages.x86_64-linux.say;
             packages.x86_64-linux.tv = tv.packages.x86_64-linux.tv;
            # packages.x86_64-linux.api = api.packages.x86_64-linux.api;
+ 
+            apps.${system}.apk = {
+              type = "app";
+              program = "${pkgs.writeShellScriptBin "deploy-apk" ''
+                set -eo pipefail
+
+                # Build the APK
+                echo "Building APK..."
+                apk_path=$(nix build .#apk-package --no-link --print-out-paths)/apk/jellyfin-androidtv.apk
+
+                # Deploy to TVs
+                for ip in 192.168.1.152 192.168.1.223; do
+                  echo "Deploying to $ip..."
+                  ${pkgs.android-tools}/bin/adb connect $ip
+                  ${pkgs.android-tools}/bin/adb install -t -r "$apk_path"
+                  ${pkgs.android-tools}/bin/adb shell am start -n \
+                    "org.jellyfin.androidtv/org.jellyfin.androidtv.ui.startup.StartupActivity"
+                done
+              ''}/bin/deploy-apk";
+            };
+
+            packages.x86_64-linux.apk-package = pkgs.callPackage ({ mkGradleEnv }:
+              let
+                src = pkgs.fetchFromGitHub {
+                  owner = "QuackHack-McBlindy";
+                  repo = "duck-tv-androidtv";
+                  rev = "98a96ca63541c3b8407c4a2b9af4473fb0758a03";
+                  sha256 = "sha256-d20VBW9+Kw9STTr4+TyURvp6R+zcxtw6oZbSOSRJsEc=";
+                };
+
+                gradleEnv = mkGradleEnv {
+                  inherit src;
+                  gradleFlags = [ ":app:assembleRelease" ];
+                };
+              in pkgs.stdenv.mkDerivation {
+                name = "jellyfin-androidtv-apk";
+                inherit src;
+
+                buildInputs = [
+                  pkgs.jdk
+                  pkgs.gradle
+                  (pkgs.androidenv.composeAndroidPackages {
+                    platformVersions = [ "30" ];
+                    buildToolsVersions = [ "30.0.3" ];
+                    includeNDK = true;
+                    ndkVersions = [ "23.1.7779620" ];
+                  }).androidPlatform
+                ];
+
+                ANDROID_SDK_ROOT = "${pkgs.androidenv.androidPlatform}/share/android-sdk";
+                GRADLE_USER_HOME = gradleEnv;
+
+                buildPhase = ''
+                  export HOME=$(mktemp -d)
+                  gradle --offline :app:assembleRelease
+                '';
+
+                installPhase = ''
+                  mkdir -p $out/apk
+                  cp app/build/outputs/apk/release/*.apk $out/apk/jellyfin-androidtv.apk
+                '';
+              }) { mkGradleEnv = gradle2nix.legacyPackages.${system}.mkGradleEnv; };
+
+
+
+
  
             apps.x86_64-linux.box = {
                 type = "app";
@@ -221,7 +289,7 @@
 #°✶.•°••─→ DESKTOP ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
                 desktop = nixpkgs.lib.nixosSystem {
                     inherit system;
-                    specialArgs = { inherit user self inputs; hostname = "desktop"; };
+                    specialArgs = { inherit user self system inputs; hostname = "desktop"; };
                     modules = [ ./hosts/desktop/configuration.nix   
                     #    nixos-facter-modules.nixosModules.facter
                      #   { config.facter.reportPath = ./hosts/desktop/facter.json; }            
@@ -329,7 +397,7 @@
               
                 devShells."x86_64-linux".default = nixpkgs.legacyPackages."x86_64-linux".mkShell {
                    # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
-                    packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh ];
+                    packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh pkgs.nixpkgs-fmt pkgs.android-tools ];
                 };
               
               
