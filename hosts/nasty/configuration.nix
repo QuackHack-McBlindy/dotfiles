@@ -23,14 +23,9 @@ in
                       ./../../modules/nixos/borgServer.nix
                       ./../../modules/virtualization/arr.nix
                       ./../../modules/virtualization/docker.nix
-               #        ./../../modules/virtualization/duckdns.nix
-                  #    ./../../modules/virtualization/vm.nix
+
    
   ];
-
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ BOOT LOADER ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
-#°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 
   boot.loader.grub.enable = true;
   boot.loader.grub.device = "/dev/sda";
