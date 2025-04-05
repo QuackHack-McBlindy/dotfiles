@@ -1,6 +1,8 @@
 { config, lib, pkgs, ... }:
-
-{
+let
+  
+  pubkey = import ./../../hosts/pubkeys.nix;
+in {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
 #°✶.•°••─→ NIX ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
@@ -9,7 +11,8 @@
   nixpkgs.config.allowUnfree = true;
   system.tools.nixos-option.enable = true;
   nix = {
-    distributedBuilds = true;
+    distributedBuilds = false;
+    
     
     buildMachines = [{
       protocol = "ssh";
@@ -47,7 +50,7 @@
           "pungkula"
           "builder"
         ];
-        
+        trusted-public-keys = [ pubkey.cache ];
         substituters = [
             "http://cache/"
             "https://cache.nixos.org/"

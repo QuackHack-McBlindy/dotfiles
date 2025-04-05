@@ -1,10 +1,3 @@
-# [Router] DNS:192.168.1.211:53 → 
-# [AdGuard Home] :53 (public) → 
-# [Unbound] :5335 (local) → 
-# [Stubby] :5300 (local) → 
-# [Cloudflare/Quad9] over TLS
-                  #      "1.1.1.1@853#cloudflare-dns.com"
-                  #      "1.0.0.1@853#cloudflare-dns.com"
 
 {
     config,

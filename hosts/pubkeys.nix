@@ -8,6 +8,7 @@
   "borg" = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVYczAOBSeS7WfSvzYDOS4Q9Ss+yxCf2G5MVfAALOx/";
   "builder" = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIEc/ogUS0pQmT+ai4Gj7A39c9G5EApMniEm3GPvKnW2s";
   "iPhone" = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq";
+  "cache" = "cache-1:/pbj1Agw2OoSSDcClS69RHa1aNcwwTOX3GIEGKYwPc=";
 
   "wireguard" = {
     "desktop" = "Oq0ZaYAnOo5sLpV//OEFwLgjVCxPyeQqf8cZBASluWk=";

@@ -29,7 +29,8 @@ in {
                       ./../../modules/services/ssh.nix
                       ./../../modules/programs/thunar.nix
                       ./../../modules/networking/default.nix
-                      ./../../modules/networking/caddy.nix
+                      ./../../modules/networking/dns.nix
+                      ./../../modules/nixos/cache.nix
                       ./../../modules/nixos/default-apps.nix
                       ./../../modules/virtualization/dockerr.nix
                       ./../../modules/virtualization/vm.nix
@@ -54,6 +55,7 @@ in {
         builder.enable = true;
         builder.sshKeys = [ pubkey.desktop pubkey.laptop pubkey.nasty pubkey.homie ];
     };
+    modules.services.nixCache.enable = true;
     
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions
