@@ -11,17 +11,17 @@ in {
   nixpkgs.config.allowUnfree = true;
   system.tools.nixos-option.enable = true;
   nix = {
-    distributedBuilds = false;
-    
-    
+    distributedBuilds = true;
+     
     buildMachines = [{
       protocol = "ssh";
       hostName = "desktop";
       sshUser = "builder";
       sshKey = "/root/.ssh/id_desktop_builder";
-      publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUxkd1BrUlF4bGJyYlJHd0VPNXpNSjRtKzdRcVVRUFpnMWlxYmQ1SFJQMzQgcm9vdEBuaXhvcwo=";
+      #publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUxkd1BrUlF4bGJyYlJHd0VPNXpNSjRtKzdRcVVRUFpnMWlxYmQ1SFJQMzQgcm9vdEBuaXhvcwo=";
+      publicHostKey = pubkey.host.desktop;
       system = "x86_64-linux";
-      maxJobs = 1;
+      maxJobs = 64;
       speedFactor = 5;
       supportedFeatures = [ "kvm" "big-parallel" ];
       mandatoryFeatures = [ "big-parallel" ];
@@ -39,7 +39,8 @@ in {
         log-lines = 15;
         min-free = 1073741824; # 1GB
         max-free = 8589934592; # 8GB
-        builders-use-substitutes = false;
+        
+        builders-use-substitutes = true;
         allowed-users = [
           "@wheel"
           "builder"
