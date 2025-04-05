@@ -394,10 +394,14 @@
                 };
               
                 installer = auto-installer.nixosConfigurations.installer;
-              
+               # devShells.x86_64-linux.default = pkgs.mkShell {
                 devShells."x86_64-linux".default = nixpkgs.legacyPackages."x86_64-linux".mkShell {
                    # packages = [ clan-core.packages."x86_64-linux".clan-cli ];
-                    packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh pkgs.nixpkgs-fmt pkgs.android-tools ];
+                    shellHook = ''
+                        export NIX_PATH="nixpkgs=${inputs.nixpkgs}:.\?submodules=1"
+                    '';
+                    packages = [ pkgs.python3 pkgs.python3Packages.requests ];
+                  #  packages = [ pkgs.python3 pkgs.python3Packages.requests pkgs.python3Packages.python-dotenv pkgs.python312Packages.sh pkgs.nixpkgs-fmt pkgs.android-tools ];
                 };
               
               

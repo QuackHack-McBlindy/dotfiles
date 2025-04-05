@@ -181,6 +181,14 @@ in {
                                 command = "${pkgs.nix}/bin/nix";
                                 options = [ "NOPASSWD" ];
                             }
+                            {
+                                command = "${pkgs.nixos-rebuild}/bin/nixos-rebuild";
+                                options = [ "NOPASSWD" ];
+                            }
+                            {
+                                command = "/nix/store/*/activate";
+                                options = [ "NOPASSWD" ];
+                            }
                         ];
                     }
                 ];

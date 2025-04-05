@@ -21,7 +21,7 @@ in {
       #publicHostKey = "c3NoLWVkMjU1MTkgQUFBQUMzTnphQzFsWkRJMU5URTVBQUFBSUxkd1BrUlF4bGJyYlJHd0VPNXpNSjRtKzdRcVVRUFpnMWlxYmQ1SFJQMzQgcm9vdEBuaXhvcwo=";
       publicHostKey = pubkey.host.desktop;
       system = "x86_64-linux";
-      maxJobs = 64;
+      maxJobs = 2;
       speedFactor = 5;
       supportedFeatures = [ "kvm" "big-parallel" ];
       mandatoryFeatures = [ "big-parallel" ];

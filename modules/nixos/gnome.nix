@@ -6,6 +6,7 @@
 }: let
     cfg = config.gui.gnome;
 in {
+ 
     options.gui.gnome = {
         enable = lib.mkEnableOption "GNOME Graphical User Interface";
         

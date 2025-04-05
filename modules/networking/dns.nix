@@ -50,8 +50,8 @@
                     name = ".";
                     forward-tls-upstream = "yes"; 
                     forward-addr = [ 
-                        "8.8.8.8@853#dns.google" 
-                        "8.8.4.4@853#dns.google"
+                        "1.1.1.1@853#cloudflare-dns.com"
+                        "1.0.0.1@853#cloudflare-dns.com"
                     ]; 
                 } 
             ];
