@@ -38,7 +38,7 @@ in {
                       ./../../modules/nixos/pipewire.nix
                       ./../../modules/services/pairdrop.nix
                   #    ./../../modules/nixos/cache.nix
-                      ./../../modules/networking/wg-server.nix
+                  #    ./../../modules/networking/wg-server.nix
                       ./../../modules/networking/dns.nix
                       ./../../modules/networking/default.nix
     ];
