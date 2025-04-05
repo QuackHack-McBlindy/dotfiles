@@ -49,7 +49,7 @@ in {
     boot.kernelPackages = pkgs.linuxPackages_6_1; 
     # boot.kernelPackages = pkgs.linuxPackages_latest;
 
-    modules.services.nixCache.enable = true;
+    modules.services.nixCache.enable = false;
     services.pairdrop.enable = true;
     
     my.users.enable = true;
