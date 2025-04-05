@@ -47,9 +47,9 @@ in
 
   sops.secrets = {
     u2f_keys = {
-      sopsFile = "/var/lib/sops-nix/secrets/u2f_keys.yaml"; 
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
+      sopsFile = ./../../secrets/u2f_keys.yaml; 
+      owner = config.my.users.me.name;
+      group = config.my.users.me.name;
       mode = "0440"; # Read-only for owner and group
     };
   };
@@ -59,13 +59,17 @@ in
 ###################
 # > PAM
 
+
+          
+          
+
   security.pam.u2f = {
     enable = true;
     cue = true;              # Prompts for Touch
   # interactive = false;     # Prompts for Enter keypress
     appId = "pam://yubi"; # To keep compat across devices
     origin = "pam://yubi";
-    # create key: `pamu2fcfg`
+#     create key: `pamu2fcfg`
     authFile = pkgs.writeText "u2f-mappings" (lib.concatStrings [
       user
       ":9LQVoQZaxoQ/BTFqI7PP84iW3aQtK4mgo6exBlXa/ajQJdF7/axiOCaSXlceKKx4zlPHdYbk5QN2jvP51QJasA==,pMW+NzKDm9unMiKIihpODB9bFRpCKxco0ZrA2l8N+57ht+4lCex8JztmpFic2llij1Ca9dbaIFsWqwfZeZ2beQ==,es256,+presence"

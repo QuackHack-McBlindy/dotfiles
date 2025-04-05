@@ -1,4 +1,4 @@
-# caddy-duckdns.packages.${system}.caddy;
+
 { config,inputs, pkgs, lib, ... }:
 let
 
@@ -17,21 +17,11 @@ EOF
 in
 {
   imports = [ ./../virtualization/duckdns.nix ];
+  
+  environment.systemPackages = with pkgs; [ inputs.caddy-duckdns.packages.x86_64-linux.caddy ];
 
-   networking.firewall.allowedUDPPorts = [ 443 ];
-   networking.firewall.allowedTCPPorts = [ 443 ];
-
-  systemd.services.caddy = {
-    description = "Caddy web server";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "/home/pungkula/dotfiles/modules/networking/bin/caddy run --config=/run/caddy/Caddyfile --adapter caddyfile";
-    #  ExecStart = "${self.inputs.caddy-duckdns.packages.${system}.caddy}/bin/caddy run run --config=/run/caddy/Caddyfile --adapter caddyfile";
-      User = "pungkula";
-      AmbientCapabilities = "cap_net_bind_service";
-    };
-  };
+  networking.firewall.allowedUDPPorts = [ 443 ];
+  networking.firewall.allowedTCPPorts = [ 443 ];
 
   systemd.services.caddy_config = {
     wantedBy = [ "multi-user.target" ];
@@ -53,6 +43,19 @@ in
     };
   };
 
+  systemd.services.caddy = {
+    description = "Caddy web server";
+    after = [ "network.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Environment = "XDG_DATA_HOME=/var/lib/caddy";  
+      ExecStart = "${inputs.caddy-duckdns.packages.x86_64-linux.caddy}/bin/caddy run --config=/run/caddy/Caddyfile --adapter caddyfile";
+      User = "caddy";
+      StateDirectory = "caddy";        
+      AmbientCapabilities = "cap_net_bind_service";
+    };
+  };
+
   sops.secrets = {
     caddyfile = {
       sopsFile = ./../../secrets/caddyfile.yaml;
@@ -65,7 +68,15 @@ in
   users.users.caddy = {
     isSystemUser = true;
     group = "caddy";
+    home = "/var/lib/caddy";  
+    createHome = true;        
   };
+
+
+  systemd.tmpfiles.rules = [
+    "d /var/lib/caddy 0755 caddy caddy - -"
+  ];
+ 
 
   users.groups.caddy = { };
 }

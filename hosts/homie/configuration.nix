@@ -32,10 +32,9 @@ in {
                #       ./../../modules/virtualization/vm.nix
                       ./../../modules/nixos/packages.nix
                       ./../../modules/nixos/default-apps.nix
-                      ./../../modules/nixos/users.nix
+                      ./../../modules/users.nix
                       ./../../modules/nixos/nix.nix
                       ./../../modules/nixos/fonts/default.nix
-                      ./../../modules/nixos/i18n.nix
                       ./../../modules/nixos/pipewire.nix
                       ./../../modules/services/pairdrop.nix
                       ./../../modules/nixos/cache.nix
@@ -53,6 +52,10 @@ in {
     modules.services.nixCache.enable = true;
     services.pairdrop.enable = true;
     
+    my.users.enable = true;
+
+    
+    
     # services.udev.packages = [ pkgs.alsa-ucm-conf ];
 
     # This value determines the NixOS release from which the default
@@ -64,3 +67,7 @@ in {
     # system.stateVersion = "24.05"; # Did you read the comment?
     
     }
+    
+    
+    
+

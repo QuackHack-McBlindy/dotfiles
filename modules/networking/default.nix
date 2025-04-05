@@ -83,7 +83,7 @@ in {
         };
         hosts = {
             "192.168.1.1" = [ "router.lan" "router.local" "router" ];
-            "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
+            "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" ];
             "192.168.1.211" = [ "homie.lan" "homie.local" "homie" "cache" ];
             "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
             "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
@@ -119,9 +119,11 @@ in {
             };
         };  
         
-        nameservers = lib.mkMerge [
-            (lib.mkIf (config.networking.hostName == "homie") (lib.mkForce [ "127.0.0.1" ]))
-            (lib.mkIf (config.networking.hostName != "homie") (lib.mkForce [ "192.168.1.211" ]))
+        #nameservers = lib.mkMerge [
+        #    (lib.mkIf (config.networking.hostName == "homie") (lib.mkForce [ "127.0.0.1" ]))
+        #    (lib.mkIf (config.networking.hostName != "homie") (lib.mkForce [ "192.168.1.211" ]))
+        nameservers = [
+            "8.8.8.8"
         ];
         firewall = {
             enable = true;

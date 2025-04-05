@@ -71,50 +71,50 @@
     validateSopsFiles = false;
     age.keyFile = "/var/lib/sops-nix/age.age";
     age.generateKey = true;
-    secrets = {
-      secretservice = {
-        sopsFile = ./../secrets/secretservice.yaml;
-        owner = config.users.users.secretservice.name;
-        group = config.users.groups.secretservice.name;
-        mode = "0440"; # Read-only for owner and group
-      };
-    };
+  #  secrets = {
+  #    secretservice = {
+  #      sopsFile = ./../secrets/secretservice.yaml;
+  #      owner = config.my.users.me.name;
+  #      group = config.my.users.me.name;
+  #      mode = "0440"; # Read-only for owner and group
+  #    };
+   # };
   };  
-  systemd.services.secretservice = {
-    script = ''
-        echo "
-        Hey bro! I'm a service, and imma send this secure password:
-        $(cat ${config.sops.secrets.secretservice.path})
-        located in:
-        ${config.sops.secrets.secretservice.path}
-        to database and hack the mainframe
-        " > /var/lib/secretservice/testfile
-   '';
-    serviceConfig = {
-      User = "secretservice";
-      WorkingDirectory = "/var/lib/secretservice";
-    };
-  };
+ # systemd.services.secretservice = {
+ #   script = ''
+ #       echo "
+ #       Hey bro! I'm a service, and imma send this secure password:
+  #      $(cat ${config.sops.secrets.secretservice.path})
+  #      located in:
+ #       ${config.sops.secrets.secretservice.path}
+ #       to database and hack the mainframe
+ #       " > /var/lib/secretservice/testfile
+ #  '';
+ #   serviceConfig = {
+ #     User = "secretservice";
+ #     WorkingDirectory = "/var/lib/secretservice";
+#    };
+#  };
 
 
   sops.secrets = {
     mosquitto = {
       sopsFile = ./../secrets/mosquitto.yaml; 
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
+      owner = config.my.users.me.name;
+      group = config.my.users.me.name;
       mode = "0440"; # Read-only for owner and group
     };
 
     w = {
       sopsFile = ./../secrets/w.yaml;
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
+      owner = config.my.users.me.name;
+      group = config.my.users.me.name;
       mode = "0440"; # Read-only for owner and group
     };
     resrobot = {
       sopsFile = ./../secrets/resrobot.yaml;
-      owner = config.users.users.secretservice.name;
-      group = config.users.groups.secretservice.name;
+      owner = config.my.users.me.name;
+      group = config.my.users.me.name;
       mode = "0440"; # Read-only for owner and group
     };
   };
@@ -124,8 +124,8 @@
  # sops.secrets = {
 #   smb = {
 #      sopsFile = "/var/lib/sops-nix/secrets/smb.yaml"; 
-  #    owner = config.users.users.secretservice.name;
- #    group = config.users.groups.secretservice.name;
+  #    owner = config.my.users.me.name;
+ #    group = config.my.users.me.name;
   #    mode = "0440"; # Read-only for owner and group
  #   };
 #  };
@@ -133,8 +133,8 @@
 #  sops.secrets = {
  #   smbb = {
  #     sopsFile = "/var/lib/sops-nix/secrets/smbb.yaml"; 
-#      owner = config.users.users.secretservice.name;
- #     group = config.users.groups.secretservice.name;
+#      owner = config.my.users.me.name;
+ #     group = config.my.users.me.name;
 #      mode = "0440"; # Read-only for owner and group
 #    };
 #  };

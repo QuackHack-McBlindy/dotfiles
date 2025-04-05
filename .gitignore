@@ -18,6 +18,7 @@ home/.local/share/piper/*
 home/.config/ha
 home/.config/home-assistant
 result/
+modules/NIX
 
 modules/networking/caddy.nix.save
 borg_settings.txt

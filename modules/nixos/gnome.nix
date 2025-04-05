@@ -3,31 +3,47 @@
     config,
     lib,
     ...
-} : let
+}: let
     cfg = config.gui.gnome;
 in {
     options.gui.gnome = {
         enable = lib.mkEnableOption "GNOME Graphical User Interface";
-        background = {
-            enable = lib.mkEnableOption "GNOME Wallpaper";
-            file = lib.mkOption {
-                type = lib.types.path;
-                default = ./../../home/.config/wallpaper.png;
-                description = "Path to the background file";
-            };
-        };
-        autoLogin = lib.mkOption {
-            type = lib.types.bool;
-            default = true;
-            description = "Enable automatic login for GNOME";
-        };
         
+        background = lib.mkOption {
+            type = lib.types.nullOr lib.types.path;
+            default = null;
+            description = "Path to GNOME wallpaper";
+        };
+
+        autoLogin = lib.mkOption {
+            type = lib.types.submodule {
+                options = {
+                    enable = lib.mkOption {
+                        type = lib.types.bool;
+                        default = true;
+                        description = "Enable automatic login for GNOME";
+                    };
+                };
+            };
+            default = {};
+        };
+
+        xserver = lib.mkOption {
+            type = lib.types.submodule {
+                options = {
+                    enable = lib.mkOption {
+                        type = lib.types.bool;
+                        default = false;
+                        description = "Enable X server configuration for GNOME";
+                    };
+                };
+            };
+            default = {};
+        };
     };
 
-    config = lib.mkIf cfg.enable {
-        # Workaround for GNOME autologin: https://github.com/NixOS/nixpkgs/issues/103746#issuecomment-945091229
-        systemd.services."getty@tty1".enable = lib.mkForce (!cfg.autoLogin);
-        systemd.services."autovt@tty1".enable = lib.mkForce (!cfg.autoLogin);
+    config = lib.mkIf cfg.enable (lib.mkMerge [
+    {
 
         environment.systemPackages = with pkgs; [
             pkgs.gtk2
@@ -61,6 +77,7 @@ in {
             pkgs.nautilus
         ];
 
+
         services.udev.packages = [ pkgs.gnome-settings-daemon ];
         services.gnome.at-spi2-core.enable = true;
 
@@ -90,14 +107,36 @@ in {
                 pkgs.gnome-clocks
                 pkgs.gnome-contacts
             ]);   
-
-        # Custom background configuration
+        
+        
+        # Background configuration (keep unchanged)
         services.xserver.desktopManager.gnome.extraGSettingsOverrides =
-            lib.mkIf cfg.background.enable ''
+            lib.mkIf (cfg.background != null) ''
                 [org.gnome.desktop.background]
-                picture-uri='file://${cfg.background.file}'
+                picture-uri='file://${cfg.background}'
                 [org.gnome.desktop.screensaver]
-                picture-uri='file://${cfg.background.file}'
+                picture-uri='file://${cfg.background}'
             '';
-    };}
+    }
 
+    (lib.mkIf cfg.xserver.enable {
+        services.xserver = {
+            enable = true;
+            displayManager.gdm.enable = true;
+            desktopManager.gnome.enable = true;
+            layout = "se";
+            xkbVariant = "";
+        };
+        console.keyMap = "sv-latin1";
+    })
+    
+    (lib.mkIf cfg.autoLogin.enable {
+        systemd.services."getty@tty1".enable = false;
+        systemd.services."autovt@tty1".enable = false;
+        services.xserver.displayManager.autoLogin = {
+            enable = true;
+            user = "pungkula";
+        };
+    })   
+    ]);}
+    

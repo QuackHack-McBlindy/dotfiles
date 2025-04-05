@@ -38,9 +38,7 @@
             src = ./caddy-src;
             runVend = true;
             vendorHash = "sha256-lhycz8kaZajH0cXPu7nJn8xpjD8Rohv8qtbFaz+Yn1w=";
-    #        vendorHash = null;  # Let Go handle vendor syncing
-          #  vendorHash = "sha256-c9A0LabGN8gIq2pL/WP8wst3y0+8f72K015QZrX9yq4=";
-            # vendorHash = pkgs.lib.fakeHash;
+
 
             meta = {
               homepage = "https://caddyserver.com";
