@@ -37,7 +37,7 @@ in {
                       ./../../modules/nixos/fonts/default.nix
                       ./../../modules/nixos/pipewire.nix
                       ./../../modules/services/pairdrop.nix
-                      ./../../modules/nixos/cache.nix
+                  #    ./../../modules/nixos/cache.nix
                       ./../../modules/networking/wg-server.nix
                       ./../../modules/networking/dns.nix
                       ./../../modules/networking/default.nix
@@ -49,7 +49,7 @@ in {
     boot.kernelPackages = pkgs.linuxPackages_6_1; 
     # boot.kernelPackages = pkgs.linuxPackages_latest;
 
-    modules.services.nixCache.enable = false;
+ #  modules.services.nixCache.enable = false;
     services.pairdrop.enable = true;
     
     my.users.enable = true;

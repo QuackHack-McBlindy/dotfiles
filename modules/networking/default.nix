@@ -159,20 +159,20 @@ in {
         };
     };
 
-    boot.initrd.network = {
-        enable = true;
-        ssh = {
-            enable = true;
-            port = 22;
-            hostKeys = [
-                "/home/initrduser/initrd_ed25519_key"
-            ];
-            authorizedKeys = [
-                pubkey.desktop
-                pubkey.laptop
-            ];
-        };  
-    };
+ #   boot.initrd.network = {
+ #       enable = true;
+ #       ssh = {
+#            enable = true;
+#            port = 22;
+#            hostKeys = [
+#                "/home/initrduser/initrd_ed25519_key"
+#            ];
+#            authorizedKeys = [
+#                pubkey.desktop
+#                pubkey.laptop
+#            ];
+#        };  
+#    };
   
     users.groups.initrduser = { }; 
     users.users.initrduser = {
