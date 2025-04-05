@@ -39,7 +39,7 @@ in {
         log-lines = 15;
         min-free = 1073741824; # 1GB
         max-free = 8589934592; # 8GB
-        builders-use-substitutes = true;
+        builders-use-substitutes = false;
         allowed-users = [
           "@wheel"
           "builder"
