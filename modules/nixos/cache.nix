@@ -3,7 +3,6 @@
 let
   inherit (lib) mkEnableOption mkOption types mkIf mkDefault;
   cfg = config.modules.services.nixCache;
-  username = "pungkula";
 in {
   options.modules.services.nixCache = {
     enable = mkEnableOption "Self-hosted Nix binary cache data";
@@ -16,13 +15,13 @@ in {
 
     user = mkOption {
       type = types.str;
-      default = username;
+      default = "root";
       description = "User to own the cache resources";
     };
 
     publicKey = mkOption {
       type = types.str;
-      default = "cache-1:/pbj1Agw2OoSSDcClS69RHa1aNcwwTOX3GIEGKYwPc=";
+      default = "cache:/pbj1Agw2OoSSDcClS69RHa1aNcwwTOX3GIEGKYwPc=";
       description = "Public key for the cache";
     };
 
@@ -34,8 +33,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    nix.settings.trusted-public-keys = [ cfg.publicKey ];
-
     services.nix-serve = {
       enable = true;
       port = cfg.port;
@@ -53,7 +50,7 @@ in {
       };
     };
 
-    system.activationScripts.sshConfig = {
+    system.activationScripts.cacheConfig = {
       text = ''
         mkdir -p /etc/nix
         cat ${config.sops.secrets.nix_cache_private_key.path} > /etc/nix/private-key.pem

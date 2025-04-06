@@ -2,6 +2,7 @@
   config, 
   pkgs,
   lib,
+  user,
   home-manager,
   ... 
 } : let
@@ -27,8 +28,8 @@ in {
   ];
 
   programs.home-manager.enable = true;
-  home.username = config.my.users.name;
-  home.stateVersion = config.system.stateVersion; # 22.11"; 
+  home.username = "${user}";
+  home.stateVersion = "24.05"; # 22.11"; 
 #  nixpkgs.config = { allowUnfree = true; };
 
   home.packages = with pkgs; [

@@ -1,4 +1,5 @@
-{ config,
+{ 
+  config,
   lib,
   pkgs,
   ...
@@ -70,7 +71,7 @@ in {
      	};
 	
      	extraOptions = ''
-	        download-buffer-size = 4194304
+	        download-buffer-size = 2097152
      	    connect-timeout = 15
      	    http-connections = 50   
             

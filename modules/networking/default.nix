@@ -26,40 +26,24 @@
         face = lib.listToAttrs (map (h: { name = h.name; value = h.face or null; }) hostsList);
     };
 
-    initrdConfig = ''
-        "@INITRDKEY@"
-    '';
-     
     sopsEntry = host: {
         sopsFile = ./../../secrets/hosts/${host}/${host}_wireguard_private.yaml;
-        owner = "wgqr";
-        group = "wgqr";
+        owner = "pungkula";
+        group = "pungkula";
         mode = "0440";
     };
     sopsSecrets = lib.listToAttrs (map (h: { name = "${h}_wireguard_private"; value = sopsEntry h; }) hosts) // {
-        initrd_ed25519_key = {
-            sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
-            owner = "initrduser";
-            group = "initrduser";
-            mode = "0440";
-        };
+    #    initrd_ed25519_key = {
+    #        sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
+    #        owner = "initrduser";
+    #        group = "initrduser";
+    #        mode = "0440";
+    #    };
     };
 
-    splitHorizon = lib.optionals (currentHost == "homie") [ ./unbound.nix ];
-    reverseProxy = lib.optionals (currentHost == "nasty") [ ./caddy2.nix ];
-    
     currentInterface = host.face.${config.networking.hostName};
     currentIp = host.ip.${config.networking.hostName};
     currentHost = "${config.networking.hostName}";
- 
-    initrdFile = 
-        pkgs.runCommand "initrdFile"
-            { preferLocalBuild = true; }
-            ''
-                cat > $out <<EOF
-${initrdConfig}
-EOF
-            ''; 
 in {
 
     imports = [
@@ -84,7 +68,7 @@ in {
         hosts = {
             "192.168.1.1" = [ "router.lan" "router.local" "router" ];
             "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" "cache" ];
-            "192.168.1.211" = [ "homie.lan" "homie.local" ];
+            "192.168.1.211" = [ "homie.lan" "homie.local" "homie" ];
             "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
             "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
             "192.169.1.223" = [ "shield.lan" "shield.local" "shield" ];
@@ -137,52 +121,5 @@ in {
         resolvconf = {  
             useLocalResolver = true;
         };
-    };      
-
-    systemd.services.initrd_setup = {
-        wantedBy = [ "multi-user.target" ];
-
-        preStart = ''
-            touch /home/initrduser/initrd_ed25519_key
-            sed -e "/@INITRDKEY@/{
-                r ${config.sops.secrets.initrd_ed25519_key.path}
-                d
-            }" ${initrdFile} > /home/initrduser/initrd_ed25519_key
-        '';
-    
-        serviceConfig = {
-            ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
-            Restart = "on-failure";
-            RestartSec = "2s";
-            RuntimeDirectory = [ "initrduser" ];
-            User = "initrduser";
-        };
-    };
-
-  #  boot.initrd.secrets = {
- #       "/etc/ssh/initrd_ed25519_key" = "/home/initrduser/initrd_ed25519_key";
- #   };
-
- #   boot.initrd.network = {
- #       enable = true;
- #       ssh = {
-  #          enable = true;
- #           port = 22;
- #           hostKeys = [
- #               "/home/initrduser/initrd_ed25519_key"
-#            ];
-#            authorizedKeys = [
-         #       pubkey.desktop
-       #         pubkey.laptop
-#            ];
-#        };  
-#    };
-  
-    users.groups.initrduser = { }; 
-    users.users.initrduser = {
-        group = "initrduser";
-        home = "/home/initrduser";
-        createHome = true;
-        isSystemUser = true;
-
+        
     };}
