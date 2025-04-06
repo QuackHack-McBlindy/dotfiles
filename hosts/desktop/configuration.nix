@@ -53,7 +53,7 @@ in {
         enable = true;
         yubikey.enable = true;
         builder.enable = true;
-        builder.sshKeys = [ pubkey.desktop pubkey.laptop pubkey.nasty pubkey.homie ];
+        builder.sshKeys = [ pubkey.builder ];
     };
     modules.services.nixCache.enable = true;
     
