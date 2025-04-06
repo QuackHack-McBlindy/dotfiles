@@ -25,41 +25,25 @@
         ip   = lib.listToAttrs (map (h: { name = h.name; value = h.ip or null; }) hostsList);
         face = lib.listToAttrs (map (h: { name = h.name; value = h.face or null; }) hostsList);
     };
-
-    initrdConfig = ''
-        "@INITRDKEY@"
-    '';
-     
+  
     sopsEntry = host: {
         sopsFile = ./../../secrets/hosts/${host}/${host}_wireguard_private.yaml;
-        owner = "wgqr";
-        group = "wgqr";
+        owner = "pungkula";
+        group = "pungkula";
         mode = "0440";
     };
     sopsSecrets = lib.listToAttrs (map (h: { name = "${h}_wireguard_private"; value = sopsEntry h; }) hosts) // {
-        initrd_ed25519_key = {
-            sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
-            owner = "initrduser";
-            group = "initrduser";
-            mode = "0440";
-        };
+      #  initrd_ed25519_key = {
+      #      sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
+      #      owner = "initrduser";
+      #      group = "initrduser";
+      #      mode = "0440";
+      #  };
     };
 
-    splitHorizon = lib.optionals (currentHost == "homie") [ ./unbound.nix ];
-    reverseProxy = lib.optionals (currentHost == "nasty") [ ./caddy2.nix ];
-    
     currentInterface = host.face.${config.networking.hostName};
     currentIp = host.ip.${config.networking.hostName};
     currentHost = "${config.networking.hostName}";
- 
-    initrdFile = 
-        pkgs.runCommand "initrdFile"
-            { preferLocalBuild = true; }
-            ''
-                cat > $out <<EOF
-${initrdConfig}
-EOF
-            '';
  
 in {
 
@@ -78,13 +62,12 @@ in {
                   persistentKeepalive = 25;
                 }
             ];
-        };
-    };    
-    users.groups.wgqr = { }; 
-    users.users.wgqr = {
-        group = "wgqr";
-        home = "/home/wgqr";
-        createHome = true;
-        isSystemUser = true;
+        };    
+  #  users.groups.wgqr = { }; 
+  #  users.users.wgqr = {
+  #      group = "wgqr";
+  #      home = "/home/wgqr";
+  #      createHome = true;
+  #      isSystemUser = true;
     };}
 

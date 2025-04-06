@@ -26,47 +26,23 @@
         face = lib.listToAttrs (map (h: { name = h.name; value = h.face or null; }) hostsList);
     };
 
-    initrdConfig = ''
-        "@INITRDKEY@"
-    '';
-     
+    domain = config.sops.secrets.domain.path; 
     sopsEntry = hostName: {
         sopsFile = ./../../secrets/hosts/${hostName}/${hostName}_wireguard_private.yaml;
         owner = "wgqr";
         group = "wgqr";
         mode = "0440";
     };
-
-    splitHorizon = lib.optionals (currentHost == "homie") [ ./unbound.nix ];
-    reverseProxy = lib.optionals (currentHost == "nasty") [ ./caddy2.nix ];
-    
-    domain = config.sops.secrets.domain.path; 
-    
+  
     currentInterface = host.face.${config.networking.hostName};
     currentIp = host.ip.${config.networking.hostName};
     currentHost = "${config.networking.hostName}";
- 
-    initrdFile = 
-        pkgs.runCommand "initrdFile"
-            { preferLocalBuild = true; }
-            ''
-                cat > $out <<EOF
-${initrdConfig}
-EOF
-            '';
- 
 in {
 
     sops.secrets = lib.listToAttrs (map (h: {
         name = "${h}_wireguard_private";
         value = sopsEntry h;
     }) hosts) // {
-        initrd_ed25519_key = {
-            sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
-            owner = "initrduser";
-            group = "initrduser";
-            mode = "0440";
-        };
         domain = {
             sopsFile = ./../../secrets/domain.yaml;
             owner = "wgqr";
@@ -76,7 +52,6 @@ in {
     };
     
     networking = {   
-        # WireGuard
         wireguard.interfaces.wg0 = {
             ips = [ "${host.wgip.homie}/24" ];
             listenPort = 51820;
@@ -124,91 +99,6 @@ in {
             '';
         };
     };
-  
-#    systemd.services.generate-wg-qr = {
-#        serviceConfig = {
-#            Type = "oneshot";
- #           User = "wgqr";
- #           Group = "wgqr";
- #           Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
-#        };
- #       script = ''
-  #          QR_DIR="/home/wgqr"
-  #          ${pkgs.coreutils}/bin/rm -f "$QR_DIR/${device}.conf" "$QR_DIR/${device}.png"
-   #         ${lib.concatMapStringsSep "\n" (device: ''
-   #             TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
-                
-  #              ${pkgs.coreutils}/bin/cat > "$TEMP_DIR/template.conf" <<EOF
-  #              [Interface]
-  #              PrivateKey = @PRIVATE_KEY@
-  #              Address = ${host.wgip.${device}}/24
-  #              DNS = 192.168.1.211
-
- #               [Peer]
-  #              PublicKey = ${pubkey.wireguard.homie}
-   #             AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
- #               Endpoint = ${domain}:51820
-  #              PersistentKeepalive = 25
-  #              EOF
-
-   #             ${pkgs.gnused}/bin/sed -i \
-   #               -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
-  #                "$TEMP_DIR/template.conf"
-
- #               ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "$QR_DIR/${device}.conf"
-  #             ${pkgs.qrencode}/bin/qrencode -t PNG -o "$QR_DIR/${device}.png" -r "$QR_DIR/${device}.conf"
-
-  #              ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
-   #             ${pkgs.coreutils}/bin/chmod 440 "$QR_DIR/${device}."*
-#            '') mobileDevices}
-#        '';
-  #      wantedBy = [ "multi-user.target" ];
-#    };
- 
-#    systemd.services.generate-wg-qr = {
-#        serviceConfig = {
-#            Type = "oneshot";
-#            User = "wgqr";
-#            Group = "wgqr";
-#            Environment = "PATH=${lib.makeBinPath [ pkgs.coreutils pkgs.qrencode pkgs.gnused ]}";
-#        };
-#        script = let
-            # Delete existing QR files for all mobile devices
-#            deleteCommands = lib.concatMapStringsSep "\n" (d: ''
-#                ${pkgs.coreutils}/bin/rm -f "/home/wgqr/${d}.conf" "/home/wgqr/${d}.png"
-#            '') mobileDevices;
-            # Generate new QR files for each device
-#            generateCommands = lib.concatMapStringsSep "\n" (device: ''
-#                TEMP_DIR="$(${pkgs.coreutils}/bin/mktemp -d)"
-#                cat > "$TEMP_DIR/template.conf" <<EOF
-#                [Interface]
-#                PrivateKey = @PRIVATE_KEY@
-#                Address = ${host.wgip.${device}}/24
-#                DNS = 192.168.1.211
-
-#                [Peer]
-#                PublicKey = ${pubkey.wireguard.homie}
-#                AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
-#                Endpoint = ${domain}:51820
-#                PersistentKeepalive = 25
-#                EOF
-
-#                ${pkgs.gnused}/bin/sed -i \
-#                  -e "s|@PRIVATE_KEY@|$(${pkgs.coreutils}/bin/cat ${config.sops.secrets."${device}_wireguard_private".path})|" \
-#                  "$TEMP_DIR/template.conf"
-
-#                ${pkgs.coreutils}/bin/mv "$TEMP_DIR/template.conf" "/home/wgqr/${device}.conf"
-#                ${pkgs.qrencode}/bin/qrencode -t PNG -o "/home/wgqr/${device}.png" -r "/home/wgqr/${device}.conf"
-#                ${pkgs.coreutils}/bin/rm -rf "$TEMP_DIR"
-#            '') mobileDevices;
-#        in ''
-#            ${deleteCommands}
-#            ${generateCommands}
-#            chmod 440 /home/wgqr/*.conf /home/wgqr/*.png
-#        '';
-#        wantedBy = [ "multi-user.target" ];
-#    };
-
 
     systemd.services.generate-wg-qr = {
         serviceConfig = {
