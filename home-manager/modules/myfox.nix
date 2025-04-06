@@ -109,7 +109,7 @@
 
           
           # SEARCH ENGINES
-          search.default = "DuckDuckGo";
+          search.default = "ddg";
           search.engines =
           {
             "Nix Packages" = {
@@ -127,14 +127,14 @@
             
             "NixOS Options" = {
               urls = [{ template = "https://search.nixos.org/options?channel=unstable&from=0&size=50&sort=relevance&type=packages&query={searchTerms}"; }];
-              iconUpdateURL = "https://search.nixos.org/favicon.ico";
+              icon = "https://search.nixos.org/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@no" ];
              };
 
             "NixOS Wiki" = {
               urls = [{ template = "https://wiki.nixos.org/index.php?search={searchTerms}"; }];
-              iconUpdateURL = "https://wiki.nixos.org/favicon.png";
+              icon = "https://wiki.nixos.org/favicon.png";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@nw" ];
             };
@@ -155,20 +155,20 @@
 
             "Tradera" = {
               urls = [{ template = "https://www.tradera.com/search?q={searchTerms}"; }];
-              iconUpdateURL = "https://www.tradera.com/favicon.ico";
+              icon = "https://www.tradera.com/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@tr" ];
             };
             
             "Hitta" = {
               urls = [{ template = "https://www.hitta.se/s%C3%B6k?vad={searchTerms}"; }];
-              iconUpdateURL = "https://www.hitta.se/favicon.ico";
+              icon = "https://www.hitta.se/favicon.ico";
               updateInterval = 24 * 60 * 60 * 1000; # every day
               definedAliases = [ "@hi" ];
             };
 
-            "Bing".metaData.hidden = true;
-            "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+            "bing".metaData.hidden = true;
+            "google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
           };
         }; 
       

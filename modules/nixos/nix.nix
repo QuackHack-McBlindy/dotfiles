@@ -30,7 +30,7 @@ in {
             hostName = "desktop";
             sshUser = "builder";
             sshKey = "/root/.ssh/id_ed25519_builder";
-            publicHostKey = pubkey.host.builder;
+            #publicHostKey = pubkey.host.builder;
             system = "x86_64-linux";
             maxJobs = 4;
             speedFactor = 5;
@@ -75,7 +75,7 @@ in {
      	    http-connections = 50   
             
      	    show-trace = true                 
-            trace-function-calls = true       
+            trace-function-calls = false       
      	'';
 	
      	gc = {

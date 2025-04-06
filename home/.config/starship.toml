@@ -227,7 +227,7 @@ disabled = false
 read_only = "🔒"
 read_only_style = "red"
 truncation_symbol = ""
-home_symbol = "🏠  HOME"
+home_symbol = "🦆🏠  HOME"
 use_os_path_sep = true
 
 [directory.substitutions]

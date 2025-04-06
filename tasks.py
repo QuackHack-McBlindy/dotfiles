@@ -137,24 +137,31 @@ def deploy(c, hostname, local=False):
         invoke deploy HOSTNAME --local # Rebuild remotely and apply configuration
     """
     ssh_target = f"{SSH_USER}@{hostname}"
+    flake_attr = f".#nixosConfigurations.{hostname}.config.system.build.toplevel"
 
     if local:
         print(f"🚀 Rebuilding configuration on {hostname} using flakes...")
-        subprocess.run(["ssh", ssh_target, f"sudo nixos-rebuild switch --flake {DOTFILES_DIR}#{hostname}"], check=True)
-
+        subprocess.run([
+            "ssh", ssh_target,
+            f"sudo nixos-rebuild switch --flake {DOTFILES_DIR}#{hostname}"
+        ], check=True)
     else:
-        print(f"🔨 Building NixOS configuration locally for {hostname} using flakes...")
-        subprocess.run(["nix", "build", f"{hostname}"], check=True)
+        print(f"🔨 Building NixOS configuration locally for {hostname}...")
+        subprocess.run(["nix", "build", flake_attr], check=True)
 
         print(f"🚀 Copying system closure to {hostname}...")
-        subprocess.run(["nix", "copy", "--substitute-on-destination", "--to", f"ssh://{ssh_target}", "/run/current-system"], check=True)
+        subprocess.run([
+            "nix", "copy", "--substitute-on-destination",
+            "--to", f"ssh://{ssh_target}", "./result"
+        ], check=True)
 
         print(f"🔄 Activating configuration on {hostname}...")
-        subprocess.run(["ssh", ssh_target, "sudo nixos-rebuild switch --target-host", hostname], check=True)
+        subprocess.run([
+            "ssh", ssh_target,
+            f"sudo nixos-rebuild switch --flake {DOTFILES_DIR}#{hostname} --no-build"
+        ], check=True)
 
     print("✅ Deployment complete!")
-
-
 
 ## BUILD
 
