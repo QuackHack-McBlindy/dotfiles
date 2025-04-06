@@ -26,20 +26,20 @@
         face = lib.listToAttrs (map (h: { name = h.name; value = h.face or null; }) hostsList);
     };
 
-    sopsEntry = host: {
-        sopsFile = ./../../secrets/hosts/${host}/${host}_wireguard_private.yaml;
-        owner = "pungkula";
-        group = "pungkula";
-        mode = "0440";
-    };
-    sopsSecrets = lib.listToAttrs (map (h: { name = "${h}_wireguard_private"; value = sopsEntry h; }) hosts) // {
+   # sopsEntry = host: {
+   #     sopsFile = ./../../secrets/hosts/${host}/${host}_wireguard_private.yaml;
+   #     owner = "pungkula";
+   #     group = "pungkula";
+   #     mode = "0440";
+   # };
+#    sopsSecrets = lib.listToAttrs (map (h: { name = "${h}_wireguard_private"; value = sopsEntry h; }) hosts) // {
     #    initrd_ed25519_key = {
     #        sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
     #        owner = "initrduser";
     #        group = "initrduser";
     #        mode = "0440";
     #    };
-    };
+#    };
 
     currentInterface = host.face.${config.networking.hostName};
     currentIp = host.ip.${config.networking.hostName};
@@ -49,7 +49,7 @@ in {
     imports = [
         ./../services/fail2ban.nix
     ];
-    sops.secrets = sopsSecrets;
+ #   sops.secrets = sopsSecrets;
     
     services.resolved = { 
         enable = false;
