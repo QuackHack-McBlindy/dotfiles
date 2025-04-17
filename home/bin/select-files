@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# Initialize an empty string for selected files
+selected_files=""
+
+# Function to update the preview window with selected files
+update_preview() {
+    echo "$selected_files" | awk 'BEGIN{FS="\n"} {print "--- Selected Files ---"} {print $0}'
+}
+
+# Start the fzf selection loop
+while true; do
+    # Use fzf to select files or directories, and bind Ctrl+X to finish the selection
+    selection=$(find . -type d -o -type f | fzf --multi \
+        --preview "echo \"$selected_files\" | awk 'BEGIN{FS=\"\n\"} {print \"--- Selected Files ---\"} {print \$0}'" \
+        --bind 'ctrl-x:abort')  # Ctrl + X to finish the selection
+
+    # If a file or directory is selected
+    if [[ -n "$selection" ]]; then
+        # If it's a directory, add all files from that directory (including subdirectories)
+        if [[ -d "$selection" ]]; then
+            # Add all files in the selected directory and subdirectories, each on a new line
+            selected_files=$(find "$selection" -type f -print0 | xargs -0 -I {} echo "$selected_files"$'\n'"{}")
+        else
+            # If it's a file, just add the selected file
+            selected_files="$selected_files"$'\n'"$selection"
+        fi
+    else
+        break  # Exit the loop if no file or directory is selected (Ctrl + X to finish)
+    fi
+done
+
+# Output the final list of selected files
+echo "You have selected the following files:"
+echo "$selected_files"
+

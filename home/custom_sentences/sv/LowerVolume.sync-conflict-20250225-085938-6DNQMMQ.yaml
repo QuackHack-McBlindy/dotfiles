@@ -1,0 +1,7 @@
+language: "sv"
+intents:
+  LowerVolume:
+    data:
+      - sentences:
+          - "sänk volymen"          
+

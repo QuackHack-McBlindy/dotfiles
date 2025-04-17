@@ -1,0 +1,35 @@
+    language: "sv"
+    intents:
+      MusicGenerator:
+        data:
+          - sentences:
+              - "(skapa|skapat|skapar|generera|gör|fixa) en {genre} låt om {prompt}"
+
+    lists:
+      prompt:
+        wildcard: true
+      genre:
+        values:
+          - in: "(hip-hop|hiphop|hip hop)"
+            out: "hip-hop"  
+          - in: "(rap|rapp)"
+            out: "rap"
+          - in: "pop"
+            out: "pop"
+          - in: "rock"
+            out: "rock"        
+          - in: "(death metal|death metall|död metal|död metall|döds metal|döds metall)"
+            out: "death metal" 
+          - in: "(tung metal|tung metall|heavy metal|heavy metall)"
+            out: "heavy metal"        
+          - in: "(metall|metal)"
+            out: "metal"        
+          - in: "dubstep"
+            out: "dubstep"       
+          - in: "blues"
+            out: "blues"       
+          - in: "(chill|lugn|lugna)"
+            out: "chill"              
+       
+    
+    

@@ -1,0 +1,11 @@
+language: "sv"
+intents:
+  SimpleReminder:
+    data:
+      - sentences:
+          - "påminn mig (att|om) {reminder}"
+          - "glöm (ej|inte) [att] {reminder}"
+        #  . "kom ihåg [att] {reminder}"
+lists:
+  reminder:
+    wildcard: true          

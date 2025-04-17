@@ -1,0 +1,19 @@
+version: '3.8'
+services:
+    zigbee2mqtt:
+        container_name: zigbee2mqtt
+        image: koenkk/zigbee2mqtt
+        restart: unless-stopped
+        volumes:
+            - /home/pungkula/z2m:/app/data
+            - /run/udev:/run/udev:ro
+        ports:
+            # Frontend port
+            - 6262:8080
+        environment:
+            - TZ=Europe/Berlin
+        devices:
+            # Make sure this matched your adapter location
+            - /dev/ttyUSB0:/dev/ttyUSB0
+        #    - /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/ttyUSB0
+            ## - /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0:/ttyACM0

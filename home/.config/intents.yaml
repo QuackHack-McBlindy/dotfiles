@@ -1,0 +1,21 @@
+mediaController:
+  script: mediaController.py 192.168.1.223 {{ search }} {{ typ }}
+  packages: python3 python3Packages.requests python3Packages.python-dotenv python312Packages.sh
+  speech: Jag fixar det.
+
+musicGenerator:
+  script: musicGen.py {{ genre }} {{ prompt }}
+  packages: python3 python3Packages.requests python3Packages.python-dotenv python312Packages.sh
+  speech: Jag genererar några låter åt dig, och återkommer med musiken när dom är klara.
+  
+
+Time:
+  script: time.py
+  packages: python3
+  speech: Klockan är {output}
+ 
+
+noIntent:
+  script: noIntent.py {input}
+  packages: python3 python312Packages.requests python312Packages.python-dotenv
+  speech: {output}

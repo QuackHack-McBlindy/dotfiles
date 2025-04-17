@@ -1,0 +1,32 @@
+language: "sv"
+intents:
+  smoothdestinations:
+    data:
+      - sentences:
+          - "(när|vilken) [tid] går bussen till {destination}"
+          - "buss {destination}"        
+         # - "när går bussen från {departure} till {destination}"
+         # - "vilken tid går bussen från {departure} till {destination}"
+         # - "när går nästa buss från {departure} till {destination}"
+        #  - "vilken tid går nästa buss från {departure} till {destination}"
+       #   - "hur lång tid är det till nästa buss från {departure} till {destination}"
+       #   - "när går nästa {departure} till {destination}"
+       #   - "vilken tid går nästa {departure} till {destination}"
+       #   - "hur lång tid är det till nästa {departure} till {destination}"
+
+lists:
+  destination:
+    values:
+      - in: "(röbäck|rödbäck|rödbeck|röbeck|mamma)"
+        out: "röbäck"
+      - in: "(vasa|vasaplan|vasatlån)"
+        out: "vasaplan"
+      - in: "(sjukhuset|sjuk huset|sjukan)"
+        out: "sjukhuset"
+      - in: "(umedalen|umeådalen|ume dalen|umeå dalen)"
+        out: "umedalen"
+      - in: "(umeå|umeå centrum|umeå c|tåg station|tåg stationen)"
+        out: "umeå c"
+      - in: "(hörnefors|hörnfors|pappa)"
+        out: "hörnefors"        
+

@@ -1,0 +1,51 @@
+#!/bin/bash
+# [ Select files over SSH ]
+# ------------------------
+
+# Prompt for the remote hostname or IP address
+read -p "Enter the remote host (hostname or IP): " remote_host
+
+# Function to display the contents of a directory using 'ls' on the remote host
+list_directory() {
+    local path="$1"
+    ssh "$remote_host" "ls -p $path"  # -p adds slashes after directories
+}
+
+# Recursive function to handle directory navigation
+navigate_directory() {
+    local current_path="$1"
+    
+    # Show the contents of the current directory, including a "Back" option if we're not at the root
+    if [[ "$current_path" != "~" ]]; then
+        list=$(echo -e "Back\n$(list_directory "$current_path")")
+    else
+        list=$(list_directory "$current_path")
+    fi
+
+    # Show the list in gum and capture the selection
+    selected_item=$(echo "$list" | gum choose --height 20)
+
+    # Handle "Back" option or file/directory selection
+    if [[ "$selected_item" == "Back" ]]; then
+        # Go up one directory level
+        navigate_directory "$(dirname "$current_path")"
+    else
+        # If the selected item is a directory, enter it
+        if [[ "$selected_item" == */ ]]; then
+            choice=$(gum choose "Enter directory" "Select directory")
+
+            if [[ "$choice" == "Enter directory" ]]; then
+                navigate_directory "$current_path/$selected_item"
+            else
+                echo "You selected directory: $current_path/$selected_item"
+            fi
+        else
+            # If a file is selected, just print it
+            echo "You selected file: $current_path/$selected_item"
+        fi
+    fi
+}
+
+# Start navigation from the home directory
+navigate_directory "~"
+

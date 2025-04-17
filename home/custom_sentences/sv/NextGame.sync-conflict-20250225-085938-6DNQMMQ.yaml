@@ -1,0 +1,6 @@
+language: "sv"
+intents:
+  NextGame:
+    data:
+      - sentences:
+          - "[när] [är] nästa [löven] match"

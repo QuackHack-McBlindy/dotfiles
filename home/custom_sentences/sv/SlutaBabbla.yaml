@@ -1,0 +1,8 @@
+language: "sv"
+intents:
+  SlutaBabbla:
+    data:
+      - sentences:
+          - "[sluta] babbla"
+          - "sluta prata"
+    

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# This script lists all files in the current directory and extracts one-liner descriptions from scripts.
+
+# Directory where the scripts are stored (current directory in this case)
+SCRIPT_DIR="."
+
+# Define color codes for formatting
+BOLD_WHITE='\033[1;37m'
+YELLOW='\033[0;33m'
+RESET='\033[0m'
+
+# Print the header
+echo -e "${BOLD_WHITE}COMMAND${RESET}\t\t${YELLOW}DESCRIPTION${RESET}"
+echo -e "----------------------------------------"
+
+# Loop through all files in the directory
+for file in "$SCRIPT_DIR"/*; do
+    # Check if it's a regular file
+    if [ -f "$file" ]; then
+        # Get the file name (basename)
+        file_name=$(basename "$file")
+        
+        # Extract the first comment line after the shebang (skip the first line if it's #!/bin/bash)
+        description=$(tail -n +2 "$file" | head -n 1 | grep -E '^# ' | sed 's/^# //')
+
+        # Print the filename in bold white and description in yellow
+        if [ -n "$description" ]; then
+            echo -e "${BOLD_WHITE}$file_name${RESET}\t\t${YELLOW}$description${RESET}"
+        else
+            echo -e "${BOLD_WHITE}$file_name${RESET}\t\t"
+        fi
+
+        # Add a blank line between each item
+        echo
+    fi
+done
+

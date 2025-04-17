@@ -1,0 +1,162 @@
+#!/bin/bash
+
+# Function to display the fun header with emojis
+fun_banner() {
+    clear
+    echo -e "\033[1;34m"
+    echo "===================================================="
+    echo "     Netboot PixieCore - Automated NixOS installer    "
+    echo "===================================================="
+    echo -e "\033[0m"
+}
+
+# Function to open the required firewall ports
+open_ports() {
+    sudo iptables -w -I nixos-fw -p udp -m multiport --dports 67,69,4011 -j ACCEPT
+    sudo iptables -w -I nixos-fw -p tcp -m tcp --dport 64172 -j ACCEPT
+}
+
+# Function to close the firewall ports
+close_ports() {
+    sudo iptables -w -D nixos-fw -p udp -m multiport --dports 67,69,4011 -j ACCEPT
+    sudo iptables -w -D nixos-fw -p tcp -m tcp --dport 64172 -j ACCEPT
+}
+
+# Function to build PixieCore
+build_pixiecore() {
+    echo "Building PixieCore..."
+    nix build -f system.nix -o /tmp/run-pixiecore
+}
+
+# Function to reboot target host after a delay
+reboot_target() {
+    local target_ip=$1
+    echo "Rebooting target $target_ip in 60 seconds..."
+    sleep 60
+    ssh root@$target_ip 'reboot'
+}
+
+# Function to set up and display the step-by-step menu
+setup_menu() {
+    fun_banner
+
+    # Step 1: Choose System
+    system_choice=$(dialog --clear --title "🖥️  Choose System" \
+        --menu "Select the system architecture:" 15 50 6 \
+        1 "i686linux" \
+        2 "x86_64linux" \
+        3 "aarch64linux" 2>&1 >/dev/tty)
+
+    # Step 2: Choose Target IP
+    target_ip=$(dialog --clear --title "🕰️  Choose Target Machine" \
+        --inputbox "Enter the IP address of the target machine:" 8 50 2>&1 >/dev/tty)
+
+    # Step 3: Choose Disk
+    disk_choice=$(dialog --clear --title "💾  Choose OS Disk" \
+        --inputbox "Enter the disk to install the OS (e.g., sda, sdb):" 8 50 2>&1 >/dev/tty)
+
+    # Store the selections in variables
+    case $system_choice in
+        1) system_type="i686linux" ;;
+        2) system_type="x86_64linux" ;;
+        3) system_type="aarch64linux" ;;
+        *) system_type="x86_64linux" ;;  # Default to x86_64linux
+    esac
+}
+
+# Function to show the final setup menu with the ability to change selections
+final_setup_menu() {
+    fun_banner
+
+    # Display the current choices
+    dialog --clear --title "🎮 Final Setup" \
+        --msgbox "Current selections:
+System: $system_type
+Target IP: $target_ip
+Disk: $disk_choice
+
+You can modify any of these by selecting the corresponding option." 15 50
+
+    # Allow the user to change any of the options
+    choice=$(dialog --clear --title "🎮 Final Setup" \
+        --menu "Choose an action:" 15 50 6 \
+        1 "Change System ($system_type)" \
+        2 "Change Target IP ($target_ip)" \
+        3 "Change Disk ($disk_choice)" \
+        4 "Proceed with Build & Netboot" \
+        5 "❌ Exit" 2>&1 >/dev/tty)
+
+    case $choice in
+        1)
+            # Change system
+            system_choice=$(dialog --clear --title "🖥️  Choose System" \
+                --menu "Select the system architecture:" 15 50 6 \
+                1 "i686linux" \
+                2 "x86_64linux" \
+                3 "aarch64linux" 2>&1 >/dev/tty)
+
+            case $system_choice in
+                1) system_type="i686linux" ;;
+                2) system_type="x86_64linux" ;;
+                3) system_type="aarch64linux" ;;
+            esac
+            final_setup_menu
+            ;;
+        2)
+            # Change Target IP
+            target_ip=$(dialog --clear --title "🕰️  Choose Target Machine" \
+                --inputbox "Enter the IP address of the target machine:" 8 50 2>&1 >/dev/tty)
+            final_setup_menu
+            ;;
+        3)
+            # Change Disk
+            disk_choice=$(dialog --clear --title "💾  Choose OS Disk" \
+                --inputbox "Enter the disk to install the OS (e.g., sda, sdb):" 8 50 2>&1 >/dev/tty)
+            final_setup_menu
+            ;;
+        4)
+            # Proceed with Build & Netboot
+            return 0
+            ;;
+        5)
+            # Exit and close ports
+            close_ports
+            clear
+            dialog --msgbox "Thanks for using the Automated Installer! Bye Bye 👋" 15 50
+            exit 0
+            ;;
+        *)
+            # Invalid choice, continue
+            final_setup_menu
+            ;;
+    esac
+}
+
+# Main Loop
+while true; do
+    setup_menu
+    final_setup_menu
+    choice=0
+
+    if [[ $choice -eq 0 ]]; then
+        # Step 1: Build PixieCore
+        build_pixiecore
+
+        # Step 2: Open required firewall ports
+        open_ports
+
+        # Step 3: Reboot target machine after a delay
+        reboot_target $target_ip
+
+        # Step 4: Run PixieCore
+        echo "Running PixieCore..."
+        sudo $(realpath /tmp/run-pixiecore)
+
+        # Keep script active, waiting for exit
+        echo "PixieCore is running. Press Ctrl+C to exit."
+        wait
+
+        # Step 5: Close firewall ports when exiting
+        close_ports
+    fi
+done

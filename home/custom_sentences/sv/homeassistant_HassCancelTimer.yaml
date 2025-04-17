@@ -1,0 +1,12 @@
+language: "sv"
+intents:
+  HassCancelTimer:
+    data:
+      - sentences:
+          - "<timer_cancel>[ min ] timer"
+          - "<timer_cancel>[ min ] <timer_start> timer"
+          - "<timer_cancel>[ min ] timer för <timer_start>"
+          - "<timer_cancel>[ min ] {area} timer"
+          - "<timer_cancel>[ min ] timer i <area>"
+          - "<timer_cancel>[ min ] {timer_name:name} timer"
+          - "<timer_cancel>[ min ] timer för {timer_name:name}"

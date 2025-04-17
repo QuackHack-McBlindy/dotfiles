@@ -1,0 +1,11 @@
+#!/bin/bash
+# [ Deploy local config to specified remote host. ]
+# ------------------------
+
+
+set -euxo pipefail
+
+hostname="$1"
+addr="${2:-$hostname}"
+
+nixos-rebuild switch --flake ".#$hostname" --target-host "$addr" --use-remote-sudo --show-trace

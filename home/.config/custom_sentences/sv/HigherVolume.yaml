@@ -1,0 +1,6 @@
+language: "sv"
+intents:
+  HigherVolume:
+    data:
+      - sentences:
+          - "höj volymen"

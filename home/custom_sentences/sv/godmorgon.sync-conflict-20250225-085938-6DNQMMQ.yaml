@@ -1,0 +1,12 @@
+language: "sv"
+intents:
+  Godmorgon:
+    data:
+      - sentences:
+          - "godmorgon"
+          - "god morgon"
+          - "morgon"
+          - "morsning"
+          - "morsning morsning"
+          - "hej på dig"
+          - "hej och god morgon"

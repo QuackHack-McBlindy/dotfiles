@@ -1,0 +1,37 @@
+#!/bin/bash
+# [ Creates a new ed25510 keypair and sets permissions. ]
+# ------------------------
+
+# Set file path for the SSH key
+KEY_PATH="$HOME/.ssh/id_ed25519"
+
+# Check if the key already exists
+if [ ! -f "$KEY_PATH" ]; then
+    # Generate SSH key pair without passphrase if the key does not exist
+    ssh-keygen -t ed25519 -f "$KEY_PATH" -N "" > /dev/null 2>&1
+
+    # Check if the key generation was successful
+    if [ $? -eq 0 ]; then
+        # Set appropriate permissions for the SSH directory and files
+        chmod 700 ~/.ssh
+        chmod 600 "$KEY_PATH"
+        chmod 644 "$KEY_PATH.pub"
+        chmod 600 ~/.ssh/authorized_keys
+        chown -R $USER:$USER ~/.ssh
+
+        # Success message
+        echo "----------"
+        echo "Generated ed25519 keypair and set SSH Permissions successfully!"
+        echo "----------"
+        echo "Your public key is:"
+        echo "-----------"
+        cat "$KEY_PATH.pub"
+    else
+        # Handle key generation failure
+        echo "Error: Key generation failed."
+    fi
+else
+    # If the key already exists, inform the user
+    echo "The key $KEY_PATH already exists. No new key has been generated."
+fi
+

@@ -1,0 +1,14 @@
+language: "sv"
+intents:
+  Ask:
+    data:
+      - sentences:
+          - "fråga {question} "
+          - "jag har en (fråga|fundering) {question} "
+          - "jag undrar {question} "
+          - "har du någon aning om {question}"
+          - "google {question}"
+lists:
+  question:
+    wildcard: true
+

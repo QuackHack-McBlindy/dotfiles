@@ -1,0 +1,131 @@
+#!/bin/sh
+
+#####################
+# GUM CHOOSE
+
+export GUM_CHOOSE_CURSOR="👉 "  # Pointing finger for selection
+export GUM_CHOOSE_CURSOR_FOREGROUND="214"  # Orange
+export GUM_CHOOSE_HEADER="🎯 Make your choice!"  # Fun header
+export GUM_CHOOSE_HEADER_FOREGROUND="45"  # Blue-Green
+export GUM_CHOOSE_SELECTED_PREFIX="✅ "  # Green checkmark for selected items
+export GUM_CHOOSE_UNSELECTED_PREFIX="⚪ "  # Empty circle for unselected
+export GUM_CHOOSE_CURSOR_PREFIX="🔥 "  # Fire icon for the cursor
+export GUM_CHOOSE_ITEM_FOREGROUND="15"  # White
+export GUM_CHOOSE_SELECTED_FOREGROUND="46"  # Green
+
+# Set behavior
+export GUM_CHOOSE_HEIGHT="12"  # Show more options
+export GUM_CHOOSE_SHOW_HELP="true"  # Show keybinds
+export GUM_CHOOSE_NO_LIMIT="true"  # Allow multiple selections
+
+##################
+# GUM CONFIRM
+
+export GUM_CONFIRM_PROMPT_FOREGROUND="214"  # Orange
+export GUM_CONFIRM_SELECTED_FOREGROUND="46"  # Green for selected option
+export GUM_CONFIRM_SELECTED_BACKGROUND="0"  # Black background
+export GUM_CONFIRM_UNSELECTED_FOREGROUND="244"  # Gray for unselected
+export GUM_CONFIRM_UNSELECTED_BACKGROUND="0"  # Black background
+
+# Custom messages
+export GUM_CONFIRM_AFFIRMATIVE="👍 Yes"
+export GUM_CONFIRM_NEGATIVE="👎 No"
+export GUM_CONFIRM_SHOW_HELP="true"  # Show help keybinds
+
+# Behavior
+export GUM_CONFIRM_TIMEOUT="10s"  # Auto-cancel after 10s
+
+
+####################
+# GUM PAGER
+
+export GUM_PAGER_FOREGROUND="46"  # Bright green text
+export GUM_PAGER_BACKGROUND="0"  # Black background
+export GUM_PAGER_LINE_NUMBER_FOREGROUND="214"  # Orange line numbers
+export GUM_PAGER_MATCH_FOREGROUND="51"  # Cyan match text
+export GUM_PAGER_MATCH_HIGHLIGHT_FOREGROUND="235"  # Dark match highlight
+export GUM_PAGER_MATCH_HIGHLIGHT_BACKGROUND="225"  # Pink highlight
+export GUM_PAGER_HELP_FOREGROUND="244"  # Gray help text
+
+# Enable features
+export GUM_PAGER_SHOW_LINE_NUMBERS="true"  # Show line numbers
+export GUM_PAGER_SOFT_WRAP="true"  # Enable soft wrapping
+export GUM_PAGER_TIMEOUT="30s"  # Auto-exit after 30 seconds
+
+
+#######################
+# GUM STYLE
+
+export FOREGROUND="46"  # Bright green text
+export BACKGROUND="0"  # Black background
+export BORDER="rounded"  # Rounded border for a cool look
+export BORDER_FOREGROUND="214"  # Orange border
+export BORDER_BACKGROUND="0"  # Black background
+export ALIGN="center"  # Center the text
+export HEIGHT="3"  # Set height for better visibility
+export WIDTH="40"  # Define width for a neat display
+export MARGIN="1 1"  # Add some space around
+export PADDING="1 2"  # Give text some breathing room
+export BOLD="true"  # Make text bold
+export ITALIC="true"  # Add style with italics
+export UNDERLINE="true"  # Emphasize text with underline
+
+
+###################
+# GUM FILE
+
+export GUM_FILE_CURSOR="🔍"
+export GUM_FILE_CURSOR_FOREGROUND="214"  # Orange
+export GUM_FILE_SYMLINK_FOREGROUND="51"  # Cyan
+export GUM_FILE_DIRECTORY_FOREGROUND="33"  # Yellow
+export GUM_FILE_FILE_FOREGROUND="15"  # White
+export GUM_FILE_PERMISSIONS_FOREGROUND="244"  # Gray
+export GUM_FILE_SELECTED_FOREGROUND="196"  # Red
+export GUM_FILE_FILE_SIZE_FOREGROUND="35"  # Magenta
+export GUM_FILE_HEADER_FOREGROUND="45"  # Blue-Green
+
+# Set behavior
+export GUM_FILE_PATH="$HOME"  # Start browsing from home
+export GUM_FILE_ALL="true"  # Show hidden files
+export GUM_FILE_FILE="true"  # Allow selecting files
+export GUM_FILE_DIRECTORY="true"  # Allow selecting directories
+export GUM_FILE_SHOW_HELP="true"  # Show help key binds
+export GUM_FILE_TIMEOUT="30s"  # Auto-exit after 30s
+export GUM_FILE_HEADER="🎉 Pick a file or folder! 🎉"
+export GUM_FILE_HEIGHT="15"  # Show more entries
+
+
+#########################
+# GUM LOG
+
+export GUM_LOG_LEVEL="info"
+export GUM_LOG_LEVEL_FOREGROUND="51"  # Cyan
+export GUM_LOG_TIME_FOREGROUND="208"  # Orange
+export GUM_LOG_PREFIX_FOREGROUND="45"  # Blue-Green
+export GUM_LOG_MESSAGE_FOREGROUND="15"  # White
+export GUM_LOG_SEPARATOR_FOREGROUND="244"  # Gray
+
+# Set behavior
+export GUM_LOG_FORMATTER="text"  # Keep it simple
+export GUM_LOG_TIME="15:04:05"  # Show only time
+export GUM_LOG_MIN_LEVEL="debug"  # Show all logs
+export GUM_LOG_PREFIX="🚀 LOG"  # Fun prefix
+
+
+#######################
+# GUM INPUT
+
+export GUM_INPUT_PROMPT="💬 "  # Chat bubble prompt
+export GUM_INPUT_PROMPT_FOREGROUND="214"  # Orange prompt color
+export GUM_INPUT_CURSOR_MODE="blink"  # Blinking cursor for effect
+export GUM_INPUT_CURSOR_FOREGROUND="51"  # Cyan cursor color
+export GUM_INPUT_PLACEHOLDER="Start typing... ✍️"  # Fun placeholder
+export GUM_INPUT_PLACEHOLDER_FOREGROUND="244"  # Gray placeholder text
+export GUM_INPUT_HEADER="🔍 Enter your input below:"  # Fun header
+export GUM_INPUT_HEADER_FOREGROUND="45"  # Blue-Green header color
+export GUM_INPUT_WIDTH="30"  # Limit input width for a neat look
+export GUM_INPUT_SHOW_HELP="true"  # Show help keybinds
+export GUM_INPUT_TIMEOUT="20s"  # Auto-cancel after 20 seconds
+
+
+#################

@@ -1,0 +1,37 @@
+#!/bin/bash
+# [ Description Here! ]
+# ------------------------
+
+
+# List of remote hosts (IP addresses or hostnames)
+hosts=("laptop" "pungis@nasty" "hassio@ha")
+
+# Path where the generated pubkey.nix file will be stored
+output_file="pubkey.nix"
+
+# Initialize the pubkey.nix content
+echo "{" > "$output_file"
+
+# Loop over the hosts to collect public keys
+for host in "${hosts[@]}"; do
+  echo "Fetching public keys from $host..."
+
+  # Fetch the SSH public key for the user (replace with appropriate user, e.g. root, if needed)
+  ssh_key=$(ssh "$host" "cat ~/.ssh/authorized_keys")
+
+  # Remove any leading/trailing whitespace from the key
+  ssh_key=$(echo "$ssh_key" | tr -d '[:space:]')
+
+  # Ensure the ssh_key is not empty
+  if [[ -n "$ssh_key" ]]; then
+    # Add the key to the pubkey.nix file with the appropriate key name
+    echo "  ${host} = \"$ssh_key\";" >> "$output_file"
+  else
+    echo "No SSH key found on $host. Skipping..."
+  fi
+done
+
+# Close the pubkey.nix file
+echo "}" >> "$output_file"
+
+echo "pubkey.nix file generated successfully."

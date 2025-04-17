@@ -1,0 +1,6 @@
+#!/bin/bash
+# [ Description Here! ]
+# ------------------------
+sudo nix run --option experimental-features "nix-command flakes" nixpkgs#nixos-facter -- -o /home/pungkula/dotfiles/hosts/$HOSTNAME/facter.json
+
+

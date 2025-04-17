@@ -1,0 +1,167 @@
+homeassistant: true
+mqtt:
+  server: mqtt://192.168.1.181
+  user: mqtt
+  password: QwertY123
+serial:
+  port: >-
+    /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0
+frontend:
+  port: 8099
+advanced:
+  homeassistant_legacy_entity_attributes: false
+  legacy_api: false
+  legacy_availability_payload: false
+  log_syslog:
+    app_name: Zigbee2MQTT
+    eol: /n
+    host: localhost
+    localhost: localhost
+    path: /dev/log
+    pid: process.pid
+    port: 123
+    protocol: tcp4
+    type: '5424'
+  transmit_power: 9
+  channel: 15
+  last_seen: ISO_8601_local
+  network_key:
+    - 86
+    - 208
+    - 29
+    - 190
+    - 33
+    - 225
+    - 60
+    - 93
+    - 199
+    - 70
+    - 36
+    - 29
+    - 123
+    - 129
+    - 73
+    - 40
+  pan_id: 60410
+device_options:
+  legacy: false
+availability: true
+permit_join: false
+devices:
+  '0x0017880104540411':
+    friendly_name: PC
+  '0x001788010361b842':
+    friendly_name: WC 1
+  '0x0017880102de8570':
+    friendly_name: Rustning
+  '0x0017880103406f41':
+    friendly_name: WC 2
+  '0x0017880103eafdd6':
+    friendly_name: Tak Hall
+  '0x0c4314fffe179b05':
+    friendly_name: Fläkt
+  '0x000b57fffe0e2a04':
+    friendly_name: Vägg
+  '0x000b57fffe0f0807':
+    friendly_name: IKEA 5 Dimmer
+  '0x00178801021311c4':
+    friendly_name: Motion Sensor Hall
+  '0x70ac08fffe9fa3d1':
+    friendly_name: Motion Sensor Kök
+    description: batteri bytt 2022/09/27
+  '0xf4b3b1fffeaccb27':
+    friendly_name: Motion Sensor Sovrum
+    description: batteri bytt 2022/09/27
+  '0x00178801001ecdaa':
+    friendly_name: Bloom
+  '0x70ac08fffe6497be':
+    friendly_name: On/Off Switch 1
+    description: batteri bytt 2022/09/27
+  '0x70ac08fffe65211e':
+    friendly_name: On/Off Switch 2
+    description: batteri bytt 2022/09/27
+  '0x0017880102f0848a':
+    friendly_name: Spotlight kök 1
+  '0x0017880102f08526':
+    friendly_name: Spotlight Kök 2
+  '0x0017880103e0add1':
+    friendly_name: Golvet
+  '0x0017880103a0d280':
+    friendly_name: Uppe
+  '0x0017880103ca6e95':
+    friendly_name: Dimmer Switch Kök
+  '0x0017880104f77d61':
+    friendly_name: Dimmer Switch Sovrum
+  '0x0017880106156cb0':
+    friendly_name: Taket Sovrum 1
+  '0x0017880103c7467d':
+    friendly_name: Taket Sovrum 2
+  '0x0017880103f44b5f':
+    friendly_name: Dörr
+  '0x0017880109ac14f3':
+    friendly_name: Sänglampa
+  '0x0017880104051a86':
+    friendly_name: Sänggavel
+  '0x0017880104f78065':
+    friendly_name: Dimmer Switch Vardagsrum
+  '0xa4c1380afa9f7f3e':
+    friendly_name: Smoke Alarm Kitchen
+  '0xa4c1382553627626':
+    friendly_name: Smart Plug . TuYa 2
+    description: |-
+      Smart Plug - TuYa 2 (White)
+      with energy consumption 
+  '0xa4c138b9aab1cf3f':
+    friendly_name: Smart Plug - TuYa 1
+    description: |-
+      Smart Plug - TuYa 1 (Orange)
+      with energy consumption 
+  '0x540f57fffe85c9c3':
+    friendly_name: Water Detector 1 Cleverio
+    description: |-
+      batteri: CR 2032
+      bytt 2023 11 augusti
+  '0x00158d00053ec9b1':
+    friendly_name: Door Sensor 1
+    description: battery 2023/08/25
+  '0x54ef4410003e58e2':
+    friendly_name: Roller Shade
+  '0xa4c13873044cb7ea':
+    friendly_name: Mellan
+groups:
+  '1':
+    friendly_name: uppe_o_nere
+    devices:
+      - 0x0017880103a0d280/11
+      - 0x0017880103e0add1/11
+  '2':
+    friendly_name: all_kitchen_lights
+    devices:
+      - 0x0017880103e0add1/11
+      - 0x0017880103a0d280/11
+      - 0x0017880102f0848a/11
+      - 0x0017880102f08526/11
+      - 0xa4c13873044cb7ea/1
+  '3':
+    friendly_name: all_bedroom_lights
+    devices:
+      - 0x00178801001ecdaa/11
+      - 0x0017880103f44b5f/11
+      - 0x0017880104051a86/11
+      - 0x0017880109ac14f3/11
+      - 0x0017880106156cb0/11
+      - 0x0017880103c7467d/11
+  '4':
+    friendly_name: all_wc_lights
+    devices:
+      - 0x001788010361b842/11
+      - 0x0017880103406f41/11
+  '5':
+    friendly_name: all_hallway_lights
+    devices:
+      - 0x000b57fffe0e2a04/1
+      - 0x0017880103eafdd6/11
+  '6':
+    friendly_name: kitchen_spotlight_group
+  '7':
+    friendly_name: kitchen_spotlights

@@ -1,0 +1,10 @@
+language: "sv"
+intents:
+  AskWiki:
+    data:
+      - sentences:
+          - "vad är {question} "
+lists:
+  question:
+    wildcard: true
+

@@ -1,0 +1,10 @@
+#!/usr/bin/env python3
+
+import subprocess
+import time
+
+while True:
+    subprocess.call(["xdotool", "mousedown", "1"])
+    time.sleep(0.01)
+    subprocess.call(["xdotool", "mouseup", "1"])
+    time.sleep(0.01)

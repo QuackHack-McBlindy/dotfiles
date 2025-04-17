@@ -1,0 +1,41 @@
+#!/bin/bash
+# This script creates a temporary file, allows the user to paste text into it, processes the text by adding spaces, and cleans up afterward.
+
+# Check if an argument (number of spaces) is provided
+if [ -z "$1" ]; then
+    echo "Usage: $0 <number_of_spaces>"
+    exit 1
+fi
+
+# Get the number of spaces to prepend
+num_spaces=$1
+
+# Create the space string (e.g., 12 spaces if the argument is 12)
+spaces=$(printf '%*s' "$num_spaces")
+
+# Create a temporary file to hold the input
+temp_file=$(mktemp)
+
+# Inform the user to paste their text
+echo "Paste your text and press Ctrl+D when done. The result will be displayed below."
+echo "Temporary file created: $temp_file"
+
+# Read input into the temporary file
+cat > "$temp_file"
+clear
+echo "--------"
+echo "--------"
+echo " "
+# Process the input by adding spaces to each line
+while IFS= read -r line; do
+    echo "$spaces$line"
+done < "$temp_file"
+
+# Clean up by removing the temporary file
+rm "$temp_file"
+echo "-------"
+echo "syntax increased $num_spaces"
+echo "-------"
+echo " "
+# Inform the user that the temporary file has been removed
+echo "Temporary file cleaned up."

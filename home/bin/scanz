@@ -1,0 +1,37 @@
+#!/bin/bash
+# [ Network scans ]
+# ------------------------
+
+# Get the network interface name used for the default route (gateway)
+interface=$(ip route | grep default | awk '{print $5}')
+
+# Get the local IP address from the correct interface
+local_ip=$(ip addr show $interface | grep inet | grep -v inet6 | awk '{print $2}' | cut -d'/' -f1)
+
+# If the IP address isn't found or is the loopback address, give an error
+if [ -z "$local_ip" ] || [ "$local_ip" == "127.0.0.1" ]; then
+  echo "Error: Unable to determine a valid local IP address. Please check your network connection."
+  exit 1
+fi
+
+# Extract the network portion (first 3 octets) for scanning
+local_network=$(echo $local_ip | cut -d'.' -f1-3)
+
+# Ensure the correct network address
+echo "Scanning network for hosts in ${local_network}.0/24..."
+
+# Perform a network scan using nmap to find all live hosts in the network
+nmap -sn ${local_network}.0/24 | while read line; do
+  # Check if a line contains an IP or hostname
+  if echo $line | grep -q "Nmap scan report"; then
+    ip=$(echo $line | awk '{print $5}')
+    # Try to get the hostname using the IP address
+    hostname=$(nslookup $ip | grep 'name =' | awk '{print $4}' | sed 's/\.$//')
+    # If nslookup doesn't return a hostname, display the IP only
+    if [ -z "$hostname" ]; then
+      hostname="Unknown"
+    fi
+    # Output the IP and hostname
+    echo "IP: $ip  Hostname: $hostname"
+  fi
+done

@@ -1,0 +1,74 @@
+# Ignore everything in the develop folder
+develop/*
+
+# Include specific files in the develop folder
+!develop/python/flake.nix
+!develop/python/.envrc
+!develop/bash
+
+home/.config/Yubico/yubikey-identity.txt
+home/.config/Yubico/*
+
+hosts/box/secrets.yaml
+hosts/watch/secrets.yaml
+
+home/.local/share/piper/
+home/.local/share/piper/*
+
+home/.config/ha
+home/.config/home-assistant
+result/
+modules/NIX
+
+modules/networking/caddy.nix.save
+borg_settings.txt
+flake.sync-conflict-20250228-033924-6RIE3DZ.lock
+flake.sync-conflict-20250228-033925-6RIE3DZ.lock
+
+key/
+**/keys.txt
+**/key.txt
+*_DECRYPTED
+**/passwd
+**/log
+**/.env
+.DS_Store          # macOS file system metadata
+Thumbs.db          # Windows thumbnail cache
+__pycache__/       # Python bytecode cache folder
+env/               # Virtual environment directory
+venv/              # Virtual environment directory
+node_modules/      # Node.js dependencies
+*.log              # General log files
+package-lock.json  # npm lock file
+yarn.lock          # Yarn lock file
+pnpm-lock.yaml     # pnpm lock file
+/dist/             # Build artifacts
+/build/            # Build output
+*.bundle.js        # Bundled JavaScript files
+*.map               # Source map files
+*.class            # Java bytecode files
+*.o                # Object files
+*.a                # Static libraries
+*~                 # Temporary files (emacs, vi, etc.)
+*.bak              # Backup files
+*.tmp              # Temporary files
+.env               # Environment variables
+*.env              # Any .env file containing secrets
+.dockerignore      # Docker ignore file
+Dockerfile         # Dockerfile (if you don’t want it tracked)
+docker-compose.yml # Docker compose config
+/test-output/      # Output of test frameworks (e.g., pytest, Mocha)
+*.iml              # IntelliJ IDEA module files
+target/            # Rust target folder
+build/             # Build output for C++ projects
+result/            # Nix build output
+**/result/
+**/result
+*.pid              # Process ID files
+*.sock             # Unix socket files
+/modules/networking/caddy/caddy-src/vendor
+**/vendor
+**/vendor/
+**/.direnv
+**/*.typed
+played_news.txt

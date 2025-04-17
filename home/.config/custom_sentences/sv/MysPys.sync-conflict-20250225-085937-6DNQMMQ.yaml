@@ -1,0 +1,9 @@
+language: "sv"
+intents:
+  MysPys:
+    data:
+      - sentences:
+          - "mys pys"
+          - "myspys"
+          - "mys belysning"
+          - "mysigt"

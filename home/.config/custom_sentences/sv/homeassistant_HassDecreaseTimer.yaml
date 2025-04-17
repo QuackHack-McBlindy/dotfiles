@@ -1,0 +1,20 @@
+language: "sv"
+intents:
+  HassDecreaseTimer:
+    data:
+      - sentences:
+          - "ta bort <timer_duration> från [min] (timer|timern)"
+          - "ta bort <timer_duration> från [min] <timer_start> (timer|timern)"
+          - "ta bort <timer_duration> från [min] (timer|timern) för <timer_start>"
+          - "ta bort <timer_duration> från [min] {area} (timer|timern)"
+          - "ta bort <timer_duration> från [min] (timer|timern) i <area>"
+          - "ta bort <timer_duration> från [min] {timer_name:name} (timer|timern)"
+          - "ta bort <timer_duration> från [min] (timer|timern) (namn|kallad|för) {timer_name:name}"
+      - sentences:
+          - "minska [min] (timer|timern) med <timer_duration>"
+          - "minska [min] <timer_start> (timer|timern) med <timer_duration>"
+          - "minska [min] (timer|timern) för <timer_start> med <timer_duration>"
+          - "minska [min] {area} (timer|timern) med <timer_duration>"
+          - "minska [min] (timer|timern) i <area> med <timer_duration>"
+          - "minska [min] {timer_name:name} (timer|timern) med <timer_duration>"
+          - "minska [min] (timer|timern) (namn|kallad|för) {timer_name:name} med <timer_duration>"

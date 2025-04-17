@@ -1,0 +1,56 @@
+language: "sv"
+intents:
+  DuckDuckFind:
+    data:
+      - sentences:
+          - "sök {type} för {search}"
+          - "hitta {type} om {search}"
+          - "slå upp {type} relaterat till {search}"
+          - "få {type} om {search}"
+          - "visa mig {type} för {search}"
+          - "ge mig {type} om {search}"
+          - "hitta {type} som nämner {search}"
+          - "sök {search} i {type}"
+          - "letar efter {type} angående {search}"
+          - "dra upp {type} för {search}"
+          - "få {type} som inkluderar {search}"
+          - "visa {type} som involverar {search}"
+          - "sök {type} kopplad till {search}"
+          - "hitta {type} associerad med {search}"
+          - "hitta {type} som nämner {search}"
+          - "ge mig {type} angående {search}"
+          - "sök {type} som täcker {search}"
+          - "hitta {type} som rör {search}"
+          - "letar efter {type} om ämnet {search}"
+          - "vad {type} [en] {search}"
+          - "när {type} {search}"
+
+lists:
+  search:
+    wildcard: true
+  type:
+    values:
+      - in: "(text|webb|webben|internet)"
+        out: "text"
+      - in: "(chat|chatt)"
+        out: "chat"
+      - in: "(dokument|filer|lokal|lokalt)"
+        out: "documents"
+      - in: "(nyhet|nyheter|artiklar)"
+        out: "news"
+      - in: "(fråga|svar)"
+        out: "answers"
+      - in: "suggestions"
+        out: "suggestions"
+      - in: "maps"
+        out: "maps"
+      - in: "(kostar|priset)"
+        out: "stocks"
+      - in: "(stänger|öppnar|öppet)"
+        out: "opening-hours"
+      - in: "(video|videos)"
+        out: "videos"
+      - in: "(bild|bilder)"
+        out: "images"
+      - in: "översätt"
+        out: "translate"

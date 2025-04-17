@@ -1,0 +1,117 @@
+#!/bin/bash
+
+# Function to display the fun header with emojis
+fun_banner() {
+    clear
+    echo -e "\033[1;34m"
+    echo "===================================================="
+    echo "        Welcome to the Ultimate System Dashboard    "
+    echo "===================================================="
+    echo -e "\033[0m"
+}
+
+# Display system stats with emojis
+display_system_info() {
+    sys_info=$(uname -a)
+    uptime_info=$(uptime -p)
+    cpu_info=$(lscpu | grep 'Model name' | cut -d ':' -f2)
+    mem_info=$(free -h | grep 'Mem' | awk '{print $3 "/" $2}')
+    disk_info=$(df -h / | tail -1 | awk '{print $3 "/" $2}')
+    
+    dialog --msgbox "\033[1;32mSystem Info 🖥️\033[0m\n\n\
+    \033[1;36mOS:\033[0m $sys_info\n\
+    \033[1;36mUptime ⏱️:\033[0m $uptime_info\n\
+    \033[1;36mCPU 💻:\033[0m $cpu_info\n\
+    \033[1;36mMemory Usage 💾:\033[0m $mem_info\n\
+    \033[1;36mDisk Usage 💽:\033[0m $disk_info" 15 50
+}
+
+# Show current date and time with a fun twist and emojis
+show_date_time() {
+    date_info=$(date "+%A, %B %d, %Y\n%H:%M:%S")
+    dialog --msgbox "\033[1;32mCurrent Date and Time 🕰️\033[0m\n\n$date_info" 15 50
+}
+
+# Check disk usage with a colorful progress bar and an emoji
+check_disk_usage() {
+    dialog --gauge "Checking Disk Usage 💾..." 10 60 0
+    sleep 1
+    for i in {1..100}; do
+        sleep 0.05
+        echo $i
+    done
+    dialog --msgbox "$(df -h)" 15 50
+}
+
+# Fun and Interactive challenge with emojis
+random_challenge() {
+    challenge_choice=$(( RANDOM % 3 ))
+    case $challenge_choice in
+        0)
+            dialog --msgbox "Can you guess the number between 1 and 10? 🎯\nYou have 3 chances!" 15 50
+            for i in {1..3}; do
+                guess=$(( RANDOM % 10 + 1 ))
+                read -p "Guess: " user_guess
+                if [ "$user_guess" -eq "$guess" ]; then
+                    dialog --msgbox "Correct! 🎉 Well done!" 15 50
+                    return
+                else
+                    dialog --msgbox "Nope, try again! 😅" 15 50
+                fi
+            done
+            dialog --msgbox "Oops! The number was $guess. Better luck next time! 😞" 15 50
+            ;;
+        1)
+            dialog --msgbox "Trivia: Who invented the telephone? 📞" 15 50
+            select answer in "Alexander Graham Bell" "Thomas Edison" "Nikola Tesla"; do
+                if [ "$answer" == "Alexander Graham Bell" ]; then
+                    dialog --msgbox "Correct! 🎓 You’re a history buff!" 15 50
+                    return
+                else
+                    dialog --msgbox "Incorrect! The correct answer is Alexander Graham Bell. 🤔" 15 50
+                    return
+                fi
+            done
+            ;;
+        2)
+            dialog --msgbox "Here's a quick joke for you: Why don't skeletons fight each other? 💀\nBecause they don't have the guts! 😂" 15 50
+            ;;
+    esac
+}
+
+# Main Loop
+while true; do
+    fun_banner
+    viu /home/pungkula/.face  # Replace with your own image path
+
+    # Show the menu with better visual formatting and emojis
+    dialog --clear --title "System Dashboard 🖥️" \
+           --menu "Choose an option:" 15 50 6 \
+           1 "View system information 🧑‍💻" \
+           2 "View current date and time 🕰️" \
+           3 "Check disk usage 💾" \
+           4 "Random Fun Challenge 🎮" \
+           5 "Exit ❌" 2>temp.txt
+
+    choice=$(<temp.txt)
+    case $choice in
+        1)
+            display_system_info
+            ;;
+        2)
+            show_date_time
+            ;;
+        3)
+            check_disk_usage
+            ;;
+        4)
+            random_challenge
+            ;;
+        5)
+            clear
+            dialog --msgbox "Thanks for using the Ultimate System Dashboard! Goodbye! 👋" 15 50
+            exit 0
+            ;;
+    esac
+done
+
