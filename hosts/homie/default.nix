@@ -73,7 +73,7 @@
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" ];
-                networking = [ "default" "dns" "pool" "wg-server" ];
+                networking = [ "default" "dns" "pool" ];
                 services = [ "ssh" "backup" "pairdrop" "mqtt" "zigbee2mqtt" "navidrome" ];
                 programs = [ ];
                 virtualisation = [ "docker-rootless" "home-assistant" ];
