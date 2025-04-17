@@ -14,6 +14,7 @@ in {
     
     networking.hostName = config.this.host.hostname;
     networking.useDHCP = lib.mkDefault true;
+    nixpkgs.hostPlatform = config.this.host.system;
     
     yo.scripts = let
       commonHelpers = ''
