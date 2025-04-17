@@ -160,10 +160,12 @@ in {
 
           run_cmd cd "$DOTFILES_DIR"
 
-          # Initialize repository if needed
           if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             echo -e "\033[1;33m⚡ Initializing new Git repository\033[0m"
             run_cmd git init
+            if [ "$(git symbolic-ref --short -q HEAD)" != "main" ]; then
+              run_cmd git checkout -B main
+            fi
           fi
 
           # Configure remote with forced URL update
@@ -206,7 +208,7 @@ in {
           run_cmd git add .
 
           echo -e "\033[1;34m💾 Committing changes: $COMMIT_MSG\033[0m"
-          run_cmd git commit -m -- "$COMMIT_MSG"
+          run_cmd git commit -m "$COMMIT_MSG"
 
           echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch...\033[0m"
           run_cmd git push -u origin "$CURRENT_BRANCH" || {
