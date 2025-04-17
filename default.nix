@@ -225,6 +225,38 @@ in {
         '';
       };
 
+      sopse = {
+        description = "Encrypts a file with sops-nix";
+       # aliases = [ "" ];
+        code = ''
+          ${commonHelpers}
+          parse_flags "$@"
+
+          if [[ $# -eq 0 ]]; then
+            echo -e "\033[1;31m❌ Usage: yo i <input-file.yaml>\033[0m"
+            exit 1
+          fi
+
+          INPUT_FILE="$1"
+          OUTPUT_FILE="''${INPUT_FILE%.*}.enc.yaml"
+          AGE_KEY="${config.this.host.keys.publicKeys.age}"
+
+          if [[ ! -f "$INPUT_FILE" ]]; then
+            echo -e "\033[1;31m❌ Error: Input file '$INPUT_FILE' not found!\033[0m"
+            exit 1
+          fi
+
+          if [[ -z "$AGE_KEY" ]]; then
+            echo -e "\033[1;31m❌ Error: Age public key not set in config.this.host.keys.publicKeys.age\033[0m"
+            exit 1
+          fi
+
+          echo -e "\033[1;34m🔐 Encrypting '$INPUT_FILE' with Age key...\033[0m"
+          run_cmd sops --encrypt --age "$AGE_KEY" --output "$OUTPUT_FILE" "$INPUT_FILE"
+
+          echo -e "\033[1;32m✅ Encrypted: $INPUT_FILE → $OUTPUT_FILE\033[0m"
+        '';
+      };
 
       help = {
         description = "Show command documentation";

@@ -11,9 +11,7 @@
     "/mnt/disks/media4"
     "/mnt/disks/media5"
   ];
-
 in {
-
     boot = {
         loader = {
             grub.enable = true;
@@ -43,7 +41,7 @@ in {
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" ];
-                networking = [ "default" "caddy" "wg-client" ];
+                networking = [ "default" "caddy" ];
                 services = [ "ssh" "backup" "borg" ];
                 programs = [ ];
                 virtualisation = [ "docker-rootless" "arr" ];

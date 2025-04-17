@@ -53,7 +53,9 @@
                 "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
                 "192.169.1.223" = [ "shield.lan" "shield.local" "shield" ];
                 "192.169.1.152" = [ "arris.lan" "arris.local" "arris" ];
-            };                                                                                        defaultGateway = {
+            };                                                                                        
+            
+            defaultGateway = {
                 address = "192.168.1.1";
                 interface = currentInterface;
                 metric = 15;
