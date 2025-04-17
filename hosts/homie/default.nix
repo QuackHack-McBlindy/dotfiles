@@ -20,6 +20,7 @@
 { 
   config,
   lib,
+  pkgs,
   self,
   ...
 } : {
