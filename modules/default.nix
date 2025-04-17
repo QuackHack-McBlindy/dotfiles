@@ -41,7 +41,7 @@ in {
                         };
                         repo = mkOption {
                             type = types.str;
-                            default = "https://github.com/QuackHack-McBlindy/dotfiles.git";
+                            default = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                             description = "The users GitHub dotfiles repository ";
                         };
                         dotfilesDir = mkOption {
