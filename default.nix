@@ -152,84 +152,84 @@ in {
 #==================================#
 #==== BUILD    #==================#
 
-      build = {
-        description = "Build system configurations, installer ISOs, or VMs";
-        aliases = [ "b" ];
-        code = ''
-          ${commonHelpers}
+#      build = {
+ #       description = "Build system configurations, installer ISOs, or VMs";
+ #       aliases = [ "b" ];
+ #       code = ''
+ #         ${commonHelpers}
 
           # Define available host types as strings
-          ALL_HOSTS="${sysHosts}"
-          ISO_HOSTS="${isoHosts}"
-          VM_HOSTS="${vmHosts}"
+#          ALL_HOSTS="${sysHosts}"
+#          ISO_HOSTS="${isoHosts}"
+#          VM_HOSTS="${vmHosts}"
 
-          show_build_help() {
-            cat <<EOF | ${pkgs.glow}/bin/glow -
+#          show_build_help() {
+#            cat <<EOF | ${pkgs.glow}/bin/glow -
 ## 🛠️ Build Targets
 
-System hosts: $ALL_HOSTS
-ISO hosts:    $ISO_HOSTS
-VM hosts:     $VM_HOSTS
+#System hosts: $ALL_HOSTS
+#ISO hosts:    $ISO_HOSTS
+#VM hosts:     $VM_HOSTS
 
-Commands:
-  system [HOST]  - Build system configuration
-  iso [HOST]     - Create installation ISO
-  vm [HOST]      - Build virtual machine
+#Commands:
+#  system [HOST]  - Build system configuration
+#  iso [HOST]     - Create installation ISO
+#  vm [HOST]      - Build virtual machine
 
-Examples:
-  yo build system all     - Build all systems
-  yo build iso my-iso     - Create ISO for my-iso
-  yo build vm my-vm       - Build VM for my-vm
-EOF
-            exit 0
-          }
+#Examples:
+#  yo build system all     - Build all systems
+#  yo build iso my-iso     - Create ISO for my-iso
+#  yo build vm my-vm       - Build VM for my-vm
+#EOF
+#            exit 0
+#          }
 
-          parse_flags "$@"
+#          parse_flags "$@"
 
-          if [ $# -eq 0 ]; then
-            show_build_help
-          fi
+#          if [ $# -eq 0 ]; then
+#            show_build_help
+#          fi
 
-          TARGET_TYPE="''${1:-system}"
-          HOST="''${2:-all}"
-          shift 2>/dev/null
+#          TARGET_TYPE="''${1:-system}"
+#          HOST="''${2:-all}"
+#          shift 2>/dev/null
 
-          case "$TARGET_TYPE" in
-            system|s) ATTR_PREFIX="nixosConfigurations.%s.config.system.build.toplevel" ;;
-            iso|i)    ATTR_PREFIX="installerIsos.%s" ;;
-            vm|v)     ATTR_PREFIX="nixosConfigurations.%s.config.system.build.vm" ;;
-            *)         echo "Invalid target: $TARGET_TYPE"; show_build_help; exit 1 ;;
-          esac
+#          case "$TARGET_TYPE" in
+#            system|s) ATTR_PREFIX="nixosConfigurations.%s.config.system.build.toplevel" ;;
+#            iso|i)    ATTR_PREFIX="installerIsos.%s" ;;
+#            vm|v)     ATTR_PREFIX="nixosConfigurations.%s.config.system.build.vm" ;;
+#            *)         echo "Invalid target: $TARGET_TYPE"; show_build_help; exit 1 ;;
+#          esac
 
           # Get valid hosts for target type
-          case "$TARGET_TYPE" in
-            system|s) VALID_HOSTS="$ALL_HOSTS" ;;
-            iso|i)    VALID_HOSTS="$ISO_HOSTS" ;;
-            vm|v)     VALID_HOSTS="$VM_HOSTS" ;;
-          esac
+#          case "$TARGET_TYPE" in
+#            system|s) VALID_HOSTS="$ALL_HOSTS" ;;
+#            iso|i)    VALID_HOSTS="$ISO_HOSTS" ;;
+#            vm|v)     VALID_HOSTS="$VM_HOSTS" ;;
+#          esac
 
-          build_host() {
-            host="$1"
-            attr="$(printf "$ATTR_PREFIX" "$host")"
-            echo "Building $TARGET_TYPE for $host..."
-            ${pkgs.nix}/bin/nix build ".#$attr" $FLAGS
-          }
+#          build_host() {
+#            host="$1"
+#            attr="$(printf "$ATTR_PREFIX" "$host")"
+#            echo "Building $TARGET_TYPE for $host..."
+#            ${pkgs.nix}/bin/nix build ".#$attr" $FLAGS
+#          }
 
-          if [ "$HOST" = "all" ]; then
-            for host in $VALID_HOSTS; do
-              build_host "$host"
-            done
-          else
-            # Check if host exists in valid hosts
-            if ! echo " $VALID_HOSTS " | grep -q " $host "; then
-              echo "Invalid host '$host' for target $TARGET_TYPE"
-              echo "Valid options: $VALID_HOSTS"
-              exit 1
-            fi
-            build_host "$HOST"
-          fi
-        '';
-      };
+#          if [ "$HOST" = "all" ]; then
+#            for host in $VALID_HOSTS; do
+#              build_host "$host"
+#            done
+#          else
+#            # Check if host exists in valid hosts
+#            if ! echo " $VALID_HOSTS " | grep -q " $host "; then
+#              echo "Invalid host '$host' for target $TARGET_TYPE"
+#              echo "Valid options: $VALID_HOSTS"
+#              exit 1
+#            fi
+#            build_host "$HOST"
+#          fi
+#        '';
+#      };
 
 
 #==================================#

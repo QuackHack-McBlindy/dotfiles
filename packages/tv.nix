@@ -1,8 +1,8 @@
 { 
-  pkgs,
   stdenv,
+  lib,
   python3,
-} : lett
+} : let
   pythonEnv = python3.withPackages (ps: [
     ps.sounddevice
     ps.requests
@@ -13,7 +13,7 @@ stdenv.mkDerivation {
     name = "tv";
     src = ./tv;
 
-    buildInputs = [ pythonEnv pkgs.android-tools ];
+    buildInputs = [ pythonEnv ];
     propagatedBuildInputs = [ pythonEnv ];
 
     installPhase = ''

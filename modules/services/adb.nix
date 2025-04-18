@@ -17,7 +17,7 @@ ${adbkey}
 EOF
       '';    
 in {
-    config = lib.mkIf (lib.elem "atuin" config.this.host.modules.services) {
+    config = lib.mkIf (lib.elem "adb" config.this.host.modules.services) {
         environment.systemPackages = [ pkgs.android-tools self.packages.${pkgs.system}.tv ];
         systemd.services.android_config = {
             wantedBy = [ "multi-user.target" ];
@@ -27,7 +27,7 @@ in {
                     r ${config.sops.secrets.adbkey.path}
                     d
                 }" ${adbkeyFile} > /home/${config.this.user.me.name}/.android/adbkey
-                ${config.this.host.keys.publicKeys.adb} > /home/${config.this.user.me.name}/.android/adbkey.pub
+                echo '${config.this.host.keys.publicKeys.adb}' > /home/${config.this.user.me.name}/.android/adbkey.pub
             '';
             serviceConfig = {
                 ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
