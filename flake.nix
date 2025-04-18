@@ -18,16 +18,16 @@
             };
         in lib.mkFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
+            overlays = [ ];
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
             apps = lib.mkApp ./apps.nix;
             devShells.default = import ./shell.nix; 
-        };    
-      #  } // {
-      #      installerIsos = self.lib.installerIsos;
+        }; 
+            
   }
-#}
+
 
   
 

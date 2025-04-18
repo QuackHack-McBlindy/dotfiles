@@ -10,7 +10,14 @@ in
     "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
   ];
 
-  isoImage.isoName = "autoinstall-${hostConfig.this.host.hostname}.iso";
+  isoImage = {
+    isoName = "autoinstall-${hostName}.iso";
+    volumeID = "autoinstall-${hostName}"; 
+  };
+
+  # Ensures proper EFI support
+  systemd.services.sshd.wantedBy = lib.mkForce ["multi-user.target"];
+  
   services.getty.helpLine = ''
     ██████╗ ██╗   ██╗███╗   ██╗ ██████╗ ██╗  ██╗██╗   ██╗██╗      █████╗ 
     ██╔══██╗██║   ██║████╗  ██║██╔════╝ ██║ ██╔╝██║   ██║██║     ██╔══██╗

@@ -1,4 +1,4 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ self, system, inputs, pkgs ? import <nixpkgs> {} }:
 pkgs.mkShell {
   buildInputs = with pkgs; [
     python3

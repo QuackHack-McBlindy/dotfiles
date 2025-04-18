@@ -6,11 +6,19 @@ let
     type = "app";
   };
 
-#  mkFlake = { systems, hosts ? {}, modules ? [], packages ? {}, apps ? {}, devShells ? {}, ... } @ flake: 
-  mkFlakeInternal = { systems, hosts ? {}, modules ? [], packages ? {}, apps ? {}, devShells ? {}, ... } @ flake:  
+  mkFlakeInternal = { 
+    systems, 
+    hosts ? {}, 
+    modules ? [], 
+    overlays ? [], 
+    packages ? {}, 
+    apps ? {}, 
+    devShells ? {}, 
+    ... 
+  } @ flake:  
     let
-      hosts = attrs.mapHosts ../hosts;
-             
+      hosts = attrs.mapHosts ../hosts;           
+
       mkPkgs = system: pkgs: overlays: import pkgs {
         inherit system overlays;
         config.allowUnfree = true;
@@ -18,7 +26,6 @@ let
 
       nixosConfigurations = lib.mapAttrs (hostName: hostConfig:
         inputs.nixpkgs.lib.nixosSystem {
-          #system = hostConfig.system;
           system = hostName;
           specialArgs = {
             inherit self inputs;
@@ -56,7 +63,6 @@ let
           system = "x86_64-linux";
           modules = [
             ./../installer.nix
- #           hostConfig
           ];
           specialArgs = {
             inherit self inputs hostName;
@@ -64,51 +70,44 @@ let
           };
         }) (attrs.mapHosts ../hosts);
 
+      installerIsos = lib.mapAttrs (hostName: config: config.config.system.build.isoImage) installerConfigurations;
+      isoPackages = lib.mapAttrs' (hostName: iso: lib.nameValuePair "auto-installer.${hostName}" iso) installerIsos;
+
       perSystem = system: let
-        pkgs = mkPkgs system inputs.nixpkgs [];
+        pkgs = mkPkgs system inputs.nixpkgs flake.overlays;  # Use flake.overlays
       in {
-        packages = lib.mapAttrs (_: v: (mkPkgs system inputs.nixpkgs []).callPackage v {}) packages;
+        packages = lib.mapAttrs (_: v: 
+          (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {})  # Apply overlays
+          packages;
 
         apps = lib.mapAttrs (_: v:
           let
-            pkgs = mkPkgs system inputs.nixpkgs [];
+            pkgs = mkPkgs system inputs.nixpkgs flake.overlays;
           in
-            mkApp (v { inherit pkgs; })
+            mkApp (v { inherit pkgs system self inputs; })  # Pass additional args
         ) apps;
+
         devShells = lib.mapAttrs (_: v:
           let
-            pkgs = mkPkgs system inputs.nixpkgs [];
+            pkgs = mkPkgs system inputs.nixpkgs flake.overlays;
           in
-            pkgs.mkShell (v { inherit pkgs; })
+            pkgs.mkShell (v { inherit pkgs system self inputs; })  # Pass additional args
         ) devShells;
       };
     in {
-      inherit nixosConfigurations installerConfigurations;
-      
-      packages = lib.genAttrs systems (system: (perSystem system).packages);
+      inherit nixosConfigurations;
+
+      packages = lib.genAttrs systems (system:
+        (perSystem system).packages
+        // (if system == "x86_64-linux" then isoPackages else {})
+      );
+
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);
-#      installerIsos = lib.mapAttrs (hostName: config:
-#        config.config.system.build.isoImage
-#      ) installerConfigurations;
-
-#      packages = lib.genAttrs systems (system:
-#        (perSystem system).packages // (lib.filterAttrs (_: _: system == "x86_64-linux") installerIsos)
-#      );
     };
-#in {
-#  inherit mkApp mkFlake;
-#}
 in {
   inherit mkApp;
-  mkFlake = args:
-    let
-      result = mkFlakeInternal args; # your whole mkFlake function above, renamed
-    in
-      result // {
-        installerIsos = lib.mapAttrs (hostName: config:
-          config.config.system.build.isoImage
-        ) result.installerConfigurations;
-      };
+  mkFlake = args: mkFlakeInternal args;
 }
+
 
