@@ -1,6 +1,7 @@
 { 
   config,
   lib,
+  pkgs,
   stdenv,
   python3,
   ...
@@ -30,7 +31,7 @@ stdenv.mkDerivation {
   name = "tv";
   src = ./tv;
 
-  buildInputs = [ pythonEnv ];
+  buildInputs = [ pythonEnv pkgs.android-tools ];
   propagatedBuildInputs = [ pythonEnv ];
 
   installPhase = ''
@@ -70,7 +71,7 @@ stdenv.mkDerivation {
       sopsFile = ./../secrets/adbkey.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
-      mode = "0660";
+      mode = "0440";
     };
   };
 }
