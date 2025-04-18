@@ -302,36 +302,36 @@ req_sudo() {
 
 
 # Kill port process
-killport() {
+#killport() {
     # Prompt the user for the port number
-    read -p "Enter the port number to kill: " port
-
+#    read -p "Enter the port number to kill: " port
     # Find the PID of the process using the port
-    pid=$(lsof -t -i :$port)
-
+#    pid=$(lsof -t -i :$port)
     # Check if we found a PID
-    if [ -z "$pid" ]; then
+#    if [ -z "$pid" ]; then
         # No process found, print a red failure message
-        echo -e "\033[31mFailed to kill port $port, no process running on that port!\033[0m"
-        return 1
-    fi
-
+#        echo -e "\033[31mFailed to kill port $port, no process running on that port!\033[0m"
+#        return 1
+#    fi
     # Get the process name from the PID
-    process_name=$(ps -p $pid -o comm=)
-
+#    process_name=$(ps -p $pid -o comm=)
     # Kill the process
-    sudo kill -9 $pid
-
+#    sudo kill -9 $pid
     # Check if the kill was successful
-    if [ $? -eq 0 ]; then
+#    if [ $? -eq 0 ]; then
         # Successfully killed the process, print a green success message
-        echo -e "\033[32mSuccessfully killed $process_name on port $port!\033[0m"
-    else
+#        echo -e "\033[32mSuccessfully killed $process_name on port $port!\033[0m"
+#    else
         # Kill failed, print a red failure message
-        echo -e "\033[31mFailed to kill process on port $port!\033[0m"
-    fi
+#        echo -e "\033[31mFailed to kill process on port $port!\033[0m"
+#    fi
+#}
+ports() {
+  sudo lsof -iTCP -sTCP:LISTEN -nP | fzf \
+    --header='Select a listening port to inspect/kill' \
+    --preview='echo {} | awk '"'"'{print $2}'"'"' | xargs -I {} ps -fp {}' \
+    --bind 'enter:execute-silent(echo {} | awk '"'"'{print $2}'"'"' | xargs -I {} kill -9 {})+abort'
 }
-
 
 
 # File Decryption Using Yubikey & Age

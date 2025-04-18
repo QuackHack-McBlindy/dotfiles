@@ -63,14 +63,14 @@
       #video = "find /Pool/Videos -type f \( -iname '*.mp4' -o -iname '*.avi' -o -iname '*.mkv' -o -iname '*.mov' -o -iname '*.wmv' -o -iname '*.flv' -o -iname '*.webm' \) | fzf | xargs mpv";
 
       # fzf psx
-      psx = "ps aux | fzf --preview 'echo {} | awk '{print \$2}' | xargs -I {} ps --pid {}'";
-
+      psx = "ps aux | fzf --preview 'echo {} | awk '\\''{print $2}'\\'' | xargs -I {} ps --pid {}'";
+      
       ls = "lsd --tree --depth 1";
       ls2 = "lsd --tree --depth 2";
       ls3 = "lsd --tree --depth 3";
       ls4 = "lsd --tree --depth 4";
 
-      services = "systemctl-tui";
+      services = "sudo systemctl-tui";
 
       # IP addresses
       ipnr = "dig +short myip.opendns.com @resolver1.opendns.com";

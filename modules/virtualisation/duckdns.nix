@@ -58,6 +58,7 @@ in {
             hostname = "duckdns1";
             #dependsOn = [ "" ];
             autoStart = true;
+            volumes = [ "/docker/duckdns1:/config" ];
             environmentFiles = [ /run/duckdns/.1.env ];
            # environment = {
           #    PUID = toString duckdnsUID;
@@ -74,6 +75,7 @@ in {
             hostname = "duckdns2";
             #dependsOn = [ "" ];
             autoStart = true;
+            volumes = [ "/docker/duckdns2:/config" ];
             environmentFiles = [ /run/duckdns/.2.env ];
             environment = {
               PUID = "2001";
@@ -86,6 +88,7 @@ in {
             hostname = "duckdns3";
             #dependsOn = [ "" ];
             autoStart = true;
+            volumes = [ "/docker/duckdns3:/config" ];
             environmentFiles = [ /run/duckdns/.3.env ];
             environment = {
               PUID = "2001";
