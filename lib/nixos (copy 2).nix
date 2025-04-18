@@ -1,4 +1,3 @@
-# lib/nixos.nix
 { self, lib, attrs, inputs }:
 let
   mkApp = program: {
@@ -6,11 +5,33 @@ let
     type = "app";
   };
 
-#  mkFlake = { systems, hosts ? {}, modules ? [], packages ? {}, apps ? {}, devShells ? {}, ... } @ flake: 
-  mkFlakeInternal = { systems, hosts ? {}, modules ? [], packages ? {}, apps ? {}, devShells ? {}, ... } @ flake:  
+  mkFlake = { systems, hosts ? {}, modules ? [], packages ? {}, apps ? {}, devShells ? {}, ... } @ flake: 
     let
-      hosts = attrs.mapHosts ../hosts;
-             
+      # New ISO generation logic
+      hostHasDisko = hostName: 
+        builtins.pathExists (../hosts/${hostName}/disks.nix);
+
+      makeIsoConfig = hostName: hostConfig:
+        lib.nameValuePair "${hostName}-iso" (hostConfig // {
+          modules = hostConfig.modules ++ [
+            inputs.disko.nixosModules.disko
+            { disko.devices = import ../hosts/${hostName}/disks.nix; }
+            ({ config, ... }: {
+              # ISO-specific overrides
+              formatAttr = "isoImage";
+              fileSystems."/" = { 
+                device = "/dev/disk/by-label/nixos"; 
+                fsType = "tmpfs"; 
+              };
+            })
+          ];
+        });
+
+      isoHosts = lib.mapAttrs' (name: cfg: 
+        if hostHasDisko name then makeIsoConfig name cfg else null
+      ) hosts;
+
+      # Original configuration logic
       mkPkgs = system: pkgs: overlays: import pkgs {
         inherit system overlays;
         config.allowUnfree = true;
@@ -18,8 +39,7 @@ let
 
       nixosConfigurations = lib.mapAttrs (hostName: hostConfig:
         inputs.nixpkgs.lib.nixosSystem {
-          #system = hostConfig.system;
-          system = hostName;
+          system = hostConfig.system;
           specialArgs = {
             inherit self inputs;
             inherit hostName;
@@ -29,7 +49,6 @@ let
             };
           };
           modules = [
-            inputs.disko.nixosModules.disko
             inputs.home-manager.nixosModules.home-manager 
             inputs.sops-nix.nixosModules.sops
             ../.
@@ -51,30 +70,9 @@ let
           ];
         }) (attrs.mapHosts ../hosts);
 
-      installerConfigurations = lib.mapAttrs (hostName: hostConfig:
-        inputs.nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
-          modules = [
-            ./../installer.nix
- #           hostConfig
-          ];
-          specialArgs = {
-            inherit self inputs hostName;
-            hostConfig = hostConfig;
-          };
-        }) (attrs.mapHosts ../hosts);
-
-      perSystem = system: let
-        pkgs = mkPkgs system inputs.nixpkgs [];
-      in {
+      perSystem = system: {
         packages = lib.mapAttrs (_: v: (mkPkgs system inputs.nixpkgs []).callPackage v {}) packages;
-
-        apps = lib.mapAttrs (_: v:
-          let
-            pkgs = mkPkgs system inputs.nixpkgs [];
-          in
-            mkApp (v { inherit pkgs; })
-        ) apps;
+        apps = lib.mapAttrs (_: v: mkApp v) apps;
         devShells = lib.mapAttrs (_: v:
           let
             pkgs = mkPkgs system inputs.nixpkgs [];
@@ -82,33 +80,17 @@ let
             pkgs.mkShell (v { inherit pkgs; })
         ) devShells;
       };
+
     in {
-      inherit nixosConfigurations installerConfigurations;
-      
+      inherit nixosConfigurations;
+      isoConfigurations = lib.mkIf (isoHosts != {}) (
+        lib.mapAttrs (name: cfg: inputs.nixpkgs.lib.nixosSystem cfg) isoHosts
+      );
       packages = lib.genAttrs systems (system: (perSystem system).packages);
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);
-#      installerIsos = lib.mapAttrs (hostName: config:
-#        config.config.system.build.isoImage
-#      ) installerConfigurations;
-
-#      packages = lib.genAttrs systems (system:
-#        (perSystem system).packages // (lib.filterAttrs (_: _: system == "x86_64-linux") installerIsos)
-#      );
     };
-#in {
-#  inherit mkApp mkFlake;
-#}
-in {
-  inherit mkApp;
-  mkFlake = args:
-    let
-      result = mkFlakeInternal args; # your whole mkFlake function above, renamed
-    in
-      result // {
-        installerIsos = lib.mapAttrs (hostName: config:
-          config.config.system.build.isoImage
-        ) result.installerConfigurations;
-      };
-}
 
+in {
+  inherit mkApp mkFlake;
+}

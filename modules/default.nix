@@ -56,7 +56,7 @@ in {
                         };
                         extraGroups = mkOption {
                             type = types.listOf types.str;
-                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" ];
+                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" ];
                             description = "Extra groups for main user";
                         };
                         

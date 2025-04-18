@@ -14,23 +14,20 @@
         let
             lib = import ./lib {
                 inherit self inputs;
-                lib = nixpkgs.lib;
+                lib = nixpkgs.lib;      
             };
         in lib.mkFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             hosts = lib.mapHosts ./hosts;
-            modules = [ 
-                ./modules
-            #    inputs.disko.nixosModules.disko
-                inputs.home-manager.nixosModules.home-manager
-                inputs.sops-nix.nixosModules.sops
-            ];
-            specialArgs = {
-                pkgs = system: nixpkgs.legacyPackages.${system};
-            };
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
-        };
-}
+            apps = lib.mkApp ./apps.nix;
+            devShells.default = import ./shell.nix; 
+        };    
+      #  } // {
+      #      installerIsos = self.lib.installerIsos;
+  }
+#}
 
   
 

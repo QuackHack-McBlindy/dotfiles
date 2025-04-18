@@ -1,6 +1,7 @@
 { 
   config,
   lib,
+  pkgs,
   self,
   ...
 } : {
@@ -40,8 +41,7 @@
     hardware.enableAllFirmware = true;
     hardware.enableRedistributableFirmware = true;
     services.fwupd.enable = true;
-    nixpkgs.hostPlatform = lib.mkDefault "x86_64-linux";
-    
+   
     this = {
         user = {       
             enable = true;

@@ -44,7 +44,7 @@ in {
                 networking = [ "default" "caddy" ];
                 services = [ "ssh" "backup" "borg" ];
                 programs = [ ];
-                virtualisation = [ "docker-rootless" "arr" ];
+                virtualisation = [ "docker-rootless" "arr" "duckdns" ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIARvG4osF3sXi0nN1fMQecMZaUmiOADw8o6+Wis2q77O";
@@ -59,8 +59,7 @@ in {
     };                
 
     networking.firewall.allowedTCPPorts = [ 2049 ];
-    networking.firewall.allowedUDPPorts = [ 2049 ];
-
+    networking.firewall.allowedUDPPorts = [ 2049 ]; 
     services.nfs.server = {
         enable = true;
         exports = ''

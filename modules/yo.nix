@@ -28,6 +28,8 @@ let
         description = "Alternative command names for this script";
       };
     };
+    
+    
   });
 
   cfg = config.yo;
@@ -69,6 +71,8 @@ in {
     description = "Attribute set of scripts to be made available";
   };
 
+
+
   config = {
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "yo" ''
@@ -77,7 +81,7 @@ in {
 
         show_help() {
           cat <<EOF | ${pkgs.glow}/bin/glow -
-        ## ❄️🧑‍🦯 Yo! Nix OS Helper
+        ## 🦆 Yo! Waz Qwackin' yo?! 🦆🦆🥹🚀🚀🚀
         **Usage:** \`yo <command> [arguments]\`
         ## ✨ Available Commands
         | Command | Aliases | Description |
