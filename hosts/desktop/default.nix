@@ -39,7 +39,7 @@
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "node-red" "backup" "cache" "keyd" ];
+                services = [ "ssh" "adb" "node-red" "backup" "cache" "keyd" ];
                 programs = [ "thunar" ];
                 virtualisation = [ "docker" "vm" ];
             };  

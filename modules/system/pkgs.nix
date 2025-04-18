@@ -89,7 +89,7 @@
            #     inputs.voice-client.packages.x86_64-linux.voice-client
               #  inputs.say.packages.x86_64-linux.say
                 self.packages.${pkgs.system}.say
-                self.packages.${pkgs.system}.tv
+                
                # inputs.tv.packages.x86_64-linux.tv
                 # inputs.api.packages.x86_64-linux.api
             ]     

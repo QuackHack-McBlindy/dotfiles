@@ -59,7 +59,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" ];
                 networking = [ "wireless" "pool" ];
-                services = [ "ssh" "keyd" ];
+                services = [ "ssh" "adb" "keyd" ];
                 programs = [ "thunar" ];
                 virtualisation = [ ];
             };  
