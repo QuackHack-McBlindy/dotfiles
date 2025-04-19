@@ -85,6 +85,7 @@
                 pkgs.nixos-anywhere
                 pkgs.nix-serve
                 pkgs.dconf
+                pkgs.nvme-cli
                # pkgs.syncthing
            #     inputs.voice-client.packages.x86_64-linux.voice-client
               #  inputs.say.packages.x86_64-linux.say
