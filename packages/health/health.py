@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import subprocess
 import psutil
 import sys
@@ -15,47 +13,54 @@ import logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def get_disk_temperature_smartctl(disk: str):
+def get_disk_temperature(disk: str):
     try:
-        # Build command without sudo (script already runs as root)
-        cmd = ['smartctl', '-a']
         if disk.startswith('/dev/nvme'):
-            cmd.extend(['-d', 'nvme'])
-        cmd.append(disk)
-        
-        result = subprocess.run(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-            timeout=10  # Add timeout to prevent hangs
-        )
-
-        if result.returncode != 0:
-            logger.error(f"smartctl failed for {disk} (code {result.returncode}): {result.stderr}")
-            return "failed"
-
-        # Improved temperature parsing using regex
-        temp_match = re.search(
-            r'Temperature:\s+(\d+)\s+Celsius', 
-            result.stdout, 
-            re.IGNORECASE
-        )
-        
-        if temp_match:
-            return f"{temp_match.group(1)}°C"
-        
-        # Fallback for different temperature formats
-        for line in result.stdout.split('\n'):
-            if any(x in line.lower() for x in ['temperature', 'temp']):
-                parts = line.split()
-                for i, part in enumerate(parts):
-                    if part.isdigit() and (parts[i+1] if i+1 < len(parts) else '') == 'Celsius':
-                        return f"{part}°C"
-        
-        logger.warning(f"No temperature found in smartctl output for {disk}")
-        return "N/A"
-
+            # Use nvme-cli for NVMe drives
+            cmd = ['nvme', 'smart-log', disk]
+            result = subprocess.run(cmd, 
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE,
+                                  text=True,
+                                  timeout=10)
+            
+            if result.returncode != 0:
+                logger.error(f"nvme command failed for {disk}: {result.stderr}")
+                return "failed"
+            
+            # Try to find temperature using regex
+            match = re.search(r'Temperature\s*:\s*(\d+)\s*Celsius', result.stdout)
+            if not match:
+                match = re.search(r'Temperature Sensor 1\s*:\s*(\d+)\s*°C', result.stdout)
+            
+            if match:
+                return f"{match.group(1)}°C"
+            return "N/A"
+        else:
+            # Existing smartctl logic for other drives
+            cmd = ['smartctl', '-a', disk]
+            result = subprocess.run(cmd,
+                                  stdout=subprocess.PIPE,
+                                  stderr=subprocess.PIPE,
+                                  text=True,
+                                  timeout=10)
+            
+            if result.returncode != 0:
+                logger.error(f"smartctl failed for {disk}: {result.stderr}")
+                return "failed"
+            
+            # Temperature parsing for regular drives
+            for line in result.stdout.split('\n'):
+                if 'Temperature_Celsius' in line:
+                    parts = line.split()
+                    if len(parts) >= 10:
+                        return f"{parts[9]}°C"
+                elif 'Temperature' in line and 'Celsius' in line:
+                    parts = line.split()
+                    return f"{parts[-2]}°C"
+            
+            return "N/A"
+            
     except Exception as e:
         logger.error(f"Temperature error for {disk}: {str(e)}")
         return "failed"
@@ -67,7 +72,7 @@ def get_system_stats():
             "cpu_usage": psutil.cpu_percent(interval=1),
             "memory_usage": psutil.virtual_memory().percent,
             "cpu_temperature": "N/A",
-            "uptime": str(timedelta(seconds=time.time() - psutil.boot_time()),
+            "uptime": str(timedelta(seconds=time.time() - psutil.boot_time())),
             "disk_usage": {},
             "disk_temperature": {}
         }
@@ -80,7 +85,7 @@ def get_system_stats():
         except Exception as e:
             logger.error(f"CPU temp error: {e}")
 
-        # Get physical disks first
+        # Get physical disks
         lsblk_output = subprocess.check_output(
             ['lsblk', '-d', '-n', '-o', 'NAME,TYPE'],
             text=True
@@ -94,17 +99,15 @@ def get_system_stats():
         # Get temperatures for all physical disks
         disk_temp_cache = {}
         for disk in physical_disks:
-            disk_temp_cache[disk] = get_disk_temperature_smartctl(disk)
-            time.sleep(0.1)  # Add small delay between disk checks
+            disk_temp_cache[disk] = get_disk_temperature(disk)
+            time.sleep(0.1)  # Brief pause between disk checks
 
         # Map partitions to physical disks
         for partition in psutil.disk_partitions():
             try:
-                # Get disk usage
                 usage = psutil.disk_usage(partition.mountpoint).percent
                 stats["disk_usage"][partition.device] = f"{usage}%"
 
-                # Resolve symlinks and find parent
                 real_device = os.path.realpath(partition.device)
                 parent = subprocess.check_output(
                     ['lsblk', '-no', 'pkname', real_device],
@@ -113,10 +116,7 @@ def get_system_stats():
                 
                 if parent:
                     parent_disk = f"/dev/{parent}"
-                    stats["disk_temperature"][partition.device] = disk_temp_cache.get(
-                        parent_disk, 
-                        "N/A"
-                    )
+                    stats["disk_temperature"][partition.device] = disk_temp_cache.get(parent_disk, "N/A")
                 else:
                     stats["disk_temperature"][partition.device] = "N/A"
 

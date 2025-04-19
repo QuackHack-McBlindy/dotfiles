@@ -19,6 +19,8 @@ stdenv.mkDerivation {
       pythonEnv
       pkgs.psutils
       pkgs.smartmontools
+      pkgs.nvme-cli
+      pkgs.gnused
       pkgs.python312Packages.uvicorn
       pkgs.python312Packages.fastapi
       pkgs.python312Packages.psutil 
