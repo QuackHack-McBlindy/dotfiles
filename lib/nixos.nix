@@ -87,12 +87,36 @@ let
             mkApp (v { inherit pkgs system self inputs; })  # Pass additional args
         ) apps;
 
-        devShells = lib.mapAttrs (_: v:
+#        devShells = lib.mapAttrs (_: v:
+#          let
+#            pkgs = mkPkgs system inputs.nixpkgs flake.overlays;
+#          in
+#            pkgs.mkShell (v { inherit pkgs system self inputs; })  # Pass additional args
+#        ) devShells;
+
+        devShells = lib.mapAttrs (name: v:
           let
-            pkgs = mkPkgs system inputs.nixpkgs flake.overlays;
+            shellArgs = v { 
+              inherit pkgs system self inputs;
+            };
+            # Sanitize arguments for mkShell
+            sanitizedArgs = builtins.removeAttrs shellArgs [
+              "override"
+              "overrideDerivation"
+              "__functionArgs"
+              "__functor"
+            ];
           in
-            pkgs.mkShell (v { inherit pkgs system self inputs; })  # Pass additional args
+            pkgs.mkShell (sanitizedArgs // {
+              # Ensure basic shell environment
+              NIX_CONFIG = "extra-experimental-features = nix-command flakes";
+              shellHook = ''
+                echo "Entering ${name} dev shell"
+                ${shellArgs.shellHook or ""}
+              '';
+            })
         ) devShells;
+
       };
     in {
       inherit nixosConfigurations;
