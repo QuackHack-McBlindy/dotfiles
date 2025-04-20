@@ -1,4 +1,7 @@
 {
+  self,
+  inputs,
+  pkgs,
   config,
   lib,
   ...
@@ -151,7 +154,7 @@
           options = [ "NOPASSWD" ];
         }
         {
-          command = "/run/current-system/sw/bin/health";  
+          command = "${self.packages.${pkgs.system}.health}/bin/health";
           options = [ "NOPASSWD" ];
         }        
       ];
