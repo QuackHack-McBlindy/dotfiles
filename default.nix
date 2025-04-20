@@ -245,10 +245,14 @@ in {
         description = "Check system health status across hosts";
         aliases = [ "hc" ];
         requiresHost = false;
+        parameters = [
+          { name = "host"; description = "Target hostname or host alias"; }
+        ];
         code = ''
           ${commonHelpers}
           parse_flags "$@"
-          target_host="''${HOST:-${config.networking.hostName}}"
+
+          target_host="''${host:-${config.networking.hostName}}"
           valid_hosts=" ${toString sysHosts} "
 
           if [[ ! "$valid_hosts" =~ " $target_host " ]]; then
@@ -258,13 +262,21 @@ in {
           fi
 
           echo "PATH: $PATH"
+          echo "Running on host: $target_host"
 
           if [[ "$target_host" == "${config.networking.hostName}" ]]; then
-            json_output=$(run_cmd health 2>/dev/null | sed -n '/^{/,/^}$/p')
+            output=$(run_cmd health 2>&1)
           else
-            json_output=$(run_cmd ssh "$target_host" health 2>/dev/null | sed -n '/^{/,/^}$/p')
+            output=$(run_cmd ssh -tt -o "LogLevel=ERROR" "$target_host" health 2>&1)
           fi
 
+          # Optional: If you want to log the raw output for debugging, you can include this
+          # echo "RAW OUTPUT:"
+          # echo "$output"
+
+          json_output=$(echo "$output" | sed -n '/^{/,/^}$/p')
+
+          # Only print the formatted output
           echo "$json_output" | ${pkgs.jq}/bin/jq --color-output .
         '';
       };
