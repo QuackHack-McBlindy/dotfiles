@@ -6,6 +6,7 @@
   modulesPath,
   ...
 } : let
+
     hosts = [ "desktop" "laptop" "server" ]; 
     # Get hosts from flake outputs
     sysHosts = builtins.attrNames self.nixosConfigurations;
@@ -54,13 +55,13 @@ in {
           fi
         }
       '';
-    in {
-    
+    in {   
 #==================================#
 #==== SWITCH REBUILD   #==================#
       switch = {
         description = "Rebuild and switch Nix OS system configuration";
         aliases = [ "rb" ];
+        requiresHost = true;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -69,174 +70,12 @@ in {
         '';
       };
 
-
-
- #     deploy = {
-#        description = "Remote deployment to specified host";
-#        aliases = [ "d" ];
-#        code = ''
-#          ${commonHelpers}
-
-#          parse_flags "$@"
-#          if [ -z "$HOST" ]; then
-#            echo "Error: Host required for deployment"
-#            exit 1
-#          fi
-
-#          run_cmd ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
-#            --flake ".#$HOST" \
-#            --target-host "root@$HOST" \
-#           --build-host "root@$HOST" \
-#            "''${FLAGS[@]}"
-#        '';
-#      };
-
-
-
- #     deploy = {
-#        description = "Deploy to host with live configuration";
-#        code = ''
-#          #!${pkgs.bash}/bin/bash
-#          host="$1"
-#          if [[ -z "$host" ]]; then
-#            echo "Error: No host specified"
-#            exit 1
-#          fi
-
-#          ip=$(${pkgs.nix}/bin/nix eval --raw ".#nixosConfigurations.$host.config.networking.host.ip" 2>/dev/null)
-#          if [[ -z "$ip" ]]; then
-#            echo "Error: Could not find IP for host $host"
-#            exit 1
-#          fi
-
-#          echo "🚀 Deploying to $host ($ip)"
-#          ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch \
-#            --flake ".#$host" \
-#            --target-host "root@$ip" \
-#            --use-remote-sudo
-#        '';
-#      };
-
-#      host-info = {
-#        description = "Show host configuration details";
-#        code = ''
-          #!${pkgs.bash}/bin/bash
-#          host="$1"
-#          ${pkgs.nix}/bin/nix eval --json ".#nixosConfigurations.$host.config" \
-#            | ${pkgs.jq}/bin/jq
-#        '';
-#      };
-
-      encrypt-file = {
-        description = "Encrypt file for specific host";
-        code = ''
-          #!${pkgs.bash}/bin/bash
-          file="$1"
-          host="$2"
-          key=$(${pkgs.nix}/bin/nix eval --raw ".#nixosConfigurations.$host.config.this.host.keys.age")
-          ${pkgs.sops}/bin/sops --encrypt --age "$key" -i "$file"
-        '';
-      };
-
-      deploy-interactive = {
-        description = "Interactive host selection";
-        code = ''
-          #!${pkgs.bash}/bin/bash
-          host=$(${pkgs.nix}/bin/nix eval --raw --apply 'builtins.attrNames' .#nixosConfigurations \
-            | ${pkgs.jq}/bin/jq -r '.[]' \
-            | ${pkgs.fzf}/bin/fzf --prompt="Select host> ")
-          yo deploy "$host"
-        '';
-      };
-      
-#==================================#
-#==== BUILD    #==================#
-
-#      build = {
- #       description = "Build system configurations, installer ISOs, or VMs";
- #       aliases = [ "b" ];
- #       code = ''
- #         ${commonHelpers}
-
-          # Define available host types as strings
-#          ALL_HOSTS="${sysHosts}"
-#          ISO_HOSTS="${isoHosts}"
-#          VM_HOSTS="${vmHosts}"
-
-#          show_build_help() {
-#            cat <<EOF | ${pkgs.glow}/bin/glow -
-## 🛠️ Build Targets
-
-#System hosts: $ALL_HOSTS
-#ISO hosts:    $ISO_HOSTS
-#VM hosts:     $VM_HOSTS
-
-#Commands:
-#  system [HOST]  - Build system configuration
-#  iso [HOST]     - Create installation ISO
-#  vm [HOST]      - Build virtual machine
-
-#Examples:
-#  yo build system all     - Build all systems
-#  yo build iso my-iso     - Create ISO for my-iso
-#  yo build vm my-vm       - Build VM for my-vm
-#EOF
-#            exit 0
-#          }
-
-#          parse_flags "$@"
-
-#          if [ $# -eq 0 ]; then
-#            show_build_help
-#          fi
-
-#          TARGET_TYPE="''${1:-system}"
-#          HOST="''${2:-all}"
-#          shift 2>/dev/null
-
-#          case "$TARGET_TYPE" in
-#            system|s) ATTR_PREFIX="nixosConfigurations.%s.config.system.build.toplevel" ;;
-#            iso|i)    ATTR_PREFIX="installerIsos.%s" ;;
-#            vm|v)     ATTR_PREFIX="nixosConfigurations.%s.config.system.build.vm" ;;
-#            *)         echo "Invalid target: $TARGET_TYPE"; show_build_help; exit 1 ;;
-#          esac
-
-          # Get valid hosts for target type
-#          case "$TARGET_TYPE" in
-#            system|s) VALID_HOSTS="$ALL_HOSTS" ;;
-#            iso|i)    VALID_HOSTS="$ISO_HOSTS" ;;
-#            vm|v)     VALID_HOSTS="$VM_HOSTS" ;;
-#          esac
-
-#          build_host() {
-#            host="$1"
-#            attr="$(printf "$ATTR_PREFIX" "$host")"
-#            echo "Building $TARGET_TYPE for $host..."
-#            ${pkgs.nix}/bin/nix build ".#$attr" $FLAGS
-#          }
-
-#          if [ "$HOST" = "all" ]; then
-#            for host in $VALID_HOSTS; do
-#              build_host "$host"
-#            done
-#          else
-#            # Check if host exists in valid hosts
-#            if ! echo " $VALID_HOSTS " | grep -q " $host "; then
-#              echo "Invalid host '$host' for target $TARGET_TYPE"
-#              echo "Valid options: $VALID_HOSTS"
-#              exit 1
-#            fi
-#            build_host "$HOST"
-#          fi
-#        '';
-#      };
-
-
 #==================================#
 #==== CLEAN GARBAGE   #==================#
       clean = {
         description = "Run garbage collection";
         aliases = [ "gc" ];
+        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -244,27 +83,12 @@ in {
         '';
       };
 
-
-#==================================#
-#==== INFO    #==================#
-      info = {
-        description = "Show system info (JSON format)";
-        aliases = [ "i" ];
-        code = ''
-          ${commonHelpers}
-          parse_flags "$@"
-          HOST=''${HOST:-${builtins.elemAt hosts 0}}
-          run_cmd ${pkgs.nix}/bin/nix eval \
-            --json ".#nixosConfigurations.$HOST.config.system.build" \
-            "''${FLAGS[@]}"
-        '';
-      };
-
-
 #==================================#
 #==== GIT PULL    #==================#
       pull = {
         description = "Pull dotfiles repo from GitHub";
+        aliases = [ "pl" ];
+        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -288,11 +112,12 @@ in {
         '';
       };
 
-
 #==================================#
 #==== GIT PUSH    #==================#
       push = {
         description = "Push dotfiles to GitHub";
+        aliases = [ "ps" ];
+        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -357,12 +182,12 @@ in {
         '';
       };
 
-
 #==================================#
 #==== SOPS    #==================#
       sops = {
         description = "Encrypts a file with sops-nix";
-       # aliases = [ "" ];
+        aliases = [ "" ];
+        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -387,34 +212,93 @@ in {
         '';
       };
 
-
 #==================================#
-#==== HELP    #==================#
-      help = {
-        description = "Show command documentation";
-        aliases = [ "h" ];
+#==== HEALTH    #==================#
+#      health = {
+#        description = "Check system health status across hosts";
+#        aliases = [ "hc" ];
+#        requiresHost = false;
+#        code = ''
+#          ${commonHelpers}
+#          parse_flags "$@"
+#          target_host="''${HOST:-${config.networking.hostName}}"
+#          valid_hosts=" ${toString sysHosts} "
+#          if [[ ! "$valid_hosts" =~ " $target_host " ]]; then
+#            echo "Invalid host: $target_host"
+#            echo "Available hosts: ${toString sysHosts}"
+#            exit 1
+#          fi
+#          if [[ "$target_host" == "${config.networking.hostName}" ]]; then
+            # Local host
+#            echo "PATH: $PATH"
+#            run_cmd health
+#          else
+            # Remote host
+#            echo "PATH: $PATH"
+#            run_cmd ssh "$target_host" health
+#          fi | ${pkgs.jq}/bin/jq --color-output .
+#        '';
+#      };  
+
+
+      health = {
+        description = "Check system health status across hosts";
+        aliases = [ "hc" ];
+        requiresHost = false;
         code = ''
-          cat <<EOF
-          NixOS Multi-Host Management System
-          Usage: yo <command> [host] [?*] [!]
-          Commands:
-            sync|s [HOST] [?*] [!]  - Rebuild and switch configuration
-            deploy|d [HOST] [?*] [!] - Remote deployment
-            build|b [HOST] [?*] [!] - Build system configuration
-            gc [?*] [!]             - Run garbage collection
-            info|i [HOST] [?*] [!]  - Show system info (JSON)
-            pull|p [?*] [!]         - Update flake inputs
-            help|h                  - Show this help
+          ${commonHelpers}
+          parse_flags "$@"
+          target_host="''${HOST:-${config.networking.hostName}}"
+          valid_hosts=" ${toString sysHosts} "
 
-          Options:
-            ? - Increase verbosity (multiple allowed)
-            ! - Dry run mode
+          if [[ ! "$valid_hosts" =~ " $target_host " ]]; then
+            echo "Invalid host: $target_host"
+            echo "Available hosts: ${toString sysHosts}"
+            exit 1
+          fi
 
-          Available hosts: ${builtins.concatStringsSep " " hosts}
-          EOF
+          echo "PATH: $PATH"
+
+          if [[ "$target_host" == "${config.networking.hostName}" ]]; then
+            json_output=$(run_cmd health 2>/dev/null | sed -n '/^{/,/^}$/p')
+          else
+            json_output=$(run_cmd ssh "$target_host" health 2>/dev/null | sed -n '/^{/,/^}$/p')
+          fi
+
+          echo "$json_output" | ${pkgs.jq}/bin/jq --color-output .
         '';
       };
-     
-    };
-       
-}
+#==================================#
+#==== DEPLOY    #==================#
+
+      deploy = {
+        description = "Deploy NixOS configurations to remote hosts";
+        aliases = [ "d" ];
+        requiresHost = true;
+        parameters = [
+          { name = "host"; description = "SSH host/IP"; optional = false; }
+          { name = "machine"; description = "Target machine name"; optional = true; }
+          { name = "user"; description = "SSH username"; optional = true; }
+          { name = "hermetic"; description = "Use hermetic activation"; optional = true; }
+          { name = "remote"; description = "Use remote build"; optional = true; }
+        ];
+        code = ''
+          echo "🚀 Deploying nixosConfigurations.''$machine"
+          echo "👤 SSH User: ''$user"
+          echo "🌐 SSH Host: ''$host"
+          if [[ -n "''$remote" ]]; then
+            echo "🚀 Sending flake to ''$machine via nix copy..."
+            ${pkgs.nix}/bin/nix copy .#nixosConfigurations.''$machine.config.system.build.toplevel --to ssh://''$user@''$host
+          fi
+          if [[ -n "''$hermetic" ]]; then
+            echo "🤞 Activating hermetically..."
+            ${pkgs.openssh}/bin/ssh $NIX_SSHOPTS -t ''$user@''$host "sudo nixos-rebuild switch --flake .#''$machine"
+          else
+            echo "🔨 Building locally and activating remotely..."
+            ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake .#''$machine --target-host ''$user@''$host --use-remote-sudo
+          fi
+        '';
+      };
+    };}
+
+    

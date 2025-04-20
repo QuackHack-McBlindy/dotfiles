@@ -59,15 +59,15 @@ def get_disk_temperature(disk: str):
 def get_system_stats():
     stats = {
         "hostname": socket.gethostname(),
-        "cpu_usage": psutil.cpu_percent(interval=1),
-        "memory_usage": psutil.virtual_memory().percent,
-        "cpu_temperature": "N/A",
         "uptime": str(timedelta(seconds=time.time() - psutil.boot_time())),
+        "cpu_usage": psutil.cpu_percent(interval=1),
+        "cpu_temperature": "N/A",
+        "memory_usage": psutil.virtual_memory().percent,
         "disk_usage": {},
         "disk_temperature": {}
     }
 
-    # Get CPU temp
+    # Get CPU temp (keep existing)
     try:
         temps = psutil.sensors_temperatures()
         if 'coretemp' in temps:
@@ -79,21 +79,22 @@ def get_system_stats():
     disk_temp_cache = {}
     partitions = psutil.disk_partitions()
     
-    # Get all physical disks first
+    # Get all physical disks first (keep existing)
     lsblk_output = subprocess.check_output(
         ['lsblk', '-d', '-n', '-o', 'NAME'],
         text=True
     )
     physical_disks = [f"/dev/{line.strip()}" for line in lsblk_output.split('\n') if line]
 
-    # Get temperatures for physical disks
+    # Get temperatures for physical disks (keep existing)
     for disk in physical_disks:
         disk_temp_cache[disk] = get_disk_temperature(disk)
 
-    # Map partitions to physical disks
+    # Only change this section - keep disk_usage per partition, show disk_temp per physical disk
+    shown_disks = set()
     for partition in partitions:
         try:
-            # Disk usage
+            # Keep existing disk usage reporting
             stats["disk_usage"][partition.device] = f"{psutil.disk_usage(partition.mountpoint).percent}%"
             
             # Find parent disk
@@ -103,16 +104,16 @@ def get_system_stats():
                 text=True
             ).strip()
             
-            # Get temperature from parent
+            # Only show each physical disk temperature once
             if parent:
                 parent_disk = f"/dev/{parent}"
-                stats["disk_temperature"][partition.device] = disk_temp_cache.get(parent_disk, "N/A")
-            else:
-                stats["disk_temperature"][partition.device] = "N/A"
+                if parent_disk not in shown_disks:
+                    stats["disk_temperature"][parent_disk] = disk_temp_cache.get(parent_disk, "N/A")
+                    shown_disks.add(parent_disk)
 
         except Exception as e:
             logger.error(f"Disk error: {e}")
-            stats["disk_temperature"][partition.device] = "N/A"
+            continue
 
     return stats
 
@@ -122,4 +123,4 @@ if __name__ == "__main__":
         subprocess.run(["sudo", sys.executable] + sys.argv)
         sys.exit()
 
-    print(json.dumps(get_system_stats(), indent=2))
+    print(json.dumps(get_system_stats(), indent=4))

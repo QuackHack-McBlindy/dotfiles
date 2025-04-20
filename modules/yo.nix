@@ -26,20 +26,125 @@ let
         type = types.listOf types.str;
         default = [];
         description = "Alternative command names for this script";
+      };  
+      
+      requiresHost = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Whether this command requires a host parameter";
       };
-    };
-    
+
+      parameters = mkOption {
+        type = types.listOf (types.submodule {
+          options = {
+            name = mkOption { type = types.str; };
+            description = mkOption { type = types.str; };
+            optional = mkOption { type = types.bool; default = false; };
+          };
+        });
+        default = [];
+        description = "Parameters accepted by this script";
+      };
+    };    
     
   });
 
   cfg = config.yo;
-  
-  # Create package with all scripts and aliases
+
   yoScriptsPackage = pkgs.symlinkJoin {
     name = "yo-scripts";
     paths = mapAttrsToList (name: script:
       let
-        mainScript = pkgs.writeShellScriptBin "yo-${script.name}" script.code;
+        scriptContent = ''
+          #!${pkgs.runtimeShell}
+         # set -euxo pipefail  
+          # Generic parameter parser
+          declare -A PARAMS=()
+          POSITIONAL=()
+
+          # Parse named and positional parameters
+          while [[ $# -gt 0 ]]; do
+            case "$1" in
+              --help|-h)
+                echo "Usage: yo ${script.name} [machine|user@host] [host] [--hermetic] [--remote]"
+                echo
+                echo "${script.description}"
+                echo
+                echo "Parameters:"
+                ${concatStringsSep "\n" (map (param: ''
+                  echo "  ${param.name} - ${param.description}${optionalString param.optional " (optional)"}"
+                '') script.parameters)}
+                exit 0
+                ;;
+              --*)
+                param_name=''${1##--}
+                if [[ " ${concatMapStringsSep " " (p: p.name) script.parameters} " =~ " $param_name " ]]; then
+                  PARAMS["$param_name"]="$2"
+                  shift 2
+                else
+                  echo "Unknown parameter: $1"
+                  exit 1
+                fi
+                ;;
+              *)
+                POSITIONAL+=("$1")
+                shift
+                ;;
+            esac
+          done
+
+          # Set parameters from positional arguments
+          ${concatStringsSep "\n" (lib.imap0 (idx: param: ''
+            if [ -n "''${POSITIONAL[${toString idx}]:-}" ]; then
+              ${param.name}="''${POSITIONAL[${toString idx}]}"
+            fi
+          '') script.parameters)}
+
+          # Apply both positional and named parameters
+          ${concatStringsSep "\n" (map (param: ''
+            if [[ -n "''${PARAMS[${param.name}]:-}" ]]; then
+              ${param.name}="''${PARAMS[${param.name}]}"
+            fi
+          '') script.parameters)}
+
+          # Set defaults and handle user@host format
+          if [[ -n "''${machine:-}" ]] && [[ "''${machine}" == *"@"* ]]; then
+            IFS='@' read -r user host <<< "''${machine}"
+            machine="''${host}"
+          fi
+
+          export machine="''${machine:-''${host:-}}"
+          export host="''${host:-''${machine:-}}"
+          hermetic="''${hermetic:-false}"
+          remote="''${remote:-false}"
+
+          # In scriptContent section
+          # Replace current host handling with:
+          export host="''${host:-}"
+          machine="''${machine:-}"
+          user="''${user:-$(whoami)}"
+
+          # Set default host ONLY if required
+          ${lib.optionalString script.requiresHost ''
+            host="''${host:-''${machine:-${config.networking.hostName}}}"
+            if [[ -z "$host" ]]; then
+              host="${config.networking.hostName}"
+            fi
+          ''}
+
+          # Validate host ONLY if required
+          ${lib.optionalString script.requiresHost ''
+            if [[ -z "$host" ]]; then
+              echo "Error: Host must be specified!"
+              exit 1
+            fi
+          ''}
+
+          # ====== Original Script Code ======
+          ${script.code}
+        '';
+        
+        mainScript = pkgs.writeShellScriptBin "yo-${script.name}" scriptContent;
       in
         pkgs.runCommand "yo-script-${script.name}" {} ''
           mkdir -p $out/bin
@@ -51,7 +156,6 @@ let
     ) cfg.scripts;
   };
 
-  # Generate help text with aliases
   helpText = let
     rows = map (script:
       let
@@ -59,7 +163,14 @@ let
           concatStringsSep ", " script.aliases
         else
           "";
-      in "| ${script.name} | ${aliasList} | ${script.description} |"
+        paramHint = let
+          hostPart = lib.optionalString script.requiresHost "<host> ";
+          optionsPart = lib.concatMapStringsSep " " (param: "[--${param.name}]") script.parameters;
+        in hostPart + optionsPart;
+
+        # Escape backticks by using a literal backtick (not shell-evaluated)
+        syntax = "\\`yo ${script.name} ${paramHint}\\`";
+      in "| ${syntax} | ${aliasList} | ${script.description} |"
     ) (attrValues cfg.scripts);
   in
     concatStringsSep "\n" rows;
@@ -80,13 +191,20 @@ in {
         script_dir="${yoScriptsPackage}/bin"
 
         show_help() {
-          cat <<EOF | ${pkgs.glow}/bin/glow -
+          #cat <<EOF | ${pkgs.glow}/bin/glow -
+          #width=$(tput cols)
+          width=130
+          cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
         ## 🦆 Yo! Waz Qwackin' yo?! 🦆🦆🥹🚀🚀🚀
         **Usage:** \`yo <command> [arguments]\`
+        
         ## ✨ Available Commands
-        | Command | Aliases | Description |
-        |--------|---------|-------------|
+        | Command Syntax               | Aliases    | Description |
+        |------------------------------|------------|-------------|
         ${helpText}
+        
+        ## ℹ️ Detailed Help
+        For specific command help: \`yo <command> --help\`
         EOF
           exit 0
         }
@@ -119,3 +237,6 @@ in {
     ];
   };
 }
+
+
+
