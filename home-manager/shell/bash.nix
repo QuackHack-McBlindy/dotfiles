@@ -20,6 +20,8 @@
       eval -- "$(/etc/profiles/per-user/pungkula/bin/starship init bash --print-full-init)" 
       eval "$(direnv hook bash)"   
       
+      source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
+      
       # Customize the prompt
       # PS1="\[\e[32m\]\u@\h:\w\[\e[m\] \$ "
     

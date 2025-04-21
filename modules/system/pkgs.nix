@@ -93,6 +93,8 @@
                 self.packages.${pkgs.system}.health
                # inputs.tv.packages.x86_64-linux.tv
                 # inputs.api.packages.x86_64-linux.api
+                pkgs.nix-index
+                pkgs.rich-cli
             ]     
         ];
         

@@ -61,7 +61,7 @@ in {
       switch = {
         description = "Rebuild and switch Nix OS system configuration";
         aliases = [ "rb" ];
-        requiresHost = true;
+#        requiresHost = true;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -75,7 +75,7 @@ in {
       clean = {
         description = "Run garbage collection";
         aliases = [ "gc" ];
-        requiresHost = false;
+#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -88,7 +88,7 @@ in {
       pull = {
         description = "Pull dotfiles repo from GitHub";
         aliases = [ "pl" ];
-        requiresHost = false;
+#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -117,7 +117,7 @@ in {
       push = {
         description = "Push dotfiles to GitHub";
         aliases = [ "ps" ];
-        requiresHost = false;
+#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -187,7 +187,7 @@ in {
       sops = {
         description = "Encrypts a file with sops-nix";
         aliases = [ "" ];
-        requiresHost = false;
+#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -244,14 +244,11 @@ in {
       health = {
         description = "Check system health status across hosts";
         aliases = [ "hc" ];
-        requiresHost = false;
         parameters = [
           { name = "host"; description = "Target hostname or host alias"; }
+          { name = "sudo"; description = "If remote sudo is required"; optional = true; }
         ];
         code = ''
-          ${commonHelpers}
-          parse_flags "$@"
-
           target_host="''${host:-${config.networking.hostName}}"
           valid_hosts=" ${toString sysHosts} "
 
@@ -265,37 +262,44 @@ in {
           echo "Running on host: $target_host"
 
           if [[ "$target_host" == "${config.networking.hostName}" ]]; then
-            output=$(run_cmd health 2>&1)
+            if [[ "$sudo" == "true" ]]; then
+              read -s -p "Sudo password: " SUDO_PASS
+              echo
+              output=$(echo "$SUDO_PASS" | sudo -S run_cmd health 2>&1)
+            else
+              output=$(run_cmd health 2>&1)
+            fi
           else
-            output=$(run_cmd ssh -tt -o "LogLevel=ERROR" "$target_host" health 2>&1)
+            if [[ "$sudo" == "true" ]]; then
+              read -s -p "Remote sudo password: " SUDO_PASS
+              echo
+              output=$(ssh -tt -o "LogLevel=ERROR" "$target_host" "echo '$SUDO_PASS' | sudo -S run_cmd health" 2>&1)
+            else
+              output=$(ssh -tt -o "LogLevel=ERROR" "$target_host" health 2>&1)
+            fi
           fi
 
-          # Optional: If you want to log the raw output for debugging, you can include this
-          # echo "RAW OUTPUT:"
-          # echo "$output"
-
           json_output=$(echo "$output" | sed -n '/^{/,/^}$/p')
-
-          # Only print the formatted output
           echo "$json_output" | ${pkgs.jq}/bin/jq --color-output .
         '';
       };
 #==================================#
 #==== DEPLOY    #==================#
-
       deploy = {
         description = "Deploy NixOS configurations to remote hosts";
         aliases = [ "d" ];
-        requiresHost = true;
+#        requiresHost = true;
         parameters = [
-          { name = "host"; description = "SSH host/IP"; optional = false; }
-          { name = "machine"; description = "Target machine name"; optional = true; }
+          { name = "flakeDir"; description = "Path to the flake directory"; optional = true; }
+          { name = "host"; description = "Host machine to build and activate"; optional = false; }
+        #  { name = "machine"; description = "Target machine name"; optional = true; }
           { name = "user"; description = "SSH username"; optional = true; }
-          { name = "hermetic"; description = "Use hermetic activation"; optional = true; }
-          { name = "remote"; description = "Use remote build"; optional = true; }
+       #   { name = "hermetic"; description = "Use hermetic activation"; optional = true; }
+        #  { name = "remote"; description = "Use remote build"; optional = true; }
         ];
         code = ''
-          echo "🚀 Deploying nixosConfigurations.''$machine"
+          
+          echo "🚀 Deploying nixosConfigurations.''$host"
           echo "👤 SSH User: ''$user"
           echo "🌐 SSH Host: ''$host"
           if [[ -n "''$remote" ]]; then
@@ -311,6 +315,7 @@ in {
           fi
         '';
       };
+
     };}
 
     
