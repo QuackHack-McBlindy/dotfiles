@@ -244,14 +244,14 @@ in {
         ];
         code = ''
           if [[ "$host" == "$(hostname)" ]]; then
-            output=$(run_cmd sudo health 2>&1)
+            run_cmd sudo health | jq
           else
-            output=$(ssh -o "LogLevel=ERROR" "$host" run_cmd sudo health 2>&1)
+            ssh $host sudo health | jq
           fi
 
           # Extract JSON block safely
-          json_output=$(echo "$output" | sed -n '/^{/,/^}$/p')
-          echo "$json_output" | ${pkgs.jq}/bin/jq --color-output .
+         # json_output=$(echo "$output" | sed -n '/^{/,/^}$/p')
+        #  echo "$json_output" | ${pkgs.jq}/bin/jq --color-output .
         '';
       };
 #==================================#
