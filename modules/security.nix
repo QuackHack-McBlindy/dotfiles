@@ -156,7 +156,11 @@
         {
           command = "${self.packages.${pkgs.system}.health}/bin/health";
           options = [ "NOPASSWD" ];
-        }        
+        }     
+        {
+          command = "/run/current-system/sw/bin/health";
+          options = [ "NOPASSWD" ];
+        }          
       ];
     }
     {

@@ -61,7 +61,6 @@ in {
       switch = {
         description = "Rebuild and switch Nix OS system configuration";
         aliases = [ "rb" ];
-#        requiresHost = true;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -73,9 +72,8 @@ in {
 #==================================#
 #==== CLEAN GARBAGE   #==================#
       clean = {
-        description = "Run garbage collection";
+        description = "Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune";
         aliases = [ "gc" ];
-#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -88,7 +86,6 @@ in {
       pull = {
         description = "Pull dotfiles repo from GitHub";
         aliases = [ "pl" ];
-#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -117,7 +114,6 @@ in {
       push = {
         description = "Push dotfiles to GitHub";
         aliases = [ "ps" ];
-#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
@@ -187,12 +183,11 @@ in {
       sops = {
         description = "Encrypts a file with sops-nix";
         aliases = [ "" ];
-#        requiresHost = false;
         code = ''
           ${commonHelpers}
           parse_flags "$@"
           if [[ $# -eq 0 ]]; then
-            echo -e "\033[1;31m❌ Usage: yo i <input-file.yaml>\033[0m"
+            echo -e "\033[1;31m❌ Usage: yo sops <input-file.yaml>\033[0m"
             exit 1
           fi
           INPUT_FILE="$1"
@@ -206,8 +201,8 @@ in {
             echo -e "\033[1;31m❌ Error: Age public key not set in config.this.host.keys.publicKeys.age\033[0m"
             exit 1
           fi
-          echo -e "\033[1;34m🔐 Encrypting '$INPUT_FILE' with Age key...\033[0m"
-          run_cmd sops --encrypt --age "$AGE_KEY" --output "$OUTPUT_FILE" "$INPUT_FILE"
+          echo -e "\033[1;34m🔐 Encrypting '$INPUT_FILE' with sops-nix using Age key...\033[0m"
+          sops --encrypt --age "$AGE_KEY" --output "$OUTPUT_FILE" "$INPUT_FILE"
           echo -e "\033[1;32m✅ Encrypted: $INPUT_FILE → $OUTPUT_FILE\033[0m"
         '';
       };
@@ -242,43 +237,19 @@ in {
 
 
       health = {
-        description = "Check system health status across hosts";
+        description = "Check system health status across your machines";
         aliases = [ "hc" ];
         parameters = [
-          { name = "host"; description = "Target hostname or host alias"; }
-          { name = "sudo"; description = "If remote sudo is required"; optional = true; }
+          { name = "host"; description = "Target hostname for the health check"; optional = true; default = config.this.host.hostname; }
         ];
         code = ''
-          target_host="''${host:-${config.networking.hostName}}"
-          valid_hosts=" ${toString sysHosts} "
-
-          if [[ ! "$valid_hosts" =~ " $target_host " ]]; then
-            echo "Invalid host: $target_host"
-            echo "Available hosts: ${toString sysHosts}"
-            exit 1
-          fi
-
-          echo "PATH: $PATH"
-          echo "Running on host: $target_host"
-
-          if [[ "$target_host" == "${config.networking.hostName}" ]]; then
-            if [[ "$sudo" == "true" ]]; then
-              read -s -p "Sudo password: " SUDO_PASS
-              echo
-              output=$(echo "$SUDO_PASS" | sudo -S run_cmd health 2>&1)
-            else
-              output=$(run_cmd health 2>&1)
-            fi
+          if [[ "$host" == "$(hostname)" ]]; then
+            output=$(run_cmd sudo health 2>&1)
           else
-            if [[ "$sudo" == "true" ]]; then
-              read -s -p "Remote sudo password: " SUDO_PASS
-              echo
-              output=$(ssh -tt -o "LogLevel=ERROR" "$target_host" "echo '$SUDO_PASS' | sudo -S run_cmd health" 2>&1)
-            else
-              output=$(ssh -tt -o "LogLevel=ERROR" "$target_host" health 2>&1)
-            fi
+            output=$(ssh -o "LogLevel=ERROR" "$host" run_cmd sudo health 2>&1)
           fi
 
+          # Extract JSON block safely
           json_output=$(echo "$output" | sed -n '/^{/,/^}$/p')
           echo "$json_output" | ${pkgs.jq}/bin/jq --color-output .
         '';
@@ -286,33 +257,21 @@ in {
 #==================================#
 #==== DEPLOY    #==================#
       deploy = {
-        description = "Deploy NixOS configurations to remote hosts";
+        description = "Deploy NixOS system configurations to your remote servers";
         aliases = [ "d" ];
-#        requiresHost = true;
         parameters = [
-          { name = "flakeDir"; description = "Path to the flake directory"; optional = true; }
+          { name = "flakeDir"; description = "Path to the irectory containing your flake.nix"; optional = true; default = config.this.user.me.dotfilesDir; }
           { name = "host"; description = "Host machine to build and activate"; optional = false; }
-        #  { name = "machine"; description = "Target machine name"; optional = true; }
-          { name = "user"; description = "SSH username"; optional = true; }
-       #   { name = "hermetic"; description = "Use hermetic activation"; optional = true; }
-        #  { name = "remote"; description = "Use remote build"; optional = true; }
+          { name = "user"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
         ];
-        code = ''
-          
+        code = ''     
           echo "🚀 Deploying nixosConfigurations.''$host"
           echo "👤 SSH User: ''$user"
           echo "🌐 SSH Host: ''$host"
-          if [[ -n "''$remote" ]]; then
-            echo "🚀 Sending flake to ''$machine via nix copy..."
-            ${pkgs.nix}/bin/nix copy .#nixosConfigurations.''$machine.config.system.build.toplevel --to ssh://''$user@''$host
-          fi
-          if [[ -n "''$hermetic" ]]; then
-            echo "🤞 Activating hermetically..."
-            ${pkgs.openssh}/bin/ssh $NIX_SSHOPTS -t ''$user@''$host "sudo nixos-rebuild switch --flake .#''$machine"
-          else
-            echo "🔨 Building locally and activating remotely..."
-            ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake .#''$machine --target-host ''$user@''$host --use-remote-sudo
-          fi
+         # echo "🚀 Sending flake to ''$host via nix copy..."
+         # ${pkgs.nix}/bin/nix copy $flakeDir#nixosConfigurations.''$host.config.system.build.toplevel --to ssh://''$user@''$host
+          echo "🔨 Building locally and activating remotely..."
+          ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake ''$flakeDir#''$hpst --target-host ''$user@''$host --use-remote-sudo --show-trace
         '';
       };
 

@@ -118,9 +118,6 @@ def get_system_stats():
     return stats
 
 if __name__ == "__main__":
-    if os.geteuid() != 0:
-        logger.info("Restarting with sudo privileges...")
-        subprocess.run(["sudo", sys.executable] + sys.argv)
-        sys.exit()
+
 
     print(json.dumps(get_system_stats(), indent=4))

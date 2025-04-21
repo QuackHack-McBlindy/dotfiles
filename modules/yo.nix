@@ -38,6 +38,11 @@ let
               default = false; 
               description = "Whether this parameter can be omitted";
             };
+            default = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Default value if parameter is not provided";
+            };
           };
         });
         default = [];
@@ -65,14 +70,21 @@ let
           while [[ $# -gt 0 ]]; do
             case "$1" in
               --help|-h)
-                echo "Usage: yo ${script.name} "
-                echo
-                echo "${script.description}"
-                echo
-                echo "Parameters:"
-                ${concatStringsSep "\n" (map (param: ''
-                  echo "  ${param.name} - ${param.description}${optionalString param.optional " (optional)"}"
-                '') script.parameters)}
+                width=90
+                cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" -
+## 🚀🦆 ${script.name} Command
+**Usage:** \`yo ${script.name} [parameters]\`
+
+${script.description}
+
+${optionalString (script.parameters != []) ''
+### Parameters
+${concatStringsSep "\n" (map (param: ''
+- \`--${param.name}\` ${optionalString param.optional "(optional)"} ${optionalString (param.default != null) "[default: ${param.default}]"}  
+  ${param.description}
+'') script.parameters)}
+''}
+EOF
                 exit 0
                 ;;
               --*)
@@ -105,16 +117,35 @@ let
             fi
           '') script.parameters)}
 
-          # Validate required parameters
+
+
+          # Apply default values for parameters
+          ${concatStringsSep "\n" (map (param: 
+            optionalString (param.default != null) ''
+              if [[ -z "\${param.name}:-}" ]]; then
+                ${param.name}='${param.default}'  # Single quotes preserve spaces
+              fi
+            '') script.parameters)}
+
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional) ''
-            #  if [[ -z "\{${param.name}:-}" ]]; then
               if [[ -z "\${param.name}:-}" ]]; then
                 echo "Missing required parameter: ${param.name}" >&2
                 exit 1
               fi
             ''}
           '') script.parameters)}
+
+          # Validate required parameters
+#          ${concatStringsSep "\n" (map (param: ''
+#            ${optionalString (!param.optional) ''
+            #  if [[ -z "\{${param.name}:-}" ]]; then
+#              if [[ -z "\${param.name}:-}" ]]; then
+#                echo "Missing required parameter: ${param.name}" >&2
+#                exit 1
+#              fi
+#            ''}
+#          '') script.parameters)}
 
           # ====== Script Execution ======
           ${script.code}
