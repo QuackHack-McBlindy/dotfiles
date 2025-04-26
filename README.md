@@ -11,10 +11,25 @@ This is a automagiduckically generated README.md
 
 
 <!-- YO_DOCS_START -->
+## Define your scripts to show up here
+
+```nix
+${exampleYo}
+```
+
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** `yo <command> [arguments]`  
 
-**Edit configurations** `yo edit` 
+**yo CLI config mode:** `yo config`, `yo edit` 
+
+``` 
+❄️ yo CLI Tool
+🦆 ➤ Edit hosts
+     Edit yo CLI scripts
+     Edit flake
+     Add new host
+     🚫 Exit
+``` 
 
 ## **Usage Examples:**
 `yo deploy laptop`
