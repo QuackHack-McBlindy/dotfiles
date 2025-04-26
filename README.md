@@ -11,49 +11,49 @@ This is a automagiduckically generated README.md  <br>
 
 <!-- TREE_START -->
 ```nix
-[1mgit+file:///home/pungkula/dotfiles[0m
-[32;1m├───[0m[1mapps[0m
-[32;1m│   ├───[0m[1maarch64-linux[0m
-[32;1m│   │   ├───[0m[1mprogram[0m: app
-[32;1m│   │   └───[0m[1mtype[0m: app
-[32;1m│   └───[0m[1mx86_64-linux[0m
-[32;1m│       ├───[0m[1mprogram[0m: app
-[32;1m│       └───[0m[1mtype[0m: app
-[32;1m├───[0m[1mdevShells[0m
-[32;1m│   ├───[0m[1maarch64-linux[0m
-[32;1m│   │   ├───[0m[1mandroid[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m│   │   ├───[0m[1mgo[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m│   │   ├───[0m[1mjava[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m│   │   ├───[0m[1mnode[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m│   │   ├───[0m[1mpython[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m│   │   └───[0m[1mrust[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m│   └───[0m[1mx86_64-linux[0m
-[32;1m│       ├───[0m[1mandroid[0m: development environment 'nix-shell'
-[32;1m│       ├───[0m[1mgo[0m: development environment 'nix-shell'
-[32;1m│       ├───[0m[1mjava[0m: development environment 'nix-shell'
-[32;1m│       ├───[0m[1mnode[0m: development environment 'nix-shell'
-[32;1m│       ├───[0m[1mpython[0m: development environment 'nix-shell'
-[32;1m│       └───[0m[1mrust[0m: development environment 'nix-shell'
-[32;1m├───[0m[1mnixosConfigurations[0m
-[32;1m│   ├───[0m[1mdesktop[0m: [35;1mNixOS configuration[0m
-[32;1m│   ├───[0m[1mhomie[0m: [35;1mNixOS configuration[0m
-[32;1m│   ├───[0m[1mlaptop[0m: [35;1mNixOS configuration[0m
-[32;1m│   └───[0m[1mnasty[0m: [35;1mNixOS configuration[0m
-[32;1m└───[0m[1mpackages[0m
-[32;1m    ├───[0m[1maarch64-linux[0m
-[32;1m    │   ├───[0m[1mexample[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m    │   ├───[0m[1mhealth[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m    │   ├───[0m[1msay[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m    │   └───[0m[1mtv[0m [35;1momitted[0m (use '--all-systems' to show)
-[32;1m    └───[0m[1mx86_64-linux[0m
-[32;1m        ├───[0m[1m"auto-installer.desktop"[0m: package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-[32;1m        ├───[0m[1m"auto-installer.homie"[0m: package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-[32;1m        ├───[0m[1m"auto-installer.laptop"[0m: package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-[32;1m        ├───[0m[1m"auto-installer.nasty"[0m: package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-[32;1m        ├───[0m[1mexample[0m: package 'hello-0.1.0'
-[32;1m        ├───[0m[1mhealth[0m: package 'health'
-[32;1m        ├───[0m[1msay[0m: package 'say'
-[32;1m        └───[0m[1mtv[0m: package 'tv'
+git+file:///home/pungkula/dotfiles
+├───apps
+│   ├───aarch64-linux
+│   │   ├───program: app
+│   │   └───type: app
+│   └───x86_64-linux
+│       ├───program: app
+│       └───type: app
+├───devShells
+│   ├───aarch64-linux
+│   │   ├───android omitted (use '--all-systems' to show)
+│   │   ├───go omitted (use '--all-systems' to show)
+│   │   ├───java omitted (use '--all-systems' to show)
+│   │   ├───node omitted (use '--all-systems' to show)
+│   │   ├───python omitted (use '--all-systems' to show)
+│   │   └───rust omitted (use '--all-systems' to show)
+│   └───x86_64-linux
+│       ├───android: development environment 'nix-shell'
+│       ├───go: development environment 'nix-shell'
+│       ├───java: development environment 'nix-shell'
+│       ├───node: development environment 'nix-shell'
+│       ├───python: development environment 'nix-shell'
+│       └───rust: development environment 'nix-shell'
+├───nixosConfigurations
+│   ├───desktop: NixOS configuration
+│   ├───homie: NixOS configuration
+│   ├───laptop: NixOS configuration
+│   └───nasty: NixOS configuration
+└───packages
+    ├───aarch64-linux
+    │   ├───example omitted (use '--all-systems' to show)
+    │   ├───health omitted (use '--all-systems' to show)
+    │   ├───say omitted (use '--all-systems' to show)
+    │   └───tv omitted (use '--all-systems' to show)
+    └───x86_64-linux
+        ├───"auto-installer.desktop": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
+        ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
+        ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
+        ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
+        ├───example: package 'hello-0.1.0'
+        ├───health: package 'health'
+        ├───say: package 'say'
+        └───tv: package 'tv'
 ```
 <!-- TREE_END -->
 

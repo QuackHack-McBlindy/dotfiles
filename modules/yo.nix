@@ -74,8 +74,7 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
 
-    # Capture flake output
-    FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}")
+    FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
       echo '```nix'
       echo "$FLAKE_OUTPUT"
