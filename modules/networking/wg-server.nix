@@ -10,7 +10,7 @@
 
   duckPng = pkgs.runCommand "duck.png" {} ''
     mkdir -p $out
-    cp ${./../../home/icons/duck2.png} $out/duck.png
+    cp ${../../home/icons/duck2.png} $out/duck.png
   '';
 
   
