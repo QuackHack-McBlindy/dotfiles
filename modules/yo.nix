@@ -5,6 +5,27 @@
   ...
 } : with lib;
 let
+  exampleYo = ''
+    yo.scripts = {
+      reboot = {
+        description = "Force reboot and wait for host";
+        aliases = [ "" ];
+        parameters = [
+          {
+            name = "host";
+            description = "Target hostname for the reboot";
+            optional = true;
+            default = "example-host";
+          }
+        ];
+        code = ''
+          # TODO: reboot script here
+        '';
+      };
+    };
+  '';
+
+
   # Helper function to escape markdown special characters
   escapeMD = str: let
     replacements = [
@@ -75,10 +96,11 @@ let
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
 
     DOCS_CONTENT=$(cat <<'EOF'
-## Defined scripts like below to show up here
+## Define your scripts to show up here
 
-
-
+```nix
+''${exampleYo}
+```
 
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** \`yo <command> [arguments]\`  

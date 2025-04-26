@@ -2,34 +2,19 @@
 
 <div align="right">
 <sub>
-Sup duck? 🦆 <br>
-This is a automagiduckically generated README.md 
-</sub></div><br>
-
 > [!CAUTION]
 > __Use with caution!__ <br>
+</sub></div><br>
 
+Sup duck? 🦆 <br>
+This is a automagiduckically generated README.md 
 
 
 <!-- YO_DOCS_START -->
-## Defined scripts like below to show up here
-
-
-
-
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** `yo <command> [arguments]`  
 
-**yo CLI config mode:** `yo config`, `yo edit` 
-
-``` 
-❄️ yo CLI Tool
-🦆 ➤ Edit hosts
-     Edit yo CLI scripts
-     Edit flake
-     Add new host
-     🚫 Exit
-``` 
+**Edit configurations** `yo edit` 
 
 ## **Usage Examples:**
 `yo deploy laptop`
