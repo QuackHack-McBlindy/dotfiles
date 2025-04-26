@@ -581,9 +581,9 @@ EOF
           run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
           # Fancy success message
-          run_cmd rainbow_text "╔══════════════════════════════════════╗"
-          run_cmd rainbow_text "║  🎉  Successfully pushed dotfiles!  ║"
-          run_cmd rainbow_text "╚══════════════════════════════════════╝"
+          run_cmd rainbow_text $'\n╔══════════════════════════════════════╗'
+          run_cmd rainbow_text '║  🎉  Successfully pushed dotfiles!  ║'
+          run_cmd rainbow_text '╚══════════════════════════════════════╝'
           run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
           
