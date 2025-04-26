@@ -31,14 +31,14 @@
         host = {
             system = "x86_64-linux";
             hostname = "desktop";
-            autoPull = true;
+            autoPull = false;
             interface = [ "enp119s0" ];
             ip = "192.168.1.111";
             wgip = "10.0.0.2";
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" ];
-                networking = [ "default" "pool" ];
+                networking = [ "default" "pool" "wg-client" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
                 programs = [ "thunar" ];
                 virtualisation = [ "docker" "vm" ];

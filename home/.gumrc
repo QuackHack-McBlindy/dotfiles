@@ -3,9 +3,9 @@
 #####################
 # GUM CHOOSE
 
-export GUM_CHOOSE_CURSOR="👉 "  # Pointing finger for selection
+export GUM_CHOOSE_CURSOR="🦆 ➤ "   # Pointing finger for selection
 export GUM_CHOOSE_CURSOR_FOREGROUND="214"  # Orange
-export GUM_CHOOSE_HEADER="🎯 Make your choice!"  # Fun header
+export GUM_CHOOSE_HEADER="🦆 Make your choice!"  # Fun header
 export GUM_CHOOSE_HEADER_FOREGROUND="45"  # Blue-Green
 export GUM_CHOOSE_SELECTED_PREFIX="✅ "  # Green checkmark for selected items
 export GUM_CHOOSE_UNSELECTED_PREFIX="⚪ "  # Empty circle for unselected

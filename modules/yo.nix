@@ -5,6 +5,110 @@
   ...
 } : with lib;
 let
+  # Helper function to escape markdown special characters
+  escapeMD = str: let
+    replacements = [
+      [ "\\" "\\\\" ]
+      [ "*" "\\*" ]
+      [ "`" "\\`" ]
+      [ "_" "\\_" ]
+      [ "[" "\\[" ]
+      [ "]" "\\]" ]
+    ];
+  in
+    lib.foldl (acc: r: replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
+  # Documentation generation with markdown escaping
+  generateDocs = let
+    scriptDocs = mapAttrsToList (name: script: 
+      let
+        safeDesc = escapeMD script.description;
+        # Handle aliases as string
+        aliases = if script.aliases != [] then
+          "*Aliases:* ${concatStringsSep ", " (map escapeMD script.aliases)}\n\n"
+        else
+          "";
+        
+        # Handle parameters with escaped descriptions
+        
+        params = if script.parameters != [] then
+          "### Parameters\n" + 
+          concatStringsSep "\n" (map (param: 
+            let
+              defaultText = optionalString (param.default != null) 
+                " (default: `${escapeMD param.default}`)";
+              optionalText = optionalString param.optional " *(optional)*";
+            in
+            "- `--${escapeMD param.name}`${defaultText}${optionalText}\n  ${param.description}"
+          ) script.parameters) + "\n"    
+        
+        
+#        params = if script.parameters != [] then
+#          "### Parameters\n" + 
+#          concatStringsSep "\n" (map (param: 
+#            let
+#              safeParamDesc = escapeMD param.description;
+#              defaultText = optionalString (param.default != null) " (default: `${escapeMD param.default}`)";
+#              optionalText = optionalString param.optional " *(optional)*";
+#            in
+#            "- `--${escapeMD param.name}` (${param.type})${defaultText}${optionalText}\n  ${safeParamDesc}"
+#          ) script.parameters) + "\n"
+        else
+          "";
+      in
+        ''
+        <details>
+        <summary><code>yo ${escapeMD script.name}</code> - ${safeDesc}</summary>
+
+        ${aliases}
+        ${params}
+        </details>
+        ''
+    ) cfg.scripts;
+  
+    fullDoc = concatStringsSep "\n" scriptDocs;
+  
+  in fullDoc;
+
+  updateReadme = pkgs.writeScriptBin "update-readme" ''
+    #!${pkgs.runtimeShell}
+    DOCS_CONTENT=$(cat <<EOF
+<!-- YO_DOCS_START -->
+## 🦆 **Yo Commands Reference**
+*Automagiduckically generated from module definitions*
+
+${generateDocs}
+<!-- YO_DOCS_END -->
+EOF
+    )
+
+    README_PATH="${toString ../README.md}"
+  
+    # Use temporary file for safety
+    tmpfile=$(mktemp)
+  
+    # Replace section using awk
+    awk -v docs="$DOCS_CONTENT" '
+      /<!-- YO_DOCS_START -->/ { print; print docs; skip=1; next }
+      /<!-- YO_DOCS_END -->/ { skip=0 }
+      !skip { print }
+    ' "$README_PATH" > "$tmpfile"
+  
+    # Overwrite original only if diff exists
+    if ! diff -q "$tmpfile" "$README_PATH" >/dev/null; then
+      mv "$tmpfile" "$README_PATH"
+      echo "Updated README.md"
+    else
+      echo "No changes needed"
+      rm "$tmpfile"
+    fi
+  '';
+
+
+  yoEnvGenVar = script: let
+    withDefaults = builtins.filter (p: p.default != null) script.parameters;
+    exports = map (p: "export ${p.name}=${lib.escapeShellArg p.default}") withDefaults;
+  in lib.concatStringsSep "\n" exports;
+
   scriptType = types.submodule ({ name, ... }: {
     options = {
       name = mkOption {
@@ -33,15 +137,19 @@ let
           options = {
             name = mkOption { type = types.str; };
             description = mkOption { type = types.str; };
-            optional = mkOption { 
-              type = types.bool; 
-              default = false; 
-              description = "Whether this parameter can be omitted";
-            };
             default = mkOption {
               type = types.nullOr types.str;
               default = null;
               description = "Default value if parameter is not provided";
+            };
+            optional = mkOption { 
+              type = types.bool; 
+              default = config.default != null;  # Automatically optional if default exists
+              description = "Whether this parameter can be omitted";
+            };
+            type = mkOption {
+              type = types.enum ["string" "int" "path"];
+              default = "string";
             };
           };
         });
@@ -60,23 +168,43 @@ let
       let
         scriptContent = ''
           #!${pkgs.runtimeShell}
-        #  set -euo pipefail
+          set -euo pipefail
+          ${yoEnvGenVar script}
+        
+          # Phase 1: Preprocess special flags
+          VERBOSE=0
+          DRY_RUN=false
+          FILTERED_ARGS=()
+   
+          while [[ $# -gt 0 ]]; do
+            case "$1" in
+              \?) ((VERBOSE++)); shift ;;
+              '!') DRY_RUN=true; shift ;;
+              *) FILTERED_ARGS+=("$1"); shift ;;
+            esac
+          done  
+  
+          VERBOSE=$VERBOSE
+          export VERBOSE DRY_RUN
+     
+          # Reset arguments without special flags
+          set -- "''${FILTERED_ARGS[@]}"
 
-          # Dynamic parameter handling
+          # Phase 2: Regular parameter parsing
           declare -A PARAMS=()
           POSITIONAL=()
+          VERBOSE=$VERBOSE
+          DRY_RUN=$DRY_RUN
           
           # Parse all parameters
           while [[ $# -gt 0 ]]; do
             case "$1" in
               --help|-h)
-                width=90
+                width=$(tput cols 2>/dev/null || echo 100)
                 cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" -
 ## 🚀🦆 ${script.name} Command
 **Usage:** \`yo ${script.name} [parameters]\`
-
 ${script.description}
-
 ${optionalString (script.parameters != []) ''
 ### Parameters
 ${concatStringsSep "\n" (map (param: ''
@@ -93,7 +221,7 @@ EOF
                   PARAMS["$param_name"]="$2"
                   shift 2
                 else
-                  echo "Unknown parameter: $1"
+                  echo -e "\033[1;31m❌ $1\033[0m Unknown parameter: $1"
                   exit 1
                 fi
                 ;;
@@ -104,12 +232,12 @@ EOF
             esac
           done
 
-          # Set parameters from either named or positional arguments
-          ${concatStringsSep "\n" (lib.imap0 (idx: param: ''
-            if [[ $# -ge $((idx + 1)) ]]; then
-              ${param.name}="''${POSITIONAL[$idx]}"
-            fi
-          '') script.parameters)}
+            # Phase 3: Assign parameters
+            ${concatStringsSep "\n" (lib.imap0 (idx: param: ''
+              if (( ${toString idx} < ''${#POSITIONAL[@]} )); then
+                ${param.name}="''${POSITIONAL[${toString idx}]}"
+              fi
+            '') script.parameters)}
 
           ${concatStringsSep "\n" (map (param: ''
             if [[ -n "''${PARAMS[${param.name}]:-}" ]]; then
@@ -117,37 +245,24 @@ EOF
             fi
           '') script.parameters)}
 
-
-
           # Apply default values for parameters
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.default != null) ''
-              if [[ -z "\${param.name}:-}" ]]; then
-                ${param.name}='${param.default}'  # Single quotes preserve spaces
+              if [[ -z "''${${param.name}:-}" ]]; then
+                ${param.name}='${param.default}'
               fi
             '') script.parameters)}
 
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional) ''
-              if [[ -z "\${param.name}:-}" ]]; then
-                echo "Missing required parameter: ${param.name}" >&2
+              if [[ -z "''${${param.name}:-}" ]]; then
+                echo -e "\033[1;31m❌ Missing required parameter: ${param.name}\033[0m" >&2
                 exit 1
               fi
             ''}
           '') script.parameters)}
 
-          # Validate required parameters
-#          ${concatStringsSep "\n" (map (param: ''
-#            ${optionalString (!param.optional) ''
-            #  if [[ -z "\{${param.name}:-}" ]]; then
-#              if [[ -z "\${param.name}:-}" ]]; then
-#                echo "Missing required parameter: ${param.name}" >&2
-#                exit 1
-#              fi
-#            ''}
-#          '') script.parameters)}
-
-          # ====== Script Execution ======
+          # ==== Script Execution ======
           ${script.code}
         '';
         
@@ -162,7 +277,7 @@ EOF
         ''
     ) cfg.scripts;
   };
-
+  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   helpText = (
     let
       rows = map (script:
@@ -172,7 +287,12 @@ EOF
           else
             "";
           paramHint = let
-            optionsPart = lib.concatMapStringsSep " " (param: "[--${param.name}]") script.parameters;
+            optionsPart = lib.concatMapStringsSep " " (param: 
+              # Show as optional if EITHER has default OR explicitly marked optional
+              if (param.default != null || param.optional) 
+              then "[--${param.name}]" 
+              else "--${param.name}"
+            ) script.parameters;
           in optionsPart;
           syntax = "\\`yo ${script.name} ${paramHint}\\`";
         in "| ${syntax} | ${aliasList} | ${script.description} |"
@@ -180,7 +300,7 @@ EOF
     in
       concatStringsSep "\n" rows
   );
-    
+        
 in {
   options.yo.scripts = mkOption {
     type = types.attrsOf scriptType;
@@ -188,26 +308,55 @@ in {
     description = "Attribute set of scripts to be made available";
   };
 
+
   config = {
+    system.build.updateReadme = pkgs.runCommand "update-readme" {
+      helpTextFile = helpTextFile;
+    } ''
+      mkdir -p $out
+      cp ${toString ../README.md} $out/README.md
+
+      # Insert helpTextFile between YO_DOCS_START and YO_DOCS_END
+      ${pkgs.gnused}/bin/sed -i '/<!-- YO_DOCS_START -->/,/<!-- YO_DOCS_END -->/c\
+    <!-- YO_DOCS_START -->\
+    ## 🦆 **Yo Commands Reference**\
+    *Automagiduckically generated from module definitions*\
+    \
+    '"$(cat ${helpTextFile})"'\
+    <!-- YO_DOCS_END -->' $out/README.md
+    '';
     environment.systemPackages = [
       (pkgs.writeShellScriptBin "yo" ''
         #!${pkgs.runtimeShell}
         script_dir="${yoScriptsPackage}/bin"
         show_help() {
-          #width=$(tput cols)
-          width=100
+          # width=100
+          width=$(tput cols)
           cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
-## 🚀🦆 Yo! Waz Qwackin' yo?! 🦆🦆
+## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** \`yo <command> [arguments]\`  
+
+**Edit configurations** \`yo edit\` 
+
+## **Usage Examples:**
+\`yo deploy laptop\`
+\`yo deploy user@hostname\`
+\`yo health\`
+\`yo health --host desktop\` 
+
 ## ✨ Available Commands
+Set default values for your parameters to have them marked [optiional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 ${helpText}
 ## ℹ️ Detailed Help
-For specific command help: \`yo <command> --help\`
+For specific command help: 
+\`yo <command> --help\`
+\`yo <command> -h\`
 EOF
           exit 0
         }
+        
         # Handle zero arguments
         if [[ $# -eq 0 ]]; then
           show_help
@@ -224,12 +373,14 @@ EOF
         if [[ -x "$script_path" ]]; then
           exec "$script_path" "$@"
         else
-          echo "Error: Unknown command '$command'" >&2
+          echo -e "\033[1;31m❌ $1\033[0m Error: Unknown command '$command'" >&2
           show_help
           exit 1
         fi
       '')
       yoScriptsPackage
+      updateReadme
     ];
   };
+
 }

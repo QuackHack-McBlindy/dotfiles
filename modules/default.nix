@@ -20,7 +20,7 @@
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
         
 in {
-    imports = [ ./security.nix ] ++
+    imports = [ ./security.nix ./home.nix ] ++
         (importModulesRecursive ./hardware) ++
         (importModulesRecursive ./system) ++
         (importModulesRecursive ./networking) ++
@@ -46,8 +46,14 @@ in {
                         };
                         dotfilesDir = mkOption {
                             type = types.str;
-                            default = "/home/$USER/dotfiles";
+                            default = "/home/${config.this.user.me.name}/dotfiles";
                             description = "Path of the users flake directory";
+                        };
+                        extraDevices = mkOption {
+                            type = types.listOf types.str;
+                            default = [ "iphone" "tablet" "watch" ];
+                            example = [ "iphone" "tablet" "watch" ];
+                            description = "Extra groups for main user";
                         };
                         hashedPassword = mkOption {
                             type = types.str;

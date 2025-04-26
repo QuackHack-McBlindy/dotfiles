@@ -1,32 +1,21 @@
 { 
   config,
+  self,
   lib,
   ...
 } : let
-    pubkey = import ./../../hosts/pubkeys.nix;
-    mobileDevices = [ "iphone" "tablet" ];
 
-    hosts = [ "desktop" "homie" "nasty" "laptop" "phone" "watch" "iphone" "tablet" ];
-    hostsList = [
-        { name = "homie";   wgip = "10.0.0.1";   ip = "192.168.1.211"; face = "eno1"; }
-        { name = "desktop"; wgip = "10.0.0.2";   ip = "192.168.1.111"; face = "enp119s0"; }
-        { name = "laptop";  wgip = "10.0.0.3";   ip = "192.168.1.222"; face = "wlan0"; }
-        { name = "nasty";   wgip = "10.0.0.4";   ip = "192.168.1.28";  face = "enp3s0"; }
-        { name = "phone";   wgip = "10.0.0.5"; }
-        { name = "watch";   wgip = "10.0.0.6"; }
-        { name = "iphone";  wgip = "10.0.0.7"; }
-        { name = "tablet";  wgip = "10.0.0.8"; }
-    ];
-    host = {
-        wgip = lib.listToAttrs (map (h: { name = h.name; value = h.wgip; }) hostsList);
-        ip   = lib.listToAttrs (map (h: { name = h.name; value = h.ip or null; }) hostsList);
-        face = lib.listToAttrs (map (h: { name = h.name; value = h.face or null; }) hostsList);
-    };
-
-    currentInterface = host.face.${config.networking.hostName};
-    currentIp = host.ip.${config.networking.hostName};
-    currentHost = "${config.networking.hostName}";
-
+    designatedDNSHost = builtins.attrValues (
+        lib.mapAttrs (_: cfg: cfg.config.this.host.ip) (
+            lib.filterAttrs (_: cfg:
+                lib.elem "dns" (cfg.config.this.host.modules.networking or [])
+            ) self.nixosConfigurations
+        )
+    );
+    
+    currentInterface = "${builtins.elemAt config.this.host.interface 0}";
+    currentIp = "${config.this.host.ip}";    
+    currentHost = "${config.this.host.hostname}";    
     
     defaultNetworking = {
         services.resolved = {
@@ -85,16 +74,20 @@
             };
 
             nameservers =
-                if config.this.host.hostname == "homie"
+                if builtins.elem "dns" (config.this.host.modules.networking or [])
                 then [ "127.0.0.1" ]  
-                else [ "192.168.1.211" ]; 
+                else designatedDNSHost;  
             firewall = {
                 enable = true;
                 logRefusedConnections = true;
-                allowedUDPPorts = lib.mkMerge [
-                    (lib.mkIf (config.networking.hostName == "homie") [51820])
-                    [6222 443 53]
-                ];
+#                allowedUDPPorts = lib.mkMerge [
+#                    (lib.mkIf (config.networking.hostName == "homie") [51820])
+#                    [6222 443 53]
+#                ];
+                allowedUDPPorts = 
+                    if builtins.elem "wg-server" (config.this.host.modules.networking or [])
+                    then [51820]
+                    else  [6222 443 53];
                 allowedTCPPorts = [6262 443 53];
             };
             resolvconf = {

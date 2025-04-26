@@ -2,73 +2,55 @@
   config,
   lib,
   pkgs,
+  self,
   ...
-} : let
+}:
 
-    pubkey = import ./../../hosts/pubkeys.nix;
-    mobileDevices = [ "iphone" "tablet" ];
-    
-    hosts = [ "desktop" "homie" "nasty" "laptop" "phone" "watch" "iphone" "tablet" ];  
-    hostsList = [
-        { name = "homie";   wgip = "10.0.0.1";   ip = "192.168.1.211"; face = "eno1"; }
-        { name = "desktop"; wgip = "10.0.0.2";   ip = "192.168.1.111"; face = "enp119s0"; }
-        { name = "laptop";  wgip = "10.0.0.3";   ip = "192.168.1.222"; face = "wlan0"; }
-        { name = "nasty";   wgip = "10.0.0.4";   ip = "192.168.1.28";  face = "enp3s0"; }
-        { name = "phone";   wgip = "10.0.0.5"; }
-        { name = "watch";   wgip = "10.0.0.6"; }
-        { name = "iphone";  wgip = "10.0.0.7"; }
-        { name = "tablet";  wgip = "10.0.0.8"; }
-    ];
-    host = {
-        wgip = lib.listToAttrs (map (h: { name = h.name; value = h.wgip; }) hostsList);
-        ip   = lib.listToAttrs (map (h: { name = h.name; value = h.ip or null; }) hostsList);
-        face = lib.listToAttrs (map (h: { name = h.name; value = h.face or null; }) hostsList);
-    };
-  
-    sopsEntry = host: {
-        sopsFile = ./../../secrets/hosts/${host}/${host}_wireguard_private.yaml;
-        owner = "wgUser";
-        group = "wgUser";
-        mode = "0440";
-    };
-    sopsSecrets = lib.listToAttrs (map (h: { name = "${h}_wireguard_private"; value = sopsEntry h; }) hosts) // {
-      #  initrd_ed25519_key = {
-      #      sopsFile = ./../../secrets/hosts/initrd_ed25519_key.yaml;
-      #      owner = "initrduser";
-      #      group = "initrduser";
-      #      mode = "0440";
-      #  };
-    };
+let
+  # Get the WireGuard server configuration
+  wgServer = lib.findSingle (cfg: 
+    lib.elem "wg-server" (cfg.config.this.host.modules.networking or [])
+  ) {} {} (lib.attrValues self.nixosConfigurations);
 
-    currentInterface = host.face.${config.networking.hostName};
-    currentIp = host.ip.${config.networking.hostName};
-    currentHost = "${config.networking.hostName}";
- 
+  # Helper functions
+  serverPublicKey = wgServer.config.this.host.keys.publicKeys.wireguard;
+  serverIP = wgServer.config.this.host.ip;
+  serverPort = wgServer.config.networking.wireguard.interfaces.wg0.listenPort;
+
+  # Client configuration
+  clientWgIP = config.this.host.wgip;
+  clientPrivateKeySecret = "${config.networking.hostName}_wireguard_private";
+
 in {
-    config = lib.mkIf (lib.elem "wg-client" config.this.host.modules.networking) {
-        sops.secrets = sopsSecrets;
+  config = lib.mkIf (lib.elem "wg-client" config.this.host.modules.networking) {
+    sops.secrets.${clientPrivateKeySecret} = {
+      sopsFile = ../../secrets/hosts/${config.networking.hostName}/${clientPrivateKeySecret}.yaml;
+      owner = "wgUser";
+      group = "wgUser";
+      mode = "0440";
+    };
 
-        networking = {
-            wireguard.interfaces.wg0 = {
-                # Client configuration
-                ips = [ "${host.wgip.${config.networking.hostName}}/24" ];
-                privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
-                peers = [
-                    {
-                      publicKey = pubkey.wireguard.homie;
-                      allowedIPs = [ "10.0.0.0/24" ];
-                      endpoint = "192.168.1.211:51820";
-                      persistentKeepalive = 25;
-                    }
-                ];
-            };
-        };
+    networking.wireguard.interfaces.wg0 = {
+      ips = [ "${clientWgIP}/24" ];
+      privateKeyFile = config.sops.secrets.${clientPrivateKeySecret}.path;
+      
+      peers = [
+        {
+          publicKey = serverPublicKey;
+          allowedIPs = [ "10.0.0.0/24" "192.168.1.0/24" ];
+          endpoint = "${serverIP}:${toString serverPort}";
+          persistentKeepalive = 25;
+        }
+      ];
+    };
 
-        users.groups.wgUser = { };
-        users.users.wgUser = {
-            group = "wgUser";
-            home = "/home/wgUser";
-            createHome = true;
-            isSystemUser = true;
-        };
-    };}    
+    users.users.wgUser = {
+      group = "wgUser";
+      home = "/home/wgUser";
+      createHome = true;
+      isSystemUser = true;
+    };
+
+    users.groups.wgUser = {};
+  };
+}

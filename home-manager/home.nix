@@ -12,13 +12,13 @@ in {
   imports = [
       ./shell/bash.nix
       ./modules/ghostty.nix
-      ./modules/rc.nix
+   #   ./modules/rc.nix
       ./modules/atuin.nix
       ./modules/session.nix
       ./modules/direnv.nix
       ./modules/dconf.nix
       ./modules/myfox.nix
-      ./modules/vesktop.nix
+  #    ./modules/vesktop.nix
       ./modules/git.nix
       ./modules/gtk.nix
       ./modules/lsd.nix

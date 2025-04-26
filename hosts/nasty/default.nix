@@ -34,7 +34,7 @@ in {
         host = {
             system = "x86_64-linux";
             hostname = "nasty";
-            autoPull = false;
+            autoPull = true;
             interface = [ "enp3s0" ];
             ip = "192.168.1.28";
             wgip = "10.0.0.4";
