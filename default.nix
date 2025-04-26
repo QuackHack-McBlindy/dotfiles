@@ -73,14 +73,15 @@ in {
             "\033[38;5;189m"  # Blue
             "\033[38;5;99m"   # Purple
           )
-          local colored_text=""
+         local colored_text=""
           local color_index=0
+          local text_length=$${#text}
 
-          for ((i = 0; i < $${#text}; i++)); do
-            colored_text+="$${colors[$$((color_index % $${#colors[@]}))]}$${text:$i:1}\033[0m"
+          for ((i = 0; i < text_length; i++)); do
+            colored_text+="$${colors[$$((color_index % $${#colors[@]}))]}$${text:$$i:1}\033[0m"
             ((color_index++))
           done
-          echo -e "🌈 $colored_text"
+          echo -e "$${colored_text}"
         }
       
 #        git_safe_checkout() {
