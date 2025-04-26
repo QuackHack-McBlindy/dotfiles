@@ -486,7 +486,11 @@ EOF
               echo " "
               echo " "
               echo "🚀🚀🚀🚀 ✨ "
-              echo "✨✨ Successfully pulled the latest dotfiles repository!"
+              run_cmd echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
+              run_cmd echo -e "║  🎉 ✨✨ \033[1;32mSuccessfully pulled dotfiles!\033[0m  \033[38;5;213m ║"
+              run_cmd echo -e "╚══════════════════════════════════════╝\033[0m"
+              run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
+              run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
             else
               echo -e "\033[1;31m [ WARNING! ] \033[0m"
               echo -e "\033[1;31mAn error occurred while pulling the latest changes.\033[0m"

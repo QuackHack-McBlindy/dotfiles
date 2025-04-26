@@ -25,27 +25,29 @@
   # SOPs configuration generator
   # SOPs configuration generator (FIXED: Use hostname from peers' keys)
   hostname = config.this.host.hostname;
-  mkSopsSecret = hostname: host: {
-    name = "${hostname}_wireguard_private";
-    value = {
-      sopsFile = ../../secrets/hosts/${hostname}/${hostname}_wireguard_private.yaml;
-      owner = "wgUser";
-      group = "wgUser";
-      mode = "0440";
-    };
+  # Secret generator for both peers and mobile devices
+  mkSopsSecret = name: {
+    sopsFile = ../../secrets/hosts/${name}/${name}_wireguard_private.yaml;
+    owner = "wgUser";
+    group = "wgUser";
+    mode = "0440";
   };
+
 
 
 in {
   config = lib.mkIf (lib.elem "wg-server" config.this.host.modules.networking) {
-    sops.secrets = lib.mapAttrs' mkSopsSecret peers // {  # FIXED: Use mapAttrs' to preserve hostnames
-      domain = {
-        sopsFile = ../../secrets/domain.yaml;
-        owner = "wgUser";
-        group = "wgUser";
-        mode = "0440";
+   sops.secrets = 
+      lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peers //  # FIXED: Added lib. prefix
+      lib.listToAttrs (map (d: lib.nameValuePair "${d}_wireguard_private" (mkSopsSecret d)) mobileDevices) //  # FIXED: Added lib. prefix
+      {
+        domain = {
+          sopsFile = ../../secrets/domain.yaml;
+          owner = "wgUser";
+          group = "wgUser";
+          mode = "0440";
+        };
       };
-    };
 
     networking.wireguard.interfaces.wg0 = {
       ips = [ "${config.this.host.wgip}/24" ];
