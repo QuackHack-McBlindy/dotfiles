@@ -80,9 +80,7 @@ in {
             colored_text+="$${colors[$$((color_index % $${#colors[@]}))]}$${text:$i:1}\033[0m"
             ((color_index++))
           done
-          echo -e ""
-          echo -e "🌈 "
-          echo -e "$colored_text"
+          echo -e "🌈 $colored_text"
         }
       
 #        git_safe_checkout() {
@@ -583,9 +581,9 @@ EOF
           }
           
           # Fancy success message
-          run_cmd echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
-          run_cmd echo -e "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
-          run_cmd echo -e "╚══════════════════════════════════════╝\033[0m"
+          rainbow_text "\n\033[38;5;213m╔══════════════════════════════════════╗"
+          rainbow_text "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
+          rainbow_text "╚══════════════════════════════════════╝\033[0m"
           run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
         '';
