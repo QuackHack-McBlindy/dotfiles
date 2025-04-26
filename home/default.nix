@@ -1,61 +1,64 @@
 {
+  config,
+  ...
+} : {
   my.home = {
     vesktop = {
       source = "./.config/vesktop";
-      target = ".config/vesktop";
+#      target = ".config/vesktop";
       recursive = true;
     };
 
     torrc = {
       source = "./.torrc";
-      target = ".torrc";
+ #     target = ".torrc";
     };
 
     wgetrc = {
       source = "./.wgetrc";
-      target = ".wgetrc";
+#      target = ".wgetrc";
     };
 
     hushlogin = {
       source = "./.hushlogin";
-      target = ".hushlogin";
+#      target = ".hushlogin";
     };
 
     pythonrc = {
       source = "./.pythonrc";
-      target = ".pythonrc";
+#      target = ".pythonrc";
     };
 
     xmrigjson = {
       source = "./.xmrig.json";
-      target = ".xmrig.json";
+#      target = ".xmrig.json";
     };
 
     face = {
       source = "./.face2";
-      target = ".face";
+ #     target = ".face";
     };
 
     direnvrc = {
       source = "./.direnvrc";
-      target = ".direnvrc";
+#      target = ".direnvrc";
     };
 
     Templates = {
       source = "./Templates";
-      target = "Templates";
+#      target = "Templates";
       recursive = true;
     };
 
     thunar = {
       source = "/.config/Thunar";
-      target = ".config/Thunar";
+#      target = ".config/Thunar";
       recursive = true;
     };
     
     hej = {
       source = "133713371337";
-      target = "133713371337";
+#      target = "133713371337";
 
     };    
     

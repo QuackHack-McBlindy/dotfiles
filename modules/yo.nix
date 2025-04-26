@@ -69,38 +69,68 @@ let
   
   in fullDoc;
 
-  updateReadme = pkgs.writeScriptBin "update-readme" ''
-    #!${pkgs.runtimeShell}
-    DOCS_CONTENT=$(cat <<EOF
-<!-- YO_DOCS_START -->
-## 🦆 **Yo Commands Reference**
-*Automagiduckically generated from module definitions*
+  updateReadme = pkgs.writeShellScriptBin "update-readme" ''
+    set -euo pipefail
 
-${generateDocs}
-<!-- YO_DOCS_END -->
+    README_PATH="${config.this.user.me.dotfilesDir}/README.md"
+
+    DOCS_CONTENT=$(cat <<'EOF'
+## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
+**Usage:** \`yo <command> [arguments]\`  
+
+**Edit configurations** \`yo edit\` 
+
+## **Usage Examples:**
+\`yo deploy laptop\`
+\`yo deploy user@hostname\`
+\`yo health\`
+\`yo health --host desktop\` 
+
+## ✨ Available Commands
+Set default values for your parameters to have them marked [optiional]
+| Command Syntax               | Aliases    | Description |
+|------------------------------|------------|-------------|
+${helpText}
+## ℹ️ Detailed Help
+For specific command help: 
+\`yo <command> --help\`
+\`yo <command> -h\`
 EOF
     )
 
-    README_PATH="${toString ../README.md}"
-  
-    # Use temporary file for safety
     tmpfile=$(mktemp)
-  
-    # Replace section using awk
+
+    # Insert DOCS_CONTENT between markers
     awk -v docs="$DOCS_CONTENT" '
-      /<!-- YO_DOCS_START -->/ { print; print docs; skip=1; next }
-      /<!-- YO_DOCS_END -->/ { skip=0 }
-      !skip { print }
+      BEGIN { inblock=0 }
+      /<!-- YO_DOCS_START -->/ {
+        print;
+        print docs;
+        inblock=1;
+        next
+      }
+      /<!-- YO_DOCS_END -->/ {
+        inblock=0;
+        print;
+        next
+      }
+      !inblock { print }
     ' "$README_PATH" > "$tmpfile"
-  
-    # Overwrite original only if diff exists
+
+    # Only replace if different and writable
     if ! diff -q "$tmpfile" "$README_PATH" >/dev/null; then
-      mv "$tmpfile" "$README_PATH"
-      echo "Updated README.md"
+      if [ -w "$README_PATH" ]; then
+        cat "$tmpfile" > "$README_PATH"
+        echo "Updated README.md"
+      else
+        echo "Cannot update $README_PATH: Permission denied" >&2
+        exit 1
+      fi
     else
       echo "No changes needed"
-      rm "$tmpfile"
     fi
+
+    rm "$tmpfile"
   '';
 
 
@@ -137,15 +167,15 @@ EOF
           options = {
             name = mkOption { type = types.str; };
             description = mkOption { type = types.str; };
-            default = mkOption {
-              type = types.nullOr types.str;
-              default = null;
-              description = "Default value if parameter is not provided";
-            };
             optional = mkOption { 
               type = types.bool; 
               default = config.default != null;  # Automatically optional if default exists
               description = "Whether this parameter can be omitted";
+            };
+            default = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "Default value if parameter is not provided";
             };
             type = mkOption {
               type = types.enum ["string" "int" "path"];
@@ -310,11 +340,13 @@ in {
 
 
   config = {
+
+
     system.build.updateReadme = pkgs.runCommand "update-readme" {
       helpTextFile = helpTextFile;
     } ''
       mkdir -p $out
-      cp ${toString ../README.md} $out/README.md
+      cp ${toString ./../README.md} $out/README.md
 
       # Insert helpTextFile between YO_DOCS_START and YO_DOCS_END
       ${pkgs.gnused}/bin/sed -i '/<!-- YO_DOCS_START -->/,/<!-- YO_DOCS_END -->/c\
@@ -326,6 +358,7 @@ in {
     <!-- YO_DOCS_END -->' $out/README.md
     '';
     environment.systemPackages = [
+      updateReadme
       (pkgs.writeShellScriptBin "yo" ''
         #!${pkgs.runtimeShell}
         script_dir="${yoScriptsPackage}/bin"
@@ -380,6 +413,7 @@ EOF
       '')
       yoScriptsPackage
       updateReadme
+#      config.system.build.updateReadme # this did not work
     ];
   };
 

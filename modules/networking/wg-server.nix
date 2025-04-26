@@ -7,12 +7,6 @@
 } : let
   # Server configuration
   serverCfg = config.this.host;
-
-  duckPng = pkgs.runCommand "duck.png" {} ''
-    mkdir -p $out
-    cp ${../../home/icons/duck2.png} $out/duck.png
-  '';
-
   
   # Get NixOS host peers
   peerHosts = lib.filterAttrs (_: cfg:
@@ -127,7 +121,7 @@ in {
 
     system.activationScripts.wgUserSetup = {
       text = ''
-        cp ${duckPng}/duck.png /home/wgUser/duck.png
+        cp /home/pungkula/dotfiles/home/icons/duck2.png /home/wgUser/duck.png
         chown wgUser:wgUser /home/wgUser/duck.png
       '';
     };

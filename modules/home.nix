@@ -3,69 +3,76 @@
   lib,
   pkgs,
   ...
-} : let
+}: let
   inherit (lib)
     mkOption mkEnableOption types
     filterAttrs attrNames attrValues listToAttrs
-    mkIf mkDerivedConfig concatLines;
+    mkIf mkMerge mkDefault;
 
-
-  mkService = user: {
-    name = "my.home-${user}";
-    value = {
-      wantedBy = [ "multi-user.target" ];
-      description = "Setup my.home environment for ${user}.";
+  mkUserService = user: {
+    "home-${user}" = {
+      wantedBy = ["multi-user.target"];
+      description = "Set up home directory links for ${user}";
       serviceConfig = {
         Type = "oneshot";
         User = user;
+        # Ensure script path is fully qualified
         ExecStart = "${config.system.build.my.home-link}/bin/my.home-link";
+        # Protect against permission issues
+        UMask = "0077";
+        # Isolate environment
+        PrivateTmp = true;
+        # Set HOME explicitly despite User= directive
+        Environment = "HOME=%d/%U";
       };
+      # Trigger service when any source files change
+      restartTriggers = [config.system.build.my.home-link];
     };
   };
 
-  my.homeFiles = attrValues (filterAttrs (_: v: v.enable) config.my.home);
+  homeLinks = filterAttrs (_: v: v.enable) config.my.home;
 
 in {
   options.my.home = mkOption {
-    type = types.attrsOf (types.submodule ({ name, config, ... }: {
+    type = types.attrsOf (types.submodule ({name, config, ...}: {
       options = {
         target = mkOption {
           type = types.str;
           default = name;
-          description = "Target path relative to home directory";
+          example = ".config/file.json";
+          description = "Relative target path in home directory";
         };
         source = mkOption {
           type = types.path;
-          description = "Source file/directory path";
-        };
-        enable = mkOption {
-          type = types.bool;
-          default = true;
-          description = "Whether to enable this entry";
+          description = "Absolute source path for file/link";
         };
         recursive = mkOption {
           type = types.bool;
           default = false;
-          description = "For directories, create recursive parent directories";
+          description = "Recursive mode";
+        };
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Whether to enable this link";
         };
       };
     }));
     default = {};
   };
 
-  config = let
-    users = attrNames (filterAttrs (_: u: u ? my && u.my ? home) config.users.users);
-
-  in {
+  config = mkIf (homeLinks != {}) {
     system.build.my.home-link = pkgs.writeShellScriptBin "my.home-link" ''
       set -euo pipefail
-      ${concatLines (map (f: ''
-        target="$HOME/${f.target}"
-        ${lib.optionalString f.recursive "mkdir -p \"$(dirname \"$target\")\""}
-        ln -sfn "${f.source}" "$target"
-      '') my.homeFiles)}
+      ${lib.concatMapStrings ({target, source, ...}: ''
+        target="$HOME/${target}"
+        echo "Linking: ${source} -> $target"
+        mkdir -vp "$(dirname "$target")"
+        ln -vsfn "${source}" "$target"
+      '') (attrValues homeLinks)}
     '';
 
-    systemd.services = lib.listToAttrs (map mkService users);
+    systemd.services = mkMerge (map mkUserService 
+      (attrNames (filterAttrs (_: u: u ? my.home) config.users.users)));
   };
 }
