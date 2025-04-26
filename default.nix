@@ -137,7 +137,7 @@ in {
            # Initial choice between installer and host config
             local action=$(${pkgs.gum}/bin/gum choose \
               --cursor="🦆 ➤ " \
-              --header=" Select Configuration Action:" \
+              --header="Create a flash drive auto installer if you dont have NixOS on that machine:" \
               "Build USB auto installer" \
               "Add new host config")
 

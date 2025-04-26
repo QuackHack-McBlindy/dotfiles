@@ -4,21 +4,24 @@
   pkgs,
   self,
   ...
-}:
-
-let
-  # Get the WireGuard server configuration
-  wgServer = lib.findSingle (cfg: 
+} : let
+  # Get all potential servers
+  potentialServers = lib.filter (cfg:
     lib.elem "wg-server" (cfg.config.this.host.modules.networking or [])
-  ) {} {} (lib.attrValues self.nixosConfigurations);
+  ) (lib.attrValues self.nixosConfigurations);
 
-  # Helper functions
-  serverPublicKey = wgServer.config.this.host.keys.publicKeys.wireguard;
-  serverIP = wgServer.config.this.host.ip;
-  serverPort = wgServer.config.networking.wireguard.interfaces.wg0.listenPort;
+  # Select first found server with safety check
+  wgServer = if potentialServers != [] 
+    then lib.head potentialServers 
+    else throw "No WireGuard server configuration found";
+
+  # Helper functions with null safety
+  serverPublicKey = wgServer.config.this.host.keys.publicKeys.wireguard or "";
+  serverIP = wgServer.config.this.host.ip or (throw "WireGuard server IP not found");
+  serverPort = wgServer.config.networking.wireguard.interfaces.wg0.listenPort or 51820;
 
   # Client configuration
-  clientWgIP = config.this.host.wgip;
+  clientWgIP = config.this.host.wgip or (throw "Client WireGuard IP not configured");
   clientPrivateKeySecret = "${config.networking.hostName}_wireguard_private";
 
 in {

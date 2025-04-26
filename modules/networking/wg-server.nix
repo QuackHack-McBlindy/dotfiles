@@ -5,30 +5,26 @@
   self,
   ...
 } : let
-  # Get all NixOS hosts with wireguard client configuration
+  # Server configuration
+  serverCfg = config.this.host;
+
+  duckPng = pkgs.runCommand "duck.png" {} ''
+    mkdir -p $out
+    cp ${./../../home/icons/duck2.png} $out/duck.png
+  '';
+
+  
+  # Get NixOS host peers
   peerHosts = lib.filterAttrs (_: cfg:
     lib.elem "wg-client" (cfg.config.this.host.modules.networking or [])
   ) self.nixosConfigurations;
 
-  # Mobile devices from user config (non-NixOS devices)
-  mobileDevices = config.this.user.me.extraDevices;
-
-  # Server configuration
-  serverCfg = config.this.host;
-  domain = config.sops.secrets.domain.path;
+  # Mobile devices configuration
+  mobileDevices = config.this.user.mobileDevices or {};
 
   # Helper functions
   peerPublicKey = host: host.config.this.host.keys.publicKeys.wireguard;
   peerWgIP = host: host.config.this.host.wgip;
-
-  # Mobile device configuration (should be defined in your config)
-  mobileDeviceConfig = lib.listToAttrs (map (d: {
-    name = d;
-    value = {
-      wgip = serverCfg.mobileDevices.${d}.wgip;  # Add this to your host config
-      pubkey = serverCfg.mobileDevices.${d}.pubkey;  # Add this to your host config
-    };
-  }) mobileDevices);
 
   # SOPs configuration generator
   mkSopsSecret = name: {
@@ -40,17 +36,21 @@
 
 in {
   config = lib.mkIf (lib.elem "wg-server" serverCfg.modules.networking) {
-    sops.secrets = 
+    sops.secrets =
+      { "${config.networking.hostName}_wireguard_private" = mkSopsSecret config.networking.hostName; }
+      //
       (lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peerHosts)
-      // (lib.listToAttrs (map (d: lib.nameValuePair "${d}_wireguard_private" (mkSopsSecret d)) mobileDevices))
-      // {
+      //
+      (lib.listToAttrs (map (d: lib.nameValuePair "${d}_wireguard_private" (mkSopsSecret d)) (lib.attrNames mobileDevices)))
+      //
+      {
         domain = {
           sopsFile = ../../secrets/domain.yaml;
           owner = "wgUser";
           group = "wgUser";
           mode = "0440";
+        };
       };
-    };
 
     networking.wireguard.interfaces.wg0 = {
       ips = [ "${serverCfg.wgip}/24" ];
@@ -64,9 +64,9 @@ in {
         }) peerHosts)
         ++
         # Mobile device peers
-        (map (d: {
-          publicKey = mobileDeviceConfig.${d}.pubkey;
-          allowedIPs = [ "${mobileDeviceConfig.${d}.wgip}/32" ];
+        (lib.mapAttrsToList (name: cfg: {
+          publicKey = cfg.pubkey;
+          allowedIPs = [ "${cfg.wgip}/32" ];
         }) mobileDevices);
     };
 
@@ -84,7 +84,7 @@ in {
       script = let
         deleteOld = lib.concatMapStringsSep "\n" (d: ''
           rm -f "/home/wgUser/${d}.conf" "/home/wgUser/${d}.png"
-        '') mobileDevices;
+        '') (lib.attrNames mobileDevices);
 
         generateQR = device: ''
           TEMP_DIR=$(mktemp -d)
@@ -93,13 +93,13 @@ in {
           cat > "$TEMP_DIR/${device}.conf" <<EOF
           [Interface]
           PrivateKey = $PRIVATE_KEY
-          Address = ${mobileDeviceConfig.${device}.wgip}/24
-          DNS = ${peerHosts.homie.config.this.host.ip}
+          Address = ${mobileDevices.${device}.wgip}/24
+          DNS = ${serverCfg.ip}
 
           [Peer]
           PublicKey = ${serverCfg.keys.publicKeys.wireguard}
           AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
-          Endpoint = $(cat ${domain}):51820
+          Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
           PersistentKeepalive = 25
           EOF
 
@@ -109,7 +109,7 @@ in {
 
       in ''
         ${deleteOld}
-        ${lib.concatMapStringsSep "\n" generateQR mobileDevices}
+        ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}
       '';
 
       wantedBy = [ "multi-user.target" ];
@@ -127,10 +127,9 @@ in {
 
     system.activationScripts.wgUserSetup = {
       text = ''
-        cp ${../../assets/duck.png} /home/wgUser/duck.png
+        cp ${duckPng}/duck.png /home/wgUser/duck.png
         chown wgUser:wgUser /home/wgUser/duck.png
       '';
     };
   };
 }
-

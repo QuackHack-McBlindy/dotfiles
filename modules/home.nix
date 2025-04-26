@@ -1,65 +1,71 @@
-{ config, lib, pkgs, ... }:
+{ 
+  config,
+  lib,
+  pkgs,
+  ...
+} : let
+  inherit (lib)
+    mkOption mkEnableOption types
+    filterAttrs attrNames attrValues listToAttrs
+    mkIf mkDerivedConfig concatLines;
 
-let
-  cfg = config.my.userFiles;
-  inherit (lib) mkOption types;
 
-  forbiddenTargets = [ "" "." "./" ];
-
-  fileType = types.submodule ({ name, ... }: {
-    options = {
-      enable = mkOption { type = types.bool; default = true; };
-      source = mkOption { type = types.str; };
-      target = mkOption {
-        type = types.str;
-        apply = target:
-          if lib.elem target forbiddenTargets
-          then throw "Invalid target path for '${name}': '${target}'"
-          else target;
-      };
-      recursive = mkOption { type = types.bool; default = false; };
-    };
-  });
-
-  enabledFiles = lib.filterAttrs (_: v: v.enable) cfg;
-
-  script = pkgs.writeShellScript "link-user-files" ''
-    set -euo pipefail
-    DOTFILES_DIR="${config.this.user.me.dotfilesDir}"
-    
-    ${lib.concatMapStringsSep "\n" (file: ''
-      # Resolve relative paths
-      target="$HOME/${file.target}"
-      source="$DOTFILES_DIR/${lib.removePrefix "/" file.source}"
-      
-      echo "Linking: $source → $target"
-      mkdir -p "$(dirname "$target")"
-      
-      # Handle existing non-symlinks differently
-      if [[ -e "$target" && ! -L "$target" ]]; then
-        echo "Backing up existing file: $target"
-        mv "$target" "$target.bak"
-      fi
-      
-      ln -sf${if file.recursive then "T" else ""} "$source" "$target"
-    '') (lib.attrValues enabledFiles)}
-  '';
-
-in {
-  options.my.userFiles = mkOption {
-    type = types.attrsOf fileType;
-    default = {};
-    description = "User-level file management with symlinks";
-  };
-
-  config = {
-    systemd.user.services.link-user-files = {
-      description = "Link user config files at login";
-      wantedBy = [ "default.target" ];
+  mkService = user: {
+    name = "my.home-${user}";
+    value = {
+      wantedBy = [ "multi-user.target" ];
+      description = "Setup my.home environment for ${user}.";
       serviceConfig = {
         Type = "oneshot";
-        ExecStart = script;
+        User = user;
+        ExecStart = "${config.system.build.my.home-link}/bin/my.home-link";
       };
     };
+  };
+
+  my.homeFiles = attrValues (filterAttrs (_: v: v.enable) config.my.home);
+
+in {
+  options.my.home = mkOption {
+    type = types.attrsOf (types.submodule ({ name, config, ... }: {
+      options = {
+        target = mkOption {
+          type = types.str;
+          default = name;
+          description = "Target path relative to home directory";
+        };
+        source = mkOption {
+          type = types.path;
+          description = "Source file/directory path";
+        };
+        enable = mkOption {
+          type = types.bool;
+          default = true;
+          description = "Whether to enable this entry";
+        };
+        recursive = mkOption {
+          type = types.bool;
+          default = false;
+          description = "For directories, create recursive parent directories";
+        };
+      };
+    }));
+    default = {};
+  };
+
+  config = let
+    users = attrNames (filterAttrs (_: u: u ? my && u.my ? home) config.users.users);
+
+  in {
+    system.build.my.home-link = pkgs.writeShellScriptBin "my.home-link" ''
+      set -euo pipefail
+      ${concatLines (map (f: ''
+        target="$HOME/${f.target}"
+        ${lib.optionalString f.recursive "mkdir -p \"$(dirname \"$target\")\""}
+        ln -sfn "${f.source}" "$target"
+      '') my.homeFiles)}
+    '';
+
+    systemd.services = lib.listToAttrs (map mkService users);
   };
 }

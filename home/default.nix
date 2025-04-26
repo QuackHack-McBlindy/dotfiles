@@ -1,5 +1,5 @@
 {
-  my.userFiles = {
+  my.home = {
     vesktop = {
       source = "./.config/vesktop";
       target = ".config/vesktop";
