@@ -5,27 +5,32 @@
   self,
   ...
 } : let
-
-  # Get all hosts that have wireguard client configuration
-  peers = lib.filterAttrs (_: cfg:
-    lib.elem "wg-server" (cfg.config.this.host.modules.networking or [])
+  # Get all NixOS hosts with wireguard client configuration
+  peerHosts = lib.filterAttrs (_: cfg:
+    lib.elem "wg-client" (cfg.config.this.host.modules.networking or [])
   ) self.nixosConfigurations;
 
-  # Helper functions to get peer attributes
-  getPeerAttr = attr: host: host.config.this.host.${attr};
+  # Mobile devices from user config (non-NixOS devices)
+  mobileDevices = config.this.user.me.extraDevices;
+
+  # Server configuration
+  serverCfg = config.this.host;
+  domain = config.sops.secrets.domain.path;
+
+  # Helper functions
   peerPublicKey = host: host.config.this.host.keys.publicKeys.wireguard;
   peerWgIP = host: host.config.this.host.wgip;
 
-  # Mobile devices from user config
-  mobileDevices = config.this.user.me.extraDevices;
-
-  # Domain from secrets
-  domain = config.sops.secrets.domain.path;
+  # Mobile device configuration (should be defined in your config)
+  mobileDeviceConfig = lib.listToAttrs (map (d: {
+    name = d;
+    value = {
+      wgip = serverCfg.mobileDevices.${d}.wgip;  # Add this to your host config
+      pubkey = serverCfg.mobileDevices.${d}.pubkey;  # Add this to your host config
+    };
+  }) mobileDevices);
 
   # SOPs configuration generator
-  # SOPs configuration generator (FIXED: Use hostname from peers' keys)
-  hostname = config.this.host.hostname;
-  # Secret generator for both peers and mobile devices
   mkSopsSecret = name: {
     sopsFile = ../../secrets/hosts/${name}/${name}_wireguard_private.yaml;
     owner = "wgUser";
@@ -33,42 +38,36 @@
     mode = "0440";
   };
 
-
-
 in {
-  config = lib.mkIf (lib.elem "wg-server" config.this.host.modules.networking) {
-   sops.secrets = 
-      lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peers //  # FIXED: Added lib. prefix
-      lib.listToAttrs (map (d: lib.nameValuePair "${d}_wireguard_private" (mkSopsSecret d)) mobileDevices) //  # FIXED: Added lib. prefix
-      {
+  config = lib.mkIf (lib.elem "wg-server" serverCfg.modules.networking) {
+    sops.secrets = 
+      (lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peerHosts)
+      // (lib.listToAttrs (map (d: lib.nameValuePair "${d}_wireguard_private" (mkSopsSecret d)) mobileDevices))
+      // {
         domain = {
           sopsFile = ../../secrets/domain.yaml;
           owner = "wgUser";
           group = "wgUser";
           mode = "0440";
-        };
       };
-
-    networking.wireguard.interfaces.wg0 = {
-      ips = [ "${config.this.host.wgip}/24" ];
-      listenPort = 51820;
-      privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
-      peers = lib.mapAttrsToList (_: host: {
-        publicKey = peerPublicKey host;
-        allowedIPs = [ "${peerWgIP host}/32" ];
-      }) peers;
     };
 
-    services.nginx = {
-      enable = true;
-      virtualHosts."wg-qr" = {
-        root = "/home/wgUser/qr_codes";
-        extraConfig = ''
-          autoindex on;
-          autoindex_exact_size off;
-          autoindex_localtime on;
-        '';
-      };
+    networking.wireguard.interfaces.wg0 = {
+      ips = [ "${serverCfg.wgip}/24" ];
+      listenPort = 51820;
+      privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
+      peers = 
+        # NixOS host peers
+        (lib.mapAttrsToList (_: host: {
+          publicKey = peerPublicKey host;
+          allowedIPs = [ "${peerWgIP host}/32" ];
+        }) peerHosts)
+        ++
+        # Mobile device peers
+        (map (d: {
+          publicKey = mobileDeviceConfig.${d}.pubkey;
+          allowedIPs = [ "${mobileDeviceConfig.${d}.wgip}/32" ];
+        }) mobileDevices);
     };
 
     systemd.services.generate-wg-qr = let
@@ -94,11 +93,11 @@ in {
           cat > "$TEMP_DIR/${device}.conf" <<EOF
           [Interface]
           PrivateKey = $PRIVATE_KEY
-          Address = ${peerWgIP self.nixosConfigurations.${device}}/24
-          DNS = ${getPeerAttr "ip" self.nixosConfigurations.homie}
+          Address = ${mobileDeviceConfig.${device}.wgip}/24
+          DNS = ${peerHosts.homie.config.this.host.ip}
 
           [Peer]
-          PublicKey = ${config.this.host.keys.publicKeys.wireguard}
+          PublicKey = ${serverCfg.keys.publicKeys.wireguard}
           AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
           Endpoint = $(cat ${domain}):51820
           PersistentKeepalive = 25

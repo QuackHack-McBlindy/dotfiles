@@ -55,6 +55,33 @@ in {
                             example = [ "iphone" "tablet" "watch" ];
                             description = "Extra groups for main user";
                         };
+                        ####
+                        mobileDevices = mkOption {
+                          type = with types; attrsOf (submodule {
+                            options = {
+                              wgip = mkOption {
+                                type = types.str;
+                                description = "WireGuard IP address for the device";
+                              };
+                              pubkey = mkOption {
+                               type = types.str;
+                                description = "WireGuard public key for the device";
+                              };
+                            };
+                          });
+                          default = {
+                            iphone = {
+                              wgip = "10.0.0.7";
+                              pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw=";
+                            };
+                            tablet = {
+                              wgip = "10.0.0.8";
+                              pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4=";
+                            };
+                          };
+                          description = "Mapping of mobile devices to their WireGuard configurations.";
+                        };
+                        
                         hashedPassword = mkOption {
                             type = types.str;
                             default = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
