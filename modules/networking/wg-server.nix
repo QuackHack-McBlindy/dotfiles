@@ -38,7 +38,7 @@
 
 in {
   config = lib.mkIf (lib.elem "wg-server" config.this.host.modules.networking) {
-    sops.secrets = lib.listToAttrs (map mkSopsSecret (builtins.attrValues peers)) // {
+    sops.secrets = lib.mapAttrs' mkSopsSecret peers // {  # FIXED: Use mapAttrs' to preserve hostnames
       domain = {
         sopsFile = ../../secrets/domain.yaml;
         owner = "wgUser";
