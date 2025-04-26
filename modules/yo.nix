@@ -5,27 +5,6 @@
   ...
 } : with lib;
 let
-   exampleYo = { } : ''
-     yo.scripts = {
-         reboot = {
-             description = "Force reboot and wait for host";
-             aliases = [ "" ];
-             parameters = [
-                 {
-                     name = "host";
-                     description = "Target hostname for the reboot";
-                     optional = true;
-                     default = "example-host"; # set default to set param as optional
-                 }
-             ];
-             code = ''
-                  # TODO: reboot script here
-             '';
-         };
-     };    
-  '';
-
-
   # Helper function to escape markdown special characters
   escapeMD = str: let
     replacements = [
@@ -95,11 +74,23 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
 
+    # Capture flake output
+    FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}")
+    FLAKE_BLOCK=$(
+      echo '```nix'
+      echo "$FLAKE_OUTPUT"
+      echo '```'
+    )
+
+    #  Get generated help text from Nix-built file
+    HELP_CONTENT=$(<${helpTextFile})
+
+
     DOCS_CONTENT=$(cat <<'EOF'
-## Define your scripts to show up here
+## Define scripts
 
 ```nix
-''${exampleYo}
+
 ```
 
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
@@ -136,22 +127,35 @@ EOF
 
     tmpfile=$(mktemp)
 
-    # Insert DOCS_CONTENT between markers
-    awk -v docs="$DOCS_CONTENT" '
-      BEGIN { inblock=0 }
+
+    # Single AWK command handling both replacements
+    awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
+      BEGIN { in_docs=0; in_tree=0 }
       /<!-- YO_DOCS_START -->/ {
-        print;
-        print docs;
-        inblock=1;
+        print
+        print docs
+        in_docs=1
         next
       }
       /<!-- YO_DOCS_END -->/ {
-        inblock=0;
-        print;
+        in_docs=0
+        print
         next
       }
-      !inblock { print }
+      /<!-- TREE_START -->/ {
+        print
+        print tree
+        in_tree=1
+        next
+      }
+      /<!-- TREE_END -->/ {
+        in_tree=0
+        print
+        next
+      }
+      !in_docs && !in_tree { print }
     ' "$README_PATH" > "$tmpfile"
+
 
     # Only replace if different and writable
     if ! diff -q "$tmpfile" "$README_PATH" >/dev/null; then
@@ -376,7 +380,12 @@ in {
 
 
   config = {
-
+#    flakeTree = pkgs.runCommand "flake-tree" {
+#       buildInputs = [ pkgs.nix ];
+#     } ''
+ #      nix flake show ${config.this.user.me.dotfilesDir} > $out
+#     '';
+      
     system.build.updateReadme = pkgs.runCommand "update-readme" {
       helpTextFile = helpTextFile;
     } ''
