@@ -86,12 +86,6 @@ let
 
 
     DOCS_CONTENT=$(cat <<'EOF'
-## Define scripts
-
-```nix
-
-```
-
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** \`yo <command> [arguments]\`  
 

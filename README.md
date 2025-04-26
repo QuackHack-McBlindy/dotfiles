@@ -3,11 +3,17 @@
 <div align="right">
 <sub>
 > [!CAUTION]
-> __Use with caution!__ <br>
+> __Don't blindy run this flake!__ <br>
+> **that's my job.**
 </sub></div><br>
 
-Sup duck? 🦆 <br>
+![Nix](https://img.shields.io/badge/Nix-2.18.1-blue) <br>
+
+Sup ducks? 🦆 <br>
 This is a automagiduckically generated README.md  <br>
+
+
+## **❄️🪾 FlakeTree **
 
 <!-- TREE_START -->
 ```nix
@@ -59,13 +65,32 @@ git+file:///home/pungkula/dotfiles
 
 <br>
 
-<!-- YO_DOCS_START -->
-## Define scripts
+## 🚀 **Declare scripts with parameters**
 
 ```nix
-
+yo.scripts = {
+  example = {
+    description = "Cool script yo";
+    alias = [ "e" ];
+    parameters = [
+      { 
+        name = "input";
+        description = "Input file for examplez";
+        optional = false; # always required parameters first
+      }
+      {
+        name = "agePub";
+        description = "AGE Public key";
+        optional = true;
+        default = config.this.host.keys.publicKeys.age; # Set a default value to make it optional
+      }  
+    ];
+  };
+};  
 ```
 
+
+<!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** `yo <command> [arguments]`  
 
