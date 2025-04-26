@@ -75,10 +75,24 @@ let
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
 
     DOCS_CONTENT=$(cat <<'EOF'
+## Defined scripts like below to show up here
+
+
+
+
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
 **Usage:** \`yo <command> [arguments]\`  
 
-**Edit configurations** \`yo edit\` 
+**yo CLI config mode:** \`yo config\`, \`yo edit\` 
+
+``` 
+❄️ yo CLI Tool
+🦆 ➤ Edit hosts
+     Edit yo CLI scripts
+     Edit flake
+     Add new host
+     🚫 Exit
+``` 
 
 ## **Usage Examples:**
 \`yo deploy laptop\`
