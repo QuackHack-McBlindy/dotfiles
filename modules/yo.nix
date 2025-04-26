@@ -5,24 +5,24 @@
   ...
 } : with lib;
 let
-  exampleYo = ''
-    yo.scripts = {
-      reboot = {
-        description = "Force reboot and wait for host";
-        aliases = [ "" ];
-        parameters = [
-          {
-            name = "host";
-            description = "Target hostname for the reboot";
-            optional = true;
-            default = "example-host";
-          }
-        ];
-        code = ''
-          # TODO: reboot script here
-        '';
-      };
-    };
+   exampleYo = { } : ''
+     yo.scripts = {
+         reboot = {
+             description = "Force reboot and wait for host";
+             aliases = [ "" ];
+             parameters = [
+                 {
+                     name = "host";
+                     description = "Target hostname for the reboot";
+                     optional = true;
+                     default = "example-host"; # set default to set param as optional
+                 }
+             ];
+             code = ''
+                  # TODO: reboot script here
+             '';
+         };
+     };    
   '';
 
 
@@ -376,7 +376,6 @@ in {
 
 
   config = {
-
 
     system.build.updateReadme = pkgs.runCommand "update-readme" {
       helpTextFile = helpTextFile;
