@@ -5,6 +5,7 @@
   self,
   ...
 } : let
+
   # Get all hosts that have wireguard client configuration
   peers = lib.filterAttrs (_: cfg:
     lib.elem "wg-server" (cfg.config.this.host.modules.networking or [])
@@ -22,15 +23,18 @@
   domain = config.sops.secrets.domain.path;
 
   # SOPs configuration generator
-  mkSopsSecret = host: {
-    name = "${host.name}_wireguard_private";
+  # SOPs configuration generator (FIXED: Use hostname from peers' keys)
+  hostname = config.this.host.hostname;
+  mkSopsSecret = hostname: host: {
+    name = "${hostname}_wireguard_private";
     value = {
-      sopsFile = ../../secrets/hosts/${host.name}/${host.name}_wireguard_private.yaml;
+      sopsFile = ../../secrets/hosts/${hostname}/${hostname}_wireguard_private.yaml;
       owner = "wgUser";
       group = "wgUser";
       mode = "0440";
     };
   };
+
 
 in {
   config = lib.mkIf (lib.elem "wg-server" config.this.host.modules.networking) {
