@@ -495,7 +495,6 @@ EOF
         ];
         code = ''
           ${cmdHelpers}
-          parse_flags "$@"
           DOTFILES_DIR=''$flake
           run_cmd cd "$DOTFILES_DIR"
           run_cmd git checkout -- .
@@ -581,11 +580,15 @@ EOF
           }
           
           # Fancy success message
-          rainbow_text "\n\033[38;5;213m╔══════════════════════════════════════╗"
-          rainbow_text "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
-          run_cmd rainbow_text "╚══════════════════════════════════════╝\033[0m"
+          run_cmd echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
+          run_cmd echo -e "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
+          run_cmd echo -e "╚══════════════════════════════════════╝\033[0m"
           run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
+          rainbow_text "╔══════════════════════════════════════╗"
+          rainbow_text "║  🎉 Successfully pushed dotfiles!!   ║"
+          rainbow_text "╚══════════════════════════════════════╝"
+          
         '';
       };
 
