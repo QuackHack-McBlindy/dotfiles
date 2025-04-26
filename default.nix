@@ -64,24 +64,18 @@ in {
       
         rainbow_text() {
           local text="$1"
-          local colors=(
-            "\033[38;5;196m"  # Red
-            "\033[38;5;202m"  # Orange
-            "\033[38;5;226m"  # Yellow
-            "\033[38;5;46m"   # Green
-            "\033[38;5;51m"   # Cyan
-            "\033[38;5;189m"  # Blue
-            "\033[38;5;99m"   # Purple
-          )
-         local colored_text=""
+          local colors=(196 202 226 46 51 189 99)
           local color_index=0
-          local text_length=$${#text}
-
-          for ((i = 0; i < text_length; i++)); do
-            colored_text+="$${colors[$$((color_index % $${#colors[@]}))]}$${text:$$i:1}\033[0m"
+  
+          echo -en "\n"
+          while IFS= read -r -n1 char; do
+            [ -z "$char" ] && continue  # Skip empty newlines
+            printf "\033[38;5;%sm%s\033[0m" \
+              "$${colors[$$((color_index % $${#colors[@]}))]}" \
+              "$char"
             ((color_index++))
-          done
-          echo -e "$${colored_text}"
+          done <<< "$text"
+          echo
         }
       
 #        git_safe_checkout() {
@@ -586,9 +580,12 @@ EOF
           run_cmd echo -e "╚══════════════════════════════════════╝\033[0m"
           run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
-          rainbow_text ╔══════════════════════════════════════╗
-          rainbow_text ║  🎉 Successfully pushed dotfiles!!   ║
-          rainbow_text ╚══════════════════════════════════════╝
+          # Fancy success message
+          run_cmd rainbow_text "╔══════════════════════════════════════╗"
+          run_cmd rainbow_text "║  🎉  Successfully pushed dotfiles!  ║"
+          run_cmd rainbow_text "╚══════════════════════════════════════╝"
+          run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
+          run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
           
         '';
       };
