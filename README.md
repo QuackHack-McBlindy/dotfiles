@@ -2,18 +2,22 @@
 
 <div align="right">
 <sub>
-> [!CAUTION]
-> __Don't blindy run this flake!__ <br>
-> **that's my job.**
+
 </sub></div><br>
 
 ![Nix](https://img.shields.io/badge/Nix-2.18.1-blue) <br>
 
-Sup ducks? 🦆 <br>
+> [!CAUTION]
+> __Don't blindly run this flake__ <br>
+> **I do that**
+
+
+Sup ducks? 🦆 qwack on <br>
+Here lies dotfiles,<br>
 This is a automagiduckically generated README.md  <br>
 
 
-## **❄️🪾 FlakeTree **
+## **❄️🪾 FlakeTree**
 
 <!-- TREE_START -->
 ```nix
@@ -66,29 +70,6 @@ git+file:///home/pungkula/dotfiles
 <br>
 
 ## 🚀 **Declare scripts with parameters**
-
-```nix
-yo.scripts = {
-  example = {
-    description = "Cool script yo";
-    alias = [ "e" ];
-    parameters = [
-      { 
-        name = "input";
-        description = "Input file for examplez";
-        optional = false; # always required parameters first
-      }
-      {
-        name = "agePub";
-        description = "AGE Public key";
-        optional = true;
-        default = config.this.host.keys.publicKeys.age; # Set a default value to make it optional
-      }  
-    ];
-  };
-};  
-```
-
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**

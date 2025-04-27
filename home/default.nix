@@ -1,83 +1,90 @@
-{
+{ 
   config,
   ...
 } : {
-  my.home = {
-    vesktop = {
-      source = "./.config/vesktop";
-#      target = ".config/vesktop";
-      recursive = true;
+#  imports = [ ./gtk.nix ];
+  this.home = {
+  # RC
+    torrc = { source = ./.torrc; };
+    wgetrc = { source = ./.wgetrc; };
+    hushlogin = { source = ./.hushlogin; };    
+    pythonrc = { source = ./.pythonrc; }; 
+    xmrigjson = { source = ./.xmrig.json; };
+    face = { source = ./.face2; };
+    direnvrc = { source = ./.direnvrc; user = "pungkula"; };
+#    Templates = { source = ./Templates; };
+#    vesktop = { source = ./.config/vesktop; };
+#    thunar = { source = /.config/Thunar; };
+
+  # Proton VPN App Config
+    "proton-app-config" = {
+      source = ./.config/Proton/VPN/app-config.json;
+      target = ".config/Proton/VPN/app-config.json";
+    };
+     # Proton VPN Settings
+    ".proton-settings" = {
+      source = ./.config/Proton/VPN/settings.json;
+      target = ".config/Proton/VPN/settings.json";
+    };
+        
+    "lsd-config" = {
+      source = ./.config/lsd;
+      target = ".config/lsd";
+      enable = true;
     };
 
-    torrc = {
-      source = "./.torrc";
- #     target = ".torrc";
+    # Speech Dispatcher Configuration
+    "speechd" = {
+      source = ./.config/speech-dispatcher/speechd.conf;
+      target = ".config/speech-dispatcher/speechd.conf";
+      enable = true;
     };
 
-    wgetrc = {
-      source = "./.wgetrc";
-#      target = ".wgetrc";
+
+    # Piper sv_SE TTS Module
+    "piper-module" = {
+      source = ./.config/speech-dispatcher/modules/piper-tts-generic.conf;
+      target = ".config/speech-dispatcher/modules/piper-tts-generic.conf";
+      enable = true;
     };
 
-    hushlogin = {
-      source = "./.hushlogin";
-#      target = ".hushlogin";
+
+    "custom-module" = {
+      source = ./.config/speech-dispatcher/modules/custom-tts.conf;
+      target = ".config/speech-dispatcher/modules/custom-tts.conf";
+      enable = true;
+    };
+   
+    # Speech Dispatcher Desktop Client
+    "speech-dispatcher-desktop" = {
+      source = ./.config/speech-dispatcher/desktop/speechd.desktop;
+      target = ".config/speech-dispatcher/desktop/speechd.desktop";
+      enable = true;
     };
 
-    pythonrc = {
-      source = "./.pythonrc";
-#      target = ".pythonrc";
-    };
+    # Orca Settings
+    "orca-user-settings" = {
+      source = ./.local/share/orca/user-settings.conf;
+      target = ".local/share/orca/user-settings.conf";
+      enable = true;
+    };   
 
-    xmrigjson = {
-      source = "./.xmrig.json";
-#      target = ".xmrig.json";
-    };
-
-    face = {
-      source = "./.face2";
- #     target = ".face";
-    };
-
-    direnvrc = {
-      source = "./.direnvrc";
-#      target = ".direnvrc";
-    };
-
-    Templates = {
-      source = "./Templates";
-#      target = "Templates";
-      recursive = true;
-    };
-
-    thunar = {
-      source = "/.config/Thunar";
-#      target = ".config/Thunar";
-      recursive = true;
-    };
-    
-    hej = {
-      source = "133713371337";
-#      target = "133713371337";
-
-    };    
-    
 
   };
+}    
+  
+  
+  # en_US Female Amy
+#  home.file.piper = {
+#    enable = true;
+#    force = true;
+#    target = "/.config/speech-dispatcher/modules/piper-tts-generic.conf";
+#    text = ''
+#      GenericExecuteSynth "export XDATA=\'$DATA\'; echo \"$XDATA\" | sed -z 's/\\n/ /g' | piper -q -m \"./../../home/.config/.piper/en_US-amy-medium.onnx\" -c \"./../../home/.config/.piper/en_US-amy-medium-onnx.json\" -s 21 -f - | aplay"
+#
+#      AddVoice "en-US" "Amy"   "en_US-amy-medium"
+#    '';
+#  }; 
 
 
-
-  # Example of additional entries (if uncommented, place them *inside* my.userFiles)
-  # projects-envrc = {
-  #   source = ./../../home/projects/fetch/.envrc;
-  #   target = "projects/fetch/.envrc";
-  #   enable = true;
-  # };
-
-  # projects-flake = {
-  #   source = ./../../home/projects/fetch/flake.nix;
-  #   target = "projects/fetch/flake.nix";
-  #   enable = true;
-  # };
-}
 

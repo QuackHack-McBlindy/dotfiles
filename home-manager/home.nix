@@ -21,10 +21,10 @@ in {
   #    ./modules/vesktop.nix
       ./modules/git.nix
       ./modules/gtk.nix
-      ./modules/lsd.nix
-      ./modules/proton.nix
-      ./modules/screen-reader.nix
-      ./modules/starship.nix
+    #  ./modules/lsd.nix
+     # ./modules/proton.nix
+    #  ./modules/screen-reader.nix
+     # ./modules/starship.nix
       ./modules/gnome-terminal.nix    
   ];
 

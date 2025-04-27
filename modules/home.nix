@@ -6,50 +6,51 @@
 }: let
   inherit (lib)
     mkOption mkEnableOption types
-    filterAttrs attrNames attrValues listToAttrs
-    mkIf mkMerge mkDefault;
+    filterAttrs mkIf mkMerge groupBy mapAttrs';
 
-  mkUserService = user: {
+#dconf dump / > ~/dotfiles/dconf-settings.ini
+
+#home.activation.dconfLoad = ''
+#  if [ -e ~/dotfiles/dconf-settings.ini ]; then
+#    dconf load / < ~/dotfiles/dconf-settings.ini
+#  fi
+#'';
+
+  mkUserService = user: links: {
     "home-${user}" = {
       wantedBy = ["multi-user.target"];
       description = "Set up home directory links for ${user}";
       serviceConfig = {
         Type = "oneshot";
         User = user;
-        # Ensure script path is fully qualified
-        ExecStart = "${config.system.build.my.home-link}/bin/my.home-link";
-        # Protect against permission issues
+        ExecStart = "${config.system.build.this.home-links.${user}}/bin/my-home-link-${user}";
         UMask = "0077";
-        # Isolate environment
         PrivateTmp = true;
-        # Set HOME explicitly despite User= directive
-        Environment = "HOME=%d/%U";
       };
-      # Trigger service when any source files change
-      restartTriggers = [config.system.build.my.home-link];
     };
   };
 
-  homeLinks = filterAttrs (_: v: v.enable) config.my.home;
+  homeLinks = filterAttrs (_: v: v.enable) config.this.home;
+  linksByUser = groupBy (link: link.user) (lib.attrValues homeLinks);
 
 in {
-  options.my.home = mkOption {
+  options.this.home = mkOption {
     type = types.attrsOf (types.submodule ({name, config, ...}: {
       options = {
+        user = mkOption {
+          type = types.str;
+          default = "pungkula";
+          description = "User account for which the link is created";
+        };
         target = mkOption {
           type = types.str;
-          default = name;
-          example = ".config/file.json";
+          default = builtins.baseNameOf config.source;  # Auto-detect from source
+          defaultText = "baseNameOf source";
           description = "Relative target path in home directory";
         };
         source = mkOption {
           type = types.path;
-          description = "Absolute source path for file/link";
-        };
-        recursive = mkOption {
-          type = types.bool;
-          default = false;
-          description = "Recursive mode";
+          description = "Source path (relative to this Nix file)";
         };
         enable = mkOption {
           type = types.bool;
@@ -62,17 +63,20 @@ in {
   };
 
   config = mkIf (homeLinks != {}) {
-    system.build.my.home-link = pkgs.writeShellScriptBin "my.home-link" ''
-      set -euo pipefail
-      ${lib.concatMapStrings ({target, source, ...}: ''
-        target="$HOME/${target}"
-        echo "Linking: ${source} -> $target"
-        mkdir -vp "$(dirname "$target")"
-        ln -vsfn "${source}" "$target"
-      '') (attrValues homeLinks)}
-    '';
+    system.build.this.home-links = lib.mapAttrs (user: links:
+      pkgs.writeShellScriptBin "my-home-link-${user}" ''
+        set -euo pipefail
+        ${lib.concatMapStrings ({target, source, ...}: ''
+          target="$HOME/${target}"
+          echo "Linking: ${toString source} -> $target"
+          mkdir -vp "$(dirname "$target")"
+          ln -vsfn "${toString source}" "$target"
+        '') links}
+      ''
+    ) linksByUser;
 
-    systemd.services = mkMerge (map mkUserService 
-      (attrNames (filterAttrs (_: u: u ? my.home) config.users.users)));
+    systemd.services = mkMerge (
+      lib.mapAttrsToList mkUserService linksByUser
+    );
   };
 }

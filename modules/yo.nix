@@ -120,8 +120,12 @@ EOF
 
     tmpfile=$(mktemp)
 
+    # Extract NixOS VERSION_ID
+    VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
+    BADGE_URL="https://img.shields.io/badge/NixOS-${VERSION}-blue"
+    sed -i "s|https://img.shields.io/badge/NixOS-.*-blue|${BADGE_URL}|g" README.md
+    echo "Badge updated to NixOS ${VERSION}."
 
-    # Single AWK command handling both replacements
     awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
       BEGIN { in_docs=0; in_tree=0 }
       /<!-- YO_DOCS_START -->/ {
@@ -165,7 +169,6 @@ EOF
 
     rm "$tmpfile"
   '';
-
 
   yoEnvGenVar = script: let
     withDefaults = builtins.filter (p: p.default != null) script.parameters;
@@ -373,11 +376,6 @@ in {
 
 
   config = {
-#    flakeTree = pkgs.runCommand "flake-tree" {
-#       buildInputs = [ pkgs.nix ];
-#     } ''
- #      nix flake show ${config.this.user.me.dotfilesDir} > $out
-#     '';
       
     system.build.updateReadme = pkgs.runCommand "update-readme" {
       helpTextFile = helpTextFile;
@@ -455,3 +453,5 @@ EOF
   };
 
 }
+
+

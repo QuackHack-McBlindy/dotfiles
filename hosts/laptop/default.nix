@@ -51,7 +51,7 @@
         host = {
             system = "x86_64-linux";
             hostname = "laptop";
-            autoPull = false;
+            autoPull = true;
             interface = [ "wlan0" ];
             ip = "192.168.1.222";
             wgip = "10.0.0.3";
