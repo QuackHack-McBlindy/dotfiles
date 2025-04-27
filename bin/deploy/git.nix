@@ -47,22 +47,22 @@
           ${cmdHelpers}
           REPO="$repo"
           DOTFILES_DIR="$flake"
-          COMMIT_MSG=''${HOST:-"Updated files"}
-          run_cmd cd "$DOTFILES_DIR"
+          
+           # Fixed version handling using Nix-provided version
+          echo -e "\033[1;34m🔄 Updating README version badge...\033[0m"
           run_cmd update-readme
 
-          # Get current NixOS generation number (system-level)
+          # Generation number handling with improved error recovery
           echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
-          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system | tail -n 1 | awk '{print $1}' || {
-            echo -e "\033[1;31m❌ Failed to get NixOS generation number (try home-manager version below)\033[0m"
-            # Fallback to home-manager generations if system generations are unavailable
-            GEN_NUMBER=$(nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" | tail -n 1 | awk '{print $1}') || {
-              echo -e "\033[1;31m❌ Failed to get home-manager generation number\033[0m"
-              exit 1
-            }
-          })
+          GEN_NUMBER=$({
+            sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
+            nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" 2>/dev/null ||
+            echo "unknown"
+          } | tail -n 1 | awk '{print $1}')
 
-
+          
+          COMMIT_MSG="Autocommit: Generation $GEN_NUMBER"  
+          run_cmd cd "$DOTFILES_DIR"
           if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             echo -e "\033[1;33m⚡ Initializing new Git repository\033[0m"
             run_cmd git init
@@ -101,26 +101,26 @@
             echo -e "\033[1;36m🎉 No changes to commit\033[0m"
             exit 0
           fi
-          # Commit and push changes
+
+          # When committing changes - Change 2: Add detailed commit message
           echo -e "\033[1;34m📦 Staging changes...\033[0m"
           run_cmd git add .
           
+          # Add these lines for detailed commit message
           echo -e "\033[1;34m📋 Generating change summary...\033[0m"
           DIFF_STAT=$(git diff --staged --stat)
-          COMMIT_MSG="Autocommit: Generation $GEN_NUMBER"
           
-          # Commit with multi-line message
+          # Modified commit command
           echo -e "\033[1;34m💾 Committing changes: $COMMIT_MSG\033[0m"
-          run_cmd git commit -m "$COMMIT_MSG" -m "Changed files:\n$DIFF_STAT"
+          run_cmd git commit -m "$COMMIT_MSG" -m "Changed files:\n$DIFF_STAT"  # Replace existing commit line
           
-          # Create annotated tag
+          # Change 3: Add tagging after commit
           echo -e "\033[1;34m🏷  Tagging commit as gen-$GEN_NUMBER\033[0m"
           run_cmd git tag -a "gen-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
-          
-          echo -e "\033[1;34m💾 Committing changes: $COMMIT_MSG\033[0m"
-          run_cmd git commit -m "$COMMIT_MSG"
-          run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch...\033[0m"
-          run_cmd git push -u origin "$CURRENT_BRANCH" || {
+
+          # Modify push command to include tags
+          run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
+          run_cmd git push -u origin "$CURRENT_BRANCH" --tags || {  # Add --tags to existing push command
             run_cmd echo -e "\033[1;31m❌ Push failed\033[0m"
             exit 1
           }
