@@ -1,5 +1,5 @@
 # bin/sops.nix
-{ pkgs, cmdHelpers, ... }:
+{ self, config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {  
       sops = {

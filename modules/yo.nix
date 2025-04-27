@@ -122,9 +122,8 @@ EOF
 
     # Extract NixOS VERSION_ID
     VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
-    BADGE_URL="https://img.shields.io/badge/NixOS-${VERSION}-blue"
-    sed -i "s|https://img.shields.io/badge/NixOS-.*-blue|${BADGE_URL}|g" README.md
-    echo "Badge updated to NixOS ${VERSION}."
+    BADGE_URL="https://img.shields.io/badge/NixOS-''${VERSION}-blue"
+    sed -i "s|https://img.shields.io/badge/NixOS-.*-blue|''${BADGE_URL}|g" README.md
 
     awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
       BEGIN { in_docs=0; in_tree=0 }

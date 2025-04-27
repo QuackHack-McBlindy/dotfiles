@@ -1,5 +1,5 @@
 # bin/reboot.nix
-{ pkgs, cmdHelpers, ... }:
+{ self, config, pkgs, sysHosts, cmdHelpers, ... }:
 {
     yo.scripts = { 
       reboot = {
@@ -9,6 +9,7 @@
           { name = "host"; description = "Target hostname for the reboot"; optional = true; default = config.this.host.hostname; }
         ];
         code = ''
+          ${cmdHelpers}
           # Ensure sysHosts is defined elsewhere in your config
           if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
             echo -e "\033[1;31m❌ Invalid host: $host\033[0m" >&2

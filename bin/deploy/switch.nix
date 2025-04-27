@@ -1,5 +1,5 @@
 # bin/switch.nix
-{ pkgs, cmdHelpers, ... }:
+{ self, config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
       switch = {

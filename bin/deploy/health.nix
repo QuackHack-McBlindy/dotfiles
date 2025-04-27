@@ -1,7 +1,8 @@
 # bin/health.nix
-{ pkgs, cmdHelpers, ... }:
+{ self, config, pkgs, cmdHelpers, ... }:
 {
-  health = {
+  
+  yo.scripts.health = {
     description = "Check system health status across your machines";
     aliases = [ "hc" ];
     parameters = [

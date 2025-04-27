@@ -17,9 +17,12 @@ Here lies dotfiles,<br>
 This is a automagiduckically generated README.md  <br>
 
 
-## **❄️🪾 FlakeTree**
+<details>
+  <summary>Click to expand the tree</summary>
 
-<!-- TREE_START -->
+  ## **❄️🪾 FlakeTree**
+
+  <!-- TREE_START -->
 ```nix
 git+file:///home/pungkula/dotfiles
 ├───apps
@@ -52,6 +55,7 @@ git+file:///home/pungkula/dotfiles
 └───packages
     ├───aarch64-linux
     │   ├───example omitted (use '--all-systems' to show)
+    │   ├───"example (copy 1)" omitted (use '--all-systems' to show)
     │   ├───health omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   └───tv omitted (use '--all-systems' to show)
@@ -60,16 +64,20 @@ git+file:///home/pungkula/dotfiles
         ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
         ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
         ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-        ├───example: package 'hello-0.1.0'
+        ├───example: package 'git-wrapped'
+        ├───"example (copy 1)": package 'git-wrapped-0.1.0'
         ├───health: package 'health'
         ├───say: package 'say'
         └───tv: package 'tv'
 ```
-<!-- TREE_END -->
+  <!-- TREE_END -->
 
-<br>
+</details>
 
 ## 🚀 **Declare scripts with parameters**
+
+**Magic unified --help commands ** <br>
+**Auto updating documentation ** <br>
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
@@ -96,7 +104,6 @@ git+file:///home/pungkula/dotfiles
 Set default values for your parameters to have them marked [optiional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
-| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo health [--host]` | hc | Check system health status across your machines |

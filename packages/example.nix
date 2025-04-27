@@ -1,14 +1,9 @@
-{ stdenv }:
+{ pkgs }:
 
-stdenv.mkDerivation {
-  pname = "hello";
-  version = "0.1.0";
-  src = null;
-  phases = [ "installPhase" ];
-  installPhase = ''
-    mkdir -p $out/bin
-    echo 'echo Hello, world!' > $out/bin/hello
-    chmod +x $out/bin/hello
-  '';
-}
+pkgs.runCommand "git-wrapped" { nativeBuildInputs = [ pkgs.makeWrapper ]; } ''
+  mkdir -p $out/bin
+  makeWrapper ${pkgs.git}/bin/git $out/bin/git \
+    --set GIT_TRACE 1 \
+    --prefix PATH : ${pkgs.openssh}/bin
+''
 

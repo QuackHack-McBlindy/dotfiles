@@ -1,5 +1,5 @@
 # bin/edit.nix
-{ pkgs, cmdHelpers, ... }:
+{ self, config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
       edit = {
@@ -32,9 +32,9 @@
             case "$action" in
               "Build USB auto installer")
                 ${pkgs.gum}/bin/gum style --foreground 212 "=== Building USB Installer ==="
-                echo "nix build .#nixosConfigurations.$(hostname).config.system.build.isoImage" | ${pkgs.gum}/bin/gum format -t code
+                echo "nix build .#nixosConfigurations.$(hostname).self.config.system.build.isoImage" | ${pkgs.gum}/bin/gum format -t code
                 ${pkgs.gum}/bin/gum confirm "Proceed with build?" && \
-                  nix build .#nixosConfigurations.$(hostname).config.system.build.isoImage
+                  nix build .#nixosConfigurations.$(hostname).self.config.system.build.isoImage
                 ;;
 
               "Add new host config")
@@ -90,7 +90,7 @@
         };
         kernelPackages = pkgs.linuxPackages_6_1; 
         extraModulePackages = [
-            config.boot.kernelPackages.broadcom_sta
+            self.config.boot.kernelPackages.broadcom_sta
         ];
     };
     

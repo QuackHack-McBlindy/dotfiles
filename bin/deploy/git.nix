@@ -1,5 +1,5 @@
 # bin/health.nix
-{ pkgs, cmdHelpers, ... }:
+{ self, config, pkgs, cmdHelpers, ... }:
 {
   yo.scripts = {
     pull = {
@@ -105,7 +105,4 @@
           run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
         '';
-      };}
-
-
-
+      };};}
