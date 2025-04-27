@@ -12,15 +12,14 @@
 > **I do that**
 
 
-Sup ducks? 🦆 qwack on <br>
-Here lies dotfiles,<br>
-This is a automagiduckically generated README.md  <br>
+_Sup ducks?_ 🦆 qwack on <br>
+_Here lives my dotfiles,_ <br>
+_This is a automagiduckically generated README.md_  <br>
 
 
 <details>
-  <summary>Click to expand the tree</summary>
+  <summary>## **❄️🪾 FlakeTree**</summary>
 
-  ## **❄️🪾 FlakeTree**
 
   <!-- TREE_START -->
 ```nix
@@ -76,8 +75,7 @@ git+file:///home/pungkula/dotfiles
 
 ## 🚀 **Declare scripts with parameters**
 
-**Magic unified --help commands ** <br>
-**Auto updating documentation ** <br>
+auto generating a unified help commands system for script execution with automatic documentation.  <br>
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
