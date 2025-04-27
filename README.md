@@ -5,7 +5,9 @@
 
 </sub></div><br>
 
-![Nix](https://img.shields.io/badge/Nix-2.18.1-blue) <br>
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-5.15.0-red) ![Nix](https://img.shields.io/badge/Nix-2.18.1-blue)
+
+
 
 > [!CAUTION]
 > __Don't blindly run this flake__ <br>
@@ -18,7 +20,7 @@ _This is a automagiduckically generated README.md_  <br>
 
 
 <details>
-  <summary>## **❄️🪾 FlakeTree**</summary>
+  <summary> ## ❄️🌲 **FlakeTree** </summary>
 
 
   <!-- TREE_START -->
@@ -72,9 +74,6 @@ git+file:///home/pungkula/dotfiles
   <!-- TREE_END -->
 
 </details>
-
-## 🚀 **Declare scripts with parameters**
-
 auto generating a unified help commands system for script execution with automatic documentation.  <br>
 
 <!-- YO_DOCS_START -->
