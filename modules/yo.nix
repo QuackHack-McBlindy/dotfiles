@@ -5,6 +5,12 @@
   ...
 } : with lib;
 let
+
+  nixosVersion = let
+    raw = builtins.readFile /etc/os-release;
+    versionMatch = builtins.match ".*VERSION_ID=([0-9\\.]+).*" raw;
+  in builtins.replaceStrings [ "." ] [ "%2E" ] (builtins.elemAt versionMatch 0);
+  
   # Helper function to escape markdown special characters
   escapeMD = str: let
     replacements = [
@@ -73,6 +79,7 @@ let
     set -euo pipefail
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
+    # Inside the shell script portion, use Nix-provided version
 
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
@@ -83,7 +90,6 @@ let
 
     #  Get generated help text from Nix-built file
     HELP_CONTENT=$(<${helpTextFile})
-
 
     DOCS_CONTENT=$(cat <<'EOF'
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
@@ -120,11 +126,19 @@ EOF
 
     tmpfile=$(mktemp)
 
-    # Extract NixOS VERSION_ID
-    VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
-    BADGE_URL="https://img.shields.io/badge/NixOS-''${VERSION}-blue"
-    sed -i "s|https://img.shields.io/badge/NixOS-.*-blue|''${BADGE_URL}|g" README.md
 
+    # Improved version extraction with quote removal and validation
+    VERSION=$( (grep VERSION_ID= /etc/os-release || echo 'VERSION_ID="0.0"') | cut -d= -f2 | tr -d '"')
+    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+      echo "⚠️  Invalid version detected: $VERSION, using fallback"
+      VERSION="unknown"
+    fi
+
+    # Sanitized badge URL construction
+    VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
+    SANITIZED_VERSION=''${VERSION//./%2E}  # Proper shell escaping
+    BADGE_URL="https://img.shields.io/badge/NixOS-''${SANITIZED_VERSION}-blue"
+    sed -i "s|https://img.shields.io/badge/NixOS-[^-]*-blue|''${BADGE_URL}|g" README.md
     awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
       BEGIN { in_docs=0; in_tree=0 }
       /<!-- YO_DOCS_START -->/ {
@@ -150,8 +164,19 @@ EOF
         next
       }
       !in_docs && !in_tree { print }
-    ' "$README_PATH" > "$tmpfile"
+    ' "$README_PATH" > "$tmpfile" 
 
+    # Improved diff check with error handling
+    if ! cmp -s "$tmpfile" "$README_PATH"; then
+      echo "🌀 Changes detected, updating README.md"
+      if ! install -m 644 "$tmpfile" "$README_PATH"; then
+        echo "❌ Failed to update README.md (permissions?)" >&2
+        rm "$tmpfile"
+        exit 1
+      fi
+    else
+      echo "✅ No content changes needed"
+    fi
 
     # Only replace if different and writable
     if ! diff -q "$tmpfile" "$README_PATH" >/dev/null; then

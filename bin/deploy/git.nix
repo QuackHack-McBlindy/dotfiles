@@ -49,6 +49,20 @@
           DOTFILES_DIR="$flake"
           COMMIT_MSG=''${HOST:-"Updated files"}
           run_cmd cd "$DOTFILES_DIR"
+          run_cmd update-readme
+
+          # Get current NixOS generation number (system-level)
+          echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
+          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system | tail -n 1 | awk '{print $1}' || {
+            echo -e "\033[1;31m❌ Failed to get NixOS generation number (try home-manager version below)\033[0m"
+            # Fallback to home-manager generations if system generations are unavailable
+            GEN_NUMBER=$(nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" | tail -n 1 | awk '{print $1}') || {
+              echo -e "\033[1;31m❌ Failed to get home-manager generation number\033[0m"
+              exit 1
+            }
+          })
+
+
           if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
             echo -e "\033[1;33m⚡ Initializing new Git repository\033[0m"
             run_cmd git init
@@ -90,6 +104,19 @@
           # Commit and push changes
           echo -e "\033[1;34m📦 Staging changes...\033[0m"
           run_cmd git add .
+          
+          echo -e "\033[1;34m📋 Generating change summary...\033[0m"
+          DIFF_STAT=$(git diff --staged --stat)
+          COMMIT_MSG="Autocommit: Generation $GEN_NUMBER"
+          
+          # Commit with multi-line message
+          echo -e "\033[1;34m💾 Committing changes: $COMMIT_MSG\033[0m"
+          run_cmd git commit -m "$COMMIT_MSG" -m "Changed files:\n$DIFF_STAT"
+          
+          # Create annotated tag
+          echo -e "\033[1;34m🏷  Tagging commit as gen-$GEN_NUMBER\033[0m"
+          run_cmd git tag -a "gen-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
+          
           echo -e "\033[1;34m💾 Committing changes: $COMMIT_MSG\033[0m"
           run_cmd git commit -m "$COMMIT_MSG"
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch...\033[0m"

@@ -12,8 +12,8 @@
 > **I do that**
 
 
-_Sup ducks?_ 🦆 qwack on <br>
-_Here lives my dotfiles,_ <br>
+__Sup ducks? 🦆 qwack on__ <br>
+__Here lives my dotfiles,__  <br>
 _This is a automagiduckically generated README.md_  <br>
 
 
