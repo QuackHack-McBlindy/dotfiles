@@ -17,7 +17,7 @@ in {
       ./modules/session.nix
       ./modules/direnv.nix
       ./modules/dconf.nix
-      ./modules/myfox.nix
+#      ./modules/myfox.nix
   #    ./modules/vesktop.nix
       ./modules/git.nix
       ./modules/gtk.nix

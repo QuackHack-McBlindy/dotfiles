@@ -44,6 +44,7 @@
                 pkgs.telegraf
                 pkgs.procps
                 pkgs.pv
+                pkgs.starship
                 pkgs.nfs-utils
                 pkgs.rclone
                 pkgs.syncrclone
@@ -95,6 +96,7 @@
                 # inputs.api.packages.x86_64-linux.api
                 pkgs.nix-index
                 pkgs.rich-cli
+                pkgs.lsd
             ]     
         ];
         

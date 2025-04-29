@@ -6,7 +6,7 @@
   ...
 }: let
   inherit (lib) types mkOption;
-  
+
   importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;
@@ -20,6 +20,7 @@
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
 
   sysHosts = lib.attrNames self.nixosConfigurations;
+
   
   cmdHelpers = ''
     parse_flags() {
@@ -72,9 +73,6 @@ in {
     imports = builtins.map (file: import file {
       # Explicitly pass cmdHelpers to child modules
       inherit self config lib cmdHelpers pkgs sysHosts;
-    }) (importModulesRecursive ./deploy) ++
-       (importModulesRecursive ./system) ++
-       (importModulesRecursive ./misc);
-   
+    }) (importModulesRecursive ./bin);
+    
 }
-

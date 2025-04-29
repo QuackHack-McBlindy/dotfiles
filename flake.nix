@@ -25,15 +25,5 @@
             packages = lib.mapModules ./packages import;
             apps = lib.mkApp ./apps.nix;
             devShells = lib.mapModules ./devShells (path: import path);
-            #devShells.default = import ./shell.nix; 
-
-
-        }; 
-        
-            
+        };             
   }
-
-
-  
-
-

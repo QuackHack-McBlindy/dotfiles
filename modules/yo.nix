@@ -126,6 +126,19 @@ EOF
 
     tmpfile=$(mktemp)
 
+    # Get current versions
+    nixos_version=$(nixos-version | cut -d. -f1-2 | tr . %2E)
+    kernel_version=$(uname -r | cut -d'-' -f1)
+    nix_version=$(nix --version | awk '{print $3}')
+
+    # Update README.md with proper escaping
+    sed -i -E \
+      -e "s/NixOS-[0-9]+%2E[0-9]+/NixOS-$nixos_version/g" \
+      -e "s/Linux-[0-9]+\.[0-9]+\.[0-9]+/Linux-$kernel_version/g" \
+      -e "s/Nix-[0-9]+\.[0-9]+\.[0-9]+/Nix-$nix_version/g" \
+      "$README_PATH"
+    
+
 
     # Improved version extraction with quote removal and validation
     VERSION=$( (grep VERSION_ID= /etc/os-release || echo 'VERSION_ID="0.0"') | cut -d= -f2 | tr -d '"')
@@ -212,6 +225,11 @@ EOF
         type = types.str;
         description = "Description of the script";
       };
+      helpFooter = mkOption {
+        type = types.lines;
+        default = "";
+        description = "Additional shell code to run when generating help text";
+      };
       code = mkOption {
         type = types.lines;
         description = "The script code";
@@ -291,6 +309,7 @@ EOF
             case "$1" in
               --help|-h)
                 width=$(tput cols 2>/dev/null || echo 100)
+                help_footer=$(${script.helpFooter})
                 cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" -
 ## 🚀🦆 ${script.name} Command
 **Usage:** \`yo ${script.name} [parameters]\`
@@ -302,6 +321,8 @@ ${concatStringsSep "\n" (map (param: ''
   ${param.description}
 '') script.parameters)}
 ''}
+
+$help_footer
 EOF
                 exit 0
                 ;;

@@ -39,9 +39,9 @@
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" ];
-                networking = [ "default" "pool" "wg-client" ];
+                networking = [ "default" "pool" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
-                programs = [ "thunar" ];
+                programs = [ "thunar" "firefox" ];
                 virtualisation = [ "docker" "vm" ];
             };  
             keys.publicKeys = {

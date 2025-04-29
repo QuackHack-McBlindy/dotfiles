@@ -40,7 +40,15 @@ let
             inputs.home-manager.nixosModules.home-manager 
             inputs.sops-nix.nixosModules.sops
             ../.
-            hostConfig 
+            hostConfig             
+            ./home.nix 
+#            ({ config, pkgs, ... }: {
+#              this.home = {
+#                dir = ../home;
+#                user = config.this.user.me.name;
+#              };
+#            })
+            
             ({ config, pkgs, ... }: {
               home-manager = {
                 useGlobalPkgs = true;
@@ -86,13 +94,6 @@ let
           in
             mkApp (v { inherit pkgs system self inputs; })  # Pass additional args
         ) apps;
-
-#        devShells = lib.mapAttrs (_: v:
-#          let
-#            pkgs = mkPkgs system inputs.nixpkgs flake.overlays;
-#          in
-#            pkgs.mkShell (v { inherit pkgs system self inputs; })  # Pass additional args
-#        ) devShells;
 
         devShells = lib.mapAttrs (name: v:
           let

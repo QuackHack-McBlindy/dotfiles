@@ -5,7 +5,7 @@
 
 export GUM_CHOOSE_CURSOR="🦆 ➤ "   # Pointing finger for selection
 export GUM_CHOOSE_CURSOR_FOREGROUND="214"  # Orange
-export GUM_CHOOSE_HEADER="🦆 Make your choice!"  # Fun header
+#export GUM_CHOOSE_HEADER="🦆 Make your choice!"  # Fun header
 export GUM_CHOOSE_HEADER_FOREGROUND="45"  # Blue-Green
 export GUM_CHOOSE_SELECTED_PREFIX="✅ "  # Green checkmark for selected items
 export GUM_CHOOSE_UNSELECTED_PREFIX="⚪ "  # Empty circle for unselected
@@ -127,5 +127,3 @@ export GUM_INPUT_WIDTH="30"  # Limit input width for a neat look
 export GUM_INPUT_SHOW_HELP="true"  # Show help keybinds
 export GUM_INPUT_TIMEOUT="20s"  # Auto-cancel after 20 seconds
 
-
-#################

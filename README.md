@@ -5,7 +5,7 @@
 
 </sub></div><br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-5.15.0-red) ![Nix](https://img.shields.io/badge/Nix-2.18.1-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue)
 
 
 
@@ -101,6 +101,7 @@ auto generating a unified help commands system for script execution with automat
 Set default values for your parameters to have them marked [optiional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
+| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo health [--host]` | hc | Check system health status across your machines |
@@ -109,6 +110,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo reboot [--host]` |  | Force reboot and wait for host |
 | `yo rollback ` |  | Synchronized system+config rollback |
 | `yo sops --input [--agePub]` |  | Encrypts a file with sops-nix |
+| `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--autoPull]` | rb | Rebuild and switch Nix OS system configuration |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 ## ℹ️ Detailed Help
