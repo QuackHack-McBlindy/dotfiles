@@ -59,7 +59,7 @@ _This is a automagiduckically generated README.md_  <br>
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=e4643b5f8221c13e3d023e6fec5114f0a0d3c5d6
+git+file:///home/pungkula/dotfiles
 ├───apps
 │   ├───aarch64-linux
 │   │   ├───program: app
