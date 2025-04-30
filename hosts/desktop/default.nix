@@ -20,6 +20,7 @@
     };
     
     this = {
+        theme.name = "gtk4.css";
         user = {       
             enable = true;
             me.name = "pungkula";
@@ -38,10 +39,10 @@
             wgip = "10.0.0.2";
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
-                system = [ "nix" "pkgs" "gnome" "crossEnv" ];
+                system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
-                programs = [ "thunar" "firefox" ];
+                programs = [ "default" "thunar" "firefox" ];
                 virtualisation = [ "docker" "vm" ];
             };  
             keys.publicKeys = {

@@ -152,8 +152,24 @@ EOF
     SANITIZED_VERSION=''${VERSION//./%2E}  # Proper shell escaping
     BADGE_URL="https://img.shields.io/badge/NixOS-''${SANITIZED_VERSION}-blue"
     sed -i "s|https://img.shields.io/badge/NixOS-[^-]*-blue|''${BADGE_URL}|g" README.md
-    awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
-      BEGIN { in_docs=0; in_tree=0 }
+
+    FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
+    FLAKE_BLOCK=$(
+      echo '```nix'
+      echo "$FLAKE_OUTPUT"
+      echo '```'
+    )
+
+    # Capture flake.nix content
+    FLAKE_BLOCK_NIX=$(
+      echo '```nix'
+      cat "${config.this.user.me.dotfilesDir}/flake.nix"
+      echo '```'
+    )
+
+
+    awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" -v flake="$FLAKE_BLOCK_NIX" '
+      BEGIN { in_docs=0; in_tree=0; in_flake=0 }
       /<!-- YO_DOCS_START -->/ {
         print
         print docs
@@ -176,8 +192,47 @@ EOF
         print
         next
       }
-      !in_docs && !in_tree { print }
-    ' "$README_PATH" > "$tmpfile" 
+      /<!-- FLAKE_START -->/ {
+        print
+        print flake
+        in_flake=1
+        next
+      }
+      /<!-- FLAKE_END -->/ {
+        in_flake=0
+        print
+        next
+      }
+      !in_docs && !in_tree && !in_flake { print }
+    ' "$README_PATH" > "$tmpfile"
+
+
+#    awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
+#      BEGIN { in_docs=0; in_tree=0 }
+#      /<!-- YO_DOCS_START -->/ {
+#        print
+#        print docs
+#        in_docs=1
+#        next
+#      }
+#      /<!-- YO_DOCS_END -->/ {
+#        in_docs=0
+#        print
+#        next
+#      }
+#      /<!-- TREE_START -->/ {
+#        print
+#        print tree
+#        in_tree=1
+#        next
+#      }
+#      /<!-- TREE_END -->/ {
+#        in_tree=0
+#        print
+#        next
+#      }
+#      !in_docs && !in_tree { print }
+#    ' "$README_PATH" > "$tmpfile" 
 
     # Improved diff check with error handling
     if ! cmp -s "$tmpfile" "$README_PATH"; then

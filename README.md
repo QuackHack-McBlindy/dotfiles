@@ -5,23 +5,63 @@
 
 </sub></div><br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue)
+# <a href="https://github.com/sponsors/QuackHack-McBlindy"><img src='https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=GithubSponsors&label=%E2%80%8E&style=flat-square&labelColor=rgba(234,74,170,0)&logocolor=EA4AAA&color=rgba(234,74,170,0.5)' alt='Sponsors' height='32'></a> # [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Like?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) 
+ <br>
+ 
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue)
 
 
 
 > [!CAUTION]
-> __Don't blindly run this flake__ <br>
-> **I do that**
+> __Do not blindly run this flake.__ <br>
+> **That's my job.**
 
 
 __Sup ducks? 🦆 qwack on__ <br>
-__Here lives my dotfiles,__  <br>
+__Here lives my machines configuration files,__ <br>
+__personal dotfiles, with a minimalistic flake.__  <br>
+__For a unified scruot execution and dynamic documentation, it is__ <br>
+__run and maintained with a Nix flavoured command line utlity.__ <br> <br>
 _This is a automagiduckically generated README.md_  <br>
 
 
-<details>
-  <summary> ## ❄️🌲 **FlakeTree** </summary>
+# **Flake**
 
+<!-- FLAKE_START -->
+```nix
+# flake.nix
+{ 
+    description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
+    inputs = {
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
+        sops-nix.url = "github:Mic92/sops-nix";
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+    };
+    outputs = inputs @ { self, systems, nixpkgs, ... }:
+        let
+            lib = import ./lib {
+                inherit self inputs;
+                lib = nixpkgs.lib;      
+            };
+        in lib.mkFlake {
+            systems = [ "x86_64-linux" "aarch64-linux" ]; 
+            overlays = [ ];
+            hosts = lib.mapHosts ./hosts;
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; yoLib = lib.yo; };
+            packages = lib.mapModules ./packages import;
+            apps = lib.mkApp ./apps.nix;
+            devShells = lib.mapModules ./devShells (path: import path);
+        };             
+  }
+```
+<!-- FLAKE_END -->
+
+
+<details>
+<summary> 
+### ❄️🌲 **FlakeTree**
+</summary>
 
   <!-- TREE_START -->
 ```nix
@@ -74,7 +114,6 @@ git+file:///home/pungkula/dotfiles
   <!-- TREE_END -->
 
 </details>
-auto generating a unified help commands system for script execution with automatic documentation.  <br>
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**

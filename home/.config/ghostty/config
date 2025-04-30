@@ -1,0 +1,18 @@
+background = #000000
+clipboard-read = allow
+clipboard-write = allow
+cursor-color = #FFFFFF
+cursor-style = bar
+font-family = FiraCode Nerd Font
+font-feature = -liga
+font-feature = -dlig
+font-feature = -calt
+font-size = 13
+foreground = #66FF66
+keybind = ctrl+a=select_all
+keybind = ctrl+c=copy_to_clipboard
+keybind = ctrl+q=close_all_windows
+mouse-scroll-multiplier = 2
+theme = catppuccin-mocha
+unfocused-split-opacity = 0.960000
+window-theme = dark

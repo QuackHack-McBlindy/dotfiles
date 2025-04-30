@@ -35,7 +35,7 @@
                ###############
                 pkgs.qrencode
                 pkgs.ntfy-sh
-
+                pkgs.ghostty
                 pkgs.imagemagick
                 pkgs.smartmontools
                 pkgs.xoscope
@@ -97,6 +97,63 @@
                 pkgs.nix-index
                 pkgs.rich-cli
                 pkgs.lsd
+                pkgs.gedit
+                pkgs.firefox-esr
+                pkgs.vscodium
+                pkgs.transmission_4-qt
+                pkgs.file
+                pkgs.chromium 		# yuck
+                pkgs.neovim
+                pkgs.librewolf 	# privacy firefox
+                pkgs.libsForQt5.qt5.qtwayland
+                pkgs.jellyfin-ffmpeg   # transcoding
+                pkgs.drawing 		# simple image editing
+                pkgs.vlc  			# media player
+                #   amberol
+                pkgs.cava
+                pkgs.nordic 		# theme
+                pkgs.papirus-icon-theme # theme
+                pkgs.poweralertd
+                pkgs.vesktop 		# discord
+                pkgs.signal-desktop 		# signal messaging w/ API
+                pkgs.signal-cli
+          #      signal-backup 
+                pkgs.speedtest-cli
+                pkgs.jellyfin-media-player
+                pkgs.jftui
+                pkgs.keepass		# password management
+                pkgs.gnome-terminal
+                pkgs.gnome-text-editor
+                pkgs.you-have-mail-cli
+      
+                pkgs.vim
+                pkgs.libgedit-tepl
+                pkgs.gedit
+                pkgs.gthumb
+                pkgs.ghostty
+                pkgs.brave
+                pkgs.systemctl-tui
+                pkgs.cheat
+                pkgs.fzf
+              #  pass 		# gnome password management
+                pkgs.jq
+                pkgs.atuin
+                pkgs.direnv
+                pkgs.nix-direnv 
+                pkgs.sops 		# secrets 
+                pkgs.age		# actually good encryption
+                pkgs.rage
+                pkgs.syslogng
+                pkgs.gum		# scripts 
+                pkgs.wyoming-piper # wy0ming server
+                pkgs.ripgrep 		# Better `grep`
+                pkgs.fd
+                pkgs.sd
+                pkgs.gnumake
+                pkgs.nil 		# Nix language server
+                pkgs.nix-info
+                pkgs.nixpkgs-fmt
+     
             ]     
         ];
         

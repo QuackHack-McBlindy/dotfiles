@@ -15,15 +15,17 @@
                (builtins.map (file: ./bin + "/${file}")
                  (builtins.attrNames (import ./bin)));
 in {
-  imports = [
-    (modulesPath + "/installer/scan/not-detected.nix")
-    ./modules
-    ./bin
-  ]; 
+    imports = [ (modulesPath + "/installer/scan/not-detected.nix")
+        ./modules
+        ./bin
+    ]; 
   
-  networking.hostName = config.this.host.hostname;
-  networking.useDHCP = lib.mkDefault true;
-  nixpkgs.hostPlatform = config.this.host.system;
-  
-
-  }
+    nixpkgs.hostPlatform = config.this.host.system; 
+    networking = {
+        hostName = config.this.host.hostname;
+        useDHCP = lib.mkDefault true;
+#        hosts = {
+#            config.this.host.ip = [ config.this.host.hostname".löcal" ];
+#        };
+   
+   };}

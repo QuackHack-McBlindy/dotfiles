@@ -30,39 +30,37 @@ let
           specialArgs = {
             inherit self inputs;
             inherit hostName;
+            nixosConfigurations = self.nixosConfigurations;
             finalSelf = self // {
               hostDir = ../hosts/${hostName};
               modules = lib.filterAttrs (_: v: v ? nixosModules) inputs;
             };
           };
           modules = [
-            inputs.disko.nixosModules.disko
-            inputs.home-manager.nixosModules.home-manager 
+#            inputs.disko.nixosModules.disko
+#            inputs.home-manager.nixosModules.home-manager 
             inputs.sops-nix.nixosModules.sops
             ../.
             hostConfig             
             ./home.nix 
+            ({ config, pkgs, ... }: {
+              this.home = ./../home;
+            })
+            
 #            ({ config, pkgs, ... }: {
-#              this.home = {
-#                dir = ../home;
-#                user = config.this.user.me.name;
+#              home-manager = {
+#                useGlobalPkgs = true;
+#                backupFileExtension = "bak";
+#                useUserPackages = true;
+#                extraSpecialArgs = {
+#                  inherit self inputs;
+#                  hostname = config.this.host.hostname;
+#                  user = config.this.user.me.name;
+#                  this = config.this;
+#                };
+#                users.${config.this.user.me.name} = import ./../home-manager/home.nix;
 #              };
 #            })
-            
-            ({ config, pkgs, ... }: {
-              home-manager = {
-                useGlobalPkgs = true;
-                backupFileExtension = "bak";
-                useUserPackages = true;
-                extraSpecialArgs = {
-                  inherit self inputs;
-                  hostname = config.this.host.hostname;
-                  user = config.this.user.me.name;
-                  this = config.this;
-                };
-                users.${config.this.user.me.name} = import ./../home-manager/home.nix;
-              };
-            })
           ];
         }) (attrs.mapHosts ../hosts);
 

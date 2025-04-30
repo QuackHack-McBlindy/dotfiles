@@ -26,6 +26,7 @@ in {
         (importModulesRecursive ./networking) ++
         (importModulesRecursive ./services) ++
         (importModulesRecursive ./programs) ++
+        (importModulesRecursive ./themes) ++
         (importModulesRecursive ./virtualisation);
 
     options.this = {

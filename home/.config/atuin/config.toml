@@ -1,0 +1,4 @@
+auto_sync = true
+search_mode = "prefix"
+sync_address = "https://api.atuin.sh"
+sync_frequency = "5m"
