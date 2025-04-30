@@ -120,10 +120,12 @@
 
           # Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
-          run_cmd git push -u origin "$CURRENT_BRANCH" --tags || {  # Add --tags to existing push command
-            run_cmd echo -e "\033[1;31m❌ Push failed\033[0m"
-            exit 1
-          }
+          
+          run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH" ||
+
+          
+          
+    
           
           # Fancy success message
           run_cmd echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
