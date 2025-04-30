@@ -13,6 +13,7 @@ in {
                 pkgs.gtk2
                 pkgs.gtk3
                 pkgs.gtk4
+                pkgs.gnome-terminal
                 pkgs.gnome-tweaks
                 pkgs.nixos-icons
                 pkgs.gnome-screenshot    
