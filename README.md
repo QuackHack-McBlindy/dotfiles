@@ -5,7 +5,7 @@
 
 </sub></div><br>
 
-<a href="https://github.com/sponsors/QuackHack-McBlindy"><img src='https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=GithubSponsors&label=%E2%80%8E&style=flat-square&labelColor=rgba(234,74,170,0)&logocolor=EA4AAA&color=rgba(234,74,170,0.5)' alt='Sponsors' height='32'></a>[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Like?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) 
+[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Like?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) 
  <br>
 ![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue)
 
@@ -19,12 +19,10 @@ __Sup ducks? 🦆 qwack on__ <br> <br>
 
 __Here lives my machines configuration files,__ <br>
 __and my personal dotfiles, with a minimalistic flake setup.__  <br>
-__With a dynamic scriot execution and automatic documentation,__ <br>
+__With a unified scriot execution and automatic documentation,__ <br>
 __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
 _This is a automagiduckically generated README.md_  <br>
 
-
-# **flake.nix**
 
 <!-- FLAKE_START -->
 ```nix
