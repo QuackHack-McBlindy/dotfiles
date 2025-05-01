@@ -1,10 +1,13 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-<div align="right"><sub></sub></div><br>
+<div align="right"><sub></sub
 
 _This is a automagiduckically generated README.md_  <br> <br>
+
+</div><br>
+
  
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) 
 
