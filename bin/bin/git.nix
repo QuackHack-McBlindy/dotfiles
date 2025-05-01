@@ -37,7 +37,7 @@
 #==================================#
 #==== GIT PUSH    #==================#
       push = {
-        description = "Push dotfiles to GitHub";
+        description = "Update README.md and pushes dotfiles to GitHub with tags";
         aliases = [ "ps" ];
         parameters = [
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
