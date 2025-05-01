@@ -1,0 +1,178 @@
+/* Personal Toolbar */
+#panel {
+    visibility: visible !important;
+    background-color: #1e1e1e !important; /* Dark background */
+    color: #ffcc00 !important; /* Yellow text */
+    font-size: 14px !important;
+    font-family: 'Comic Sans MS', cursive, sans-serif !important; /* Comical font */
+}
+
+/* Tabs Toolbar (Hide and Change Background) */
+#topbar {
+    visibility: hidden !important; /* Hide tabs toolbar */
+    background: linear-gradient(to right, #ff0000, #ff7300) !important; /* Red gradient */
+    border-bottom: 3px solid #000 !important; /* Black border at the bottom */
+}
+
+/* Tab Styles - Colorful Tabs */
+.notebook tab {
+    background-color: #00ff00 !important; /* Green background */
+    color: black !important; /* Black text */
+    font-weight: bold !important; /* Bold font */
+    padding: 5px !important; /* Some padding for better appearance */
+}
+
+.notebook tab:selected {
+    background-color: #ffff00 !important; /* Yellow for selected tab */
+    color: #000 !important; /* Black text for selected tab */
+}
+
+/* Menubar */
+#menubar {
+    visibility: collapse !important;
+}
+
+/* Cool Context Menu (Right Click Menu) */
+#popup {
+    background-color: #333 !important; /* Dark background */
+    color: #fff !important; /* White text */
+    font-size: 13px !important;
+}
+
+/* Make the address bar stand out with a bright color */
+.entry {
+    background-color: #00bfff !important; /* Bright Sky Blue */
+    color: #fff !important; /* White text */
+    font-size: 16px !important;
+}
+
+/* Customize the back and forward buttons */
+button {
+    background-color: #8b0000 !important; /* Dark red buttons */
+    border-radius: 50% !important; /* Round buttons */
+    color: white !important;
+    width: 35px !important;
+    height: 35px !important;
+}
+
+/* Make the window border look cool */
+window {
+    border: 5px solid #ff00ff !important;
+}
+
+/* 3D Rotating UI Elements */
+* {
+    transform: rotate3d(1, 1, 1, 15deg) !important;
+    perspective: 1000px !important;
+}
+
+/* Disco Lights Background */
+* {
+    background:
+        linear-gradient(45deg,
+            #ff00ff 25%,
+            #00ffff 25% 50%,
+            #ffff00 50% 75%,
+            #ff0000 75%
+        ) !important;
+    background-size: 100px 100px !important;
+    animation: disco 1s linear infinite !important;
+}
+
+@keyframes disco {
+    from { background-position: 0 0; }
+    to { background-position: 100px 100px; }
+}
+
+/* Glowing Neon Text */
+#panel {
+    text-shadow:
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff,
+        0 0 30px #ff00ff !important;
+    font-family: 'Impact', fantasy !important;
+    color: #00ffff !important;
+}
+
+/* Flying Emoji Cursor */
+* {
+    cursor: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><text x='5' y='30' font-size='30'>🚀</text></svg>") 16 16, auto !important;
+}
+
+/* Rainbow Entry Bar */
+.entry {
+    background: linear-gradient(90deg,
+        #ff0000 16%,
+        #ff8000 16% 32%,
+        #ffff00 32% 48%,
+        #00ff00 48% 64%,
+        #00ffff 64% 80%,
+        #8000ff 80%
+    ) !important;
+    border: 3px dotted #fff !important;
+    box-shadow: 0 0 50px #fff !important;
+}
+
+/* Dancing Tabs */
+.notebook tab {
+    animation: dance 0.5s ease-in-out infinite alternate !important;
+    transform-origin: bottom !important;
+}
+
+@keyframes dance {
+    from { transform: rotate(-5deg); }
+    to { transform: rotate(5deg); }
+}
+
+/* Cyberpunk Matrix Scrollbar */
+scrollbar {
+    background: #000 !important;
+    border-left: 2px solid #0f0 !important;
+}
+
+scrollbar slider {
+    background:
+        repeating-linear-gradient(
+            45deg,
+            #0f0,
+            #0f0 10px,
+            #000 10px,
+            #000 20px
+        ) !important;
+    border: 1px solid #0f0 !important;
+    box-shadow: 0 0 10px #0f0 !important;
+}
+
+/* Randomized Particle Background */
+window {
+    position: relative;
+    overflow: hidden !important;
+}
+
+window::after {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle, #ff0000 1px, transparent 1px),
+        radial-gradient(circle, #00ff00 1px, transparent 1px),
+        radial-gradient(circle, #0000ff 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: particles 20s linear infinite;
+    mix-blend-mode: overlay;
+    z-index: 9999;
+}
+
+@keyframes particles {
+    from { transform: translate(0, 0); }
+    to { transform: translate(-50px, -50px); }
+}
+
+/* Void of Madness Hover Effect */
+button:hover {
+    filter: hue-rotate(360deg) !important;
+    transform: scale(5) rotate(3600deg) !important;
+    transition: all 5s cubic-bezier(0.25, 2.5, 0.5, -5) !important;
+}
+

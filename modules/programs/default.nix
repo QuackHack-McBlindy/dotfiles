@@ -47,6 +47,7 @@ in {
         eval "$(direnv hook bash)"
         source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
 
+        export NIX_PATH=nixos-config=/home/pungkula/dotfiles/hosts/desktop/configuration.nix
         export PYTHONSTARTUP="./../../home/.pythonrc"
         export PYTHONPATH="/home/$USER/dotfiles/home/.shell/python:$PYTHONPATH"
         export PATH="/home/pungkula/dotfiles/home/bin:$PATH:$PATH"

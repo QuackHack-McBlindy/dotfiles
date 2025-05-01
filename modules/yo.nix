@@ -100,9 +100,10 @@ let
 ``` 
 ❄️ yo CLI Tool
 🦆 ➤ Edit hosts
-     Edit yo CLI scripts
      Edit flake
+     Edit yo CLI scripts
      Add new host
+     ❌ Remove host 
      🚫 Exit
 ``` 
 

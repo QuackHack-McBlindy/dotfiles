@@ -1,6 +1,10 @@
-# modules/gtk-theme.nix
-{ config, lib, pkgs, ... }:
-let
+# modules/system/gtk.nix
+{ 
+  config,
+  lib,
+  pkgs,
+  ...
+} : let
   cfg = config.this.theme;
   username = config.this.user.me.name;
   userHome = config.users.users.${username}.home;

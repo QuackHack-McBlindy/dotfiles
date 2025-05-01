@@ -1,41 +1,58 @@
-{ 
+{
   self,
   config,
   pkgs,
   cmdHelpers,
   ...
-}: {  
+}: {
   yo.scripts.fzf = {
     description = "Interactive fzf search for file content with quick edit & jump to line";
     aliases = [ "f" ];
-    code = let
-      fuzzyCmd = "${pkgs.gnused}/bin/sed 's/./.*&/g'";
-    in ''
-      RG_PREFIX="${pkgs.ripgrep}/bin/rg --hidden --color=never --smart-case --trim --line-number"
-      
+    code = ''
+      RG_PREFIX="rg --line-number --hidden --color=never --smart-case --trim"
+      INITIAL_QUERY=""
+
+#      main() {
+#        selected=$(
+#          $RG_PREFIX "$(find $PWD -type f 2>/dev/null)" |
+#          fzf --ansi \
+#              --disabled \
+#              --bind "change:reload:$RG_PREFIX {q} || true" \
+#              --delimiter : \
+#              --preview "bat --color=always --style=numbers,changes --highlight-line {2} {1} | grep --color=always -C 10 {q}" \
+#              --preview-window 'left,60%,border-bottom' \
+#              --prompt 'search, yo 🔍  ' |
+#          awk -F: '{print $1 " " $2}'
+#        )
+
+#        if [ -n "$selected" ]; then
+#          file="$(echo "\$selected" | cut -d' ' -f1)"
+#          line="$(echo "\$selected" | cut -d' ' -f2)"
+#          \${EDITOR:-vim} "+\$line" "\$file"
+#        fi
+#      }
       main() {
         selected=$(
-          find /home/pungkula/dotfiles -type f -print0 | \
-          xargs -0 $RG_PREFIX -- "" | \
-          ${pkgs.fzf}/bin/fzf --ansi \
-              --phony \
-              --bind "change:reload:$RG_PREFIX '(?i)\$(echo {q} | ${fuzzyCmd})' || true" \
+          $RG_PREFIX "$INITIAL_QUERY" |
+          fzf --ansi \
+              --disabled \
+              --bind "change:reload:$RG_PREFIX {q} || true" \
               --delimiter : \
-              --preview "${pkgs.bat}/bin/bat --color=always --line-range {2}: --style=numbers,changes --highlight-line {2} {1}" \
-              --preview-window 'right,60%,border-bottom' \
-              --prompt 'search, yo 🔍  ' | \
-          ${pkgs.coreutils}/bin/cut -d: -f1-2
+              --preview "bat --color=always --style=numbers,changes --highlight-line {2} {1}" \
+              --preview-window 'left,60%,border-bottom' \
+              --prompt 'search, yo 🔍  ' |
+          awk -F: '{print $1 " " $2}'
         )
 
         if [ -n "$selected" ]; then
-          file="$(${pkgs.coreutils}/bin/dirname "''${selected%%:*}" | \
-                ${pkgs.coreutils}/bin/xargs -0 printf "%q")"
-          line="''${selected##*:}"
-          ${config.editor or "vim"} "+$line" "$file"
+          file="$(echo "$selected" | cut -d' ' -f1)"
+          line="$(echo "$selected" | cut -d' ' -f2)"
+          ${"$"}EDITOR:-vim} "+$line" "$file"
         fi
       }
 
-      main "$@"
+      main "\$@"
     '';
   };
 }
+

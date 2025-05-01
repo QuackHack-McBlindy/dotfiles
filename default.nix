@@ -24,8 +24,5 @@ in {
     networking = {
         hostName = config.this.host.hostname;
         useDHCP = lib.mkDefault true;
-#        hosts = {
-#            config.this.host.ip = [ config.this.host.hostname".löcal" ];
-#        };
    
    };}

@@ -38,7 +38,7 @@ in {
       text = ''
         #!/usr/bin/env bash
         set -euo pipefail
-        ${mkUserLinks "pungkula" config.this.home}
+        ${mkUserLinks config.this.user.me.name config.this.home}
       '';
       deps = [ "users" ];
     };

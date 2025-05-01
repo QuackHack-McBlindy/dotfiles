@@ -21,9 +21,9 @@
               echo " "
               echo " "
               echo "🚀🚀🚀🚀 ✨ "
-              run_cmd echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
-              run_cmd echo -e "║  🎉 ✨✨ \033[1;32mSuccessfully pulled dotfiles!\033[0m  \033[38;5;213m ║"
-              run_cmd echo -e "╚══════════════════════════════════════╝\033[0m"
+              echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
+              echo -e "║  🎉 ✨✨ \033[1;32mSuccessfully pulled dotfiles!\033[0m  \033[38;5;213m ║"
+              echo -e "╚══════════════════════════════════════╝\033[0m"
               run_cmd echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
               run_cmd echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
             else

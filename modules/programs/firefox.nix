@@ -1,6 +1,10 @@
-# FIREFOX_PROFILE_DIR=$(find ~/.mozilla/firefox -maxdepth 1 -type d -name "*.default*" | head -n1)
-{ config, lib, pkgs, ... }: 
-let
+# modules/programs/firefox.nix
+{ 
+  config,
+  lib,
+  pkgs,
+  ...
+} : let
   cfg = config.this.host.modules.programs;
   themeCSS = builtins.readFile config.this.theme.styles;
   firefoxProfileDir = "/home/pungkula/.mozilla/firefox/default";
@@ -232,16 +236,6 @@ in {
        
 #======= BOOKMARKS =====================#       
         Bookmarks = [
-          { 
-            Title = "Local Services";
-            Placement = "toolbar";
-            Type = "folder";
-            Children = [
-              { Title = "Service 1"; URL = "http://192.168.1.181:3000"; }
-              { Title = "Service 2"; URL = "http://192.168.1.28:7777"; }
-              { Title = "HA Dashboard"; URL = "http://192.168.1.181:8124"; }
-            ];
-          }
           { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
           { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
           { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }

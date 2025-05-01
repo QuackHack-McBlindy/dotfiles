@@ -398,69 +398,84 @@ in {
 
         
         (lib.mkIf (config.this.host.hostname == "desktop") {
-            environment.systemPackages = with pkgs; [ dconf ];
-            programs.dconf.enable = true;
-            programs.dconf.profiles.user.databases = [
-                {
-                    settings = {
-                        "org/gnome/settings-daemon/plugins/media-keys" = {
-                            magnifier-zoom-in = ["KP_Add"];
-                            magnifier-zoom-out = ["KP_Subtract"];
-                            screenreader = ["KP_Divide"];
-                            screensaver = ["<Super>l"];
-                            www = ["<Control>w"];
-                            screen-brightness-up = [""];
-                            screen-brightness-down = [""];
-                            keyboard-brightness-up = ["<Primary>KP_Add"];
-                            keyboard-brightness-down = ["<Primary>KP_Subtract"];
-                        };
-
-                        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
-                            name = "terminal";
-                            command = "/etc/profiles/per-user/pungkula/bin/ghostty";
-                            binding = "section";
-                        };
-                        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
-                            name = "Gedit New Window";
-                            command = "/etc/profiles/per-user/pungkula/bin/gedit --new-window";
-                            binding = "<Primary>e";
-                        };
-                        "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3" = {
-                            name = "File Manager dotfiles";
-                            command = "thunar /home/pungkula/dotfiles";
-                            binding = "<Primary><Shift>d";
-                        };
-
-                        "org/gnome/terminal/legacy/keybindings" = {
-                            copy = ["<Primary>c"];
-                            paste = ["<Primary>v"];
-                            select-all = ["<Primary>a"];
-                        };
-
-                        "org/gnome/desktop/wm/keybindings" = {
-                            close = ["<Control>q"];
-                            switch-applications = ["<Super>Tab" "<Alt>Tab"];
-                            panel-run-dialog = ["<Super>r"];
-                            show-desktop = ["<Super>d"];
-                            move-to-workspace-1 = ["<Super><Shift>Home"];
-                            move-to-workspace-2 = lib.gvariant.mkEmptyArray lib.gvariant.type.string;
-                            move-to-workspace-3 = lib.gvariant.mkEmptyArray lib.gvariant.type.string;
-                            move-to-workspace-4 = lib.gvariant.mkEmptyArray lib.gvariant.type.string;
-                            switch-to-workspace-1 = ["<Control>1"];
-                            switch-to-workspace-2 = ["<Control>2"];
-                            switch-to-workspace-3 = ["<Control>3"];
-                            switch-to-workspace-4 = ["<Control>4"];
-                        };
-
-                        "org/gnome/shell/keybindings" = {
-                            screenshot = ["<Shift>Print"];
-                            screenshot-window = ["<Alt>Print"];
-                            show-screenshot-ui = ["Print"];
-                        };
-                    };        
-                }
-            ];
+          environment.systemPackages = with pkgs; [ 
+            dconf 
+            procps # Required for pgrep
+          ];
+          programs.dconf.enable = true;
+          programs.dconf.profiles.user.databases = [
+            {
+              settings = {
+                # MUST list ALL custom keybinding paths here
+                "org/gnome/settings-daemon/plugins/media-keys" = {
+                  custom-keybindings = [
+                    "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
+                    "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
+                    "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/"
+                  ];
+                  magnifier-zoom-in = ["KP_Add"];
+                  magnifier-zoom-out = ["KP_Subtract"];
+                  screenreader = ["KP_Divide"];
+                  screensaver = ["<Super>l"];
+                  www = ["<Control>w"];
+                  screen-brightness-up = [""];
+                  screen-brightness-down = [""];
+                  keyboard-brightness-up = ["<Primary>KP_Add"];
+                  keyboard-brightness-down = ["<Primary>KP_Subtract"];
+                };
+        
+                # Fixed terminal command with absolute paths
+                "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
+                  name = "terminal";
+                  command = "bash -c 'if ! pgrep gnome-terminal-server >/dev/null; then gnome-terminal; else gnome-terminal --tab; fi'";
+                  binding = "section"; # Verify key symbol with xev
+                };
+        
+                "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
+                  name = "Gedit New Window";
+                  command = "/etc/profiles/per-user/pungkula/bin/gedit --new-window";
+                  binding = "<Primary>e";
+                };
+        
+                "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3" = {
+                  name = "File Manager dotfiles";
+                  command = "thunar /home/pungkula/dotfiles";
+                  binding = "<Primary><Shift>d";
+                };
+        
+                # Rest of your existing configuration remains unchanged
+                "org/gnome/terminal/legacy/keybindings" = {
+                  copy = ["<Primary>c"];
+                  paste = ["<Primary>v"];
+                  select-all = ["<Primary>a"];
+                };
+        
+                "org/gnome/desktop/wm/keybindings" = {
+                  close = ["<Control>q"];
+                  switch-applications = ["<Super>Tab" "<Alt>Tab"];
+                  panel-run-dialog = ["<Super>r"];
+                  show-desktop = ["<Super>d"];
+                  move-to-workspace-1 = ["<Super><Shift>Home"];
+                  move-to-workspace-2 = lib.gvariant.mkEmptyArray lib.gvariant.type.string;
+                  move-to-workspace-3 = lib.gvariant.mkEmptyArray lib.gvariant.type.string;
+                  move-to-workspace-4 = lib.gvariant.mkEmptyArray lib.gvariant.type.string;
+                  switch-to-workspace-1 = ["<Control>1"];
+                  switch-to-workspace-2 = ["<Control>2"];
+                  switch-to-workspace-3 = ["<Control>3"];
+                  switch-to-workspace-4 = ["<Control>4"];
+                };
+        
+                "org/gnome/shell/keybindings" = {
+                  screenshot = ["<Shift>Print"];
+                  screenshot-window = ["<Alt>Print"];
+                  show-screenshot-ui = ["Print"];
+                };
+              };        
+            }
+          ];
         })
+        
+      
   
         (lib.mkIf (config.this.host.hostname == "laptop") {
             environment.systemPackages = with pkgs; [ dconf ];

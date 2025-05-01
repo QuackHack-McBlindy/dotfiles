@@ -20,7 +20,7 @@
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
         
 in {
-    imports = [ ./security.nix ./yo.nix ] ++
+    imports = [ ./security.nix ./yo.nix ./tv.nix ] ++
         (importModulesRecursive ./hardware) ++
         (importModulesRecursive ./system) ++
         (importModulesRecursive ./networking) ++
@@ -56,7 +56,6 @@ in {
                             example = [ "iphone" "tablet" "watch" ];
                             description = "Extra groups for main user";
                         };
-                        ####
                         mobileDevices = mkOption {
                           type = with types; attrsOf (submodule {
                             options = {
@@ -90,7 +89,7 @@ in {
                         };
                         extraGroups = mkOption {
                             type = types.listOf types.str;
-                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ];
+                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
                             description = "Extra groups for main user";
                         };
                         
@@ -207,7 +206,7 @@ in {
                 privateKeys = mkOption {
                     type = types.attrsOf types.str;
                     example = {};
-                    default = { host = config.sops.secrets.hosts/${config.this.host.hostname}/host_ed25519.path; ssh = config.sops.secrets.hosts/${config.this.host.hostname}/ssh_ed25519.path; wireguard = config.sops.secrets.hosts/${config.this.host.hostname}/wireguard.path; builder = config.sops.secrets.users/builder/ed25519.path; cache = config.sops.secrets.nixcache_private_desktop.path; };
+                    default = {};
                     description = "Private keys paths";
                 };
                 publicKeys = mkOption {

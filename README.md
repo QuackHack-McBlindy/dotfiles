@@ -81,8 +81,6 @@ git+file:///home/pungkula/dotfiles
 │   └───nasty: NixOS configuration
 └───packages
     ├───aarch64-linux
-    │   ├───example omitted (use '--all-systems' to show)
-    │   ├───"example (copy 1)" omitted (use '--all-systems' to show)
     │   ├───health omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   └───tv omitted (use '--all-systems' to show)
@@ -91,8 +89,6 @@ git+file:///home/pungkula/dotfiles
         ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
         ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
         ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-        ├───example: package 'git-wrapped'
-        ├───"example (copy 1)": package 'git-wrapped-0.1.0'
         ├───health: package 'health'
         ├───say: package 'say'
         └───tv: package 'tv'
@@ -110,9 +106,10 @@ git+file:///home/pungkula/dotfiles
 ``` 
 ❄️ yo CLI Tool
 🦆 ➤ Edit hosts
-     Edit yo CLI scripts
      Edit flake
+     Edit yo CLI scripts
      Add new host
+     ❌ Remove host 
      🚫 Exit
 ``` 
 

@@ -159,7 +159,26 @@ EOF
               exit 1
             fi
           }
- 
+          
+          remove_host() {
+            local host_to_remove=$(nix flake show "${config.this.user.me.dotfilesDir}" --json 2>/dev/null | 
+              jq -r '.nixosConfigurations | keys[]' | 
+              ${pkgs.gum}/bin/gum choose --header "Select host to remove:")
+            if [ -n "$host_to_remove" ]; then
+              # First confirmation
+              ${pkgs.gum}/bin/gum confirm "🚨 Permanently remove $host_to_remove?" || return 0  
+              ${pkgs.gum}/bin/gum style --foreground 196 --bold "THIS WILL DELETE ALL CONFIGURATION FOR $host_to_remove!"
+              ${pkgs.gum}/bin/gum style --foreground 214 "You have 10 seconds to cancel..."
+              sleep 10
+              ${pkgs.gum}/bin/gum confirm "⚠️  LAST CHANCE: Really remove $host_to_remove?" || return 0
+              if rm -rf "${config.this.user.me.dotfilesDir}/hosts/$host_to_remove"; then
+                ${pkgs.gum}/bin/gum style --foreground 82 "✅ Successfully removed $host_to_remove"
+              else
+                ${pkgs.gum}/bin/gum style --foreground 196 "❌ Failed to remove $host_to_remove"
+              fi
+            fi
+          } 
+          
           edit_host() {
             selected_host=$(nix flake show "${config.this.user.me.dotfilesDir}" --json 2>/dev/null | jq -r '.nixosConfigurations | keys[]' | ${pkgs.gum}/bin/gum choose --header "Select host:")
             [ -n "$selected_host" ] && $EDITOR "${config.this.user.me.dotfilesDir}/hosts/$selected_host/default.nix"
@@ -171,15 +190,17 @@ EOF
             while true; do
               selection=$(${pkgs.gum}/bin/gum choose \
                 "Edit hosts" \
-                "Edit yo CLI scripts" \
                 "Edit flake" \
+                "Edit yo CLI scripts" \
                 "Add new host" \
+                "❌ Remove host" \                
                 "🚫 Exit")
              case "$selection" in
                 "Edit hosts") edit_host ;;
-                "Edit yo CLI scripts") $EDITOR "${config.this.user.me.dotfilesDir}/default.nix" ;;
                 "Edit flake") $EDITOR "${config.this.user.me.dotfilesDir}/flake.nix" ;;
+                "Edit yo CLI scripts") $EDITOR "${config.this.user.me.dotfilesDir}/default.nix" ;;
                 "Add new host") new_host ;;
+                "❌ Remove host") remove_host ;;        
                 "🚫 Exit") exit 0 ;;
               esac
             done

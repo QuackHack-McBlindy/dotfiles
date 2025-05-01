@@ -40,10 +40,7 @@ let
             inputs.sops-nix.nixosModules.sops
             ../.
             hostConfig             
-            ./home.nix 
-            ({ config, pkgs, ... }: {
-              this.home = ./../home;
-            })
+            ./../modules/home.nix 
           ];
         }) (attrs.mapHosts ../hosts);
 
