@@ -136,7 +136,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo pull [--flake]` | pl | Pull dotfiles repo from GitHub |
 | `yo push [--flake] [--repo]` | ps | Push dotfiles to GitHub |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
-| `yo rollback ` |  | Synchronized system+config rollback |
+| `yo rollback [--flake]` |  | Synchronized system+config rollback |
 | `yo sops --input [--agePub]` |  | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--autoPull]` | rb | Rebuild and switch Nix OS system configuration |

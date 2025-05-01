@@ -1,14 +1,17 @@
 # bin/rollback.nix
-{ pkgs, cmdHelpers, ... }:
+{ config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
       rollback = {
         description = "Synchronized system+config rollback";
 #        aliases = [ "rb" ];
+        parameters = [
+          { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
+        ];  
         code = ''
           ${cmdHelpers}
         
-          DOTFILES_DIR="/etc/nixos"  # Should match your push target
+          DOTFILES_DIR="$flake"
          
           echo "🔄 Fetching latest tags from remote..."
           git -C "$DOTFILES_DIR" fetch --tags --force
