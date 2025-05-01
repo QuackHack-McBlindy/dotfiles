@@ -116,7 +116,7 @@
           
           # Change 3: Add tagging after commit
           echo -e "\033[1;34m🏷  Tagging commit as gen-$GEN_NUMBER\033[0m"
-          run_cmd git tag -fa "gen-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
+          run_cmd git tag -fa "generation-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
 
           # Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
