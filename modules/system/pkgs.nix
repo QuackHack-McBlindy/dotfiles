@@ -125,7 +125,9 @@
                 pkgs.gnome-terminal
                 pkgs.gnome-text-editor
                 pkgs.you-have-mail-cli
-      
+                
+                pkgs.bat
+                pkgs.ripgrep
                 pkgs.vim
                 pkgs.libgedit-tepl
                 pkgs.gedit
