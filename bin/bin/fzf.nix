@@ -1,3 +1,4 @@
+
 {
   self,
   config,
@@ -12,25 +13,6 @@
       RG_PREFIX="rg --line-number --hidden --color=never --smart-case --trim"
       INITIAL_QUERY=""
 
-#      main() {
-#        selected=$(
-#          $RG_PREFIX "$(find $PWD -type f 2>/dev/null)" |
-#          fzf --ansi \
-#              --disabled \
-#              --bind "change:reload:$RG_PREFIX {q} || true" \
-#              --delimiter : \
-#              --preview "bat --color=always --style=numbers,changes --highlight-line {2} {1} | grep --color=always -C 10 {q}" \
-#              --preview-window 'left,60%,border-bottom' \
-#              --prompt 'search, yo 🔍  ' |
-#          awk -F: '{print $1 " " $2}'
-#        )
-
-#        if [ -n "$selected" ]; then
-#          file="$(echo "\$selected" | cut -d' ' -f1)"
-#          line="$(echo "\$selected" | cut -d' ' -f2)"
-#          \${EDITOR:-vim} "+\$line" "\$file"
-#        fi
-#      }
       main() {
         selected=$(
           $RG_PREFIX "$INITIAL_QUERY" |
@@ -39,20 +21,19 @@
               --bind "change:reload:$RG_PREFIX {q} || true" \
               --delimiter : \
               --preview "bat --color=always --style=numbers,changes --highlight-line {2} {1}" \
-              --preview-window 'left,60%,border-bottom' \
+              --preview-window 'right,66%,border-bottom' \
               --prompt 'search, yo 🔍  ' |
-          awk -F: '{print $1 " " $2}'
+          cut -d: -f1,2  # Keep filename and line separated by colon
         )
 
         if [ -n "$selected" ]; then
-          file="$(echo "$selected" | cut -d' ' -f1)"
-          line="$(echo "$selected" | cut -d' ' -f2)"
-          ${"$"}EDITOR:-vim} "+$line" "$file"
+          file="$(echo "$selected" | cut -d: -f1)"
+          line="$(echo "$selected" | cut -d: -f2)"
+          $EDITOR "+$line" "$file"
         fi
       }
 
-      main "\$@"
+      main "$@"
     '';
   };
 }
-

@@ -114,7 +114,7 @@
                 pkgs.nordic 		# theme
                 pkgs.papirus-icon-theme # theme
                 pkgs.poweralertd
-                pkgs.vesktop 		# discord
+            #    pkgs.vesktop 		# discord
                 pkgs.signal-desktop 		# signal messaging w/ API
                 pkgs.signal-cli
           #      signal-backup 

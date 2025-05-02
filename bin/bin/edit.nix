@@ -193,7 +193,7 @@ EOF
                 "Edit flake" \
                 "Edit yo CLI scripts" \
                 "Add new host" \
-                "❌ Remove host" \                
+                "❌ Remove host" \
                 "🚫 Exit")
              case "$selection" in
                 "Edit hosts") edit_host ;;

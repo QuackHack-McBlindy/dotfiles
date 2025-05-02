@@ -7,7 +7,7 @@
 } : let
   cfg = config.this.host.modules.programs;
   themeCSS = builtins.readFile config.this.theme.styles;
-  firefoxProfileDir = "/home/pungkula/.mozilla/firefox/default";
+  firefoxProfileDir = "/home/${config.this.user.me.name}/.mozilla/firefox/default";
   
 #======= SEARCH ENGINES =====================#       
   searchJson = builtins.toJSON {
@@ -235,7 +235,9 @@ in {
         DisableAccounts = true;
        
 #======= BOOKMARKS =====================#       
-        Bookmarks = [
+        Bookmarks = [ 
+        
+        
           { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
           { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
           { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }
@@ -281,8 +283,12 @@ in {
     # ========== SEARCH ENGINES ==========
     systemd.services.firefox-profile = {
       wantedBy = [ "default.target" ];
-      serviceConfig = {
+     # wantedBy = [ "multi-user.target" ];
+      
+      serviceConfig = {   
         Type = "oneshot";
+        User = config.this.user.me.name;
+        #StateDirectory = config.this.user.me.name;
         ExecStart = let
           script = pkgs.writeShellScriptBin "firefox-init" ''
             # Create profile directory
@@ -297,8 +303,7 @@ in {
             ${themeCSS}
             EOF
         
-            # Set permissions
-            chown -R pungkula:users "${firefoxProfileDir}"
+            chown -R ${config.this.user.me.name}:users "/home/${config.this.user.me.name}/.mozilla"
             chmod 700 "${firefoxProfileDir}"
           '';
         in "${script}/bin/firefox-init";
@@ -307,3 +312,6 @@ in {
 
     environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr ];
   };}  
+  
+  
+  

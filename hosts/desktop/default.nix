@@ -35,7 +35,7 @@
     
     this = {
         home = ./../../home;
-        theme.name = "crazy.css"; 
+        theme.name = "gtk4.css"; 
         user = {       
             enable = true;
             me = {
@@ -68,7 +68,7 @@
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
-                programs = [ "default" "thunar" "firefox" ];
+                programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             };  
             keys.publicKeys = {

@@ -177,6 +177,10 @@ compress() {
   fi
 }
 
+# Jump to directory using Thunar
+jump() {
+  thunar $PWD
+}
 
 # Color Helper
 color() {

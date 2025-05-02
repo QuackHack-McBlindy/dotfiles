@@ -3,7 +3,7 @@
     "autoUpdateNotification": true,
     "useQuickCss": true,
     "themeLinks": [],
-    "enabledThemes": [],
+    "enabledThemes": [ "globalTheme" ],
     "enableReactDevtools": false,
     "frameless": false,
     "transparent": false,

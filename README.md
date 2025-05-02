@@ -1,7 +1,7 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
  
  
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  <div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div><br>
 
@@ -123,6 +123,7 @@ git+file:///home/pungkula/dotfiles
 Set default values for your parameters to have them marked [optiional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
+| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
 | `yo edit ` | config | yo CLI configuration mode |
@@ -132,6 +133,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
 | `yo rollback [--flake]` |  | Synchronized system+config rollback |
+| `yo scp [--flake]` | pl | Move files between hosts interactively |
 | `yo sops --input [--agePub]` |  | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--autoPull]` | rb | Rebuild and switch Nix OS system configuration |

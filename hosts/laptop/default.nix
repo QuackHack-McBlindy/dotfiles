@@ -4,8 +4,23 @@
   pkgs,
   self,
   ...
-} : {
+} : { # let
+  # Override the kernel's broadcom_sta package with our patches
+#  kernelWithBroadcom = pkgs.linuxPackages_latest.extend (self: super: {
+#    broadcom_sta = super.broadcom_sta.overrideAttrs (old: {
+#      patches = (old.patches or []) ++ [
+        # Add your patches here
+#        (pkgs.writeText "fix-flush_scheduled_work.patch" ''...'')
+#        (pkgs.writeText "fix-get_tx_power.patch" ''...'')
+#      ];
+#    });
+#  });
+#{
+#    nixpkgs.config.allowUnfree = true;  
+#    environment.systemPackages = [ patchedBroadcomSTA ];
+
     boot = {
+        kernelModules = [ "wl" ]; 
         loader = {
             systemd-boot.enable = true;
         };  
@@ -32,9 +47,9 @@
                 "xhci_pci"
             ];
         };
-        extraModulePackages = [
-            config.boot.kernelPackages.broadcom_sta
-        ];
+ #       extraModulePackages = [
+#            config.boot.kernelPackages.broadcom_sta
+#        ];
         kernelPackages = pkgs.linuxPackages_latest;
         tmp.cleanOnBoot = true;
     };
@@ -44,7 +59,7 @@
    
     this = {
         home = ./../../home;
-        theme.name = "crazy.css"; 
+        theme.name = "gtk4.css"; 
         user = {       
             enable = true;
             me = {
