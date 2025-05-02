@@ -1,9 +1,14 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
- 
- 
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
 
-[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  <div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div><br>
+div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div> 
+ 
+[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  
+ 
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
+
+> [!CAUTION]
+> __Do not blindly run this flake.__ <br>
+> **That's my job.** 🧑‍🦯
 
 __Sup ducks? 🦆 qwack on__ <br> <br>
 
@@ -12,9 +17,18 @@ __and my personal dotfiles, with a minimalistic flake setup.__  <br>
 __With a unified script execution style and automated documentation,__ <br>
 __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
 
-> [!CAUTION]
-> __Do not blindly run this flake.__ <br>
-> **That's my job.**
+# **🛠️ HOW-TO**
+
+```bash
+$ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
+$ cd dotfiles
+```
+
+Build auto installer ISO for non NixOS machines: <br>
+
+```bash
+nix build '.#packages.x86_64-linux."auto-installer.hostname"'
+``` 
 
 <!-- FLAKE_START -->
 ```nix
@@ -23,6 +37,8 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
     description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
     inputs = {
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
+        disko.url = "github:nix-community/disko";
+        disko.inputs.nixpkgs.follows = "nixpkgs";
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
@@ -37,10 +53,11 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
             hosts = lib.mapHosts ./hosts;
-            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; yoLib = lib.yo; };
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
             apps = lib.mkApp ./apps.nix;
-            devShells = lib.mapModules ./devShells (path: import path);
+            devShells = lib.mapModules ./devShells (path: import path);     
+            auto-installer = self.packages.x86_64-linux.auto-installer;
         };             
   }
 ```
@@ -74,6 +91,7 @@ git+file:///home/pungkula/dotfiles
 │       ├───node: development environment 'nix-shell'
 │       ├───python: development environment 'nix-shell'
 │       └───rust: development environment 'nix-shell'
+├───diskoConfigurations: unknown
 ├───nixosConfigurations
 │   ├───desktop: NixOS configuration
 │   ├───homie: NixOS configuration
@@ -133,7 +151,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
 | `yo rollback [--flake]` |  | Synchronized system+config rollback |
-| `yo scp [--flake]` | pl | Move files between hosts interactively |
+| `yo scp ` | pl | Move files between hosts interactively |
 | `yo sops --input [--agePub]` |  | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--autoPull]` | rb | Rebuild and switch Nix OS system configuration |

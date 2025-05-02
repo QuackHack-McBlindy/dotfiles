@@ -127,6 +127,18 @@ EOF
 
     tmpfile=$(mktemp)
 
+    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
+    gnome_version=$(gnome-shell --version | awk '{print $3}')
+    sanitized_bash=''${bash_version//./%2E}
+    sanitized_gnome=''${gnome_version//./%2E}
+
+    bash_badge="https://img.shields.io/badge/Bash-''${sanitized_bash}-red"
+    gnome_badge="https://img.shields.io/badge/GNOME-''${sanitized_gnome}-purple"
+
+    sed -i "s|https://img.shields.io/badge/Bash-[^-]*-red|$bash_badge|g" "$README_PATH"
+    sed -i "s|https://img.shields.io/badge/GNOME-[^-]*-purple|$gnome_badge|g" "$README_PATH"
+
+
     # Get current versions
     nixos_version=$(nixos-version | cut -d. -f1-2 | tr . %2E)
     kernel_version=$(uname -r | cut -d'-' -f1)

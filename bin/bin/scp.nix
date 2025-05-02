@@ -5,9 +5,9 @@
     scp = {
       description = "Move files between hosts interactively";
       aliases = [ "pl" ];
-      parameters = [ 
-        { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = true; default = config.this.user.me.dotfilesDir; } 
-      ];
+#      parameters = [ 
+#        { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = true; default = config.this.user.me.dotfilesDir; } 
+#      ];
       code = ''
         ${cmdHelpers}
         read -p "[HOSTNAME/IP]: " remote_host

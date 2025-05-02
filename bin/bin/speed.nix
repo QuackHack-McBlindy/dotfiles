@@ -1,4 +1,4 @@
-# bin/speed.ni
+# bin/bin/speed.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {  
   yo.scripts.speed = {

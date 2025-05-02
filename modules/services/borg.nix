@@ -11,7 +11,7 @@ in {
             user = "borg";
             quota = "1000G";
             path = "/backup/backups";
-            authorizedKeys = [ pubkey.borg ];
+            authorizedKeys = [ config.this.host.keys.publicKeys.borg ];
             allowSubRepos = true;
         };    
 

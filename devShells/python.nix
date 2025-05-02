@@ -5,7 +5,7 @@
     git
     nixpkgs-fmt
     # Ensure these are for the right architecture
-    (python3.withPackages (ps: [ ps.numpy ]))
+    (python3.withPackages (ps: [ ps.numpy ps.requests ]))
   ];
   
   shellHook = ''

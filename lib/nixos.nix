@@ -19,6 +19,10 @@ let
     let
       hosts = attrs.mapHosts ../hosts;           
 
+      diskoConfigurations = lib.mapAttrs (hostName: _:
+        import ../hosts/${hostName}/disks.nix
+      ) hosts;
+      
       mkPkgs = system: pkgs: overlays: import pkgs {
         inherit system overlays;
         config.allowUnfree = true;
@@ -38,9 +42,11 @@ let
           };
           modules = [
             inputs.sops-nix.nixosModules.sops
+            inputs.disko.nixosModules.disko  
             ../.
             hostConfig             
             ./../modules/home.nix 
+            diskoConfigurations.${hostName}
           ];
         }) (attrs.mapHosts ../hosts);
 
@@ -61,6 +67,7 @@ let
 
       perSystem = system: let
         pkgs = mkPkgs system inputs.nixpkgs flake.overlays;  # Use flake.overlays
+
       in {
         packages = lib.mapAttrs (_: v: 
           (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {})  # Apply overlays
@@ -98,12 +105,21 @@ let
 
       };
     in {
-      inherit nixosConfigurations;
+      inherit nixosConfigurations diskoConfigurations;
 
       packages = lib.genAttrs systems (system:
-        (perSystem system).packages
-        // (if system == "x86_64-linux" then isoPackages else {})
+        let
+          systemPackages = (perSystem system).packages;
+        in
+          if system == "x86_64-linux"
+          then systemPackages // isoPackages
+          else systemPackages
       );
+
+#      packages = lib.genAttrs systems (system:
+#        (perSystem system).packages
+#        // (if system == "x86_64-linux" then isoPackages else {})
+#      );
 
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);

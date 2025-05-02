@@ -252,8 +252,7 @@ flash() {
   # Output the selected disk
   echo "You selected disk: /dev/$selected_disk"
 
-  # List all ISO files in the result/iso directory (step 2)
-  iso_list=$(ls ./result/iso/)
+  iso_list=$(find ./result/iso/ -maxdepth 1 -type f -name '*.iso' -exec basename {} \; | sort)
 
   # Check if any ISO files are found
   if [ -z "$iso_list" ]; then

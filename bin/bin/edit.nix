@@ -31,12 +31,76 @@
 
             case "$action" in
               "Build USB auto installer")
-                ${pkgs.gum}/bin/gum style --foreground 212 "=== Building USB Installer ==="
-                echo "nix build .#nixosConfigurations.$(hostname).self.config.system.build.isoImage" | ${pkgs.gum}/bin/gum format -t code
-                ${pkgs.gum}/bin/gum confirm "Proceed with build?" && \
-                  nix build .#nixosConfigurations.$(hostname).self.config.system.build.isoImage
+                # Improved USB disk detection
+                list_usb_disks() {
+                  lsblk -d -o NAME,TRAN,SIZE | grep usb | awk '{print $1,$3}'
+                }
+  
+                # Build ISO first
+                selected_host=$(nix flake show "${config.this.user.me.dotfilesDir}" --json 2>/dev/null | 
+                  jq -r '.nixosConfigurations | keys[]' | 
+                  ${pkgs.gum}/bin/gum choose --header "Select host:")
+  
+                if [ -n "$selected_host" ]; then
+                  if ! nix build ".#packages.x86_64-linux.\"auto-installer.$selected_host\""; then
+                    ${pkgs.gum}/bin/gum style --foreground 196 "❌ Failed to build ISO for $selected_host"
+                    return 1
+                  fi
+                fi
+  
+                # Select USB disk with proper filtering
+                while :; do
+                  echo "Available USB Disks:"
+                  disk_list=$(list_usb_disks)
+                  if [ -z "$disk_list" ]; then
+                    ${pkgs.gum}/bin/gum style --foreground 196 "No USB disks detected!"
+                    return 1
+                  fi
+  
+                  selected_disk=$(echo -e "$disk_list\nExit" | 
+                    ${pkgs.gum}/bin/gum choose --header="Choose USB disk:")
+                  
+                  [[ "$selected_disk" == "Exit" ]] && return 0
+                  selected_disk=$(echo "$selected_disk" | cut -d' ' -f1)
+                  break
+                done
+  
+                # ISO selection with validation
+                iso_path="./result/iso/"
+                iso_list=$(find "$iso_path" -maxdepth 1 -name '*.iso' -exec basename {} \; | sort)
+                if [ -z "$iso_list" ]; then
+                  ${pkgs.gum}/bin/gum style --foreground 196 "No ISO files found in $iso_path"
+                  return 1
+                fi
+  
+                selected_iso=$(echo -e "$iso_list\nExit" | 
+                  ${pkgs.gum}/bin/gum choose --header="Choose ISO file:")
+                [[ "$selected_iso" == "Exit" ]] && return 0
+  
+                # Wiping and flashing with safety checks
+                if ${pkgs.gum}/bin/gum confirm "ERASE ALL DATA on /dev/$selected_disk?"; then
+                  sudo dd if=/dev/zero of=/dev/$selected_disk bs=1M status=progress
+                  
+                  if ${pkgs.gum}/bin/gum confirm "Reconnect USB and press Enter when ready"; then
+                    echo "Detecting new device..."
+                    sleep 2
+                    sudo udevadm settle
+                    
+                    new_disk=$(list_usb_disks | cut -d' ' -f1)
+                    if [ -z "$new_disk" ]; then
+                      ${pkgs.gum}/bin/gum style --foreground 196 "Failed to detect reconnected USB!"
+                      return 1
+                    fi
+  
+                    echo "Flashing to /dev/$new_disk..."
+                    sudo dd if="$iso_path/$selected_iso" of="/dev/$new_disk" bs=4M status=progress && {
+                      ${pkgs.gum}/bin/gum style --foreground 82 "✅ Flash successful!"
+                      sudo sync
+                    }
+                  fi
+                fi
                 ;;
-
+  
               "Add new host config")
                 ${pkgs.gum}/bin/gum style --foreground 212 "=== New Host Configuration ==="
       
@@ -48,109 +112,21 @@
                 done
 
                 # Create host directory
-               local host_dir="${config.this.user.me.dotfilesDir}/hosts/$hostname"
+                local host_dir="${config.this.user.me.dotfilesDir}/hosts/$hostname"
                 mkdir -p "$host_dir"
 
-                # Generate configuration content
-                cat > "$host_dir/default.nix" <<EOF
-{ 
-  config,
-  lib,
-  pkgs,
-  self,
-  ...
-} @ inputs: {
-    
-    boot = {
-        loader = {
-            systemd-boot.enable = true;
-        };  
-        initrd = {
-            kernelModules = [
-                "kvm-intel"
-                "virtio_balloon"
-                "virtio_console"
-                "virtio_rng"
-            ];
-            availableKernelModules = [
-                "9p"
-                "9pnet_virtio"
-                "ata_piix"
-                "nvme"
-                "sr_mod"
-                "uhci_hcd"
-                "virtio_blk"
-                "virtio_mmio"
-                "virtio_net"
-                "virtio_pci"
-                "virtio_scsi"
-                "xhci_pci"
-            ];
-            systemd.enable = true;
-        };
-        kernelPackages = pkgs.linuxPackages_6_1; 
-        extraModulePackages = [
-            self.config.boot.kernelPackages.broadcom_sta
-        ];
-    };
-    
-    this = {
-        user = {       
-            enable = true;
-            me.name = "pungkula";
-        };
-        host = {
-            system = "x86_64-linux";
-            hostname = "$hostname";
-            autoPull = false;
-            interface = [ "" ];
-            ip = "";
-            wgip = "10.0.0.1";
-            modules = {
-                hardware = [ "cpu/intel" "audio" ];
-                system = [ "nix" "pkgs" ];
-                networking = [ "default" "pool" ];
-                services = [ "ssh" "backup" ];
-                programs = [ ];
-                virtualisation = [ "" ];
-            };  
-            keys.publicKeys = {
-                host = "";
-                ssh = "";
-                age = "";
-                wireguard = "BlpQEu1MJbNmx32zgTFO0Otnkb+4XA1pwVdhjHtJBiQ=";
-                builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQ7c/AeIpmJS6cWQkHOe4ZEq3DXVRnjtTWuWfx6L46n";
-                cache = "cache:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc=";
-                adb = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
-            };
-        };    
-    };                
+                template_path="$PWD/home/Templates/new-host"
 
-    fileSystems."/boot" = {
-        device = "/dev/disk/by-label/boot";
-        fsType = "vfat";
-    };
+                # Generate configuration from template
+                export HOSTNAME="$hostname"  # Make the variable available to envsubst
+                envsubst < "$template_path" > "$host_dir/default.nix"
 
-    fileSystems."/" = {
-        device = "/dev/disk/by-label/nixos";
-        fsType = "ext4";
-    };
-
-    swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
-
-    hardware.enableAllFirmware = true;
-
-    system.stateVersion = "24.05";
-}
-EOF
-
-                ${pkgs.gum}/bin/gum style --foreground 82 "✅ Host configuration created at:"
+                # Success message
+                ${pkgs.gum}/bin/gum style --foreground 82 "✅ Host configuration created from template:"
                 echo "$host_dir/default.nix" | ${pkgs.gum}/bin/gum format -t code
                 ;;
             esac
           }                                                                                     
-
-
 
           validate_host() {
             if [[ ! " $sysHosts " =~ " $1 " ]]; then
@@ -183,8 +159,6 @@ EOF
             selected_host=$(nix flake show "${config.this.user.me.dotfilesDir}" --json 2>/dev/null | jq -r '.nixosConfigurations | keys[]' | ${pkgs.gum}/bin/gum choose --header "Select host:")
             [ -n "$selected_host" ] && $EDITOR "${config.this.user.me.dotfilesDir}/hosts/$selected_host/default.nix"
           }
-
-
 
           edit_menu() {
             while true; do
