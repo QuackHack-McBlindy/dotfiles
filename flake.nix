@@ -15,6 +15,7 @@
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };
+                    
         in lib.mkFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
@@ -23,6 +24,5 @@
             packages = lib.mapModules ./packages import;
             apps = lib.mkApp ./apps.nix;
             devShells = lib.mapModules ./devShells (path: import path);     
-            auto-installer = self.packages.x86_64-linux.auto-installer;
         };             
   }

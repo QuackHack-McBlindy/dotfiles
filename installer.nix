@@ -4,6 +4,7 @@ let
     system = "x86_64-linux";
     modules = [ hostConfig ];
   };
+  flakeSource = builtins.path { path = ./.; name = "dotfiles"; };
 in
 {
   imports = [
@@ -89,8 +90,8 @@ in
       mkdir /mnt/boot
       wait-for mount /dev/disk/by-label/boot /mnt/boot
 
-      mkdir -p /mnt/etc/nixos  
-      cp -r ${self}/* /mnt/etc/nixos/
+      mkdir -p /mnt/etc/nixos
+      cp -r ${flakeSource}/* /mnt/etc/nixos/
       chmod -R 755 /mnt/etc/nixos
 
       mkdir -p /mnt/home/pungkula/dotfiles

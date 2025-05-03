@@ -4,22 +4,8 @@
   pkgs,
   self,
   ...
-} : { # let
-  # Override the kernel's broadcom_sta package with our patches
-#  kernelWithBroadcom = pkgs.linuxPackages_latest.extend (self: super: {
-#    broadcom_sta = super.broadcom_sta.overrideAttrs (old: {
-#      patches = (old.patches or []) ++ [
-        # Add your patches here
-#        (pkgs.writeText "fix-flush_scheduled_work.patch" ''...'')
-#        (pkgs.writeText "fix-get_tx_power.patch" ''...'')
-#      ];
-#    });
-#  });
-#{
-#    nixpkgs.config.allowUnfree = true;  
-#    environment.systemPackages = [ patchedBroadcomSTA ];
-
-    imports = [ ./diskss.nix ];
+} : { 
+    imports = [ ./disks.nix ];
 
     boot = {
         kernelModules = [ "wl" ]; 

@@ -54,6 +54,7 @@ let
         inputs.nixpkgs.lib.nixosSystem {
           system = "x86_64-linux";
           modules = [
+
             ./../installer.nix
           ];
           specialArgs = {
@@ -108,18 +109,9 @@ let
       inherit nixosConfigurations diskoConfigurations;
 
       packages = lib.genAttrs systems (system:
-        let
-          systemPackages = (perSystem system).packages;
-        in
-          if system == "x86_64-linux"
-          then systemPackages // isoPackages
-          else systemPackages
+        (perSystem system).packages
+        // (if system == "x86_64-linux" then isoPackages else {})
       );
-
-#      packages = lib.genAttrs systems (system:
-#        (perSystem system).packages
-#        // (if system == "x86_64-linux" then isoPackages else {})
-#      );
 
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);

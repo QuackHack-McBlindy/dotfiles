@@ -1,14 +1,17 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div> 
- 
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue) <br>
+
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  
+
+<div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div> 
  
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.24.13-blue) <br>
 
 > [!CAUTION]
 > __Do not blindly run this flake.__ <br>
 > **That's my job.** 🧑‍🦯
+
+<br>
 
 __Sup ducks? 🦆 qwack on__ <br> <br>
 
@@ -17,7 +20,7 @@ __and my personal dotfiles, with a minimalistic flake setup.__  <br>
 __With a unified script execution style and automated documentation,__ <br>
 __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
 
-# **🛠️ HOW-TO**
+<br>
 
 ```bash
 $ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
@@ -29,6 +32,8 @@ Build auto installer ISO for non NixOS machines: <br>
 ```bash
 nix build '.#packages.x86_64-linux."auto-installer.hostname"'
 ``` 
+
+<br>
 
 <!-- FLAKE_START -->
 ```nix
@@ -49,6 +54,7 @@ nix build '.#packages.x86_64-linux."auto-installer.hostname"'
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };
+                    
         in lib.mkFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
@@ -57,7 +63,6 @@ nix build '.#packages.x86_64-linux."auto-installer.hostname"'
             packages = lib.mapModules ./packages import;
             apps = lib.mkApp ./apps.nix;
             devShells = lib.mapModules ./devShells (path: import path);     
-            auto-installer = self.packages.x86_64-linux.auto-installer;
         };             
   }
 ```
@@ -71,11 +76,11 @@ nix build '.#packages.x86_64-linux."auto-installer.hostname"'
 git+file:///home/pungkula/dotfiles
 ├───apps
 │   ├───aarch64-linux
-│   │   ├───program: app
-│   │   └───type: app
+│   │   ├───program: app: no description
+│   │   └───type: app: no description
 │   └───x86_64-linux
-│       ├───program: app
-│       └───type: app
+│       ├───program: app: no description
+│       └───type: app: no description
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -103,10 +108,10 @@ git+file:///home/pungkula/dotfiles
     │   ├───say omitted (use '--all-systems' to show)
     │   └───tv omitted (use '--all-systems' to show)
     └───x86_64-linux
-        ├───"auto-installer.desktop": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-        ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-        ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
-        ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250405.42a1c96-x86_64-linux.iso'
+        ├───"auto-installer.desktop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
+        ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
+        ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
+        ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───health: package 'health'
         ├───say: package 'say'
         └───tv: package 'tv'
