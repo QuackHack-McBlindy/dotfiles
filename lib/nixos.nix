@@ -19,6 +19,15 @@ let
     let
       hosts = attrs.mapHosts ../hosts;           
 
+      # Base modules for all configurations
+      baseModules = [
+        inputs.sops-nix.nixosModules.sops
+        inputs.disko.nixosModules.disko  
+        ../.
+        ./../modules/home.nix 
+      ];
+
+
       diskoConfigurations = lib.mapAttrs (hostName: _:
         import ../hosts/${hostName}/disks.nix
       ) hosts;
@@ -50,16 +59,18 @@ let
           ];
         }) (attrs.mapHosts ../hosts);
 
-      installerConfigurations = lib.mapAttrs (hostName: hostConfig:
-        inputs.nixpkgs.lib.nixosSystem {
+      installerConfigurations = lib.mapAttrs (hostName: hostConfig:      
+        inputs.nixpkgs.lib.nixosSystem {   
           system = "x86_64-linux";
           modules = [
-
+            inputs.sops-nix.nixosModules.sops
+            inputs.disko.nixosModules.disko  
+#            ../.
             ./../installer.nix
           ];
           specialArgs = {
             inherit self inputs hostName;
-            hostConfig = hostConfig;
+#            hostConfig = hostConfig;
           };
         }) (attrs.mapHosts ../hosts);
 

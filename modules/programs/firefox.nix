@@ -153,11 +153,11 @@ in {
         "browser.translations.automaticallyPopup" = false;
         "ui.systemUsesDarkTheme" = 1;
         "devtools.theme" = "dark";
-        "mousewheel.min_line_scroll_amount" = 35;
+        "mousewheel.min_line_scroll_amount" = 4;
         "privacy.purge_trackers.enabled" = true;
         "services.sync.prefs.sync.browser.uiCustomization.state" = true;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
-        "browser.download.dir" = "/home/pungkula/Downloads";
+        "browser.download.dir" = "/home/${config.this.user.me.name}/Downloads";
         "signon.rememberSignons" = false;
         # FF Sync Server
         # "identity.sync.tokenserver.uri" = http://localhost:5000/1.0/sync/1.5;
@@ -236,8 +236,6 @@ in {
        
 #======= BOOKMARKS =====================#       
         Bookmarks = [ 
-        
-        
           { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
           { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
           { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }
@@ -294,6 +292,19 @@ in {
             # Create profile directory
             mkdir -p "${firefoxProfileDir}/chrome"
         
+            # Create profiles.ini
+            cat > "${firefoxProfileDir}/../profiles.ini" <<EOF
+[Profile0]
+Name=default
+IsRelative=1
+Path=default
+Default=1
+
+[General]
+StartWithLastProfile=1
+Version=2
+EOF
+        
             # Compress search.json to mozlz4 format
             echo '${searchJson}' | ${pkgs.mozlz4a}/bin/mozlz4a - > "${firefoxProfileDir}/search.json.mozlz4"
         
@@ -305,12 +316,14 @@ in {
         
             chown -R ${config.this.user.me.name}:users "/home/${config.this.user.me.name}/.mozilla"
             chmod 700 "${firefoxProfileDir}"
+            chmod 600 "${firefoxProfileDir}/../profiles.ini"
           '';
         in "${script}/bin/firefox-init";
       };
     };
 
     environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr ];
+    environment.sessionVariables = { MOZ_USE_XINPUT2 = "1"; };    
   };}  
   
   

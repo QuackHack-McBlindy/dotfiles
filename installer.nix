@@ -1,10 +1,10 @@
-{ self, hostName, config, pkgs, lib, hostConfig, modulesPath, ... }:
+{ self, this, hostName, config, pkgs, lib, hostConfig, modulesPath, ... }:
 let
   evaluatedSystem = import (pkgs.path + "/nixos/lib/eval-config.nix") {
     system = "x86_64-linux";
-    modules = [ hostConfig ];
+    modules = [ ./modules/installed.nix ];
   };
-  flakeSource = builtins.path { path = ./.; name = "dotfiles"; };
+#  flakeSource = builtins.path { path = ./.; name = "dotfiles"; };
 in
 {
   imports = [
@@ -91,20 +91,24 @@ in
       wait-for mount /dev/disk/by-label/boot /mnt/boot
 
       mkdir -p /mnt/etc/nixos
-      cp -r ${flakeSource}/* /mnt/etc/nixos/
+      cp -r ${./.}/* /mnt/etc/nixos/
       chmod -R 755 /mnt/etc/nixos
 
       mkdir -p /mnt/home/pungkula/dotfiles
       cp -r ${./.}/* /mnt/home/pungkula/dotfiles/
       chown -R 1000:100 /mnt/home/pungkula/dotfiles
 
-      # add parameters so that nix does not try to contact a cache as we expect
-      # to be offline anyway
-      
-      ${pkgs.nixos-install}/bin/nixos-install \
+      # add parameters so that nix does not try to contact a cache as we are offline
+      ${config.system.build.nixos-install}/bin/nixos-install \
+        --system ${evaluatedSystem.config.system.build.toplevel} \
         --flake /etc/nixos#${hostName} \
         --no-root-passwd \
         --cores 0
+
+#      ${pkgs.nixos-install}/bin/nixos-install \
+#        --flake /etc/nixos#${hostName} \
+#        --no-root-passwd \
+#        --cores 0
 
       echo 'Done. Shutting off.'
       ${systemd}/bin/systemctl poweroff

@@ -1,17 +1,25 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue) <br>
+![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue) <br>
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  
-
 <div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div> 
  
-
 > [!CAUTION]
 > __Do not blindly run this flake.__ <br>
 > **That's my job.** 🧑‍🦯
 
 <br>
+
+## **📌Highlights**
+
+- 🛖 Automated Home Management *(no messy Home-Manager)*
+- 🛠️ Integrated CLI Tool
+- 🦊 True Declarative Firefox
+- 🎨 Set Global Theme
+- 📝 Automatic Documentation
+
+<br><br>
 
 __Sup ducks? 🦆 qwack on__ <br> <br>
 
@@ -20,14 +28,9 @@ __and my personal dotfiles, with a minimalistic flake setup.__  <br>
 __With a unified script execution style and automated documentation,__ <br>
 __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
 
-<br>
+<br><br>
 
-```bash
-$ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
-$ cd dotfiles
-```
 
-Build auto installer ISO for non NixOS machines: <br>
 
 ```bash
 nix build '.#packages.x86_64-linux."auto-installer.hostname"'
@@ -161,7 +164,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--autoPull]` | rb | Rebuild and switch Nix OS system configuration |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
-## ℹ️ Detailed Help
+## ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`
 `yo <command> -h`

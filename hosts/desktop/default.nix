@@ -35,7 +35,23 @@
     
     this = {
         home = ./../../home;
-        theme.name = "gtk3.css"; 
+        theme = {
+            name = "none"; 
+            iconTheme = {
+                name = "Papirus-Dark";
+                package = pkgs.papirus-icon-theme;
+            };
+            cursorTheme = {
+                name = "Bibata-Modern-Classic";
+                package = pkgs.bibata-cursors;
+                size = 32;
+            };
+            fonts = {
+                system = "Fira Sans";
+                monospace = "Fira Code";
+                packages = [ pkgs.fira-code ];
+            };
+        };
         user = {       
             enable = true;
             me = {
@@ -66,7 +82,7 @@
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-                networking = [ "default" "pool" ];
+                networking = [ "default" "pool" "ss" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];

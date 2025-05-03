@@ -14,6 +14,7 @@
     );
     
     currentInterface = "${builtins.elemAt config.this.host.interface 0}";
+#    currentInterface = builtins.elemAt config.this.host.interface 0;
     currentIp = "${config.this.host.ip}";    
     currentHost = "${config.this.host.hostname}";    
     

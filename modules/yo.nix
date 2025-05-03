@@ -118,7 +118,7 @@ Set default values for your parameters to have them marked [optiional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 ${helpText}
-## ℹ️ Detailed Help
+## ❓ Detailed Help
 For specific command help: 
 \`yo <command> --help\`
 \`yo <command> -h\`
@@ -530,7 +530,7 @@ Set default values for your parameters to have them marked [optiional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 ${helpText}
-## ℹ️ Detailed Help
+## ❓ Detailed Help
 For specific command help: 
 \`yo <command> --help\`
 \`yo <command> -h\`
