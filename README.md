@@ -8,8 +8,8 @@
 > [!CAUTION]
 > __Do not blindly run this flake.__ <br>
 > **That's my job.** 🧑‍🦯
-
 <br>
+
 __Sup ducks? 🦆 qwack on__ <br> <br>
 
 __Here lives my machines configuration files,__ <br>
@@ -17,7 +17,7 @@ __and my personal dotfiles, with a minimalistic flake setup.__  <br>
 __With a unified script execution style and automated documentation,__ <br>
 __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
 
-<br><br>
+<br>
 
 ## **📌Highlights**
 
@@ -27,11 +27,12 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
 - 🎨 **Set Global Theme**
 - 📝 **Automatic Documentation**
 - 💾 **Unattended USB Offline Installation** *(Insert USB. Boot, Done.)*
+- 🕒 **Locally Cached Binaries**
 
 <br><br>
 
 
-Build fully automated, unattended USB installer ISO for your machine. <br>
+**Build fully automated, unattended USB installer ISO for your machine.** <br>
  _(Will power off when insstaller finish)_ <br>
 
 ```bash
@@ -75,7 +76,7 @@ nix build '.#packages.x86_64-linux."auto-installer.<hostname>"'
 
 
 <details><summary>
-### __❄️🌲 Flake Outputs__
+Flake Outputs
 </summary>
 
   <!-- TREE_START -->
