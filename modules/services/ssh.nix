@@ -17,7 +17,7 @@
   knownHostsEntries = lib.mapAttrs' (hostName: hostCfg: 
     lib.nameValuePair hostName {
       extraHostNames = hostCfg.config.networking.hosts.${hostCfg.config.networking.hostName}.hostnames or [];
-      publicKey = hostCfg.config.this.host.keys.publicKeys.host;
+      publicKey = config.this.host.keys.publicKeys.host;
     }
   ) otherHosts;
 

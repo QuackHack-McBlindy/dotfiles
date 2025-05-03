@@ -134,10 +134,10 @@ in {
             hostname = mkOption {
                 type = types.str;
                 example = "desktop";
-                default = 
-                    if config.networking.hostName != ""
-                    then config.networking.hostName
-                    else "nixos-${lib.strings.substring 0 8 (builtins.hashString "sha256" builtins.currentSystem)}";
+                default = "nix";
+#                    if config.networking.hostName != ""
+#                    then config.networking.hostName
+#                    else "nixos-${lib.strings.substring 0 8 (builtins.hashString "sha256" builtins.currentSystem)}";
                 description = "System hostname";
             };
             autoPull = mkOption {

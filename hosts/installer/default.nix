@@ -1,11 +1,22 @@
-{ self, this, hostName, config, pkgs, lib, hostConfig, modulesPath, ... }:
-let
-  evaluatedSystem = import (pkgs.path + "/nixos/lib/eval-config.nix") {
-    system = "x86_64-linux";
-    modules = [ ./modules/installed.nix ];
-  };
+#Can you hellp me find a solution for a problem I have with this auto installing ISO ?
+#As you can see the this is the configuration file for the installer itself.
+#evaluatedSystem is the configuration file for the host that will be installed, but the issue I am having is that that specifying the configuration file like that will never work, because those host files do not import any files, the importing of modules to the host file happen in the flake (but not the flake.nix file, but a lib/nixos.nix & lib/attrst.nix file)
+
+#So my question here is: 
+#How can I set evaluatedSystem to a host configuration from the flake level so that all my modules etc are included within the evaluation and therefore the installer ISO?
+
+#The end goal here is to be able to build auto installing ISOS for all my machines from different build commands
+
+# hosts/installer/default.nix
+{ self, this, config, pkgs, lib, baseHost, hostName, hostConfig, modulesPath, ... }:
+#let
+#  evaluatedSystem = import (pkgs.path + "/nixos/lib/eval-config.nix") {
+#    system = "x86_64-linux";
+    # Configuration file that will be installed
+#    modules = [ ./../${host}/default.nix ];
+#  };
 #  flakeSource = builtins.path { path = ./.; name = "dotfiles"; };
-in
+#in
 {
   imports = [
     "${modulesPath}/installer/cd-dvd/installation-cd-minimal.nix"
@@ -15,6 +26,8 @@ in
     isoName = "autoinstall-${hostName}.iso";
     volumeID = "autoinstall-${hostName}"; 
   };
+
+  
 
   # Ensures proper EFI support
   systemd.services.sshd.wantedBy = lib.mkForce ["multi-user.target"];
@@ -98,17 +111,13 @@ in
       cp -r ${./.}/* /mnt/home/pungkula/dotfiles/
       chown -R 1000:100 /mnt/home/pungkula/dotfiles
 
+
       # add parameters so that nix does not try to contact a cache as we are offline
       ${config.system.build.nixos-install}/bin/nixos-install \
-        --system ${evaluatedSystem.config.system.build.toplevel} \
+       --system ${baseHost.system.build.toplevel}
         --flake /etc/nixos#${hostName} \
         --no-root-passwd \
         --cores 0
-
-#      ${pkgs.nixos-install}/bin/nixos-install \
-#        --flake /etc/nixos#${hostName} \
-#        --no-root-passwd \
-#        --cores 0
 
       echo 'Done. Shutting off.'
       ${systemd}/bin/systemctl poweroff

@@ -63,16 +63,29 @@ let
         inputs.nixpkgs.lib.nixosSystem {   
           system = "x86_64-linux";
           modules = [
-            inputs.sops-nix.nixosModules.sops
-            inputs.disko.nixosModules.disko  
+#            inputs.sops-nix.nixosModules.sops
+#            inputs.disko.nixosModules.disko  
 #            ../.
-            ./../installer.nix
+#            ./../installer.nix
+            ./../hosts/installer/default.nix  # Moved this to base module list
+            {
+              # Inject the fully evaluated host configuration
+              _module.args.baseHost = self.nixosConfigurations.${hostName}.config;
+              _module.args.hostName = hostName;
+            }
           ];
           specialArgs = {
-            inherit self inputs hostName;
-#            hostConfig = hostConfig;
+            inherit self inputs;
+            hostConfig = self.nixosConfigurations.${hostName};
           };
         }) (attrs.mapHosts ../hosts);
+
+#          ];
+#          specialArgs = {
+#            inherit self inputs hostName;
+#            hostConfig = hostConfig;
+#          };
+#        }) (attrs.mapHosts ../hosts);
 
       installerIsos = lib.mapAttrs (hostName: config: config.config.system.build.isoImage) installerConfigurations;
       isoPackages = lib.mapAttrs' (hostName: iso: lib.nameValuePair "auto-installer.${hostName}" iso) installerIsos;

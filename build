@@ -1,4 +1,0 @@
-nix build '.#packages.x86_64-linux."auto-installer.laptop"' \
-  --impure \
-  --option sandbox relaxed \
-  --eval-store auto

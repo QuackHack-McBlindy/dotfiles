@@ -9,8 +9,6 @@ develop/*
 home/.config/Yubico/yubikey-identity.txt
 home/.config/Yubico/*
 
-hosts/box/secrets.yaml
-hosts/watch/secrets.yaml
 
 home/.local/share/piper/
 home/.local/share/piper/*
@@ -22,8 +20,6 @@ modules/NIX
 
 modules/networking/caddy.nix.save
 borg_settings.txt
-flake.sync-conflict-20250228-033924-6RIE3DZ.lock
-flake.sync-conflict-20250228-033925-6RIE3DZ.lock
 
 key/
 **/keys.txt
@@ -72,3 +68,4 @@ result/            # Nix build output
 **/.direnv
 **/*.typed
 played_news.txt
+speedtest_speeds.txt

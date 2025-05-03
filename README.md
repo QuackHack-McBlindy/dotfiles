@@ -10,17 +10,6 @@
 > **That's my job.** 🧑‍🦯
 
 <br>
-
-## **📌Highlights**
-
-- 🛖 Automated Home Management *(no messy Home-Manager)*
-- 🛠️ Integrated CLI Tool
-- 🦊 True Declarative Firefox
-- 🎨 Set Global Theme
-- 📝 Automatic Documentation
-
-<br><br>
-
 __Sup ducks? 🦆 qwack on__ <br> <br>
 
 __Here lives my machines configuration files,__ <br>
@@ -30,10 +19,23 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
 
 <br><br>
 
+## **📌Highlights**
 
+- 🛖 **Automated Home Management** *(no messy Home-Manager)*
+- 🛠️ **Integrated CLI Tool for quick deployments**
+- 🦊 **True Declarative Firefox**
+- 🎨 **Set Global Theme**
+- 📝 **Automatic Documentation**
+- 💾 **Unattended USB Offline Installation** *(Insert USB. Boot, Done.)*
+
+<br><br>
+
+
+Build fully automated, unattended USB installer ISO for your machine. <br>
+ _(Will power off when insstaller finish)_ <br>
 
 ```bash
-nix build '.#packages.x86_64-linux."auto-installer.hostname"'
+nix build '.#packages.x86_64-linux."auto-installer.<hostname>"'
 ``` 
 
 <br>
@@ -72,7 +74,9 @@ nix build '.#packages.x86_64-linux."auto-installer.hostname"'
 <!-- FLAKE_END -->
 
 
-<details><summary>❄️🌲 FlakeTree</summary>
+<details><summary>
+### __❄️🌲 Flake Outputs__
+</summary>
 
   <!-- TREE_START -->
 ```nix
@@ -103,6 +107,7 @@ git+file:///home/pungkula/dotfiles
 ├───nixosConfigurations
 │   ├───desktop: NixOS configuration
 │   ├───homie: NixOS configuration
+│   ├───installer: NixOS configuration
 │   ├───laptop: NixOS configuration
 │   └───nasty: NixOS configuration
 └───packages
@@ -113,6 +118,7 @@ git+file:///home/pungkula/dotfiles
     └───x86_64-linux
         ├───"auto-installer.desktop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
+        ├───"auto-installer.installer": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───health: package 'health'
