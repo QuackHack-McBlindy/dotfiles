@@ -53,7 +53,6 @@
   };
 
   networking.firewall.logRefusedConnections = true;
-  users.users.root.initialPassword = "nixos";
 
   security = {
     # Prevent replacing the running kernel w/o reboot
@@ -63,8 +62,7 @@
     # Allows unautherized applications -> send unautherization request
    # polkit.enable = true;
   };
-  
-  
+    
   services.gnome.gnome-keyring.enable = true;
   services.gvfs.enable = true; 
 
@@ -72,42 +70,17 @@
     defaultSopsFile = ./../.sops.yaml;
     defaultSopsFormat = "yaml";
     validateSopsFiles = false;
-    age.keyFile = "/var/lib/sops-nix/age.age";
-    age.generateKey = true;
-  #  secrets = {
-  #    secretservice = {
-  #      sopsFile = ./../secrets/secretservice.yaml;
-  #      owner = config.this.user.me.name;
-  #      group = config.this.user.me.name;
-  #      mode = "0440"; # Read-only for owner and group
-  #    };
-   # };
+    age.keyFile = lib.mkDefault "/var/lib/sops-nix/age.age";
+    age.generateKey = lib.mkIf (!config.this.installer) true; # Only generate keys outside installer
   };  
- # systemd.services.secretservice = {
- #   script = ''
- #       echo "
- #       Hey bro! I'm a service, and imma send this secure password:
-  #      $(cat ${config.sops.secrets.secretservice.path})
-  #      located in:
- #       ${config.sops.secrets.secretservice.path}
- #       to database and hack the mainframe
- #       " > /var/lib/secretservice/testfile
- #  '';
- #   serviceConfig = {
- #     User = "secretservice";
- #     WorkingDirectory = "/var/lib/secretservice";
-#    };
-#  };
 
-
-  sops.secrets = {
+  sops.secrets = lib.mkIf (!config.this.installer) {
     mosquitto = {
       sopsFile = ./../secrets/mosquitto.yaml; 
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # Read-only for owner and group
     };
-
     w = {
       sopsFile = ./../secrets/w.yaml;
       owner = config.this.user.me.name;
@@ -120,30 +93,7 @@
       group = config.this.user.me.name;
       mode = "0440"; # Read-only for owner and group
     };
-  };
-
-#  config.sops.secrets.resrobot.path;
-  
- # sops.secrets = {
-#   smb = {
-#      sopsFile = "/var/lib/sops-nix/secrets/smb.yaml"; 
-  #    owner = config.this.user.me.name;
- #    group = config.this.user.me.name;
-  #    mode = "0440"; # Read-only for owner and group
- #   };
-#  };
-
-#  sops.secrets = {
- #   smbb = {
- #     sopsFile = "/var/lib/sops-nix/secrets/smbb.yaml"; 
-#      owner = config.this.user.me.name;
- #     group = config.this.user.me.name;
-#      mode = "0440"; # Read-only for owner and group
-#    };
-#  };
-
-#  config.sops.secrets.smbb.path;
-  
+  }; 
 
   security.sudo.extraRules = [
     {
@@ -179,21 +129,6 @@
   ];
 
 
-#   swaylock pass verify
-#    security.pam.services.swaylock = {
- #     text = ''
- #     auth include login
- #     '';
- #   };
-  
-
-  #  security.sudo = {
-  #      enable = true;
-  #      extraConfig = ''
-  #          %wheel ALL=(ALL) NOPASSWD: ALL
-   #     '';
- #   };
- 
 #######################
 # HARDENING 
 

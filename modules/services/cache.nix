@@ -34,7 +34,7 @@ in {
   };
 
   config = lib.mkIf (lib.elem "cache" config.this.host.modules.services) {
-    services.nix-serve = {
+    services.nix-serve = lib.mkIf (!config.this.installer) {
       enable = true;
       port = cfg.port;
       secretKeyFile = "/etc/nix/private-key.pem";
@@ -42,7 +42,7 @@ in {
 
     networking.firewall.allowedTCPPorts = [ 80 443 cfg.port ];
 
-    system.activationScripts.generateSSLCert = let
+    system.activationScripts.generateSSLCert = lib.mkIf (!config.this.installer) (let 
       certDir = "/etc/nginx/ssl";
       certPath = "${certDir}/cert.pem";
       keyPath = "${certDir}/key.pem";
@@ -58,9 +58,9 @@ in {
         chmod 400 ${certPath} ${keyPath}
       '';
       deps = [ "etc" ];
-    };
+    });
 
-    services.nginx = {
+    services.nginx = lib.mkIf (!config.this.installer) {
       enable = true;
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
@@ -74,7 +74,7 @@ in {
       };
     };
 
-    system.activationScripts.cacheConfig = {
+    system.activationScripts.cacheConfig = lib.mkIf (!config.this.installer) {
       text = ''
         mkdir -p /etc/nix
         cat ${config.sops.secrets.nix_cache_private_key.path} > /etc/nix/private-key.pem
@@ -82,7 +82,7 @@ in {
       '';
     };
 
-    sops.secrets = {
+    sops.secrets = lib.mkIf (!config.this.installer) {
       nix_cache_public_key = {
         sopsFile = cfg.secretsPath + "/nixcache_public_desktop.yaml";
         owner = cfg.user;

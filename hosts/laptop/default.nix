@@ -5,7 +5,7 @@
   self,
   ...
 } : { 
-    imports = [ ./disks.nix ];
+    imports = [ self.inputs.disko.nixosModules.disko ];
 
     boot = {
         kernelModules = [ "wl" ]; 
@@ -44,10 +44,13 @@
     hardware.enableAllFirmware = true;
     hardware.enableRedistributableFirmware = true;
     services.fwupd.enable = true;
+
+#    sops.age.keyFile = lib.mkForce "/persist/age/key.txt";
    
     this = {
+        installer = false;
         home = ./../../home;
-        theme.name = "gtk4.css"; 
+        theme.name = "gtk3.css"; 
         user = {       
             enable = true;
             me = {
@@ -75,7 +78,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "gtk" ];
                 networking = [ "wireless" "pool" ];
-                services = [ "ssh" "adb" "cache" "keyd" ];
+                services = [ "ssh" "cache" "keyd" ];
                 programs = [ "default" "thunar" "firefox" ];
                 virtualisation = [ ];
             };  
@@ -94,17 +97,17 @@
         };    
     };                
 
-    fileSystems."/boot" = {
-        device = "/dev/disk/by-label/boot";
-        fsType = "vfat";
-    };
+#    fileSystems."/boot" = {
+#        device = "/dev/disk/by-label/boot";
+#        fsType = "vfat";
+#    };
 
-    fileSystems."/" = {
-        device = "/dev/disk/by-label/nixos";
-        fsType = "ext4";
-    };
+#    fileSystems."/" = {
+#        device = "/dev/disk/by-label/nixos";
+#        fsType = "ext4";
+#    };
 
-    swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
+#    swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
 
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions

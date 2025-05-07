@@ -1,6 +1,10 @@
-{ lib, stdenv, python3, piper-tts }:
-
-let
+{ 
+#  self,
+  lib,
+  stdenv,
+  python3,
+  piper-tts
+} : let
   pythonEnv = python3.withPackages (ps: [
     ps.numpy
     ps.sounddevice
@@ -30,7 +34,7 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "Python script for text-to-speech using Piper";
+    description = "TTS with automatic language detection";
     license = lib.licenses.mit;
   };
 }

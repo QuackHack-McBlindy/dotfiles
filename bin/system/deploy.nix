@@ -30,40 +30,38 @@ in {
          echo "❗ Test run: reboot will revert activation"
        fi
 
-       AUTO_PULL=(run_cmd nix eval ''$flake#nixosConfigurations.''$host.self.config.this.host.autoPull) 
-              # check if deplyed host should be autoPulled
-       if [[ "$AUTO_PULL" == "true" ]]; then
-         run_cmd echo "$host has autoPull activated!"
-         # Check if deployed hosts dotfiles directory should be pulled or cloned
-         result=( $(run_cmd ssh "$host" "[ -d \$flake/.git ] && echo true || echo false" 2>/dev/null | grep -Eo 'true|false') )
+       result=( $(run_cmd ssh "$user"@"$host" "[ -d \$flake/.git ] && echo true || echo false" 2>/dev/null | grep -Eo 'true|false') )
        if [ "$result" = "true" ]; then
-         # if dotfiles exist, update it
-         run_cmd yo pull
+         run_cmd echo "dotfiles located on $host .."
        else
          # Otherwise clone it to $flake parameter
          run_cmd echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"
-         run_cmd git clone ''$repo ''$flake || fail "❌  Clone failed"
+    
+         run_cmd ssh "$user"@"$host" "git clone '$repo' '$flake'" || fail "❌ Clone failed"
+         run_cmd echo "Please decrypt $host AGE key, Enter PIN and touch your Yubikey"
+         run_cmd echo ""
+         run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh "$user@$host" "mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
+
+       fi 
+
+       echo "👤 SSH User: ''$user"
+       echo "🌐 SSH Host: ''$host"
+       echo "❄️ Nix flake: ''$flake"
+       echo "🚀 Deploying ''$flake#nixosConfigurations.''$host"
+       echo "🔨 Building locally and activating remotely..."
+
+       if $DRY_RUN; then
+         rebuild_command="test"
+       else
+         rebuild_command="switch"
        fi
-     fi
-
-     echo "👤 SSH User: ''$user"
-     echo "🌐 SSH Host: ''$host"
-     echo "❄️ Nix flake: ''$flake"
-     echo "🚀 Deploying ''$flake#nixosConfigurations.''$host"
-     echo "🔨 Building locally and activating remotely..."
-
-     if $DRY_RUN; then
-       rebuild_command="test"
-     else
-       rebuild_command="switch"
-     fi
-     cmd=(
-       ${pkgs.nixos-rebuild}/bin/nixos-rebuild
-       $rebuild_command
-         --flake "$flake#$host"
-         --target-host "$user@$host"
-         --use-remote-sudo
-         --show-trace
+       cmd=(
+         ${pkgs.nixos-rebuild}/bin/nixos-rebuild
+         $rebuild_command
+           --flake "$flake#$host"
+           --target-host "$user@$host"
+           --use-remote-sudo
+           --show-trace
        )
           
        "''${cmd[@]}"

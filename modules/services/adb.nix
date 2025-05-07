@@ -19,7 +19,7 @@ EOF
 in {
     config = lib.mkIf (lib.elem "adb" config.this.host.modules.services) {
         environment.systemPackages = [ pkgs.android-tools self.packages.${pkgs.system}.tv ];
-        systemd.services.android_config = {
+        systemd.services.android_config = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             preStart = ''
                 mkdir -p /home/${config.this.user.me.name}/.android
@@ -35,10 +35,11 @@ in {
                 RestartSec = "2s";
                 RuntimeDirectory = [ config.this.user.me.name ];
                 User = config.this.user.me.name;
+                ConditionPathExists = config.sops.secrets.adbkey.path;
             };
         };
   
-        sops.secrets = {
+        sops.secrets = lib.mkIf (!config.this.installer) {
             adbkey = {
                 sopsFile = ./../../secrets/adbkey.yaml;
                 owner = config.this.user.me.name;

@@ -4,7 +4,7 @@
     pkgs, 
     ... 
 } : let 
-    pubkey = import ./../../hosts/pubkeys.nix;
+#    pubkey = import ./../../hosts/pubkeys.nix;
 in { 
     config = lib.mkIf (lib.elem "borg" config.this.host.modules.services) {
         services.borgbackup.repos.backups = {

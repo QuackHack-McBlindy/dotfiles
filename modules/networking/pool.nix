@@ -5,7 +5,7 @@
   ...
 } : {
     config = lib.mkIf (lib.elem "pool" config.this.host.modules.networking) {
-        systemd.services.nfs-mnt = {
+        systemd.services.nfs-mnt = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             after = [ "network-online.target" ];
             requires = [ "network-online.target" ];

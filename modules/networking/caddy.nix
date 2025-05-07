@@ -64,7 +64,7 @@ in {
         networking.firewall.allowedUDPPorts = [ 443 53 ];
         networking.firewall.allowedTCPPorts = [ 443 53 ];
 
-        systemd.services.caddy_config = {
+        systemd.services.caddy_config = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             preStart = ''
                 mkdir -p /run/caddy
@@ -96,14 +96,6 @@ in {
             };
         };
         
-        sops.secrets = {
-            caddyfile = {
-                sopsFile = ./../../secrets/caddyfile.yaml;
-                owner = "caddy";
-                group = "caddy";
-                mode = "0660";
-            };
-        };
 
         users.users.caddy = {
             isSystemUser = true;
@@ -117,56 +109,55 @@ in {
         ];
         
 
-      virtualisation.oci-containers = {
-        backend = "docker";
-        containers = {
-          duckdns1 = {
-            image = "lscr.io/linuxserver/duckdns:latest";
+#      virtualisation.oci-containers = {
+#        backend = "docker";
+#        containers = {
+#          duckdns1 = {
+#            image = "lscr.io/linuxserver/duckdns:latest";
             #user = "${toString duckdnsUID}:${toString duckdnsGID}";
-            user = "2001:2001";
-            hostname = "duckdns1";
+#            user = "2001:2001";
+#            hostname = "duckdns1";
             #dependsOn = [ "" ];
-            autoStart = true;
-            environmentFiles = [ /run/duckdns/.1.env ];
+#            autoStart = true;
+#            environmentFiles = [ /run/duckdns/.1.env ];
            # environment = {
           #    PUID = toString duckdnsUID;
           #    PGID = toString duckdnsGID;
          #   };
-            environment = {
-              PUID = "2001";
-              PGID = "2001";
-            };
-          };
-          duckdns2 = {
-            image = "lscr.io/linuxserver/duckdns:latest";
-            user = "2001:2001";
-            hostname = "duckdns2";
+#            environment = {
+#              PUID = "2001";
+#              PGID = "2001";
+#            };
+#          };
+#          duckdns2 = {
+#            image = "lscr.io/linuxserver/duckdns:latest";
+#            user = "2001:2001";
+#            hostname = "duckdns2";
             #dependsOn = [ "" ];
-            autoStart = true;
-            environmentFiles = [ /run/duckdns/.2.env ];
-            environment = {
-              PUID = "2001";
-              PGID = "2001";
-            };
-          };
-          duckdns3 = {
-            image = "lscr.io/linuxserver/duckdns:latest";
-            user = "2001:2001";
-            hostname = "duckdns3";
+#            autoStart = true;
+#            environmentFiles = [ /run/duckdns/.2.env ];
+#            environment = {
+#              PUID = "2001";
+#              PGID = "2001";
+#            };
+#          };
+#          duckdns3 = {
+#            image = "lscr.io/linuxserver/duckdns:latest";
+#            user = "2001:2001";
+#            hostname = "duckdns3";
             #dependsOn = [ "" ];
-            autoStart = true;
-            environmentFiles = [ /run/duckdns/.3.env ];
-            environment = {
-              PUID = "2001";
-              PGID = "2001";
-            };
-          };
+#            autoStart = true;
+#            environmentFiles = [ /run/duckdns/.3.env ];
+#            environment = {
+#              PUID = "2001";
+#              PGID = "2001";
+#            };
+#          };
+#        };
+#      };
 
-        };
-      };
 
-
-      systemd.services.duckdns_config1 = {
+      systemd.services.duckdns_config1 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
         preStart = ''
@@ -187,7 +178,7 @@ in {
       };
 
 
-      systemd.services.duckdns_config2 = {
+      systemd.services.duckdns_config2 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
         preStart = ''
@@ -208,7 +199,7 @@ in {
       };
 
 
-      systemd.services.duckdns_config3 = {
+      systemd.services.duckdns_config3 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
         preStart = ''
@@ -228,7 +219,13 @@ in {
         };
       };
 
-      sops.secrets = {
+      sops.secrets = lib.mkIf (!config.this.installer) {
+        caddyfile = {
+          sopsFile = ./../../secrets/caddyfile.yaml;
+          owner = "caddy";
+          group = "caddy";
+          mode = "0660";
+        };
         duckdnsEnv-x = {
           sopsFile = ./../../secrets/duckdnsEnv-x.yaml;
           owner = "duckdns";

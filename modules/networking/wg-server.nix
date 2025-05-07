@@ -30,7 +30,8 @@
 
 in {
   config = lib.mkIf (lib.elem "wg-server" serverCfg.modules.networking) {
-    sops.secrets =
+    sops.secrets = lib.mkIf (!config.this.installer) (
+      # Use parentheses for merged attribute sets, not curly braces
       { "${config.networking.hostName}_wireguard_private" = mkSopsSecret config.networking.hostName; }
       //
       (lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peerHosts)
@@ -44,9 +45,11 @@ in {
           group = "wgUser";
           mode = "0440";
         };
-      };
+      }
+    );
+  
 
-    networking.wireguard.interfaces.wg0 = {
+    networking.wireguard.interfaces.wg0 = lib.mkIf (!config.this.installer) {
       ips = [ "${serverCfg.wgip}/24" ];
       listenPort = 51820;
       privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
@@ -64,7 +67,7 @@ in {
         }) mobileDevices);
     };
 
-    systemd.services.generate-wg-qr = let
+    systemd.services.generate-wg-qr = lib.mkIf (!config.this.installer) (let
       qrDependencies = with pkgs; [ qrencode imagemagick ];
       path = lib.makeBinPath ([ pkgs.coreutils pkgs.gnused ] ++ qrDependencies);
     in {
@@ -107,7 +110,7 @@ in {
       '';
 
       wantedBy = [ "multi-user.target" ];
-    };
+    });
 
     users = {
       groups.wgUser = {};
@@ -119,11 +122,10 @@ in {
       };
     };
 
-    system.activationScripts.wgUserSetup = {
+    system.activationScripts.wgUserSetup = lib.mkIf (!config.this.installer) {
       text = ''
         cp /home/pungkula/dotfiles/home/icons/duck2.png /home/wgUser/duck.png
         chown wgUser:wgUser /home/wgUser/duck.png
       '';
     };
-  };
-}
+  };}

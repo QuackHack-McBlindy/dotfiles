@@ -48,7 +48,7 @@ EOF
 in {
     config = lib.mkIf (lib.elem "duckdns" config.this.host.modules.virtualisation) {
 
-      virtualisation.oci-containers = {
+      virtualisation.oci-containers = lib.mkIf (!config.this.installer) {
         backend = "docker";
         containers = {
           duckdns1 = {
@@ -100,7 +100,7 @@ in {
       };
 
 
-      systemd.services.duckdns_config1 = {
+      systemd.services.duckdns_config1 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
         preStart = ''
@@ -121,7 +121,7 @@ in {
       };
 
 
-      systemd.services.duckdns_config2 = {
+      systemd.services.duckdns_config2 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
         preStart = ''
@@ -142,7 +142,7 @@ in {
       };
 
 
-      systemd.services.duckdns_config3 = {
+      systemd.services.duckdns_config3 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
         preStart = ''
@@ -162,7 +162,7 @@ in {
         };
       };
 
-      sops.secrets = {
+      sops.secrets = lib.mkIf (!config.this.installer) {
         duckdnsEnv-x = {
           sopsFile = ./../../secrets/duckdnsEnv-x.yaml;
           owner = "duckdns";

@@ -209,14 +209,11 @@
 
         export TRANSMISSION_USERNAME=""
         export TRANSMISSION_PASSWORD=""
-
   '';
 in {
-
     config = lib.mkIf (lib.elem "arr" config.this.host.modules.virtualisation) {
-
         # Sets variables needed for the containers
-        systemd.services.arr-conf = {
+        systemd.services.arr-conf = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             preStart = ''
                 touch /docker/arr.env
@@ -237,7 +234,7 @@ in {
             };                                                                                    };
 
         # Configure the applications
-        systemd.services.configure-arr = {
+        systemd.services.configure-arr = lib.mkIf (!config.this.installer) {
             description = "Configure ARR services and generate .env file";
             wantedBy = [ "multi-user.target" ];
             after = [ "docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" ];
@@ -251,7 +248,7 @@ in {
         };
 
         # Container Configuration
-        virtualisation.oci-containers = {
+        virtualisation.oci-containers = lib.mkIf (!config.this.installer) {
             backend = "docker";
             containers = {
                 transmission = {
@@ -401,7 +398,7 @@ in {
             };
         };
 
-        sops.secrets = {
+        sops.secrets = lib.mkIf (!config.this.installer) {
             transmission = {
                 sopsFile = ./../../secrets/transmission.yaml;
                 owner = "dockeruser";
@@ -429,14 +426,14 @@ in {
         };
 
         # Automatic Backup
-        systemd.services.arr-backup = {
+        systemd.services.arr-backup = lib.mkIf (!config.this.installer) {
             serviceConfig = {
                 Type = "oneshot";
                 User = "dockeruser";
                 ExecStart = "${bashBackup}/bin/backup-apps";
             };
         };
-        systemd.timers.arr-backup = {
+        systemd.timers.arr-backup = lib.mkIf (!config.this.installer) {
             wantedBy = ["timers.target"];
             timerConfig = {
                 OnCalendar = "daily";
@@ -445,7 +442,7 @@ in {
         };
 
         # Automatic Restoration From Backup
-        systemd.services.arr-restore = {
+        systemd.services.arr-restore = lib.mkIf (!config.this.installer) {
             wantedBy = ["multi-user.target"];
             after = ["docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" "docker-readarr.service" "docker-prowlarr.service"];
             requires = ["docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" "docker-readarr.service" "docker-prowlarr.service"];
@@ -460,7 +457,7 @@ in {
         };
 
         # Set /Docker Ownersihp and Permissions
-        system.activationScripts.dockerPermissions = {
+        system.activationScripts.dockerPermissions = lib.mkIf (!config.this.installer) {
             text = ''
                 echo "Setting permissions and ownership for /docker directories..."
                 mkdir -p /docker

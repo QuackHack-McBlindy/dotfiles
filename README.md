@@ -1,10 +1,12 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.21-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue) <br>
+![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.25-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  
 <div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div> 
- 
+
+
 > [!CAUTION]
 > __Do not blindly run this flake.__ <br>
 > **That's my job.** 🧑‍🦯
@@ -24,7 +26,7 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
 - 🛖 **Automated Home Management** *(no messy Home-Manager)*
 - 🛠️ **Integrated CLI Tool for quick deployments**
 - 🦊 **True Declarative Firefox**
-- 🎨 **Set Global Theme**
+- 🎨 **Set Global Theme's**
 - 📝 **Automatic Documentation**
 - 💾 **Unattended USB Offline Installation** *(Insert USB. Boot, Done.)*
 - 🕒 **Locally Cached Binaries**
@@ -32,14 +34,18 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
 <br><br>
 
 
-**Build fully automated, unattended USB installer ISO for your machine.** <br>
+
+#### **Build fully automated, unattended offline USB installer ISO for your machine.** 
+
  _(Will power off when insstaller finish)_ <br>
+
+⚠️ **Remember to set** `this.installer = true; ` **in your target host configuration to ensure installation goes smoothly without decrypting secrets.**
 
 ```bash
 nix build '.#packages.x86_64-linux."auto-installer.<hostname>"'
 ``` 
 
-<br>
+<br><br>
 
 <!-- FLAKE_START -->
 ```nix
@@ -162,6 +168,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo health [--host]` | hc | Check system health status across your machines |
+| `yo proxy --mode` | proxyon, proxyoff | Turn proxy routing on/off with no IP leaks |
 | `yo pull [--flake]` | pl | Pull dotfiles repo from GitHub |
 | `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
 | `yo reboot [--host]` |  | Force reboot and wait for host |

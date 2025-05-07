@@ -155,6 +155,9 @@
                 pkgs.nil 		# Nix language server
                 pkgs.nix-info
                 pkgs.nixpkgs-fmt
+                pkgs.scrcpy
+                pkgs.nixos-anywhere
+           #     pkgs.mkchromecast
      
             ]     
         ];

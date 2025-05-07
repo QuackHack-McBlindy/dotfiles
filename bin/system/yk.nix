@@ -44,19 +44,33 @@
               ;;
 
             decrypt)
-              # Original behavior: Decrypt -> same filename
-              run_cmd echo -e "\033[1;34m🔓 Decrypting $input in-place\033[0m"
-              age-plugin-yubikey --identity --slot 1 > /tmp/yubikey-identity.txt 2>/dev/null
-        
-              if rage -d -i /tmp/yubikey-identity.txt -o "$temp_file" "$input"; then
-                mv "$temp_file" "$input"
-                echo -e "\033[1;32m✅ Successfully decrypted file\033[0m"
-                rm -f /tmp/yubikey-identity.txt
+              run_cmd echo -e "\033[1;34m🔓 Decrypting $input temporarily for output\033[0m"
+              identity_tmp="/tmp/yubikey-identity.txt"
+              decrypted_tmp="$(mktemp)"
+            
+              # Get identity from Yubikey
+              age-plugin-yubikey --identity --slot 1 > "$identity_tmp" 2>/dev/null
+            
+              if rage -d -i "$identity_tmp" -o "$decrypted_tmp" "$input"; then
+                # Output the decrypted content
+                cat "$decrypted_tmp"
+            
+                # Re-encrypt it back in place
+                if rage -r "age1yubikey1q0ek47e26sg9eej2xlvxj308fgw8h8ajgx6ucagjzlm9tzgxtckdw35eg0m" \
+                     -o "$input" "$decrypted_tmp"; then
+                  :
+                else
+                  echo -e "\033[1;31m❌ Re-encryption failed - preserving original encrypted file\033[0m"
+                  exit 1
+                fi
               else
                 echo -e "\033[1;31m❌ Decryption failed - original file preserved\033[0m"
-                rm -f "$temp_file"
+                rm -f "$decrypted_tmp"
                 exit 1
               fi
+            
+              # Clean up
+              rm -f "$identity_tmp" "$decrypted_tmp"
               ;;
           esac
         '';

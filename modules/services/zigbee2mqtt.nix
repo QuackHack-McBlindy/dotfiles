@@ -5,7 +5,7 @@
   ... 
 } : {
     config = lib.mkIf (lib.elem "zigbee2mqtt" config.this.host.modules.services) {
-      services.zigbee2mqtt = {
+      services.zigbee2mqtt = lib.mkIf (!config.this.installer) {
         enable = true;
         dataDir = "/var/lib/zigbee";
         settings = {
@@ -13,7 +13,7 @@
           mqtt = {
             server = "mqtt://localhost:1883";
             user = "mqtt";
-           # password =  config.sops.secrets.mosquitto.path;
+            password =  config.sops.secrets.mosquitto.path;
             base_topic = "zigbee2mqtt";
           };
           serial = {

@@ -20,23 +20,24 @@
         binfmt.emulatedSystems = [ "aarch64-linux" ];
     };
     
-    services.media-search.music.directories = [
-        { path = "/Pool/Music"; searchType = "both"; }
-    ];    
+#    services.media-search.music.directories = [
+#        { path = "/Pool/Music"; searchType = "both"; }
+#    ];    
     
-    services.media-search.videos.directories = [
-        { path = "/Pool/TV"; searchType = "directories"; }
-    ];    
+#    services.media-search.videos.directories = [
+#        { path = "/Pool/TV"; searchType = "directories"; }
+#    ];    
 
-    services.media-search.documents.directories = [
-        { path = "/Pool/Movies"; searchType = "directories"; }
-    ];    
+#    services.media-search.documents.directories = [
+#        { path = "/Pool/Movies"; searchType = "directories"; }
+#    ];    
     
     
     this = {
+        installer = false;
         home = ./../../home;
         theme = {
-            name = "none"; 
+            name = "gtk3.css"; 
             iconTheme = {
                 name = "Papirus-Dark";
                 package = pkgs.papirus-icon-theme;
@@ -56,7 +57,8 @@
             enable = true;
             me = {
                 name = "pungkula";
-                repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
+                #repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
+                repo = "https://github.com/QuackHack-McBlindy/dotfiles.git";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
                 extraDevices = [ "iphone" "tablet" "watch" ];
@@ -79,6 +81,7 @@
             interface = [ "enp119s0" ];
             ip = "192.168.1.111";
             wgip = "10.0.0.2";
+            adb-devices = [ "shield" "arris" ];
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];

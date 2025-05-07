@@ -5,7 +5,9 @@
     pkgs,
     ...
 } : let
+
   inherit (lib) types mkOption mkEnableOption mkMerge;
+
   importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;
@@ -18,7 +20,8 @@
           [];
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
-        
+
+       
 in {
     imports = [ ./security.nix ./yo.nix ./tv.nix ] ++
         (importModulesRecursive ./hardware) ++
@@ -28,8 +31,16 @@ in {
         (importModulesRecursive ./programs) ++
         (importModulesRecursive ./themes) ++
         (importModulesRecursive ./virtualisation);
-
+        
+        
     options.this = {
+        installer = lib.mkOption {
+            type = lib.types.bool;
+            description = "If true, declares this configuration a installer rendering it secretless";
+            default = false;
+            example = true;
+        };
+        
         user = mkOption {
             type = types.submodule {
                 options = {
@@ -135,9 +146,6 @@ in {
                 type = types.str;
                 example = "desktop";
                 default = "nix";
-#                    if config.networking.hostName != ""
-#                    then config.networking.hostName
-#                    else "nixos-${lib.strings.substring 0 8 (builtins.hashString "sha256" builtins.currentSystem)}";
                 description = "System hostname";
             };
             autoPull = mkOption {
@@ -163,6 +171,11 @@ in {
                 example = "10.10.10.10";
                 default = null;
                 description = "WireGuard peer IP address";
+            };
+            adb-devices = lib.mkOption {
+                type = types.listOf types.str;
+                default = [];
+                description = "List of ADB device names";
             };
             modules = {
                 hardware = mkOption {
@@ -220,53 +233,13 @@ in {
     };
 
 
-    config = lib.mkMerge [
-#        (lib.mkIf (config.this.host.hostname != null) {
-#            sops.secrets = {
-#               "hosts/${config.this.host.hostname}/host_ed25519" = {
-#                    sopsFile = ./../secrets/hosts/${config.this.host.hostname}/host_ed25519.yaml;
-#                    owner = "root";
-#                    group = "root";
-#                    mode = "0440";
-#                };
-
-#                "hosts/${config.this.host.hostname}/ssh_ed25519" = {
-#                    sopsFile = ./../secrets/hosts/${config.this.host.hostname}/ssh_ed25519.yaml;
-#                    owner = config.this.user.me.name;
-#                    group = config.this.user.me.name;
-#                    mode = "0440";
-#                };
-#
-#                "hosts/${config.this.host.hostname}/wireguard" = {
-#                    sopsFile = ./../secrets/hosts/${config.this.host.hostname}/wireguard.yaml;
-#                    owner = "wgUser";
-#                    group = "wgUser";
-#                    mode = "0440";
-#                };
-#                "users/builder/ed25519" = {
-#                    sopsFile = ./../secrets/users/builder/ed25519.yaml;
-#                    owner = "root";
-#                    group = "root";
-#                    mode = "0440";
-#                };
-
-#                nixcache_private_desktop = {
-#                    sopsFile = ./../secrets/nixcache_private_desktop.yaml;
-#                    owner = "root";
-#                    group = "root";
-#                    mode = "0440";
-#                };                
-#            };
-#        })
-    
+    config = lib.mkMerge [ 
         (lib.mkIf config.this.host.autoPull {
             environment.sessionVariables = {
                 NIXOS_AUTO_PULL = "1";
                 NIXOS_REPO_URL = config.this.user.me.repo;
             };
         })    
-
-
 
         (lib.mkIf config.this.user.enable (lib.mkMerge [
             {

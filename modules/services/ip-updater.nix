@@ -27,7 +27,7 @@
             };
         };
       
-        sops.secrets = {
+        sops.secrets = lib.mkIf (!config.this.installer) {
             duckdnsEnv-x = {
                 sopsFile = ./../../secrets/duckdnsEnv-x.yaml;
                 owner = config.this.user.me.name;

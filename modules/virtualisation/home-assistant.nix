@@ -5,7 +5,7 @@
 } : {
     config = lib.mkIf (lib.elem "home-assistant" config.this.host.modules.virtualisation) {
         networking.firewall.allowedTCPPorts = [ 8123 ];
-        virtualisation.oci-containers = {
+        virtualisation.oci-containers = lib.mkIf (!config.this.installer) {
             backend = "docker";
             containers = {
                 home-assistant = {

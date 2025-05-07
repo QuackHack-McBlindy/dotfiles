@@ -111,7 +111,7 @@ in {
             timerConfig.OnCalendar = "weekly UTC";
         }; 
 
-        systemd.services.build_config = {
+        systemd.services.build_config = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
 
             preStart = ''
@@ -140,7 +140,7 @@ in {
        # FIXME TRUST CERTIFICATE
         security.pki.certificateFiles = [  ];
 
-        sops.secrets = {
+        sops.secrets = lib.mkIf (!config.this.installer) {
             id_ed25519_builder = {
                 sopsFile = ./../../secrets/id_ed25519_builder.yaml;
                 owner = "root";

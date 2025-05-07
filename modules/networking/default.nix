@@ -14,7 +14,6 @@
     );
     
     currentInterface = "${builtins.elemAt config.this.host.interface 0}";
-#    currentInterface = builtins.elemAt config.this.host.interface 0;
     currentIp = "${config.this.host.ip}";    
     currentHost = "${config.this.host.hostname}";    
     
@@ -81,10 +80,7 @@
             firewall = {
                 enable = true;
                 logRefusedConnections = true;
-#                allowedUDPPorts = lib.mkMerge [
-#                    (lib.mkIf (config.networking.hostName == "homie") [51820])
-#                    [6222 443 53]
-#                ];
+
                 allowedUDPPorts = 
                     if builtins.elem "wg-server" (config.this.host.modules.networking or [])
                     then [51820]
@@ -98,7 +94,7 @@
         };
     };
     
-    wirelessNetworking = {
+    wirelessNetworking = lib.mkIf (!config.this.installer) {
         networking.wireless.networks."pungkula2".psk = config.sops.secrets.w.path;
         networking.wireless.iwd = {
             enable = true;

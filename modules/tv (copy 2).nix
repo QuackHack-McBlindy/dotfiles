@@ -24,6 +24,8 @@ let
   };
 
   # 2. Core script generation
+  
+  
   makeDeviceScript = device: ip: pkgs.writeShellScriptBin device ''
     set -euo pipefail
 
@@ -59,26 +61,26 @@ let
       local exts=($(jq -r '.extensions[]' <<< "$media_config"))
       local randomize=$(jq -r '.randomize' <<< "$media_config")
 
-      # Build find command with proper escaping
-      local find_cmd="find -L \"$search_dir\" -type f \( -false"
+      # Build find command
+      local find_cmd="find \"$search_dir\" -type f"
       for ext in "''${exts[@]}"; do
-        find_cmd+=" -o -iname \"*$ext\""
+        find_cmd+=" -iname \"*$ext\" -o"
       done
-      find_cmd+=" \) -print0"
+      find_cmd="''${find_cmd% -o}"
 
       # Add randomization/selection and limit
       if [ "$randomize" = "true" ]; then
-        find_cmd+=" | shuf -z -n $MAX_ITEMS"
+        find_cmd+=" | shuf | head -n $MAX_ITEMS"
       else
-        find_cmd+=" | fzf --filter=\"$(correct_query "$query")\" --read0 --print0"
+        find_cmd+=" | fzf --filter=\"$(correct_query "$query")\" --print0 | xargs -0 -n $MAX_ITEMS"
       fi
 
-      eval "$find_cmd" | while IFS= read -r -d ''' filepath; do
-        # Convert local path to web URL
-        relative_path="''${filepath#''$search_dir/}"
-        url_encoded_path=$(printf '%s' "$relative_path" | sed 's/ /%20/g; s/&/%26/g; s/?/%3F/g')
-        echo "$WEBSERVER/$folder_name/$url_encoded_path"
-      done | head -n "$MAX_ITEMS" >> "$PLAYLIST_PATH"
+      # Generate playlist with URL transformation
+      echo "$INTRO_URL" > "$PLAYLIST_PATH"
+      eval "$find_cmd" | while IFS= read -r filepath; do
+        relative_path="''${filepath#$search_dir/}"
+        echo "$WEBSERVER/$folder_name/$relative_path"
+      done >> "$PLAYLIST_PATH"
 
       # Send to device
       connect
@@ -177,7 +179,7 @@ in {
     services.media-search = {
       maxPlaylistItems = 200;
       webServer = "https://qwackify.duckdns.org";
-      introUrl = "https://qwackify.duckdns.org/intro.mp4";
+      introUrl = "https://qwackify.duuckdns.org/intro.mp4";
       playlistPath = "/Pool/playlist.m3u";
 
       mediaTypes = {
@@ -189,13 +191,13 @@ in {
 
         movie = {
           path = "/Pool/Movies";
-          extensions = [ ".mkv" ".mp4" ".avi" ];
+          extensions = [".mkv" ".mp4"];
         };
 
         tv = {
           path = "/Pool/TV";
-          extensions = [ ".mkv" ".mp4" ".avi" ];
-          randomize = false;
+          extensions = [".mkv" ".mp4"];
+          randomize = true;
         };
 
         jukebox = {

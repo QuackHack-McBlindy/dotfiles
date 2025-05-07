@@ -75,7 +75,7 @@ in {
             };
         };
 
-        systemd.services.borg_config = {
+        systemd.services.borg_config = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             preStart = ''
                 sed -e "/@SSHKEY@/{
@@ -94,7 +94,7 @@ in {
             };
         };
 
-        sops.secrets = {
+        sops.secrets = lib.mkIf (!config.this.installer) {
             borg = {
                 sopsFile = ./../../secrets/borg.yaml;
                 owner = "root";

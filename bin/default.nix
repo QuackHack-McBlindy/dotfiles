@@ -1,11 +1,12 @@
 { 
-  config,
-  pkgs,
-  self,
-  lib,
-  ...
-}: let
-  inherit (lib) types mkOption;
+    self,
+    config,
+    lib,
+    pkgs,
+    ...
+} : let
+
+  inherit (lib) types mkOption mkEnableOption mkMerge;
 
   importModulesRecursive = dir:
     let
@@ -20,7 +21,6 @@
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
 
   sysHosts = lib.attrNames self.nixosConfigurations;
-
   
   cmdHelpers = ''
     parse_flags() {
@@ -71,8 +71,11 @@
 
 in {
     imports = builtins.map (file: import file {
-      # Explicitly pass cmdHelpers to child modules
       inherit self config lib cmdHelpers pkgs sysHosts;
-    }) (importModulesRecursive ./bin);
-    
-}
+    }) (importModulesRecursive ./system); #++
+#       (importModulesRecursive ./security) ++
+#       (importModulesRecursive ./maintenance) ++
+#       (importModulesRecursive ./productivity);
+#       (importModulesRecursive ./misc);
+
+    }  

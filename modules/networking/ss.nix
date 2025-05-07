@@ -52,7 +52,7 @@ in {
     };
     users.groups.${proxyUser} = {};
 
-    systemd.services.shadowsocks-client = {
+    systemd.services.shadowsocks-client = lib.mkIf (!config.this.installer) {
       description = "Shadowsocks Client Service";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
@@ -113,7 +113,7 @@ in {
       }
     '');
 
-    sops.secrets = {
+    sops.secrets = lib.mkIf (!config.this.installer) {
         SHADOWSOCKS_PASSWORD = {
             sopsFile = ./../../secrets/SHADOWSOCKS_PASSWORD.yaml;
             owner = proxyUser;

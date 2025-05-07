@@ -26,14 +26,14 @@
 
 in {
   config = lib.mkIf (lib.elem "wg-client" config.this.host.modules.networking) {
-    sops.secrets.${clientPrivateKeySecret} = {
+    sops.secrets.${clientPrivateKeySecret} = lib.mkIf (!config.this.installer) {
       sopsFile = ../../secrets/hosts/${config.networking.hostName}/${clientPrivateKeySecret}.yaml;
       owner = "wgUser";
       group = "wgUser";
       mode = "0440";
     };
 
-    networking.wireguard.interfaces.wg0 = {
+    networking.wireguard.interfaces.wg0 = lib.mkIf (!config.this.installer) {
       ips = [ "${clientWgIP}/24" ];
       privateKeyFile = config.sops.secrets.${clientPrivateKeySecret}.path;
       
