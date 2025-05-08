@@ -38,19 +38,19 @@ in {
 
       interactiveShellInit = ''
         # Source custom shell scripts
-        source ~/dotfiles/home/.shell/functions.sh
-        source ~/dotfiles/home/.shell/aliases.sh
-        source ~/dotfiles/home/.gumrc
+        source /home/${config.this.user.me.name}/.shell/functions.sh
+        source /home/${config.this.user.me.name}/.shell/aliases.sh
+        source /home/${config.this.user.me.name}/.gumrc
 
         # Interactive shell setup
-        eval "$(/etc/profiles/per-user/pungkula/bin/starship init bash --print-full-init)"
+        eval "$(/run/current-system/sw/bin/starship init bash --print-full-init)"
         eval "$(direnv hook bash)"
         source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
 
-        export NIX_PATH=nixos-config=/home/pungkula/dotfiles/hosts/desktop/configuration.nix
-        export PYTHONSTARTUP="./../../home/.pythonrc"
-        export PYTHONPATH="/home/$USER/dotfiles/home/.shell/python:$PYTHONPATH"
-        export PATH="/home/pungkula/dotfiles/home/bin:$PATH:$PATH"
+        export NIX_PATH="nixpkgs=flake:nixpkgs"
+        export PYTHONSTARTUP="/home/${config.this.user.me.name}/.pythonrc"
+        export PYTHONPATH="/home/${config.this.user.me.name}/.shell/python:$PYTHONPATH"
+        export PATH="/home/${config.this.user.me.name}/bin:$PATH:$PATH"
 
         bind 'set show-all-if-ambiguous on'
         bind 'set completion-ignore-case on'
@@ -84,6 +84,7 @@ in {
             autocrlf = "input";
             ignorecase = true;
             whitespace = "trailing-space,space-before-tab";
+            excludesFile = "/home/${config.this.user.me.name}/.gitignore";
           };
 
           init.defaultBranch = "main";

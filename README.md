@@ -1,7 +1,6 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.25-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
-
+![NixOS](https://img.shields.io/badge/NixOS-25.05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.25-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
@@ -10,12 +9,12 @@ _This is a automagiduckically updated README.md_
 </sub></div> 
 
 
-> [! ⚠️ CAUTION]
+> [!CAUTION]
 > __Do not blindly run this flake.__ <br>
 > **That's my job.** 🧑‍🦯
 <br>
 
-__Sup ducks? 🦆 qwack on__ <br> <br>
+__Sup ducks? 🦆 qwack on__ <br>
 
 __Here lives my machines configuration files,__ <br>
 __and personal dotfiles, with a minimalistic flake construction.__  <br>
@@ -84,8 +83,6 @@ $ yo deploy laptop
 🦆 ➤ Edit hosts
      Edit flake
      Edit yo CLI scripts
-     Add new host
-     ❌ Remove host 
      🚫 Exit
 ``` 
 

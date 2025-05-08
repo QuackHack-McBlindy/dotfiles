@@ -47,17 +47,6 @@ let
             "- `--${escapeMD param.name}`${defaultText}${optionalText}\n  ${param.description}"
           ) script.parameters) + "\n"    
         
-        
-#        params = if script.parameters != [] then
-#          "### Parameters\n" + 
-#          concatStringsSep "\n" (map (param: 
-#            let
-#              safeParamDesc = escapeMD param.description;
-#              defaultText = optionalString (param.default != null) " (default: `${escapeMD param.default}`)";
-#              optionalText = optionalString param.optional " *(optional)*";
-#            in
-#            "- `--${escapeMD param.name}` (${param.type})${defaultText}${optionalText}\n  ${safeParamDesc}"
-#          ) script.parameters) + "\n"
         else
           "";
       in
@@ -102,8 +91,6 @@ let
 🦆 ➤ Edit hosts
      Edit flake
      Edit yo CLI scripts
-     Add new host
-     ❌ Remove host 
      🚫 Exit
 ``` 
 
