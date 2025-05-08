@@ -10,7 +10,7 @@ _This is a automagiduckically updated README.md_
 </sub></div> 
 
 
-> [!CAUTION]
+> [! ⚠️ CAUTION]
 > __Do not blindly run this flake.__ <br>
 > **That's my job.** 🧑‍🦯
 <br>
@@ -18,7 +18,7 @@ _This is a automagiduckically updated README.md_
 __Sup ducks? 🦆 qwack on__ <br> <br>
 
 __Here lives my machines configuration files,__ <br>
-__and my personal dotfiles, with a minimalistic flake setup.__  <br>
+__and personal dotfiles, with a minimalistic flake construction.__  <br>
 __With a unified script execution style and automated documentation,__ <br>
 __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
 
@@ -35,9 +35,9 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
 
 <br><br>
 
-## **README**
+## **📜 README**
 
-**⚡ Usage examples:**
+**Usage Examples:**
 
 ```bash
 # Clone repository
@@ -62,108 +62,16 @@ $ sudo dd if=./result/iso/*.iso of=/dev/sdX bs=4M status=progress oflag=sync
 ``` 
 
 Plug in flash drive into laptop and boot. Let it work and wait until it powers down.  
-Boot it up again and deploy configuration from your main machine:
+Remove flash drive, boot it up again and deploy configuration from your main machine:
 
 ```bash
-$ yo deploy laptop
 # Each host has an AGE key for decrypting secrets, this key is protected by a Yubikey.
-# You will be prompted for a PIN after which a touch is required. (Only required first deployment)
-``` 
-
+# Executing this command will decrypt and transfer correct key to deployed host.
+# You will be prompted for a PIN after which a touch is required. (Only needed first deployment)
+$ yo deploy laptop
+```
 
 <br><br>
-
-<!-- FLAKE_START -->
-```nix
-# flake.nix
-{ 
-    description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
-    inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
-        disko.url = "github:nix-community/disko";
-        disko.inputs.nixpkgs.follows = "nixpkgs";
-        sops-nix.url = "github:Mic92/sops-nix";
-        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
-        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
-        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
-    };
-    outputs = inputs @ { self, systems, nixpkgs, ... }:
-        let
-            lib = import ./lib {
-                inherit self inputs;
-                lib = nixpkgs.lib;      
-            };
-                    
-        in lib.mkFlake {
-            systems = [ "x86_64-linux" "aarch64-linux" ]; 
-            overlays = [ ];
-            hosts = lib.mapHosts ./hosts;
-            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
-            packages = lib.mapModules ./packages import;
-            apps = lib.mkApp ./apps.nix;
-            devShells = lib.mapModules ./devShells (path: import path);     
-        };             
-  }
-```
-<!-- FLAKE_END -->
-
-
-<details><summary>
-Flake Outputs
-</summary>
-
-  <!-- TREE_START -->
-```nix
-git+file:///home/pungkula/dotfiles
-├───apps
-│   ├───aarch64-linux
-│   │   ├───program: app: no description
-│   │   └───type: app: no description
-│   └───x86_64-linux
-│       ├───program: app: no description
-│       └───type: app: no description
-├───devShells
-│   ├───aarch64-linux
-│   │   ├───android omitted (use '--all-systems' to show)
-│   │   ├───go omitted (use '--all-systems' to show)
-│   │   ├───java omitted (use '--all-systems' to show)
-│   │   ├───node omitted (use '--all-systems' to show)
-│   │   ├───python omitted (use '--all-systems' to show)
-│   │   └───rust omitted (use '--all-systems' to show)
-│   └───x86_64-linux
-│       ├───android: development environment 'nix-shell'
-│       ├───go: development environment 'nix-shell'
-│       ├───java: development environment 'nix-shell'
-│       ├───node: development environment 'nix-shell'
-│       ├───python: development environment 'nix-shell'
-│       └───rust: development environment 'nix-shell'
-├───diskoConfigurations: unknown
-├───nixosConfigurations
-│   ├───desktop: NixOS configuration
-│   ├───homie: NixOS configuration
-│   ├───installer: NixOS configuration
-│   ├───laptop: NixOS configuration
-│   └───nasty: NixOS configuration
-└───packages
-    ├───aarch64-linux
-    │   ├───health omitted (use '--all-systems' to show)
-    │   ├───installer omitted (use '--all-systems' to show)
-    │   ├───say omitted (use '--all-systems' to show)
-    │   └───tv omitted (use '--all-systems' to show)
-    └───x86_64-linux
-        ├───"auto-installer.desktop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
-        ├───"auto-installer.homie": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
-        ├───"auto-installer.installer": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
-        ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
-        ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
-        ├───health: package 'health'
-        ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
-        ├───say: package 'say'
-        └───tv: package 'tv'
-```
-  <!-- TREE_END -->
-
-</details>
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
@@ -212,3 +120,87 @@ For specific command help:
 `yo <command> --help`
 `yo <command> -h`
 <!-- YO_DOCS_END -->
+
+
+<br><br>
+
+## **Flake**
+
+*I like to keep my flakes cool & tiny.*
+
+<!-- FLAKE_START -->
+```nix
+# flake.nix
+{ 
+    description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
+    inputs = {
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
+        sops-nix.url = "github:Mic92/sops-nix";
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
+    };
+    outputs = inputs @ { self, systems, nixpkgs, ... }:
+        let
+            lib = import ./lib {
+                inherit self inputs;
+                lib = nixpkgs.lib;      
+            };                   
+        in lib.mkFlake {
+            systems = [ "x86_64-linux" "aarch64-linux" ]; 
+            overlays = [ ];
+            hosts = lib.mapHosts ./hosts;
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
+            packages = lib.mapModules ./packages import;
+            devShells = lib.mapModules ./devShells (path: import path);     
+        };             
+  }
+```
+<!-- FLAKE_END -->
+
+
+<details><summary>
+Flake Outputs
+</summary>
+
+  <!-- TREE_START -->
+```nix
+git+file:///home/pungkula/dotfiles
+├───devShells
+│   ├───aarch64-linux
+│   │   ├───android omitted (use '--all-systems' to show)
+│   │   ├───go omitted (use '--all-systems' to show)
+│   │   ├───java omitted (use '--all-systems' to show)
+│   │   ├───node omitted (use '--all-systems' to show)
+│   │   ├───python omitted (use '--all-systems' to show)
+│   │   └───rust omitted (use '--all-systems' to show)
+│   └───x86_64-linux
+│       ├───android: development environment 'nix-shell'
+│       ├───go: development environment 'nix-shell'
+│       ├───java: development environment 'nix-shell'
+│       ├───node: development environment 'nix-shell'
+│       ├───python: development environment 'nix-shell'
+│       └───rust: development environment 'nix-shell'
+├───nixosConfigurations
+│   ├───desktop: NixOS configuration
+│   ├───homie: NixOS configuration
+│   ├───installer: NixOS configuration
+│   ├───laptop: NixOS configuration
+│   └───nasty: NixOS configuration
+└───packages
+    ├───aarch64-linux
+    │   ├───health omitted (use '--all-systems' to show)
+    │   ├───installer omitted (use '--all-systems' to show)
+    │   ├───say omitted (use '--all-systems' to show)
+    │   └───tv omitted (use '--all-systems' to show)
+    └───x86_64-linux
+        ├───health: package 'health'
+        ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
+        ├───say: package 'say'
+        └───tv: package 'tv'
+```
+  <!-- TREE_END -->
+
+</details>
+
+

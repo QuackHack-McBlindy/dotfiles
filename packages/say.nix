@@ -34,7 +34,7 @@ stdenv.mkDerivation {
   '';
 
   meta = {
-    description = "TTS with automatic language detection";
+    description = "TTS using Piper with automatic language detection";
     license = lib.licenses.mit;
   };
 }

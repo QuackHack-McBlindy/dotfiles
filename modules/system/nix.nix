@@ -4,7 +4,6 @@
   pkgs,
   ...
 } : let
-    pubkey = import ./../../hosts/pubkeys.nix;
       
     SSLpem = ''
         "@SSLCERT@"
@@ -43,7 +42,6 @@ in {
                 hostName = "desktop";
                 sshUser = "builder";
                 sshKey = "/root/.ssh/id_ed25519_builder";
-                #publicHostKey = pubkey.host.builder;
                 system = "x86_64-linux";
                 maxJobs = 4;
                 speedFactor = 5;

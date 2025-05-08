@@ -5,7 +5,6 @@
   self,
   ...
 } : { 
-    imports = [ self.inputs.disko.nixosModules.disko ];
 
     boot = {
         kernelModules = [ "wl" ]; 

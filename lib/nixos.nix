@@ -19,17 +19,14 @@ let
     let
       hosts = attrs.mapHosts ../hosts;           
 
-
-      diskoConfigurations = lib.mapAttrs (hostName: _:
-        import ../hosts/${hostName}/disks.nix
-      ) hosts;
+#      diskoConfigurations = lib.mapAttrs (hostName: _:
+#        import ../hosts/${hostName}/disks.nix
+#      ) hosts;
 
       mkPkgs = system: pkgs: overlays: import pkgs {
         inherit system overlays;
         config.allowUnfree = true;
       };
-
-
 
 #      mkPackage = path: { system }: let
 #        pkgs = mkPkgs system inputs.nixpkgs [];
@@ -52,67 +49,53 @@ let
           };
           modules = [
             inputs.sops-nix.nixosModules.sops
-            inputs.disko.nixosModules.disko  
+#            inputs.disko.nixosModules.disko  
             ../.
             hostConfig             
             ./../modules/home.nix 
-            diskoConfigurations.${hostName}
+#            diskoConfigurations.${hostName}
           ];
         }) (attrs.mapHosts ../hosts);
 
-      installerConfigurations = lib.mapAttrs (hostName: hostConfig:      
-        inputs.nixpkgs.lib.nixosSystem {   
-          system = "x86_64-linux";
-          modules = [
-            inputs.sops-nix.nixosModules.sops
-            inputs.disko.nixosModules.disko  
-            diskoConfigurations.${hostName}
-            ./../hosts/installer/default.nix
-            {
+#      installerConfigurations = lib.mapAttrs (hostName: hostConfig:      
+#        inputs.nixpkgs.lib.nixosSystem {   
+#          system = "x86_64-linux";
+#          modules = [
+#            inputs.sops-nix.nixosModules.sops
+#            inputs.disko.nixosModules.disko  
+#            diskoConfigurations.${hostName}
+#            ./../hosts/installer/default.nix
+#            {
               # Inject the fully evaluated host configuration
-              _module.args.baseHost = self.nixosConfigurations.${hostName}.config;
-              _module.args.hostName = hostName;
-            }
-          ];
+#              _module.args.baseHost = self.nixosConfigurations.${hostName}.config;
+#              _module.args.hostName = hostName;
+#            }
+#          ];
 #          specialArgs = {
 #            inherit self inputs;
-#            hostConfig = self.nixosConfigurations.${hostName};
+#            inherit hostName;
+#            nixosConfigurations = self.nixosConfigurations;
+#            finalSelf = self // {
+#              hostDir = ../hosts/${hostName};
+#              modules = lib.filterAttrs (_: v: v ? nixosModules) inputs;
+#            };
 #          };
-          specialArgs = {
-            inherit self inputs;
-            inherit hostName;
-            nixosConfigurations = self.nixosConfigurations;
-            finalSelf = self // {
-              hostDir = ../hosts/${hostName};
-              modules = lib.filterAttrs (_: v: v ? nixosModules) inputs;
-            };
-          };
+#        }) (attrs.mapHosts ../hosts);
 
-        }) (attrs.mapHosts ../hosts);
-
-
-      installerIsos = lib.mapAttrs (hostName: config: config.config.system.build.isoImage) installerConfigurations;
-      isoPackages = lib.mapAttrs' (hostName: iso: lib.nameValuePair "auto-installer.${hostName}" iso) installerIsos;
+#      installerIsos = lib.mapAttrs (hostName: config: config.config.system.build.isoImage) installerConfigurations;
+#      isoPackages = lib.mapAttrs' (hostName: iso: lib.nameValuePair "auto-installer.${hostName}" iso) installerIsos;
 
       perSystem = system: let
-        pkgs = mkPkgs system inputs.nixpkgs flake.overlays;  # Use flake.overlays
+        pkgs = mkPkgs system inputs.nixpkgs flake.overlays; 
 
       in {
-#        packages = lib.mapAttrs (_: v: 
-#          (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {})  # Apply overlays 
-#          packages;
-
-
 
         packages = lib.mapAttrs (_: v: 
           (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {
             inherit self;
             lib = inputs.nixpkgs.lib.extend (final: prev: {
-              # Add custom lib extensions here if needed
+              # Custom lib extensions
             });
-#            nixlib = (mkPkgs system inputs.nixpkgs []).nixos.lib.extend (final: prev: {
-              # Add custom extensions if needed
-#            });
           }
         ) packages;
 
@@ -148,11 +131,11 @@ let
 
       };
     in {
-      inherit nixosConfigurations diskoConfigurations;
+      inherit nixosConfigurations; #diskoConfigurations;
 
       packages = lib.genAttrs systems (system:
         (perSystem system).packages
-        // (if system == "x86_64-linux" then isoPackages else {})
+#        // (if system == "x86_64-linux" then isoPackages else {})
       );
 
       apps = lib.genAttrs systems (system: (perSystem system).apps);

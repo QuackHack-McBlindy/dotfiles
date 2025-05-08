@@ -5,20 +5,21 @@
     pkgs,
     ...
 } : let
-
   inherit (lib) types mkOption mkEnableOption mkMerge;
 
   importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;
-      processEntry = name: type:
-        if type == "directory" then
-          importModulesRecursive (dir + "/${name}")
-        else if type == "regular" && lib.hasSuffix ".nix" name then
-          [ (dir + "/${name}") ]
-        else [];
-    in
-      lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
+      modules = lib.attrsets.mapAttrsToList (name: type:
+        let path = dir + "/${name}";
+        in if type == "directory" then
+          importModulesRecursive path
+        else if lib.hasSuffix ".nix" name then
+          [ path ]
+        else
+          []
+      ) entries;
+    in lib.flatten modules;
 
   sysHosts = lib.attrNames self.nixosConfigurations;
   
@@ -71,11 +72,11 @@
 
 in {
     imports = builtins.map (file: import file {
-      inherit self config lib cmdHelpers pkgs sysHosts;
-    }) (importModulesRecursive ./system); #++
-#       (importModulesRecursive ./security) ++
-#       (importModulesRecursive ./maintenance) ++
-#       (importModulesRecursive ./productivity);
-#       (importModulesRecursive ./misc);
-
-    }  
+        inherit self config lib cmdHelpers pkgs sysHosts;
+    }) (
+        importModulesRecursive ./system ++
+        importModulesRecursive ./security ++
+        importModulesRecursive ./maintenance ++
+        importModulesRecursive ./productivity ++
+        importModulesRecursive ./misc
+    );}  

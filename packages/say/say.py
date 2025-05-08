@@ -6,10 +6,8 @@ import tempfile
 import shutil
 import subprocess
 
-# Global variables
 USER = os.getenv("USER", "default")
-#MODEL_DIR = f"/var/lib/{USER}/piper"
-MODEL_DIR = "/home/pungkula/dotfiles/home/.local/share/piper"
+MODEL_DIR = os.path.expanduser("~/.local/share/piper")
 VOICES_MD_URL = "https://raw.githubusercontent.com/rhasspy/piper/refs/heads/master/VOICES.md"
 DEFAULT_LANGUAGE = "sv"  # Swedish
 MIN_WORDS_FOR_DETECTION = 4  # Use default language if text is too short
@@ -27,7 +25,6 @@ def detect_language(text):
     except ImportError:
         return DEFAULT_LANGUAGE
 
-
 def fetch_model_urls(language):
     """Fetches model & config URLs for the given language using regex."""
     response = requests.get(VOICES_MD_URL)
@@ -35,7 +32,7 @@ def fetch_model_urls(language):
         print("Error fetching VOICES.md")
         sys.exit(1)
 
-    # Extract URLs using regex
+    # Extract URLs
     model_match = re.search(rf"https://\S+/{language}[^ ]+\.onnx", response.text)
     config_match = re.search(rf"https://\S+/{language}[^ ]+\.onnx\.json", response.text)
 
@@ -55,7 +52,6 @@ def download_file(url, dest_path):
             for chunk in response.iter_content(1024):
                 f.write(chunk)
 
-
 def ensure_model_exists(language):
     """Ensures model & config exist, downloading if necessary."""
     os.makedirs(MODEL_DIR, exist_ok=True)
@@ -69,7 +65,6 @@ def ensure_model_exists(language):
 
     return model_path, config_path
 
-
 def speak(text):
     """Detects language, ensures model exists, generates speech, and plays it."""
     lang = detect_language(text)
@@ -80,12 +75,12 @@ def speak(text):
         wav_path = tmp_wav.name
 
     try:
-        # Generate speech with Piper
+        # Generate speech
         subprocess.run([
             "piper",
             "-m", model,
             "-c", config,
-            "-f", wav_path  # Output to a WAV file
+            "-f", wav_path
         ], input=text.encode(), check=True)
 
         # Play the audio
@@ -97,10 +92,9 @@ def speak(text):
         os.remove(wav_path)  # Cleanup temp file
 
 
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        print("Usage: say.py 'text to speak'")
+        print("Usage: say 'text to speak'")
         sys.exit(1)
 
     speak(sys.argv[1])

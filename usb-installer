@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-set -e
-
+# Parse arguments
 while [[ $# -gt 0 ]]; do
   case $1 in
     --user) INSTALL_USER="$2"; shift ;;
@@ -14,7 +14,28 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
+# Verify required parameters
+check_required() {
+  if [[ -z "${!1}" ]]; then
+    echo "ERROR: Missing required parameter --${1#INSTALL_}"
+    exit 1
+  fi
+}
+
+check_required "INSTALL_USER"
+check_required "INSTALL_HOST"
+check_required "INSTALL_PUBKEY"
+
+# Validate SSH public key format
+if ! grep -qE '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp[0-9]+) AAAA[0-9A-Za-z+/]+[=]{0,3}( [^@]+@[^@]+)?$' <<< "$INSTALL_PUBKEY"; then
+  echo "ERROR: Invalid SSH public key format"
+  echo "Valid formats:"
+  echo "- ssh-ed25519 AAAAC3NzaC1lZDI1NTE5..."
+  echo "- ssh-rsa AAAAB3NzaC1yc2E..."
+  echo "- ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNo..."
+  exit 1
+fi
+
 export INSTALL_USER INSTALL_HOST INSTALL_SSID INSTALL_WIFI_PASS INSTALL_PUBKEY
 
 nix build .#installer --impure
-#cp -Lv result/iso/*.iso ./installer.iso
