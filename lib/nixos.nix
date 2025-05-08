@@ -19,15 +19,6 @@ let
     let
       hosts = attrs.mapHosts ../hosts;           
 
-      # Base modules for all configurations
-      baseModules = [
-        inputs.sops-nix.nixosModules.sops
-        inputs.disko.nixosModules.disko  
-        inputs.caddy-duckdns.nixosModules.caddy-duckdns
-        ../.
-        ./../modules/home.nix 
-      ];
-
 
       diskoConfigurations = lib.mapAttrs (hostName: _:
         import ../hosts/${hostName}/disks.nix
@@ -107,23 +98,23 @@ let
         pkgs = mkPkgs system inputs.nixpkgs flake.overlays;  # Use flake.overlays
 
       in {
-        packages = lib.mapAttrs (_: v: 
-          (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {})  # Apply overlays
-          packages;
-
-
-
 #        packages = lib.mapAttrs (_: v: 
-#          (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {
-#            inherit self;
-#            lib = inputs.nixpkgs.lib.extend (final: prev: {
+#          (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {})  # Apply overlays 
+#          packages;
+
+
+
+        packages = lib.mapAttrs (_: v: 
+          (mkPkgs system inputs.nixpkgs flake.overlays).callPackage v {
+            inherit self;
+            lib = inputs.nixpkgs.lib.extend (final: prev: {
               # Add custom lib extensions here if needed
-#            });
+            });
 #            nixlib = (mkPkgs system inputs.nixpkgs []).nixos.lib.extend (final: prev: {
               # Add custom extensions if needed
 #            });
-#          }
-#        ) packages;
+          }
+        ) packages;
 
         apps = lib.mapAttrs (_: v:
           let

@@ -1,12 +1,14 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
 
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.25-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.25-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 
-[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)  
+[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
-<div align="right"><sub> _This is a automagiduckically generated README.md_ </sub></div> 
+_This is a automagiduckically generated README.md_
+
+</sub></div> 
 
 
 > [!CAUTION]
@@ -30,22 +32,45 @@ __it's deployed and maintained with a Nix flavoured command line utlity.__ <br> 
 - 🦊 **True Declarative Firefox**
 - 🎨 **Set Global Theme's**
 - 📝 **Automatic Documentation**
-- 💾 **Unattended USB Offline Installation** *(Insert USB. Boot, Done.)*
-- 🕒 **Locally Cached Binaries**
+
 
 <br><br>
 
+## **README**
 
-
-#### **Build fully automated, unattended offline USB installer ISO for your machine.** 
-
- _(Will power off when insstaller finish)_ <br>
-
-⚠️ **Remember to set** `this.installer = true; ` **in your target host configuration to ensure installation goes smoothly without decrypting secrets.**
+**⚡ Usage examples:**
 
 ```bash
-nix build '.#packages.x86_64-linux."auto-installer.<hostname>"'
+# Clone repository
+$ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
+$ cd dotfiles
 ``` 
+
+**Build automated, offline USB NixOS installer** 
+
+```bash
+$ ./usb-installer \
+  --user "nix" \
+  --host "laptop" \
+  --ssid "IfYouDontHaveEthernet" \
+  --wifipass "CanBeOmitted" \
+  --publickey "ssh-ed25519 AAAAC3FoRSsHCoNnEcTiOn..."
+``` 
+
+```bash
+# dd result to flash drive (replace sdX)
+$ sudo dd if=./result/iso/*.iso of=/dev/sdX bs=4M status=progress oflag=sync
+``` 
+
+Plug in flash drive into laptop and boot. Let it work and wait until it powers down.  
+Boot it up again and deploy configuration from your main machine:
+
+```bash
+$ yo deploy laptop
+# Each host has an AGE key for decrypting secrets, this key is protected by a Yubikey.
+# You will be prompted for a PIN after which a touch is required. (This is only required first deployment)
+``` 
+
 
 <br><br>
 
@@ -61,6 +86,7 @@ nix build '.#packages.x86_64-linux."auto-installer.<hostname>"'
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
     };
     outputs = inputs @ { self, systems, nixpkgs, ... }:
         let
@@ -122,6 +148,7 @@ git+file:///home/pungkula/dotfiles
 └───packages
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)
+    │   ├───installer omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   └───tv omitted (use '--all-systems' to show)
     └───x86_64-linux
@@ -131,6 +158,7 @@ git+file:///home/pungkula/dotfiles
         ├───"auto-installer.laptop": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───"auto-installer.nasty": package 'nixos-minimal-25.05.20250501.f02fddb-x86_64-linux.iso'
         ├───health: package 'health'
+        ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───say: package 'say'
         └───tv: package 'tv'
 ```

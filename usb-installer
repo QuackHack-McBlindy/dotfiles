@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -e
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --user) INSTALL_USER="$2"; shift ;;
+    --host) INSTALL_HOST="$2"; shift ;;
+    --ssid) INSTALL_SSID="$2"; shift ;;
+    --wifipass) INSTALL_WIFI_PASS="$2"; shift ;;
+    --publickey) INSTALL_PUBKEY="$2"; shift ;;
+    *) echo "Unknown option: $1"; exit 1 ;;
+  esac
+  shift
+done
+
+export INSTALL_USER INSTALL_HOST INSTALL_SSID INSTALL_WIFI_PASS INSTALL_PUBKEY
+
+nix build .#installer --impure
+#cp -Lv result/iso/*.iso ./installer.iso

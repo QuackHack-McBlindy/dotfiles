@@ -8,6 +8,7 @@
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
     };
     outputs = inputs @ { self, systems, nixpkgs, ... }:
         let

@@ -12,12 +12,12 @@
   otherHosts = lib.filterAttrs (name: _: name != config.networking.hostName) allHosts;
 
   # Generate knownHosts entries for all other hosts
-  knownHostsEntries = lib.mapAttrs' (hostName: hostCfg: 
+  knownHostsEntries = lib.filterAttrs (_: v: v.publicKey != null) (lib.mapAttrs' (hostName: hostCfg: 
     lib.nameValuePair hostName {
-      extraHostNames = hostCfg.config.networking.hosts.${hostCfg.config.networking.hostName}.hostnames or [];
-      publicKey = config.this.host.keys.publicKeys.host;
+      extraHostNames = [ hostCfg.config.networking.hostName ];
+      publicKey = hostCfg.config.this.host.keys.publicKeys.host or null;
     }
-  ) otherHosts;
+  ) otherHosts);
 
   # Collect all user SSH keys from other hosts
   authorizedKeys = lib.concatMap (hostCfg:
@@ -46,17 +46,17 @@
     text = sshConfigText;
   };
   
-#  sshUserKey = ''
-#      "@SSHUSERKEY@"
-#  '';
-#  sshUserKeyFile = 
-#      pkgs.runCommand "sshUserKeyFile"
-#          { preferLocalBuild = true; }
-#          ''
-#          cat > $out <<EOF
-#${sshUserKey}
-#EOF
-#          '';
+  sshUserKey = ''
+      "@SSHUSERKEY@"
+  '';
+  sshUserKeyFile = 
+      pkgs.runCommand "sshUserKeyFile"
+          { preferLocalBuild = true; }
+          ''
+          cat > $out <<EOF
+${sshUserKey}
+EOF
+          '';
 in {
   config = lib.mkIf (lib.elem "ssh" config.this.host.modules.services) {
     system.activationScripts.sshConfig = {
@@ -100,36 +100,36 @@ in {
       ];
     };
     
-#    systemd.services.userkey = lib.mkIf (!config.this.installer) {
-#      wantedBy = [ "multi-user.target" ];
+    systemd.services.userkey = lib.mkIf (!config.this.installer) {
+      wantedBy = [ "multi-user.target" ];
 
-#      preStart = ''
-#        sed -e "/@SSHUSERKEY/{
-#            r ${config.sops.secrets.sshUserKey.path}
-#            d
-#        }" ${sshUserKeyFile} > ~/.ssh/id_ed25519
-#        echo '${config.this.host.keys.publicKeys.ssh}' > ~/.ssh/id_ed25519.pub
-#        chmod 600 ~/.ssh/id_ed25519
-#        chmod 644 ~/.ssh/id_ed25519.pub
-#        chown ${config.this.user.me.name}:${config.this.user.me.name} ~/.ssh/id_ed25519 ~/.ssh/id_ed25519.pub
-#      '';
+      preStart = ''
+        sed -e "/@SSHUSERKEY/{
+            r ${config.sops.secrets."users/pungkula/ssh_ed25519".path}
+            d
+        }" ${sshUserKeyFile} > ~/.ssh/id_ed25519
+        echo '${config.this.host.keys.publicKeys.ssh}' > ~/.ssh/id_ed25519.pub
+        chmod 600 ~/.ssh/id_ed25519
+        chmod 644 ~/.ssh/id_ed25519.pub
+        chown ${config.this.user.me.name}:${config.this.user.me.name} ~/.ssh/id_ed25519 ~/.ssh/id_ed25519.pub
+      '';
 
-#      serviceConfig = {
-#        ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
-#        Restart = "on-failure";
-#        RestartSec = "2s";
-#        RuntimeDirectory = [ config.this.user.me.name ];
-#        User = config.this.user.me.name;
-#      };
-#    };
+      serviceConfig = {
+        ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
+        Restart = "on-failure";
+        RestartSec = "2s";
+        RuntimeDirectory = [ config.this.user.me.name ];
+        User = config.this.user.me.name;
+      };
+    };
 
-#    sops.secrets = lib.mkIf (!config.this.installer) {
-#      sshUserKey = {
-#        sopsFile = ./../../secrets/users/${config.this.user.me.name}/ssh_ed25519.yaml; 
-#        owner = config.this.user.me.name;
-#        group = config.this.user.me.name;
-#        mode = "0440"; # Read-only for owner and group
-#      };    
-#    };
+    sops.secrets = lib.mkIf (!config.this.installer) {
+      "users/pungkula/ssh_ed25519" = {
+        sopsFile = ./../../secrets/users/${config.this.user.me.name}/ssh_ed25519.yaml; 
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0400"; # Read-only for owner and group
+      };    
+    };
   };
 }
