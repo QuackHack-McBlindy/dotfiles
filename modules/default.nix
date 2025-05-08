@@ -91,7 +91,27 @@ in {
                           };
                           description = "Mapping of mobile devices to their WireGuard configurations.";
                         };
-                        
+                                    
+                        adbDevices = mkOption {
+                          type = with types; attrsOf (submodule {
+                            options = {
+                              ip = mkOption {
+                                type = types.str;
+                                description = "IP address of the Android TV device";
+                              };
+                            };
+                          });
+                          default = {
+                            shield = {
+                              ip = "192.168.1.223";
+                            };
+                            arris = {
+                              ip = "192.168.1.152";
+                            };
+                          };
+                          description = "Mapping of Android TV devices to their IP for the TV module.";
+                        };
+                                             
                         hashedPassword = mkOption {
                             type = types.str;
                             default = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
@@ -171,11 +191,7 @@ in {
                 default = null;
                 description = "WireGuard peer IP address";
             };
-            adb-devices = lib.mkOption {
-                type = types.listOf types.str;
-                default = [];
-                description = "List of ADB device names";
-            };
+
             modules = {
                 hardware = mkOption {
                     type = types.listOf types.str;

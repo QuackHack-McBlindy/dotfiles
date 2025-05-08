@@ -4,7 +4,7 @@
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
-_This is a automagiduckically updated README.md_
+_This is a <abbr title="Magically automated with duck-powered quackery">automagiduckically</abbr> updated README.md_
 
 </sub></div> 
 
@@ -16,27 +16,26 @@ _This is a automagiduckically updated README.md_
 
 __Sup ducks? 🦆 qwack on__ <br>
 
-__Here lives my machines configuration files,__ <br>
-__and personal dotfiles, with a minimalistic flake construction.__  <br>
-__With a unified script execution style and automated documentation,__ <br>
-__it's deployed and maintained with a Nix flavoured command line utlity.__ <br> <br>
+__Home to machine configurations,__  
+__crafted as a minimalist Nix flake__  
+__Glued together by a Nix-flavoured command line utility,__  
+__that deploys, docs, and ducks around__ 🦆✨  
 
 <br>
 
 ## **📌Highlights**
 
-- 🛖 **Automated Home Management** *(no messy Home-Manager)*
-- 🛠️ **Integrated CLI Tool for quick deployments**
-- 🦊 **True Declarative Firefox**
-- 🎨 **Set Global Theme's**
-- 📝 **Automatic Documentation**
+- 🛖 **Automated Home Management** *(no messy Home-Manager)*   
+- 🛠️ **Nix CLI Toolbox** *(for quick-quack deployments)*    
+- 🦊 **Firefox as Code** *(extensions, bookmarks and settings, with CSS injected declaratively)*   
+- 🎨 **Global Theme Orchestration** *(GTK, icons, cursor, Vesktop & shell)*  
+- 📝 **Self-Documenting** *(CLI usage & auto-updated README.md)*  
 
 
 <br><br>
 
-## **📜 README**
+## **📜 Usage Examples**
 
-**Usage Examples:**
 
 ```bash
 # Clone repository
@@ -64,9 +63,7 @@ Plug in flash drive into laptop and boot. Let it work and wait until it powers d
 Remove flash drive, boot it up again and deploy configuration from your main machine:
 
 ```bash
-# Each host has an AGE key for decrypting secrets, this key is protected by a Yubikey.
-# Executing this command will decrypt and transfer correct key to deployed host.
-# You will be prompted for a PIN after which a touch is required. (Only needed first deployment)
+# 🔐 First deploy? Your Yubikey must quack: PIN+Touch unlocks host specific AGE key for sops-nix 🦆
 $ yo deploy laptop
 ```
 

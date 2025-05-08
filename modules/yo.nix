@@ -101,7 +101,7 @@ let
 \`yo health --host desktop\` 
 
 ## ✨ Available Commands
-Set default values for your parameters to have them marked [optiional]
+Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 ${helpText}
@@ -513,7 +513,7 @@ in {
 \`yo health --host desktop\` 
 
 ## ✨ Available Commands
-Set default values for your parameters to have them marked [optiional]
+Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 ${helpText}
