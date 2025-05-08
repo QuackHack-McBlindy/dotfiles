@@ -1,10 +1,9 @@
-# bin/rollback.nix
+# dotfiles/bin/system/rollback.nix
 { config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
       rollback = {
         description = "Synchronized system+config rollback";
-#        aliases = [ "rb" ];
         parameters = [
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
         ];  
@@ -13,7 +12,7 @@
         
           DOTFILES_DIR="$flake"
           echo "🔄 Fetching latest tags from remote..."
-          sudo git -C "$DOTFILES_DIR" fetch --tags --force  # Added sudo here
+          sudo git -C "$DOTFILES_DIR" fetch --tags --force
         
           echo "📜 Listing generations:"
           sudo git -C "$DOTFILES_DIR" tag -l 'generation-*' --sort=-v:refname | while read tag; do
@@ -32,7 +31,7 @@
           fi
  
           {
-            # System rollback with sudo
+            # System rollback
             echo "🔧 Rolling back system..."
             sudo ${pkgs.nix}/bin/nix-env -p /nix/var/nix/profiles/system --switch-generation "$GEN_NUM" &&
           
@@ -40,7 +39,7 @@
             echo "📁 Rolling back config..."
             sudo git -C "$DOTFILES_DIR" checkout "generation-$GEN_NUM" -- . &&
           
-            # Rebuild with sudo
+            # Rebuild
             echo "🔨 Rebuilding..."
             sudo ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch
           } || {

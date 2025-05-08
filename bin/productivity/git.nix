@@ -1,4 +1,4 @@
-# bin/health.nix
+# dotfiles/bin/productivity/git.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo.scripts = {

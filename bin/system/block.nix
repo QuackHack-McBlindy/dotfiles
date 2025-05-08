@@ -1,4 +1,4 @@
-# bin/block.nix
+# dotfiles/bin/system/block.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo.scripts = {
@@ -11,7 +11,9 @@
       ];
       code = ''
         ${cmdHelpers}
+        
         clean_url=$(echo "$url" | sed -E 's|https?://||')
+        
         block_entry="||$clean_url^"
         echo "$block_entry" >> "$blocklist"
         echo "Added: $block_entry to ''$blocklist"

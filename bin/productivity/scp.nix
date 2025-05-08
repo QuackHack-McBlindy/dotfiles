@@ -1,4 +1,4 @@
-# bin/scp.nix
+# dotfiles/bin/productivity/scp.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo.scripts = {

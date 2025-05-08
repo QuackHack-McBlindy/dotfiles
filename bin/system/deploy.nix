@@ -1,13 +1,11 @@
-# bin/deploy.nix
+# dotfiles/bin/system/deploy.nix
 { self, config, pkgs, cmdHelpers, ... }:
 let
   sysHosts = builtins.attrNames self.nixosConfigurations;
-  isoHosts = builtins.attrNames (self.installerIsos or {});
   vmHosts = builtins.filter (host:
     self.nixosConfigurations.${host}.self.config.system.build ? vm
   ) sysHosts;
 in {
-
   yo.scripts = { 
    deploy = {
      description = "Deploy NixOS system configurations to your remote servers";
@@ -32,7 +30,7 @@ in {
 
        result=( $(run_cmd ssh "$user"@"$host" "[ -d \$flake/.git ] && echo true || echo false" 2>/dev/null | grep -Eo 'true|false') )
        if [ "$result" = "true" ]; then
-         run_cmd echo "dotfiles located on $host .."
+         run_cmd echo "Dotfiles located on $host .."
        else
          # Otherwise clone it to $flake parameter
          run_cmd echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"

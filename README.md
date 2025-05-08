@@ -108,9 +108,9 @@ Set default values for your parameters to have them marked [optiional]
 | `yo reboot [--host]` |  | Force reboot and wait for host |
 | `yo rollback [--flake]` |  | Synchronized system+config rollback |
 | `yo scp ` | pl | Move files between hosts interactively |
-| `yo sops --input [--agePub]` |  | Encrypts a file with sops-nix |
+| `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |
-| `yo switch [--flake] [--autoPull]` | rb | Rebuild and switch Nix OS system configuration |
+| `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 ## ❓ Detailed Help
 For specific command help: 
@@ -121,7 +121,7 @@ For specific command help:
 
 <br><br>
 
-## **Flake**
+## ❄️ **Flake**
 
 *I like to keep my flakes cool & tiny.*
 
@@ -181,7 +181,6 @@ git+file:///home/pungkula/dotfiles
 ├───nixosConfigurations
 │   ├───desktop: NixOS configuration
 │   ├───homie: NixOS configuration
-│   ├───installer: NixOS configuration
 │   ├───laptop: NixOS configuration
 │   └───nasty: NixOS configuration
 └───packages

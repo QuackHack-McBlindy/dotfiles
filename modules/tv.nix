@@ -58,33 +58,38 @@ let
       local folder_name=$(basename "$search_dir")
       local exts=($(jq -r '.extensions[]' <<< "$media_config"))
       local randomize=$(jq -r '.randomize' <<< "$media_config")
-
+    
+      # Clear existing playlist and add intro URL
+      rm -f "$PLAYLIST_PATH"
+      echo "$INTRO_URL" > "$PLAYLIST_PATH"
+    
       # Build find command with proper escaping
       local find_cmd="find -L \"$search_dir\" -type f \( -false"
       for ext in "''${exts[@]}"; do
         find_cmd+=" -o -iname \"*$ext\""
       done
       find_cmd+=" \) -print0"
-
+    
       # Add randomization/selection and limit
       if [ "$randomize" = "true" ]; then
-        find_cmd+=" | shuf -z -n $MAX_ITEMS"
+        find_cmd+=" | shuf -z -n $((MAX_ITEMS - 1))"
       else
         find_cmd+=" | fzf --filter=\"$(correct_query "$query")\" --read0 --print0"
       fi
-
+    
       eval "$find_cmd" | while IFS= read -r -d ''' filepath; do
         # Convert local path to web URL
         relative_path="''${filepath#''$search_dir/}"
         url_encoded_path=$(printf '%s' "$relative_path" | sed 's/ /%20/g; s/&/%26/g; s/?/%3F/g')
         echo "$WEBSERVER/$folder_name/$url_encoded_path"
-      done | head -n "$MAX_ITEMS" >> "$PLAYLIST_PATH"
-
+      done | head -n "$((MAX_ITEMS - 1))" >> "$PLAYLIST_PATH"
+    
       # Send to device
       connect
       adb -s ${ip} shell "am start -a android.intent.action.VIEW \
         -d $WEBSERVER/playlist.m3u -t audio/x-mpegurl"
     }
+
 
     case "$media_type" in
       jukebox)
@@ -176,9 +181,9 @@ in {
 
     services.media-search = {
       maxPlaylistItems = 200;
-      webServer = "https://qwackify.duckdns.org";
-      introUrl = "https://qwackify.duckdns.org/intro.mp4";
-      playlistPath = "/Pool/playlist.m3u";
+      webServer = "https://example.domain.org";
+      introUrl = "https://example.domain.org/intro.mp4";
+      playlistPath = "/home/pungkula/playlist.m3u";
 
       mediaTypes = {
         music = {

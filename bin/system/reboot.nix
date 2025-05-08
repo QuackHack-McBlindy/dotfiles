@@ -1,4 +1,4 @@
-# bin/reboot.nix
+# dotfiles/bin/system/reboot.nix
 { self, config, pkgs, sysHosts, cmdHelpers, ... }:
 {
     yo.scripts = { 
@@ -10,7 +10,7 @@
         ];
         code = ''
           ${cmdHelpers}
-          # Ensure sysHosts is defined elsewhere in your config
+
           if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
             echo -e "\033[1;31m❌ Invalid host: $host\033[0m" >&2
             echo "Available hosts: ${toString sysHosts}" >&2
@@ -19,7 +19,6 @@
 
           echo "Initiating reboot sequence for $host"
     
-          # Immediate reboot without backgrounding
           ssh "$host" 'sudo reboot -f'
     
           echo "Waiting for $host to go offline..."

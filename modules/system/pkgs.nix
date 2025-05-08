@@ -53,7 +53,6 @@
                 pkgs.efibootmgr
                 pkgs.grafana-loki
                 pkgs.pm2
-                pkgs.home-manager
                 pkgs.nixos-option
                 pkgs.inotify-tools
                 pkgs.wyoming-satellite
@@ -157,6 +156,7 @@
                 pkgs.nixpkgs-fmt
                 pkgs.scrcpy
                 pkgs.nixos-anywhere
+                pkgs.piper-tts
            #     pkgs.mkchromecast
      
             ]     

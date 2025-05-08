@@ -1,11 +1,11 @@
-
+# dotfiles/bin/productivity/fzf.nix
 {
   self,
   config,
   pkgs,
   cmdHelpers,
   ...
-}: {
+} : {
   yo.scripts.fzf = {
     description = "Interactive fzf search for file content with quick edit & jump to line";
     aliases = [ "f" ];
@@ -17,13 +17,13 @@
         selected=$(
           $RG_PREFIX "$INITIAL_QUERY" |
           fzf --ansi \
-              --disabled \
               --bind "change:reload:$RG_PREFIX {q} || true" \
               --delimiter : \
               --preview "bat --color=always --style=numbers,changes --highlight-line {2} {1}" \
               --preview-window 'right,66%,border-bottom' \
-              --prompt 'search, yo 🔍  ' |
-          cut -d: -f1,2  # Keep filename and line separated by colon
+              --prompt 'search, yo 🔍  ' \
+              --phony |
+          awk -F: '{print $1 ":" $2}'
         )
 
         if [ -n "$selected" ]; then

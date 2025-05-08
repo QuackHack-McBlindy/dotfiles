@@ -35,7 +35,7 @@ stdenv.mkDerivation {
     '';
 
     meta = {
-      description = "Nix healthchecks";
+      description = "Healthchecks for your machines";
       license = lib.licenses.mit;
       maintainers = [ "QuackHack-McBlindy" ];
     };

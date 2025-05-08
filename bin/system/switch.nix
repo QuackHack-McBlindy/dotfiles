@@ -1,4 +1,4 @@
-# bin/switch.nix
+# dotfiles/bin/system/switch.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
@@ -7,14 +7,34 @@
         aliases = [ "rb" ];
         parameters = [
           { name = "flake"; description = "Path to the irectory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
-          { name = "autoPull"; description = "Wether dotfiles should be re-pulled before rebuilding the system configuration"; optional = true; default = builtins.toString config.this.host.autoPull; } 
+          { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
         ];
         code = ''
           ${cmdHelpers}
-          if [ "$autoPull" = "true" ] && [ -d "$flake/.git" ]; then
-            run_cmd yo pull
+          
+          if $DRY_RUN; then
+            echo "❗ Test run: reboot will revert activation"
           fi
-          run_cmd sudo ${pkgs.nixos-rebuild}/bin/nixos-rebuild switch --flake ''$flake --show-trace
+  
+          if $DRY_RUN; then
+            rebuild_command="test"
+          else
+            rebuild_command="switch"
+          fi
+          cmd=(
+            ${pkgs.nixos-rebuild}/bin/nixos-rebuild
+            $rebuild_command
+              --flake "$flake#$host"
+              --show-trace
+          )
+          
+          "''${cmd[@]}"
+          
+          if $DRY_RUN; then
+            echo "🧪 Rebuild Test completed! - No system generation saved!"
+          else
+            echo "✅ Created new system generation!"
+          fi  
         '';
       };
     };}

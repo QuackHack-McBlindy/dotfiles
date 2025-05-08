@@ -1,6 +1,5 @@
-# bin/bin/proxy.nix
+# dotfiles/bin/security/proxy.nix
 { self, config, pkgs, ... }:
-
 {
   yo.scripts.proxy = {
     description = "Turn proxy routing on/off for anonymous mode";

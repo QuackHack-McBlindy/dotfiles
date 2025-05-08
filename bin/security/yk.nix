@@ -1,4 +1,4 @@
-# bin/yk.nix
+# dotfiles/bin/security/yk.nix
 { pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
@@ -11,7 +11,7 @@
         ];
         code = ''
           ${cmdHelpers}
-          # Validate operation
+
           if [[ "$operation" != "encrypt" && "$operation" != "decrypt" ]]; then
             echo -e "\033[1;31m❌ Invalid operation: $operation\033[0m"
             echo "Valid operations: encrypt, decrypt"
@@ -28,7 +28,7 @@
 
           case "$operation" in
             encrypt)
-              # Original behavior: Encrypt -> same filename
+
               run_cmd echo -e "\033[1;34m🔒 Encrypting $input in-place\033[0m"
               mv "$input" "$temp_file"
         

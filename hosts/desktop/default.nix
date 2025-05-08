@@ -57,8 +57,7 @@
             enable = true;
             me = {
                 name = "pungkula";
-                #repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
-                repo = "https://github.com/QuackHack-McBlindy/dotfiles.git";
+                repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
                 extraDevices = [ "iphone" "tablet" "watch" ];

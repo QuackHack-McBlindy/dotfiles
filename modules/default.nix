@@ -20,7 +20,6 @@
           [];
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
-
        
 in {
     imports = [ ./security.nix ./yo.nix ./tv.nix ] ++
@@ -247,15 +246,16 @@ in {
                     mutableUsers = false;
                     defaultUserShell = pkgs.bash;
                     groups = lib.mkMerge [
-                        { "${config.this.user.me.name}" = {}; }
+                        { "${config.this.user.me.name}" = { gid = 1337; }; }
                         { nixos = {}; }
                     ];
                     users = lib.mkMerge [
                         {
-                            root.hashedPassword = "*";
+                            root.hashedPassword = config.this.user.me.hashedPassword;
                             "${config.this.user.me.name}" = {
                                 isNormalUser = true;
                                 description = config.this.user.me.name;
+                                uid = 1337;
                                 group = config.this.user.me.name;
                                 extraGroups = config.this.user.me.extraGroups;
                                 hashedPassword = config.this.user.me.hashedPassword;
