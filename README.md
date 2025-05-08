@@ -1,12 +1,11 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-
 ![NixOS](https://img.shields.io/badge/NixOS-25%05-blue)  ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.25-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
-_This is a automagiduckically generated README.md_
+_This is a automagiduckically updated README.md_
 
 </sub></div> 
 
@@ -68,7 +67,7 @@ Boot it up again and deploy configuration from your main machine:
 ```bash
 $ yo deploy laptop
 # Each host has an AGE key for decrypting secrets, this key is protected by a Yubikey.
-# You will be prompted for a PIN after which a touch is required. (This is only required first deployment)
+# You will be prompted for a PIN after which a touch is required. (Only required first deployment)
 ``` 
 
 
