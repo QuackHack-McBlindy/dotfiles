@@ -197,7 +197,7 @@ Set default values for your parameters to have them marked [optiional]
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo health [--host]` | hc | Check system health status across your machines |
-| `yo proxy --mode` | proxyon, proxyoff | Turn proxy routing on/off with no IP leaks |
+| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo pull [--flake]` | pl | Pull dotfiles repo from GitHub |
 | `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
 | `yo reboot [--host]` |  | Force reboot and wait for host |

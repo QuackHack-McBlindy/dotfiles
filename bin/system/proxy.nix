@@ -3,8 +3,8 @@
 
 {
   yo.scripts.proxy = {
-    description = "Turn proxy routing on/off with no IP leaks";
-    aliases = [ "proxyon" "proxyoff" ];
+    description = "Turn proxy routing on/off for anonymous mode";
+    aliases = [ "prox" ];
     parameters = [
       { name = "mode"; description = "on or off"; optional = false; }
     ];
