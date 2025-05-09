@@ -55,7 +55,6 @@ tramp
 
 ### SECTION 3: DEVELOPMENT ARTIFACTS ###
 # General
-#bin/
 build/
 dist/
 out/
@@ -104,10 +103,6 @@ hs_err_pid*
 /target/
 **/*.rs.bk
 
-# Go
-/bin/
-/pkg/
-/testdata/
 
 # C/C++
 *.depend
@@ -143,10 +138,6 @@ result-*
 *.drv
 .direnv/
 
-# Docker
-#Dockerfile
-#docker-compose*
-#.dockerignore
 
 # CI/CD
 .circleci/
