@@ -78,5 +78,6 @@ in {
         importModulesRecursive ./security ++
         importModulesRecursive ./maintenance ++
         importModulesRecursive ./productivity ++
+        importModulesRecursive ./network ++
         importModulesRecursive ./misc
     );}  

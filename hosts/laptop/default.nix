@@ -43,8 +43,6 @@
     hardware.enableAllFirmware = true;
     hardware.enableRedistributableFirmware = true;
     services.fwupd.enable = true;
-
-#    sops.age.keyFile = lib.mkForce "/persist/age/key.txt";
    
     this = {
         installer = false;
@@ -69,7 +67,6 @@
         host = {
             system = "x86_64-linux";
             hostname = "laptop";
-            autoPull = true;
             interface = [ "wlan0" ];
             ip = "192.168.1.222";
             wgip = "10.0.0.3";

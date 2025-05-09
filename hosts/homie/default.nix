@@ -68,7 +68,6 @@
         host = {
             system = "x86_64-linux";
             hostname = "homie";
-            autoPull = false;
             interface = [ "eno1" ];
             ip = "192.168.1.211";
             wgip = "10.0.0.1";

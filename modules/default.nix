@@ -91,27 +91,7 @@ in {
                           };
                           description = "Mapping of mobile devices to their WireGuard configurations.";
                         };
-                                    
-                        adbDevices = mkOption {
-                          type = with types; attrsOf (submodule {
-                            options = {
-                              ip = mkOption {
-                                type = types.str;
-                                description = "IP address of the Android TV device";
-                              };
-                            };
-                          });
-                          default = {
-                            shield = {
-                              ip = "192.168.1.223";
-                            };
-                            arris = {
-                              ip = "192.168.1.152";
-                            };
-                          };
-                          description = "Mapping of Android TV devices to their IP for the TV module.";
-                        };
-                                             
+                                                                                 
                         hashedPassword = mkOption {
                             type = types.str;
                             default = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
@@ -167,24 +147,21 @@ in {
                 default = "nix";
                 description = "System hostname";
             };
-            autoPull = mkOption {
-                type = types.bool;
-                example = true;
-                default = false;
-                description = "If dotfiles should be automatically pulled from GitHub (config.this.user.me.repo) before rebuilds happen";
-            };
+
             interface = mkOption {
                 type = types.listOf types.str;
                 example = [ "enp119s0" ];
                 default = [ "eth0" ];
                 description = "Network interfaces to configure";
             };
+            
             ip = mkOption {
                 type = types.str;
                 example = "182,168.1.100";
                 default = null;
                 description = "IP address to bind host to";
             };
+            
             wgip = mkOption {
                 type = types.str;
                 example = "10.10.10.10";
@@ -249,13 +226,6 @@ in {
 
 
     config = lib.mkMerge [ 
-        (lib.mkIf config.this.host.autoPull {
-            environment.sessionVariables = {
-                NIXOS_AUTO_PULL = "1";
-                NIXOS_REPO_URL = config.this.user.me.repo;
-            };
-        })    
-
         (lib.mkIf config.this.user.enable (lib.mkMerge [
             {
                 users = {

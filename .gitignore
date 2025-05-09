@@ -62,7 +62,6 @@ result/            # Nix build output
 **/result
 *.pid              # Process ID files
 *.sock             # Unix socket files
-/modules/networking/caddy/caddy-src/vendor
 **/vendor
 **/vendor/
 **/.direnv

@@ -99,11 +99,9 @@ Set default values for your parameters to have them marked [optional]
 | `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
 | `yo scp ` | pl | Move files between hosts interactively |
 | **🔐 Security & Encryption** | | |
-| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🛠 System Management** | | |
-| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
 | `yo rollback [--flake]` |  | Synchronized system+config rollback |
@@ -113,7 +111,6 @@ Set default values for your parameters to have them marked [optional]
 | **🧹 Maintenance** | | |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo health [--host]` | hc | Check system health status across your machines |
-| `yo speed ` | st | Test your internets Download speed |
 ## ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`

@@ -64,7 +64,7 @@
                 mobileDevices = {
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
-                };             
+                };
             };
             i18n = "sv_SE.UTF-8";
             yubikey.enable = true;
@@ -76,15 +76,13 @@
         host = {
             system = "x86_64-linux";
             hostname = "desktop";
-            autoPull = false;
             interface = [ "enp119s0" ];
             ip = "192.168.1.111";
             wgip = "10.0.0.2";
-            # adb-devices = [ "shield" "arris" ];
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-                networking = [ "default" "pool" "ss" ];
+                networking = [ "default" "pool" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
