@@ -34,8 +34,7 @@ let
         else
           "";
         
-        # Handle parameters with escaped descriptions
-        
+        # Handle parameters with escaped descriptions        
         params = if script.parameters != [] then
           "### Parameters\n" + 
           concatStringsSep "\n" (map (param: 
@@ -45,8 +44,7 @@ let
               optionalText = optionalString param.optional " *(optional)*";
             in
             "- `--${escapeMD param.name}`${defaultText}${optionalText}\n  ${param.description}"
-          ) script.parameters) + "\n"    
-        
+          ) script.parameters) + "\n"           
         else
           "";
       in
@@ -58,10 +56,8 @@ let
         ${params}
         </details>
         ''
-    ) cfg.scripts;
-  
-    fullDoc = concatStringsSep "\n" scriptDocs;
-  
+    ) cfg.scripts;  
+    fullDoc = concatStringsSep "\n" scriptDocs;  
   in fullDoc;
 
   updateReadme = pkgs.writeShellScriptBin "update-readme" ''
@@ -69,7 +65,6 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
     # Inside the shell script portion, use Nix-provided version
-
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
       echo '```nix'
@@ -121,10 +116,8 @@ EOF
 
     bash_badge="https://img.shields.io/badge/Bash-''${sanitized_bash}-red"
     gnome_badge="https://img.shields.io/badge/GNOME-''${sanitized_gnome}-purple"
-
     sed -i "s|https://img.shields.io/badge/Bash-[^-]*-red|$bash_badge|g" "$README_PATH"
     sed -i "s|https://img.shields.io/badge/GNOME-[^-]*-purple|$gnome_badge|g" "$README_PATH"
-
 
     # Get current versions
     nixos_version=$(nixos-version | cut -d. -f1-2 | tr . %2E)
@@ -138,9 +131,7 @@ EOF
       -e "s/Nix-[0-9]+\.[0-9]+\.[0-9]+/Nix-$nix_version/g" \
       "$README_PATH"
     
-
-
-    # Improved version extraction with quote removal and validation
+    # Version extraction
     VERSION=$( (grep VERSION_ID= /etc/os-release || echo 'VERSION_ID="0.0"') | cut -d= -f2 | tr -d '"')
     if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
       echo "⚠️  Invalid version detected: $VERSION, using fallback"
@@ -149,7 +140,7 @@ EOF
 
     # Sanitized badge URL construction
     VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
-    SANITIZED_VERSION=''${VERSION//./%2E}  # Proper shell escaping
+    SANITIZED_VERSION=''${VERSION//./%2E}
     BADGE_URL="https://img.shields.io/badge/NixOS-''${SANITIZED_VERSION}-blue"
     sed -i "s|https://img.shields.io/badge/NixOS-[^-]*-blue|''${BADGE_URL}|g" README.md
 
@@ -160,13 +151,12 @@ EOF
       echo '```'
     )
 
-    # Capture flake.nix content
+    # flake.nix content
     FLAKE_BLOCK_NIX=$(
       echo '```nix'
       cat "${config.this.user.me.dotfilesDir}/flake.nix"
       echo '```'
     )
-
 
     awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" -v flake="$FLAKE_BLOCK_NIX" '
       BEGIN { in_docs=0; in_tree=0; in_flake=0 }
@@ -207,34 +197,7 @@ EOF
     ' "$README_PATH" > "$tmpfile"
 
 
-#    awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" '
-#      BEGIN { in_docs=0; in_tree=0 }
-#      /<!-- YO_DOCS_START -->/ {
-#        print
-#        print docs
-#        in_docs=1
-#        next
-#      }
-#      /<!-- YO_DOCS_END -->/ {
-#        in_docs=0
-#        print
-#        next
-#      }
-#      /<!-- TREE_START -->/ {
-#        print
-#        print tree
-#        in_tree=1
-#        next
-#      }
-#      /<!-- TREE_END -->/ {
-#        in_tree=0
-#        print
-#        next
-#      }
-#      !in_docs && !in_tree { print }
-#    ' "$README_PATH" > "$tmpfile" 
-
-    # Improved diff check with error handling
+    # Diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
       echo "🌀 Changes detected, updating README.md"
       if ! install -m 644 "$tmpfile" "$README_PATH"; then
@@ -269,6 +232,7 @@ EOF
 
   scriptType = types.submodule ({ name, ... }: {
     options = {
+    
       name = mkOption {
         type = types.str;
         internal = true;
@@ -276,19 +240,28 @@ EOF
         default = name;
         description = "Script name (derived from attribute key)";
       };
+      
       description = mkOption {
         type = types.str;
         description = "Description of the script";
       };
+      
+      category = mkOption {
+        type = types.str;
+        description = "Category of the script";
+      };
+      
       helpFooter = mkOption {
         type = types.lines;
         default = "";
         description = "Additional shell code to run when generating help text";
       };
+      
       code = mkOption {
         type = types.lines;
         description = "The script code";
       };
+      
       aliases = mkOption {
         type = types.listOf types.str;
         default = [];
@@ -444,28 +417,42 @@ EOF
     ) cfg.scripts;
   };
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
-  helpText = (
-    let
-      rows = map (script:
-        let
-          aliasList = if script.aliases != [] then
-            concatStringsSep ", " script.aliases
-          else
-            "";
-          paramHint = let
-            optionsPart = lib.concatMapStringsSep " " (param: 
-              # Show as optional if EITHER has default OR explicitly marked optional
-              if (param.default != null || param.optional) 
-              then "[--${param.name}]" 
+  helpText = let
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
+    sortedCategories = lib.sort (a: b: a < b) (lib.attrNames groupedScripts);
+    
+    # Create table rows with category separators
+    rows = lib.concatMap (category:
+      let 
+        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+      in
+        [
+          # Category separator row
+          "| **${escapeMD category}** | | |"
+          "|------------------------------|------------|-------------|"
+        ] 
+        ++ 
+        (map (script:
+          let
+            aliasList = if script.aliases != [] then
+              concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
+            paramHint = concatStringsSep " " (map (param:
+              if param.optional || param.default != null
+              then "[--${param.name}]"
               else "--${param.name}"
-            ) script.parameters;
-          in optionsPart;
-          syntax = "\\`yo ${script.name} ${paramHint}\\`";
-        in "| ${syntax} | ${aliasList} | ${script.description} |"
-      ) (attrValues cfg.scripts);
-    in
-      concatStringsSep "\n" rows
-  );
+            ) script.parameters);
+            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
+          in
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+        ) scripts)
+    ) sortedCategories;
+  in concatStringsSep "\n" rows;  # Add this final expression  
+
+  
+
+  
+
         
 in {
   options.yo.scripts = mkOption {
@@ -548,10 +535,8 @@ EOF
       '')
       yoScriptsPackage
       updateReadme
-#      config.system.build.updateReadme # this did not work
     ];
-  };
-
-}
+    
+  };}
 
 

@@ -1,6 +1,6 @@
-# flake.nix
+# dotfiles/flake.nix
 { 
-    description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
+    description = "❄️🦆 QuackHack-McBlindy's NixOS Flakes.";
     inputs = {
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
@@ -14,12 +14,11 @@
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };                   
-        in lib.mkFlake {
+        in lib.makeFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
             devShells = lib.mapModules ./devShells (path: import path);     
-        };             
-  }
+        };}

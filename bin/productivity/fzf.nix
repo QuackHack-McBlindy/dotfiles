@@ -8,6 +8,7 @@
 } : {
   yo.scripts.fzf = {
     description = "Interactive fzf search for file content with quick edit & jump to line";
+    category = "⚡ Productivity";
     aliases = [ "f" ];
     code = ''
       RG_PREFIX="rg --line-number --hidden --color=never --smart-case --trim"

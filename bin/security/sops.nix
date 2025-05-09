@@ -4,6 +4,7 @@
     yo.scripts = {  
       sops = {
         description = "Encrypts a file with sops-nix";
+        category = "🔐 Security & Encryption";
         aliases = [ "e" ];
         parameters = [
           { name = "input"; description = "Input file to encrypt"; optional = false; } 

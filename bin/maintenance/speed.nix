@@ -2,6 +2,7 @@
 {  
   yo.scripts.speed = {
     description = "Test your internets Download speed";
+    category = "🧹 Maintenance";
     aliases = [ "st" ];
     helpFooter = ''
       SPEED_FILE="''${XDG_CACHE_HOME:-$HOME/.cache}/speedtest_speeds"

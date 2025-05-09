@@ -4,6 +4,7 @@
     yo.scripts = {
       rollback = {
         description = "Synchronized system+config rollback";
+        category = "🛠 System Management";
         parameters = [
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
         ];  

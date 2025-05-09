@@ -80,7 +80,7 @@
             interface = [ "enp119s0" ];
             ip = "192.168.1.111";
             wgip = "10.0.0.2";
-            adb-devices = [ "shield" "arris" ];
+            # adb-devices = [ "shield" "arris" ];
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];

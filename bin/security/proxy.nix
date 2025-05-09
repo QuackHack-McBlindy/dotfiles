@@ -3,6 +3,7 @@
 {
   yo.scripts.proxy = {
     description = "Turn proxy routing on/off for anonymous mode";
+    category = "🔐 Security & Encryption";
     aliases = [ "prox" ];
     parameters = [
       { name = "mode"; description = "on or off"; optional = false; }

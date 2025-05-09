@@ -4,6 +4,7 @@
   yo.scripts = {
     scp = {
       description = "Move files between hosts interactively";
+      category = "⚡ Productivity";
       aliases = [ "pl" ];
 #      parameters = [ 
 #        { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = true; default = config.this.user.me.dotfilesDir; } 

@@ -4,6 +4,7 @@
   yo.scripts = {
     block = {
       description = "Block URLs using DNS";
+      category = "🛠 System Management";
       aliases = [ "ad" ];
       parameters = [ 
         { name = "url"; description = "Full url to be blocked"; optional = false; } 

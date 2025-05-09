@@ -1,4 +1,4 @@
-# devShells/python.nix
+# dotfiles/devShells/python.nix
 { 
   pkgs,
   system,

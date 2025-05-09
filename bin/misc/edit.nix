@@ -4,6 +4,7 @@
     yo.scripts = {
       edit = {
         description = "yo CLI configuration mode";
+        category = "🧩 Miscellaneous";
         aliases = [ "config" ];
         code = ''
           ${cmdHelpers}

@@ -10,6 +10,7 @@ in {
    deploy = {
      description = "Deploy NixOS system configurations to your remote servers";
      aliases = [ "d" ];
+     category = "🛠 System Management";
      parameters = [
        { name = "host"; description = "Host machine to build and activate"; optional = false; }
        { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; }

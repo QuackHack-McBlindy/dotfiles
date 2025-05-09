@@ -4,6 +4,7 @@
   
   yo.scripts.health = {
     description = "Check system health status across your machines";
+    category = "🧹 Maintenance";
     aliases = [ "hc" ];
     parameters = [
       { name = "host"; description = "Target hostname for the health check"; optional = true; default = config.this.host.hostname; }

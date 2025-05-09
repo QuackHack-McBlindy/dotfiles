@@ -4,6 +4,7 @@
     yo.scripts = {
       yubi = {
         description = "Encrypts and decrypts files using a Yubikey and AGE";
+        category = "🔐 Security & Encryption";
         aliases = [ "yk" ];
         parameters = [
           { name = "operation"; description = "Operation to perform (encrypt|decrypt)"; optional = false; type = "string"; }

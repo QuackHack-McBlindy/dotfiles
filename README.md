@@ -23,19 +23,19 @@ __that deploys, docs, and ducks around__ 🦆✨
 
 <br>
 
-## **📌Highlights**
+## **📌 Highlights**
 
-- 🛖 **Automated Home Management** *(no messy Home-Manager)*   
+- 🛖 **Simple Home Management** *(auto symlinks ./home to /home)*   
 - 🛠️ **Nix CLI Toolbox** *(for quick-quack deployments)*    
-- 🦊 **Firefox as Code** *(extensions, bookmarks and settings, with CSS injected declaratively)*   
-- 🎨 **Global Theme Orchestration** *(GTK, icons, cursor, Vesktop & shell)*  
-- 📝 **Self-Documenting** *(CLI usage & auto-updated README.md)*  
-
+- 🦊 **Firefox as Code** *(extensions, bookmarks and settings)*   
+- 🎨 **Global Theme Orchestration** *(GTK, icons, cursor, Discord, Firefox & Shell)*  
+- 📝 **Self-Documenting** *(CLI usage & README.md)*  
 
 <br><br>
 
-## **📜 Usage Examples**
+## **📜 Quick Starter**
 
+*Example usage:*
 
 ```bash
 # Clone repository
@@ -63,7 +63,7 @@ Plug in flash drive into laptop and boot. Let it work and wait until it powers d
 Remove flash drive, boot it up again and deploy configuration from your main machine:
 
 ```bash
-# 🔐 First deploy? Your Yubikey must quack: PIN+Touch unlocks host specific AGE key for sops-nix 🦆
+# 🦆🔓 First deploy? Get your Yubikey: PIN+Touch unlocks host specific AGE key for sops-nix 
 $ yo deploy laptop
 ```
 
@@ -90,25 +90,35 @@ $ yo deploy laptop
 `yo health --host desktop` 
 
 ## ✨ Available Commands
-Set default values for your parameters to have them marked [optiional]
+Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
-| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
-| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
-| `yo edit ` | config | yo CLI configuration mode |
+| **⚡ Productivity** | | |
+|------------------------------|------------|-------------|
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
-| `yo health [--host]` | hc | Check system health status across your machines |
-| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo pull [--flake]` | pl | Pull dotfiles repo from GitHub |
 | `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
+| `yo scp ` | pl | Move files between hosts interactively |
+| **🔐 Security & Encryption** | | |
+|------------------------------|------------|-------------|
+| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
+| `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
+| `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
+| **🛠 System Management** | | |
+|------------------------------|------------|-------------|
+| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
+| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
 | `yo rollback [--flake]` |  | Synchronized system+config rollback |
-| `yo scp ` | pl | Move files between hosts interactively |
-| `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
-| `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
-| `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
+| **🧩 Miscellaneous** | | |
+|------------------------------|------------|-------------|
+| `yo edit ` | config | yo CLI configuration mode |
+| **🧹 Maintenance** | | |
+|------------------------------|------------|-------------|
+| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
+| `yo health [--host]` | hc | Check system health status across your machines |
+| `yo speed ` | st | Test your internets Download speed |
 ## ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`
@@ -122,11 +132,15 @@ For specific command help:
 
 *I like to keep my flakes cool & tiny.*
 
+<details><summary>
+Flake
+</summary>
+
 <!-- FLAKE_START -->
 ```nix
-# flake.nix
+# dotfiles/flake.nix
 { 
-    description = "❄️🦆 QuackHack-McBlindy's dotfiles! With extra Flakes.";
+    description = "❄️🦆 QuackHack-McBlindy's NixOS Flakes.";
     inputs = {
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
@@ -140,18 +154,17 @@ For specific command help:
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };                   
-        in lib.mkFlake {
+        in lib.makeFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
             devShells = lib.mapModules ./devShells (path: import path);     
-        };             
-  }
+        };}
 ```
 <!-- FLAKE_END -->
-
+</details>
 
 <details><summary>
 Flake Outputs

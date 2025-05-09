@@ -4,6 +4,7 @@
   yo.scripts = {
     pull = {
       description = "Pull dotfiles repo from GitHub";
+      category = "⚡ Productivity";
       aliases = [ "pl" ];
       parameters = [ 
         { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = true; default = config.this.user.me.dotfilesDir; } 
@@ -38,6 +39,7 @@
 #==== GIT PUSH    #==================#
       push = {
         description = "Update README.md and pushes dotfiles to GitHub with tags";
+        category = "⚡ Productivity";
         aliases = [ "ps" ];
         parameters = [
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 

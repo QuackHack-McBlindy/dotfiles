@@ -3,6 +3,7 @@
 {
     yo.scripts.clean = {
         description = "Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune";
+        category = "🧹 Maintenance";
         aliases = [ "gc" ];
         code = ''
             ${cmdHelpers}   

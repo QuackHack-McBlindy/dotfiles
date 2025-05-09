@@ -4,6 +4,7 @@
     yo.scripts = {
       switch = {
         description = "Rebuild and switch Nix OS system configuration";
+        category = "🛠 System Management";
         aliases = [ "rb" ];
         parameters = [
           { name = "flake"; description = "Path to the irectory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
@@ -24,14 +25,14 @@
           cmd=(
             ${pkgs.nixos-rebuild}/bin/nixos-rebuild
             $rebuild_command
-              --flake "$flake#$host"
+              --flake "$flake"
               --show-trace
           )
           
           "''${cmd[@]}"
           
           if $DRY_RUN; then
-            echo "🧪 Rebuild Test completed! - No system generation saved!"
+            echo "⚠️ Rebuild Test completed! - No system generation created!"
           else
             echo "✅ Created new system generation!"
           fi  
