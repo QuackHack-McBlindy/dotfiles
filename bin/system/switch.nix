@@ -23,7 +23,7 @@
             rebuild_command="switch"
           fi
           cmd=(
-            ${pkgs.nixos-rebuild}/bin/nixos-rebuild
+            sudo ${pkgs.nixos-rebuild}/bin/nixos-rebuild
             $rebuild_command
               --flake "$flake"
               --show-trace

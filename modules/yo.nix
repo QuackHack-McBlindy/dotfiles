@@ -429,7 +429,6 @@ EOF
         [
           # Category separator row
           "| **${escapeMD category}** | | |"
-          "|------------------------------|------------|-------------|"
         ] 
         ++ 
         (map (script:
