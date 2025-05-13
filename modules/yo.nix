@@ -518,13 +518,13 @@ in {
 
 **Edit configurations** \`yo edit\` 
 
-## **Usage Examples:**
+### **Usage Examples:**
 \`yo deploy laptop\`
 \`yo deploy user@hostname\`
 \`yo health\`
 \`yo health --host desktop\` 
 
-## ✨ Available Commands
+### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
