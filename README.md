@@ -83,13 +83,13 @@ $ yo deploy laptop
      🚫 Exit
 ``` 
 
-## **Usage Examples:**
+### **Usage Examples:**
 `yo deploy laptop`
 `yo deploy user@hostname`
 `yo health`
 `yo health --host desktop` 
 
-## ✨ Available Commands
+### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
@@ -109,7 +109,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo speed ` | st | Test your internets Download speed |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
-## ❓ Detailed Help
+### ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`
 `yo <command> -h`

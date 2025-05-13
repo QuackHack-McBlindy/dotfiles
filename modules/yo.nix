@@ -89,18 +89,18 @@ let
      🚫 Exit
 ``` 
 
-## **Usage Examples:**
+### **Usage Examples:**
 \`yo deploy laptop\`
 \`yo deploy user@hostname\`
 \`yo health\`
 \`yo health --host desktop\` 
 
-## ✨ Available Commands
+### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 ${helpText}
-## ❓ Detailed Help
+### ❓ Detailed Help
 For specific command help: 
 \`yo <command> --help\`
 \`yo <command> -h\`
