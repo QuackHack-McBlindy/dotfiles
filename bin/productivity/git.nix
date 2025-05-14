@@ -59,10 +59,54 @@
 
           # Generation number handling with improved error recovery
           echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
-          GEN_NUMBER=$({
-            sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
-            echo "unknown"
-          } | tail -n 1 | awk '{print $1}')
+#          GEN_NUMBER=$({
+# First assignment (LINE 49-52)
+#          GEN_NUMBER=$({
+    # Parameter handling
+#          GENERATION="${generation:-}"
+          GENERATION="$generation"  
+          echo "📥 Passed generation: $GENERATION"  
+
+  
+          if [[ "$GENERATION" =~ ^[0-9]+$ ]]; then
+            GEN_NUMBER="$GENERATION"
+          else
+            echo -e "\033[1;31m❌ Invalid or missing generation number passed to push!\033[0m"
+            exit 1
+          fi
+          
+          HOSTNAME="${host:-$host}"  # Fallback to local hostname
+
+          # Generation handling
+  #        if [ -n "$GENERATION" ]; then
+ #           GEN_NUMBER="$GENERATION"
+ #         else
+   #         GEN_NUMBER=$({
+            #  sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
+           #   echo "unknown"
+          #  } | tail -n 1 | awk '{print $1}')
+          
+     #       GEN_NUMBER=$({
+     #         sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null
+    #        } | awk '/current/ {print $1}' | grep -Eo '^[0-9]+')
+     #     fi
+
+
+
+          # Validate hostname
+          if [[ -z "$HOSTNAME" ]]; then
+            echo -e "\033[1;31m❌ Hostname not specified!\033[0m"
+            exit 1
+          fi
+
+          # Validate generation
+          if ! [[ "$GEN_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo -e "\033[1;31m❌ Invalid generation: $GEN_NUMBER\033[0m"
+            exit 1
+          fi
+
+          TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
+
 #          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system | tail -n1 | awk '{print $1}')
           
           COMMIT_MSG="Autocommit: Generation $GEN_NUMBER"  
@@ -108,6 +152,8 @@
 
 ############
 
+
+
 #          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null | tail -n 1 | awk '{print $1}')
           # Safe parameter handling
 #          GENERATION="${generation:-}"
@@ -127,24 +173,24 @@
 
           # After setting HOSTNAME and GEN_NUMBER:
           # Validate hostname
-          if [[ -z "$HOSTNAME" ]]; then
-            echo -e "\033[1;31m❌ No host specified and could not determine local hostname!\033[0m"
-            exit 1
-          fi
+#          if [[ -z "$HOSTNAME" ]]; then
+#            echo -e "\033[1;31m❌ No host specified and could not determine local hostname!\033[0m"
+#            exit 1
+#          fi
 
           # Validate generation number
-          if ! [[ "$GEN_NUMBER" =~ ^[0-9]+$ ]]; then
-            echo -e "\033[1;31m❌ Invalid generation number: $GEN_NUMBER\033[0m"
-            exit 1
-          fi
+#          if ! [[ "$GEN_NUMBER" =~ ^[0-9]+$ ]]; then
+#            echo -e "\033[1;31m❌ Invalid generation number: $GEN_NUMBER\033[0m"
+#            exit 1
+#          fi
 
-          TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
+#          TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
 
           # Validate the tag name
-          if [[ ! "$TAG_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
-            echo -e "\033[1;31m❌ Invalid tag name: '$TAG_NAME'\033[0m"
-            exit 1
-          fi
+#          if [[ ! "$TAG_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+#            echo -e "\033[1;31m❌ Invalid tag name: '$TAG_NAME'\033[0m"
+#            exit 1
+#          fi
 
 
 
