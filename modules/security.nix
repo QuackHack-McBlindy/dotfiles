@@ -103,7 +103,11 @@
           options = [ "NOPASSWD" ];
         }
         {
-          command = "/nix/var/nix/profiles/system/*/activate";
+          command = "/run/current-system/sw/bin/yo-rollback";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "/nix/var/nix/profiles/system";
           options = [ "NOPASSWD" ];
         }
         {

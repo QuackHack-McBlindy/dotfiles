@@ -96,6 +96,7 @@ $ yo deploy laptop
 `yo deploy user@hostname`
 `yo health`
 `yo health --host desktop` 
+`yo rollback laptop`
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
