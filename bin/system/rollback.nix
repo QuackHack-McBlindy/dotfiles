@@ -48,9 +48,11 @@
             git -C "$DOTFILES_DIR" checkout "$TAG_NAME"
         
             echo "🔄 Switching to NixOS generation $GEN_NUM..."
-            sudo nix-env -p /nix/var/nix/profiles/system --switch-generation "$GEN_NUM"
-            sudo /nix/var/nix/profiles/system/"$GEN_NUM"/activate
-        
+#            sudo nix-env -p /nix/var/nix/profiles/system --switch-generation "$GEN_NUM"
+#            sudo /nix/var/nix/profiles/system/"$GEN_NUM"/activate
+            sudo -n nix-env -p /nix/var/nix/profiles/system --switch-generation "$GEN_NUM"
+            sudo -n /nix/var/nix/profiles/system/"$GEN_NUM"/activate  
+  
             echo "✅ Remote rollback to generation $GEN_NUM complete!"
         EOF
         '';
