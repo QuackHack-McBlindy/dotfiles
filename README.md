@@ -93,11 +93,14 @@ $ yo deploy laptop
 ``` 
 
 ### **Usage Examples:**
-`yo deploy laptop`
-`yo deploy user@hostname`
-`yo health`
-`yo health --host desktop` 
+The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
+1. Named Parameters:
+`yo deploy --host laptop`
+2. Positional Parameters:
 `yo rollback laptop`
+Scripts can also be executed by voice:
+`yo bitch tv Duck Tales` 
+`yo bitch reboot laptop` 
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
@@ -183,7 +186,7 @@ Display Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles
+git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=d9996607552591fb73f5610d66483a94aa276ab6
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
