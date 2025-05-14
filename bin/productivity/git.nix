@@ -106,6 +106,14 @@
             exit 1
           fi
 
+############
+
+          if [[ ! "$HOSTNAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+            echo -e "\033[1;31m❌ Invalid hostname: '$HOSTNAME'\033[0m"
+            exit 1
+          fi
+
+################
           TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
 
 #          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system | tail -n1 | awk '{print $1}')
