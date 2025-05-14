@@ -5,7 +5,6 @@
   ...
 } : with lib;
 let
-
   nixosVersion = let
     raw = builtins.readFile /etc/os-release;
     versionMatch = builtins.match ".*VERSION_ID=([0-9\\.]+).*" raw;
@@ -94,6 +93,7 @@ let
 \`yo deploy user@hostname\`
 \`yo health\`
 \`yo health --host desktop\` 
+\`yo rollback laptop\`
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
@@ -523,6 +523,7 @@ in {
 \`yo deploy user@hostname\`
 \`yo health\`
 \`yo health --host desktop\` 
+\`yo rollback laptop\`
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
