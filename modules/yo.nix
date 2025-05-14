@@ -89,11 +89,14 @@ let
 ``` 
 
 ### **Usage Examples:**
-\`yo deploy laptop\`
-\`yo deploy user@hostname\`
-\`yo health\`
-\`yo health --host desktop\` 
+The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
+1. Named Parameters:
+\`yo deploy --host laptop\`
+2. Positional Parameters:
 \`yo rollback laptop\`
+Scripts can also be executed by voice:
+\`yo bitch tv Duck Tales\` 
+\`yo bitch reboot laptop\` 
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
@@ -525,11 +528,14 @@ in {
 **Edit configurations** \`yo edit\` 
 
 ### **Usage Examples:**
-\`yo deploy laptop\`
-\`yo deploy user@hostname\`
-\`yo health\`
-\`yo health --host desktop\` 
-\`yo rollback laptop\`
+The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
+1. Named Parameters:
+\`yo deploy --host laptop --flake /home/pungkula/dotfiles\`
+2. Positional Parameters:
+\`yo deploy laptop /home/pungkula/dotfiles\`
+Scripts can also be executed by voice:
+say \`yo bitch deploy laptop\` 
+say \`yo bitch tv Duck Tales\` 
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
