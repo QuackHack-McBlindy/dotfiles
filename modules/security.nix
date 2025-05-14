@@ -94,6 +94,7 @@
     }; 
   };
   
+  
   security.sudo.extraRules = [
     {
       users = [ "pungkula" ];
