@@ -20,7 +20,7 @@ let
 in {
   yo.scripts.weather = {
     description = "Tiny Weather Forecast.";
-    category = "🌤️ Weather";
+    category = "🧩 Miscellaneous";
     aliases = [ "weat" ];
     parameters = [{
       name = "location"; 

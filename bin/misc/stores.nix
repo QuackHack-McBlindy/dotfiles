@@ -5,7 +5,7 @@
 {
   yo.scripts.stores = {
     description = "Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours.";
-    category = "";
+    category = "🧩 Miscellaneous";
     aliases = [ "store" "open" ];
     parameters = [
       { 
@@ -26,17 +26,6 @@
         default = "5000"; 
       }
     ];
-#    helpFooter = ''
-#      ${pkgs.bat}/bin/bat --language json "$output_file""
-#    '';
-#    packages = [ pkgs.curl pkgs.jq pkgs.python3 ];
-#    code = ''
-#    helpFooter = ''
-#      bat --language json "$output_file"
-#    '';
-#    packages = [ pkgs.curl pkgs.jq pkgs.grep pkgs.coreutils ];
-#    code = ''
     code = ''
-
     '';
   };}
