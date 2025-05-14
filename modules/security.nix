@@ -105,11 +105,12 @@
           options = [ "NOPASSWD" ];
         }
         {
-          command = "/run/current-system/sw/bin/yo-rollback";
+          command = "${pkgs.nix}/bin/nix-env -p /nix/var/nix/profiles/system --switch-generation";
           options = [ "NOPASSWD" ];
         }
+        # Allow activation script execution
         {
-          command = "/nix/var/nix/profiles/system";
+          command = "/nix/var/nix/profiles/system-*-link/bin/switch-to-configuration";
           options = [ "NOPASSWD" ];
         }
         {
