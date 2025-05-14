@@ -1,4 +1,5 @@
 # dotfiles/bin/system/rollback.nix
+
 { config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
