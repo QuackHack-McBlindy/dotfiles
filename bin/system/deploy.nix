@@ -8,7 +8,7 @@ let
 in {
   yo.scripts = { 
    deploy = {
-     description = "Deploy NixOS system configurations to your remote servers";
+     description = "Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation.";
      aliases = [ "d" ];
      category = "🛠 System Management";
      parameters = [

@@ -3,7 +3,7 @@
 {
   yo.scripts = {
     pull = {
-      description = "Pull dotfiles repo from GitHub";
+      description = "Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly.";
       category = "⚡ Productivity";
       aliases = [ "pl" ];
       parameters = [ 
@@ -38,7 +38,7 @@
 #==================================#
 #==== GIT PUSH    #==================#
       push = {
-        description = "Update README.md and pushes dotfiles to GitHub with tags";
+        description = "Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history.";
         category = "⚡ Productivity";
         aliases = [ "ps" ];
         parameters = [

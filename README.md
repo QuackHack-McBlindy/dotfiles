@@ -122,12 +122,16 @@ For specific command help:
 
 ## ❄️ **Flake**
 
-*I like to keep my flakes cool & tiny.*
-**
 
-<details><summary>
-At first glance this tiny flake may look like ordinary tiny flake
-</summary>
+*I like to keep my flakes cool & tiny.*  
+*At first glance, this tiny flake may seem like an ordinary tiny flake*  
+*But considering how the modules are constructed,*  
+*I think calling this tiny flake a tiny upside-down flake would be more accurate.*  
+
+
+<details><summary><strong>
+Display Flake  
+</strong></summary>
 
 <!-- FLAKE_START -->
 ```nix
@@ -159,10 +163,9 @@ At first glance this tiny flake may look like ordinary tiny flake
 <!-- FLAKE_END -->
 </details>
 
-*But it's actually more like an upside-down flake*
 
 <details><summary>
-Flake Outputs
+Display Flake Outputs
 </summary>
 
   <!-- TREE_START -->

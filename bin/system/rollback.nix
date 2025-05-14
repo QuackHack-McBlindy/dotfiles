@@ -3,7 +3,7 @@
 {
     yo.scripts = {
       rollback = {
-        description = "Synchronized system+config rollback";
+        description = "Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state.";
         category = "🛠 System Management";
         parameters = [
           { name = "host"; description = "Host to rollback"; optional = false; }
