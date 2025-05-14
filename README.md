@@ -123,9 +123,10 @@ For specific command help:
 ## ❄️ **Flake**
 
 *I like to keep my flakes cool & tiny.*
+**
 
 <details><summary>
-Flake
+At first glance this tiny flake may look like ordinary tiny flake
 </summary>
 
 <!-- FLAKE_START -->
@@ -157,6 +158,8 @@ Flake
 ```
 <!-- FLAKE_END -->
 </details>
+
+*But it's actually more like an upside-down flake*
 
 <details><summary>
 Flake Outputs

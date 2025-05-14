@@ -61,7 +61,6 @@
           echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
           GEN_NUMBER=$({
             sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
-            nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" 2>/dev/null ||
             echo "unknown"
           } | tail -n 1 | awk '{print $1}')
 #          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system | tail -n1 | awk '{print $1}')
@@ -107,29 +106,48 @@
             exit 0
           fi
 
-          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null | tail -n 1 | awk '{print $1}')
+############
+
+#          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null | tail -n 1 | awk '{print $1}')
           # Safe parameter handling
-          GENERATION="${generation:-}"
-          HOSTNAME="${host:-}"
+#          GENERATION="${generation:-}"
+#          HOSTNAME="${host:-}"
 
           # Generation handling
-          if [ -n "$GENERATION" ]; then
-            GEN_NUMBER="$GENERATION"
-          else
+#          if [ -n "$GENERATION" ]; then
+#            GEN_NUMBER="$GENERATION"
+#          else
             # Fallback generation logic
-            GEN_NUMBER=$({
-              sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
-              nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" 2>/dev/null ||
-              echo "unknown"
-            } | tail -n 1 | awk '{print $1}')
+#            GEN_NUMBER=$({
+#              sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
+#              nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" 2>/dev/null ||
+#              echo "unknown"
+#            } | tail -n 1 | awk '{print $1}')
+#          fi
+
+          # After setting HOSTNAME and GEN_NUMBER:
+          # Validate hostname
+          if [[ -z "$HOSTNAME" ]]; then
+            echo -e "\033[1;31m❌ No host specified and could not determine local hostname!\033[0m"
+            exit 1
           fi
 
-          # Hostname handling
-          if [ -z "$HOSTNAME" ]; then
-            HOSTNAME=$host
+          # Validate generation number
+          if ! [[ "$GEN_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo -e "\033[1;31m❌ Invalid generation number: $GEN_NUMBER\033[0m"
+            exit 1
           fi
 
-          TAG_NAME="$host-generation-$GEN_NUMBER"
+          TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
+
+          # Validate the tag name
+          if [[ ! "$TAG_NAME" =~ ^[a-zA-Z0-9_-]+$ ]]; then
+            echo -e "\033[1;31m❌ Invalid tag name: '$TAG_NAME'\033[0m"
+            exit 1
+          fi
+
+
+
 
           # When committing changes - Change 2: Add detailed commit message
           echo -e "\033[1;34m📦 Staging changes...\033[0m"
@@ -148,7 +166,7 @@
 #          run_cmd git tag -fa "$host-generation-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
           echo -e "\033[1;34m🏷  Tagging commit as $TAG_NAME\033[0m"
           run_cmd git tag -fa "$TAG_NAME" -m "NixOS generation $GEN_NUMBER ($HOSTNAME)"
-          
+
           # Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
           

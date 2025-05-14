@@ -99,6 +99,10 @@
       users = [ "pungkula" ];
       commands = [
         {
+          command = "/run/current-system/sw/bin/nix-env";
+          options = [ "NOPASSWD" ];
+        }
+        {
           command = "/run/current-system/sw/bin/smartctl";
           options = [ "NOPASSWD" ];
         }
