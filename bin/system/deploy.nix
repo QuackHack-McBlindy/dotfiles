@@ -4,8 +4,7 @@ let
   sysHosts = builtins.attrNames self.nixosConfigurations;
   vmHosts = builtins.filter (host:
     self.nixosConfigurations.${host}.self.config.system.build ? vm
-  ) sysHosts;
-  
+  ) sysHosts;  
 in {
   yo.scripts = { 
    deploy = {
