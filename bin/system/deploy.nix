@@ -5,6 +5,7 @@ let
   vmHosts = builtins.filter (host:
     self.nixosConfigurations.${host}.self.config.system.build ? vm
   ) sysHosts;
+  
 in {
   yo.scripts = { 
    deploy = {
