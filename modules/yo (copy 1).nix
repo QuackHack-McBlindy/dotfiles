@@ -324,19 +324,11 @@ EOF
     name = "yo-scripts";
     paths = mapAttrsToList (name: script:
       let
-        # Generate parameter usage string at Nix level
-        param_usage = lib.concatMapStringsSep " " (param:
-          if param.optional
-          then "[--${param.name}]"
-          else "--${param.name}"
-        ) script.parameters;
-
         scriptContent = ''
           #!${pkgs.runtimeShell}
-
           set -euo pipefail
           ${yoEnvGenVar script}
-            
+        
           # Phase 1: Preprocess special flags
           VERBOSE=0
           DRY_RUN=false
@@ -369,18 +361,16 @@ EOF
                 width=$(tput cols 2>/dev/null || echo 100)
                 help_footer=$(${script.helpFooter})
                 cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" -
-## 🚀🦆 ${escapeMD script.name} Command
-**Usage:** `yo ${escapeMD script.name}` ${lib.optionalString (script.parameters != []) "\\\n  ${param_usage}"}
-
+## 🚀🦆 ${script.name} Command
+**Usage:** \`yo ${script.name} [parameters]\`
 ${script.description}
-${lib.optionalString (script.parameters != []) ''
+${optionalString (script.parameters != []) ''
 ### Parameters
-${lib.concatStringsSep "\n" (map (param: ''
-- `--${escapeMD param.name}` ${lib.optionalString param.optional "(optional)"} ${lib.optionalString (param.default != null) "(default: ${escapeMD param.default})"}  
+${concatStringsSep "\n" (map (param: ''
+- \`--${param.name}\` ${optionalString param.optional "(optional)"} ${optionalString (param.default != null) "[default: ${param.default}]"}  
   ${param.description}
 '') script.parameters)}
 ''}
-
 
 $help_footer
 EOF

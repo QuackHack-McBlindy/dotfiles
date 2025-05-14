@@ -1,6 +1,6 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25.05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
@@ -29,6 +29,7 @@ __that deploys, docs, and ducks around__ 🦆✨
 - 🖥️  **[The one the only <strong>This</strong> module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/default.nix)** *(One module to define them all)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments & magic nix+git syncronized rollbaks)*    
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
+- 📺 **[Extensive Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(declarative containerized Servarr stack)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
@@ -92,22 +93,22 @@ $ yo deploy laptop
      🚫 Exit
 ``` 
 
-### **Usage Examples:**
+### **Usage Examples:**  
 The yo CLI tool supports flexible parameter parsing through two primary mechanisms:  
 
-1. Named Parameters:  
+1. **Named Parameters:**  
 
 ```bash
-yo deploy --host laptop
+yo deploy --host laptop --flake /home/pungkula/dotfiles
 ```
 
-2. Positional Parameters:  
+2. **Positional Parameters:**  
 
 ```bash
-`yo rollback laptop`
+yo deploy laptop /home/pungkula/dotfiles
 ```
 
-Scripts can also be executed by voice, say:  
+3. **Scripts can also be executed by voice, say:**  
 
 ```bash
 yo bitch tv Duck Tales 
@@ -240,8 +241,7 @@ git+file:///home/pungkula/dotfiles
 
 ## 💬 **Questions?**
 
-
-**Talk Nix? Or just**  
-**tell me my flake sucks?**  
-**I am all ears.** *(no phun intended)*  
+**Talk Nix? Or just tell me my flake sucks?**   
+**That's cool!**  
+**I am all ears. 👀**  
 
