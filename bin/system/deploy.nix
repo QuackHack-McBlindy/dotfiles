@@ -40,7 +40,6 @@ in {
          run_cmd echo "Please decrypt $host AGE key, Enter PIN and touch your Yubikey"
          run_cmd echo ""
          run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh "$user@$host" "mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
-
        fi 
 
        echo "👤 SSH User: ''$user"
@@ -74,31 +73,9 @@ in {
        # Inside the code section after successful deployment:
        if ! $DRY_RUN; then
          echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
-#         GEN_NUM=$(ssh -t "$user@$host" "sudo -S nix-env -p /nix/var/nix/profiles/system --list-generations 2>/dev/null | tail -n1 | awk '{print \$1}'")
-#         echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
-  
-#         GEN_NUM=$(ssh -T "$user@$host" "bash --norc -c 'sudo -n nix-env -p /nix/var/nix/profiles/system --list-generations 2>/dev/null'" | 
-#           tail -n1 | 
-#           awk 'match($0, /^[[:space:]]*([0-9]+)/, a) {print a[1]}')
-  
-#         if [[ -z "$GEN_NUM" ]] || ! [[ "$GEN_NUM" =~ ^[0-9]+$ ]]; then
-#           echo -e "\033[1;31m❌ Failed to retrieve generation number from $host"
-#           echo -e "Received output: '$GEN_NUM'\033[0m"
-#           exit 1
-#         fi
-  
-#         echo "📦 Tagging deployment for $host generation $GEN_NUM..."
-#         yo push --flake "$flake" --repo "$repo" --host "$host" --generation "$GEN_NUM"
-#       fi
-
-         echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
 
          # Fetch the generation number using SSH
-         #GEN_NUM=$(ssh -T "$user@$host" "bash --norc -c 'sudo -n nix-env -p /nix/var/nix/profiles/system --list-generations 2>/dev/null'" | tail -n1 | awk 'match($0, /^[[:space:]]*([0-9]+)/, a) {print a[1]}')
-         #GEN_NUM=$(ssh -T "$user@$host" "sudo nix-env -p /nix/var/nix/profiles/system --list-generations 2>/dev/null" | awk '/current/ {gsub(/[^0-9]/,"",$1); print $1; exit}')
          GEN_NUM=$(ssh -T "$user@$host" "sudo -n nix-env --list-generations -p /nix/var/nix/profiles/system" | awk '/current/ {print $1}' | tail -n1)
-
-
 
          # Validate the generation number
          if [[ -z "$GEN_NUM" ]] || ! [[ "$GEN_NUM" =~ ^[0-9]+$ ]]; then
@@ -110,8 +87,7 @@ in {
          # Continue if the generation number is valid
          echo "📦 Tagging deployment for $host generation $GEN_NUM..."
          yo push --flake "$flake" --repo "$repo" --host "$host" --generation "$GEN_NUM"
-       fi
-     
+       fi     
      '';
     };
   };}
