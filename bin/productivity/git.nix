@@ -75,7 +75,8 @@
             exit 1
           fi
           
-          HOSTNAME="${host:-$host}"  # Fallback to local hostname
+#          HOSTNAME="${host:-$host}"  # Fallback to local hostname
+          HOSTNAME="$host"
 
           # Generation handling
   #        if [ -n "$GENERATION" ]; then
