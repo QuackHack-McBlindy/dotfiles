@@ -26,7 +26,7 @@ __that deploys, docs, and ducks around__ 🦆✨
 ## **📌 Highlights**
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🖥️  **The one the only [This] module(https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/this.nix)** *(One module to define them(machines( all)*  
+- 🖥️  **[The one the only This module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/this.nix)** *(One module to define them(machines( all)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments & magical syncronized duckie rollbaks)*    
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
