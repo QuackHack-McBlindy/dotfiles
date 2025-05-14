@@ -35,7 +35,6 @@ __that deploys, docs, and ducks around__ 🦆✨
 
 ## **🛟 Quick Start**
 
-
 ```bash
 # Clone repository
 $ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
@@ -45,6 +44,8 @@ $ cd dotfiles
 <br>
 
 ### **Some usage examples:**  
+
+<br>
 
 **Build automated, offline USB NixOS installer** 
 
@@ -56,6 +57,8 @@ $ sudo bash usb-installer \
   --wifipass "CanBeOmitted" \
   --publickey "ssh-ed25519 AAAAC3FoRSsHCoNnEcTiOn..."
 ``` 
+
+<br>
 
 ```bash
 # dd result to flash drive (replace sdX)
