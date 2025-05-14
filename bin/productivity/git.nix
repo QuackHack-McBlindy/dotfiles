@@ -44,6 +44,8 @@
         parameters = [
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
           { name = "repo"; description = "User GitHub repo"; optional = false; default = config.this.user.me.repo; } 
+          { name = "host"; description = "Target host (for tagging)"; optional = true; }
+          { name = "generation"; description = "Generation number to tag"; optional = true; }
         ];
         code = ''
           ${cmdHelpers}
@@ -104,6 +106,30 @@
             exit 0
           fi
 
+          GEN_NUMBER=$(sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null | tail -n 1 | awk '{print $1}')
+          # Safe parameter handling
+          GENERATION="${generation:-}"
+          HOSTNAME="${host:-}"
+
+          # Generation handling
+          if [ -n "$GENERATION" ]; then
+            GEN_NUMBER="$GENERATION"
+          else
+            # Fallback generation logic
+            GEN_NUMBER=$({
+              sudo nix-env --list-generations -p /nix/var/nix/profiles/system 2>/dev/null ||
+              nix-env --list-generations -p "/nix/var/nix/profiles/per-user/$USER/home-manager" 2>/dev/null ||
+              echo "unknown"
+            } | tail -n 1 | awk '{print $1}')
+          fi
+
+          # Hostname handling
+          if [ -z "$HOSTNAME" ]; then
+            HOSTNAME=$(hostname)
+          fi
+
+          TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
+
           # When committing changes - Change 2: Add detailed commit message
           echo -e "\033[1;34m📦 Staging changes...\033[0m"
           run_cmd git add .
@@ -117,15 +143,17 @@
           run_cmd git commit -m "$COMMIT_MSG" -m "Changed files:\n$DIFF_STAT"  # Replace existing commit line
           
           # Change 3: Add tagging after commit
-          echo -e "\033[1;34m🏷  Tagging commit as gen-$GEN_NUMBER\033[0m"
-          run_cmd git tag -fa "generation-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
-
+#          echo -e "\033[1;34m🏷  Tagging commit as gen-$GEN_NUMBER\033[0m"
+#          run_cmd git tag -fa "$host-generation-$GEN_NUMBER" -m "NixOS generation $GEN_NUMBER"
+          echo -e "\033[1;34m🏷  Tagging commit as $TAG_NAME\033[0m"
+          run_cmd git tag -fa "$TAG_NAME" -m "NixOS generation $GEN_NUMBER ($HOSTNAME)"
+          
           # Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
           
 #          run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH" ||
           run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH"
-          
+          run_cmd git push origin "$TAG_NAME"
           
     
           

@@ -103,9 +103,9 @@ Set default values for your parameters to have them marked [optional]
 | `yo health [--host]` | hc | Check system health status across your machines |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo pull [--flake]` | pl | Pull dotfiles repo from GitHub |
-| `yo push [--flake] [--repo]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
+| `yo push [--flake] [--repo] [--host] [--generation]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
-| `yo rollback [--flake]` |  | Synchronized system+config rollback |
+| `yo rollback --host [--flake] [--user]` |  | Synchronized system+config rollback |
 | `yo scp ` |  | Move files between hosts interactively |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |

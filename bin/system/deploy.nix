@@ -73,30 +73,12 @@ in {
        
        # Inside the code section after successful deployment:
        if ! $DRY_RUN; then
-         # Get new generation number from the host
+         # Get remote host's generation number
          GEN_NUM=$(ssh "$user@$host" "sudo nix-env -p /nix/var/nix/profiles/system --list-generations | tail -n1 | awk '{print \$1}'")
-         
-         # Commit changes in the flake
-         echo "📦 Committing configuration changes..."
-         (
-           cd "$flake"
-           git add .
-           if ! git diff-index --quiet HEAD --; then
-             git commit -m "Deploy to $host: Generation $GEN_NUM"
-           else
-             echo "No changes to commit."
-           fi
-         ) || true  # Ignore errors if no changes
-       
-         # Create and push tag
-         TAG_NAME="$host-generation-$GEN_NUM"
-         echo "🏷  Tagging commit as $TAG_NAME"
-         (
-           cd "$flake"
-           git tag -a "$TAG_NAME" -m "Deployment to $host, generation $GEN_NUM"
-           git push origin main
-           git push origin "$TAG_NAME"
-         )
+  
+         # Push with host-specific tag
+         echo "📦 Tagging deployment for $host generation $GEN_NUM..."
+         yo push --flake "$flake" --repo "$repo" --host "$host" --generation "$GEN_NUM"
        fi
      
      '';
