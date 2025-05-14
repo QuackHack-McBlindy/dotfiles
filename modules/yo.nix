@@ -91,12 +91,22 @@ let
 ### **Usage Examples:**
 The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
 1. Named Parameters:
-\`yo deploy --host laptop\`
+
+```bash
+yo deploy --host laptop
+```
 2. Positional Parameters:
+
+```bash
 \`yo rollback laptop\`
-Scripts can also be executed by voice:
-\`yo bitch tv Duck Tales\` 
-\`yo bitch reboot laptop\` 
+```
+
+Scripts can also be executed by voice, say:
+
+```bash
+yo bitch tv Duck Tales 
+yo bitch reboot laptop 
+```
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
