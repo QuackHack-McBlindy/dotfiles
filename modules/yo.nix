@@ -329,7 +329,7 @@ EOF
           if param.optional
           then "[--${param.name}]"
           else "--${param.name}"
-        ) script.parameters;
+        ) (lib.filter (p: !builtins.elem p.name ["!" "?"]) script.parameters);
 
         scriptContent = ''
           #!${pkgs.runtimeShell}
@@ -370,7 +370,7 @@ EOF
                 help_footer=$(${script.helpFooter})
                 cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" -
 ## 🚀🦆 ${escapeMD script.name} Command
-**Usage:** `yo ${escapeMD script.name}` ${lib.optionalString (script.parameters != []) "\\\n  ${param_usage}"}
+**Usage:** \`yo ${escapeMD script.name}\` ${lib.optionalString (script.parameters != []) "\\\n  ${param_usage}"}
 
 ${script.description}
 ${lib.optionalString (script.parameters != []) ''
