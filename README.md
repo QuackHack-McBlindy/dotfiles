@@ -99,20 +99,20 @@ The yo CLI tool supports flexible parameter parsing through two primary mechanis
 1. **Named Parameters:**  
 
 ```bash
-yo deploy --host laptop --flake /home/pungkula/dotfiles
+$ yo deploy --host laptop --flake /home/pungkula/dotfiles
 ```
 
 2. **Positional Parameters:**  
 
 ```bash
-yo deploy laptop /home/pungkula/dotfiles
+$ yo deploy laptop /home/pungkula/dotfiles
 ```
 
 3. **Scripts can also be executed by voice, say:**  
 
 ```bash
-yo bitch tv Duck Tales 
-yo bitch reboot laptop 
+$ yo bitch tv Duck Tales 
+$ yo bitch reboot laptop 
 ```
 
 ### ✨ Available Commands
