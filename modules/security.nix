@@ -103,6 +103,10 @@
           options = [ "NOPASSWD" ];
         }
         {
+          command = "/nix/var/nix/profiles/system/*/activate";
+          options = [ "NOPASSWD" ];
+        }
+        {
           command = "/run/current-system/sw/bin/smartctl";
           options = [ "NOPASSWD" ];
         }
