@@ -119,6 +119,8 @@ Set default values for your parameters to have them marked [optional]
 | `yo speed ` | st | Test your internets Download speed |
 | `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
+| `yo tv --search [--device] [--mediaType]` | shield, s | Android TV Controller |
+| `yo tv2 --search [--device] [--mediaType]` | arris, a | Android TV Controller |
 | `yo weather [--location]` | weat | Tiny Weather Forecast. |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 ### ❓ Detailed Help
@@ -181,7 +183,7 @@ Display Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=af6053817dedb365331ac627cb07274b281032a7
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)

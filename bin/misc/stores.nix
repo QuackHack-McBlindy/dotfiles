@@ -1,6 +1,4 @@
 # dotfiles/bin/system/weather.nix
-
-
 { config, lib, pkgs, cmdHelpers, ...  }:
 {
   yo.scripts.stores = {
