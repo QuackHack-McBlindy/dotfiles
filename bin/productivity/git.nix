@@ -123,8 +123,8 @@
           # Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
           
-          run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH" ||
-
+#          run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH" ||
+          run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH"
           
           
     

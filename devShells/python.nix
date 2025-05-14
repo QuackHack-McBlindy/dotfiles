@@ -5,7 +5,7 @@
   inputs,
   self
 } : let
-  pythonPackages = ps: [ ps.numpy ps.requests ];
+  pythonPackages = ps: [ ps.numpy ps.requests ps.lz4 ];
   myPython = pkgs.python3.withPackages pythonPackages;
 
   myBuildInputs = with pkgs; [

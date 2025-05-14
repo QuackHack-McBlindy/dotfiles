@@ -1,4 +1,4 @@
-# modules/programs/firefox.nix
+# dotfiles/modules/programs/firefox.nix
 { 
   config,
   lib,
@@ -8,7 +8,97 @@
   cfg = config.this.host.modules.programs;
   themeCSS = builtins.readFile config.this.theme.styles;
   firefoxProfileDir = "/home/${config.this.user.me.name}/.mozilla/firefox/default";
-  
+  backupPath = "${config.users.users.${config.this.user.me.name}.home}/.mozilla/firefox/default/bookmarkbackups";
+  pythonEnv = pkgs.python3.withPackages (ps: [ ps.lz4 ]);
+
+  bookmarkScript = pkgs.writeScript "generate-bookmarks.py" ''
+    #!${pythonEnv}/bin/python
+    import lz4.block
+    import json
+    from pathlib import Path
+    import sys
+    import os
+
+    def find_latest_backup_file(directory):
+        backups = list(directory.glob("bookmarks-*.jsonlz4"))
+        if not backups:
+            print(f"No backups found in {directory}")
+            sys.exit(0)
+        return max(backups, key=lambda f: f.stat().st_mtime)
+
+    def read_jsonlz4(path):
+        with open(path, "rb") as f:
+            if f.read(8) != b"mozLz40\0":
+                raise ValueError("Invalid LZ4 header")
+            return json.loads(lz4.block.decompress(f.read()))
+
+    def extract_bookmarks(data, placement="toolbar"):
+        def collect(node):
+            results = []
+            for child in node.get("children", []):
+                if "uri" in child:
+                    results.append({
+                        "Title": child.get("title", ""),
+                        "URL": child.get("uri", ""),
+                        "Placement": placement
+                    })
+                elif "children" in child:
+                    results += collect(child)
+            return results
+        return collect(data)
+
+    if __name__ == "__main__":
+        backup_dir = Path(sys.argv[1])
+        output_file = Path(sys.argv[2])
+        
+        if not backup_dir.exists():
+            print(f"Backup directory {backup_dir} does not exist")
+            sys.exit(0)
+            
+        try:
+            backup_file = find_latest_backup_file(backup_dir)
+            print(f"Processing: {backup_file}")
+            data = read_jsonlz4(backup_file)
+            bookmarks = extract_bookmarks(data)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_file, "w") as f:
+                f.write("[\n")
+                for b in bookmarks:
+                    f.write(f'  {{ Title = "{b["Title"]}"; URL = "{b["URL"]}"; Placement = "{b["Placement"]}"; }}\n')
+                f.write("]\n")
+                
+        except Exception as e:
+            print(f"Error generating bookmarks: {e}")
+            sys.exit(1)
+  '';
+
+  defaultBookmarks = [
+    { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
+    { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
+    { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }
+    { Title = ""; URL = "https://account.proton.me/login"; Favicon = "https://proton.me/favicon.ico"; Placement = "toolbar"; }
+    { Title = ""; URL = "https://www.outlook.com"; Favicon = "https://outlook.live.com/owa/favicon.ico"; Placement = "toolbar"; }
+    { Title = ""; URL = "https://www.github.com"; Favicon = "https://github.githubassets.com/favicons/favicon.ico"; Placement = "toolbar"; }
+    { Title = ""; URL = "https://www.pastebin.org"; Favicon = "https://pastebin.com/favicon.ico"; Placement = "toolbar"; }
+    { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; } 
+  ];
+
+  generatedBookmarks = pkgs.runCommand "firefox-bookmarks.json" {
+    nativeBuildInputs = [ pkgs.lz4 pythonEnv pkgs.jq ];
+  } ''
+    if [ ! -d "${backupPath}" ] || [ -z "$(ls -A "${backupPath}" 2>/dev/null)" ]; then
+      echo "No backups found - using default bookmarks"
+      echo '${builtins.toJSON defaultBookmarks}' > $out
+    else
+      echo "Processing backups..."
+      ${bookmarkScript} "${backupPath}" "$out.tmp" && mv "$out.tmp" $out || {
+        echo "Backup processing failed - falling back to defaults"
+        echo '${builtins.toJSON defaultBookmarks}' > $out
+      }
+    fi
+  '';
+
 #======= SEARCH ENGINES =====================#       
   searchJson = builtins.toJSON {
     "metaData" = {
@@ -130,6 +220,7 @@
       }        
     ];
   };  
+  
 in {
   config = lib.mkIf (lib.elem "firefox" cfg) {
     programs.firefox = {
@@ -235,19 +326,17 @@ in {
         DisableAccounts = true;
        
 #======= BOOKMARKS =====================#       
-        Bookmarks = [ 
-          { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
-          { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
-          { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }
-          { Title = ""; URL = "https://account.proton.me/login"; Favicon = "https://proton.me/favicon.ico"; Placement = "toolbar"; }
-          { Title = ""; URL = "https://www.outlook.com"; Favicon = "https://outlook.live.com/owa/favicon.ico"; Placement = "toolbar"; }
-          { Title = ""; URL = "https://www.github.com"; Favicon = "https://github.githubassets.com/favicons/favicon.ico"; Placement = "toolbar"; }
-          { Title = ""; URL = "https://www.pastebin.org"; Favicon = "https://pastebin.com/favicon.ico"; Placement = "toolbar"; }
-          { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; }
+        Bookmarks =  lib.mkMerge [
+          (lib.mkIf (builtins.pathExists generatedBookmarks) {
+            __content = builtins.fromJSON (builtins.readFile generatedBookmarks);
+          })
+          {
+            __content = defaultBookmarks;
+            __priority = 100;
+          }
         ];
 
 #======= AddOns - Extensions =====================#       
-        # EXTENSIONS
         ExtensionSettings = {
           "*".installation_mode = "blocked"; # blocks all addons except the ones specified below
           # Super Dark Mode
@@ -281,18 +370,13 @@ in {
     # ========== SEARCH ENGINES ==========
     systemd.services.firefox-profile = {
       wantedBy = [ "default.target" ];
-     # wantedBy = [ "multi-user.target" ];
-      
       serviceConfig = {   
         Type = "oneshot";
         User = config.this.user.me.name;
-        #StateDirectory = config.this.user.me.name;
         ExecStart = let
           script = pkgs.writeShellScriptBin "firefox-init" ''
-            # Create profile directory
             mkdir -p "${firefoxProfileDir}/chrome"
         
-            # Create profiles.ini
             cat > "${firefoxProfileDir}/../profiles.ini" <<EOF
 [Profile0]
 Name=default
@@ -314,6 +398,17 @@ EOF
             ${themeCSS}
             EOF
         
+            # Merge generated bookmarks
+            echo "Linking generated bookmarks..."
+            ln -sf ${generatedBookmarks} ${firefoxProfileDir}/generated-bookmarks.nix
+        
+            # Seed initial backup if none exists
+            if [ ! -d "${backupPath}" ] || [ -z "$(ls -A "${backupPath}")" ]; then
+              mkdir -p "${backupPath}"
+              echo '${builtins.toJSON defaultBookmarks}' | ${pkgs.mozlz4a}/bin/mozlz4a - > \
+                "${backupPath}/bookmarks-$(date +%s).jsonlz4"
+            fi      
+        
             chown -R ${config.this.user.me.name}:users "/home/${config.this.user.me.name}/.mozilla"
             chmod 700 "${firefoxProfileDir}"
             chmod 600 "${firefoxProfileDir}/../profiles.ini"
@@ -322,8 +417,13 @@ EOF
       };
     };
 
-    environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr ];
+    environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr pkgs.python312Packages.lz4 ];
     environment.sessionVariables = { MOZ_USE_XINPUT2 = "1"; };    
+    
+    # Allow access to Firefox backup directory
+    nix.settings.allowed-uris = [
+      "file://${config.users.users.${config.this.user.me.name}.home}/.mozilla"
+    ];
   };}  
   
   

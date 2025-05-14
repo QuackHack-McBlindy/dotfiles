@@ -46,8 +46,8 @@ $ cd dotfiles
 **Build automated, offline USB NixOS installer** 
 
 ```bash
-$ ./usb-installer \
-  --user "nix" \
+$ sudo bash usb-installer \
+  --user "pungkula" \
   --host "laptop" \
   --ssid "IfYouDontHaveEthernet" \
   --wifipass "CanBeOmitted" \
@@ -56,7 +56,7 @@ $ ./usb-installer \
 
 ```bash
 # dd result to flash drive (replace sdX)
-$ sudo dd if=./result/iso/*.iso of=/dev/sdX bs=4M status=progress oflag=sync
+$ sudo dd if="$(readlink -f ./result/iso/*.iso)" of=/dev/sdX bs=4M status=progress oflag=sync
 ``` 
 
 Plug in flash drive into laptop and boot. Let it work and wait until it powers down.  
@@ -66,6 +66,8 @@ Remove flash drive, boot it up again and deploy configuration from your main mac
 # 🦆🔓 First deploy? Get your Yubikey: PIN+Touch unlocks host specific AGE key for sops-nix 
 $ yo deploy laptop
 ```
+
+Any builds after first deployment will use locally cached binaries.
 
 <br><br>
 

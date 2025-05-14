@@ -43,6 +43,7 @@
       if $DRY_RUN; then
         echo "[DRY RUN] Would execute:"
         echo "  ''${@}"
+        "''${@}"
       else
         if (( VERBOSE > 0 )); then
           echo "Executing: ''${@}"
