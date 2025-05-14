@@ -296,6 +296,7 @@ EOF
     
   });
 
+
   cfg = config.yo;
 
   yoScriptsPackage = pkgs.symlinkJoin {
