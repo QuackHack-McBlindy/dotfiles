@@ -89,19 +89,21 @@ let
 ``` 
 
 ### **Usage Examples:**
-The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
-1. Named Parameters:
+The yo CLI tool supports flexible parameter parsing through two primary mechanisms:  
+
+1. Named Parameters:  
 
 ```bash
 yo deploy --host laptop
 ```
-2. Positional Parameters:
+
+2. Positional Parameters:  
 
 ```bash
 \`yo rollback laptop\`
 ```
 
-Scripts can also be executed by voice, say:
+Scripts can also be executed by voice, say:  
 
 ```bash
 yo bitch tv Duck Tales 
@@ -538,25 +540,26 @@ in {
 **Edit configurations** \`yo edit\` 
 
 ### **Usage Examples:**
-The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
-1. Named Parameters:
+The yo CLI tool supports flexible parameter parsing through two primary mechanisms:  
+
+1. Named Parameters:  
 
 ```bash
 yo deploy --host laptop
 ```
-2. Positional Parameters:
+
+2. Positional Parameters:  
 
 ```bash
 \`yo rollback laptop\`
 ```
 
-Scripts can also be executed by voice, say:
+Scripts can also be executed by voice, say:  
 
 ```bash
 yo bitch tv Duck Tales 
 yo bitch reboot laptop 
 ```
-
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
