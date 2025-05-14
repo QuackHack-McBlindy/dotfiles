@@ -35,13 +35,16 @@ __that deploys, docs, and ducks around__ 🦆✨
 
 ## **🛟 Quick Start**
 
-**Some usage examples:**
 
 ```bash
 # Clone repository
 $ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
 $ cd dotfiles
 ``` 
+
+<br>
+
+### **Some usage examples:**  
 
 **Build automated, offline USB NixOS installer** 
 
@@ -97,15 +100,15 @@ Set default values for your parameters to have them marked [optional]
 |------------------------------|------------|-------------|
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
-| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Deploy NixOS system configurations to your remote servers |
+| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo health [--host]` | hc | Check system health status across your machines |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
-| `yo pull [--flake]` | pl | Pull dotfiles repo from GitHub |
-| `yo push [--flake] [--repo] [--host] [--generation]` | ps | Update README.md and pushes dotfiles to GitHub with tags |
+| `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
+| `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo reboot [--host]` |  | Force reboot and wait for host |
-| `yo rollback --host [--flake] [--user]` |  | Synchronized system+config rollback |
+| `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo scp ` |  | Move files between hosts interactively |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |
