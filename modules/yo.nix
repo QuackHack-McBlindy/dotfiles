@@ -540,12 +540,23 @@ in {
 ### **Usage Examples:**
 The yo CLI tool supports flexible parameter parsing through two primary mechanisms:
 1. Named Parameters:
-\`yo deploy --host laptop --flake /home/pungkula/dotfiles\`
+
+```bash
+yo deploy --host laptop
+```
 2. Positional Parameters:
-\`yo deploy laptop /home/pungkula/dotfiles\`
-Scripts can also be executed by voice:
-say \`yo bitch deploy laptop\` 
-say \`yo bitch tv Duck Tales\` 
+
+```bash
+\`yo rollback laptop\`
+```
+
+Scripts can also be executed by voice, say:
+
+```bash
+yo bitch tv Duck Tales 
+yo bitch reboot laptop 
+```
+
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
