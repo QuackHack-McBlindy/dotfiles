@@ -105,12 +105,7 @@
           options = [ "NOPASSWD" ];
         }
         {
-          command = "${pkgs.nix}/bin/nix-env -p /nix/var/nix/profiles/system --switch-generation";
-          options = [ "NOPASSWD" ];
-        }
-        # Allow activation script execution
-        {
-          command = "/nix/var/nix/profiles/system-*-link/bin/switch-to-configuration";
+          command = "/etc/profiles/per-user/pungkula/bin/rollback";
           options = [ "NOPASSWD" ];
         }
         {
