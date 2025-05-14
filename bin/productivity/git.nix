@@ -52,6 +52,7 @@
           REPO="$repo"
           DOTFILES_DIR="$flake"
           
+          
            # Fixed version handling using Nix-provided version
           echo -e "\033[1;34m🔄 Updating README version badge...\033[0m"
           run_cmd update-readme
@@ -125,10 +126,10 @@
 
           # Hostname handling
           if [ -z "$HOSTNAME" ]; then
-            HOSTNAME=$(hostname)
+            HOSTNAME=$host
           fi
 
-          TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
+          TAG_NAME="$host-generation-$GEN_NUMBER"
 
           # When committing changes - Change 2: Add detailed commit message
           echo -e "\033[1;34m📦 Staging changes...\033[0m"
