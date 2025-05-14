@@ -26,7 +26,7 @@ __that deploys, docs, and ducks around__ 🦆✨
 ## **📌 Highlights**
 
 - 🛖 **Simple Home Management** *(auto symlinks ./home to /home)*   
-- 🛠️ **Nix CLI Toolbox** *(for quick-quack deployments)*    
+- 🛠️ **Nix CLI Toolbox** *(for quick-quack deployments & magical syncronized duckie rollbaks)*    
 - 🦊 **Firefox as Code** *(extensions, bookmarks and settings)*   
 - 🎨 **Global Theme Orchestration** *(GTK, icons, cursor, Discord, Firefox & Shell)*  
 - 📝 **Self-Documenting** *(CLI usage & README.md)*  
@@ -67,7 +67,7 @@ Remove flash drive, boot it up again and deploy configuration from your main mac
 $ yo deploy laptop
 ```
 
-Any builds after first deployment will use locally cached binaries.
+**Any builds after first deployment will use local cached binaries with enhanced build time.**  
 
 <br><br>
 
@@ -126,7 +126,7 @@ For specific command help:
 *I like to keep my flakes cool & tiny.*  
 *At first glance, this tiny flake may seem like an ordinary tiny flake*  
 *But considering how the modules are constructed,*  
-*I think calling this tiny flake a tiny upside-down flake would be more accurate.*  
+*I think calling this tiny flake a tiny upside-down flake would be more accurate.*  <br><br>
 
 
 <details><summary><strong>
@@ -164,9 +164,10 @@ Display Flake
 </details>
 
 
-<details><summary>
+
+<details><summary><strong>
 Display Flake Outputs
-</summary>
+</strong></summary>
 
   <!-- TREE_START -->
 ```nix
