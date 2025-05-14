@@ -1,7 +1,6 @@
-# bin/health.nix
+# dotfiles/bin/maintenance/health.nix
 { self, config, pkgs, cmdHelpers, ... }:
-{
-  
+{  
   yo.scripts.health = {
     description = "Check system health status across your machines";
     category = "🧹 Maintenance";
