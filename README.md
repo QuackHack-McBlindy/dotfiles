@@ -219,3 +219,12 @@ git+file:///home/pungkula/dotfiles
 </details>
 
 
+<br><br>
+
+## 💬 **Questions?**
+
+
+**Talk Nix? Or just**  
+**tell me my flake sucks?**  
+**I am all ears.** *(no phun intended)*  
+
