@@ -250,7 +250,13 @@ EOF
         type = types.str;
         description = "Category of the script";
       };
-      
+    
+      packages = mkOption {
+        type = types.listOf types.package;
+        default = [];
+        description = "List of packages needed by this script";
+      };
+   
       helpFooter = mkOption {
         type = types.lines;
         default = "";
@@ -447,7 +453,6 @@ in {
     default = {};
     description = "Attribute set of scripts to be made available";
   };
-
 
   config = {
  

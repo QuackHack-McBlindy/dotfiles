@@ -18,6 +18,9 @@ in {
        { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
        { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
+#     helpFooter = ''
+
+#     '';
      code = ''   
        ${cmdHelpers}
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then

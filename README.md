@@ -25,11 +25,11 @@ __that deploys, docs, and ducks around__ 🦆✨
 
 ## **📌 Highlights**
 
-- 🛖 **Simple Home Management** *(auto symlinks ./home to /home)*   
-- 🛠️ **Nix CLI Toolbox** *(for quick-quack deployments & magical syncronized duckie rollbaks)*    
-- 🦊 **Firefox as Code** *(extensions, bookmarks and settings)*   
-- 🎨 **Global Theme Orchestration** *(GTK, icons, cursor, Discord, Firefox & Shell)*  
-- 📝 **Self-Documenting** *(CLI usage & README.md)*  
+- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
+- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments & magical syncronized duckie rollbaks)*    
+- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
+- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)*  
+- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
 <br><br>
 
@@ -116,7 +116,9 @@ Set default values for your parameters to have them marked [optional]
 | `yo scp ` |  | Move files between hosts interactively |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo speed ` | st | Test your internets Download speed |
+| `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
+| `yo weather [--location]` | weat | Tiny Weather Forecast. |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 ### ❓ Detailed Help
 For specific command help: 

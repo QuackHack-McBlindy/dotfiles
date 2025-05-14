@@ -11,6 +11,7 @@
   backupPath = "${config.users.users.${config.this.user.me.name}.home}/.mozilla/firefox/default/bookmarkbackups";
   pythonEnv = pkgs.python3.withPackages (ps: [ ps.lz4 ]);
 
+  # Dynamic imports from Firefox Bookmarks Backups to auto detect new bookmarks
   bookmarkScript = pkgs.writeScript "generate-bookmarks.py" ''
     #!${pythonEnv}/bin/python
     import lz4.block
@@ -73,6 +74,7 @@
             sys.exit(1)
   '';
 
+  # Default bookmarks 
   defaultBookmarks = [
     { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
@@ -84,6 +86,7 @@
     { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; } 
   ];
 
+  # Create bookmarks JSON from lz4
   generatedBookmarks = pkgs.runCommand "firefox-bookmarks.json" {
     nativeBuildInputs = [ pkgs.lz4 pythonEnv pkgs.jq ];
   } ''
@@ -222,6 +225,7 @@
   };  
   
 in {
+  # Enabled by exposing "firefox" in this.host.modules.programs
   config = lib.mkIf (lib.elem "firefox" cfg) {
     programs.firefox = {
       enable = true;
@@ -368,6 +372,7 @@ in {
     };
 
     # ========== SEARCH ENGINES ==========
+    # Create profile.ini 
     systemd.services.firefox-profile = {
       wantedBy = [ "default.target" ];
       serviceConfig = {   

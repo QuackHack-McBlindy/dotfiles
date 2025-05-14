@@ -6,6 +6,7 @@
 } : let
   cfg = config.this.host.modules.programs;
 in {
+  # Enabled by exposing "default" in this.host.modules.programs
   config = lib.mkIf (lib.elem "default" cfg) {
     programs.bash = {
 

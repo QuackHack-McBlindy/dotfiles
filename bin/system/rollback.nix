@@ -10,7 +10,10 @@
           { name = "host"; description = "Host to rollback"; optional = false; }
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
           { name = "user"; description = "SSH user"; optional = true; default = config.this.user.me.name; }
-        ];  
+        ]; 
+        helpFooter = ''
+
+       '';
         code = ''
           DOTFILES_DIR="$flake"
           echo "🔄 Fetching tags for $host..."
