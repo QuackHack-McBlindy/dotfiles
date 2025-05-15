@@ -506,6 +506,7 @@ EOF
         ) scripts)
     ) sortedCategories;
   in concatStringsSep "\n" rows;
+  
 in {
   options.yo.scripts = mkOption {
     type = types.attrsOf scriptType;

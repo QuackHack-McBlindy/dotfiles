@@ -158,7 +158,7 @@
                 pkgs.nixos-anywhere
                 pkgs.piper-tts
            #     pkgs.mkchromecast
-     
+                self.packages.x86_64-linux.yo-bitch
             ]     
         ];
         

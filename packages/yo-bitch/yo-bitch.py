@@ -17,6 +17,11 @@ import websockets
 import ast
 from faster_whisper import WhisperModel
 
+# Remove YAML intents config
+USER_HOME = os.path.expanduser("~")
+BIN_PATH = os.path.join(USER_HOME, 'dotfiles/home/bin/')
+
+
 class DuckTrace:
     # ANSI escape codes for colors and formatting
     RESET = "\033[0m"
@@ -410,6 +415,8 @@ async def parse_voice_command(text: str) -> list:
     except json.JSONDecodeError:
         await speak("Kunde inte tolka kommandot", urgent=True)
         return []
+
+
 def construct_yo_command(text: str) -> list:
     """Convert natural language to yo command"""
     # Use yo's built-in NLP
@@ -418,13 +425,9 @@ def construct_yo_command(text: str) -> list:
         capture_output=True, text=True
     )
     return json.loads(result.stdout)["command"]
- 
-        return {"transcription", transcription}
-
-    except Exception as e:
-        dt.error(f"error!")
-        return {"error": str(e)}
-
+    
+    
+    
 async def execute_yo_intent(command: list):
     """Execute yo command with voice-specific enhancements"""
     if not command:
