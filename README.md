@@ -119,26 +119,32 @@ $ yo bitch reboot laptop
 Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
-| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
-| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
-| `yo edit ` | config | yo CLI configuration mode |
+| **⚡ Productivity** | | |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
-| `yo health [--host]` | hc | Check system health status across your machines |
-| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
-| `yo reboot [--host]` |  | Force reboot and wait for host |
-| `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo scp ` |  | Move files between hosts interactively |
-| `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
+| **🌐 Networking** | | |
+| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
+| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo speed ` | st | Test your internets Download speed |
-| `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
-| `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | `yo tv --search [--device] [--mediaType]` | shield, s | Android TV Controller |
 | `yo tv2 --search [--device] [--mediaType]` | arris, a | Android TV Controller |
-| `yo weather [--location]` | weat | Tiny Weather Forecast. |
+| **🔐 Security & Encryption** | | |
+| `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
+| **🛠 System Management** | | |
+| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
+| `yo reboot [--host]` |  | Force reboot and wait for host |
+| `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
+| `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
+| **🧩 Miscellaneous** | | |
+| `yo edit ` | config | yo CLI configuration mode |
+| `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
+| `yo weather [--location]` | weat | Tiny Weather Forecast. |
+| **🧹 Maintenance** | | |
+| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
+| `yo health [--host]` | hc | Check system health status across your machines |
 ### ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`

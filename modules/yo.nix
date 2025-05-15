@@ -448,30 +448,62 @@ EOF
         ''
     ) cfg.scripts;
   };
-  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
-  helpText = (
-    let
-      rows = map (script:
-        let
-          aliasList = if script.aliases != [] then
-            concatStringsSep ", " script.aliases
-          else
-            "";
-          paramHint = let
-            optionsPart = lib.concatMapStringsSep " " (param: 
+#  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
+#  helpText = (
+#    let
+#      rows = map (script:
+#        let
+#          aliasList = if script.aliases != [] then
+#            concatStringsSep ", " script.aliases
+#          else
+#            "";
+#          paramHint = let
+#            optionsPart = lib.concatMapStringsSep " " (param: 
               # Show as optional if EITHER has default OR explicitly marked optional
-              if (param.default != null || param.optional) 
-              then "[--${param.name}]" 
+#              if (param.default != null || param.optional) 
+#              then "[--${param.name}]" 
+#              else "--${param.name}"
+#            ) script.parameters;
+#          in optionsPart;
+#          syntax = "\\`yo ${script.name} ${paramHint}\\`";
+#        in "| ${syntax} | ${aliasList} | ${script.description} |"
+#      ) (attrValues cfg.scripts);
+#    in
+#      concatStringsSep "\n" rows
+#  );
+
+  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
+  helpText = let
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
+    sortedCategories = lib.sort (a: b: a < b) (lib.attrNames groupedScripts);
+    
+    # Create table rows with category separators
+    rows = lib.concatMap (category:
+      let 
+        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+      in
+        [
+          # Category separator row
+          "| **${escapeMD category}** | | |"
+        ] 
+        ++ 
+        (map (script:
+          let
+            aliasList = if script.aliases != [] then
+              concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
+            paramHint = concatStringsSep " " (map (param:
+              if param.optional || param.default != null
+              then "[--${param.name}]"
               else "--${param.name}"
-            ) script.parameters;
-          in optionsPart;
-          syntax = "\\`yo ${script.name} ${paramHint}\\`";
-        in "| ${syntax} | ${aliasList} | ${script.description} |"
-      ) (attrValues cfg.scripts);
-    in
-      concatStringsSep "\n" rows
-  );
-        
+            ) script.parameters);
+            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
+          in
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+        ) scripts)
+    ) sortedCategories;
+  in concatStringsSep "\n" rows;  # Add this final expression  
+
 in {
   options.yo.scripts = mkOption {
     type = types.attrsOf scriptType;
@@ -505,6 +537,9 @@ in {
         
       formatDuplicate = alias: scripts: 
         "Alias '${alias}' used by multiple scripts: ${lib.concatStringsSep ", " scripts}";
+
+    #  Get generated help text from Nix-built file
+#    HELP_CONTENT=$(<${helpTextFile})
 
     in [
       {
@@ -571,7 +606,7 @@ $ yo bitch tv Duck Tales
 $ yo bitch reboot laptop 
 ```
 
-### ✨ Available Commands
+## ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
