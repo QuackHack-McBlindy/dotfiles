@@ -1,0 +1,7 @@
+[tool.poetry]
+name = "yo"
+version = "0.1.0"
+description = "Your Python environment"
+
+[tool.poetry.dependencies]
+python = "^3.12"

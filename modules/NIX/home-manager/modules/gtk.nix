@@ -1,0 +1,643 @@
+{ config, pkgs, ... }: 
+
+{
+
+  home.packages = with pkgs; [ pkgs.gtk3 pkgs.gtk4 ];
+
+  gtk = {
+    enable = true;
+ 
+ #   font.name = "Monospace 12";
+    iconTheme = {
+      #name = "Papirus-Dark";
+      #package = pkgs.papirus-icon-theme;
+   #   name = "gruvbox";
+   #   package = pkgs.gruvbox-dark-icons-gtk;
+ #     name = "sweet-folders";
+#      package = pkgs.sweet-folders;
+      name = "elementary-xfce-icon-theme";
+      package = pkgs.elementary-xfce-icon-theme;
+             
+    };
+    cursorTheme = {
+      name = "Bibata-Modern-Classic";
+      package = pkgs.bibata-cursors;
+    };
+    
+    gtk3 = {
+
+      bookmarks = [
+        "file:///home/pungkula/dotfiles ❄️ - 𝒹𝑜𝓉𝒻𝒾𝓁ℯ𝓈"
+        "file:///home/pungkula/.config 🛠️ - .𝒸ℴ𝓃𝒻𝒾𝑔"
+        "file:///home/pungkula/dotfiles    ❄️  ·  𝘿𝙤𝙩𝙛𝙞𝙡𝙚𝙨"
+        "file:///home/pungkula/.config     🛠️  ·  𝘾𝙤𝙣𝙛𝙞𝙜"
+        "file:///home/pungkula/projects    💡  ·  𝙋𝙧𝙤𝙟𝙚𝙘𝙩𝙨"
+        "file:///Pool                      💾  ·  𝙋𝙤𝙤𝙡"
+        "file:///Files                     🛡️  ·  𝙁𝙞𝙡𝙚 𝙑𝙖𝙪𝙡𝙩"
+      ];
+      extraConfig = {
+        Settings = ''
+          gtk-application-prefer-dark-theme=1
+          gtk-cursor-theme-name=Bibata-Modern-Classic
+        '';
+      };
+      extraCss = ''
+
+        /* General Window Styling */
+        window {
+          background-color: #000000; /* Dark background for Matrix theme */
+          color: #00FF00; /* Neon green text */
+          font-family: "Monospace", sans-serif;
+          font-size: 14px;
+          font-weight: normal;
+          transition: all 0.2s ease;
+        }
+        
+        .window.active {
+          border-color: #1abc9c;  /* Teal color */
+          border-width: 8px;      /* Makes the border thick */
+          border-style: solid;    /* Ensure the border style is solid */
+        }
+
+        
+        /* Content Area */
+        .view {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        /* Button Styles */
+        button {
+          background-color: #00A500; /* Matrix green */
+          color: #000000;
+          border-radius: 5px;
+          padding: 8px 12px;
+          border: 1px solid #009900;
+          font-weight: bold;
+          font-size: 14px;
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Button Hover Effects */
+        button:hover {
+          background-color: #009900;
+          color: #000000;
+        }
+        
+        button:active {
+          background-color: #008800;
+        }
+        
+        button:focus {
+          outline: none;
+          box-shadow: 0 0 5px 2px rgba(0, 255, 0, 0.8);
+        }
+        
+        /* Entry Fields (Text Boxes) */
+        entry, textview, textarea {
+          background-color: #1A1A1A; /* Darker gray for text inputs */
+          color: #00FF00;
+          border: 1px solid #00A500;
+          font-size: 14px;
+          font-weight: normal;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Entry Focus Effect */
+        entry:focus, textview:focus, textarea:focus {
+          border-color: #009900;
+          box-shadow: 0 0 5px 2px rgba(0, 255, 0, 0.8);
+        }
+        
+        /* Label and Other Text Elements */
+        label {
+          font-size: 14px;
+          font-family: "Monospace", sans-serif;
+          color: #00FF00;
+          font-weight: normal;
+        }
+        
+        /* Scrollbar Styling */
+        scrollbar {
+          background-color: #1A1A1A;
+          border-radius: 5px;
+        }
+        
+        scrollbar slider {
+          background-color: #00FF00; /* Matrix green */
+          border-radius: 5px;
+        }
+        
+        scrollbar slider:hover {
+          background-color: #00A500;
+        }
+        
+        /* TreeView and ListView (Hover and Selected Item Effects) */
+        treeview, listview {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        treeview:hover, listview:hover {
+          background-color: #009900;
+          cursor: pointer;
+        }
+        
+        treeview:selected, listview:selected {
+          background-color: #00A500;
+          color: #000000;
+        }
+        
+        /* Tooltips */
+        tooltip {
+          background-color: #00A500;
+          color: #000000;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Statusbar Styling */
+        statusbar {
+          background-color: #1A1A1A;
+          color: #00FF00;
+          padding: 5px;
+          font-size: 12px;
+        }
+        
+        /* Dialog Boxes */
+        dialog {
+          background-color: #000000;
+          color: #00FF00;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+        
+        dialog label, dialog p {
+          color: #00FF00;
+        }
+        
+        /* Menu Bar and Items */
+        menubar {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        menubar menuitem {
+          color: #00FF00;
+          font-size: 14px;
+          font-weight: normal;
+          transition: background-color 0.3s ease;
+        }
+        
+        /* Menu Item Hover and Active States */
+        menubar menuitem:hover {
+          background-color: #009900;
+        }
+        
+        menubar menuitem:active {
+          background-color: #00A500;
+        }
+        
+        menu {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        menuitem {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        menuitem:hover {
+          background-color: #009900;
+        }
+        
+        menuitem:active, menuitem:focus {
+          background-color: #00A500;
+          color: #000000;
+        }
+        
+        /* Header Bars */
+        headerbar {
+          background-color: #000000;
+          color: #00FF00;
+          padding: 5px;
+          font-size: 16px;
+          font-weight: bold;
+          border-bottom: 2px solid #00A500;
+        }
+        
+        headerbar button {
+          background-color: transparent;
+          color: #00FF00;
+          border: none;
+          font-size: 16px;
+        }
+        
+        headerbar button:hover {
+          background-color: #009900;
+          color: #00FF00;
+        }
+        
+        /* Smooth Transition Effects for Interactive Elements */
+        button, entry, textview, menuitem {
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Focused (Active) Window Titlebar */
+        titlebar:focus, titlebar:active {
+          background-color: #1a1a1a !important;  /* Darker gray for focused window */
+          color: #00FF00 !important; /* Green text for contrast */
+        }
+        
+        /* Window Title Bar */
+        titlebar { 
+          background-color: #2a2a2a;  /* Dark gray background */
+          color: #D3D3D3;  /* Light gray text for contrast */
+          font-size: 18px;
+          font-weight: bold;
+          padding: 10px;
+          border-bottom: 3px solid #00FF00; /* Bright green accent */
+        }
+
+        /* Focused Window Border */
+        window:focus {
+          background-color: #2a2a2a;
+          border: 2px solid #00FF00;
+          box-shadow: 0 0 10px 4px rgba(0, 255, 0, 0.8);
+        }
+        
+        /* Notebook Tabs */
+        notebook tab {
+          background-color: #00A500;
+          color: #000000;
+          padding: 8px;
+          border-radius: 5px;
+        }
+        
+        notebook tab:focus {
+          background-color: #00A500;
+          color: #000000;
+        }
+        
+        /* Custom Frames */
+        frame {
+          background-color: #000000;
+          color: #00FF00;
+          border-radius: 10px;
+          border: 1px solid #00A500;
+          padding: 10px;
+        }
+        
+        frame header {
+          background-color: #00A500;
+          color: #000000;
+          font-weight: bold;
+        }
+        
+        /* Context Menu and Right-click Styling */
+        .context-menu {
+          background-color: #000000;
+          color: #00FF00;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .context-menu menuitem {
+          color: #00FF00;
+          background-color: #000000;
+          font-size: 14px;
+          font-weight: normal;
+          padding: 8px;
+          border-radius: 5px;
+        }
+        
+        .context-menu menuitem:hover {
+          background-color: #009900;
+        }
+        
+        .context-menu menuitem:active, .context-menu menuitem:focus {
+          background-color: #00A500;
+          color: #000000;
+        }
+
+        /* Menu and Dropdown Menus */
+        menu, menubar, menuitem, menuitem:focus {
+          background-color: #000000 !important;
+          color: #00FF00 !important;
+          border: 1px solid #00A500 !important;
+        }
+
+        menuitem:hover, menuitem:active {
+          background-color: #009900 !important;
+          color: #000000 !important;
+        }
+
+      '';
+    };
+    
+    # GTK 4
+    gtk4 = {
+      extraConfig = {
+        Settings = ''
+          gtk-application-prefer-dark-theme=1
+          gtk-cursor-theme-name=Bibata-Modern-Classic
+        '';
+      };
+      extraCss = ''
+
+        /* General Window Styling */
+        window {
+          background-color: #000000; /* Dark background for Matrix theme */
+          color: #00FF00; /* Neon green text */
+          font-family: "Monospace", sans-serif;
+          font-size: 14px;
+          font-weight: normal;
+          transition: all 0.2s ease;
+        }
+        
+        .window.active {
+          border-color: #1abc9c;  /* Teal color */
+          border-width: 8px;      /* Makes the border thick */
+          border-style: solid;    /* Ensure the border style is solid */
+        }
+
+        
+        /* Content Area */
+        .view {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        /* Button Styles */
+        button {
+          background-color: #00A500; /* Matrix green */
+          color: #000000;
+          border-radius: 5px;
+          padding: 8px 12px;
+          border: 1px solid #009900;
+          font-weight: bold;
+          font-size: 14px;
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Button Hover Effects */
+        button:hover {
+          background-color: #009900;
+          color: #000000;
+        }
+        
+        button:active {
+          background-color: #008800;
+        }
+        
+        button:focus {
+          outline: none;
+          box-shadow: 0 0 5px 2px rgba(0, 255, 0, 0.8);
+        }
+        
+        /* Entry Fields (Text Boxes) */
+        entry, textview, textarea {
+          background-color: #1A1A1A; /* Darker gray for text inputs */
+          color: #00FF00;
+          border: 1px solid #00A500;
+          font-size: 14px;
+          font-weight: normal;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        /* Entry Focus Effect */
+        entry:focus, textview:focus, textarea:focus {
+          border-color: #009900;
+          box-shadow: 0 0 5px 2px rgba(0, 255, 0, 0.8);
+        }
+        
+        /* Label and Other Text Elements */
+        label {
+          font-size: 14px;
+          font-family: "Monospace", sans-serif;
+          color: #00FF00;
+          font-weight: normal;
+        }
+        
+        /* Scrollbar Styling */
+        scrollbar {
+          background-color: #1A1A1A;
+          border-radius: 5px;
+        }
+        
+        scrollbar slider {
+          background-color: #00FF00; /* Matrix green */
+          border-radius: 5px;
+        }
+        
+        scrollbar slider:hover {
+          background-color: #00A500;
+        }
+        
+        /* TreeView and ListView (Hover and Selected Item Effects) */
+        treeview, listview {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        treeview:hover, listview:hover {
+          background-color: #009900;
+          cursor: pointer;
+        }
+        
+        treeview:selected, listview:selected {
+          background-color: #00A500;
+          color: #000000;
+        }
+        
+        /* Tooltips */
+        tooltip {
+          background-color: #00A500;
+          color: #000000;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* Statusbar Styling */
+        statusbar {
+          background-color: #1A1A1A;
+          color: #00FF00;
+          padding: 5px;
+          font-size: 12px;
+        }
+        
+        /* Dialog Boxes */
+        dialog {
+          background-color: #000000;
+          color: #00FF00;
+          border-radius: 10px;
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+        }
+        
+        dialog label, dialog p {
+          color: #00FF00;
+        }
+        
+        /* Menu Bar and Items */
+        menubar {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        menubar menuitem {
+          color: #00FF00;
+          font-size: 14px;
+          font-weight: normal;
+          transition: background-color 0.3s ease;
+        }
+        
+        /* Menu Item Hover and Active States */
+        menubar menuitem:hover {
+          background-color: #009900;
+        }
+        
+        menubar menuitem:active {
+          background-color: #00A500;
+        }
+        
+        menu {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        menuitem {
+          background-color: #000000;
+          color: #00FF00;
+        }
+        
+        menuitem:hover {
+          background-color: #009900;
+        }
+        
+        menuitem:active, menuitem:focus {
+          background-color: #00A500;
+          color: #000000;
+        }
+        
+        /* Header Bars */
+        headerbar {
+          background-color: #000000;
+          color: #00FF00;
+          padding: 5px;
+          font-size: 16px;
+          font-weight: bold;
+          border-bottom: 2px solid #00A500;
+        }
+        
+        headerbar button {
+          background-color: transparent;
+          color: #00FF00;
+          border: none;
+          font-size: 16px;
+        }
+        
+        headerbar button:hover {
+          background-color: #009900;
+          color: #00FF00;
+        }
+        
+        /* Smooth Transition Effects for Interactive Elements */
+        button, entry, textview, menuitem {
+          transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Focused (Active) Window Titlebar */
+        titlebar:focus, titlebar:active {
+          background-color: #1a1a1a !important;  /* Darker gray for focused window */
+          color: #00FF00 !important; /* Green text for contrast */
+        }
+        
+        /* Window Title Bar */
+        titlebar { 
+          background-color: #2a2a2a;  /* Dark gray background */
+          color: #D3D3D3;  /* Light gray text for contrast */
+          font-size: 18px;
+          font-weight: bold;
+          padding: 10px;
+          border-bottom: 3px solid #00FF00; /* Bright green accent */
+        }
+
+        /* Focused Window Border */
+        window:focus {
+          background-color: #2a2a2a;
+          border: 2px solid #00FF00;
+          box-shadow: 0 0 10px 4px rgba(0, 255, 0, 0.8);
+        }
+        
+        /* Notebook Tabs */
+        notebook tab {
+          background-color: #00A500;
+          color: #000000;
+          padding: 8px;
+          border-radius: 5px;
+        }
+        
+        notebook tab:focus {
+          background-color: #00A500;
+          color: #000000;
+        }
+        
+        /* Custom Frames */
+        frame {
+          background-color: #000000;
+          color: #00FF00;
+          border-radius: 10px;
+          border: 1px solid #00A500;
+          padding: 10px;
+        }
+        
+        frame header {
+          background-color: #00A500;
+          color: #000000;
+          font-weight: bold;
+        }
+        
+        /* Context Menu and Right-click Styling */
+        .context-menu {
+          background-color: #000000;
+          color: #00FF00;
+          border-radius: 5px;
+          box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        }
+        
+        .context-menu menuitem {
+          color: #00FF00;
+          background-color: #000000;
+          font-size: 14px;
+          font-weight: normal;
+          padding: 8px;
+          border-radius: 5px;
+        }
+        
+        .context-menu menuitem:hover {
+          background-color: #009900;
+        }
+        
+        .context-menu menuitem:active, .context-menu menuitem:focus {
+          background-color: #00A500;
+          color: #000000;
+        }
+
+        /* Menu and Dropdown Menus */
+        menu, menubar, menuitem, menuitem:focus {
+          background-color: #000000 !important;
+          color: #00FF00 !important;
+          border: 1px solid #00A500 !important;
+        }
+
+        menuitem:hover, menuitem:active {
+          background-color: #009900 !important;
+          color: #000000 !important;
+        }
+
+      '';
+    };
+  };
+}
+

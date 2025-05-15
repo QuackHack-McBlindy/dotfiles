@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+BIN_DIR="$(dirname "$0")/../bin"
+
+help() {
+    echo "Usage: yo [COMMAND] [ARGS...]"
+    echo "Execute scripts from the $BIN_DIR directory"
+    echo
+    echo "Available commands:"
+    echo "==================="
+    
+    # Find all executable files in bin directory
+    find "$BIN_DIR" -maxdepth 1 -type f -executable | while read -r script; do
+        command_name=$(basename "$script")
+        description=$(grep -m 1 '^## DESCRIPTION:' "$script" | cut -d ' ' -f3-)
+        printf "%-15s %s\n" "$command_name" "${description:-No description available}"
+    done | sort
+}
+
+if [[ "$1" == "--help" ]]; then
+    help
+    exit 0
+fi
+
+if [ $# -eq 0 ]; then
+    echo "Error: No command provided"
+    help
+    exit 1
+fi
+
+command="$1"
+shift
+script_path="$BIN_DIR/$command"
+
+if [ -x "$script_path" ]; then
+    exec "$script_path" "$@"
+else
+    echo "Error: Command '$command' not found"
+    help
+    exit 1
+fi

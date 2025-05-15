@@ -1,0 +1,464 @@
+# # https://github.com/drduh/YubiKey-Guide/
+# NixOS livesystem to generate yubikeys in an air-gapped manner
+# $ nixos-generate -f iso -c yubikey-env.nix
+
+-------------------------
+CERTIFY KEY
+# Pass Phrase | $CERTIFY_PASS
+export CERTIFY_PASS=$(LC_ALL=C tr -dc 'A-Z1-9' < /dev/urandom | \
+  tr -d "1IOS5U" | fold -w 30 | sed "-es/./ /"{1..26..5} | \
+  cut -c2- | tr " " "-" | head -1) ; printf "\n$CERTIFY_PASS\n\n"
+# CERTIFY_KEY  
+echo "$CERTIFY_PASS" | gpg --batch --passphrase-fd 0 \
+    --quick-generate-key "$IDENTITY" "$KEY_TYPE" cert never  
+      
+------------------------
+# GENERATE SUBKEYS
+for SUBKEY in sign encrypt auth ; do \
+  echo "$CERTIFY_PASS" | gpg --batch --pinentry-mode=loopback --passphrase-fd 0 \
+      --quick-add-key "$KEYFP" "$KEY_TYPE" "$SUBKEY" "$EXPIRATION"
+done
+# Verify
+gpg -K
+----------------------------
+###################
+# 1/10 > RUN VM
+
+nixos-generate --run -f vm -c yubikey-env.nix
+
+#############################
+
+###################
+# 2/10 > env
+
+export GNUPGHOME=$(mktemp -d -t gnupg-$(date +%Y-%m-%d)-XXXXXXXXXX)
+cd $GNUPGHOME
+wget https://raw.githubusercontent.com/drduh/config/master/gpg.conf
+
+#############################
+
+###################
+# 3/10 > this is gnu.cfg
+
+personal-cipher-preferences AES256 AES192 AES
+personal-digest-preferences SHA512 SHA384 SHA256
+personal-compress-preferences ZLIB BZIP2 ZIP Uncompressed
+default-preference-list SHA512 SHA384 SHA256 AES256 AES192 AES ZLIB BZIP2 ZIP Uncompressed
+cert-digest-algo SHA512
+s2k-digest-algo SHA512
+s2k-cipher-algo AES256
+charset utf-8
+no-comments
+no-emit-version
+no-greeting
+keyid-format 0xlong
+list-options show-uid-validity
+verify-options show-uid-validity
+with-fingerprint
+require-cross-certification
+no-symkey-cache
+armor
+use-agent
+throw-keyids
+
+
+#############################
+
+###################
+# 4/10 > export id
+
+export IDENTITY="YubiKey User <yubikey@example>"
+export EXPIRATION=2026-05-01
+#############################
+
+###################
+# 5/10 > certify passphrase
+BROKEN!
+
+export CERTIFY_PASS=$(LC_ALL=C tr -dc 'A-Z1-9' < /dev/urandom | \
+  tr -d "1IOS5U" | fold -w 30 | sed "-es/./ /"{1..26..5} | \
+  cut -c2- | tr " " "-" | head -1) ; printf "\n$CERTIFY_PASS\n\n"
+
+# PRINT
+lp -d Printer-Name passphrase.csv
+
+#############################
+
+###################
+# 6/10 > THIS IS THE MAIN KEY
+# KEEP OFFLINE ATT ALL TIMES
+
+echo "$CERTIFY_PASS" | gpg --batch --passphrase-fd 0 \
+    --quick-generate-key "$IDENTITY" "$KEY_TYPE" cert never
+
+
+#############################
+
+###################
+# 7/10 > Set and view the Certify key identifier and fingerprint for use later:
+
+export KEYID=$(gpg -k --with-colons "$IDENTITY" | awk -F: '/^pub:/ { print $5; exit }')
+
+export KEYFP=$(gpg -k --with-colons "$IDENTITY" | awk -F: '/^fpr:/ { print $10; exit }')
+
+printf "\nKey ID: %40s\nKey FP: %40s\n\n" "$KEYID" "$KEYFP"
+
+#############################
+
+TO BE CONTINUED
+
+###################
+# 8/10 > 
+
+
+#############################
+
+###################
+# 9/10 > 
+
+
+#############################
+
+
+###################
+# 10/10 > 
+
+
+#############################
+# QUICK CRYPT GUIDE #
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Learn PGP</title>
+    <meta charset="utf-8">
+    <style>
+      @import url(https://fonts.googleapis.com/css?family=Montserrat);
+      @import url(https://fonts.googleapis.com/css?family=Lato:400,700,400italic);
+      @import url(https://fonts.googleapis.com/css?family=Source+Code+Pro:400,700,400italic);
+
+      body { font-family: 'Lato'; }
+      h1, h2, h3 {
+        font-family: 'Montserrat';
+        font-weight: normal;
+      }
+      .remark-code, .remark-inline-code { font-family: 'Source Code Pro'; }
+    </style>
+  </head>
+  <body>
+    <textarea id="source">
+
+class: center, middle
+
+# Learn PGP
+
+## SIPB CPW, 07 April 2017
+
+### Anish Athalye (aathalye), Merry Mou (mmou), Adam Suhl (asuhl)
+
+---
+
+class: center, middle
+
+![](https://imgs.xkcd.com/comics/pgp.png)
+
+---
+
+# Overview
+
+1. Theoretical PGP / Intro to Security
+
+2. Practical PGP - Installation, Usage, Demo
+
+3. Do it yourself!
+
+---
+
+class: center, middle
+
+# THEORETICAL PGP!
+
+---
+
+# The Problem
+
+I want to send and receive email from Bob and make sure:
+
+* No one else can read OR modify its contents
+
+* I trust that Bob is Bob, and Bob trusts that I am me
+
+???
+
+Email is like a postcard -- anyone can see its contents in transit (or even modify the message), and you can put any "From" address on it you want
+
+when you're talking to someone on the internet you don't know
+
+* if the person you're talking is who they say they are (authentication)
+* if someone (either your communication client or a 3rd party) is intercepting (either reading or manipulating) your messages (confidentiality, integrity)
+
+---
+
+# The Solution
+
+Use **public key cryptography** to achieve **end-to-end encryption**
+
+---
+
+# Public Key Cryptography (tl;dr edition)
+
+* Each person has a (private key, public key) pair
+
+* Two basic sets of operations:
+* Encrypt / Decrypt
+      ```
+      encrypt(plaintext, public key) -> ciphertext
+      decrypt(ciphertext, private key) -> plaintext
+      ```
+* Sign / Verify
+      ```
+      sign(data, private key) -> signature
+      verify(data, signature, public key) -> ok?
+      ```
+
+???
+
+Encryption: usually for ensuring data confidentiality. usually means encrypting your data (a message) into cyphertext with the public key of the intended recipient.
+
+actions: encrypt, decrypt
+
+Signing: usually for verifying data integrity and authentication. usually means signing the hash (which is smaller) the of the data with your private key to create a signature. 
+
+actions: sign, verify
+
+Lockbox analogy: Public key encryption is like one of those locked ballot box / suggestion box things. Anyone can (with the public key) put something into a lockbox. Once something is in the lockbox, only the person with the (private) key can open the box to read what's inside. Don't think about the public key as a key, think about it as a lockbox.
+
+---
+
+# Trust Models
+
+* How do you know that you can trust a key?
+
+* Centralized (e.g. HTTPS)
+
+    * Certificate Authority hierarchy
+
+* Decentralized (e.g. PGP)
+
+    * Web of Trust
+
+???
+
+Also cover: difference between trust and validity
+
+---
+
+# Finding and Trusting Keys
+
+* **Public key certificate server**: databases of public keys of people (of unverified identities), so that you can send encrypted messages (signed with their public key) to them.
+
+* **Your keyring**: list of public keys whose owners' identities are verified by you
+
+* **Web of trust**: "web" of public keys whose owners' identities are verified, usually via in person contact (e.g. PGP key signing party)
+
+---
+
+# Using your Key
+
+* Signing someone else's key to show that you trust that their key belongs to them (e.g. during a PGP key signing party)
+
+* Signing your software release so that people can verify that you wrote it and that it hasn't been modified
+
+* Signing your email and attaching the signature with it so that the receiver can verify that you wrote it and that it hasn't been modified
+
+* Encrypting your email and sending the ciphertext so that no one else can tamper your message (often you'll also sign the email)
+
+* Encrypting and signing your backups in Amazon S3 to make sure that Amazon can't mess with your data and can't read your secret files
+
+---
+
+# Limitations of PGP
+### (aka, ways the NSA can still get you)
+### (aka, why PGP is only "pretty good" privacy)
+
+* Endpoint security
+
+* Metadata (e.g., subject line)
+
+* User error
+
+* Scalability
+
+???
+
+endpoint security: if your computer (or your recipient's computer) has NSA malware on it then PGP won't stop them from reading your messages (or stealing your key).
+
+metadata: Email headers are not encrypted: the NSA can see the subject line, the date you sent, who you sent it to, etc.
+
+ease of use: All your recipients need to be using PGP, so it doesn't scale well to mailing lists
+
+---
+
+class: center, middle
+
+# PRACTICAL PGP!
+
+---
+
+# PGPGP
+
+* OpenPGP - the standard https://tools.ietf.org/html/rfc4880
+
+* PGP - 1st implementation of OpenPGP standard, now commercial proprietary software owned by Symantec
+
+* GPG - GNU Private Guard, open source implementation of the OpenPGP standard, the thing everyone uses
+
+(But in reality, people use all three terms interchangeably)
+
+---
+
+# Installing PGP: Mac OS
+
+* Graphical clients also available (https://gpgtools.org/)
+
+* Or, for CLI client only, `brew install gpg2`
+
+* EFF tutorial on installing https://ssd.eff.org/en/module/how-use-pgp-mac-os-x
+
+* With Apple Mail: https://gpgtools.org/
+
+---
+
+# Installing PGP: Linux
+
+* `apt install gnupg` (or "pacman -S gnupg", etc.)
+
+* https://ssd.eff.org/en/module/how-use-pgp-linux
+
+---
+
+# Installing PGP: Windows
+
+* `¯\_(ツ)_/¯`
+
+* https://ssd.eff.org/en/module/how-use-pgp-windows
+
+* How to download GPG4Win + Thunderbird integration
+
+* tested, once this is installed, the CLI client works (in `cmd.exe`)
+
+---
+
+# Basic Operations
+
+* Create your key
+    * `gpg --gen-key`
+
+* Figure out your key fingerprint
+    * `gpg --list-secret-keys --fingerprint`
+
+* Upload key to keyserver
+    * `gpg --keyserver pgp.mit.edu --send-key <fingerprint or key id>`
+
+???
+
+We're going over command line way of doing it -- on Mac there is a GUI way of doing this that may be easier
+
+If you already have a key, figure out if you know the passphrase for it. If not, maybe it's time to create a new key (and optionally delete the old one).
+
+---
+
+# Basic Operations (continued)
+
+* Download a key from the keyservers
+    * `gpg --recv-key <fingerprint or key id>`
+* Sign a blob of text
+    * `gpg --clearsign`
+* Sign and encrypt a blob of text
+    * `gpg --sign --encrypt --armor`
+* Decrypt a blob of text
+    * `gpg --decrypt`
+* Verify a signature
+    * `gpg --verify`
+
+---
+
+# Signing keys
+
+* Verify the person's identity (e.g., with photo ID)
+* Download their key from a keyserver:
+    * `gpg --keyserver pgp.mit.edu --recv-key <their fingerprint or key id>`
+* Sign the key
+    * `gpg --sign-key`
+* Check with the person that the fingerprint you see is correct before saying "yes"!
+* Send their signed key to the keyserver
+    * `gpg --keyserver pgp.mit.edu --send-key <their fingerprint or key id>`
+
+<div class="center middle">
+    <img src="https://imgs.xkcd.com/comics/responsible_behavior.png">
+</div>
+
+---
+
+# Encrypt/decrypt your email
+
+* Thunderbird: Install Enigmail
+    * https://ssd.eff.org has tutorials for setting up for setting up Enigmail with Thunderbird
+
+* Apple Mail
+    * https://gpgtools.org/
+
+* Gmail:
+    * Write email in a text editor
+    * Encrypt and sign the email
+    * Paste it into gmail
+
+---
+
+# Other key maintenance stuff
+
+* Backing up your key (`.gnupg` directory)
+
+* Key expiration
+
+* Revocation certificates (make one!)
+
+* Key comments
+
+---
+
+# Resources
+
+* Slides at git.io/learn-pgp
+
+* GPG Best Practices https://riseup.net/en/security/message-security/openpgp/gpg-best-practices
+
+* EFF Surveillance Self Defense https://ssd.eff.org/
+
+---
+
+# Key signing party
+
+* Strengthen the web of trust!
+
+* Protocol:
+    * Find your key ID by `gpg --list-secret-keys`
+    * Upload your key: `gpg --keyserver hkps://pgp.mit.edu --send-keys [key id]`
+    * Find your *full* key fingerprint by `gpg --list-secret-keys --fingerprint`
+    * Email your *full* key fingerprint to `aathalye@mit.edu`
+    * Get paper copies of your key/fingerprint/uid, verify that it's correct
+    * In pairs, verify each others' identity (using government ID) and exchange keys
+    * Download, sign, and upload all the keys
+        * Download one key: `gpg --keyserver hkps://pgp.mit.edu --recv-keys [fingerprint]`
+        * Sign one key: `gpg --sign-key [fingerprint]`
+        * Upload all keys: `gpg --keyserver hkps://pgp.mit.edu --send-keys`
+
+    </textarea>
+    <script src="https://remarkjs.com/downloads/remark-latest.min.js">
+    </script>
+    <script>
+      var slideshow = remark.create();
+    </script>
+  </body>
+</html>
+

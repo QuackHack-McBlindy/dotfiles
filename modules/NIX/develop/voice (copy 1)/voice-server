@@ -1,0 +1,33 @@
+#!/nix/store/vwnxncj6sb1wncpdlc07nnvyj3zik0y7-python3-3.12.9-env/bin/python3
+from fastapi import FastAPI, File, UploadFile
+import uvicorn
+import tempfile
+import numpy as np
+import soundfile as sf
+from faster_whisper import WhisperModel
+
+app = FastAPI()
+model = WhisperModel("base")
+
+@app.post("/transcribe")
+async def transcribe_audio(audio: UploadFile = File(...)):
+    try:
+        # Save the received audio to a temp file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+            temp_audio.write(audio.file.read())
+            temp_audio_path = temp_audio.name
+
+        # Load audio and transcribe
+        audio_data, sample_rate = sf.read(temp_audio_path)
+        segments, _ = model.transcribe(temp_audio_path)
+
+        # Combine transcription
+        transcription = " ".join(segment.text for segment in segments)
+
+        return {"transcription": transcription}
+
+    except Exception as e:
+        return {"error": str(e)}
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8765)

@@ -1,6 +1,6 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25%05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
@@ -31,8 +31,6 @@ __that deploys, docs, and ducks around__ 🦆✨
 *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** <br>
 *(extensions, bookmarks and settings)* 
-- 📺 **[Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** <br>
-*(declarative containerized Servarr stack)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** <br>
 *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** <br>
@@ -247,11 +245,10 @@ git+file:///home/pungkula/dotfiles
 
 ## 💬 **Comments?**
 
-**Have questions, suggestions or just want to tell me my flake sucks?**   
+**Nix Talk? Or tell me tiny flake sucks?**   
 **That's cool!**  
 **I am all ears. 👀**  
- **Always down to talk Nix or code in general**
- 
+
 [![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
 [![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=for-the-badge&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/quackhack-mcblindy/dotfiles/discussions)

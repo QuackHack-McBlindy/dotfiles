@@ -1,0 +1,96 @@
+#!/usr/bin/env python3
+"""📦 yo - Python environment Swiss Army knife for NixOS"""
+
+import json
+import os
+import subprocess
+from pathlib import Path
+
+import click
+from rich.console import Console
+from rich.table import Table
+from rich.tree import Tree
+
+# Configuration paths from XDG variables
+XDG_DATA_HOME = Path(os.getenv("XDG_DATA_HOME", Path.home() / ".local" / "share"))
+YO_INFO = XDG_DATA_HOME / "yo" / "info.json"
+HOOKS_DIR = XDG_DATA_HOME / "yo" / "hooks.d"
+
+console = Console()
+
+@click.group(context_settings={"help_option_names": ["-h", "--help"]})
+@click.version_option(message="%(prog)s v%(version)s", package_name="yo")
+def cli():
+    """Manage Python environments and workflows in NixOS"""
+    pass
+
+@cli.command()
+@click.option("--json", "as_json", is_flag=True, help="Output raw JSON data")
+def info(as_json):
+    """Show environment configuration details"""
+    try:
+        with open(YO_INFO) as f:
+            data = json.load(f)
+        
+        if as_json:
+            console.print_json(data=data)
+            return
+
+        table = Table(title="📦 yo Environment Configuration", show_header=False)
+        table.add_column("Key", style="cyan")
+        table.add_column("Value", style="magenta")
+
+        for k, v in data.items():
+            table.add_row(k, str(v))
+        
+        console.print(table)
+    
+    except Exception as e:
+        console.print(f"[red]Error loading info: {str(e)}[/]")
+        raise click.Abort()
+
+@cli.command()
+@click.argument("hook_type", required=False)
+def hooks(hook_type):
+    """List available workflow hooks"""
+    tree = Tree("📂 Available Hooks", guide_style="dim")
+    
+    hooks = [f.stem for f in HOOKS_DIR.glob("*.sh")] if HOOKS_DIR.exists() else []
+    
+    if hook_type:
+        filtered = [h for h in hooks if h.startswith(hook_type)]
+        if not filtered:
+            console.print(f"[yellow]No hooks found for type '{hook_type}'[/]")
+            return
+        hooks = filtered
+
+    for hook in sorted(hooks):
+        tree.add(f"🎣 {hook}")
+
+    console.print(tree)
+
+@cli.command()
+@click.argument("script")
+@click.argument("args", nargs=-1)
+def run(script, args):
+    """Execute a managed script with environment setup"""
+    script_path = Path(os.getenv("YO_HOME")) / "scripts" / f"{script}.sh"
+    
+    if not script_path.exists():
+        console.print(f"[red]Script {script} not found![/]")
+        raise click.Abort()
+
+    cmd = ["bash", str(script_path)] + list(args)
+    try:
+        subprocess.run(cmd, check=True)
+    except subprocess.CalledProcessError as e:
+        console.print(f"[red]Script failed with code {e.returncode}[/]")
+        raise click.Abort()
+
+@cli.command()
+def shell():
+    """Spawn a configured Python shell"""
+    subprocess.run(["ipython"], env=os.environ)
+
+if __name__ == "__main__":
+    cli()

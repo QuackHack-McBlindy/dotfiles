@@ -1,0 +1,25 @@
+#!/nix/store/9k6ffwhfv4r3fp2nsmhm24vlc3rgymi5-python3-3.12.9-env/bin/python3
+import sounddevice as sd
+import numpy as np
+import requests
+
+SERVER_URL = "http://localhost:8765/transcribe"  # Updated to port 8765
+AUDIO_DURATION = 5  # Seconds to record
+SAMPLE_RATE = 16000  # Hz
+
+def record_audio():
+    print("Recording...")
+    audio = sd.rec(int(AUDIO_DURATION * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1, dtype=np.int16)
+    sd.wait()
+    print("Recording complete.")
+    return audio
+
+def send_audio_to_server(audio):
+    print("Sending audio to server...")
+    response = requests.post(SERVER_URL, files={"audio": audio.tobytes()})
+    print("Transcription:", response.text)
+
+if __name__ == "__main__":
+    audio = record_audio()
+    send_audio_to_server(audio)
+

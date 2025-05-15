@@ -5,13 +5,16 @@
   inputs,
   self
 } : let
-  pythonPackages = ps: [ ps.numpy ps.requests ps.lz4 ];
+  pythonPackages = ps: [ ps.numpy ps.pip ps.requests ps.lz4 ];
   myPython = pkgs.python3.withPackages pythonPackages;
 
   myBuildInputs = with pkgs; [
     git
     nixpkgs-fmt
     myPython
+
+    
+    virtualenv
   ];
 
   pythonPkgNames = builtins.map (pkg: pkg.pname or pkg.name) (pythonPackages pkgs.python3.pkgs);
@@ -28,6 +31,19 @@ in {
     echo ""
     ${formatHeader "Python packages:"}
     ${pkgs.lib.concatMapStringsSep "\n" formatRed pythonPkgNames}
+    
+    
+    if [ ! -d ".venv" ]; then
+      virtualenv .venv
+      source .venv/bin/activate
+
+      pip install https://github.com/google-coral/pycoral/releases/download/v2.0.0/tflite_runtime-2.5.0-cp310-cp310-linux_x86_64.whl
+
+    else
+      source .venv/bin/activate
+    fi
+    
+    
   '';
 
   NIX_CONFIG = "system = ${system}";
