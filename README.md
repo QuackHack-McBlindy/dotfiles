@@ -101,23 +101,15 @@ $ yo deploy laptop
 ### **Usage Examples:**  
 The yo CLI tool supports flexible parameter parsing through two primary mechanisms:  
 
-1. **Named Parameters:**  
-
 ```bash
+# Named Parameters  
 $ yo deploy --host laptop --flake /home/pungkula/dotfiles
-```
 
-2. **Positional Parameters:**  
-
-```bash
+# Positional Parameters
 $ yo deploy laptop /home/pungkula/dotfiles
-```
 
-3. **Scripts can also be executed by voice, say:**  
-
-```bash
-$ yo bitch tv Duck Tales 
-$ yo bitch reboot laptop 
+# Scripts can also be executed by voice, say
+$ yo bitch deploy laptop
 ```
 
 ### ✨ Available Commands
@@ -161,7 +153,6 @@ For specific command help:
 
 ## ❄️ **Flake**
 
-
 *I like to keep my flakes cool & tiny.*  
 *At first glance, this tiny flake may seem like an ordinary tiny flake*  
 *But considering how the modules are constructed,*  
@@ -202,7 +193,7 @@ Display Flake
 <!-- FLAKE_END -->
 </details>
 
-
+<br>
 
 <details><summary><strong>
 Display Flake Outputs
@@ -254,16 +245,15 @@ git+file:///home/pungkula/dotfiles
 
 <br><br>
 
-## 💬 **Questions?**
+## 💬 **Comments?**
 
-**Talk Nix? Or just tell me my flake sucks?**   
+**Have questions, suggestions or just want to tell me my flake sucks?**   
 **That's cool!**  
 **I am all ears. 👀**  
+ **Always down to talk Nix or code in general**
  
- 
-[![Discord](https://img.shields.io/badge/Discord-User-5865F2?style=for-the-badge&logo=discord&logoColor=black)](https://discordapp.com/users/675530282849533952)
-[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=black)](mailto:isthisrandomenough@protonmail.com)
-
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-dotfiles-181717?style=for-the-badge&logo=github&logoColor=purple)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
+[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
+[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=for-the-badge&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
 
 

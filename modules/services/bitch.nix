@@ -4,29 +4,38 @@
     pkgs, 
     ... 
 } : {
-  config = lib.mkIf (lib.elem "bitchr" config.this.host.modules.services) {
+  config = lib.mkIf (lib.elem "bitch" config.this.host.modules.services) {
+    environment.systemPackages = [ 
+        pkgs.wyoming-faster-whisper
+        pkgs.wyoming-piper
+        pkgs.wyoming-openwakeword
+        pkgs.python312Packages.wyoming
+        pkgs.wyoming-satellite
+    ];
+    
+    
     # Satellite
-    services.wyoming.satellite = {
-        enable = true;
-        package = pkgs.wyoming-satellite;
-        user = "voice";
-        group = "voice";
-        uri = "tcp://0.0.0.0:10700";
-        name = "desktop";
-        area = "vardagsrum";
-        microphone = {
-            command = "arecord -r 16000 -c 1 -f S16_LE -t raw";
-            autoGain = 10;
-            noiseSuppression = 1;
-        };
-        sound.command = "aplay -r 22050 -c 1 -f S16_LE -t raw";
-        sounds = {
-            awake = "/pungkula/.config/wyoming/sounds/awake.wav";
-            done = "/pungkula/.config/wyoming/sounds/done.wav";
-        };
-        vad.enable = true;
+#    services.wyoming.satellite = {
+#        enable = true;
+#        package = pkgs.wyoming-satellite;
+#        user = "voice";
+#        group = "voice";
+#        uri = "tcp://0.0.0.0:10700";
+#        name = "desktop";
+#        area = "vardagsrum";
+#        microphone = {
+#            command = "arecord -r 16000 -c 1 -f S16_LE -t raw";
+#            autoGain = 10;
+#            noiseSuppression = 1;
+#        };
+#        sound.command = "aplay -r 22050 -c 1 -f S16_LE -t raw";
+#        sounds = {
+#            awake = "/pungkula/.config/wyoming/sounds/awake.wav";
+#            done = "/pungkula/.config/wyoming/sounds/done.wav";
+#        };
+#        vad.enable = true;
         #  extraArgs = [ "--some-extra-arg" ];
-    };
+#    };
 
     # Wake Word
     services.wyoming.openwakeword = {
@@ -59,24 +68,24 @@
     };
   
     # Text to Speech
-    services.wyoming.piper = {
-        package = pkgs.wyoming-piper;
-        servers = {
-            "piper" = {
-                enable = true;
-                piper = pkgs.piper-tts;
-                voice = "sv_SE-nst-medium";
-                uri = "tcp://0.0.0.0:10200";
-                speaker = 0;
-                noiseScale = 0.667;
-                noiseWidth = 0.333;
-                lengthScale = 1.0;
-                extraArgs = [
-                    "--piper" "/etc/profiles/per-user/pungkula/bin/piper"
-                    "--data-dir" "/home/pungkula/.local/share/piper"
-                    "--download-dir" "/home/pungkula/.local/share/piper"
-                ];
-            };
-        };
-    };
+#    services.wyoming.piper = {
+#        package = pkgs.wyoming-piper;
+#        servers = {
+#            "piper" = {
+#                enable = true;
+#                piper = pkgs.piper-tts;
+#                voice = "sv_SE-nst-medium";
+#                uri = "tcp://0.0.0.0:10200";
+#                speaker = 0;
+#                noiseScale = 0.667;
+#                noiseWidth = 0.333;
+#                lengthScale = 1.0;
+#                extraArgs = [
+#                    "--piper" "/etc/profiles/per-user/pungkula/bin/piper"
+#                    "--data-dir" "/home/pungkula/.local/share/piper"
+#                    "--download-dir" "/home/pungkula/.local/share/piper"
+#                ];
+#            };
+#        };
+  #  };
   };}  
