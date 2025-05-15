@@ -25,12 +25,18 @@ __that deploys, docs, and ducks around__ 🦆✨
 
 ## **📌 Highlights**
 
-- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments & magic nix+git syncronized rollbaks)*    
-- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
-- 📺 **[Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(declarative containerized Servarr stack)* 
-- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
-- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
+- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** <br>
+*(auto symlinks ./home to /home)*  
+- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** <br> 
+*(for quick-quack deployments, magicly syncronized rollbaks & voice execution)*    
+- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** <br>
+*(extensions, bookmarks and settings)* 
+- 📺 **[Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** <br>
+*(declarative containerized Servarr stack)* 
+- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** <br>
+*(GTK, icons, cursor, Discord, Firefox & Shell)* 
+- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** <br>
+*(CLI usage, Git tags & README.md)*
 
 <br><br>
 
@@ -231,13 +237,15 @@ git+file:///home/pungkula/dotfiles
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
-    │   └───yo-bitch omitted (use '--all-systems' to show)
+    │   ├───yo-bitch omitted (use '--all-systems' to show)
+    │   └───yo-mic omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───say: package 'say'
         ├───tv: package 'tv'
-        └───yo-bitch: package 'yo-bitch'
+        ├───yo-bitch: package 'yo-bitch'
+        └───yo-mic: package 'yo-mic'
 ```
   <!-- TREE_END -->
 
