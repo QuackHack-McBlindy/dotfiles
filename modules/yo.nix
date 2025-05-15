@@ -475,15 +475,18 @@ EOF
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   helpText = let
     groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
-    sortedCategories = lib.sort (a: b: a < b) (lib.attrNames groupedScripts);
-    
+    sortedCategories = lib.sort (a: b: 
+      if a == "🛠 System Management" then true
+      else if b == "🛠 System Management" then false
+      else a < b
+    ) (lib.attrNames groupedScripts);
+  
     # Create table rows with category separators
     rows = lib.concatMap (category:
       let 
         scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
       in
         [
-          # Category separator row
           "| **${escapeMD category}** | | |"
         ] 
         ++ 
@@ -502,8 +505,7 @@ EOF
             "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
         ) scripts)
     ) sortedCategories;
-  in concatStringsSep "\n" rows;  # Add this final expression  
-
+  in concatStringsSep "\n" rows;
 in {
   options.yo.scripts = mkOption {
     type = types.attrsOf scriptType;

@@ -118,6 +118,11 @@ $ yo bitch reboot laptop
 Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
+| **🛠 System Management** | | |
+| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
+| `yo reboot [--host]` |  | Force reboot and wait for host |
+| `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
+| `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | **⚡ Productivity** | | |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
@@ -132,11 +137,6 @@ Set default values for your parameters to have them marked [optional]
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
-| **🛠 System Management** | | |
-| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
-| `yo reboot [--host]` |  | Force reboot and wait for host |
-| `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
-| `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | **🧩 Miscellaneous** | | |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
@@ -249,10 +249,11 @@ git+file:///home/pungkula/dotfiles
 **Talk Nix? Or just tell me my flake sucks?**   
 **That's cool!**  
 **I am all ears. 👀**  
-  
+ 
+ 
 [![Discord](https://img.shields.io/badge/Discord-User-5865F2?style=for-the-badge&logo=discord&logoColor=black)](https://discordapp.com/users/675530282849533952)
 [![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=black)](mailto:isthisrandomenough@protonmail.com)
 
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Repo-181717?style=for-the-badge&logo=github&logoColor=purple)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-dotfiles-181717?style=for-the-badge&logo=github&logoColor=purple)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
 
 
