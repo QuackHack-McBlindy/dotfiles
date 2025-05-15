@@ -14,7 +14,8 @@
     ps.pysoundfile     
     ps.faster-whisper     
     ps.websockets     
-    ps.numpy  
+    ps.numpy
+    ps.sounddevice
   ]);
 in  
 stdenv.mkDerivation {
