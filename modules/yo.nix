@@ -538,9 +538,6 @@ in {
       formatDuplicate = alias: scripts: 
         "Alias '${alias}' used by multiple scripts: ${lib.concatStringsSep ", " scripts}";
 
-    #  Get generated help text from Nix-built file
-#    HELP_CONTENT=$(<${helpTextFile})
-
     in [
       {
         assertion = scriptNameConflicts == {};

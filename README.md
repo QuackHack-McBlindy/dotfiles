@@ -26,10 +26,9 @@ __that deploys, docs, and ducks around__ 🦆✨
 ## **📌 Highlights**
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🖥️  **[The one the only <strong>This</strong> module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/default.nix)** *(One module to define them all)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments & magic nix+git syncronized rollbaks)*    
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
-- 📺 **[Extensive Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(declarative containerized Servarr stack)* 
+- 📺 **[Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(declarative containerized Servarr stack)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
@@ -250,4 +249,10 @@ git+file:///home/pungkula/dotfiles
 **Talk Nix? Or just tell me my flake sucks?**   
 **That's cool!**  
 **I am all ears. 👀**  
+  
+[![Discord](https://img.shields.io/badge/Discord-User-5865F2?style=for-the-badge&logo=discord&logoColor=black)](https://discordapp.com/users/675530282849533952)
+[![Email](https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=black)](mailto:isthisrandomenough@protonmail.com)
+
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-Repo-181717?style=for-the-badge&logo=github&logoColor=purple)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
+
 
