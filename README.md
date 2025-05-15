@@ -28,7 +28,7 @@ __that deploys, docs, and ducks around__ 🦆✨
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** <br>
 *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** <br> 
-*(for quick-quack deployments, magicly syncronized rollbaks & voice execution)*    
+*(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** <br>
 *(extensions, bookmarks and settings)* 
 - 📺 **[Media Stack](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** <br>
