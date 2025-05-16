@@ -2,38 +2,37 @@
   self,
   lib,
   stdenv,
-  python3,
-  piper-tts
-} : let
-  pythonEnv = python3.withPackages (ps: [
-    ps.numpy
-    ps.sounddevice
-    ps.requests
-    ps.pysoundfile
-    ps.pynput
-  ]);
-in
+  alsa-utils,  # For arecord
+  curl,        # For HTTP requests
+  keyd         # For keyboard monitoring
+}:
 
 stdenv.mkDerivation {
   name = "hold";
-  src = ./hold;
+  src = ./hold;  # This directory should contain your hold.sh script
 
   buildInputs = [
-    pythonEnv
-    piper-tts
+    alsa-utils
+    curl
+    keyd
   ];
-
-  propagatedBuildInputs = [ pythonEnv ];  # Crucial for runtime dependencies
 
   installPhase = ''
     mkdir -p $out/bin
-    echo "#!${pythonEnv}/bin/python3" > $out/bin/hold
-    cat $src/hold.py >> $out/bin/hold
+    cp $src/hold.sh $out/bin/hold
     chmod +x $out/bin/hold
+
+    # Optional: Create a wrapper that ensures PATH is set correctly
+    cat > $out/bin/hold-wrapper <<EOF
+    #!${stdenv.shell}
+    export PATH="${lib.makeBinPath [ alsa-utils curl keyd ]}:\$PATH"
+    exec $out/bin/hold "\$@"
+    EOF
+    chmod +x $out/bin/hold-wrapper
   '';
 
   meta = {
-    description = "Hold button to record audio, release to send for transcription";
+    description = "Hold-to-record audio with keyd integration";
     license = lib.licenses.mit;
   };
 }

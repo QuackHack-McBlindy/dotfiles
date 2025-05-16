@@ -417,7 +417,7 @@ async def transcribe_audio(audio: UploadFile = File(...)):
 
         transcription = " ".join(segment.text for segment in segments)
         dt.info(f"Transcribed: {transcription}")
-
+        parse_voice_command(transcription)
         return {"transcription": transcription}
 
     except Exception as e:
@@ -713,6 +713,15 @@ class WakeWordDetector:
         dt.info("Wake word detected!")
         play_wav("/path/to/awake.wav")
         subprocess.Popen([shutil.which("voice-client")])   
+
+   
+
+@app.post("/parse")
+def parse_text_endpoint(text: str = Body(..., embed=True)):
+    """Parse text using `yo parse` and return the result"""
+    dt.info(f"Parsing text via /parse: {text}")
+    output = parse_voice_command(text)
+    return {"input": text, "parsed": output}
 
 if __name__ == "__main__":
 #    background_tasks()  
