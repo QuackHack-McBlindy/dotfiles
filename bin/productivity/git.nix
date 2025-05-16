@@ -45,13 +45,28 @@
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
           { name = "repo"; description = "User GitHub repo"; optional = false; default = config.this.user.me.repo; } 
           { name = "host"; description = "Target host (for tagging)"; optional = true; }
-          { name = "generation"; description = "Generation number to tag"; optional = true; }
+          { name = "generation"; description = "Generation number to tag"; optional = true; default = ""; }
         ];
         code = ''
           ${cmdHelpers}
           REPO="$repo"
           DOTFILES_DIR="$flake"
-#          generation=""
+          
+          # Generation number handling 
+          echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
+          if [[ -z "''${generation}" ]]; then
+            GENERATION=$(nixos-version --generation)
+            echo -e "\033[1;34m📥 Automatically detected generation: $GENERATION\033[0m"
+          else
+            GENERATION="$generation"
+            echo "📥 Passed generation: $GENERATION"
+          fi
+
+          # Validate generation format
+          if ! [[ "$GENERATION" =~ ^[0-9]+$ ]]; then
+            echo -e "\033[1;31m❌ Invalid generation: $GENERATION\033[0m"
+            exit 1
+          fi
           
           # Fixed version handling using Nix-provided version
           echo -e "\033[1;34m🔄 Updating README version badge...\033[0m"
@@ -154,9 +169,6 @@
 
           # Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
-          
-          run_cmd git fetch origin
-          run_cmd git merge --ff-only origin/"$CURRENT_BRANCH"
           
           run_cmd git push --follow-tags -u origin "$CURRENT_BRANCH"
 #          run_cmd git push origin "$TAG_NAME"
