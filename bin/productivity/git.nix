@@ -44,18 +44,31 @@
         parameters = [
           { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
           { name = "repo"; description = "User GitHub repo"; optional = false; default = config.this.user.me.repo; } 
-          { name = "host"; description = "Target host (for tagging)"; optional = true; }
+          { name = "host"; description = "Target host (for tagging)"; optional = true; default = "$HOSTNAME"; }
           { name = "generation"; description = "Generation number to tag"; optional = true; default = ""; }
         ];
         code = ''
           ${cmdHelpers}
           REPO="$repo"
           DOTFILES_DIR="$flake"
+
+          if [[ -n "''$host" ]]; then
+            HOSTNAME="$host"
+          else
+            HOSTNAME=$(hostname -s)
+            echo -e "\033[1;34m🖥️  Auto-detected hostname: $HOSTNAME\033[0m"
+          fi
+
+          # Validate hostname format
+#          if [[ ! "$HOSTNAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+#            echo -e "\033[1;31m❌ Invalid hostname: '$HOSTNAME'\033[0m"
+#            exit 1
+#          fi
           
-          # Generation number handling 
           echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
           if [[ -z "''${generation}" ]]; then
-            GENERATION=$(nixos-version --generation)
+            # Get numeric generation ID using nix-env
+            GENERATION=$(sudo nix-env --list-generations --profile /nix/var/nix/profiles/system | tail -n1 | awk '{print $1}')
             echo -e "\033[1;34m📥 Automatically detected generation: $GENERATION\033[0m"
           else
             GENERATION="$generation"
@@ -73,10 +86,18 @@
           run_cmd update-readme
 
           # Generation number handling with improved error recovery
-          echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
-          GENERATION="$generation"  
-          echo "📥 Passed generation: $GENERATION"  
-  
+#          echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
+#          GENERATION="$generation"  
+#          echo "📥 Passed generation: $GENERATION"  
+ 
+          if [[ -n "$generation" ]]; then
+            GENERATION="$generation"
+            echo "📥 Passed generation: $GENERATION"
+          else
+            echo "📥 Using auto-detected generation: $GENERATION"
+          fi
+ 
+ 
           if [[ "$GENERATION" =~ ^[0-9]+$ ]]; then
             GEN_NUMBER="$GENERATION"
           else
@@ -98,10 +119,10 @@
             exit 1
           fi
 
-          if [[ ! "$HOSTNAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
-            echo -e "\033[1;31m❌ Invalid hostname: '$HOSTNAME'\033[0m"
-            exit 1
-          fi
+#          if [[ ! "$HOSTNAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
+#            echo -e "\033[1;31m❌ Invalid hostname: '$HOSTNAME'\033[0m"
+#            exit 1
+#          fi
 
           TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
          
