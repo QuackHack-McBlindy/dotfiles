@@ -85,11 +85,7 @@
           echo -e "\033[1;34m🔄 Updating README version badge...\033[0m"
           run_cmd update-readme
 
-          # Generation number handling with improved error recovery
-#          echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
-#          GENERATION="$generation"  
-#          echo "📥 Passed generation: $GENERATION"  
- 
+          # Generation number handling
           if [[ -n "$generation" ]]; then
             GENERATION="$generation"
             echo "📥 Passed generation: $GENERATION"
