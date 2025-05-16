@@ -468,8 +468,8 @@ EOF
   helpText = let
     groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
     sortedCategories = lib.sort (a: b: 
-      if a == "🛠 System Management" then true
-      else if b == "🛠 System Management" then false
+      if a == "🖥️ System Management" then true
+      else if b == "🖥️ System Management" then false
       else a < b
     ) (lib.attrNames groupedScripts);
   

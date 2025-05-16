@@ -4,7 +4,7 @@
     yo.scripts = {
       switch = {
         description = "Rebuild and switch Nix OS system configuration";
-        category = "🛠 System Management";
+        category = "🖥️ System Management";
         aliases = [ "rb" ];
         parameters = [
           { name = "flake"; description = "Path to the irectory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 

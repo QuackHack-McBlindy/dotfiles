@@ -89,7 +89,7 @@
           if [[ -n "$generation" ]]; then
             GENERATION="$generation"
             echo "📥 Passed generation: $GENERATION"
-          else
+          else 
             echo "📥 Using auto-detected generation: $GENERATION"
           fi
  

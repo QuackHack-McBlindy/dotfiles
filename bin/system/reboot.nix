@@ -4,7 +4,7 @@
     yo.scripts = { 
       reboot = {
         description = "Force reboot and wait for host";
-        category = "🛠 System Management";
+        category = "🖥️ System Management";
         aliases = [ "" ];
         parameters = [
           { name = "host"; description = "Target hostname for the reboot"; optional = true; default = config.this.host.hostname; }
