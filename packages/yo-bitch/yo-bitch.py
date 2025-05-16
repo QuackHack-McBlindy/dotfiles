@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.logger import logger as fastapi_logger
 import logging
+from logging.handlers import RotatingFileHandler
 import uvicorn
 import tempfile
 import shutil
@@ -23,7 +24,12 @@ USER_HOME = os.path.expanduser("~")
 BIN_PATH = os.path.join(USER_HOME, 'dotfiles/home/bin/')
 
 
+
 class DuckTrace:
+    LOG_FILE = "/home/$USER/.config/yo-bitch.log"
+    MAX_LOG_SIZE = 5 * 1024 * 1024  # 5MB
+    BACKUP_COUNT = 3
+
     # ANSI escape codes for colors and formatting
     RESET = "\033[0m"
     BOLD = "\033[1m"
@@ -35,6 +41,21 @@ class DuckTrace:
     BLUE = "\033[34m"
 
     LOG_FILE = "ducktrace.log"
+###
+    def __init__(self):
+        # Set up rotating file handler
+        self.file_handler = RotatingFileHandler(
+            self.LOG_FILE, maxBytes=self.MAX_LOG_SIZE, backupCount=self.BACKUP_COUNT
+        )
+        self.file_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
+        self.file_logger = logging.getLogger("DuckFileLogger")
+        self.file_logger.setLevel(logging.DEBUG)
+        self.file_logger.addHandler(self.file_handler)
+        self.file_logger.propagate = False
+
+    def _timestamp(self):
+        return time.strftime("%H:%M:%S") 
+
 
     def _timestamp(self):
        # return time.strftime("%Y-%m-%d %H:%M:%S")
@@ -46,9 +67,11 @@ class DuckTrace:
         formatted_message = (
             f"{color}{self.BOLD}{blink_text}[🦆📜] {symbol}{level}{symbol} [{timestamp}] - {message}{self.RESET}"
         )
+        self.file_logger.log(getattr(logging, level), message)
         print(formatted_message)
         with open(self.LOG_FILE, "a") as log_file:
             log_file.write(f"[{timestamp}] {level} - {message}\n")
+
 
     def info(self, message):
         self._log("INFO", "✅", self.GREEN, message)
@@ -418,7 +441,12 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         transcription = " ".join(segment.text for segment in segments)
         dt.info(f"Transcribed: {transcription}")
         cmd = await parse_voice_command(transcription)
-        dt.info(cmd)
+        dt.info(f"Command from yo parse: {cmd}")
+
+        if cmd:
+            await execute_yo_intent(cmd)
+        else:
+            dt.warning("No command parsed from input")
         return {"transcription": transcription}
 
     except Exception as e:
@@ -433,10 +461,29 @@ async def parse_voice_command(text: str) -> list:
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
-        stdout, _ = await proc.communicate()
-        return json.loads(stdout.decode())["command"]
+
+        try:
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=5)
+        except asyncio.TimeoutError:
+            proc.kill()
+            await proc.communicate()
+            dt.error("yo parse timed out")
+            return []
+
+        if stderr:
+            dt.warning(f"yo parse stderr: {stderr.decode().strip()}")
+
+        result = stdout.decode().strip()
+        dt.info(f"yo parse output: {result}")
+
+        return json.loads(result)["command"]
+
     except json.JSONDecodeError:
         await speak("Kunde inte tolka kommandot", urgent=True)
+        dt.error(f"Failed to parse JSON from: {result}")
+        return []
+    except Exception as e:
+        dt.error(f"yo parse failed: {e}")
         return []
 
 

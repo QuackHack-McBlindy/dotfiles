@@ -39,7 +39,7 @@ sudo keyd -m | while read -r line; do
 
         if [[ -s "$AUDIO_FILE" ]]; then
             echo "📡 Sending audio..."
-            curl -X POST http://localhost:10555/transcribe \
+            curl -X POST --connect-to ::127.0.0.1: http://localhost:10555/transcribe \
                  -F "audio=@$AUDIO_FILE;type=audio/raw"
         else
             echo "❌ No audio recorded!"
