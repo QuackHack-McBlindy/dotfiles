@@ -1,6 +1,6 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
@@ -25,32 +25,15 @@ __that deploys, docs, and ducks around__ 🦆✨
 
 ## **📌 Highlights**
 
-- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** <br>
-*(auto symlinks ./home to /home)*  
-- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** <br> 
-*(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
-- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** <br>
-*(extensions, bookmarks and settings)* 
-- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** <br>
-*(GTK, icons, cursor, Discord, Firefox & Shell)* 
-- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** <br>
-*(CLI usage, Git tags & README.md)*
+- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
+- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
+- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
+- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
+- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
 <br><br>
 
 ## **🛟 Quick Start**
-
-```bash
-# Clone repository
-$ git clone https://github.com/QuackHack-McBlindy/dotfiles.git
-$ cd dotfiles
-``` 
-
-<br>
-
-### **Some usage examples:**  
-
-<br>
 
 **Build automated, offline USB NixOS installer** 
 
@@ -199,7 +182,7 @@ Display Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=854fdd7834947d51363d86ccaed9f12006d739cc
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -223,6 +206,7 @@ git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=854fdd7834947d51363d8
 └───packages
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)
+    │   ├───hold omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
@@ -230,6 +214,7 @@ git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=854fdd7834947d51363d8
     │   └───yo-mic omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
+        ├───hold: package 'hold'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───say: package 'say'
         ├───tv: package 'tv'
