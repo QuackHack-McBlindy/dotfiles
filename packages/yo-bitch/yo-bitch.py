@@ -716,11 +716,11 @@ class WakeWordDetector:
 
    
 
-@app.post("/parse")
-async def parse_text_endpoint(text: str = Body(..., embed=True)):
-    """Expose the existing parse_voice_command() via API"""
-    command = await parse_voice_command(text)
-    return {"input": text, "command": command}
+#@app.post("/parse")
+#async def parse_text_endpoint(text: str = Body(..., embed=True)):
+#    """Expose the existing parse_voice_command() via API"""
+#    command = await parse_voice_command(text)
+#    return {"input": text, "command": command}
 
 if __name__ == "__main__":
 #    background_tasks()  
