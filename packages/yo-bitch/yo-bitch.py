@@ -417,7 +417,8 @@ async def transcribe_audio(audio: UploadFile = File(...)):
 
         transcription = " ".join(segment.text for segment in segments)
         dt.info(f"Transcribed: {transcription}")
-        parse_voice_command(transcription)
+        cmd = await parse_voice_command(transcription)
+        dt.info(cmd)
         return {"transcription": transcription}
 
     except Exception as e:
