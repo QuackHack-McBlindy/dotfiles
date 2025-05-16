@@ -414,6 +414,66 @@ def send_to_hassil(transcribed_text: str):
         return  # Prevent calling execute_intent with invalid data
 
 
+
+async def parse_voice_command(text: str) -> list:
+    """Parse natural language command"""
+    try:
+        dt.debug(f"Attempting to parse command: {text}")
+
+        # Check if 'yo' is available
+        yo_path = shutil.which("yo")
+        if not yo_path:
+            dt.error("'yo' command not found in PATH.")
+            await speak("Yo-kommando inte installerad", urgent=True)
+            return []
+
+        proc = await asyncio.create_subprocess_exec(
+            yo_path, "parse", text,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+
+        try:
+            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
+        except asyncio.TimeoutError:
+            dt.error("'yo parse' timed out")
+            await speak("Tolkning timeout", urgent=True)
+            proc.kill()
+            await proc.communicate()
+            return []
+
+        # Log stderr if present
+        if stderr:
+            error_msg = stderr.decode().strip()
+            dt.warning(f"'yo parse' stderr: {error_msg}")
+
+        result = stdout.decode().strip()
+        dt.info(f"'yo parse' raw output: {result}")
+
+        if not result:
+            dt.error("Empty response from 'yo parse'")
+            await speak("Tomt svar från tolkning", urgent=True)
+            return []
+
+        try:
+            parsed = json.loads(result)
+            cmd = parsed.get("command", [])
+            dt.info(f"Parsed command: {cmd}")
+            return cmd
+        except json.JSONDecodeError as e:
+            dt.error(f"Failed to parse JSON: {e}\nRaw output: {result}")
+            await speak("Fel i kommandotolkning", urgent=True)
+            return []
+        except KeyError:
+            dt.error(f"Missing 'command' key in JSON: {parsed}")
+            await speak("Fel format på svar", urgent=True)
+            return []
+
+    except Exception as e:
+        dt.error(f"Unexpected error in parse_voice_command: {str(e)}", exc_info=True)
+        await speak("Allvarligt fel i tolkning", urgent=True)
+        return []
+
 @app.post("/transcribe")
 async def transcribe_audio(audio: UploadFile = File(...)):
     try:
@@ -452,39 +512,6 @@ async def transcribe_audio(audio: UploadFile = File(...)):
     except Exception as e:
         dt.error(f"Transcription error: {e}")
         return {"error": str(e)}
-
-async def parse_voice_command(text: str) -> list:
-    """Parse natural language command"""
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            "yo", "parse", text,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-
-        try:
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=5)
-        except asyncio.TimeoutError:
-            proc.kill()
-            await proc.communicate()
-            dt.error("yo parse timed out")
-            return []
-
-        if stderr:
-            dt.warning(f"yo parse stderr: {stderr.decode().strip()}")
-
-        result = stdout.decode().strip()
-        dt.info(f"yo parse output: {result}")
-
-        return json.loads(result)["command"]
-
-    except json.JSONDecodeError:
-        await speak("Kunde inte tolka kommandot", urgent=True)
-        dt.error(f"Failed to parse JSON from: {result}")
-        return []
-    except Exception as e:
-        dt.error(f"yo parse failed: {e}")
-        return []
 
 
 def construct_yo_command(text: str) -> list:

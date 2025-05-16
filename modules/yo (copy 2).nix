@@ -441,29 +441,36 @@ EOF
     ) cfg.scripts;
   };
 
-  helpTextFile2 = pkgs.writeText "yo-helptext2.md" helpText2;
-  helpText2 = (
-    let
-      rows = map (script:
-        let
-          aliasList = if script.aliases != [] then
-            concatStringsSep ", " script.aliases
-          else
-            "";
-          paramHint = let
-            optionsPart = lib.concatMapStringsSep " " (param: 
-              # Show as optional if EITHER has default OR explicitly marked optional
-              if (param.default != null || param.optional) 
-              then "[--${param.name}]" 
+  helpText2 = let
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
+    sortedCategories = lib.sort (a: b: a < b) (lib.attrNames groupedScripts);
+    
+    # Create table rows with category separators
+    rows = lib.concatMap (category:
+      let 
+        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+      in
+        [
+          # Category separator row
+          "| **${escapeMD category}** | | |"
+        ] 
+        ++ 
+        (map (script:
+          let
+            aliasList = if script.aliases != [] then
+              concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
+            paramHint = concatStringsSep " " (map (param:
+              if param.optional || param.default != null
+              then "[--${param.name}]"
               else "--${param.name}"
-            ) script.parameters;
-          in optionsPart;
-          syntax = "\\`yo ${script.name} ${paramHint}\\`";
-        in "| ${syntax} | ${aliasList} | ${script.description} |"
-      ) (attrValues cfg.scripts);
-    in
-      concatStringsSep "\n" rows
-  );
+            ) script.parameters);
+            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
+          in
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+        ) scripts)
+    ) sortedCategories;
+  in concatStringsSep "\n" rows;  # Add this final expression  
 
  
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
@@ -569,13 +576,39 @@ in {
       (pkgs.writeShellScriptBin "yo" ''
         #!${pkgs.runtimeShell}
         script_dir="${yoScriptsPackage}/bin"
-        help_file="${helpTextFile2}"
-  
         show_help() {
+          # width=100
           width=$(tput cols)
-          ${pkgs.glow}/bin/glow --width "$width" "$help_file"
+          cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
+## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
+**Usage:** \`yo <command> [arguments]\`  
+**Edit configurations** \`yo edit\` 
+### **Usage Examples:**
+The yo CLI tool supports flexible parameter parsing through two primary mechanisms:  
+```bash
+# Named Parameters  
+$ yo deploy --host laptop --flake /home/pungkula/dotfiles
+
+# Positional Parameters
+$ yo deploy laptop /home/pungkula/dotfiles
+
+# Scripts can also be executed by voice, say
+$ yo bitch deploy laptop
+```
+
+## ✨ Available Commands
+Set default values for your parameters to have them marked [optional]
+| Command Syntax               | Aliases    | Description |
+|------------------------------|------------|-------------|
+${helpText2}
+## ❓ Detailed Help
+For specific command help: 
+\`yo <command> --help\`
+\`yo <command> -h\`
+EOF
           exit 0
-        }        
+        }
+        
         # Handle zero arguments
         if [[ $# -eq 0 ]]; then
           show_help
