@@ -21,30 +21,31 @@ sudo keyd -m | while read -r line; do
     # Start recording
     if [[ $ctrl_down -eq 1 && $grave_down -eq 1 && $RECORDING -eq 0 ]]; then
         echo "🎤 Recording STARTED"
-        rm -f "$AUDIO_FILE"
-
-        # Use working arecord settings
-        arecord -f S16_LE -r 16000 -c 1 -t raw "$AUDIO_FILE" &
-        RECORD_PID=$!
+#        rm -f "$AUDIO_FILE"
         RECORDING=1
+        # Use working arecord settings
+        sudo arecord -D default -f S16_LE -r 16000 -c 1 -d 5 -t raw audio.raw
+#        arecord -f S16_LE -r 16000 -c 1 -t raw "$AUDIO_FILE" &
+#        RECORD_PID=$!
+
     fi
 
     # Stop recording when both keys released
     if [[ $ctrl_down -eq 0 && $grave_down -eq 0 && $RECORDING -eq 1 ]]; then
         echo "⏹️ Recording STOPPED"
-
+        curl -X POST http://127.0.0.1:10555/transcribe -F "audio=@audio.raw;type=audio/raw"
         # Kill the recording process
-        kill -INT $RECORD_PID 2>/dev/null
-        wait $RECORD_PID 2>/dev/null
+#        kill -INT $RECORD_PID 2>/dev/null
+#        wait $RECORD_PID 2>/dev/null
 
-        if [[ -s "$AUDIO_FILE" ]]; then
-            echo "📡 Sending audio..."
-            curl -X POST --connect-to ::127.0.0.1: http://localhost:10555/transcribe \
-                 -F "audio=@$AUDIO_FILE;type=audio/raw"
-        else
-            echo "❌ No audio recorded!"
-        fi
-
-        RECORDING=0
+#        if [[ -s "$AUDIO_FILE" ]]; then
+        echo "📡 Sending audio..."
+#            curl -X POST --connect-to ::127.0.0.1: http://localhost:10555/transcribe \
+#                 -F "audio=@$AUDIO_FILE;type=audio/raw"
+    else
+        echo ""
     fi
+
+    RECORDING=0
+#    fi
 done

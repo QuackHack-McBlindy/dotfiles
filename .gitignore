@@ -1,22 +1,11 @@
-# Ignore everything in the develop folder
-develop/*
-
-# Include specific files in the develop folder
-!develop/python/flake.nix
-!develop/python/.envrc
-!develop/bash
-
-home/.config/Yubico/yubikey-identity.txt
-home/.config/Yubico/*
-
-
-home/.local/share/piper/
-home/.local/share/piper/*
-
+modules/dump
 home/.config/ha
 home/.config/home-assistant
 result/
-modules/NIX
+
+home/.config/Yubico
+
+home/.local/share/piper
 
 modules/networking/caddy.nix.save
 borg_settings.txt

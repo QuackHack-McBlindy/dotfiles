@@ -3,10 +3,11 @@
 {  
   yo.scripts.health = {
     description = "Check system health status across your machines";
+    keywords = [ "healthcheck" "hälsa" "status" "temp" ];
     category = "🧹 Maintenance";
     aliases = [ "hc" ];
     parameters = [
-      { name = "host"; description = "Target hostname for the health check"; optional = true; default = config.this.host.hostname; }
+      { name = "host"; description = "Target hostname for the health check"; optional = false; default = config.this.host.hostname; }
     ];
     code = ''
       ${cmdHelpers}

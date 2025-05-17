@@ -1,1 +1,0 @@
-package = swaylock-fancy-unstable

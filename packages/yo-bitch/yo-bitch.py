@@ -127,7 +127,7 @@ logging.getLogger().handlers = [duck_handler]
 logging.getLogger("uvicorn.access").handlers = [duck_handler]
 logging.getLogger("uvicorn.error").handlers = [duck_handler]
 
-# Replace hardcoded paths with Nix store references
+
 #def handle_detection(event: Detect):
     # Get sound paths from package installation
 #    sound_dir = os.path.join(os.path.dirname(__file__), "share", "voice-assistant", "sounds")
@@ -153,7 +153,7 @@ USER_HOME = os.path.expanduser("~")
 CONFIG_PATH = f"{USER_HOME}/dotfiles/home/.config/intents.yaml"
 BIN_PATH = f"{USER_HOME}/dotfiles/home/bin/"
 
-
+yo_path = "/run/current-system/sw/bin/yo-bitch"
 
 
 USER_HOME = os.path.expanduser("~")
@@ -181,36 +181,106 @@ async def monitor_wake_word():
     finally:
         await client.disconnect()
 
-#def handle_detection(event: Detect):
-#    global last_trigger_time
-#    current_time = time.time()
+def handle_detection(event: Detect):
+    global last_trigger_time
+    current_time = time.time()
     
-#    if (current_time - last_trigger_time) > COOLDOWN_PERIOD:
-#        dt.info(f"Wake word detected: {event.name} (confidence={event.confidence})")
-#        last_trigger_time = current_time
+    if (current_time - last_trigger_time) > COOLDOWN_PERIOD:
+        dt.info(f"Wake word detected: {event.name} (confidence={event.confidence})")
+        last_trigger_time = current_time
         
         # Play awake sound
- #       play_wav("/path/to/nix/store/.../sounds/awake.wav") 
+        #play_wav("/path/to/nix/store/.../sounds/awake.wav") 
         
         # Start voice client
- #       voice_client_path = shutil.which("voice-client")
- #       if voice_client_path:
- #           subprocess.Popen([voice_client_path])
+        voice_client_path = shutil.which("yo-mic")
+        if voice_client_path:
+            subprocess.Popen([voice_client_path])
 
 
 wyoming_satellite_path = shutil.which("wyoming-satellite")
 def start_wyoming_satellite():
-    """Start wyoming-satellite in the background."""
+    """Start wyoming-satellite in the background with full configuration."""
+    if not wyoming_satellite_path:
+        raise RuntimeError("wyoming-satellite binary not found.")
+
     cmd = [
-        "/run/current-system/sw/bin/wyoming-satellite",
+        wyoming_satellite_path,
+
+        # === Core Configuration ===
         "--uri", "tcp://0.0.0.0:10700",
+        "--name", "pungkula-satellite",
+        "--area", "living-room",
+        "--zeroconf-name", "Living Room Satellite",
+#        "--zeroconf-host", "192.168.1.50",  # Replace with your IP if static
+
+        # === Microphone Input ===
         "--mic-command", "arecord -r 16000 -c 1 -f S16_LE -t raw",
+        "--mic-command-rate", "16000",
+        "--mic-command-width", "2",
+        "--mic-command-channels", "1",
+        "--mic-command-samples-per-chunk", "1024",
+        "--mic-volume-multiplier", "1.0",
+        "--mic-noise-suppression", "2",  # 0–4, 2 is a good balance
+        "--mic-auto-gain", "15",  # 0–31
+        "--mic-seconds-to-mute-after-awake-wav", "0.5",
+        "--mic-no-mute-during-awake-wav",
+        "--mic-channel-index", "0",
+
+        # === Sound Output ===
         "--snd-command", "aplay -r 22050 -c 1 -f S16_LE -t raw",
+        "--snd-command-rate", "22050",
+        "--snd-command-width", "2",
+        "--snd-command-channels", "1",
+        "--snd-volume-multiplier", "1.0",
+
+        # === Wake Word ===
         "--wake-uri", "tcp://127.0.0.1:10400",
-        "--wake-word-name", "yo_bitch",
-        "--awake-wav", "/home/pungkula/dotfiles/home/sounds/done.wav",
-        "--done-wav", "/home/pungkula/dotfiles/home/sounds/awake.wav"
+        "--wake-word-name", "yo_bitch",  # Customize your wake word name
+        "--wake-refractory-seconds", "4",
+
+        # === Voice Activity Detection (VAD) ===
+        "--vad",
+        "--vad-threshold", "0.5",
+        "--vad-trigger-level", "0.7",
+        "--vad-buffer-seconds", "1",
+        "--vad-wake-word-timeout", "5",
+
+        # === Event Hooks ===
+        "--startup-command", "notify-send 'Satellite started'",
+        "--detect-command", "echo 'Wake word detection started'",
+        "--detection-command", "notify-send 'Wake word detected!'",
+        "--transcript-command", "echo 'Transcript received'",
+        "--stt-start-command", "echo 'STT started'",
+        "--stt-stop-command", "echo 'STT stopped'",
+        "--synthesize-command", "echo 'Synthesizing response'",
+        "--tts-start-command", "echo 'Speaking...'",
+        "--tts-stop-command", "echo 'Done speaking'",
+        "--tts-played-command", "echo 'TTS audio played'",
+        "--streaming-start-command", "echo 'Streaming started'",
+        "--streaming-stop-command", "echo 'Streaming stopped'",
+        "--error-command", "notify-send 'Satellite Error'",
+        "--connected-command", "echo 'Connected to server'",
+        "--disconnected-command", "notify-send 'Disconnected from server'",
+
+        # === Timer Events ===
+        "--timer-started-command", "notify-send 'Timer started'",
+        "--timer-updated-command", "echo 'Timer updated'",
+        "--timer-cancelled-command", "notify-send 'Timer cancelled'",
+        "--timer-finished-command", "notify-send 'Timer finished'",
+
+        # === Sound Effects ===
+        "--awake-wav", "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav",
+        "--done-wav", "/home/pungkula/dotfiles/modules/themes/sounds/done.wav",
+        "--timer-finished-wav", "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav",
+        "--timer-finished-wav-repeat", "3", "2",  # Repeat 3 times, 2s delay
+
+        # === Debugging ===
+#        "--debug-recording-dir", "/tmp/wyoming-debug",
+#        "--debug",
+#        "--log-format", "{time} [{level}] {message}",
     ]
+
     subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
 
 def play_wav(file_path):
@@ -238,12 +308,19 @@ def monitor_logs():
                 dt.info(f"Wake word detected with probability {probability}.")
                 dt.warning("MIC ON!")
 
-                play_wav("/home/pungkula/dotfiles/home/sounds/awake.wav")
-
-                voice_client_path = shutil.which("voice-client")
+                play_wav("/home/pungkula/dotfiles/modules/themes/sounds/awake.wav")
+                command = (
+                  'arecord -f S16_LE -r 16000 -c 1 -d 5 -t raw audio.raw && '
+                  'curl -X POST http://localhost:10555/transcribe '
+                  '-F "audio=@audio.raw;type=audio/raw"'
+                )
+    
+                
+                #voice_client_path = shutil.which("yo-mic")
+                voice_client_path = subprocess.Popen(command, shell=True)
                 if voice_client_path:
-                    dt.info(f"Starting voice-client at {current_time}")  # Debugging
-                    subprocess.Popen([voice_client_path])  # Non-blocking
+                    dt.info(f"Starting voice-client at {current_time}")  
+                    subprocess.Popen([voice_client_path]) 
                     last_trigger_time = current_time
                 else:
                     dt.critical("voice-client not found")
@@ -421,14 +498,14 @@ async def parse_voice_command(text: str) -> list:
         dt.debug(f"Attempting to parse command: {text}")
 
         # Check if 'yo' is available
-        yo_path = shutil.which("yo")
+        yo_path = shutil.which("yo-bitch")
         if not yo_path:
             dt.error("'yo' command not found in PATH.")
             await speak("Yo-kommando inte installerad", urgent=True)
             return []
 
         proc = await asyncio.create_subprocess_exec(
-            yo_path, "parse", text,
+            yo_path, text,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE
         )
@@ -501,16 +578,17 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         transcription = " ".join(segment.text for segment in segments)
         dt.info(f"Transcribed: {transcription}")
         cmd = await parse_voice_command(transcription)
-        dt.info(f"Command from yo parse: {cmd}")
+        dt.info(cmd)
 
         if cmd:
-            await execute_yo_intent(cmd)
+            dt.info("executed")
         else:
             dt.warning("No command parsed from input")
         return {"transcription": transcription}
 
     except Exception as e:
         dt.error(f"Transcription error: {e}")
+
         return {"error": str(e)}
 
 
@@ -787,9 +865,25 @@ class WakeWordDetector:
         """Handle wake word detection"""
         dt.info("Wake word detected!")
         play_wav("/path/to/awake.wav")
-        subprocess.Popen([shutil.which("voice-client")])   
+        subprocess.Popen([shutil.which("yo-mic")])   
 
-   
+@app.on_event("startup")
+def initialize_background_services():
+    """Start all required background services when the API starts"""
+    dt.info("Starting background services...")    
+    # Wyoming Satellite
+    threading.Thread(target=start_wyoming_satellite, daemon=True).start()    
+    # Log monitoring for wake word
+    threading.Thread(target=monitor_logs, daemon=True).start()    
+    # Wake Word Detector
+    model_path = "/home/pungkula/.config/models/yo_bitch.tflite"
+    if os.path.exists(model_path):
+        detector = WakeWordDetector(model_path)
+        threading.Thread(target=detector.start, daemon=True).start()
+    else:
+        dt.critical(f"Wake word model missing: {model_path}")
+
+    dt.info("All background services started")   
 
 #@app.post("/parse")
 #async def parse_text_endpoint(text: str = Body(..., embed=True)):
@@ -798,6 +892,5 @@ class WakeWordDetector:
 #    return {"input": text, "command": command}
 
 if __name__ == "__main__":
-#    background_tasks()  
     uvicorn.run(app, host="0.0.0.0", port=10555)
 

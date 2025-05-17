@@ -1,4 +1,0 @@
-# dotfiles/requirements.txt
-click
-rich
-python-dotenv

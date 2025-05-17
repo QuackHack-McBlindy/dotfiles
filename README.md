@@ -1,6 +1,6 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
 
 [![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
@@ -98,30 +98,33 @@ Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 | **🖥️ System Management** | | |
-| `yo parse --text` |  | Parse natural language plain text into yo script execution. |
-| `yo reboot [--host]` |  | Force reboot and wait for host |
+| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
+| `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
+| **⚙️ Configuration** | | |
+| `yo bitch --input` |  | Parses plain text natural language and builds yo script execution commands. |
+| `yo edit ` | config | yo CLI configuration mode |
 | **⚡ Productivity** | | |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
+| **🌍 Localization** | | |
+| `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
+| `yo transport --arrival [--departure] [--apikey]` | buss, trafiklab | Public transportation helper. Fetches current airplane, bus, boats and train departure and arrival times. (Sweden) |
+| `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
+| `yo arris --search [--mediaType]` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
+| `yo shield --search [--typ]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
-| `yo tv --search [--device] [--mediaType]` | shield, s | Android TV Controller |
-| `yo tv2 --search [--device] [--mediaType]` | arris, a | Android TV Controller |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
-| **🖥️  System Management** | | |
-| `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
 | **🧩 Miscellaneous** | | |
-| `yo edit ` | config | yo CLI configuration mode |
-| `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
-| `yo weather [--location]` | weat | Tiny Weather Forecast. |
+| `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | **🧹 Maintenance** | | |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo health [--host]` | hc | Check system health status across your machines |
@@ -232,7 +235,7 @@ git+file:///home/pungkula/dotfiles
 
 ## 💬 **Comments?**
 
-**Nix Talk?** 
+**Nix Talk?**  
 **O just tell me tiny flake sucks?**   
 **That's cool!**  
 **I am all ears. 👀**  

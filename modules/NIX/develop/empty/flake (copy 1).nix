@@ -1,3 +1,0 @@
-{
-  outputs = { self }: { };
-}

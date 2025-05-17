@@ -8,7 +8,7 @@
         aliases = [ "e" ];
         parameters = [
           { name = "input"; description = "Input file to encrypt"; optional = false; } 
-          { name = "agePub"; description = "The AGE public key used for encrypting the file"; optional = false; default = config.this.host.keys.publicKeys.age; } 
+          { name = "agePub"; description = "The AGE public key used for encrypting the file"; optional = true; default = config.this.host.keys.publicKeys.age; } 
         ];
         code = ''
           ${cmdHelpers}

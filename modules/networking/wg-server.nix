@@ -48,7 +48,6 @@ in {
       }
     );
   
-
     networking.wireguard.interfaces.wg0 = lib.mkIf (!config.this.installer) {
       ips = [ "${serverCfg.wgip}/24" ];
       listenPort = 51820;
@@ -100,7 +99,7 @@ in {
           PersistentKeepalive = 25
           EOF
 
-          qrencode -l H -s 5 -o "/home/wgUser/${device}.png" -r "$TEMP_DIR/${device}.conf"
+          yo qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
           rm -rf "$TEMP_DIR"
         '';
 
@@ -122,10 +121,4 @@ in {
       };
     };
 
-    system.activationScripts.wgUserSetup = lib.mkIf (!config.this.installer) {
-      text = ''
-        cp /home/pungkula/dotfiles/home/icons/duck2.png /home/wgUser/duck.png
-        chown wgUser:wgUser /home/wgUser/duck.png
-      '';
-    };
   };}

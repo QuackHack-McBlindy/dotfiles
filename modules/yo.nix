@@ -5,6 +5,23 @@
   ...
 } : with lib;
 let
+  generateRegex = listName:
+    let
+      list = config.yo.bitch.lists.${listName};
+      patterns = if list.wildcard then "(.*)" else
+        builtins.concatStringsSep "|" (map (v: v."in") list.values);
+    in
+      "(${patterns})";
+
+  processSentence = sentence: builtins.replaceStrings
+    (builtins.attrNames config.yo.bitch.lists)
+    (map (name: generateRegex name) (builtins.attrNames config.yo.bitch.lists))
+    sentence;
+
+  intentRules = builtins.mapAttrs (intentName: intent:
+    map (d: map processSentence d.sentences) intent.data
+  ) config.yo.bitch.intents;
+
   nixosVersion = let
     raw = builtins.readFile /etc/os-release;
     versionMatch = builtins.match ".*VERSION_ID=([0-9\\.]+).*" raw;
@@ -252,10 +269,22 @@ EOF
         type = types.str;
         description = "Description of the script";
       };
+
+      keywords = mkOption {
+        type = types.listOf types.string;
+        default = [];
+        description = "List of keywords used for parsing";
+      };
       
       category = mkOption {
         type = types.str;
         description = "Category of the script";
+      };
+    
+      autoCorrections = lib.mkOption {
+        type = lib.types.attrsOf lib.types.str;
+        default = {};
+        description = "Word replacement mappings for input auto-correction";
       };
     
       packages = mkOption {
@@ -281,20 +310,23 @@ EOF
         description = "Alternative command names for this script";
       };  
 
+
       parameters = mkOption {
         type = types.listOf (types.submodule {
           options = {
             name = mkOption { type = types.str; };
             description = mkOption { type = types.str; };
-            optional = mkOption { 
-              type = types.bool; 
-              default = config.default != null;  # Automatically optional if default exists
-              description = "Whether this parameter can be omitted";
-            };
             default = mkOption {
               type = types.nullOr types.str;
               default = null;
               description = "Default value if parameter is not provided";
+            };
+      
+            # Then declare optional using the now-available default
+            optional = mkOption { 
+              type = types.bool; 
+              default = ./default != null;
+              description = "Whether this parameter can be omitted";
             };
             type = mkOption {
               type = types.enum ["string" "int" "path"];
@@ -415,15 +447,25 @@ EOF
                 ${param.name}='${param.default}'
               fi
             '') script.parameters)}
-
+            
+          # THEN check required parameters
           ${concatStringsSep "\n" (map (param: ''
-            ${optionalString (!param.optional) ''
+            ${optionalString (!param.optional && param.default == null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
                 echo -e "\033[1;31m❌ Missing required parameter: ${param.name}\033[0m" >&2
                 exit 1
               fi
             ''}
           '') script.parameters)}
+
+#          ${concatStringsSep "\n" (map (param: ''
+#            ${optionalString (!param.optional) ''
+#              if [[ -z "''${${param.name}:-}" ]]; then
+#                echo -e "\033[1;31m❌ Missing required parameter: ${param.name}\033[0m" >&2
+#                exit 1
+#              fi
+#            ''}
+#          '') script.parameters)}
 
           # ==== Script Execution ======
           ${script.code}
@@ -441,29 +483,27 @@ EOF
     ) cfg.scripts;
   };
 
-  helpTextFile2 = pkgs.writeText "yo-helptext2.md" helpText2;
-  helpText2 = (
-    let
-      rows = map (script:
-        let
-          aliasList = if script.aliases != [] then
-            concatStringsSep ", " script.aliases
-          else
-            "";
-          paramHint = let
-            optionsPart = lib.concatMapStringsSep " " (param: 
-              # Show as optional if EITHER has default OR explicitly marked optional
-              if (param.default != null || param.optional) 
-              then "[--${param.name}]" 
-              else "--${param.name}"
-            ) script.parameters;
-          in optionsPart;
-          syntax = "\\`yo ${script.name} ${paramHint}\\`";
-        in "| ${syntax} | ${aliasList} | ${script.description} |"
-      ) (attrValues cfg.scripts);
-    in
-      concatStringsSep "\n" rows
-  );
+  helpText2 = let
+    rows = map (script:
+      let
+        aliasList = if script.aliases != [] then
+          concatStringsSep ", " script.aliases
+        else
+          "";
+        paramHint = let
+          hostPart = lib.optionalString script.requiresHost "<host> ";
+          optionsPart = lib.concatMapStringsSep " " (param: "[--${param.name}]") script.parameters;
+        in hostPart + optionsPart;
+
+        # Escape backticks by using a literal backtick (not shell-evaluated)
+        syntax = "\\`yo ${script.name} ${paramHint}\\`";
+      in "| ${syntax} | ${aliasList} | ${script.description} |"
+    ) (attrValues cfg.scripts);
+  in
+    concatStringsSep "\n" rows;
+
+
+
 
  
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
@@ -502,10 +542,51 @@ EOF
   in concatStringsSep "\n" rows;
   
 in {
-  options.yo.scripts = mkOption {
-    type = types.attrsOf scriptType;
-    default = {};
-    description = "Attribute set of scripts to be made available";
+  options = {
+    yo.scripts = mkOption {
+      type = types.attrsOf scriptType;
+      default = {};
+      description = "Attribute set of scripts to be made available";
+    };
+    yo.bitch = {
+      language = mkOption {
+        type = types.str;
+        default = "en";
+        description = "Language code for parsing rules";
+      };
+
+      intents = mkOption {
+        type = types.attrsOf (types.submodule {
+          options.data = mkOption {
+            type = types.listOf (types.submodule {
+              options.sentences = mkOption {
+                type = types.listOf types.str;
+                description = "Sentence patterns for intent matching";
+              };
+            });
+          };
+        });
+        default = {};
+      };
+
+      lists = mkOption {
+        type = types.attrsOf (types.submodule {
+          options.wildcard = mkOption {
+            type = types.bool;
+            default = false;
+            description = "Whether this list accepts free-form text";
+          };
+          options.values = mkOption {
+            type = types.listOf (types.submodule {
+              options."in" = mkOption { type = types.str; };
+              options.out = mkOption { type = types.str; };
+            });
+            default = [];
+          };
+        });
+        default = {};
+      };
+    };
   };
 
   config = {
@@ -569,13 +650,28 @@ in {
       (pkgs.writeShellScriptBin "yo" ''
         #!${pkgs.runtimeShell}
         script_dir="${yoScriptsPackage}/bin"
-        help_file="${helpTextFile2}"
-  
+
         show_help() {
-          width=$(tput cols)
-          ${pkgs.glow}/bin/glow --width "$width" "$help_file"
+          #cat <<EOF | ${pkgs.glow}/bin/glow -
+          #width=$(tput cols)
+          width=130
+          cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
+        ## =========================== ##
+        ## 🚀 **yo CLI TOol** 🦆🦆🦆🦆🦆🦆
+        ## =========================== ##
+        **Usage:** \`yo <command> [arguments]\`
+        
+        ## =========================== ##
+        ## ✨ Available Commands
+        | Command Syntax               | Aliases    | Description |
+        |------------------------------|------------|-------------|
+        ${helpText}
+        ## =========================== ##
+        ## ℹ️ Detailed Help
+        For specific command help: \`yo <command> --help\`
+        EOF
           exit 0
-        }        
+        }     
         # Handle zero arguments
         if [[ $# -eq 0 ]]; then
           show_help

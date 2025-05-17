@@ -33,6 +33,85 @@
 #        { path = "/Pool/Movies"; searchType = "directories"; }
 #    ];    
     
+#    services.keypress-daemon = {
+#        enable = true;
+#        bindings = [
+#            {
+#              keys = [ "leftcontrol" "grave" ];
+#              commands = {
+#                onPress = "aplay /home/pungkula/test.wav";
+#                onPress = "echo 'Start recording'";
+#                onRelease = "echo 'Stop recording'";
+#                onPress = "arecord -f S16_LE -r 16000 -c 1 -d -t raw audio.raw && ";
+#"                onRelease = ''
+#                  echo 'Stop and process'
+#                  curl -X POST http://localhost:10555/transcribe -F "audio=@audio.raw"
+#                '';
+#              };
+#            }
+#        ];
+#    };
+
+
+
+
+
+
+    networking.firewall.allowedTCPPorts = [ 10400 10500 10700 10555 ];
+#    environment.systemPackages = with pkgs; [ pkgs.wyoming-openwakeword ]; 
+
+    environment.systemPackages = [
+      pkgs.wyoming-openwakeword
+      pkgs.alsa-utils  
+#      (pkgs.writeShellScriptBin "yo-micc" ''
+#        tmpfile=$(mktemp /tmp/audio.XXXXXX.raw)
+#        arecord -f S16_LE -r 16000 -c 1 -d 5 -t raw "$tmpfile"
+#        curl -X POST http://localhost:10555/transcribe -F "audio=@$tmpfile;type=audio/raw"
+#        rm "$tmpfile"
+#      '')
+    ];  
+
+    services.wyoming.openwakeword = {
+        enable = true;
+#        package = pkgs.wyoming-openwakeword;
+        uri = "tcp://0.0.0.0:10400";
+        preloadModels = [ "yo_bitch" ];
+        customModelsDirectories = [ "/etc/openwakeword" ];
+        threshold = 0.3;
+        triggerLevel = 1;
+        extraArgs = [ "--debug" "--debug-probability" ];
+    };    
+    
+
+    
+
+    # environment.systemPackages = [ pkgs.wyoming-satellite pkgs.alsa-utils pkgs.python312Packages.pysilero-vad pkgs.python312Packages.pyring-buffer pkgs.python312Packages.zeroconf pkgs.python312Packages.wyoming pkgs.python312Packages.webrtc-noise-gain ];
+
+
+
+    systemd.services.sattelite = {
+        wantedBy = [ "multi-user.target" ];
+#        preStart = ''    '';
+        serviceConfig = {
+            ExecStart = let
+                micCommand = "${pkgs.alsa-utils}/bin/arecord -q -f S16_LE -r 16000 -c 1";
+            in
+                ''
+                    ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
+                      --uri tcp://127.0.0.1:10401 \
+                      --wake-uri tcp://127.0.0.1:10400 \
+                      --mic-command "${micCommand}" \
+                      --wake-word-name yo_bitch
+                '';
+                Environment = "PATH=${pkgs.alsa-utils}/bin:${pkgs.coreutils}/bin:/run/current-system/sw/bin";
+                Restart = "on-failure";
+                RestartSec = "2s";
+                #RuntimeDirectory = [ config.this.user.me.name ];
+                User = "pungkula";
+                Group = "pungkula";
+        };
+    };
+      
     
     this = {
         installer = false;

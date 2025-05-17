@@ -52,6 +52,7 @@
       fi
     }
 
+
     fail() {
       echo -e "\033[1;31m❌ $1\033[0m" >&2
       exit 1
@@ -75,6 +76,7 @@ in {
     imports = builtins.map (file: import file {
         inherit self config lib cmdHelpers pkgs sysHosts;
     }) (
+        importModulesRecursive ./config ++
         importModulesRecursive ./system ++
         importModulesRecursive ./security ++
         importModulesRecursive ./maintenance ++

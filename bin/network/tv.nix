@@ -1,24 +1,50 @@
+# dotfiles/bin/network/shield.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {  
-  yo.scripts.tv = {
+  yo.bitch = {
+    language = "sv";
+    intents = {
+      shield = {
+        data = [{
+          sentences = [
+            "kör igång {typ} {search}"
+            "(spel|spell|spela|spera) upp {typ} {search}"
+            "(spel|spell|spela|spera) [upp] {typ} {search}"
+            "(start|starta|startar) {typ} {search}"
+            "jag vill se {typ} {search}"
+          ];
+        }];
+      };
+    };
+    
+    lists = {
+      search.wildcard = true;
+      typ.values = [
+        { "in" = "(serien|tvserien|tv-serien)"; out = "tv"; }
+        { "in" = "(podd|pod|podcast)"; out = "podcast"; }
+        { "in" = "(slump|slumpa|random|musik)"; out = "jukebox"; }
+        { "in" = "(artist|artisten|band|bandet|grupp|gruppen)"; out = "music"; }
+        { "in" = "(låt|låten|sång|sången|biten)"; out = "song"; }
+      ];
+    };
+  };
+
+
+  yo.scripts.shield = {
     description = "Android TV Controller";
     category = "🌐 Networking";
-    aliases = [ "shield" "s" ];
+    aliases = [ "s" "tv" ];
 #    helpFooter = ''
 #    '';
     parameters = [
-    
       { name = "search"; description = "Media to search and play"; optional = false; }
-      { name = "device"; description = "Device IP to cast to"; optional = false; default = "192.168.1.223"; }
-      { name = "mediaType"; description = "Media Type to search and play"; optional = true; default = "tv"; }
-      
+      { name = "typ"; description = "Media type"; default = "tv"; } 
     ];
     code = ''
       ${cmdHelpers}
-      target_device="$device"
-      media_type="$mediaType"
+      media_type="$typ"
       media_search="$search"
-      run_cmd "tv $target_device $media_search $media_type"
+      run_cmd "tv shield $media_search $media_type"
     '';
   };
 }

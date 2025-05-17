@@ -5,9 +5,7 @@
     pkgs,
     ...
 } : let
-
   inherit (lib) types mkOption mkEnableOption mkMerge;
-
   importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;

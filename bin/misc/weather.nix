@@ -1,5 +1,4 @@
 # dotfiles/bin/system/weather.nix
-
 { config, pkgs, cmdHelpers, ... } : 
 let 
   WEATHER_CODES = {
@@ -14,13 +13,12 @@ let
     "368" = "🌧️";  "371" = "❄️";  "374" = "🌨️";  "377" = "🌨️";  "386" = "🌨️";
     "389" = "🌨️";  "392" = "🌧️";  "395" = "❄️";
   };
-
-
-
+  
 in {
   yo.scripts.weather = {
-    description = "Tiny Weather Forecast.";
-    category = "🧩 Miscellaneous";
+    description = "Tiny Weather Report.";
+#    category = "🧩 Miscellaneous";
+    category = "🌍 Localization";
     aliases = [ "weat" ];
     parameters = [{
       name = "location"; 
