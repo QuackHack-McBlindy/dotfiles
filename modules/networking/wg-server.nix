@@ -31,7 +31,6 @@
 in {
   config = lib.mkIf (lib.elem "wg-server" serverCfg.modules.networking) {
     sops.secrets = lib.mkIf (!config.this.installer) (
-      # Use parentheses for merged attribute sets, not curly braces
       { "${config.networking.hostName}_wireguard_private" = mkSopsSecret config.networking.hostName; }
       //
       (lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peerHosts)
