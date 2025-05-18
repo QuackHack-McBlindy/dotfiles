@@ -58,8 +58,8 @@ in {
           ${pkgs.imagemagick}/bin/magick "$tmpdir/qrcode_shadow.png" "$tmpdir/resized_duck.png" -gravity center -composite $FINAL
           
           echo "QR? Quack. 🦆"
-          echo "Done! Quack. 🦆 Opening:"
-          ${pkgs.xdg-utils}/bin/xdg-open $FINAL
+          echo "Done! Quack. 🦆 Open:"
+          echo "xdg-open $FINAL"
       '';      
       
   };}

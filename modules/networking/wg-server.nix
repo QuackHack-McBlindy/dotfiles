@@ -20,7 +20,7 @@
   ) self.nixosConfigurations;
 
   # Mobile devices configuration
-  mobileDevices = config.this.user.mobileDevices or {};
+  mobileDevices = config.this.user.me.mobileDevices or {};
 
   # Helper functions
   peerPublicKey = host: host.config.this.host.keys.publicKeys.wireguard;
@@ -90,30 +90,27 @@ in {
       
         generateQR = device: ''
           set -euxo pipefail  
-          echo "Generating QR for: ${device}"
+
           TEMP_DIR=$(mktemp -d)
-          trap 'rm -rf "$TEMP_DIR"' EXIT
-          
-          echo "Reading private key..."
+          trap 'rm -rf "$TEMP_DIR"' EXIT  
           PRIVATE_KEY=$(cat ${config.sops.secrets."${device}_wireguard_private".path})
           
-          echo "Creating config..."
           cat > "$TEMP_DIR/${device}.conf" <<EOF
-          [Interface]
-          PrivateKey = $PRIVATE_KEY
-          Address = ${mobileDevices.${device}.wgip}/24
-          DNS = ${serverCfg.ip}
+[Interface]
+PrivateKey = $PRIVATE_KEY
+Address = ${mobileDevices.${device}.wgip}/24
+DNS = ${serverCfg.ip}
       
-          [Peer]
-          PublicKey = ${serverCfg.keys.publicKeys.wireguard}
-          AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
-          Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
-          PersistentKeepalive = 25
-          EOF
+[Peer]
+PublicKey = ${serverCfg.keys.publicKeys.wireguard}
+AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
+Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
+PersistentKeepalive = 25
+EOF
           
           echo "Generating QR code..."
-          qrencode -t PNG -o "/home/wgUser/${device}.png" < "$TEMP_DIR/${device}.conf"
-          ls -l "/home/wgUser/${device}.png"  
+          ${config.yo.package}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
+#          qrencode -t PNG -o "/home/wgUser/${device}.png" < "$TEMP_DIR/${device}.conf"
         '';
       
       in ''
@@ -122,7 +119,6 @@ in {
         echo "All devices processed"
       '';
    
-
 
 #      script = let
 #        deleteOld = lib.concatMapStringsSep "\n" (d: ''

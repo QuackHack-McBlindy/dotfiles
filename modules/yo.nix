@@ -575,6 +575,11 @@ in {
       default = {};
       description = "Attribute set of scripts to be made available";
     };
+    yo.package = mkOption {
+      type = types.package;
+      readOnly = true;
+      description = "The final yo scripts package";
+    };
     yo.bitch = {
       language = mkOption {
         type = types.str;
@@ -723,7 +728,7 @@ in {
       yoScriptsPackage
       updateReadme
     ];
-    
+    yo.package = yoScriptsPackage;
   };}
 
 
