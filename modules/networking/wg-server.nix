@@ -105,7 +105,7 @@ in {
           EOF
 
           qrencode -t PNG -o "/home/wgUser/${device}.png" < "$TEMP_DIR/${device}.conf"
-          yo qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
+#          yo qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
           rm -rf "$TEMP_DIR"
         '';
 
