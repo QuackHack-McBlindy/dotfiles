@@ -30,7 +30,8 @@ __Sup ducks? 🦆 qwack on__ <br>
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
-  
+<br>
+
 __Home to machine configurations,__  
 __crafted as a minimalist Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
