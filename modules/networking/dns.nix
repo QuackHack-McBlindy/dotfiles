@@ -1,3 +1,4 @@
+# dotfiles/modules/networking/dns.nix
 { 
   config,
   lib,

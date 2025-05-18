@@ -1,3 +1,9 @@
+# dotfiles/modules/networking/wg-server.nix
+# WWireGuard Server Configuration
+# A dynmaic approach to configuring WireGuard, this file handles everything from
+# yser creatuibn,secret handling of the WireGuard private keys, setting up peer configuration for all Nix OS machines but also 
+# all your external devices and auto generating QR codes for them.
+# Remember to set `this.user.mobileDevices.<device>.pubkey` & `wgip`
 { 
   config,
   lib,

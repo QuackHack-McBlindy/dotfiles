@@ -1,3 +1,4 @@
+# dotfiles/modules/networking/wg-client.nix
 { 
   config,
   lib,

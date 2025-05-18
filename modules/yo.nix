@@ -80,6 +80,33 @@ let
     set -euo pipefail
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
+    
+    # Extract versions
+    nixos_version=$(nixos-version | cut -d. -f1-2)
+    kernel_version=$(uname -r | cut -d'-' -f1)
+    nix_version=$(nix --version | awk '{print $3}')
+    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
+    gnome_version=$(gnome-shell --version | awk '{print $3}')
+    python_version=$(python3 --version | awk '{print $2}')
+
+    # Construct badge URLs with proper parameters and escaping
+    nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
+    linux_badge="https://img.shields.io/badge/Linux-''${kernel_version}-red?style=flat-square\\&logo=linux\\&logoColor=white"
+    nix_badge="https://img.shields.io/badge/Nix-''${nix_version}-blue?style=flat-square\\&logo=nixos\\&logoColor=white"
+    bash_badge="https://img.shields.io/badge/bash-''${bash_version}-red?style=flat-square\\&logo=gnubash\\&logoColor=white"
+    gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
+    python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
+
+    # Update badges in README.md
+    sed -i -E \
+      -e "s|https://img.shields.io/badge/NixOS-[^?]*|$nixos_badge|g" \
+      -e "s|https://img.shields.io/badge/Linux-[^?]*|$linux_badge|g" \
+      -e "s|https://img.shields.io/badge/Nix-[^?]*|$nix_badge|g" \
+      -e "s|https://img.shields.io/badge/bash-[^?]*|$bash_badge|g" \
+      -e "s|https://img.shields.io/badge/GNOME-[^?]*|$gnome_badge|g" \
+      -e "s|https://img.shields.io/badge/Python-[^?]*|$python_badge|g" \
+      "$README_PATH"
+    
     # Inside the shell script portion, use Nix-provided version
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
@@ -133,40 +160,40 @@ EOF
 
     tmpfile=$(mktemp)
 
-    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
-    gnome_version=$(gnome-shell --version | awk '{print $3}')
-    sanitized_bash=''${bash_version//./%2E}
-    sanitized_gnome=''${gnome_version//./%2E}
+#    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
+#    gnome_version=$(gnome-shell --version | awk '{print $3}')
+#    sanitized_bash=''${bash_version//./%2E}
+#    sanitized_gnome=''${gnome_version//./%2E}
 
-    bash_badge="https://img.shields.io/badge/Bash-''${sanitized_bash}-red"
-    gnome_badge="https://img.shields.io/badge/GNOME-''${sanitized_gnome}-purple"
-    sed -i "s|https://img.shields.io/badge/Bash-[^-]*-red|$bash_badge|g" "$README_PATH"
-    sed -i "s|https://img.shields.io/badge/GNOME-[^-]*-purple|$gnome_badge|g" "$README_PATH"
+#    bash_badge="https://img.shields.io/badge/Bash-''${sanitized_bash}-red"
+#    gnome_badge="https://img.shields.io/badge/GNOME-''${sanitized_gnome}-purple"
+#    sed -i "s|https://img.shields.io/badge/Bash-[^-]*-red|$bash_badge|g" "$README_PATH"
+#    sed -i "s|https://img.shields.io/badge/GNOME-[^-]*-purple|$gnome_badge|g" "$README_PATH"
 
     # Get current versions
-    nixos_version=$(nixos-version | cut -d. -f1-2 | tr . %2E)
-    kernel_version=$(uname -r | cut -d'-' -f1)
-    nix_version=$(nix --version | awk '{print $3}')
+#    nixos_version=$(nixos-version | cut -d. -f1-2 | tr . %2E)
+#    kernel_version=$(uname -r | cut -d'-' -f1)
+#    nix_version=$(nix --version | awk '{print $3}')
 
     # Update README.md with proper escaping
-    sed -i -E \
-      -e "s/NixOS-[0-9]+%2E[0-9]+/NixOS-$nixos_version/g" \
-      -e "s/Linux-[0-9]+\.[0-9]+\.[0-9]+/Linux-$kernel_version/g" \
-      -e "s/Nix-[0-9]+\.[0-9]+\.[0-9]+/Nix-$nix_version/g" \
-      "$README_PATH"
+#    sed -i -E \
+#      -e "s/NixOS-[0-9]+%2E[0-9]+/NixOS-$nixos_version/g" \
+#      -e "s/Linux-[0-9]+\.[0-9]+\.[0-9]+/Linux-$kernel_version/g" \
+#      -e "s/Nix-[0-9]+\.[0-9]+\.[0-9]+/Nix-$nix_version/g" \
+#      "$README_PATH"
     
     # Version extraction
-    VERSION=$( (grep VERSION_ID= /etc/os-release || echo 'VERSION_ID="0.0"') | cut -d= -f2 | tr -d '"')
-    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
-      echo "⚠️  Invalid version detected: $VERSION, using fallback"
-      VERSION="unknown"
-    fi
+#    VERSION=$( (grep VERSION_ID= /etc/os-release || echo 'VERSION_ID="0.0"') | cut -d= -f2 | tr -d '"')
+#    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
+#      echo "⚠️  Invalid version detected: $VERSION, using fallback"
+#      VERSION="unknown"
+#    fi
 
     # Sanitized badge URL construction
-    VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
-    SANITIZED_VERSION=''${VERSION//./%2E}
-    BADGE_URL="https://img.shields.io/badge/NixOS-''${SANITIZED_VERSION}-blue"
-    sed -i "s|https://img.shields.io/badge/NixOS-[^-]*-blue|''${BADGE_URL}|g" README.md
+#    VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
+#    SANITIZED_VERSION=''${VERSION//./%2E}
+#    BADGE_URL="https://img.shields.io/badge/NixOS-''${SANITIZED_VERSION}-blue"
+#    sed -i "s|https://img.shields.io/badge/NixOS-[^-]*-blue|''${BADGE_URL}|g" README.md
 
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(

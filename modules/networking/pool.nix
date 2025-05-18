@@ -1,3 +1,4 @@
+# dotfiles/modules/networking/pool.nix
 { 
   config,
   lib,
@@ -9,7 +10,6 @@
             wantedBy = [ "multi-user.target" ];
             after = [ "network-online.target" ];
             requires = [ "network-online.target" ];
-
             serviceConfig = {
                 Type = "oneshot";
                 RemainAfterExit = true;

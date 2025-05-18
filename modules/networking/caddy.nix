@@ -1,3 +1,4 @@
+# dotfiles/modules/networking/caddy.nix
 { 
   config,
   lib,
@@ -17,8 +18,7 @@
 ${duckEnv1}
 EOF
       '';
-      
-      
+            
   duckEnv2 = ''
     "@DUCKENV2@"
   '';
@@ -30,8 +30,7 @@ EOF
         cat > $out <<EOF
 ${duckEnv2}
 EOF
-      '';
-      
+      '';      
 
   duckEnv3 = ''
     "@DUCKENV3@"
@@ -108,7 +107,6 @@ in {
             "d /var/lib/caddy 0755 caddy caddy - -"
         ];
         
-
 #      virtualisation.oci-containers = {
 #        backend = "docker";
 #        containers = {
@@ -156,7 +154,6 @@ in {
 #        };
 #      };
 
-
       systemd.services.duckdns_config1 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
 
@@ -198,10 +195,8 @@ in {
         };
       };
 
-
       systemd.services.duckdns_config3 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];
-
         preStart = ''
           mkdir -p /run/duckdns
           sed -e "/@DUCKENV3@/{
@@ -244,7 +239,6 @@ in {
           group = "duckdns";
           mode = "0660";
         };
-
       };
 
       users.users.duckdns = {

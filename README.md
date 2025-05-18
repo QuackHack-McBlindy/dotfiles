@@ -1,8 +1,14 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25%2E05-blue) ![License](https://img.shields.io/badge/license-MIT-black) ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red) ![GNOME](https://img.shields.io/badge/GNOME-47%2E4-purple) ![Bash](https://img.shields.io/badge/bash-5.2.21-red) ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue)
+![NixOS](https://img.shields.io/badge/NixOS-25.05-blue?style=flat-square&logo=NixOS&logoColor=white?style=flat-square&logo=NixOS&logoColor=white)
+![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red?style=flat-square&logo=linux&logoColor=white?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-47.4-purple?style=flat-square&logo=gnome&logoColor=white?style=flat-square&logo=gnome&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white?style=flat-square&logo=gnubash&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white?style=flat-square&logo=python&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white?style=flat-square&logo=nixos&logoColor=white)
 
-[![About](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
+[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 
 _This is a <abbr title="Magically automated with duck-powered quackery">automagiduckically</abbr> updated README.md_
 
@@ -30,6 +36,7 @@ __that deploys, docs, and ducks around__ 🦆✨
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
+
 
 <br><br>
 
@@ -211,20 +218,16 @@ git+file:///home/pungkula/dotfiles
 └───packages
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)
-    │   ├───hold omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
-    │   ├───yo-bitch omitted (use '--all-systems' to show)
-    │   └───yo-mic omitted (use '--all-systems' to show)
+    │   └───yo-bitch omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
-        ├───hold: package 'hold'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───say: package 'say'
         ├───tv: package 'tv'
-        ├───yo-bitch: package 'yo-bitch'
-        └───yo-mic: package 'yo-mic'
+        └───yo-bitch: package 'yo-bitch'
 ```
   <!-- TREE_END -->
 
@@ -235,13 +238,14 @@ git+file:///home/pungkula/dotfiles
 
 ## 💬 **Comments?**
 
-**Nix Talk?**  
-**O just tell me tiny flake sucks?**   
+**Nix Talk? Or just tell me tiny flake sucks?**   
 **That's cool!**  
 **I am all ears. 👀**  
 
-[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
-[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=for-the-badge&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
+[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](https://matrix.to/#/#your-matrix-room:matrix.org)
+[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
+[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:email@protonmail.com)
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
+
 
 
