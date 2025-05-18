@@ -22,13 +22,6 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 __Sup ducks? 🦆 qwack on__ <br>
 
-__Home to machine configurations,__  
-__crafted as a minimalist Nix flake__  
-__Glued together by a Nix-flavoured command line utility,__  
-__that deploys, docs, and ducks around__ 🦆✨  
-
-<br>
-
 ## **📌 Highlights**
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
@@ -37,8 +30,106 @@ __that deploys, docs, and ducks around__ 🦆✨
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
-
 <br><br>
+
+## ❄️ **Flake**
+
+__Home to machine configurations,__  
+__crafted as a minimalist Nix flake__  
+__Glued together by a Nix-flavoured command line utility,__  
+__that deploys, docs, and ducks around__ 🦆✨  
+
+<br>
+
+__I define myself at `config.this.user.me`.__  
+__I define host data at `config.this.host`.__  
+
+__I like my modules dynamic & my flakes tiny__  
+
+<details><summary><strong>
+Display Flake  
+</strong></summary>
+
+<!-- FLAKE_START -->
+```nix
+# dotfiles/flake.nix
+{ 
+    description = "❄️🦆 QuackHack-McBlindy's NixOS Flakes.";
+    inputs = {
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
+        sops-nix.url = "github:Mic92/sops-nix";
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
+    };
+    outputs = inputs @ { self, systems, nixpkgs, ... }:
+        let
+            lib = import ./lib {
+                inherit self inputs;
+                lib = nixpkgs.lib;      
+            };                   
+        in lib.makeFlake {
+            systems = [ "x86_64-linux" "aarch64-linux" ]; 
+            overlays = [ ];
+            hosts = lib.mapHosts ./hosts;
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
+            packages = lib.mapModules ./packages import;
+            devShells = lib.mapModules ./devShells (path: import path);     
+        };}
+```
+<!-- FLAKE_END -->
+</details>
+
+<br>
+
+<details><summary><strong>
+Display Flake Outputs
+</strong></summary>
+
+  <!-- TREE_START -->
+```nix
+git+file:///home/pungkula/dotfiles
+├───devShells
+│   ├───aarch64-linux
+│   │   ├───android omitted (use '--all-systems' to show)
+│   │   ├───go omitted (use '--all-systems' to show)
+│   │   ├───java omitted (use '--all-systems' to show)
+│   │   ├───node omitted (use '--all-systems' to show)
+│   │   ├───python omitted (use '--all-systems' to show)
+│   │   └───rust omitted (use '--all-systems' to show)
+│   └───x86_64-linux
+│       ├───android: development environment 'nix-shell'
+│       ├───go: development environment 'nix-shell'
+│       ├───java: development environment 'nix-shell'
+│       ├───node: development environment 'nix-shell'
+│       ├───python: development environment 'nix-shell'
+│       └───rust: development environment 'nix-shell'
+├───nixosConfigurations
+│   ├───desktop: NixOS configuration
+│   ├───homie: NixOS configuration
+│   ├───laptop: NixOS configuration
+│   └───nasty: NixOS configuration
+└───packages
+    ├───aarch64-linux
+    │   ├───health omitted (use '--all-systems' to show)
+    │   ├───installer omitted (use '--all-systems' to show)
+    │   ├───say omitted (use '--all-systems' to show)
+    │   ├───tv omitted (use '--all-systems' to show)
+    │   └───yo-bitch omitted (use '--all-systems' to show)
+    └───x86_64-linux
+        ├───health: package 'health'
+        ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
+        ├───say: package 'say'
+        ├───tv: package 'tv'
+        └───yo-bitch: package 'yo-bitch'
+```
+  <!-- TREE_END -->
+
+</details>
+
+
+
+<br>
 
 ## **🛟 Quick Start**
 
@@ -140,98 +231,6 @@ For specific command help:
 `yo <command> --help`
 `yo <command> -h`
 <!-- YO_DOCS_END -->
-
-
-<br><br>
-
-## ❄️ **Flake**
-
-*I like to keep my flakes cool & tiny.*  
-*At first glance, this tiny flake may seem like an ordinary tiny flake*  
-*But considering how the modules are constructed,*  
-*I think calling this tiny flake a tiny upside-down flake would be more accurate.*  <br><br>
-
-
-<details><summary><strong>
-Display Flake  
-</strong></summary>
-
-<!-- FLAKE_START -->
-```nix
-# dotfiles/flake.nix
-{ 
-    description = "❄️🦆 QuackHack-McBlindy's NixOS Flakes.";
-    inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
-        sops-nix.url = "github:Mic92/sops-nix";
-        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
-        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
-        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
-    };
-    outputs = inputs @ { self, systems, nixpkgs, ... }:
-        let
-            lib = import ./lib {
-                inherit self inputs;
-                lib = nixpkgs.lib;      
-            };                   
-        in lib.makeFlake {
-            systems = [ "x86_64-linux" "aarch64-linux" ]; 
-            overlays = [ ];
-            hosts = lib.mapHosts ./hosts;
-            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
-            packages = lib.mapModules ./packages import;
-            devShells = lib.mapModules ./devShells (path: import path);     
-        };}
-```
-<!-- FLAKE_END -->
-</details>
-
-<br>
-
-<details><summary><strong>
-Display Flake Outputs
-</strong></summary>
-
-  <!-- TREE_START -->
-```nix
-git+file:///home/pungkula/dotfiles
-├───devShells
-│   ├───aarch64-linux
-│   │   ├───android omitted (use '--all-systems' to show)
-│   │   ├───go omitted (use '--all-systems' to show)
-│   │   ├───java omitted (use '--all-systems' to show)
-│   │   ├───node omitted (use '--all-systems' to show)
-│   │   ├───python omitted (use '--all-systems' to show)
-│   │   └───rust omitted (use '--all-systems' to show)
-│   └───x86_64-linux
-│       ├───android: development environment 'nix-shell'
-│       ├───go: development environment 'nix-shell'
-│       ├───java: development environment 'nix-shell'
-│       ├───node: development environment 'nix-shell'
-│       ├───python: development environment 'nix-shell'
-│       └───rust: development environment 'nix-shell'
-├───nixosConfigurations
-│   ├───desktop: NixOS configuration
-│   ├───homie: NixOS configuration
-│   ├───laptop: NixOS configuration
-│   └───nasty: NixOS configuration
-└───packages
-    ├───aarch64-linux
-    │   ├───health omitted (use '--all-systems' to show)
-    │   ├───installer omitted (use '--all-systems' to show)
-    │   ├───say omitted (use '--all-systems' to show)
-    │   ├───tv omitted (use '--all-systems' to show)
-    │   └───yo-bitch omitted (use '--all-systems' to show)
-    └───x86_64-linux
-        ├───health: package 'health'
-        ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
-        ├───say: package 'say'
-        ├───tv: package 'tv'
-        └───yo-bitch: package 'yo-bitch'
-```
-  <!-- TREE_END -->
-
-</details>
 
 
 <br><br>
