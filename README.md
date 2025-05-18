@@ -1,12 +1,12 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
-![NixOS](https://img.shields.io/badge/NixOS-25.05-blue?style=flat-square&logo=NixOS&logoColor=white?style=flat-square&logo=NixOS&logoColor=white)
+![NixOS](https://img.shields.io/badge/NixOS-25.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red?style=flat-square&logo=linux&logoColor=white?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-47.4-purple?style=flat-square&logo=gnome&logoColor=white?style=flat-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white?style=flat-square&logo=python&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white?style=flat-square&logo=nixos&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-47.4-purple?style=flat-square&logo=gnome&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
 

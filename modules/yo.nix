@@ -97,14 +97,14 @@ let
     gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
     python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
 
-    # Update badges in README.md
+    # Update badges in README.md with full URL replacement
     sed -i -E \
-      -e "s|https://img.shields.io/badge/NixOS-[^?]*|$nixos_badge|g" \
-      -e "s|https://img.shields.io/badge/Linux-[^?]*|$linux_badge|g" \
-      -e "s|https://img.shields.io/badge/Nix-[^?]*|$nix_badge|g" \
-      -e "s|https://img.shields.io/badge/bash-[^?]*|$bash_badge|g" \
-      -e "s|https://img.shields.io/badge/GNOME-[^?]*|$gnome_badge|g" \
-      -e "s|https://img.shields.io/badge/Python-[^?]*|$python_badge|g" \
+      -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
+      -e "s|https://img.shields.io/badge/Linux-[^)]*|$linux_badge|g" \
+      -e "s|https://img.shields.io/badge/Nix-[^)]*|$nix_badge|g" \
+      -e "s|https://img.shields.io/badge/bash-[^)]*|$bash_badge|g" \
+      -e "s|https://img.shields.io/badge/GNOME-[^)]*|$gnome_badge|g" \
+      -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
       "$README_PATH"
     
     # Inside the shell script portion, use Nix-provided version
