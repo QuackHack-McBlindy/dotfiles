@@ -30,16 +30,14 @@ __Sup ducks? 🦆 qwack on__ <br>
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
-<br><br>
-
-## ❄️ **Flake**
-
+  
 __Home to machine configurations,__  
 __crafted as a minimalist Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
 __that deploys, docs, and ducks around__ 🦆✨  
+  
 
-<br>
+## ❄️ **Flake**
 
 __I define myself at `config.this.user.me`.__  
 __I define host data at `config.this.host`.__  
