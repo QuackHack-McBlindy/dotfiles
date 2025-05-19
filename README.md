@@ -32,18 +32,18 @@ __Sup ducks? 🦆 qwack on__ <br>
 
 <br>
 
-__Home to machine configurations,__  
-__crafted as a minimalist Nix flake__  
+__Here lives home machines configurations,__  
+__crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
-__that deploys, docs, and ducks around__ 🦆✨  
+__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
   
 
 ## ❄️ **Flake**
 
 __I define myself at `config.this.user.me`.__  
-__I define host data at `config.this.host`.__  
+__I define each hosts data at `config.this.host`.__  
 
-__I like my modules dynamic & my flakes tiny__  
+__I like my flakes tiny & ny modules dynamic,__  
 
 <details><summary><strong>
 Display Flake  
@@ -124,11 +124,8 @@ git+file:///home/pungkula/dotfiles
 ```
   <!-- TREE_END -->
 
-</details>
+</details>  
 
-
-
-<br>
 
 ## **🛟 Quick Start**
 
@@ -240,10 +237,8 @@ For specific command help:
 **That's cool!**  
 **I am all ears. 👀**  
 
-[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](https://matrix.to/#/#your-matrix-room:matrix.org)
-[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
-[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:email@protonmail.com)
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/quackhack-mcblindy/dotfiles/discussions)
+[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](https://matrix.to/#/#my-matrix-room:matrix.org)
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
 
 
 

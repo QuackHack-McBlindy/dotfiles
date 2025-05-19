@@ -45,7 +45,6 @@
     services.fwupd.enable = true;
    
     this = {
-        installer = false;
         home = ./../../home;
         theme.name = "gtk3.css"; 
         user = {       

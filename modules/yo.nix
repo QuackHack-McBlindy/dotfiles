@@ -1,3 +1,4 @@
+# dotfiles/modules/yo.nix
 { 
   config,
   lib,
@@ -80,7 +81,56 @@ let
     set -euo pipefail
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
-    
+   
+    # Get social URLs from config
+    matrix_url="${config.this.user.me.matrix}"
+    discord_url="${config.this.user.me.discord}"
+    email_address="${config.this.user.me.email}"
+    repo_url="${config.this.user.me.repo}"
+
+    # Compute GitHub Discussions URL
+    if [[ -n "$repo_url" ]]; then
+      if [[ "$repo_url" =~ git@github.com:([^/]+)/([^/]+)\.git ]]; then
+        repo_owner="''${BASH_REMATCH[1]}"
+        repo_name="''${BASH_REMATCH[2]%.git}"
+        github_discussions_url="https://github.com/''${repo_owner}/''${repo_name}/discussions"
+      elif [[ "$repo_url" =~ https://github.com/([^/]+)/([^/]+)\.git ]]; then
+        repo_owner="''${BASH_REMATCH[1]}"
+        repo_name="''${BASH_REMATCH[2]%.git}"
+        github_discussions_url="https://github.com/''${repo_owner}/''${repo_name}/discussions"
+      else
+        github_discussions_url=""
+      fi
+    else
+      github_discussions_url=""
+    fi
+
+    # Update/remove social badges
+    if [[ -n "$matrix_url" ]]; then
+      sed -i -E "s|(\[!\[Matrix\][^]]*\])\([^)]*\)|\1(''${matrix_url})|g" "$README_PATH"
+    else
+      sed -i "/!\[Matrix\]/d" "$README_PATH"
+    fi
+
+    if [[ -n "$discord_url" ]]; then
+      sed -i -E "s|(\[!\[Discord\][^]]*\])\([^)]*\)|\1(''${discord_url})|g" "$README_PATH"
+    else
+      sed -i "/!\[Discord\]/d" "$README_PATH"
+    fi
+
+    if [[ -n "$email_address" ]]; then
+      sed -i -E "s|(\[!\[Email\][^]]*\])\([^)]*\)|\1(mailto:''${email_address})|g" "$README_PATH"
+    else
+      sed -i "/!\[Email\]/d" "$README_PATH"
+    fi
+
+    if [[ -n "$github_discussions_url" ]]; then
+      sed -i -E "s|(\[!\[GitHub Discussions\][^]]*\])\([^)]*\)|\1(''${github_discussions_url})|g" "$README_PATH"
+    else
+      sed -i "/!\[GitHub Discussions\]/d" "$README_PATH"
+    fi    
+  
+   
     # Extract versions
     nixos_version=$(nixos-version | cut -d. -f1-2)
     kernel_version=$(uname -r | cut -d'-' -f1)
@@ -96,6 +146,8 @@ let
     bash_badge="https://img.shields.io/badge/bash-''${bash_version}-red?style=flat-square\\&logo=gnubash\\&logoColor=white"
     gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
     python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
+
+
 
     # Update badges in README.md with full URL replacement
     sed -i -E \
@@ -159,41 +211,6 @@ EOF
     )
 
     tmpfile=$(mktemp)
-
-#    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
-#    gnome_version=$(gnome-shell --version | awk '{print $3}')
-#    sanitized_bash=''${bash_version//./%2E}
-#    sanitized_gnome=''${gnome_version//./%2E}
-
-#    bash_badge="https://img.shields.io/badge/Bash-''${sanitized_bash}-red"
-#    gnome_badge="https://img.shields.io/badge/GNOME-''${sanitized_gnome}-purple"
-#    sed -i "s|https://img.shields.io/badge/Bash-[^-]*-red|$bash_badge|g" "$README_PATH"
-#    sed -i "s|https://img.shields.io/badge/GNOME-[^-]*-purple|$gnome_badge|g" "$README_PATH"
-
-    # Get current versions
-#    nixos_version=$(nixos-version | cut -d. -f1-2 | tr . %2E)
-#    kernel_version=$(uname -r | cut -d'-' -f1)
-#    nix_version=$(nix --version | awk '{print $3}')
-
-    # Update README.md with proper escaping
-#    sed -i -E \
-#      -e "s/NixOS-[0-9]+%2E[0-9]+/NixOS-$nixos_version/g" \
-#      -e "s/Linux-[0-9]+\.[0-9]+\.[0-9]+/Linux-$kernel_version/g" \
-#      -e "s/Nix-[0-9]+\.[0-9]+\.[0-9]+/Nix-$nix_version/g" \
-#      "$README_PATH"
-    
-    # Version extraction
-#    VERSION=$( (grep VERSION_ID= /etc/os-release || echo 'VERSION_ID="0.0"') | cut -d= -f2 | tr -d '"')
-#    if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+$ ]]; then
-#      echo "⚠️  Invalid version detected: $VERSION, using fallback"
-#      VERSION="unknown"
-#    fi
-
-    # Sanitized badge URL construction
-#    VERSION=$(grep VERSION_ID= /etc/os-release | cut -d= -f2 | tr -d '"')
-#    SANITIZED_VERSION=''${VERSION//./%2E}
-#    BADGE_URL="https://img.shields.io/badge/NixOS-''${SANITIZED_VERSION}-blue"
-#    sed -i "s|https://img.shields.io/badge/NixOS-[^-]*-blue|''${BADGE_URL}|g" README.md
 
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(

@@ -114,7 +114,6 @@
       
     
     this = {
-        installer = false;
         home = ./../../home;
         theme = {
             name = "gtk3.css"; 
@@ -138,9 +137,10 @@
             me = {
                 name = "pungkula";
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
+                discord = "";
+                email = "";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
-                extraDevices = [ "iphone" "tablet" "watch" ];
                 mobileDevices = {
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
