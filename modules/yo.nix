@@ -82,46 +82,18 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
     CONTACT_OUTPUT=""
-   
-    matrix_url="${config.this.user.me.matrix}"
-    discord_url="${config.this.user.me.discord}"
-    email_address="${config.this.user.me.email}"
-    repo_url="${config.this.user.me.repo}"
+    declare -A contact_badges=(
+      ["matrix"]="Matrix-Chat-000000:matrix:${config.this.user.me.matrix}"
+      ["discord"]="Discord-Chat-5865F2:discord:${config.this.user.me.discord}"
+      ["email"]="Email-Contact-6D4AFF:protonmail:mailto:${config.this.user.me.email}"
+    )
 
-    # Compute GitHub Discussions URL
-    if [[ -n "$repo_url" ]]; then
-      if [[ "$repo_url" =~ git@github.com:([^/]+)/([^/]+)\.git ]]; then
-        repo_owner="''${BASH_REMATCH[1]}"
-        repo_name="''${BASH_REMATCH[2]%.git}"
-        github_discussions_url="https://github.com/''${repo_owner}/''${repo_name}/discussions"
-      elif [[ "$repo_url" =~ https://github.com/([^/]+)/([^/]+)\.git ]]; then
-        repo_owner="''${BASH_REMATCH[1]}"
-        repo_name="''${BASH_REMATCH[2]%.git}"
-        github_discussions_url="https://github.com/''${repo_owner}/''${repo_name}/discussions"
-      else
-        github_discussions_url=""
+    for badge in "matrix" "discord" "email"; do
+      IFS=':' read -r label color logo url <<< "''${contact_badges[$badge]}"
+      if [[ -n "$url" ]]; then
+        CONTACT_OUTPUT+="[![$label](https://img.shields.io/badge/$label-$color?style=flat-square&logo=$logo&logoColor=white)]($url)"$'\n'
       fi
-    else
-      github_discussions_url=""
-    fi
-
-
-##
-
-    # Matrix badge
-    if [[ -n "${config.this.user.me.matrix}" ]]; then
-      CONTACT_OUTPUT+="[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](${config.this.user.me.matrix})"$'\n'
-    fi
-
-    # Discord badge
-    if [[ -n "${config.this.user.me.discord}" ]]; then
-      CONTACT_OUTPUT+="[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](${config.this.user.me.discord})"$'\n'
-    fi
-
-    # Email badge
-    if [[ -n "${config.this.user.me.email}" ]]; then
-      CONTACT_OUTPUT+="[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:${config.this.user.me.email})"$'\n'
-    fi
+    done
 
     # GitHub Discussions badge
     if [[ -n "${config.this.user.me.repo}" ]]; then
@@ -132,17 +104,10 @@ let
       fi
     fi
 
-    # Create temp file with contact block
-    CONTACT_BLOCK=$(
-      echo "<!-- CONTACT_START -->"
-      echo "$CONTACT_OUTPUT"
-      echo "<!-- CONTACT_END -->"
-    )
-
     # Update contact section
-    awk -v block="$CONTACT_BLOCK" '
+    awk -v contact_block="<!-- CONTACT_START -->\n''${CONTACT_OUTPUT}<!-- CONTACT_END -->" '
       BEGIN { in_contact = 0; printed = 0 }
-      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 1 }
+      /<!-- CONTACT_START -->/ { in_contact = 1; print contact_block; printed = 1 }
       /<!-- CONTACT_END -->/ { in_contact = 0; next }
       !in_contact && !printed { print }
       printed && !in_contact { printed = 0 }
@@ -181,7 +146,7 @@ let
       echo '```'
     )
 
-    #  Get generated help text from Nix-built file
+    #  Get generated help text
     HELP_CONTENT=$(<${helpTextFile})
 
     DOCS_CONTENT=$(cat <<'EOF'
@@ -278,7 +243,6 @@ EOF
       !in_docs && !in_tree && !in_flake { print }
     ' "$README_PATH" > "$tmpfile"
 
-
     # Diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
       echo "🌀 Changes detected, updating README.md"
@@ -291,7 +255,7 @@ EOF
       echo "✅ No content changes needed"
     fi
 
-    # Only replace if different and writable
+    # Only replace if different
     if ! diff -q "$tmpfile" "$README_PATH" >/dev/null; then
       if [ -w "$README_PATH" ]; then
         cat "$tmpfile" > "$README_PATH"
@@ -313,62 +277,53 @@ EOF
   in lib.concatStringsSep "\n" exports;
 
   scriptType = types.submodule ({ name, ... }: {
+  
+#== OPTIONS =====================#    
     options = {
-    
       name = mkOption {
         type = types.str;
         internal = true;
         readOnly = true;
         default = name;
         description = "Script name (derived from attribute key)";
-      };
-      
+      };      
       description = mkOption {
         type = types.str;
         description = "Description of the script";
       };
-
       keywords = mkOption {
         type = types.listOf types.string;
         default = [];
         description = "List of keywords used for parsing";
-      };
-      
+      };     
       category = mkOption {
         type = types.str;
         description = "Category of the script";
-      };
-    
+      };  
       autoCorrections = lib.mkOption {
         type = lib.types.attrsOf lib.types.str;
         default = {};
         description = "Word replacement mappings for input auto-correction";
-      };
-    
+      };  
       packages = mkOption {
         type = types.listOf types.package;
         default = [];
         description = "List of packages needed by this script";
       };
-   
       helpFooter = mkOption {
         type = types.lines;
         default = "";
         description = "Additional shell code to run when generating help text";
-      };
-      
+      };      
       code = mkOption {
         type = types.lines;
         description = "The script code";
-      };
-      
+      };      
       aliases = mkOption {
         type = types.listOf types.str;
         default = [];
         description = "Alternative command names for this script";
-      };  
-
-
+      };
       parameters = mkOption {
         type = types.listOf (types.submodule {
           options = {
@@ -379,8 +334,6 @@ EOF
               default = null;
               description = "Default value if parameter is not provided";
             };
-      
-            # Then declare optional using the now-available default
             optional = mkOption { 
               type = types.bool; 
               default = ./default != null;
@@ -395,10 +348,8 @@ EOF
         default = [];
         description = "Parameters accepted by this script";
       };
-    };    
-    
+    };        
   });
-
 
   cfg = config.yo;
 
@@ -463,7 +414,6 @@ ${lib.concatStringsSep "\n" (map (param: ''
 '') script.parameters)}
 ''}
 
-
 $help_footer
 EOF
                 exit 0
@@ -506,7 +456,7 @@ EOF
               fi
             '') script.parameters)}
             
-          # THEN check required parameters
+          # Then check required parameters
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional && param.default == null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
@@ -515,15 +465,6 @@ EOF
               fi
             ''}
           '') script.parameters)}
-
-#          ${concatStringsSep "\n" (map (param: ''
-#            ${optionalString (!param.optional) ''
-#              if [[ -z "''${${param.name}:-}" ]]; then
-#                echo -e "\033[1;31m❌ Missing required parameter: ${param.name}\033[0m" >&2
-#                exit 1
-#              fi
-#            ''}
-#          '') script.parameters)}
 
           # ==== Script Execution ======
           ${script.code}
@@ -559,10 +500,6 @@ EOF
     ) (attrValues cfg.scripts);
   in
     concatStringsSep "\n" rows;
-
-
-
-
  
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   helpText = let
@@ -601,15 +538,15 @@ EOF
   
 in {
   options = {
+    pkgs.yo = mkOption {
+      type = types.package;
+      readOnly = true;
+      description = "The final yo scripts package";
+    };
     yo.scripts = mkOption {
       type = types.attrsOf scriptType;
       default = {};
       description = "Attribute set of scripts to be made available";
-    };
-    yo.package = mkOption {
-      type = types.package;
-      readOnly = true;
-      description = "The final yo scripts package";
     };
     yo.bitch = {
       language = mkOption {
@@ -652,8 +589,8 @@ in {
     };
   };
 
+
   config = {
- 
     assertions = let
       scripts = cfg.scripts;
       scriptNames = attrNames scripts;
@@ -691,15 +628,13 @@ in {
           lib.concatStringsSep "\n" (lib.mapAttrsToList formatDuplicate duplicateAliases);
       }
     ];
- 
- 
+  
     system.build.updateReadme = pkgs.runCommand "update-readme" {
       helpTextFile = helpTextFile;
     } ''
       mkdir -p $out
       cp ${toString ./../README.md} $out/README.md
 
-      # Insert helpTextFile between YO_DOCS_START and YO_DOCS_END
       ${pkgs.gnused}/bin/sed -i '/<!-- YO_DOCS_START -->/,/<!-- YO_DOCS_END -->/c\
     <!-- YO_DOCS_START -->\
     ## 🦆 **Yo Commands Reference**\
@@ -759,7 +694,7 @@ in {
       yoScriptsPackage
       updateReadme
     ];
-    yo.package = yoScriptsPackage;
+    pkgs.yo = yoScriptsPackage;
   };}
 
 

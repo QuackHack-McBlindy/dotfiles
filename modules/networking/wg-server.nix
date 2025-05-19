@@ -109,7 +109,7 @@ PersistentKeepalive = 25
 EOF
           
           echo "Generating QR code..."
-          ${config.yo.package}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
+          ${config.pkgs.yo}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
 #          qrencode -t PNG -o "/home/wgUser/${device}.png" < "$TEMP_DIR/${device}.conf"
         '';
       
