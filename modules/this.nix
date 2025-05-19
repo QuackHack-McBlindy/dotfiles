@@ -46,13 +46,13 @@ in {
                         };
                         discord = mkOption {
                             type = types.str;
-                            default = "https://discordapp.com/users/675530282849533952";
+                            default = "";
                             example = "https://discordapp.com/users/675530282849533952";
                             description = "Discord profile URL. Used for contact iformation in for example the README";
                         };
                         matrix = mkOption {
                             type = types.str;
-                            default = "https://matrix.to/#/#my-matrix-room:matrix.org";
+                            default = "";
                             example = "https://matrix.to/#/#my-matrix-room:matrix.org";
                             description = "Matrix profile URL. Used for contact iformation in for example the README";
                         };
