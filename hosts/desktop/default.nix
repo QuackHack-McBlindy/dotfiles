@@ -137,8 +137,9 @@
             me = {
                 name = "pungkula";
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
-                discord = "";
-                email = "";
+                discord = "https://discordapp.com/users/675530282849533952";
+                matrix = "https://matrix.to/#/#my-cool-room:matrix.org";
+                email = "quackhack@protonmail.com";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
                 mobileDevices = {
