@@ -82,13 +82,37 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
     CONTACT_OUTPUT=""
-   
-    matrix_url="${config.this.user.me.matrix}"
-    discord_url="${config.this.user.me.discord}"
-    email_address="${config.this.user.me.email}"
-    repo_url="${config.this.user.me.repo}"
+    
+    # Extract versions
+    nixos_version=$(nixos-version | cut -d. -f1-2)
+    kernel_version=$(uname -r | cut -d'-' -f1)
+    nix_version=$(nix --version | awk '{print $3}')
+    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
+    gnome_version=$(gnome-shell --version | awk '{print $3}')
+    python_version=$(python3 --version | awk '{print $2}')  
 
-    # Compute GitHub Discussions URL
+    # Construct badge URLs
+    nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
+    linux_badge="https://img.shields.io/badge/Linux-''${kernel_version}-red?style=flat-square\\&logo=linux\\&logoColor=white"
+    nix_badge="https://img.shields.io/badge/Nix-''${nix_version}-blue?style=flat-square\\&logo=nixos\\&logoColor=white"
+    bash_badge="https://img.shields.io/badge/bash-''${bash_version}-red?style=flat-square\\&logo=gnubash\\&logoColor=white"
+    gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
+    python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
+  
+    # Contact badges
+    matrix_url="${config.this.user.me.matrix}"
+    if [[ -n "${config.this.user.me.matrix}" ]]; then
+      CONTACT_OUTPUT+="[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](${config.this.user.me.matrix})"$'\n'
+    fi
+    discord_url="${config.this.user.me.discord}"
+    if [[ -n "${config.this.user.me.discord}" ]]; then
+      CONTACT_OUTPUT+="[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](${config.this.user.me.discord})"$'\n'
+    fi
+    email_address="${config.this.user.me.email}"
+    if [[ -n "${config.this.user.me.email}" ]]; then
+      CONTACT_OUTPUT+="[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:${config.this.user.me.email})"$'\n'
+    fi
+    repo_url="${config.this.user.me.repo}"
     if [[ -n "$repo_url" ]]; then
       if [[ "$repo_url" =~ git@github.com:([^/]+)/([^/]+)\.git ]]; then
         repo_owner="''${BASH_REMATCH[1]}"
@@ -104,26 +128,6 @@ let
     else
       github_discussions_url=""
     fi
-
-
-##
-
-    # Matrix badge
-    if [[ -n "${config.this.user.me.matrix}" ]]; then
-      CONTACT_OUTPUT+="[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](${config.this.user.me.matrix})"$'\n'
-    fi
-
-    # Discord badge
-    if [[ -n "${config.this.user.me.discord}" ]]; then
-      CONTACT_OUTPUT+="[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](${config.this.user.me.discord})"$'\n'
-    fi
-
-    # Email badge
-    if [[ -n "${config.this.user.me.email}" ]]; then
-      CONTACT_OUTPUT+="[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:${config.this.user.me.email})"$'\n'
-    fi
-
-    # GitHub Discussions badge
     if [[ -n "${config.this.user.me.repo}" ]]; then
       if [[ "${config.this.user.me.repo}" =~ (git@|https://)github.com(:|/)([^/]+)/([^/]+).git ]]; then
         repo_owner="''${BASH_REMATCH[3]}"
@@ -131,48 +135,6 @@ let
         CONTACT_OUTPUT+="[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/''${repo_owner}/''${repo_name}/discussions)"$'\n'
       fi
     fi
-
-    # Create temp file with contact block
-    CONTACT_BLOCK=$(
-      echo "<!-- CONTACT_START -->"
-      echo "$CONTACT_OUTPUT"
-      echo "<!-- CONTACT_END -->"
-    )
-
-    # Update contact section
-    awk -v block="$CONTACT_BLOCK" '
-      BEGIN { in_contact = 0; printed = 0 }
-      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 1 }
-      /<!-- CONTACT_END -->/ { in_contact = 0; next }
-      !in_contact && !printed { print }
-      printed && !in_contact { printed = 0 }
-    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
-   
-    # Extract versions
-    nixos_version=$(nixos-version | cut -d. -f1-2)
-    kernel_version=$(uname -r | cut -d'-' -f1)
-    nix_version=$(nix --version | awk '{print $3}')
-    bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
-    gnome_version=$(gnome-shell --version | awk '{print $3}')
-    python_version=$(python3 --version | awk '{print $2}')
-
-    # Construct badge URLs
-    nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
-    linux_badge="https://img.shields.io/badge/Linux-''${kernel_version}-red?style=flat-square\\&logo=linux\\&logoColor=white"
-    nix_badge="https://img.shields.io/badge/Nix-''${nix_version}-blue?style=flat-square\\&logo=nixos\\&logoColor=white"
-    bash_badge="https://img.shields.io/badge/bash-''${bash_version}-red?style=flat-square\\&logo=gnubash\\&logoColor=white"
-    gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
-    python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
-
-    sed -i -E \
-      -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
-      -e "s|https://img.shields.io/badge/Linux-[^)]*|$linux_badge|g" \
-      -e "s|https://img.shields.io/badge/Nix-[^)]*|$nix_badge|g" \
-      -e "s|https://img.shields.io/badge/bash-[^)]*|$bash_badge|g" \
-      -e "s|https://img.shields.io/badge/GNOME-[^)]*|$gnome_badge|g" \
-      -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
-      "$README_PATH"
-    
     
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
@@ -226,6 +188,12 @@ EOF
 
     tmpfile=$(mktemp)
 
+    CONTACT_BLOCK=$(
+      echo "<!-- CONTACT_START -->"
+      echo "$CONTACT_OUTPUT"
+      echo "<!-- CONTACT_END -->"
+    )
+    
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
       echo '```nix'
@@ -233,13 +201,33 @@ EOF
       echo '```'
     )
 
-    # flake.nix content
+
     FLAKE_BLOCK_NIX=$(
       echo '```nix'
       cat "${config.this.user.me.dotfilesDir}/flake.nix"
       echo '```'
     )
 
+    # Update version badges
+    sed -i -E \
+      -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
+      -e "s|https://img.shields.io/badge/Linux-[^)]*|$linux_badge|g" \
+      -e "s|https://img.shields.io/badge/Nix-[^)]*|$nix_badge|g" \
+      -e "s|https://img.shields.io/badge/bash-[^)]*|$bash_badge|g" \
+      -e "s|https://img.shields.io/badge/GNOME-[^)]*|$gnome_badge|g" \
+      -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
+      "$README_PATH"
+  
+
+    # Update contact badges
+    awk -v block="$CONTACT_BLOCK" '
+      BEGIN { in_contact = 0; printed = 0 }
+      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 1 }
+      /<!-- CONTACT_END -->/ { in_contact = 0; next }
+      !in_contact && !printed { print }
+      printed && !in_contact { printed = 0 }
+    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
+ 
     awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" -v flake="$FLAKE_BLOCK_NIX" '
       BEGIN { in_docs=0; in_tree=0; in_flake=0 }
       /<!-- YO_DOCS_START -->/ {

@@ -245,4 +245,3 @@ For specific command help:
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
 
 <!-- CONTACT_END -->
-
