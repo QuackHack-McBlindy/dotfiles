@@ -240,9 +240,9 @@ For specific command help:
 **I am all ears. 👀**  
 
 <!-- CONTACT_START -->
-[![Discord-Chat-5865F2](https://img.shields.io/badge/Discord-Chat-5865F2-discord?style=flat-square&logo=https&logoColor=white)](//discordapp.com/users/675530282849533952)
-[![Email-Contact-6D4AFF](https://img.shields.io/badge/Email-Contact-6D4AFF-protonmail?style=flat-square&logo=mailto&logoColor=white)](isthisrandomenough@protonmail.com)
+[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
+[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
-<!-- CONTACT_END -->
 
+<!-- CONTACT_END -->
 

@@ -82,18 +82,46 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
     CONTACT_OUTPUT=""
-    declare -A contact_badges=(
-      ["matrix"]="Matrix-Chat-000000:matrix:${config.this.user.me.matrix}"
-      ["discord"]="Discord-Chat-5865F2:discord:${config.this.user.me.discord}"
-      ["email"]="Email-Contact-6D4AFF:protonmail:mailto:${config.this.user.me.email}"
-    )
+   
+    matrix_url="${config.this.user.me.matrix}"
+    discord_url="${config.this.user.me.discord}"
+    email_address="${config.this.user.me.email}"
+    repo_url="${config.this.user.me.repo}"
 
-    for badge in "matrix" "discord" "email"; do
-      IFS=':' read -r label color logo url <<< "''${contact_badges[$badge]}"
-      if [[ -n "$url" ]]; then
-        CONTACT_OUTPUT+="[![$label](https://img.shields.io/badge/$label-$color?style=flat-square&logo=$logo&logoColor=white)]($url)"$'\n'
+    # Compute GitHub Discussions URL
+    if [[ -n "$repo_url" ]]; then
+      if [[ "$repo_url" =~ git@github.com:([^/]+)/([^/]+)\.git ]]; then
+        repo_owner="''${BASH_REMATCH[1]}"
+        repo_name="''${BASH_REMATCH[2]%.git}"
+        github_discussions_url="https://github.com/''${repo_owner}/''${repo_name}/discussions"
+      elif [[ "$repo_url" =~ https://github.com/([^/]+)/([^/]+)\.git ]]; then
+        repo_owner="''${BASH_REMATCH[1]}"
+        repo_name="''${BASH_REMATCH[2]%.git}"
+        github_discussions_url="https://github.com/''${repo_owner}/''${repo_name}/discussions"
+      else
+        github_discussions_url=""
       fi
-    done
+    else
+      github_discussions_url=""
+    fi
+
+
+##
+
+    # Matrix badge
+    if [[ -n "${config.this.user.me.matrix}" ]]; then
+      CONTACT_OUTPUT+="[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](${config.this.user.me.matrix})"$'\n'
+    fi
+
+    # Discord badge
+    if [[ -n "${config.this.user.me.discord}" ]]; then
+      CONTACT_OUTPUT+="[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](${config.this.user.me.discord})"$'\n'
+    fi
+
+    # Email badge
+    if [[ -n "${config.this.user.me.email}" ]]; then
+      CONTACT_OUTPUT+="[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:${config.this.user.me.email})"$'\n'
+    fi
 
     # GitHub Discussions badge
     if [[ -n "${config.this.user.me.repo}" ]]; then
@@ -104,10 +132,17 @@ let
       fi
     fi
 
+    # Create temp file with contact block
+    CONTACT_BLOCK=$(
+      echo "<!-- CONTACT_START -->"
+      echo "$CONTACT_OUTPUT"
+      echo "<!-- CONTACT_END -->"
+    )
+
     # Update contact section
-    awk -v contact_block="<!-- CONTACT_START -->\n''${CONTACT_OUTPUT}<!-- CONTACT_END -->" '
+    awk -v block="$CONTACT_BLOCK" '
       BEGIN { in_contact = 0; printed = 0 }
-      /<!-- CONTACT_START -->/ { in_contact = 1; print contact_block; printed = 1 }
+      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 1 }
       /<!-- CONTACT_END -->/ { in_contact = 0; next }
       !in_contact && !printed { print }
       printed && !in_contact { printed = 0 }
