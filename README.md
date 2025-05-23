@@ -122,7 +122,7 @@ I define any optional theme at `config.this.theme`.
     package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/plwhy5jyachxqjbcrmvrqnpvnlq46f86-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/czfdblrw9p0lz6j24m2s2g27x4yiy67b-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -413,7 +413,7 @@ $ yo deploy laptop /home/pungkula/dotfiles
 # Scripts can also be executed with voice, by saying:
 "yo bitch deploy laptop"
 
-# Voice commands are parsed by internal NLP, test sentences with:
+# Voice commands are processed by internal NLP, test sentences with:
 $ yo-bitch "my test sentence"
 ```
 
@@ -443,7 +443,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
-| `yo shield --search [--typ]` | s, tv | Android TV Controller |
+| `yo shield [--typ] --search` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
@@ -475,14 +475,14 @@ For specific command help:
 
 
 <!-- CONTACT_START -->
-<!-- CONTACT_START -->
-[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
 [![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
 [![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
-[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
-
 
 <!-- CONTACT_END -->
+<!-- CONTACT_START -->
+[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
+[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
+[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
+
 <!-- CONTACT_END -->

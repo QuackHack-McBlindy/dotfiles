@@ -6,9 +6,9 @@
       arris = {
         data = [{
           sentences = [
-            "spela upp {search} {typ}"
-            "spela {search} {typ}"
-            "starta {search}"
+            "sovrum spela upp {search} {typ}"
+            "sovrum spela {search} {typ}"
+            "sovrum starta {search}"
           ];  
           lists = {
             search.wildcard = true;
@@ -43,13 +43,11 @@
     parameters = [
       { name = "typ"; description = "Media type"; default = "tv"; optional = true; }
       { name = "search"; description = "Media to search"; optional = false; }
-
     ];
     code = ''
       ${cmdHelpers}
       media_type="$typ"
       media_search="$search"
-      echo "debug: {pkgs.tv}/bin/tv arris ''$media_search ''${typ}"
       tv arris ''$media_search ''${typ}
     '';
   };

@@ -212,7 +212,7 @@ $ yo deploy laptop /home/pungkula/dotfiles
 # Scripts can also be executed with voice, by saying:
 "yo bitch deploy laptop"
 
-# Voice commands are parsed by internal NLP, test sentences with:
+# Voice commands are processed by internal NLP, test sentences with:
 $ yo-bitch "my test sentence"
 ```
 
@@ -255,7 +255,9 @@ EOF
 #    {
 #      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
 #    } > "$HOST_TMP"
-   
+
+    
+    
     USER_BLOCK=$(
       echo '```nix'
       nix eval --json \
@@ -349,9 +351,7 @@ EOF
       | sed -e '1s/^{/{/' -e 's/;;/;/g' -e '/^$/d'
       echo '```'
     )    
-   
-   
-
+     
     # Update version badges
     sed -i -E \
       -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
@@ -370,6 +370,7 @@ EOF
       !in_contact && !printed { print }
       printed && !in_contact { printed = 0 }
     ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
+    
     awk -v docs="$DOCS_CONTENT" \
         -v contact="$CONTACT_BLOCK" \
         -v tree="$FLAKE_BLOCK" \
@@ -391,9 +392,6 @@ EOF
       /<!-- TREE_END -->/ { in_tree=0; print; next }
       /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
       /<!-- FLAKE_END -->/ { in_flake=0; print; next }
-      !in_contact && !in_docs && !in_tree && !in_flake && !in_host && !in_user && !in_theme && !contact_printed {
-        print;
-      }
       !in_docs && !in_tree && !in_theme && !in_flake && !in_host && !in_user { print }
       ' "$README_PATH" > "$tmpfile"  
 
@@ -444,7 +442,7 @@ EOF
       description = mkOption {
         type = types.str;
         description = "Description of the script";
-      };
+      };  
       category = mkOption {
         type = types.str;
         description = "Category of the script";
@@ -463,11 +461,10 @@ EOF
         default = [];
         description = "Alternative command names for this script";
       };
-      intent = mkOption {
-        type = types.str;
-        description = "Linked intent name";
-      };      
-      
+#      intent = mkOption {
+#        type = types.str;
+#        description = "Linked intent name";
+#      };            
       intents = {
         patterns = mkOption {
           type = types.listOf types.attrs;
@@ -711,7 +708,6 @@ in {
         default = "en";
         description = "Language code for parsing rules";
       };
-
       intents = mkOption {
         type = types.attrsOf (types.submodule {
           options.data = mkOption {
