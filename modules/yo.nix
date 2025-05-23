@@ -258,15 +258,13 @@ EOF
       echo '```nix'
       nix eval --strict --raw \
         "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
-        | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/''/g'  # Convert to Nix syntax
+        | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/'\''/g'# Convert to Nix syntax
       echo '```'
     )
 
     HOST_BLOCK=$(
       echo '```nix'
-      nix eval --strict --raw \
-        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
-        | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/''/g'  # Convert to Nix syntax
+      nix eval --strict --raw "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/''/g'
       echo '```'
     )
 
