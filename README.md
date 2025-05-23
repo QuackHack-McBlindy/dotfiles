@@ -56,9 +56,7 @@ __I define myself at `config.this.user.me`.__
 <br>
 
 <details><summary><strong>
-
 __I define each hosts data at `config.this.host`.__  
-
 </strong></summary>
 <!-- HOST_START -->
 
@@ -69,6 +67,7 @@ __I define each hosts data at `config.this.host`.__
 <br>
 
 __I like my flakes tiny & ny modules dynamic,__  
+
 
 <details><summary><strong>
 Display Flake  

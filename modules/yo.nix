@@ -245,21 +245,16 @@ EOF
       echo '```'
     )
 
-    HOST_BLOCK=$(nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq | sed '1s/^/```nix\n/;$s/$/\n```/')
-    USER_BLOCK=$(nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq | sed '1s/^/```nix\n/;$s/$/\n```/')
-
-
     HOST_BLOCK=$(
       echo '```nix'
-      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}config.this.host | jq
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json | jq
       echo '```'
     )
 
-    HOST_BLOCK=$(cat <<EOF
-    \`\`\`nix
-    $(nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq)
-    \`\`\`
-    EOF
+    USER_BLOCK=$(
+      echo '```nix'
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json | jq
+      echo '```'
     )
 
     # Update version badges
