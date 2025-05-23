@@ -575,7 +575,8 @@ if __name__ == "__main__":
         logging.error(f"Invalid device identifier: {device_ip}")
         sys.exit(1)
 
-    print(f"Using device IP: {device_ip}")
+    print(f"Playing playlist on device IP: {device_ip}")
+    
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     if type_or_entity_id == "whats":

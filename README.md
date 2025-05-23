@@ -45,42 +45,6 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 ## ❄️ **Flake**
 
 <details><summary><strong>
-I define any optional theme at `config.this.theme`.
-</strong></summary>
-
-<!-- THEME_START -->
-```nix
-{
-  cursorTheme =   {
-    name = "Bibata-Modern-Classic";
-    package = "/nix/store/zhgdyjb794anq9wkcm0fgbs71imph18s-bibata-cursors-2.0.7";
-    size = 32
-  };
-  enable = false;
-  fonts =   {
-    monospace = "Fira Code";
-    packages = [ "/nix/store/dqfnpgafkj49ka807fkvfkvhnpqcs8dd-fira-code-6.2" ];
-    system = "Fira Sans"
-  };
-  gtkSettings =   {
-    gtk-application-prefer-dark-theme = "1";
-    gtk-cursor-theme-name = "Bibata-Modern-Classic";
-    gtk-icon-theme-name = "elementary-xfce-icon-theme"
-  };
-  iconTheme =   {
-    name = "Papirus-Dark";
-    package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
-  };
-  name = "gtk3.css";
-  styles = "/nix/store/845bb5gy4g3fq2qdlni26fvwardv7n8h-source/modules/themes/css/gtk3.css"
-};
-```
-<!-- THEME_END -->
-
-</details>
-<br>
-
-<details><summary><strong>
 I define myself at `config.this.user.me`.
 </strong></summary>
 
@@ -150,6 +114,42 @@ I define each hosts data at `config.this.host`.
 };
 ```
 <!-- HOST_END -->
+
+</details>
+<br>
+
+<details><summary><strong>
+I define any optional theme at `config.this.theme`.
+</strong></summary>
+
+<!-- THEME_START -->
+```nix
+{
+  cursorTheme =   {
+    name = "Bibata-Modern-Classic";
+    package = "/nix/store/zhgdyjb794anq9wkcm0fgbs71imph18s-bibata-cursors-2.0.7";
+    size = 32
+  };
+  enable = false;
+  fonts =   {
+    monospace = "Fira Code";
+    packages = [ "/nix/store/dqfnpgafkj49ka807fkvfkvhnpqcs8dd-fira-code-6.2" ];
+    system = "Fira Sans"
+  };
+  gtkSettings =   {
+    gtk-application-prefer-dark-theme = "1";
+    gtk-cursor-theme-name = "Bibata-Modern-Classic";
+    gtk-icon-theme-name = "elementary-xfce-icon-theme"
+  };
+  iconTheme =   {
+    name = "Papirus-Dark";
+    package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
+  };
+  name = "gtk3.css";
+  styles = "/nix/store/xgplrjrczp0jfd55j0ph2w5pgh2z2vms-source/modules/themes/css/gtk3.css"
+};
+```
+<!-- THEME_END -->
 
 </details>
 <br>

@@ -1,7 +1,6 @@
-
 # dotfiles/bin/config/bitch.nix
-# The Bitch Module - Full NLP interface in Nix and Bash, with dynamic regex matching, parameter extraction, and resolution.
-
+# Bitch Module 
+# Full NLP interface in Bash, with dynamic regex matching, parameter extraction, and resolution.
 { 
   self,
   lib,
@@ -90,18 +89,18 @@
               ''}
               declare -g "_param_${paramName}"="$param_value"
             '') paramList}
-            echo "paramList: ''${paramList[@]}"
-            echo "_param_typ=$_param_typ"
-            echo "_param_search=$_param_search"
+#            echo "paramList: ''${paramList[@]}"
+#            echo "_param_typ=$_param_typ"
+#            echo "_param_search=$_param_search"
             cmd_args=()
             ${lib.concatMapStrings (paramName: ''
               cmd_args+=(--${paramName} "$_param_${paramName}")
             '') paramList}
             echo "REGEX: $regex"
-            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
-            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
+#            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
+#            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
             echo "MATCH SCRIPT: ${scriptName}"
-            echo "ARGS: ''${cmd_args[@]}"
+#            echo "ARGS: ''${cmd_args[@]}"
             return 0
           fi
         '') data.sentences
@@ -154,7 +153,6 @@ in {
         } 
         
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNames}  
-        echo "➤ Executing: yo $script ''${args[@]}"
         for script in ${toString scriptNames}; do
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
@@ -163,7 +161,7 @@ in {
           unset substitutions
           eval "$subs_decl" >/dev/null 2>&1 || true
       
-          echo "INPUT AFTER PROCESSING: $resolved_text"
+#          echo "INPUT AFTER PROCESSING: $resolved_text"
           [[ -n "$subs_decl" ]] && declare -p substitutions
       
           if match_$script "$resolved_text"; then
@@ -184,7 +182,7 @@ in {
           fi
         done
       
-        echo "No matching command found for: $text"
+        echo "❌ No matching command found for: $text"
         exit 1
       '';    
     };
