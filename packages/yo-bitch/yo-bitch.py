@@ -1,7 +1,6 @@
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.logger import logger as fastapi_logger
 import logging
-from logging.handlers import RotatingFileHandler
 import uvicorn
 import tempfile
 import shutil
@@ -16,20 +15,9 @@ import json
 import yaml
 import websockets
 import ast
-import asyncio
 from faster_whisper import WhisperModel
 
-# Remove YAML intents config
-USER_HOME = os.path.expanduser("~")
-BIN_PATH = os.path.join(USER_HOME, 'dotfiles/home/bin/')
-
-
-
 class DuckTrace:
-    LOG_FILE = "/home/$USER/.config/yo-bitch.log"
-    MAX_LOG_SIZE = 5 * 1024 * 1024  # 5MB
-    BACKUP_COUNT = 3
-
     # ANSI escape codes for colors and formatting
     RESET = "\033[0m"
     BOLD = "\033[1m"
@@ -41,21 +29,6 @@ class DuckTrace:
     BLUE = "\033[34m"
 
     LOG_FILE = "ducktrace.log"
-###
-    def __init__(self):
-        # Set up rotating file handler
-        self.file_handler = RotatingFileHandler(
-            self.LOG_FILE, maxBytes=self.MAX_LOG_SIZE, backupCount=self.BACKUP_COUNT
-        )
-        self.file_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
-        self.file_logger = logging.getLogger("DuckFileLogger")
-        self.file_logger.setLevel(logging.DEBUG)
-        self.file_logger.addHandler(self.file_handler)
-        self.file_logger.propagate = False
-
-    def _timestamp(self):
-        return time.strftime("%H:%M:%S") 
-
 
     def _timestamp(self):
        # return time.strftime("%Y-%m-%d %H:%M:%S")
@@ -67,11 +40,9 @@ class DuckTrace:
         formatted_message = (
             f"{color}{self.BOLD}{blink_text}[🦆📜] {symbol}{level}{symbol} [{timestamp}] - {message}{self.RESET}"
         )
-        self.file_logger.log(getattr(logging, level), message)
         print(formatted_message)
         with open(self.LOG_FILE, "a") as log_file:
             log_file.write(f"[{timestamp}] {level} - {message}\n")
-
 
     def info(self, message):
         self._log("INFO", "✅", self.GREEN, message)
@@ -127,14 +98,6 @@ logging.getLogger().handlers = [duck_handler]
 logging.getLogger("uvicorn.access").handlers = [duck_handler]
 logging.getLogger("uvicorn.error").handlers = [duck_handler]
 
-
-#def handle_detection(event: Detect):
-    # Get sound paths from package installation
-#    sound_dir = os.path.join(os.path.dirname(__file__), "share", "voice-assistant", "sounds")
-#    play_wav(os.path.join(sound_dir, "awake.wav"))
-    
-    
-
 ######################################
 # SETTINGS
 ##########
@@ -152,52 +115,53 @@ last_trigger_time = 0
 USER_HOME = os.path.expanduser("~")
 CONFIG_PATH = f"{USER_HOME}/dotfiles/home/.config/intents.yaml"
 BIN_PATH = f"{USER_HOME}/dotfiles/home/bin/"
+#Load intents from YAML
+try:
+    with open(CONFIG_PATH, "r") as file:
+        INTENTS = yaml.safe_load(file)
+    if isinstance(INTENTS, dict):
+        num_intents = len(INTENTS)
+        dt.info(f"Loaded {num_intents} intents from {CONFIG_PATH}.")
+    else:
+        raise ValueError("Invalid format: INTENTS is not a dictionary.")
+except Exception as e:
+    import traceback
+    dt.error(f"Failed to load intents: {e}\n{traceback.format_exc()}")
 
-yo_path = "/run/current-system/sw/bin/yo-bitch"
-
+transcription_active = False
+processing_lock = threading.Lock()
+####################################
+# INTENTS
+############
+INTENTS = {
+    'MediaController': {
+        'script': 'mediaController.py 192.168.1.223 "{{ search }}" "{{ typ }}" ',
+        'speech': 'Jag fixar det.',
+        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
+    },
+    'Time': {
+        'script': 'time.py',
+        'speech': 'Klockan är {output}',
+        'packages': 'python3'
+    },
+    'musicGenerator': {
+        'script': 'musicGen.py {{ genre }} {{ prompt }}',
+        'speech': 'Jag genererar några låter åt dig, och återkommer med musiken när dom är klara.',
+        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
+    },
+    'noIntent': {
+        'script': 'noIntent.py {input}',
+        'speech': '{output}',
+        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
+    }
+}
 
 USER_HOME = os.path.expanduser("~")
 BIN_PATH = os.path.join(USER_HOME, 'dotfiles/home/bin/')
-import numpy as np
+
 ####################################
 # FUNCTIONS
 ############
-from wyoming.asr import Transcript
-from wyoming.client import AsyncClient
-from wyoming.wake import Detect
-
-async def monitor_wake_word():
-    """Connect directly to Wyoming wake word service"""
-    client = AsyncClient(uri="tcp://127.0.0.1:10400")
-    
-    try:
-        await client.connect()
-        while True:
-            event = await client.read_event()
-            if isinstance(event, Detect):
-                handle_detection(event)
-            elif event is None:
-                break
-    finally:
-        await client.disconnect()
-
-def handle_detection(event: Detect):
-    global last_trigger_time
-    current_time = time.time()
-    
-    if (current_time - last_trigger_time) > COOLDOWN_PERIOD:
-        dt.info(f"Wake word detected: {event.name} (confidence={event.confidence})")
-        last_trigger_time = current_time
-        
-        # Play awake sound
-        #play_wav("/path/to/nix/store/.../sounds/awake.wav") 
-        
-        # Start voice client
-        voice_client_path = shutil.which("yo-mic")
-        if voice_client_path:
-            subprocess.Popen([voice_client_path])
-
-
 wyoming_satellite_path = shutil.which("wyoming-satellite")
 def start_wyoming_satellite():
     """Start wyoming-satellite in the background with full configuration."""
@@ -206,82 +170,18 @@ def start_wyoming_satellite():
 
     cmd = [
         wyoming_satellite_path,
-
-        # === Core Configuration ===
+        "--name", "YoBitch-Satellite",
         "--uri", "tcp://0.0.0.0:10700",
-        "--name", "pungkula-satellite",
-        "--area", "living-room",
-        "--zeroconf-name", "Living Room Satellite",
-#        "--zeroconf-host", "192.168.1.50",  # Replace with your IP if static
-
-        # === Microphone Input ===
         "--mic-command", "arecord -r 16000 -c 1 -f S16_LE -t raw",
-        "--mic-command-rate", "16000",
-        "--mic-command-width", "2",
-        "--mic-command-channels", "1",
-        "--mic-command-samples-per-chunk", "1024",
-        "--mic-volume-multiplier", "1.0",
-        "--mic-noise-suppression", "2",  # 0–4, 2 is a good balance
-        "--mic-auto-gain", "15",  # 0–31
-        "--mic-seconds-to-mute-after-awake-wav", "0.5",
-        "--mic-no-mute-during-awake-wav",
-        "--mic-channel-index", "0",
-
-        # === Sound Output ===
         "--snd-command", "aplay -r 22050 -c 1 -f S16_LE -t raw",
-        "--snd-command-rate", "22050",
-        "--snd-command-width", "2",
-        "--snd-command-channels", "1",
-        "--snd-volume-multiplier", "1.0",
-
-        # === Wake Word ===
         "--wake-uri", "tcp://127.0.0.1:10400",
-        "--wake-word-name", "yo_bitch",  # Customize your wake word name
-        "--wake-refractory-seconds", "4",
-
-        # === Voice Activity Detection (VAD) ===
-        "--vad",
-        "--vad-threshold", "0.5",
-        "--vad-trigger-level", "0.7",
-        "--vad-buffer-seconds", "1",
-        "--vad-wake-word-timeout", "5",
-
-        # === Event Hooks ===
-        "--startup-command", "notify-send 'Satellite started'",
-        "--detect-command", "echo 'Wake word detection started'",
-        "--detection-command", "notify-send 'Wake word detected!'",
-        "--transcript-command", "echo 'Transcript received'",
-        "--stt-start-command", "echo 'STT started'",
-        "--stt-stop-command", "echo 'STT stopped'",
-        "--synthesize-command", "echo 'Synthesizing response'",
-        "--tts-start-command", "echo 'Speaking...'",
-        "--tts-stop-command", "echo 'Done speaking'",
-        "--tts-played-command", "echo 'TTS audio played'",
-        "--streaming-start-command", "echo 'Streaming started'",
-        "--streaming-stop-command", "echo 'Streaming stopped'",
-        "--error-command", "notify-send 'Satellite Error'",
-        "--connected-command", "echo 'Connected to server'",
-        "--disconnected-command", "notify-send 'Disconnected from server'",
-
-        # === Timer Events ===
-        "--timer-started-command", "notify-send 'Timer started'",
-        "--timer-updated-command", "echo 'Timer updated'",
-        "--timer-cancelled-command", "notify-send 'Timer cancelled'",
-        "--timer-finished-command", "notify-send 'Timer finished'",
-
-        # === Sound Effects ===
-        "--awake-wav", "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav",
-        "--done-wav", "/home/pungkula/dotfiles/modules/themes/sounds/done.wav",
-        "--timer-finished-wav", "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav",
-        "--timer-finished-wav-repeat", "3", "2",  # Repeat 3 times, 2s delay
-
-        # === Debugging ===
-#        "--debug-recording-dir", "/tmp/wyoming-debug",
-#        "--debug",
-#        "--log-format", "{time} [{level}] {message}",
+        "--wake-word-name", "yo_bitch",
+        "--awake-wav", "/home/pungkula/dotfiles/modules/themes/sounds/done.wav",
+        "--done-wav", "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav"
     ]
 
-    subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
+    subprocess.Popen(cmd)
+
 
 def play_wav(file_path):
     """Plays a WAV file using aplay."""
@@ -305,54 +205,24 @@ def monitor_logs():
             current_time = time.time()
 
             if probability > THRESHOLD and (current_time - last_trigger_time) > COOLDOWN_PERIOD:
-                dt.info(f"Wake word detected with probability {probability}.")
-                dt.warning("MIC ON!")
-
                 play_wav("/home/pungkula/dotfiles/modules/themes/sounds/awake.wav")
-                command = (
-                  'arecord -f S16_LE -r 16000 -c 1 -d 5 -t raw audio.raw && '
-                  'curl -X POST http://localhost:10555/transcribe '
-                  '-F "audio=@audio.raw;type=audio/raw"'
-                )
-    
-                
-                #voice_client_path = shutil.which("yo-mic")
-                voice_client_path = subprocess.Popen(command, shell=True)
-                if voice_client_path:
-                    dt.info(f"Starting voice-client at {current_time}")  
-                    subprocess.Popen([voice_client_path]) 
-                    last_trigger_time = current_time
-                else:
-                    dt.critical("voice-client not found")
+                dt.debug(f"Wake word detected with probability {probability}.")
+                dt.info("MIC ON!")
+                command = 'yo-mic'
+                subprocess.run(command, shell=True)
+                #dt.info(f"Starting voice-client at {current_time}")  
+                transcription_active = True
+                last_trigger_time = current_time 
+                         
 
-def get_yo_intents():
-    """Dynamically generate intents from installed yo scripts"""
-    intents = {}
-    
-    # Get list of yo commands
-    yo_commands = subprocess.run(
-        ["yo", "--list-commands"],
-        capture_output=True, text=True
-    ).stdout.splitlines()
-
-    # Get detailed help for each command
-    for cmd in yo_commands:
-        help_output = subprocess.run(
-            ["yo", cmd, "--help"],
-            capture_output=True, text=True
-        ).stdout
-        
-        # Extract metadata from help output
-        intent = {
-            "description": re.search(r"🦆 (.*?)\n", help_output).group(1),
-            "parameters": {
-                param.group(1): {"description": param.group(2)}
-                for param in re.finditer(r"--(\w+)\s+(.*)", help_output)
-            }
-        }
-        intents[cmd] = intent
-
-    return intents                
+def get_interpreter(script_path):
+    """Determine the interpreter based on file extension."""
+    ext = os.path.splitext(script_path)[1]
+    return {
+        ".sh": "bash",
+        ".py": "python",
+        ".js": "node",
+    }.get(ext, None) 
 
 
 say_path = shutil.which("say")
@@ -386,11 +256,6 @@ def execute_intent(intent_data):
     script_command = script_template
     for key, value in intent_data.items():
         script_command = script_command.replace(f"{{{{ {key} }}}}", str(value))
-
-   # Handle transcribed_text if passed
-  #  if transcribed_text in script_command:
-   #     script_command = script_command.replace('{{ transcribed_text }}', transcribed_text)
-
 
     dt.debug(f"Formatted script command: {script_command}")
 
@@ -438,14 +303,14 @@ def execute_intent(intent_data):
     return output, speech_response
 
 
-@app.post("/hassil")
-def send_to_hassil(transcribed_text: str):
+def send_to_hassil(transcribed_text):
     """Send transcribed text to Hassil, parse its JSON response, and execute the corresponding intent."""
     transcribed_text = re.sub(r"[^a-z0-9\såäö&]", "", transcribed_text.lower())
     dt.info(f"Sending to Hassil: {transcribed_text}")
     
     user_home = os.path.expanduser("~")
-  
+    config_path = f"{user_home}/dotfiles/home/.config/custom_sentences/sv"
+    
     hassil_path = shutil.which("hassil")
     if not hassil_path:
         dt.error("Hassil binary not found. Make sure it is installed and in $PATH.")
@@ -491,194 +356,53 @@ def send_to_hassil(transcribed_text: str):
         return  # Prevent calling execute_intent with invalid data
 
 
-
-async def parse_voice_command(text: str) -> list:
-    """Parse natural language command"""
-    try:
-        dt.debug(f"Attempting to parse command: {text}")
-
-        # Check if 'yo' is available
-        yo_path = shutil.which("yo-bitch")
-        if not yo_path:
-            dt.error("'yo' command not found in PATH.")
-            await speak("Yo-kommando inte installerad", urgent=True)
-            return []
-
-        proc = await asyncio.create_subprocess_exec(
-            yo_path, text,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-
-        try:
-            stdout, stderr = await asyncio.wait_for(proc.communicate(), timeout=10)
-        except asyncio.TimeoutError:
-            dt.error("'yo parse' timed out")
-            await speak("Tolkning timeout", urgent=True)
-            proc.kill()
-            await proc.communicate()
-            return []
-
-        # Log stderr if present
-        if stderr:
-            error_msg = stderr.decode().strip()
-            dt.warning(f"'yo parse' stderr: {error_msg}")
-
-        result = stdout.decode().strip()
-        dt.info(f"'yo parse' raw output: {result}")
-
-        if not result:
-            dt.error("Empty response from 'yo parse'")
-            await speak("Tomt svar från tolkning", urgent=True)
-            return []
-
-        try:
-            parsed = json.loads(result)
-            cmd = parsed.get("command", [])
-            dt.info(f"Parsed command: {cmd}")
-            return cmd
-        except json.JSONDecodeError as e:
-            dt.error(f"Failed to parse JSON: {e}\nRaw output: {result}")
-            await speak("Fel i kommandotolkning", urgent=True)
-            return []
-        except KeyError:
-            dt.error(f"Missing 'command' key in JSON: {parsed}")
-            await speak("Fel format på svar", urgent=True)
-            return []
-
-    except Exception as e:
-        dt.error(f"Unexpected error in parse_voice_command: {str(e)}", exc_info=True)
-        await speak("Allvarligt fel i tolkning", urgent=True)
-        return []
-
 @app.post("/transcribe")
 async def transcribe_audio(audio: UploadFile = File(...)):
     try:
-        # Read raw bytes
-        contents = await audio.read()
+        raw_data = await audio.read()
+        
+        # Convert raw bytes to numpy array (int16, 16kHz, mono)
+        import numpy as np
+        audio_array = np.frombuffer(raw_data, dtype=np.int16)
+        
+        # Create valid WAV file with headers
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
+            sf.write(
+                temp_audio.name,
+                audio_array,
+                16000,  # Sample rate
+                subtype="PCM_16",
+                format="WAV"
+            )
+            temp_audio_path = temp_audio.name
 
-        # Convert raw 16-bit PCM data into a NumPy array
-        audio_array = np.frombuffer(contents, dtype=np.int16)
-        samplerate = 16000
-
-        # Save to temporary WAV file using soundfile
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
-            sf.write(tmp_wav.name, audio_array, samplerate, subtype="PCM_16")
-            tmp_wav_path = tmp_wav.name
-
-        # Transcribe with whisper
-        segments, _ = model.transcribe(tmp_wav_path, language="sv")
-
-        # Remove temp file
-        os.remove(tmp_wav_path)
+        # Transcribe the valid WAV file
+        segments, _ = model.transcribe(temp_audio_path, language="sv")
+        os.remove(temp_audio_path)  # Cleanup
 
         if not segments:
+            dt.debug("No speech detected")
             return {"transcription": "No speech detected"}
 
         transcription = " ".join(segment.text for segment in segments)
-        dt.info(f"Transcribed: {transcription}")
-        cmd = await parse_voice_command(transcription)
-        dt.info(cmd)
-
-        if cmd:
-            dt.info("executed")
-        else:
-            dt.warning("No command parsed from input")
+        dt.info(transcription)
+        send_to_hassil(transcription)
         return {"transcription": transcription}
 
     except Exception as e:
-        dt.error(f"Transcription error: {e}")
-
+        dt.error(f"Transcription error: {str(e)}")
         return {"error": str(e)}
+   
+    finally:
+        with processing_lock:
+            transcription_active = False  # Release lock
+            dt.debug("Transcription completed, system ready for new triggers")
 
-
-def construct_yo_command(text: str) -> list:
-    """Convert natural language to yo command"""
-    # Use yo's built-in NLP
-    result = subprocess.run(
-        ["yo", "parse", text],
-        capture_output=True, text=True
-    )
-    return json.loads(result.stdout)["command"]
-    
-    
-    
-async def execute_yo_intent(command: list):
-    """Execute yo command with voice-specific enhancements"""
-    if not command:
-        await speak("Jag förstår inte det där")
-        return
-
-    cmd_name = command[0]
-    
-    try:
-        # Get metadata async
-        meta_proc = await asyncio.create_subprocess_exec(
-            "yo", cmd_name, "--json",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, _ = await meta_proc.communicate()
-        meta = json.loads(stdout.decode())
-
-        # Handle privilege escalation
-        if meta.get("needs_sudo"):
-            command = ["sudo", "-n"] + command
-
-        # Execute command async
-        proc = await asyncio.create_subprocess_exec(
-            *command,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, stderr = await proc.communicate()
-
-        if stdout:
-            await speak(stdout.decode())
-        if proc.returncode != 0:
-            await speak(f"Error: {stderr.decode()}", urgent=True)
-
-    except Exception as e:
-        await speak(f"Fel uppstod: {str(e)}", urgent=True)
-        dt.error(f"Command failed: {e}")
-        
-async def speak(text: str, urgent=False):
-    """Use yo's TTS system"""
-    args = ["speak", text]
-    if urgent:
-        args.insert(1, "--urgent")
-    
-    proc = await asyncio.create_subprocess_exec(
-        "yo", *args,
-        stdout=asyncio.subprocess.DEVNULL,
-        stderr=asyncio.subprocess.DEVNULL
-    )
-    await proc.wait() 
- 
-
+   
 def background_tasks():
-    """Start services with error handling"""
-    try:
-        model_path = "/home/pungkula/.config/models/yo_bitch.tflite"
-        if not os.path.exists(model_path):
-            raise FileNotFoundError(f"Model file not found at {model_path}")
-        detector = WakeWordDetector(model_path)
-        detector.start()  # This should start non-blocking audio processing
-        
-        
-        # Keep the main thread alive
-        while True:
-            time.sleep(1)
-    except Exception as e:
-        dt.critical(f"Fatal initialization error: {str(e)}")
-        os._exit(1)
-#    """Starts background services"""
-#    threading.Thread(target=start_wyoming_satellite, daemon=True).start()
-#    threading.Thread(target=monitor_logs, daemon=True).start()
-
-#    detector = WakeWordDetector(model_path)
-    
-#    threading.Thread(target=detector.detect, daemon=True).start()
+    """Starts background services"""
+    threading.Thread(target=start_wyoming_satellite, daemon=True).start()
+    threading.Thread(target=monitor_logs, daemon=True).start()
 
 @app.websocket("/stream")
 async def websocket_endpoint(websocket: WebSocket):
@@ -709,188 +433,7 @@ async def websocket_endpoint(websocket: WebSocket):
             break
 
 
-@app.get("/health")
-async def health_check():
-    """Verify yo integration"""
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            "yo", "--version",
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
-        )
-        stdout, _ = await proc.communicate()
-        return {
-            "yo_version": stdout.decode().strip(),
-            "status": "OK"
-        }
-    except Exception as e:
-        dt.critical(f"Health check failed: {e}")
-        raise HTTPException(status_code=500, detail="yo integration broken")
-
-#import numpy as np
-#from pyalsaaudio import PCM
-#import struct
-#import time
-#PCM_FORMAT_S16_LE = 1 
-
-from tensorflow.lite.python.interpreter import Interpreter
-import sounddevice as sd
-class WakeWordDetector:
-    def __init__(self, model_path, threshold=0.85, cooldown=5):
-        self.threshold = threshold
-        self.cooldown = cooldown
-        self.last_trigger = 0
-
-        # Load model
-        self.interpreter = Interpreter(model_path=model_path)
-        self.interpreter.allocate_tensors()
-        
-        # Get model details
-        self.input_details = self.interpreter.get_input_details()
-        self.output_details = self.interpreter.get_output_details()
-        self.input_shape = self.input_details[0]['shape']
-        
-        # Audio config
-        self.sample_rate = 16000
-        self.chunk_size = self.input_shape[1] * self.input_shape[2]
-        
-        # Initialize audio stream with correct callback signature
-        self.stream = sd.InputStream(
-            samplerate=self.sample_rate,
-            channels=1,
-            dtype=np.int16,
-            blocksize=self.chunk_size,
-            callback=self._audio_callback
-        )
-
-    def _audio_callback(self, indata, frames, time_info, status):
-        """Single unified audio callback"""
-        try:
-            audio = indata[:, 0]
-            if len(audio) < self.chunk_size:
-                audio = np.pad(audio, (0, self.chunk_size - len(audio)))
-            else:
-                audio = audio[:self.chunk_size]
-            
-                # Normalize and reshape
-            input_data = (audio.astype(np.float32) / 32767.0).reshape(self.input_shape)
-            
-            # Run inference
-            self.interpreter.set_tensor(self.input_details[0]['index'], input_data)
-            self.interpreter.invoke()
-            probability = self.interpreter.get_tensor(self.output_details[0]['index'])[0]
-            
-                # Detection logic
-            current_time = time.time()
-            if (probability > self.threshold and 
-                (current_time - self.last_trigger) > self.cooldown):
-                self.last_trigger = current_time
-                self.on_detected()
-                
-        except Exception as e:
-            dt.error(f"Audio processing error: {str(e)}")
-
-
-    def start(self):
-        """Start listening"""
-        self.stream.start()
-
-    def stop(self):
-        """Stop listening"""
-        self.stream.stop()
-
-#    def _audio_callback(self, indata, frames, time, status):
-#        """Handle variable-length audio chunks"""
-#        try:
-            # Ensure we have exactly 1536 samples (16*96)
-#            audio = indata[:, 0]
-#            if len(audio) < self.chunk_size:
-#                audio = np.pad(audio, (0, self.chunk_size - len(audio)))
-#            else:
-#                audio = audio[:self.chunk_size]
-    
-            # Normalize and reshape FIRST
-#            input_data = (audio.astype(np.float32) / 32767.0).reshape(1, 16, 96)
-        
-            # Get tensor indices
- #           input_index = self.input_details[0]['index']
- #           output_index = self.output_details[0]['index']
-        
-            # Then set tensor and invoke
-#            self.interpreter.set_tensor(input_index, input_data)
-#            self.interpreter.invoke()  # Single invoke call
-#            probability = self.interpreter.get_tensor(output_index)[0]
-    
-            # Detection logic
-#            current_time = time.time()
-#            if (probability > self.threshold and 
-#                (current_time - self.last_trigger) > self.cooldown):
-#                self.last_trigger = current_time
-#                self.on_detected()
-        
-#        except Exception as e:
-#            dt.error(f"Audio processing error: {str(e)}")
-
-        
-            # Normalize and reshape
- #           input_data = (audio.astype(np.float32) / 32767.0).reshape(1, 16, 96)
-        
-            # Run inference
-   #         self.interpreter.set_input_tensor(0, input_data)
-   #         print("Invoking interpreter with input shape:", input_data.shape)
-  #          try:
-  #              self.interpreter.invoke()
-  #          except Exception as e:
-  #              print("Interpreter failed:", e)
-
-#            self.interpreter.invoke()
-            # Run inference
-#            self.interpreter.invoke()
-            
-            # Get output tensor
-#            output_index = self.output_details[0]['index']
-#            probability = self.interpreter.get_tensor(output_index)[0]
-        
-            # Detection logic
-#            current_time = time.time()
-#            if (probability > self.threshold and 
-#                (current_time - self.last_trigger) > self.cooldown):
-#                self.last_trigger = current_time
-#                self.on_detected()
-            
-#        except Exception as e:
-#            dt.error(f"Audio processing error: {str(e)}")
-
-    def on_detected(self):
-        """Handle wake word detection"""
-        dt.info("Wake word detected!")
-        play_wav("/path/to/awake.wav")
-        subprocess.Popen([shutil.which("yo-mic")])   
-
-@app.on_event("startup")
-def initialize_background_services():
-    """Start all required background services when the API starts"""
-    dt.info("Starting background services...")    
-    # Wyoming Satellite
-    threading.Thread(target=start_wyoming_satellite, daemon=True).start()    
-    # Log monitoring for wake word
-    threading.Thread(target=monitor_logs, daemon=True).start()    
-    # Wake Word Detector
-    model_path = "/home/pungkula/.config/models/yo_bitch.tflite"
-    if os.path.exists(model_path):
-        detector = WakeWordDetector(model_path)
-        threading.Thread(target=detector.start, daemon=True).start()
-    else:
-        dt.critical(f"Wake word model missing: {model_path}")
-
-    dt.info("All background services started")   
-
-#@app.post("/parse")
-#async def parse_text_endpoint(text: str = Body(..., embed=True)):
-#    """Expose the existing parse_voice_command() via API"""
-#    command = await parse_voice_command(text)
-#    return {"input": text, "command": command}
-
 if __name__ == "__main__":
+    background_tasks()  
     uvicorn.run(app, host="0.0.0.0", port=10555)
 

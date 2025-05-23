@@ -84,32 +84,73 @@ in {
 
       script = let
         deleteOld = lib.concatMapStringsSep "\n" (d: ''
-          rm -f "/home/wgUser/${d}.conf" "/home/wgUser/${d}.png"
+          echo "Removing old files for: ${d}"
+          rm -fv "/home/wgUser/${d}.conf" "/home/wgUser/${d}.png"
         '') (lib.attrNames mobileDevices);
-
+      
         generateQR = device: ''
-          TEMP_DIR=$(mktemp -d)
-          PRIVATE_KEY=$(cat ${config.sops.secrets."${device}_wireguard_private".path})
+          set -euxo pipefail  
 
+          TEMP_DIR=$(mktemp -d)
+          trap 'rm -rf "$TEMP_DIR"' EXIT  
+          PRIVATE_KEY=$(cat ${config.sops.secrets."${device}_wireguard_private".path})
+          
           cat > "$TEMP_DIR/${device}.conf" <<EOF
 [Interface]
 PrivateKey = $PRIVATE_KEY
 Address = ${mobileDevices.${device}.wgip}/24
 DNS = ${serverCfg.ip}
-
+      
 [Peer]
 PublicKey = ${serverCfg.keys.publicKeys.wireguard}
 AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
 Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
 PersistentKeepalive = 25
 EOF
+          
+          echo "Generating QR code..."
           ${config.pkgs.yo}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
-          rm -rf "$TEMP_DIR"
+#          qrencode -t PNG -o "/home/wgUser/${device}.png" < "$TEMP_DIR/${device}.conf"
         '';
+      
       in ''
         ${deleteOld}
         ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}
-      '';   
+        echo "All devices processed"
+      '';
+   
+#      script = let
+#        deleteOld = lib.concatMapStringsSep "\n" (d: ''
+#          rm -f "/home/wgUser/${d}.conf" "/home/wgUser/${d}.png"
+#        '') (lib.attrNames mobileDevices);
+
+#        generateQR = device: ''
+#          TEMP_DIR=$(mktemp -d)
+#          PRIVATE_KEY=$(cat ${config.sops.secrets."${device}_wireguard_private".path})
+
+#          cat > "$TEMP_DIR/${device}.conf" <<EOF
+#          [Interface]
+#          PrivateKey = $PRIVATE_KEY
+#          Address = ${mobileDevices.${device}.wgip}/24
+#          DNS = ${serverCfg.ip}
+
+#          [Peer]
+#          PublicKey = ${serverCfg.keys.publicKeys.wireguard}
+#          AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
+#          Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
+#          PersistentKeepalive = 25
+#          EOF
+
+#          qrencode -t PNG -o "/home/wgUser/${device}.png" < "$TEMP_DIR/${device}.conf"
+#          yo qr --input "$TEMP_DIR/${device}.conf" --output "/home/wgUser/${device}.png"
+#          rm -rf "$TEMP_DIR"
+#        '';
+
+#      in ''
+#        ${deleteOld}
+#        ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}
+#      '';
+
       wantedBy = [ "multi-user.target" ];
     });
 

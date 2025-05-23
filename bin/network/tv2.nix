@@ -1,5 +1,38 @@
 { self, config, pkgs, cmdHelpers, ... }:
 {  
+  yo.bitch = {
+    language = "sv";    
+    intents = {
+      arris = {
+        data = [{
+          sentences = [
+            "spela upp {search} {typ}"
+            "starta {search}"
+          ];  
+          lists = {
+            search.wildcard = true;
+            typ.values = [
+              { "in" = "serien"; out = "tv"; }
+              { "in" = "serie"; out = "tv"; }
+              { "in" = "podd"; out = "podcast"; }
+              { "in" = "pod"; out = "podcast"; }
+              { "in" = "podcast"; out = "podcast"; }
+              { "in" = "slump"; out = "jukebox"; }
+              { "in" = "random"; out = "jukebox"; }
+              { "in" = "slumpa"; out = "jukebox"; }
+              { "in" = "artist"; out = "music"; }
+              { "in" = "band"; out = "music"; }
+              { "in" = "gruppen"; out = "music"; }
+              { "in" = "låt"; out = "song"; }
+            ];
+            
+          };
+        }];
+      };
+    };
+  };
+
+
   yo.scripts.arris = {
     description = "Android TV Controller";
     category = "🌐 Networking";
@@ -7,14 +40,15 @@
 #    helpFooter = ''
 #    '';
     parameters = [
-      { name = "search"; description = "Media to search and play"; optional = false; }
-      { name = "mediaType"; description = "Media Type to search and play"; default = "tv"; }     
+      { name = "typ"; description = "Media type"; default = "tv"; optional = true; }
+      { name = "search"; description = "Media to search"; optional = false; }
+
     ];
     code = ''
       ${cmdHelpers}
-      media_type="$mediaType"
+      media_type="$typ"
       media_search="$search"
-      run_cmd "tv arris $media_search $media_type"
+      run_cmd "tv arris ''$media_search ''${typ}"
     '';
   };
 }

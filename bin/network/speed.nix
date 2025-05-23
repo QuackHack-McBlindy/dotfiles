@@ -74,4 +74,29 @@
       ' "$SPEED_FILE"
     '';
   };
-}
+  
+  
+  yo.bitch = {
+#    language = "sv";    
+    intents = {
+      speed = {
+        data = [{
+          sentences = [
+            "nätverks test"
+            "network speedtest"
+          ];
+          lists = {
+            #search.wildcard = true;
+            #typ.values = [
+           #   { "in" = "(serien|tvserien|tv-serien)"; out = "tv"; }
+           #   { "in" = "(podd|pod|podcast)"; out = "podcast"; }
+          #    { "in" = "(slump|slumpa|random|musik)"; out = "jukebox"; }
+          #    { "in" = "(artist|artisten|band|bandet|grupp|gruppen)"; out = "music"; }
+          #    { "in" = "(låt|låten|sång|sången|biten)"; out = "song"; }
+         #   ];
+          };
+        }];
+      };
+    };
+    
+  };}

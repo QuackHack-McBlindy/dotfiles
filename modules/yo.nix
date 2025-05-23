@@ -1,4 +1,9 @@
 # dotfiles/modules/yo.nix
+# This module defines the main execution system of my dotfiles repository.
+# A customizable yo CLI tool with voice command capabilities (yo bitch intent parser) automatic documentation generation, 
+# it's meant to be easily extended by defining user scripts as yo.scripts
+# If you need to access defined scripts as packages you can do so with:
+# ${config.pkgs.yo}/bin/yo-<script-name>
 { 
   config,
   lib,
@@ -6,6 +11,38 @@
   ...
 } : with lib;
 let
+
+  # Define custom types first
+#  intentPatternType = types.listOf types.str;
+  
+  parameterType = types.submodule {
+    options = {
+      name = mkOption { type = types.str; };
+      entity = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+      };
+    };
+  };
+
+  intentPatternType = types.submodule {
+    options = {
+      template = mkOption { type = types.str; };
+      parameters = mkOption {
+        type = types.listOf parameterType;
+        default = [];
+      };
+    };
+  };
+
+  entityType = types.submodule {
+    options = {
+      match = mkOption { type = types.listOf types.str; };
+      value = mkOption { type = types.str; };
+    };
+  };
+
+
   generateRegex = listName:
     let
       list = config.yo.bitch.lists.${listName};
@@ -208,6 +245,18 @@ EOF
       echo '```'
     )
 
+    HOST_BLOCK=$(
+      echo '```nix'
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}config.this.host | jq
+      echo '```'
+    )
+
+    USER_BLOCK=$(
+      echo '```nix'
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json | jq
+      echo '```'
+    )
+
     # Update version badges
     sed -i -E \
       -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
@@ -238,6 +287,28 @@ EOF
       }
       /<!-- YO_DOCS_END -->/ {
         in_docs=0
+        print
+        next
+      }
+      /<!-- HOST_START -->/ {
+        print
+        print host
+        in_host=1
+        next
+      }
+      /<!-- HOST_END -->/ {
+        in_host=0
+        print
+        next
+      }
+      /<!-- USER_START -->/ {
+        print
+        print user
+        in_user=1
+        next
+      }
+      /<!-- USER_END -->/ {
+        in_user=0
         print
         next
       }
@@ -347,6 +418,25 @@ EOF
         default = [];
         description = "Alternative command names for this script";
       };
+      intent = mkOption {
+        type = types.str;
+        description = "Linked intent name";
+      };      
+      
+      intents = {
+        patterns = mkOption {
+          type = types.listOf types.attrs;
+          default = [];
+          description = "List of intent patterns";
+        };
+
+        entities = mkOption {
+          type = types.attrsOf (types.listOf types.attrs);
+          default = {};
+          description = "Entity match mappings";
+        };
+      };
+      
       parameters = mkOption {
         type = types.listOf (types.submodule {
           options = {
@@ -390,7 +480,7 @@ EOF
         scriptContent = ''
           #!${pkgs.runtimeShell}
 
-          set -euo pipefail
+#          set -euo pipefail
           ${yoEnvGenVar script}
             
           # Phase 1: Preprocess special flags
@@ -584,27 +674,28 @@ in {
             type = types.listOf (types.submodule {
               options.sentences = mkOption {
                 type = types.listOf types.str;
+                default = [];
                 description = "Sentence patterns for intent matching";
               };
-            });
-          };
-        });
-        default = {};
-      };
 
-      lists = mkOption {
-        type = types.attrsOf (types.submodule {
-          options.wildcard = mkOption {
-            type = types.bool;
-            default = false;
-            description = "Whether this list accepts free-form text";
-          };
-          options.values = mkOption {
-            type = types.listOf (types.submodule {
-              options."in" = mkOption { type = types.str; };
-              options.out = mkOption { type = types.str; };
+              options.lists = mkOption {
+                type = types.attrsOf (types.submodule {
+                  options.wildcard = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Whether this list accepts free-form text";
+                  };
+                  options.values = mkOption {
+                   type = types.listOf (types.submodule {
+                      options."in" = mkOption { type = types.str; };
+                      options.out = mkOption { type = types.str; };
+                    });
+                    default = [];
+                  };
+                });
+                default = {};
+              };
             });
-            default = [];
           };
         });
         default = {};
@@ -717,6 +808,8 @@ in {
       yoScriptsPackage
       updateReadme
     ];
+    
+    # Expose this module and all yo.scripts as a package
     pkgs.yo = yoScriptsPackage;
   };}
 

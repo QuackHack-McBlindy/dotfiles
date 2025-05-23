@@ -39,11 +39,28 @@ __crafted as a tiny Nix flake__
 __Glued together by a Nix-flavoured command line utility,__  
 __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
   
-
+  
 ## ❄️ **Flake**
 
+<details><summary><strong>
 __I define myself at `config.this.user.me`.__  
+</strong></summary>
+<!-- USER_START -->
+
+
+<!-- USER_END -->
+</details>
+<br>
+
+<details><summary><strong>
 __I define each hosts data at `config.this.host`.__  
+</strong></summary>
+<!-- HOST_START -->
+
+
+<!-- HOST_END -->
+</details>
+<br>
 
 __I like my flakes tiny & ny modules dynamic,__  
 
@@ -159,7 +176,7 @@ $ yo deploy laptop
 
 **Any builds after first deployment will use local cached binaries with enhanced build time.**  
 
-<br><br>
+<br>
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
@@ -201,6 +218,7 @@ Set default values for your parameters to have them marked [optional]
 | **⚙️ Configuration** | | |
 | `yo bitch --input` |  | Parses plain text natural language and builds yo script execution commands. |
 | `yo edit ` | config | yo CLI configuration mode |
+| `yo mic ` |  | Description of the script. |
 | **⚡ Productivity** | | |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
@@ -211,7 +229,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo transport --arrival [--departure] [--apikey]` | buss, trafiklab | Public transportation helper. Fetches current airplane, bus, boats and train departure and arrival times. (Sweden) |
 | `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
-| `yo arris --search [--mediaType]` | bedroom, a | Android TV Controller |
+| `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo shield --search [--typ]` | s, tv | Android TV Controller |
@@ -231,8 +249,6 @@ For specific command help:
 <!-- YO_DOCS_END -->
 
 
-<br><br>
-
 ## 💬 **Comments?**
 
 **Nix Talk? Or just tell me tiny flake sucks?**   
@@ -245,3 +261,4 @@ For specific command help:
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
 
 <!-- CONTACT_END -->
+

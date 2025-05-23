@@ -38,4 +38,25 @@
           fi  
         '';
       };
+    };
+    
+    
+    yo.bitch = { 
+      intents = {
+        switch = {
+          data = [{
+            sentences = [
+              "rebuild system"    
+              "bygg om systemet"
+            ];
+            lists = {
+             # mode.values = [
+                # Direct matches
+               # { "in" = "on"; out = "on"; }
+          #    ];
+            };
+          }];
+        };
+      };
+      
     };}

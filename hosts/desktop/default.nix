@@ -89,28 +89,28 @@
 
 
 
-    systemd.services.sattelite = {
-        wantedBy = [ "multi-user.target" ];
+#    systemd.services.sattelite = {
+#        wantedBy = [ "multi-user.target" ];
 #        preStart = ''    '';
-        serviceConfig = {
-            ExecStart = let
-                micCommand = "${pkgs.alsa-utils}/bin/arecord -q -f S16_LE -r 16000 -c 1";
-            in
-                ''
-                    ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
-                      --uri tcp://127.0.0.1:10401 \
-                      --wake-uri tcp://127.0.0.1:10400 \
-                      --mic-command "${micCommand}" \
-                      --wake-word-name yo_bitch
-                '';
-                Environment = "PATH=${pkgs.alsa-utils}/bin:${pkgs.coreutils}/bin:/run/current-system/sw/bin";
-                Restart = "on-failure";
-                RestartSec = "2s";
+#        serviceConfig = {
+#            ExecStart = let
+#                micCommand = "${pkgs.alsa-utils}/bin/arecord -q -f S16_LE -r 16000 -c 1";
+#            in
+#                ''
+#                    ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
+#                      --uri tcp://127.0.0.1:10401 \
+#                      --wake-uri tcp://127.0.0.1:10400 \
+#                      --mic-command "${micCommand}" \
+#                      --wake-word-name yo_bitch
+#                '';
+#                Environment = "PATH=${pkgs.alsa-utils}/bin:${pkgs.coreutils}/bin:/run/current-system/sw/bin";
+#                Restart = "on-failure";
+#                RestartSec = "2s";
                 #RuntimeDirectory = [ config.this.user.me.name ];
-                User = "pungkula";
-                Group = "pungkula";
-        };
-    };
+#                User = "pungkula";
+#                Group = "pungkula";
+#        };
+#    };
       
     
     this = {

@@ -1,4 +1,4 @@
-# modules/home.nix
+# dotfiles/modules/home.nix
 { 
   config,
   lib,
