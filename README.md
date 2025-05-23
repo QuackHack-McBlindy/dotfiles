@@ -28,7 +28,7 @@ __Sup ducks? 🦆 qwack on__ <br>
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
-- 🗣️ **[Natural Language Processing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands for script execution, dynamic regex, parameter extraction, Using Bash & Nix)* 
+- 🗣️ **[Natural Language Processing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands for script execution, dynamic regex matching, parameter extraction)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, etc etc)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
@@ -72,7 +72,7 @@ I define any optional theme at `config.this.theme`.
     package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/qzkyd3ppld82z4iwsmvl9vp3l6fwl44p-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/1s57mmrfgjz7718allgnnyvnjfk11p9y-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->

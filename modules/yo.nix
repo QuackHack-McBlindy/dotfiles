@@ -212,7 +212,7 @@ $ yo deploy laptop /home/pungkula/dotfiles
 # Scripts can also be executed by voice, say:
 $ yo bitch deploy laptop
 
-# Voice commands are processed by internal NLP, test sentences with:
+# Voice commands are parsed by internal NLP, test sentences with:
 $ yo-bitch "my sentence"
 ```
 
@@ -243,22 +243,19 @@ EOF
       echo '```'
     )
 
-
     FLAKE_BLOCK_NIX=$(
       echo '```nix'
       cat "${config.this.user.me.dotfilesDir}/flake.nix"
       echo '```'
     )
 
-    {
-      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | jq
-    } > "$USER_TMP"
-    {
-      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
-    } > "$HOST_TMP"
-
-    
-    
+#    {
+#      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | jq
+#    } > "$USER_TMP"
+#    {
+#      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
+#    } > "$HOST_TMP"
+   
     USER_BLOCK=$(
       echo '```nix'
       nix eval --json \
@@ -458,25 +455,10 @@ EOF
         type = types.str;
         description = "Description of the script";
       };
-      keywords = mkOption {
-        type = types.listOf types.string;
-        default = [];
-        description = "List of keywords used for parsing";
-      };     
       category = mkOption {
         type = types.str;
         description = "Category of the script";
       };  
-      autoCorrections = lib.mkOption {
-        type = lib.types.attrsOf lib.types.str;
-        default = {};
-        description = "Word replacement mappings for input auto-correction";
-      };  
-      packages = mkOption {
-        type = types.listOf types.package;
-        default = [];
-        description = "List of packages needed by this script";
-      };
       helpFooter = mkOption {
         type = types.lines;
         default = "";

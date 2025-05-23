@@ -1,3 +1,4 @@
+# dotfiles/bin/default.nix
 { 
     self,
     config,
