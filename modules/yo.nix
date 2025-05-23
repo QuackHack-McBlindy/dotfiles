@@ -256,9 +256,7 @@ EOF
 
     USER_BLOCK=$(
       echo '```nix'
-      nix eval --strict --raw \
-        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
-        | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/'\''/g'# Convert to Nix syntax
+      nix eval --strict --raw "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/'\''/g'
       echo '```'
     )
 
