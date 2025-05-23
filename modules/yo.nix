@@ -363,13 +363,13 @@ EOF
       "$README_PATH"
   
     # Update contact badges and rest of README
-    awk -v block="$CONTACT_BLOCK" '
-      BEGIN { in_contact = 0; printed = 0 }
-      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
-      /<!-- CONTACT_END -->/ { in_contact = 0; next }
-      !in_contact && !printed { print }
-      printed && !in_contact { printed = 0 }
-    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
+#    awk -v block="$CONTACT_BLOCK" '
+#      BEGIN { in_contact = 0; printed = 0 }
+#      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
+#      /<!-- CONTACT_END -->/ { in_contact = 0; next }
+#      !in_contact && !printed { print }
+#      printed && !in_contact { printed = 0 }
+#    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
     
     awk -v docs="$DOCS_CONTENT" \
         -v contact="$CONTACT_BLOCK" \

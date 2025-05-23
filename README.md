@@ -1,102 +1,52 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
-# ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
-
 
 <!-- VERSIONS_START -->
-<!-- VERSIONS_START -->
-![NixOS](https://img.shields.io/badge/NixOS-25.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![NixOS](https://img.shields.io/badge/NixOS-25.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red?style=flat-square&logo=linux&logoColor=white)
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-47.4-purple?style=flat-square&logo=gnome&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-47.4-purple?style=flat-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
 <!-- VERSIONS_END -->
-<!-- VERSIONS_END -->
-
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
-[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
-
 
 _This is a <abbr title="Magically automated with duck-powered quackery">automagiduckically</abbr> updated README.md_
-_This is a <abbr title="Magically automated with duck-powered quackery">automagiduckically</abbr> updated README.md_
 
-
-</sub></div> 
 </sub></div> 
 
 
-
-
-> [!CAUTION]
 > [!CAUTION]
 > __Do not blindly run this flake.__ <br>
-> __Do not blindly run this flake.__ <br>
-> **That's my job.** 🧑‍🦯
 > **That's my job.** 🧑‍🦯
 <br>
-<br>
-
 
 __Sup ducks? 🦆 qwack on__ <br>
-__Sup ducks? 🦆 qwack on__ <br>
-
 
 ## **📌 Highlights**
-## **📌 Highlights**
-
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
 - 🗣️ **[Natural Language Processing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands for script execution, dynamic regex matching, parameter extraction)* 
-- 🗣️ **[Natural Language Processing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands for script execution, dynamic regex matching, parameter extraction)* 
-- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, etc etc)* 
-- 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, etc etc)* 
-- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
-- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
-
 
 <br>
-<br>
-
 
 __Here lives home machines configurations,__  
-__Here lives home machines configurations,__  
-__crafted as a tiny Nix flake__  
 __crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
-__Glued together by a Nix-flavoured command line utility,__  
 __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
-__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
-  
-  
   
   
 ## ❄️ **Flake**
-## ❄️ **Flake**
-
 
 <details><summary><strong>
-<details><summary><strong>
-I define any optional theme at `config.this.theme`.
 I define any optional theme at `config.this.theme`.
 </strong></summary>
-</strong></summary>
-
 
 <!-- THEME_START -->
 ```nix
@@ -122,25 +72,17 @@ I define any optional theme at `config.this.theme`.
     package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/czfdblrw9p0lz6j24m2s2g27x4yiy67b-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/845bb5gy4g3fq2qdlni26fvwardv7n8h-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
 
-
-</details>
 </details>
 <br>
-<br>
-
 
 <details><summary><strong>
-<details><summary><strong>
-I define myself at `config.this.user.me`.
 I define myself at `config.this.user.me`.
 </strong></summary>
-</strong></summary>
-
 
 <!-- USER_START -->
 ```nix
@@ -167,20 +109,12 @@ I define myself at `config.this.user.me`.
 ```
 <!-- USER_END -->
 
-
-</details>
 </details>
 <br>
-<br>
-
 
 <details><summary><strong>
-<details><summary><strong>
-I define each hosts data at `config.this.host`.
 I define each hosts data at `config.this.host`.
 </strong></summary>
-</strong></summary>
-
 
 <!-- HOST_START -->
 ```nix
@@ -217,20 +151,12 @@ I define each hosts data at `config.this.host`.
 ```
 <!-- HOST_END -->
 
-
-</details>
 </details>
 <br>
-<br>
-
 
 <details><summary><strong>
-<details><summary><strong>
-I like my flakes tiny & ny modules dynamically loaded,  
 I like my flakes tiny & ny modules dynamically loaded,  
 </strong></summary>
-</strong></summary>
-
 
 <!-- FLAKE_START -->
 ```nix
@@ -261,20 +187,12 @@ I like my flakes tiny & ny modules dynamically loaded,
 ```
 <!-- FLAKE_END -->
 </details>
-</details>
-
 
 <br>
-<br>
-
 
 <details><summary><strong>
-<details><summary><strong>
-Display Flake Outputs
 Display Flake Outputs
 </strong></summary>
-</strong></summary>
-
 
   <!-- TREE_START -->
 ```nix
@@ -315,76 +233,40 @@ git+file:///home/pungkula/dotfiles
 ```
   <!-- TREE_END -->
 
-
-</details>  
 </details>  
   
-  
-
 
 ## **🛟 Quick Start**
-## **🛟 Quick Start**
-
 
 **Build automated, offline USB NixOS installer** 
-**Build automated, offline USB NixOS installer** 
 
-
-```bash
 ```bash
 $ sudo bash usb-installer \
-$ sudo bash usb-installer \
-  --user "pungkula" \
   --user "pungkula" \
   --host "laptop" \
-  --host "laptop" \
-  --ssid "IfYouDontHaveEthernet" \
   --ssid "IfYouDontHaveEthernet" \
   --wifipass "CanBeOmitted" \
-  --wifipass "CanBeOmitted" \
-  --publickey "ssh-ed25519 AAAAC3FoRSsHCoNnEcTiOn..."
   --publickey "ssh-ed25519 AAAAC3FoRSsHCoNnEcTiOn..."
 ``` 
-``` 
-
 
 <br>
-<br>
 
-
-```bash
 ```bash
 # dd result to flash drive (replace sdX)
-# dd result to flash drive (replace sdX)
-$ sudo dd if="$(readlink -f ./result/iso/*.iso)" of=/dev/sdX bs=4M status=progress oflag=sync
 $ sudo dd if="$(readlink -f ./result/iso/*.iso)" of=/dev/sdX bs=4M status=progress oflag=sync
 ``` 
-``` 
-
 
 Plug in flash drive into laptop and boot. Let it work and wait until it powers down.  
-Plug in flash drive into laptop and boot. Let it work and wait until it powers down.  
-Remove flash drive, boot it up again and deploy configuration from your main machine:
 Remove flash drive, boot it up again and deploy configuration from your main machine:
 
-
-```bash
 ```bash
 # 🦆🔓 First deploy? Get your Yubikey: PIN+Touch unlocks host specific AGE key for sops-nix 
-# 🦆🔓 First deploy? Get your Yubikey: PIN+Touch unlocks host specific AGE key for sops-nix 
-$ yo deploy laptop
 $ yo deploy laptop
 ```
-```
-
 
 **Any builds after first deployment will use local cached binaries with enhanced build time.**  
-**Any builds after first deployment will use local cached binaries with enhanced build time.**  
-
 
 <br>
-<br>
-
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
@@ -460,26 +342,12 @@ For specific command help:
 <!-- YO_DOCS_END -->
 
 
-
-
-## 💬 **Comments?**
 ## 💬 **Comments?**
 
-
-**Nix Talk? Or just say tiny flake sucks?**   
 **Nix Talk? Or just say tiny flake sucks?**   
 **That's cool!**  
-**That's cool!**  
-**I am all ears. 👀**  
 **I am all ears. 👀**  
 
-
-<!-- CONTACT_START -->
-[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
-[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
-
-<!-- CONTACT_END -->
 <!-- CONTACT_START -->
 [![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
 [![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
