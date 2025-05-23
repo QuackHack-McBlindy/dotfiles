@@ -247,15 +247,44 @@ EOF
       echo '```'
     )
 
+#    {
+#      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | jq
+#    } > "$USER_TMP"
+#    {
+#      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
+#    } > "$HOST_TMP"
+
+#    HOST_BLOCK=$(
+#      echo '```nix'
+#      cat "$HOST_TMP"
+#      echo '```'
+#    )
+
+#    USER_BLOCK=$(
+#      echo '```nix'
+#      cat "$USER_TMP"
+#      echo '```'
+#    )
     {
-      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | jq
+      echo '```nix'
+      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
+        | nix run github:vidbina/json2nix -- \
+        | nix run nixpkgs#alejandra -- -
+      echo '```'
     } > "$USER_TMP"
+
     {
-      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
+      echo '```nix'
+      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
+        | nix run github:vidbina/json2nix -- \
+        | nix run nixpkgs#alejandra -- -
+      echo '```'
     } > "$HOST_TMP"
 
-    USER_BLOCK=$(cat "$USER_TMP")
-    HOST_BLOCK=$(cat "$HOST_TMP")
+    # Build code blocks
+    USER_BLOCK=$(<"$USER_TMP")
+    HOST_BLOCK=$(<"$HOST_TMP")
+
 
     # Update version badges
     sed -i -E \
