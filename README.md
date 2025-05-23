@@ -28,7 +28,7 @@ __Sup ducks? 🦆 qwack on__ <br>
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
-- 🗣️ **[NLP Module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Dynamic regex with parameter resolution using Bash alone)* 
+- 🗣️ **[Natural Language Processing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands for script execution, dynamic regex, parameter extraction, Using Bash & Nix)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, etc etc)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
@@ -45,11 +45,67 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 ## ❄️ **Flake**
 
 <details><summary><strong>
+I define any optional theme at `config.this.theme`.
+</strong></summary>
+
+<!-- THEME_START -->
+```nix
+{
+  cursorTheme =   {
+    name = "Bibata-Modern-Classic";
+    package = "/nix/store/zhgdyjb794anq9wkcm0fgbs71imph18s-bibata-cursors-2.0.7";
+    size = 32
+  };
+  enable = false;
+  fonts =   {
+    monospace = "Fira Code";
+    packages = [ "/nix/store/dqfnpgafkj49ka807fkvfkvhnpqcs8dd-fira-code-6.2" ];
+    system = "Fira Sans"
+  };
+  gtkSettings =   {
+    gtk-application-prefer-dark-theme = "1";
+    gtk-cursor-theme-name = "Bibata-Modern-Classic";
+    gtk-icon-theme-name = "elementary-xfce-icon-theme"
+  };
+  iconTheme =   {
+    name = "Papirus-Dark";
+    package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
+  };
+  name = "gtk3.css";
+  styles = "/nix/store/qzkyd3ppld82z4iwsmvl9vp3l6fwl44p-source/modules/themes/css/gtk3.css"
+};
+```
+<!-- THEME_END -->
+
+</details>
+<br>
+
+<details><summary><strong>
 I define myself at `config.this.user.me`.
 </strong></summary>
 
 <!-- USER_START -->
 ```nix
+{
+  discord = "https://discordapp.com/users/675530282849533952";
+  dotfilesDir = "/home/pungkula/dotfiles";
+  email = "isthisrandomenough@protonmail.com";
+  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ];
+  hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
+  matrix = "";
+  mobileDevices =   {
+    iphone =     {
+      pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw=";
+      wgip = "10.0.0.7"
+    };
+    tablet =     {
+      pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4=";
+      wgip = "10.0.0.8"
+    };
+  };
+  name = "pungkula";
+  repo = "git@github.com:QuackHack-McBlindy/dotfiles.git"
+};
 ```
 <!-- USER_END -->
 
@@ -64,23 +120,43 @@ I define each hosts data at `config.this.host`.
 ```nix
 {
   hostname = "desktop";
-  interface = [""enp119s0""];
+  interface = [ "enp119s0" ];
   ip = "192.168.1.111";
-  keys = {"privateKeys":{},"publicKeys":{"adb":""QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop"","age":""age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp"","borg":""ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVYczAOBSeS7WfSvzYDOS4Q9Ss+yxCf2G5MVfAALOx/"","builder":""ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQ7c/AeIpmJS6cWQkHOe4ZEq3DXVRnjtTWuWfx6L46n"","cache":""cache:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc="","host":""ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdwPkRQxlbrbRGwEO5zMJ4m+7QqUQPZg1iqbd5HRP34"","iPhone":""ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq"","ssh":""ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s"","wireguard":""Oq0ZaYAnOo5sLpV//OEFwLgjVCxPyeQqf8cZBASluWk=""}};
-  modules = {"hardware":[""cpu/intel"",""gpu/amd"",""audio""],"networking":[""default"",""pool""],"programs":[""default"",""thunar"",""firefox"",""vesktop""],"services":[""ssh"",""adb"",""backup"",""cache"",""keyd"",""bitch""],"system":[""nix"",""pkgs"",""gnome"",""crossEnv"",""gtk""],"virtualisation":[""docker"",""vm""]};
+  keys =   {
+    privateKeys =     {
+    };
+    publicKeys =     {
+      adb = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
+      age = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";
+      borg = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVYczAOBSeS7WfSvzYDOS4Q9Ss+yxCf2G5MVfAALOx/";
+      builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQ7c/AeIpmJS6cWQkHOe4ZEq3DXVRnjtTWuWfx6L46n";
+      cache = "cache:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc=";
+      host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdwPkRQxlbrbRGwEO5zMJ4m+7QqUQPZg1iqbd5HRP34";
+      iPhone = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq";
+      ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
+      wireguard = "Oq0ZaYAnOo5sLpV//OEFwLgjVCxPyeQqf8cZBASluWk="
+    };
+  };
+  modules =   {
+    hardware = [ "cpu/intel" "gpu/amd" "audio" ];
+    networking = [ "default" "pool" ];
+    programs = [ "default" "thunar" "firefox" "vesktop" ];
+    services = [ "ssh" "adb" "backup" "cache" "keyd" "bitch" ];
+    system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
+    virtualisation = [ "docker" "vm" ]
+  };
   system = "x86_64-linux";
-  wgip = "10.0.0.2";
-}
+  wgip = "10.0.0.2"
+};
 ```
 <!-- HOST_END -->
 
 </details>
 <br>
 
-__I like my flakes tiny & ny modules dynamic,__  
 
 <details><summary><strong>
-Display Flake  
+__I like my flakes tiny & ny modules dynamically loaded,__  
 </strong></summary>
 
 <!-- FLAKE_START -->
@@ -217,8 +293,11 @@ $ yo deploy --host laptop --flake /home/pungkula/dotfiles
 # Positional Parameters
 $ yo deploy laptop /home/pungkula/dotfiles
 
-# Scripts can also be executed by voice, say
+# Scripts can also be executed by voice, say:
 $ yo bitch deploy laptop
+
+# Voice commands are processed by internal NLP, test sentences with:
+$ yo-bitch "my sentence"
 ```
 
 ### ✨ Available Commands
@@ -270,9 +349,4 @@ For specific command help:
 **That's cool!**  
 **I am all ears. 👀**  
 
-<!-- CONTACT_START -->
-[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
-[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
-[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
 
-<!-- CONTACT_END -->

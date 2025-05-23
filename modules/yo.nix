@@ -42,7 +42,6 @@ let
     };
   };
 
-
   generateRegex = listName:
     let
       list = config.yo.bitch.lists.${listName};
@@ -174,7 +173,8 @@ let
         CONTACT_OUTPUT+="[![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/''${repo_owner}/''${repo_name}/discussions)"$'\n'
       fi
     fi
-    
+
+
     FLAKE_OUTPUT=$(nix flake show "${config.this.user.me.dotfilesDir}" | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g')
     FLAKE_BLOCK=$(
       echo '```nix'
@@ -209,8 +209,11 @@ $ yo deploy --host laptop --flake /home/pungkula/dotfiles
 # Positional Parameters
 $ yo deploy laptop /home/pungkula/dotfiles
 
-# Scripts can also be executed by voice, say
+# Scripts can also be executed by voice, say:
 $ yo bitch deploy laptop
+
+# Voice commands are processed by internal NLP, test sentences with:
+$ yo-bitch "my sentence"
 ```
 
 ### ✨ Available Commands
@@ -254,23 +257,103 @@ EOF
       nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
     } > "$HOST_TMP"
 
+    
+    
     USER_BLOCK=$(
       echo '```nix'
       nix eval --json \
         "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
-        | jq -r 'to_entries | map("  \(.key) = \(.value | if type == "string" then "\"\(.value)\"" else .end);") | .[]' \
-        | sed -e '1i{' -e '$a}'
+        | jq -r '
+          def to_nix($indent):
+            def ind: ("  " * $indent);
+            if type == "object" then
+              "\(ind){\n" + (
+                to_entries | map(
+                  "\(ind)  \(.key) = \(.value | to_nix($indent + 1))"
+                ) | join(";\n")
+              ) + "\n\(ind)};"
+            elif type == "array" then
+              if map(type == "string") | all then
+                "[ " + (map("\"\(.)\"") | join(" ")) + " ]"
+              else
+                "[\n" + (
+                  map(to_nix($indent + 1)) | join("\n")
+                ) + "\n\(ind)];"
+              end
+            elif type == "string" then
+              "\"\(.)\""
+            else
+              tostring
+            end;
+          to_nix(0)' \
+      | sed -e '1s/^{/{/' -e 's/;;/;/g' -e '/^$/d'
       echo '```'
     )
-
+    
     HOST_BLOCK=$(
       echo '```nix'
       nix eval --json \
         "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
-        | jq -r 'walk(if type == "string" then "\"\(.)\"" else . end) | to_entries | map("  \(.key) = \(.value);") | .[]' \
-        | sed -e '1i{' -e '$a}'
+        | jq -r '
+          def to_nix($indent):
+            def ind: ("  " * $indent);
+            if type == "object" then
+              "\(ind){\n" + (
+                to_entries | map(
+                  "\(ind)  \(.key) = \(.value | to_nix($indent + 1))"
+                ) | join(";\n")
+              ) + "\n\(ind)};"
+            elif type == "array" then
+              if map(type == "string") | all then
+                "[ " + (map("\"\(.)\"") | join(" ")) + " ]"
+              else
+                "[\n" + (
+                  map(to_nix($indent + 1)) | join("\n")
+                ) + "\n\(ind)];"
+              end
+            elif type == "string" then
+              "\"\(.)\""
+            else
+              tostring
+            end;
+          to_nix(0)' \
+      | sed -e '1s/^{/{/' -e 's/;;/;/g' -e '/^$/d'
       echo '```'
     )
+      
+ 
+    THEME_BLOCK=$(
+      echo '```nix'
+      nix eval --json \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.theme" \
+        | jq -r '
+          def to_nix($indent):
+            def ind: ("  " * $indent);
+            if type == "object" then
+              "\(ind){\n" + (
+                to_entries | map(
+                  "\(ind)  \(.key) = \(.value | to_nix($indent + 1))"
+                ) | join(";\n")
+              ) + "\n\(ind)};"
+            elif type == "array" then
+              if map(type == "string") | all then
+                "[ " + (map("\"\(.)\"") | join(" ")) + " ]"
+              else
+                "[\n" + (
+                  map(to_nix($indent + 1)) | join("\n")
+                ) + "\n\(ind)];"
+              end
+            elif type == "string" then
+              "\"\(.)\""
+            else
+              tostring
+            end;
+          to_nix(0)' \
+      | sed -e '1s/^{/{/' -e 's/;;/;/g' -e '/^$/d'
+      echo '```'
+    )    
+   
+   
 
     # Update version badges
     sed -i -E \
@@ -283,93 +366,49 @@ EOF
       "$README_PATH"
   
     # Update contact badges
-    awk -v block="$CONTACT_BLOCK" '
-      BEGIN { in_contact = 0; printed = 0 }
-      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 1 }
-      /<!-- CONTACT_END -->/ { in_contact = 0; next }
-      !in_contact && !printed { print }
-      printed && !in_contact { printed = 0 }
-    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
+#    awk -v block="$CONTACT_BLOCK" '
+#      BEGIN { in_contact = 0; printed = 0 }
+#      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
+#      /<!-- CONTACT_END -->/ { in_contact = 0; next }
+#      !in_contact && !printed { print }
+#      printed && !in_contact { printed = 0 }
+#    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
 
 
     awk -v docs="$DOCS_CONTENT" \
+        -v contact="$CONTACT_BLOCK" \
         -v tree="$FLAKE_BLOCK" \
         -v flake="$FLAKE_BLOCK_NIX" \
         -v host="$HOST_BLOCK" \
         -v user="$USER_BLOCK" \
+        -v theme="$THEME_BLOCK" \
         '
-      BEGIN { in_docs=0; in_tree=0; in_flake=0; in_host=0; in_user=0 }
+      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; printed=0 }
       /<!-- YO_DOCS_START -->/ { in_docs=1; print; print docs; next }
       /<!-- YO_DOCS_END -->/ { in_docs=0; print; next }
       /<!-- HOST_START -->/ { in_host=1; print; print host; next }
       /<!-- HOST_END -->/ { in_host=0; print; next }
+      /<!-- THEME_START -->/ { in_theme=1; print; print theme; next }
+      /<!-- THEME_END -->/ { in_theme=0; print; next }
       /<!-- USER_START -->/ { in_user=1; print; print user; next }
       /<!-- USER_END -->/ { in_user=0; print; next }
       /<!-- TREE_START -->/ { in_tree=1; print; print tree; next }
       /<!-- TREE_END -->/ { in_tree=0; print; next }
       /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
       /<!-- FLAKE_END -->/ { in_flake=0; print; next }
-    
+      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
+      /<!-- CONTACT_END -->/ { in_contact = 0; next }
+      !in_contact && !in_docs && !in_tree && !in_flake && !in_host && !in_user && !in_theme && !contact_printed {
+        print;
+      }
+      contact_printed && !in_contact {
+        contact_printed = 0;
+      } 
+      ' "$README_PATH" > "$tmpfile" && mv "$tmpfile" "$README_PATH"
+      
       # Only print lines outside all sections
-      !in_docs && !in_tree && !in_flake && !in_host && !in_user { print }
-      ' "$README_PATH" > "$tmpfile"  
-#      /<!-- YO_DOCS_START -->/ {
-#        print
-#        print docs
-#        in_docs=1
-#        next
-#      }
-#      /<!-- YO_DOCS_END -->/ {
-#        in_docs=0
-#        print
-#        next
-#      }
-#      /<!-- HOST_START -->/ {
-#        print
-#        print host
-#        in_host=1
-#        next
-#      }
-#      /<!-- HOST_END -->/ {
-#        in_host=0
-#        print
-#        next
-#      }
-#      /<!-- USER_START -->/ {
-#        print
-#        print user
-#        in_user=1
-#        next
-#      }
-#      /<!-- USER_END -->/ {
-#        in_user=0
-#        print
-#        next
-#      }
-#      /<!-- TREE_START -->/ {
-#        print
-#        print tree
-#        in_tree=1
-#        next
-#      }
-#      /<!-- TREE_END -->/ {
-#        in_tree=0
-#        print
-#        next
-#      }
-#      /<!-- FLAKE_START -->/ {
-#        print
-#        print flake
-#        in_flake=1
-#        next
-#      }
-#      /<!-- FLAKE_END -->/ {
-#        in_flake=0
-#        print
-#        next
-#      }
-#      !in_docs && !in_tree && !in_flake { print }
-#    ' "$README_PATH" > "$tmpfile"
+#      !in_docs && !in_tree && !in_theme && !in_flake && !in_host && !in_user { print }
+#      ' "$README_PATH" > "$tmpfile"  
 
     # Diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
@@ -383,7 +422,6 @@ EOF
       echo "✅ No content changes needed"
     fi
 
-    # Only replace if different
     if ! diff -q "$tmpfile" "$README_PATH" >/dev/null; then
       if [ -w "$README_PATH" ]; then
         cat "$tmpfile" > "$README_PATH"
@@ -799,8 +837,7 @@ in {
         script_dir="${yoScriptsPackage}/bin"
 
         show_help() {
-          #cat <<EOF | ${pkgs.glow}/bin/glow -
-          #width=$(tput cols)
+          #width=$(tput cols) # Auto detect width
           width=130
           cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
         ## =========================== ##
@@ -845,7 +882,7 @@ in {
     ];
     
     # Expose this module and all yo.scripts as a package
-    pkgs.yo = yoScriptsPackage;
+    pkgs.yo = yoScriptsPackage; # referenced as: ${config.yo.pkgs}/bin/yo-<script>
   };}
 
 
