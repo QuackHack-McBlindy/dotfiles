@@ -247,13 +247,13 @@ EOF
 
     HOST_BLOCK=$(
       echo '```nix'
-      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json | jq
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json
       echo '```'
     )
 
     USER_BLOCK=$(
       echo '```nix'
-      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json | jq
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json
       echo '```'
     )
 
