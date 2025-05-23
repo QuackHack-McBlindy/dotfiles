@@ -209,11 +209,11 @@ $ yo deploy --host laptop --flake /home/pungkula/dotfiles
 # Positional Parameters
 $ yo deploy laptop /home/pungkula/dotfiles
 
-# Scripts can also be executed by voice, say:
-$ yo bitch deploy laptop
+# Scripts can also be executed with voice, by saying:
+"yo bitch deploy laptop"
 
 # Voice commands are parsed by internal NLP, test sentences with:
-$ yo-bitch "my sentence"
+$ yo-bitch "my test sentence"
 ```
 
 ### ✨ Available Commands
@@ -362,16 +362,14 @@ EOF
       -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
       "$README_PATH"
   
-    # Update contact badges
-#    awk -v block="$CONTACT_BLOCK" '
-#      BEGIN { in_contact = 0; printed = 0 }
-#      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
-#      /<!-- CONTACT_END -->/ { in_contact = 0; next }
-#      !in_contact && !printed { print }
-#      printed && !in_contact { printed = 0 }
-#    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
-
-
+    # Update contact badges and rest of README
+    awk -v block="$CONTACT_BLOCK" '
+      BEGIN { in_contact = 0; printed = 0 }
+      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
+      /<!-- CONTACT_END -->/ { in_contact = 0; next }
+      !in_contact && !printed { print }
+      printed && !in_contact { printed = 0 }
+    ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
     awk -v docs="$DOCS_CONTENT" \
         -v contact="$CONTACT_BLOCK" \
         -v tree="$FLAKE_BLOCK" \
@@ -393,19 +391,11 @@ EOF
       /<!-- TREE_END -->/ { in_tree=0; print; next }
       /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
       /<!-- FLAKE_END -->/ { in_flake=0; print; next }
-      /<!-- CONTACT_START -->/ { in_contact = 1; print block; printed = 0 }
-      /<!-- CONTACT_END -->/ { in_contact = 0; next }
       !in_contact && !in_docs && !in_tree && !in_flake && !in_host && !in_user && !in_theme && !contact_printed {
         print;
       }
-      contact_printed && !in_contact {
-        contact_printed = 0;
-      } 
-      ' "$README_PATH" > "$tmpfile" && mv "$tmpfile" "$README_PATH"
-      
-      # Only print lines outside all sections
-#      !in_docs && !in_tree && !in_theme && !in_flake && !in_host && !in_user { print }
-#      ' "$README_PATH" > "$tmpfile"  
+      !in_docs && !in_tree && !in_theme && !in_flake && !in_host && !in_user { print }
+      ' "$README_PATH" > "$tmpfile"  
 
     # Diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
@@ -534,7 +524,6 @@ EOF
 
         scriptContent = ''
           #!${pkgs.runtimeShell}
-
 #          set -euo pipefail
           ${yoEnvGenVar script}
             

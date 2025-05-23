@@ -7,6 +7,7 @@
         data = [{
           sentences = [
             "spela upp {search} {typ}"
+            "spela {search} {typ}"
             "starta {search}"
           ];  
           lists = {
@@ -48,7 +49,8 @@
       ${cmdHelpers}
       media_type="$typ"
       media_search="$search"
-      run_cmd "tv arris ''$media_search ''${typ}"
+      echo "debug: {pkgs.tv}/bin/tv arris ''$media_search ''${typ}"
+      tv arris ''$media_search ''${typ}
     '';
   };
 }

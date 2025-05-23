@@ -3,7 +3,6 @@
 {  
   yo.scripts.health = {
     description = "Check system health status across your machines";
-    keywords = [ "healthcheck" "hälsa" "status" "temp" ];
     category = "🧹 Maintenance";
     aliases = [ "hc" ];
     parameters = [
