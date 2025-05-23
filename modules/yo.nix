@@ -119,6 +119,8 @@ let
 
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
     CONTACT_OUTPUT=""
+    USER_TMP=$(mktemp)
+    HOST_TMP=$(mktemp)
     
     # Extract versions
     nixos_version=$(nixos-version | cut -d. -f1-2)
@@ -245,17 +247,20 @@ EOF
       echo '```'
     )
 
-    HOST_BLOCK=$(
+    {
       echo '```nix'
-      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json | jq
+      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | jq
       echo '```'
-    )
+    } > "$USER_TMP"
 
-    USER_BLOCK=$(
+    {
       echo '```nix'
-      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" --json | jq
+      nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
       echo '```'
-    )
+    } > "$HOST_TMP"
+
+    USER_BLOCK=$(cat "$USER_TMP")
+    HOST_BLOCK=$(cat "$HOST_TMP")
 
     # Update version badges
     sed -i -E \
@@ -369,6 +374,7 @@ EOF
     fi
 
     rm "$tmpfile"
+    rm "$USER_TMP" "$HOST_TMP"
   '';
 
   yoEnvGenVar = script: let
