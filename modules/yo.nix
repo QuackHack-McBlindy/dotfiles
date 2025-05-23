@@ -253,7 +253,7 @@ EOF
 
     USER_BLOCK=$(
       echo '```nix'
-      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user" --json | jq
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" --json | jq
       echo '```'
     )
 
