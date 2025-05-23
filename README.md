@@ -43,9 +43,12 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 ## ❄️ **Flake**
 
 <details><summary><strong>
+
 __I define myself at `config.this.user.me`.__  
+
 </strong></summary>
 <!-- USER_START -->
+
 
 
 <!-- USER_END -->
@@ -53,9 +56,12 @@ __I define myself at `config.this.user.me`.__
 <br>
 
 <details><summary><strong>
+
 __I define each hosts data at `config.this.host`.__  
+
 </strong></summary>
 <!-- HOST_START -->
+
 
 
 <!-- HOST_END -->
@@ -261,4 +267,3 @@ For specific command help:
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
 
 <!-- CONTACT_END -->
-
