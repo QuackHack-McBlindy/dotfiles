@@ -254,19 +254,19 @@ EOF
       nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
     } > "$HOST_TMP"
 
-    HOST_BLOCK=$(
+    USER_BLOCK=$(
       echo '```nix'
-      nix eval --strict --no-color \
-        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
-        | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g' -e 's/^/  /'  # Add indentation
+      nix eval --strict --raw \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
+        | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/''/g'  # Convert to Nix syntax
       echo '```'
     )
 
-    USER_BLOCK=$(
+    HOST_BLOCK=$(
       echo '```nix'
-      nix eval --strict --no-color \
-        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
-        | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g' -e 's/^/  /'  # Add indentation
+      nix eval --strict --raw \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
+        | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/''/g'  # Convert to Nix syntax
       echo '```'
     )
 
@@ -297,64 +297,78 @@ EOF
         -v host="$HOST_BLOCK" \
         -v user="$USER_BLOCK" \
         '
-      BEGIN { in_docs=0; in_tree=0; in_flake=0 }
-      /<!-- YO_DOCS_START -->/ {
-        print
-        print docs
-        in_docs=1
-        next
-      }
-      /<!-- YO_DOCS_END -->/ {
-        in_docs=0
-        print
-        next
-      }
-      /<!-- HOST_START -->/ {
-        print
-        print host
-        in_host=1
-        next
-      }
-      /<!-- HOST_END -->/ {
-        in_host=0
-        print
-        next
-      }
-      /<!-- USER_START -->/ {
-        print
-        print user
-        in_user=1
-        next
-      }
-      /<!-- USER_END -->/ {
-        in_user=0
-        print
-        next
-      }
-      /<!-- TREE_START -->/ {
-        print
-        print tree
-        in_tree=1
-        next
-      }
-      /<!-- TREE_END -->/ {
-        in_tree=0
-        print
-        next
-      }
-      /<!-- FLAKE_START -->/ {
-        print
-        print flake
-        in_flake=1
-        next
-      }
-      /<!-- FLAKE_END -->/ {
-        in_flake=0
-        print
-        next
-      }
-      !in_docs && !in_tree && !in_flake { print }
-    ' "$README_PATH" > "$tmpfile"
+      BEGIN { in_docs=0; in_tree=0; in_flake=0; in_host=0; in_user=0 }
+      /<!-- YO_DOCS_START -->/ { in_docs=1; print; print docs; next }
+      /<!-- YO_DOCS_END -->/ { in_docs=0; print; next }
+      /<!-- HOST_START -->/ { in_host=1; print; print host; next }
+      /<!-- HOST_END -->/ { in_host=0; print; next }
+      /<!-- USER_START -->/ { in_user=1; print; print user; next }
+      /<!-- USER_END -->/ { in_user=0; print; next }
+      /<!-- TREE_START -->/ { in_tree=1; print; print tree; next }
+      /<!-- TREE_END -->/ { in_tree=0; print; next }
+      /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
+      /<!-- FLAKE_END -->/ { in_flake=0; print; next }
+    
+      # Only print lines outside all sections
+      !in_docs && !in_tree && !in_flake && !in_host && !in_user { print }
+      ' "$README_PATH" > "$tmpfile"  
+#      /<!-- YO_DOCS_START -->/ {
+#        print
+#        print docs
+#        in_docs=1
+#        next
+#      }
+#      /<!-- YO_DOCS_END -->/ {
+#        in_docs=0
+#        print
+#        next
+#      }
+#      /<!-- HOST_START -->/ {
+#        print
+#        print host
+#        in_host=1
+#        next
+#      }
+#      /<!-- HOST_END -->/ {
+#        in_host=0
+#        print
+#        next
+#      }
+#      /<!-- USER_START -->/ {
+#        print
+#        print user
+#        in_user=1
+#        next
+#      }
+#      /<!-- USER_END -->/ {
+#        in_user=0
+#        print
+#        next
+#      }
+#      /<!-- TREE_START -->/ {
+#        print
+#        print tree
+#        in_tree=1
+#        next
+#      }
+#      /<!-- TREE_END -->/ {
+#        in_tree=0
+#        print
+#        next
+#      }
+#      /<!-- FLAKE_START -->/ {
+#        print
+#        print flake
+#        in_flake=1
+#        next
+#      }
+#      /<!-- FLAKE_END -->/ {
+#        in_flake=0
+#        print
+#        next
+#      }
+#      !in_docs && !in_tree && !in_flake { print }
+#    ' "$README_PATH" > "$tmpfile"
 
     # Diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
