@@ -253,7 +253,8 @@ EOF
 
     USER_BLOCK=$(
       echo '```nix'
-      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" --json
+      # Changed to user configuration path
+      nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user" --json
       echo '```'
     )
 
@@ -276,6 +277,8 @@ EOF
       !in_contact && !printed { print }
       printed && !in_contact { printed = 0 }
     ' "$README_PATH" > "$README_PATH.tmp" && mv "$README_PATH.tmp" "$README_PATH"
+
+    awk -v host="$HOST_BLOCK" -v user="$USER_BLOCK" 
  
     awk -v docs="$DOCS_CONTENT" -v tree="$FLAKE_BLOCK" -v flake="$FLAKE_BLOCK_NIX" '
       BEGIN { in_docs=0; in_tree=0; in_flake=0 }
