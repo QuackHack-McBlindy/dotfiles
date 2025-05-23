@@ -256,13 +256,17 @@ EOF
 
     HOST_BLOCK=$(
       echo '```nix'
-      cat "$HOST_TMP"
+      nix eval --strict --no-color \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
+        | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g' -e 's/^/  /'  # Add indentation
       echo '```'
     )
 
     USER_BLOCK=$(
       echo '```nix'
-      cat "$USER_TMP"
+      nix eval --strict --no-color \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
+        | sed -e 's/\x1B\[[0-9;]*[A-Za-z]//g' -e 's/^/  /'  # Add indentation
       echo '```'
     )
 

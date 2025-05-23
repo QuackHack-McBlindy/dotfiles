@@ -48,6 +48,8 @@ I define myself at `config.this.user.me`.
 
 <!-- USER_START -->
 ```nix
+```
+```nix
 {
   "discord": "https://discordapp.com/users/675530282849533952",
   "dotfilesDir": "/home/pungkula/dotfiles",
@@ -153,6 +155,8 @@ I define each hosts data at `config.this.host`.
 </strong></summary>
 
 <!-- HOST_START -->
+```nix
+```
 ```nix
 {
   "hostname": "desktop",
