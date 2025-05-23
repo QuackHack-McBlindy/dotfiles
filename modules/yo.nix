@@ -256,13 +256,19 @@ EOF
 
     USER_BLOCK=$(
       echo '```nix'
-      nix eval --strict --raw "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/'\''/g;
+      nix eval --json \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" \
+        | jq -r 'to_entries | map("  \(.key) = \(.value | if type == "string" then "\"\(.value)\"" else .end);") | .[]' \
+        | sed -e '1i{' -e '$a}'
       echo '```'
     )
 
     HOST_BLOCK=$(
       echo '```nix'
-      nix eval --strict --raw "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | sed -e 's/^/{/' -e 's/$/}/' -e 's/"/''/g'
+      nix eval --json \
+        "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" \
+        | jq -r 'walk(if type == "string" then "\"\(.)\"" else . end) | to_entries | map("  \(.key) = \(.value);") | .[]' \
+        | sed -e '1i{' -e '$a}'
       echo '```'
     )
 
@@ -276,7 +282,6 @@ EOF
       -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
       "$README_PATH"
   
-
     # Update contact badges
     awk -v block="$CONTACT_BLOCK" '
       BEGIN { in_contact = 0; printed = 0 }
