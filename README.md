@@ -28,9 +28,9 @@ __Sup ducks? 🦆 qwack on__ <br>
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
-- 🗣️ **[Natural Language Processing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands for script execution, dynamic regex matching, parameter extraction)* 
+- 🗣️ **[NLP Module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands by natural language, dynamic regex matching, parameter extraction + execution)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
-- 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, etc etc)* 
+- 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, ...)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
@@ -45,7 +45,7 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 ## ❄️ **Flake**
 
 <details><summary><strong>
-I define myself at `config.this.user.me`.
+Define yourself at `config.this.user.me`.
 </strong></summary>
 
 <!-- USER_START -->
@@ -74,10 +74,10 @@ I define myself at `config.this.user.me`.
 <!-- USER_END -->
 
 </details>
-<br>
+
 
 <details><summary><strong>
-I define each hosts data at `config.this.host`.
+Define each hosts data at `config.this.host`.
 </strong></summary>
 
 <!-- HOST_START -->
@@ -116,10 +116,10 @@ I define each hosts data at `config.this.host`.
 <!-- HOST_END -->
 
 </details>
-<br>
+
 
 <details><summary><strong>
-I define any optional theme at `config.this.theme`.
+Define any optional theme configuration at `config.this.theme`.
 </strong></summary>
 
 <!-- THEME_START -->
@@ -146,13 +146,13 @@ I define any optional theme at `config.this.theme`.
     package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/xgplrjrczp0jfd55j0ph2w5pgh2z2vms-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/wdhwnc5qprj49dir0p5zmqdwqqcddp7f-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
 
 </details>
-<br>
+
 
 <details><summary><strong>
 I like my flakes tiny & ny modules dynamically loaded,  
@@ -191,7 +191,7 @@ I like my flakes tiny & ny modules dynamically loaded,
 <br>
 
 <details><summary><strong>
-Display Flake Outputs
+View Flake Outputs
 </strong></summary>
 
   <!-- TREE_START -->
@@ -264,7 +264,7 @@ Remove flash drive, boot it up again and deploy configuration from your main mac
 $ yo deploy laptop
 ```
 
-**Any builds after first deployment will use local cached binaries with enhanced build time.**  
+**Any builds after first deployment will use local cached binaries for enhanced build time.**  
 
 <br>
 
