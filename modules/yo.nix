@@ -248,15 +248,10 @@ EOF
     )
 
     {
-      echo '```nix'
       nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.user.me" | jq
-      echo '```'
     } > "$USER_TMP"
-
     {
-      echo '```nix'
       nix eval --json "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.this.host" | jq
-      echo '```'
     } > "$HOST_TMP"
 
     USER_BLOCK=$(cat "$USER_TMP")

@@ -45,8 +45,9 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 <details><summary><strong>
 I define myself at `config.this.user.me`.
 </strong></summary>
+
+```
 <!-- USER_START -->
-```nix
 {
   "discord": "https://discordapp.com/users/675530282849533952",
   "dotfilesDir": "/home/pungkula/dotfiles",
@@ -77,17 +78,18 @@ I define myself at `config.this.user.me`.
   "name": "pungkula",
   "repo": "git@github.com:QuackHack-McBlindy/dotfiles.git"
 }
+<!-- USER_END -->
 ```
 
-<!-- USER_END -->
 </details>
 <br>
 
 <details><summary><strong>
 I define each hosts data at `config.this.host`.
 </strong></summary>
+
+```
 <!-- HOST_START -->
-```nix
 {
   "hostname": "desktop",
   "interface": [
@@ -147,9 +149,9 @@ I define each hosts data at `config.this.host`.
   "system": "x86_64-linux",
   "wgip": "10.0.0.2"
 }
+<!-- HOST_END -->
 ```
 
-<!-- HOST_END -->
 </details>
 <br>
 
