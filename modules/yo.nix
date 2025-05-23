@@ -259,6 +259,7 @@ EOF
       cat "$HOST_TMP"
       echo '```'
     )
+
     USER_BLOCK=$(
       echo '```nix'
       cat "$USER_TMP"
