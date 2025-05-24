@@ -1,3 +1,4 @@
+# ddotfiles/packages/say.nix
 { 
   self,
   lib,
@@ -14,7 +15,6 @@
     ps.langid
   ]);
 in
-
 stdenv.mkDerivation {
   name = "say";
   src = ./say;
@@ -36,5 +36,4 @@ stdenv.mkDerivation {
   meta = {
     description = "TTS using Piper with automatic language detection";
     license = lib.licenses.mit;
-  };
-}
+  };}

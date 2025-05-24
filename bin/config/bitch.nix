@@ -76,7 +76,8 @@
             ${lib.concatImapStrings (i: paramName: ''
               param_value="''${BASH_REMATCH[${toString (i+1)}]}"
               # Apply substitution only if defined
-              if [[ -n "''${substitutions[\"$param_value\"]}" ]]; then
+#              if [[ -n "''${substitutions[\"$param_value\"]}" ]]; then
+              if [[ -v substitutions["$param_value"] ]]; then
                 param_value="''${substitutions[\"$param_value\"]}"
               fi
               ${lib.optionalString (
@@ -172,12 +173,15 @@ in {
       
             if [[ "''${#substitutions[@]}" -gt 0 ]]; then
               for original in "''${!substitutions[@]}"; do
-                echo "Replaced: $original → ''${substitutions[$original]}"
+                echo "$original → ''${substitutions[$original]}"
               done
             fi
       
+
+      
+      
             echo "➤ Executing: yo $script ''${args[@]}''${substitutions[$original]}"
-            exec "yo-$script" "''${args[@]}""''${substitutions[$original]}"
+            exec "yo-$script" ""''${args[@]}"""''${substitutions[$original]}"
             
           fi
         done

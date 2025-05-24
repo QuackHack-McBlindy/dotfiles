@@ -1,10 +1,10 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
 <!-- VERSIONS_START -->
-![NixOS](https://img.shields.io/badge/NixOS-25.05-blue?style=flat-square&logo=NixOS&logoColor=white)
+![NixOS](https://img.shields.io/badge/NixOS-25.11-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.12.28-red?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-47.4-purple?style=flat-square&logo=gnome&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.12.29-red?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-48.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
@@ -29,6 +29,7 @@ __Sup ducks? 🦆 qwack on__ <br>
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
 - 🗣️ **[NLP Module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands by natural language, dynamic regex matching, parameter extraction + execution)* 
+- 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(with automatic QR codes for mobile devices)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
 - 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, ...)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
@@ -127,13 +128,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/zhgdyjb794anq9wkcm0fgbs71imph18s-bibata-cursors-2.0.7";
+    package = "/nix/store/1np4cfqil5jh04zmscj3i6h2zvh9yqvv-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/dqfnpgafkj49ka807fkvfkvhnpqcs8dd-fira-code-6.2" ];
+    packages = [ "/nix/store/k4s2ckig2pyi2lzzaxmh8wcwbq7n7pz3-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -143,10 +144,10 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/p6bq1jlzicl8rwljd0r1wi5j5b9dvmrs-papirus-icon-theme-20250201"
+    package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/wdhwnc5qprj49dir0p5zmqdwqqcddp7f-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/ai2f3099nr4c12jn2i9rl8hdbwjhgwg7-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -295,8 +296,8 @@ $ yo deploy laptop /home/pungkula/dotfiles
 # Scripts can also be executed with voice, by saying:
 "yo bitch deploy laptop"
 
-# Voice commands are processed by internal NLP, test sentences with:
-$ yo-bitch "my test sentence"
+# If the server is not running, it can be manually started with:
+$ yo-bitch
 ```
 
 ### ✨ Available Commands
@@ -311,7 +312,7 @@ Set default values for your parameters to have them marked [optional]
 | **⚙️ Configuration** | | |
 | `yo bitch --input` |  | Parses plain text natural language and builds yo script execution commands. |
 | `yo edit ` | config | yo CLI configuration mode |
-| `yo mic ` |  | Description of the script. |
+| `yo mic ` |  | Manually trigger microphone recording for intent execution. |
 | **⚡ Productivity** | | |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |

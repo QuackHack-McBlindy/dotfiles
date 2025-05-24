@@ -1,3 +1,4 @@
+# dotfiles/packages/health.nix
 { 
   self,
   stdenv,
@@ -38,5 +39,5 @@ stdenv.mkDerivation {
       description = "Healthchecks for your machines";
       license = lib.licenses.mit;
       maintainers = [ "QuackHack-McBlindy" ];
-    };
-}
+    
+    };}

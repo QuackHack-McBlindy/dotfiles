@@ -1,0 +1,51 @@
+# THIS IS A CONFIGURATION FILE FOR "yo-bitch" VOICE ASSISTANT SERVER
+
+logging:
+  log_file: ~/.config/yo-bitch.log
+  max_log_size: 5242880  # 5MB
+  backup_count: 8
+
+whisper:
+  model_size: medium
+  device: cpu
+  compute_type: int8
+  sample_rate: 16000
+
+wake_word:
+  threshold: 0.85
+  cooldown_period: 15
+  log_unit: wyoming-openwakeword
+  log_regex: "probability=([\\d\\.]+)"
+  awake_sound: /home/pungkula/dotfiles/modules/themes/sounds/awake.wav
+  done_sound: /home/pungkula/dotfiles/modules/themes/sounds/done.wav
+  wake_uri: tcp://127.0.0.1:10400
+  wake_word_name: yo_bitch
+
+wyoming_satellite:
+  binary: wyoming-satellite
+  name: YoBitch-Satellite
+  uri: tcp://0.0.0.0:10700
+  mic_command: arecord -r 16000 -c 1 -f S16_LE -t raw
+  snd_command: aplay -r 22050 -c 1 -f S16_LE -t raw
+
+audio:
+  say_binary: say
+  default_playback_cmd: aplay
+  temporary_audio_suffix: .wav
+
+api:
+  host: 0.0.0.0
+  port: 10555
+  language: sv
+  vad_filter: true
+
+mic_command: yo-mic
+
+commands:
+  voice_commands:
+    - match: "klockan"
+      response: "Klockan är {time:%H:%M}"
+    - match: "datum"
+      response: "Idag är det {date:%Y-%m-%d}"
+    - match: "veckodag"
+      response: "Det är {weekday:%A}" 

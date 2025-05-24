@@ -1,5 +1,9 @@
-{ self, system, lib, ... }:
-
-let
+# dotfiles/packages/installer.nix
+{ 
+  self,
+  system,
+  lib,
+  ...
+} : let
   installer-flake = self.inputs.installer;
 in installer-flake.packages.${system}.installer-iso 

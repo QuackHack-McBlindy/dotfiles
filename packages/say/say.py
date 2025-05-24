@@ -12,7 +12,6 @@ VOICES_MD_URL = "https://raw.githubusercontent.com/rhasspy/piper/refs/heads/mast
 DEFAULT_LANGUAGE = "sv"  # Swedish
 MIN_WORDS_FOR_DETECTION = 4  # Use default language if text is too short
 
-
 def detect_language(text):
     """Detects language using langid, defaults to Swedish if text is short."""
     if len(text.split()) < MIN_WORDS_FOR_DETECTION:
@@ -32,7 +31,6 @@ def fetch_model_urls(language):
         print("Error fetching VOICES.md")
         sys.exit(1)
 
-    # Extract URLs
     model_match = re.search(rf"https://\S+/{language}[^ ]+\.onnx", response.text)
     config_match = re.search(rf"https://\S+/{language}[^ ]+\.onnx\.json", response.text)
 
@@ -41,7 +39,6 @@ def fetch_model_urls(language):
         sys.exit(1)
 
     return model_match.group(0), config_match.group(0)
-
 
 def download_file(url, dest_path):
     """Downloads a file if missing."""
@@ -59,7 +56,6 @@ def ensure_model_exists(language):
 
     model_path = os.path.join(MODEL_DIR, os.path.basename(model_url))
     config_path = os.path.join(MODEL_DIR, os.path.basename(config_url))
-
     download_file(model_url, model_path)
     download_file(config_url, config_path)
 
@@ -70,12 +66,10 @@ def speak(text):
     lang = detect_language(text)
     model, config = ensure_model_exists(lang)
 
-    # Create a temporary file for the output audio
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
 
     try:
-        # Generate speech
         subprocess.run([
             "piper",
             "-m", model,
@@ -83,14 +77,12 @@ def speak(text):
             "-f", wav_path
         ], input=text.encode(), check=True)
 
-        # Play the audio
         subprocess.run(["aplay", wav_path], check=True)
     except subprocess.CalledProcessError as e:
         print(f"Error running Piper: {e}")
         sys.exit(1)
     finally:
         os.remove(wav_path)  # Cleanup temp file
-
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

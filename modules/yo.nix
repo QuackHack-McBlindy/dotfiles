@@ -212,8 +212,8 @@ $ yo deploy laptop /home/pungkula/dotfiles
 # Scripts can also be executed with voice, by saying:
 "yo bitch deploy laptop"
 
-# Voice commands are processed by internal NLP, test sentences with:
-$ yo-bitch "my test sentence"
+# If the server is not running, it can be manually started with:
+$ yo-bitch
 ```
 
 ### ✨ Available Commands

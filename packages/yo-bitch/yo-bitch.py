@@ -1,6 +1,9 @@
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.logger import logger as fastapi_logger
+from contextlib import asynccontextmanager
+#from pathlib import Path
 import logging
+from logging.handlers import RotatingFileHandler
 import uvicorn
 import tempfile
 import shutil
@@ -10,36 +13,51 @@ import re
 import time
 import threading
 import os
-import requests
-import json
+#import requests
+#import json
 import yaml
-import websockets
-import ast
+#import websockets
+#import ast
+import asyncio
 from faster_whisper import WhisperModel
+import numpy as np
+import datetime
+#from wyoming.asr import Transcript
+#from wyoming.client import AsyncClient
+#from wyoming.wake import Detect
 
 class DuckTrace:
-    # ANSI escape codes for colors and formatting
+    LOG_FILE = os.path.expanduser("~/.config/yo-bitch.log")
+    MAX_LOG_SIZE = 5 * 1024 * 1024  # 5MB
+    BACKUP_COUNT = 8
     RESET = "\033[0m"
     BOLD = "\033[1m"
     BLINK = "\033[5m"
-
     RED = "\033[31m"
     YELLOW = "\033[33m"
     GREEN = "\033[32m"
     BLUE = "\033[34m"
 
-    LOG_FILE = "ducktrace.log"
+    def __init__(self):
+        self.file_handler = RotatingFileHandler(
+            self.LOG_FILE, maxBytes=self.MAX_LOG_SIZE, backupCount=self.BACKUP_COUNT
+        )
+        self.file_handler.setFormatter(logging.Formatter("[%(asctime)s] %(levelname)s - %(message)s"))
+        self.file_logger = logging.getLogger("DuckFileLogger")
+        self.file_logger.setLevel(logging.DEBUG)
+        self.file_logger.addHandler(self.file_handler)
+        self.file_logger.propagate = False
 
     def _timestamp(self):
-       # return time.strftime("%Y-%m-%d %H:%M:%S")
         return time.strftime("%H:%M:%S") 
-         
+   
     def _log(self, level, symbol, color, message, blink=False):
         timestamp = self._timestamp()
         blink_text = self.BLINK if blink else ""
         formatted_message = (
             f"{color}{self.BOLD}{blink_text}[🦆📜] {symbol}{level}{symbol} [{timestamp}] - {message}{self.RESET}"
         )
+        self.file_logger.log(getattr(logging, level), message)
         print(formatted_message)
         with open(self.LOG_FILE, "a") as log_file:
             log_file.write(f"[{timestamp}] {level} - {message}\n")
@@ -59,10 +77,8 @@ class DuckTrace:
     def debug(self, message):
         self._log("DEBUG", "🐛", self.BLUE, message)
 
-# Create a DuckTrace instance inside the script
 dt = DuckTrace()
 
-# Intercept FastAPI logs and route them through DuckTrace
 class DuckTraceHandler(logging.Handler):
     def emit(self, record):
         log_entry = self.format(record)
@@ -77,15 +93,11 @@ class DuckTraceHandler(logging.Handler):
         elif record.levelname == "DEBUG":
             dt.debug(log_entry)
 
-# Create a custom handler and formatter
 duck_handler = DuckTraceHandler()
 formatter = logging.Formatter("%(levelname)s - %(message)s")
 duck_handler.setFormatter(formatter)
-
-# Clear existing handlers and set DuckTrace as the only logger
 logging.basicConfig(handlers=[duck_handler], level=logging.INFO, force=True)
 
-# Apply it to FastAPI, Uvicorn, and other loggers
 fastapi_logger.handlers = [duck_handler]
 fastapi_logger.setLevel(logging.INFO)
 
@@ -93,103 +105,198 @@ uvicorn_logger = logging.getLogger("uvicorn")
 uvicorn_logger.handlers = [duck_handler]
 uvicorn_logger.setLevel(logging.INFO)
 
-# Disable all other loggers except for DuckTrace
 logging.getLogger().handlers = [duck_handler]
 logging.getLogger("uvicorn.access").handlers = [duck_handler]
 logging.getLogger("uvicorn.error").handlers = [duck_handler]
 
-######################################
-# SETTINGS
-##########
-app = FastAPI()
-model = WhisperModel("medium", device="cpu", compute_type="int8")  
-# Threshold probability to trigger the script
-THRESHOLD = 0.85000
-# Timeout to prevent multiple triggers for the same wake word
-COOLDOWN_PERIOD = 5  # seconds
-# Regex to extract probability from log lines
-LOG_PATTERN = re.compile(r"probability=([\d\.]+)")
-# Track last trigger time
-last_trigger_time = 0
-# Intents
-USER_HOME = os.path.expanduser("~")
-CONFIG_PATH = f"{USER_HOME}/dotfiles/home/.config/intents.yaml"
-BIN_PATH = f"{USER_HOME}/dotfiles/home/bin/"
-#Load intents from YAML
+def expand_path(path: str) -> str:
+    return os.path.expanduser(os.path.expandvars(path))
+
+def load_config():
+    default_config_path = os.path.expanduser("~/.config/yo-bitch/config.yaml")
+    config_path = os.getenv("YO_BITCH_CONFIG", default_config_path)
+    config_path = expand_path(config_path)
+    
+    if not os.path.exists(config_path):
+        config_dir = os.path.dirname(config_path)
+        os.makedirs(config_dir, exist_ok=True)
+        
+        default_config = {
+            "logging": {
+                "log_file": "~/.config/yo-bitch.log",
+                "max_log_size": 5242880,
+                "backup_count": 8
+            },
+            "whisper": {
+                "model_size": "medium",
+                "device": "cpu",
+                "compute_type": "int8",
+                "sample_rate": 16000
+            },
+            "wake_word": {
+                "threshold": 0.85,
+                "cooldown_period": 15,
+                "log_unit": "wyoming-openwakeword",
+                "log_regex": "probability=([\\d\\.]+)",
+                "awake_sound": "~/dotfiles/modules/themes/sounds/awake.wav",
+                "done_sound": "~/dotfiles/modules/themes/sounds/done.wav",
+                "wake_uri": "tcp://127.0.0.1:10400",
+                "wake_word_name": "yo_bitch"
+            },
+            "wyoming_satellite": {
+                "binary": "wyoming-satellite",
+                "name": "YoBitch-Satellite",
+                "uri": "tcp://0.0.0.0:10700",
+                "mic_command": "arecord -r 16000 -c 1 -f S16_LE -t raw",
+                "snd_command": "aplay -r 22050 -c 1 -f S16_LE -t raw"
+            },
+            "audio": {
+                "say_binary": "say",
+                "default_playback_cmd": "aplay",
+                "temporary_audio_suffix": ".wav"
+            },
+            "api": {
+                "host": "0.0.0.0",
+                "port": 10555,
+                "language": "sv",
+                "vad_filter": True
+            },
+            "mic_command": "yo-mic",
+            "commands": {
+                "voice_commands": [
+                    {
+                        "match": "klockan",
+                        "response": "Klockan är {time:%H:%M}"
+                    },
+                    {
+                        "match": "datum",
+                        "response": "Idag är det {date:%Y-%m-%d}"
+                    },
+                    {
+                        "match": "veckodag",
+                        "response": "Det är {weekday:%A}"
+                    }
+                ]
+            }
+        }
+
+        try:
+            with open(config_path, "w") as f:
+                yaml.safe_dump(default_config, f, default_flow_style=False, sort_keys=False)
+            print(f"Created default config at {config_path}")
+        except Exception as e:
+            raise RuntimeError(f"Failed to create config file: {e}")
+
+    try:
+        with open(config_path, "r") as f:
+            config = yaml.safe_load(f)
+    except Exception as e:
+        raise RuntimeError(f"Failed to load config: {e}")
+
+    # Expand paths in config
+    config["logging"]["log_file"] = expand_path(config["logging"]["log_file"])
+    config["wake_word"]["awake_sound"] = expand_path(config["wake_word"]["awake_sound"])
+    config["wake_word"]["done_sound"] = expand_path(config["wake_word"]["done_sound"])
+    
+    return config
+
+# Load config before initializing other components
 try:
-    with open(CONFIG_PATH, "r") as file:
-        INTENTS = yaml.safe_load(file)
-    if isinstance(INTENTS, dict):
-        num_intents = len(INTENTS)
-        dt.info(f"Loaded {num_intents} intents from {CONFIG_PATH}.")
-    else:
-        raise ValueError("Invalid format: INTENTS is not a dictionary.")
+    config = load_config()
 except Exception as e:
-    import traceback
-    dt.error(f"Failed to load intents: {e}\n{traceback.format_exc()}")
+    print(f"Failed to load config: {e}")
+    raise
 
-transcription_active = False
-processing_lock = threading.Lock()
-####################################
-# INTENTS
-############
-INTENTS = {
-    'MediaController': {
-        'script': 'mediaController.py 192.168.1.223 "{{ search }}" "{{ typ }}" ',
-        'speech': 'Jag fixar det.',
-        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
-    },
-    'Time': {
-        'script': 'time.py',
-        'speech': 'Klockan är {output}',
-        'packages': 'python3'
-    },
-    'musicGenerator': {
-        'script': 'musicGen.py {{ genre }} {{ prompt }}',
-        'speech': 'Jag genererar några låter åt dig, och återkommer med musiken när dom är klara.',
-        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
-    },
-    'noIntent': {
-        'script': 'noIntent.py {input}',
-        'speech': '{output}',
-        'packages': 'python3 python312Packages.requests python312Packages.python-dotenv'
-    }
-}
+# Logging
+LOG_FILE = config["logging"]["log_file"]
+MAX_LOG_SIZE = config["logging"]["max_log_size"]
+BACKUP_COUNT = config["logging"]["backup_count"]
 
-USER_HOME = os.path.expanduser("~")
-BIN_PATH = os.path.join(USER_HOME, 'dotfiles/home/bin/')
+# Whisper model
+WHISPER_MODEL_SIZE = config["whisper"]["model_size"]
+WHISPER_DEVICE = config["whisper"]["device"]
+WHISPER_COMPUTE_TYPE = config["whisper"]["compute_type"]
+WHISPER_SAMPLE_RATE = config["whisper"]["sample_rate"]
 
-####################################
-# FUNCTIONS
-############
-wyoming_satellite_path = shutil.which("wyoming-satellite")
+# Wake word
+WAKE_THRESHOLD = config["wake_word"]["threshold"]
+WAKE_COOLDOWN = config["wake_word"]["cooldown_period"]
+WAKE_LOG_UNIT = config["wake_word"]["log_unit"]
+WAKE_LOG_REGEX = config["wake_word"]["log_regex"]
+AWAKE_SOUND = config["wake_word"]["awake_sound"]
+DONE_SOUND = config["wake_word"]["done_sound"]
+WAKE_URI = config["wake_word"]["wake_uri"]
+WAKE_WORD_NAME = config["wake_word"]["wake_word_name"]
+
+# Wyoming Satellite
+SATELLITE_BINARY = config["wyoming_satellite"]["binary"]
+SATELLITE_NAME = config["wyoming_satellite"]["name"]
+SATELLITE_URI = config["wyoming_satellite"]["uri"]
+SATELLITE_MIC_CMD = config["wyoming_satellite"]["mic_command"]
+SATELLITE_SND_CMD = config["wyoming_satellite"]["snd_command"]
+
+MIC_COMMAND = config["mic_command"]
+
+# Audio playback
+SAY_BINARY = config["audio"]["say_binary"]
+DEFAULT_PLAYBACK_CMD = config["audio"]["default_playback_cmd"]
+TEMP_AUDIO_SUFFIX = config["audio"]["temporary_audio_suffix"]
+
+# API
+API_HOST = config["api"]["host"]
+API_PORT = config["api"]["port"]
+API_LANGUAGE = config["api"]["language"]
+API_VAD_FILTER = config["api"]["vad_filter"]
+
+# Voice command patterns
+VOICE_COMMANDS = config["commands"]["voice_commands"]
+
+LOG_PATTERN = re.compile(WAKE_LOG_REGEX)
+LAST_TRIGGER_TIME = 0
+
+model = WhisperModel(
+    WHISPER_MODEL_SIZE,
+    device=WHISPER_DEVICE,
+    compute_type=WHISPER_COMPUTE_TYPE
+)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    dt.info("Starting background services...")
+    threading.Thread(target=start_wyoming_satellite, daemon=True).start()
+    threading.Thread(target=monitor_logs, daemon=True).start()
+    dt.info("All background services started")
+    yield
+    
+app = FastAPI(lifespan=lifespan)
+
 def start_wyoming_satellite():
-    """Start wyoming-satellite in the background with full configuration."""
-    if not wyoming_satellite_path:
-        raise RuntimeError("wyoming-satellite binary not found.")
-
+    """Start wyoming-satellite in the background using config values."""
+    if not shutil.which(SATELLITE_BINARY):
+        raise RuntimeError(f"{SATELLITE_BINARY} binary not found in PATH.")
     cmd = [
-        wyoming_satellite_path,
-        "--name", "YoBitch-Satellite",
-        "--uri", "tcp://0.0.0.0:10700",
-        "--mic-command", "arecord -r 16000 -c 1 -f S16_LE -t raw",
-        "--snd-command", "aplay -r 22050 -c 1 -f S16_LE -t raw",
-        "--wake-uri", "tcp://127.0.0.1:10400",
-        "--wake-word-name", "yo_bitch",
-        "--awake-wav", "/home/pungkula/dotfiles/modules/themes/sounds/done.wav",
-        "--done-wav", "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav"
+        SATELLITE_BINARY,
+        "--name", SATELLITE_NAME,
+        "--uri", SATELLITE_URI,
+        "--mic-command", SATELLITE_MIC_CMD,
+        "--snd-command", SATELLITE_SND_CMD,
+        "--wake-uri", WAKE_URI,
+        "--wake-word-name", WAKE_WORD_NAME,
+        "--awake-wav", AWAKE_SOUND,
+        "--done-wav", DONE_SOUND
     ]
-
+    dt.debug(f"Launching satellite with: {' '.join(cmd)}")
     subprocess.Popen(cmd)
 
 
 def play_wav(file_path):
-    """Plays a WAV file using aplay."""
-    subprocess.Popen(["aplay", file_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    """Play a WAV file using configured player."""
+    subprocess.Popen([DEFAULT_PLAYBACK_CMD, file_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 def monitor_logs():
-    """Monitor wyoming-openwakeword logs and trigger a script when probability is high."""
-    global last_trigger_time  
+    """Monitor wake word logs and trigger mic on threshold."""
+    global LAST_TRIGGER_TIME
+    LAST_TRIGGER_TIME = time.time()
 
     process = subprocess.Popen(
         ["journalctl", "-u", "wyoming-openwakeword", "-f", "-n", "0"],
@@ -198,242 +305,69 @@ def monitor_logs():
         text=True
     )
 
-    for line in process.stdout:  # More efficient log reading
+    for line in process.stdout:
         match = LOG_PATTERN.search(line)
         if match:
             probability = float(match.group(1))
             current_time = time.time()
-
-            if probability > THRESHOLD and (current_time - last_trigger_time) > COOLDOWN_PERIOD:
-                play_wav("/home/pungkula/dotfiles/modules/themes/sounds/awake.wav")
+            if probability > WAKE_THRESHOLD and (current_time - LAST_TRIGGER_TIME) > WAKE_COOLDOWN:
+                play_wav(AWAKE_SOUND)
                 dt.debug(f"Wake word detected with probability {probability}.")
                 dt.info("MIC ON!")
-                command = 'yo-mic'
-                subprocess.run(command, shell=True)
-                #dt.info(f"Starting voice-client at {current_time}")  
-                transcription_active = True
-                last_trigger_time = current_time 
-                         
+                LAST_TRIGGER_TIME = current_time
 
-def get_interpreter(script_path):
-    """Determine the interpreter based on file extension."""
-    ext = os.path.splitext(script_path)[1]
-    return {
-        ".sh": "bash",
-        ".py": "python",
-        ".js": "node",
-    }.get(ext, None) 
+                result = subprocess.run(MIC_COMMAND, shell=True, capture_output=True, text=True)
+                if result.returncode != 0:
+                    dt.error(f"Mic command failed: {result.stderr}")
+                else:
+                    dt.debug(f"Mic command output: {result.stdout}")
 
-
-say_path = shutil.which("say")
-if not say_path:
-    dt.error("say binary not found. Make sure it is installed and in $PATH.")
-
-
-def execute_intent(intent_data):
-    """Execute script based on Hassil response and intents.yaml configuration"""
-    intent_name = intent_data.get("intent")
-
-    if not intent_name:
-        dt.debug("No intent found in response.")
-        return "Unknown intent.", "Jag förstår inte det där."
-
-    intent_config = INTENTS.get(intent_name)
-    if not intent_config:
-        dt.debug(f"Intent '{intent_name}' not found in INTENTS config.")
-        speech_response = "Jag förstår inte det där."
-        subprocess.run([say_path, speech_response])
-        return "Unknown intent.", speech_response
-
-    script_template = intent_config.get("script", "").strip()
-    speech_template = intent_config.get("speech", "Action output: {output}, runtime: {duration} seconds")
-    packages = intent_config.get("packages", "")
-
-    if not script_template:
-        dt.debug(f"No script found for intent '{intent_name}'.")
-        return "Script not found.", f"Jag kunde inte hitta scriptet för {intent_name}."
-
-    script_command = script_template
-    for key, value in intent_data.items():
-        script_command = script_command.replace(f"{{{{ {key} }}}}", str(value))
-
-    dt.debug(f"Formatted script command: {script_command}")
-
-    parts = script_command.split()
-    if not parts:
-        dt.debug("Script command is empty after parsing.")
-        return "Invalid script.", "Felaktigt skriptkommando."
-
-    script_file = parts[0]
-    script_args = parts[1:]
-    script_path = os.path.join(BIN_PATH, script_file)
-
-    if not os.path.exists(script_path):
-        dt.debug(f"Script file not found: {script_path}")
-        speech_response = f"Jag kunde inte hitta {script_file}."
-        subprocess.run([say_path, speech_response])
-        return "Script not found.", speech_response
-
-    nix_command = ["nix-shell"]
-    if packages:
-        nix_command.extend(["-p", *packages.split()])
-    #nix_command.extend(["--run", f"python {script_path} " + " ".join(shlex.quote(arg) for arg in script_args)])
-    nix_command.extend(["--run", f"python {script_path} {' '.join(script_args)}"])
-
-
-    try:
-        dt.debug(f"Running script in Nix shell: {script_path} with args: {script_args}")
-        start_time = time.time()
-        result = subprocess.run(nix_command, capture_output=True, text=True, check=True)
-        output = result.stdout.strip()
-        duration = time.time() - start_time
-        dt.info(f"Script output: {output}, execution time: {duration:.2f}s")
-    except subprocess.CalledProcessError as e:
-        dt.error(f"Error executing {script_path} in Nix shell: {e.stderr}")
-        output = f"Error: {e}"
-        duration = 0
-
-    # Format speech response
-    speech_response = speech_template.replace("{output}", output).replace("{duration}", f"{duration:.2f}")
-    dt.debug(f"Final speech response: {speech_response}")
-
-    subprocess.Popen([say_path, speech_response],
-                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, stdin=subprocess.DEVNULL)
-
-    return output, speech_response
-
-
-def send_to_hassil(transcribed_text):
-    """Send transcribed text to Hassil, parse its JSON response, and execute the corresponding intent."""
-    transcribed_text = re.sub(r"[^a-z0-9\såäö&]", "", transcribed_text.lower())
-    dt.info(f"Sending to Hassil: {transcribed_text}")
-    
-    user_home = os.path.expanduser("~")
-    config_path = f"{user_home}/dotfiles/home/.config/custom_sentences/sv"
-    
-    hassil_path = shutil.which("hassil")
-    if not hassil_path:
-        dt.error("Hassil binary not found. Make sure it is installed and in $PATH.")
-        return
-
-    process = subprocess.Popen(
-        [hassil_path, config_path],
-        stdin=subprocess.PIPE,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
+def format_dynamic_response(template: str) -> str:
+    now = datetime.datetime.now()
+    return template.format(
+        time=now,
+        date=now,
+        weekday=now
     )
 
-    output, error = process.communicate(input=transcribed_text)
-
-    if error.strip():
-        dt.error(f"Hassil error: {error.strip()}")
-
-    if not output.strip():
-        dt.debug("Empty response from Hassil.")
-        return
-
-    dt.debug(f"Raw Hassil response: {output}")
-
-    if output.strip() == "<no match>":
-        execute_intent({"intent": "noIntent", "input": transcribed_text})
-        return
-
-    # Extract JSON lines
-    json_lines = [line for line in output.split("\n") if line.startswith("{")]
-    if not json_lines:
-        dt.debug("No valid JSON response found from Hassil.")
-        return
-
-    json_response = json_lines[0].replace("'", '"')  # Convert invalid JSON format
-
-    try:
-        intent_data = json.loads(json_response)
-        dt.debug(f"Parsed Hassil response: {intent_data}")
-        execute_intent(intent_data)
-    except json.JSONDecodeError as e:
-        dt.error(f"Error parsing Hassil response: {e}\nRaw response: {json_response}")
-        return  # Prevent calling execute_intent with invalid data
-
+async def parse_voice_command(text: str) -> str:
+    text = text.lower()
+    for cmd in VOICE_COMMANDS:
+        if cmd["match"] in text:
+            return format_dynamic_response(cmd["response"])
+    return ""
 
 @app.post("/transcribe")
 async def transcribe_audio(audio: UploadFile = File(...)):
     try:
-        raw_data = await audio.read()
-        
-        # Convert raw bytes to numpy array (int16, 16kHz, mono)
-        import numpy as np
-        audio_array = np.frombuffer(raw_data, dtype=np.int16)
-        
-        # Create valid WAV file with headers
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_audio:
-            sf.write(
-                temp_audio.name,
-                audio_array,
-                16000,  # Sample rate
-                subtype="PCM_16",
-                format="WAV"
-            )
-            temp_audio_path = temp_audio.name
+        contents = await audio.read()
+        audio_array = np.frombuffer(contents, dtype=np.int16)
+        samplerate = WHISPER_SAMPLE_RATE
 
-        # Transcribe the valid WAV file
-        segments, _ = model.transcribe(temp_audio_path, language="sv")
-        os.remove(temp_audio_path)  # Cleanup
-
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
+            sf.write(tmp_wav.name, audio_array, samplerate, subtype="PCM_16")
+            tmp_wav_path = tmp_wav.name
+        segments, _ = model.transcribe(tmp_wav_path, language=API_LANGUAGE, vad_filter=API_VAD_FILTER)
+        os.remove(tmp_wav_path)
         if not segments:
-            dt.debug("No speech detected")
             return {"transcription": "No speech detected"}
 
         transcription = " ".join(segment.text for segment in segments)
-        dt.info(transcription)
-        send_to_hassil(transcription)
+        dt.info(f"Transcribed: {transcription}")
+        if transcription.strip():
+            cmd = await parse_voice_command(transcription)
+            if cmd:
+                dt.info(f"Executed command: {cmd}")
+                subprocess.Popen(["say", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            else:
+                dt.warning("No command matched")
+        else:
+            dt.debug("Empty transcription")
         return {"transcription": transcription}
-
     except Exception as e:
-        dt.error(f"Transcription error: {str(e)}")
+        dt.error(f"Transcription error: {e}")
         return {"error": str(e)}
-   
-    finally:
-        with processing_lock:
-            transcription_active = False  # Release lock
-            dt.debug("Transcription completed, system ready for new triggers")
-
-   
-def background_tasks():
-    """Starts background services"""
-    threading.Thread(target=start_wyoming_satellite, daemon=True).start()
-    threading.Thread(target=monitor_logs, daemon=True).start()
-
-@app.websocket("/stream")
-async def websocket_endpoint(websocket: WebSocket):
-    await websocket.accept()
-    print("WebSocket connection established.")
-
-    audio_buffer = bytearray()  # Buffer to accumulate audio data
-
-    while True:
-        try:
-            data = await websocket.receive_bytes()
-            print(f"Received {len(data)} bytes of audio")  # Debugging log
-            audio_buffer.extend(data)
-
-            if len(audio_buffer) > 32000:  # Process when enough data (~1 sec)
-                audio_data, samplerate = sf.read(io.BytesIO(audio_buffer), dtype="int16")
-                audio_buffer.clear()  # Reset buffer
-
-                # Transcribe using Faster-Whisper
-                segments, _ = model.transcribe(audio_data)
-                transcript = " ".join(segment.text for segment in segments)
-
-                print(f"Transcription: {transcript}")
-                await websocket.send_text(transcript)
-
-        except Exception as e:
-            print(f"Error: {e}")
-            break
-
-
+        
 if __name__ == "__main__":
-    background_tasks()  
-    uvicorn.run(app, host="0.0.0.0", port=10555)
+    uvicorn.run(app, host=API_HOST, port=API_PORT)
 
