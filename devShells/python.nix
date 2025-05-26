@@ -5,15 +5,13 @@
   inputs,
   self
 } : let
-  pythonPackages = ps: [ ps.numpy ps.pip ps.requests ps.lz4 ];
+  pythonPackages = ps: [ ps.numpy ps.pip ps.requests ps.lz4 ps.python-dotenv ];
   myPython = pkgs.python3.withPackages pythonPackages;
 
   myBuildInputs = with pkgs; [
     git
     nixpkgs-fmt
-    myPython
-
-    
+    myPython    
     virtualenv
   ];
 

@@ -6,6 +6,13 @@
   self,
   ...
 } : {
+
+  file = {
+    ".config/minfil2.txt" = ''
+      hello world
+    '';
+  };    
+
 #    imports = [ ./../../modules/openwakeword.nix ./../../modules/faster-whisper.nix ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];

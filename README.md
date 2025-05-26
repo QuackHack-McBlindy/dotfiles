@@ -147,7 +147,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ai2f3099nr4c12jn2i9rl8hdbwjhgwg7-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/q9djmqd06jv9y0d8a0cx82shw1f878mg-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -306,6 +306,7 @@ Set default values for your parameters to have them marked [optional]
 |------------------------------|------------|-------------|
 | **🖥️ System Management** | | |
 | `yo deploy --host [--flake] [--user] [--repo] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
+| `yo dev [--devShell]` |  | Start development enviorment |
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
@@ -325,7 +326,6 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | |
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo shield [--typ] --search` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
 | **🔐 Security & Encryption** | | |

@@ -27,29 +27,27 @@
     optional_params_${scriptName}="${builtins.concatStringsSep " " optionalParamNames}"
   '') scriptNames;
 
+  scriptPatterns = lib.concatMapStrings (scriptName: let
+    dataList = config.yo.bitch.intents.${scriptName}.data;
+  in lib.concatMapStrings (data: 
+    lib.concatMapStrings (sentence:
+      lib.optionalString (sentence != "") (let
+        # Simple {param} → * replacement
+        processed = builtins.replaceStrings ["{" "}"] ["*" ""] sentence;
+      in
+        "'${lib.escapeShellArg processed}' ${lib.escapeShellArg scriptName}\n"
+    ) data.sentences
+  ) dataList
+  ) scriptNamesWithIntents;
+  
+
+
   makeEntityCase = entity: e:
     let
       patterns = builtins.concatStringsSep "|" e.match;
       value = e.value;
     in
       "${patterns}) val=\"${value}\";;";  
-
-#  makeEntityResolver = data: listName: let
-#    entities = data.lists.${listName}.values;
-#  in ''
-#      best_score=999
-#      param_value_lower=$(echo "$param_value" | tr '[:upper:]' '[:lower:]')
-#      while IFS="|" read -r pattern out; do
-#        if ${pkgs.tre}/bin/agrep -1 -i "$param_value_lower" <<< "$pattern" &>/dev/null; then
-#          best_match="$out"
-#          break
-#        fi
-#      done <<< "$(echo '${lib.concatMapStringsSep "\n" (e: "${e."in"}|${e.out}") entities}')"
-#      if [[ -n "$best_match" ]]; then
-#        val="$best_match"
-#      fi
-#  '';
-
 
   makeEntityResolver = data: listName:
     lib.concatMapStrings (entity: ''
@@ -77,8 +75,7 @@
               param = lib.elemAt split 0;
               after = lib.concatStrings (lib.tail split);
               isWildcard = data.lists.${param}.wildcard or false;
-#              regexGroup = if isWildcard then "(.+)" else "([^ ]+)";
-              regexGroup = if isWildcard then "(.+)" else "\\b([^ ]+)\\b";
+              regexGroup = if isWildcard then "(.+)" else "([^ ]+)";
             in {
               regex = regexGroup + lib.escapeRegex after;
               param = param;
@@ -116,10 +113,10 @@
               cmd_args+=(--${paramName} "$_param_${paramName}")
             '') paramList}
             echo "REGEX: $regex"
-            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
-            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
+#            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
+#            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
             echo "MATCH SCRIPT: ${scriptName}"
-            echo "ARGS: ''${cmd_args[@]}"
+#            echo "ARGS: ''${cmd_args[@]}"
             return 0
           fi
         '') data.sentences
@@ -144,6 +141,36 @@ in {
         set +u
         ${cmdHelpers}
         text="$input"
+
+        strsim() {
+          local s1="$1" s2="$2"
+          if [ "$s1" = "$s2" ]; then
+            echo 100
+            return
+          fi
+  
+          local len1=''${#s1} len2=''${#s2} max_len
+          [ $len1 -gt $len2 ] && max_len=$len1 || max_len=$len2
+          [ $max_len -eq 0 ] && echo 100 && return
+  
+          # levenshtein distance algorithm
+          local i j cost
+          for ((i=0; i<=len1; i++)); do d[i]=$i; done
+          for ((j=1; j<=len2; j++)); do
+            prev=$((j-1))
+            current[0]=$j
+            for ((i=1; i<=len1; i++)); do
+              cost=$([ "${s1:i-1:1}" = "${s2:j-1:1}" ] && echo 0 || echo 1)
+              current[i]=$(( (d[i] < current[i-1] ? 
+                            (d[i] < prev ? d[i] : prev) : 
+                            (current[i-1] < prev ? current[i-1] : prev)) + cost ))
+            done
+            d=("''${current[@]}")
+          done
+  
+          local distance=''${d[len1]}
+          echo $(( 100 - (distance * 100) / max_len ))
+        }
       
         resolve_entities() {
           local script="$1"
@@ -170,32 +197,21 @@ in {
           echo -n "$text"
           echo "|$(declare -p substitutions)"
         } 
-
-        fuz() {
-          local input="$1"
-          best_match=$(printf "%s\n" "''${patterns[@]}" | ${pkgs.tre}/bin/agrep -1 -i -w "$input")
-          if [[ -n "$best_match" ]]; then
-            echo "Matched '$input' to '$best_match'"
-            substitutions["$input"]="$best_match"
-          fi
-        }
         
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNames}  
+        # Exact matching phase
+        exact_match=0
         for script in ${toString scriptNames}; do
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
           subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
-      
-          unset substitutions
           eval "$subs_decl" >/dev/null 2>&1 || true
-  
-#          echo "INPUT AFTER PROCESSING: $resolved_text"
-          [[ -n "$subs_decl" ]] && declare -p substitutions
           if match_$script "$resolved_text"; then
             args=()
             for arg in "''${cmd_args[@]}"; do
               args+=("$arg")
             done
+      
             if [[ "''${#substitutions[@]}" -gt 0 ]]; then
               for original in "''${!substitutions[@]}"; do
                 echo "$original → ''${substitutions[$original]}"
@@ -204,16 +220,104 @@ in {
          
             echo "➤ Executing: yo $script ''${args[@]}''${substitutions[$original]}"
             exec "yo-$script" ""''${args[@]}"""''${substitutions[$original]}"
-            
+            exact_match=1
+            break
           fi
         done
-        if ! match_$script "$resolved_text"; then
-          echo "❌ No matching command found for: $text"
-          # TODO Fuzzy matching
-          fuz $input
-          exit
-        fi
-      '';    
+
+        # Fuzzy matching fallback
+        if [[ $exact_match -eq 0 ]]; then
+        
+          declare -A pattern_map
+          # Debug: Print raw scriptPatterns
+          echo "DEBUG: Raw scriptPatterns input"
+          echo "''${scriptPatterns}" | while read -r line; do
+            echo "Pattern: $line"
+          done
+
+          while read -r pattern script; do
+            [[ -z "$pattern" || -z "$script" ]] && continue
+            pattern_map["$pattern"]=$script
+          done <<EOF   
+''${scriptPatterns}
+EOF
+        
+          best_score=0
+          # Debug: Show all patterns in pattern_map
+          echo "DEBUG: Available fuzzy patterns:"
+          for pattern in "''${!pattern_map[@]}"; do
+            echo " - '$pattern' (maps to: ''${pattern_map[$pattern]})"
+          done
+
+          best_score=0
+          best_pattern=""
+          best_script=""
+          for pattern in "''${!pattern_map[@]}"; do
+            clean_pattern=$(echo "$pattern" | sed 's/\*/{/g') # Restore original pattern format
+    
+            # Debug: Show comparison
+            score=$(strsim "$text" "$clean_pattern")
+            echo "DEBUG: Comparing input='$text' vs pattern='$clean_pattern' (original: '$pattern') → score=$score%"
+    
+            if (( $(echo "$score > $best_score" | bc -l) )); then
+              best_score=$score
+              best_pattern="$clean_pattern"
+              best_script="''${pattern_map[$pattern]}"
+            fi
+          done
+
+          echo "DEBUG: Best match was '$best_pattern' (score: $best_score%) → script: $best_script"
+  
+        
+          if (( $(echo "$best_score >= 50" | bc -l) )); then
+            echo "🤖 Close match found (''${best_score}%): ''${best_pattern}"
+  
+            # Get resolved text and substitutions
+            resolved_output=$(resolve_entities "$best_script" "$text")
+            resolved_text=$(echo "$resolved_output" | tail -n +2)
+            subs_decl=$(echo "$resolved_output" | head -n 1)
+            eval "$subs_decl" 2>/dev/null || declare -A substitutions=()   
+            # Attempt parameter extraction with best match
+            resolved_output=$(resolve_entities "$best_script" "$text")
+            resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
+            subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
+
+#            if [[ -z "$subs_decl" ]]; then
+#              declare -A substitutions=()
+#            else
+#              eval "$subs_decl" >/dev/null 2>&1 || declare -A substitutions=()
+#            fi
+
+#            resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
+#            subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
+#            eval "$subs_decl" >/dev/null 2>&1 || true
+          
+            if match_$best_script "$resolved_text"; then
+              args=()
+              for arg in "''${cmd_args[@]}"; do
+                args+=("$arg")
+              done
+
+              if [[ "''${#substitutions[@]}" -gt 0 ]]; then
+                for original in "''${!substitutions[@]}"; do
+                  echo "$original → ''${substitutions[$original]}"
+                done
+              fi
+
+              echo "➤ Executing: yo $best_script ''${args[@]}"
+              exec "yo-$best_script" "''${args[@]}"
+              exit 0
+            else
+              echo "⚠️ Found similar command but failed to parse parameters"
+              echo "Try: yo $best_script --help"
+              exit 1
+            fi
+          else  
+            echo "❌ No matching command found for: $text"
+            exit 1
+          fi
+        fi  
+      '';   
     };
   };
    

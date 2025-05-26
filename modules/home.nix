@@ -47,6 +47,7 @@ in {
   };
 
   config = mkIf (config.this.home != null) {
+
     system.activationScripts.home-mirror = {
       text = ''
         #!/usr/bin/env bash

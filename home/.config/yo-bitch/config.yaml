@@ -44,7 +44,7 @@ mic_command: yo-mic
 commands:
   voice_commands:
     - match: "klockan"
-      response: "Klockan är {time:%H:%M}"
+      response: "Klockan är {time:%H:%M} Det är {weekday:%A} {date:%Y-%m-%d}"
     - match: "datum"
       response: "Idag är det {date:%Y-%m-%d}"
     - match: "veckodag"

@@ -1,4 +1,0 @@
-#!/bin/bash
-# [ Description Here! ]
-# ------------------------
-journalctl -u docker-gluetun.service --no-pager | grep -oP 'port forwarded is \K\d+' | tail -n1 > /home/pungkula/.config/forwardedport.txt

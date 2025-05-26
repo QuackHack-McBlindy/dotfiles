@@ -19,7 +19,7 @@
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);      
 in {
-    imports = [ ./security.nix ./this.nix ./yo.nix ] ++
+    imports = [ ./security.nix ./this.nix ./yo.nix ./file.nix ] ++
         (importModulesRecursive ./hardware) ++
         (importModulesRecursive ./system) ++
         (importModulesRecursive ./networking) ++

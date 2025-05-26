@@ -23,7 +23,7 @@
     in lib.flatten modules;
 
   sysHosts = lib.attrNames self.nixosConfigurations;
-  
+  sysDevShells = lib.attrNames self.devShells; 
   cmdHelpers = ''
     parse_flags() {
       VERBOSE=0
@@ -38,6 +38,14 @@
       done
       FLAGS=()
       (( VERBOSE > 0 )) && FLAGS+=(--show-trace "-v''${VERBOSE/#0/}")
+    }
+
+    validate_devShell() {
+      if [[ ! " ${lib.escapeShellArg (toString sysDevShells)} " =~ " $devShell " ]]; then
+        echo -e "\033[1;31m❌ $1\033[0m Unknown devShell: $devShell" >&2
+        echo "Available devShells: ${toString sysDevShells}" >&2
+        exit 1
+      fi
     }
 
     run_cmd() {

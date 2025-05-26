@@ -34,23 +34,6 @@
     in
       "${patterns}) val=\"${value}\";;";  
 
-#  makeEntityResolver = data: listName: let
-#    entities = data.lists.${listName}.values;
-#  in ''
-#      best_score=999
-#      param_value_lower=$(echo "$param_value" | tr '[:upper:]' '[:lower:]')
-#      while IFS="|" read -r pattern out; do
-#        if ${pkgs.tre}/bin/agrep -1 -i "$param_value_lower" <<< "$pattern" &>/dev/null; then
-#          best_match="$out"
-#          break
-#        fi
-#      done <<< "$(echo '${lib.concatMapStringsSep "\n" (e: "${e."in"}|${e.out}") entities}')"
-#      if [[ -n "$best_match" ]]; then
-#        val="$best_match"
-#      fi
-#  '';
-
-
   makeEntityResolver = data: listName:
     lib.concatMapStrings (entity: ''
       "${entity."in"}") echo "${entity.out}";;  # Added quotes and closing )
@@ -77,8 +60,7 @@
               param = lib.elemAt split 0;
               after = lib.concatStrings (lib.tail split);
               isWildcard = data.lists.${param}.wildcard or false;
-#              regexGroup = if isWildcard then "(.+)" else "([^ ]+)";
-              regexGroup = if isWildcard then "(.+)" else "\\b([^ ]+)\\b";
+              regexGroup = if isWildcard then "(.+)" else "([^ ]+)";
             in {
               regex = regexGroup + lib.escapeRegex after;
               param = param;
@@ -116,10 +98,10 @@
               cmd_args+=(--${paramName} "$_param_${paramName}")
             '') paramList}
             echo "REGEX: $regex"
-            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
-            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
+#            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
+#            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
             echo "MATCH SCRIPT: ${scriptName}"
-            echo "ARGS: ''${cmd_args[@]}"
+#            echo "ARGS: ''${cmd_args[@]}"
             return 0
           fi
         '') data.sentences
@@ -170,15 +152,6 @@ in {
           echo -n "$text"
           echo "|$(declare -p substitutions)"
         } 
-
-        fuz() {
-          local input="$1"
-          best_match=$(printf "%s\n" "''${patterns[@]}" | ${pkgs.tre}/bin/agrep -1 -i -w "$input")
-          if [[ -n "$best_match" ]]; then
-            echo "Matched '$input' to '$best_match'"
-            substitutions["$input"]="$best_match"
-          fi
-        }
         
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNames}  
         for script in ${toString scriptNames}; do
@@ -188,14 +161,16 @@ in {
       
           unset substitutions
           eval "$subs_decl" >/dev/null 2>&1 || true
-  
+      
 #          echo "INPUT AFTER PROCESSING: $resolved_text"
           [[ -n "$subs_decl" ]] && declare -p substitutions
+      
           if match_$script "$resolved_text"; then
             args=()
             for arg in "''${cmd_args[@]}"; do
               args+=("$arg")
             done
+      
             if [[ "''${#substitutions[@]}" -gt 0 ]]; then
               for original in "''${!substitutions[@]}"; do
                 echo "$original → ''${substitutions[$original]}"
@@ -207,12 +182,9 @@ in {
             
           fi
         done
-        if ! match_$script "$resolved_text"; then
-          echo "❌ No matching command found for: $text"
-          # TODO Fuzzy matching
-          fuz $input
-          exit
-        fi
+      
+        echo "❌ No matching command found for: $text"
+        exit 1
       '';    
     };
   };

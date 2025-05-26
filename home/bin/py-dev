@@ -1,1 +1,0 @@
-alias runproject='read -p "Enter project name: " PROJECT && poetry run python -m "$PROJECT"'

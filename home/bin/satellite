@@ -1,3 +1,0 @@
-#! /nix/store/dzrvibwj2vjwqmc34wk3x1ffsjpp4av7-bash-4.4-p23/bin/bash
-wyoming-satellite   --name 'localhost'   --uri 'tcp://0.0.0.0:10500'   --mic-command 'arecord -r 16000 -c 1 -f S16_LE -t raw'   --snd-command 'aplay -r 22050 -c 1 -f S16_LE -t raw'   --wake-uri 'tcp://127.0.0.1:10400'   --wake-word-name 'yo_bitch'   --awake-wav /home/pungkula/dotfiles/home/sounds/awake.wav   --done-wav /home/pungkula/dotfiles/home/sounds/done.wav   --timer-finished-wav /home/pungkula/dotfiles/home/sounds/finished.wav 
-

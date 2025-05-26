@@ -16,6 +16,7 @@ import os
 #import requests
 #import json
 import yaml
+import string
 #import websockets
 #import ast
 import asyncio
@@ -343,7 +344,6 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         contents = await audio.read()
         audio_array = np.frombuffer(contents, dtype=np.int16)
         samplerate = WHISPER_SAMPLE_RATE
-
         with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
             sf.write(tmp_wav.name, audio_array, samplerate, subtype="PCM_16")
             tmp_wav_path = tmp_wav.name
@@ -351,8 +351,9 @@ async def transcribe_audio(audio: UploadFile = File(...)):
         os.remove(tmp_wav_path)
         if not segments:
             return {"transcription": "No speech detected"}
-
-        transcription = " ".join(segment.text for segment in segments)
+        transcription = "".join(segment.text for segment in segments)
+        cleaned_transcription = transcription.lower().translate(str.maketrans('', '', '.,!?'))
+        transcription = cleaned_transcription.strip()
         dt.info(f"Transcribed: {transcription}")
         if transcription.strip():
             cmd = await parse_voice_command(transcription)
@@ -360,7 +361,10 @@ async def transcribe_audio(audio: UploadFile = File(...)):
                 dt.info(f"Executed command: {cmd}")
                 subprocess.Popen(["say", cmd], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
             else:
-                dt.warning("No command matched")
+                dt.debug("No Python command matched")
+                dt.debug("Sending to Nix NLP")
+                dt.info(f"Running: yo bitch {transcription}")
+                subprocess.Popen(["yo", "bitch", transcription], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             dt.debug("Empty transcription")
         return {"transcription": transcription}

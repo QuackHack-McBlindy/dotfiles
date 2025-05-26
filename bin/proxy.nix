@@ -52,41 +52,16 @@
       proxy = {
         data = [{
           sentences = [
-            # Basic commands
-            "proxy {mode}"
-            "turn proxy {mode}"
-            "set proxy {mode}"
-            "enable {mode} proxy"
-          
-            # Natural language variations
-            "i want to turn {mode} the proxy"
-            "can you switch {mode} proxy mode"
-            "please set proxy to {mode}"
-            "change proxy status to {mode}"
-          
-            # Shortcuts
-            "go anonymous"  # Will map to "on"
-            "stop hiding"    # Will map to "off"
+            "i want to turn {mode} proxy"
+            "set proxy to {mode}"
+            "change proxy mode to {mode}"
           ];
           lists = {
             mode.values = [
               # Direct matches
               { "in" = "on"; out = "on"; }
               { "in" = "off"; out = "off"; }
-            
-              # Synonyms for "on"
-              { "in" = "enable"; out = "on"; }
-              { "in" = "start"; out = "on"; }
-              { "in" = "activate"; out = "on"; }
-              { "in" = "anonymous"; out = "on"; }
-              { "in" = "hide"; out = "on"; }
-            
-              # Synonyms for "off"
-              { "in" = "disable"; out = "off"; }
-              { "in" = "stop"; out = "off"; }
-              { "in" = "deactivate"; out = "off"; }
-              { "in" = "visible"; out = "off"; }
-              { "in" = "normal"; out = "off"; }
+        
             ];
           };
         }];
