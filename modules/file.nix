@@ -6,7 +6,7 @@
   ...
 } : with lib;
 let
-  homeBase = config.this.user.me.dotfilesDir + "/home";  # Hardcoded base directory
+  homeBase = config.this.user.me.dotfilesDir + "/home"; # Since we are symlinkiong ./home > /home anyway
   sanitize = path: 
     replaceStrings ["/"] ["-"] (removePrefix "/" (removePrefix "./" path));
 in {
@@ -34,5 +34,5 @@ in {
         echo "Created file: ${fullPath}"
       '') files);
     deps = [];
-  };
-}
+    
+  };}

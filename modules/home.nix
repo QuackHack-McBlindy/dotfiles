@@ -28,7 +28,6 @@
       echo "Linking: $rel_path"
       mkdir -vp "$(dirname "$target")"
       
-      # Set ownership once per directory
       dir="$(dirname "$target")"
       if [[ ! -d "$dir" ]]; then
         chown ${user}:users "$dir"

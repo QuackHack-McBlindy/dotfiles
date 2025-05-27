@@ -11,7 +11,7 @@
     code = ''
       ${cmdHelpers}
       target_env="$devShell"
-      run_cmd nix develop ''${config.this.user.me.dotfilesDir}#"$devShell"
+      run_cmd nix develop ${config.this.user.me.dotfilesDir}#"$devShell"
     '';  
 
   };}

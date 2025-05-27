@@ -8,7 +8,6 @@
   ...
 } : let
   sysHosts = builtins.attrNames self.nixosConfigurations;
-#  isoHosts = builtins.attrNames (self.installerIsos or {});
   vmHosts = builtins.filter (host:
     self.nixosConfigurations.${host}.config.system.build ? vm
   ) sysHosts;  
@@ -25,4 +24,5 @@ in {
     networking = {
         hostName = config.this.host.hostname;
         useDHCP = lib.mkDefault true;   
+        
    };}

@@ -68,12 +68,6 @@ in {
                             example = "/home/${config.this.user.me.name}/dotfiles";
                             description = "Path of the users flake directory";
                         };
-#                        extraDevices = mkOption {
-#                            type = types.listOf types.str;
-#                            default = [ "iphone" "tablet" "watch" ];
-#                            example = [ "iphone" "tablet" "watch" ];
-#                            description = "Extra groups for main user";
-#                        };
                         mobileDevices = mkOption {
                           type = with types; attrsOf (submodule {
                             options = {
@@ -372,5 +366,5 @@ in {
                     lib.mkIf (lib.elem name config.this.host.modules.${moduleType}) config;
             };
         }
-    ];
-}
+        
+    ];}

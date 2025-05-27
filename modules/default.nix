@@ -1,9 +1,9 @@
 # dotfiles/modules/default.nix
 { 
-    config,
-    lib,
-    pkgs,
-    ...
+  config,
+  lib,
+  pkgs,
+  ...
 } : let
   inherit (lib) types mkOption mkEnableOption mkMerge;
   importModulesRecursive = dir:
@@ -26,4 +26,6 @@ in {
         (importModulesRecursive ./services) ++
         (importModulesRecursive ./programs) ++
         (importModulesRecursive ./themes) ++
-        (importModulesRecursive ./virtualisation);}
+        (importModulesRecursive ./virtualisation);
+    
+        }

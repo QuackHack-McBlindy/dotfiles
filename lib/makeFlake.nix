@@ -1,6 +1,10 @@
 # dotfiles/lib/makeFlake.nix
-{ self, lib, dirMap, inputs }:
-let
+{ 
+  self,
+  lib,
+  dirMap,
+  inputs
+} : let
   makeApp = program: {
     inherit program;
     type = "app";
@@ -102,6 +106,7 @@ let
 in {
   inherit makeApp;
   makeFlake = args: makeFlakeInternal args;
-}
+  
+  }
 
 
