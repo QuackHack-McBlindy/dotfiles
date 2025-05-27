@@ -28,10 +28,10 @@ __Sup ducks? 🦆 qwack on__ <br>
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
-- 🗣️ **[NLP Module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(builds commands by natural language, dynamic regex matching, parameter extraction + execution)* 
-- 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(with automatic QR codes for mobile devices)* 
+- 🗣️ **[NLP Module](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/bitch.nix)** *(builds commands by natural language, dynamic regex matching, parameter extraction + execution)* 
+- 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/networking/wg-server.nix)** *(with automatic QR codes for mobile devices)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
-- 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Servarr, Navidrome, ...)* 
+- 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(Servarr, Navidrome, ...)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
 
@@ -147,7 +147,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/q9djmqd06jv9y0d8a0cx82shw1f878mg-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/nzfy7rp3hq40ymrzp3a8l4dq7kp5sqk8-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->

@@ -361,7 +361,7 @@ def call_volume_down_service(device_ip):
     adb_command(device_ip, "input keyevent KEYCODE_VOLUME_DOWN")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def play_youtube_video(device_ip, video_url):
-    adb_command(device_ip, f"am start -a android.intent.action.VIEW -d {video_url} com.google.android.youtube")
+    adb_command(device_ip, f"am start -a android.intent.action.VIEW -d {video_url} com.google.android.youtube.tv")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def send_mp3playlist_call(device_ip):
     # Send the correct command to start playing the playlist via ADB
@@ -600,6 +600,7 @@ if __name__ == "__main__":
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
     elif type_or_entity_id in SEARCH_FOLDERS or type_or_entity_id == "song":
         adb_connect(device_ip)
+        play_media_content(type_or_entity_id, query_or_file, device_ip)
         play_media_content(type_or_entity_id, query_or_file, device_ip)
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
     elif type_or_entity_id == "youtube":

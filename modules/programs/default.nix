@@ -11,6 +11,7 @@ in {
     programs.bash = {
 
       shellAliases = {
+        d = "cd ${config.this.user.me.dotfilesDir}";
         mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
         psx = "ps aux | fzf --preview 'echo {} | awk '\\''{print $2}'\\'' | xargs -I {} ps --pid {}'";
         ls = "lsd --tree --depth 1";

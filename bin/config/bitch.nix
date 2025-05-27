@@ -34,26 +34,9 @@
     in
       "${patterns}) val=\"${value}\";;";  
 
-#  makeEntityResolver = data: listName: let
-#    entities = data.lists.${listName}.values;
-#  in ''
-#      best_score=999
-#      param_value_lower=$(echo "$param_value" | tr '[:upper:]' '[:lower:]')
-#      while IFS="|" read -r pattern out; do
-#        if ${pkgs.tre}/bin/agrep -1 -i "$param_value_lower" <<< "$pattern" &>/dev/null; then
-#          best_match="$out"
-#          break
-#        fi
-#      done <<< "$(echo '${lib.concatMapStringsSep "\n" (e: "${e."in"}|${e.out}") entities}')"
-#      if [[ -n "$best_match" ]]; then
-#        val="$best_match"
-#      fi
-#  '';
-
-
   makeEntityResolver = data: listName:
     lib.concatMapStrings (entity: ''
-      "${entity."in"}") echo "${entity.out}";;  # Added quotes and closing )
+      "${entity."in"}") echo "${entity.out}";;
     '') data.lists.${listName}.values;
     
   makePatternMatcher = scriptName: let
@@ -77,8 +60,7 @@
               param = lib.elemAt split 0;
               after = lib.concatStrings (lib.tail split);
               isWildcard = data.lists.${param}.wildcard or false;
-#              regexGroup = if isWildcard then "(.+)" else "([^ ]+)";
-              regexGroup = if isWildcard then "(.+)" else "\\b([^ ]+)\\b";
+              regexGroup = if isWildcard then "\\b([^ ]+)\\b" else "(.*)";             
             in {
               regex = regexGroup + lib.escapeRegex after;
               param = param;
@@ -86,15 +68,13 @@
           ) restParts;
   
           fullRegex = firstPart + lib.concatStrings (map (v: v.regex) regexParts);
-          paramList = map (v: v.param) regexParts;
-  
+          paramList = map (v: v.param) regexParts;  
         in ''
           local regex='^${fullRegex}$'
           if [[ "$input" =~ $regex ]]; then
             ${lib.concatImapStrings (i: paramName: ''
               param_value="''${BASH_REMATCH[${toString (i+1)}]}"
               # Apply substitution only if defined
-#              if [[ -n "''${substitutions[\"$param_value\"]}" ]]; then
               if [[ -v substitutions["$param_value"] ]]; then
                 param_value="''${substitutions[\"$param_value\"]}"
               fi
@@ -108,18 +88,18 @@
               ''}
               declare -g "_param_${paramName}"="$param_value"
             '') paramList}
-#            echo "paramList: ''${paramList[@]}"
-#            echo "_param_typ=$_param_typ"
-#            echo "_param_search=$_param_search"
+# DEBUG           echo "paramList: ''${paramList[@]}"
+# DEBUG           echo "_param_typ=$_param_typ"
+# DEBUG           echo "_param_search=$_param_search"
             cmd_args=()
             ${lib.concatMapStrings (paramName: ''
               cmd_args+=(--${paramName} "$_param_${paramName}")
             '') paramList}
             echo "REGEX: $regex"
-            echo "REMATCH 1: ''${BASH_REMATCH[1]}"
-            echo "REMATCH 2: ''${BASH_REMATCH}[2]"
-            echo "MATCH SCRIPT: ${scriptName}"
-            echo "ARGS: ''${cmd_args[@]}"
+# DEBUG           echo "REMATCH 1: ''${BASH_REMATCH[1]}"
+# DEBUG           echo "REMATCH 2: ''${BASH_REMATCH}[2]"
+# DEBUG           echo "MATCH SCRIPT: ${scriptName}"
+# DEBUG           echo "ARGS: ''${cmd_args[@]}"
             return 0
           fi
         '') data.sentences
@@ -152,7 +132,7 @@ in {
           local pattern out
           declare -A substitutions
       
-          replacements=$(nix eval /home/pungkula/dotfiles#nixosConfigurations.desktop.config.yo.bitch.intents."$script".data --json \
+          replacements=$(nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.bitch.intents."$script".data --json \
             | jq -r '.[0].lists // {} 
               | to_entries[] 
               | select(.value.values != null) 
@@ -170,17 +150,9 @@ in {
           echo -n "$text"
           echo "|$(declare -p substitutions)"
         } 
-
-        fuz() {
-          local input="$1"
-          best_match=$(printf "%s\n" "''${patterns[@]}" | ${pkgs.tre}/bin/agrep -1 -i -w "$input")
-          if [[ -n "$best_match" ]]; then
-            echo "Matched '$input' to '$best_match'"
-            substitutions["$input"]="$best_match"
-          fi
-        }
         
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNames}  
+        
         for script in ${toString scriptNames}; do
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
@@ -189,7 +161,7 @@ in {
           unset substitutions
           eval "$subs_decl" >/dev/null 2>&1 || true
   
-#          echo "INPUT AFTER PROCESSING: $resolved_text"
+# DEBUG         echo "INPUT AFTER PROCESSING: $resolved_text"
           [[ -n "$subs_decl" ]] && declare -p substitutions
           if match_$script "$resolved_text"; then
             args=()
@@ -202,7 +174,7 @@ in {
               done
             fi
          
-            echo "➤ Executing: yo $script ''${args[@]}''${substitutions[$original]}"
+            echo "➤ Executing: yo $script" ""''${args[@]}"""''${substitutions[$original]}"
             exec "yo-$script" ""''${args[@]}"""''${substitutions[$original]}"
             
           fi
@@ -210,7 +182,7 @@ in {
         if ! match_$script "$resolved_text"; then
           echo "❌ No matching command found for: $text"
           # TODO Fuzzy matching
-          fuz $input
+          
           exit
         fi
       '';    
@@ -238,8 +210,8 @@ in {
       sops = { data = [{ sentences = [ ]; lists = { }; }]; };
       yubi = { data = [{ sentences = [ ]; lists = { }; }]; };
       qr = { data = [{ sentences = [ ]; lists = { }; }]; };
-      mic = { data = [{ sentences = [ ]; lists = { }; }]; };
-      
+      mic = { data = [{ sentences = [ ]; lists = { }; }]; };      
     };
     
   };}
+  

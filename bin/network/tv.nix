@@ -26,8 +26,8 @@
             "jag vill höra {search} {typ}"
             "{typ}"
           ];
+          
           lists = {
-            search.wildcard = true;
             typ.values = [
               { "in" = "serie"; out = "tv"; }
               { "in" = "serien"; out = "tv"; }
@@ -96,7 +96,6 @@
               { "in" = "öj"; out = "up"; }
               { "in" = "öka"; out = "up"; }
               { "in" = "hej"; out = "up"; }
-              { "in" = "upp"; out = "up"; }
               { "in" = "sänk"; out = "down"; }
               { "in" = "sänkt"; out = "down"; }
               { "in" = "ner"; out = "down"; }
@@ -118,13 +117,12 @@
               { "in" = "addera"; out = "add"; }
               { "in" = "lägg till"; out = "add"; }
             ];
-            
+            search.wildcard = true;
           };
         }];
       };
     };
   };
-
 
 
   yo.scripts.shield = {
