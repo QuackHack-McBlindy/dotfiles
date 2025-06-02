@@ -11,6 +11,7 @@
         environment.systemPackages = lib.mkMerge [
             (lib.mkIf (config.networking.hostName == "desktop") [ 
                 pkgs.nix-prefetch-github 
+                pkgs.ollama
              #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
         

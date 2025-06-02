@@ -1,6 +1,5 @@
 # dotfiles/bin/config/bitch.nix
-# Bitch Module 
-# Full NLP interface in Bash, with dynamic regex matching, parameter extraction, and resolution.
+
 { 
   self,
   lib,
@@ -111,7 +110,7 @@
 in {
   yo.scripts = {
     bitch = {
-      description = "Parses plain text natural language and builds yo script execution commands.";
+      description = "Natural language to Shell script translator.";
       category = "⚙️ Configuration";
       parameters = [
         { 

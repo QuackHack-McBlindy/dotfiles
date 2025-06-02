@@ -54,7 +54,6 @@
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
-                extraDevices = [ "iphone" "tablet" "watch" ];
                 mobileDevices = {
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
@@ -92,17 +91,17 @@
         };    
     };                
 
-#    fileSystems."/boot" = {
-#        device = "/dev/disk/by-label/boot";
-#        fsType = "vfat";
-#    };
+    fileSystems."/boot" = {
+        device = "/dev/disk/by-label/boot";
+        fsType = "vfat";
+    };
 
-#    fileSystems."/" = {
-#        device = "/dev/disk/by-label/nixos";
-#        fsType = "ext4";
-#    };
+    fileSystems."/" = {
+        device = "/dev/disk/by-label/nixos";
+        fsType = "ext4";
+    };
 
-#    swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
+    swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
 
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions

@@ -106,53 +106,6 @@ in {
         systemd.tmpfiles.rules = [
             "d /var/lib/caddy 0755 caddy caddy - -"
         ];
-        
-#      virtualisation.oci-containers = {
-#        backend = "docker";
-#        containers = {
-#          duckdns1 = {
-#            image = "lscr.io/linuxserver/duckdns:latest";
-            #user = "${toString duckdnsUID}:${toString duckdnsGID}";
-#            user = "2001:2001";
-#            hostname = "duckdns1";
-            #dependsOn = [ "" ];
-#            autoStart = true;
-#            environmentFiles = [ /run/duckdns/.1.env ];
-           # environment = {
-          #    PUID = toString duckdnsUID;
-          #    PGID = toString duckdnsGID;
-         #   };
-#            environment = {
-#              PUID = "2001";
-#              PGID = "2001";
-#            };
-#          };
-#          duckdns2 = {
-#            image = "lscr.io/linuxserver/duckdns:latest";
-#            user = "2001:2001";
-#            hostname = "duckdns2";
-            #dependsOn = [ "" ];
-#            autoStart = true;
-#            environmentFiles = [ /run/duckdns/.2.env ];
-#            environment = {
-#              PUID = "2001";
-#              PGID = "2001";
-#            };
-#          };
-#          duckdns3 = {
-#            image = "lscr.io/linuxserver/duckdns:latest";
-#            user = "2001:2001";
-#            hostname = "duckdns3";
-            #dependsOn = [ "" ];
-#            autoStart = true;
-#            environmentFiles = [ /run/duckdns/.3.env ];
-#            environment = {
-#              PUID = "2001";
-#              PGID = "2001";
-#            };
-#          };
-#        };
-#      };
 
       systemd.services.duckdns_config1 = lib.mkIf (!config.this.installer) {
         wantedBy = [ "multi-user.target" ];

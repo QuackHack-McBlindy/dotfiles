@@ -76,6 +76,8 @@
 
   # Default bookmarks 
   defaultBookmarks = [
+
+    { Title = ""; URL = "http://192.168.1.28:8989"; Placement = "toolbar"; }  
     { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }

@@ -133,7 +133,7 @@
 #    '';
     parameters = [
       { name = "typ"; description = "Media type"; default = "tv"; optional = true; }
-      { name = "search"; description = "Media to search"; optional = false; }
+      { name = "search"; description = "Media to search"; optional = true; }
     ];
     code = ''
       ${cmdHelpers}

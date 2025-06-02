@@ -16,7 +16,6 @@ in {
        { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
        { name = "user"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
        { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
-#       { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = "https://github.com/quackhack-mcblindy/dotfiles"; }    
        { name = "port"; description = "SSH port"; optional = true; default = "2222"; }
        { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
@@ -34,34 +33,40 @@ in {
          echo "❗ Test run: reboot will revert activation"
        fi
        
-       convert_git_to_https() {
-         local repo_url="$1"
-         if [[ "$repo_url" =~ ^https?:// ]]; then
-           echo "$repo_url"
-         elif [[ "$repo_url" =~ ^git@([^:]+):(.+\.git)$ ]]; then
-           local domain="''${BASH_REMATCH[1]}"
-           local path="''${BASH_REMATCH[2]}"
-           echo "https://$domain/$path"
+       SSH_OPTS=()
+    
+       check_ssh() {
+         local host="$host"
+         local user="$user"
+         local port="$port"
+
+         echo -n "🔌 Checking SSH access to $user@$host:$port... "
+
+         if ssh -o BatchMode=yes -p "$port" "$user@$host" "exit" 2>/dev/null; then
+           echo -e "\033[1;32mOK\033[0m"
+           return 0
          else
-           echo "⚠️ Warning: Unrecognized repo URL format: $repo_url" >&2
-           echo "$repo_url"
+           echo -e "\033[1;33mFallback to temporary SSH trust\033[0m"
+           SSH_OPTS=(-p "$port" -o StrictHostKeyChecking=accept-new -o UserKnownHostsFile=/dev/null)
+           return 1
          fi
        }
-
-
-       result=$(ssh -p "$port" "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
+    
+       check_ssh "$host" "$user" "$port"
+    
+       result=$(ssh "''${SSH_OPTS[@]}" "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
+        
+#       result=$(ssh "''${SSH_OPTS[@]}"  "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
        if [ "$result" = "true" ]; then
          run_cmd echo "✅ Dotfiles repo exists on $host"
        else
          # Otherwise clone it to $flake parameter
          run_cmd echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"
-         https_repo=$(convert_git_to_https "$repo")
-         run_cmd ssh -p "$port" "$user"@"$host" "git clone '$https_repo' '$flake'" || fail "❌ Clone failed"
+    
+         run_cmd ssh "''${SSH_OPTS[@]}"  "$user"@"$host" "git clone '$repo' '$flake'" || fail "❌ Clone failed"
          run_cmd echo "Please decrypt $host AGE key, Enter PIN and touch your Yubikey"
          run_cmd echo ""
-         run_cmd echo "🔑 Setting up age key"
-         run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh -p "$port" "$user@$host" "mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
-         run_cmd ssh -p "$port" "$user"@"$host" "sudo nixos-rebuild switch --flake /home/$user/dotfiles#$host"
+         run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh "''${SSH_OPTS[@]}" "$user@$host" "mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
        fi 
 
        echo "👤 SSH User: ''$user"
@@ -70,7 +75,6 @@ in {
        echo "🚀 Deploying ''$flake#nixosConfigurations.''$host"
        echo "🔨 Building locally and activating remotely..."
 
-       export NIX_SSHOPTS="-p $port"
        if $DRY_RUN; then
          rebuild_command="test"
        else
@@ -79,14 +83,15 @@ in {
        cmd=(
          ${pkgs.nixos-rebuild}/bin/nixos-rebuild
          $rebuild_command
-#           --option builders ""    
-#           --build-host "$user@$host"  
            --flake "$flake#$host"
            --target-host "$user@$host"
+#           --target-host "$user@$host" --ssh-option "-p $port"
            --use-remote-sudo
            --show-trace
        )
-          
+       for opt in "''${SSH_OPTS[@]}"; do
+         cmd+=(--ssh-option "$opt")
+       done          
        "''${cmd[@]}"
           
        if $DRY_RUN; then
@@ -100,7 +105,7 @@ in {
          echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
 
          # Fetch the generation number using SSH
-         GEN_NUM=$(ssh -T "$user@$host" "sudo -n nix-env --list-generations -p /nix/var/nix/profiles/system" | awk '/current/ {print $1}' | tail -n1)
+         GEN_NUM=$(ssh "''${SSH_OPTS[@]}" -T "$user@$host" "sudo -n nix-env --list-generations -p /nix/var/nix/profiles/system" | awk '/current/ {print $1}' | tail -n1)
 
          # Validate the generation number
          if [[ -z "$GEN_NUM" ]] || ! [[ "$GEN_NUM" =~ ^[0-9]+$ ]]; then

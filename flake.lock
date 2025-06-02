@@ -102,11 +102,11 @@
         "pre-commit-hooks": "pre-commit-hooks"
       },
       "locked": {
-        "lastModified": 1748032092,
+        "lastModified": 1748578934,
         "narHash": "sha256-yhF/XokeZDIBr0SRt5C15QHfC6avQffiRwr0B9IupCY=",
         "owner": "QuackHack-McBlindy",
         "repo": "auto-installer-nixos",
-        "rev": "a5acb1b67c167707cfe6a5d9bcf50f8e8f88731e",
+        "rev": "2071f3c250017d5d58649ddacf3b91cec8ed68a3",
         "type": "github"
       },
       "original": {
@@ -165,11 +165,11 @@
     },
     "nixpkgs_3": {
       "locked": {
-        "lastModified": 1747744144,
-        "narHash": "sha256-W7lqHp0qZiENCDwUZ5EX/lNhxjMdNapFnbErcbnP11Q=",
+        "lastModified": 1748370509,
+        "narHash": "sha256-QlL8slIgc16W5UaI3w7xHQEP+Qmv/6vSNTpoZrrSlbk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "2795c506fe8fb7b03c36ccb51f75b6df0ab2553f",
+        "rev": "4faa5f5321320e49a78ae7848582f684d64783e9",
         "type": "github"
       },
       "original": {
