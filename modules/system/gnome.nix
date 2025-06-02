@@ -74,12 +74,12 @@ in {
                     pkgs.gnome-contacts
                 ]);   
         
-            services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
-                [org.gnome.desktop.background]
-                picture-uri='file://${cfg.background}'
-                [org.gnome.desktop.screensaver]
-                picture-uri='file://${cfg.background}'
-            '';
+#            services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
+#                [org.gnome.desktop.background]
+#                picture-uri='file://${cfg.background}'
+#                [org.gnome.desktop.screensaver]
+#                picture-uri='file://${cfg.background}'
+#            '';
 
             services.xserver = {
                 enable = true;
