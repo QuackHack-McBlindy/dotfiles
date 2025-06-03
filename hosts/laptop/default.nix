@@ -34,9 +34,9 @@
                 "xhci_pci"
             ];
         };
-        extraModulePackages = [
-            config.boot.kernelPackages.broadcom_sta
-        ];
+#        extraModulePackages = [
+#            config.boot.kernelPackages.broadcom_sta
+#        ];
         kernelPackages = pkgs.linuxPackages_latest;
         tmp.cleanOnBoot = true;
     };

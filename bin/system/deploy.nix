@@ -24,13 +24,20 @@ in {
 #     '';
      code = ''   
        ${cmdHelpers}
+       
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
          echo -e "\033[1;31m❌ $1\033[0m Unknown host: $host" >&2
          echo "Available hosts: ${toString sysHosts}" >&2
          exit 1
        fi
+       
        if $DRY_RUN; then
          echo "❗ Test run: reboot will revert activation"
+       fi
+       
+       # Validate host connectivity early
+       if ! ssh -p "$port" -o ConnectTimeout=5 "$user@$host" true; then
+         fail "❌ Cannot connect to $host via SSH."
        fi
        
        convert_git_to_https() {
@@ -68,23 +75,15 @@ in {
              # Decrypt key
              yo yubi decrypt "$flake/secrets/hosts/$host/age.key" > "$tmpkey" || fail "❌ Decryption failed"
     
-             ssh -p "$port" "$user@$host" "\
-                 sudo mkdir -p '$key_dir' && \
-                 sudo chown $(whoami) '$key_dir'
+             ssh -p "$port" "$user@$host" "sudo mkdir -p '$key_dir' && sudo chown $(whoami) '$key_dir'" || fail "❌ Directory setup failed"
     
              scp -P "$port" "$tmpkey" "$user@$host:$key_path.tmp" || fail "❌ Copy key failed"
-             ssh -p "$port" "$user@$host" "\
-                 sudo mv '$key_path.tmp' '$key_path' && \
-                 sudo chmod 600 '$key_path' && \
-                 sudo chown root:root '$key_path'
+             ssh -p "$port" "$user@$host" "sudo mv '$key_path.tmp' '$key_path' && sudo chmod 600 '$key_path' && sudo chown root:root '$key_path'" || fail "❌ Key setup failed"
              rm -f "$tmpkey"
              echo "✅ Pre-bootstrap steps completed."
          else
              echo "Would set up age key at $key_path"
          fi
-
-#         run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh -p "$port" "$user@$host" "sudo mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && sudo cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
-
        fi 
 
        echo "👤 SSH User: ''$user"

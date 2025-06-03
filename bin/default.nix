@@ -62,11 +62,14 @@
     }
 
 
-    fail() {
-      echo -e "\033[1;31m❌ $1\033[0m" >&2
+#    fail() {
+#      echo -e "\033[1;31m❌ $1\033[0m" >&2
+#      exit 1
+#    }
+    type fail >/dev/null 2>&1 || fail() { 
+      echo -e "$1" >&2
       exit 1
     }
-
     validate_flags() {
       verbosity_level=$(grep -o '?' <<< "$@" | wc -l)
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
