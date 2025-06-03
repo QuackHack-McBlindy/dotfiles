@@ -61,7 +61,9 @@ in {
          run_cmd echo ""
          run_cmd echo "🔑 Setting up age key"
          run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh -p "$port" "$user@$host" "mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
-         run_cmd ssh -p "$port" "$user"@"$host" "sudo nixos-rebuild switch --flake /home/$user/dotfiles#$host"
+         echo "🛑 Bootstrap completed. You can now SSH into $host and rebuild."
+         exit 0
+#         run_cmd ssh -p "$port" "$user"@"$host" "sudo nixos-rebuild switch --flake /home/$user/dotfiles#$host"
        fi 
 
        echo "👤 SSH User: ''$user"
