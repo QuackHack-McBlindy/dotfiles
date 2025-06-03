@@ -74,7 +74,7 @@
                 networking = [ "wireless" "pool" ];
                 services = [ "ssh" "keyd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
-                virtualisation = [ "vm" ];
+                virtualisation = [  ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSaGhXOT3kn3dUlZ699qwZShRvjAXXR0SlTulhk+P0W";
@@ -102,6 +102,8 @@
     };
 
     swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
+
+    virtualisation.libvirtd.enable = false;
 
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions
