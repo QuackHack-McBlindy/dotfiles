@@ -54,12 +54,13 @@ in {
          fi
        }
 
-
+       bootstrap_mode=false
        result=$(ssh -p "$port" "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
        if [ "$result" = "true" ]; then
          run_cmd echo "✅ Dotfiles repo exists on $host"
        else
          # Otherwise clone it to $flake parameter
+         bootstrap_mode=true
          run_cmd echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"
          https_repo=$(convert_git_to_https "$repo")
          run_cmd ssh -p "$port" "$user"@"$host" "git clone '$https_repo' '$flake'" || fail "❌ Clone failed"
@@ -90,7 +91,11 @@ in {
        echo "🌐 SSH Host: ''$host"
        echo "❄️ Nix flake: ''$flake"
        echo "🚀 Deploying ''$flake#nixosConfigurations.''$host"
-       echo "🔨 Building locally and activating remotely..."
+       if $bootstrap_mode; then
+         echo "🔨 Building on the remote machine..."
+       else
+         echo "🔨 Building locally and activating remotely..."
+       fi   
 
        export NIX_SSHOPTS="-p $port"
        if $DRY_RUN; then
@@ -101,14 +106,18 @@ in {
        cmd=(
          ${pkgs.nixos-rebuild}/bin/nixos-rebuild
          $rebuild_command
-#           --option builders ""    
-#           --build-host "$user@$host"  
+           --option builders ""    
            --flake "$flake#$host"
            --target-host "$user@$host"
            --use-remote-sudo
            --show-trace
        )
-          
+
+       # If first deployment, signature key will be missing and a remote build is required.
+       if $bootstrap_mode; then
+         cmd+=( --build-host "$user@$host" )
+       fi      
+      
        "''${cmd[@]}"
           
        if $DRY_RUN; then
@@ -117,7 +126,6 @@ in {
          echo "✅ Deployment complete!"
        fi
        
-       # Inside the code section after successful deployment:
        if ! $DRY_RUN; then
          echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
 
