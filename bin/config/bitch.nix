@@ -1,5 +1,4 @@
 # dotfiles/bin/config/bitch.nix
-
 { 
   self,
   lib,
@@ -87,18 +86,13 @@
               ''}
               declare -g "_param_${paramName}"="$param_value"
             '') paramList}
-# DEBUG           echo "paramList: ''${paramList[@]}"
-# DEBUG           echo "_param_typ=$_param_typ"
-# DEBUG           echo "_param_search=$_param_search"
+
             cmd_args=()
             ${lib.concatMapStrings (paramName: ''
               cmd_args+=(--${paramName} "$_param_${paramName}")
             '') paramList}
             echo "REGEX: $regex"
-# DEBUG           echo "REMATCH 1: ''${BASH_REMATCH[1]}"
-# DEBUG           echo "REMATCH 2: ''${BASH_REMATCH}[2]"
-# DEBUG           echo "MATCH SCRIPT: ${scriptName}"
-# DEBUG           echo "ARGS: ''${cmd_args[@]}"
+            
             return 0
           fi
         '') data.sentences
@@ -160,7 +154,6 @@ in {
           unset substitutions
           eval "$subs_decl" >/dev/null 2>&1 || true
   
-# DEBUG         echo "INPUT AFTER PROCESSING: $resolved_text"
           [[ -n "$subs_decl" ]] && declare -p substitutions
           if match_$script "$resolved_text"; then
             args=()
@@ -178,8 +171,9 @@ in {
             
           fi
         done
+        
         if ! match_$script "$resolved_text"; then
-          echo "❌ No matching command found for: $text"
+          echo "No matching command found for: $text"
           # TODO Fuzzy matching
           
           exit
