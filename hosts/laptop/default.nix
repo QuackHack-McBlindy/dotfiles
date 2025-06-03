@@ -102,7 +102,12 @@
     swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
 
     hardware.enableAllFirmware = true;
-
+    virtualisation.libvirtd.enable = true;
+    
+    environment.systemPackages = with pkgs; [
+      libvirt
+      virt-manager
+    ];  
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions
     # on your system were taken. It‘s perfectly fine and recommended to leave
