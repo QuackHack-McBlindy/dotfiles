@@ -45,7 +45,7 @@
               ;;
 
             decrypt)
-              run_cmd echo -e "\033[1;34m🔓 Decrypting $input temporarily for output\033[0m"
+#              run_cmd echo -e "\033[1;34m🔓 Decrypting $input temporarily for output\033[0m"
               identity_tmp="/tmp/yubikey-identity.txt"
               decrypted_tmp="$(mktemp)"
             

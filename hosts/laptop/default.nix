@@ -34,9 +34,9 @@
                 "xhci_pci"
             ];
         };
- #       extraModulePackages = [
-#            config.boot.kernelPackages.broadcom_sta
-#        ];
+        extraModulePackages = [
+            config.boot.kernelPackages.broadcom_sta
+        ];
         kernelPackages = pkgs.linuxPackages_latest;
         tmp.cleanOnBoot = true;
     };
@@ -72,9 +72,9 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "gtk" ];
                 networking = [ "wireless" "pool" ];
-                services = [ "ssh" "cache" "keyd" ];
-                programs = [ "default" "thunar" "firefox" ];
-                virtualisation = [ ];
+                services = [ "ssh" "keyd" ];
+                programs = [ "default" "thunar" "firefox" "vesktop" ];
+                virtualisation = [ "vm" ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSaGhXOT3kn3dUlZ699qwZShRvjAXXR0SlTulhk+P0W";

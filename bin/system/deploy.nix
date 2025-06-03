@@ -16,7 +16,6 @@ in {
        { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
        { name = "user"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
        { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
-#       { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = "https://github.com/quackhack-mcblindy/dotfiles"; }    
        { name = "port"; description = "SSH port"; optional = true; default = "2222"; }
        { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
@@ -59,11 +58,33 @@ in {
          run_cmd ssh -p "$port" "$user"@"$host" "git clone '$https_repo' '$flake'" || fail "❌ Clone failed"
          run_cmd echo "Please decrypt $host AGE key, Enter PIN and touch your Yubikey"
          run_cmd echo ""
-         run_cmd echo "🔑 Setting up age key"
-         run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh -p "$port" "$user@$host" "mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
-         echo "🛑 Bootstrap completed. You can now SSH into $host and rebuild."
-         exit 0
-#         run_cmd ssh -p "$port" "$user"@"$host" "sudo nixos-rebuild switch --flake /home/$user/dotfiles#$host"
+         key_path=$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")
+         key_dir=$(dirname "$key_path")
+         echo "🔐 Setting up age key at: $key_path"
+         if ! $DRY_RUN; then
+             tmpkey=$(mktemp) || fail "❌ Failed to create temp file"
+             trap 'rm -f "$tmpkey"' EXIT
+    
+             # Decrypt key
+             yo yubi decrypt "$flake/secrets/hosts/$host/age.key" > "$tmpkey" || fail "❌ Decryption failed"
+    
+             ssh -p "$port" "$user@$host" "\
+                 sudo mkdir -p '$key_dir' && \
+                 sudo chown $(whoami) '$key_dir'
+    
+             scp -P "$port" "$tmpkey" "$user@$host:$key_path.tmp" || fail "❌ Copy key failed"
+             ssh -p "$port" "$user@$host" "\
+                 sudo mv '$key_path.tmp' '$key_path' && \
+                 sudo chmod 600 '$key_path' && \
+                 sudo chown root:root '$key_path'
+             rm -f "$tmpkey"
+             echo "✅ Pre-bootstrap steps completed."
+         else
+             echo "Would set up age key at $key_path"
+         fi
+
+#         run_cmd yo yubi decrypt "$flake/secrets/hosts/$host/age.key" | ssh -p "$port" "$user@$host" "sudo mkdir -p $(dirname "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")")" && sudo cat > "$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")"
+
        fi 
 
        echo "👤 SSH User: ''$user"
