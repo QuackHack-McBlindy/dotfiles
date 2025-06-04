@@ -75,6 +75,10 @@
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
     }
 
+    mic_input() {
+      yo-mic | jq -r '.transcription // empty'
+    }
+
     validate_host() {
       if [[ ! " ${lib.escapeShellArg (toString sysHosts)} " =~ " $host " ]]; then
         echo -e "\033[1;31m❌ $1\033[0m Unknown host: $host" >&2

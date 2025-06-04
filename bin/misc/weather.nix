@@ -1,6 +1,11 @@
 # dotfiles/bin/system/weather.nix
-{ config, pkgs, cmdHelpers, ... } : 
-let 
+{ 
+  config,
+  lib,
+  pkgs,
+  cmdHelpers,
+  ...
+} : let  
   WEATHER_CODES = {
     "113" = "☀️";  "116" = "⛅";  "119" = "☁️";  "122" = "☁️";  "143" = "☁️";
     "176" = "🌧️";  "179" = "🌧️";  "182" = "🌧️";  "185" = "🌧️";  "200" = "⛈️";
@@ -15,9 +20,21 @@ let
   };
   
 in {
+  yo.bitch.intents = {
+    stores = {
+      data = [{
+        sentences = [
+          "hur är vädret"
+          "vad är det för temperatur ute"
+          "utomhus temperatur"
+          "vädret"
+        ];
+      }];
+    };   
+  };
+
   yo.scripts.weather = {
     description = "Tiny Weather Report.";
-#    category = "🧩 Miscellaneous";
     category = "🌍 Localization";
     aliases = [ "weat" ];
     parameters = [{
@@ -26,8 +43,8 @@ in {
       optional = true; 
       default = "Stockholm, Sweden"; 
     }]; 
-#    packages = [ pkgs.curl pkgs.jq pkgs.gnused ];
     code = ''
+      ${cmdHelpers}
       declare -A WEATHER_CODES=(
         ["113"]="☀️"  ["116"]="⛅"  ["119"]="☁️"  ["122"]="☁️"  ["143"]="☁️"
         ["176"]="🌧️"  ["179"]="🌧️"  ["182"]="🌧️"  ["185"]="🌧️"  ["200"]="⛈️"
@@ -40,12 +57,8 @@ in {
         ["368"]="🌧️"  ["371"]="❄️"  ["374"]="🌨️"  ["377"]="🌨️"  ["386"]="🌨️"
         ["389"]="🌨️"  ["392"]="🌧️"  ["395"]="❄️"
       )
-    
-
-      # Fetch weather data
       weather=$(curl -s "https://wttr.in/?format=j1")
 
-      # Parse current weather data
       current_condition=$(echo "$weather" | jq '.current_condition[0]')
       weather_code=$(echo "$current_condition" | jq -r '.weatherCode')
       temp_feels_like=$(echo "$current_condition" | jq -r '.FeelsLikeC')
@@ -53,17 +66,14 @@ in {
       windspeed=$(echo "$current_condition" | jq -r '.windspeedKmph')
       humidity=$(echo "$current_condition" | jq -r '.humidity')
 
-      # Format the current weather output
-      text=" ''${WEATHER_CODES[''$weather_code]} ''${temp_feels_like}°"
-      tooltip="<b>''${weather_desc} ''${temp_feels_like}°</b>\n"
-      tooltip+="Wind: ''${windspeed} km/h\n"
-      tooltip+="Humidity: ''${humidity}%\n"
+      text=" ''${WEATHER_CODES[''$weather_code]} ''${temp_feels_like}° .. "
+      tooltip="Weather right now is! ''${weather_desc} ''${temp_feels_like}° .. "
+      tooltip+="Wind is currently: ''${windspeed} kilometers per hour .. "
+      tooltip+="Air Humidity right now is: ''${humidity} procent .."
   
-      # Output cleaned up result
       echo "$text"
       echo "$tooltip"
-
-
+      say "$tooltip"
     '';
   };
 }

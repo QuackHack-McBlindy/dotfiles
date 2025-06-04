@@ -147,7 +147,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/gf4z2i38b2a4660m7l5za1laymlan921-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/1kla4jsdmqs1malibfk73jghgpia4ygp-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -320,14 +320,13 @@ Set default values for your parameters to have them marked [optional]
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
-| `yo stores --store_name [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
+| `yo stores [--store_name] [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
 | `yo transport --arrival [--departure] [--apikey]` | buss, trafiklab | Public transportation helper. Fetches current airplane, bus, boats and train departure and arrival times. (Sweden) |
 | `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
-| `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |

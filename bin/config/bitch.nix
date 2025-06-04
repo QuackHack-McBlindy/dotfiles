@@ -153,23 +153,29 @@ in {
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNames}  
         
         for script in ${toString scriptNames}; do
+          unset substitutions  # 🛠️ Nollställ för varje iteration
+
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
           subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
-      
+
+          eval "$subs_decl" >/dev/null 2>&1 || true
+
+
           unset substitutions
           eval "$subs_decl" >/dev/null 2>&1 || true
   
 # DEBUG         echo "INPUT AFTER PROCESSING: $resolved_text"
           [[ -n "$subs_decl" ]] && declare -p substitutions
           if match_$script "$resolved_text"; then
+      
             args=()
             for arg in "''${cmd_args[@]}"; do
               args+=("$arg")
             done
-            if [[ "''${#substitutions[@]}" -gt 0 ]]; then
+            if [[ "$(declare -p substitutions 2>/dev/null)" =~ "declare -A" ]]; then
               for original in "''${!substitutions[@]}"; do
-                echo "$original → ''${substitutions[$original]}"
+                [[ -n "$original" ]] && echo "$original → ''${substitutions[$original]}"
               done
             fi
          
@@ -203,7 +209,6 @@ in {
       pull = { data = [{ sentences = [ ]; lists = { }; }]; };
       push = { data = [{ sentences = [ ]; lists = { }; }]; };
       scp = { data = [{ sentences = [ ]; lists = { }; }]; };
-      stores = { data = [{ sentences = [ ]; lists = { }; }]; };
       transport = { data = [{ sentences = [ ]; lists = { }; }]; };
       weather = { data = [{ sentences = [ ]; lists = { }; }]; };
       sops = { data = [{ sentences = [ ]; lists = { }; }]; };

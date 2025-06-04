@@ -26,7 +26,7 @@ in {
 
         AUDIO_FILE=$(mktemp --suffix=.raw)
         trap "rm -f $AUDIO_FILE" EXIT
-        echo "Sending to: http://$HOST:$PORT/transcribe "
+#        echo "Sending to: http://$HOST:$PORT/transcribe "
         arecord -f "$FORMAT" -r "$SAMPLE_RATE" -c "$CHANNELS" -d 5 -t raw "$AUDIO_FILE" && curl -X POST http://$HOST:$PORT/transcribe -F "audio=@$AUDIO_FILE;type=audio/raw"
       '';    
   };}
