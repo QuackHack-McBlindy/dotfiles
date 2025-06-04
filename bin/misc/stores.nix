@@ -1,7 +1,50 @@
 # dotfiles/bin/system/weather.nix
 
+
+
+
+
 { config, lib, pkgs, cmdHelpers, ...  }:
-{
+{  
+  yo.bitch = { 
+    intents = {
+      stores = {
+        data = [{
+          sentences = [
+            "var är närmaste {store_name}"
+            "finns det någon {store_name} i närheten"
+            "visa närliggande {store_name}"
+            "öppna {store_name} nära mig"
+            "jag letar efter en {store_name} i {location}"
+            "finns det öppna {store_name} i {location}"
+            "visa {store_name} nära {location}"
+            "var kan jag hitta en {store_name} i {location}"
+            "letar efter {store_name} i {location}"
+            "jag behöver en {store_name} i närheten"
+            "vilka {store_name} är öppna i {location}"
+            "öppna butiker som heter {store_name}"
+            "visa butiker som liknar {store_name}"
+            "jag vill hitta {store_name}"
+            "hitta {store_name} nära {location}"
+            "hitta närmaste {store_name}"
+            "vilken {store_name} är närmast"
+            "butiker som heter {store_name} i {location}"
+
+          ];
+          
+          lists = {
+            store_name.wildcard = true;
+            store_name.values = [{ "in" = "ICA"; out = "ICA"; }];
+
+       
+#            search.wildcard = true;
+          };
+        }];
+      };
+    };
+  };
+
+
   yo.scripts.stores = {
     description = "Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours.";
 #    category = "🧩 Miscellaneous";
