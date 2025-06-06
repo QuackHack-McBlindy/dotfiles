@@ -110,7 +110,8 @@
         get_shops_near_location() {
             lat="$1"
             lon="$2"
-#            radius="$3"
+            radius="$3"
+
             user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:123.0) Gecko/20100101 Firefox/123.0"
             base_url="https://overpass-api.de/api/interpreter"
             query="[out:json];node[\"shop\"](around:''${radius},''${lat},''${lon});out;"
@@ -156,6 +157,8 @@
             echo "$result" | jq . >&2
             echo "$result"
         }   
+
+
         echo "Store: $store_name | Location: $location | Radius: ''${radius}m" >&2
         if ! coords=$(get_location_lat_lon "$location"); then
             exit 1
@@ -169,6 +172,8 @@
         fi
         
         matched_shops=$(fuzzy_search_shops "$shops_data" "$store")
+        echo "MATCHED SHOPS:"
+        echo "$matched_shops"
 
         if [[ -z "$matched_shops" ]]; then
             echo "No shops found matching '$store'."
@@ -176,16 +181,101 @@
         fi
 
         # Wrap all matches into JSON
-        wrapped_matches=$(echo "$matched_shops" | jq -s '.')
+#        wrapped_matches=$(echo "$matched_shops" | jq -s '.')
 
         # Get total number of matched shops
+#        count=$(echo "$wrapped_matches" | jq 'length')
+        
+#         matched_shops=$(fuzzy_search_shops "$shops_data" "$store_name")
+
+
+#         if [[ -n "$matched_shops" ]]; then
+##             echo "Matched Shops for '$store_name':"
+#             echo "$matched_shops" | jq -r '.tags.name'
+#             echo "$matched_shops" | jq -s '.' > "matched_shops_''${store_name// /_}.json"
+#         else
+
+# Instead of listing 6 (random?) shops here, can we list fuzzy matched shops with the above? If multiple shops found, prompt user to confirm store with yo-mic
+# IF more than one result. If only one fuzzy matched shop,, deliver final shop information directly.         
+
+#        if [[ "$count" -gt 5 ]]; then
+#            say " .. Hittade flera butiker .. Vilken butik menade du"
+#            display_count=$((count > 6 ? 6 : count))
+#            for i in $(seq 0 $((display_count - 1))); do
+#            echo "which store did you mean?"
+#                shop_name=$(echo "$wrapped_matches" | jq -r ".[$i].tags.name")
+#                shop_addr=$(echo "$wrapped_matches" | jq -r ".[$i].tags[\"addr:street\"] // \"Ingen adress\"")
+#                say "$((i + 1))) $shop_name på $shop_addr"
+#                echo "$((i + 1))) $shop_name - $shop_addr"
+#            done
+
+#            spoken=$(mic_input)
+#            # Try interpreting as number
+#            if [[ "$spoken" =~ ^[0-9]+$ ]]; then
+#              choice_index=$((spoken - 1))
+#            else
+              # Fuzzy match name
+#              choice_index=-1
+#              for i in $(seq 0 $((count - 1))); do
+#                name=$(echo "$wrapped_matches" | jq -r ".[$i].tags.name" | tr '[:upper:]' '[:lower:]')
+#                if echo "$spoken" | tr '[:upper:]' '[:lower:]' | grep -qi "$name"; then
+#                  choice_index=$i
+#                  break
+#                fi
+#              done
+#            fi
+
+#            if [[ "$choice_index" -lt 0 || "$choice_index" -ge "$count" ]]; then
+#              say "Kompis du pratar japanska jag fattar ingenting"
+#              echo "Det låter som du har en köttebulle i munnen. Tugga klart middagen och försök sedan igen."
+#              exit 1
+#            fi
+
+#        else
+#            # If 5 or fewer, auto-select the first one
+#            choice=1
+#        fi
+
+#        choice_index=$((choice - 1))
+#        selected=$(echo "$wrapped_matches" | jq ".[$choice_index]")
+
+#        if [[ "$selected" == "null" ]]; then
+#            say "Det låter som du har en köttebulle i munnen. Tugga klart middagen och försök sedan igen."
+#            echo "Ogiltigt val."
+#            exit 1
+#        fi
+
+        # Extract and display full details
+#        name=$(echo "$selected" | jq -r '.tags.name')
+#        lat=$(echo "$selected" | jq -r '.lat')
+#        lon=$(echo "$selected" | jq -r '.lon')
+#        hours=$(echo "$selected" | jq -r '.tags.opening_hours // "Öppettider okända"')
+#        addr=$(echo "$selected" | jq -r '.tags["addr:street"] // "okänd adress"')
+#        city=$(echo "$selected" | jq -r '.tags["addr:city"] // "okänd stad"')
+
+#        natural_hours=$(convert_opening_hours_to_speech "$hours")
+#        say "$name på $addr i $city har öppet: $natural_hours"
+#        echo "🛒 $name"
+#        echo "📍 $addr, $city"
+#        echo "🕒 $hours"
+#        echo "🌐 https://www.openstreetmap.org/?mlat=$lat&mlon=$lon#map=18/$lat/$lon"
+
+
+        # Wrap all matches into JSON array
+        wrapped_matches=$(echo "$matched_shops" | jq -s '.')
+
         count=$(echo "$wrapped_matches" | jq 'length')
-        
-        say " .. Hittade flera butiker .. Vilken butik menade du"
-        
-        if [[ "$count" -gt 5 ]]; then
-            echo "which store did you mean?"
-            for i in $(seq 0 $((count - 1))); do
+
+        if [[ "$count" -eq 0 ]]; then
+            say "Jag hittade inga butiker som matchar '$store'."
+            exit 0
+        elif [[ "$count" -eq 1 ]]; then
+            choice_index=0
+        else
+            say "Jag hittade flera butiker. Vilken menade du?"
+
+            max_display=6
+            for i in $(seq 0 $((count < max_display ? count - 1 : max_display - 1))); do
                 shop_name=$(echo "$wrapped_matches" | jq -r ".[$i].tags.name")
                 shop_addr=$(echo "$wrapped_matches" | jq -r ".[$i].tags[\"addr:street\"] // \"Ingen adress\"")
                 say "$((i + 1))) $shop_name på $shop_addr"
@@ -193,42 +283,28 @@
             done
 
             spoken=$(mic_input)
-            # Try interpreting as number
+
             if [[ "$spoken" =~ ^[0-9]+$ ]]; then
-              choice_index=$((spoken - 1))
+                choice_index=$((spoken - 1))
             else
-              # Fuzzy match name
-              choice_index=-1
-              for i in $(seq 0 $((count - 1))); do
-                name=$(echo "$wrapped_matches" | jq -r ".[$i].tags.name" | tr '[:upper:]' '[:lower:]')
-                if echo "$spoken" | tr '[:upper:]' '[:lower:]' | grep -qi "$name"; then
-                  choice_index=$i
-                  break
-                fi
-              done
+                choice_index=-1
+                for i in $(seq 0 $((count - 1))); do
+                    name=$(echo "$wrapped_matches" | jq -r ".[$i].tags.name" | tr '[:upper:]' '[:lower:]')
+                    if echo "$spoken" | tr '[:upper:]' '[:lower:]' | grep -qi "$name"; then
+                        choice_index=$i
+                        break
+                    fi
+                done
             fi
 
             if [[ "$choice_index" -lt 0 || "$choice_index" -ge "$count" ]]; then
-              say "Kompis du pratar japanska jag fattar ingenting"
-              echo "Det låter som du har en köttebulle i munnen. Tugga klart middagen och försök sedan igen."
-              exit 1
+                say "Jag förstod inte riktigt vilken du menade."
+                exit 1
             fi
-
-        else
-            # If 5 or fewer, auto-select the first one
-            choice=1
         fi
 
-        choice_index=$((choice - 1))
         selected=$(echo "$wrapped_matches" | jq ".[$choice_index]")
 
-        if [[ "$selected" == "null" ]]; then
-            say "Det låter som du har en köttebulle i munnen. Tugga klart middagen och försök sedan igen."
-            echo "Ogiltigt val."
-            exit 1
-        fi
-
-        # Extract and display full details
         name=$(echo "$selected" | jq -r '.tags.name')
         lat=$(echo "$selected" | jq -r '.lat')
         lon=$(echo "$selected" | jq -r '.lon')
@@ -242,6 +318,8 @@
         echo "📍 $addr, $city"
         echo "🕒 $hours"
         echo "🌐 https://www.openstreetmap.org/?mlat=$lat&mlon=$lon#map=18/$lat/$lon"
+
+
     '';
   };
   sops = {
@@ -256,3 +334,10 @@
       
   };}
   
+  
+  
+  
+  
+  
+  
+

@@ -1,6 +1,11 @@
-# dotfiles/bin/misc/edit.nix
-{ self, config, pkgs, cmdHelpers, ... }:
-{
+# dotfiles/bin/config/cli.nix
+{ 
+  self,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : {
     yo.scripts = {
       edit = {
         description = "yo CLI configuration mode";

@@ -1,5 +1,4 @@
-# dotfiles/bin/config/bitch.nix
-
+# dotfiles/bin/config/nlp.nix
 { 
   self,
   lib,

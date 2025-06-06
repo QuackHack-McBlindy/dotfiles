@@ -11,18 +11,21 @@ MODEL_DIR = os.path.expanduser("~/.local/share/piper")
 VOICES_MD_URL = "https://raw.githubusercontent.com/rhasspy/piper/refs/heads/master/VOICES.md"
 DEFAULT_LANGUAGE = "sv"  # Swedish
 MIN_WORDS_FOR_DETECTION = 4  # Use default language if text is too short
+SUPPORTED_LANGUAGES = {"en", "sv"}
 
 def detect_language(text):
-    """Detects language using langid, defaults to Swedish if text is short."""
     if len(text.split()) < MIN_WORDS_FOR_DETECTION:
         return DEFAULT_LANGUAGE
 
     try:
         import langid
         lang, _ = langid.classify(text)
+        if lang not in SUPPORTED_LANGUAGES:
+            return DEFAULT_LANGUAGE
         return "en_US" if lang == "en" else lang
     except ImportError:
         return DEFAULT_LANGUAGE
+
 
 def fetch_model_urls(language):
     """Fetches model & config URLs for the given language using regex."""
@@ -61,10 +64,13 @@ def ensure_model_exists(language):
 
     return model_path, config_path
 
+
 def speak(text):
     """Detects language, ensures model exists, generates speech, and plays it."""
     lang = detect_language(text)
     model, config = ensure_model_exists(lang)
+
+    print(f'Speaking: "{text}"')
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
@@ -75,14 +81,15 @@ def speak(text):
             "-m", model,
             "-c", config,
             "-f", wav_path
-        ], input=text.encode(), check=True)
+        ], input=text.encode(), check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        subprocess.run(["aplay", wav_path], check=True)
+        subprocess.run(["aplay", wav_path], check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except subprocess.CalledProcessError as e:
         print(f"Error running Piper: {e}")
         sys.exit(1)
     finally:
-        os.remove(wav_path)  # Cleanup temp file
+        os.remove(wav_path)
+
 
 if __name__ == "__main__":
     if len(sys.argv) < 2:

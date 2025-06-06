@@ -26,6 +26,7 @@ in {
         sentences = [
           "hur är vädret"
           "vad är det för temperatur ute"
+          "vad är det för väder"
           "utomhus temperatur"
           "vädret"
         ];
