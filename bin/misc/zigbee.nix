@@ -101,15 +101,18 @@ in {
 #    helpFooter = ''
 #    '';
     parameters = [  
-      { name = "power"; description = "State of the device or group"; }     
-      { name = "group"; description = "Device or group to control"; }     
+      { name = "power"; description = "State of the device or group"; optional = false; }     
+      { name = "group"; description = "Device or group to control"; default = "kitchen"; }
     ];
     code = ''
       ${cmdHelpers}
+     # Get MQTT host from Nix configuration
+      mqttHostIp="${mqttHost}"
+      
       mqttPublish() {
         local group="$1"
         local power="$2"
-        local topic="zigbee2mqtt/''${group}/set"
+        local topic="zigbee2mqtt/$group/set"
         local payload=""
 
         if [[ "$power" == "on" ]]; then
@@ -122,8 +125,8 @@ in {
           payload='{ "state": "UNKNOWN" }'
         fi
 
-        echo "Sending to ''${group}: ''${power}"
-        ''${pkgs.mosquitto}/bin/mosquitto_pub -h ''${mqttHostIp} -t "$topic" -m "$payload"
+        echo "Sending to $group: $power via $mqttHostIp"
+        ${pkgs.mosquitto}/bin/mosquitto_pub -h "$mqttHostIp" -t "$topic" -m "$payload"
       }
 
       map_group() {
@@ -143,28 +146,23 @@ in {
       }
 
       power="$1"
-      group_key="$2"
+      group_key="''${2:-kitchen}"  # Use default if empty
       
       group=$(map_group "$group_key") || exit 1
 
       if [[ "$group" == "all" ]]; then
-        # Request list of groups
-        ${pkgs.mosquitto}/bin/mosquitto_pub -h ''${mqttHostIp} -t 'zigbee2mqtt/bridge/config/get' -m '{"groups":""}'
-
-        # Read exactly one message with group list
-        groups=$(${pkgs.mosquitto}/bin/mosquitto_sub -h ''${mqttHostIp} -t 'zigbee2mqtt/bridge/groups' -C 1 | jq -r '.[].friendly_name')
-
-        for g in $groups; do
-          if [[ "$g" != "default_bind_group" ]]; then
-            mqttPublish "$g" "$power"
-          fi
-        done
+        # Use static group list - more reliable than dynamic discovery
+        mqttPublish "kitchen" "$power"
+        mqttPublish "livingroom" "$power"
+        mqttPublish "wc" "$power"
+        mqttPublish "hallway" "$power"
+        mqttPublish "bedroom" "$power"
+        mqttPublish "entertainment" "$power"
       else
         mqttPublish "$group" "$power"
       fi
 
       echo "✅ Sent $power command to $group_key"
-
     '';
     
   };}

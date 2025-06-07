@@ -148,7 +148,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/s632568zslby65s3qnmqsyblhg4mx4b3-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/ymwcli85c6ssiwv2naviyj67bh2qy3ml-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -335,7 +335,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
-| `yo lights [--power] [--group]` | zb | Control lights and other home automatioon devices |
+| `yo lights --power [--group]` | zb | Control lights and other home automatioon devices |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo timer [--seconds] [--minutes] [--hours] [--sound]` |  | Set a timer |
