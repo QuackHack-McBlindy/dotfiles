@@ -6,6 +6,7 @@
   cmdHelpers,
   ...
 } : let
+  # Static safeguards for known invalid transcriptions
   autocorrect = {
     "ika" = "ica";
     "ikka" = "ica";

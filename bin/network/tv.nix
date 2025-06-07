@@ -24,7 +24,7 @@
             "spela upp {search}"
             "spera upp {search}"
             "jag vill höra {search} {typ}"
-            "{typ}"
+#            "{typ}"
           ];
           
           lists = {

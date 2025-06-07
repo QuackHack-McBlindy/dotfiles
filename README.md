@@ -148,7 +148,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/vyp8240y8q402maaqlqkc2394zcmjqa1-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/s632568zslby65s3qnmqsyblhg4mx4b3-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -198,7 +198,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=d1fc1ddb683171a949aa6efcc8edc16a96451aa2
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -328,12 +328,17 @@ Set default values for your parameters to have them marked [optional]
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
+| `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🧩 Miscellaneous** | | |
+| `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
+| `yo lights [--power] [--group]` | zb | Control lights and other home automatioon devices |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
+| `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
+| `yo timer [--seconds] [--minutes] [--hours] [--sound]` |  | Set a timer |
 | **🧹 Maintenance** | | |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo health [--host]` | hc | Check system health status across your machines |

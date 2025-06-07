@@ -1,15 +1,19 @@
-# dotfiles/modules/home.nix
+# dotfiles/modules/merged.nix
 { 
   config,
   lib,
   pkgs,
   ...
-} : let
-  inherit (lib) mkOption types mkIf;
+} : with lib;
+let
+  # Definitions from file.nix
+  homeBase = config.this.user.me.dotfilesDir + "/home";
+  sanitize = path: 
+    replaceStrings ["/"] ["-"] (removePrefix "/" (removePrefix "./" path));
   
+  # Definitions from home.nix
   mkUserLinks = user: baseDir: let
     userHome = config.users.users.${user}.home;
-    # Get store path with content hash
     storePath = builtins.path {
       path = baseDir;
       name = "home-manifest";
@@ -38,46 +42,76 @@
       chown -h ${user}:users "$target"
     done
   '';
-
 in {
-  options.this.home = mkOption {
-    type = types.path;
-    description = "Directory to mirror to home directory";
+  # Combined options
+  options = {
+    file = mkOption {
+      type = types.attrsOf types.lines;
+      default = {};
+      description = "Files to create directly under ${homeBase}";
+    };
+    this.home = mkOption {
+      type = types.path;
+      description = "Directory to mirror to home directory";
+    };
   };
 
-  config = mkIf (config.this.home != null) {
+  # Combined configuration
+  config = mkMerge [
+    # Configuration from file.nix
+    {
+      system.activationScripts.simpleFiles = let
+        files = config.file;
+      in {
+        text = concatStringsSep "\n" (mapAttrsToList (path: content:
+          let
+            storeName = "file-${sanitize path}";
+            storePath = pkgs.writeText storeName content;
+            fullPath = "${homeBase}/${path}";
+            dir = dirOf fullPath;
+            username = config.this.user.me.name;
+          in ''
+            mkdir -p "${dir}"
+            cp -f "${storePath}" "${fullPath}"
+            chown "${username}:users" "${fullPath}"
+            chmod 600 "${fullPath}"
+            echo "Created file: ${fullPath}"
+          '') files);
+        deps = [];  
+      };
+    }
+    
+    # Configuration from home.nix (conditional)
+    (mkIf (config.this.home != null) {
+      system.activationScripts.home-mirror = {
+        text = ''
+          #!/usr/bin/env bash
+          set -euo pipefail
+          ${mkUserLinks config.this.user.me.name config.this.home}
+        '';
+        deps = [ "users" ];
+      };
 
-    system.activationScripts.home-mirror = {
-      text = ''
-        #!/usr/bin/env bash
-        set -euo pipefail
-        ${mkUserLinks config.this.user.me.name config.this.home}
-      '';
-      deps = [ "users" ];
-    };
-
-    environment.variables = {
-      BROWSER = "firefox";
-      EDITOR = "nano";
-      TERMINAL = "ghostty";
-      QT_QPA_PLATFORMTHEME = "gtk3";
-      QT_SCALE_FACTOR = "1";
-      MOZ_ENABLE_WAYLAND = "1";
-
-      QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
-      QT_AUTO_SCREEN_SCALE_FACTOR = "1";
-
-      CLUTTER_BACKEND = "wayland";
-      XDG_CURRENT_DESKTOP = "gnome";
-      XDG_SESSION_DESKTOP = "gnome";
-      XDG_SESSION_TYPE = "wayland";
-      GTK_USE_PORTAL = "1";
-      
-      XDG_CACHE_HOME = "\${HOME}/.cache";
-      XDG_CONFIG_HOME = "\${HOME}/.config";
-      XDG_BIN_HOME = "\${HOME}/dotfiles/home/bin";
-      XDG_DATA_HOME = "\${HOME}/.local/share";
-      
-      NIX_PATH = lib.mkForce "nixpkgs=flake:nixpkgs";
-    };
-  };}
+      environment.variables = {
+        BROWSER = "firefox";
+        EDITOR = "nano";
+        TERMINAL = "ghostty";
+        QT_QPA_PLATFORMTHEME = "gtk3";
+        QT_SCALE_FACTOR = "1";
+        MOZ_ENABLE_WAYLAND = "1";
+        QT_WAYLAND_DISABLE_WINDOWDECORATION = "1";
+        QT_AUTO_SCREEN_SCALE_FACTOR = "1";
+        CLUTTER_BACKEND = "wayland";
+        XDG_CURRENT_DESKTOP = "gnome";
+        XDG_SESSION_DESKTOP = "gnome";
+        XDG_SESSION_TYPE = "wayland";
+        GTK_USE_PORTAL = "1";
+        XDG_CACHE_HOME = "\${HOME}/.cache";
+        XDG_CONFIG_HOME = "\${HOME}/.config";
+        XDG_BIN_HOME = "\${HOME}/dotfiles/home/bin";
+        XDG_DATA_HOME = "\${HOME}/.local/share";
+        NIX_PATH = lib.mkForce "nixpkgs=flake:nixpkgs";
+      };
+    })
+  ];
+}

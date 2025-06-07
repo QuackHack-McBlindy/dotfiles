@@ -157,14 +157,14 @@
             };
           };
           groups = {
-            "1" = {
+            "Kitchen Lightstrips" = {
               friendly_name = "uppe_o_nere";
               devices = [
                 "0x0017880103a0d280/11"
                 "0x0017880103e0add1/11"
               ];
             };
-            "2" = {
+            "kitchen" = {
               friendly_name = "all_kitchen_lights";
               devices = [
                 "0x0017880103e0add1/11"
@@ -173,7 +173,7 @@
                 "0x0017880102f08526/11"
               ];
             };
-            "3" = {
+            "bedroom" = {
               friendly_name = "all_bedroom_lights";
               devices = [
                 "0x00178801001ecdaa/11"
@@ -184,14 +184,14 @@
                 "0x0017880103c7467d/11"
               ];
             };
-            "4" = {
+            "wc" = {
               friendly_name = "all_wc_lights";
               devices = [
                 "0x001788010361b842/11"
                 "0x0017880103406f41/11"
               ];
             };
-            "5" = {
+            "hallway" = {
               friendly_name = "all_hallway_lights";
               devices = [
                 "0x000b57fffe0e2a04/1"

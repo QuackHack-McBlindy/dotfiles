@@ -96,6 +96,7 @@
                 # inputs.api.packages.x86_64-linux.api
                 pkgs.nix-index
                 pkgs.rich-cli
+                pkgs.mosquitto
                 pkgs.lsd
                 pkgs.gedit
                 pkgs.firefox-esr

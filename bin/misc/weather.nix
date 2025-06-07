@@ -21,7 +21,7 @@
   
 in {
   yo.bitch.intents = {
-    stores = {
+    weather = {
       data = [{
         sentences = [
           "hur är vädret"

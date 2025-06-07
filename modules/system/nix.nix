@@ -55,7 +55,7 @@ in {
                 keep-derivations = true;
 
                 warn-dirty = false;
-                experimental-features = [ "nix-command" "flakes" ];
+                experimental-features = [ "nix-command" "flakes" "pipe-operators" ];
                 auto-optimise-store = true;
                 sandbox = true;
                 log-lines = 30;
