@@ -340,7 +340,7 @@
 in { # We're here. This is it. 
   # The Boss script that runs your home.
   yo.scripts.nixhome = {
-    description = "nixhome, a simple yet powerful automation system for Smart Home devices. Runs on single process";
+    description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
     category = "🌐 Networking";
     aliases = [ "zigbee" "home" ];
     helpFooter = ''
@@ -352,9 +352,11 @@ in { # We're here. This is it.
 
 #    ]; # Entrypoints
     code = ''
-      ${cmdHelpers}       
-      export ZIGBEE_DEVICES='${deviceMeta}'
-      MQTT_BROKER="$mqttHostip"
+      ${cmdHelpers}    
+      ${mqttHost}    
+      ${mqttHostip}
+      ZIGBEE_DEVICES='${deviceMeta}'
+      MQTT_BROKER="${mqttHostip}"
 
       start_listening() {
         trap 'echo "🛑 duckduckduckduckduckduck.... off"; exit' INT TERM
@@ -573,13 +575,4 @@ in { # We're here. This is it.
           };
         };
       }; 
-    }    
-#    systemd.services.nixhome = {
-#      wantedBy = ["multi-user.target"];
-#      after = ["zigbee2mqtt.service"];
-#      serviceConfig = {
-#        ExecStart = "${config.yo.pkgs}/bin/yo-nixhome";
-#        Restart = "on-failure";
-#      };
-      
-#  };}
+    }   

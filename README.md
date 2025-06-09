@@ -149,7 +149,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/plwh5qdy9k9m4lppypvv4mzn59lszvyn-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/gkqmkynwfwm6906p5zq4b0qbwc786nyn-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -328,7 +328,7 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | |
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo nixhome ` | zigbee, home | nixhome, a simple yet powerful automation system for Smart Home devices. Runs on single process |
+| `yo nixhome ` | zigbee, home | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
