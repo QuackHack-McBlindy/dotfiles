@@ -114,6 +114,8 @@
       lib.flatten (map (d: d.lists or {}) intentList.data)
     ) config.yo.bitch.intents));
   
+
+
 in {
 
   yo.scripts = {
@@ -125,7 +127,6 @@ in {
         set +u
         ${cmdHelpers}
         text="$input"
-      
         resolve_entities() {
           local script="$1"
           local text="$2"
@@ -211,7 +212,7 @@ in {
       yubi = { data = [{ sentences = [ ]; lists = { }; }]; };
       qr = { data = [{ sentences = [ ]; lists = { }; }]; };
       mic = { data = [{ sentences = [ ]; lists = { }; }]; };      
+      nixhome = { data = [{ sentences = [ ]; lists = { }; }]; };    
     };
     
   };}
-  

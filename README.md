@@ -3,7 +3,7 @@
 <!-- VERSIONS_START -->
 ![NixOS](https://img.shields.io/badge/NixOS-25.11-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.12.29-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.12.30-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-48.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
@@ -22,7 +22,8 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 > **That's my job.** 🧑‍🦯
 <br>
 
-__Sup ducks? 🦆 qwack on__ <br>
+__Sup ducks? 🦆 qwack on,__ <br>
+__while duck quite stuck in dis rabbit hole__ <br>
 
 ## **📌 Highlights**
 
@@ -148,7 +149,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ymwcli85c6ssiwv2naviyj67bh2qy3ml-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/plwh5qdy9k9m4lppypvv4mzn59lszvyn-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -327,6 +328,7 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | |
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
+| `yo nixhome ` | zigbee, home | nixhome, a simple yet powerful automation system for Smart Home devices. Runs on single process |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
@@ -335,7 +337,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
-| `yo lights --power [--group]` | zb | Control lights and other home automatioon devices |
+| `yo lights [--state] [--device] [--area] [--brightness] [--color]` | zb | Control lights and other home automatioon devices |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo timer [--seconds] [--minutes] [--hours] [--sound]` |  | Set a timer |
