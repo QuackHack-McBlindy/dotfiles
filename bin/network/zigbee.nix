@@ -268,61 +268,72 @@
     # ${dev.friendly_name}
     mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
       action=$(echo "$line" | jq -r '.action')
-      hold_time=$(echo "$line" | jq -r '.hold_time // 0')
-      echo "Device: ${dev.friendly_name}, Action: $action, Hold: $hold_time"
-    
-      case "$action" in
-        # Button 1 (Top)
-        "on")
-          if [ "$hold_time" -eq 0 ]; then
-            # Press: Turn on room + kitchen fläkt
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.room}/set" -m '{"state": "ON"}'
-            ${lib.optionalString (dev.room == "kitchen") ''
-              mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "ON"}'
-            ''}
-          else
-            # Hold: Scene cycling
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.room}/set" -m '{"scene_next": ""}'
-          fi
-          ;;
-      
-        # Button 2 (Up)
-        "brightness_step_up")
-          if [ "$hold_time" -eq 0 ]; then
-            # Press: +5% brightness
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.room}/set" -m '{"brightness_step": 5}'
-          else
-            # Hold: Max brightness + white
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"brightness": 255, "color": {"x": 0.3127, "y": 0.3290}}'
-          fi
-          ;;
-      
-        # Button 3 (Down)
-        "brightness_step_down")
-          if [ "$hold_time" -eq 0 ]; then
-            # Press: -5% brightness
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.room}/set" -m '{"brightness_step": -5}'
-          else
-            # Hold: Turn off all + fläkt
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"state": "OFF"}'
-             mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "OFF"}'
-          fi
-          ;;
-      
-        # Button 4 (Bottom)
-        "off")
-          if [ "$hold_time" -eq 0 ]; then
-            # Press: Turn off room
-            mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.room}/set" -m '{"state": "OFF"}'
-          else
-            # Hold: Voice command trigger
-            mosquitto_pub -h "$MQTT_BROKER" -t "voice_assistant/trigger" -m '{"device": "${dev.friendly_name}"}'
-          fi
-        ;;
-      
-        *)
-          echo "Unhandled action: $action"
-          ;;
+      echo "Device: ${dev.friendly_name}, Action: $action"
+      echo "Room:  ${dev.room}"
+      # Button 1   
+      if [[ "$action" == "on_press" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/''${dev.room}/set" -m '{"state": "ON"}'
+      fi   
+      if [[ "$action" == "on_press_release" ]]; then
+        echo "$action"
+      fi
+      if [[ "$action" == "on_hold" ]]; then
+        echo "$action"
+      fi   
+      if [[ "$action" == "on_hold_release" ]]; then
+        echo "$action"
+      fi    
+      # Button 2
+      if [[ "$action" == "up_press" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.room}/set" -m '{"state": "ON"}'
+      fi   
+      if [[ "$action" == "up_press_release" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/''${dev.room}/set" -m '{"brightness_step": 5}'
+      fi
+      if [[ "$action" == "up_hold" ]]; then
+        echo "$action"
+      fi   
+      if [[ "$action" == "up_hold_release" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"brightness": 255, "color": {"x": 0.3127, "y": 0.3290}}'
+      fi    
+      # Button 3
+      if [[ "$action" == "down_press" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
+      fi   
+      if [[ "$action" == "down_press_release" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room}/set" -m '{"brightness_step": -5}'
+      fi
+      if [[ "$action" == "down_hold" ]]; then
+        echo "$action"
+      fi   
+      if [[ "$action" == "down_hold_release" ]]; then
+        echo "$action"
+      fi    
+      # Button 4
+      if [[ "$action" == "off_press" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "OFF"}'
+      fi   
+      if [[ "$action" == "off_press_release" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "OFF"}'
+      fi
+      if [[ "$action" == "off_hold" ]]; then
+        echo "$action"
+      fi   
+      if [[ "$action" == "off_hold_release" ]]; then
+        echo "$action"
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"state": "OFF"}'
+        mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "OFF"}'
+      fi    
+      case "$action" in                
       esac
     done &
   '') (lib.filterAttrs (id: d: d.type == "dimmer") zigbeeDevices));
@@ -353,131 +364,103 @@ in { # We're here. This is it.
 #    ]; # Entrypoints
     code = ''
       ${cmdHelpers}    
-      ${mqttHost}    
-      ${mqttHostip}
+      ${dimmerHandlers}
+      echo "Mosquitto host: ${mqttHost}"    
+      echo "Mosquitto IP: ${mqttHostip}"
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}"
-
+      MQTT_PORT=1883
       start_listening() {
-        trap 'echo "🛑 duckduckduckduckduckduck.... off"; exit' INT TERM
-        echo "$ZIGBEE_DEVICES" > /tmp/zigbee_devices.json 																																																																																																         echo "📡 Listening to all Zigbee events..."
-        if ! command -v jq &> /dev/null; then
-          echo "❌ 'jq' is required but not installed. Please install jq."
-          exit 1
-        fi
-        if ! mosquitto_sub -h "$MQTT_BROKER" -t "\$SYS/broker/version" -C 1 -W 2 &> /dev/null; then
-          echo "❌ Cannot connect to MQTT broker at $MQTT_BROKER"
-          exit 1
-        fi     
-
-        mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/#" | while read -r line; do
-          topic=$(echo "$line" | jq -r '.topic // empty')
-          [ -z "$topic" ] && topic=$(echo "$line" | grep -oP '^zigbee2mqtt/\K[^ ]+')
+        trap 'echo "🛑 Stopping..."; pkill -P $$; exit' INT TERM
+        echo "$ZIGBEE_DEVICES" > /tmp/zigbee_devices.json
+        echo "📡 Listening to all Zigbee events..."
+        echo "📡 Connected to MQTT broker at $MQTT_BROKER" 
+        mosquitto_sub -h "$MQTT_BROKER" -p "$MQTT_PORT" -t "zigbee2mqtt/#" | while read -r line; do
+          # Extract topic and payload
+          topic_full=$(echo "$line" | cut -d ' ' -f 1)
+          topic="''${topic_full#zigbee2mqtt/}"
+          payload=$(echo "$line" | cut -d ' ' -f 2-)
           [ -z "$topic" ] && continue
 
+
           dev=$(jq -r --arg name "$topic" '.[$name] // empty' /tmp/zigbee_devices.json)
-          [ "$dev" == "null" ] && continue
-
-          type=$(echo "$dev" | jq -r '.type')
+          [ -z "$dev" ] || [ "$dev" = "null" ] && continue
           room=$(echo "$dev" | jq -r '.room')
+          type=$(echo "$dev" | jq -r '.type')
+          room=$(echo "$dev" | jq -r '.room')  # Get room at runtime
           id=$(echo "$dev" | jq -r '.id')
-          action=$(echo "$line" | jq -r '.action // empty')
-          state=$(echo "$line" | jq -r '.state // empty')
-          hold_time=$(echo "$line" | jq -r '.hold_time // 0')
-          presence=$(echo "$line" | jq -r '.occupancy // empty')
-          smoke=$(echo "$line" | jq -r '.smoke // empty')
-          echo "🔔 $topic [$type/$room] → action=$action, state=$state, presence=$presence, smoke=$smoke"
-          case "$type" in
-          
-# ---> DEVICES <---- #      
-      # 🎚 Dimmer Switches
-            "dimmer")
-              case "$action" in
-                
-                # Button 1 - On
-                "on")
-                  if [[ "$hold_time" -eq 0 ]]; then
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
-                    [[ "$room" == "kitchen" ]] && \
-                      mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "ON"}'
-                  else
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"scene_next": ""}'
-                  fi
-                  ;;
-                  
-                # Button 2 - Increase brightness  
-                "brightness_step_up")
-                  if [[ "$hold_time" -eq 0 ]]; then
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"brightness_step": 5}'
-                  else
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"brightness": 255, "color": {"x": 0.3127, "y": 0.3290}}'
-                  fi
-                  ;;
-                  
-                # Button 3 - Decrease brightness
-                "brightness_step_down")
-                  if [[ "$hold_time" -eq 0 ]]; then
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"brightness_step": -5}'
-                  else
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"state": "OFF"}'
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "OFF"}'
-                  fi
-                  ;;
-                
-                # Button 4 - Off 
-                "off")
-                  if [[ "$hold_time" -eq 0 ]]; then
-                    mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "OFF"}'
-                  else
-                    mosquitto_pub -h "$MQTT_BROKER" -t "voice_assistant/trigger" -m "{\"device\": \"$topic\"}"
-                  fi
-                  ;;
-              esac
-              ;;
-
-      # 🕵️ Motion & Sensors        
-            "sensor")
-              if [[ "$presence" == "true" ]]; then
-                echo "👣 Motion detected in $room"
-                mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
-              fi
-
-              if [[ "$smoke" == "true" ]]; then
-                echo "🔥 Smoke detected by $topic in $room!"
-                quackalot "warning warning Smoke detected by $topic in $room!"
-                say "ELD ELD ELD anka gillar ej ELD ELD ELD ELD!"   
-                mosquitto_pub -h "$MQTT_BROKER" -t "notification/emergency" -m "{\"type\": \"smoke\", \"location\": \"$room\"}"
-              fi
-              ;;
-
-      # ⚡ Power & Energy Plugs
-            "power plug")
-              echo "🔌 Power plug state: $state"
-              ;;
-
-      # 💡 Lights
-            "light")
-              echo "💡 Light state changed: $state"
-              ;;
-
-      # 🌀 Motors & Shaders
-            "blind")
-              echo "🪟 Blind state: $state"
-              ;;
-
-      # 🎚 Remotes & Buttons
-            "remote")
-              echo "🎮 Remote control: $action"
-              ;;
-
-      # 🎚 Misc & Unknown
-            *)
-              echo "⚠️ Unhandled device type: $type"
-              ;;
-          esac
-        done
       
-        echo "📡 Connected to MQTT broker at $MQTT_BROKER"
+        
+          # Parse payload fields
+          action=$(echo "$payload" | jq -r '.action // empty')
+          state=$(echo "$payload" | jq -r '.state // empty')
+          presence=$(echo "$payload" | jq -r '.occupancy // empty')
+          smoke=$(echo "$payload" | jq -r '.smoke // empty')
+          echo "🔔 $topic [$type/$room] → action=$action, state=$state, presence=$presence, smoke=$smoke"
+          echo "type: $type"
+          
+# ---> DEVICES <---- #       
+          # 🎚 Dimmer Switches
+          if [[ "$type" == "dimmer" ]]; then
+              if [[ "$action" == "on_press_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "ON"}'
+              elif [[ "$action" == "up_press_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"brightness_step": 5}'
+              elif [[ "$action" == "up_hold_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"brightness": 255, "color": {"x": 0.3127, "y": 0.3290}}'
+              elif [[ "$action" == "down_press_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"brightness_step": -5}'
+              elif [[ "$action" == "down_hold_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"brightness_step": -5}'
+              elif [[ "$action" == "off_press_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "OFF"}'
+              elif [[ "$action" == "off_hold_release" ]]; then
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/all_lights/set" -m '{"state": "OFF"}'
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/Fläkt/set" -m '{"state": "OFF"}'
+              fi
+          fi
+          
+          # 🕵️ Motion & Sensors
+          if [[ "$type" == "sensor" ]]; then
+              if [[ "$presence" == "true" ]]; then
+                  echo "👣 Motion detected in $room"
+                  mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
+              fi
+              if [[ "$smoke" == "true" ]]; then
+                  echo "🔥 Smoke detected by $topic in $room!"
+                  quackalot "warning warning Smoke detected by $topic in $room!"
+                  say "ELD ELD ELD anka gillar ej ELD ELD ELD ELD!"   
+                  mosquitto_pub -h "$MQTT_BROKER" -t "notification/emergency" -m "{\"type\": \"smoke\", \"location\": \"$room\"}"
+              fi
+          fi
+          
+          # ⚡ Power & Energy Plugs   
+          if [[ "$type" == "power plug" ]]; then
+              echo "🔌 Power plug state: $state"
+          fi 
+          
+          # 💡 Lights
+          if [[ "$type" == "lights" ]]; then
+              echo "💡 Light state changed: $state"
+          fi
+          
+          # 🌀 Motors & Shaders
+          if [[ "$type" == "blind" ]]; then
+              echo "🪟 Blind state: $state"
+          fi
+          
+          # 🎚 Remotes & Buttons
+          if [[ "$type" == "remote" ]]; then
+              echo "🎮 Remote control: $action"
+          fi
+          
+          # 🎚 Misc & Unknown
+          if [[ "$type" == "unknown" ]]; then
+              echo "UNKNOWN TYPE!"
+          fi
+        done  
       }   
      
       # 🎨 Scenes
@@ -489,7 +472,6 @@ in { # We're here. This is it.
       echo " Ready for liftoff?"    
       echo "🚀 Starting nixhome automation system"
       
-      ${dimmerHandlers}
       start_listening      
          
     '';
@@ -576,3 +558,11 @@ in { # We're here. This is it.
         };
       }; 
     }   
+    
+#    systemd.services.nixhome = {
+#      wantedBy = ["multi-user.target"];
+#      after = ["zigbee2mqtt.service"];
+#      serviceConfig = {
+#        ExecStart = "${config.yo.pkgs}/bin/yo-nixhome";
+#        Restart = "on-failure";
+#      };
