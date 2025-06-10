@@ -375,7 +375,7 @@ in { # We're here. This is it.
         echo "$ZIGBEE_DEVICES" > /tmp/zigbee_devices.json
         echo "📡 Listening to all Zigbee events..."
         echo "📡 Connected to MQTT broker at $MQTT_BROKER" 
-        mosquitto_sub -h "$MQTT_BROKER" -p "$MQTT_PORT" -t "zigbee2mqtt/#" | while read -r line; do
+        mosquitto_sub -h "$MQTT_BROKER" -p "$MQTT_PORT" -t "zigbee2mqtt" | while read -r line; do
           # Extract topic and payload
           topic_full=$(echo "$line" | cut -d ' ' -f 1)
           topic="''${topic_full#zigbee2mqtt/}"
