@@ -1,4 +1,6 @@
-# modules/default.nix
+# dotfiles/modules/this.nix
+# 🦆 duck say > dis module is designed to define both user and host configurations
+# 🦆 duck say > so dat modules can dynamically adapt
 { 
     config,
     lib,
@@ -8,19 +10,19 @@
   inherit (lib) types mkOption mkEnableOption mkMerge;
 in {  
     options.this = {
-#=== TODO Remove =========================#      
+#=== 🦆 duck say > TODO Remove =========================#      
         installer = mkOption {
             type = types.bool;
             default = false;
             example = true;
             description = "Whether this system is used as an installer.";
         };
-#=== USER =========================#    
+#=== 🦆 duck say > USER =========================#      
         user = mkOption {
             type = types.submodule {
                 options = {
                     enable = mkEnableOption "user configurations";
-#============== ME =========================#    
+#============== 🦆 duck say > ME =========================#    
                     me = {
                         name = mkOption {
                             type = types.str;
@@ -126,7 +128,7 @@ in {
             description = "User configuration settings";
         };   
 
-#=== HOST =========================#    
+#=== 🦆 duck say > HOST =========================#    
         host = {
             system = mkOption {
                 type = types.str;

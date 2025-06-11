@@ -1,3 +1,4 @@
+# dotfiles/bin/network/speed.nix
 { self, config, pkgs, cmdHelpers, ... }:
 {  
   yo.scripts.speed = {

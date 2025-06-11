@@ -5,10 +5,10 @@
 # 🦆 says > SmartHome 🥈 sure qwacks,but Free Home🏆🥇 & Safe Home💫wow🚀but plz duckwised be - you are🔑for your home🔏
 # 🦆 says > why don't u let 🦆 plz in? > @nixhome dropin lol come in
 
-  # While true, mqtt verbose
-  DEBUG_MODE = false;
+  # 🦆 says > While true, easy to debug i say
+  DEBUG_MODE = true;
 
-  # Fetch host info for Mosquitto
+  # 🦆 says > dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
@@ -17,13 +17,14 @@
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
     else "127.0.0.1";
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
    
-  # Declaratively define Zigbee devices 
-  zigbeeDevices = {
-    # Kitchen
-    "0x0017880103ca6e95" = {
-      friendly_name = "Dimmer Switch Kök";
-      room = "kitchen";
+  # 🦆 says > define Zigbee devices here yo 
+  zigbeeDevices = { # 🦆 says > inb4 long annoying list  
+    # Kitchen   🦆 says > oh crap
+    "0x0017880103ca6e95" = {# 🦆 says > scroll
+      friendly_name = "Dimmer Switch Kök";# 🦆 says > scroll sad duck, scroll ='(
+      room = "kitchen"; # 🦆 says > i'll tell u when to stop ='(
       type = "dimmer";
       endpoint = 1;
     };
@@ -60,7 +61,7 @@
     "0x70ac08fffe9fa3d1" = {
       friendly_name = "Motion Sensor Kök";
       room = "kitchen";
-      type = "sensor";
+      type = "motion";
       endpoint = 1;
     };
     "0xa4c1380afa9f7f3e" = {
@@ -106,7 +107,7 @@
     "0x00178801021311c4" = {
       friendly_name = "Motion Sensor Hall";
       room = "hallway";
-      type = "sensor";
+      type = "motion";
       endpoint = 1;
     };
     "0x0017880103eafdd6" = {
@@ -170,7 +171,7 @@
     "0xf4b3b1fffeaccb27" = {
       friendly_name = "Motion Sensor Sovrum";
       room = "bedroom";
-      type = "sensor";
+      type = "motion";
       endpoint = 1;
     };
     "0x0017880103f44b5f" = {
@@ -179,11 +180,11 @@
       type = "light";
       endpoint = 11;
     };
-    "0x00178801001ecdaa" = {
+    "0x00178801001ecdaa" = {  # 🦆 says > THATS TOO FAST!!
       friendly_name = "Bloom";
       room = "bedroom";
       type = "light";
-      endpoint = 11;
+      endpoint = 11; # 🦆 says > SLOW DOWN DUCKIE!!
     };
 
     # MISC
@@ -233,23 +234,83 @@
       friendly_name = "Unknown 5";
       room = "other";
       type = "misc";
-      endpoint = 1;
+      endpoint = 1; # 🦆 says > that's way too many devices huh
     };    
   };
 
-  # Filter by rooms
+  # 🎨 Scenes  🦆 YELLS > SCENES!!!!!!!!!!!!!!!1
+  scenes = { # 🦆 says > Declare light states, quack dat's a scene yo!
+    # 🦆 says > Scene name
+    "Duck Scene" = {
+      # 🦆 says > Device friendly_name
+      "PC" = { # 🦆 says > Device state
+        state = "ON";
+        brightness = 200;
+        color = { hex = "#00FF00"; };
+      };
+    };
+    # 🦆 says > Scene 2    
+    "Chill Scene" = {
+      "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+    };      
+    "Green D" = {
+      "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+    };    
+    "max" = { # 🦆 says > max brightness, all lights ? yo ?
+      "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+    };    
+  };
+
+  # 🦆 says > Generate scene commands    
+  makeCommand = device: settings:
+    let
+      json = builtins.toJSON settings;
+    in
+      ''
+      mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/${device}/set" -m '${json}'
+      '';
+  sceneCommands = lib.mapAttrs
+    (sceneName: sceneDevices:
+      lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
+    ) scenes;  
+    
+  # 🦆 says > Filter devices by rooms
   byRoom = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
       ${dev.room} = (acc.${dev.room} or []) ++ [ id ];
     }) {} zigbeeDevices;
 
-  # Filter by device type
+  # 🦆 says > Filter by device type
   byType = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
       ${dev.type} = (acc.${dev.type} or []) ++ [ id ];
     }) {} zigbeeDevices;
 
-  # Create groups
+  # 🦆 says > dis creates groups yi
   groupConfig = lib.mapAttrs' (room: ids: {
     name = room;
     value = {
@@ -261,42 +322,32 @@
     };
   }) byRoom;
 
-  # Create Zigbee device configuration
+  # 🦆 says > Create Zigbee device configuration
   deviceConfig = lib.mapAttrs (id: dev: {
     friendly_name = dev.friendly_name;
   }) zigbeeDevices;
 
-  # Put actions on all light dimmers based on room
-  # Put actions on all light dimmers based on room
+  # 🦆 says > Put actions on all light dimmers based on room
   dimmerHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: let
-      # Get all lights in the same room as this dimmer
-      roomLights = lib.filterAttrs (_: d: 
-        d.room == dev.room && d.type == "light"
-      ) zigbeeDevices;
-      
-      # Build bash array of light friendly names
-      lightArray = lib.concatMapStringsSep " " (name: ''"${name}"'') 
-        (lib.attrNames roomLights);
-    in ''
+    roomLights = lib.filterAttrs (_: d: 
+      d.room == dev.room && d.type == "light"
+    ) zigbeeDevices;
+    lightArray = lib.concatMapStringsSep " " (name: ''"${name}"'') 
+      (lib.attrNames roomLights);
+  in ''
     # ${dev.friendly_name} in ${dev.room}
     lights=(${lightArray})
     
     mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
       payload=$(echo "$line" | cut -d ' ' -f 2-)
-      action=$(echo "$payload" | jq -r '.action // empty')
-      
+      action=$(echo "$payload" | jq -r '.action // empty')      
       if ''${DEBUG_MODE}; then
         echo "$line"
       fi
-
-      # Button 1 Press - Turn on all room lights sequentially
+  
+    # Button 1 Press
       if [ "$action" == "on_press_release" ]; then
-        mosquitto_pub -h "192.168.1.211" -t "zigbee2mqtt/PC/set" -m '{"state": "ON"}'
-        echo "💡 Turning ON all lights in ${dev.room}"
-        for light in "''${lights[@]}"; do
-          mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$light/set" -m '{"state": "ON"}'
-          sleep 0.3 # Short delay between lights
-        done
+        echo "$action"
       fi
     # Button 1 Hold
       if [ "$action" == "on_hold_release" ]; then
@@ -319,13 +370,6 @@
         echo "$action"
       fi
       # Button 4 Press - Turn off all room lights sequentially
-      if [ "$action" == "off_press_release" ]; then
-        echo "🌙 Turning OFF all lights in ${dev.room}"
-        for light in "''${lights[@]}"; do
-          mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$light/set" -m '{"state": "OFF"}'
-          sleep 0.3 # Short delay between lights
-        done
-      fi
       # Button 4 Hold - Turn off all lights sequentially
       if [ "$action" == "on_hold_release" ]; then
         mosquitto_pub -h "192.168.1.211" -t "zigbee2mqtt/PC/set" -m '{"state": "ON"}'
@@ -339,13 +383,28 @@
   '') (lib.filterAttrs (id: d: d.type == "dimmer") zigbeeDevices));
 
 
-  sensorHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: ''
+  blindHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: ''
     # ${dev.friendly_name}
     mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
       echo "$line"  
+      if [ "$type" == "blind" ]; then
+        echo "🪟 Blind state: $state"
+      fi
     done &
-  '') (lib.filterAttrs (id: d: d.type == "sensor") zigbeeDevices));
-  
+  '') (lib.filterAttrs (id: d: d.type == "blind") zigbeeDevices));
+   
+  # 🕵️ Motion & Sensors       
+  motionHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: ''
+    # ${dev.friendly_name}
+    mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
+      echo "$line"  
+      if [[ "$presence" == "true" ]]; then
+        echo "👣 Motion detected in $room" 
+      fi
+    done &
+  '') (lib.filterAttrs (id: d: d.type == "motion") zigbeeDevices));
+
+  # 🦆 says > not to be confused with facebook - this is not even duckbook
   deviceMeta = builtins.toJSON (lib.listToAttrs (lib.mapAttrsToList (id: dev: {
     name = dev.friendly_name;
     value = {
@@ -356,19 +415,18 @@
     };
   }) zigbeeDevices));
 
-in { # This process controls your home. 
-  yo.scripts.nixhome = {
+in { # 🦆 says > finally here, quack! 
+  yo.scripts.nixhome = { # 🦆 says > dis is where my home at
     description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
-    category = "🌐 Networking";
-    aliases = [ "zigbee" "home" ];
-#    helpFooter = ''
-    
-#    '';
+    category = "🌐 Networking"; # 🦆 says > thnx for following me home
+    aliases = [ "zigbee" "home" ]; # 🦆 says > and not laughing at me
+    helpFooter = '' 
+      # TODO TUI/GUI Group Control within help command  # 🦆 says < dis coold be cool?!
+    '';
 #    parameters = [
-#      { name = "mqttuser"; description = "Media to search"; default = "mqtt"; optional = false; }
+#      { name = "user"; description = "Media to search"; default = "mqtt"; optional = false; }
 #      { name = "pwfile"; description = "Passwordfile for user"; default = config.sops; optional = faöse; }
-
-#    ]; # Entrypoints
+#    ]; # 🦆 says > Script entrypoint yo
     code = ''
       ${cmdHelpers}         
       ZIGBEE_DEVICES='${deviceMeta}'
@@ -386,7 +444,6 @@ in { # This process controls your home.
           payload=$(echo "$line" | cut -d ' ' -f 2-)
           [ -z "$topic" ] && continue
 
-
           # Look up device
           dev=$(jq -r --arg name "$topic" '.[$name] // empty' /tmp/zigbee_devices.json)
           [ -z "$dev" ] || [ "$dev" = "null" ] && continue
@@ -402,66 +459,24 @@ in { # This process controls your home.
           presence=$(echo "$payload" | jq -r '.occupancy // empty')
           smoke=$(echo "$payload" | jq -r '.smoke // empty')
           echo "🔔 $topic [$type/$room] → action=$action, state=$state, presence=$presence, smoke=$smoke"
-          if [ "$action" == "on_press_release" ]; then
-            echo "FUUUUUUUUUUUUUUCK"
-          fi  
-
-# ---> DEVICES <---- #      
-      # 🎚 Dimmer Switches
-          if [ "$type" == "dimmer" ]; then
-            echo "FUUUUUUUUUUUUUUCK"
-          fi  
-      # 🌀 Motors & Shaders
-          if [ "$type" == "blind" ]; then
-              echo "🪟 Blind state: $state"
-          fi
-      # 🕵️ Motion & Sensors        
-          if [ "$type" == "sensor" ]; then
-           if [[ "$presence" == "true" ]]; then
-              echo "👣 Motion detected in $room"
-              mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$room/set" -m '{"state": "ON"}'
-            fi
-            if [[ "$smoke" == "true" ]]; then
-              echo "🔥 Smoke detected by $topic in $room!"
-              quackalot "warning warning Smoke detected by $topic in $room!"
-              say "ELD ELD ELD anka gillar ej ELD ELD ELD ELD!"   
-              mosquitto_pub -h "$MQTT_BROKER" -t "notification/emergency" -m "{\"type\": \"smoke\", \"location\": \"$room\"}"
-            fi          
-          fi  
-      # 💡 Lights
-          if [ "$type" == "light" ]; then
-              echo "💡 Light state changed: $state"          
-          fi 
-      # ⚡ Power & Energy Plugs
-          if [ "$type" == "power plug" ]; then
-              echo "🔌 Power plug state: $state"       
-          fi 
-
-      # 🎚 Remotes & Buttons
-          if [ "$type" == "remote" ]; then
-              echo "🎮 Remote control: $action"
-          fi 
-
+          say_duck "$action"
+          say_duck "$type"
         done
-      }   
-     
-      # 🎨 Scenes
-      # 📢 Notification system (smoke alarms, cameras, low battery notifications)
-         
-      # ---> AUTOMATIONS <---- #      
+      }        
+     # 🌀 Motors & Shaders 
       # 🕒 Time based automations
 
       echo " Ready for liftoff?"    
-      echo "🚀 Starting nixhome automation system"
-      
-      start_listening      
-         
+      echo "🚀 Starting nixhome automation system"      
+      start_listening             
     '';
   };  
   
-  # Create device symlink for declarative serial port mapping
+  # 🦆 says > Create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
   
+  # 🦆 says > Mosquitto configuration
+  # 🦆 says > we only need server configuration on one host - so set nixhome at config.this.host.module services
   services.mosquitto = lib.mkIf (lib.elem "nixhome" config.this.host.modules.services) {
     enable = true;
     listeners = [
@@ -478,7 +493,8 @@ in { # This process controls your home.
     allowedTCPPorts = [ 1883 ];
   };
 
-  services.zigbee2mqtt = lib.mkIf (lib.elem "nixhome" config.this.host.modules.services) {
+  # 🦆 says > Z2MQTT configurations
+  services.zigbee2mqtt = lib.mkIf (lib.elem "nixhome" config.this.host.modules.services) { # 🦆 says > once again - dis is server configuration
     enable = true;
     dataDir = "/var/lib/zigbee";
     settings = {
@@ -491,7 +507,7 @@ in { # This process controls your home.
           base_topic = "zigbee2mqtt";
         };
         serial = {
-#          port = "/dev/zigbee"; # all hosts same path  
+#          port = "/dev/zigbee"; # 🦆 says > all hosts, same serial port yo!
           port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
         frontend = {
@@ -527,8 +543,8 @@ in { # This process controls your home.
           };
           availability = true;
           permit_join = false;
-          devices = deviceConfig;
-          groups = groupConfig // {
+          devices = deviceConfig; # 🦆 says > inject zigbee D!
+          groups = groupConfig // { # 🦆 says > inject zigbee G, yo!
             all_lights = {
               friendly_name = "all";
               devices = lib.concatMap (id: 
@@ -540,14 +556,22 @@ in { # This process controls your home.
         };
       }; 
 
-    systemd.services.nixhome = {
-      wantedBy = ["multi-user.target"];
-      after = ["zigbee2mqtt.service"];
-      serviceConfig = {
-        ExecStart = "''$yo.pkgs/bin/yo-nixhome";
-        Restart = "on-failure";
-        LogRateLimitIntervalSec = 30;
-        LogRateLimitBurst = 1000;
-      };
-    };}   
+  # 🦆 says > Prebuild scene activation
+  environment.systemPackages = [
+    (pkgs.writeScriptBin "activate-scene" ''
+      ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
+    '')
+  ];  
+    
+  # 🦆 says > pls ensure my quacky hacky home start at boot - YO
+  systemd.services.nixhome = {
+    wantedBy = ["multi-user.target"];
+    after = ["zigbee2mqtt.service"];
+    serviceConfig = {
+      ExecStart = "${config.pkgs.yo}/bin/yo-nixhome";
+      Restart = "on-failure";
+     # LogRateLimitIntervalSec = 30;
+     # LogRateLimitBurst = 1000;
+    };
+  };} # 🦆 says > Bye bye, catch u later home duck G dawg! 💕 💕 💫
     

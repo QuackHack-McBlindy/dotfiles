@@ -22,8 +22,8 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 > **That's my job.** 🧑‍🦯
 <br>
 
-__Sup ducks? 🦆 qwack on,__ <br>
-__while duck quite stuck in dis rabbit hole__ <br>
+🦆 _duck say >_ __Oh hellow? please quack on in,__ <br>
+🦆 _duck say >_ __while duckie quite stuckie in dis endless rabbit hole__ <br>
 
 ## **📌 Highlights**
 
@@ -39,10 +39,10 @@ __while duck quite stuck in dis rabbit hole__ <br>
 
 <br>
 
-__Here lives home machines configurations,__  
-__crafted as a tiny Nix flake__  
-__Glued together by a Nix-flavoured command line utility,__  
-__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
+🦆 _duck say >_ __Here lives home machines configurations,__  
+🦆 _duck say >_ __crafted as a tiny Nix flake__  
+🦆 _duck say >_ __Glued together by a Nix-flavoured command line utility,__  
+🦆 _duck say >_ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
   
   
 ## ❄️ **Flake**
@@ -149,7 +149,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/pzlh2njiw8pa5rhfk40azld7wvcixkp5-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/zxy821zs0jd8y9wz352wlyzv72khwklz-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -335,6 +335,10 @@ Set default values for your parameters to have them marked [optional]
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
+| **🛒 Shopping** | | |
+| `yo shopping_add [--item]` |  | Lägg till en vara i inköpslistan |
+| `yo shopping_remove [--item]` |  | Ta bort en vara från inköpslistan |
+| `yo shopping_view ` |  | Visa inköpslistan |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
 | `yo lights [--state] [--device] [--area] [--brightness] [--color]` | zb | Control lights and other home automatioon devices |

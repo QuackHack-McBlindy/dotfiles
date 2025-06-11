@@ -6,6 +6,7 @@
   ...
 } : let
   inherit (lib) types mkOption mkEnableOption mkMerge;
+  # 🦆 duck say > get all .nix files inside a directory
   importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;
@@ -18,7 +19,7 @@
           [];
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);      
-in {
+in { # 🦆 duck say > dynamically load and evaluate all modules on each host quack
     imports = [ ./security.nix ./this.nix ./yo.nix ] ++
         (importModulesRecursive ./hardware) ++
         (importModulesRecursive ./system) ++

@@ -6,12 +6,12 @@
   ...
 } : with lib;
 let
-  # Definitions from file.nix
+  # 🦆 duck say > Create a file, yo!
   homeBase = config.this.user.me.dotfilesDir + "/home";
   sanitize = path: 
     replaceStrings ["/"] ["-"] (removePrefix "/" (removePrefix "./" path));
   
-  # Definitions from home.nix
+  # 🦆 duck say > Create a home, yo!
   mkUserLinks = user: baseDir: let
     userHome = config.users.users.${user}.home;
     storePath = builtins.path {
@@ -19,17 +19,17 @@ let
       name = "home-manifest";
     };
   in ''
-    echo "Mirroring home directory for ${user}"
+    echo "🦆 duck say > Mirroring home directory for ${user}"
     find ${storePath} -type f -print0 | while IFS= read -r -d $'\0' src; do
       rel_path="''${src#${storePath}/}"
       target="${userHome}/''${rel_path}"
     
-      # Skip if symlink already correct
+      # 🦆 duck say > Skip if symlink already correct
       if [[ -L "$target" && "$(readlink -f "$target")" == "$src" ]]; then
         continue
       fi
     
-      echo "Linking: $rel_path"
+      echo "🦆 duck say > Linking: $rel_path"
       mkdir -vp "$(dirname "$target")"
       
       dir="$(dirname "$target")"
@@ -43,7 +43,6 @@ let
     done
   '';
 in {
-  # Combined options
   options = {
     file = mkOption {
       type = types.attrsOf types.lines;
@@ -56,9 +55,8 @@ in {
     };
   };
 
-  # Combined configuration
   config = mkMerge [
-    # Configuration from file.nix
+    # 🦆 duck say > Create the file, yo!
     {
       system.activationScripts.simpleFiles = let
         files = config.file;
@@ -75,13 +73,13 @@ in {
             cp -f "${storePath}" "${fullPath}"
             chown "${username}:users" "${fullPath}"
             chmod 600 "${fullPath}"
-            echo "Created file: ${fullPath}"
+            echo "🦆 duck say > Created file: ${fullPath}"
           '') files);
         deps = [];  
       };
     }
     
-    # Configuration from home.nix (conditional)
+    # 🦆 duck say > symlink the home, yo!
     (mkIf (config.this.home != null) {
       system.activationScripts.home-mirror = {
         text = ''
@@ -92,6 +90,7 @@ in {
         deps = [ "users" ];
       };
 
+      # 🦆 duck say > Set user variiables quack
       environment.variables = {
         BROWSER = "firefox";
         EDITOR = "nano";
@@ -113,5 +112,4 @@ in {
         NIX_PATH = lib.mkForce "nixpkgs=flake:nixpkgs";
       };
     })
-  ];
-}
+  ];}

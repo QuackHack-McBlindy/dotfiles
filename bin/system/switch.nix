@@ -29,13 +29,18 @@
               --show-trace
           )
           
-          "''${cmd[@]}"
-          
-          if $DRY_RUN; then
-            echo "⚠️ Rebuild Test completed! - No system generation created!"
+          if "''${cmd[@]}"; then
+            if $DRY_RUN; then
+              say_duck " ⚠️ Rebuild Test completed! - No system generation created!"
+            else
+              say_duck " ✅ Created new system generation!"
+              play_win
+            fi
           else
-            echo "✅ Created new system generation!"
-          fi  
+            say_duck "fuck ❌ System rebuild failed!"
+            play_fail
+            exit 1
+          fi 
         '';
       };
     };

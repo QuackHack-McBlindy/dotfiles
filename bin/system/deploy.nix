@@ -118,14 +118,21 @@ in {
          cmd+=( --build-host "$user@$host" )
        fi      
       
-       "''${cmd[@]}"
-          
-       if $DRY_RUN; then
-         echo "🧪 Test deployment completed - No system generation saved!"
+#       "''${cmd[@]}"
+
+       if "''${cmd[@]}"; then
+         if $DRY_RUN; then
+           say_duck " ⚠️ Test deployment completed - No system generation saved!"
+         else
+           say_duck " ✅ Created new system generation!"
+           play_win
+         fi
        else
-         echo "✅ Deployment complete!"
-       fi
-       
+         say_duck "fuck ❌ System rebuild failed!"
+         play_fail
+         exit 1
+       fi 
+            
        if ! $DRY_RUN; then
          echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
 
