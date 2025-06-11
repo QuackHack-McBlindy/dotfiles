@@ -82,13 +82,12 @@
 
     # 🦆 duck say > plays failing sound
     play_fail() {
-      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav"
+      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
     }
-
 
     # 🦆 duck say > plays winning sound
     play_win() {
-      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/win.wav"
+      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/win.wav" >/dev/null 2>&1
     }
 
     # 🦆 duck say > Prompt for input by voice

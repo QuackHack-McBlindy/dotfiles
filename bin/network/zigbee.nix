@@ -238,7 +238,7 @@
     };    
   };
 
-  # 🎨 Scenes  🦆 YELLS > SCENES!!!!!!!!!!!!!!!1
+  # 🎨 Scenes  🦆 YELLS > SCENES!!!!!!!!!!!!!!!11
   scenes = { # 🦆 says > Declare light states, quack dat's a scene yo!
     # 🦆 says > Scene name
     "Duck Scene" = {
@@ -251,16 +251,16 @@
     };
     # 🦆 says > Scene 2    
     "Chill Scene" = {
-      "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-    };      
+      "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };         # Blue Violet
+      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };     # Turquoise
+      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };       # Hot Pink
+      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#FFD700"; }; }; # Gold
+      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#FF8C00"; }; }; # Dark Orange
+      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00CED1"; }; };   # Dark Turquoise
+      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # Dark Orchid
+      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };       # Light Pink
+      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };   # Aquamarine
+    }; 
     "Green D" = {
       "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
       "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -273,16 +273,27 @@
       "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
     };    
     "max" = { # 🦆 says > max brightness, all lights ? yo ?
-      "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+      "PC" = { state = "ON"; brightness = 200; color = { hex = "#FFFFFF"; }; };
+      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#FFFFFF"; }; };
+      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FFFFFF"; }; };
+#      "Spotlight Kök 1" = { state = "ON"; brightness = 225; color_temp = 250; }; };
+#      "Spotlight Kök 2" = { state = "ON"; brightness = 255; color_temp = 250; }; };
+      "Taket Sovrum 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      "Taket Sovrum 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      "Sänggavel" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
     };    
+    "dark" = { # 🦆 says > eat darkness... lol YO! You're as blind as me now! HA HA!  
+      "PC" = { state = "OFF"; brightness = 200; color = { hex = "#FFFFFF"; }; };
+      "Golvet" = { state = "OFF"; brightness = 200; color = { hex = "#FFFFFF"; }; };
+      "Uppe" = { state = "OFF"; brightness = 200; color = { hex = "#FFFFFF"; }; };
+#      "Spotlight Kök 1" = { state = "ON"; brightness = 225; color_temp = 250; }; };
+#      "Spotlight Kök 2" = { state = "ON"; brightness = 255; color_temp = 250; }; };
+      "Taket Sovrum 1" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      "Taket Sovrum 2" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      "Bloom" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      "Sänggavel" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+    };   
   };
 
   # 🦆 says > Generate scene commands    
@@ -328,81 +339,60 @@
   }) zigbeeDevices;
 
   # 🦆 says > Put actions on all light dimmers based on room
-  dimmerHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: let
-    roomLights = lib.filterAttrs (_: d: 
-      d.room == dev.room && d.type == "light"
-    ) zigbeeDevices;
-    lightArray = lib.concatMapStringsSep " " (name: ''"${name}"'') 
-      (lib.attrNames roomLights);
-  in ''
+#  dimmerHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: let
+#    roomLights = lib.filterAttrs (_: d: 
+#      d.room == dev.room && d.type == "light"
+#    ) zigbeeDevices;
+#    lightArray = lib.concatMapStringsSep " " (name: ''"${name}"'') 
+#      (lib.attrNames roomLights);
+#  in ''
     # ${dev.friendly_name} in ${dev.room}
-    lights=(${lightArray})
+#    lights=(${lightArray})
     
-    mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
-      payload=$(echo "$line" | cut -d ' ' -f 2-)
-      action=$(echo "$payload" | jq -r '.action // empty')      
-      if ''${DEBUG_MODE}; then
-        echo "$line"
-      fi
+#    mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
+#      payload=$(echo "$line" | cut -d ' ' -f 2-)
+#      action=$(echo "$payload" | jq -r '.action // empty')      
+#      if ''${DEBUG_MODE}; then
+#        echo "$line"
+#      fi
   
     # Button 1 Press
-      if [ "$action" == "on_press_release" ]; then
-        echo "$action"
-      fi
+#      if [ "$action" == "on_press_release" ]; then
+#        echo "$action"
+#      fi
     # Button 1 Hold
-      if [ "$action" == "on_hold_release" ]; then
-        echo "$action"
-      fi
+#      if [ "$action" == "on_hold_release" ]; then
+#        echo "$action"
+#      fi
     # Button 2 Press      
-      if [ "$action" == "up_press_release" ]; then
-        echo "$action"
-      fi
+#      if [ "$action" == "up_press_release" ]; then
+#        echo "$action"
+#      fi
     # Button 2 Hold      
-      if [ "$action" == "up_hold_release" ]; then
-        echo "$action"
-      fi
+#      if [ "$action" == "up_hold_release" ]; then
+#        echo "$action"
+#      fi
     # Button 3 Press      
-      if [ "$action" == "down_press_release" ]; then
-        echo "$action"
-      fi
+#      if [ "$action" == "down_press_release" ]; then
+#        echo "$action"
+#      fi
     # Button 3 Hold      
-      if [ "$action" == "down_hold_release" ]; then
-        echo "$action"
-      fi
+#      if [ "$action" == "down_hold_release" ]; then
+#        echo "$action"
+#      fi
       # Button 4 Press - Turn off all room lights sequentially
       # Button 4 Hold - Turn off all lights sequentially
-      if [ "$action" == "on_hold_release" ]; then
-        mosquitto_pub -h "192.168.1.211" -t "zigbee2mqtt/PC/set" -m '{"state": "ON"}'
-        echo "💡 Turning OFF all lights in ${dev.room}"
-        for light in "''${lights[@]}"; do
-          mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$light/set" -m '{"state": "OFF"}'
-          sleep 0.3 # Short delay between lights
-        done
-      fi
-    done &
-  '') (lib.filterAttrs (id: d: d.type == "dimmer") zigbeeDevices));
+#      if [ "$action" == "on_hold_release" ]; then
+#        mosquitto_pub -h "192.168.1.211" -t "zigbee2mqtt/PC/set" -m '{"state": "ON"}'
+#        echo "💡 Turning OFF all lights in ${dev.room}"
+#        for light in "''${lights[@]}"; do
+#          mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$light/set" -m '{"state": "OFF"}'
+#          sleep 0.3 # Short delay between lights
+#        done
+#      fi
+#    done &
+#  '') (lib.filterAttrs (id: d: d.type == "dimmer") zigbeeDevices));
 
-
-  blindHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: ''
-    # ${dev.friendly_name}
-    mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
-      echo "$line"  
-      if [ "$type" == "blind" ]; then
-        echo "🪟 Blind state: $state"
-      fi
-    done &
-  '') (lib.filterAttrs (id: d: d.type == "blind") zigbeeDevices));
-   
-  # 🕵️ Motion & Sensors       
-  motionHandlers = lib.concatStringsSep "\n\n" (lib.mapAttrsToList (id: dev: ''
-    # ${dev.friendly_name}
-    mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/${dev.friendly_name}" | while read -r line; do
-      echo "$line"  
-      if [[ "$presence" == "true" ]]; then
-        echo "👣 Motion detected in $room" 
-      fi
-    done &
-  '') (lib.filterAttrs (id: d: d.type == "motion") zigbeeDevices));
 
   # 🦆 says > not to be confused with facebook - this is not even duckbook
   deviceMeta = builtins.toJSON (lib.listToAttrs (lib.mapAttrsToList (id: dev: {
@@ -431,13 +421,29 @@ in { # 🦆 says > finally here, quack!
       ${cmdHelpers}         
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}"
-      MQTT_PORT=1883
+      MQTT_USER="mqtt"
+      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}")
+      STATE_DIR="/home/pungkula/nixhome"
+      SCENE_STATE="$STATE_DIR/current_scene"
+      SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)})
+      
+      # Create state directory
+      mkdir -p "$STATE_DIR"
+      
+      # MQTT Helper Functions
+      mqtt_pub() {
+        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+      }
+
+      mqtt_sub() {
+        mosquitto_sub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+      }
       start_listening() {
         trap 'echo "🛑 Stopping..."; pkill -P $$; exit' INT TERM
         echo "$ZIGBEE_DEVICES" > /tmp/zigbee_devices.json
         echo "📡 Listening to all Zigbee events..."
         echo "📡 Connected to MQTT broker at $MQTT_BROKER"
-        mosquitto_sub -h "$MQTT_BROKER" -p "$MQTT_PORT" -t "zigbee2mqtt/#" | while read -r line; do
+        mosquitto_sub -h "$MQTT_BROKER" -t "zigbee2mqtt/#" | while read -r line; do
           # Extract topic and payload
           topic_full=$(echo "$line" | cut -d ' ' -f 1)
           topic="''${topic_full#zigbee2mqtt/}"
@@ -460,10 +466,52 @@ in { # 🦆 says > finally here, quack!
           smoke=$(echo "$payload" | jq -r '.smoke // empty')
           echo "🔔 $topic [$type/$room] → action=$action, state=$state, presence=$presence, smoke=$smoke"
           say_duck "$action"
-          say_duck "$type"
+          if [ "$type" == "dimmer" ]; then
+            room_lights=$(jq -r --arg room "$room" '.[] | select(.room == $room and .type == "light") | .id' /tmp/zigbee_devices.json) 
+            if [ "$action" == "on_press_release" ]; then
+              echo "💡 Turning ON all lights in $room"
+              for light in $room_lights; do
+                mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$light/set" -m '{"state": "ON"}'
+                sleep 0.2
+              done    
+            fi
+            if [ "$action" == "on_hold_release" ]; then
+              duck_say "$action"            
+            fi    
+            if [ "$action" == "up_press_release" ]; then
+              duck_say "$action"            
+            fi
+            if [ "$action" == "up_hold_release" ]; then
+              duck_say "$action"            
+            fi                
+            if [ "$action" == "down_press_release" ]; then
+              duck_say "$action"            
+            fi
+            if [ "$action" == "down_hold_release" ]; then
+              duck_say "$action"            
+            fi                
+            if [ "$action" == "off_press_release" ]; then
+              echo "💡 Turning OFF all lights in $room"
+              for light in $room_lights; do
+                mosquitto_pub -h "$MQTT_BROKER" -t "zigbee2mqtt/$light/set" -m '{"state": "OFF"}'
+                sleep 0.2
+              done      
+            fi
+            if [ "$action" == "off_hold_release" ]; then
+              duck_say "$action"            
+            fi
+          fi  
+          # 🕵️ Motion & Sensors             
+          if [ "$type" == "motion" ]; then            
+            duck_say "$type"
+          fi
+          # 🌀 Blinds & Shaders 
+          if [ "$type" == "blind" ]; then            
+            duck_say "$type"
+          fi  
         done
       }        
-     # 🌀 Motors & Shaders 
+
       # 🕒 Time based automations
 
       echo " Ready for liftoff?"    
@@ -471,6 +519,15 @@ in { # 🦆 says > finally here, quack!
       start_listening             
     '';
   };  
+
+  sops.secrets = {
+    mosquitto = {
+      sopsFile = ./../../secrets/mosquitto.yaml; 
+      owner = config.this.user.me.name;
+      group = config.this.user.me.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+  };
   
   # 🦆 says > Create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
@@ -556,15 +613,16 @@ in { # 🦆 says > finally here, quack!
         };
       }; 
 
+
   # 🦆 says > Prebuild scene activation
   environment.systemPackages = [
-    (pkgs.writeScriptBin "activate-scene" ''
+    (pkgs.writeScriptBin "scene-roll" ''
       ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
     '')
   ];  
     
   # 🦆 says > pls ensure my quacky hacky home start at boot - YO
-  systemd.services.nixhome = {
+  systemd.services.nixhome = lib.mkIf (lib.elem "nixhome" config.this.host.modules.services) { # 🦆 says > again -- server config on single host
     wantedBy = ["multi-user.target"];
     after = ["zigbee2mqtt.service"];
     serviceConfig = {
@@ -573,5 +631,5 @@ in { # 🦆 says > finally here, quack!
      # LogRateLimitIntervalSec = 30;
      # LogRateLimitBurst = 1000;
     };
-  };} # 🦆 says > Bye bye, catch u later home duck G dawg! 💕 💕 💫
+  };} # 🦆 says > Bye bye, catch u later home duck 💕 💕 💫
     

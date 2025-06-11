@@ -79,12 +79,6 @@
 
     # 🦆 duck say > sops secrets
     secrets = lib.mkIf (!config.this.installer) {
-      mosquitto = {
-        sopsFile = ./../secrets/mosquitto.yaml; 
-        owner = config.this.user.me.name;
-        group = config.this.user.me.name;
-        mode = "0440"; # Read-only for owner and group
-      };
       w = {
         sopsFile = ./../secrets/w.yaml;
         owner = config.this.user.me.name;
