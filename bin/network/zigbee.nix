@@ -411,10 +411,9 @@ in { # 🦆 says ⮞ finally here, quack!
       STATE_DIR="${zigduckDir}"
       SCENE_STATE="$STATE_DIR/current_scene"
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
-      TIMER_DIR="$STATE_DIR/timers"
-      mkdir -p "$TIMER_DIR" && mkdir -p "$STATE_DIR"    
-      trap 'rm -f "$STATE_DIR"/tmp_*' EXIT
-        
+      TIMER_DIR="$STATE_DIR/timers" 
+      mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"
+     
       reset_room_timer() {
         local room="$1"
         local timer_file="''$TIMER_DIR/''${room// /_}"
@@ -681,8 +680,8 @@ in { # 🦆 says ⮞ finally here, quack!
     after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
     wantedBy = ["multi-user.target"];
     serviceConfig = {# 🦆 says ⮞ dis down below is dis script above
-      User = config.this.user.me.name;
-      Group = config.this.user.me.name;
+#      User = config.this.user.me.name;
+#      Group = config.this.user.me.name;
       StateDirectory = baseNameOf zigduckDir;# 🦆 says ⮞ Creates /var/lib/zigduck
       RuntimeDirectory = baseNameOf zigduckDir;
       ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
@@ -691,5 +690,4 @@ in { # 🦆 says ⮞ finally here, quack!
       StartLimitIntervalSec = "60";
       StartLimitBurst = 5;
     };
-  };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫
-    
+  };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫   
