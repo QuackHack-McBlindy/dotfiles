@@ -5,6 +5,11 @@
 # 🦆 says ⮞ duck don't write home automation, duck write infra with junkie comments on each line 
 # 🦆 says ⮞ quack quack quack quack 🦆 please follow along til' we home?
 
+  # 🦆 says ⮞ Dorectpry  for this configuration 
+  zigduckDir = "/var/lib/zigduck";
+  # 🦆 says ⮞ Verbose logging 
+  DEBUG = false;
+
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
   mqttHost = lib.findSingle (host:
@@ -12,8 +17,15 @@
       in cfg.services.mosquitto.enable or false
     ) null null sysHosts;    
   mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
-    else "127.0.0.1";
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
    
   # 🦆 says ⮞ define Zigbee devices here yo 
@@ -387,21 +399,22 @@ in { # 🦆 says ⮞ finally here, quack!
     parameters = [# 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
+#      { name = "debig"; description = "Debug mode, true or false"; optional = false; default = false; }
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
       ${cmdHelpers}      
-      DEBUG_MODE=false # 🦆 says ⮞ if true, duck logs flood
+      DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")
-      STATE_DIR=$(mktemp -d)
+      STATE_DIR="${zigduckDir}"
       SCENE_STATE="$STATE_DIR/current_scene"
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers"
       mkdir -p "$TIMER_DIR" && mkdir -p "$STATE_DIR"    
-      trap 'rm -rf "$STATE_DIR"' EXIT
-      
+      trap 'rm -f "$STATE_DIR"/tmp_*' EXIT
+        
       reset_room_timer() {
         local room="$1"
         local timer_file="''$TIMER_DIR/''${room// /_}"
@@ -537,7 +550,7 @@ in { # 🦆 says ⮞ finally here, quack!
       mode = "0440"; # Read-only for owner and group
     };
   };
-  
+
   # 🦆 says ⮞ Create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
   
@@ -624,6 +637,9 @@ in { # 🦆 says ⮞ finally here, quack!
 
   # 🦆 says ⮞ Prebuild scene commands
   environment.systemPackages = [
+    # 🦆 says ⮞ Dependencies 
+    pkgs.mosquitto
+    pkgs.zigbee2mqtt 
     # 🦆 says ⮞ scene fireworks  
     (pkgs.writeScriptBin "scene-roll" ''
       ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
@@ -661,11 +677,19 @@ in { # 🦆 says ⮞ finally here, quack!
     
   # 🦆 says ⮞ pls ensure my quacky hacky home start at boot - YO
   systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
+    requires = ["mosquitto.service" "zigbee2mqtt.service"];
+    after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
     wantedBy = ["multi-user.target"];
-    after = ["zigbee2mqtt.service"];
-    serviceConfig = { # 🦆 says ⮞ dis down below is dis script above
+    serviceConfig = {# 🦆 says ⮞ dis down below is dis script above
+      User = config.this.user.me.name;
+      Group = config.this.user.me.name;
+      StateDirectory = baseNameOf zigduckDir;# 🦆 says ⮞ Creates /var/lib/zigduck
+      RuntimeDirectory = baseNameOf zigduckDir;
       ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
       Restart = "on-failure";
+      RestartSec = "5s";
+      StartLimitIntervalSec = "60";
+      StartLimitBurst = 5;
     };
   };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫
     
