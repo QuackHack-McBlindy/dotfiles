@@ -562,8 +562,8 @@ in { # 🦆 says ⮞ finally here, quack!
         omitPasswordAuth = false;# 🦆 says ⮞ safety first!
         users.mqtt.password = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = false;# 🦆 says ⮞ never forget, never forgive right?
-        settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
-        settings.use_identity_as_username = true;
+       # settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
+       # settings.use_identity_as_username = true;
     }];
   };
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {

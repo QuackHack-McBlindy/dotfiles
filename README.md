@@ -149,7 +149,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fp30094b167p7my1n0bbymfpz54r43hz-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/njifrpn75rdd14w3446smk7x6clhg9f7-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
