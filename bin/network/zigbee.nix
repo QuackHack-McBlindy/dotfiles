@@ -680,8 +680,8 @@ in { # 🦆 says ⮞ finally here, quack!
     after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
     wantedBy = ["multi-user.target"];
     serviceConfig = {# 🦆 says ⮞ dis down below is dis script above
-#      User = config.this.user.me.name;
-#      Group = config.this.user.me.name;
+      User = config.this.user.me.name;
+      Group = config.this.user.me.name;
       StateDirectory = baseNameOf zigduckDir;# 🦆 says ⮞ Creates /var/lib/zigduck
       RuntimeDirectory = baseNameOf zigduckDir;
       ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
