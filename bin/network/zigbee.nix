@@ -687,11 +687,11 @@ in { # 🦆 says ⮞ finally here, quack!
   # 🦆 says ⮞ pls ensure my quacky hacky home start at boot - YO
   systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
 #    requires = ["mosquitto.service" "zigbee2mqtt.service"];
-#    after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
+    after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
     wantedBy = ["multi-user.target"];
     serviceConfig = {# 🦆 says ⮞ dis down below is dis script above
-#      User = config.this.user.me.name;
-#      Group = config.this.user.me.name;
+      User = config.this.user.me.name;
+      Group = config.this.user.me.name;
 #      StateDirectory = baseNameOf zigduckDir;# 🦆 says ⮞ Creates /var/lib/zigduck
 #      RuntimeDirectory = baseNameOf zigduckDir;
       ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
