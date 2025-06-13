@@ -406,8 +406,11 @@ in { # 🦆 says ⮞ finally here, quack!
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}"
+      echo "$MQTT_BROKER"
       MQTT_USER="$user"
+      echo "$MQTT_USER"
       MQTT_PASSWORD=$(cat "$pwfile")
+      echo "$MQTT_PASSWORD"
       STATE_DIR="${zigduckDir}"
       SCENE_STATE="$STATE_DIR/current_scene"
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
@@ -566,7 +569,7 @@ in { # 🦆 says ⮞ finally here, quack!
     enable = true;
     listeners = [{
         acl = [ "pattern readwrite #" ];
-        omitPasswordAuth = false;# 🦆 says ⮞ safety first!
+        omitPasswordAuth = true;# 🦆 says ⮞ safety first!
         users.mqtt.password = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = true;# 🦆 says ⮞ never forget, never forgive right?
        # settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
