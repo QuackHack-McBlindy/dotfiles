@@ -1,8 +1,9 @@
 # dotfiles/bin/network/zigduck.nix
 { self, lib, config, pkgs, cmdHelpers, ... } : let
 # 🦆 says ⮞ Welcome to my quacky hacky home of fun! 💫  
-# 🦆 says ⮞ Home Assistant? wat? just another Big Tech Co, quack dat! 
-# 🦆 says ⮞ duck don't write home automation, duck write infra with junkie comments on each line 
+# 🦆 says ⮞ fully declarative lights, power plugs, sensors, dimmers and other smart home devices 
+# 🦆 says ⮞ fully declaratiive home automation in Bash with jq, configured to automate quacky hacky home,
+# 🦆 says ⮞ duck don't write automations duck write infra with junkie comments on each line 
 # 🦆 says ⮞ quack quack quack quack 🦆 please follow along til' we home?
 
   # 🦆 says ⮞ Dorectpry  for this configuration 
@@ -31,7 +32,7 @@
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = { # 🦆 says ⮞ inb4 long annoying list  
     # Kitchen   🦆 says > oh crap
-    "0x0017880103ca6e95" = {# 🦆 says ⮞ scroll
+    "0x0017880103ca6e95" = { # 🦆 says ⮞ scroll
       friendly_name = "Dimmer Switch Kök";# 🦆 says ⮞ scroll sad duck, scroll ='(
       room = "kitchen"; # 🦆 says ⮞ i'll tell u when to stop ='(
       type = "dimmer";
@@ -399,58 +400,46 @@ in { # 🦆 says ⮞ finally here, quack!
     parameters = [# 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
-#      { name = "debig"; description = "Debug mode, true or false"; optional = false; default = false; }
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
-      ${cmdHelpers}      
+      ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
-      MQTT_BROKER="${mqttHostip}"
-      echo "$MQTT_BROKER"
-      MQTT_USER="$user"
-      echo "$MQTT_USER"
+      MQTT_BROKER="${mqttHostip}" && debug "$MQTT_BROKER"
+      MQTT_USER="$user" && debug "$MQTT_USER"
       MQTT_PASSWORD=$(cat "$pwfile")
-      echo "$MQTT_PASSWORD"
       STATE_DIR="${zigduckDir}"
       SCENE_STATE="$STATE_DIR/current_scene"
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers" 
-      mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"
-     
-      reset_room_timer() {
+      mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
+      reset_room_timer() { # 🦆 says ⮞ resets timer set for motion triggering lights off
         local room="$1"
         local timer_file="''$TIMER_DIR/''${room// /_}"
         if [ -f "$timer_file" ]; then
           kill $(cat "$timer_file") 2>/dev/null
           rm -f "$timer_file"
         fi  
-        (
-          sleep 300
+        (# 🦆 says ⮞ Time til' lights turn off after motion trigger activation
+          sleep 300 # 🦆 says ⮞ in seconds
           room_lights_off "$room"
           rm -f "$timer_file"
         ) & 
         echo $! > "$timer_file"
-        debug "⏱ Reset 5m timer for $room (PID: $!)"
+        debug "Reset 5m timer for $room (PID: $!)"
       }
-      is_dark_time() {
+      is_dark_time() { # 🦆 says ⮞ Time windom of day that allow motion triggering lights on
         local current_hour=$((10#$(date +%H)))
-        [[ ($current_hour -ge 0 && $current_hour -lt 8) || 
-           ($current_hour -ge 14 && $current_hour -le 23) ]]
+        [[ ($current_hour -ge 0 && $current_hour -lt 8) || # 🦆 says ⮞ from 00,00 to 08.00
+           ($current_hour -ge 16 && $current_hour -le 23) ]] # 🦆 says ⮞ & from 16,00 to 23.00
       }
-      mqtt_pub() {
+      mqtt_pub() { # 🦆 says ⮞ publish
         mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
       }
-      mqtt_sub() {
+      mqtt_sub() { # 🦆 says ⮞ subscribe
         mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
       }      
-#      mqtt_pub() {
-#        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-#      }
-#      mqtt_sub() {
-#        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-#      }
-
-      device_check() {
+      device_check() { # 🦆 says ⮞ parser
         occupancy=$(echo "$line" | jq -r '.occupancy') && debug "occupancy: $occupancy"
         action=$(echo "$line" | jq -r '.action') && debug "action: $action"
         device_name="''${topic#zigbee2mqtt/}" && debug "device_name: $device_name"
@@ -459,7 +448,7 @@ in { # 🦆 says ⮞ finally here, quack!
         dev_id=$(jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && debug "dev_id: $dev_id"  
         room="''${dev_room//\"/}"
       }
-      room_lights_on() {
+      room_lights_on() { # 🦆 says ⮞ turn on specified room
         local clean_room=$(echo "$1" | sed 's/"//g')
         jq -r --arg room "$clean_room" \
           'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
@@ -470,7 +459,7 @@ in { # 🦆 says ⮞ finally here, quack!
           done      
         say_duck "💡 Lights ON in $clean_room"  
       }
-      room_lights_off() {
+      room_lights_off() { # 🦆 says ⮞ turn off specified room
         local clean_room=$(echo "$1" | sed 's/"//g')
         jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
           while read -r light_id; do
@@ -479,12 +468,12 @@ in { # 🦆 says ⮞ finally here, quack!
           done    
         say_duck "🚫 Lights OFF in $clean_room"  
       }
-      
+# 🦆 says ⮞ main loop      
       start_listening() {
         echo "$ZIGBEE_DEVICES" | jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
         jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
           > $STATE_DIR/zigbee_devices_by_friendly_name.json
-
+        # 🦆 says ⮞ last echo
         echo "🦆🏡 Welcome Home" 
         
         # 🦆 says ⮞ Subscribe and split topic and payload
@@ -542,6 +531,7 @@ in { # 🦆 says ⮞ finally here, quack!
         done
       }   
 
+      # 🦆 says ⮞ start process
       echo " Ready for liftoff?"    
       echo "🚀 Starting zigduck automation system"  
       say_duck "🚀 quack to the moon yo!"
@@ -552,11 +542,11 @@ in { # 🦆 says ⮞ finally here, quack!
 
   # 🦆 says ⮞ how does dycks say ssschh?
   sops.secrets = {
-    mosquitto = {# 🦆 says ⮞ quack, stupid!
+    mosquitto = { # 🦆 says ⮞ quack, stupid!
       sopsFile = ./../../secrets/mosquitto.yaml; 
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
-      mode = "0440"; # Read-only for owner and group
+      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
   };
 
@@ -572,8 +562,8 @@ in { # 🦆 says ⮞ finally here, quack!
         omitPasswordAuth = true;# 🦆 says ⮞ safety first!
         users.mqtt.password = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = true;# 🦆 says ⮞ never forget, never forgive right?
-       # settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
-       # settings.use_identity_as_username = true;
+#        settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
+#        settings.use_identity_as_username = true;
     }];
   };
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
@@ -594,27 +584,27 @@ in { # 🦆 says ⮞ finally here, quack!
           password =  config.sops.secrets.mosquitto.path; 
           base_topic = "zigbee2mqtt";
         };
-        serial = {
+        serial = { # 🦆 says ⮞ physical port mapping 
 #          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
           port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
-        frontend = {# 🦆 says ⮞ who needs dis?
+        frontend = { # 🦆 says ⮞ who needs dis?
           enabled = false;# 🦆 says ⮞ 2duck4frontend yo
           port = 8099;# 🦆 says ⮞ duck means cool yo
         };
-        advanced = {# 🦆 says ⮞ dis is advanced? duck tearz
-          homeassistant_legacy_entity_attributes = false;
+        advanced = { # 🦆 says ⮞ dis is advanced? duck tearz
+          homeassistant_legacy_entity_attributes = false;# 🦆 says ⮞ wat the duck?!
           legacy_api = false;
           legacy_availability_payload = false;
-          log_syslog = {
+          log_syslog = { # 🦆 says ⮞ log settings
             app_name = "Zigbee2MQTT";
             eol = "/n";
             host = "localhost";
             localhost = "localhost";
             path = "/dev/log";
-            pid = "process.pid";
+            pid = "process.pid"; # 🦆 says ⮞ process id
             port = 123;
-            protocol = "tcp4";
+            protocol = "tcp4";# 🦆 says ⮞ TCP
             type = "5424";
           };
           transmit_power = 9;# 🦆 says ⮞ to avoid brain damage, set low power
@@ -678,6 +668,24 @@ in { # 🦆 says ⮞ finally here, quack!
         exit 1
         ;;
       esac
+    '')     
+    # 🦆 says ⮞ activate a scene yo
+    (pkgs.writeScriptBin "zig" ''
+      DEVICE="$1" # 🦆 says ⮞ device to control
+      STATE="$2" # 🦆 says ⮞ state change        
+      ZIGBEE_DEVICES='${deviceMeta}'
+      MQTT_BROKER="${mqttHostip}" && debug "$MQTT_BROKER"
+      MQTT_USER="$user" && debug "$MQTT_USER"
+      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file 
+      mqtt_pub() { # 🦆 says ⮞ publish
+        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+      }
+      if [ "$STATE" == "off" ]; then # 🦆 says ⮞ turn off device
+        mqtt_pub -t "zigbee2mqtt/$DEVICE/set" -m '{"state":"OFF"}'        
+      fi      
+      if [ "$STATE" == "on" ]; then # 🦆 says ⮞ turn on device
+        mqtt_pub -t "zigbee2mqtt/$DEVICE/set" -m '{"state":"ON"}'        
+      fi      
     '') 
   ];  
 
@@ -686,18 +694,13 @@ in { # 🦆 says ⮞ finally here, quack!
     
   # 🦆 says ⮞ pls ensure my quacky hacky home start at boot - YO
   systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
-#    requires = ["mosquitto.service" "zigbee2mqtt.service"];
     after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
     wantedBy = ["multi-user.target"];
-    serviceConfig = {# 🦆 says ⮞ dis down below is dis script above
-      User = config.this.user.me.name;
+    serviceConfig = { # 🦆 says ⮞ dis down below is dis script above
+      User = config.this.user.me.name; 
       Group = config.this.user.me.name;
-#      StateDirectory = baseNameOf zigduckDir;# 🦆 says ⮞ Creates /var/lib/zigduck
-#      RuntimeDirectory = baseNameOf zigduckDir;
       ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
       Restart = "on-failure";
       RestartSec = "5s";
-      StartLimitIntervalSec = "60";
-      StartLimitBurst = 5;
     };
   };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫   
