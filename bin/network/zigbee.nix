@@ -434,18 +434,18 @@ in { # 🦆 says ⮞ finally here, quack!
         [[ ($current_hour -ge 0 && $current_hour -lt 8) || 
            ($current_hour -ge 14 && $current_hour -le 23) ]]
       }
-#      mqtt_pub() {
-#        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-#      }
-#      mqtt_sub() {
-#        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
-#      }      
       mqtt_pub() {
         mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
       }
       mqtt_sub() {
-        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-      }
+        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
+      }      
+#      mqtt_pub() {
+#        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+#      }
+#      mqtt_sub() {
+#        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+#      }
 
       device_check() {
         occupancy=$(echo "$line" | jq -r '.occupancy') && debug "occupancy: $occupancy"
