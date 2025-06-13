@@ -395,11 +395,12 @@ in { # 🦆 says ⮞ finally here, quack!
       MQTT_BROKER="${mqttHostip}"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")
-      STATE_DIR="/home/pungkula/zigduck"
+      STATE_DIR=$(mktemp -d)
       SCENE_STATE="$STATE_DIR/current_scene"
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers"
       mkdir -p "$TIMER_DIR" && mkdir -p "$STATE_DIR"    
+      trap 'rm -rf "$STATE_DIR"' EXIT
       
       reset_room_timer() {
         local room="$1"
