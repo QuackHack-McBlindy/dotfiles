@@ -434,12 +434,19 @@ in { # 🦆 says ⮞ finally here, quack!
         [[ ($current_hour -ge 0 && $current_hour -lt 8) || 
            ($current_hour -ge 14 && $current_hour -le 23) ]]
       }
+#      mqtt_pub() {
+#        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+#      }
+#      mqtt_sub() {
+#        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
+#      }      
       mqtt_pub() {
         mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
       }
       mqtt_sub() {
-        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
-      }      
+        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+      }
+
       device_check() {
         occupancy=$(echo "$line" | jq -r '.occupancy') && debug "occupancy: $occupancy"
         action=$(echo "$line" | jq -r '.action') && debug "action: $action"
@@ -561,7 +568,7 @@ in { # 🦆 says ⮞ finally here, quack!
         acl = [ "pattern readwrite #" ];
         omitPasswordAuth = false;# 🦆 says ⮞ safety first!
         users.mqtt.password = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = false;# 🦆 says ⮞ never forget, never forgive right?
+        settings.allow_anonymous = true;# 🦆 says ⮞ never forget, never forgive right?
        # settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
        # settings.use_identity_as_username = true;
     }];
