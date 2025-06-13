@@ -212,7 +212,6 @@ in {
       yubi = { data = [{ sentences = [ ]; lists = { }; }]; };
       qr = { data = [{ sentences = [ ]; lists = { }; }]; };
       mic = { data = [{ sentences = [ ]; lists = { }; }]; };      
-      nixhome = { data = [{ sentences = [ ]; lists = { }; }]; };    
     };
     
   };}

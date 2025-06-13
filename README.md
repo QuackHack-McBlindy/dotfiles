@@ -149,7 +149,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/z1zcznll3s8050mb2vwmwdgxd3i4gd65-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/q0s8avraqink39dfx7jvpw4rpny7yhhs-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -328,10 +328,10 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | |
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo nixhome ` | zigbee, home | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
+| `yo zigduck [--user] [--pwfile]` | zigbee, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |

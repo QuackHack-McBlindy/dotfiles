@@ -65,16 +65,21 @@
     }
 
     say_duck() {
-      echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say >\e[0m $1"
+      echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
     }
 
-    # 🦆 duck say > fail? i usually don't, yo!
+    # 🦆 duck say ⮞ remember to set appropriate mode in script 
+    debug() {
+     if [ "$DEBUG_MODE" = true ]; then echo "$*"; fi
+    }      
+
+    # 🦆 duck say ⮞ fail? i usually don't, yo!
     type fail >/dev/null 2>&1 || fail() { 
       echo -e "$1" >&2
       exit 1
     }
     
-    # 🦆 duck say > validate flags, yo!
+    # 🦆 duck say > validate command flags, yo!
     validate_flags() {
       verbosity_level=$(grep -o '?' <<< "$@" | wc -l)
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
@@ -83,6 +88,11 @@
     # 🦆 duck say > plays failing sound
     play_fail() {
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
+    }
+
+    # 🦆 duck say > validate json input before process
+    is_valid_json() {
+      echo "$1" | jq -e . >/dev/null 2>&1
     }
 
     # 🦆 duck say > plays winning sound

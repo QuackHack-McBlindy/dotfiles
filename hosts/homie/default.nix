@@ -67,7 +67,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" ];
                 networking = [ "default" "dns" "pool" ];
-                services = [ "ssh" "adb" "backup" "pairdrop" "nixhome" "navidrome" "ip-updater" ];
+                services = [ "ssh" "adb" "backup" "pairdrop" "zigduck" "navidrome" "ip-updater" ];
                 programs = [ "default" ];
                 virtualisation = [ "docker-rootless" "home-assistant" ];
             };  
