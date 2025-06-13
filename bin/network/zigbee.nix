@@ -444,16 +444,16 @@ in { # 🦆 says ⮞ finally here, quack!
         occupancy=$(echo "$line" | jq -r '.occupancy') && debug "occupancy: $occupancy"
         action=$(echo "$line" | jq -r '.action') && debug "action: $action"
         device_name="''${topic#zigbee2mqtt/}" && debug "device_name: $device_name"
-        dev_room=$(jq ".\"$device_name\".room" /tmp/zigbee_devices.json) && debug "dev_room: $dev_room"
-        dev_type=$(jq ".\"$device_name\".type" /tmp/zigbee_devices.json) && debug "dev_type: $dev_type"     
-        dev_id=$(jq ".\"$device_name\".id" /tmp/zigbee_devices.json) && debug "dev_id: $dev_id"  
+        dev_room=$(jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && debug "dev_room: $dev_room"
+        dev_type=$(jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && debug "dev_type: $dev_type"     
+        dev_id=$(jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && debug "dev_id: $dev_id"  
         room="''${dev_room//\"/}"
       }
       room_lights_on() {
         local clean_room=$(echo "$1" | sed 's/"//g')
         jq -r --arg room "$clean_room" \
           'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
-          /tmp/zigbee_devices.json |
+          $STATE_DIR/zigbee_devices.json |
           while read -r light_id; do
             debug "💡 $light_id ON in $clean_room"
             mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"ON"}'
@@ -462,7 +462,7 @@ in { # 🦆 says ⮞ finally here, quack!
       }
       room_lights_off() {
         local clean_room=$(echo "$1" | sed 's/"//g')
-        jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' /tmp/zigbee_devices.json |
+        jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
           while read -r light_id; do
             debug "🚫 $light_id OFF in $clean_room"
             mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
@@ -471,9 +471,9 @@ in { # 🦆 says ⮞ finally here, quack!
       }
       
       start_listening() {
-        echo "$ZIGBEE_DEVICES" | jq 'map({(.id): .}) | add' > /tmp/zigbee_devices.json
-        jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' /tmp/zigbee_devices.json \
-          > /tmp/zigbee_devices_by_friendly_name.json
+        echo "$ZIGBEE_DEVICES" | jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
+        jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
+          > $STATE_DIR/zigbee_devices_by_friendly_name.json
 
         echo "🦆🏡 Welcome Home" 
         
@@ -510,7 +510,7 @@ in { # 🦆 says ⮞ finally here, quack!
             if [ "$action" == "on_hold_release" ]; then scene "max" && say_duck "✅💡 MAX LIGHTS ON"; fi
             if [ "$action" == "up_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
-                jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' /tmp/zigbee_devices.json |
+                jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                   while read -r light_id; do
                     say_duck "🔺 Increasing brightness on $light_id in $clean_room"
                     mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":50,"transition":3.5}'
@@ -519,7 +519,7 @@ in { # 🦆 says ⮞ finally here, quack!
             if [ "$action" == "up_hold_release" ]; then debug "$action"; fi
             if [ "$action" == "down_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
-              jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' /tmp/zigbee_devices.json |
+              jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                 while read -r light_id; do
                   say_duck "🔻 Decreasing $light_id in $clean_room"
                   mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":-50,"transition":3.5}'
