@@ -6,7 +6,7 @@
 # 🦆 says ⮞ quack quack quack quack 🦆 please follow along til' we home?
 
   # 🦆 says ⮞ Dorectpry  for this configuration 
-  zigduckDir = "/var/lib/zigduck";
+  zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
   # 🦆 says ⮞ Verbose logging 
   DEBUG = false;
 
