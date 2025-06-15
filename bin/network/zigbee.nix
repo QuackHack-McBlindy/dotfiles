@@ -582,7 +582,8 @@ in { # 🦆 says ⮞ finally here, quack!
         };
         frontend = { # 🦆 says ⮞ who needs dis?
           enabled = true;# 🦆 says ⮞ 2duck4frontend yo
-          port = 8099;# 🦆 says ⮞ duck means cool yo
+          host = "0.0.0.0"; # 🦆 says ⮞ required if connecting 2 frontend from other hosts  
+          port = 8099; # 🦆 says ⮞ duck means cool yo
         };
         advanced = { # 🦆 says ⮞ dis is advanced? duck tearz
           homeassistant_legacy_entity_attributes = false;# 🦆 says ⮞ wat the duck?!
