@@ -30,221 +30,59 @@
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
    
   # 🦆 says ⮞ define Zigbee devices here yo 
-  zigbeeDevices = { # 🦆 says ⮞ inb4 long annoying list  
-    # Kitchen   🦆 says > oh crap
-    "0x0017880103ca6e95" = { # 🦆 says ⮞ scroll
-      friendly_name = "Dimmer Switch Kök";# 🦆 says ⮞ scroll sad duck, scroll ='(
-      room = "kitchen"; # 🦆 says ⮞ i'll tell u when to stop ='(
-      type = "dimmer";
-      endpoint = 1;
+  zigbeeDevices = { 
+    # 🦆 says ⮞ Kitchen   
+    "0x0017880103ca6e95" = { # 🦆 says ⮞ 64bit IEEE adress (this is the unique device ID)  
+      friendly_name = "Dimmer Switch Kök"; # 🦆 says ⮞ simple human readable friendly name
+      room = "kitchen"; # 🦆 says ⮞ bind to group
+      type = "dimmer"; # 🦆 says ⮞ set a custom device type
+      endpoint = 1; # 🦆 says ⮞ endpoint to call the device on
+    }; 
+    "0x0017880102f0848a" = { # 🦆 says ⮞ inb4 long annoying list  
+      friendly_name = "Spotlight kök 1"; # 🦆 says > oh crap
+      room = "kitchen"; # 🦆 says ⮞ scroll
+      type = "light"; # 🦆 says ⮞ scroll sad duck, scroll ='(
+      endpoint = 11; # 🦆 says ⮞ i'll tell u when to stop ='(
     };
-    "0x0017880102f0848a" = {
-      friendly_name = "Spotlight kök 1";
-      room = "kitchen";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880102f08526" = {
-      friendly_name = "Spotlight Kök 2";
-      room = "kitchen";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880103a0d280" = {
-      friendly_name = "Uppe";
-      room = "kitchen";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880103e0add1" = {
-      friendly_name = "Golvet";
-      room = "kitchen";
-      type = "light";
-      endpoint = 11;
-    };
-    "0xa4c13873044cb7ea" = {
-      friendly_name = "Kök Bänk Slinga";
-      room = "kitchen";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x70ac08fffe9fa3d1" = {
-      friendly_name = "Motion Sensor Kök";
-      room = "kitchen";
-      type = "motion";
-      endpoint = 1;
-    };
-    "0xa4c1380afa9f7f3e" = {
-      friendly_name = "Smoke Alarm Kitchen";
-      room = "kitchen";
-      type = "sensor";
-      endpoint = 1;
-    };
-    "0x0c4314fffe179b05" = {
-      friendly_name = "Fläkt";
-      room = "kitchen";
-      type = "power plug";
-      endpoint = 1;
-    };    
+    "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; endpoint = 11; };
+    "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; endpoint = 11; };
+    "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; endpoint = 11; };
+    "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; endpoint = 11; };
+    "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; endpoint = 1; };
+    "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; endpoint = 1; };
+    "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "power plug"; endpoint = 1; };    
     # 🦆 says ⮞ LIVING ROOM
-    "0x0017880104f78065" = {
-      friendly_name = "Dimmer Switch Vardagsrum";
-      room = "livingroom";
-      type = "dimmer";
-      endpoint = 1;
-    };
-    "0x54ef4410003e58e2" = {
-      friendly_name = "Roller Shade";
-      room = "livingroom";
-      type = "blind";
-      endpoint = 1;
-    };
-    "0x0017880104540411" = {
-      friendly_name = "PC";
-      room = "livingroom";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880102de8570" = {
-      friendly_name = "Rustning";
-      room = "livingroom";
-      type = "light";
-      endpoint = 11;
-    };
-
+    "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; endpoint = 1; };
+    "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; endpoint = 1; };
+    "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; endpoint = 11; };
+    "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; endpoint = 11; };
     # 🦆 says ⮞ HALLWAY
-    "0x00178801021311c4" = {
-      friendly_name = "Motion Sensor Hall";
-      room = "hallway";
-      type = "motion";
-      endpoint = 1;
-    };
-    "0x0017880103eafdd6" = {
-      friendly_name = "Tak Hall";
-      room = "hallway";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x000b57fffe0e2a04" = {
-      friendly_name = "Vägg";
-      room = "hallway";
-      type = "light";
-      endpoint = 1;
-    };
-
+    "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; endpoint = 1; };
+    "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; endpoint = 11; };
+    "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; endpoint = 1; };
     # 🦆 says ⮞ WC
-    "0x001788010361b842" = {
-      friendly_name = "WC 1";
-      room = "wc";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880103406f41" = {
-      friendly_name = "WC 2";
-      room = "wc";
-      type = "light";
-      endpoint = 11;
-    };
-
+    "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; endpoint = 11; };
+    "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; endpoint = 11; };
     # 🦆 says ⮞ BEDROOM
-    "0x0017880104f77d61" = {
-      friendly_name = "Dimmer Switch Sovrum";
-      room = "bedroom";
-      type = "dimmer";
-      endpoint = 1;
-    };
-    "0x0017880106156cb0" = {
-      friendly_name = "Taket Sovrum 1";
-      room = "bedroom";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880103c7467d" = {
-      friendly_name = "Taket Sovrum 2";
-      room = "bedroom";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880109ac14f3" = {
-      friendly_name = "Sänglampa";
-      room = "bedroom";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x0017880104051a86" = {
-      friendly_name = "Sänggavel";
-      room = "bedroom";
-      type = "light";
-      endpoint = 11;
-    };
-    "0xf4b3b1fffeaccb27" = {
-      friendly_name = "Motion Sensor Sovrum";
-      room = "bedroom";
-      type = "motion";
-      endpoint = 1;
-    };
-    "0x0017880103f44b5f" = {
-      friendly_name = "Dörr";
-      room = "bedroom";
-      type = "light";
-      endpoint = 11;
-    };
-    "0x00178801001ecdaa" = {  # 🦆 says ⮞ THATS TOO FAST!!
-      friendly_name = "Bloom";
-      room = "bedroom";
-      type = "light";
-      endpoint = 11; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
-    };
+    "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; endpoint = 1; };
+    "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; endpoint = 11; };
+    "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; endpoint = 11; };
+    "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; endpoint = 11; };
+    "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; endpoint = 11; };
+    "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; endpoint = 1; };
+    "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ THATS TOO FAST!!
+    "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
     # 🦆 says ⮞ MISCELLANEOUS
-    "0x000b57fffe0f0807" = {
-      friendly_name = "IKEA 5 Dimmer";
-      room = "other";
-      type = "remote";
-      endpoint = 1;
-    };
-    "0x70ac08fffe6497be" = {
-      friendly_name = "On/Off Switch 1";
-      room = "other";
-      type = "remote";
-      endpoint = 1;
-    };
-    "0x70ac08fffe65211e" = {
-      friendly_name = "On/Off Switch 2";
-      room = "other";
-      type = "remote";
-      endpoint = 1;
-    };
-    "0x0017880103c73f85" = {
-      friendly_name = "Unknown 1";
-      room = "other";
-      type = "misc";
-      endpoint = 1;
-    };  
-    "0x0017880103f94041" = {
-      friendly_name = "Unknown 2";
-      room = "other";
-      type = "misc";
-      endpoint = 1;
-    };      
-    "0x0017880103c753b8" = {
-      friendly_name = "Unknown 3";
-      room = "other";
-      type = "misc";
-      endpoint = 1;
-    };      
-    "0x540f57fffe85c9c3" = {
-      friendly_name = "Unknown 4";
-      room = "other";
-      type = "misc";
-      endpoint = 1;
-    };    
-    "0x00178801037e754e" = {
-      friendly_name = "Unknown 5";
-      room = "other";
-      type = "misc";
-      endpoint = 1; 
-    };    
-  };# 🦆 says ⮞ that's way too many devices huh
+    "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; endpoint = 1; };
+    "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; };
+    "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; };
+    "0x0017880103c73f85" = { friendly_name = "Unknown 1"; room = "other"; type = "misc"; endpoint = 1; };  
+    "0x0017880103f94041" = { friendly_name = "Unknown 2"; room = "other"; type = "misc"; endpoint = 1; };      
+    "0x0017880103c753b8" = { friendly_name = "Unknown 3"; room = "other"; type = "misc"; endpoint = 1; };      
+    "0x540f57fffe85c9c3" = { friendly_name = "Unknown 4"; room = "other"; type = "misc"; endpoint = 1; };    
+    "0x00178801037e754e" = { friendly_name = "Unknown 5"; room = "other"; type = "misc"; endpoint = 1; };    
+  }; # 🦆 says ⮞ that's way too many devices huh
+# 🦆 says ⮞ that's actually not too bad when they on single line each
 
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
@@ -528,9 +366,6 @@ in { # 🦆 says ⮞ finally here, quack!
     };
   };
 
-  # 🦆 says ⮞ Create device symlink for declarative serial port mapping
-  services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
-  
   # 🦆 says ⮞ Mosquitto configuration
   # 🦆 says ⮞ we only need server configuration on one host - so set zigduck at config.this.host.module services in your host config
   services.mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
@@ -545,22 +380,13 @@ in { # 🦆 says ⮞ finally here, quack!
 #        settings.use_identity_as_username = true;
     }];
   };
-  networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-    enable = true;
-    allowedTCPPorts = [ 1883 8099 ];
-#    allowedTCPPorts = let
-#      mosquittoPorts = # 🦆 says ⮞ retrieve Mosquitto listener ports
-#        if config ? services.mosquitto && config.services.mosquitto ? listeners
-#        then map (listener: listener.port) config.services.mosquitto.listeners
-#        else [ 1883 ]; # 🦆 says ⮞ default MQTT port
-#      zigbee2mqttPort = 
-#        let # 🦆 says ⮞ check if Zigbee2MQTT frontend is enabled and get da port
-#          frontend = config.services.zigbee2mqtt.settings.frontend or {};
-#        in lib.optional (frontend.enable or false) (frontend.port or 8099); # 🦆 default frontend port
-#    in
-#      mosquittoPorts ++ zigbee2mqttPort;
-  };
+  
+  # 🦆 says ⮞ open firewall 4 Z2MQTT & Mosquitto on the server host
+  networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { allowedTCPPorts = [ 1883 8099 ]; };
 
+  # 🦆 says ⮞ Create device symlink for declarative serial port mapping
+  services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
+  
   # 🦆 says ⮞ Z2MQTT configurations
   services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ once again - dis is server configuration
     enable = true;
@@ -577,13 +403,13 @@ in { # 🦆 says ⮞ finally here, quack!
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
           port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
-          disable_led = true; # 🦆 says ⮞ quack $$$ electricity bill  
+          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
           baudrate = 115200; # 🦆 says ⮞ default
 #          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
         frontend = { # 🦆 says ⮞ who needs dis?
           enabled = true; # 🦆 says ⮞ 2duck4frontend yo
-          host = "0.0.0.0"; # 🦆 says ⮞ required if connecting 2 frontend from other hosts  
+          host = "0.0.0.0";   
           port = 8099; # 🦆 says ⮞ duck means cool yo
         };
         advanced = { # 🦆 says ⮞ dis is advanced? duck tearz
@@ -611,9 +437,7 @@ in { # 🦆 says ⮞ finally here, quack!
             ];
             pan_id = 60410;
           };
-          device_options = {
-            legacy = false;
-          };
+          device_options = { legacy = false; };
           availability = true;
           permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
           devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
@@ -728,4 +552,5 @@ in { # 🦆 says ⮞ finally here, quack!
       Restart = "on-failure";
       RestartSec = "45s";
     };
+    
   };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫   
