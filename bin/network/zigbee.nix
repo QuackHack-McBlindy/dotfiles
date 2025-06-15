@@ -442,8 +442,8 @@ in { # 🦆 says ⮞ finally here, quack!
 
       # 🦆 says ⮞ main loop      
       start_listening() {
-        echo "$ZIGBEE_DEVICES" | jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
-        jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
+        echo "$ZIGBEE_DEVICES" | ${pkgs.jq}/bin/jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
+        ${pkgs.jq}/bin/jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
           > $STATE_DIR/zigbee_devices_by_friendly_name.json
         # 🦆 says ⮞ last echo
         echo "🦆🏡 Welcome Home" 
@@ -453,7 +453,7 @@ in { # 🦆 says ⮞ finally here, quack!
           debug "Topic: $topic" && debug "Payload: $line"
           
           # 🦆 says ⮞ 🕵️ quick quack motion detect
-          if echo "$line" | jq -e 'has("occupancy")' > /dev/null; then
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
             device_check            
             if [ "$occupancy" = "true" ]; then
               say_duck "🕵️ Motion in $device_name $dev_room"
@@ -470,7 +470,7 @@ in { # 🦆 says ⮞ finally here, quack!
           fi
 
           # 🦆 says ⮞ 🎚 Dimmer Switch actions
-          if echo "$line" | jq -e 'has("action")' > /dev/null; then
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("action")' > /dev/null; then
             device_check       
             if [ "$action" == "on_press_release" ]; then
               # 🦆 says ⮞ turn on all lights in the room
@@ -481,7 +481,7 @@ in { # 🦆 says ⮞ finally here, quack!
             if [ "$action" == "on_hold_release" ]; then scene "max" && say_duck "✅💡 MAX LIGHTS ON"; fi
             if [ "$action" == "up_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
-                jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
+                ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                   while read -r light_id; do
                     say_duck "🔺 Increasing brightness on $light_id in $clean_room"
                     mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":50,"transition":3.5}'
@@ -490,7 +490,7 @@ in { # 🦆 says ⮞ finally here, quack!
             if [ "$action" == "up_hold_release" ]; then debug "$action"; fi
             if [ "$action" == "down_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
-              jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
+              ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                 while read -r light_id; do
                   say_duck "🔻 Decreasing $light_id in $clean_room"
                   mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":-50,"transition":3.5}'
@@ -528,9 +528,6 @@ in { # 🦆 says ⮞ finally here, quack!
     };
   };
 
-  # 🦆 says ⮞ Zigbee2MQTT encryption key - overrides Z2MQTT configuration
-#  environment.variables = { ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY = config.sops.secrets.mqtt_network_key.path };
- 
   # 🦆 says ⮞ Create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
   
