@@ -575,10 +575,10 @@ in { # 🦆 says ⮞ finally here, quack!
         };
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
-          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
+#          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
           disable_led = true; # 🦆 says ⮞ quack $$$ electricity bill  
           baudrate = 115200; # 🦆 says ⮞ default
-#          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
+          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
         frontend = { # 🦆 says ⮞ who needs dis?
           enabled = true;# 🦆 says ⮞ 2duck4frontend yo
