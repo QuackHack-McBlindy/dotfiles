@@ -125,7 +125,7 @@
 
     # 🦆 duck say ⮞ validate json input before process
     is_valid_json() {
-      echo "$1" | jq -e . >/dev/null 2>&1
+      echo "$1" | ${pkgs.jq}/bin/jq -e . >/dev/null 2>&1
     }
     # 🦆 duck say ⮞ plays winning sound
     play_win() {
@@ -133,7 +133,7 @@
     }
     # 🦆 duck say ⮞ Prompt for input by voice
     mic_input() {
-      yo-mic | jq -r '.transcription // empty'
+      yo--mic | ${pkgs.jq}/bin/jq -r '.transcription // empty'
     } 
     # 🦆 duck say ⮞ validate host, yo!
     validate_host() {
@@ -173,18 +173,18 @@
     }      
     # 🦆 says ⮞ parser
     device_check() { 
-      occupancy=$(echo "$line" | jq -r '.occupancy') && debug "occupancy: $occupancy"
-      action=$(echo "$line" | jq -r '.action') && debug "action: $action"
+      occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && debug "occupancy: $occupancy"
+      action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action') && debug "action: $action"
       device_name="''${topic#zigbee2mqtt/}" && debug "device_name: $device_name"
-      dev_room=$(jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && debug "dev_room: $dev_room"
-      dev_type=$(jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && debug "dev_type: $dev_type"     
-      dev_id=$(jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && debug "dev_id: $dev_id"  
+      dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && debug "dev_room: $dev_room"
+      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && debug "dev_type: $dev_type"     
+      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && debug "dev_id: $dev_id"  
       room="''${dev_room//\"/}"
     }
     # 🦆 says ⮞ turn on specified room
     room_lights_on() { 
       local clean_room=$(echo "$1" | sed 's/"//g')
-      jq -r --arg room "$clean_room" \
+      ${pkgs.jq}/bin/jq -r --arg room "$clean_room" \
         'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
         $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
@@ -196,7 +196,7 @@
     # 🦆 says ⮞ turn off specified room
     room_lights_off() { 
       local clean_room=$(echo "$1" | sed 's/"//g')
-      jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
+      ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
           debug "🚫 $light_id OFF in $clean_room"
           mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
