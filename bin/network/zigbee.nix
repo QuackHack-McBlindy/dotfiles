@@ -540,6 +540,7 @@ in { # 🦆 says ⮞ finally here, quack!
     enable = true;
     listeners = [{
         acl = [ "pattern readwrite #" ];
+        port = 1883;
         omitPasswordAuth = true;# 🦆 says ⮞ safety first!
         users.mqtt.password = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = true;# 🦆 says ⮞ never forget, never forgive right?
@@ -549,7 +550,9 @@ in { # 🦆 says ⮞ finally here, quack!
   };
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     enable = true; 
-    allowedTCPPorts = [ 1883 ];
+    allowedTCPPorts = (lib.flatten (builtins.map (listener: [ listener.port ]) config.services.mosquitto.listeners)) ++ lib.optionals
+      (config.services.zigbee2mqtt.settings.frontend.enable or false)
+      [ config.services.zigbee2mqtt.settings.frontend.port ];
   };
 
   # 🦆 says ⮞ Z2MQTT configurations

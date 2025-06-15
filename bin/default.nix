@@ -166,10 +166,10 @@
          ($current_hour -ge 16 && $current_hour -le 23) ]] # 🦆 says ⮞ & from 16,00 to 23.00
     }
     mqtt_pub() { # 🦆 says ⮞ publish Mosquitto
-      mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+      ${pkgs.mosquitto}/bin/mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
     }
     mqtt_sub() { # 🦆 says ⮞ subscribe Mosquitto
-      mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
+      ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
     }      
     # 🦆 says ⮞ parser
     device_check() { 
