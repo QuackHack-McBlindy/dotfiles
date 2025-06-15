@@ -22,14 +22,15 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 > **That's my job.** 🧑‍🦯
 <br>
 
-🦆 _duck say >_ __Oh hellow? please quack on in,__ <br>
-🦆 _duck say >_ __while duckie quite stuckie in dis endless rabbit hole__ <br>
+🦆 _duck say ⮞_ __Oh hellow? please quack on in,__ <br>
+🦆 _duck say ⮞_ __while duckie quite stuckie in dis endless rabbit hole__ <br>
 
 ## **📌 Highlights**
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
 - 🎙️ **[Nix NLP](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/nlp.nix)** *(builds commands by natural language, dynamic regex matching, parameter extraction + execution)* 
+- 📡 **[Smart Home](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/zigbee.nix)** *(declaritive zigbee devices + cystin automation system written in Nix & Bash)* 
 - 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/networking/wg-server.nix)** *(with automatic QR codes for mobile devices)* 
 - 🗣️ **[Language-Aware TTS](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/packages/say/say.py)** *(LangID & Piper, TTS notifications, Orca plugin)* 
 - 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
@@ -39,10 +40,10 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 <br>
 
-🦆 _duck say >_ __Here lives home machines configurations,__  
-🦆 _duck say >_ __crafted as a tiny Nix flake__  
-🦆 _duck say >_ __Glued together by a Nix-flavoured command line utility,__  
-🦆 _duck say >_ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
+🦆 _duck say ⮞_ __Here lives home machines configurations,__  
+🦆 _duck say ⮞_ __crafted as a tiny Nix flake__  
+🦆 _duck say ⮞_ __Glued together by a Nix-flavoured command line utility,__  
+🦆 _duck say ⮞_ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
   
   
 ## ❄️ **Flake**
@@ -149,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/isaqcb0bcjr1fvlacybl4s9nyw478f20-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/mm00lak2x491irz4zda0v1b2giv92akl-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
