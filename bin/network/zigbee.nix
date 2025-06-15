@@ -541,15 +541,23 @@ in { # 🦆 says ⮞ finally here, quack!
         omitPasswordAuth = true;# 🦆 says ⮞ safety first!
         users.mqtt.password = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = true;# 🦆 says ⮞ never forget, never forgive right?
-#        settings.require_certificate = true;# 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
+#        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
     }];
   };
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     enable = true; 
-    allowedTCPPorts = (lib.flatten (builtins.map (listener: [ listener.port ]) config.services.mosquitto.listeners)) ++ lib.optionals
-      (config.services.zigbee2mqtt.settings.frontend.enable or false)
-      [ config.services.zigbee2mqtt.settings.frontend.port ];
+    allowedTCPPorts = let
+      mosquittoPorts = # 🦆 says ⮞ retrieve Mosquitto listener ports
+        if config ? services.mosquitto && config.services.mosquitto ? listeners
+        then map (listener: listener.port) config.services.mosquitto.listeners
+        else [ 1883 ]; # 🦆 says ⮞ default MQTT port
+      zigbee2mqttPort = 
+        let # 🦆 says ⮞ check if Zigbee2MQTT frontend is enabled and get da port
+          frontend = config.services.zigbee2mqtt.settings.frontend or {};
+        in lib.optional (frontend.enable or false) (frontend.port or 8099); # 🦆 default frontend port
+    in
+      mosquittoPorts ++ zigbee2mqttPort;
   };
 
   # 🦆 says ⮞ Z2MQTT configurations
@@ -568,7 +576,7 @@ in { # 🦆 says ⮞ finally here, quack!
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
           port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
-          disable_led = false;
+          disable_led = true; # 🦆 says ⮞ quack $$$ electricity bill  
           baudrate = 115200; # 🦆 says ⮞ default
 #          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
@@ -666,7 +674,7 @@ in { # 🦆 says ⮞ finally here, quack!
       )      
       DEVICE="$1" # 🦆 says ⮞ device to control      
       STATE="''${2:-}" # 🦆 says ⮞ state change        
-      BRIGHTNESS="''${3:-200}"
+      BRIGHTNESS="''${3:-100}"
       COLOR="''${4:-}"
       TEMP="''${5:-}"
       ZIGBEE_DEVICES='${deviceMeta}'
@@ -681,6 +689,15 @@ in { # 🦆 says ⮞ finally here, quack!
         say_duck "Available devices: ${toString (builtins.attrNames zigbeeDevices)}" >&2
         exit 1
       fi
+
+      # 🦆 says ⮞ if COLOR da lamp prob want hex yo
+      if [[ -n "$COLOR" ]]; then
+        COLOR=$(color2hex "$COLOR") || {
+          say_duck "fuck ❌ Invalid color: $COLOR" >&2
+          exit 1
+        }
+      fi
+
       # 🦆 says ⮞ turn off the device
       if [[ "$STATE" == "off" ]]; then
         mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
