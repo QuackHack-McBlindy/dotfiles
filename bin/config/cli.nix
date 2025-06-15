@@ -41,66 +41,6 @@
             [ -n "$selected_host" ] && $EDITOR "${config.this.user.me.dotfilesDir}/hosts/$selected_host/default.nix"
           }
 
-  
-          edit_yo_scripts() {
-            DOTFILES_DIR="${config.this.user.me.dotfilesDir}"
-            current_dir="$DOTFILES_DIR/bin"
-  
-            while true; do
-              options=()
-              # Add parent directory option if not in root
-              if [ "$current_dir" != "$DOTFILES_DIR/bin" ]; then
-                options+=("../")
-              fi
-  
-              # Collect directory contents
-              while IFS= read -r entry; do
-                if [ -d "$current_dir/$entry" ]; then
-                  options+=("$entry/")
-                else
-                  options+=("$entry")
-                fi
-              done < <(ls -1p "$current_dir" | grep -v '^\.')
-  
-              # Show selection interface
-              selected=$(printf "%s\n" "󰌑 Back to main menu" "󰅚 Open current directory" "󰆴 Create new file" "󰆴 Create new directory" "󰗼 Quit" "─────────" "󰉋 Files/Directories:" "''${options[@]}" | 
-                ${pkgs.gum}/bin/gum filter --header "📂 $current_dir" --placeholder "Browse yo scripts..." --indicator "➤")
-  
-              case "$selected" in
-                "󰌑 Back to main menu")
-                  return
-                  ;;
-                "󰅚 Open current directory")
-                  xdg-open "$current_dir" >/dev/null 2>&1
-                  ;;
-                "󰆴 Create new file")
-                  new_file=$(${pkgs.gum}/bin/gum input --placeholder "File name")
-                  [ -n "$new_file" ] && touch "$current_dir/$new_file"
-                  ;;
-                "󰆴 Create new directory")
-                  new_dir=$(${pkgs.gum}/bin/gum input --placeholder "Directory name")
-                  [ -n "$new_dir" ] && mkdir -p "$current_dir/$new_dir"
-                  ;;
-                "󰗼 Quit")
-                  exit 0
-                  ;;
-                "─────────"|"󰉋 Files/Directories:")
-                  continue
-                  ;;
-                *)
-                  if [[ "$selected" == */ ]]; then
-                    current_dir="$current_dir/''${selected%/}"
-                  elif [ -n "$selected" ]; then
-                    [ -z "$EDITOR" ] && EDITOR="vim"
-                    "$EDITOR" "$current_dir/$selected"
-                    return
-                  fi
-                  ;;
-              esac
-            done
-          }
-  
-
           edit_menu() {
             while true; do
               selection=$(${pkgs.gum}/bin/gum choose \
@@ -111,7 +51,7 @@
              case "$selection" in
                 "Edit hosts") edit_host ;;
                 "Edit flake") $EDITOR "${config.this.user.me.dotfilesDir}/flake.nix" ;;
-                "Edit yo CLI scripts") edit_yo_scripts ;;  
+                "Edit yo CLI scripts") exit 0 ;;  
                 "🚫 Exit") exit 0 ;;
               esac
             done
@@ -120,4 +60,5 @@
           edit_menu
         '';
       };
+      
     };}

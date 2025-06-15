@@ -92,8 +92,7 @@ in {
             ) 60; 
           };
         }];
-      };
-      
+      };      
     };
   };
 
@@ -110,39 +109,39 @@ in {
       { name = "sound"; description = "Soundfile to be played on finished timer"; default = "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav"; }
     ];
     code = ''
-      ${cmdHelpers}
-      SOUNDFILE="$sound"
-      HOURS="$hours"
-      MINUTES="$minutes"
-      SECONDS="$seconds"
-      TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
+      (
+        ${cmdHelpers}
+        SOUNDFILE="$sound"
+        HOURS="$hours"
+        MINUTES="$minutes"
+        SECONDS="$seconds"
+        TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
    
-      DURATION=$TIMER_TOTAL
-      start_time=$(date +%s)
-      end_time=$((start_time + DURATION))
+        DURATION=$TIMER_TOTAL
+        start_time=$(date +%s)
+        end_time=$((start_time + DURATION))
       
-      while [ $(date +%s) -lt $end_time ]; do
-        now=$(date +%s)
-        remaining=$((end_time - now))
-        echo -ne "Time remaining: ''${remaining}s\r"
-        sleep 1
-      done
-      
-      echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
-      
-      if [ -f "$SOUNDFILE" ]; then
-        for i in {1..10}; do
-          aplay "$SOUNDFILE" >/dev/null 2>&1
+        while [ $(date +%s) -lt $end_time ]; do
+          now=$(date +%s)
+          remaining=$((end_time - now))
+          echo -ne "Time remaining: ''${remaining}s\r"
+          sleep 1
         done
-        sleep 15
-        for i in {1..8}; do
-          aplay "$SOUNDFILE" >/dev/null 2>&1
-        done
-      else
-        echo "Sound file not found: $SOUNDFILE"
-      fi
       
-    
+        echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
+      
+        if [ -f "$SOUNDFILE" ]; then
+          for i in {1..10}; do
+            aplay "$SOUNDFILE" >/dev/null 2>&1
+          done
+          sleep 15
+          for i in {1..8}; do
+            aplay "$SOUNDFILE" >/dev/null 2>&1
+          done
+        else
+          echo "Sound file not found: $SOUNDFILE"
+        fi  
+      ) > /tmp/yo-timer.log 2>&1 & disown
     '';
   };  
     
@@ -182,7 +181,7 @@ in {
           aplay "$SOUNDFILE" >/dev/null 2>&1
         done
 
-        sleep 15
+        sleep 30
 
         for i in {1..8}; do
           aplay "$SOUNDFILE" >/dev/null 2>&1

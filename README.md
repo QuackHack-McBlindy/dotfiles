@@ -149,7 +149,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/dn1z33dw0dnk4vkpmwqw65pmbqvj3ga2-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/60jbv5nbaswnp5asjwjqwqcah2n7i2v5-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -313,7 +313,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | **⚙️ Configuration** | | |
-| `yo bitch --input` |  | Natural language to Shell script translator. |
+| `yo bitch --input` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo mic ` |  | Manually trigger microphone recording for intent execution. |
 | **⚡ Productivity** | | |
@@ -341,7 +341,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo shopping_view ` |  | Visa inköpslistan |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
-| `yo lights [--state] [--device] [--area] [--brightness] [--color]` | zb | Control lights and other home automatioon devices |
+| `yo lights [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` | zb | Control lights and other home automatioon devices |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo timer [--seconds] [--minutes] [--hours] [--sound]` |  | Set a timer |

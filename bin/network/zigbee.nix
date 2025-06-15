@@ -6,7 +6,7 @@
 # 🦆 says ⮞ duck don't write automations duck write infra with junkie comments on each line 
 # 🦆 says ⮞ quack quack quack quack 🦆 please follow along til' we home?
 
-  # 🦆 says ⮞ Dorectpry  for this configuration 
+  # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
   # 🦆 says ⮞ Verbose logging 
   DEBUG = false;
@@ -246,6 +246,14 @@
     };    
   };# 🦆 says ⮞ that's way too many devices huh
 
+  # 🦆 says ⮞ case-insensitive device matching
+  normalizedDeviceMap = lib.mapAttrs' (id: device:
+    lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
+  ) zigbeeDevices;
+
+  # 🦆 says ⮞ device validation list
+  deviceList = builtins.attrNames normalizedDeviceMap;
+
   # 🦆 says ⮞ scene simplifier? or not
   sceneLight = {state, brightness ? 200, hex ? null, temp ? null}:
     let
@@ -255,6 +263,9 @@
       inherit state brightness;
     } // (if colorValue != null then { color = colorValue; } else {})
       // (if temp != null then { color_temp = temp; } else {});
+
+  # 🦆 says ⮞ scenne validation 
+#  assert lib.all (dev: lib.hasAttr dev zigbeeDevices) (lib.attrNames sceneDevices)
 
   # 🎨 Scenes  🦆 YELLS > SCENES!!!!!!!!!!!!!!!11
   scenes = { # 🦆 says ⮞ Declare light states, quack dat's a scene yo!
@@ -269,15 +280,15 @@
     };
     # 🦆 says ⮞ Scene 2    
     "Chill Scene" = {
-      "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };         # Blue Violet
-      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };     # Turquoise
-      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };       # Hot Pink
-      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#FFD700"; }; }; # Gold
-      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#FF8C00"; }; }; # Dark Orange
-      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00CED1"; }; };   # Dark Turquoise
-      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # Dark Orchid
-      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };       # Light Pink
-      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };   # Aquamarine
+      "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };               # 🦆 says ⮞ Blue Violet
+      "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };           # 🦆 says ⮞ Turquoise
+      "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };             # 🦆 says ⮞ Hot Pink
+      "Spotlight Kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#FFD700"; }; }; # 🦆 says ⮞ Gold
+      "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#FF8C00"; }; }; # 🦆 says ⮞ Dark Orange
+      "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00CED1"; }; };   # 🦆 says ⮞ Dark Turquoise
+      "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # 🦆 says ⮞ Dark Orchid
+      "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };            # 🦆 says ⮞ Light Pink
+      "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
     }; 
     "Green D" = {
       "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -396,6 +407,21 @@ in { # 🦆 says ⮞ finally here, quack!
     aliases = [ "zigbee" "hem" ]; # 🦆 says ⮞ and not laughing at me
     helpFooter = '' 
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
+      STATE_DIR=zigduckDir
+      STATE_FILE="state.json"
+      ${pkgs.jq}/bin/jq -r '
+        to_entries[] |
+        select(.value.battery != null) |
+        .key as $id |
+        .value.battery as $battery |
+        "Device: \($id)\nBattery: \($battery)% " +
+        (
+          if $battery >= 75 then "🔋"
+          elif $battery >= 30 then "🟡"
+          else "🪫"
+          end
+        ) + "\n"
+      ' $STATE_DIR/$STATE_FILE
     '';
     parameters = [# 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
@@ -413,62 +439,8 @@ in { # 🦆 says ⮞ finally here, quack!
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers" 
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
-      reset_room_timer() { # 🦆 says ⮞ resets timer set for motion triggering lights off
-        local room="$1"
-        local timer_file="''$TIMER_DIR/''${room// /_}"
-        if [ -f "$timer_file" ]; then
-          kill $(cat "$timer_file") 2>/dev/null
-          rm -f "$timer_file"
-        fi  
-        (# 🦆 says ⮞ Time til' lights turn off after motion trigger activation
-          sleep 300 # 🦆 says ⮞ in seconds
-          room_lights_off "$room"
-          rm -f "$timer_file"
-        ) & 
-        echo $! > "$timer_file"
-        debug "Reset 5m timer for $room (PID: $!)"
-      }
-      is_dark_time() { # 🦆 says ⮞ Time windom of day that allow motion triggering lights on
-        local current_hour=$((10#$(date +%H)))
-        [[ ($current_hour -ge 0 && $current_hour -lt 8) || # 🦆 says ⮞ from 00,00 to 08.00
-           ($current_hour -ge 16 && $current_hour -le 23) ]] # 🦆 says ⮞ & from 16,00 to 23.00
-      }
-      mqtt_pub() { # 🦆 says ⮞ publish
-        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-      }
-      mqtt_sub() { # 🦆 says ⮞ subscribe
-        mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
-      }      
-      device_check() { # 🦆 says ⮞ parser
-        occupancy=$(echo "$line" | jq -r '.occupancy') && debug "occupancy: $occupancy"
-        action=$(echo "$line" | jq -r '.action') && debug "action: $action"
-        device_name="''${topic#zigbee2mqtt/}" && debug "device_name: $device_name"
-        dev_room=$(jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && debug "dev_room: $dev_room"
-        dev_type=$(jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && debug "dev_type: $dev_type"     
-        dev_id=$(jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && debug "dev_id: $dev_id"  
-        room="''${dev_room//\"/}"
-      }
-      room_lights_on() { # 🦆 says ⮞ turn on specified room
-        local clean_room=$(echo "$1" | sed 's/"//g')
-        jq -r --arg room "$clean_room" \
-          'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
-          $STATE_DIR/zigbee_devices.json |
-          while read -r light_id; do
-            debug "💡 $light_id ON in $clean_room"
-            mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"ON"}'
-          done      
-        say_duck "💡 Lights ON in $clean_room"  
-      }
-      room_lights_off() { # 🦆 says ⮞ turn off specified room
-        local clean_room=$(echo "$1" | sed 's/"//g')
-        jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
-          while read -r light_id; do
-            debug "🚫 $light_id OFF in $clean_room"
-            mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
-          done    
-        say_duck "🚫 Lights OFF in $clean_room"  
-      }
-# 🦆 says ⮞ main loop      
+
+      # 🦆 says ⮞ main loop      
       start_listening() {
         echo "$ZIGBEE_DEVICES" | jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
         jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
@@ -531,7 +503,7 @@ in { # 🦆 says ⮞ finally here, quack!
         done
       }   
 
-      # 🦆 says ⮞ start process
+      # 🦆 says ⮞ ran dis thang
       echo " Ready for liftoff?"    
       echo "🚀 Starting zigduck automation system"  
       say_duck "🚀 quack to the moon yo!"
@@ -548,8 +520,17 @@ in { # 🦆 says ⮞ finally here, quack!
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
+    mqtt_network_key = { # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
+      sopsFile = ./../../secrets/mqtt_network_key.yaml; 
+      owner = config.this.user.me.name;
+      group = config.this.user.me.name;
+      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+    };
   };
 
+  # 🦆 says ⮞ Zigbee2MQTT encryption key - overrides Z2MQTT configuration
+#  environment.variables = { ZIGBEE2MQTT_CONFIG_ADVANCED_NETWORK_KEY = config.sops.secrets.mqtt_network_key.path };
+ 
   # 🦆 says ⮞ Create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
   
@@ -584,12 +565,15 @@ in { # 🦆 says ⮞ finally here, quack!
           password =  config.sops.secrets.mosquitto.path; 
           base_topic = "zigbee2mqtt";
         };
-        serial = { # 🦆 says ⮞ physical port mapping 
-#          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
-          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
+        # 🦆 says ⮞ physical port mapping
+        serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
+          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
+          disable_led = false;
+          baudrate = 115200; # 🦆 says ⮞ default
+#          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = false;# 🦆 says ⮞ 2duck4frontend yo
+          enabled = true;# 🦆 says ⮞ 2duck4frontend yo
           port = 8099;# 🦆 says ⮞ duck means cool yo
         };
         advanced = { # 🦆 says ⮞ dis is advanced? duck tearz
@@ -607,10 +591,11 @@ in { # 🦆 says ⮞ finally here, quack!
             protocol = "tcp4";# 🦆 says ⮞ TCP
             type = "5424";
           };
-          transmit_power = 9;# 🦆 says ⮞ to avoid brain damage, set low power
-          channel = 15;# 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
+          transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
+          channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
-          network_key = [# 🦆 says ⮞ safe to expose? how the quack should ii know?
+          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it, encrypt it as a secret
+          network_key = [
               86 208 29 190 33 225 60 93
               199 70 36 29 123 129 73 40
             ];
@@ -620,7 +605,7 @@ in { # 🦆 says ⮞ finally here, quack!
             legacy = false;
           };
           availability = true;
-          permit_join = false;# 🦆 says ⮞ allow new devices, not suggested for thin wallets
+          permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
           devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
           groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
             all_lights = { # 🦆 says ⮞ + create a group containing all light devices
@@ -634,7 +619,6 @@ in { # 🦆 says ⮞ finally here, quack!
         };
       }; 
 
-  # 🦆 says ⮞ Prebuild scene commands
   environment.systemPackages = [
     # 🦆 says ⮞ Dependencies 
     pkgs.mosquitto
@@ -671,26 +655,48 @@ in { # 🦆 says ⮞ finally here, quack!
     '')     
     # 🦆 says ⮞ activate a scene yo
     (pkgs.writeScriptBin "zig" ''
-      DEVICE="$1" # 🦆 says ⮞ device to control
-      STATE="$2" # 🦆 says ⮞ state change        
+      ${cmdHelpers}
+      set -euo pipefail
+      # 🦆 says ⮞ create case insensitive map of device friendly_name
+      declare -A device_map=(
+        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)}
+      )
+      available_devices=(
+        ${toString deviceList}
+      )      
+      DEVICE="$1" # 🦆 says ⮞ device to control      
+      STATE="''${2:-}" # 🦆 says ⮞ state change        
+      BRIGHTNESS="''${3:-200}"
+      COLOR="''${4:-}"
+      TEMP="''${5:-}"
       ZIGBEE_DEVICES='${deviceMeta}'
-      MQTT_BROKER="${mqttHostip}" && debug "$MQTT_BROKER"
-      MQTT_USER="$user" && debug "$MQTT_USER"
+      MQTT_BROKER="${mqttHostip}"
+      MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
       MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file 
-      mqtt_pub() { # 🦆 says ⮞ publish
-        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-      }
-      if [ "$STATE" == "off" ]; then # 🦆 says ⮞ turn off device
-        mqtt_pub -t "zigbee2mqtt/$DEVICE/set" -m '{"state":"OFF"}'        
-      fi      
-      if [ "$STATE" == "on" ]; then # 🦆 says ⮞ turn on device
-        mqtt_pub -t "zigbee2mqtt/$DEVICE/set" -m '{"state":"ON"}'        
-      fi      
+      # 🦆 says ⮞ validate device
+      input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
+      exact_name=''${device_map["$input_lower"]}      
+      if [[ -z "$exact_name" ]]; then
+        say_duck "fuck ❌ Device not found: $DEVICE" >&2
+        say_duck "Available devices: ${toString (builtins.attrNames zigbeeDevices)}" >&2
+        exit 1
+      fi
+      # 🦆 says ⮞ turn off the device
+      if [[ "$STATE" == "off" ]]; then
+        mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
+        say_duck " turned off $DEVICE"
+        exit 0
+      fi
+      # 🦆 says ⮞ construct payload
+      PAYLOAD="{\"state\":\"ON\""
+      [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"
+      [[ -n "$COLOR" ]] && PAYLOAD+=", \"color\":{\"hex\":\"$COLOR\"}"
+      PAYLOAD+="}"
+      # 🦆 says ⮞ publish payload
+      mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
+      say_duck "$PAYLOAD"   
     '') 
   ];  
-
-  # 🦆 says ⮞ always running process does not need to be voice activated, we set empty intent data to disable voice activation for this script
-  yo.bitch.intents.zigduck = { data = [{ sentences = [ ]; lists = { }; }]; };    
     
   # 🦆 says ⮞ pls ensure my quacky hacky home start at boot - YO
   systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
@@ -701,6 +707,6 @@ in { # 🦆 says ⮞ finally here, quack!
       Group = config.this.user.me.name;
       ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
       Restart = "on-failure";
-      RestartSec = "5s";
+      RestartSec = "45s";
     };
   };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫   

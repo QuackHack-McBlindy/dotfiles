@@ -1,3 +1,4 @@
+# dotfiles/bin/misc/shopping.nix
 { 
   self,
   lib,
@@ -19,13 +20,7 @@ in {
             "sätt {item} på inköpslistan"
           ];
           lists = {
-            item.values = [
-              { "in" = "mjölk"; out = "mjölk"; }
-              { "in" = "bröd"; out = "bröd"; }
-              { "in" = "ägg"; out = "ägg"; }
-              { "in" = "ost"; out = "ost"; }
-              { "in" = "smör"; out = "smör"; }
-            ];
+            item.wildcard = true;
           };
         }];
       };
@@ -39,13 +34,7 @@ in {
             "radera {item} från listan"
           ];
           lists = {
-            item.values = [
-              { "in" = "mjölk"; out = "mjölk"; }
-              { "in" = "bröd"; out = "bröd"; }
-              { "in" = "ägg"; out = "ägg"; }
-              { "in" = "ost"; out = "ost"; }
-              { "in" = "smör"; out = "smör"; }
-            ];
+            item.wildcard = true;
           };
         }];
       };
@@ -105,5 +94,5 @@ in {
         echo "Inköpslistan är tom."
       fi
     '';
-  };
-}
+    
+  };}
