@@ -546,18 +546,19 @@ in { # 🦆 says ⮞ finally here, quack!
     }];
   };
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-    enable = true; 
-    allowedTCPPorts = let
-      mosquittoPorts = # 🦆 says ⮞ retrieve Mosquitto listener ports
-        if config ? services.mosquitto && config.services.mosquitto ? listeners
-        then map (listener: listener.port) config.services.mosquitto.listeners
-        else [ 1883 ]; # 🦆 says ⮞ default MQTT port
-      zigbee2mqttPort = 
-        let # 🦆 says ⮞ check if Zigbee2MQTT frontend is enabled and get da port
-          frontend = config.services.zigbee2mqtt.settings.frontend or {};
-        in lib.optional (frontend.enable or false) (frontend.port or 8099); # 🦆 default frontend port
-    in
-      mosquittoPorts ++ zigbee2mqttPort;
+    enable = true;
+    allowedTCPPorts = [ 1883 8099 ];
+#    allowedTCPPorts = let
+#      mosquittoPorts = # 🦆 says ⮞ retrieve Mosquitto listener ports
+#        if config ? services.mosquitto && config.services.mosquitto ? listeners
+#        then map (listener: listener.port) config.services.mosquitto.listeners
+#        else [ 1883 ]; # 🦆 says ⮞ default MQTT port
+#      zigbee2mqttPort = 
+#        let # 🦆 says ⮞ check if Zigbee2MQTT frontend is enabled and get da port
+#          frontend = config.services.zigbee2mqtt.settings.frontend or {};
+#        in lib.optional (frontend.enable or false) (frontend.port or 8099); # 🦆 default frontend port
+#    in
+#      mosquittoPorts ++ zigbee2mqttPort;
   };
 
   # 🦆 says ⮞ Z2MQTT configurations
@@ -575,18 +576,18 @@ in { # 🦆 says ⮞ finally here, quack!
         };
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
-#          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
+          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
           disable_led = true; # 🦆 says ⮞ quack $$$ electricity bill  
           baudrate = 115200; # 🦆 says ⮞ default
-          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
+#          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = true;# 🦆 says ⮞ 2duck4frontend yo
+          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0"; # 🦆 says ⮞ required if connecting 2 frontend from other hosts  
           port = 8099; # 🦆 says ⮞ duck means cool yo
         };
         advanced = { # 🦆 says ⮞ dis is advanced? duck tearz
-          homeassistant_legacy_entity_attributes = false;# 🦆 says ⮞ wat the duck?!
+          homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?!
           legacy_api = false;
           legacy_availability_payload = false;
           log_syslog = { # 🦆 says ⮞ log settings
