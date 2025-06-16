@@ -25,7 +25,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 🦆 _duck say ⮞_ __Oh hellow? please quack on in,__ <br>
 🦆 _duck say ⮞_ __while duckie quite stuckie in dis endless rabbit hole__ <br>
 
-## **📌 Highlights**
+## **📌 Highlights** 🏆 👑 
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
 - 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/iq8jhawp13ghi02azgfvjkhiapppnscc-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/b1z87ms9saixwizbkyiw4jcy1xqb52hm-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->

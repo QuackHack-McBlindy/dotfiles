@@ -247,11 +247,13 @@ in { # 🦆 says ⮞ finally here, quack!
     description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
     category = "🌐 Networking"; # 🦆 says ⮞ thnx for following me home
     aliases = [ "zigbee" "hem" ]; # 🦆 says ⮞ and not laughing at me
+    # 🦆 says ⮞ run 'yo zigduck --help' to display battery status for zigbee devices
     helpFooter = '' 
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
       STATE_DIR=/var/lib/zigbee
       STATE_FILE="state.json"
-      cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
+      WIDTH=100
+      cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
 ## =========================== ##
 ## 🔋 Battery Status
 ## =========================== ##
@@ -260,13 +262,16 @@ $(${pkgs.jq}/bin/jq -r '
   select(.value.battery != null) |
   .key as $id |
   .value.battery as $battery |
-  "### 🖥️ Device: `\($id)`\n**Battery:** \($battery)% " +
-  (
-    if $battery >= 75 then "🔋"
-    elif $battery >= 30 then "🟡"
-    else "🪫"
-    end
-  ) + "\n"
+  ($battery / 10 | floor) as $filled |
+  (10 - $filled) as $empty |
+  "### 🖥️ Device: `\($id)`\nBattery: \($battery)% [\((range(0; $filled) | "█") + (range(0; $empty) | "░"))]" +
+    (
+      if $battery >= 90 then " 🔋"
+      elif $battery >= 70 then "🟢"
+      elif $battery >= 50 then "🟡"
+      elif $battery >= 30 then "🟠"
+      else "🪫"
+    ) + "\n"
 ' $STATE_DIR/$STATE_FILE)
 EOF
     '';
