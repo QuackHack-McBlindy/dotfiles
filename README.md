@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ka0w40815zxf59j7badql0gdddby03n5-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/gad8yc39iichw0hk31zg1pyr2bvq7zfv-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -340,9 +340,10 @@ Set default values for your parameters to have them marked [optional]
 | `yo shopping_add [--item]` |  | Lägg till en vara i inköpslistan |
 | `yo shopping_remove [--item]` |  | Ta bort en vara från inköpslistan |
 | `yo shopping_view ` |  | Visa inköpslistan |
+| **🛖 Home Automation** | | |
+| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` | lights | Control lights and other home automatioon devices |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
-| `yo lights [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` | zb | Control lights and other home automatioon devices |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo timer [--seconds] [--minutes] [--hours] [--sound]` |  | Set a timer |

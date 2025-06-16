@@ -1,4 +1,5 @@
-# dotfiles/bin/misc/zigbee.nix
+# dotfiles/bin/misc/house.nix
+# 🦆 says ⮞ home controller
 { 
   self,
   lib,
@@ -282,116 +283,59 @@
 in {  
   yo.bitch = { 
     intents = {
-      lights = {
+      house = {
         data = [{
           sentences = [
-            "{state} alla lampor"
-            "{state} alla lampor {device}"
-            "{state} ljuset i {device}"
-            "{state} belysningen i {device}"
-            "{state} alla lampor i {device}"
-            "släck {device}"
-            
-            # Set color
-            "ändra {color} till {device}"
-            "ändra färg på {color} till {device}"
-            "färga {color} {device}"
-            "gör {color} {device}"
-
-            # 🦆 says ⮞  Brightness control
-            "sänk ljusstyrkan i {device}"
-            "höj ljusstyrkan i {device}"
-            "öka ljusstyrkan i {device}"
-            "maxa ljusstyrkan i {device}"
-            "dämpa ljuset i {device}"
-
-            # 🦆 says ⮞  Implicit commands
-            "{device} belysning i {color}"
-            "{device} ljus i {color}"
-            "maxa ljuset"
-            "släck allt"
-            "tänd allt"
-            "blått ljus"
-            "ljust i {device}"
+            "gör {brightness} {device} {color} procent"
+            "gör {brightness} procent {color} {device}"
+            "sätt {device} till {color} {brightness} procent"
+            "gör {device} {brightness} procent {color}"
+            "gör {device} {color} {brightness} procent"
+            "gör {device} {color} och {brightness} procent"
           ];        
           lists = {
-            device.values = [
-              { "in" = "fläkt"; out = "Fläkt"; }
-              { "in" = "dörr"; out = "Dörr"; }
-              { "in" = "pc"; out = "PC"; }
-              { "in" = "rustning"; out = "Rustning"; }
-              { "in" = "bloom"; out = "Bloom"; }
-              { "in" = "lampor"; out = "all"; }
-              { "in" = "ljus"; out = "all"; }
-              { "in" = "kök"; out = "kitchen"; } 
-              { "in" = "köket"; out = "kitchen"; }            
-              { "in" = "vardagsrum"; out = "livingroom"; } 
-              { "in" = "vardagsrummet"; out = "livingroom"; }           
-              { "in" = "toa"; out = "wc"; } 
-              { "in" = "toan"; out = "wc"; }
-              { "in" = "toalett"; out = "wc"; } 
-              { "in" = "toaletten"; out = "wc"; }
-              { "in" = "wc"; out = "wc"; }              
-              { "in" = "dass"; out = "wc"; }                                                         
-              { "in" = "hall"; out = "hallway"; } 
-              { "in" = "hallen"; out = "hallway"; }       
-              { "in" = "sovrum"; out = "bedroom"; } 
-              { "in" = "sovrummet"; out = "bedroom"; }      
-              { "in" = "tv"; out = "entertainment"; } 
-              { "in" = "teve"; out = "entertainment"; }
-              { "in" = "teven"; out = "entertainment"; } 
-              { "in" = "tvn"; out = "entertainment"; }    
-              { "in" = "all"; out = "all"; } 
-              { "in" = "allt"; out = "all"; }
-              { "in" = "alla"; out = "all"; } 
-              { "in" = "lampor"; out = "all"; } 
-              { "in" = "lamporna"; out = "all"; } 
-              { "in" = "belysning"; out = "all"; } 
-              { "in" = "ljuset"; out = "all"; } 
-            ];  
-            state.values = [
-              { "in" = "tänd"; out = "on"; } 
-              { "in" = "ljus"; out = "on"; }
-              { "in" = "start"; out = "on"; } 
-              { "in" = "starta"; out = "on"; }
-              { "in" = "max"; out = "max"; }
-              { "in" = "maxxa"; out = "max"; }
-                            
-              { "in" = "släck"; out = "off"; } 
-              { "in" = "släcka"; out = "off"; }
-              { "in" = "stäng"; out = "off"; } 
-              { "in" = "stänga"; out = "off"; }      
-            ];
-#            area.values = [              
+#            device.wildcard = true;
 
-#            ];  
+            state.values = [
+              { "in" = "tänd"; out = "on"; }             
+              { "in" = "släck"; out = "off"; } 
+              { "in" = "stäng"; out = "off"; } 
+              { "in" = "starta"; out = "on"; }   
+#              { "in" = "av"; out = "off"; }             
+              { "in" = "på"; out = "on"; } 
+            ];  
+            brightness.values = builtins.genList (i: {
+              "in" = toString (i + 1);
+              out = toString (i + 1);
+            }) 100;
             color.values = [
-              { "in" = "röd"; out = "red"; }
-              { "in" = "rött"; out = "red"; }
-              { "in" = "rosa"; out = "pink"; }              
-              { "in" = "grön"; out = "green"; }
-              { "in" = "grönt"; out = "green"; }
-              { "in" = "blå"; out = "blue"; }
-              { "in" = "blått"; out = "blue"; }
-              { "in" = "vit"; out = "white"; }
-              { "in" = "vitt"; out = "white"; }
-              { "in" = "gul"; out = "yellow"; }
-              { "in" = "gult"; out = "yellow"; }
-              { "in" = "lila"; out = "purple"; }
-              { "in" = "ljust"; out = "bright"; }
-              { "in" = "warm"; out = "warm"; }
-              { "in" = "varm"; out = "warm"; }
-              { "in" = "varmt"; out = "warm"; }
-              { "in" = "kall"; out = "cold"; }                                          
-              { "in" = "kallt"; out = "cold"; }
+              { "in" = "röd"; out = "red"; }    
+              { "in" = "rött"; out = "red"; }                  
+              { "in" = "grön"; out = "green"; } 
+              { "in" = "grönt"; out = "green"; }                  
+              { "in" = "blå"; out = "blue"; } 
+              { "in" = "blått"; out = "blue"; }                  
+              { "in" = "gul"; out = "yellow"; }   
+              { "in" = "gult"; out = "yellow"; }                  
+              { "in" = "orange"; out = "orange"; }             
+              { "in" = "lila"; out = "purple"; } 
+              { "in" = "rosa"; out = "pink"; } 
+              { "in" = "vit"; out = "white"; }   
+              { "in" = "vitt"; out = "white"; }                  
+              { "in" = "svart"; out = "black"; } 
+              { "in" = "grå"; out = "gray"; }   
+              { "in" = "brunt"; out = "brown"; } 
+              { "in" = "cyan"; out = "cyan"; }   
+              { "in" = "magenta"; out = "magenta"; } 
             ];
-            brightness.values = [
-              { "in" = "max"; out = "254"; }
-              { "in" = "maxa"; out = "254"; }
-              { "in" = "full"; out = "254"; }
-              { "in" = "dämpa"; out = "50"; }
-              { "in" = "halv"; out = "127"; }
-              { "in" = "mörkt"; out = "10"; }
+            device.values = [
+              { "in" = "golvet"; out = "Golvet"; }    
+              { "in" = "vardagsrum"; out = "livingroom"; }
+              { "in" = "kök"; out = "kitchen"; }
+              { "in" = "sovrum"; out = "bedroom"; }
+              { "in" = "hall"; out = "hallway"; }
+              { "in" = "wc"; out = "wc"; }
+              { "in" = "köket"; out = "köket"; }
             ];  
           };
         }];
@@ -399,16 +343,16 @@ in {
     };
   };
 
-  yo.scripts.lights = {
+  yo.scripts.house = {
     description = "Control lights and other home automatioon devices";
-    category = "🧩 Miscellaneous";
-    aliases = [ "zb" ];
+    category = "🛖 Home Automation";
+    aliases = [ "lights" ];
 #    helpFooter = ''
+
 #    '';
-    parameters = [  
+    parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
-      { name = "state"; description = "State of the device or group"; optional = true; }    
-#      { name = "area"; description = "Device or group to control"; optional = true; }
+      { name = "state"; description = "State of the device or group"; optional = true; } 
       { name = "brightness"; description = "Brightness value of the device or group"; optional = true; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
@@ -424,42 +368,46 @@ in {
       )
       available_devices=(
         ${toString deviceList}
-      )   
-      
-      # Configuration
+      )      
       STATE_DIR="${zigduckDir}"
-      DEVICE="''${device:-}"
-      STATE="''${state:-}"
-      BRIGHTNESS="''${brightness:-}"
-      COLOR="''${color:-}"
-      TEMP="''${temperature:-}"
-#      AREA="''${area:-}"
+      DEVICE="$device"
+      STATE="$state"
+      BRIGHTNESS="$brightness"
+      COLOR="$color"
+      TEMP="$temperature"
       MQTT_BROKER="${mqttHostIp}"
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(<"$PWFILE")
-          
-      # Helper: Publish MQTT command
-      mqtt_publish() {
-        local topic="$1"
-        local payload="$2"
-        mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$topic" -m "$payload"
-      }
-      
-      # Helper: Control device with color processing
+      # 🦆 says ⮞ temporary fallback logic for parsing
+      if [[ -z "$DEVICE" && -z "$STATE" && -z "$BRIGHTNESS" && -z "$COLOR" && $# -gt 0 ]]; then
+        INPUT="$*"
+        for word in $INPUT; do
+          case "$word" in
+            sovrum|vardagsrum|kök|hall|wc)
+              DEVICE="$word"
+              ;;
+            rött|blått|grönt|red|blue|green|gul|orange|vit|rosa|lila|cyan|magenta)
+              COLOR="$word"
+              ;;
+            ''*[!0-9]*) ;;
+            *)
+              BRIGHTNESS="$word"
+              ;;
+          esac
+        done
+        [[ "$DEVICE" =~ ^(sovrum|vardagsrum|kök|hall|wc)$ ]] && AREA="$DEVICE"
+      fi
       control_device() {
         local dev="$1"
         local state="$2"
         local brightness="$3"
-        local color_input="$4"
-        
+        local color_input="$4"      
         local hex_code=""
         if [[ -n "$color_input" ]]; then
           if [[ "$color_input" =~ ^#[0-9a-fA-F]{6}$ ]]; then
-            # Use directly if already a HEX code
             hex_code="$color_input"
           else
-            # Convert color name to HEX
             hex_code=$(color2hex "$color_input") || {
               say_duck "❌ Invalid color: $color_input"
               exit 1
@@ -471,6 +419,15 @@ in {
           mqtt_publish "zigbee2mqtt/$dev/set" '{"state":"OFF"}'
           say_duck "Turned off $dev"
         else
+          # 🦆 says ⮞ Validate brightness value
+          if [[ -n "$brightness" ]]; then
+            if ! [[ "$brightness" =~ ^[0-9]+$ ]] || [ "$brightness" -lt 1 ] || [ "$brightness" -gt 100 ]; then
+              say_duck "Ogiltig ljusstyrka: $brightness%. Ange 1-100."
+              exit 1
+            fi
+            # Convert percentage to 0-254 scale
+            brightness=$((brightness * 254 / 100))
+          fi
           local payload='{"state":"ON"'
           [[ -n "$brightness" ]] && payload+=", \"brightness\":$brightness"
           [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
@@ -480,13 +437,10 @@ in {
         fi
       }
       
-      # Main execution logic
       if [[ -n "$DEVICE" ]]; then
         input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
-        exact_name="''${device_map["''$input_lower"]:-}"
-        
+        exact_name="''${device_map["''$input_lower"]:-}"   
         if [[ -n "$exact_name" ]]; then
-          # Generate unique color for each device if color is specified
           control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
           exit 0
         elif [[ -z "$AREA" ]]; then
@@ -497,7 +451,6 @@ in {
 
       control_room() {
         local clean_room=$(echo "$1" | sed 's/"//g')
-
         jq -r --arg room "$clean_room" \
           'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
           "$STATE_DIR/zigbee_devices.json" |
@@ -509,12 +462,10 @@ in {
               continue
             }
           fi
-
           local payload='{"state":"ON"'
           [[ -n "$BRIGHTNESS" ]] && payload+=", \"brightness\":$BRIGHTNESS"
           [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
           payload+="}"
-
           mqtt_pub -t "zigbee2mqtt/$light_id/set" -m "$payload"
           say_duck "$light_id $payload"
         done
@@ -522,23 +473,7 @@ in {
       if [[ -n "$AREA" ]]; then
         normalized_area=$(echo "$AREA" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         control_room $AREA
-      fi  
-
-      
-      #######################################
-      ##    FAILOVER MECHANISM (Conceptual)
-      # TODO: Implement actual failover logic
-      # This would monitor the system and transfer control to a backup host
-      # if the primary becomes unresponsive for more than 1 minute
-      #
-      # while true; do
-      #   if ! check_primary_alive; then
-      #     echo "⚠️ Primary down! Transferring to backup..."
-      #     yo deploy <backup-host> && reboot
-      #     break
-      #   fi
-      #   sleep 30
-      # done
+      fi        
     ''; 
   };}
   

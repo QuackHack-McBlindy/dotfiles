@@ -8,6 +8,8 @@
 
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
+  # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
+  backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ Verbose logging 
   DEBUG = false;
 
@@ -56,6 +58,7 @@
     "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; endpoint = 1; };
     "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; endpoint = 11; };
     "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; endpoint = 11; };
+    "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; endpoint = 1; };    
     # 🦆 says ⮞ HALLWAY
     "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; endpoint = 1; };
     "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; endpoint = 11; };
@@ -79,7 +82,6 @@
     "0x0017880103c73f85" = { friendly_name = "Unknown 1"; room = "other"; type = "misc"; endpoint = 1; };  
     "0x0017880103f94041" = { friendly_name = "Unknown 2"; room = "other"; type = "misc"; endpoint = 1; };      
     "0x0017880103c753b8" = { friendly_name = "Unknown 3"; room = "other"; type = "misc"; endpoint = 1; };      
-    "0x540f57fffe85c9c3" = { friendly_name = "Unknown 4"; room = "other"; type = "misc"; endpoint = 1; };    
     "0x00178801037e754e" = { friendly_name = "Unknown 5"; room = "other"; type = "misc"; endpoint = 1; };    
   }; # 🦆 says ⮞ that's way too many devices huh
 # 🦆 says ⮞ that's actually not too bad when they on single line each
@@ -103,8 +105,10 @@
       // (if temp != null then { color_temp = temp; } else {});
 
   # 🦆 says ⮞ scenne validation 
-#  assert lib.all (dev: lib.hasAttr dev zigbeeDevices) (lib.attrNames sceneDevices)
-
+#  assert lib.all (scene:
+#    lib.all (dev: lib.hasAttr dev zigbeeDevices) (lib.attrNames scenes.${scene})
+#  ) (lib.attrNames scenes);
+  
   # 🎨 Scenes  🦆 YELLS > SCENES!!!!!!!!!!!!!!!11
   scenes = { # 🦆 says ⮞ Declare light states, quack dat's a scene yo!
     # 🦆 says ⮞ Scene name
@@ -140,23 +144,23 @@
       "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
     };  
     "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
-      "Bloom" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Dörr" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Golvet" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Kök Bänk Slinga" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "PC" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Rustning" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Spotlight Kök 2" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Spotlight kök 1" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Sänggavel" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Sänglampa" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Tak Hall" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Taket Sovrum 1" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Taket Sovrum 2" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Uppe" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "Vägg" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "WC 1" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-      "WC 2" = { state = "OFF"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+      Bloom = { state = "OFF"; transition = 10; };
+      "Dörr" = { state = "OFF"; transition = 10; };
+      "Golvet" = { state = "OFF"; transition = 10; };
+      "Kök Bänk Slinga" = { state = "OFF"; transition = 10; };
+      "PC" = { state = "OFF"; transition = 10; };
+      "Rustning" = { state = "OFF"; transition = 10; };
+      "Spotlight Kök 2" = { state = "OFF"; transition = 10; };
+      "Spotlight kök 1" = { state = "OFF"; transition = 10; };
+      "Sänggavel" = { state = "OFF"; transition = 10; };
+      "Sänglampa" = { state = "OFF"; transition = 10; };
+      "Tak Hall" = { state = "OFF"; transition = 10; };
+      "Taket Sovrum 1" = { state = "OFF"; transition = 10; };
+      "Taket Sovrum 2" = { state = "OFF"; transition = 10; };
+      "Uppe" = { state = "OFF"; transition = 10; };
+      "Vägg" = { state = "OFF"; transition = 10; };
+      "WC 1" = { state = "OFF"; transition = 10; };
+      "WC 2" = { state = "OFF"; transition = 10; };
     };  
     "max" = { # 🦆 says ⮞ let there be light
       "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
@@ -277,6 +281,41 @@ in { # 🦆 says ⮞ finally here, quack!
       SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers" 
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
+      BACKUP_ID=""
+      BACKUP_TMP_FILE=""
+      # 🦆 says ⮞ zigbee coordinator backup function
+      perform_zigbee_backup() {
+        BACKUP_ID="zigbee_backup_$(date +%Y%m%d_%H%M%S)"
+        BACKUP_TMP_FILE="$(mktemp)"
+        say_duck "⌛ Triggering Zigbee coordinator backup: $BACKUP_ID"
+        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
+      }
+      # 🦆 says ⮞ handle backup response function
+      handle_backup_response() {
+        local line="$1"
+        local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')        
+        if [ "$backup_id" != "$BACKUP_ID" ]; then
+          debug "🦆 Ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
+          return
+        fi      
+        local status=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.status')
+        if [ "$status" = "ok" ]; then
+          echo "$line" | ${pkgs.jq}/bin/jq -r '.data.backup' > "$BACKUP_TMP_FILE"
+          debug "Encrypting Zigbee coordinator backup with sops..."   
+          if "''${config.pkgs.yo}/bin/yo-sops" "$BACKUP_TMP_FILE" > "${backupEncryptedFile}"; then
+            say_duck "✅ Backup saved to: ${backupEncryptedFile}"
+          else
+            say_duck "fuck ❌ Encryption failed for zigbee coordinator backup!"
+          fi
+          rm -f "$BACKUP_TMP_FILE"
+        else
+          local error_msg=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.error')
+          say_duck "❌ Backup failed: $error_msg"
+        fi    
+        # 🦆 says ⮞ reset states
+        BACKUP_ID=""
+        BACKUP_TMP_FILE=""
+      }
 
       # 🦆 says ⮞ main loop      
       start_listening() {
@@ -289,7 +328,12 @@ in { # 🦆 says ⮞ finally here, quack!
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
           debug "Topic: $topic" && debug "Payload: $line"
-          
+                 
+          # 🦆 says ⮞ backup handling
+          if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
+          # 🦆 says ⮞ trigger backup from MQTT
+          if [ "$topic" = "zigbee2mqtt/backup/request" ]; then perform_zigbee_backup; fi
+ 
           # 🦆 says ⮞ 🕵️ quick quack motion detect
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
             device_check            
@@ -507,15 +551,20 @@ in { # 🦆 says ⮞ finally here, quack!
       MQTT_BROKER="${mqttHostip}"
       MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
       MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file 
+      # 🦆 says ⮞ Zigbee coordinator backup
+      if [[ "$DEVICE" == "backup" ]]; then
+        mqtt_pub -t "zigbee2mqtt/backup/request"
+        say_duck "✅ Zigbee coordinator backup requested! - processing on server..."
+        exit 0
+      fi         
       # 🦆 says ⮞ validate device
       input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
-      exact_name=''${device_map["$input_lower"]}      
+      exact_name=''${device_map["$input_lower"]}
       if [[ -z "$exact_name" ]]; then
         say_duck "fuck ❌ Device not found: $DEVICE" >&2
         say_duck "Available devices: ${toString (builtins.attrNames zigbeeDevices)}" >&2
         exit 1
       fi
-
       # 🦆 says ⮞ if COLOR da lamp prob want hex yo
       if [[ -n "$COLOR" ]]; then
         COLOR=$(color2hex "$COLOR") || {
@@ -523,13 +572,24 @@ in { # 🦆 says ⮞ finally here, quack!
           exit 1
         }
       fi
-
       # 🦆 says ⮞ turn off the device
       if [[ "$STATE" == "off" ]]; then
         mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
         say_duck " turned off $DEVICE"
         exit 0
-      fi
+      fi    
+      # 🦆 says ⮞ turn down the device brightness
+      if [[ "$STATE" == "down" ]]; then
+        say_duck "🔻 Decreasing $light_id in $clean_room"
+        mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":-50,"transition":3.5}'
+        exit 0
+      fi      
+      # 🦆 says ⮞ turn up the device brightness
+      if [[ "$STATE" == "up" ]]; then
+        say_duck "🔺 Increasing brightness on $light_id in $clean_room"
+        mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":50,"transition":3.5}'
+        exit 0
+      fi      
       # 🦆 says ⮞ construct payload
       PAYLOAD="{\"state\":\"ON\""
       [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"

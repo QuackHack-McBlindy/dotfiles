@@ -13,7 +13,6 @@ in {
       timer = {
         data = [{
           sentences = [
-#          sentences = builtins.concatMap expandBrackets [
             "skapa en timer på {hours} timmar {minutes} minuter"
             "ställ en timer på {hours} timmar {minutes} minuter"
             "skapa en timer på {minutes} minuter"
@@ -72,12 +71,9 @@ in {
             "skapa en väckarklocka på klockan {minutes}:{hours}"
             "ställ en väckarklocka på klockan {minutes}:{hours}"
             "skapa väckarklocka på {minutes}.{hours}"
-            "ställ väckarklocka på {minutes}.{hours}"        
-            
-            
+            "ställ väckarklocka på {minutes}.{hours}"                 
           ];        
           lists = {
- 
             hours.values = builtins.genList (
               i: {
                 "in" = toString (i + 1);

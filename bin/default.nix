@@ -170,7 +170,8 @@
     }
     mqtt_sub() { # 🦆 says ⮞ subscribe Mosquitto
       ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
-    }      
+    }
+    
     # 🦆 says ⮞ parser
     device_check() { 
       occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && debug "occupancy: $occupancy"
