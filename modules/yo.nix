@@ -490,7 +490,7 @@ EOF
     name = "yo-scripts";
     paths = mapAttrsToList (name: script:
       let
-        # Generate parameter usage string at Nix level
+        # 🦆 duck say > Generate parameter usage string at Nix level
         param_usage = lib.concatMapStringsSep " " (param:
           if param.optional
           then "[--${param.name}]"
@@ -502,7 +502,7 @@ EOF
 #          set -euo pipefail
           ${yoEnvGenVar script}
             
-          # Phase 1: Preprocess special flags
+          # 🦆 duck say > Phase 1: Preprocess special flags
           VERBOSE=0
           DRY_RUN=false
           FILTERED_ARGS=()
@@ -518,16 +518,16 @@ EOF
           VERBOSE=$VERBOSE
           export VERBOSE DRY_RUN
      
-          # Reset arguments without special flags
+          # 🦆 duck say > Reset arguments without special flags
           set -- "''${FILTERED_ARGS[@]}"
 
-          # Phase 2: Regular parameter parsing
+          # 🦆 duck say > Phase 2: Regular parameter parsing
           declare -A PARAMS=()
           POSITIONAL=()
           VERBOSE=$VERBOSE
           DRY_RUN=$DRY_RUN
           
-          # Parse all parameters
+          # 🦆 duck say > Parse all parameters
           while [[ $# -gt 0 ]]; do
             case "$1" in
               --help|-h)
@@ -567,7 +567,7 @@ EOF
             esac
           done
 
-            # Phase 3: Assign parameters
+            # 🦆 duck say > Phase 3: Assign parameters
             ${concatStringsSep "\n" (lib.imap0 (idx: param: ''
               if (( ${toString idx} < ''${#POSITIONAL[@]} )); then
                 ${param.name}="''${POSITIONAL[${toString idx}]}"
@@ -580,7 +580,7 @@ EOF
             fi
           '') script.parameters)}
 
-          # Apply default values for parameters
+          # 🦆 duck say > Apply default values for parameters
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.default != null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
@@ -588,7 +588,7 @@ EOF
               fi
             '') script.parameters)}
             
-          # Then check required parameters
+          # 🦆 duck say > Then check required parameters
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional && param.default == null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
@@ -626,13 +626,14 @@ EOF
           optionsPart = lib.concatMapStringsSep " " (param: "[--${param.name}]") script.parameters;
         in hostPart + optionsPart;
 
-        # Escape backticks by using a literal backtick (not shell-evaluated)
+        # 🦆 duck say > Escape backticks by using a literal backtick (not shell-evaluated)
         syntax = "\\`yo ${script.name} ${paramHint}\\`";
       in "| ${syntax} | ${aliasList} | ${script.description} |"
     ) (attrValues cfg.scripts);
   in
     concatStringsSep "\n" rows;
  
+  
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   helpText = let
     groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
@@ -780,10 +781,11 @@ in {
       (pkgs.writeShellScriptBin "yo" ''
         #!${pkgs.runtimeShell}
         script_dir="${yoScriptsPackage}/bin"
-
+        
+        # 🦆 duck say > help command data (yo --help
         show_help() {
-          #width=$(tput cols) # Auto detect width
-          width=130
+          #width=$(tput cols) # 🦆 duck say > Auto detect width
+          width=130 # 🦆 duck say > fixed width
           cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
         ## =========================== ##
         ## 🚀 **yo CLI TOol** 🦆🦆🦆🦆🦆🦆
@@ -801,13 +803,13 @@ in {
         EOF
           exit 0
         }     
-        # Handle zero arguments
+        # 🦆 duck say > Handle zero arguments
         if [[ $# -eq 0 ]]; then
           show_help
           exit 1
         fi
 
-        # Parse command
+        # 🦆 duck say > Parse command
         case "$1" in
           -h|--help) show_help; exit 0 ;;
           *) command="$1"; shift ;;

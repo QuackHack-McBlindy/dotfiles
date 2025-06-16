@@ -249,21 +249,26 @@ in { # 🦆 says ⮞ finally here, quack!
     aliases = [ "zigbee" "hem" ]; # 🦆 says ⮞ and not laughing at me
     helpFooter = '' 
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
-      STATE_DIR=zigduckDir
+      STATE_DIR=/var/lib/zigbee
       STATE_FILE="state.json"
-      ${pkgs.jq}/bin/jq -r '
-        to_entries[] |
-        select(.value.battery != null) |
-        .key as $id |
-        .value.battery as $battery |
-        "Device: \($id)\nBattery: \($battery)% " +
-        (
-          if $battery >= 75 then "🔋"
-          elif $battery >= 30 then "🟡"
-          else "🪫"
-          end
-        ) + "\n"
-      ' $STATE_DIR/$STATE_FILE
+      cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
+## =========================== ##
+## 🔋 Battery Status
+## =========================== ##
+$(${pkgs.jq}/bin/jq -r '
+  to_entries[] |
+  select(.value.battery != null) |
+  .key as $id |
+  .value.battery as $battery |
+  "### 🖥️ Device: `\($id)`\n**Battery:** \($battery)% " +
+  (
+    if $battery >= 75 then "🔋"
+    elif $battery >= 30 then "🟡"
+    else "🪫"
+    end
+  ) + "\n"
+' $STATE_DIR/$STATE_FILE)
+EOF
     '';
     parameters = [# 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }

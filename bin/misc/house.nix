@@ -390,7 +390,7 @@ in {
             rött|blått|grönt|red|blue|green|gul|orange|vit|rosa|lila|cyan|magenta)
               COLOR="$word"
               ;;
-            ''*[!0-9]*) ;;
+
             *)
               BRIGHTNESS="$word"
               ;;
