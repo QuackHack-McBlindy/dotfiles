@@ -97,7 +97,7 @@
     friendly_name = dev.friendly_name;
   }) zigbeeDevices;
 
-  # 🦆 says ⮞ IEEE not very human readable - lets fix tthat
+  # 🦆 says ⮞ IEEE not very human readable - lets fix dat yo
   ieeeToFriendly = lib.mapAttrs (ieee: dev: dev.friendly_name) zigbeeDevices;
   mappingJSON = builtins.toJSON ieeeToFriendly;
   mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
@@ -133,7 +133,6 @@ in { # 🦆 says ⮞ finally here, quack!
       cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
 ## ──────⋆⋅☆⋅⋆────── ##
 ## 🔋 Battery Status
-## ──────⋆⋅☆⋅⋆────── ##
 $(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
   to_entries[] |
   select(.value.battery != null) |
@@ -148,6 +147,7 @@ $(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
     end
   ) + "\n"
 ' $STATE_DIR/$STATE_FILE)
+## ──────⋆⋅☆⋅⋆────── ##
 EOF
     '';
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
@@ -156,14 +156,13 @@ EOF
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
+      export PATH="$PATH:/run/current-system/sw/bin"
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}" && debug "$MQTT_BROKER"
       MQTT_USER="$user" && debug "$MQTT_USER"
       MQTT_PASSWORD=$(cat "$pwfile")
       STATE_DIR="${zigduckDir}"
-#      SCENE_STATE="$STATE_DIR/current_scene"
-#      SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers" 
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
       BACKUP_ID=""
