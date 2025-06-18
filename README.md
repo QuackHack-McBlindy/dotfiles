@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/b1z87ms9saixwizbkyiw4jcy1xqb52hm-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/rmc3x3yviy050ajmpidbh6j4spjsishw-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -301,6 +301,9 @@ $ yo deploy laptop /home/pungkula/dotfiles
 
 # If the server is not running, it can be manually started with:
 $ yo-bitch
+
+# Get list of all defined sentences for voice commands:
+$ yo bitch --help
 ```
 
 ### ✨ Available Commands

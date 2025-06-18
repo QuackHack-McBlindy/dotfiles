@@ -19,7 +19,11 @@
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names, fam – like a rap sheet for our shell heroes
   # 🦆 says ⮞ only scripts with known intentions
   scriptNamesWithIntents = builtins.filter (scriptName:
-    builtins.hasAttr scriptName config.yo.bitch.intents
+    let
+      intent = config.yo.bitch.intents.${scriptName};
+      hasSentences = builtins.any (data: data ? sentences && data.sentences != []) intent.data;
+    in
+      builtins.hasAttr scriptName config.yo.bitch.intents && hasSentences
   ) scriptNames;
   
   # 🦆 says ⮞ Only generate matchers for scripts with intents
@@ -76,7 +80,8 @@
               param = lib.elemAt split 0; # 🦆 says ⮞ name of the param in da curly – ex: {user}
               after = lib.concatStrings (lib.tail split); # 🦆 says ⮞ anything after the param in this chunk
               isWildcard = data.lists.${param}.wildcard or false; # 🦆 says ⮞ wildcards go hard (.*) mode
-              regexGroup = if isWildcard then "\\b([^ ]+)\\b" else "(.*)";             
+              regexGroup = if isWildcard then "\\b([^ ]+)\\b" else "(.*)";       
+
               # 🦆 says ⮞ ^ da regex that gon match actual input text
             in {
               regex = regexGroup + lib.escapeRegex after;
@@ -147,37 +152,59 @@
       ) allData);
     in substitutions;
 
-  # 🦆 says ⮞ Create cache with versioning to force updates
-  cacheVersion = "3";  # Increment when cache format changes
-  intentDataFile = pkgs.writeText "intent-entity-map-${cacheVersion}.json"
-    (builtins.toJSON (
-      lib.mapAttrs (_scriptName: _intentList: {
-        substitutions = getIntentSubstitutions _scriptName;
-      }) config.yo.bitch.intents
-    ));
+
+  # 🦆 duck say > Helper to escape markdown special characters
+#  escapeMD = str: let
+#    replacements = [
+#      [ "\\" "\\\\" ]
+#      [ "*" "\\*" ]
+#      [ "`" "\\`" ]
+#      [ "_" "\\_" ]
+#      [ "[" "\\[" ]
+#      [ "]" "\\]" ]
+#    ];
+#  in
+#    lib.foldl (acc: r: replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
+
+  helpFooterMd = let
+    scriptBlocks = lib.concatMapStrings (scriptName:
+      let
+        sentencesList = lib.flatten (map (d: d.sentences) config.yo.bitch.intents.${scriptName}.data);
+        sentencesMd = lib.concatMapStrings (sentence: "- ${lib.escapeShellArg sentence}\n") sentencesList;
+      in ''
+        ## 🦆 ⮞ **yo ${scriptName}**
+        ${sentencesMd}
+      ''
+    ) scriptNamesWithIntents;
+  in ''
+    ## 🦆 ⮞ **Available Voice Commands**
+    Trigger with: **yo bitch!**
+    ${scriptBlocks}
+  '';
 
 
   # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo
-#  intentDataFile = pkgs.writeText "intent-entity-map.json"
-#    (builtins.toJSON (
-#      lib.mapAttrs (_scriptName: intentList:
-#        let # 🦆 says ⮞ flat quack all dat alias > value pairs across intents
-#          allData = lib.flatten (map (d: d.lists or {}) intentList.data);
-#          substitutions = lib.flatten (map (lists:
-#            lib.flatten (lib.mapAttrsToList (_listName: listData:
-#              if listData ? values then
-#                map (item: {
-#                  pattern = item."in";
-#                  value = item.out;
-#                }) listData.values
-#              else []
-#            ) lists)
-#          ) allData);
-#        in {
-#          inherit substitutions;
-#        }
-#      ) config.yo.bitch.intents
-#    ));
+  intentDataFile = pkgs.writeText "intent-entity-map.json"
+    (builtins.toJSON (
+      lib.mapAttrs (_scriptName: intentList:
+        let # 🦆 says ⮞ flat quack all dat alias > value pairs across intents
+          allData = lib.flatten (map (d: d.lists or {}) intentList.data);
+          substitutions = lib.flatten (map (lists:
+            lib.flatten (lib.mapAttrsToList (_listName: listData:
+              if listData ? values then
+                map (item: {
+                  pattern = item."in";
+                  value = item.out;
+                }) listData.values
+              else []
+            ) lists)
+          ) allData);
+        in {
+          inherit substitutions;
+        }
+      ) config.yo.bitch.intents
+    ));
+    
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO  
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
@@ -186,19 +213,12 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       # 🦆 says ⮞ natural means.... human? 
       category = "⚙️ Configuration";
       parameters = [{ name = "input"; description = "Text to parse into a yo command"; optional = false; }]; 
+      # 🦆 says ⮞ run `yo bitch --help` to display all defined voice commands
       helpFooter = ''
-        echo "Available voice commands:"
-        ${lib.concatMapStrings (scriptName: let
-            sentencesList = lib.flatten (map (d: d.sentences) config.yo.bitch.intents.${scriptName}.data);
-          in ''
-            echo "🐤 yo ${scriptName}:"
-            ${
-              lib.concatMapStrings (sentence: ''
-                echo "  - ${lib.escapeShellArg sentence}"
-              '') sentencesList
-            }
-            echo ""
-          '') scriptNamesWithIntents}      
+        WIDTH=130
+        cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
+${helpFooterMd}
+EOF
       '';
       code = '' # 🦆 says ⮞ ... there's moar..? YES! ALWAYS MOAR!
         set +u # 🦆 says ⮞ let them unset vars fly, we rebels now 

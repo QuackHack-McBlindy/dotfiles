@@ -1,6 +1,6 @@
 # dotfiles/modules/this.nix
-# 🦆 duck say > dis module is designed to define both user and host configurations
-# 🦆 duck say > so dat modules can dynamically adapt
+# 🦆 duck say ⮞ dis module is designed to define both user and host configurations
+# 🦆 duck say ⮞ so dat modules can dynamically adapt
 { 
     config,
     lib,

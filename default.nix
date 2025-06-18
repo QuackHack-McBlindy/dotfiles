@@ -14,12 +14,12 @@
   nixFiles = builtins.filter (f: builtins.match ".*\.nix" f != null)
                (builtins.map (file: ./bin + "/${file}")
                  (builtins.attrNames (import ./bin)));
-in { # 🦆 duck say > eval all modules and all scripts on every host
+in { # 🦆 duck say ⮞ eval all modules and all scripts on every host
     imports = [ (modulesPath + "/installer/scan/not-detected.nix")
         ./modules
         ./bin
     ]; 
-    # 🦆 duck say > default configuration
+    # 🦆 duck say ⮞ default configuration
     nixpkgs.hostPlatform = config.this.host.system; 
     networking = {
         hostName = config.this.host.hostname;

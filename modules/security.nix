@@ -1,5 +1,5 @@
 # dotfiles/modules/security.nix
-# 🦆 duck say > SECURITY?! WAT THE QUACK IS DAT?!
+# 🦆 duck say ⮞ SECURITY?! WAT THE QUACK IS DAT?!
 {
   self,
   inputs,
@@ -8,7 +8,7 @@
   lib,
   ...
 }: {
-  # 🦆 duck say > BOOT?! DUCKS DON'T WEAR SHOES?!
+  # 🦆 duck say ⮞ BOOT?! DUCKS DON'T WEAR SHOES?!
   boot = {
 #    tmp.useTmpfs = lib.mkDefault true;
 #    tmp.cleanOnBoot = lib.mkDefault (!config.boot.tmp.useTmpfs);
@@ -16,7 +16,7 @@
     # Disable kernel-param editing on boot
     loader.systemd-boot.editor = false;
 
-    # 🦆 duck say > kernel security, can't make joke bout' dat.. 
+    # 🦆 duck say ⮞ kernel security, can't make joke bout' dat.. 
     kernel.sysctl = {
       # Magic SysRq key -> allows performing low-level commands.
       "kernel.sysrq" = 0;
@@ -69,7 +69,7 @@
   services.gvfs.enable = true; 
   networking.firewall.logRefusedConnections = true;
 
-  # 🦆 duck say > sops configurationz
+  # 🦆 duck say ⮞ sops configurationz
   sops = {
     defaultSopsFile = ./../.sops.yaml;
     defaultSopsFormat = "yaml";
@@ -77,7 +77,7 @@
     age.keyFile = lib.mkDefault "/var/lib/sops-nix/age.age";
     age.generateKey = lib.mkDefault false; # Only generate keys outside installer
 
-    # 🦆 duck say > sops secrets
+    # 🦆 duck say ⮞ sops secrets
     secrets = lib.mkIf (!config.this.installer) {
       w = {
         sopsFile = ./../secrets/w.yaml;
@@ -88,7 +88,7 @@
     };  
   };
 
-  # 🦆 duck say > quacky hacky with no passy    
+  # 🦆 duck say ⮞ quacky hacky with no passy    
   security.sudo.extraRules = [
     {
       users = [ "pungkula" ];

@@ -6,12 +6,12 @@
   ...
 } : with lib;
 let
-  # 🦆 duck say > Create a file, yo!
+  # 🦆 duck say ⮞ Create a file, yo!
   homeBase = config.this.user.me.dotfilesDir + "/home";
   sanitize = path: 
     replaceStrings ["/"] ["-"] (removePrefix "/" (removePrefix "./" path));
   
-  # 🦆 duck say > Create a home, yo!
+  # 🦆 duck say ⮞ Create a home, yo!
   mkUserLinks = user: baseDir: let
     userHome = config.users.users.${user}.home;
     storePath = builtins.path {
@@ -24,7 +24,7 @@ let
       rel_path="''${src#${storePath}/}"
       target="${userHome}/''${rel_path}"
     
-      # 🦆 duck say > Skip if symlink already correct
+      # 🦆 duck say ⮞ Skip if symlink already correct
       if [[ -L "$target" && "$(readlink -f "$target")" == "$src" ]]; then
         continue
       fi
@@ -56,7 +56,7 @@ in {
   };
 
   config = mkMerge [
-    # 🦆 duck say > Create the file, yo!
+    # 🦆 duck say ⮞ Create the file, yo!
     {
       system.activationScripts.simpleFiles = let
         files = config.file;
@@ -79,7 +79,7 @@ in {
       };
     }
     
-    # 🦆 duck say > symlink the home, yo!
+    # 🦆 duck say ⮞ symlink the home, yo!
     (mkIf (config.this.home != null) {
       system.activationScripts.home-mirror = {
         text = ''
@@ -90,7 +90,7 @@ in {
         deps = [ "users" ];
       };
 
-      # 🦆 duck say > Set user variiables quack
+      # 🦆 duck say ⮞ Set user variiables quack
       environment.variables = {
         BROWSER = "firefox";
         EDITOR = "nano";

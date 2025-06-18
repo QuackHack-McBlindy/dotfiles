@@ -1,9 +1,9 @@
 # dotfiles/modules/yo.nix
-# 🦆 duck say > This module defines the main execution system of my dotfiles repository.
-# 🦆 duck say > A customizable yo CLI tool with voice command capabilities (yo bitch intent parser) automatic documentation generation, 
-# 🦆 duck say > it's meant to be easily extended by defining user scripts as yo.scripts
-# 🦆 duck say > If you need to access defined scripts as packages you can do so with:
-# 🦆 duck say > ${config.pkgs.yo}/bin/yo-<script-name>
+# 🦆 duck say ⮞ This module defines the main execution system of my dotfiles repository.
+# 🦆 duck say ⮞ A customizable yo CLI tool with voice command capabilities (yo bitch intent parser) automatic documentation generation, 
+# 🦆 duck say ⮞ it's meant to be easily extended by defining user scripts as yo.scripts
+# 🦆 duck say ⮞ If you need to access defined scripts as packages you can do so with:
+# 🦆 duck say ⮞ ${config.pkgs.yo}/bin/yo-<script-name>
 { 
   config,
   lib,
@@ -61,7 +61,7 @@ let
     versionMatch = builtins.match ".*VERSION_ID=([0-9\\.]+).*" raw;
   in builtins.replaceStrings [ "." ] [ "%2E" ] (builtins.elemAt versionMatch 0);
   
-  # 🦆 duck say > Helper to escape markdown special characters
+  # 🦆 duck say ⮞ Helper to escape markdown special characters
   escapeMD = str: let
     replacements = [
       [ "\\" "\\\\" ]
@@ -73,18 +73,18 @@ let
     ];
   in
     lib.foldl (acc: r: replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
-  # 🦆 duck say > Documentation generation with markdown escaping
+  # 🦆 duck say ⮞ Documentation generation with markdown escaping
   generateDocs = let
     scriptDocs = mapAttrsToList (name: script: 
       let
         safeDesc = escapeMD script.description;
-        # 🦆 duck say > Handle aliases as string
+        # 🦆 duck say ⮞ Handle aliases as string
         aliases = if script.aliases != [] then
           "*Aliases:* ${concatStringsSep ", " (map escapeMD script.aliases)}\n\n"
         else
           "";
         
-        # 🦆 duck say > Handle parameters with escaped descriptions        
+        # 🦆 duck say ⮞ Handle parameters with escaped descriptions        
         params = if script.parameters != [] then
           "### Parameters\n" + 
           concatStringsSep "\n" (map (param: 
@@ -110,7 +110,7 @@ let
     fullDoc = concatStringsSep "\n" scriptDocs;  
   in fullDoc;
 
-  # 🦆 duck say > manual readme is so 1800 duck
+  # 🦆 duck say ⮞ manual readme is so 1800 duck
   updateReadme = pkgs.writeShellScriptBin "update-readme" ''
     set -euo pipefail
 
@@ -119,7 +119,7 @@ let
     USER_TMP=$(mktemp)
     HOST_TMP=$(mktemp)
     
-    # 🦆 duck say > Extract versions
+    # 🦆 duck say ⮞ Extract versions
     nixos_version=$(nixos-version | cut -d. -f1-2)
     kernel_version=$(uname -r | cut -d'-' -f1)
     nix_version=$(nix --version | awk '{print $3}')
@@ -127,7 +127,7 @@ let
     gnome_version=$(gnome-shell --version | awk '{print $3}')
     python_version=$(python3 --version | awk '{print $2}')  
 
-    # 🦆 duck say > Construct badge URLs
+    # 🦆 duck say ⮞ Construct badge URLs
     nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
     linux_badge="https://img.shields.io/badge/Linux-''${kernel_version}-red?style=flat-square\\&logo=linux\\&logoColor=white"
     nix_badge="https://img.shields.io/badge/Nix-''${nix_version}-blue?style=flat-square\\&logo=nixos\\&logoColor=white"
@@ -135,7 +135,7 @@ let
     gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
     python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
   
-    # 🦆 duck say > Contact badges
+    # 🦆 duck say ⮞ Contact badges
     matrix_url="${config.this.user.me.matrix}"
     if [[ -n "${config.this.user.me.matrix}" ]]; then
       CONTACT_OUTPUT+="[![Matrix](https://img.shields.io/badge/Matrix-Chat-000000?style=flat-square&logo=matrix&logoColor=white)](${config.this.user.me.matrix})"$'\n'
@@ -180,7 +180,7 @@ let
       echo '```'
     )
 
-    #  Get generated help text
+    # 🦆 duck say ⮞  Get generated help text
     HELP_CONTENT=$(<${helpTextFile})
 
     DOCS_CONTENT=$(cat <<'EOF'
@@ -212,6 +212,9 @@ $ yo deploy laptop /home/pungkula/dotfiles
 
 # If the server is not running, it can be manually started with:
 $ yo-bitch
+
+# Get list of all defined sentences for voice commands:
+$ yo bitch --help
 ```
 
 ### ✨ Available Commands
@@ -340,7 +343,7 @@ EOF
       echo '```'
     )    
      
-    # 🦆 duck say > Update version badges
+    # 🦆 duck say ⮞ Update version badges
     sed -i -E \
       -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
       -e "s|https://img.shields.io/badge/Linux-[^)]*|$linux_badge|g" \
@@ -374,7 +377,7 @@ EOF
       !in_docs && !in_tree && !in_theme && !in_flake && !in_host && !in_user { print }
       ' "$README_PATH" > "$tmpfile"  
 
-    # 🦆 duck say > Diff check
+    # 🦆 duck say ⮞ Diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
       echo "🦆 duck say > Changes detected, updating README.md"
       if ! install -m 644 "$tmpfile" "$README_PATH"; then
@@ -402,7 +405,7 @@ EOF
     rm "$USER_TMP" "$HOST_TMP"
   '';
 
-  # 🦆 duck say > expoort param into shell script
+  # 🦆 duck say ⮞ expoort param into shell script
   yoEnvGenVar = script: let
     withDefaults = builtins.filter (p: p.default != null) script.parameters;
     exports = map (p: "export ${p.name}=${lib.escapeShellArg p.default}") withDefaults;
@@ -455,7 +458,7 @@ EOF
         };
       };
 
-      # 🦆 duck say > parameter options for the yo script 
+      # 🦆 duck say ⮞ parameter options for the yo script 
       parameters = mkOption {
         type = types.listOf (types.submodule {
           options = {
@@ -485,12 +488,12 @@ EOF
 
   cfg = config.yo;
 
-  # 🦆 duck say > dis and dat builds da script, yo! 
+  # 🦆 duck say ⮞ dis and dat builds da script, yo! 
   yoScriptsPackage = pkgs.symlinkJoin {
     name = "yo-scripts";
     paths = mapAttrsToList (name: script:
       let
-        # 🦆 duck say > Generate parameter usage string at Nix level
+        # 🦆 duck say ⮞ Generate parameter usage string at Nix level
         param_usage = lib.concatMapStringsSep " " (param:
           if param.optional
           then "[--${param.name}]"
@@ -502,7 +505,7 @@ EOF
 #          set -euo pipefail
           ${yoEnvGenVar script}
             
-          # 🦆 duck say > Phase 1: Preprocess special flags
+          # 🦆 duck say ⮞ Phase 1: Preprocess special flags
           VERBOSE=0
           DRY_RUN=false
           FILTERED_ARGS=()
@@ -518,16 +521,16 @@ EOF
           VERBOSE=$VERBOSE
           export VERBOSE DRY_RUN
      
-          # 🦆 duck say > Reset arguments without special flags
+          # 🦆 duck say ⮞ Reset arguments without special flags
           set -- "''${FILTERED_ARGS[@]}"
 
-          # 🦆 duck say > Phase 2: Regular parameter parsing
+          # 🦆 duck say ⮞ Phase 2: Regular parameter parsing
           declare -A PARAMS=()
           POSITIONAL=()
           VERBOSE=$VERBOSE
           DRY_RUN=$DRY_RUN
           
-          # 🦆 duck say > Parse all parameters
+          # 🦆 duck say ⮞ Parse all parameters
           while [[ $# -gt 0 ]]; do
             case "$1" in
               --help|-h)
@@ -567,7 +570,7 @@ EOF
             esac
           done
 
-            # 🦆 duck say > Phase 3: Assign parameters
+            # 🦆 duck say ⮞ Phase 3: Assign parameters
             ${concatStringsSep "\n" (lib.imap0 (idx: param: ''
               if (( ${toString idx} < ''${#POSITIONAL[@]} )); then
                 ${param.name}="''${POSITIONAL[${toString idx}]}"
@@ -580,7 +583,7 @@ EOF
             fi
           '') script.parameters)}
 
-          # 🦆 duck say > Apply default values for parameters
+          # 🦆 duck say ⮞ Apply default values for parameters
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.default != null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
@@ -588,7 +591,7 @@ EOF
               fi
             '') script.parameters)}
             
-          # 🦆 duck say > Then check required parameters
+          # 🦆 duck say ⮞ Then check required parameters
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional && param.default == null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
@@ -626,7 +629,7 @@ EOF
           optionsPart = lib.concatMapStringsSep " " (param: "[--${param.name}]") script.parameters;
         in hostPart + optionsPart;
 
-        # 🦆 duck say > Escape backticks by using a literal backtick (not shell-evaluated)
+        # 🦆 duck say ⮞ Escape backticks by using a literal backtick (not shell-evaluated)
         syntax = "\\`yo ${script.name} ${paramHint}\\`";
       in "| ${syntax} | ${aliasList} | ${script.description} |"
     ) (attrValues cfg.scripts);
@@ -643,7 +646,7 @@ EOF
       else a < b
     ) (lib.attrNames groupedScripts);
   
-    # 🦆 duck say > Create table rows with category separators
+    # 🦆 duck say ⮞ Create table rows with category separators
     rows = lib.concatMap (category:
       let 
         scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
@@ -728,7 +731,7 @@ in {
       scripts = cfg.scripts;
       scriptNames = attrNames scripts;
       
-      # 🦆 duck say > Build mapping of alias -> [script names that use it]
+      # 🦆 duck say ⮞ Build mapping of alias -> [script names that use it]
       aliasMap = lib.foldl' (acc: script:
         lib.foldl' (acc': alias:
           acc' // { 
@@ -737,10 +740,10 @@ in {
         ) acc script.aliases
       ) {} (attrValues scripts);
 
-      # 🦆 duck say > Find conflicts with script names
+      # 🦆 duck say ⮞ Find conflicts with script names
       scriptNameConflicts = lib.filterAttrs (alias: _: lib.elem alias scriptNames) aliasMap;
       
-      # 🦆 duck say > Find duplicate aliases (used by multiple scripts)
+      # 🦆 duck say ⮞ Find duplicate aliases (used by multiple scripts)
       duplicateAliases = lib.filterAttrs (_: scripts: lib.length scripts > 1) aliasMap;
 
       formatConflict = alias: scripts: 
@@ -782,34 +785,34 @@ in {
         #!${pkgs.runtimeShell}
         script_dir="${yoScriptsPackage}/bin"
         
-        # 🦆 duck say > help command data (yo --help
+        # 🦆 duck say ⮞ help command data (yo --help
         show_help() {
-          #width=$(tput cols) # 🦆 duck say > Auto detect width
-          width=130 # 🦆 duck say > fixed width
+          #width=$(tput cols) # 🦆 duck say ⮞ Auto detect width
+          width=130 # 🦆 duck say ⮞ fixed width
           cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
-        ## =========================== ##
+        ## ──────⋆⋅☆⋅⋆────── ##
         ## 🚀 **yo CLI TOol** 🦆🦆🦆🦆🦆🦆
-        ## =========================== ##
+        ## ──────⋆⋅☆⋅⋆────── ##
         **Usage:** \`yo <command> [arguments]\`
         
-        ## =========================== ##
+        ## ──────⋆⋅☆⋅⋆────── ##
         ## ✨ Available Commands
         | Command Syntax               | Aliases    | Description |
         |------------------------------|------------|-------------|
         ${helpText}
-        ## =========================== ##
+        ## ──────⋆⋅☆⋅⋆────── ##
         ## ℹ️ Detailed Help
         For specific command help: \`yo <command> --help\`
         EOF
           exit 0
         }     
-        # 🦆 duck say > Handle zero arguments
+        # 🦆 duck say ⮞ Handle zero arguments
         if [[ $# -eq 0 ]]; then
           show_help
           exit 1
         fi
 
-        # 🦆 duck say > Parse command
+        # 🦆 duck say ⮞ Parse command
         case "$1" in
           -h|--help) show_help; exit 0 ;;
           *) command="$1"; shift ;;
@@ -828,7 +831,7 @@ in {
       updateReadme
     ];
     
-    # 🦆 duck say > Expose dis module and all yo.scripts as a package
+    # 🦆 duck say ⮞ Expose dis module and all yo.scripts as a package
     pkgs.yo = yoScriptsPackage; # reference as: ${config.pkgs.yo}/bin/yo-<script name>
   };}
 

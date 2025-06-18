@@ -72,7 +72,6 @@
       printf "%02x%02x%02x\n" "$r" "$g" "$b"
     }
 
-
     # 🦆 duck say ⮞ check development enviorment exist yo!
     validate_devShell() {
       if [[ ! " ${lib.escapeShellArg (toString sysDevShells)} " =~ " $devShell " ]]; then
@@ -95,7 +94,6 @@
         "''${@}"
       fi
     }
-
     # 🦆 duck say ⮞ diis need explaination? 
     say_duck() {
       echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
@@ -159,7 +157,7 @@
       echo $! > "$timer_file"
       debug "Reset 5m timer for $room (PID: $!)"
     }
-    # 🦆 says ⮞ Time windom of day that allow motion triggering lights on
+    # 🦆 says ⮞ Time window of day that allow motion triggering lights on
     is_dark_time() { 
       local current_hour=$((10#$(date +%H)))
       [[ ($current_hour -ge 0 && $current_hour -lt 8) || # 🦆 says ⮞ from 00,00 to 08.00
