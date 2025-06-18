@@ -97,6 +97,11 @@
     friendly_name = dev.friendly_name;
   }) zigbeeDevices;
 
+  # 🦆 says ⮞ IEEE not very human readable - lets fix tthat
+  ieeeToFriendly = lib.mapAttrs (ieee: dev: dev.friendly_name) zigbeeDevices;
+  mappingJSON = builtins.toJSON ieeeToFriendly;
+  mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
+
   # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
   deviceMeta = builtins.toJSON (
     lib.listToAttrs (
@@ -129,12 +134,13 @@ in { # 🦆 says ⮞ finally here, quack!
 ## ──────⋆⋅☆⋅⋆────── ##
 ## 🔋 Battery Status
 ## ──────⋆⋅☆⋅⋆────── ##
-$(${pkgs.jq}/bin/jq -r '
+$(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
   to_entries[] |
   select(.value.battery != null) |
-  .key as $id |
+  .key as $ieee |
   .value.battery as $battery |
-  "### 🖥️ Device: `\($id)`\n**Battery:** \($battery)% " +
+  ($mapping[0] | .[$ieee] // $ieee) as $display_name |
+  "### 🖥️ Device: `\($display_name)`\n**Battery:** \($battery)% " +
   (
     if $battery >= 75 then "🔋"
     elif $battery >= 30 then "🟡"
@@ -144,7 +150,7 @@ $(${pkgs.jq}/bin/jq -r '
 ' $STATE_DIR/$STATE_FILE)
 EOF
     '';
-    parameters = [# 🦆 says ⮞ set your mosquitto user & password
+    parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ]; # 🦆 says ⮞ Script entrypoint yo
@@ -156,8 +162,8 @@ EOF
       MQTT_USER="$user" && debug "$MQTT_USER"
       MQTT_PASSWORD=$(cat "$pwfile")
       STATE_DIR="${zigduckDir}"
-      SCENE_STATE="$STATE_DIR/current_scene"
-      SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
+#      SCENE_STATE="$STATE_DIR/current_scene"
+#      SCENE_LIST=(${lib.concatStringsSep " " (lib.attrNames scenes)}) 
       TIMER_DIR="$STATE_DIR/timers" 
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
       BACKUP_ID=""
