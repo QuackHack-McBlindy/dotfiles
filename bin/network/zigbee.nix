@@ -347,8 +347,7 @@ EOF
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
           port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
-#          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
-#          baudrate = 115200; # 🦆 says ⮞ default
+         disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { # 🦆 says ⮞ who needs dis?
           enabled = true; # 🦆 says ⮞ 2duck4frontend yo
@@ -375,7 +374,7 @@ EOF
           last_seen = "ISO_8601_local";
           # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it, decrypt and use da real deal down below yo
           network_key = [ # 🦆 says ⮞ placeholder net yo
-              87 208 29 190 33 225 60 93
+              86 208 29 190 33 225 60 93
               199 70 36 29 123 129 73 40
             ];
             pan_id = 60410;
@@ -515,95 +514,37 @@ EOF
  
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-    description = "Zigbee2mqtt Service";
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
-    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
+#    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack
       mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
       sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
-      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
-      if [ ! -f "${config.sops.secrets.z2m_network_key.path}" ]; then
-        echo "❌ Network key file not found: ${config.sops.secrets.z2m_network_key.path}"
-        exit 1
-      fi
-      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+#      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
+#      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+#      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
         # 🦆 says ⮞ match line starting with whitespace + network_key
-        /^[[:space:]]*network_key:[[:space:]]*$/ {
-          print
-          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
-          while ((getline < keyfile) > 0) {
-            print indent "  " $0
-          }
-          close(keyfile)
-          skip = 1
-          next
-        }
+#        /^[[:space:]]*network_key:[[:space:]]*$/ {
+#          print
+#          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
+#          while ((getline < keyfile) > 0) {
+#            print indent "  " $0
+#          }
+#          close(keyfile)
+#          skip = 1
+#          next
+#        }
         # 🦆 says ⮞ stop skipping when non indented key come by duck
-        skip && /^[^[:space:]]/ { skip = 0 }
-        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
-        skip { next }
-        { print }
-      ' "$CFGFILE" > "$TMPFILE"  
-      cp --no-preserve=mode "$TMPFILE" "$CFGFILE"    
-      sleep 5
+#        skip && /^[^[:space:]]/ { skip = 0 }
+#        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
+#        skip { next }
+#        { print }
+#      ' "$CFGFILE" > "$TMPFILE"  
+#      mv "$TMPFILE" "$CFGFILE"    
     '';
-    serviceConfig = {
-      #ExecStart = "${pkgs.zigbee2mqtt}/bin/zigbee2mqtt";
-      User = "zigbee2mqtt";
-      Group = "zigbee2mqtt";
-      WorkingDirectory = "/var/lib/zigbee";
-      StateDirectory = "zigbee2mqtt";
-      StateDirectoryMode = "0700";
-      Restart = "on-failure";
-
-
-      # Hardening
-      CapabilityBoundingSet = "";
-      DeviceAllow = lib.optionals (lib.hasPrefix "/" config.services.zigbee2mqtt.settings.serial.port) [
-        config.services.zigbee2mqtt.settings.serial.port
-      ];
-      DevicePolicy = "closed";
-      LockPersonality = true;
-      MemoryDenyWriteExecute = false;
-      NoNewPrivileges = true;
-      PrivateDevices = false; # prevents access to /dev/serial, because it is set 0700 root:root
-      PrivateUsers = true;
-      PrivateTmp = true;
-      ProtectClock = true;
-      ProtectControlGroups = true;
-      ProtectHome = true;
-      ProtectHostname = true;
-      ProtectKernelLogs = true;
-      ProtectKernelModules = true;
-      ProtectKernelTunables = true;
-      ProtectProc = "invisible";
-      ProcSubset = "pid";
-      ProtectSystem = "strict";
-      ReadWritePaths = config.services.zigbee2mqtt.dataDir;
-      RemoveIPC = true;
-      RestrictAddressFamilies = [
-        "AF_INET"
-        "AF_INET6"
-      ];
-      RestrictNamespaces = true;
-      RestrictRealtime = true;
-      RestrictSUIDSGID = true;
-      SupplementaryGroups = [
-        "dialout"
-      ];
-      SystemCallArchitectures = "native";
-      SystemCallFilter = [
-        "@system-service @pkey"
-        "~@privileged @resources"
-        "@chown"
-      ];
-      UMask = "0077";
-    };  
   };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
 # 🦆 says ⮞ i like ducks  
 
