@@ -317,7 +317,7 @@ EOF
     listeners = [{
         acl = [ "pattern readwrite #" ];
         port = 1883;
-        omitPasswordAuth = true; # 🦆 says ⮞ safety first!
+        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
@@ -350,7 +350,7 @@ EOF
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
+          enabled = false; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0";   
           port = 8099; # 🦆 says ⮞ duck means cool yo
         };
