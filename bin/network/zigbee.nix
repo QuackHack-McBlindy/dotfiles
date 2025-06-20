@@ -531,7 +531,7 @@ EOF
         echo "❌ Network key file not found: ${config.sops.secrets.z2m_network_key.path}"
         exit 1
       fi
-      ${pkgs.busybox}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
         # 🦆 says ⮞ match line starting with whitespace + network_key
         /^[[:space:]]*network_key:[[:space:]]*$/ {
           print
@@ -550,15 +550,13 @@ EOF
         { print }
       ' "$CFGFILE" > "$TMPFILE"  
       mv "$TMPFILE" "$CFGFILE"    
-#      chown zigbee2mqtt:zigbee2mqtt $CFGFILE
-#      chmod 600 $CFGFILE    
     '';
 #    serviceConfig = {
 #      ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
 #      Restart = "on-failure";
 #      RestartSec = "2s";
 #      RuntimeDirectory = [ config.this.user.me.name ];
-#      User = "zigbee";
+#      User = "zigbee2mqtt";
 #      ConditionPathExists = config.sops.secrets.z2m_network_key.path; 
 #    };  
   };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
