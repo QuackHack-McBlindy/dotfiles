@@ -511,9 +511,9 @@ EOF
       RestartSec = "45s";
     };
   };
-  
+ 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
-  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+  systemd.services.preZigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
@@ -526,7 +526,7 @@ EOF
       sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
 
-      tmp="/var/lib/zigbee/configuration.yam"
+      tmp="/var/lib/zigbee/tmp.yaml"
       touch "$tmp"
       echo "$tmp"
       echo "🐣 tmp contents before awk:" | tee -a "$LOGFILE"
@@ -549,14 +549,65 @@ EOF
         skip { next }
         { print }
       ' ${config.services.zigbee2mqtt.dataDir}/configuration.yaml > "$tmp"  
-      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml      
+      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml    
+      chown zigbee2mqtt:zigbee2mqtt ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
+      chmod 600 ${config.services.zigbee2mqtt.dataDir}/configuration.yaml    
     '';
     serviceConfig = {
+      ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
       Restart = "on-failure";
       RestartSec = "2s";
-      User = "zigbee2mqtt";
-#      ConditionPathExists = config.sops.secrets.z2m_network_key.path;    
+#      RuntimeDirectory = [ config.this.user.me.name ];
+      User = "root";
+      ConditionPathExists = config.sops.secrets.adbkey.path; 
     };  
+
+ 
+  # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
+#  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+#    wantedBy = [ "multi-user.target" ];
+#    preStart = '' 
+#      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+#      LOGFILE="${config.services.zigbee2mqtt.dataDir}/zigbee2mqtt-prestart.log"
+#      echo "$LOGFILE"
+#      echo "🐣 starting zigbee2mqtt preStart script" | tee -a "$LOGFILE"
+
+      # 🦆 says ⮞ our real mosquitto password quack quack
+#      mosquitto_password=$(cat ${config.sops.secrets.mosquitto.path}) 
+#      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
+      # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
+
+#      tmp="/var/lib/zigbee/tmp.yaml"
+#      touch "$tmp"
+#      echo "$tmp"
+#      echo "🐣 tmp contents before awk:" | tee -a "$LOGFILE"
+#      echo "🐣 running awk script to insert network_key from ${config.sops.secrets.z2m_network_key.path}" | tee -a "$LOGFILE"
+#      ${pkgs.busybox}/bin/awk keyfile="${config.sops.secrets.z2m_network_key.path}" '
+        # 🦆 says ⮞ match line starting with whitespace + network_key
+#        /^[[:space:]]*network_key:[[:space:]]*$/ {
+#          print
+#          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
+#          while ((getline < keyfile) > 0) {
+#            print indent "  " $0
+#          }
+#          close(keyfile)
+#          skip = 1
+#          next
+#        }
+        # 🦆 says ⮞ stop skipping when non indented key come by duck
+#        skip && /^[^[:space:]]/ { skip = 0 }
+        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
+#        skip { next }
+#        { print }
+#      ' ${config.services.zigbee2mqtt.dataDir}/configuration.yaml > "$tmp"  
+#      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml      
+#    '';
+#    serviceConfig = {
+#      Restart = "on-failure";
+#      RestartSec = "2s";
+#      User = "zigbee2mqtt";
+#      ConditionPathExists = config.sops.secrets.z2m_network_key.path;    
+ #   };  
   };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
 # 🦆 says ⮞ i like ducks  
 
