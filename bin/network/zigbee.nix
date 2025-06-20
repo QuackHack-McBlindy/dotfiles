@@ -292,14 +292,14 @@ EOF
   sops.secrets = {
     mosquitto = { # 🦆 says ⮞ quack, stupid!
       sopsFile = ./../../secrets/mosquitto.yaml; 
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
+      owner = "zigbee2mqtt";
+      group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
     z2m_network_key = { # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
       sopsFile = ./../../secrets/z2m_network_key.yaml; 
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
+      owner = "zigbee2mqtt";
+      group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
   };
@@ -536,14 +536,11 @@ EOF
         }
         # 🦆 says ⮞ stop skipping when non indented key come by duck
         skip && /^[^[:space:]]/ { skip = 0 }
-        # 🦆 says ⮞ while skipping, skip skip skip, oh man i'm so hiphop yo
+        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
         skip { next }
         { print }
       ' ${config.services.zigbee2mqtt.dataDir}/configuration.yaml > "$tmp"  
-      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
-
-      # 🦆 says ⮞ lock it down like Fort Quack
-      chmod 600 "${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml      
     '';
     serviceConfig = {
       Restart = "on-failure";
