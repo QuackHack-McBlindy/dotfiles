@@ -72,28 +72,42 @@ in {
       house = {
         data = [{
           sentences = [
-            "gör {brightness} {device} {color} procent"
-            "gör {brightness} procent {color} {device}"
-            "sätt {device} till {color} {brightness} procent"
-            "gör {device} {brightness} procent {color}"
-            "gör {device} {color} {brightness} procent"
-            "gör {device} {color} och {brightness} procent"
+            "tänd {device}"
+            "gör {brightness} {device} procent"
+#            "gör {brightness} {device} {color} procent"
+#            "gör {brightness} procent {color} {device}"
+#            "sätt {device} till {color} {brightness} procent"
+#            "gör {device} {brightness} procent {color}"
+#            "gör {device} {color} {brightness} procent"
+#            "gör {device} {color} och {brightness} procent"
           ];        
           lists = {
 #            device.wildcard = true;
 
-            state.values = [
-              { "in" = "tänd"; out = "on"; }             
-              { "in" = "släck"; out = "off"; } 
-              { "in" = "stäng"; out = "off"; } 
-              { "in" = "starta"; out = "on"; }   
+ #           state.values = [
+#              { "in" = "tänd"; out = "on"; }             
+#              { "in" = "släck"; out = "off"; } 
+#              { "in" = "stäng"; out = "off"; } 
+#              { "in" = "starta"; out = "on"; }   
 #              { "in" = "av"; out = "off"; }             
-              { "in" = "på"; out = "on"; } 
-            ];  
+#              { "in" = "på"; out = "on"; } 
+#            ];  
+
+
             brightness.values = builtins.genList (i: {
               "in" = toString (i + 1);
               out = toString (i + 1);
             }) 100;
+            device.values = [
+              { "in" = "golvet"; out = "Golvet"; }    
+              { "in" = "vardagsrum"; out = "livingroom"; }
+              { "in" = "kök"; out = "kitchen"; }
+              { "in" = "sovrum"; out = "bedroom"; }
+              { "in" = "hall"; out = "hallway"; }
+              { "in" = "wc"; out = "wc"; }
+              { "in" = "köket"; out = "kitchen"; }
+            ];  
+
             color.values = [
               { "in" = "röd"; out = "red"; }    
               { "in" = "rött"; out = "red"; }                  
@@ -114,15 +128,6 @@ in {
               { "in" = "cyan"; out = "cyan"; }   
               { "in" = "magenta"; out = "magenta"; } 
             ];
-            device.values = [
-              { "in" = "golvet"; out = "Golvet"; }    
-              { "in" = "vardagsrum"; out = "livingroom"; }
-              { "in" = "kök"; out = "kitchen"; }
-              { "in" = "sovrum"; out = "bedroom"; }
-              { "in" = "hall"; out = "hallway"; }
-              { "in" = "wc"; out = "wc"; }
-              { "in" = "köket"; out = "köket"; }
-            ];  
           };
         }];
       };  
@@ -138,7 +143,7 @@ in {
 #    '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
-      { name = "state"; description = "State of the device or group"; optional = true; } 
+      { name = "state"; description = "State of the device or group"; default = "on"; } 
       { name = "brightness"; description = "Brightness value of the device or group"; optional = true; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          

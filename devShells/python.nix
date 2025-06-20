@@ -4,10 +4,11 @@
   system,
   inputs,
   self
-} : let
+} : let # 🦆 duck say ⮞ put them python pkgs here yo!
   pythonPackages = ps: [ ps.numpy ps.pip ps.requests ps.lz4 ps.python-dotenv ];
   myPython = pkgs.python3.withPackages pythonPackages;
 
+  # 🦆 duck say ⮞ put pkgs here yo
   myBuildInputs = with pkgs; [
     git
     nixpkgs-fmt
@@ -20,7 +21,8 @@
   formatHeader = text: "echo \$'\\e[1m'${text}\$'\\e[0m'";
 in {
   buildInputs = myBuildInputs;
-
+  
+  # 🦆 duck say ⮞ dis juzt prints defined packages when entering nix dev
   shellHook = ''
     echo "Running on ${system}"
     echo ""

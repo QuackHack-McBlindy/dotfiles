@@ -35,7 +35,7 @@ in {
             "ställ timer {hours} timmar {minutes} minuter"
             "skapa timer {minutes} minuter"
             "ställ timer {minutes} minuter"
-            "skapa timer {seconds} minuter {minutes} sekunder"
+            "skapa timer {minutes} minuter {minutes} sekunder"
             "ställ timer {seconds} minuter {minutes} sekunder"            
           ];        
           lists = {
@@ -99,8 +99,9 @@ in {
 #    helpFooter = ''
 #    '';
     parameters = [  
-      { name = "seconds"; description = "Seconds to set the timer on"; default = "0"; }     
+
       { name = "minutes"; description = "Minutes to set the timer on"; default = "0";  }     
+      { name = "seconds"; description = "Seconds to set the timer on"; default = "0"; }     
       { name = "hours"; description = "Hours to set the timer on"; default = "0"; }
       { name = "sound"; description = "Soundfile to be played on finished timer"; default = "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav"; }
     ];

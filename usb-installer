@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Parse arguments
+# 🦆 duck say ⮞ parse them arguments
 while [[ $# -gt 0 ]]; do
   case $1 in
     --user) INSTALL_USER="$2"; shift ;;
@@ -14,7 +14,7 @@ while [[ $# -gt 0 ]]; do
   shift
 done
 
-# Verify required parameters
+# 🦆 duck say ⮞ verify required parameters
 check_required() {
   if [[ -z "${!1}" ]]; then
     echo "ERROR: Missing required parameter --${1#INSTALL_}"
@@ -26,7 +26,7 @@ check_required "INSTALL_USER"
 check_required "INSTALL_HOST"
 check_required "INSTALL_PUBKEY"
 
-# Validate SSH public key format
+# 🦆 duck say ⮞ validate SSH public key format
 if ! grep -qE '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp[0-9]+) AAAA[0-9A-Za-z+/]+[=]{0,3}( [^@]+@[^@]+)?$' <<< "$INSTALL_PUBKEY"; then
   echo "ERROR: Invalid SSH public key format"
   echo "Valid formats:"

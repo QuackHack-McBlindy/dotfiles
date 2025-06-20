@@ -1,11 +1,12 @@
 # dotfiles/modules/merged.nix
-{ 
+{ # 🦆 duck say ⮞ if u expect home man - you are out of duck
   config,
   lib,
   pkgs,
   ...
 } : with lib;
-let
+let # 🦆 duck say ⮞ big ducks build their own home
+
   # 🦆 duck say ⮞ Create a file, yo!
   homeBase = config.this.user.me.dotfilesDir + "/home";
   sanitize = path: 
@@ -19,7 +20,7 @@ let
       name = "home-manifest";
     };
   in ''
-    echo "🦆 duck say > Mirroring home directory for ${user}"
+    echo "🦆 duck say ⮞ Mirroring home directory for ${user}"
     find ${storePath} -type f -print0 | while IFS= read -r -d $'\0' src; do
       rel_path="''${src#${storePath}/}"
       target="${userHome}/''${rel_path}"
@@ -29,7 +30,7 @@ let
         continue
       fi
     
-      echo "🦆 duck say > Linking: $rel_path"
+      echo "🦆 duck say ⮞ Linking: $rel_path"
       mkdir -vp "$(dirname "$target")"
       
       dir="$(dirname "$target")"
@@ -73,7 +74,7 @@ in {
             cp -f "${storePath}" "${fullPath}"
             chown "${username}:users" "${fullPath}"
             chmod 600 "${fullPath}"
-            echo "🦆 duck say > Created file: ${fullPath}"
+            echo "🦆 duck say ⮞ Created file: ${fullPath}"
           '') files);
         deps = [];  
       };

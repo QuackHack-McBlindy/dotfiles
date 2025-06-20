@@ -1,27 +1,31 @@
 # dotfiles/bin/default.nix
-{ 
+{ # 🦆 duck say ⮞ dis file just sets simple helpers and auto imports all scripts
     self,
     config,
     lib,
     pkgs,
     ...
-} : let # 🦆 duck say ⮞ this file just sets simple helpers and auto imports all scripts
+} : let # 🦆 duck say ⮞ grabbin' some of dat sweet sweet nix option for fancy fancy configz
   inherit (lib) types mkOption mkEnableOption mkMerge;
-  importModulesRecursive = dir:
-    let
-      entries = builtins.readDir dir;
-      modules = lib.attrsets.mapAttrsToList (name: type:
-        let path = dir + "/${name}";
-        in if type == "directory" then
-          importModulesRecursive path
-        else if lib.hasSuffix ".nix" name then
-          [ path ]
-        else
-          []
-      ) entries;
-    in lib.flatten modules;
 
+  # 🦆 duck say ⮞ recursive nix importer — let'z waddle throu' them dirz through the reeds
+  importModulesRecursive = dir: 
+    let
+      entries = builtins.readDir dir;# 🦆 duck say ⮞ read all files & subfolders in dir i say no duck left behind
+      modules = lib.attrsets.mapAttrsToList (name: type: # 🦆 duck say ⮞ map over entries, check if directory or nix file
+        let path = dir + "/${name}"; # 🦆 duck say ⮞ build path quackfully
+        in if type == "directory" then
+          importModulesRecursive path # 🦆 duck say ⮞ dive down the directory pond recursively
+        else if lib.hasSuffix ".nix" name then
+          [ path ] # 🦆 duck say ⮞ found nix file! add it to da list, quack yees
+        else
+          [] # 🦆 duck say ⮞ no nix file? no worries move along little ducky
+      ) entries;
+    in lib.flatten modules; # 🦆 duck say ⮞ flatten list of lists go single list - no nested duck nestz here
+
+  # 🦆 duck say ⮞ list all hostz — all ducks in the pond
   sysHosts = lib.attrNames self.nixosConfigurations;
+  # 🦆 duck say ⮞ list all devShells — ducklingz ready to hatch dem dev env
   sysDevShells = lib.attrNames self.devShells; 
   
   # 🦆 duck say ⮞ Create helper functions for yo scripts
@@ -41,7 +45,7 @@
       (( VERBOSE > 0 )) && FLAGS+=(--show-trace "-v''${VERBOSE/#0/}")
     }     
 
-    # 🦆 duck say ⮞ outputs hex from plain text color names
+    # 🦆 duck say ⮞ outputs random hex within color range from plain text color names
     color2hex() {
       local color="$1"
       declare -A color_ranges=(
@@ -104,7 +108,7 @@
      if [ "$DEBUG_MODE" = true ]; then echo "$*"; fi
     }      
 
-    # 🦆 duck say ⮞ fail? i usually don't, yo!
+    # 🦆 duck say ⮞ fail? duck's usually don't yo?
     type fail >/dev/null 2>&1 || fail() { 
       echo -e "$1" >&2
       exit 1
@@ -150,7 +154,7 @@
         rm -f "$timer_file"
       fi  
       ( # 🦆 says ⮞ Time til' lights turn off after motion trigger activation
-        sleep 300 # 🦆 says ⮞ in seconds
+        sleep 900 # 🦆 says ⮞ in seconds
         room_lights_off "$room"
         rm -f "$timer_file"
       ) & 
@@ -169,8 +173,11 @@
     mqtt_sub() { # 🦆 says ⮞ subscribe Mosquitto
       ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
     }
-    
-    # 🦆 says ⮞ parser
+    # 🦆 says ⮞ function to make input text bold    
+    bold() {
+      echo -e "\033[1m$1\033[0m"
+    }
+    # 🦆 says ⮞ device parser for zigduck
     device_check() { 
       occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && debug "occupancy: $occupancy"
       action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action') && debug "action: $action"
@@ -207,12 +214,11 @@ in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
         inherit self config lib cmdHelpers pkgs sysHosts;
     }) (
-        importModulesRecursive ./config ++# 🦆 duck say ⮞ plus
-        importModulesRecursive ./system ++# 🦆 duck say ⮞ plus
-        importModulesRecursive ./security ++ # 🦆 duck say ⮞ plus plus plus lots of luck?
-        importModulesRecursive ./maintenance ++
+        importModulesRecursive ./config ++   # 🦆 duck say ⮞ ++
+        importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++
+        importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++
+        importModulesRecursive ./maintenance ++ # 🦆 duck say ⮞ +++++ plus plus plus rots of duck's give lot'z of luck
         importModulesRecursive ./productivity ++
         importModulesRecursive ./network ++
-        importModulesRecursive ./misc # 🦆 duck say ⮞ last one i swear
-        
-    );} # 🦆 duck say ⮞ bye
+        importModulesRecursive ./misc # 🦆 duck say ⮞ enuff enuff dis iz last you have ducks word on dat        
+    );} # 🦆 duck say ⮞ bye!

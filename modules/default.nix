@@ -29,5 +29,4 @@ in {
         (importModulesRecursive ./programs) ++
         (importModulesRecursive ./themes) ++
         (importModulesRecursive ./virtualisation);
-    
-        }
+        } # 🦆 duck say ⮞ all ducks onboard? letz go!

@@ -10,19 +10,19 @@
   inherit (lib) types mkOption mkEnableOption mkMerge;
 in {  
     options.this = {
-#=== 🦆 duck say > TODO Remove =========================#      
+#=== 🦆 duck say ⮞ TODO Remove =========================#      
         installer = mkOption {
             type = types.bool;
             default = false;
             example = true;
             description = "Whether this system is used as an installer.";
         };
-#=== 🦆 duck say > USER =========================#      
+#=== 🦆 duck say ⮞ USER =========================#      
         user = mkOption {
             type = types.submodule {
                 options = {
                     enable = mkEnableOption "user configurations";
-#============== 🦆 duck say > ME =========================#    
+#============== 🦆 duck say ⮞ ME =========================#    
                     me = {
                         name = mkOption {
                             type = types.str;
@@ -128,7 +128,7 @@ in {
             description = "User configuration settings";
         };   
 
-#=== 🦆 duck say > HOST =========================#    
+#=== 🦆 duck say ⮞ HOST =========================#    
         host = {
             system = mkOption {
                 type = types.str;

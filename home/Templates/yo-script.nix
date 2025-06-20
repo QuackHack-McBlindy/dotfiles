@@ -1,4 +1,7 @@
 # dotfiles/bin/<CATEGORY>/<SCRIPT>.nix
+# yo.bitch.intents.<name> = { data = [{ sentences = [ ]; lists = { }; }]; };  # 🦆 says ⮞ single line intent
+# yo.scripts.<name>.description = "Description of the script."; code = "${cmdHelpers}"; }; # 🦆 says ⮞ single line script
+
 { 
   config,
   lib,

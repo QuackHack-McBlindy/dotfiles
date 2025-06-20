@@ -1,16 +1,15 @@
 # dotfiles/lib/makeFlake.nix
-{ 
+{ # 🦆 duck say ⮞ dis iz pure tool buildin' stuffz yo
   self,
   lib,
   dirMap,
   inputs
-} : let
+} : let # 🦆 duck say ⮞ label for clarity
   makeApp = program: {
     inherit program;
     type = "app";
-  };
-
-  makeFlakeInternal = { 
+  };  # 🦆 duck say ⮞ big thing dat make flakes small
+  makeFlakeInternal = { # 🦆 duck say ⮞ give it - and you shall receive!
     systems, 
     hosts ? {}, 
     modules ? [], 
@@ -19,15 +18,18 @@
     apps ? {}, 
     devShells ? {}, 
     ... 
-  } @ flake:  
+  } @ flake: # 🦆 duck say ⮞ thx
     let
-      hosts = dirMap.mapHosts ../hosts;           
-
+      # 🦆 duck say ⮞ first we load all da machines by mapping hosts directory
+      hosts = dirMap.mapHosts ../hosts;        
+      
+      # 🦆 duck say ⮞ helper dat init nixpkgs with system and overlays - allowing unfree
       makePkgs = system: pkgs: overlays: import pkgs {
         inherit system overlays;
         config.allowUnfree = true;
       };
-
+      
+      # 🦆 duck say ⮞ builds nixosConfiguration for each host
       nixosConfigurations = lib.mapAttrs (hostName: hostConfig:
         inputs.nixpkgs.lib.nixosSystem {
           system = hostName;
@@ -35,45 +37,47 @@
             inherit self inputs;
             inherit hostName;
             nixosConfigurations = self.nixosConfigurations;
-            finalSelf = self // {
+            finalSelf = self // { # 🦆 duck say ⮞ merge in extra info per host
               hostDir = ../hosts/${hostName};
               modules = lib.filterAttrs (_: v: v ? nixosModules) inputs;
             };
           };
           modules = [
-            inputs.sops-nix.nixosModules.sops
-            ../.
+            inputs.sops-nix.nixosModules.sops # 🦆 duck say ⮞ secret keepin'
+            ../. # 🦆 duck say ⮞ loads ../default.nix
             hostConfig             
-            ./../modules/home.nix 
+            ../modules/home.nix # 🦆 duck say ⮞ home is where your duck's at
           ];
         }) (dirMap.mapHosts ../hosts);
-
-      perSystem = system: let
+        
+      # 🦆 duck say ⮞ for each system build packages, apps & devShells
+      perSystem = system: let # 🦆 duck say ⮞ init dis system with nixpkgs & overlays
         pkgs = makePkgs system inputs.nixpkgs flake.overlays; 
       in {
-
+        # 🦆 duck say ⮞ build packages calling nixpkgs.callPackage on each package
         packages = lib.mapAttrs (_: v: 
           (makePkgs system inputs.nixpkgs flake.overlays).callPackage v {
             inherit self;
             lib = inputs.nixpkgs.lib.extend (final: prev: {
-              # Custom lib extensions
+              # 🦆 duck say ⮞ addd custom lib extensions here yo
             });
           }
         ) packages;
-
+        
+        # 🦆 duck say ⮞ apply makeApp to da apps
         apps = lib.mapAttrs (_: v:
           let
             pkgs = makePkgs system inputs.nixpkgs flake.overlays;
           in
-            makeApp (v { inherit pkgs system self inputs; })  # Pass additional args
+            makeApp (v { inherit pkgs system self inputs; })  # 🦆 duck say ⮞ pass additional args
         ) apps;
-
+        # 🦆 duck say ⮞ build devShells for dis system
         devShells = lib.mapAttrs (name: v:
           let
             shellArgs = v { 
               inherit pkgs system self inputs;
             };
-            # Sanitize arguments for mkShell
+            # 🦆 duck say ⮞ sanitize arguments for mkShell
             sanitizedArgs = builtins.removeAttrs shellArgs [
               "override"
               "overrideDerivation"
@@ -82,7 +86,7 @@
             ];
           in
             pkgs.mkShell (sanitizedArgs // {
-              # Ensure basic shell environment
+              # 🦆 duck say ⮞ for the love of flake...
               NIX_CONFIG = "extra-experimental-features = nix-command flakes";
               shellHook = ''
                 echo "Entering ${name} dev shell"
@@ -90,23 +94,21 @@
               '';
             })
         ) devShells;
-
-      };
-    in {
-      inherit nixosConfigurations; #diskoConfigurations;
-
+      };      
+    in { 
+      # 🦆 duck say ⮞ export nixosConfigurations to Nix
+      inherit nixosConfigurations;
+      
+      # 🦆 duck say ⮞ build per system packages, apps & devShells attributes  
       packages = lib.genAttrs systems (system:
         (perSystem system).packages
-#        // (if system == "x86_64-linux" then isoPackages else {})
       );
-
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);
     };
-in {
+in { # 🦆 duck say ⮞ expose makeApp & makeFlake for use in flake
   inherit makeApp;
-  makeFlake = args: makeFlakeInternal args;
-  
-  }
+  makeFlake = args: makeFlakeInternal args;  
+  } # 🦆 duck say ⮞ da end
 
 

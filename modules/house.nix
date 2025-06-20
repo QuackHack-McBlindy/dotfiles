@@ -45,17 +45,48 @@ in { # 🦆 says ⮞ Options for da house
                 };
             };    
         };
+        
         zigbee.scenes = lib.mkOption {
             type = lib.types.attrsOf (lib.types.attrsOf (lib.types.attrs));
             default = {};
             description = "Scenes for Zigbee devices";
         };
+        
+        timeAutomations = mkOption {
+            type = types.attrsOf (types.submodule {
+                options = {
+                    time = mkOption {
+                        type = types.str;
+                        example = "07:00";
+                        description = ''
+                            Time of day to trigger the automation. Can be a fixed time like "07:00" or a keyword like "sunrise".
+                        '';
+                    };
+                    days = mkOption {
+                        type = types.listOf types.str;
+                        example = [ "Mon" "Tue" "Wed" "Thu" "Fri" ];
+                        description = ''
+                            Days of the week to apply this automation. Use "*" for every day.
+                        '';
+                    };
+                    action = mkOption {
+                        type = types.str;
+                        example = "scene morning";
+                        description = "Shell command or script to run.";
+                    };
+                    # 🦆 says ⮞ TODO 🌞🌙 sunrise/sunset handling with sunwait
+                    
+                };
+            });
+            default = {};
+            description = "Define time-based home automations.";
+        };
+    # 🦆 says ⮞ ❓ TODO moar house options        
     };
-    # 🦆 says ⮞ ❓ TODO moar house options
-    
-    
-    # 🦆 says ⮞  User Configuration
-    config = {
+  
+    # 🔧 🦆 says ⮞  User Configuration
+    config = lib.mkMerge [
+      {
         # 🦆 says ⮞ 💡 User defined Zigbee devices
         house.zigbee.devices = { 
             # 🦆 says ⮞ Kitchen   
@@ -109,9 +140,9 @@ in { # 🦆 says ⮞ Options for da house
             "0x0017880103c753b8" = { friendly_name = "Unknown 3"; room = "other"; type = "misc"; endpoint = 1; };      
             "0x00178801037e754e" = { friendly_name = "Unknown 5"; room = "other"; type = "misc"; endpoint = 1; };    
         }; # 🦆 says ⮞ that's way too many devices huh
-        # 🦆 says ⮞ that's actually not too bad when they on single line each
+      }  # 🦆 says ⮞ that's actually not too bad when they on single line each
 
-        # 🎨 Scenes  🦆 says ⮞ user defined scenes
+      {  # 🎨 Scenes  🦆 says ⮞ user defined scenes
         house.zigbee.scenes = {
             # 🦆 says ⮞ Scene name
             "Duck Scene" = {
@@ -184,4 +215,53 @@ in { # 🦆 says ⮞ Options for da house
                 "WC 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
             };     
         };
-    };}
+      }  
+      {  # 🦆 says ⮞ ⏰ Configures systemd timers & voilá - time based automations 
+        # 🦆 says ⮞ use `systemctl list-timers --all` to list all timers
+        systemd.timers = lib.mapAttrs' (name: cfg:
+            let
+              # Build proper OnCalendar specification
+                daysStr = if cfg.days == [ "*" ]
+                    then "*"
+                    else lib.concatStringsSep "," cfg.days;
+                onCalendar = "${daysStr} ${cfg.time}";
+            in
+            lib.nameValuePair "house-automation-${name}" {
+                enable = true;  # CRITICAL: This was missing!
+                wantedBy = [ "timers.target" ];
+                timerConfig = {
+                    OnCalendar = onCalendar;
+                    Persistent = true;
+                };
+            }
+        ) config.house.timeAutomations;
+      }
+ 
+      {  # 🦆 says ⮞ ⏰ Creates the service for da timer 
+        systemd.services = lib.mapAttrs' (name: cfg:
+            lib.nameValuePair "house-automation-${name}" {
+                serviceConfig = {
+                    Type = "oneshot";
+                    ExecStart = pkgs.writeShellScript "automation-${name}" ''
+                        set -euo pipefail
+                        ${cfg.action}
+                    '';
+                };
+            }
+        ) config.house.timeAutomations;
+      }        
+      {
+        # 🦆 says ⮞ ⏰ Time triggered automations
+        house.timeAutomations = {
+            good_morning = {
+                time = "07:00";
+                days = [ "Mon" "Tue" "Wed" "Thu" "Fri" ];
+                action = ''
+                  echo "Turning on morning lights..."
+                  echo "action 2"
+                '';
+            };
+        };
+      }
+      
+    ];}

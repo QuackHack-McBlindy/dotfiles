@@ -24,7 +24,6 @@
             "spela upp {search}"
             "spera upp {search}"
             "jag vill höra {search} {typ}"
-#            "{typ}"
           ];
           
           lists = {
@@ -129,8 +128,6 @@
     description = "Android TV Controller";
     category = "🌐 Networking";
     aliases = [ "s" "tv" ];
-#    helpFooter = ''
-#    '';
     parameters = [
       { name = "typ"; description = "Media type"; default = "tv"; optional = true; }
       { name = "search"; description = "Media to search"; optional = true; }

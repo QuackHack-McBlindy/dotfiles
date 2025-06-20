@@ -40,10 +40,10 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 <br>
 
-🦆 _duck say ⮞_ __Here lives home machines configurations,__  
-🦆 _duck say ⮞_ __crafted as a tiny Nix flake__  
-🦆 _duck say ⮞_ __Glued together by a Nix-flavoured command line utility,__  
-🦆 _duck say ⮞_ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
+__Here lives home machines configurations,__  
+__crafted as a tiny Nix flake__  
+__Glued together by a Nix-flavoured command line utility,__  
+__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
   
   
 ## ❄️ **Flake**
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/lzk8l51j5by7f6nsgjr5q4v8g43riwax-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/kwjq9kvl30k6y5x505xsyjcpy1l3g1cs-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -165,15 +165,15 @@ I like my flakes tiny & ny modules dynamically loaded,
 <!-- FLAKE_START -->
 ```nix
 # dotfiles/flake.nix
-{ 
-    description = "❄️🦆 QuackHack-McBlindy's NixOS Flakes.";
-    inputs = {
+{  # 🦆 duck say ⮞ welcome to
+    description = "❄️🦆 ⮞ QuackHack-McBLindy's big dot of flakyfiles with extra quackz.";
+    inputs = { # 🦆 duck say ⮞ inputz stuff
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
-    };
+    }; # 🦆 duck say ⮞ outputz other ducky stuffz
     outputs = inputs @ { self, systems, nixpkgs, ... }:
         let
             lib = import ./lib {
@@ -187,7 +187,7 @@ I like my flakes tiny & ny modules dynamically loaded,
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
             devShells = lib.mapModules ./devShells (path: import path);     
-        };}
+        };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'
 ```
 <!-- FLAKE_END -->
 </details>
@@ -321,6 +321,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo mic ` |  | Manually trigger microphone recording for intent execution. |
 | **⚡ Productivity** | | |
+| `yo calculator --expression` | calc | Calculate math expressions |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
@@ -349,7 +350,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
-| `yo timer [--seconds] [--minutes] [--hours] [--sound]` |  | Set a timer |
+| `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |
 | **🧹 Maintenance** | | |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
 | `yo health [--host]` | hc | Check system health status across your machines |

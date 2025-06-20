@@ -81,7 +81,6 @@
               after = lib.concatStrings (lib.tail split); # 🦆 says ⮞ anything after the param in this chunk
               isWildcard = data.lists.${param}.wildcard or false; # 🦆 says ⮞ wildcards go hard (.*) mode
               regexGroup = if isWildcard then "\\b([^ ]+)\\b" else "(.*)";       
-
               # 🦆 says ⮞ ^ da regex that gon match actual input text
             in {
               regex = regexGroup + lib.escapeRegex after;
@@ -152,20 +151,6 @@
       ) allData);
     in substitutions;
 
-
-  # 🦆 duck say > Helper to escape markdown special characters
-#  escapeMD = str: let
-#    replacements = [
-#      [ "\\" "\\\\" ]
-#      [ "*" "\\*" ]
-#      [ "`" "\\`" ]
-#      [ "_" "\\_" ]
-#      [ "[" "\\[" ]
-#      [ "]" "\\]" ]
-#    ];
-#  in
-#    lib.foldl (acc: r: replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
-
   helpFooterMd = let
     scriptBlocks = lib.concatMapStrings (scriptName:
       let
@@ -181,7 +166,6 @@
     Trigger with: **yo bitch!**
     ${scriptBlocks}
   '';
-
 
   # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo
   intentDataFile = pkgs.writeText "intent-entity-map.json"
@@ -204,7 +188,9 @@
         }
       ) config.yo.bitch.intents
     ));
-    
+  # 🦆 says ⮞ export it like 🐢 shares pizza – shared config across da OS
+  environment.variables.YO_INTENT_DATA = intentDataFile;    
+
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO  
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
@@ -227,75 +213,49 @@ EOF
         export DEBUG_MODE=${lib.boolToString DEBUG_MODE}
         text="$input"
         debug_attempted_matches=()
-
-##### ORIGINAL        
-#        resolve_entities() {
-#          local script="$1"
-#          local text="$2"
-#          local replacements
-#          local pattern out
-#          declare -A substitutions
-          # 🦆 says ⮞ dis is our quacktionary yo 
-#          replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
-
-#          while IFS="|" read -r pattern out; do
-#            if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
-#              original="''${BASH_REMATCH[0]}"
-#              [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
-#              substitutions["''$original"]="$out"
-#              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
-#            fi
-#          done <<< "$replacements"      
-#          echo -n "$text"
-#          echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
-#        } 
-
-  
+   
         resolve_entities() {
           local script="$1"
           local text="$2"
           local replacements
           local pattern out
           declare -A substitutions
-          
-          # 🦆 says ⮞ FIRST PASS: Multi-word substitutions
-          replacements=$(jq -r '.["'"$script"'"].substitutions[] | select(.pattern | contains(" ")) | "\(.pattern)|\(.value)"' "$intent_data_file")
+          # 🦆 says ⮞ skip subs if script haz no listz
+          has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
+          if [[ "$has_lists" != "true" ]]; then
+            if [ "$DEBUG_MODE" = true ]; then
+              echo "[🦆🔁] Skipping substitutions for $script – no lists defined"
+            fi
+            echo -n "$text"
+            echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
+            return
+          fi
+                    
+          # 🦆 says ⮞ dis is our quacktionary yo 
+          replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
+
           while IFS="|" read -r pattern out; do
             if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
               original="''${BASH_REMATCH[0]}"
-              [[ -z "$original" ]] && continue
-              substitutions["$original"]="$out"
-              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g")
+              [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
+              substitutions["''$original"]="$out"
+              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
             fi
-          done <<< "$replacements"
-          
-          # 🦆 says ⮞ SECOND PASS: Single-word substitutions
-          replacements=$(jq -r '.["'"$script"'"].substitutions[] | select(.pattern | contains(" ") | not) | "\(.pattern)|\(.value)"' "$intent_data_file")
-          while IFS="|" read -r pattern out; do
-            if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
-              original="''${BASH_REMATCH[0]}"
-              [[ -z "$original" ]] && continue
-              substitutions["$original"]="$out"
-              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g")
-            fi
-          done <<< "$replacements"          
+          done <<< "$replacements"      
           echo -n "$text"
-          echo "|$(declare -p substitutions)"
-        }
+          echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
+        } 
 
-        # 🦆 says ⮞ insert ALL matchers, build da regex empire. yo
-        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNames}  
+        # 🦆 says ⮞ insert matchers, build da regex empire. yo
+        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
 
-        for script in ${toString scriptNames}; do
-          unset substitutions
+        for script in ${toString scriptNamesWithIntents}; do
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
           if [ "$DEBUG_MODE" = true ]; then
             debug_attempted_matches+=("[🦆🔎] Tried: match_''${script} '$resolved_text'")
           fi
           subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
-          eval "$subs_decl" >/dev/null 2>&1 || true
-          unset substitutions # 🦆 says ⮞ just in case... duck resets 
           eval "$subs_decl" >/dev/null 2>&1 || true
 
           if match_$script "$resolved_text"; then      
@@ -311,11 +271,11 @@ EOF
             fi
          
             # 🦆 says ⮞ final product
-            echo "yo $script ''${args[@]}''${substitutions[$original]}"
+            echo "🦆 Executing ⮞ yo $script ''${args[@]}''${substitutions[$original]}"
 
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – duck does not simply parse and sit idly
             exec "yo-$script" ""''${args[@]}"""''${substitutions[$original]}"
-              
+        
           fi 
         done # 🦆 says ⮞ done? we all ded nao? 
         if [ "$DEBUG_MODE" = true ]; then
@@ -332,38 +292,5 @@ EOF
           exit
         fi
       '';    
-    };
-  };
-
-  # 🦆 says ⮞ export it like 🐢 shares pizza – shared config across da OS
-  environment.variables.YO_INTENT_DATA = intentDataFile;
-   
-  # 🦆 says ⮞ Empty intents to disable voice activated scripts 
-  yo.bitch = {
-    intents = {
-      bitch = { data = [{ sentences = [ ]; lists = { }; }]; };
-      block = { data = [{ sentences = [ ]; lists = { }; }]; };
-      clean = { data = [{ sentences = [ ]; lists = { }; }]; };
-      dev = { data = [{ sentences = [ ]; lists = { }; }]; };
-      deploy = { data = [{ sentences = [ ]; lists = { }; }]; };
-      reboot = { data = [{ sentences = [ ]; lists = { }; }]; };
-      rollback = { data = [{ sentences = [ ]; lists = { }; }]; };
-      edit = { data = [{ sentences = [ ]; lists = { }; }]; };
-      fzf = { data = [{ sentences = [ ]; lists = { }; }]; };
-      pull = { data = [{ sentences = [ ]; lists = { }; }]; };
-      push = { data = [{ sentences = [ ]; lists = { }; }]; };
-      scp = { data = [{ sentences = [ ]; lists = { }; }]; };
-      transport = { data = [{ sentences = [ ]; lists = { }; }]; };
-      sops = { data = [{ sentences = [ ]; lists = { }; }]; };
-      yubi = { data = [{ sentences = [ ]; lists = { }; }]; };
-      qr = { data = [{ sentences = [ ]; lists = { }; }]; };
-      mic = { data = [{ sentences = [ ]; lists = { }; }]; };      
-      zigduck = { data = [{ sentences = [ ]; lists = { }; }]; };    
-    };
-    
-  };}  # 🦆 says ⮞ peace and quack  
-
-
-
-
-
+    };  
+  };} # 🦆 says ⮞ peace and quack  

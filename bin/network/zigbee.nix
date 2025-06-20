@@ -1,10 +1,12 @@
 # dotfiles/bin/network/zigduck.nix
-{ self, lib, config, pkgs, cmdHelpers, ... } : let
-# 🦆 says ⮞ Welcome to my quacky hacky home of fun! 💫  
-# 🦆 says ⮞ fully declarative lights, power plugs, sensors, dimmers and other smart home devices 
-# 🦆 says ⮞ fully declaratiive home automation in Bash with jq, configured to automate quacky hacky home,
-# 🦆 says ⮞ duck don't write automations duck write infra with junkie comments on each line 
-# 🦆 says ⮞ quack quack quack quack 🦆 please follow along til' we home?
+{ # 🦆 says ⮞ Welcome to my quacky hacky home of fun! 💫  
+  self, 
+  lib,  # 🦆 says ⮞ fully declarative lights, power plugs, sensors, dimmers and other smart home devices 
+  config, # 🦆 says ⮞ home automations with jq, configured to automate quacky hacky home,
+  pkgs, # 🦆 says ⮞ duck don't write automations duck write infra with junkie comments on each line 
+  cmdHelpers,
+  ...
+} : let # you follow 🦆 home – ⬇⬇ this way plz? quack quack
 
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
@@ -12,6 +14,15 @@
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ Verbose logging 
   DEBUG = false;
+
+  # 🦆 says ⮞ ⏰ Automations based upon time
+  house.timeAutomations = {
+    good_morning = {
+      time = "07:00";
+      days = [ "Mon" "Tue" "Wed" "Thu" "Fri" ];
+      action = "echo 'Turning on morning lights...'";
+    };
+  };  
 
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
@@ -156,7 +167,7 @@ EOF
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
-      export PATH="$PATH:/run/current-system/sw/bin"
+      export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}" && debug "$MQTT_BROKER"
@@ -171,7 +182,7 @@ EOF
       perform_zigbee_backup() {
         BACKUP_ID="zigbee_backup_$(date +%Y%m%d_%H%M%S)"
         BACKUP_TMP_FILE="$(mktemp)"
-        say_duck "⌛ Triggering Zigbee coordinator backup: $BACKUP_ID"
+        say_duck "Triggering Zigbee coordinator backup: $BACKUP_ID"
         mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
       }
       # 🦆 says ⮞ handle backup response function
@@ -179,7 +190,7 @@ EOF
         local line="$1"
         local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')        
         if [ "$backup_id" != "$BACKUP_ID" ]; then
-          debug "🦆 Ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
+          debug "🦆 ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
           return
         fi      
         local status=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.status')
@@ -200,8 +211,7 @@ EOF
         BACKUP_ID=""
         BACKUP_TMP_FILE=""
       }
-
-      # 🦆 says ⮞ main loop      
+      # 🦆 says ⮞ main loop - ducks can't listen but mosquitto's can apparently    
       start_listening() {
         echo "$ZIGBEE_DEVICES" | ${pkgs.jq}/bin/jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
         ${pkgs.jq}/bin/jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
@@ -278,7 +288,7 @@ EOF
     '';
   };
 
-  # 🦆 says ⮞ how does dycks say ssschh?
+  # 🦆 says ⮞ how does ducks say ssschh?
   sops.secrets = {
     mosquitto = { # 🦆 says ⮞ quack, stupid!
       sopsFile = ./../../secrets/mosquitto.yaml; 
@@ -286,8 +296,8 @@ EOF
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
-    mqtt_network_key = { # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
-      sopsFile = ./../../secrets/mqtt_network_key.yaml; 
+    z2m_network_key = { # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
+      sopsFile = ./../../secrets/z2m_network_key.yaml; 
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
@@ -301,10 +311,9 @@ EOF
     listeners = [{
         acl = [ "pattern readwrite #" ];
         port = 1883;
-        omitPasswordAuth = true;# 🦆 says ⮞ safety first!
-        users.mqtt.password = config.sops.secrets.mosquitto.path;
-#        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = true;# 🦆 says ⮞ never forget, never forgive right?
+        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
+        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
+        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
     }];
@@ -326,7 +335,7 @@ EOF
         mqtt = {
           server = "mqtt://localhost:1883";
           user = "mqtt";
-          password =  config.sops.secrets.mosquitto.path; 
+          password =  config.sops.secrets.mosquitto.path; # 🦆 says ⮞ no support for passwordFile?! sneaky duckiie use dis as placeholder lol
           base_topic = "zigbee2mqtt";
         };
         # 🦆 says ⮞ physical port mapping
@@ -334,10 +343,9 @@ EOF
           port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
           disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
           baudrate = 115200; # 🦆 says ⮞ default
-#          port = "/dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus_0001-if00-port0";
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
+          enabled = false; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0";   
           port = 8099; # 🦆 says ⮞ duck means cool yo
         };
@@ -359,10 +367,15 @@ EOF
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
-          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it, encrypt it as a secret
-          network_key = [
-              86 208 29 190 33 225 60 93
-              199 70 36 29 123 129 73 40
+          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it, decrypt and use da real deal down below yo
+          network_key = [ # 🦆 says ⮞ placeholder net yo
+              113 117 97 99 107 32 113 117
+              97 99 107 32 113 117 97 99
+              107 32 73 39 109 32 97 32
+              98 105 110 97 114 121 32 100
+              117 99 107
+#              86 208 29 190 33 225 60 93
+#              199 70 36 29 123 129 73 40
             ];
             pan_id = 60410;
           };
@@ -385,7 +398,7 @@ EOF
   environment.systemPackages = [
     # 🦆 says ⮞ Dependencies 
     pkgs.mosquitto
-    pkgs.zigbee2mqtt 
+    pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
     # 🦆 says ⮞ scene fireworks  
     (pkgs.writeScriptBin "scene-roll" ''
       ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
@@ -497,5 +510,47 @@ EOF
       Restart = "on-failure";
       RestartSec = "45s";
     };
-    
-  };} # 🦆 says ⮞ Bye bye, please come again yo! 💕 💕 💫   
+  };
+  
+  # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
+  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+    wantedBy = [ "multi-user.target" ];
+    preStart = '' 
+      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+      # 🦆 says ⮞ our real mosquitto password quack quack
+      mosquitto_password=$(cat ${config.sops.secrets.mosquitto.path}) 
+      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
+      # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
+      tmp=$(mktemp)
+      ${pkgs.busybox}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+        # 🦆 says ⮞ match line starting with whitespace + network_key
+        /^[[:space:]]*network_key:[[:space:]]*$/ {
+          print
+          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
+          while ((getline < keyfile) > 0) {
+            print indent "  " $0
+          }
+          close(keyfile)
+          skip = 1
+          next
+        }
+        # 🦆 says ⮞ stop skipping when non indented key come by duck
+        skip && /^[^[:space:]]/ { skip = 0 }
+        # 🦆 says ⮞ while skipping, skip skip skip, oh man i'm so hiphop yo
+        skip { next }
+        { print }
+      ' ${config.services.zigbee2mqtt.dataDir}/configuration.yaml > "$tmp"  
+      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
+
+      # 🦆 says ⮞ lock it down like Fort Quack
+      chmod 600 "${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+    '';
+    serviceConfig = {
+      Restart = "on-failure";
+      RestartSec = "2s";
+      User = "zigbee2mqtt";
+      ConditionPathExists = config.sops.secrets.z2m_network_key.path;    
+    };  
+  };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
+# 🦆 says ⮞ i like ducks  
+
