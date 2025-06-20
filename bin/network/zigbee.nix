@@ -292,12 +292,18 @@ EOF
   sops.secrets = {
     mosquitto = { # 🦆 says ⮞ quack, stupid!
       sopsFile = ./../../secrets/mosquitto.yaml; 
-      owner = "root";
-      group = "root";
+      owner = config.this.user.me.name;
+      group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
     z2m_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
       sopsFile = ./../../secrets/z2m_network_key.yaml; 
+      owner = "zigbee2mqtt";
+      group = "zigbee2mqtt";
+      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+    };
+    z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
+      sopsFile = ./../../secrets/z2m_mosquitto.yaml; 
       owner = "zigbee2mqtt";
       group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
@@ -516,7 +522,7 @@ EOF
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack
-      mosquitto_password=$(cat ${config.sops.secrets.mosquitto.path}) 
+      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
       sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
       TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
