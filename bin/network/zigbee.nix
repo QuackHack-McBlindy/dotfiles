@@ -375,11 +375,8 @@ EOF
           last_seen = "ISO_8601_local";
           # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it, decrypt and use da real deal down below yo
           network_key = [ # 🦆 says ⮞ placeholder net yo
-              113 117 97 99 107 32 113 117
-              97 99 107 32 113 117 97 99
-              107 32 73 39 109 32 97 32
-              98 105 110 97 114 121 32 100
-              117 99 107
+              86 208 29 190 33 225 60 93
+              199 70 36 29 123 129 73 40
             ];
             pan_id = 60410;
           };
