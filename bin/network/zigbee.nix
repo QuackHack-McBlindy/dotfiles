@@ -292,14 +292,14 @@ EOF
   sops.secrets = {
     mosquitto = { # 🦆 says ⮞ quack, stupid!
       sopsFile = ./../../secrets/mosquitto.yaml; 
-      owner = "zigbee2mqtt";
-      group = "zigbee2mqtt";
+      owner = "root";
+      group = "root";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
     z2m_network_key = { # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
       sopsFile = ./../../secrets/z2m_network_key.yaml; 
-      owner = "zigbee2mqtt";
-      group = "zigbee2mqtt";
+      owner = "root";
+      group = "root";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
   };
@@ -517,21 +517,17 @@ EOF
     wantedBy = [ "multi-user.target" ];
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
-      LOGFILE="${config.services.zigbee2mqtt.dataDir}/zigbee2mqtt-prestart.log"
-      echo "$LOGFILE"
-      echo "🐣 starting zigbee2mqtt preStart script" | tee -a "$LOGFILE"
-
       # 🦆 says ⮞ our real mosquitto password quack quack
       mosquitto_password=$(cat ${config.sops.secrets.mosquitto.path}) 
       sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-
-      tmp="/var/lib/zigbee/tmp.yaml"
-      touch "$tmp"
-      echo "$tmp"
-      echo "🐣 tmp contents before awk:" | tee -a "$LOGFILE"
-      echo "🐣 running awk script to insert network_key from ${config.sops.secrets.z2m_network_key.path}" | tee -a "$LOGFILE"
-      ${pkgs.busybox}/bin/awk keyfile="${config.sops.secrets.z2m_network_key.path}" '
+      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
+      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+      if [ ! -f "${config.sops.secrets.z2m_network_key.path}" ]; then
+        echo "❌ Network key file not found: ${config.sops.secrets.z2m_network_key.path}"
+        exit 1
+      fi
+      ${pkgs.busybox}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
         # 🦆 says ⮞ match line starting with whitespace + network_key
         /^[[:space:]]*network_key:[[:space:]]*$/ {
           print
@@ -548,10 +544,10 @@ EOF
         # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
         skip { next }
         { print }
-      ' ${config.services.zigbee2mqtt.dataDir}/configuration.yaml > "$tmp"  
-      mv "$tmp" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml    
-      chown zigbee2mqtt:zigbee2mqtt ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
-      chmod 600 ${config.services.zigbee2mqtt.dataDir}/configuration.yaml    
+      ' "$CFGFILE" > "$TMPFILE"  
+      mv "$TMPFILE" "$CFGFILE"    
+      chown zigbee2mqtt:zigbee2mqtt $CFGFILE
+      chmod 600 $CFGFILE    
     '';
     serviceConfig = {
       ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
