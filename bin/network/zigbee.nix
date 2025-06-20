@@ -517,12 +517,21 @@ EOF
     wantedBy = [ "multi-user.target" ];
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+      LOGFILE="${config.services.zigbee2mqtt.dataDir}/zigbee2mqtt-prestart.log"
+      echo "$LOGFILE"
+      echo "🐣 starting zigbee2mqtt preStart script" | tee -a "$LOGFILE"
+
       # 🦆 says ⮞ our real mosquitto password quack quack
       mosquitto_password=$(cat ${config.sops.secrets.mosquitto.path}) 
       sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-      tmp=$(mktemp)
-      ${pkgs.busybox}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+
+      tmp="/var/lib/zigbee/configuration.yam"
+      touch "$tmp"
+      echo "$tmp"
+      echo "🐣 tmp contents before awk:" | tee -a "$LOGFILE"
+      echo "🐣 running awk script to insert network_key from ${config.sops.secrets.z2m_network_key.path}" | tee -a "$LOGFILE"
+      ${pkgs.busybox}/bin/awk keyfile="${config.sops.secrets.z2m_network_key.path}" '
         # 🦆 says ⮞ match line starting with whitespace + network_key
         /^[[:space:]]*network_key:[[:space:]]*$/ {
           print
@@ -546,7 +555,7 @@ EOF
       Restart = "on-failure";
       RestartSec = "2s";
       User = "zigbee2mqtt";
-      ConditionPathExists = config.sops.secrets.z2m_network_key.path;    
+#      ConditionPathExists = config.sops.secrets.z2m_network_key.path;    
     };  
   };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
 # 🦆 says ⮞ i like ducks  
