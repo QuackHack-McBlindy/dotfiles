@@ -317,9 +317,9 @@ EOF
     listeners = [{
         acl = [ "pattern readwrite #" ];
         port = 1883;
-        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
+        omitPasswordAuth = true; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
+        settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
     }];
@@ -351,7 +351,7 @@ EOF
 #          baudrate = 115200; # 🦆 says ⮞ default
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = false; # 🦆 says ⮞ 2duck4frontend yo
+          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0";   
           port = 8099; # 🦆 says ⮞ duck means cool yo
         };
@@ -514,40 +514,40 @@ EOF
   };
  
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
-  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-    wantedBy = [ "multi-user.target" ];
-    preStart = '' 
-      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+#  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+#    wantedBy = [ "multi-user.target" ];
+#    preStart = '' 
+#      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack
-      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
-      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
+#      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
+#      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
-      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
-      if [ ! -f "${config.sops.secrets.z2m_network_key.path}" ]; then
-        echo "❌ Network key file not found: ${config.sops.secrets.z2m_network_key.path}"
-        exit 1
-      fi
-      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+#      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
+#      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+#      if [ ! -f "${config.sops.secrets.z2m_network_key.path}" ]; then
+#        echo "❌ Network key file not found: ${config.sops.secrets.z2m_network_key.path}"
+#        exit 1
+#      fi
+#      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
         # 🦆 says ⮞ match line starting with whitespace + network_key
-        /^[[:space:]]*network_key:[[:space:]]*$/ {
-          print
-          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
-          while ((getline < keyfile) > 0) {
-            print indent "  " $0
-          }
-          close(keyfile)
-          skip = 1
-          next
-        }
+#        /^[[:space:]]*network_key:[[:space:]]*$/ {
+#          print
+#          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
+#          while ((getline < keyfile) > 0) {
+#            print indent "  " $0
+#          }
+#          close(keyfile)
+#          skip = 1
+#          next
+#        }
         # 🦆 says ⮞ stop skipping when non indented key come by duck
-        skip && /^[^[:space:]]/ { skip = 0 }
+#        skip && /^[^[:space:]]/ { skip = 0 }
         # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
-        skip { next }
-        { print }
-      ' "$CFGFILE" > "$TMPFILE"  
-      mv "$TMPFILE" "$CFGFILE"    
-    '';
+#        skip { next }
+#        { print }
+#      ' "$CFGFILE" > "$TMPFILE"  
+#      mv "$TMPFILE" "$CFGFILE"    
+#    '';
 #    serviceConfig = {
 #      ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
 #      Restart = "on-failure";
@@ -556,6 +556,6 @@ EOF
 #      User = "zigbee2mqtt";
 #      ConditionPathExists = config.sops.secrets.z2m_network_key.path; 
 #    };  
-  };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
+  } # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
 # 🦆 says ⮞ i like ducks  
 
