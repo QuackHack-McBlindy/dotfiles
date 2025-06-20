@@ -347,8 +347,8 @@ EOF
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
           port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
-          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
-          baudrate = 115200; # 🦆 says ⮞ default
+#          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
+#          baudrate = 115200; # 🦆 says ⮞ default
         };
         frontend = { # 🦆 says ⮞ who needs dis?
           enabled = false; # 🦆 says ⮞ 2duck4frontend yo
