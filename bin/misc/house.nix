@@ -1,4 +1,4 @@
-# dotfiles/bin/misc/house.nix
+# dotfiles/bin/misc/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # 🦆 says ⮞ home controller
 { 
   self,
@@ -11,7 +11,7 @@
 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
 
-#  sysHosts = lib.attrNames self.nixosConfigurations;
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = let
     sysHosts = lib.attrNames self.nixosConfigurations;
     mqttHosts = lib.filter (host:
@@ -21,7 +21,7 @@
   in
     if mqttHosts != [] then lib.head mqttHosts else null;
 
-  # Get MQTT broker IP (fallback to localhost)
+  # 🦆 says ⮞ get MQTT broker IP (fallback to localhost)
   mqttHostIp = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
     else "127.0.0.1";
@@ -72,57 +72,42 @@ in {
       house = {
         data = [{
           sentences = [
-            "tänd {device}"
-            "gör {brightness} {device} procent"
-#            "gör {brightness} {device} {color} procent"
-#            "gör {brightness} procent {color} {device}"
-#            "sätt {device} till {color} {brightness} procent"
-#            "gör {device} {brightness} procent {color}"
-#            "gör {device} {color} {brightness} procent"
-#            "gör {device} {color} och {brightness} procent"
+            # Multi taskerz
+            "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
+            "(tänd|släck|starta|stäng) {device}"
+            "{slate} alla lampor i {device}"
+            "{state} {device} lampor"           
+            # Color Control
+            "(ändra|gör) färgen [på|i] {device} till {color}"
+            # Brightness Control
+            "justera {device} till {brightness} procent"
           ];        
           lists = {
-#            device.wildcard = true;
-
- #           state.values = [
-#              { "in" = "tänd"; out = "on"; }             
-#              { "in" = "släck"; out = "off"; } 
-#              { "in" = "stäng"; out = "off"; } 
-#              { "in" = "starta"; out = "on"; }   
-#              { "in" = "av"; out = "off"; }             
-#              { "in" = "på"; out = "on"; } 
-#            ];  
-
-
+            state.values = [
+              { "in" = "[tänd|start|starta|på]"; out = "ON"; }             
+              { "in" = "[släck|av|stäng|stäng av]"; out = "OFF"; } 
+            ];
             brightness.values = builtins.genList (i: {
               "in" = toString (i + 1);
               out = toString (i + 1);
             }) 100;
             device.values = [
-              { "in" = "golvet"; out = "Golvet"; }    
-              { "in" = "vardagsrum"; out = "livingroom"; }
-              { "in" = "kök"; out = "kitchen"; }
-              { "in" = "sovrum"; out = "bedroom"; }
-              { "in" = "hall"; out = "hallway"; }
-              { "in" = "wc"; out = "wc"; }
-              { "in" = "köket"; out = "kitchen"; }
+              { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
+              { "in" = "[kök|köket]"; out = "kitchen"; }
+              { "in" = "[sovrum|sovrummet]"; out = "bedroom"; }
+              { "in" = "[hall|hallen]"; out = "hallway"; }
+              { "in" = "[toa|toan|toalett|toaletten|wc]"; out = "wc"; }
+              { "in" = "[all|alla|allt]"; out = "ALL_LIGHTS"; }              
             ];  
-
             color.values = [
-              { "in" = "röd"; out = "red"; }    
-              { "in" = "rött"; out = "red"; }                  
-              { "in" = "grön"; out = "green"; } 
-              { "in" = "grönt"; out = "green"; }                  
-              { "in" = "blå"; out = "blue"; } 
-              { "in" = "blått"; out = "blue"; }                  
-              { "in" = "gul"; out = "yellow"; }   
-              { "in" = "gult"; out = "yellow"; }                  
+              { "in" = "[röd|rött]"; out = "red"; }            
+              { "in" = "[grön|grönt]"; out = "green"; }              
+              { "in" = "[blå|blått]"; out = "blue"; }       
+              { "in" = "[gul|gult]"; out = "yellow"; }          
               { "in" = "orange"; out = "orange"; }             
-              { "in" = "lila"; out = "purple"; } 
+              { "in" = "[lila|lilla]"; out = "purple"; } 
               { "in" = "rosa"; out = "pink"; } 
-              { "in" = "vit"; out = "white"; }   
-              { "in" = "vitt"; out = "white"; }                  
-              { "in" = "svart"; out = "black"; } 
+              { "in" = "[vit|vitt]"; out = "white"; }   
               { "in" = "grå"; out = "gray"; }   
               { "in" = "brunt"; out = "brown"; } 
               { "in" = "cyan"; out = "cyan"; }   
@@ -170,24 +155,17 @@ in {
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(<"$PWFILE")
-      # 🦆 says ⮞ temporary fallback logic for parsing
-      if [[ -z "$DEVICE" && -z "$STATE" && -z "$BRIGHTNESS" && -z "$COLOR" && $# -gt 0 ]]; then
-        INPUT="$*"
-        for word in $INPUT; do
-          case "$word" in
-            sovrum|vardagsrum|kök|hall|wc)
-              DEVICE="$word"
-              ;;
-            rött|blått|grönt|red|blue|green|gul|orange|vit|rosa|lila|cyan|magenta)
-              COLOR="$word"
-              ;;
-
-            *)
-              BRIGHTNESS="$word"
-              ;;
-          esac
-        done
-        [[ "$DEVICE" =~ ^(sovrum|vardagsrum|kök|hall|wc)$ ]] && AREA="$DEVICE"
+      # 🦆 says ⮞ special handling for all_lights device alias
+      if [[ "$DEVICE" == "all_lights" ]]; then
+        if [[ "$STATE" == "on" ]]; then
+          scene max
+        elif [[ "$STATE" == "off" ]]; then
+          scene dark
+        else
+          say_duck "❌ Unknown state for all_lights: $STATE"
+          exit 1
+        fi
+        exit 0
       fi
       control_device() {
         local dev="$1"

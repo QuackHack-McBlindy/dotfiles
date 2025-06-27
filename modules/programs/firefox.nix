@@ -1,17 +1,22 @@
-# dotfiles/modules/programs/firefox.nix
-{ 
+# dotfiles/modules/programs/firefox.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ diz iz my 🦊 even tho i be a 🦆
   config,
-  lib,
-  pkgs,
-  ...
-} : let
+  lib, # 🦆 says ⮞ 📌 FEATURES:
+  pkgs,  # 🦆 says ⮞ ⭐ Dynamic bookmarks from LZ4 backups & fallback to Nix declarative defined bookmarks
+  ...    # 🦆 says ⮞ ⭐ Custom search engines, hardened privacy prefs, systemd applied FF-profile setup & system CSS theming
+} : let  # 🦆 says ⮞ ⭐ Declarative Firefox Extensions (Addons)
+  
+  # 🦆 duck say ⮞  configuration options
   cfg = config.this.host.modules.programs;
-  themeCSS = builtins.readFile config.this.theme.styles;
-  firefoxProfileDir = "/home/${config.this.user.me.name}/.mozilla/firefox/default";
-  backupPath = "${config.users.users.${config.this.user.me.name}.home}/.mozilla/firefox/default/bookmarkbackups";
-  pythonEnv = pkgs.python3.withPackages (ps: [ ps.lz4 ]);
-
-  # Dynamic imports from Firefox Bookmarks Backups to auto detect new bookmarks
+  themeCSS = builtins.readFile config.this.theme.styles; # 🦆 duck say ⮞ reads NixOS module theme and applies it to firefox
+  homeDir = config.users.users.${config.this.user.me.name}.home; # 🦆 duck say ⮞ user home directory
+  firefoxProfileDir = "${homeDir}/.mozilla/firefox/default"; # 🦆 duck say ⮞ default profiles directory
+  backupPath = "${firefoxProfileDir}/bookmarkbackups"; # 🦆 duck say ⮞ firefox default bookmarks directory
+  pythonEnv = pkgs.python3.withPackages (ps: [ ps.lz4 ]); # 🦆 duck say ⮞ required dependencies for encoding firefox data
+#  firefoxProfileDir = "/home/${config.this.user.me.name}/.mozilla/firefox/default"; 
+#  backupPath = "${config.users.users.${config.this.user.me.name}.home}/.mozilla/firefox/default/bookmarkbackups"; 
+  
+  # 🦆 duck say ⮞ Dynamically imports from Firefox Bookmarks Backups to auto detect new bookmarks
   bookmarkScript = pkgs.writeScript "generate-bookmarks.py" ''
     #!${pythonEnv}/bin/python
     import lz4.block
@@ -68,15 +73,14 @@
                 for b in bookmarks:
                     f.write(f'  {{ Title = "{b["Title"]}"; URL = "{b["URL"]}"; Placement = "{b["Placement"]}"; }}\n')
                 f.write("]\n")
-                
+               
         except Exception as e:
             print(f"Error generating bookmarks: {e}")
             sys.exit(1)
   '';
 
-  # Default bookmarks 
+  # 🦆 duck say ⮞ Static Default Bookmarks 
   defaultBookmarks = [
-
     { Title = ""; URL = "http://192.168.1.28:8989"; Placement = "toolbar"; }  
     { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
@@ -88,7 +92,7 @@
     { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; } 
   ];
 
-  # Create bookmarks JSON from lz4
+  # 🦆 duck say ⮞ Create bookmarks JSON from lz4
   generatedBookmarks = pkgs.runCommand "firefox-bookmarks.json" {
     nativeBuildInputs = [ pkgs.lz4 pythonEnv pkgs.jq ];
   } ''
@@ -103,23 +107,23 @@
       }
     fi
   '';
-
-#======= SEARCH ENGINES =====================#       
+ 
+# 🦆 duck say ⮞ SEARCH ENGINES =====================================#       
   searchJson = builtins.toJSON {
-    "metaData" = {
+    "metaData" = { # 🦆 duck say ⮞ default search engine
       "searchDefault" = "ddg";
-      "current" = "";
+      "current" = "ddg";
       "useSavedOrder" = true; 
-    };
+    }; # 🦆 duck say ⮞ all search engines
     "engines" = [
-      {
+      { # 🦆 duck say ⮞ QUACK QUACK LET'z GOO!
         "_name" = "DuckDuckGo";
         "_shortName" = "ddg";
         "_loadPath" = "[app]/defaults/search/duckduckgo.xml";
         "_metaData" = { "order" = 0; };
         "_definedAliases" = [ "ddg" ];
       }
-      {
+      { # 🦆 duck say ⮞ Search Nix Packages 
         "_name" = "Nix Packages";
         "_shortName" = "np";
         "_loadPath" = "[other]/nixpkgs.xml";
@@ -134,7 +138,7 @@
         "_iconURL" = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
         "_definedAliases" = [ "@np" ]; 
       }
-      {
+      { # 🦆 duck say ⮞ Search NixOS Options
         "_name" = "NixOS Options";
         "_shortName" = "no";
         "_loadPath" = "[other]/nixoptions.xml";
@@ -148,10 +152,8 @@
         }];
         "_iconURL" = "https://search.nixos.org/favicon.ico";
         "_definedAliases" = [ "@no" ]; 
-      }
-      
-      
-      {
+      }      
+      { # 🦆 duck say ⮞ Search NixOS Wiki
         "_name" = "NixOS Wiki";
         "_shortName" = "nw";
         "_loadPath" = "[other]/nixwiki.xml";
@@ -162,7 +164,7 @@
         "_iconURL" = "https://wiki.nixos.org/favicon.png";
         "_definedAliases" = [ "@nw" ];
       }
-      {
+      { # 🦆 duck say ⮞ Search GitHub
         "_name" = "GitHub";
         "_shortName" = "gh";
         "_loadPath" = "[other]/github.xml";
@@ -173,7 +175,7 @@
         "_iconURL" = "https://github.githubassets.com/favicons/favicon.svg";
         "_definedAliases" = [ "@gh" ];
       }
-      {
+      { # 🦆 duck say ⮞ Search Home Manager
         "_name" = "Home Manager";
         "_shortName" = "hm";
         "_loadPath" = "[other]/homemanager.xml";
@@ -184,7 +186,7 @@
         "_iconURL" = "https://avatars.githubusercontent.com/u/23828321?s=200&v=4";
         "_definedAliases" = [ "@hm" ];
       }
-      {
+      { # 🦆 duck say ⮞ Search Tradera
         "_name" = "Tradera";
         "_shortName" = "tr";
         "_loadPath" = "[other]/tradera.xml";
@@ -195,7 +197,7 @@
         "_iconURL" = "https://www.tradera.com/favicon.ico";
         "_definedAliases" = [ "@tr" ];
       }
-      {
+      { # 🦆 duck say ⮞ Search Hitta
         "_name" = "Hitta";
         "_shortName" = "hi";
         "_loadPath" = "[other]/hitta.xml";
@@ -206,7 +208,7 @@
         "_iconURL" = "https://www.hitta.se/favicon.ico";
         "_definedAliases" = [ "@hi" ];
       }
-      {
+      { # 🦆 duck say ⮞ Google Search
         "_name" = "Google";
         "_shortName" = "google";
         "_loadPath" = "[app]/defaults/search/google.xml";
@@ -215,7 +217,7 @@
         };
         "_definedAliases" = [ "@g" ];
       }
-      {
+      { # 🦆 duck say ⮞ Searchh Bing
         "_name" = "Bing";
         "_shortName" = "bing";
         "_loadPath" = "[app]/defaults/search/bing.xml";
@@ -225,22 +227,23 @@
       }        
     ];
   };  
-  
 in {
-  # Enabled by exposing "firefox" in this.host.modules.programs
+  # 🦆 duck say ⮞ enabled by exposing `"firefox"` in `this.host.modules.programs`
   config = lib.mkIf (lib.elem "firefox" cfg) {
     programs.firefox = {
       enable = true;
-      package = pkgs.firefox-esr;
+      package = pkgs.firefox-esr; # 🦆 duck say ⮞ ESR is a good option - required for search engines
       languagePacks = [ "en-US" ];
 
-      # ========== PREFERENCES ==========
+# 🦆 duck say ⮞ PREFERENCES ==========
       preferences = {
-        # USER AGENT FIXME Breaks login with common services like Google 
+        # 🦆 duck say ⮞ USER AGENT 
+        # FIXME - BREAKKING logins with common services - like Google 
         # https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
         "general.useragent.locale" = "en-GB";
         "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";      
-        "browser.startup.homepage" = "http://localhost:3001";
+        # 🦆 duck say ⮞ Homepage
+        "browser.startup.homepage" = "http://localhost:3001"; 
         "browser.search.region" = "GB";
         "browser.search.isUS" = false;
         "distribution.searchplugins.defaultLocale" = "en-GB";
@@ -248,7 +251,7 @@ in {
         "extensions.pocket.enabled" = false;
         "browser.toolbars.keyboard_navigation" = false;
         "browser.translations.automaticallyPopup" = false;
-        "ui.systemUsesDarkTheme" = 1;
+        "ui.systemUsesDarkTheme" = 1; # 🦆 duck say ⮞ Darkmode
         "devtools.theme" = "dark";
         "mousewheel.min_line_scroll_amount" = 4;
         "privacy.purge_trackers.enabled" = true;
@@ -256,9 +259,9 @@ in {
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
         "browser.download.dir" = "/home/${config.this.user.me.name}/Downloads";
         "signon.rememberSignons" = false;
-        # FF Sync Server
+        # 🦆 duck say ⮞ FF Sync Server
         # "identity.sync.tokenserver.uri" = http://localhost:5000/1.0/sync/1.5;
-        "browser.shell.checkDefaultBrowser" = false;
+        "browser.shell.checkDefaultBrowser" = false; # 🦆 duck say ⮞ pointless option
         "browser.newtabpage.enabled" = false;
         "browser.newtabpage.activity-stream.enabled" = false;
         "browser.newtabpage.activity-stream.telemetry" = false;
@@ -323,15 +326,15 @@ in {
         "extensions.formautofill.heuristics.enabled" = false;         
       };
 
-      # ========== POLICIES ==========
+# 🦆 duck say ⮞ POLICIES ====================#
       policies = {
-        NoDefaultBookmarks = true;
-        DisableTelemetry = true;
-        DisablePocket = true;
-        DisableFirefoxAccounts = true;
+        NoDefaultBookmarks = true; # 🦆 duck say ⮞ i prefer duckiez bookmarkz
+        DisableTelemetry = true; # 🦆 duck say ⮞ eeeehh...
+        DisablePocket = true; # 🦆 duck say ⮞ Pocket & Bucket - who namez theze stuffz..?
+        DisableFirefoxAccounts = true; 
         DisableAccounts = true;
        
-#======= BOOKMARKS =====================#       
+# 🦆 duck say ⮞ BOOKMARKS ==============================#       
         Bookmarks =  lib.mkMerge [
           (lib.mkIf (builtins.pathExists generatedBookmarks) {
             __content = builtins.fromJSON (builtins.readFile generatedBookmarks);
@@ -342,29 +345,31 @@ in {
           }
         ];
 
-#======= AddOns - Extensions =====================#       
+# 🦆 duck say ⮞ AddOns - Extensions =====================#       
         ExtensionSettings = {
           "*".installation_mode = "blocked"; # blocks all addons except the ones specified below
-          # Super Dark Mode
+          # 🦆 duck say ⮞ Super Dark Mode
+          # 🦆 duck say ⮞ diz iz nizeii for blind duckii eyezzii
           "{be3295c2-d576-4a7c-9987-a21844164dbb}" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/file/4062840/super_dark_mode-5.0.2.5.xpi";
             installation_mode = "force_installed";
           };
-          # uBlock
+          # 🦆 duck say ⮞ uBlock
           "uBlock0@raymondhill.net" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi";
             installation_mode = "force_installed";
           };
-          # Privacy Badger
+          # 🦆 duck say ⮞ Privacy Badger
           "jid1-MnnxcxisBPnSXQ@jetpack" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/latest/privacy-badger17/latest.xpi";
             installation_mode = "force_installed";
           };
-          # ProtonPass
+          # 🦆 duck say ⮞ ProtonPass
           "78272b6fa58f4a1abaac99321d503a20@proton.me" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/file/4401514/proton_pass-1.26.0.xpi";
             installation_mode = "force_installed";
           };
+          # 🦆 duck say ⮞KeePassHttpConnector
           "keepasshttp-connector@addons.brandt.tech" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/file/4273043/keepasshttp_connector-1.0.12resigned1.xpi";
             installation_mode = "force_installed";
@@ -373,8 +378,8 @@ in {
       };
     };
 
-    # ========== SEARCH ENGINES ==========
-    # Create profile.ini 
+# 🦆 duck say ⮞ SEARCH ENGINES ==========
+    # 🦆 duck say ⮞ Create profile.ini 
     systemd.services.firefox-profile = {
       wantedBy = [ "default.target" ];
       serviceConfig = {   
@@ -396,20 +401,20 @@ StartWithLastProfile=1
 Version=2
 EOF
         
-            # Compress search.json to mozlz4 format
+            # 🦆 duck say ⮞ Compress search.json to mozlz4 format
             echo '${searchJson}' | ${pkgs.mozlz4a}/bin/mozlz4a - > "${firefoxProfileDir}/search.json.mozlz4"
         
-#======= USERCHROME.CSS STYLE =====================#        
-            # Create userChrome.css
+# 🦆 duck say ⮞ USERCHROME.CSS STYLE =====================#        
+            # 🦆 duck say ⮞ Create userChrome.css
             cat > "${firefoxProfileDir}/chrome/userChrome.css" <<EOF
             ${themeCSS}
             EOF
         
-            # Merge generated bookmarks
+            # 🦆 duck say ⮞ Merge generated bookmarks
             echo "Linking generated bookmarks..."
             ln -sf ${generatedBookmarks} ${firefoxProfileDir}/generated-bookmarks.nix
         
-            # Seed initial backup if none exists
+            # 🦆 duck say ⮞ Seed initial backup if none exists
             if [ ! -d "${backupPath}" ] || [ -z "$(ls -A "${backupPath}")" ]; then
               mkdir -p "${backupPath}"
               echo '${builtins.toJSON defaultBookmarks}' | ${pkgs.mozlz4a}/bin/mozlz4a - > \
@@ -423,15 +428,15 @@ EOF
         in "${script}/bin/firefox-init";
       };
     };
-
+    
+    # 🦆 duck say ⮞ dependencies
     environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr pkgs.python312Packages.lz4 ];
     environment.sessionVariables = { MOZ_USE_XINPUT2 = "1"; };    
     
-    # Allow access to Firefox backup directory
+    # 🦆 duck say ⮞ Allow access to Firefox backup directory
     nix.settings.allowed-uris = [
       "file://${config.users.users.${config.this.user.me.name}.home}/.mozilla"
     ];
-  };}  
-  
-  
-  
+  };} # 🦆 duck say ⮞ dat'z it, yo!
+# 🦆 duck say ⮞ dat wasn't so bad, huh?  
+# 🦆 duck say ⮞ catch u laterz, aligatorz!

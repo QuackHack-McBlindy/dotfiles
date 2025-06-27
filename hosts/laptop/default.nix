@@ -1,4 +1,5 @@
-{ 
+# dotfiles/hosts/laptop/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ trash - nuff said 
   config,
   lib,
   pkgs,

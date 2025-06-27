@@ -1,4 +1,4 @@
-# dotfiles/bin/productivity/fzf.nix
+# dotfiles/bin/productivity/fzf.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 {
   self,
   config,

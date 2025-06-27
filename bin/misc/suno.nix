@@ -1,4 +1,4 @@
-# dotfiles/bin/network/suno.nix
+# dotfiles/bin/network/suno.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   self,
   config,

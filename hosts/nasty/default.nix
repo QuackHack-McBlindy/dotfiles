@@ -1,4 +1,5 @@
-{ 
+# dotfiles/hosts/nasty/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ huge nasty server - poolin dem drivez yo  
   config,
   lib,
   pkgs,
@@ -78,8 +79,7 @@ in {
     };
                                                                                       
     swapDevices = [ ];
-                                                                                   ########################
-  
+                                                                                   ########################  
     fileSystems."/mnt/disks/media1" = {
         device = "/dev/disk/by-label/media1";
         fsType = "ext4";
@@ -109,7 +109,6 @@ in {
         fsType = "ext4";
         options = [ "defaults" "users" "x-gvfs-show" ];
     };
-
 
     environment.systemPackages = [ pkgs.mergerfs ];
 

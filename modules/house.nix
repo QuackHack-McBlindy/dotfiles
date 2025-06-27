@@ -1,4 +1,4 @@
-# dotfiles/modules/house.nix
+# dotfiles/modules/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # 🦆 duck say ⮞ here we define options that help us control our house yo
 { 
     config,

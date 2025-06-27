@@ -1,4 +1,4 @@
-# dotfiles/bin/productivity/calc.nix
+# dotfiles/bin/productivity/calc.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo = {
@@ -167,10 +167,9 @@
         calculator = {
           data = [{
             sentences = [
-              "beräkna {expression}"
-              "räkna ut {expression}"
-              "kan du räkna ut {expression}"
+              "[kan|du] (beräkna|räkna) [ut|matte]  {expression}"
             ];
+            lists.expression.wildcard = true;
           }];  
         };  
       };

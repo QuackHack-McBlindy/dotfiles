@@ -1,3 +1,4 @@
+# ddotfiles/packages/say/say.py ⮞ https://github.com/QuackHack-McBlindy/dotfiles
 import os
 import sys
 import re
@@ -64,13 +65,10 @@ def ensure_model_exists(language):
 
     return model_path, config_path
 
-
 def speak(text):
     """Detects language, ensures model exists, generates speech, and plays it."""
     lang = detect_language(text)
     model, config = ensure_model_exists(lang)
-
-    print(f'Speaking: "{text}"')
 
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_wav:
         wav_path = tmp_wav.name
@@ -90,11 +88,9 @@ def speak(text):
     finally:
         os.remove(wav_path)
 
-
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: say 'text to speak'")
         sys.exit(1)
 
     speak(sys.argv[1])
-

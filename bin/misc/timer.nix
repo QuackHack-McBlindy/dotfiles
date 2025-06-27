@@ -1,4 +1,4 @@
-# dotfiles/bin/misc/timer.nix
+# dotfiles/bin/misc/timer.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   self,
   lib,
@@ -7,56 +7,69 @@
   cmdHelpers,
   ...
 } : let
+  # 🦆 says ⮞ sweeedish number words 1-60
+  swedishNumbers = [
+    "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
+    "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton" "tjugo"
+    "tjugoett" "tjugotvå" "tjugotre" "tjugofyra" "tjugofem" "tjugosex" "tjugosju" "tjugoåtta" "tjugonio" "trettio"
+    "trettioett" "trettiotvå" "trettiotre" "trettiofyra" "trettiofem" "trettiosex" "trettiosju" "trettioåtta" "trettionio" "fyrtio"
+    "fyrtioett" "fyrtiotvå" "fyrtiotre" "fyrtiofyra" "fyrtiofem" "fyrtiosex" "fyrtiosju" "fyrtioåtta" "fyrtionio" "femtio"
+    "femtioett" "femtiotvå" "femtiotre" "femtiofyra" "femtiofem" "femtiosex" "femtiosju" "femtioåtta" "femtionio" "sextio"
+  ];
+  # 🦆 says ⮞ get dat number yo
+  swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
 in {  
   yo.bitch = { 
     intents = {
       timer = {
         data = [{
           sentences = [
-            "skapa en timer på {hours} timmar {minutes} minuter"
-            "ställ en timer på {hours} timmar {minutes} minuter"
-            "skapa en timer på {minutes} minuter"
-            "ställ en timer på {minutes} minuter"
-            "skapa en timer på {seconds} minuter {minutes} sekunder"
-            "ställ en timer på {seconds} minuter {minutes} sekunder"
-            "skapa timer på {hours} timmar {minutes} minuter"
-            "ställ timer på {hours} timmar {minutes} minuter"
-            "skapa timer på {minutes} minuter"
-            "ställ timer på {minutes} minuter"
-            "skapa timer på {seconds} minuter {minutes} sekunder"
-            "ställ timer på {seconds} minuter {minutes} sekunder"
-            "skapa en timer {hours} timmar {minutes} minuter"
-            "ställ en timer {hours} timmar {minutes} minuter"
-            "skapa en timer {minutes} minuter"
-            "ställ en timer {minutes} minuter"
-            "skapa en timer {seconds} minuter {minutes} sekunder"
-            "ställ en timer {seconds} minuter {minutes} sekunder"
-            "skapa timer {hours} timmar {minutes} minuter"
-            "ställ timer {hours} timmar {minutes} minuter"
-            "skapa timer {minutes} minuter"
-            "ställ timer {minutes} minuter"
-            "skapa timer {minutes} minuter {minutes} sekunder"
-            "ställ timer {seconds} minuter {minutes} sekunder"            
+            "(skapa|ställ|sätt|starta) [en] timer [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
+            "(skapa|ställ|sätt|starta) [en] timer [på] {minutes} (minut|minuter) [och] {seconds} (sekund|sekunder)"
+            "(skapa|ställ|sätt|starta) [en] timer [på] {minutes} (minut|minuter)"                     
+            "(skapa|ställ|sätt|starta) [en] timer [på] {seconds} sekunder"                     
           ];        
           lists = {
-            seconds.values = builtins.genList (
-              i: {
-                "in" = toString (i + 1);
-                out = toString (i + 1);
-              }
-            ) 60;
-            minutes.values = builtins.genList (
-              i: {
-                "in" = toString (i + 1);
-                out = toString (i + 1);
-              }
-            ) 60;
-            hours.values = builtins.genList (
-              i: {
-                "in" = toString (i + 1);
-                out = toString (i + 1);
-              }
-            ) 24;            
+#            seconds.values = builtins.genList (
+#              i: {
+#                "in" = toString (i + 1);
+#                out = toString (i + 1);
+#              }
+#            ) 60;
+#            minutes.values = builtins.genList (
+#              i: {
+#                "in" = toString (i + 1);
+#                out = toString (i + 1);
+#              }
+#            ) 60;
+#            hours.values = builtins.genList (
+#              i: {
+#                "in" = toString (i + 1);
+#                out = toString (i + 1);
+#              }
+#            ) 24;   
+
+            seconds.values = builtins.concatLists (builtins.genList (
+                    i: let n = i + 1; in [
+                      { "in" = toString n; out = toString n; }       # Digit string (e.g., "5")
+                      { "in" = swedishNumber n; out = toString n; }  # Swedish word (e.g., "fem")
+                    ]
+                  ) 60);
+
+                  minutes.values = builtins.concatLists (builtins.genList (
+                    i: let n = i + 1; in [
+                      { "in" = toString n; out = toString n; }
+                      { "in" = swedishNumber n; out = toString n; }
+                    ]
+                  ) 60);
+
+                  hours.values = builtins.concatLists (builtins.genList (
+                    i: let n = i + 1; in [
+                      { "in" = toString n; out = toString n; }
+                      { "in" = swedishNumber n; out = toString n; }
+                    ]
+                  ) 24);
+
           };
         }];
       };
@@ -64,14 +77,7 @@ in {
       alarm = {
         data = [{
           sentences = [
-            "skapa en väckarklocka på klockan {minutes} och {hours}"
-            "ställ en väckarklocka på klockan {minutes} och {hours}"
-            "skapa väckarklocka på {minutes} och {hours}"
-            "ställ väckarklocka på {minutes} och {hours}"        
-            "skapa en väckarklocka på klockan {minutes}:{hours}"
-            "ställ en väckarklocka på klockan {minutes}:{hours}"
-            "skapa väckarklocka på {minutes}.{hours}"
-            "ställ väckarklocka på {minutes}.{hours}"                 
+            "(skapa|ställ|sätt|start|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {minutes} [och] {hours}"      
           ];        
           lists = {
             hours.values = builtins.genList (
@@ -95,11 +101,7 @@ in {
   yo.scripts.timer = {
     description = "Set a timer";
     category = "🧩 Miscellaneous";
-#    aliases = [ "" ];
-#    helpFooter = ''
-#    '';
     parameters = [  
-
       { name = "minutes"; description = "Minutes to set the timer on"; default = "0";  }     
       { name = "seconds"; description = "Seconds to set the timer on"; default = "0"; }     
       { name = "hours"; description = "Hours to set the timer on"; default = "0"; }
@@ -145,9 +147,7 @@ in {
    yo.scripts.alarm = {
     description = "Set an alarm for a specified time";
     category = "🧩 Miscellaneous";
-#    aliases = [ "" ];
-#    helpFooter = ''
-#    '';
+    aliases = [ "wakeup" ];
     parameters = [     
       { name = "hours"; description = "Clock to sewt the alarm for, HH 24 format"; }     
       { name = "minutes"; description = "Clock to sewt the alarm for, MM format"; }    
@@ -177,9 +177,9 @@ in {
         for i in {1..10}; do
           aplay "$SOUNDFILE" >/dev/null 2>&1
         done
-
+        
         sleep 30
-
+        
         for i in {1..8}; do
           aplay "$SOUNDFILE" >/dev/null 2>&1
         done

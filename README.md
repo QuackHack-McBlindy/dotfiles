@@ -25,15 +25,15 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 🦆 _duck say ⮞_ __Oh hellow? please quack on in,__ <br>
 🦆 _duck say ⮞_ __while duckie quite stuckie in dis endless rabbit hole__ <br>
 
-## **📌 Highlights** 🏆 👑 
+## **📌 Highlights** 
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🛠️ **[Nix CLI Toolbox](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(for quick-quack deployments, magically syncronized rollbacks & voice execution)*    
-- 🎙️ **[Nix NLP](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/nlp.nix)** *(builds commands by natural language, dynamic regex matching, parameter extraction + execution)* 
-- 📡 **[Smart Home](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/zigbee.nix)** *(declaritive zigbee devices + custom automation system written in Nix & Bash)* 
+- 🛠️ **[yo DSL CLI](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(yo - Unified script execution framework with deeply integrated advanced features. Nix+Bash+🦆 )*    
+- 🎙️ **[Nix/Bash NLP](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/nlp.nix)** *(Translates natural language to yo scripts - Dynamic regex+Automatic parameter resolution+++ Speak directly to your Shell)* 
+- 📡 **[Smart Home](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/zigbee.nix)** *(Nix Smart Home - Living right down the Rabbit Hole)* 
 - 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/networking/wg-server.nix)** *(with automatic QR codes for mobile devices)* 
-- 🗣️ **[Language-Aware TTS](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/packages/say/say.py)** *(LangID & Piper, TTS notifications, Orca plugin)* 
-- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(extensions, bookmarks and settings)* 
+- 🗣️ **[Language-Aware TTS](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/packages/say.nix)** *(LangID & Piper, TTS notifications, Orca plugin)* 
+- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Extensions, Bookmarks & Settings)* 
 - 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(Servarr, Navidrome, ...)* 
 - 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
 - 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
@@ -109,7 +109,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "gpu/amd" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "adb" "backup" "cache" "keyd" "bitch" ];
+    services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/s6va3z07dxna40mw9cvyg1839di8xh77-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/x0vsl7nd38fkzgjq0vqpcav9gilii4qj-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -164,7 +164,7 @@ I like my flakes tiny & ny modules dynamically loaded,
 
 <!-- FLAKE_START -->
 ```nix
-# dotfiles/flake.nix
+# dotfiles/flake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 {  # 🦆 duck say ⮞ welcome to
     description = "❄️🦆 ⮞ QuackHack-McBLindy's big dot of flakyfiles with extra quackz.";
     inputs = { # 🦆 duck say ⮞ inputz stuff
@@ -176,11 +176,11 @@ I like my flakes tiny & ny modules dynamically loaded,
     }; # 🦆 duck say ⮞ outputz other ducky stuffz
     outputs = inputs @ { self, systems, nixpkgs, ... }:
         let
-            lib = import ./lib {
+            lib = import ./lib { 
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };                   
-        in lib.makeFlake {
+        in lib.makeFlake { # 🦆 duck say ⮞ make my flake
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
             hosts = lib.mapHosts ./hosts;
@@ -273,7 +273,7 @@ $ yo deploy laptop
 <br>
 
 <!-- YO_DOCS_START -->
-## 🚀 **yo CLI TOol 🦆🦆🦆🦆🦆🦆**
+## 🚀 **yo CLI 🦆🦆🦆🦆🦆🦆**
 **Usage:** `yo <command> [arguments]`  
 
 **yo CLI config mode:** `yo config`, `yo edit` 
@@ -287,7 +287,7 @@ $ yo deploy laptop
 ``` 
 
 ### **Usage Examples:**  
-The yo CLI tool supports flexible parameter parsing through two primary mechanisms:  
+The yo CLI supports flexible parameter parsing through two primary mechanisms:  
 
 ```bash
 # Named Parameters  
@@ -300,7 +300,8 @@ $ yo deploy laptop /home/pungkula/dotfiles
 "yo bitch deploy laptop"
 
 # If the server is not running, it can be manually started with:
-$ yo-bitch
+$ yo transcription
+$ yo wake
 
 # Get list of all defined sentences for voice commands:
 $ yo bitch --help
@@ -313,13 +314,18 @@ Set default values for your parameters to have them marked [optional]
 | **🖥️ System Management** | | |
 | `yo deploy --host [--flake] [--user] [--repo] [--port] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
 | `yo dev [--devShell]` |  | Start development enviorment |
+| `yo duckTrace [--file]` | log | View duckTrace logs quick and quack. |
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
 | **⚙️ Configuration** | | |
 | `yo bitch --input` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo edit ` | config | yo CLI configuration mode |
-| `yo mic ` |  | Manually trigger microphone recording for intent execution. |
+| `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
+| `yo say --text [--model] [--modelDir] [--silence]` |  | Text to speech with built in language detection and automatic model downloading |
+| `yo tests [--debug]` |  | Automated unit testing |
+| `yo transcribe [--port] [--model] [--language] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
+| `yo wake [--threshold] [--cooldown] [--sound]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
 | `yo calculator --expression` | calc | Calculate math expressions |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
@@ -333,7 +339,6 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | |
 | `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo proxy --mode` | prox | Turn proxy routing on/off for anonymous mode |
 | `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
 | `yo zigduck [--user] [--pwfile]` | zigbee, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
@@ -347,7 +352,7 @@ Set default values for your parameters to have them marked [optional]
 | **🛖 Home Automation** | | |
 | `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` | lights | Control lights and other home automatioon devices |
 | **🧩 Miscellaneous** | | |
-| `yo alarm [--hours] [--minutes] [--sound]` |  | Set an alarm for a specified time |
+| `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |

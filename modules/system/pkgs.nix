@@ -161,7 +161,7 @@
                 pkgs.piper-tts
            #     pkgs.mkchromecast
                 pkgs.keyd
-                self.packages.x86_64-linux.yo-bitch
+               # self.packages.x86_64-linux.yo-bitch
 #                self.packages.x86_64-linux.yo-mic
 #                self.packages.x86_64-linux.hold
             ]     

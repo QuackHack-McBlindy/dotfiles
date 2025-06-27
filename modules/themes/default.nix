@@ -1,5 +1,5 @@
-# modules/themes/default.nix
-{ 
+# dotfiles/modules/themes/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ declarative global theme settings 
   lib,
   config,
   pkgs,
@@ -12,15 +12,13 @@ in {
   options.this.theme = {
     name = mkOption {
       type = types.str;
-      default = "crazy.css";
+      default = "crazy.css"; # 🦆 duck say ⮞ duckz idea of a good joke... lol
       description = "Active theme file name";
       apply = v:
         if ! builtins.pathExists (./css + "/${v}") 
         then throw "Theme ${v} not found in ${toString ./css}"
         else v;
     };
-
-
 
     styles = mkOption {
       type = types.path;
@@ -29,7 +27,7 @@ in {
       description = "Resolved path to theme CSS file";
     };
 
-    # Fixed submodule definitions
+    # 🦆 duck say ⮞ Icon options
     iconTheme = mkOption {
       type = types.submodule {
         options = {
@@ -48,6 +46,7 @@ in {
       default = {};
     };
 
+    # 🦆 duck say ⮞ cursor options
     cursorTheme = mkOption {
       type = types.submodule {
         options = {
@@ -71,7 +70,7 @@ in {
       default = {};
     };
 
-    # Add fonts submodule
+    # 🦆 duck say ⮞ font options
     fonts = mkOption {
       type = types.submodule {
         options = {
@@ -96,10 +95,10 @@ in {
     };
   };
 
-  
+  # 🦆 duck say ⮞ Configuration
   config = mkMerge [
     {
-      # Font configuration (always applied)
+      # 🦆 duck say ⮞ Font configuration
       fonts = {
         packages = mkIf (cfg.fonts.packages != []) cfg.fonts.packages;
         fontconfig = {
@@ -111,12 +110,12 @@ in {
         };
       };
 
-      # Required for dconf theming
+      # 🦆 duck say ⮞ Required for dconf theming
       programs.dconf.enable = true;
     }
     
     (mkIf (cfg.iconTheme != {}) {
-      # Icon theme configuration
+      # 🦆 duck say ⮞ Icon theme configuration
       environment.systemPackages = [ cfg.iconTheme.package ];
       programs.dconf.profiles.user.databases = [{
         settings = {
@@ -128,7 +127,7 @@ in {
     })
     
     (mkIf (cfg.cursorTheme != {}) {
-      # Cursor theme configuration
+      # 🦆 duck say ⮞ Cursor theme configuration
       environment.systemPackages = [ cfg.cursorTheme.package ];
       environment.sessionVariables = {
         XCURSOR_THEME = cfg.cursorTheme.name;
@@ -142,5 +141,4 @@ in {
         };
       }];
     })
-  ];
-}
+  ];}

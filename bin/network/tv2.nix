@@ -1,7 +1,6 @@
 { self, config, pkgs, cmdHelpers, ... }:
 {  
-  yo.bitch = {
-    language = "sv";    
+  yo.bitch = {    
     intents = {
       arris = {
         data = [{

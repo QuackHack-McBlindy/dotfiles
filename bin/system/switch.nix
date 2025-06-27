@@ -1,4 +1,4 @@
-# dotfiles/bin/system/switch.nix
+# dotfiles/bin/system/switch.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 {
     yo.scripts = {
@@ -11,8 +11,7 @@
           { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
         ];
         code = ''
-          ${cmdHelpers}
-          
+          ${cmdHelpers}      
           if $DRY_RUN; then
             echo "❗ Test run: reboot will revert activation"
           fi

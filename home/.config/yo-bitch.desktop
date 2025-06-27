@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Exec=yo-bitch
+Exec=yo-wake
 Hidden=false
 NoDisplay=false
 X-GNOME-Autostart-enabled=true
-Name=YoBitch
+Name=yo-wake

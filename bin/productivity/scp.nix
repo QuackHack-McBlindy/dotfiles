@@ -1,4 +1,4 @@
-# dotfiles/bin/productivity/scp.nix
+# dotfiles/bin/productivity/scp.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo.scripts = {

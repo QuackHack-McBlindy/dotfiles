@@ -1,6 +1,6 @@
-# dotfiles/hosts/homie/default.nix
-{ 
-  config,
+# dotfiles/hosts/homie/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ tiny steelcoolz fanless server 
+  config, 
   lib,
   pkgs,
   self,

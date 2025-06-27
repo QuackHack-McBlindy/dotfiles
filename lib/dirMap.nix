@@ -1,4 +1,4 @@
-# dotfiles/lib/dirMap.nix
+# dotfiles/lib/dirMap.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ dis provides helpful toolz when working with directories
   lib
 } : { 

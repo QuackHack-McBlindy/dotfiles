@@ -1,4 +1,4 @@
-# dotfiles/bin/system/reboot.nix
+# dotfiles/bin/system/reboot.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, sysHosts, cmdHelpers, ... }:
 {
     yo.scripts = { 

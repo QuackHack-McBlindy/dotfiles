@@ -1,4 +1,4 @@
-# dotfiles/bin/system/rollback.nix
+# dotfiles/bin/system/rollback.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 
 { config, pkgs, cmdHelpers, ... }:
 {

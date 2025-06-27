@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Exec=bash -c "sleep 30 && yo-wake"
+Hidden=false
+NoDisplay=false
+X-GNOME-Autostart-enabled=true
+Name=yo-wake

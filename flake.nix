@@ -1,4 +1,4 @@
-# dotfiles/flake.nix
+# dotfiles/flake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 {  # 🦆 duck say ⮞ welcome to
     description = "❄️🦆 ⮞ QuackHack-McBLindy's big dot of flakyfiles with extra quackz.";
     inputs = { # 🦆 duck say ⮞ inputz stuff
@@ -10,11 +10,11 @@
     }; # 🦆 duck say ⮞ outputz other ducky stuffz
     outputs = inputs @ { self, systems, nixpkgs, ... }:
         let
-            lib = import ./lib {
+            lib = import ./lib { 
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };                   
-        in lib.makeFlake {
+        in lib.makeFlake { # 🦆 duck say ⮞ make my flake
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = [ ];
             hosts = lib.mapHosts ./hosts;

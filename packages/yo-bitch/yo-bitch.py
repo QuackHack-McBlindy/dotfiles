@@ -1,7 +1,8 @@
+# dotfiles/packages/yo-bitch/yo-bitch.py ⮞ https://github.com/QuackHack-McBlindy/dotfiles
+ # 🦆 says ⮞ serverside for transcription
 from fastapi import FastAPI, File, UploadFile, WebSocket
 from fastapi.logger import logger as fastapi_logger
 from contextlib import asynccontextmanager
-#from pathlib import Path
 import logging
 from logging.handlers import RotatingFileHandler
 import uvicorn
@@ -14,18 +15,12 @@ import time
 import threading
 import os
 #import requests
-#import json
 import yaml
 import string
-#import websockets
-#import ast
 import asyncio
 from faster_whisper import WhisperModel
 import numpy as np
 import datetime
-#from wyoming.asr import Transcript
-#from wyoming.client import AsyncClient
-#from wyoming.wake import Detect
 
 class DuckTrace:
     LOG_FILE = os.path.expanduser("~/.config/yo-bitch.log")
@@ -201,25 +196,25 @@ def load_config():
     
     return config
 
-# Load config before initializing other components
+ # 🦆 says ⮞  load config before initializing other components
 try:
     config = load_config()
 except Exception as e:
     print(f"Failed to load config: {e}")
     raise
 
-# Logging
+ # 🦆 says ⮞ quack tracin'
 LOG_FILE = config["logging"]["log_file"]
 MAX_LOG_SIZE = config["logging"]["max_log_size"]
 BACKUP_COUNT = config["logging"]["backup_count"]
 
-# Whisper model
+ # 🦆 says ⮞ Whisper model
 WHISPER_MODEL_SIZE = config["whisper"]["model_size"]
 WHISPER_DEVICE = config["whisper"]["device"]
 WHISPER_COMPUTE_TYPE = config["whisper"]["compute_type"]
 WHISPER_SAMPLE_RATE = config["whisper"]["sample_rate"]
 
-# Wake word
+ # 🦆 says ⮞ Wake word
 WAKE_THRESHOLD = config["wake_word"]["threshold"]
 WAKE_COOLDOWN = config["wake_word"]["cooldown_period"]
 WAKE_LOG_UNIT = config["wake_word"]["log_unit"]
@@ -229,7 +224,7 @@ DONE_SOUND = config["wake_word"]["done_sound"]
 WAKE_URI = config["wake_word"]["wake_uri"]
 WAKE_WORD_NAME = config["wake_word"]["wake_word_name"]
 
-# Wyoming Satellite
+# 🦆 says ⮞ Wyoming Satellite
 SATELLITE_BINARY = config["wyoming_satellite"]["binary"]
 SATELLITE_NAME = config["wyoming_satellite"]["name"]
 SATELLITE_URI = config["wyoming_satellite"]["uri"]
@@ -238,18 +233,18 @@ SATELLITE_SND_CMD = config["wyoming_satellite"]["snd_command"]
 
 MIC_COMMAND = config["mic_command"]
 
-# Audio playback
+# 🦆 says ⮞ Audio playback
 SAY_BINARY = config["audio"]["say_binary"]
 DEFAULT_PLAYBACK_CMD = config["audio"]["default_playback_cmd"]
 TEMP_AUDIO_SUFFIX = config["audio"]["temporary_audio_suffix"]
 
-# API
+# 🦆 says ⮞ API
 API_HOST = config["api"]["host"]
 API_PORT = config["api"]["port"]
 API_LANGUAGE = config["api"]["language"]
 API_VAD_FILTER = config["api"]["vad_filter"]
 
-# Voice command patterns
+# 🦆 says ⮞ Voice command patterns
 VOICE_COMMANDS = config["commands"]["voice_commands"]
 
 LOG_PATTERN = re.compile(WAKE_LOG_REGEX)
@@ -338,6 +333,7 @@ async def parse_voice_command(text: str) -> str:
             return format_dynamic_response(cmd["response"])
     return ""
 
+# 🦆 says ⮞ transcription endpoint
 @app.post("/transcribe")
 async def transcribe_audio(audio: UploadFile = File(...)):
     try:
@@ -364,6 +360,8 @@ async def transcribe_audio(audio: UploadFile = File(...)):
                 dt.debug("No Python command matched")
                 dt.debug("Sending to Nix NLP")
                 dt.info(f"Running: yo bitch {transcription}")
+                # 🦆 says ⮞ 4 da DEBUG
+                subprocess.Popen(["say", f"sending yo bitch {transcription}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 subprocess.Popen(["yo", "bitch", transcription], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             dt.debug("Empty transcription")

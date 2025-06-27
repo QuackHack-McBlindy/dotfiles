@@ -1,4 +1,4 @@
-# dotfiles/bin/config/cli.nix
+# dotfiles/bin/config/cli.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   self,
   config,

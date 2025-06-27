@@ -1,19 +1,19 @@
-# dotfiles/bin/network/zigduck.nix
-{ # 🦆 says ⮞ Welcome to my quacky hacky home of fun! 💫  
+# dotfiles/bin/network/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 💫  
   self, 
-  lib,  # 🦆 says ⮞ fully declarative lights, power plugs, sensors, dimmers and other smart home devices 
-  config, # 🦆 says ⮞ home automations with jq, configured to automate quacky hacky home,
-  pkgs, # 🦆 says ⮞ duck don't write automations duck write infra with junkie comments on each line 
-  cmdHelpers,
-  ...
-} : let # you follow 🦆 home – ⬇⬇ this way plz? quack quack
+  lib, # 🦆 says ⮞ 📌 FEATURES:
+  config,     # 🦆 says ⮞ ⭐Autoconfigures: Lights, Zigbee Coordinator+encrypted backup, Dimmers, Scenes, Automations, Power Switches, Motion+Sensors, Blinds, etc.. 
+  pkgs,       # 🦆 says ⮞ ⭐ Display Battery Dashboard in Markdown within `--help` command in CLI
+  cmdHelpers, # 🦆 says ⮞ ⭐  etc, etc, etc... 
+  ... # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
+} : let # yo follow 🦆 home – ⬇⬇ 🦆 says diz way plz? quack quackz
 
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
-  # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
-  backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ Verbose logging 
   DEBUG = false;
+  # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
+  backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
 
   # 🦆 says ⮞ ⏰ Automations based upon time
   house.timeAutomations = {
@@ -134,6 +134,7 @@ in { # 🦆 says ⮞ finally here, quack!
   yo.scripts.zigduck = { # 🦆 says ⮞ dis is where my home at
     description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
     category = "🌐 Networking"; # 🦆 says ⮞ thnx for following me home
+    autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     aliases = [ "zigbee" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
     helpFooter = '' 
@@ -161,6 +162,7 @@ $(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
 ## ──────⋆⋅☆⋅⋆────── ##
 EOF
     '';
+    logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
@@ -346,16 +348,16 @@ EOF
         };
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
-          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
+         port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { # 🦆 says ⮞ who needs dis?
           enabled = false; # 🦆 says ⮞ 2duck4frontend yo
-          host = "0.0.0.0";   
-          port = 8099; # 🦆 says ⮞ duck means cool yo
+          host = "0.0.0.0";  # 🦆 says ⮞ duck means cool by the way - in case u did not realize 
+          port = 8099; 
         };
-        advanced = { # 🦆 says ⮞ dis is advanced? duck tearz
-          homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?!
+        advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
+          homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
           legacy_api = false;
           legacy_availability_payload = false;
           log_syslog = { # 🦆 says ⮞ log settings
@@ -366,7 +368,7 @@ EOF
             path = "/dev/log";
             pid = "process.pid"; # 🦆 says ⮞ process id
             port = 123;
-            protocol = "tcp4";# 🦆 says ⮞ TCP
+            protocol = "tcp4";# 🦆 says ⮞ TCP4pcplife
             type = "5424";
           };
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
@@ -500,17 +502,17 @@ EOF
   ];  
     
   # 🦆 says ⮞ pls ensure my quacky hacky home start at boot - YO
-  systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
-    after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
-    wantedBy = ["multi-user.target"];
-    serviceConfig = { # 🦆 says ⮞ dis down below is dis script above
-      User = config.this.user.me.name; 
-      Group = config.this.user.me.name;
-      ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
-      Restart = "on-failure";
-      RestartSec = "45s";
-    };
-  };
+#  systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
+#    after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
+#    wantedBy = ["multi-user.target"];
+#    serviceConfig = { # 🦆 says ⮞ dis down below is dis script above
+#      User = config.this.user.me.name; 
+#      Group = config.this.user.me.name;
+#      ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
+#      Restart = "on-failure";
+#      RestartSec = "45s";
+#    };
+#  };
  
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
@@ -544,7 +546,8 @@ EOF
 #        { print }
 #      ' "$CFGFILE" > "$TMPFILE"  
 #      mv "$TMPFILE" "$CFGFILE"    
-    '';
-  };} # 🦆 says ⮞ i'll miss you! please come again yo! 🥰🥰💕💫⭐
-# 🦆 says ⮞ i like ducks  
+    ''; # 🦆 says ⮞ thnx fo quackin' along! 💫⭐
+  };} # 🦆 says ⮞ sleep tight!
+# 🦆 says ⮞ QuackHack-McBLindy out!
+# ... 🛌🦆💤
 

@@ -1,4 +1,4 @@
-# dotfiles/bin/<CATEGORY>/<SCRIPT>.nix
+# dotfiles/bin/<CATEGORY>/<SCRIPT>.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   config,
   lib,

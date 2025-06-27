@@ -1,4 +1,4 @@
-# dotfiles/bin/default.nix
+# dotfiles/bin/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ dis file just sets simple helpers and auto imports all scripts
     self,
     config,
@@ -28,9 +28,75 @@
   # 🦆 duck say ⮞ list all devShells — ducklingz ready to hatch dem dev env
   sysDevShells = lib.attrNames self.devShells; 
   
-  # 🦆 duck say ⮞ Create helper functions for yo scripts
+  # 🦆 duck say ⮞ stash house for massive amounts of helper functions for yo scripts
   cmdHelpers = ''
-    parse_flags() {
+    # 🦆 duck say ⮞ colors & stykez yo
+    BOLD="\033[1m"
+    BLINK="\033[5m"
+    YELLOW="\033[33m"
+    BLUE="\033[34m"
+    GREEN="\033[0;32m"
+    ALERT='\033[1;5;31m'
+    RED='\033[1;31m'
+    NC='\033[0m'
+    RESET='\033[0m'
+    GRAY="\033[38;5;244m"
+    # 🦆 says ⮞ duck say stylez 
+    DSAY="\033[3m\033[38;2;0;150;150m"   
+    bold() { # 🦆 says ⮞ function to make input text bold   
+      echo -e "\033[1m$1\033[0m"
+    }  
+    # 🦆 says ⮞ DUCK TRACE YO
+    # 🦆 says ⮞ main directory for log pathz
+    export DT_LOG_PATH="$HOME/.config/duckTrace/"
+    mkdir -p "$DT_LOG_PATH"    
+    # 🦆 says ⮞ convert string levels to numbers
+    declare -A DT_LEVEL_MAP=( [DEBUG]=0 [INFO]=1 [WARNING]=2 [ERROR]=3 [CRITICAL]=4 )
+    # 🦆 says ⮞ auto convert DT_LOG_LEVEL if set as string
+    if [[ -n "$DT_LOG_LEVEL" && ! "$DT_LOG_LEVEL" =~ ^[0-9]+$ ]]; then
+      export DT_LOG_LEVEL_NUM="''${DT_LEVEL_MAP[''${DT_LOG_LEVEL^^}]:-1}"
+    else
+      : ''${DT_LOG_LEVEL_NUM:=1}
+    fi
+
+    # 🦆 says ⮞ map log levels
+    declare -A DT_LEVEL_MAP=( [DEBUG]=0 [INFO]=1 [WARNING]=2 [ERROR]=3 [CRITICAL]=4 )
+    _dt_log() {
+      local level="$1"
+      local symbol="$2"
+      local color="$3"
+      local message="$4"
+      local blink="$5"
+      local timestamp
+      timestamp=$(date +"%H:%M:%S")
+      local blink_code=""
+      [[ "$blink" == "true" ]] && blink_code="$BLINK"
+      local level_num="''${DT_LEVEL_MAP[$level]:-0}"
+      (( level_num < DT_LOG_LEVEL_NUM )) && return
+      # 🦆 says ⮞ format output
+      local output="''${color}''${BOLD}''${blink_code}[🦆📜] [''${timestamp}] ''${symbol}''${level}''${symbol} ⮞ ''${message}''${RESET}"
+      echo -e "$output" 
+      # 🦆 says ⮞ append to log file
+      echo "[''${timestamp}] ''${level} - ''${message}" >> "''${DT_LOG_PATH%/}/''${DT_LOG_FILE}"
+    }
+    # 🦆 says ⮞ log levels (in order of most critical)
+    dt_debug() {
+      _dt_log "DEBUG" "⁉️" "$BLUE" "$1"
+    }    
+    dt_info() {
+      _dt_log "INFO" "✅" "$GREEN" "$1"
+    }
+    dt_warning() {
+      _dt_log "WARNING" "⚠️" "$YELLOW" "$1"
+    }
+    dt_error() {
+      _dt_log "ERROR" "❌" "$RED" "$1" true
+    }
+    dt_critical() {
+      _dt_log "CRITICAL" "🚨" "$RED" "$1" true
+    }
+    # 🦆 says ⮞ END OF DUCK TRACE ='( 
+    parse_flags() { # 🦆 says ⮞ quite self explained  
       VERBOSE=0
       DRY_RUN=false
       HOST=""
@@ -43,10 +109,8 @@
       done
       FLAGS=()
       (( VERBOSE > 0 )) && FLAGS+=(--show-trace "-v''${VERBOSE/#0/}")
-    }     
-
-    # 🦆 duck say ⮞ outputs random hex within color range from plain text color names
-    color2hex() {
+    }        
+    color2hex() { # 🦆 duck say ⮞ outputs random hex within color range from plain text color names
       local color="$1"
       declare -A color_ranges=(
         ["red"]="255,0,0:165,0,0"
@@ -75,18 +139,14 @@
       local b=$(( min_b + RANDOM % (max_b - min_b + 1) ))
       printf "%02x%02x%02x\n" "$r" "$g" "$b"
     }
-
-    # 🦆 duck say ⮞ check development enviorment exist yo!
-    validate_devShell() {
+    validate_devShell() {  # 🦆 duck say ⮞ check development enviorment exist yo!
       if [[ ! " ${lib.escapeShellArg (toString sysDevShells)} " =~ " $devShell " ]]; then
         echo -e "\033[1;31m❌ $1\033[0m Unknown devShell: $devShell" >&2
         echo "Available devShells: ${toString sysDevShells}" >&2
         exit 1
       fi
     }
-
-    # 🦆 duck say ⮞ run commands safely, yo!
-    run_cmd() {
+    run_cmd() { # 🦆 duck say ⮞ run commands safely, yo!
       if $DRY_RUN; then
         echo "[DRY RUN] Would execute:"
         echo "  ''${@}"
@@ -98,47 +158,35 @@
         "''${@}"
       fi
     }
-    # 🦆 duck say ⮞ diis need explaination? 
-    say_duck() {
+    say_duck() { # 🦆 duck say ⮞ diis need explaination? 
       echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
-    }
-
-    # 🦆 duck say ⮞ remember to set appropriate mode in script 
-    debug() {
+    }   
+    debug() {  # 🦆 duck say ⮞ remember to set appropriate mode in script 
      if [ "$DEBUG_MODE" = true ]; then echo "$*"; fi
-    }      
-
-    # 🦆 duck say ⮞ fail? duck's usually don't yo?
-    type fail >/dev/null 2>&1 || fail() { 
+    }
+    type fail >/dev/null 2>&1 || fail() { # 🦆 duck say ⮞ fail? duck's usually don't yo?
       echo -e "$1" >&2
       exit 1
     }
-    
-    # 🦆 duck say ⮞ validate command flags, yo!
-    validate_flags() {
+    validate_flags() { # 🦆 duck say ⮞ validate command flags, yo!
       verbosity_level=$(grep -o '?' <<< "$@" | wc -l)
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
     }
-
     # 🦆 duck say ⮞ plays failing sound
     play_fail() {
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
     }
-
     # 🦆 duck say ⮞ validate json input before process
     is_valid_json() {
       echo "$1" | ${pkgs.jq}/bin/jq -e . >/dev/null 2>&1
-    }
-    # 🦆 duck say ⮞ plays winning sound
-    play_win() {
+    }    
+    play_win() { # 🦆 duck say ⮞ plays winning sound
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/win.wav" >/dev/null 2>&1
     }
-    # 🦆 duck say ⮞ Prompt for input by voice
-    mic_input() {
-      yo--mic | ${pkgs.jq}/bin/jq -r '.transcription // empty'
+    mic_input() { # 🦆 duck say ⮞ Prompt for input by voice
+      yo-mic | ${pkgs.jq}/bin/jq -r '.transcription // empty'
     } 
-    # 🦆 duck say ⮞ validate host, yo!
-    validate_host() {
+    validate_host() { # 🦆 duck say ⮞ validate host, yo!
       if [[ ! " ${lib.escapeShellArg (toString sysHosts)} " =~ " $host " ]]; then
         echo -e "\033[1;31m❌ $1\033[0m Unknown host: $host" >&2
         echo "Available hosts: ${toString sysHosts}" >&2
@@ -173,10 +221,6 @@
     mqtt_sub() { # 🦆 says ⮞ subscribe Mosquitto
       ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
     }
-    # 🦆 says ⮞ function to make input text bold    
-    bold() {
-      echo -e "\033[1m$1\033[0m"
-    }
     # 🦆 says ⮞ device parser for zigduck
     device_check() { 
       occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && debug "occupancy: $occupancy"
@@ -209,6 +253,68 @@
         done    
       say_duck "🚫 Lights OFF in $clean_room"  
     }
+    # 🦆 says ⮞ pure fuzz – Nixified Bash Levenshtein
+    levenshtein() {
+      local str1="$1"
+      local str2="$2"
+      local len1="''${#str1}"
+      local len2="''${#str2}"
+      local i j cost 
+      declare -A matrix  ## ⮜ associative array says 🦆 
+      # 🦆 says ⮞ init matrix
+      for ((i=0; i<=len1; i++)); do
+        matrix["''$i,0"]=$i
+      done
+      for ((j=0; j<=len2; j++)); do
+        matrix["0,$j"]=$j
+      done
+      # 🦆 says ⮞ compute distances
+      for ((i=1; i<=len1; i++)); do
+        for ((j=1; j<=len2; j++)); do
+          [[ "''${str1:i-1:1}" == "''${str2:j-1:1}" ]] && cost=0 || cost=1
+          local del=''$((matrix["$((i-1)),$j"] + 1))
+          local ins=$((matrix["$i,$((j-1))"] + 1))
+          local sub=$((matrix["$((i-1)),$((j-1))"] + cost))
+          matrix["$i,$j"]=$(min3 "$del" "$ins" "$sub")
+        done
+      done
+      echo "''${matrix["''$len1,''$len2"]}"
+    }
+    min3() {
+      printf "%s\n" "$@" | sort -n | head -n1
+    }
+    # 🦆 duck say ⮞ true bash fuzz
+    levenshtein_similarity() {
+      local a="$1"
+      local b="$2"
+      local dist=$(levenshtein "$a" "$b")
+      local max_len=$(( ''${#a} > ''${#b} ? ''${#a} : ''${#b} ))
+      if [[ ''$max_len -eq 0 ]]; then
+        echo "100"  # Both strings empty
+      else
+        echo $(( 100 - (dist * 100 / max_len) ))
+      fi
+    }
+    # 🦆 duck say ⮞ TTS function for when no intent is matched to sentence
+    say_no_match() { # 🦆 duck say ⮞ very mature sentences incomin' yo!
+      local responses=(
+        "Kompis du pratar japanska jag fattar ingenting"
+        "Det låter som att du har en köttee bulle i käften. Ät klart middagen och försök sedan igen."
+        "eeyyy bruscch öppna käften innan du pratar ja fattar nada ju"
+        "men håll käften cp!"
+        "noll koll . Golf boll."
+        "Ursäkta?"
+      )
+      # 🦆 duck say ⮞ Pick a random amd text to speech dat shit yo
+      local index=$((RANDOM % ''${#responses[@]}))
+      say "''${responses[$index]}"
+      say_duck "''${responses[$index]}"
+      
+    }
+    tts() {    
+      yo-say --text "$1"
+    }
+     
   '';
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {

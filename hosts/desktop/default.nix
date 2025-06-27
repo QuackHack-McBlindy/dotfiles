@@ -1,19 +1,11 @@
-# hosts/desktop/default.nix
-{ 
-  config,
-  lib,
+# hosts/desktop/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ diz iz my main machine & waz my entry 4 da steelseries world championship build contest
+  config, # 🦆 duck say ⮞ 2 much pc 4 a simple duck like me - basically sittin' on 3 horses here
+  lib, 
   pkgs,
   self,
   ...
-} : {
-
-  file = {
-    ".config/minfil2.txt" = ''
-      hello world
-    '';
-  };    
-
-#    imports = [ ./../../modules/openwakeword.nix ./../../modules/faster-whisper.nix ];
+} : { 
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   
@@ -26,103 +18,11 @@
             kernelModules = [ ];
         };
         binfmt.emulatedSystems = [ "aarch64-linux" ];
-    };
-    
-#    services.media-search.music.directories = [
-#        { path = "/Pool/Music"; searchType = "both"; }
-#    ];    
-    
-#    services.media-search.videos.directories = [
-#        { path = "/Pool/TV"; searchType = "directories"; }
-#    ];    
-
-#    services.media-search.documents.directories = [
-#        { path = "/Pool/Movies"; searchType = "directories"; }
-#    ];    
-    
-#    services.keypress-daemon = {
-#        enable = true;
-#        bindings = [
-#            {
-#              keys = [ "leftcontrol" "grave" ];
-#              commands = {
-#                onPress = "aplay /home/pungkula/test.wav";
-#                onPress = "echo 'Start recording'";
-#                onRelease = "echo 'Stop recording'";
-#                onPress = "arecord -f S16_LE -r 16000 -c 1 -d -t raw audio.raw && ";
-#"                onRelease = ''
-#                  echo 'Stop and process'
-#                  curl -X POST http://localhost:10555/transcribe -F "audio=@audio.raw"
-#                '';
-#              };
-#            }
-#        ];
-#    };
-
-
-
-
-
-
-    networking.firewall.allowedTCPPorts = [ 10400 10500 10700 10555 ];
-#    environment.systemPackages = with pkgs; [ pkgs.wyoming-openwakeword ]; 
-
-    environment.systemPackages = [
-      pkgs.wyoming-openwakeword
-      pkgs.alsa-utils  
-#      (pkgs.writeShellScriptBin "yo-micc" ''
-#        tmpfile=$(mktemp /tmp/audio.XXXXXX.raw)
-#        arecord -f S16_LE -r 16000 -c 1 -d 5 -t raw "$tmpfile"
-#        curl -X POST http://localhost:10555/transcribe -F "audio=@$tmpfile;type=audio/raw"
-#        rm "$tmpfile"
-#      '')
-    ];  
-
-    services.wyoming.openwakeword = {
-        enable = true;
-#        package = pkgs.wyoming-openwakeword;
-        uri = "tcp://0.0.0.0:10400";
-        preloadModels = [ "yo_bitch" ];
-        customModelsDirectories = [ "/etc/openwakeword" ];
-        threshold = 0.3;
-        triggerLevel = 1;
-        extraArgs = [ "--debug" "--debug-probability" ];
     };    
-    
-
-    
-
-    # environment.systemPackages = [ pkgs.wyoming-satellite pkgs.alsa-utils pkgs.python312Packages.pysilero-vad pkgs.python312Packages.pyring-buffer pkgs.python312Packages.zeroconf pkgs.python312Packages.wyoming pkgs.python312Packages.webrtc-noise-gain ];
-
-
-
-#    systemd.services.sattelite = {
-#        wantedBy = [ "multi-user.target" ];
-#        preStart = ''    '';
-#        serviceConfig = {
-#            ExecStart = let
-#                micCommand = "${pkgs.alsa-utils}/bin/arecord -q -f S16_LE -r 16000 -c 1";
-#            in
-#                ''
-#                    ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
-#                      --uri tcp://127.0.0.1:10401 \
-#                      --wake-uri tcp://127.0.0.1:10400 \
-#                      --mic-command "${micCommand}" \
-#                      --wake-word-name yo_bitch
-#                '';
-#                Environment = "PATH=${pkgs.alsa-utils}/bin:${pkgs.coreutils}/bin:/run/current-system/sw/bin";
-#                Restart = "on-failure";
-#                RestartSec = "2s";
-                #RuntimeDirectory = [ config.this.user.me.name ];
-#                User = "pungkula";
-#                Group = "pungkula";
-#        };
-#    };
-      
-    
-    this = {
-        home = ./../../home;
-        theme = {
+    # 🦆 duck say ⮞ this module           
+    this = { # 🦆 duck say ⮞ this defines everythang
+        home = ./../../home; # 🦆 duck say ⮞ nix store home path
+        theme = { # 🦆 duck say ⮞ themez
             name = "gtk3.css"; 
             iconTheme = {
                 name = "Papirus-Dark";
@@ -138,43 +38,47 @@
                 monospace = "Fira Code";
                 packages = [ pkgs.fira-code ];
             };
-        };
-        user = {       
+        }; # 🦆 duck say ⮞ userz
+        user = { 
             enable = true;
-            me = {
+            me = { # 🦆 duck say ⮞ USER
                 name = "pungkula";
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                 discord = "https://discordapp.com/users/675530282849533952";
-                #matrix = "https://matrix.to/#/#my-cool-room:matrix.org";
+                #matrix = "";
                 email = "isthisrandomenough@protonmail.com";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
-                mobileDevices = {
+                mobileDevices = { # 🦆 duck say ⮞ non nixos devices
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
                 };
-            };
+            }; # 🦆 duck say ⮞ language
             i18n = "sv_SE.UTF-8";
-            yubikey.enable = true;
+            # 🦆 duck say ⮞ yubikey
+            yubikey.enable = true; 
+            # 🦆 duck say ⮞ da builder
             builder = {
                 enable = true;
                 sshKeys = [ config.this.host.keys.publicKeys.builder ];
             };    
         };
+        # 🦆 duck say ⮞ define diz machine
         host = {
             system = "x86_64-linux";
             hostname = "desktop";
             interface = [ "enp119s0" ];
             ip = "192.168.1.111";
             wgip = "10.0.0.2";
+            # 🦆 duck say ⮞ modulez
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "adb" "backup" "cache" "keyd" "bitch" ];
+                services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
-            };  
+            }; # 🦆 duck say ⮞ pub keyz yo
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdwPkRQxlbrbRGwEO5zMJ4m+7QqUQPZg1iqbd5HRP34";
                 ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
@@ -201,8 +105,7 @@
         };
     
     swapDevices = [ ]; 
-
-
+    
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions
     # on your system were taken. It‘s perfectly fine and recommended to leave
@@ -210,7 +113,6 @@
     # Before changing this value read the documentation for this option
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
     system.stateVersion = "24.05"; # Did you read the comment?
-
-
-
+    
     }
+

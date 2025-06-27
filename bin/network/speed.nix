@@ -77,8 +77,7 @@
   };
   
   
-  yo.bitch = {
-#    language = "sv";    
+  yo.bitch = {    
     intents = {
       speed = {
         data = [{

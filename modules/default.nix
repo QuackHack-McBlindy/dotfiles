@@ -1,4 +1,4 @@
-# dotfiles/modules/default.nix
+# dotfiles/modules/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   config,
   lib,

@@ -1,4 +1,4 @@
-# dotfiles/bin/system/deploy.nix
+# dotfiles/bin/system/deploy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 let
   sysHosts = builtins.attrNames self.nixosConfigurations;

@@ -1,4 +1,4 @@
-# dotfiles/bin/maintenance/health.nix
+# dotfiles/bin/maintenance/health.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 {  
   yo.scripts.dev = {

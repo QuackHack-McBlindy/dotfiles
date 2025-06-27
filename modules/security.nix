@@ -1,4 +1,4 @@
-# dotfiles/modules/security.nix
+# dotfiles/modules/security.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # 🦆 duck say ⮞ SECURITY?! WAT THE QUACK IS DAT?!
 {
   self,

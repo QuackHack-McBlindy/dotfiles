@@ -1,11 +1,11 @@
-# ddotfiles/packages/say.nix
+# ddotfiles/packages/say.nix ⮞ https://github.com/QuackHack-McBlindy/dotfiles
 { 
   self,
   lib,
   stdenv,
   python3,
   piper-tts
-} : let
+} : let # 🦆 says ⮞ python dependencies
   pythonEnv = python3.withPackages (ps: [
     ps.numpy
     ps.sounddevice
@@ -14,26 +14,32 @@
     ps.torch
     ps.langid
   ]);
-in
+in # 🦆 says ⮞ code source
 stdenv.mkDerivation {
   name = "say";
   src = ./say;
 
+  # 🦆 says ⮞ build dependencies
   buildInputs = [
     pythonEnv
     piper-tts
   ];
+  
+  # 🦆 says ⮞ crucial for runtime dependenciies
+  propagatedBuildInputs = [ pythonEnv ];
 
-  propagatedBuildInputs = [ pythonEnv ];  # Crucial for runtime dependencies
-
+  # 🦆 says ⮞ installer
   installPhase = ''
     mkdir -p $out/bin
-    echo "#!${pythonEnv}/bin/python3" > $out/bin/say  # Use wrapped python
+    echo "#!${pythonEnv}/bin/python3" > $out/bin/say  # 🦆 says ⮞ Use wrapped python
     cat $src/say.py >> $out/bin/say
     chmod +x $out/bin/say
   '';
 
+  # 🦆 says ⮞ metadata
   meta = {
-    description = "TTS using Piper with automatic language detection";
-    license = lib.licenses.mit;
+    description = ''
+      TTS using Piper with automatic language detection with LangID.
+      Fetches and downloads models automatically.
+    '';
   };}

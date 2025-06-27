@@ -1,4 +1,4 @@
-# dotfiles/bin/misc/shopping.nix
+# dotfiles/bin/misc/shopping.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   self,
   lib,

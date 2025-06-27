@@ -1,63 +1,129 @@
-# dotfiles/bin/config/nlp.nix
-# 🦆 says ⮞ Quack-powered NLP engine for shell commands.
-# 🦆 says ⮞ Translates human-friendly text like "run backup now" into shell invocations.
-# 🦆 says ⮞ Uses regex magic, entity substitution, and dynamic intent matching.
-# 🦆 says ⮞ Fully declarative: define intents, parameters, and synonym lists in Nix.
-# 🦆 says ⮞ Then let the ducks parse your commands and run your scripts.
-{ 
-  self,
-  lib,
-  config,
-  pkgs,
-  sysHosts,
-  cmdHelpers,
+# dotfiles/bin/config/nlp.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ Quack-Powered NLP written in Nix & Bash - Natural Language Processor engine that translates human-friendly text to Shell commands
+  self,   
+  lib, # 🦆 says ⮞ 📌 FEATURES:
+  config,    # 🦆 says ⮞ ⭐ Dynamically generated regular expressions for pattern matching against declarative sentence definition
+  pkgs,      # 🦆 says ⮞ ⭐ Automatic parameter resolution & entity substitutions
+  sysHosts,  # 🦆 says ⮞ ⭐ Automated testing with extensive DuckTrace debug logging & JSON intent indexing
+  cmdHelpers,# 🦆 says ⮞ ⭐ Shell command construction & dispatcher 
   ...
-} : let # 🦆 says ⮞ turnin’ up da duck loggin'
-  DEBUG_MODE = true;
-  # 🦆 says ⮞ grabbin’ all da scripts  
+} : let # 🦆 says ⮞ turnin’ up da duck tracin'
+  DEBUG_MODE = false;
+
+  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
   scripts = config.yo.scripts; 
-  scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names, fam – like a rap sheet for our shell heroes
+  scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
   # 🦆 says ⮞ only scripts with known intentions
   scriptNamesWithIntents = builtins.filter (scriptName:
-    let
+    let # 🦆 says ⮞ a intent iz kinda ..
       intent = config.yo.bitch.intents.${scriptName};
+      # 🦆 says ⮞ .. pointless if it haz no sentence data ..
       hasSentences = builtins.any (data: data ? sentences && data.sentences != []) intent.data;
-    in
+    in # 🦆 says ⮞ .. so datz how we build da scriptz!
       builtins.hasAttr scriptName config.yo.bitch.intents && hasSentences
-  ) scriptNames;
+  ) scriptNames; # 🦆 says ⮞ datz quackin' cool huh?!
+
+  # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
+  intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.bitch.intents";
   
-  # 🦆 says ⮞ Only generate matchers for scripts with intents
-  patternMatchers = lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents;
-    
-  paramsVars = builtins.map (scriptName: let
-    # 🦆 says ⮞ deep dive into each script's args – wat need wat u say?
-    params = scripts.${scriptName}.parameters;
-    requiredParams = builtins.filter (param: !param.optional) params; # 🦆 says ⮞ mandatory flippers on deck 
-    optionalParams = builtins.filter (param: param.optional) params; # 🦆 says ⮞ optionals? sets up for slackin'
-    requiredParamNames = builtins.map (param: param.name) requiredParams; # 🦆 says ⮞ grabbin’ only the labels of mandatory honks
-    optionalParamNames = builtins.map (param: param.name) optionalParams; # 🦆 says ⮞ name tags for the lazy 🏷️ quack quack not me
-  in ''
-    required_params_${scriptName}="${builtins.concatStringsSep " " requiredParamNames}"
-    optional_params_${scriptName}="${builtins.concatStringsSep " " optionalParamNames}"
-  '') scriptNames; # 🦆 says ⮞ buildin’ dat export string like "required_params_foo=arg1 arg2" – shell-friendly!
+  # 🦆 says ⮞ QUACK! da duck take a list of listz and duck make all da possible combinationz
+  cartesianProductOfLists = lists:
+    # 🦆 says ⮞ if da listz iz empty .. 
+    if lists == [] then
+      [ [] ] # 🦆 says ⮞ .. i gib u empty listz of listz yo got it?
+    else # 🦆 says ⮞ ELSE WAT?!
+      let # 🦆 says ⮞ sorry.. i gib u first list here u go yo
+        head = builtins.head lists;
+        # 🦆 says ⮞ remaining listz for u here u go bro!
+        tail = builtins.tail lists;
+        # 🦆 says ⮞ calculate combinations for my tail - yo calc wher u at?!
+        tailProduct = cartesianProductOfLists tail;
+      in # 🦆 says ⮞ for everyy x in da listz ..
+        lib.concatMap (x:
+          # 🦆 says ⮞ .. letz combinez wit every tail combinationz ..  
+          map (y: [x] ++ y) tailProduct
+        ) head; # 🦆 says ⮞ dang! datz a DUCK COMBO alright!  
+         
+  # 🦆 says ⮞ here i duckie help yo out! makin' yo life eazy sleazy' wen declarative sentence yo typin'    
+  expandOptionalWords = sentence: # 🦆 says ⮞ qucik & simple sentences we quacky & hacky expandin'
+    let # 🦆 says ⮞ CHOP CHOP! Rest in lil' Pieceez bigg sentence!!1     
+      tokens = lib.splitString " " sentence;      
+      # 🦆 says ⮞ definin' dem wordz in da (braces) taggin' dem' wordz az (ALTERNATIVES) lettin' u choose one of dem wen triggerin' 
+      isRequiredGroup = t: lib.hasPrefix "(" t && lib.hasSuffix ")" t;
+      # 🦆 says ⮞ puttin' sentence wordz in da [bracket] makin' em' [OPTIONAL] when bitchin' u don't have to be pickin' woooho 
+      isOptionalGroup = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;   
+      expandToken = token: # 🦆 says ⮞ dis gets all da real wordz out of one token (yo!)
+        if isRequiredGroup token then
+          let # 🦆 says ⮞ thnx 4 lettin' ducklin' be cleanin' - i'll be removin' dem "()" 
+            clean = lib.removePrefix "(" (lib.removeSuffix ")" token);
+            alternatives = lib.splitString "|" clean; # 🦆 says ⮞ use "|" to split (alternative|wordz) yo 
+          in  # 🦆 says ⮞ dat's dat 4 dem alternativez
+            alternatives
+        else if isOptionalGroup token then
+          let # 🦆 says ⮞ here we be goin' again - u dirty and i'll be cleanin' dem "[]"
+            clean = lib.removePrefix "[" (lib.removeSuffix "]" token);
+            alternatives = lib.splitString "|" clean; # 🦆 says ⮞ i'll be stealin' dat "|" from u 
+          in # 🦆 says ⮞ u know wat? optional means we include blank too!
+            alternatives ++ [ "" ]
+        else # 🦆 says ⮞ else i be returnin' raw token for yo
+          [ token ];      
+      # 🦆 says ⮞ now i gib u generatin' all dem combinationz yo
+      expanded = cartesianProductOfLists (map expandToken tokens);      
+      # 🦆 says ⮞ clean up if too much space, smush back into stringz for ya
+      trimmedVariants = map (tokenList:
+        let # 🦆 says ⮞ join with spaces then trim them suckers
+          raw = lib.concatStringsSep " " tokenList;
+          # 🦆 says ⮞ remove ALL extra spaces
+          cleaned = lib.replaceStrings ["  "] [" "] (lib.strings.trim raw);
+        in # 🦆 says ⮞ wow now they be shinin'
+          cleaned 
+      ) expanded; # 🦆 says ⮞ and they be multiplyyin'!      
+      # 🦆 says ⮞ throwin' out da empty and cursed ones yo
+      nonEmpty = lib.filter (s: s != "") trimmedVariants;
+      hasFixedText = v: builtins.match ".*[^\\{].*" v != null; # 🦆 says ⮞ no no no, no nullin'
+      validVariants = lib.filter hasFixedText nonEmpty;
+    in # 🦆 says ⮞ returnin' all unique variantz of da sentences – holy duck dat'z fresh 
+      lib.unique validVariants;
+  
+  # 🦆 says ⮞ we be doin' sorta da same wit dem listz
+  expandListInputVariants = value: 
+    let # 🦆 says ⮞ first we choppy choppy - break up da list into word tokenz
+      tokens = lib.splitString " " value;
+      # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
+      isOptional = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
+      # 🦆 says ⮞ now ducklin' expandz each token — either real or optional wit options
+      expandToken = token:
+        if isOptional token then
+          let # 🦆 says ⮞ time 2 clean dat square junk up 4 yo bro
+            clean = lib.removePrefix "[" (lib.removeSuffix "]" token);
+             # 🦆 says ⮞ u know da drill - splittin' on da "|" to find alt optionalz
+            alternatives = lib.splitString "|" clean;
+          in
+            alternatives
+        else # 🦆 says ⮞ not optional? just be givin' back da token as iz
+          [ token ];
+      expanded = cartesianProductOfLists (map expandToken tokens);
+      variants = map (tokenList:
+        lib.replaceStrings [ "  " ] [ " " ] (lib.concatStringsSep " " tokenList)
+      ) expanded;  # 🦆 says ⮞ only da fresh unique non-emptiez stayin’ in da pond
+    in lib.unique (lib.filter (s: s != "") variants);
 
-  makeEntityCase = entity: e:
-    let # 🦆 says ⮞ regex gang ooh noo! all aliases separated by pipes for CASE matches
-      patterns = builtins.concatStringsSep "|" e.match;
-      value = e.value; # 🦆 says ⮞ the real juice – what these aliases resolve to 
-    in
-      "${patterns}) val=\"${value}\";;"; # 🦆 says ⮞ turn it into a case clause: if input matches aliases, spit out value, yo!
-
-  # 🦆 says ⮞ dis lil duck turns structured data into a case zoo 
+  # 🦆 says ⮞ take each value like "yo|hey" and map it to its 'out' – buildin’ da translation matrix yo!
   makeEntityResolver = data: listName: # 🦆 says ⮞ i like ducks
-    lib.concatMapStrings (entity: '' 
-      "${entity."in"}") echo "${entity.out}";; # 🦆 says ⮞ "in" must always be quoted in Nix. never forget yo
-    '') data.lists.${listName}.values; # 🦆 says ⮞ maps each "in" value to an echo of its "out"
-    
+    lib.concatMapStrings (entity:
+      let 
+        variants = expandListInputVariants entity."in"; # 🦆 says ⮞ "in" must always be quoted in Nix. never forget yo
+      in # 🦆 says ⮞ otherwize itz an in like this one!
+        lib.concatMapStrings (variant: ''
+          "${variant}") echo "${entity.out}";;
+        '') variants # 🦆 says ⮞ all of them yo!
+    ) data.lists.${listName}.values; # 🦆 says ⮞ maps each "in" value to an echo of its "out"
+  
+  # 🦆 says ⮞ where da magic dynamic regex iz at 
   makePatternMatcher = scriptName: let
-    dataList = config.yo.bitch.intents.${scriptName}.data;
-  in ''
-    match_${scriptName}() { # 🦆 says ⮞ shushin' da caps – lowercase life 4 cleaner regex zen ✨
+    dataList = config.yo.bitch.intents.${scriptName}.data;    
+  in '' # 🦆 says ⮞ diz iz how i pick da script u want 
+    match_${scriptName}() { # 🦆 says ⮞ shushin' da caps – lowercase life 4 cleaner dyn regex zen ✨
       local input="$(echo "$1" | tr '[:upper:]' '[:lower:]')" 
       # 🦆 says ⮞ always show input in debug mode
       export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
@@ -65,155 +131,183 @@
         echo "[🦆📜] ✅DEBUG✅ Trying to match for script: ${scriptName}" >&2
         echo "[🦆📜] ✅DEBUG✅ Input: $input" >&2
       fi
+      # 🦆 says ⮞ duck presentin' - da madnezz 
       ${lib.concatMapStrings (data:
-        lib.concatMapStrings (sentence: let
-          sentenceText = sentence; # 🦆 says ⮞ human said: "run the backup now!" – duck translate plz
-          parts = lib.splitString "{" sentenceText; # 🦆 says ⮞ curly bois indicate PARAM LAND
+        lib.concatMapStrings (sentence:
+          lib.concatMapStrings (sentenceText: let
+            # 🦆 says ⮞ now sentenceText is one of the expanded variants!
+            parts = lib.splitString "{" sentenceText; # 🦆 says ⮞ diggin' out da goodies from curly nests! Gimme dem {param} nuggets! 
+            firstPart = lib.escapeRegex (lib.elemAt parts 0); # 🦆 says ⮞ gotta escape them weird chars 
+            restParts = lib.drop 1 parts;  # 🦆 says ⮞ now we in the variable zone quack?  
+            # 🦆 says ⮞ process each part to build regex and params
+            regexParts = lib.imap (i: part:
+              let
+                split = lib.splitString "}" part; # 🦆 says ⮞ yeah yeah curly close that syntax shell
+                param = lib.elemAt split 0; # 🦆 says ⮞ name of the param in da curly – ex: {user}
+                after = lib.concatStrings (lib.tail split); # 🦆 says ⮞ anything after the param in this chunk
+                # 🦆 says ⮞ Wildcard mode! anything goes - duck catches ALL the worms! (.*)
+                isWildcard = data.lists.${param}.wildcard or false;
+                regexGroup = if isWildcard then "(.*)" else "\\b([^ ]+)\\b";       
+                # 🦆 says ⮞ ^ da regex that gon match actual input text
+              in {
+                regex = regexGroup + lib.escapeRegex after;
+                param = param;
+              }
+            ) restParts;
   
-          firstPart = lib.escapeRegex (lib.elemAt parts 0); # 🦆 says ⮞ gotta escape them weird chars 
-          restParts = lib.drop 1 parts;  # 🦆 says ⮞ now we in the variable zone quack?
-  
-          # 🦆 says ⮞ process each part to build regex and params
-          regexParts = lib.imap (i: part:
-            let
-              split = lib.splitString "}" part; # 🦆 says ⮞ yeah yeah curly close that syntax shell
-              param = lib.elemAt split 0; # 🦆 says ⮞ name of the param in da curly – ex: {user}
-              after = lib.concatStrings (lib.tail split); # 🦆 says ⮞ anything after the param in this chunk
-              isWildcard = data.lists.${param}.wildcard or false; # 🦆 says ⮞ wildcards go hard (.*) mode
-              regexGroup = if isWildcard then "\\b([^ ]+)\\b" else "(.*)";       
-              # 🦆 says ⮞ ^ da regex that gon match actual input text
-            in {
-              regex = regexGroup + lib.escapeRegex after;
-              param = param;
-            }
-          ) restParts;
-  
-          fullRegex = firstPart + lib.concatStrings (map (v: v.regex) regexParts);  # 🦆 says ⮞ mash all regex bits 2gether
-          paramList = map (v: v.param) regexParts; # 🦆 says ⮞ the squad of parameters 
-        in ''
-          local regex='^${fullRegex}$'
-          export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
-          if [ "$DEBUG_MODE" = true ]; then echo "[🦆📜] ✅DEBUG✅ REGEX: $regex"; fi # 🦆 says ⮞ watch the fancy stuff live in action  
-          if [[ "$input" =~ $regex ]]; then  # 🦆 says ⮞ DANG DANG – regex match engaged 
-            ${lib.concatImapStrings (i: paramName: ''
-              # 🦆 says ⮞ extract match group #i+1 – param value, come here plz 
-              param_value="''${BASH_REMATCH[${toString (i+1)}]}"
-              # 🦆 says ⮞ if param got synonym, apply the duckfilter 
-              if [[ -n "''${param_value:-}" && -v substitutions["$param_value"] ]]; then
-                param_value="''${substitutions["$param_value"]}"
-              fi              
-              
-              ${lib.optionalString (
-                data.lists ? ${paramName} && !(data.lists.${paramName}.wildcard or false)
-              ) ''
-                case "$param_value" in
-                  ${makeEntityResolver data paramName}
-                  *) ;;
-                esac
-              ''}
-              declare -g "_param_${paramName}"="$param_value"
-            '') paramList} # 🦆 says ⮞ set dat param as a GLOBAL VAR yo! every duck gotta know 
-            # 🦆 says ⮞ build cmd args: --param valu
-            cmd_args=()
-            ${lib.concatMapStrings (paramName: ''
-              cmd_args+=(--${paramName} "$_param_${paramName}")
-            '') paramList}
+            fullRegex = let
+              clean = lib.strings.trim (firstPart + lib.concatStrings (map (v: v.regex) regexParts));
+            in "^${clean}$"; # 🦆 says ⮞ mash all regex bits 2gether
+            paramList = map (v: v.param) regexParts; # 🦆 says ⮞ the squad of parameters 
+          in ''
+            local regex='^${fullRegex}$'
             export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
-            if [ "$DEBUG_MODE" = true ]; then # 🦆 says ⮞ watch the fancy stuff live in action  
-              echo "[🦆📜] ✅DEBUG✅ REMATCH 1: ''${BASH_REMATCH[1]}"
-              echo "[🦆📜] ✅DEBUG✅ REMATCH 2: ''${BASH_REMATCH[2]}"
-              echo "[🦆📜] ✅DEBUG✅ [MATCH SCRIPT: ${scriptName}"
-              echo "[🦆📜] ✅DEBUG✅ ARGS: ''${cmd_args[@]}"
+            if [ "$DEBUG_MODE" = true ]; then echo "[🦆📜] ✅DEBUG✅ REGEX: $regex"; fi # 🦆 says ⮞ watch the fancy stuff live in action  
+            if [[ "$input" =~ $regex ]]; then  # 🦆 says ⮞ DANG DANG – regex match engaged 
+              ${lib.concatImapStrings (i: paramName: ''
+                # 🦆 says ⮞ extract match group #i+1 – param value, come here plz 
+                param_value="''${BASH_REMATCH[${toString (i+1)}]}"
+                # 🦆 says ⮞ if param got synonym, apply the duckfilter 
+                if [[ -n "''${param_value:-}" && -v substitutions["$param_value"] ]]; then
+                  subbed="''${substitutions["$param_value"]}"
+                  if [[ -n "$subbed" ]]; then
+                    param_value="$subbed"
+                  fi
+                fi           
+                ${lib.optionalString (
+                  data.lists ? ${paramName} && !(data.lists.${paramName}.wildcard or false)
+                ) ''
+                  # 🦆 says ⮞ apply substitutions before case matchin'
+                  if [[ -v substitutions["$param_value"] ]]; then
+                    param_value="''${substitutions["$param_value"]}"
+                  fi
+                  case "$param_value" in
+                    ${makeEntityResolver data paramName}
+                    *) ;;
+                  esac
+                ''} # 🦆 says ⮞ declare global param – duck want it everywhere! (for bash access)
+                declare -g "_param_${paramName}"="$param_value"            
+                declare -A params=()
+                params["${paramName}"]="$param_value"
+                matched_params+=("$paramName")
+              '') paramList} # 🦆 says ⮞ set dat param as a GLOBAL VAR yo! every duck gotta know 
+              # 🦆 says ⮞ build cmd args: --param valu
+              cmd_args=()
+              ${lib.concatImapStrings (i: paramName: ''
+                value="''${BASH_REMATCH[${toString i}]}"
+                cmd_args+=(--${paramName} "$value")
+              '') paramList}
+              export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
+              if [ "$DEBUG_MODE" = true ]; then # 🦆 says ⮞ watch the fancy stuff live in action                
+                echo "[🦆📜] ✅DEBUG✅ REMATCH 1: ''${BASH_REMATCH[1]}"
+                echo "[🦆📜] ✅DEBUG✅ REMATCH 2: ''${BASH_REMATCH[2]}"
+                echo "[🦆📜] ✅DEBUG✅ REMATCH 3: ''${BASH_REMATCH[3]}"
+                echo "[🦆📜] ✅DEBUG✅ [MATCHED SCRIPT: ${scriptName}"
+                echo "[🦆📜] ✅DEBUG✅ ARGS: ''${cmd_args[@]}"
+              fi
+              return 0
             fi
-            echo "REGEX: $regex"
-            return 0
-          fi
-        '') data.sentences
+          '') (expandOptionalWords sentence)
+        ) data.sentences
       ) dataList}
       return 1
     }
-  '';  
+  ''; # 🦆 says ⮞ i aint' doin' dat againz ......
 
-  # 🦆 says ⮞ Generate intent data dynamically as fallback
-  getIntentSubstitutions = scriptName:
-    let
-      intentList = config.yo.bitch.intents.${scriptName};
-      allData = lib.flatten (map (d: d.lists or {}) intentList.data);
-      substitutions = lib.flatten (map (lists:
-        lib.flatten (lib.mapAttrsToList (_listName: listData:
-          if listData ? values then
-            map (item: {
-              pattern = item."in";
-              value = item.out;
-            }) listData.values
-          else []
-        ) lists)
-      ) allData);
-    in substitutions;
-
+  # 🦆 says ⮞ helpFooter for yo.bitch script
   helpFooterMd = let
     scriptBlocks = lib.concatMapStrings (scriptName:
-      let
-        sentencesList = lib.flatten (map (d: d.sentences) config.yo.bitch.intents.${scriptName}.data);
-        sentencesMd = lib.concatMapStrings (sentence: "- ${lib.escapeShellArg sentence}\n") sentencesList;
-      in ''
+      let # 🦆 says ⮞ we just da intentz in da help yo
+        intent = config.yo.bitch.intents.${scriptName} or null;
+        sentencesList = if intent != null then
+          lib.flatten (map (d: d.sentences or []) intent.data)
+        else
+          []; # 🦆 says ⮞ no sentence - no help
+        # 🦆 says ⮞ expand optional bracket syntax for da help view
+        expandedSentences = lib.flatten (map expandOptionalWords sentencesList);
+        sentencesMd = if expandedSentences == [] then
+          "- (no sentences defined)\n"
+        else # 🦆 says ⮞ letz put dem sentencez in markdown nao
+          lib.concatMapStrings (sentence: "- ${lib.escapeShellArg sentence}\n") expandedSentences;
+      in '' 
         ## 🦆 ⮞ **yo ${scriptName}**
         ${sentencesMd}
-      ''
+      '' # 🦆 says ⮞ datz all yo sentencez yo
     ) scriptNamesWithIntents;
-  in ''
+  in '' # 🦆 says ⮞ nailin' a title for da help command 
     ## 🦆 ⮞ **Available Voice Commands**
     Trigger with: **yo bitch!**
     ${scriptBlocks}
-  '';
+  ''; # 🦆 says ⮞ we cat diz later yo
 
-  # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo
-  intentDataFile = pkgs.writeText "intent-entity-map.json"
-    (builtins.toJSON (
+  # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo iz diz cachin'? - no more nix evaluatin' lettin' jq takin' over
+  intentDataFile = pkgs.writeText "intent-entity-map4.json" # 🦆 says ⮞ change name to force rebuild of file
+    (builtins.toJSON ( # 🦆 says ⮞ packin' all our knowledges into a JSON duck-pond for bash to swim in!
       lib.mapAttrs (_scriptName: intentList:
-        let # 🦆 says ⮞ flat quack all dat alias > value pairs across intents
+        let
           allData = lib.flatten (map (d: d.lists or {}) intentList.data);
-          substitutions = lib.flatten (map (lists:
-            lib.flatten (lib.mapAttrsToList (_listName: listData:
-              if listData ? values then
-                map (item: {
-                  pattern = item."in";
-                  value = item.out;
-                }) listData.values
-              else []
-            ) lists)
-          ) allData);
-        in {
-          inherit substitutions;
-        }
-      ) config.yo.bitch.intents
-    ));
-  # 🦆 says ⮞ export it like 🐢 shares pizza – shared config across da OS
-  environment.variables.YO_INTENT_DATA = intentDataFile;    
-
+          # 🦆 says ⮞ collect all sentences for diz intent
+          sentences = lib.concatMap (d: d.sentences or []) intentList.data;      
+          # 🦆 says ⮞ expand all sentence variants
+          expandedSentences = lib.unique (lib.concatMap expandOptionalWords sentences);
+          # 🦆 says ⮞ "in" > "out" for dem' subz 
+          substitutions = lib.flatten (map (lists: # 🦆 says ⮞ iterate through entity lists
+            lib.flatten (lib.mapAttrsToList (_listName: listData: # 🦆 says ⮞ process each list definition
+              if listData ? values then # 🦆 says ⮞ check for values existence
+                lib.flatten (map (item: # 🦆 says ⮞ process each entity value
+                  let # 🦆 says ⮞ clean and split input patterns
+                    rawIn = item."in";
+                    value = item.out;
+                    # 🦆 says ⮞ handle cases like: "[foo|bar baz]" > ["foo", "bar baz"]
+                    cleaned = lib.removePrefix "[" (lib.removeSuffix "]" rawIn);
+                    variants = lib.splitString "|" cleaned;     
+                in map (v: let # 🦆 says ⮞ juzt in case - trim dem' spaces and normalize whitespace         
+                  cleanV = lib.replaceStrings ["  "] [" "] (lib.strings.trim v);
+                in {   
+                  pattern = if builtins.match ".* .*" cleanV != null
+                            then cleanV         # 🦆 says ⮞ multi word == "foo bar"
+                            else "(${cleanV})"; # 🦆 says ⮞ single word == \b(foo)\b
+                  value = value;
+                }) variants
+              ) listData.values)
+            else [] # 🦆 says ⮞ no listz defined - sorry dat gives empty list
+          ) lists)
+        ) allData);
+      in { # 🦆 says ⮞ final per script structure
+        inherit substitutions;
+        sentences = expandedSentences;
+      }
+    ) config.yo.bitch.intents
+  ));
+  # 🦆 says ⮞ export da nix store path to da intent data - could be useful
+  environment.variables.YO_INTENT_DATA = intentDataFile; # 🦆 says ⮞ to display: jq . "$YO_INTENT_DATA" 
+ 
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO  
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     bitch = { # 🦆 says ⮞ wat ='( 
-      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion"; # 🦆 says ⮞ set
+      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
       # 🦆 says ⮞ natural means.... human? 
-      category = "⚙️ Configuration";
+      category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
+      logLevel = "INFO";
+      autoStart = false;
       parameters = [{ name = "input"; description = "Text to parse into a yo command"; optional = false; }]; 
-      # 🦆 says ⮞ run `yo bitch --help` to display all defined voice commands
+      # 🦆 says ⮞ run yo bitch --help to display all defined voice commands
       helpFooter = ''
         WIDTH=130
         cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
 ${helpFooterMd}
 EOF
-      '';
-      code = '' # 🦆 says ⮞ ... there's moar..? YES! ALWAYS MOAR!
-        set +u # 🦆 says ⮞ let them unset vars fly, we rebels now 
-        ${cmdHelpers} # 🦆 says ⮞load helper functions 
-        intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowness
-        export DEBUG_MODE=${lib.boolToString DEBUG_MODE}
-        text="$input"
+      ''; # 🦆 says ⮞ ... there's moar..? YES! ALWAYS MOAR!
+      code = ''
+        set +u  
+        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
+        intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez
+        export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ u set diz at the top - rememberz?
+        text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         debug_attempted_matches=()
-   
+        substitution_applied=false
+
         resolve_entities() {
           local script="$1"
           local text="$2"
@@ -223,74 +317,227 @@ EOF
           # 🦆 says ⮞ skip subs if script haz no listz
           has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
           if [[ "$has_lists" != "true" ]]; then
-            if [ "$DEBUG_MODE" = true ]; then
-              echo "[🦆🔁] Skipping substitutions for $script – no lists defined"
-            fi
             echo -n "$text"
             echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
             return
-          fi
-                    
+          fi                    
           # 🦆 says ⮞ dis is our quacktionary yo 
           replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
-
           while IFS="|" read -r pattern out; do
             if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
               original="''${BASH_REMATCH[0]}"
               [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
               substitutions["''$original"]="$out"
+              substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
               text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
             fi
           done <<< "$replacements"      
           echo -n "$text"
           echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
         } 
-
+        
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
-
+        # 🦆 says ⮞ for dem scripts u defined intents for ..
         for script in ${toString scriptNamesWithIntents}; do
+          # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
-          if [ "$DEBUG_MODE" = true ]; then
-            debug_attempted_matches+=("[🦆🔎] Tried: match_''${script} '$resolved_text'")
-          fi
+          if [ "$DEBUG_MODE" = true ]; then debug_attempted_matches+=("[🦆🔎] Tried: match_''${script} '$resolved_text'"); fi
+          # 🦆 says ⮞ we declare som substitutionz from listz we have - duckz knowz why 
           subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
+          declare -gA substitutions || true
           eval "$subs_decl" >/dev/null 2>&1 || true
-
+          # 🦆 says ⮞ we hab a match quacky quacky diz sure iz hacky!
           if match_$script "$resolved_text"; then      
-            args=()
-            for arg in "''${cmd_args[@]}"; do
-              args+=("$arg")  # 🦆 says ⮞ collecting them shell spell ingredients
-            done
             if [[ "$(declare -p substitutions 2>/dev/null)" =~ "declare -A" ]]; then
               for original in "''${!substitutions[@]}"; do
                 if [ "$DEBUG_MODE" = true ]; then echo "[🦆🔁] Substitution: $original → ''${substitutions[$original]}"; fi
-                [[ -n "$original" ]] && echo "$original → ''${substitutions[$original]}"
-              done
+                [[ -n "$original" ]] && echo "$original → ''${substitutions[$original]}" # 🦆 says ⮞ see wat duck did there?
+              done # 🦆 says ⮞ i hop duck pick dem right - right?
             fi
+            args=() # 🦆 says ⮞ duck gettin' ready 2 build argumentz 4 u script 
+            for arg in "''${cmd_args[@]}"; do
+              if [ "$DEBUG_MODE" = true ]; then echo "[🦆📜] ✅DEBUG✅ ADDING PARAMETER: $arg"; fi
+              args+=("$arg")  # 🦆 says ⮞ collecting them shell spell ingredients
+            done
          
-            # 🦆 says ⮞ final product
-            echo "🦆 Executing ⮞ yo $script ''${args[@]}''${substitutions[$original]}"
-
-            # 🦆 says ⮞ EXECUTEEEEEEEAAA  – duck does not simply parse and sit idly
-            exec "yo-$script" ""''${args[@]}"""''${substitutions[$original]}"
-        
-          fi 
-        done # 🦆 says ⮞ done? we all ded nao? 
+            # 🦆 says ⮞ final product - hope u like say duck!
+            echo "🦆 Executing ⮞ yo $script ''${args[@]}" 
+            
+            # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
+            exec "yo-$script" "''${args[@]}" 
+            
+          fi         
+        done # 🦆 says ⮞ done? .... no moar..? 
         if [ "$DEBUG_MODE" = true ]; then
           echo "[🦆📜] ❌ No script matched!"
           for line in "''${debug_attempted_matches[@]}"; do
             echo "$line"
           done
-        fi
+        fi # 🦆 says ⮞ dang i betz there'z moar
         if ! match_$script "$resolved_text"; then
-          say_duck "fuck ❌ $text" # 🦆 says ⮞ YO!! Language!!!11       
+          say_duck "fuck ❌ $text ❌ FAILED" # 🦆 says ⮞ not my fault - gib duck better inputz lol!!!11  
 
-          # 🦆 says ⮞ TODO: fuzzy matching... like duck sonar for mismatches      
+          # 🦆 says ⮞ TODO Fuzzzzy matchin dem' scriptz!
+          say_no_match # 🦆 says ⮞ but until then....          
           
           exit
         fi
       '';    
     };  
-  };} # 🦆 says ⮞ peace and quack  
+
+    # 🦆 says ⮞ automatic bitchin' sentencin' testin'
+    tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
+      description = "Automated unit testing"; 
+      category = "⚙️ Configuration";
+      autoStart = false;
+      logLevel = "INFO";
+      # 🦆 says ⮞ TODO add moar parameter flagz for other testz
+      parameters = [{ name = "debug"; description = "Using this flag when running the tests gives extensive debug logging."; optional = true; }];       
+#      helpFooter = '' # 🦆 says ⮞ TODO display testin' report in markdown with Glow yo
+#      '';
+      code = ''    
+        set +u  
+        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
+        DT_LOG_LEVEL="1"
+        DT_LOG_FILE="tests"
+        intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez
+        intent_base_path="${intentBasePath}" # 🦆 says ⮞ use da prebuilt path yo
+        config_json=$(nix eval "$intent_base_path.$script" --json)
+        passed="" # 🦆 says ⮞ passed testz
+        failed="" # 🦆 says ⮞ failed testz
+        total="" # 🦆 says ⮞ total number of tests ran
+        failures=()  # 🦆 says ⮞ quack! we'll store failures here!
+        export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ u set diz at the top - rememberz?
+        text="" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
+        debug_attempted_matches=()
+        substitution_applied=false
+                
+        # 🦆 says ⮞ insert matchers, build da regex empire. yo
+        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
+
+        resolve_entities() {
+          local script="$1"
+          local text="$2"
+          local replacements
+          local pattern out
+          declare -A substitutions
+          # 🦆 says ⮞ skip subs if script haz no listz
+          has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
+          if [[ "$has_lists" != "true" ]]; then
+            echo -n "$text"
+            echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
+            return
+          fi                    
+          # 🦆 says ⮞ dis is our quacktionary yo 
+          replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
+          while IFS="|" read -r pattern out; do
+            if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
+              original="''${BASH_REMATCH[0]}"
+              [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
+              substitutions["''$original"]="$out"
+              substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
+              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
+            fi
+          done <<< "$replacements"      
+          echo -n "$text"
+          echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
+        } 
+        
+        # 🦆 says ⮞ process sentence to replace {parameters} with real wordz yo        
+        resolve_sentence() {
+          local script="$1"
+          config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null)
+          [ -z "$config_json" ] && config_json="{}"          
+          local sentence="$2"          
+          # 🦆 says ⮞ first replace parameters to avoid conflicts with regex processing
+          local parameters
+          parameters=($(grep -oP '{\K[^}]+' <<< "$sentence"))          
+          for param in "''${parameters[@]}"; do
+            is_wildcard=$(jq -r --arg param "$param" '.data[0].lists[$param].wildcard // "false"' <<< "$config_json" 2>/dev/null)
+            local replacement=""
+            if [[ "$is_wildcard" == "true" ]]; then
+              # 🦆 says ⮞ Use context-appropriate test values
+              if [[ "$param" =~ hour|minute|second ]]; then
+                replacement="1"  # 🦆 says ⮞ use numbers for time parameters
+              elif [[ "$param" =~ room|device ]]; then
+                replacement="livingroom" # 🦆 says ⮞ use realistic room names
+              else
+                replacement="test" # 🦆 says ⮞ generic test value
+              fi
+            else
+              mapfile -t outs < <(jq -r --arg param "$param" '.data[0].lists[$param].values[].out' <<< "$config_json" 2>/dev/null)
+              if [[ ''${#outs[@]} -gt 0 ]]; then
+                replacement="''${outs[0]}"
+              else
+                replacement="unknown"
+              fi
+            fi
+            sentence="''${sentence//\{$param\}/$replacement}"
+          done      
+          # 🦆 says ⮞ process regex patterns after parameter replacement
+          # 🦆 says ⮞ handle alternatives - (word1|word2) == pick first alternative
+          sentence=$(echo "$sentence" | sed -E 's/\(([^|)]+)(\|[^)]+)?\)/\1/g')          
+          # 🦆 says ⮞ handle optional wordz - [word] == include da word
+          sentence=$(echo "$sentence" | sed -E 's/\[([^]]+)\]/ \1 /g')          
+          # 🦆 says ⮞ handle vertical bars in alternatives - word1|word2 == word1
+          sentence=$(echo "$sentence" | sed -E 's/(^|\s)\|(\s|$)/ /g')  # 🦆 says ⮞ remove standalone vertical bars
+          sentence=$(echo "$sentence" | sed -E 's/([^ ]+)\|([^ ]+)/\1/g')  # 🦆 says ⮞ pick first alternative in groups          
+          # 🦆 says ⮞ clean up spaces
+          sentence=$(echo "$sentence" | tr -s ' ' | sed -e 's/^ //' -e 's/ $//')
+          echo "$sentence"
+        }
+        
+        # 🦆 says ⮞ test defined intent sentences
+        test_all_sentences() {
+          declare -a failures=()  # 🦆 says ⮞ array to store da failures
+          for script in ${toString scriptNamesWithIntents}; do
+            echo "[🦆📜] Testing script: $script"    
+            # 🦆 says ⮞ eval dat thang yo
+            config_json=$(nix eval "$intent_base_path.$script" --json)
+            mapfile -t raw_sentences < <(jq -r '.data[].sentences[]' <<< "$config_json")
+            for template in "''${raw_sentences[@]}"; do
+              test_sentence=$(resolve_sentence "$script" "$template")
+              echo " Sentence: $test_sentence"
+              resolved_output=$(resolve_entities "$script" "$test_sentence")
+              resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
+              subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
+              declare -gA substitutions || true
+              eval "$subs_decl" >/dev/null 2>&1 || true
+              if match_$script "$resolved_text"; then
+                say_duck "yay ✅ PASS: $resolved_text"
+                ((passed++))
+              else
+                say_duck "fuck ❌ FAIL: $resolved_text"
+                # 🦆 says ⮞ store failure details: script, original template, and resolved text
+                failures+=("SCRIPT: $script | SENTENCE: $template | TEST: $resolved_text")
+              fi
+              ((total++))
+            done
+          done          
+          # 🦆 says ⮞ show failures if any
+          if [ ''${#failures[@]} -gt 0 ]; then
+            echo "" && echo -e "''${RED} ## ────── FAILED TESTS ────── ## ''${RESET}"
+            for failure in "''${failures[@]}"; do
+              echo "❌ $failure"
+            done
+            echo -e "''${RED} ## ────────────────────────── ## ''${RESET}" && echo ""
+          fi
+        }
+    
+        test_all_sentences
+
+        # 🦆 says ⮞ display final report
+        percent=$(( 100 * $passed / $total )) # 🦆 says ⮞ count da %
+        # 🦆 says ⮞ colorize based on da %
+        if [ "$percent" -ge 70 ]; then color="$GREEN"; else color="$RED"; fi        
+        echo "" && echo "## ──────⋆⋅☆⋅⋆────── ##"
+        bold "Testing  completed!" 
+        say_duck "Tests passed: $passed / $total (''${color}''${percent}%''${GRAY})"
+        echo "" && echo "## ──────⋆⋅☆⋅⋆────── ##"
+        if [ "$passed" -ne "$total" ]; then exit 1; fi    
+      '';    
+    }; # 🦆 says ⮞ thnx for quackin' along til da end!
+  };}# 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.
+# 🦆 says ⮞ QuackHack-McBLindy out!

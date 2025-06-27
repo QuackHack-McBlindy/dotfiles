@@ -1,4 +1,4 @@
-# dotfiles/bin/productivity/git.nix
+# dotfiles/bin/productivity/git.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo.scripts = {
@@ -59,7 +59,7 @@
             echo -e "\033[1;34m🖥️  Auto-detected hostname: $HOSTNAME\033[0m"
           fi
 
-          # Validate hostname format
+          # 🦆 says ⮞ Validate hostname format
 #          if [[ ! "$HOSTNAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
 #            echo -e "\033[1;31m❌ Invalid hostname: '$HOSTNAME'\033[0m"
 #            exit 1
@@ -67,7 +67,7 @@
           
           echo -e "\033[1;34m🔍 Checking NixOS generation...\033[0m"
           if [[ -z "''${generation}" ]]; then
-            # Get numeric generation ID using nix-env
+            # 🦆 says ⮞ Get numeric generation ID using nix-env
             GENERATION=$(sudo nix-env --list-generations --profile /nix/var/nix/profiles/system | tail -n1 | awk '{print $1}')
             echo -e "\033[1;34m📥 Automatically detected generation: $GENERATION\033[0m"
           else
@@ -75,17 +75,17 @@
             echo "📥 Passed generation: $GENERATION"
           fi
 
-          # Validate generation format
+          # 🦆 says ⮞ Validate generation format
           if ! [[ "$GENERATION" =~ ^[0-9]+$ ]]; then
             echo -e "\033[1;31m❌ Invalid generation: $GENERATION\033[0m"
             exit 1
           fi
           
-          # Fixed version handling using Nix-provided version
+          # 🦆 says ⮞ Fixed version handling using Nix-provided version
           echo -e "\033[1;34m🔄 Updating README version badge...\033[0m"
           run_cmd update-readme
 
-          # Generation number handling
+          # 🦆 says ⮞ Generation number handling
           if [[ -n "$generation" ]]; then
             GENERATION="$generation"
             echo "📥 Passed generation: $GENERATION"
@@ -103,13 +103,13 @@
           
           HOSTNAME="$host"
 
-          # Validate hostname
+          # 🦆 says ⮞ Validate hostname
           if [[ -z "$HOSTNAME" ]]; then
             echo -e "\033[1;31m❌ Hostname not specified!\033[0m"
             exit 1
           fi
 
-          # Validate generation
+          # 🦆 says ⮞ Validate generation
           if ! [[ "$GEN_NUMBER" =~ ^[0-9]+$ ]]; then
             echo -e "\033[1;31m❌ Invalid generation: $GEN_NUMBER\033[0m"
             exit 1
@@ -133,7 +133,7 @@
             fi
           fi
           
-          # Configure remote with forced URL update
+          # 🦆 says ⮞ Configure remote with forced URL update
           CURRENT_URL=$(git remote get-url origin 2>/dev/null || true)
           if [ -z "$CURRENT_URL" ]; then
             echo -e "\033[1;33m🌍 Adding remote origin: $REPO\033[0m"
@@ -143,7 +143,7 @@
             run_cmd git remote set-url origin "$REPO"
           fi
           
-          # Create initial commit if repository is empty
+          # 🦆 says ⮞ Create initial commit if repository is empty
           if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
             if [ -z "$(git status --porcelain)" ]; then
               echo -e "\033[1;31m❌ Error: No files to commit in new repository\033[0m"
@@ -154,7 +154,7 @@
             run_cmd git commit -m "Initial commit"
           fi
           
-          # Ensure we're on a valid branch (handle detached HEAD)
+          # 🦆 says ⮞ Ensure we're on a valid branch (handle detached HEAD)
           CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
           if [ "$CURRENT_BRANCH" = "HEAD" ]; then
             echo -e "\033[1;33m🌱 Creating new main branch from detached HEAD\033[0m"
@@ -162,36 +162,36 @@
             CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "main")
           fi
           
-          # Check for changes
+          # 🦆 says ⮞ Check for changes
           if [ -z "$(git status --porcelain)" ]; then
             echo -e "\033[1;36m🎉 No changes to commit\033[0m"
             exit 0
           fi
 
-          # When committing changes - Change 2: Add detailed commit message
+          # 🦆 says ⮞ When committing changes - Change 2: Add detailed commit message
           echo -e "\033[1;34m📦 Staging changes...\033[0m"
           run_cmd git add .
           
-          # Add these lines for detailed commit message
+          # 🦆 says ⮞ Add these lines for detailed commit message
           echo -e "\033[1;34m📋 Generating change summary...\033[0m"
           DIFF_STAT=$(git diff --staged --stat)
           
-          # Modified commit command
+          # 🦆 says ⮞ Modified commit command
           echo -e "\033[1;34m💾 Committing changes: $COMMIT_MSG\033[0m"
-          run_cmd git commit -m "$COMMIT_MSG" -m "Changed files:\n$DIFF_STAT"  # Replace existing commit line
+          run_cmd git commit -m "$COMMIT_MSG" -m "Changed files:\n$DIFF_STAT"  # 🦆 says ⮞ Replace existing commit line
           
 
           echo -e "\033[1;34m🏷  Tagging commit as $TAG_NAME\033[0m"
           run_cmd git tag -fa "$TAG_NAME" -m "NixOS generation $GEN_NUMBER ($HOSTNAME)"
 
-          # Modify push command to include tags
+          # 🦆 says ⮞ Modify push command to include tags
           run_cmd echo -e "\033[1;34m🚀 Pushing to $CURRENT_BRANCH branch with tags...\033[0m"
           
           run_cmd git push --force --follow-tags -u origin "$CURRENT_BRANCH"
 #          run_cmd git push origin "$TAG_NAME"
           run_cmd git push --force origin "$TAG_NAME"
                 
-          # Fancy success message
+          # 🦆 says ⮞ Fancy success message
           run_cmd echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
           run_cmd echo -e "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
           run_cmd echo -e "╚══════════════════════════════════════╝\033[0m"

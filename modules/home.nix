@@ -1,9 +1,9 @@
-# dotfiles/modules/merged.nix
+# dotfiles/modules/home.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ if u expect home man - you are out of duck
   config,
   lib,
   pkgs,
-  ...
+  ... # 🦆 duck say ⮞ create a file like diz:  file = { ".config/myfile.txt" = "hello world"; };     
 } : with lib;
 let # 🦆 duck say ⮞ big ducks build their own home
 
@@ -43,7 +43,9 @@ let # 🦆 duck say ⮞ big ducks build their own home
       chown -h ${user}:users "$target"
     done
   '';
-in {
+
+in {  
+
   options = {
     file = mkOption {
       type = types.attrsOf types.lines;

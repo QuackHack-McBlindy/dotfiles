@@ -1,4 +1,4 @@
-# dotfiles/bin/system/weather.nix
+# dotfiles/bin/system/weather.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   config,
   lib,
