@@ -1,11 +1,11 @@
 # dotfiles/bin/config/nlp.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Quack-Powered NLP written in Nix & Bash - Natural Language Processor engine that translates human-friendly text to Shell commands
+{ # 🦆 says ⮞ Quack-Powered NLP written in Pure Bash & Nox - Natural Language Processor engine that translates human text to Shell commands
   self,   
   lib, # 🦆 says ⮞ 📌 FEATURES:
   config,    # 🦆 says ⮞ ⭐ Dynamically generated regular expressions for pattern matching against declarative sentence definition + Fuzzy matching fallback
   pkgs,      # 🦆 says ⮞ ⭐ Automatic parameter resolution & entity substitutions
   sysHosts,  # 🦆 says ⮞ ⭐ Automated testing with extensive DuckTrace debug logging & JSON intent indexing
-  cmdHelpers,# 🦆 says ⮞ ⭐ Shell command construction & dispatcher 
+  cmdHelpers,# 🦆 says ⮞ ⭐ Shell command construction & dispatcher
   ...
 } : let # 🦆 says ⮞ turnin’ up da duck tracin'
   DEBUG_MODE = false;
