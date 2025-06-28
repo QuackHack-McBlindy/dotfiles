@@ -39,7 +39,7 @@
         with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
             sf.write(tmp.name, audio_data, 16000)
             segments, _ = model.transcribe(tmp.name, language=args.language)
-            return {"transcription": " ".join(segment.text for segment in segments)}
+            return {"transcription": " ".join(segment.text for segment in segments)}       
             
     # 🦆 says ⮞ handle certs
     ssl_params = {}

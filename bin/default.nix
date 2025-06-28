@@ -318,8 +318,34 @@
       if [ "$VOICE_MODE" = "1" ]; then yo-say --text "$1"; fi
     }  
     
-    
-    
+    log_failed_input() {
+      local sentence="$1"
+      local config_dir="/home/${config.this.user.me.name}/.config"
+      local wordfile="$config_dir/failed_word_freq.txt"
+      local sentencefile="$config_dir/failed_sentence_freq.txt"
+      mkdir -p "$config_dir"
+      touch "$sentencefile" "$wordfile"  # Ensure files exist
+      # 🦆 says ⮞ if failed sentence in sentence file
+      if grep -qF -- "$sentence" "$sentencefile" 2>/dev/null; then
+        awk -v s="$sentence" -F '\t' 'BEGIN {OFS=FS} 
+          $1 == s {$2 += 1} {print}
+          ENDFILE {if (!found) print s, 1}' "$sentencefile" > "$sentencefile.tmp" 
+        mv "$sentencefile.tmp" "$sentencefile"
+      else
+        echo -e "$sentence\t1" >> "$sentencefile"
+      fi
+      # 🦆 says ⮞ normalize & split sentence into wordz
+      echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]' | grep -o '\w\+' |
+      while IFS= read -r word; do
+        if grep -qF -- "$word" "$wordfile" 2>/dev/null; then
+          awk -v w="$word" -F '\t' 'BEGIN {OFS=FS} 
+              $1 == w {$2 += 1} {print}' "$wordfile" > "$wordfile.tmp"
+          mv "$wordfile.tmp" "$wordfile"
+        else
+          echo -e "$word\t1" >> "$wordfile"
+        fi
+      done
+    }    
   '';
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {

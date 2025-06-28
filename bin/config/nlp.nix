@@ -126,11 +126,9 @@
     match_${scriptName}() { # 🦆 says ⮞ shushin' da caps – lowercase life 4 cleaner dyn regex zen ✨
       local input="$(echo "$1" | tr '[:upper:]' '[:lower:]')" 
       # 🦆 says ⮞ always show input in debug mode
-      export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
-      if [ "$DEBUG_MODE" = true ]; then # 🦆 says ⮞ watch the fancy stuff live in action  
-        echo "[🦆📜] ✅DEBUG✅ Trying to match for script: ${scriptName}" >&2
-        echo "[🦆📜] ✅DEBUG✅ Input: $input" >&2
-      fi
+      # 🦆 says ⮞ watch the fancy stuff live in action  
+      dt_debug "[🦆📜] ✅DEBUG✅ Trying to match for script: ${scriptName}" >&2
+      dt_debug "[🦆📜] ✅DEBUG✅ Input: $input" >&2
       # 🦆 says ⮞ duck presentin' - da madnezz 
       ${lib.concatMapStrings (data:
         lib.concatMapStrings (sentence:
@@ -154,7 +152,7 @@
                 param = param;
               }
             ) restParts;
-  
+
             fullRegex = let
               clean = lib.strings.trim (firstPart + lib.concatStrings (map (v: v.regex) regexParts));
             in "^${clean}$"; # 🦆 says ⮞ mash all regex bits 2gether
@@ -327,35 +325,7 @@ EOF
         text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         debug_attempted_matches=()
         substitution_applied=false
-
-        log_failed_input() {
-          local sentence="$1"
-          local config_dir="/home/${config.this.user.me.name}/.config"
-          local wordfile="$config_dir/failed_word_freq.txt"
-          local sentencefile="$config_dir/failed_sentence_freq.txt"
-          mkdir -p "$config_dir"
-          touch "$sentencefile" "$wordfile"  # Ensure files exist
-          # 🦆 says ⮞ if failed sentence in sentence file
-          if grep -qF -- "$sentence" "$sentencefile" 2>/dev/null; then
-            awk -v s="$sentence" -F '\t' 'BEGIN {OFS=FS} 
-              $1 == s {$2 += 1} {print}
-              ENDFILE {if (!found) print s, 1}' "$sentencefile" > "$sentencefile.tmp" 
-            mv "$sentencefile.tmp" "$sentencefile"
-          else
-            echo -e "$sentence\t1" >> "$sentencefile"
-          fi
-          # 🦆 says ⮞ normalize & split sentence into wordz
-          echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]' | grep -o '\w\+' |
-          while IFS= read -r word; do
-            if grep -qF -- "$word" "$wordfile" 2>/dev/null; then
-              awk -v w="$word" -F '\t' 'BEGIN {OFS=FS} 
-                  $1 == w {$2 += 1} {print}' "$wordfile" > "$wordfile.tmp"
-              mv "$wordfile.tmp" "$wordfile"
-            else
-              echo -e "$word\t1" >> "$wordfile"
-            fi
-          done
-        }
+        
         resolve_entities() {
           local script="$1"
           local text="$2"
@@ -387,28 +357,15 @@ EOF
           local input="$1"
           local best_score=0
           local best_match=""
-          if [[ -z "$YO_FUZZY_INDEX" ]]; then
-            say_duck "🦆 ERROR: YO_FUZZY_INDEX is not set" >&2
-            return
-          fi
-          if [[ ! -f "$YO_FUZZY_INDEX" ]]; then
-            say_duck "🦆 ERROR: Fuzzy index file not found at $YO_FUZZY_INDEX" >&2
-            return
-          fi   
           # 🦆 says ⮞ quack aint' normal... but quack try normalize input
           local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')      
           # 🦆 says ⮞ use jq to extract candidate sentences
           local candidates
           mapfile -t candidates < <(jq -r '.[][] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
-          if [ "$DEBUG_MODE" = true ]; then
-            echo "[🦆🔍] Found ''${#candidates[@]} candidates for fuzzy matching" >&2
-          fi    
+          dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching" >&2
           for candidate in "''${candidates[@]}"; do
             IFS=':' read -r script sentence <<< "$candidate"
-            if [ "$DEBUG_MODE" = true ]; then
-              echo "[🦆🔍] Checking candidate: $script - $sentence" >&2
-            fi
-            
+            dt_debug "Checking candidate: $script - $sentence" >&2
             # 🦆 says ⮞ first filter trigramz datz da quacky hacky snappy FAST one yo
             local tri_score=$(trigram_similarity "$normalized" "$sentence")
             (( tri_score < 30 )) && continue       
@@ -417,9 +374,7 @@ EOF
             if (( score > best_score )); then
               best_score=$score
               best_match="$script:$sentence"
-              if [ "$DEBUG_MODE" = true ]; then
-                echo "[🦆🔍] New best match: $best_match ($score%)" >&2
-              fi
+              dt_debug "New best match: $best_match ($score%)" >&2
             fi
           done
         
@@ -432,20 +387,17 @@ EOF
         trigram_similarity() {
           local str1="$1"
           local str2="$2"
-          # 🦆 says ⮞ generate trigramz
-          declare -a tri1 tri2
+          declare -a tri1 tri2 # 🦆 says ⮞ generate trigramz
           for ((i=0; i<''${#str1}-2; i++)); do
             tri1+=( "''${str1:i:3}" )
           done
           for ((i=0; i<''${#str2}-2; i++)); do
             tri2+=( "''${str2:i:3}" )
-          done     
-          # 🦆 says ⮞ count dem' matches yo
+          done # 🦆 says ⮞ count dem' matches yo
           local matches=0
           for t in "''${tri1[@]}"; do
             [[ " ''${tri2[*]} " == *" $t "* ]] && ((matches++))
-          done   
-          # 🦆 says ⮞ calc da % yo
+          done # 🦆 says ⮞ calc da % yo
           local total=$(( ''${#tri1[@]} + ''${#tri2[@]} ))
           (( total == 0 )) && echo 0 && return
           echo $(( 100 * 2 * matches / total ))  # 0-100 scale
@@ -459,8 +411,7 @@ EOF
           local score=$(( 100 - (dist * 100 / max_len) ))         
           # 🦆 says ⮞ boostz da score for same startin' charizard yo
           [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
-          # 🦆 says ⮞ 100 iz da moon yo
-          echo $(( score > 100 ? 100 : score ))
+          echo $(( score > 100 ? 100 : score )) # 🦆 says ⮞ 100 iz da moon yo
         }
           
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
@@ -470,7 +421,7 @@ EOF
           # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
-          if [ "$DEBUG_MODE" = true ]; then debug_attempted_matches+=("[🦆🔎] Tried: match_''${script} '$resolved_text'"); fi
+          dt_debug "Tried: match_''${script} '$resolved_text'"
           # 🦆 says ⮞ we declare som substitutionz from listz we have - duckz knowz why 
           subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
           declare -gA substitutions || true
@@ -479,18 +430,18 @@ EOF
           if match_$script "$resolved_text"; then      
             if [[ "$(declare -p substitutions 2>/dev/null)" =~ "declare -A" ]]; then
               for original in "''${!substitutions[@]}"; do
-                if [ "$DEBUG_MODE" = true ]; then echo "[🦆🔁] Substitution: $original → ''${substitutions[$original]}"; fi
-                [[ -n "$original" ]] && echo "$original → ''${substitutions[$original]}" # 🦆 says ⮞ see wat duck did there?
+                dt_debug "[🦆🔁] Substitution: $original >''${substitutions[$original]}";
+                [[ -n "$original" ]] && dt_info "$original > ''${substitutions[$original]}" # 🦆 says ⮞ see wat duck did there?
               done # 🦆 says ⮞ i hop duck pick dem right - right?
             fi
             args=() # 🦆 says ⮞ duck gettin' ready 2 build argumentz 4 u script 
             for arg in "''${cmd_args[@]}"; do
-              if [ "$DEBUG_MODE" = true ]; then echo "[🦆📜] ✅DEBUG✅ ADDING PARAMETER: $arg"; fi
+              dt_debug "ADDING PARAMETER: $arg"
               args+=("$arg")  # 🦆 says ⮞ collecting them shell spell ingredients
             done
          
             # 🦆 says ⮞ final product - hope u like say duck!
-            echo "🦆 Executing ⮞ yo $script ''${args[@]}" 
+            dt_info "Executing ⮞ yo $script ''${args[@]}" 
             
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
             exec "yo-$script" "''${args[@]}"   
@@ -503,14 +454,15 @@ EOF
             IFS='|' read -r match_data score <<< "$fuzzy_result"
             IFS=':' read -r matched_script matched_sentence <<< "$match_data"      
             if (( score >= 70 )); then
-              say_duck "[🦆💫] Fuzzy match found (''${score}%): $matched_sentence"
+              dt_info "[🦆💫] Fuzzy match found (''${score}%): $matched_sentence"
               resolved_output=$(resolve_entities "$matched_script" "$text")
               resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
-              echo "[🦆💫] Executing ⮞ yo $matched_script ''${cmd_args[@]}" 
+              dt_info "[🦆💫] Executing ⮞ yo $matched_script ''${cmd_args[@]}" 
               exec "yo-$matched_script" "''${cmd_args[@]}"      
             else
-              say_duck "fuck ❌ Close match found (''${score}%) but not confident enough ❌ FAILED!" # 🦆 says ⮞ not my fault - gib duck better inputz lol!!!11 
+              dt_error "fuck ❌ Close match found (''${score}%) but not confident enough ❌ FAILED!" # 🦆 says ⮞ not my fault - gib duck better inputz lol!!!11 
               log_failed_input "$text"
+              say_no_match
               exit 1
             fi
           fi
@@ -575,9 +527,8 @@ EOF
           local script="$1"
           config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null)
           [ -z "$config_json" ] && config_json="{}"          
-          local sentence="$2"          
-          # 🦆 says ⮞ first replace parameters to avoid conflictz wit regex processin' yo
-          local parameters
+          local sentence="$2"    
+          local parameters # 🦆 says ⮞ first replace parameters to avoid conflictz wit regex processin' yo
           parameters=($(grep -oP '{\K[^}]+' <<< "$sentence"))          
           for param in "''${parameters[@]}"; do
             is_wildcard=$(jq -r --arg param "$param" '.data[0].lists[$param].wildcard // "false"' <<< "$config_json" 2>/dev/null)
@@ -658,7 +609,7 @@ EOF
         say_duck "Tests passed: $passed / $total (''${color}''${percent}%''${GRAY})"
         echo "" && echo "## ──────⋆⋅☆⋅⋆────── ##"
         if [ "$passed" -ne "$total" ]; then exit 1; fi    
-      '';
-    }; # 🦆 says ⮞ thnx for quackin' along til da end!
-  };}# 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.
+      ''; # 🦆 says ⮞ thnx for quackin' along til da end!
+    }; # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.
+  };}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
 # 🦆 says ⮞ QuackHack-McBLindy out!
