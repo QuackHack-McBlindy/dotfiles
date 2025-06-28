@@ -8,13 +8,14 @@
 } : let 
   # 🦆 says ⮞ auto correct list yo 
   autocorrect = {
-# 🦆 ⮟becomes⮟  yo!  
+#🦆🦆⮟becomes⮟🦆🦆  yo!  
     "ika" = "ica";
     "ikka" = "ica";
     "vågen" = "bågen";
     "båden" = "bågen";
     "ante" = "anka";
     "anke" = "anka";
+    "läck" = "släck";
   };
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {
@@ -66,7 +67,7 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         
         # 🦆 says ⮞ clean it up, trim it down and turn it upside down yo
         TEXT=$("${pkgs.jq}/bin/jq" -r .transcription <<< "$FINAL_JSON")
-        CLEANED_TEXT=$(${pkgs.coreutils}/bin/echo "$TEXT" | ${pkgs.gnused}/bin/sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | tr -s ' ' | tr -d '.,!?')
+        CLEANED_TEXT=$(${pkgs.coreutils}/bin/echo "$TEXT" | ${pkgs.gnused}/bin/sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | tr -s ' ' | tr -d '.,!?' | tr '[:upper:]' '[:lower:]')
         # 🦆 says ⮞ aaaand... deliver! .. yo!
         ${pkgs.coreutils}/bin/echo "$CLEANED_TEXT"
       '';    

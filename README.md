@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/x0vsl7nd38fkzgjq0vqpcav9gilii4qj-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/rybc5q6wsx93m6r6zk55jbgr65lw7sv1-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -355,6 +355,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
+| `yo time ` |  | Tells time, day and date |
 | `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |
 | **🧹 Maintenance** | | |
 | `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |

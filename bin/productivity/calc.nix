@@ -157,6 +157,7 @@
 
           # 🦆 duck say ⮞ all good? ok, provide da quackidy quack answer yo!
           say_duck "$(bold "Answer:") $formatted_result"
+          if_voice_say "Svaret är $formatted_result"
         '';
       };
     };
@@ -167,7 +168,9 @@
         calculator = {
           data = [{
             sentences = [
-              "[kan|du] (beräkna|räkna) [ut|matte]  {expression}"
+              "kan du (beräkna|beräknar|räkna|räknar) ut {expression}"
+              "(beräkna|beräknar|räkna|räknar) ut {expression}"
+              "lös ekvationen {expression}"
             ];
             lists.expression.wildcard = true;
           }];  

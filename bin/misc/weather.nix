@@ -74,7 +74,7 @@ in {
   
       echo "$text"
       echo "$tooltip"
-      say "$tooltip"
+      if_voice_say "$tooltip"
     '';
   };
 }

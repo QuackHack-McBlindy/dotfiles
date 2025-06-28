@@ -14,21 +14,9 @@ in {
       category = "🌍 Localization";
       aliases = [ "buss" "trafiklab" ];
       parameters = [
-        { 
-          name = "arrival"; 
-          description = "Name of City or stop for the arrival"; 
-          optional = false; 
-        }
-        { 
-          name = "departure"; 
-          description = "Name of City or stop for the departure "; 
-          default = config.sops.secrets."users/pungkula/homeStop".path;  # Setting default value makes param optional
-        }
-        { 
-          name = "apikey"; 
-          description = "Trafiklab API key. Can be optained from https://trafiklab.se"; 
-          default = config.sops.secrets.resrobot.path; 
-        }
+        { name = "arrival"; description = "Name of City or stop for the arrival"; optional = false; }
+        { name = "departure"; description = "Name of City or stop for the departure "; default = config.sops.secrets."users/pungkula/homeStop".path; }
+        { name = "apikey"; description = "Trafiklab API key. Can be optained from https://trafiklab.se"; default = config.sops.secrets.resrobot.path; }
       ];
 #      helpFooter = ''    
 #      '';

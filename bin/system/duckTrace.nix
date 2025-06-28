@@ -27,8 +27,8 @@ in { # 🦆 says ⮞
         PREVIEW_CMD='[[ $(file --mime-type --brief {}) == text/markdown ]] && command -v glow >/dev/null && glow {} || command -v bat >/dev/null && bat --style=plain --color=always {} || cat {}'
 
         LOGFILE=$(printf "%s\n" "''${FILES[@]}" | \
-          fzf --preview "$PREVIEW_CMD" --preview-window=right:70%:wrap \
-              --prompt="🦆 Pick a log: " --border)
+          fzf --preview="tac {}" --preview-window=right:70%:wrap \
+            --prompt="🦆 Pick a log: " --border)
       fi
 
     '';    

@@ -1,5 +1,5 @@
-# dotfiles/bin/misc/timer.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+# dotfiles/bin/misc/time.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ one file for all time related scripts and intents
   self,
   lib,
   config,
@@ -21,6 +21,18 @@
 in {  
   yo.bitch = { 
     intents = {
+      time = {
+        data = [{
+          sentences = [
+            "(va|vad|vart) är klockan"
+            "hur mycket är klockan"
+            "(va|vad|vart) är det för dag"
+            "vilket datum är det"
+            "vad är det för datum"
+          ];
+        }];  
+      };
+      
       timer = {
         data = [{
           sentences = [
@@ -30,68 +42,55 @@ in {
             "(skapa|ställ|sätt|starta) [en] timer [på] {seconds} sekunder"                     
           ];        
           lists = {
-#            seconds.values = builtins.genList (
-#              i: {
-#                "in" = toString (i + 1);
-#                out = toString (i + 1);
-#              }
-#            ) 60;
-#            minutes.values = builtins.genList (
-#              i: {
-#                "in" = toString (i + 1);
-#                out = toString (i + 1);
-#              }
-#            ) 60;
-#            hours.values = builtins.genList (
-#              i: {
-#                "in" = toString (i + 1);
-#                out = toString (i + 1);
-#              }
-#            ) 24;   
-
             seconds.values = builtins.concatLists (builtins.genList (
                     i: let n = i + 1; in [
                       { "in" = toString n; out = toString n; }       # Digit string (e.g., "5")
                       { "in" = swedishNumber n; out = toString n; }  # Swedish word (e.g., "fem")
                     ]
                   ) 60);
-
                   minutes.values = builtins.concatLists (builtins.genList (
                     i: let n = i + 1; in [
                       { "in" = toString n; out = toString n; }
                       { "in" = swedishNumber n; out = toString n; }
                     ]
                   ) 60);
-
                   hours.values = builtins.concatLists (builtins.genList (
                     i: let n = i + 1; in [
                       { "in" = toString n; out = toString n; }
                       { "in" = swedishNumber n; out = toString n; }
                     ]
                   ) 24);
-
           };
         }];
-      };
+      }; 
       
       alarm = {
         data = [{
           sentences = [
-            "(skapa|ställ|sätt|start|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {minutes} [och] {hours}"      
+            "(skapa|ställ|sätt|start|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"   
+            "(skapa|ställ|sätt|start|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours}-{minutes}" 
+            "(skapa|ställ|sätt|start|starta) [ett] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours}[-|.|:| ]{minutes}"
+            "väck mig [klocka|klockan] {hours}[-|.|:|  | och ]{minutes}"
           ];        
           lists = {
-            hours.values = builtins.genList (
-              i: {
-                "in" = toString (i + 1);
-                out = toString (i + 1);
-              }
-            ) 24; 
-          minutes.values = builtins.genList (
-              i: {
-                "in" = toString (i + 1);
-                out = toString (i + 1);
-              }
-            ) 60; 
+            seconds.values = builtins.concatLists (builtins.genList (
+                    i: let n = i + 1; in [
+                      { "in" = toString n; out = toString n; }       # Digit string (e.g., "5")
+                      { "in" = swedishNumber n; out = toString n; }  # Swedish word (e.g., "fem")
+                    ]
+                  ) 60);
+                  minutes.values = builtins.concatLists (builtins.genList (
+                    i: let n = i + 1; in [
+                      { "in" = toString n; out = toString n; }
+                      { "in" = swedishNumber n; out = toString n; }
+                    ]
+                  ) 60);
+                  hours.values = builtins.concatLists (builtins.genList (
+                    i: let n = i + 1; in [
+                      { "in" = toString n; out = toString n; }
+                      { "in" = swedishNumber n; out = toString n; }
+                    ]
+                  ) 24);
           };
         }];
       };      
@@ -114,9 +113,11 @@ in {
         HOURS="$hours"
         MINUTES="$minutes"
         SECONDS="$seconds"
+      
         TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
-   
         DURATION=$TIMER_TOTAL
+        TIMER_MINUTES=$((DURATION / 60)) 
+        if_voice_say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
         start_time=$(date +%s)
         end_time=$((start_time + DURATION))
       
@@ -143,6 +144,21 @@ in {
       ) > /tmp/yo-timer.log 2>&1 & disown
     '';
   };  
+
+  yo.scripts.time = {
+    description = "Tells time, day and date";
+    category = "🧩 Miscellaneous";
+    code = ''
+      ${cmdHelpers}
+      export LC_TIME=sv_SE.UTF-8
+      TIME=$(date "+%H . %M")
+      DAY=$(date "+%A")
+      DATE=$(date "+%d %B")
+      say_duck "Klockan är $TIME . Det är $DAY dem $DATE ."
+      if_voice_say "Klockan är $TIME . Det är $DAY den $DATE ."  
+    '';
+  };  
+
     
    yo.scripts.alarm = {
     description = "Set an alarm for a specified time";
@@ -158,6 +174,7 @@ in {
       SOUNDFILE="$sound"  
       HOUR24=$((10#$hours))
       MINUTE=$((10#$minutes))
+      if_voice_say "Okej kompis, jag ställde din väckarklocka på $HOUR24 $MINUTE"
       now=$(date +%s)
       target=$(date -d "today $HOUR24:$MINUTE" +%s)
 

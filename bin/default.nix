@@ -314,7 +314,12 @@
     tts() {    
       yo-say --text "$1"
     }
-     
+    if_voice_say() { 
+      if [ "$VOICE_MODE" = "1" ]; then yo-say --text "$1"; fi
+    }  
+    
+    
+    
   '';
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {

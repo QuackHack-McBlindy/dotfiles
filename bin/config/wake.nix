@@ -51,8 +51,8 @@ in { # 🦆 says ⮞ .. nuthin' in?
       
       # 🦆 says ⮞ monitor da logz for detection yo
       ${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0 | while read -r line; do
-          # 🦆 says ⮞ monitor wake word probability.. 
-          if [[ $line =~ probability=([0-9]+\.[0-9]+) ]]; then
+        # 🦆 says ⮞ monitor wake word probability.. 
+        if [[ $line =~ probability=([0-9]+\.[0-9]+) ]]; then
               # 🦆 says ⮞ .. check defined threshold
               probability="''${BASH_REMATCH[1]}"    
               # 🦆 says ⮞ ... & current time
@@ -66,7 +66,7 @@ in { # 🦆 says ⮞ .. nuthin' in?
               if [[ "$awk_comparison" -eq 1 && "$time_diff" -gt "$WAKE_COOLDOWN" ]]; then
                   # 🦆 says ⮞ TRIGGERED YO!!1
                   # 🦆 says ⮞ set last trigger time to now
-                  LAST_TRIGGER_TIME="$current_time"
+                  export LAST_TRIGGER_TIME="$current_time"
                   # 🦆 says ⮞ put sum duck tracin' in da logz 
                   dt_info "⚠️ [Wake Word] Detected! Probability: $probability"
                   # 🦆 says ⮞ play sound
@@ -83,11 +83,12 @@ in { # 🦆 says ⮞ .. nuthin' in?
                     # 🦆 says ⮞ trace it - log it or dump it - i don't rly care                  
                     dt_debug "Transcribed text: $TRANSCRIPTION"
                     # 🦆 says ⮞ ok had enuff - say bai bai
-                    tts "Skickar $TRANSCRIPTION till bitchen yo" > /dev/null 2>&1
+                    export VOICE_MODE=1
                     # 🦆 says ⮞ yo bitch! take care of diz shit!
                     dt_info "yo bitch ⮞ $TRANSCRIPTION"
                     yo-bitch --input "$TRANSCRIPTION"
                     # 🦆 says ⮞ nlp.nix take it from here yo
+                    unset $VOICE_MODE
                   fi                                
               fi
           fi
@@ -111,7 +112,7 @@ in { # 🦆 says ⮞ .. nuthin' in?
     uri = "tcp://0.0.0.0:10400";
     preloadModels = [ "yo_bitch" ]; # 🦆 says ⮞ mature....
     customModelsDirectories = [ "/etc/openwakeword" ];
-    threshold = 0.3; # 🦆 says ⮞ dooz not really matter since we run fake sat yo
+    threshold = 0.8; # 🦆 says ⮞ dooz not really matter since we run fake sat yo
     triggerLevel = 1;
     extraArgs = [ "--debug" "--debug-probability" ]; # 🦆 says ⮞ ooof.. can't touch diz - we use diz to read dem' values yo 
   };} # 🦆 says ⮞ sleep tight & wake up wen 🦆 says ⮞ YO BIAAATCH !!111 

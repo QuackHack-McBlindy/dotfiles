@@ -1,6 +1,5 @@
 # dotfiles/bin/misc/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-# 🦆 says ⮞ home controller
-{ 
+{ # 🦆 says ⮞ home controller
   self,
   lib,
   config,
@@ -8,7 +7,6 @@
   cmdHelpers,
   ...
 } : let
-
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
 
   sysHosts = lib.attrNames self.nixosConfigurations;
@@ -73,10 +71,14 @@ in {
         data = [{
           sentences = [
             # Multi taskerz
+            "{device} {state} och färg {color}"
+            "{device} {state} och ljusstyrka {brightness} procent"
             "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
-            "(tänd|släck|starta|stäng) {device}"
+            "(tänd|tänk|släck|starta|stäng) {device}"
             "{slate} alla lampor i {device}"
-            "{state} {device} lampor"           
+            "{state} {device} lampor"   
+            "{state} lamporna i {device}"
+            "{state} alla lampor"
             # Color Control
             "(ändra|gör) färgen [på|i] {device} till {color}"
             # Brightness Control
@@ -84,8 +86,8 @@ in {
           ];        
           lists = {
             state.values = [
-              { "in" = "[tänd|start|starta|på]"; out = "ON"; }             
-              { "in" = "[släck|av|stäng|stäng av]"; out = "OFF"; } 
+              { "in" = "[tänd|tända|tänk|start|starta|på]"; out = "ON"; }             
+              { "in" = "[släck|släcka|slick|av|stäng|stäng av]"; out = "OFF"; } 
             ];
             brightness.values = builtins.genList (i: {
               "in" = toString (i + 1);
@@ -124,12 +126,11 @@ in {
     category = "🛖 Home Automation";
     aliases = [ "lights" ];
 #    helpFooter = ''
-
 #    '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
       { name = "state"; description = "State of the device or group"; default = "on"; } 
-      { name = "brightness"; description = "Brightness value of the device or group"; optional = true; }    
+      { name = "brightness"; description = "Brightness value of the device or group"; optional = true; type = "int"; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
@@ -139,12 +140,8 @@ in {
       ${cmdHelpers}
  #     set -euo pipefail
       # 🦆 says ⮞ create case insensitive map of device friendly_name
-      declare -A device_map=(
-        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)}
-      )
-      available_devices=(
-        ${toString deviceList}
-      )      
+      declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
+      available_devices=( ${toString deviceList} )      
       STATE_DIR="${zigduckDir}"
       DEVICE="$device"
       STATE="$state"
@@ -155,13 +152,17 @@ in {
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(<"$PWFILE")
+      touch "$STATE_DIR/voice-debug.log"
       # 🦆 says ⮞ special handling for all_lights device alias
       if [[ "$DEVICE" == "all_lights" ]]; then
         if [[ "$STATE" == "on" ]]; then
           scene max
+          if_voice_say "Jag maxade alla lampor brorsan."
         elif [[ "$STATE" == "off" ]]; then
           scene dark
+          if_voice_say "Nu blev det mörkt!"
         else
+          echo "$(date) - ❌ Unknown state for all_lights: $STATE" >> "$STATE_DIR/voice-debug.log"
           say_duck "❌ Unknown state for all_lights: $STATE"
           exit 1
         fi
@@ -178,7 +179,8 @@ in {
             hex_code="$color_input"
           else
             hex_code=$(color2hex "$color_input") || {
-              say_duck "❌ Invalid color: $color_input"
+              echo "$(date) - ❌ Unknown color: $color_input" >> "$STATE_DIR/voice-debug.log"
+              say_duck "fuck ❌ Invalid color: $color_input"
               exit 1
             }
           fi
@@ -187,14 +189,15 @@ in {
         if [[ "$state" == "off" ]]; then
           mqtt_publish "zigbee2mqtt/$dev/set" '{"state":"OFF"}'
           say_duck "Turned off $dev"
+          if_voice_say "Stängde av $dev"
         else
           # 🦆 says ⮞ Validate brightness value
           if [[ -n "$brightness" ]]; then
             if ! [[ "$brightness" =~ ^[0-9]+$ ]] || [ "$brightness" -lt 1 ] || [ "$brightness" -gt 100 ]; then
+              echo "$(date) - ❌ Unknown brightness: $brightness" >> "$STATE_DIR/voice-debug.log"
               say_duck "Ogiltig ljusstyrka: $brightness%. Ange 1-100."
               exit 1
             fi
-            # Convert percentage to 0-254 scale
             brightness=$((brightness * 254 / 100))
           fi
           local payload='{"state":"ON"'
@@ -203,6 +206,7 @@ in {
           payload+="}"
           mqtt_publish "zigbee2mqtt/$dev/set" "$payload"
           say_duck "Set $dev: $payload"
+          if_voice_say "Klart kompis"
         fi
       }
       
@@ -212,9 +216,35 @@ in {
         if [[ -n "$exact_name" ]]; then
           control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
           exit 0
-        elif [[ -z "$AREA" ]]; then
+#
+        else
+          # Try partial match
+          for dev in "''${!device_map[@]}"; do
+            if [[ "$dev" == *"$input_lower"* ]]; then
+              exact_name="''${device_map[$dev]}"
+              break
+            fi
+          done
+          
+          if [[ -n "$exact_name" ]]; then
+            control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
+            exit 0
+          fi
+
+          # Check if it's a group
+          group_topics=($(jq -r '.groups | keys[]' "$STATE_DIR/zigbee_devices.json"))
+          for group in "''${group_topics[@]}"; do
+            if [[ "$(echo "$group" | tr '[:upper:]' '[:lower:]')" == *"$input_lower"* ]]; then
+              control_group "$group" "$STATE" "$BRIGHTNESS" "$COLOR"
+              exit 0
+            fi
+          done
+       
+#        
+#        elif [[ -z "$AREA" ]]; then
           AREA="$DEVICE"
           say_duck "⚠️ Device '$DEVICE' not found, trying as area '$AREA'"
+          echo "$(date) - ⚠️ Device $DEVICE not found as area" >> "$STATE_DIR/voice-debug.log"
         fi
       fi
 
@@ -227,6 +257,7 @@ in {
           local hex_code=""
           if [[ -n "$COLOR" ]]; then
             hex_code=$(color2hex "$COLOR") || {
+              echo "$(date) - ❌ Unknown coolor: $COLOR" >> "$STATE_DIR/voice-debug.log"
               say_duck "❌ Invalid color: $COLOR"
               continue
             }

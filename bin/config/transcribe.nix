@@ -7,7 +7,7 @@
   cmdHelpers,
   ... 
 } : let # 🦆 says ⮞ dependencies  
-  environment.systemPackages = [ pkgs.alsa-utils ];  
+  environment.systemPackages = [ pkgs.alsa-utils pkgs.whisper-cpp ];  
   pyEnv = pkgs.python3.withPackages (ps: [ ps.fastapi ps.uvicorn ps.faster-whisper ps.numpy ps.soundfile ps.python-multipart ]);
   # 🦆 says ⮞ creates TLS/SSL API endpoint fpr receivin' dat audio dat needz transcription - yo
   server = pkgs.writeScript "whisperd-server.py" ''
@@ -32,6 +32,7 @@
     app = FastAPI()
     model = WhisperModel(args.model, device=args.device)
     # 🦆 says ⮞ api endpoint
+
     @app.post("/transcribe")
     async def transcribe(audio: UploadFile = File(...)):
         audio_data = np.frombuffer(await audio.read(), dtype=np.int16)
