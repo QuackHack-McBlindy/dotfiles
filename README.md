@@ -28,7 +28,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 ## **📌 Highlights** 
 
 - 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🛠️ **[yo DSL CLI](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(yo - Unified script execution framework with deeply integrated advanced features. Nix+Bash+🦆 )*    
+- 🛠️ **[yo CLI](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(CLI framework - dynamically generates scripts executables & much more Nix+Bash+🦆 )*    
 - 🎙️ **[Nix/Bash NLP](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/nlp.nix)** *(Translates natural language to yo scripts - Dynamic regex+Automatic parameter resolution+++ Speak directly to your Shell)* 
 - 📡 **[Smart Home](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/zigbee.nix)** *(Nix Smart Home - Living right down the Rabbit Hole)* 
 - 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/networking/wg-server.nix)** *(with automatic QR codes for mobile devices)* 
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/dw0fzjm91yr5l7i36j3d980m58g49ylf-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/x64kvzghlqd3s2m07dz2yjvfzgxakjjz-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
