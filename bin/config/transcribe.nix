@@ -31,16 +31,16 @@
     args = parser.parse_args()
     app = FastAPI()
     model = WhisperModel(args.model, device=args.device)
-    # 🦆 says ⮞ api endpoint
 
+    # 🦆 says ⮞ api endpoint
     @app.post("/transcribe")
     async def transcribe(audio: UploadFile = File(...)):
         audio_data = np.frombuffer(await audio.read(), dtype=np.int16)
         with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
             sf.write(tmp.name, audio_data, 16000)
-            segments, _ = model.transcribe(tmp.name, language=args.language)
+            segments, _ = model.transcribe(tmp.name, language=args.language, vad_filter=True)
             return {"transcription": " ".join(segment.text for segment in segments)}       
-            
+
     # 🦆 says ⮞ handle certs
     ssl_params = {}
     if args.cert and args.key:

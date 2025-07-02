@@ -72,7 +72,11 @@
       local blink_code=""
       [[ "$blink" == "true" ]] && blink_code="$BLINK"
       local level_num="''${DT_LEVEL_MAP[$level]:-0}"
-      (( level_num < DT_LOG_LEVEL_NUM )) && return
+      (( level_num < DT_LOG_LEVEL_NUM )) && return    
+##    (( level_num >= DT_LOG_LEVEL_NUM )) || return  
+      local max_size=1048576 # 1MB
+      # rorate logs
+      if [[ -f "$log_path" && $(stat -c%s "$log_path") -gt $max_size ]]; then mv "$log_path" "$log_path.old"; fi
       # 🦆 says ⮞ format output
       local output="''${color}''${BOLD}''${blink_code}[🦆📜] [''${timestamp}] ''${symbol}''${level}''${symbol} ⮞ ''${message}''${RESET}"
       echo -e "$output" 
@@ -160,9 +164,6 @@
     }
     say_duck() { # 🦆 duck say ⮞ diis need explaination? 
       echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
-    }   
-    debug() {  # 🦆 duck say ⮞ remember to set appropriate mode in script 
-     if [ "$DEBUG_MODE" = true ]; then echo "$*"; fi
     }
     type fail >/dev/null 2>&1 || fail() { # 🦆 duck say ⮞ fail? duck's usually don't yo?
       echo -e "$1" >&2
@@ -316,8 +317,21 @@
     }
     if_voice_say() { 
       if [ "$VOICE_MODE" = "1" ]; then yo-say --text "$1"; fi
+    }    
+    confirm() {
+      local question="$1"
+      yo-say "$question Säg: ja eller nej."
+      read -r ask
+      ask=$(yo-mic)
+      if [[ "$ask" == "ja" ]]; then
+        return 0
+      elif [[ "$ask" == "nej" ]]; then
+        exit 1
+      else
+        yo-say "Ogiltigt svar brosh. Försök igen."
+        confirm "$question"
+      fi
     }  
-    
     log_failed_input() {
       local sentence="$1"
       local config_dir="/home/${config.this.user.me.name}/.config"

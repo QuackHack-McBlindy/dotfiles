@@ -326,20 +326,29 @@ EOF
         readOnly = true;
         default = name;
         description = "Script name (derived from attribute key)";
-      }; # 🦆 duck say > yo go ahead describe da script yo   
+      }; 
       description = mkOption {
         type = types.str;
+        default = "";
         description = "Description of the script";
+      }; # 🦆 duck say > categoryiez da script (for sorting in `yo --help` & README.md    
+      category = mkOption {
+        type = types.str;
+        default = "";
+        description = "Category of the script";
+      }; # 🦆 duck say > yo go ahead describe da script yo     
+      visibleInReadme = mkOption {
+        type = types.bool;
+        default = ./category != "";
+        defaultText = "category != \"\"";
+        description = "Whether to include this script in README.md";
       }; # 🦆 duck say > duck trace log level
       logLevel = mkOption {
         type = types.enum ["DEBUG" "INFO" "WARNING" "ERROR" "CRITICAL"];
         default = "INFO";
         description = "Sets the log level for Duck Trace";
-      }; # 🦆 duck say > categoryiez da script (for sorting in `yo --help` & README.md    
-      category = mkOption {
-        type = types.str;
-        description = "Category of the script";
-      }; # 🦆 duck say > extra code to be ran & displayed whelp calling da scripts --help cmd  
+      }; 
+# 🦆 duck say > extra code to be ran & displayed whelp calling da scripts --help cmd  
       helpFooter = mkOption {
         type = types.lines;
         default = "";
@@ -556,8 +565,10 @@ EOF
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
   helpText = let # 🦆 duck say ⮞ categorize scripts
-    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
+#    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
     # 🦆 duck say ⮞ sort da scriptz by category
+    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
     sortedCategories = lib.sort (a: b: 
       # 🦆 duck say ⮞ system management goes first yo
       if a == "🖥️ System Management" then true

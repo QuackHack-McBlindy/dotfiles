@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/msfzqqih1f6xf4yp8pdm94c35hw9yrpl-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/4cb12n2rjxk30fkjzij6216sr7ajn0f8-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -318,41 +318,48 @@ Set default values for your parameters to have them marked [optional]
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
+| **** | | |
+| `yo blindsDown ` |  |  |
+| `yo blindsUp ` |  |  |
+| `yo fanOff ` |  |  |
+| `yo fanOn ` |  |  |
+| `yo goodmorning ` |  |  |
+| `yo goodnight ` |  |  |
 | **⚙️ Configuration** | | |
 | `yo bitch --input` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
 | `yo say --text [--model] [--modelDir] [--silence]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--debug]` |  | Automated unit testing |
+| `yo train [--scriptName]` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
 | `yo wake [--threshold] [--cooldown] [--sound]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
 | `yo calculator --expression` | calc | Calculate math expressions |
+| `yo calendar --operation` | kal | Calendar assistant |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
-| `yo stores [--store_name] [--location] [--radius]` | store, open | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
-| `yo transport --arrival [--departure] [--apikey]` | buss, trafiklab | Public transportation helper. Fetches current airplane, bus, boats and train departure and arrival times. (Sweden) |
 | `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
-| `yo arris [--typ] --search` | bedroom, a | Android TV Controller |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo shield [--typ] [--search]` | s, tv | Android TV Controller |
 | `yo speed ` | st | Test your internets Download speed |
-| `yo zigduck [--user] [--pwfile]` | zigbee, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
+| **🎧 Media Management** | | |
+| `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
+| `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--domainFile] [--introURLFile] [--defaultPlaylist] [--max_items]` | remote | Android TV Controller |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🛒 Shopping** | | |
-| `yo shopping_add [--item]` |  | Lägg till en vara i inköpslistan |
-| `yo shopping_remove [--item]` |  | Ta bort en vara från inköpslistan |
-| `yo shopping_view ` |  | Visa inköpslistan |
+| `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
-| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` | lights | Control lights and other home automatioon devices |
+| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` |  | Control lights and other home automatioon devices |
+| `yo zigduck [--user] [--pwfile]` | zigbee, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |
+| `yo joke [--jokeFile]` |  | Tells a quacktastic joke |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo time ` |  | Tells time, day and date |

@@ -19,10 +19,10 @@ in { # 🦆 says ⮞ .. nuthin' in?
 ## ──────⋆⋅☆⋅⋆────── ##
 #EOF
 ##    '';
-    logLevel = "DEBUG";
+    logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
-      { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "20"; }
+      { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "30"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav";  } 
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
@@ -50,47 +50,52 @@ in { # 🦆 says ⮞ .. nuthin' in?
       wakeword_connection
       
       # 🦆 says ⮞ monitor da logz for detection yo
-#      ${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0 | while read -r line; do
-      prev_line=""
       while read -r line; do
-        # Skip duplicate lines
-        if [[ "$line" == "$prev_line" ]]; then
-            continue
-        fi
-        prev_line="$line"
-    
+        # 🦆 says ⮞ monitor wake word probability.. 
         if [[ $line =~ probability=([0-9]+\.[0-9]+) ]]; then
-            probability="''${BASH_REMATCH[1]}"    
-            current_time=$(${pkgs.coreutils}/bin/date +%s)
-            time_diff=$((current_time - LAST_TRIGGER_TIME))
-        
-            # Handle potential clock changes
-            if (( time_diff < 0 )); then
-                time_diff=WAKE_COOLDOWN+1
-            fi
-        
-            awk_comparison=$(${pkgs.gawk}/bin/awk -v p="$probability" -v t="$WAKE_THRESHOLD" 'BEGIN { print (p > t) ? 1 : 0 }')
-        
-            if [[ "$awk_comparison" -eq 1 && "$time_diff" -gt "$WAKE_COOLDOWN" ]]; then
-                LAST_TRIGGER_TIME="$current_time"
-                dt_info "⚠️ [Wake Word] Detected! Probability: $probability"
-                play_wav "$AWAKE_SOUND"
-                TRANSCRIPTION=$(yo-mic)
-            
-                if [[ -z "$TRANSCRIPTION" ]]; then
+              # 🦆 says ⮞ .. check defined threshold
+              probability="''${BASH_REMATCH[1]}"    
+              # 🦆 says ⮞ ... & current time
+              current_time=$(${pkgs.coreutils}/bin/date +%s)
+              # 🦆 says ⮞ ... calculate time difference between last trigger & current time
+              time_diff=$((current_time - LAST_TRIGGER_TIME))
+              # 🦆 says ⮞ ... compare threshold and cooldown
+              awk_comparison=$(${pkgs.gawk}/bin/awk -v p="$probability" -v t="$WAKE_THRESHOLD" 'BEGIN { print (p > t) ? 1 : 0 }')
+              
+              # 🦆 says ⮞ all checkz out ok?
+              if [[ "$awk_comparison" -eq 1 && "$time_diff" -gt "$WAKE_COOLDOWN" ]]; then
+                  dt_debug "Cooldown check: diff=$time_diff, last=$LAST_TRIGGER_TIME, now=$current_time"
+                  # 🦆 says ⮞ TRIGGERED YO!!1
+                  # 🦆 says ⮞ set last trigger time to now
+                  LAST_TRIGGER_TIME="$current_time"
+                  TIME_FORMATTED=$(${pkgs.coreutils}/bin/date +"%H:%M:%S")
+                  # 🦆 says ⮞ put sum duck tracin' in da logz 
+                  dt_info "⚠️ [Wake Word] Detected! Probability: $probability."
+                  # 🦆 says ⮞ play sound
+                  play_wav "$AWAKE_SOUND"
+                  # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
+                  TRANSCRIPTION=$(yo-mic)
+                
+                  # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
+                  if [[ -z "$TRANSCRIPTION" ]]; then
                     dt_debug "Empty transcription"
-                else
+                    LAST_TRIGGER_TIME=$((current_time - WAKE_COOLDOWN + 5))
+                  else # 🦆 says ⮞ ELSE WAT?!
+                    # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
+                    # 🦆 says ⮞ clean it up, trim it down, remove stuffz, collapz stuffz and lowercase shit upside-down - it'z all done from yo-mic
+                    # 🦆 says ⮞ trace it - log it or dump it - i don't rly care                  
                     dt_debug "Transcribed text: $TRANSCRIPTION"
+                    # 🦆 says ⮞ ok had enuff - say bai bai
                     export VOICE_MODE=1
+                    # 🦆 says ⮞ yo bitch! take care of diz shit!
                     dt_info "yo bitch ⮞ $TRANSCRIPTION"
                     yo-bitch --input "$TRANSCRIPTION"
-                    unset VOICE_MODE
-                fi
-            else
-                dt_debug "Ignored detection (cooldown: $time_diff/$WAKE_COOLDOWN s, prob: $probability)"
-            fi
-        fi
-      done < <(${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0)
+                    # 🦆 says ⮞ nlp.nix take it from here yo
+                    unset $VOICE_MODE
+                  fi                                
+              fi
+          fi
+      done < <(${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0)  
     '';
   };
 

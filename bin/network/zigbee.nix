@@ -133,7 +133,7 @@
 in { # 🦆 says ⮞ finally here, quack! 
   yo.scripts.zigduck = { # 🦆 says ⮞ dis is where my home at
     description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
-    category = "🌐 Networking"; # 🦆 says ⮞ thnx for following me home
+    category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     aliases = [ "zigbee" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
@@ -223,8 +223,7 @@ EOF
         
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
-          debug "Topic: $topic" && debug "Payload: $line"
-                 
+          debug "Topic: $topic" && debug "Payload: $line"         
           # 🦆 says ⮞ backup handling
           if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
           # 🦆 says ⮞ trigger backup from MQTT
@@ -279,8 +278,7 @@ EOF
             if [ "$action" == "off_hold_release" ]; then scene "dark" && say_duck "🚫 DARKNESS ON"; fi
           fi
         done
-      }   
-
+      }
       # 🦆 says ⮞ ran dis thang
       echo " Ready for liftoff?"    
       echo "🚀 Starting zigduck automation system"  
@@ -311,7 +309,6 @@ EOF
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
   };
-
   # 🦆 says ⮞ Mosquitto configuration
   # 🦆 says ⮞ we only need server configuration on one host - so set zigduck at config.this.host.module services in your host config
   services.mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
@@ -352,7 +349,7 @@ EOF
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = false; # 🦆 says ⮞ 2duck4frontend yo
+          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0";  # 🦆 says ⮞ duck means cool by the way - in case u did not realize 
           port = 8099; 
         };
@@ -383,7 +380,7 @@ EOF
           };
           device_options = { legacy = false; };
           availability = true;
-          permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
+          permit_join = true; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
           devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
           groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
             all_lights = { # 🦆 says ⮞ + create a group containing all light devices
@@ -501,19 +498,6 @@ EOF
     '') 
   ];  
     
-  # 🦆 says ⮞ pls ensure my quacky hacky home start at boot - YO
-#  systemd.services.zigduck = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
-#    after = ["zigbee2mqtt.service" "mosquitto.service" "network.target"];
-#    wantedBy = ["multi-user.target"];
-#    serviceConfig = { # 🦆 says ⮞ dis down below is dis script above
-#      User = config.this.user.me.name; 
-#      Group = config.this.user.me.name;
-#      ExecStart = "${config.pkgs.yo}/bin/yo-zigduck";
-#      Restart = "on-failure";
-#      RestartSec = "45s";
-#    };
-#  };
- 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];

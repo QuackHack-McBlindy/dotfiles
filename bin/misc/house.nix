@@ -79,6 +79,8 @@ in {
             "{state} {device} lampor"   
             "{state} lamporna i {device}"
             "{state} alla lampor"
+            "stäng {state} {device}"
+            "starta {state} {device}"
             # Color Control
             "(ändra|gör) färgen [på|i] {device} till {color}"
             # Brightness Control
@@ -93,14 +95,43 @@ in {
               "in" = toString (i + 1);
               out = toString (i + 1);
             }) 100;
-            device.values = [
+            device.values = let
+              reservedNames = [ "hall" "kök" "sovrum" "toa" "wc" "vardagsrum" "kitchen" "switch" ];
+              sanitize = str:
+                lib.replaceStrings [ "/" ] [ "" ] str;
+            in [
               { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
               { "in" = "[kök|köket]"; out = "kitchen"; }
               { "in" = "[sovrum|sovrummet]"; out = "bedroom"; }
               { "in" = "[hall|hallen]"; out = "hallway"; }
               { "in" = "[toa|toan|toalett|toaletten|wc]"; out = "wc"; }
-              { "in" = "[all|alla|allt]"; out = "ALL_LIGHTS"; }              
-            ];  
+              { "in" = "[all|alla|allt]"; out = "ALL_LIGHTS"; }    
+            ];
+
+# 🦆 says ⮞ automatically add all zigbee devices  
+#            ] ++
+#            (lib.filter (x: x != null) (
+#              lib.mapAttrsToList (_: device:
+#               let
+#                  baseRaw = lib.toLower device.friendly_name;
+#                  base = sanitize baseRaw;
+#                  baseWords = lib.splitString " " base;
+#                  isAmbiguous = lib.any (word: lib.elem word reservedNames) baseWords;
+#                  hasLampSuffix = lib.hasSuffix "lampa" base;
+#                  lampanVariant = if hasLampSuffix then [ "${base}n" ] else [];  
+#                  enVariant = [ "${base}en" ]; # ← always add the 'en' variant 
+#                  variations = lib.unique (
+#                    [
+#                      base
+#                      (sanitize (lib.replaceStrings [ " " ] [ "" ] base))
+##                    ] ++ lampanVariant ++ enVariant
+#                  );
+#                in if isAmbiguous then null else {
+#                  "in" = "[" + lib.concatStringsSep "|" variations + "]";
+#                  out = device.friendly_name;
+#               }
+#              ) zigbeeDevices
+#            ));      
             color.values = [
               { "in" = "[röd|rött]"; out = "red"; }            
               { "in" = "[grön|grönt]"; out = "green"; }              
@@ -124,9 +155,6 @@ in {
   yo.scripts.house = {
     description = "Control lights and other home automatioon devices";
     category = "🛖 Home Automation";
-    aliases = [ "lights" ];
-#    helpFooter = ''
-#    '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
       { name = "state"; description = "State of the device or group"; default = "on"; } 
@@ -152,8 +180,7 @@ in {
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(<"$PWFILE")
-      touch "$STATE_DIR/voice-debug.log"
-      # 🦆 says ⮞ special handling for all_lights device alias
+      touch "$STATE_DIR/voice-debug.log"        
       if [[ "$DEVICE" == "all_lights" ]]; then
         if [[ "$STATE" == "on" ]]; then
           scene max
@@ -218,7 +245,6 @@ in {
           exit 0
 #
         else
-          # Try partial match
           for dev in "''${!device_map[@]}"; do
             if [[ "$dev" == *"$input_lower"* ]]; then
               exact_name="''${device_map[$dev]}"
@@ -247,7 +273,6 @@ in {
           echo "$(date) - ⚠️ Device $DEVICE not found as area" >> "$STATE_DIR/voice-debug.log"
         fi
       fi
-
       control_room() {
         local clean_room=$(echo "$1" | sed 's/"//g')
         jq -r --arg room "$clean_room" \
@@ -275,8 +300,25 @@ in {
         control_room $AREA
       fi        
     ''; 
-  };}
-  
-  
-  
+  };
 
+  yo.bitch.intents.fanOff.data = [{ sentences = [ "(stäng|stänga) [av] (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];
+  yo.bitch.intents.fanOn.data = [{ sentences = [ "(start|starta) (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];  
+  yo.bitch.intents.goodmorning.data = [{ sentences = [ "godmorgon" "god morgon" ];}];    
+  yo.bitch.intents.goodnight.data = [{ sentences = [ "godnatt" "god natt" "jag vill inte se ut" ];}];    
+  yo.bitch.intents.blindsUp.data = [{ sentences = [ "jag vill [kunna] se ut" "(persienner|persiennerna) upp" ];}];    
+  yo.bitch.intents.blindsDown.data = [{ sentences = [ "jag vill inte [kunna] se ut" "(persienner|persiennerna) (ner|ned)" ];}];    
+  yo.scripts.fanOff.code = "zig Fläkt off";
+  yo.scripts.fanOn.code = "zig Fläkt on";
+  yo.scripts.goodmorning.code = ''
+    yo-say "godmorgon bruschhaan kebab"
+    zig 'Roller Shade' on    
+  '';
+  yo.scripts.goodnight.code = ''
+    yo-say "natti natti putti nuttiii brusschaan!" 
+    scene dark
+    zig "Roller Shade" off
+  '';
+  yo.scripts.blindsUp.code = "zig 'Roller Shade' on";
+  yo.scripts.blindsDown.code = "zig 'Roller Shade' off";
+  }

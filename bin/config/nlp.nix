@@ -7,10 +7,7 @@
   sysHosts,  # 🦆 says ⮞ ⭐ Automated testing with extensive DuckTrace debug logging & JSON intent indexing
   cmdHelpers,# 🦆 says ⮞ ⭐ Shell command construction & dispatcher
   ...
-} : let # 🦆 says ⮞ turnin’ up da duck tracin'
-  DEBUG_MODE = false;
-
-  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
+} : let  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
   scripts = config.yo.scripts; 
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
   # 🦆 says ⮞ only scripts with known intentions
@@ -127,8 +124,8 @@
       local input="$(echo "$1" | tr '[:upper:]' '[:lower:]')" 
       # 🦆 says ⮞ always show input in debug mode
       # 🦆 says ⮞ watch the fancy stuff live in action  
-      dt_debug "[🦆📜] ✅DEBUG✅ Trying to match for script: ${scriptName}" >&2
-      dt_debug "[🦆📜] ✅DEBUG✅ Input: $input" >&2
+      dt_debug "Trying to match for script: ${scriptName}" >&2
+      dt_debug "Input: $input" >&2
       # 🦆 says ⮞ duck presentin' - da madnezz 
       ${lib.concatMapStrings (data:
         lib.concatMapStrings (sentence:
@@ -159,8 +156,7 @@
             paramList = map (v: v.param) regexParts; # 🦆 says ⮞ the squad of parameters 
           in ''
             local regex='^${fullRegex}$'
-            export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
-            if [ "$DEBUG_MODE" = true ]; then echo "[🦆📜] ✅DEBUG✅ REGEX: $regex"; fi # 🦆 says ⮞ watch the fancy stuff live in action  
+            dt_debug "REGEX: $regex"
             if [[ "$input" =~ $regex ]]; then  # 🦆 says ⮞ DANG DANG – regex match engaged 
               ${lib.concatImapStrings (i: paramName: ''
                 # 🦆 says ⮞ extract match group #i+1 – param value, come here plz 
@@ -195,14 +191,11 @@
                 value="''${BASH_REMATCH[${toString i}]}"
                 cmd_args+=(--${paramName} "$value")
               '') paramList}
-              export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ DUCK TRACE yo 
-              if [ "$DEBUG_MODE" = true ]; then # 🦆 says ⮞ watch the fancy stuff live in action                
-                echo "[🦆📜] ✅DEBUG✅ REMATCH 1: ''${BASH_REMATCH[1]}"
-                echo "[🦆📜] ✅DEBUG✅ REMATCH 2: ''${BASH_REMATCH[2]}"
-                echo "[🦆📜] ✅DEBUG✅ REMATCH 3: ''${BASH_REMATCH[3]}"
-                echo "[🦆📜] ✅DEBUG✅ [MATCHED SCRIPT: ${scriptName}"
-                echo "[🦆📜] ✅DEBUG✅ ARGS: ''${cmd_args[@]}"
-              fi
+              dt_debug "REMATCH 1: ''${BASH_REMATCH[1]}"
+              dt_debug "REMATCH 2: ''${BASH_REMATCH[2]}"
+              dt_debug "REMATCH 3: ''${BASH_REMATCH[3]}"
+              dt_debug "MATCHED SCRIPT: ${scriptName}"
+              dt_debug "ARGS: ''${cmd_args[@]}"
               return 0
             fi
           '') (expandOptionalWords sentence)
@@ -211,6 +204,38 @@
       return 1
     }
   ''; # 🦆 says ⮞ i aint' doin' dat againz ......
+
+#  matchers = lib.mapAttrsToList (scriptName: data:
+#    let
+#      matcherCode = makePatternMatcher scriptName;
+#    in
+#      {
+#        name = "${scriptName}";
+#        value = pkgs.writeText "${scriptName}-matcher" matcherCode;
+#      }
+#  ) config.yo.bitch.intents;
+  allMatchersScript = pkgs.writeScript "all-matchers.sh" (
+    lib.concatStringsSep "\n" (
+      lib.mapAttrsToList (scriptName: _: makePatternMatcher scriptName) 
+      config.yo.bitch.intents
+    )
+  );
+
+  matchers = lib.mapAttrsToList (scriptName: data:
+    let
+      matcherCode = makePatternMatcher scriptName;
+    in {
+      name = scriptName;
+      value = pkgs.writeText "${scriptName}-matcher" matcherCode;
+    }
+  ) config.yo.bitch.intents;
+
+  # 🦆 Write one shell script that sources them all
+  matcherSourceScript = pkgs.writeText "matcher-loader.sh" (
+    lib.concatMapStringsSep "\n" (m: "source ${m.value}") matchers
+  );
+
+
 
   # 🦆 says ⮞ helpFooter for yo.bitch script
   helpFooterMd = let
@@ -295,12 +320,20 @@
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
   ) config.yo.bitch.intents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom  
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
-  
-  # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
-  environment.variables.YO_INTENT_DATA = intentDataFile; 
-  environment.variables.YO_FUZZY_INDEX = fuzzyIndexFile; 
+  matcherDir = pkgs.linkFarm "yo-matchers" (
+    map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
+  );
+
+
+
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO  
+  # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
+  environment.variables.YO_INTENT_DATA = intentDataFile; 
+  environment.variables.MATCHER_DIR = matcherDir;
+  environment.variables.YO_FUZZY_INDEX = fuzzyIndexFile; 
+#  environment.variables.MATCHER_SOURCE = matcherSourceScript;
+  environment.variables.MATCHER_SOURCE = allMatchersScript;
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     bitch = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
@@ -321,38 +354,63 @@ EOF
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
         intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez
         YO_FUZZY_INDEX="${fuzzyIndexFile}" # For fuzzy nutty duckz
-        export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ u set diz at the top - rememberz?
         text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         debug_attempted_matches=()
         substitution_applied=false
         
-        resolve_entities() {
-          local script="$1"
-          local text="$2"
-          local replacements
-          local pattern out
-          declare -A substitutions
-          # 🦆 says ⮞ skip subs if script haz no listz
-          has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
-          if [[ "$has_lists" != "true" ]]; then
-            echo -n "$text"
-            echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
-            return
-          fi                    
-          # 🦆 says ⮞ dis is our quacktionary yo 
-          replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
-          while IFS="|" read -r pattern out; do
-            if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
-              original="''${BASH_REMATCH[0]}"
-              [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
-              substitutions["''$original"]="$out"
-              substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
-              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
+        declare -A script_substitutions_data  # Stores pattern|value per script
+        declare -A script_has_lists          # Tracks if script has substitutions
+        
+        # Parse JSON once and cache substitutions
+        intent_data_json=$(<"$intent_data_file")
+        while IFS=$'\t' read -r script pattern value; do
+            if [[ -n "$script" ]]; then
+                script_has_lists["$script"]=1
+                key="''${script}:''${pattern}"
+                script_substitutions_data["$key"]="$value"
             fi
-          done <<< "$replacements"      
-          echo -n "$text"
-          echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
-        }       
+        done < <(
+            jq -r 'to_entries[] | .key as $script | .value.substitutions[]? | 
+                    [$script, .pattern, .value] | @tsv' \
+            <<<"$intent_data_json"
+        )
+        
+    
+
+        
+        resolve_entities() {
+            local script="$1"
+            local text="$2"
+            declare -A substitutions=()
+            local substitution_applied=false
+      
+            # Check if script has substitutions
+            if [[ -z "''${script_has_lists["$script"]}" ]]; then
+                echo -n "$text"
+                echo "|declare -A substitutions"
+                return
+            fi
+      
+            # Iterate through cached patterns
+            for key in "''${!script_substitutions_data[@]}"; do
+                if [[ "$key" == "$script:"* ]]; then
+                    local pattern="''${key#*:}"
+                    local out="''${script_substitutions_data[$key]}"
+                  
+                    if [[ "$text" =~ $pattern ]]; then
+                        local original="''${BASH_REMATCH[0]}"
+                       [[ -z "$original" ]] && continue
+                        substitutions["$original"]="$out"
+                        substitution_applied=true
+                        text=$(sed -E "s/\\b''${pattern}\\b/$out/g" <<<"$text")
+                    fi
+                fi
+            done
+      
+            echo -n "$text"
+            echo "|$(declare -p substitutions | sed 's/^declare -A //')"
+        }
+         
         find_best_fuzzy_match() {
           local input="$1"
           local best_score=0
@@ -413,12 +471,14 @@ EOF
           [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
           echo $(( score > 100 ? 100 : score )) # 🦆 says ⮞ 100 iz da moon yo
         }
-          
+
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
-        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
+#        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         # 🦆 says ⮞ for dem scripts u defined intents for ..
         for script in ${toString scriptNamesWithIntents}; do
+
           # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
+          
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
           dt_debug "Tried: match_''${script} '$resolved_text'"
@@ -430,7 +490,7 @@ EOF
           if match_$script "$resolved_text"; then      
             if [[ "$(declare -p substitutions 2>/dev/null)" =~ "declare -A" ]]; then
               for original in "''${!substitutions[@]}"; do
-                dt_debug "[🦆🔁] Substitution: $original >''${substitutions[$original]}";
+                dt_debug "Substitution: $original >''${substitutions[$original]}";
                 [[ -n "$original" ]] && dt_info "$original > ''${substitutions[$original]}" # 🦆 says ⮞ see wat duck did there?
               done # 🦆 says ⮞ i hop duck pick dem right - right?
             fi
@@ -441,26 +501,35 @@ EOF
             done
          
             # 🦆 says ⮞ final product - hope u like say duck!
-            dt_info "Executing ⮞ yo $script ''${args[@]}" 
-            
+            dt_info "Executing: yo $script ''${args[@]}" 
+            echo "Executing: yo $matched_script ''${cmd_args[@]}"
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
             exec "yo-$script" "''${args[@]}"   
           fi         
-        done # 🦆 says ⮞ done? .... no moar..? 
+        done
         if ! match_$script "$resolved_text"; then     
-          # 🦆🚀💫🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON 🦆🚀💫
-          fuzzy_result=$(find_best_fuzzy_match "$text") 
+          # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON
+#          fuzzy_result=$(timeout 45s find_best_fuzzy_match "$text") 
+          fuzzy_result=$(timeout 45s bash -c "source \"$0\"; find_best_fuzzy_match \"$text\"")
+          ret=$?
+          if [[ $ret -eq 124 ]]; then
+            dt_error "Fuzzy match timed out after 30 seconds"
+            log_failed_input "$text"
+            say_no_match
+            exit 1
+          fi          
           if [[ -n "$fuzzy_result" ]]; then
             IFS='|' read -r match_data score <<< "$fuzzy_result"
             IFS=':' read -r matched_script matched_sentence <<< "$match_data"      
             if (( score >= 70 )); then
-              dt_info "[🦆💫] Fuzzy match found (''${score}%): $matched_sentence"
+              dt_info "Fuzzy match found (''${score}%): $matched_sentence"
               resolved_output=$(resolve_entities "$matched_script" "$text")
               resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
-              dt_info "[🦆💫] Executing ⮞ yo $matched_script ''${cmd_args[@]}" 
+              confirm "Vill du köra $matched_script"
+              echo "Executing: yo $matched_script ''${cmd_args[@]}" 
               exec "yo-$matched_script" "''${cmd_args[@]}"      
             else
-              dt_error "fuck ❌ Close match found (''${score}%) but not confident enough ❌ FAILED!" # 🦆 says ⮞ not my fault - gib duck better inputz lol!!!11 
+              dt_error "Close match found (''${score}%) but not confident enough ❌ FAILED!" # 🦆 says ⮞ not my fault - gib duck better inputz lol!!!11 
               log_failed_input "$text"
               say_no_match
               exit 1
@@ -484,15 +553,14 @@ EOF
         intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez
         intent_base_path="${intentBasePath}" # 🦆 says ⮞ use da prebuilt path yo
         config_json=$(nix eval "$intent_base_path.$script" --json)
-        passed="" # 🦆 says ⮞ passed testz
-        failed="" # 🦆 says ⮞ failed testz
-        total="" # 🦆 says ⮞ total number of tests ran
+        passed=""
+        failed=""
+        total=""
         failures=()  # 🦆 says ⮞ quack! we'll store failures here!
-        export DEBUG_MODE=${lib.boolToString DEBUG_MODE} # 🦆 says ⮞ u set diz at the top - rememberz?
         text="" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         debug_attempted_matches=()
         substitution_applied=false
-                
+                 
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
 

@@ -17,24 +17,43 @@ in { # 🦆 says ⮞
     parameters = [ { name = "file"; description = "Logfile/service name to view, if not provided a list of all logs will be shown"; optional = true; } ];
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
+      LOGFILE="$file"
+      PAGER=''${PAGER:-less -R}
 
-      # 🦆 says ⮞ If no file is provided, let the user pick one
       if [[ -z "$LOGFILE" ]]; then
         cd "$DT_LOG_PATH" || exit 1
         FILES=(*)
-
-        # 🦆 show preview using bat, glow, or cat
-        PREVIEW_CMD='[[ $(file --mime-type --brief {}) == text/markdown ]] && command -v glow >/dev/null && glow {} || command -v bat >/dev/null && bat --style=plain --color=always {} || cat {}'
+        if [[ ''${#FILES[@]} -eq 0 ]]; then
+          dt_error "No log files found in $DT_LOG_PATH"
+          exit 1
+        fi
 
         LOGFILE=$(printf "%s\n" "''${FILES[@]}" | \
           fzf --preview="tac {}" --preview-window=right:70%:wrap \
-            --prompt="🦆 Pick a log: " --border)
+              --prompt="🦆 Pick a log: " --border)
+
+        if [[ -z "$LOGFILE" ]]; then
+          dt_info "No log file selected."
+          exit 0
+        fi
+        LOGFILE="$DT_LOG_PATH/$LOGFILE"
+      else
+        if [[ ! -f "$LOGFILE" ]]; then
+          if [[ -f "$DT_LOG_PATH/$LOGFILE" ]]; then
+            LOGFILE="$DT_LOG_PATH/$LOGFILE"
+          else
+            dt_error "Log file not found: $LOGFILE"
+            exit 1
+          fi
+        fi
+      fi
+
+
+      if [[ -n "$FILTER" ]]; then
+        grep --color=always "$FILTER" "$LOGFILE"
+      else
+        cat "$LOGFILE"
       fi
 
     '';    
   };}
- 
- 
- 
- 
-
