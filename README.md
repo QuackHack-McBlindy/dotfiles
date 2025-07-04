@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/32qk4vgpkghq4a2k11fv6wskm8xgv75b-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/xhj76v3gvvh3za41l690b7ggj4s6p327-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -341,7 +341,6 @@ Set default values for your parameters to have them marked [optional]
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
-| `yo tv-scraper [--epgFilePath] [--jsonFilePath]` |  | Scrapes web for tv-listing data. |
 | **🌍 Localization** | | |
 | `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
@@ -350,7 +349,8 @@ Set default values for your parameters to have them marked [optional]
 | **🎧 Media Management** | | |
 | `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
 | `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--domainFile] [--introURLFile] [--defaultPlaylist] [--max_items]` | remote | Android TV Controller |
-| `yo tv-guide [--epgFilePath] [--jsonFilePath]` |  | TV-guide assistant.. |
+| `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
+| `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |

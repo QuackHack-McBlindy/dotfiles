@@ -164,6 +164,10 @@ in { # 🦆 says ⮞ Options for da house
                 "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # 🦆 says ⮞ Dark Orchid
                 "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };            # 🦆 says ⮞ Light Pink
                 "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
+                "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+                "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+                "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+                "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
             }; 
             "Green D" = {
                 "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -175,6 +179,10 @@ in { # 🦆 says ⮞ Options for da house
                 "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
                 "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
                 "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+                "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+                "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+                "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+                "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
             };  
             "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
                 "Bloom" = { state = "OFF"; transition = 10; };
@@ -194,6 +202,10 @@ in { # 🦆 says ⮞ Options for da house
                 "Vägg" = { state = "OFF"; transition = 10; };
                 "WC 1" = { state = "OFF"; transition = 10; };
                 "WC 2" = { state = "OFF"; transition = 10; };
+                "Takkrona 1" = { state = "OFF"; transition = 10; };   
+                "Takkrona 2" = { state = "OFF"; transition = 10; };
+                "Takkrona 3" = { state = "OFF"; transition = 10; };   
+                "Takkrona 4" = { state = "OFF"; transition = 10; };   
             };  
             "max" = { # 🦆 says ⮞ let there be light
                 "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
@@ -213,6 +225,10 @@ in { # 🦆 says ⮞ Options for da house
                 "Vägg" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
                 "WC 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
                 "WC 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+                "Takkrona 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
+                "Takkrona 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+                "Takkrona 3" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
+                "Takkrona 4" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
             };     
         };
       }  

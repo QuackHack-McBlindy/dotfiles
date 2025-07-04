@@ -377,5 +377,6 @@ in { # 🦆 duck say ⮞ import everythang in defined directories
         importModulesRecursive ./maintenance ++ # 🦆 duck say ⮞ +++++ plus plus plus rots of duck's give lot'z of luck
         importModulesRecursive ./productivity ++
         importModulesRecursive ./network ++
+        importModulesRecursive ./media ++        
         importModulesRecursive ./misc # 🦆 duck say ⮞ enuff enuff dis iz last you have ducks word on dat        
     );} # 🦆 duck say ⮞ bye!

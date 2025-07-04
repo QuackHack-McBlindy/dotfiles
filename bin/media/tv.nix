@@ -1,4 +1,4 @@
-# dotfiles/bin/network/shield.nix
+# dotfiles/bin/media/tv.nix
 { 
   self,
   config,

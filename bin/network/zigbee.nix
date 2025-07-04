@@ -354,6 +354,8 @@ EOF
           port = 8099; 
         };
         advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
+          export_state = true;
+          export_state_path = "${zigduckDir}/zigbee_devices.json";
           homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
           legacy_api = false;
           legacy_availability_payload = false;
@@ -497,13 +499,40 @@ EOF
       say_duck "$PAYLOAD"   
     '') 
   ];  
-    
+
+  # 🦆 says ⮞ CLIENT State file syncronization 
+  systemd.services.zigbee-state-importer = {
+    serviceConfig.Type = "oneshot";
+    script = ''
+      chown ${config.this.user.me.name}:users ${zigduckDir}/zigbee_devices.json
+    '';
+  };
+
+  # 🦆 says ⮞ SERVER State file syncronization 
+  systemd.services.zigbee-state-exporter = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+    serviceConfig.Type = "oneshot";
+    script = ''
+      curl -s http://localhost:8099/api/state > /var/lib/zigbee/state.json  
+      ${pkgs.openssh}/bin/scp \
+        /var/lib/zigbee/state.json \
+        ${config.this.user.me.name}@client-host:${zigduckDir}/zigbee_devices.json
+    '';
+    startAt = "*:0/9";  # 🦆 says ⮞ every 9 minutes dawg
+  };
+
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];
     after = [ "network.target" ];
 #    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
+    serviceConfig = {
+      ReadWritePaths = [ zigduckDir ];
+      UMask = lib.mkForce "0077";
+    };
     preStart = '' 
+      mkdir -p ${zigduckDir}
+      chown ${config.this.user.me.name}:zigbee2mqtt ${zigduckDir}
+      chmod 775 ${zigduckDir}
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack
       mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 

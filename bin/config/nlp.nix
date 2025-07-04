@@ -104,6 +104,58 @@
       ) expanded;  # 🦆 says ⮞ only da fresh unique non-emptiez stayin’ in da pond
     in lib.unique (lib.filter (s: s != "") variants);
 
+  # 🦆 says ⮞ Optimized pattern expansion without combinatorial explosion
+  expandToRegex = sentence: data:
+    let
+      # Helper function to convert patterns to regex
+      convertPattern = token:
+        if lib.hasPrefix "(" token then
+          let
+            clean = lib.removePrefix "(" (lib.removeSuffix ")" token);
+            alternatives = lib.splitString "|" clean;
+            escaped = map lib.escapeRegex alternatives;
+          in "(?:" + lib.concatStringsSep "|" escaped + ")"
+        else if lib.hasPrefix "[" token then
+          let
+            clean = lib.removePrefix "[" (lib.removeSuffix "]" token);
+            alternatives = lib.splitString "|" clean;
+            escaped = map lib.escapeRegex alternatives;
+          in "(?:" + lib.concatStringsSep "|" escaped + ")?"
+        else
+          lib.escapeRegex token;
+      
+      # Split into tokens while preserving special groups
+      tokenize = s:
+        let
+          groups = builtins.match "([^{]*)(\{[^}]*\})?(.*)" s;
+        in
+          if groups == null then [s]
+          else let
+            prefix = builtins.elemAt groups 0;
+            param = builtins.elemAt groups 1;
+            rest = builtins.elemAt groups 2;
+            tokens = if prefix != "" then [prefix] else [];
+            tokensWithParam = if param != null then tokens ++ [param] else tokens;
+          in tokensWithParam ++ tokenize rest;
+      
+      # Process tokens into regex parts
+      tokens = tokenize sentence;
+      regexParts = map (token:
+        if lib.hasPrefix "{" token then
+          let
+            param = lib.removePrefix "{" (lib.removeSuffix "}" token);
+            isWildcard = data.lists.${param}.wildcard or false;
+          in if isWildcard then "(.*)" else "\\b([^ ]+)\\b"
+        else
+          convertPattern token
+      ) tokens;
+      
+      # Combine parts into final regex
+      regex = "^" + lib.concatStrings regexParts + "$";
+    in
+      regex;
+  
+
   # 🦆 says ⮞ take each value like "yo|hey" and map it to its 'out' – buildin’ da translation matrix yo!
   makeEntityResolver = data: listName: # 🦆 says ⮞ i like ducks
     lib.concatMapStrings (entity:

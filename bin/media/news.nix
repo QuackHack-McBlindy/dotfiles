@@ -1,4 +1,4 @@
-# dotfiles/bin/misc/news.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/media/news.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 {
   self,
   lib,

@@ -1,4 +1,4 @@
-# dotfiles/bin/productivity/tv-scraper.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/media/tv-scraper.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Scrapes tv schedule and build xml file
   self,
   lib,
@@ -35,6 +35,25 @@
         ]
     )
     logger = logging.getLogger()
+    CHANNEL_NAMES = {
+        "1": "SVT1",
+        "2": "SVT2",
+        "3": "TV3",
+        "4": "TV4",
+        "5": "Kanal 5",
+        "6": "TV6",
+        "7": "Sjuan",
+        "8": "TV8",
+        "9": "Kanal 9",
+        "10": "TV10",
+        "11": "TV11",
+        "12": "TV12",
+        "13": "TV4 Hockey",
+        "14": "TV4 Sport Live 1",
+        "15": "TV4 Sport Live 2",
+        "16": "TV4 Sport Live 3",
+        "17": "TV4 Sport Live 4",
+    }
     
     TIME_OFFSET = timedelta(hours=0)
     logging.basicConfig(
@@ -47,7 +66,7 @@
     )
     logger = logging.getLogger()
     
-    TIME_OFFSET = timedelta(hours=0)    
+    TIME_OFFSET = timedelta(hours=1)    
     class SimpleScheduleParser(html.parser.HTMLParser):
         def __init__(self):
             super().__init__()
@@ -140,13 +159,11 @@
             
             logger.info(f"Fetching {url}")
             response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
+            response.raise_for_status()     
             html_filename = f"channel_{channel_id}.html"
             with open(html_filename, "w", encoding="utf-8") as f:
                 f.write(response.text)
-            logger.info(f"Saved HTML to {html_filename}")
-            
+            logger.info(f"Saved HTML to {html_filename}")      
             logger.debug(f"HTML snippet: {response.text[:500]}")    
             parser = SimpleScheduleParser()
             parser.feed(response.text)  
@@ -160,7 +177,7 @@
                         "description": desc.strip()
                     })
                 logger.info(f"Regex found {len(parser.schedule)} programs")
-            
+         
             return parser.schedule
         except Exception as e:
             logger.error(f"Failed to scrape {url}: {str(e)}", exc_info=True)
@@ -186,8 +203,7 @@
             
             channel = ET.SubElement(xml_tv, "channel", id=channel_id)
             display_name = ET.SubElement(channel, "display-name")
-            display_name.text = f"Channel {channel_id}"
-            
+            display_name.text = f"Channel {channel_id}"      
             json_channel = {
                 "id": channel_id,
                 "name": f"Channel {channel_id}",
@@ -206,8 +222,7 @@
                             start_time = datetime.strptime(time_str, fmt).time()
                             break
                         except ValueError:
-                            continue
-                    
+                            continue    
                     if not start_time:
                         logger.warning(f"Could not parse time: {entry['time']}")
                         continue
@@ -234,8 +249,7 @@
                         stop_datetime = start_datetime + timedelta(minutes=30)
                     
                     start = start_datetime.strftime("%Y%m%d%H%M%S +0000")
-                    stop = stop_datetime.strftime("%Y%m%d%H%M%S +0000")
-                    
+                    stop = stop_datetime.strftime("%Y%m%d%H%M%S +0000")          
                     programme = ET.SubElement(xml_tv, "programme", start=start, stop=stop, channel=channel_id)
                     title = ET.SubElement(programme, "title", lang="sv")
                     title.text = entry.get("program", "Unknown Program")
@@ -243,10 +257,11 @@
                     desc.text = entry.get("description", "No description available")
                     
                     json_program = {
+                        "channel_id": channel_id, 
                         "start": start,
                         "stop": stop,
                         "title": entry.get("program", "Unknown Program"),
-                        "description": entry.get("description", "No description available")
+                        "description": entry.get("description", "No description available")      
                     }
                     json_channel["programs"].append(json_program)
                     
@@ -258,15 +273,12 @@
         
         xml_tree = ET.ElementTree(xml_tv)
         xml_tree.write(args.xmlPath, encoding="UTF-8", xml_declaration=True)
-        logger.info(f"EPG XML data written to {args.xmlPath}")
-        
+        logger.info(f"EPG XML data written to {args.xmlPath}")      
         if args.jsonPath:
             with open(args.jsonPath, 'w', encoding='utf-8') as json_file:
                 json.dump(json_data, json_file, ensure_ascii=False, indent=2)
-            logger.info(f"EPG JSON data written to {args.jsonPath}")
-        
+            logger.info(f"EPG JSON data written to {args.jsonPath}")        
         return json_data
-
     urls = {
         "https://tv-tabla.se/tabla/svt1/": "1",
         "https://tv-tabla.se/tabla/svt2/": "2",
@@ -292,7 +304,8 @@
 in {
   yo.scripts.tv-scraper = {
     description = "Scrapes web for tv-listing data.";
-    category = "⚡ Productivity";
+    aliases = [ "tvc" ];
+    category = "🎧 Media Management";
     autoStart = false;
     logLevel = "INFO";
 #    helpFooter = '' # 🦆 says ⮞ TODO Show what is on da TVB usin' glow
@@ -305,167 +318,4 @@ in {
       ${cmdHelpers}
       ${scraper} --xmlPath "$epgFilePath" --jsonPath "$jsonFilePath"
     '';
-  };
- 
-  yo.bitch.intents.tv-guide = {
-    data = [{
-      sentences = [
-        "vilken kanal går {search} på"  
-        "vad sänds på {channel} just nu"
-        
-      ];    
-      lists = {
-        channel.values = [
-          { "in" = "ettan"; out = "1"; }         
-          { "in" = "tvåan"; out = "2"; }      
-          { "in" = "trean"; out = "3"; }      
-          { "in" = "fyran"; out = "4"; }      
-          { "in" = "femman"; out = "5"; }         
-          { "in" = "sexan"; out = "6"; }      
-          { "in" = "sjuan"; out = "7"; }      
-          { "in" = "åttan"; out = "8"; }      
-          { "in" = "nian"; out = "9"; }         
-          { "in" = "tian"; out = "10"; }      
-          { "in" = "elvan"; out = "11"; }      
-          { "in" = "tolvan"; out = "12"; }   
-          { "in" = "sport live 1"; out = "14"; }   
-          { "in" = "sport live 2"; out = "15"; }   
-          { "in" = "sport live 3"; out = "16"; }   
-          { "in" = "sport live 4"; out = "17"; }                                           
-        ];
-        search.wildcard = true;
-      };
-    }];
-  };
-  yo.scripts.tv-guide = {
-    description = "TV-guide assistant..";
-    category = "🎧 Media Management";
-    autoStart = false;
-    logLevel = "DEBUG";
-#    helpFooter = '' # 🦆 says ⮞ TODO Show what is on da TVB usin' glow
-#    '';
-    parameters = [
-      { name = "epgFilePath"; description = "Path to storage of the xml EPG file"; optional = false; default = "/home/" + config.this.user.me.name + "/tvepg.xml"; }
-      { name = "jsonFilePath"; description = "Optional option to write as JSON file in addation to the EPG"; optional = true; default = "/home/" + config.this.user.me.name + "/epg.json"; }      
-    ];
-    code = ''
-      ${cmdHelpers}
-      current_time=$(date -u +"%Y%m%d%H%M%S +0000")
-      
-      format_time() {
-        local time_str="$1"
-        local date_part=$(echo "$time_str" | cut -c1-8)
-        local time_part=$(echo "$time_str" | cut -c9-14)
-        local timezone=$(echo "$time_str" | awk '{print $2}')   
-        date -d "$date_part $time_part $timezone" +"%H:%M" 2>/dev/null || echo "$time_str"
-      }
-      
-      get_channel_name() {
-        ${pkgs.jq}/bin/jq -r --arg id "$1" '
-          .channels[] | select(.id == $id) | .name
-        ' "$jsonFilePath"
-      }
-      
-      if [ -n "${channel:-}" ]; then
-        echo "Kollar vad som går på kanal $channel just nu..."
-        program=$(${pkgs.jq}/bin/jq -r --arg chan "$channel" --arg now "$current_time" '
-          .programs[] | 
-          select(.channel_id == $chan and .start <= $now and .stop >= $now) |
-          "\(.title) [\(.start)]"
-        ' "$jsonFilePath")
-        
-        if [ -z "$program" ]; then
-          channel_name=$(get_channel_name "$channel")
-          echo "Inget program hittades på $channel_name just nu."
-        else
-          title=$(echo "$program" | cut -d'[' -f1)
-          start_time=$(echo "$program" | awk -F'[][]' '{print $2}')
-          end_time=$(${pkgs.jq}/bin/jq -r --arg chan "$channel" --arg start "$start_time" '
-            .programs[] | 
-            select(.channel_id == $chan and .start == $start) |
-            .stop
-          ' "$jsonFilePath")
-          
-          channel_name=$(get_channel_name "$channel")
-          echo ""
-          echo "┌──────────────────────────────────────┐"
-          echo "│ Kanal: $channel_name"
-          echo "├──────────────────────────────────────┤"
-          echo "│ Program: $title"
-          echo "│ Tid:    $(format_time "$start_time") - $(format_time "$end_time")"
-          echo "└──────────────────────────────────────┘"
-        fi
-      
-      elif [ -n "${search:-}" ]; then
-        echo "Söker efter program som matchar: $search"
-        
-        results=$(${pkgs.jq}/bin/jq -r --arg query "$search" --arg now "$current_time" '
-          .programs[] | 
-          select(
-            (.title | test($query; "i")) and 
-            (.start <= $now) and 
-            (.stop >= $now)
-          ) | 
-          "\(.channel_id)|\(.title)|\(.start)"
-        ' "$jsonFilePath")
-        
-        if [ -z "$results" ]; then
-          echo "Inga aktuella program matchade din sökning."
-        else
-          echo ""
-          echo "Program som matchar '$search' och går just nu:"
-          echo "┌───────┬───────────────────────────┬──────────────┐"
-          echo "│ Kanal │ Program                   │ Tid          │"
-          echo "├───────┼───────────────────────────┼──────────────┤"
-          
-          while IFS='|' read -r chan_id title start_time; do
-            channel_name=$(get_channel_name "$chan_id")
-            # Shorten long titles
-            short_title=$(echo "$title" | cut -c1-25)
-            # Format time range
-            end_time=$(${pkgs.jq}/bin/jq -r --arg chan "$chan_id" --arg start "$start_time" '
-              .programs[] | 
-              select(.channel_id == $chan and .start == $start) |
-              .stop
-            ' "$jsonFilePath") 
-            time_range="$(format_time "$start_time")-$(format_time "$end_time")" 
-            printf "│ %-5s │ %-25s │ %-12s │\n" \
-              "$chan_id" "$short_title" "$time_range"
-          done <<< "$results"  
-          echo "└───────┴───────────────────────────┴──────────────┘"
-        fi  
-      else
-        echo "Aktuella program just nu:" 
-        results=$(${pkgs.jq}/bin/jq -r --arg now "$current_time" '
-          .programs[] | 
-          select(.start <= $now and .stop >= $now) | 
-          "\(.channel_id)|\(.title)|\(.start)"
-        ' "$jsonFilePath")
-     
-        if [ -z "$results" ]; then
-          echo "Inga aktuella program hittades."
-        else
-          echo "┌───────┬──────────────────────────────────────┬──────────────┐"
-          echo "│ Kanal │ Program                              │ Tid          │"
-          echo "├───────┼──────────────────────────────────────┼──────────────┤"
-          
-          while IFS='|' read -r chan_id title start_time; do
-            channel_name=$(get_channel_name "$chan_id")
-
-            short_title=$(echo "$title" | cut -c1-30)
-
-            end_time=$(${pkgs.jq}/bin/jq -r --arg chan "$chan_id" --arg start "$start_time" '
-              .programs[] | 
-              select(.channel_id == $chan and .start == $start) |
-              .stop
-            ' "$jsonFilePath")
-            
-            time_range="$(format_time "$start_time")-$(format_time "$end_time")"
-            printf "│ %-5s │ %-30s │ %-12s │\n" \
-              "$chan_id" "$short_title" "$time_range"
-          done <<< "$results"   
-          echo "└───────┴──────────────────────────────────────┴──────────────┘"
-        fi
-      fi
-    '';   
-  };}  
+  };}
