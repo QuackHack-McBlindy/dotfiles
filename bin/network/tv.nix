@@ -11,17 +11,18 @@
       tv = {
         data = [{
           sentences = [
+            # devices control sentences
+            "(spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
+            "jag vill se {typ} {search} i {device}"    
+            "jag vill lyssna på {typ} i {device}"
+            "jag vill höra {typ} {search} i {device}"
+            "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
+            # default player
             "(spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
             "jag vill se {typ} {search}"    
             "jag vill lyssna på {typ}"
             "jag vill höra {typ}"
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten)"       
-            # Bedroom sentences
-            "(spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
-            "jag vill se {typ} {search} i {device}"    
-            "jag vill lyssna på {typ} i {device}"
-            "jag vill höra {typ} {search} i {device}"
-            "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"
           ];    
           lists = {
             typ.values = [
@@ -63,7 +64,7 @@
     category = "🎧 Media Management";
     aliases = [ "remote" ];
     autoStart = false;
-    logLevel = "DEBUG";
+    logLevel = "INFO";
     parameters = [
       { name = "typ"; description = "Media type"; default = "tv"; optional = true; }
       { name = "search"; description = "Media to search"; optional = true; }
@@ -96,11 +97,11 @@
 
       declare -A SEARCH_FOLDERS=([tv]="/Pool/TV")
       WEBSERVER=$(cat $domainFile)
-      dt_info "$WEBSERVER"
+      dt_debug "$WEBSERVER"
       PLAYLIST_SAVE_PATH="$playlist_file"
-      dt_info "$PLAYLIST_SAVE_PATH"
+      dt_debug "$PLAYLIST_SAVE_PATH"
       INTRO_URL=$(cat $introURLFile)
-      dt_info "$INTRO_URL"
+      dt_debug "$INTRO_URL"
 
       template_directory_path() {
           local media_type=$1
@@ -152,8 +153,7 @@
          done
          echo "''${encoded}"
       }
-      
-          
+            
       find_best_fuzzy_match() {
         local input="$1"
         local best_score=0
@@ -327,6 +327,7 @@
 #                done < "$tmp_media_list"  
 #                save_media_content_urls "''${media_urls[@]}"
 #                rm "$tmp_media_list"
+                tts "Spelar upp serien ''${matched_media//./ }"
                 tv "$DEVICE" "$matched_media" "$media_type"
             else
                 for show in "''${tv_shows[@]}"; do
@@ -381,6 +382,7 @@
             if (( best_score >= 30 )); then
                 matched_media="$best_match"
                 dt_debug "Selected movie: $best_match (score: $best_score%)"
+                tts "Spelar upp filmen ''${matched_media//./ }"
                 tv "$DEVICE" "$matched_media" "$media_type"
             else
                 for movie in "''${movies[@]}"; do
@@ -425,6 +427,7 @@
             if (( best_score >= 30 )); then
                 matched_media="$best_match"
                 dt_info "Selected Music artist: $best_match (score: $best_score%)"
+                tts "Spelar upp artisten ''${matched_media//./ }"
                 tv "$DEVICE" "$matched_media" "$media_type"
             else
                 for artist in "''${artists[@]}"; do
@@ -441,11 +444,7 @@
                 fi
             fi
             ;;
-            
-            
-
         *)
-            # Non-media commands (pause/play/etc)
             dt_debug "No media search needed for type: $media_type"
             ;;
       esac
@@ -454,7 +453,7 @@
       dt_debug "Media type: $media_type"
       dt_debug "Device: $DEVICE"
     
-#      tv "$DEVICE" "$matched_media" "$media_type"
+      tv "$DEVICE" "$matched_media" "$media_type"
 
     '';
   };

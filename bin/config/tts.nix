@@ -31,9 +31,17 @@ in { # 🦆 says ⮞ yo yo yo yo
         echo "❌ Model not found: $MODEL_PATH"
         exit 1
       fi  
-      TMP_WAV=$(mktemp --suffix=.wav)
-      trap 'rm -f "$TMP_WAV"' EXIT
-      echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence $SENTENCE_SILENCE >>/dev/null && aplay "$TMP_WAV" >>/dev/null
+      
+      (
+        TMP_WAV=$(mktemp --suffix=.wav)
+        trap 'rm -f "$TMP_WAV"' EXIT
+        echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
+        aplay "$TMP_WAV" >/dev/null 2>&1
+      ) &      
+      
+#      TMP_WAV=$(mktemp --suffix=.wav)
+#      trap 'rm -f "$TMP_WAV"' EXIT
+#      echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence $SENTENCE_SILENCE >>/dev/null && aplay "$TMP_WAV" >>/dev/null
     ''; # 🦆 says ⮞ quack quack quack   
   };} # 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  

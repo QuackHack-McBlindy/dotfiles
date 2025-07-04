@@ -16,6 +16,7 @@
     "ante" = "anka";
     "anke" = "anka";
     "läck" = "släck";
+    "arkisten" = "artisten";
   };
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {

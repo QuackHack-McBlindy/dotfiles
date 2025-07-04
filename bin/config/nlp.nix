@@ -7,7 +7,9 @@
   sysHosts,  # 🦆 says ⮞ ⭐ Automated testing with extensive DuckTrace debug logging & JSON intent indexing
   cmdHelpers,# 🦆 says ⮞ ⭐ Shell command construction & dispatcher
   ...
-} : let  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
+} : let # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
+  intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.bitch.intents";
+  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
   scripts = config.yo.scripts; 
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
   # 🦆 says ⮞ only scripts with known intentions
@@ -20,9 +22,6 @@
       builtins.hasAttr scriptName config.yo.bitch.intents && hasSentences
   ) scriptNames; # 🦆 says ⮞ datz quackin' cool huh?!
 
-  # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
-  intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.bitch.intents";
-  
   # 🦆 says ⮞ QUACK! da duck take a list of listz and duck make all da possible combinationz
   cartesianProductOfLists = lists:
     # 🦆 says ⮞ if da listz iz empty .. 
@@ -205,22 +204,7 @@
     }
   ''; # 🦆 says ⮞ i aint' doin' dat againz ......
 
-#  matchers = lib.mapAttrsToList (scriptName: data:
-#    let
-#      matcherCode = makePatternMatcher scriptName;
-#    in
-#      {
-#        name = "${scriptName}";
-#        value = pkgs.writeText "${scriptName}-matcher" matcherCode;
-#      }
-#  ) config.yo.bitch.intents;
-  allMatchersScript = pkgs.writeScript "all-matchers.sh" (
-    lib.concatStringsSep "\n" (
-      lib.mapAttrsToList (scriptName: _: makePatternMatcher scriptName) 
-      config.yo.bitch.intents
-    )
-  );
-
+  # 🦆 says ⮞ matcher to json yao
   matchers = lib.mapAttrsToList (scriptName: data:
     let
       matcherCode = makePatternMatcher scriptName;
@@ -230,12 +214,10 @@
     }
   ) config.yo.bitch.intents;
 
-  # 🦆 Write one shell script that sources them all
+  # 🦆 says ⮞ one shell script dat sourcez dem allz
   matcherSourceScript = pkgs.writeText "matcher-loader.sh" (
     lib.concatMapStringsSep "\n" (m: "source ${m.value}") matchers
   );
-
-
 
   # 🦆 says ⮞ helpFooter for yo.bitch script
   helpFooterMd = let
@@ -322,24 +304,19 @@
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
   matcherDir = pkgs.linkFarm "yo-matchers" (
     map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
-  );
-
-
-
+  ); # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
+  environment.variables."YO_INTENT_DATA" = intentDataFile; 
+  environment.variables."ỲO_FUZZY_INDEX" = fuzzyIndexFile;   
+  environment.variables."MATCHER_DIR" = matcherDir;
+  environment.variables."MATCHER_SOURCE" = matcherSourceScript;
 # 🦆 says ⮞ expose da magic! dis builds our NLP
-in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO  
-  # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
-  environment.variables.YO_INTENT_DATA = intentDataFile; 
-  environment.variables.MATCHER_DIR = matcherDir;
-  environment.variables.YO_FUZZY_INDEX = fuzzyIndexFile; 
-#  environment.variables.MATCHER_SOURCE = matcherSourceScript;
-  environment.variables.MATCHER_SOURCE = allMatchersScript;
+in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     bitch = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
       # 🦆 says ⮞ natural means.... human? 
       category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
-      logLevel = "INFO";
+      logLevel = "DEBUG";
       autoStart = false;
       parameters = [{ name = "input"; description = "Text to parse into a yo command"; optional = false; }]; 
       # 🦆 says ⮞ run yo bitch --help to display all defined voice commands
@@ -356,12 +333,9 @@ EOF
         YO_FUZZY_INDEX="${fuzzyIndexFile}" # For fuzzy nutty duckz
         text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         debug_attempted_matches=()
-        substitution_applied=false
-        
-        declare -A script_substitutions_data  # Stores pattern|value per script
-        declare -A script_has_lists          # Tracks if script has substitutions
-        
-        # Parse JSON once and cache substitutions
+        substitution_applied=false   
+        declare -A script_substitutions_data
+        declare -A script_has_lists  
         intent_data_json=$(<"$intent_data_file")
         while IFS=$'\t' read -r script pattern value; do
             if [[ -n "$script" ]]; then
@@ -375,28 +349,22 @@ EOF
             <<<"$intent_data_json"
         )
         
-    
-
-        
+        # 🦆 says ⮞ subz and entities lists handler yo
         resolve_entities() {
             local script="$1"
             local text="$2"
             declare -A substitutions=()
             local substitution_applied=false
-      
-            # Check if script has substitutions
             if [[ -z "''${script_has_lists["$script"]}" ]]; then
                 echo -n "$text"
                 echo "|declare -A substitutions"
                 return
             fi
-      
-            # Iterate through cached patterns
+            # 🦆 says ⮞ iterate throo cached patternz 
             for key in "''${!script_substitutions_data[@]}"; do
                 if [[ "$key" == "$script:"* ]]; then
                     local pattern="''${key#*:}"
                     local out="''${script_substitutions_data[$key]}"
-                  
                     if [[ "$text" =~ $pattern ]]; then
                         local original="''${BASH_REMATCH[0]}"
                        [[ -z "$original" ]] && continue
@@ -406,7 +374,6 @@ EOF
                     fi
                 fi
             done
-      
             echo -n "$text"
             echo "|$(declare -p substitutions | sed 's/^declare -A //')"
         }
@@ -471,14 +438,13 @@ EOF
           [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
           echo $(( score > 100 ? 100 : score )) # 🦆 says ⮞ 100 iz da moon yo
         }
+        for f in "$MATCHER_DIR"/*.sh; do [[ -f "$f" ]] && source "$f"; done
 
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
 #        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         # 🦆 says ⮞ for dem scripts u defined intents for ..
         for script in ${toString scriptNamesWithIntents}; do
-
           # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
-          
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
           dt_debug "Tried: match_''${script} '$resolved_text'"
@@ -501,16 +467,15 @@ EOF
             done
          
             # 🦆 says ⮞ final product - hope u like say duck!
-            dt_info "Executing: yo $script ''${args[@]}" 
-            echo "Executing: yo $matched_script ''${cmd_args[@]}"
+            paramz="''${args[@]}"
+            dt_info "Executing: yo $script $paramz" 
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
             exec "yo-$script" "''${args[@]}"   
           fi         
         done
         if ! match_$script "$resolved_text"; then     
           # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON
-#          fuzzy_result=$(timeout 45s find_best_fuzzy_match "$text") 
-          fuzzy_result=$(timeout 45s bash -c "source \"$0\"; find_best_fuzzy_match \"$text\"")
+          fuzzy_result=$(timeout 30s bash -c "source \"$0\"; find_best_fuzzy_match \"$text\"")
           ret=$?
           if [[ $ret -eq 124 ]]; then
             dt_error "Fuzzy match timed out after 30 seconds"
@@ -537,8 +502,8 @@ EOF
           fi
         fi
       '';    
-    };  
-       
+    };
+    
     # 🦆 says ⮞ automatic bitchin' sentencin' testin'
     tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
       description = "Automated unit testing"; 

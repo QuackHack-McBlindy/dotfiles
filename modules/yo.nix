@@ -415,6 +415,9 @@ EOF
           #!${pkgs.runtimeShell}
 #          set -euo pipefail # 🦆 duck say ⮞ strict error handlin' yo - will exit on errorz
           ${yoEnvGenVar script} # 🦆 duck say ⮞ inject da env quack quack.... quack
+          export LC_NUMERIC=C
+          start=$(date +%s.%N)
+          trap 'end=$(date +%s.%N); elapsed=$(echo "$end - $start" | bc); printf "[🦆⏱] Total time: %.3f seconds\n" "$elapsed"' EXIT
           export DT_LOG_FILE="${name}" # 🦆 duck say ⮞ duck tracin' be namin' da log file for da ran script
           export DT_LOG_LEVEL="${script.logLevel}" # 🦆 duck say ⮞ da tracin' duck back to fetch da log level yo
           export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy      

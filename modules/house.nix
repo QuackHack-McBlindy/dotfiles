@@ -111,6 +111,10 @@ in { # 🦆 says ⮞ Options for da house
             "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "power plug"; endpoint = 1; };    
             # 🦆 says ⮞ LIVING ROOM
             "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; endpoint = 1; };
+            "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; endpoint = 1; };   
+            "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; endpoint = 1; };  
+            "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; endpoint = 1; };                  
+            "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; endpoint = 1; };  
             "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; endpoint = 1; };
             "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; endpoint = 11; };
             "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; endpoint = 11; };
@@ -135,10 +139,6 @@ in { # 🦆 says ⮞ Options for da house
             "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; endpoint = 1; };
             "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; };
             "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; };
-            "0x0017880103c73f85" = { friendly_name = "Unknown 1"; room = "other"; type = "misc"; endpoint = 1; };  
-            "0x0017880103f94041" = { friendly_name = "Unknown 2"; room = "other"; type = "misc"; endpoint = 1; };      
-            "0x0017880103c753b8" = { friendly_name = "Unknown 3"; room = "other"; type = "misc"; endpoint = 1; };      
-            "0x00178801037e754e" = { friendly_name = "Unknown 5"; room = "other"; type = "misc"; endpoint = 1; };    
         }; # 🦆 says ⮞ that's way too many devices huh
       }  # 🦆 says ⮞ that's actually not too bad when they on single line each
 

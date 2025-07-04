@@ -30,6 +30,11 @@
   
   # 🦆 duck say ⮞ stash house for massive amounts of helper functions for yo scripts
   cmdHelpers = ''
+    elapsed_since_start() {
+      local now=$(date +%s.%N)
+      local elapsed=$(echo "$now - $start" | bc)
+      printf "%.3f" "$elapsed"
+    }
     # 🦆 duck say ⮞ colors & stykez yo
     BOLD="\033[1m"
     BLINK="\033[5m"
@@ -74,7 +79,7 @@
       local level_num="''${DT_LEVEL_MAP[$level]:-0}"
       (( level_num < DT_LOG_LEVEL_NUM )) && return    
 ##    (( level_num >= DT_LOG_LEVEL_NUM )) || return  
-      local max_size=1048576 # 1MB
+      local max_size=1048576 # 1MB     
       # rorate logs
       if [[ -f "$log_path" && $(stat -c%s "$log_path") -gt $max_size ]]; then mv "$log_path" "$log_path.old"; fi
       # 🦆 says ⮞ format output
@@ -85,7 +90,8 @@
     }
     # 🦆 says ⮞ log levels (in order of most critical)
     dt_debug() {
-      _dt_log "DEBUG" "⁉️" "$BLUE" "$1"
+      local elapsed_time=$(elapsed_since_start)
+      _dt_log "DEBUG" "⁉️" "$BLUE" "+$elapsed_time s $1"
     }    
     dt_info() {
       _dt_log "INFO" "✅" "$GREEN" "$1"

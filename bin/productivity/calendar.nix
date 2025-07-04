@@ -1,4 +1,3 @@
-# dotfiles/bin/productivity/calc.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
 {
   yo = {
@@ -8,8 +7,6 @@
         category = "⚡ Productivity";
         aliases = [ "kal" ];
         helpFooter = ''
-          ${cmdHelpers}
-          echo "## ──────⋆⋅☆⋅⋆────── ##"
           ${cmdHelpers}
           echo "## ──────⋆⋅☆⋅⋆────── ##"
           echo "## Calendar Assistant"
@@ -27,10 +24,18 @@
           echo "## ──────⋆⋅☆⋅⋆────── ##"        
         '';
         parameters = [{ name = "operation"; description = "Operational action. Can be add, remove, list."; optional = false; }];
-        code = ''
+        code = let 
+          dbPath = "\${XDG_DATA_HOME:-$HOME/.local/share}/kalendar/events.json";
+        in ''
           ${cmdHelpers}
           operation="$1"
           shift
+
+          # Initialize database if missing
+          mkdir -p "$(dirname "${dbPath}")"
+          if [ ! -f "${dbPath}" ]; then
+            echo "[]" > "${dbPath}"
+          fi
 
           case "$operation" in
             add)
@@ -39,6 +44,10 @@
               while [[ $# -gt 0 ]]; do
                 case "$1" in
                   --date)
+                    if [ -z "$2" ]; then
+                      dt_error "Error: --date requires value"
+                      exit 1
+                    fi
                     date="$2"
                     shift 2
                     ;;
@@ -48,7 +57,6 @@
                     ;;
                 esac
               done
-              # Remove trailing space
               item="''${item%% }"
               
               if [[ -z "$item" ]]; then
@@ -56,10 +64,7 @@
                 exit 1
               fi
 
-              # Use today's date if none provided
               : "''${date:=$(date +%Y-%m-%d)}"
-              
-              # Generate unique ID
               id=$(${pkgs.coreutils}/bin/shuf -i 1000-9999 -n 1)
               
               ${pkgs.jq}/bin/jq \
@@ -67,15 +72,22 @@
                 --arg item "$item" \
                 --arg date "$date" \
                 '. + [{"id": $id, "event": $item, "date": $date}]' \
-                "$dbPath" > tmp.json && mv tmp.json "$dbPath"
+                "${dbPath}" > tmp.json && mv tmp.json "${dbPath}"
               
               echo "Added [$id] $item on $date"
               ;;
             
             remove)
-              id="$1"
-              ${pkgs.jq}/bin/jq "map(select(.id != \"$id\"))" "$dbPath" > tmp.json && mv tmp.json "$dbPath"
-              echo "Removed event $id"
+              if [ -z "$1" ]; then
+                dt_error "Error: Missing event ID"
+                exit 1
+              fi
+              if ! ${pkgs.jq}/bin/jq -e ".[] | select(.id == \"$1\")" "${dbPath}" >/dev/null; then
+                dt_error "Error: Event $1 not found"
+                exit 1
+              fi
+              ${pkgs.jq}/bin/jq "map(select(.id != \"$1\"))" "${dbPath}" > tmp.json && mv tmp.json "${dbPath}"
+              echo "Removed event $1"
               ;;
             
             list)
@@ -97,17 +109,28 @@
                 esac
               done
               
-              ${pkgs.jq}/bin/jq -r "sort_by(.date) $filter | .[] | \"\(.id)\t\(.date)\t\(.event)\"" "$dbPath" \
-                | ${pkgs.coreutils}/bin/column -t -s$'\t'
+              result=$(${pkgs.jq}/bin/jq -r "sort_by(.date) $filter | .[] | \"\(.id)\t\(.date)\t\(.event)\"" "${dbPath}")
+              if [ -n "$result" ]; then
+                echo "$result" | ${pkgs.coreutils}/bin/column -t -s$'\t'
+              else
+                echo "No events found"
+              fi
               ;;
             
             check)
-              id="$1"
-              ${pkgs.jq}/bin/jq -r ".[] | select(.id == \"$id\") | \"[\(.id)] \(.date): \(.event)\"" "$dbPath"
+              if [ -z "$1" ]; then
+                dt_error "Error: Missing event ID"
+                exit 1
+              fi
+              if ! ${pkgs.jq}/bin/jq -e ".[] | select(.id == \"$1\")" "${dbPath}" >/dev/null; then
+                dt_error "Error: Event $1 not found"
+                exit 1
+              fi
+              ${pkgs.jq}/bin/jq -r ".[] | select(.id == \"$1\") | \"[\(.id)] \(.date): \(.event)\"" "${dbPath}"
               ;;
             
             *)
-              echo "Invalid operation: $operation"
+              dt_error "Invalid operation: $operation"
               exit 1
               ;;
           esac
@@ -115,7 +138,6 @@
       };
     };
     
-    # 🦆 duck say ⮞ defined intents for calculations from voice commands 
     bitch = {
       intents = {
         calendar = {
@@ -123,10 +145,7 @@
             sentences = [
               "påminn mig om [att] {item}" 
               "kan du påminna mig om [att] {item}"
-              # Viewing
               "vad händer [i dag|imorgon|nästa vecka]"
-              "påminn mig om [att] {item}" 
-              "kan du påminna mig om [att] {item}"
               "lägg till {item} [i kalendern]"
               "lista kalenderhändelser"
               "ta bort påminnelse {id}"
@@ -137,4 +156,5 @@
         };  
       };
     };  
-  };}
+  };
+}
