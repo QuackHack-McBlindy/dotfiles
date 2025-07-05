@@ -623,31 +623,39 @@ in { # 🦆 duck say ⮞ options options duck duck
       bitch = {
         intents = mkOption {
           type = types.attrsOf (types.submodule {
-            options.data = mkOption {
-              type = types.listOf (types.submodule {
-                options.sentences = mkOption { # 🦆 duck say ⮞ intent sentences
-                  type = types.listOf types.str;
-                  default = [];
-                  description = "Sentence patterns for intent matching";
-                }; # 🦆 duck say ⮞ entity lists definitiion
-                options.lists = mkOption {
-                  type = types.attrsOf (types.submodule {
-                    options.wildcard = mkOption { # 🦆 duck say ⮞ wildcard matches everything
-                      type = types.bool;
-                      default = false;
-                      description = "Whether this list accepts free-form text";
-                    }; # 🦆 duck say ⮞ "in" values becomes ⮞ "out" values
-                    options.values = mkOption {
-                     type = types.listOf (types.submodule {
-                        options."in" = mkOption { type = types.str; };
-                        options.out = mkOption { type = types.str; };
-                      });
-                      default = [];
-                    };
-                  });
-                  default = {};
-                };
-              });
+            options = {
+              # 🦆 duck say ⮞ DUCK LOVE SPEEEd YO - PRIORITZE SCRIPTS REDUCE RUNTIME latency yo (1=high, 5=low)
+              priority = mkOption {
+                type = types.ints.between 1 5;
+                default = 3;
+                description = "Processing priority (1=highest, 5=lowest)";
+              };          
+              data = mkOption {
+                type = types.listOf (types.submodule {
+                  options.sentences = mkOption { # 🦆 duck say ⮞ intent sentences
+                    type = types.listOf types.str;
+                    default = [];
+                    description = "Sentence patterns for intent matching";
+                  }; # 🦆 duck say ⮞ entity lists definitiion
+                  options.lists = mkOption {
+                    type = types.attrsOf (types.submodule {
+                      options.wildcard = mkOption { # 🦆 duck say ⮞ wildcard matches everything
+                        type = types.bool;
+                        default = false;
+                        description = "Whether this list accepts free-form text";
+                      }; # 🦆 duck say ⮞ "in" values becomes ⮞ "out" values
+                      options.values = mkOption {
+                        type = types.listOf (types.submodule {
+                          options."in" = mkOption { type = types.str; };
+                          options.out = mkOption { type = types.str; };
+                        });
+                        default = [];
+                      };
+                    });
+                    default = {};
+                  };
+                });
+              };  
             };
           });
           default = {};

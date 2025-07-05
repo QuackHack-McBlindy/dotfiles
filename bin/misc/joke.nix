@@ -8,6 +8,7 @@
   ...
 } : let
 in {  
+  yo.bitch.intents.joke.priority = 2;
   yo.bitch.intents.joke.data = [{ sentences = [ "[få] (säg|berätta|höra) ett [rolig|roligt|bra] skämt" "gör mig glad" "få mig [att] (skratt|skratta)" ]; }];
 
   yo.scripts.joke = {

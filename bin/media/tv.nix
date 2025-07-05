@@ -9,6 +9,7 @@
   yo.bitch = { 
     intents = {
       tv = {
+        priority = 1;
         data = [{
           sentences = [
             # devices control sentences
@@ -16,6 +17,8 @@
             "jag vill se {typ} {search} i {device}"    
             "jag vill lyssna på {typ} i {device}"
             "jag vill höra {typ} {search} i {device}"
+            "ring {typ}"
+            "hitta {typ}"
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
             # default player
             "(spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
@@ -46,7 +49,8 @@
               { "in" = "[näst|nästa|nästan|next|fram|framåt]"; out = "next"; }
               { "in" = "[förr|förra|föregående|backa|bakåt]"; out = "previous"; }
               { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
-              { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }              
+              { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }            
+              { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "find"; }              
             ];
             search.wildcard = true;
             device.values = [
@@ -91,6 +95,10 @@
       TVDIR="$tvshowsDir"
       MOVIEDIR="$moviesDir"
       MUSICDIR="$musicDir"
+      MUSICVIDEODIR="$musicvideoDir"
+      VIDEOSDIR="$videosDir"
+      PODCASTDIR="$podcastDir"
+      AUDIOBOOKDIR="$audiobookDir"
       SHUFFLE="$shuffle"
       MAX_ITEMS="$max_items"
       playlist_file="$defaultPlaylist"
@@ -284,175 +292,170 @@
     
       matched_media=""
       case "$media_type" in
-        tv)
-            : ''${tvshowsDir:=/Pool/TV}
-            tv_shows=()
-            while IFS= read -r -d $'\0' show; do
-                tv_shows+=("$(basename "$show")")
-            done < <(find "$tvshowsDir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)      
-            dt_debug "Found ''${#tv_shows[@]} TV shows"      
-            best_score=0
-            best_match=""
-            normalized_search=$(normalize_string "$media_search")
-            dt_debug "Normalized search: '$normalized_search'"       
-            for show in "''${tv_shows[@]}"; do
-                normalized_show=$(normalize_string "$show")
-                [[ -z "$normalized_search" || -z "$normalized_show" ]] && continue
-                tri_score=$(trigram_similarity "$normalized_search" "$normalized_show")
-                lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_show")
-                combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-                dt_debug "Show: $show | Tri: $tri_score% | Lev: $lev_score% | Combined: $combined_score%"         
-                if (( combined_score > best_score )); then
-                    best_score=$combined_score
-                    best_match="$show"
-                    dt_debug "New best match: $show ($combined_score%)"
-                fi
-            done     
-            if (( best_score >= 30 )); then
-                matched_media="$best_match"
-                dt_debug "Selected TV show: $best_match (score: $best_score%)"  
-                
-#                media_files=()   
-#                while IFS= read -r -d $'\0' file; do
-#                    media_files+=("$file")
-#                done < <(find "$tvshowsDir/$best_match" -type f \( -iname "*.mp4" -o -iname "*.mkv" -o -iname "*.avi" \) -print0)
-#                dt_debug "Found ''${#media_files[@]} media items in $best_match"
-#                if [[ "$SHUFFLE" == "true" ]]; then
-#                    dt_debug "Shuffling media list"
-#                    media_files=($(printf '%s\n' "''${media_files[@]}" | shuf))
-#                fi
-#                media_urls=()
-#                while IFS= read -r -d $'\0' file; do
-#                    media_urls+=("$(template_single_path "$file" "tv")")
-#                done < "$tmp_media_list"  
-#                save_media_content_urls "''${media_urls[@]}"
-#                rm "$tmp_media_list"
-                tts "Spelar upp serien ''${matched_media//./ }"
-                tv "$DEVICE" "$matched_media" "$media_type"
-            else
-                for show in "''${tv_shows[@]}"; do
-                    normalized_show=$(normalize_string "$show")
-                    if [[ "$normalized_show" == *"$normalized_search"* ]]; then
-                        matched_media="$tvshowsDir/$show"
-                        dt_debug "Substring fallback match: $show"
-                        break
-                    fi
-                done     
-                if [[ -z "$matched_media" ]]; then
-                    dt_error "No TV show match found for: $media_search (best score: $best_score%)"
-                    exit 1
-                fi
-            fi
-            ;;           
-     #  YouTube
-        youtube)
-            dt_debug "Spelar YouTube"
-            tv "$DEVICE" "$media_search" "$media_type"        
-            ;;
-     #  NEWS
+        tv|podcast|movie|audiobook|musicvideo|music)
+          case "$media_type" in
+            tv)        search_dir="$TVDIR" ;;
+            podcast)   search_dir="$PODCASTDIR" ;;
+            movie)     search_dir="$MOVIEDIR" ;;
+            audiobook) search_dir="$AUDIOBOOKDIR" ;;
+
+            musicvideo) search_dir="$MUSICVIDEODIR" ;;
+            music) search_dir="$MUSICDIR" ;;
+          esac
+          
+          dt_debug "Searching in $search_dir for $media_search"
+          items=()
+          while IFS= read -r -d $'\0' item; do
+              items+=("$(basename "$item")")
+          done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
+          
+          best_score=0
+          best_match=""
+          normalized_search=$(normalize_string "$media_search")
+          
+          for item in "''${items[@]}"; do
+              normalized_item=$(normalize_string "$item")
+              [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue
+              
+              tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+              lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+              combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+              
+              if (( combined_score > best_score )); then
+                  best_score=$combined_score
+                  best_match="$item"
+              fi
+          done
+          
+          if (( best_score >= 30 )); then
+              matched_media="$best_match"
+              case "$media_type" in
+                tv)       type_desc="TV-serien" ;;
+              movie)    type_desc="filmen" ;;
+              music)    type_desc="musik artisten" ;;
+              song)     type_desc="musik låten" ;;
+              podcast)  type_desc="podden" ;;
+              audiobook) type_desc="ljudboken" ;;
+              jukebox)  type_desc="mixen" ;;
+              musicvideo) type_desc="musikvideon" ;;
+              playlist) type_desc="spellistan" ;;
+              *)        type_desc="$media_type" ;;
+            esac
+            tts "Spelar upp $type_desc ''${matched_media//./ }"
+            
+          else
+              for item in "''${items[@]}"; do
+                  normalized_item=$(normalize_string "$item")
+                  if [[ "$normalized_item" == *"$normalized_search"* ]]; then
+                      matched_media="$item"
+                      break
+                  fi
+              done
+          fi
+          ;;
+
+      song|othervideo)
+          # File-based search (individual songs or videos)
+          case "$media_type" in
+            song)      
+              search_dir="$MUSICDIR"
+              extensions=("*.mp3" "*.flac" "*.m4a" "*.wav")
+              ;;
+            othervideo)
+              search_dir="$VIDEOSDIR"
+              extensions=("*.mp4" "*.mkv" "*.avi" "*.mov")
+              ;;
+          esac
+          
+          dt_debug "Searching files in $search_dir for $media_search"
+          items=()
+          find_cmd="find \"$search_dir\" -type f"
+          for ext in "''${extensions[@]}"; do
+              find_cmd+=" -iname \"$ext\" -o"
+          done
+          find_cmd=''${find_cmd% -o}  # Remove trailing -o
+          find_cmd+=" -print0"
+          
+          while IFS= read -r -d $'\0' file; do
+              filename=$(basename "$file")
+              # Remove extension for matching
+              base_name=''${filename%.*}
+              items+=("$file:$base_name")
+          done < <(eval "$find_cmd")
+          
+          best_score=0
+          best_match=""
+          normalized_search=$(normalize_string "$media_search")
+          
+          for item_pair in "''${items[@]}"; do
+              IFS=':' read -r full_path item_name <<< "$item_pair"
+              normalized_item=$(normalize_string "$item_name")
+              [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue
+              
+              tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+              lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+              combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+              
+              if (( combined_score > best_score )); then
+                  best_score=$combined_score
+                  best_match="$full_path"
+                  best_match_name="$item_name"
+              fi
+          done
+          
+          if (( best_score >= 30 )); then
+              matched_media="$best_match"
+              tts "Spelar upp ''${media_type} ''${best_match_name//./ }"
+          else
+              for item_pair in "''${items[@]}"; do
+                  IFS=':' read -r full_path item_name <<< "$item_pair"
+                  normalized_item=$(normalize_string "$item_name")
+                  if [[ "$normalized_item" == *"$normalized_search"* ]]; then
+                      matched_media="$full_path"
+                      break
+                  fi
+              done
+          fi
+          ;;
+
+        jukebox)
+          matched_media="shuffle"
+          tts "Spelar slumpad musik"
+          ;;
+
+        playlist)
+          matched_media="playlist"
+          tts "Spelar upp spellista"
+          ;;
+          
+        pause|play|up|down|next|previous|add)
+          matched_media="$media_type"
+          tts "Utför kommando: $media_type"
+          ;;
+          
         news)
-            dt_debug "Spelar senaste nyheterna"
-            yo-news        
-            ;;
-      # MOVIES  
-        movies)
-            : ''${moviesDir:=/Pool/Movies}
-            movies=()
-            while IFS= read -r -d $'\0' movie; do
-                movies+=("$(basename "$movie")")
-            done < <(find "$tvmoviesDir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)      
-            dt_debug "Found ''${#movies[@]} TV movies"      
-            best_score=0
-            best_match=""
-            normalized_search=$(normalize_string "$media_search")
-            dt_debug "Normalized search: '$normalized_search'"       
-            for movie in "''${movies[@]}"; do
-                normalized_movie=$(normalize_string "$movie")
-                [[ -z "$normalized_search" || -z "$normalized_movie" ]] && continue
-                tri_score=$(trigram_similarity "$normalized_search" "$normalized_movie")
-                lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_movie")
-                combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-                dt_debug "movie: $movie | Tri: $tri_score% | Lev: $lev_score% | Combined: $combined_score%"         
-                if (( combined_score > best_score )); then
-                    best_score=$combined_score
-                    best_match="$movie"
-                    dt_debug "New best match: $movie ($combined_score%)"
-                fi
-            done     
-            if (( best_score >= 30 )); then
-                matched_media="$best_match"
-                dt_debug "Selected movie: $best_match (score: $best_score%)"
-                tts "Spelar upp filmen ''${matched_media//./ }"
-                tv "$DEVICE" "$matched_media" "$media_type"
-            else
-                for movie in "''${movies[@]}"; do
-                    normalized_movie=$(normalize_string "$movie")
-                    if [[ "$normalized_movie" == *"$normalized_search"* ]]; then
-                        matched_media="$tvmoviesDir/$movie"
-                        dt_debug "Substring fallback match: $movie"
-                        break
-                    fi
-                done     
-                if [[ -z "$matched_media" ]]; then
-                    dt_error "No movie match found for: $media_search (best score: $best_score%)"
-                    exit 1
-                fi
-            fi
-            ;;
-      # MUSIC            
-        music)
-            : ''${musicDir:=/Pool/Music}
-            artists=()
-            while IFS= read -r -d $'\0' artist; do
-                artists+=("$(basename "$artist")")
-            done < <(find "$musicDir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)      
-            dt_debug "Found ''${#artists[@]} TV artists"      
-            best_score=0
-            best_match=""
-            normalized_search=$(normalize_string "$media_search")
-            dt_debug "Normalized search: '$normalized_search'"       
-            for artist in "''${artists[@]}"; do
-                normalized_artist=$(normalize_string "$artist")
-                [[ -z "$normalized_search" || -z "$normalized_artist" ]] && continue
-                tri_score=$(trigram_similarity "$normalized_search" "$normalized_artist")
-                lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_artist")
-                combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-                dt_debug "artist: $artist | Tri: $tri_score% | Lev: $lev_score% | Combined: $combined_score%"         
-                if (( combined_score > best_score )); then
-                    best_score=$combined_score
-                    best_match="$artist"
-                    dt_debug "New best match: $artist ($combined_score%)"
-                fi
-            done     
-            if (( best_score >= 30 )); then
-                matched_media="$best_match"
-                dt_info "Selected Music artist: $best_match (score: $best_score%)"
-                tts "Spelar upp artisten ''${matched_media//./ }"
-                tv "$DEVICE" "$matched_media" "$media_type"
-            else
-                for artist in "''${artists[@]}"; do
-                    normalized_artist=$(normalize_string "$artist")
-                    if [[ "$normalized_artist" == *"$normalized_search"* ]]; then
-                        matched_media="moviesDir/$artist"
-                        dt_debug "Substring fallback match: $artist"
-                        break
-                    fi
-                done     
-                if [[ -z "$matched_media" ]]; then
-                    dt_error "No TV artist match found for: $media_search (best score: $best_score%)"
-                    exit 1
-                fi
-            fi
-            ;;
+          dt_debug "Playing news"
+          yo-news
+          exit 0
+          ;;
+          
+        youtube)
+          dt_debug "Playing YouTube"
+          tv "$DEVICE" "$media_search" "$media_type"
+          exit 0
+          ;;
+          
+        livetv|call)
+          matched_media="$media_type"
+          tts "Aktiverar $media_type"
+          ;;
+          
         *)
-            dt_debug "No media search needed for type: $media_type"
-            ;;
+          dt_error "Okänt mediatyp: $media_type"
+          exit 1
+          ;;
       esac
 
-      dt_debug "Final media: $matched_media"
-      dt_debug "Media type: $media_type"
-      dt_debug "Device: $DEVICE"
-    
       tv "$DEVICE" "$matched_media" "$media_type"
 
     '';

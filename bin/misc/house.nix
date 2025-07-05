@@ -25,9 +25,7 @@
     else "127.0.0.1";
 
   # 🦆 says ⮞ define Zigbee devices here yo 
-#  zigbeeDevices = config.house.zigbee.devices;
-  zigbeeDevices = lib.filterAttrs (_: v: lib.isAttrs v) config.house.zigbee.devices;
-  # 🦆 says ⮞ Group devices by room (with validation)
+  zigbeeDevices = config.house.zigbee.devices;
 
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
@@ -58,43 +56,11 @@
   # 🦆 says ⮞ Precompute device and group mappings
   devicesSet = zigbeeCfg.devices or {};
   groupsSet = zigbeeCfg.groups or {};
-  # 🦆 says ⮞ convert into Bash map yo
-  groupDeviceBashMap = lib.mapAttrs' (name: group:
-    lib.nameValuePair name (lib.concatStringsSep "|" (group.devices or []))
-  ) groupsSet;
-  # 🦆 says ⮞ group mapping
-#  bashGroupMap = lib.mapAttrsToList (name: id: 
-#    "[${lib.toLower name}]='${id}'"
-#  ) (lib.mapAttrs' (id: cfg: 
-#    lib.nameValuePair (lib.toLower cfg.friendly_name) id
-#  ) groupsSet);
-  # 🦆 says ⮞ room mapping
-#  bashRoomMap = lib.mapAttrsToList (room: devices: 
-#    "[${room}]='${lib.concatStringsSep "|" devices}'"
-#  ) (lib.mapAttrs (room: devices: 
-#    map (d: d.friendly_name) devices
-#  ) roomDevicesMap);
+
   # 🦆 says ⮞ Room bash map with only lights, using | as separator
   roomBashMap = lib.mapAttrs' (room: devices:
     lib.nameValuePair room (lib.concatStringsSep "|" devices)
   ) roomDevicesMap;
-
-  groupedByRoom = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  # 🦆 says ⮞bash mappin' of groups
-  bashGroupMap = lib.mapAttrsToList (id: cfg: 
-    "[${lib.toLower cfg.friendly_name}]='${id}'"
-  ) groupsSet;
-  # 🦆 says ⮞ bash mappin of roomz yo
-  bashRoomMap = lib.mapAttrsToList (room: devices: 
-    let
-      friendly_names = map (d: 
-        if lib.isAttrs d then d.friendly_name 
-        else throw "Invalid device in room ${room}: ${toString d}"
-      ) devices;
-    in
-      "[${room}]='${lib.concatStringsSep "|" friendly_names}'"
-  ) groupedByRoom;
-
 
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
@@ -102,6 +68,7 @@ in {
   yo.bitch = { 
     intents = {
       house = {
+        priority = 1;
         data = [{
           sentences = [
             # Multi taskerz
@@ -196,7 +163,8 @@ in {
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
-      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }    
+      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
+      { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }    
     ];
     code = ''
       ${cmdHelpers}
@@ -204,6 +172,7 @@ in {
       # 🦆 says ⮞ create case insensitive map of device friendly_name
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
       available_devices=( ${toString deviceList} )      
+      DOTFILES="$flake"
       STATE_DIR="${zigduckDir}"
       DEVICE="$device"
       STATE="$state"
@@ -215,11 +184,6 @@ in {
       MQTT_USER="$user"
       MQTT_PASSWORD=$(<"$PWFILE")
       touch "$STATE_DIR/voice-debug.log"        
-      # 🦆 says ⮞ Group mapping: friendly name (lowercase) -> group ID
-      declare -A group_map=( ${toString bashGroupMap} )
-      # 🦆 says ⮞ Room mapping: room name (lowercase) -> pipe-separated device names
-      declare -A room_map=( ${toString bashRoomMap} )
-      AREA=""
       if [[ "$DEVICE" == "all_lights" ]]; then
         if [[ "$STATE" == "on" ]]; then
           scene max
@@ -234,37 +198,6 @@ in {
         fi
         exit 0
       fi
-      control_group() {
-        local group_id="$1"
-        local state="$2"
-        local brightness="$3"
-        local color_input="$4"
-        local hex_code=""
-        
-        if [[ -n "$color_input" ]]; then
-          hex_code=$(color2hex "$color_input") || {
-            echo "$(date) - ❌ Unknown color: $color_input" >> "$STATE_DIR/voice-debug.log"
-            say_duck "fuck ❌ Invalid color: $color_input"
-            exit 1
-          }
-        fi
-      
-        if [[ "$state" == "off" ]]; then
-          mqtt_publish "zigbee2mqtt/$group_id/set" '{"state":"OFF"}'
-          say_duck "Turned off group $group_id"
-        else
-          if [[ -n "$brightness" ]]; then
-            brightness=$((brightness * 254 / 100))
-          fi
-          local payload='{"state":"ON"'
-          [[ -n "$brightness" ]] && payload+=", \"brightness\":$brightness"
-          [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
-          payload+="}"
-          mqtt_publish "zigbee2mqtt/$group_id/set" "$payload"
-          say_duck "Set group $group_id: $payload"
-        fi
-      }
-      
       control_device() {
         local dev="$1"
         local state="$2"
@@ -310,65 +243,81 @@ in {
       if [[ -n "$DEVICE" ]]; then
         input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
         exact_name="''${device_map["''$input_lower"]:-}"   
-        
         if [[ -n "$exact_name" ]]; then
           control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
           exit 0
+          #
         else
-          # Try substring match in devices
           for dev in "''${!device_map[@]}"; do
             if [[ "$dev" == *"$input_lower"* ]]; then
               exact_name="''${device_map[$dev]}"
-              control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
-              exit 0
-            fi
-          done
-    
-          # Try substring match in groups
-          for group_friendly in "''${!group_map[@]}"; do
-            if [[ "$group_friendly" == *"$input_lower"* ]]; then
-              group_id="''${group_map[$group_friendly]}"
-              control_group "$group_id" "$STATE" "$BRIGHTNESS" "$COLOR"
-              exit 0
+              break
             fi
           done
           
-          # If not found, treat as area
+          if [[ -n "$exact_name" ]]; then
+            control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
+            exit 0
+          fi
+
+          
+          group_topics=($(jq -r '.groups | keys[]' "$STATE_DIR/zigbee_devices.json"))
+          for group in "''${group_topics[@]}"; do
+            if [[ "$(echo "$group" | tr '[:upper:]' '[:lower:]')" == *"$input_lower"* ]]; then
+              control_group "$group" "$STATE" "$BRIGHTNESS" "$COLOR"
+              exit 0
+            fi
+          done
+             
+#        elif [[ -z "$AREA" ]]; then
           AREA="$DEVICE"
           say_duck "⚠️ Device '$DEVICE' not found, trying as area '$AREA'"
+          echo "$(date) - ⚠️ Device $DEVICE not found as area" >> "$STATE_DIR/voice-debug.log"
         fi
       fi
-    
-      # Area handling
+      
+      
+      control_room() {
+        local room="$1"
+        if [[ -z "$room" ]]; then
+          echo "Usage: control_room <room-name>"
+          return 1
+        fi
+      
+        readarray -t devices < <(nix eval $DOTFILES#nixosConfigurations.desktop.config.house --json \
+          | jq -r --arg room "$room" '
+              .zigbee.devices
+              | to_entries
+              | map(select(.value.room == $room and .value.type == "light"))
+              | map(.value.friendly_name)
+              | .[]')
+      
+        for light_id in "''${devices[@]}"; do
+          local hex_code=""
+          
+          if [[ -n "$COLOR" ]]; then
+            hex_code=$(color2hex "$COLOR") || {
+              echo "$(date) - ❌ Unknown color: $COLOR" >> "$STATE_DIR/voice-debug.log"
+              say_duck "❌ Invalid color: $COLOR"
+              continue
+            }
+          fi
+      
+          local payload='{"state":"ON"'
+          [[ -n "$BRIGHTNESS" ]] && payload+=", \"brightness\":$BRIGHTNESS"
+          [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
+          payload+="}"
+      
+          mqtt_pub -t "zigbee2mqtt/$light_id/set" -m "$payload"
+          say_duck "$light_id $payload"
+        done
+      }
+      
+
       if [[ -n "$AREA" ]]; then
         normalized_area=$(echo "$AREA" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
-        
-        # Try as group
-        group_id=''${group_map[$normalized_area]}
-        if [[ -n "$group_id" ]]; then
-          control_group "$group_id" "$STATE" "$BRIGHTNESS" "$COLOR"
-          exit 0
-        fi
-    
-        # Try as room
-        devices_str=''${room_map[$normalized_area]}
-        if [[ -n "$devices_str" ]]; then
-          IFS='|' read -ra devices <<< "$devices_str"
-          for device in "''${devices[@]}"; do
-            control_device "$device" "$STATE" "$BRIGHTNESS" "$COLOR"
-          done
-          exit 0
-        fi
-    
-        say_duck "❌ No device, group, or room named '$AREA'"
-        exit 1
-      fi
-    
-      # If we get here with no device and no area
-      say_duck "❌ Missing device or area"
-      exit 1
-    
-
+        control_room $AREA
+      fi        
     ''; 
   };
 

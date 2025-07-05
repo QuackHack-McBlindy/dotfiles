@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/xdp892sk0b3sgb9ahh8nm9cxy6rbmb2f-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/pyz51f081zhaxy7w866s1hn4khac7x1w-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -357,7 +357,7 @@ Set default values for your parameters to have them marked [optional]
 | **🛒 Shopping** | | |
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
-| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile]` |  | Control lights and other home automatioon devices |
+| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
 | `yo zigduck [--user] [--pwfile]` | zigbee, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |

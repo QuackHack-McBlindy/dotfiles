@@ -107,7 +107,7 @@
   # 🦆 says ⮞ Optimized pattern expansion without combinatorial explosion
   expandToRegex = sentence: data:
     let
-      # Helper function to convert patterns to regex
+      # 🦆 says ⮞ helper function to convert patterns to regex
       convertPattern = token:
         if lib.hasPrefix "(" token then
           let
@@ -124,7 +124,7 @@
         else
           lib.escapeRegex token;
       
-      # Split into tokens while preserving special groups
+      # 🦆 says ⮞ split into tokens while preserving special groups
       tokenize = s:
         let
           groups = builtins.match "([^{]*)(\{[^}]*\})?(.*)" s;
@@ -138,7 +138,7 @@
             tokensWithParam = if param != null then tokens ++ [param] else tokens;
           in tokensWithParam ++ tokenize rest;
       
-      # Process tokens into regex parts
+      # 🦆 says ⮞ process tokens into regex parts
       tokens = tokenize sentence;
       regexParts = map (token:
         if lib.hasPrefix "{" token then
@@ -150,7 +150,7 @@
           convertPattern token
       ) tokens;
       
-      # Combine parts into final regex
+      # 🦆 says ⮞ combine parts into final regex
       regex = "^" + lib.concatStrings regexParts + "$";
     in
       regex;
@@ -361,6 +361,38 @@
   environment.variables."ỲO_FUZZY_INDEX" = fuzzyIndexFile;   
   environment.variables."MATCHER_DIR" = matcherDir;
   environment.variables."MATCHER_SOURCE" = matcherSourceScript;
+  
+  
+  # 🦆 says ⮞ Enhanced priority system for runtime optimization
+  scriptRecordsWithIntents = 
+    let
+      # 🦆 says ⮞ Calculate priority with sensible defaults
+      calculatePriority = scriptName:
+        config.yo.bitch.intents.${scriptName}.priority or 3; # Default medium
+
+      # 🦆 says ⮞ create script records with metadata
+      makeRecord = scriptName: rec {
+        name = scriptName;
+        priority = calculatePriority scriptName;
+        hasComplexPatterns = 
+          let 
+            intent = config.yo.bitch.intents.${scriptName};
+            patterns = lib.concatMap (d: d.sentences) intent.data;
+          in builtins.any (p: lib.hasInfix "{" p || lib.hasInfix "[" p) patterns;
+      };
+      
+    in lib.sort (a: b:
+        # 🦆 says ⮞ primary sort: custom priority (lower number = higher priority)
+        a.priority < b.priority 
+        # 🦆 says ⮞ secondary sort: simple patterns before complex ones
+        || (a.priority == b.priority && !a.hasComplexPatterns && b.hasComplexPatterns)
+        # 🦆 says ⮞ tertiary sort: alphabetical for determinism
+        || (a.priority == b.priority && a.hasComplexPatterns == b.hasComplexPatterns && a.name < b.name)
+      ) (map makeRecord scriptNamesWithIntents);
+
+  # 🦆 says ⮞ Generate optimized processing order
+  processingOrder = map (r: r.name) scriptRecordsWithIntents;
+
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
@@ -400,54 +432,75 @@ EOF
                     [$script, .pattern, .value] | @tsv' \
             <<<"$intent_data_json"
         )
+        levenshtein() {
+          local a="$1" b="$1"
+          local -i len_a=''${#a} len_b=''${#b}
+          local -a d; local -i i j cost
+    
+          for ((i=0; i<=len_a; i++)); do d[i]=$i; done
+          for ((j=1; j<=len_b; j++)); do
+            prev=$j
+            for ((i=1; i<=len_a; i++)); do
+              [[ "''${a:i-1:1}" == "''${b:j-1:1}" ]] && cost=0 || cost=1
+              act=$(( d[i-1] + cost ))
+              d[i]=$(( (d[i]+1) < (prev+1) ? 
+                       ((d[i]+1) < act ? d[i]+1 : act) : 
+                       ((prev+1) < act ? prev+1 : act) ))
+              prev=$((d[i]))
+            done
+            d[0]=$j
+          done
+          echo ''${d[len_a]}
+        }
         
         # 🦆 says ⮞ subz and entities lists handler yo
         resolve_entities() {
-            local script="$1"
-            local text="$2"
-            declare -A substitutions=()
-            local substitution_applied=false
-            if [[ -z "''${script_has_lists["$script"]}" ]]; then
-                echo -n "$text"
-                echo "|declare -A substitutions"
-                return
-            fi
-            # 🦆 says ⮞ iterate throo cached patternz 
-            for key in "''${!script_substitutions_data[@]}"; do
-                if [[ "$key" == "$script:"* ]]; then
-                    local pattern="''${key#*:}"
-                    local out="''${script_substitutions_data[$key]}"
-                    if [[ "$text" =~ $pattern ]]; then
-                        local original="''${BASH_REMATCH[0]}"
-                       [[ -z "$original" ]] && continue
-                        substitutions["$original"]="$out"
-                        substitution_applied=true
-                        text=$(sed -E "s/\\b''${pattern}\\b/$out/g" <<<"$text")
-                    fi
-                fi
-            done
+          local script="$1"
+          local text="$2"
+          local replacements
+          local pattern out
+          declare -A substitutions
+          # 🦆 says ⮞ skip subs if script haz no listz
+          has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
+          if [[ "$has_lists" != "true" ]]; then
             echo -n "$text"
-            echo "|$(declare -p substitutions | sed 's/^declare -A //')"
-        }
-         
+            echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
+            return
+          fi                    
+          # 🦆 says ⮞ dis is our quacktionary yo 
+          replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
+          while IFS="|" read -r pattern out; do
+            if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
+              original="''${BASH_REMATCH[0]}"
+              [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
+              substitutions["''$original"]="$out"
+              substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
+              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
+            fi
+          done <<< "$replacements"      
+          echo -n "$text"
+          echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
+        }       
+
+
         find_best_fuzzy_match() {
           local input="$1"
           local best_score=0
           local best_match=""
-          # 🦆 says ⮞ quack aint' normal... but quack try normalize input
-          local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')      
-          # 🦆 says ⮞ use jq to extract candidate sentences
+          local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
           local candidates
-          mapfile -t candidates < <(jq -r '.[][] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
+          mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
+    
           dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching" >&2
           for candidate in "''${candidates[@]}"; do
             IFS=':' read -r script sentence <<< "$candidate"
-            dt_debug "Checking candidate: $script - $sentence" >&2
-            # 🦆 says ⮞ first filter trigramz datz da quacky hacky snappy FAST one yo
-            local tri_score=$(trigram_similarity "$normalized" "$sentence")
-            (( tri_score < 30 )) && continue       
-            # 🦆 says ⮞ i like levenshtein letz try dat
-            local score=$(levenshtein_similarity "$normalized" "$sentence")  
+            local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
+      
+            # 🦆 FIX: Use normalized sentence for comparison
+            local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
+            (( tri_score < 30 )) && continue
+      
+            local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
             if (( score > best_score )); then
               best_score=$score
               best_match="$script:$sentence"
@@ -490,12 +543,16 @@ EOF
           [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
           echo $(( score > 100 ? 100 : score )) # 🦆 says ⮞ 100 iz da moon yo
         }
+        
         for f in "$MATCHER_DIR"/*.sh; do [[ -f "$f" ]] && source "$f"; done
-
+        scripts_ordered_by_priority=(
+          ${lib.concatMapStringsSep "\n" (name: "  \"${name}\"") processingOrder}
+        )
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
 #        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         # 🦆 says ⮞ for dem scripts u defined intents for ..
-        for script in ${toString scriptNamesWithIntents}; do
+#        for script in ${toString scriptNamesWithIntents}; do
+        for script in "''${scripts_ordered_by_priority[@]}"; do
           # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
           resolved_output=$(resolve_entities "$script" "$text")
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
@@ -525,35 +582,43 @@ EOF
             exec "yo-$script" "''${args[@]}"   
           fi         
         done
+      
         if ! match_$script "$resolved_text"; then     
           # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON
-          fuzzy_result=$(timeout 30s bash -c "source \"$0\"; find_best_fuzzy_match \"$text\"")
+          fuzzy_result=$(find_best_fuzzy_match "$text")
           ret=$?
-          if [[ $ret -eq 124 ]]; then
-            dt_error "Fuzzy match timed out after 30 seconds"
+          
+          if [[ $ret -ne 0 ]]; then
+            dt_error "Fuzzy match failed with exit code $ret"
             log_failed_input "$text"
             say_no_match
             exit 1
-          fi          
+          fi
+          
           if [[ -n "$fuzzy_result" ]]; then
             IFS='|' read -r match_data score <<< "$fuzzy_result"
             IFS=':' read -r matched_script matched_sentence <<< "$match_data"      
-            if (( score >= 70 )); then
+            if (( score >= 15 )); then
               dt_info "Fuzzy match found (''${score}%): $matched_sentence"
               resolved_output=$(resolve_entities "$matched_script" "$text")
               resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
               confirm "Vill du köra $matched_script"
-              echo "Executing: yo $matched_script ''${cmd_args[@]}" 
+              dt_info "Executing: yo $matched_script"
               exec "yo-$matched_script" "''${cmd_args[@]}"      
             else
-              dt_error "Close match found (''${score}%) but not confident enough ❌ FAILED!" # 🦆 says ⮞ not my fault - gib duck better inputz lol!!!11 
+              dt_error "Close match found (''${score}%) but not confident enough ❌ FAILED!"
               log_failed_input "$text"
               say_no_match
               exit 1
             fi
+          else
+            dt_error "No fuzzy match found for: $text"
+            say_no_match
+            exit 1
           fi
         fi
-      '';    
+      '';
+ 
     };
     
     # 🦆 says ⮞ automatic bitchin' sentencin' testin'

@@ -22,6 +22,7 @@ in {
   yo.bitch = { 
     intents = {
       time = {
+        priority = 2;
         data = [{
           sentences = [
             "(va|vad|vart) är klockan"
@@ -34,6 +35,7 @@ in {
       };
       
       timer = {
+        priority = 5;
         data = [{
           sentences = [
             "(skapa|ställ|sätt|starta) [en] timer [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
@@ -65,6 +67,7 @@ in {
       }; 
       
       alarm = {
+        priority = 5;
         data = [{
           sentences = [
             "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} {minutes}"   
