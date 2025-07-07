@@ -40,7 +40,7 @@ in {
     networking.firewall.allowedTCPPorts = [ 9913 ];
 
 
-    sops.secrets = {
+    sops.secrets = lib.mkIf (lib.elem "notfy" config.this.host.modules.services) {
         ntfy-private = {
             sopsFile = ./../../secrets/ntfy-private.yaml;
             owner = "ntfy-sh";
