@@ -85,6 +85,8 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
       };
     };
 
+    systemd.services.wireguard-wg0.after = [ "sops-nix.service" ];
+
     # 🦆 says ⮞ systemd service dat generates fun random colored QR codes for appropriate devices
     systemd.services.generate-wg-qr = (let
       qrDependencies = with pkgs; [ qrencode imagemagick ];
@@ -132,6 +134,7 @@ EOF
         ${deleteOld}
         ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}
       '';   
+      after = [ "sops-nix.service" ];
       wantedBy = [ "multi-user.target" ];
     });
 
