@@ -319,14 +319,14 @@ EOF
   scriptType = types.submodule ({ name, ... }: {
   
 # 🦆 ⮞ OPTIONS 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
-    options = { # 🦆 duck say > a name cool'd be cool right?
+    options = { # 🦆 duck say ⮞ a name cool'd be cool right?
       name = mkOption {
         type = types.str;
         internal = true;
         readOnly = true;
         default = name;
         description = "Script name (derived from attribute key)";
-      }; 
+      }; # 🦆 duck say ⮞ describe yo script yo!
       description = mkOption {
         type = types.str;
         default = "";
@@ -336,54 +336,52 @@ EOF
         type = types.str;
         default = "";
         description = "Category of the script";
-      }; # 🦆 duck say > yo go ahead describe da script yo     
+      }; # 🦆 duck say ⮞ yo go ahead describe da script yo     
       visibleInReadme = mkOption {
         type = types.bool;
         default = ./category != "";
         defaultText = "category != \"\"";
         description = "Whether to include this script in README.md";
-      }; # 🦆 duck say > duck trace log level
+      }; # 🦆 duck say ⮞ duck trace log level
       logLevel = mkOption {
         type = types.enum ["DEBUG" "INFO" "WARNING" "ERROR" "CRITICAL"];
         default = "INFO";
         description = "Sets the log level for Duck Trace";
-      }; 
-# 🦆 duck say > extra code to be ran & displayed whelp calling da scripts --help cmd  
+      }; # 🦆 duck say ⮞ extra code to be ran & displayed whelp calling da scripts --help cmd  
       helpFooter = mkOption {
         type = types.lines;
         default = "";
         description = "Additional shell code to run when generating help text";
-      }; # 🦆 duck say ># 🦆 duck say > generatez systemd service for da script if true 
+      }; # 🦆 duck say ⮞ generatez systemd service for da script if true 
       autoStart = mkOption {
         type = types.bool;
         default = false;
         description = "Run the script in the background at startup";
-      }; # 🦆 duck say > code to be executed when calling tda script yo      
+      }; # 🦆 duck say ⮞ code to be executed when calling tda script yo      
       code = mkOption {
         type = types.lines;
         description = "The script code";
-      }; # 🦆 duck say > alias for da script for extra execution triggerz 
+      }; # 🦆 duck say ⮞ alias for da script for extra execution triggerz 
       aliases = mkOption {
         type = types.listOf types.str;
         default = [];
         description = "Alternative command names for this script";
-      };     
-      # 🦆 duck say ⮞ parameter options for the yo script we writin' 
+      }; # 🦆 duck say ⮞ parameter options for the yo script we writin' 
       parameters = mkOption {
         type = types.listOf (types.submodule {
-          options = { # 🦆 duck say > parameters = [{ name = ""; description = ""; default = "": optional = "": type = ""; }]; 
+          options = { # 🦆 duck say ⮞ parameters = [{ name = ""; description = ""; default = "": optional = "": type = ""; }]; 
             name = mkOption { type = types.str; };
             description = mkOption { type = types.str; };
             default = mkOption {
               type = types.nullOr types.str;
               default = null;
               description = "Default value if parameter is not provided";
-            }; # 🦆 duck say > i likez diz option - highly useful
+            }; # 🦆 duck say ⮞ i likez diz option - highly useful
             optional = mkOption { 
               type = types.bool; 
               default = ./default != null;
               description = "Whether this parameter can be omitted";
-            }; # 🦆 duck say > diz makez da param sleazy eazy to validate yo 
+            }; # 🦆 duck say ⮞ diz makez da param sleazy eazy to validate yo 
             type = mkOption {
               type = types.enum ["string" "int" "path"];
               default = "string";
@@ -701,8 +699,7 @@ in { # 🦆 duck say ⮞ options options duck duck
         else null
       ) scripts;    
       # 🦆 duck say ⮞ clean out dem' nullz! no nullz in ma ASSertionthz! ... quack
-      actualAutoStartErrors = lib.filter (e: e != null) autoStartErrors;
-   
+      actualAutoStartErrors = lib.filter (e: e != null) autoStartErrors;   
     in [
       { # 🦆 duck say ⮞ assert no alias name cpmflict with script name 
         assertion = scriptNameConflicts == {};

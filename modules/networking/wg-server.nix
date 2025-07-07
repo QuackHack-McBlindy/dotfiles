@@ -14,7 +14,7 @@
 # config.this.user.me.mobileDevices = { <device> = { wgip = "<ip>"; pubkey = "<pubkey>"; }; };
 
   # 🦆 says ⮞ WireGuard™ User home directory
-  wgUserHome = config.users.users.wgUser.home or "/home/wgUser";
+  wgUserHome = "/home/wgUser";
   
   # 🦆 says ⮞ WireGuard™ tunnel'z allowed IP'z
   defaultAllowedIPs = [ "10.0.0.0/24" "192.168.1.0/24" ];
@@ -121,7 +121,9 @@ AllowedIPs = ${allowed}
 Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
 PersistentKeepalive = 25
 EOF
-          ${config.pkgs.yo}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "${wgUserHome}/${device}.png"
+          ${pkgs.coreutils}/bin/cp "$TEMP_DIR/${device}.conf" "${wgUserHome}/${device}.conf"
+          ${pkgs.qrencode}/bin/qrencode -t png -o "${wgUserHome}/${device}1.png" < "$TEMP_DIR/${device}.conf"
+          ${config.yo.pkgs}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "${wgUserHome}/${device}.png"
           rm -rf "$TEMP_DIR" # 🦆 says ⮞ cleanup
         '';
       in ''

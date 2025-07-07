@@ -17,6 +17,12 @@
     "anke" = "anka";
     "läck" = "släck";
     "arkisten" = "artisten";
+    "björk leva" = "björklöven";
+    "björk löfven" = "björklöven";
+    "pjärkleven" = "björklöven";
+    "fala upp" = "spela upp";
+    "fälla upp" = "spela upp";
+    "vi tar upp serien" = "spela upp serien";
   };
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {

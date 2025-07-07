@@ -9,6 +9,7 @@
   yo.bitch = { 
     intents = {
       suno = {
+        priority = 5;
         data = [{
           sentences = [
             "skapa en {prompt} låt om {genre}"
@@ -59,36 +60,12 @@
 #    helpFooter = ''
 #    '';
     parameters = [
-      { name = "prompt"; description = "Prompt to be used for the generated lyrics"; optional = true; }    
-      { name = "genre"; description = "Music genre type for the generated song"; }
+      { name = "about"; description = "What do you want to be reminded aobut? used for the generated lyrics"; optional = false; }    
+      { name = "date"; description = "an optional date for reminder"; optional = true; }
 
     ];
     code = ''
       ${cmdHelpers}
-
-      echo "Genre input: "
-      echo "$genre"
-      echo " ---- "
-      echo "Prompt input: "
-      echo "$prompt"
-      
-      # Step 1 Create title
-
-      # Step 2 Create lyrics from input
-      # max 2000 characters from duckai
-      # Response back it to duckai for final polish
     
-      # Step 2 Send to suno
-      echo "Sending API request to Suno: "
-      echo "🎶🏷️ Title: "
-      echo "$final_title"
-      echo "🎸🎷 Genre: "
-#      echo "$final_genre"
-      echo " ---- "
-      echo "💬📜 Lyrics: "
-#      echo "$final_prompt"
-      
-      # TODO Suno logic
-      
     '';
   };}

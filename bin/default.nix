@@ -179,6 +179,15 @@
       verbosity_level=$(grep -o '?' <<< "$@" | wc -l)
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
     }
+    is_user_active() {
+      if loginctl list-sessions | awk '/tty/ || /wayland/ || /x11/ {print $3}' | grep -q "active"; then
+        return 0
+      fi  
+      if [ -n "$(w -hs | awk '!/idle/ {print}')" ]; then
+        return 0
+      fi  
+      return 1
+    }
     # 🦆 duck say ⮞ plays failing sound
     play_fail() {
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1

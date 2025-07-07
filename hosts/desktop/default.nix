@@ -75,7 +75,7 @@
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" ];
+                services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" "notfy" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo

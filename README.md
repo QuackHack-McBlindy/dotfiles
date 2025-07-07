@@ -109,7 +109,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "gpu/amd" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" ];
+    services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" "notfy" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/pyz51f081zhaxy7w866s1hn4khac7x1w-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/fkiidiqbhp3743q7j56md2bh3niq9w1p-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -331,10 +331,11 @@ Set default values for your parameters to have them marked [optional]
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
 | `yo say --text [--model] [--modelDir] [--silence]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--debug]` |  | Automated unit testing |
-| `yo train [--scriptName]` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
+| `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
 | `yo wake [--threshold] [--cooldown] [--sound]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
+| `yo askDuck --question [--area] [--minScoreThreshold] [--phrasesFilePath] [--searchDepth] [--fallback] [--loop]` | duck | Ask da duck any question - Quacktastic assistant |
 | `yo calculator --expression` | calc | Calculate math expressions |
 | `yo calendar --operation` | kal | Calendar assistant |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
@@ -348,7 +349,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo speed ` | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
 | `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
-| `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--domainFile] [--introURLFile] [--defaultPlaylist] [--max_items]` | remote | Android TV Controller |
+| `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--max_items]` | remote | Android TV Controller |
 | `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
 | `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |
 | **🔐 Security & Encryption** | | |
@@ -358,12 +359,13 @@ Set default values for your parameters to have them marked [optional]
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
 | `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
-| `yo zigduck [--user] [--pwfile]` | zigbee, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
+| `yo zigduck [--user] [--pwfile]` | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |
 | `yo joke [--jokeFile]` |  | Tells a quacktastic joke |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
-| `yo suno [--prompt] [--genre]` | mg | AI generated lyrics and music files powered by Suno |
+| `yo reminder --about [--date]` | remind | Reminder Assistant |
+| `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo time ` |  | Tells time, day and date |
 | `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |
 | **🧹 Maintenance** | | |

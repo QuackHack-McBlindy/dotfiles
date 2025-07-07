@@ -12,8 +12,9 @@
     train = {
       description = "Trains the NLP module. Correct misclassified commands and update NLP patterns";
       category = "⚙️ Configuration";
+      logLevel = "DEBUG";
       parameters = [
-        { name = "scriptName"; description = "Name of yo.script to train"; }
+        { name = "phrase"; description = "Word or sentence you want to train"; optional = false; }
       ];
       code = let
         patternGenerator = pkgs.writeShellScriptBin "pattern-generator" ''
@@ -49,30 +50,42 @@
         '';
       in ''
         ${cmdHelpers}
-        yo-say "För att träna behöver jag först fem test praser av dig, vi använder din mikrofon. du kommer höra ett ljud mellan varje inspelning."
-        sleep 1
         
         sentences=()
         for i in {1..5}; do
           play_win
           sentence=$(yo-mic)
           sentences+=("$sentence")
-          play_win
         done
         printf "%s\n" "''${sentences[@]}" | tr '[:upper:]' '[:lower:]' | sort | uniq > /home/pungkula/nlp-training      
         read -r pattern intent <<< $(${patternGenerator}/bin/pattern-generator)
 
-        cat > /home/pungkula/nlp_config.nix <<EOF
-{ config, ... }: {
-  yo.bitch.intents.$intent.data = [{
-    sentences = [
-      "$pattern"
+        dt_debug "$pattern"
+        echo ""
+        cat /home/pungkula/nlp-training
 
-    ];
-  }];
-}
-EOF
+        CORRECTIONS_FILE="/home/pungkula/dotfiles/bin/autocorrections.nix"
+        corrections_file="/home/pungkula/dotfiles/bin/autocorrections.nix"
+        if [[ ! -f "$corrections_file" ]]; then
+          dt_error "Autocorrections file not found: $corrections_file"
+          exit 1
+        fi
         
+        while IFS= read -r line; do
+          [[ -z "$line" ]] && continue
+          
+          escaped_line=$(printf '%s' "$line" | sed 's/["$]/\\&/g')
+          escaped_phrase=$(printf '%s' "$phrase" | sed 's/["$]/\\&/g')
+          
+          if ! grep -q "^\s*\"$escaped_line\"\s*=\s*\"$escaped_phrase\";" "$corrections_file"; then
+            sed -i "/autocorrect = {/a \    \"$escaped_line\" = \"$escaped_phrase\";" "$corrections_file"
+            dt_debug "Added autocorrection: \"$line\" => \"$phrase\""
+          else
+            dt_debug "Autocorrection already exists: \"$line\" => \"$phrase\""
+          fi
+        done < "$training_file"
+
+        dt_info "New NLP patterns added to autocorrections.nix"   
         dt_info "Done!"
       '';
     };

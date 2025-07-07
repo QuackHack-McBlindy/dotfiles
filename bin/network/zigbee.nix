@@ -11,7 +11,7 @@
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
   # 🦆 says ⮞ Verbose logging 
-  DEBUG = false;
+  dt_debug = false;
   # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
 
@@ -135,7 +135,7 @@ in { # 🦆 says ⮞ finally here, quack!
     description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
-    aliases = [ "zigbee" "hem" ]; # 🦆 says ⮞ and not laughing at me
+    aliases = [ "zigb" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
     helpFooter = '' 
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
@@ -172,8 +172,8 @@ EOF
       export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
-      MQTT_BROKER="${mqttHostip}" && debug "$MQTT_BROKER"
-      MQTT_USER="$user" && debug "$MQTT_USER"
+      MQTT_BROKER="${mqttHostip}" && dt_debug "$MQTT_BROKER"
+      MQTT_USER="$user" && dt_debug "$MQTT_USER"
       MQTT_PASSWORD=$(cat "$pwfile")
       STATE_DIR="${zigduckDir}"
       TIMER_DIR="$STATE_DIR/timers" 
@@ -192,13 +192,13 @@ EOF
         local line="$1"
         local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')        
         if [ "$backup_id" != "$BACKUP_ID" ]; then
-          debug "🦆 ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
+          dt_debug "🦆 ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
           return
         fi      
         local status=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.status')
         if [ "$status" = "ok" ]; then
           echo "$line" | ${pkgs.jq}/bin/jq -r '.data.backup' > "$BACKUP_TMP_FILE"
-          debug "Encrypting Zigbee coordinator backup with sops..."   
+          dt_debug "Encrypting Zigbee coordinator backup with sops..."   
           if "''${config.pkgs.yo}/bin/yo-sops" "$BACKUP_TMP_FILE" > "${backupEncryptedFile}"; then
             say_duck "✅ Backup saved to: ${backupEncryptedFile}"
           else
@@ -223,7 +223,7 @@ EOF
         
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
-          debug "Topic: $topic" && debug "Payload: $line"         
+          dt_debug "Topic: $topic" && dt_debug "Payload: $line"         
           # 🦆 says ⮞ backup handling
           if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
           # 🦆 says ⮞ trigger backup from MQTT
@@ -239,10 +239,10 @@ EOF
                 room_lights_on "$room"
                 reset_room_timer "$room"
                 else
-                  debug "❌ Daytime - no lights activated by motion."
+                  dt_debug "❌ Daytime - no lights activated by motion."
               fi
             else
-              debug "🛑 No more motion in $device_name $dev_room"            
+              dt_debug "🛑 No more motion in $device_name $dev_room"            
             fi
           fi
 
@@ -264,7 +264,7 @@ EOF
                     mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":50,"transition":3.5}'
                   done
             fi
-            if [ "$action" == "up_hold_release" ]; then debug "$action"; fi
+            if [ "$action" == "up_hold_release" ]; then dt_debug "$action"; fi
             if [ "$action" == "down_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
               ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
@@ -273,7 +273,7 @@ EOF
                   mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":-50,"transition":3.5}'
                 done
             fi
-            if [ "$action" == "down_hold_release" ]; then debug "$action"; fi
+            if [ "$action" == "down_hold_release" ]; then dt_debug "$action"; fi
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
             if [ "$action" == "off_hold_release" ]; then scene "dark" && say_duck "🚫 DARKNESS ON"; fi
           fi
@@ -453,7 +453,7 @@ EOF
       # 🦆 says ⮞ Zigbee coordinator backup
       if [[ "$DEVICE" == "backup" ]]; then
         mqtt_pub -t "zigbee2mqtt/backup/request"
-        say_duck "✅ Zigbee coordinator backup requested! - processing on server..."
+        say_duck "Zigbee coordinator backup requested! - processing on server..."
         exit 0
       fi         
       # 🦆 says ⮞ validate device

@@ -581,13 +581,10 @@ EOF
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
             exec "yo-$script" "''${args[@]}"   
           fi         
-        done
-      
-        if ! match_$script "$resolved_text"; then     
-          # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON
+        done # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON   
+        if ! match_$script "$resolved_text"; then               
           fuzzy_result=$(find_best_fuzzy_match "$text")
-          ret=$?
-          
+          ret=$? # 🦆 says ⮞ timeout case        
           if [[ $ret -ne 0 ]]; then
             dt_error "Fuzzy match failed with exit code $ret"
             log_failed_input "$text"
@@ -602,8 +599,8 @@ EOF
               dt_info "Fuzzy match found (''${score}%): $matched_sentence"
               resolved_output=$(resolve_entities "$matched_script" "$text")
               resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
-              confirm "Vill du köra $matched_script"
-              dt_info "Executing: yo $matched_script"
+              paramz="''${cmd_args[@]}"
+              dt_info "Executing: yo $matched_script $paramz"
               exec "yo-$matched_script" "''${cmd_args[@]}"      
             else
               dt_error "Close match found (''${score}%) but not confident enough ❌ FAILED!"

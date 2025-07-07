@@ -27,6 +27,12 @@ in { # 🦆 says ⮞ Options for da house
                         description = "The type of device (e.g., light, dimmer, motion, etc).";
                         example = "light";
                     };
+                    batteryType = mkOption {
+                      type = types.nullOr types.str;
+                      default = null;
+                      description = "Optional type of battery the device uses, if applicable.";
+                      example = "CR2032";
+                    };
                     endpoint = lib.mkOption { 
                         type = lib.types.int;
                         description = "The Zigbee endpoint to control this device.";
@@ -42,6 +48,7 @@ in { # 🦆 says ⮞ Options for da house
                     room = "kitchen";
                     type = "dimmer";
                     endpoint = 1;
+                    batteryType = "CR3032";
                 };
             };    
         };
@@ -95,6 +102,7 @@ in { # 🦆 says ⮞ Options for da house
                 room = "kitchen"; # 🦆 says ⮞ bind to group
                 type = "dimmer"; # 🦆 says ⮞ set a custom device type
                 endpoint = 1; # 🦆 says ⮞ endpoint to call the device on
+                batteryType = "CR2450"; # 🦆 says ⮞ optional yo
             }; 
            "0x0017880102f0848a" = { # 🦆 says ⮞ inb4 long annoying list  
                 friendly_name = "Spotlight kök 1"; # 🦆 says > oh crap
@@ -106,11 +114,11 @@ in { # 🦆 says ⮞ Options for da house
             "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; endpoint = 11; };
             "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; endpoint = 11; };
             "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; endpoint = 11; };
-            "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; endpoint = 1; };
+            "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; endpoint = 1; batteryType = "CR2032"; }; 
             "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; endpoint = 1; };
             "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "power plug"; endpoint = 1; };    
             # 🦆 says ⮞ LIVING ROOM
-            "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; endpoint = 1; };
+            "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; endpoint = 1; batteryType = "CR2450"; };
             "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; endpoint = 1; };   
             "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; endpoint = 1; };  
             "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; endpoint = 1; };                  
@@ -118,27 +126,27 @@ in { # 🦆 says ⮞ Options for da house
             "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; endpoint = 1; };
             "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; endpoint = 11; };
             "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; endpoint = 11; };
-            "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; endpoint = 1; };    
+            "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; endpoint = 1; };
             # 🦆 says ⮞ HALLWAY
-            "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; endpoint = 1; };
+            "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
             "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; endpoint = 11; };
             "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; endpoint = 1; };
             # 🦆 says ⮞ WC
             "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; endpoint = 11; };
             "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; endpoint = 11; };
             # 🦆 says ⮞ BEDROOM
-            "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; endpoint = 1; };
+            "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; endpoint = 1; batteryType = "CR2450"; }; 
             "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; endpoint = 11; };
             "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; endpoint = 11; };
             "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; endpoint = 11; };
             "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; endpoint = 11; };
-            "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; endpoint = 1; };
+            "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; endpoint = 1; batteryType = "CR2032"; };
             "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ THATS TOO FAST!!
             "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
             # 🦆 says ⮞ MISCELLANEOUS
             "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; endpoint = 1; };
-            "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; };
-            "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; };
+            "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
+            "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
         }; # 🦆 says ⮞ that's way too many devices huh
       }  # 🦆 says ⮞ that's actually not too bad when they on single line each
 

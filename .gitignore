@@ -3,14 +3,14 @@ bin/dump
 home/.config/ha
 home/.config/home-assistant
 result/
-
+epg.xml
 home/.config/Yubico
 
 home/.local/share/piper
 
 modules/networking/caddy.nix.save
 borg_settings.txt
-
+baseurl
 key/
 **/keys.txt
 **/key.txt

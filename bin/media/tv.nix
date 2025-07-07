@@ -1,18 +1,20 @@
-# dotfiles/bin/media/tv.nix
-{ 
+# dotfiles/bin/media/tv.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ Android TVOS Controller 
   self,
+  lib,
   config,
   pkgs,
   cmdHelpers,
-  ...
-} : {  
+  ... 
+} : let # 🦆 says ⮞ yo    
+in {   
   yo.bitch = { 
     intents = {
-      tv = {
+      tv = {  # 🦆 says ⮞ high priority for fast script executionz
         priority = 1;
         data = [{
           sentences = [
-            # devices control sentences
+            # 🦆 says ⮞ devices control sentences
             "(spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
             "jag vill se {typ} {search} i {device}"    
             "jag vill lyssna på {typ} i {device}"
@@ -20,12 +22,14 @@
             "ring {typ}"
             "hitta {typ}"
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
-            # default player
+            "tv {typ} i {device}"
+            # 🦆 says ⮞ default player
             "(spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
             "jag vill se {typ} {search}"    
             "jag vill lyssna på {typ}"
             "jag vill höra {typ}"
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten)"       
+            "tv [typ}"
           ];    
           lists = {
             typ.values = [
@@ -39,7 +43,6 @@
               { "in" = "video"; out = "othervideo"; }
               { "in" = "[musicvideo|musikvideo]"; out = "musicvideo"; }
               { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "playlist"; }
-              { "in" = "[nyhet|nyheter|nyheten|nyheterna|senaste nytt]"; out = "news"; }
               { "in" = "[kanal|kanalen|kannal]"; out = "livetv"; }
               { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }
               { "in" = "[paus|pause|pausa|tyst|tysta|mute|stop]"; out = "pause"; }
@@ -49,13 +52,15 @@
               { "in" = "[näst|nästa|nästan|next|fram|framåt]"; out = "next"; }
               { "in" = "[förr|förra|föregående|backa|bakåt]"; out = "previous"; }
               { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
-              { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }            
-              { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "find"; }              
+              { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }   
+              { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "call"; }   
+              { "in" = "[av|stäng av]"; out = "off"; }            
+              { "in" = "på"; out = "on"; }        
             ];
             search.wildcard = true;
             device.values = [
-              { "in" = "[sovrum|sovrummet|bedroom]"; out = "arris"; }
-              { "in" = "[vardagsrum|vardagsrummet|livingroom]"; out = "shield"; }              
+              { "in" = "[sovrum|sovrummet|bedroom]"; out = "192.168.1.152"; }
+              { "in" = "[vardagsrum|vardagsrummet|livingroom]"; out = "192.168.1.223"; }              
             ];  
           };
         }];
@@ -82,9 +87,8 @@
       { name = "podcastDir"; description = "Podcasts directory"; default = "/Pool/Podcasts"; }
       { name = "audiobookDir"; description = "Audiobooks directory"; default = "/Pool/Audiobooks"; }
       { name = "youtubeAPIkeyFile"; description = "File containing YouTube API key"; default = config.sops.secrets.youtube_api_key.path; }
-      { name = "domainFile"; description = "File containing domain"; default = config.sops.secrets.domain.path; }     
-      { name = "introURLFile"; description = "Secret file containing intro URL"; default = config.sops.secrets.intro_url.path; }
-      { name = "defaultPlaylist"; description = "Default playlist path"; default = "/home/pungkula/playlisttm3u"; }
+      { name = "webserver"; description = "File containing webserver URL that stores media"; default = config.sops.secrets.webserver.path; }     
+      { name = "defaultPlaylist"; description = "Default playlist path"; default = "/Pool/playlist.m3u"; }
       { name = "max_items"; description = "Max number of items in playlist"; default = "200"; }         
     ];
     code = ''    
@@ -102,94 +106,92 @@
       SHUFFLE="$shuffle"
       MAX_ITEMS="$max_items"
       playlist_file="$defaultPlaylist"
-
-      declare -A SEARCH_FOLDERS=([tv]="/Pool/TV")
-      WEBSERVER=$(cat $domainFile)
-      dt_debug "$WEBSERVER"
+      WEBSERVER=$(cat $webserver)
       PLAYLIST_SAVE_PATH="$playlist_file"
-      dt_debug "$PLAYLIST_SAVE_PATH"
-      INTRO_URL=$(cat $introURLFile)
-      dt_debug "$INTRO_URL"
+      INTRO_URL="$WEBSERVER/intro.mp4"
 
-      template_directory_path() {
-          local media_type=$1
-          shift
-          local directory_paths=("$@")
-          local urls=()
-          local base_path="''${SEARCH_FOLDERS[$media_type]}"
-          local folder_name=$(basename "$base_path")  
-          for path in "''${directory_paths[@]}"; do
-              local relative_path="''${path#$base_path/}"
-              relative_path="''${relative_path#$base_path}"  # Handle case without trailing slash     
-              urls+=("''${WEBSERVER%/}/''${folder_name}/''${relative_path}")
-          done        
-          echo "''${urls[@]}"
-      }
-      
-      save_media_content_urls() {
-          local media_content_urls=("$@")     
-          echo "$INTRO_URL" > "$PLAYLIST_SAVE_PATH"
-          for url in "''${media_content_urls[@]}"; do
-              echo "$url" >> "$PLAYLIST_SAVE_PATH"
-          done   
-          echo "Playlist saved to $PLAYLIST_SAVE_PATH"
-      }
-      template_single_path() {
-          local path="$1"
-          local media_type="$2"
-          local base_path="''${SEARCH_FOLDERS[$media_type]}"
-          local folder_name=$(basename "$base_path")
-          local relative_path="''${path#$base_path}"
-          relative_path="''${relative_path#/}"  # Remove leading slash
-          local encoded_path=$(urlencode "$relative_path")    
-          echo "''${WEBSERVER%/}/''${folder_name}/''${encoded_path}"
-      }
+      declare -A SEARCH_FOLDERS=(
+          [tv]="$TVDIR"
+          [podcast]="$PODCASTDIR"
+          [movie]="$MOVIEDIR"
+          [audiobook]="$AUDIOBOOKDIR"
+          [musicvideo]="$MUSICVIDEODIR"
+          [music]="$MUSICDIR"
+          [jukebox]="$MUSICDIR"
+          [song]="$MUSICDIR"          
+          [othervideo]="$VIDEOSDIR"
+      )
 
-      urlencode() {
-          local string="$1"
-          local strlen=''${#string}
-          local encoded=""
-          local pos c o
-
-          for (( pos=0; pos<strlen; pos++ )); do
-              c=${string:$pos:1}
-              case "$c" in
-                  [-_.~a-zA-Z0-9]) o="''${c}" ;;
-                  *) printf -v o '%%%02x' "'$c" ;;
-              esac
-             encoded+="''${o}"
-         done
-         echo "''${encoded}"
-      }
-            
-      find_best_fuzzy_match() {
-        local input="$1"
-        local best_score=0
-        local best_match=""
-        local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')      
-        local candidates
-        mapfile -t candidates < <(jq -r '.[][] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
-        dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching" >&2
-        for candidate in "''${candidates[@]}"; do
-          IFS=':' read -r script sentence <<< "$candidate"
-          dt_debug "Checking candidate: $script - $sentence" >&2
-          local tri_score=$(trigram_similarity "$normalized" "$sentence")
-          (( tri_score < 30 )) && continue       
-          local score=$(levenshtein_similarity "$normalized" "$sentence")  
-          if (( score > best_score )); then
-            best_score=$score
-            best_match="$script:$sentence"
-            dt_debug "New best match: $best_match ($score%)" >&2
-          fi
-        done
-      
-        if [[ -n "$best_match" ]]; then
-          echo "$best_match|$best_score"
-        else
-          echo ""
+      control_device() {
+        local device_ip="$1"
+        local action="$2"
+        declare -A key_events=(
+          [power_off]="KEYCODE_SLEEP"
+          [power_on]="KEYCODE_WAKEUP"
+          [play_pause]="KEYCODE_MEDIA_PLAY_PAUSE"
+          [next]="KEYCODE_MEDIA_NEXT"
+          [previous]="KEYCODE_MEDIA_PREVIOUS"
+          [volume_up]="KEYCODE_VOLUME_UP"
+          [volume_down]="KEYCODE_VOLUME_DOWN"
+        )
+        if [[ "$action" == "find_remote" ]]; then
+          adb -s "$device_ip" shell am start -a android.intent.action.VIEW -n com.nvidia.remotelocator/.ShieldRemoteLocatorActivity
+          return
         fi
+        local key_event="''${key_events[$action]}"
+        if [[ -z "$key_event" ]]; then
+          echo "Unknown action: $action"
+          echo "Available actions: ''${!key_events[@]} find_remote"
+          return 1
+        fi
+
+        adb -s "$device_ip" shell input keyevent "$key_event"
       }
-      
+
+      generate_playlist() {
+          local dir="$1"
+          local media_type="$2"
+          local base_dir="''${SEARCH_FOLDERS[$media_type]}"
+          local folder_name="''${base_dir##*/}"
+          local relative_path="''${dir#$base_dir/}"
+
+          echo "#EXTM3U" > "$PLAYLIST_SAVE_PATH"
+          echo "$INTRO_URL" >> "$PLAYLIST_SAVE_PATH"
+    
+          local temp_file=$(mktemp)
+          find "''${dir}" -type f ! \
+              \( -iname "*.nfo" -o \
+                 -iname "*.png" -o \
+                 -iname "*.gif" -o \
+                 -iname "*.m3u" -o \
+                 -iname "*.jpg" -o \
+                 -iname "*.jpeg" \) > "$temp_file"
+    
+          if [[ "$SHUFFLE" == "true" ]]; then
+              shuf "$temp_file" --output="$temp_file"
+              dt_debug "Shuffled playlist contents"
+          fi
+
+          while IFS= read -r file; do
+              local rel_file="''${file#$base_dir/}"
+              echo "''${WEBSERVER}/''${folder_name}/''${rel_file// /%20}" >> "$PLAYLIST_SAVE_PATH"
+          done < "$temp_file"
+    
+          rm "$temp_file"
+          dt_info "Playlist generated: $PLAYLIST_SAVE_PATH (shuffle: $SHUFFLE)"
+      }
+      start_playlist() {
+          local device_ip="$1"
+          local playlist_url="$WEBSERVER/playlist.m3u"
+          control_device "$device_ip" power_on
+          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
+          if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
+              dt_debug "Playlist started successfully on device ''${device_ip}"
+          else
+              dt_error "Failed to start playlist on device ''${device_ip}"
+          fi
+      }
+                
       trigram_similarity() {
         local str1="$1"
         local str2="$2"
@@ -256,49 +258,147 @@
           sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |  # Trim spaces
           sed -e 's/[[:space:]]+/ /g'          # Normalize spaces
       }
-    
-      fuzzy_search_media() {
-        local search_str="$1"
-        local dir_path="$2"
-        local best_score=0
-        local best_match=""
-        
-        local list=()
-        while IFS= read -r -d $'\0' item; do
-            list+=( "$(basename "$item")" )
-        done < <(find "$dir_path" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)    
-        dt_debug "Fuzzy searching ''${#list[@]} items in $dir_path"
-        [ ''${#list[@]} -eq 0 ] && return 1
-        local normalized_search=$(echo "$search_str" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')     
-        for item in "''${list[@]}"; do
-            normalized_show=$(normalize_string "$show")
-            local tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
-            (( tri_score < 30 )) && continue        
-            local score=$(levenshtein_similarity "$normalized_search" "$normalized_item")          
-            if (( score > best_score )); then
-                best_score=$score
-                best_match="$item"
-                dt_debug "New best: $item ($score%)"
-            fi
-        done
-        if (( best_score >= 60 )); then
-            echo "$best_match"
-            return 0
-        else
-            dt_debug "No match found (best score: $best_score%)"
-            return 1
-        fi
+
+      urlencode() {
+          local string="$1"
+          local strlen=''${#string}
+          local encoded=""
+          local pos c o    
+          for (( pos=0; pos<strlen; pos++ )); do
+              c=''${string:$pos:1}
+              case "$c" in
+                  [-_.~a-zA-Z0-9]) o="$c" ;;
+                  *) printf -v o '%%%02X' "'$c" ;;
+              esac
+              encoded+="''${o}"
+          done
+          echo "$encoded"
       }
     
+      template_single_path() {
+          local path="$1"
+          local media_type="$2"
+          local base_path="''${SEARCH_FOLDERS[$media_type]}"
+          
+          base_path="''${base_path%/}"
+          local folder_name=$(basename "$base_path")
+          
+          local relative_path="''${path#$base_path/}"
+          relative_path="''${relative_path#$base_path}"
+          relative_path="''${relative_path#/}"
+          
+          local encoded_path=""
+          IFS='/' read -ra parts <<< "$relative_path"
+          for part in "''${parts[@]}"; do
+              encoded_path+="/$(urlencode "$part")"
+          done
+          encoded_path="''${encoded_path#/}"
+
+          echo "''${WEBSERVER}/$folder_name/$encoded_path"
+      }
+    
+      fuzzy_match_files() {
+          local dir="$1"
+          local search="$2"
+          shift 2
+          local exts=("$@")     
+          local normalized_search
+          normalized_search=$(normalize_string "$search")
+          local -a results
+          
+          local find_cmd="find \"$dir\" -type f"
+          if [ ''${#exts[@]} -gt 0 ]; then
+              find_cmd+=" \("
+              for ext in "''${exts[@]}"; do
+                  find_cmd+=" -iname \"$ext\" -o"
+              done
+              find_cmd=''${find_cmd% -o}  # Remove last -o
+              find_cmd+=" \)"
+          fi
+          find_cmd+=" -print0"
+          
+          # 🦆 says ⮞ process filez
+          while IFS= read -r -d $'\0' file; do
+              local filename=$(basename "$file")
+              local base_name="''${filename%.*}"
+              local normalized_item
+              normalized_item=$(normalize_string "$base_name")
+              
+              local tri_score lev_score combined_score
+              tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+              lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+              combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+              
+              results+=("$combined_score:$file:$base_name")
+          done < <(eval "$find_cmd")
+          
+          # 🦆 says ⮞ sort by match % and select da top 3 yo
+          IFS=$'\n' sorted=($(printf "%s\n" "''${results[@]}" | sort -t':' -k1 -nr | head -n 3))
+          unset IFS
+          
+          printf "%s\n" "''${sorted[@]}"
+      }
+
+      play_youtube_video() {
+          local device_ip="$1"
+          local video_url="$2"
+          if adb -s "$device_ip" shell "am start -a android.intent.action.VIEW -d \"$video_url\" com.google.android.youtube.tv" &> /dev/null; then
+              dt_debug "Started YouTube successfully on device ''${device_ip}"
+          else
+              dt_error "Failed to start YouTube on device ''${device_ip}"
+          fi          
+      }
+      
+      search_youtube() {
+          local query="$1"
+          local api_key_file="$2"
+          
+          if [[ ! -f "$api_key_file" ]]; then
+              dt_error "YouTube API key file not found: $api_key_file"
+              return 1
+          fi
+          local api_key
+          api_key=$(<"$api_key_file")
+          
+          local encoded_query
+          encoded_query=$(urlencode "$query")
+          
+          local url="https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=$encoded_query&key=$api_key"
+          
+          local response
+          response=$(curl -s -w "%{http_code}" "$url")
+          local status_code="''${response: -3}"
+          local content="''${response%???}"
+          
+          if [[ "$status_code" != "200" ]]; then
+              dt_error "YouTube API request failed. Status: $status_code"
+              return 1
+          fi
+          
+          local video_id title
+          video_id=$(echo "$content" | jq -r '.items[0].id.videoId // empty')
+          title=$(echo "$content" | jq -r '.items[0].snippet.title // empty')
+          
+          if [[ -z "$video_id" ]]; then
+              dt_error "No YouTube videos found for: $query"
+              return 1
+          fi
+          
+          echo "https://www.youtube.com/watch?v=$video_id"
+          echo "$title"
+          return 0
+      }
+          
+      # 🦆 says ⮞ handle different media types
       matched_media=""
       case "$media_type" in
+        # 🦆 says ⮞ directory based searchez
         tv|podcast|movie|audiobook|musicvideo|music)
           case "$media_type" in
             tv)        search_dir="$TVDIR" ;;
             podcast)   search_dir="$PODCASTDIR" ;;
             movie)     search_dir="$MOVIEDIR" ;;
             audiobook) search_dir="$AUDIOBOOKDIR" ;;
-
             musicvideo) search_dir="$MUSICVIDEODIR" ;;
             music) search_dir="$MUSICDIR" ;;
           esac
@@ -320,23 +420,24 @@
               tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
               lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
               combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-              
+              dt_debug "Fuzzy matching: $search > $item"
               if (( combined_score > best_score )); then
                   best_score=$combined_score
                   best_match="$item"
+                  dt_debug "New best match: $best_match"
               fi
           done
           
           if (( best_score >= 30 )); then
               matched_media="$best_match"
               case "$media_type" in
-                tv)       type_desc="TV-serien" ;;
+              tv)       type_desc="TV-serien" ;;
               movie)    type_desc="filmen" ;;
               music)    type_desc="musik artisten" ;;
               song)     type_desc="musik låten" ;;
               podcast)  type_desc="podden" ;;
               audiobook) type_desc="ljudboken" ;;
-              jukebox)  type_desc="mixen" ;;
+              jukebox)  type_desc="Slumpad musik mix" ;;
               musicvideo) type_desc="musikvideon" ;;
               playlist) type_desc="spellistan" ;;
               *)        type_desc="$media_type" ;;
@@ -354,116 +455,143 @@
           fi
           ;;
 
+      # 🦆 says ⮞ file based searchez - like song etc, yo!  
       song|othervideo)
-          # File-based search (individual songs or videos)
           case "$media_type" in
-            song)      
+            # 🦆 says ⮞ search 4 music song yo
+            song)
               search_dir="$MUSICDIR"
               extensions=("*.mp3" "*.flac" "*.m4a" "*.wav")
-              ;;
+              ;; # 🦆 says ⮞ other videos not categorized elsewhere
             othervideo)
               search_dir="$VIDEOSDIR"
               extensions=("*.mp4" "*.mkv" "*.avi" "*.mov")
               ;;
           esac
-          
-          dt_debug "Searching files in $search_dir for $media_search"
-          items=()
-          find_cmd="find \"$search_dir\" -type f"
-          for ext in "''${extensions[@]}"; do
-              find_cmd+=" -iname \"$ext\" -o"
-          done
-          find_cmd=''${find_cmd% -o}  # Remove trailing -o
-          find_cmd+=" -print0"
-          
-          while IFS= read -r -d $'\0' file; do
-              filename=$(basename "$file")
-              # Remove extension for matching
-              base_name=''${filename%.*}
-              items+=("$file:$base_name")
-          done < <(eval "$find_cmd")
-          
-          best_score=0
-          best_match=""
-          normalized_search=$(normalize_string "$media_search")
-          
-          for item_pair in "''${items[@]}"; do
-              IFS=':' read -r full_path item_name <<< "$item_pair"
-              normalized_item=$(normalize_string "$item_name")
-              [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue
-              
-              tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
-              lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
-              combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-              
-              if (( combined_score > best_score )); then
-                  best_score=$combined_score
-                  best_match="$full_path"
-                  best_match_name="$item_name"
-              fi
-          done
-          
-          if (( best_score >= 30 )); then
-              matched_media="$best_match"
-              tts "Spelar upp ''${media_type} ''${best_match_name//./ }"
-          else
-              for item_pair in "''${items[@]}"; do
-                  IFS=':' read -r full_path item_name <<< "$item_pair"
-                  normalized_item=$(normalize_string "$item_name")
-                  if [[ "$normalized_item" == *"$normalized_search"* ]]; then
-                      matched_media="$full_path"
-                      break
-                  fi
+      
+          # 🦆 says ⮞ get matches yo
+          matches=()
+          while IFS= read -r line; do
+              matches+=("$line")
+          done < <(fuzzy_match_files "$search_dir" "$media_search" "''${extensions[@]}" 2>/dev/null)
+      
+          if (( ''${#matches[@]} > 0 )); then
+              echo "#EXTM3U" > "$PLAYLIST_SAVE_PATH"
+              echo "$INTRO_URL" >> "$PLAYLIST_SAVE_PATH"    
+              # 🦆 says ⮞ add top matchez
+              for match in "''${matches[@]}"; do
+                  IFS=':' read -r _ full_path base_name <<< "$match"
+                  url=$(template_single_path "$full_path" "$media_type")
+                  echo "$url" >> "$PLAYLIST_SAVE_PATH"
               done
+      
+              tts "Spelar upp de bästa matcherna för $media_search"
+              start_playlist "$DEVICE"
+              exit 0
+          else
+              dt_error "Inga filer hittades för $media_search"
+              exit 1
           fi
-          ;;
-
+          ;; # 🦆 says ⮞ shuffled randomized music
         jukebox)
           matched_media="shuffle"
           tts "Spelar slumpad musik"
-          ;;
-
+          ;; # 🦆 says ⮞ play favourite music playlist 
         playlist)
           matched_media="playlist"
           tts "Spelar upp spellista"
-          ;;
-          
-        pause|play|up|down|next|previous|add)
+          ;; # 🦆 says ⮞ save track to playlist               
+        add)
           matched_media="$media_type"
-          tts "Utför kommando: $media_type"
-          ;;
-          
+          tts "Sparar låten till din spellista."
+          ;; # 🦆 says ⮞ next track     
+        next)
+          dt_debug "Next track .."
+          control_device "$DEVICE" next
+          exit 0
+          ;; # 🦆 says ⮞ previous track     
+        previous)
+          dt_debug "Previous track .."
+          control_device "$DEVICE" previous
+          exit 0
+          ;; # 🦆 says ⮞ pause/play     
+        pause|play)
+          dt_debug "Pause/Play .."
+          control_device "$DEVICE" play_pause
+          exit 0
+          ;; # 🦆 says ⮞ volume down     
+        down)
+          dt_debug "Lowering volume.."
+          control_device "$DEVICE" volume_down && control_device "$DEVICE" volume_down && control_device "$DEVICE" volume_down
+          exit 0
+          ;; # 🦆 says ⮞ volume up     
+        up)
+          dt_debug "Volume up.."
+          control_device "$DEVICE" volume_up && control_device "$DEVICE" volume_up
+          exit 0
+          ;; # 🦆 says ⮞ newz, handled externally by yo news            
         news)
           dt_debug "Playing news"
           yo-news
           exit 0
-          ;;
-          
+          ;; # 🦆 says ⮞ play youtube videoz yo          
         youtube)
           dt_debug "Playing YouTube"
-          tv "$DEVICE" "$media_search" "$media_type"
+          video_info=$(search_youtube "$media_search" "$youtubeAPIkeyFile")
+          if [[ $? -eq 0 ]]; then
+            video_url=$(echo "$video_info" | head -1)
+            video_title=$(echo "$video_info" | tail -1)
+            dt_info "Playing YouTube video: $video_title"
+            play_youtube_video "$DEVICE" "$video_url"
+          else
+            dt_error "YouTube search failed"
+          fi
           exit 0
-          ;;
-          
-        livetv|call)
+          ;; # 🦆 says ⮞ TODO handle live tv channels properly
+        livetv)
           matched_media="$media_type"
           tts "Aktiverar $media_type"
-          ;;
-          
+          ;; # 🦆 says ⮞ find remote     
+        call)
+          dt_debug "Calling remote.."
+          control_device "$DEVICE" find_remote
+          exit 0
+          ;; # 🦆 says ⮞ power on device     
+        on)
+          dt_debug "Powering on $DEVICE .."
+          control_device "$DEVICE" power_on
+          exit 0
+          ;; # 🦆 says ⮞ power off device     
+        off)
+          dt_debug "Powering off $DEVICE .."
+          control_device "$DEVICE" power_off
+          exit 0
+          ;; # 🦆 says ⮞ invalid type
         *)
           dt_error "Okänt mediatyp: $media_type"
           exit 1
           ;;
       esac
 
-      tv "$DEVICE" "$matched_media" "$media_type"
+      dt_debug "Matched media: $matched_media"
+      dt_debug "Media type: $media_type" 
 
+      if [[ -n "''${SEARCH_FOLDERS[$media_type]}" ]]; then
+          BASE_PATH="''${SEARCH_FOLDERS[$media_type]}"
+          dt_debug "BASEL_PATH is: $BASE_PATH"
+          FULL_PATH="$BASE_PATH/$matched_media"
+          dt_debug "FULL_PATH is: $FULL_PATH"
+          generate_playlist "$FULL_PATH" "$media_type"
+          start_playlist "$DEVICE"
+      else
+          dt_error "Unknown media type: $media_type"
+      fi
     '';
   };
     
   sops.secrets = {
-    domain = { 
-      sopsFile = ../../secrets/domain.yaml;
+    webserver = { 
+      sopsFile = ../../secrets/webserver.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440";
@@ -474,10 +602,4 @@
       group = config.this.user.me.name;
       mode = "0440";
     };
-    intro_url = { 
-      sopsFile = ../../secrets/intro.yaml;
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
-      mode = "0440";
-    };    
   };}

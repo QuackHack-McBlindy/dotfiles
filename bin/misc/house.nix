@@ -6,9 +6,9 @@
   pkgs,
   cmdHelpers,
   ...
-} : let
+} : let # 🦆 says ⮞ configuration directory for diz module
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
-
+  # 🦆 says ⮞ findz da mosquitto host
   sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = let
     sysHosts = lib.attrNames self.nixosConfigurations;
@@ -134,18 +134,30 @@ in {
 #              ) zigbeeDevices
 #            ));      
             color.values = [
-              { "in" = "[röd|rött]"; out = "red"; }            
-              { "in" = "[grön|grönt]"; out = "green"; }              
-              { "in" = "[blå|blått]"; out = "blue"; }       
-              { "in" = "[gul|gult]"; out = "yellow"; }          
-              { "in" = "orange"; out = "orange"; }             
-              { "in" = "[lila|lilla]"; out = "purple"; } 
-              { "in" = "rosa"; out = "pink"; } 
-              { "in" = "[vit|vitt]"; out = "white"; }   
-              { "in" = "grå"; out = "gray"; }   
-              { "in" = "brunt"; out = "brown"; } 
-              { "in" = "cyan"; out = "cyan"; }   
-              { "in" = "magenta"; out = "magenta"; } 
+              { "in" = "[röd|rött|röda]"; out = "red"; }
+              { "in" = "[grön|grönt|gröna]"; out = "green"; }
+              { "in" = "[blå|blått|blåa]"; out = "blue"; }
+              { "in" = "[gul|gult|gula]"; out = "yellow"; }
+              { "in" = "[orange|orangefärgad|orangea]"; out = "orange"; }
+              { "in" = "[lila|lilla|violett|violetta]"; out = "purple"; }
+              { "in" = "[rosa|rosafärgad|rosaaktig]"; out = "pink"; }
+              { "in" = "[vit|vitt|vita]"; out = "white"; }
+              { "in" = "[svart|svarta]"; out = "black"; }
+              { "in" = "[grå|grått|gråa]"; out = "gray"; }
+              { "in" = "[brun|brunt|bruna]"; out = "brown"; }
+              { "in" = "[cyan|cyanblå|turkosblå]"; out = "cyan"; }
+              { "in" = "[magenta|cerise|fuchsia]"; out = "magenta"; }
+              { "in" = "[turkos|turkosgrön]"; out = "turquoise"; }
+              { "in" = "[teal|blågrön]"; out = "teal"; }
+              { "in" = "[lime|limegrön]"; out = "lime"; }
+              { "in" = "[maroon|mörkröd]"; out = "maroon"; }
+              { "in" = "[oliv|olivgrön]"; out = "olive"; }
+              { "in" = "[navy|marinblå]"; out = "navy"; }
+              { "in" = "[lavendel|ljuslila]"; out = "lavender"; }
+              { "in" = "[korall|korallröd]"; out = "coral"; }
+              { "in" = "[guld|guldfärgad]"; out = "gold"; }
+              { "in" = "[silver|silverfärgad]"; out = "silver"; }
+              { "in" = "[slumpmässig|random|valfri färg]"; out = "random"; }
             ];
           };
         }];
@@ -259,7 +271,6 @@ in {
             control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
             exit 0
           fi
-
           
           group_topics=($(jq -r '.groups | keys[]' "$STATE_DIR/zigbee_devices.json"))
           for group in "''${group_topics[@]}"; do
@@ -269,14 +280,12 @@ in {
             fi
           done
              
-#        elif [[ -z "$AREA" ]]; then
           AREA="$DEVICE"
           say_duck "⚠️ Device '$DEVICE' not found, trying as area '$AREA'"
           echo "$(date) - ⚠️ Device $DEVICE not found as area" >> "$STATE_DIR/voice-debug.log"
         fi
       fi
-      
-      
+            
       control_room() {
         local room="$1"
         if [[ -z "$room" ]]; then
@@ -313,7 +322,6 @@ in {
         done
       }
       
-
       if [[ -n "$AREA" ]]; then
         normalized_area=$(echo "$AREA" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
         control_room $AREA
@@ -321,10 +329,22 @@ in {
     ''; 
   };
 
-  yo.bitch.intents.fanOff.data = [{ sentences = [ "(stäng|stänga) [av] (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];
-  yo.bitch.intents.fanOn.data = [{ sentences = [ "(start|starta) (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];  
-  yo.bitch.intents.goodmorning.data = [{ sentences = [ "godmorgon" "god morgon" ];}];    
-  yo.bitch.intents.goodnight.data = [{ sentences = [ "godnatt" "god natt" "jag vill inte se ut" ];}];    
+  yo.bitch.intents.fanOff = {
+    priority = 2;
+    data = [{ sentences = [ "(stäng|stänga) [av] (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];
+  };  
+  yo.bitch.intents.fanOn = {
+    priority = 2;
+    data = [{ sentences = [ "(start|starta) (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];  
+  };  
+  yo.bitch.intents.goodmorning = {
+    priority = 2;
+    data = [{ sentences = [ "godmorgon" "god morgon" ];}];    
+  };  
+  yo.bitch.intents.goodnight = {
+    priority = 2;
+    data = [{ sentences = [ "godnatt" "god natt" "jag vill inte se ut" ];}];    
+  };
   yo.bitch.intents.blindsUp.data = [{ sentences = [ "jag vill [kunna] se ut" "(persienner|persiennerna) upp" ];}];    
   yo.bitch.intents.blindsDown.data = [{ sentences = [ "jag vill inte [kunna] se ut" "(persienner|persiennerna) (ner|ned)" ];}];    
   yo.scripts.fanOff.code = "zig Fläkt off";
@@ -337,6 +357,7 @@ in {
     yo-say "natti natti putti nuttiii brusschaan!" 
     scene dark
     zig "Roller Shade" off
+    yo-tv off
   '';
   yo.scripts.blindsUp.code = "zig 'Roller Shade' on";
   yo.scripts.blindsDown.code = "zig 'Roller Shade' off";

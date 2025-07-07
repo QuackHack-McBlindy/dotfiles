@@ -58,8 +58,8 @@ in {
       jsonFilePath="''${jsonFilePath:-/home/${config.this.user.me.name}/epg.json}"
       
       if [ ! -f "$jsonFilePath" ]; then
-        echo "EPG data not found. Please run tv-scraper first!" >&2
-        exit 1
+        yo tv-scraper
+        sleep 5
       fi
       
       clean_title() {

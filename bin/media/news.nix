@@ -8,6 +8,7 @@
   ...
 } : let
 in {  
+  yo.bitch.intents.news.priority = 2;
   yo.bitch.intents.news.data = [{ sentences = [
     "(senast|senaste) (myt|nyt|nytt)"
   ];}];
