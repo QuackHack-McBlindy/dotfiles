@@ -1,13 +1,13 @@
 # dotfiles/modules/networking/wg-server.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ A duck'z dynamic approach to configuring a WireGuard™ server
+{ # 🦆 duck say ⮞ A duckz dynamic approach to configuring a WireGuard™ server
   config,
-  lib, # 🦆 says ⮞ 📌 FEATURES:
-  pkgs,  # 🦆 says ⮞ ⭐ Automated fun QR codegeneration for mobile devices
-  self,  # 🦆 says ⮞ ⭐ Secure private key storage featuring SOPS-nix
-  ...    # 🦆 says ⮞ ⭐ Dynamically configured server interface
+  lib,
+  pkgs,
+  self,
+  ...  
 } : let
 # 🦆 says ⮞ Place your encrypted private keys in `dotfiles/secrets/hosts/<device>/<device>_wireguard_private.yaml` 
-# 🦆 says ⮞ Define your NIxOS clients like this: 
+# 🦆 says ⮞ Define your NIxOS clients like so: 
 # config.this.host.wgip = "<ip>";
 # config.this.host.keys.publicKeys = { wireguard = "<pubkey>": };
 # 🦆 says ⮞ Define your mobile device clients like this: 
@@ -85,9 +85,10 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
       };
     };
 
+    # 🦆 says ⮞ secret readin' before yo! 
     systemd.services.wireguard-wg0.after = [ "sops-nix.service" ];
 
-    # 🦆 says ⮞ systemd service dat generates fun random colored QR codes for appropriate devices
+    # 🦆 says ⮞ systemd service dat generates fun random colored QR codez for mobile devicez yo
     systemd.services.generate-wg-qr = (let
       qrDependencies = with pkgs; [ qrencode imagemagick ];
       path = lib.makeBinPath ([ pkgs.coreutils pkgs.gnused ] ++ qrDependencies);
@@ -124,7 +125,6 @@ Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
 PersistentKeepalive = 25
 EOF
           ${pkgs.coreutils}/bin/cp "$TEMP_DIR/${device}.conf" "${wgUserHome}/${device}.conf"
-          ${pkgs.qrencode}/bin/qrencode -t png -o "${wgUserHome}/${device}1.png" < "$TEMP_DIR/${device}.conf"
           ${config.yo.pkgs}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "${wgUserHome}/${device}.png"
           rm -rf "$TEMP_DIR" # 🦆 says ⮞ cleanup
         '';
@@ -138,7 +138,7 @@ EOF
       wantedBy = [ "multi-user.target" ];
     });
 
-    # 🦆 says ⮞ NixOS user configuration
+    # 🦆 says ⮞ create da user
     users = {
       groups.wgUser = {};
       users.wgUser = {
@@ -147,6 +147,6 @@ EOF
         createHome = true;
         isSystemUser = true;
       };
-    }; # 🦆 says ⮞ zimple az dat, yo!
-  };} # 🦆 says ⮞ now'z u can access u home net wen u awayz!
+    }; 
+  };} # 🦆 says ⮞ zimple az dat, yo!
 # 🦆 says ⮞ QuackHack-McBlindy out!

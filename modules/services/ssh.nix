@@ -1,4 +1,5 @@
-{ 
+# dotfiles/modules/services/ssh.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ 
   config,
   lib,
   pkgs,
@@ -8,10 +9,10 @@
   user = config.this.user.me.name;
   allHosts = self.nixosConfigurations;
   
-  # Filter out current host
+  # 🦆 duck say ⮞ filter out current host
   otherHosts = lib.filterAttrs (name: _: name != config.networking.hostName) allHosts;
 
-  # Generate knownHosts entries for all other hosts
+  # 🦆 duck say ⮞ generate knownHosts for all other hostz
   knownHostsEntries = lib.filterAttrs (_: v: v.publicKey != null) (lib.mapAttrs' (hostName: hostCfg: 
     lib.nameValuePair hostName {
       extraHostNames = [ hostCfg.config.networking.hostName ];
@@ -19,11 +20,18 @@
     }
   ) otherHosts);
 
-  # Collect all user SSH keys from other hosts
-  authorizedKeys = lib.concatMap (hostCfg:
-    let keys = hostCfg.config.this.host.keys.publicKeys.ssh or [];
-    in if builtins.isList keys then keys else [keys]
-  ) (lib.attrValues allHosts);
+  # 🦆 duck say ⮞ collect all user SSH keys from other hostz yo
+  authorizedKeys = let
+    # 🦆 duck say ⮞ SSH keys from all hosts
+    hostKeys = lib.concatMap (hostCfg:
+      let keys = hostCfg.config.this.host.keys.publicKeys.ssh or [];
+      in if builtins.isList keys then keys else [ keys ]
+    ) (lib.attrValues allHosts);
+    # 🦆 duck say ⮞ additional keys
+    extraKeys = builtins.filter (x: x != null) [
+      config.this.host.keys.publicKeys.iPhone or null
+    ];
+  in hostKeys ++ extraKeys;
 
   lanHosts = lib.concatStringsSep "\n" (  
     lib.flatten (  

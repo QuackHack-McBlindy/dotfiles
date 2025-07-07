@@ -1,9 +1,10 @@
-{ 
+# dotfiles/modules/virtualisation/arr.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ Declarative docker services for media handling.
   config,
   lib,
   pkgs,
   ...
-} : let
+} : let # 🦆 duck say ⮞ create dotenv yo
     pythonEnv = pkgs.python3.withPackages (ps: [ ps.requests ps.python-dotenv ]);
     env = pkgs.writeText ".env" ''
         TZ="Europe/Berlin"
@@ -14,7 +15,7 @@
         SHADOWPASS="@SHADOWPASS@"
     '';
 
-    # Requestrr Settings
+    # 🦆 duck say ⮞ Requestrr Settings
     requestrrSettingsScript = pkgs.writeShellScriptBin "generate-requestrr-settings" ''
         #!/bin/sh
         source /docker/apiKeys.env
@@ -164,7 +165,7 @@
         echo "Finished backing up Arr applications!"
     '';
 
-    # Script to set up environment and run Python script
+    # 🦆 duck say ⮞ script to set up environment and run da Python script yo
     configureApplications = pkgs.writeScriptBin "configure-apps" ''
         #!/bin/sh
         RADARR_API_KEY=$(grep -oP '(?<=<ApiKey>)[^<]+' /docker/radarr/config/config.xml)
@@ -212,7 +213,7 @@
   '';
 in {
     config = lib.mkIf (lib.elem "arr" config.this.host.modules.virtualisation) {
-        # Sets variables needed for the containers
+        # 🦆 duck say ⮞ sets variables needed for the containers
         systemd.services.arr-conf = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             preStart = ''
@@ -233,7 +234,7 @@ in {
                 User = "dockeruser";
             };                                                                                    };
 
-        # Configure the applications
+        # 🦆 duck say ⮞ configure the applicationz!
         systemd.services.configure-arr = lib.mkIf (!config.this.installer) {
             description = "Configure ARR services and generate .env file";
             wantedBy = [ "multi-user.target" ];
@@ -247,7 +248,7 @@ in {
             };
         };
 
-        # Container Configuration
+        # 🦆 duck say ⮞ Container Configurationz!
         virtualisation.oci-containers = lib.mkIf (!config.this.installer) {
             backend = "docker";
             containers = {
@@ -398,6 +399,7 @@ in {
             };
         };
 
+        # 🦆 duck say ⮞ i can secret keepin' dont worriez trust duck
         sops.secrets = lib.mkIf (!config.this.installer) {
             transmission = {
                 sopsFile = ./../../secrets/transmission.yaml;
@@ -425,7 +427,7 @@ in {
             };
         };
 
-        # Automatic Backup
+        # 🦆 duck say ⮞ iz diz automatic backup yo?
         systemd.services.arr-backup = lib.mkIf (!config.this.installer) {
             serviceConfig = {
                 Type = "oneshot";
@@ -441,7 +443,7 @@ in {
             };
         };
 
-        # Automatic Restoration From Backup
+        # 🦆 duck say ⮞ iz diz automatic restorationz yo?
         systemd.services.arr-restore = lib.mkIf (!config.this.installer) {
             wantedBy = ["multi-user.target"];
             after = ["docker-radarr.service" "docker-sonarr.service" "docker-lidarr.service" "docker-readarr.service" "docker-prowlarr.service"];
@@ -456,7 +458,7 @@ in {
             };
         };
 
-        # Set /Docker Ownersihp and Permissions
+        # 🦆 duck say ⮞ set da /Docker ownersihp and don't forget da permissionz yo!
         system.activationScripts.dockerPermissions = lib.mkIf (!config.this.installer) {
             text = ''
                 echo "Setting permissions and ownership for /docker directories..."

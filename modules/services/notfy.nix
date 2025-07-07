@@ -64,10 +64,6 @@ in {
                 r ${config.sops.secrets.ntfy-url.path}
                 d
             }" ${baseurlFile} > ./../../baseurl
-#            chown -R ntfy-sh:ntfy-sh /var/lib/ntfy-sh
-#            chmod -R u=rwX,g=rX,o= /var/lib/ntfy-sh
-#            chown ntfy-sh:ntfy-sh /var/lib/ntfy-sh/baseurl
-#            chmod 0440 /var/lib/ntfy-sh/baseurl
         '';
         serviceConfig = {
             ExecStart = "${pkgs.bash}/bin/bash -c 'echo succes; sleep 200'";
@@ -75,7 +71,7 @@ in {
             RestartSec = "2s";
             RuntimeDirectory = [ config.this.user.me.name ];
             User = config.this.user.me.name;
-            ConditionPathExists = "root";
+#            ConditionPathExists = "root";
         };
     };}
     
