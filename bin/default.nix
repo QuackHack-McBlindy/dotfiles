@@ -52,9 +52,6 @@
       echo -e "\033[1m$1\033[0m"
     }  
     # 🦆 says ⮞ DUCK TRACE YO
-    # 🦆 says ⮞ main directory for log pathz
-    export DT_LOG_PATH="$HOME/.config/duckTrace/"
-    mkdir -p "$DT_LOG_PATH"    
     # 🦆 says ⮞ convert string levels to numbers
     declare -A DT_LEVEL_MAP=( [DEBUG]=0 [INFO]=1 [WARNING]=2 [ERROR]=3 [CRITICAL]=4 )
     # 🦆 says ⮞ auto convert DT_LOG_LEVEL if set as string

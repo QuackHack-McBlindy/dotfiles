@@ -7,7 +7,10 @@
   sysHosts,  
   cmdHelpers,
   ...
-} : {
+} : let
+  trainingFile = "/home/" + config.this.user.me.name + "/nlp-training";
+  correctionsFile = config.this.user.me.dotfilesDir + "/bin/autoCorrect.nix";
+in {
   yo.scripts = {
     train = {
       description = "Trains the NLP module. Correct misclassified commands and update NLP patterns";
@@ -18,8 +21,8 @@
       ];
       code = let
         patternGenerator = pkgs.writeShellScriptBin "pattern-generator" ''
-
-          sentences=$(grep -v '^$' /home/pungkula/nlp-training)
+        
+          sentences=$(grep -v '^$' ${trainingFile})
           words=()
           while IFS= read -r sentence; do
             words+=("$sentence")
@@ -50,9 +53,10 @@
         '';
       in ''
         ${cmdHelpers}
-        
+        training_file="${trainingFile}"  
+        corrections_file="${correctionsFile}"
         sentences=()
-        for i in {1..5}; do
+        for i in {1..4}; do
           play_win
           sentence=$(yo-mic)
           sentences+=("$sentence")
@@ -62,10 +66,9 @@
 
         dt_debug "$pattern"
         echo ""
-        cat /home/pungkula/nlp-training
+        cat "$training_file"
 
-        CORRECTIONS_FILE="/home/pungkula/dotfiles/bin/autocorrections.nix"
-        corrections_file="/home/pungkula/dotfiles/bin/autocorrections.nix"
+
         if [[ ! -f "$corrections_file" ]]; then
           dt_error "Autocorrections file not found: $corrections_file"
           exit 1
@@ -78,15 +81,16 @@
           escaped_phrase=$(printf '%s' "$phrase" | sed 's/["$]/\\&/g')
           
           if ! grep -q "^\s*\"$escaped_line\"\s*=\s*\"$escaped_phrase\";" "$corrections_file"; then
-            sed -i "/autocorrect = {/a \    \"$escaped_line\" = \"$escaped_phrase\";" "$corrections_file"
+            sed -i "/^{/a \  \"$escaped_line\" = \"$escaped_phrase\";" "$corrections_file"
             dt_debug "Added autocorrection: \"$line\" => \"$phrase\""
           else
             dt_debug "Autocorrection already exists: \"$line\" => \"$phrase\""
           fi
         done < "$training_file"
-
-        dt_info "New NLP patterns added to autocorrections.nix"   
         dt_info "Done!"
+        dt_info "New NLP patterns added to $corrections_file"   
+        dt_info "Remember rebuild is required before it to take effect"
+
       '';
     };
   };}

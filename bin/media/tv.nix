@@ -15,7 +15,7 @@ in {
         data = [{
           sentences = [
             # 🦆 says ⮞ devices control sentences
-            "(spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
+            "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
             "jag vill se {typ} {search} i {device}"    
             "jag vill lyssna på {typ} i {device}"
             "jag vill höra {typ} {search} i {device}"
@@ -24,7 +24,7 @@ in {
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
             "tv {typ} i {device}"
             # 🦆 says ⮞ default player
-            "(spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
+            "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
             "jag vill se {typ} {search}"    
             "jag vill lyssna på {typ}"
             "jag vill höra {typ}"
@@ -442,7 +442,7 @@ in {
               playlist) type_desc="spellistan" ;;
               *)        type_desc="$media_type" ;;
             esac
-            tts "Spelar upp $type_desc ''${matched_media//./ }"
+            yo say "Spelar upp $type_desc ''${matched_media//./ }"
             
           else
               for item in "''${items[@]}"; do
@@ -485,7 +485,7 @@ in {
                   echo "$url" >> "$PLAYLIST_SAVE_PATH"
               done
       
-              tts "Spelar upp de bästa matcherna för $media_search"
+              yo say "Spelar upp de bästa matcherna för $media_search"
               start_playlist "$DEVICE"
               exit 0
           else
@@ -495,15 +495,15 @@ in {
           ;; # 🦆 says ⮞ shuffled randomized music
         jukebox)
           matched_media="shuffle"
-          tts "Spelar slumpad musik"
+          yo say "Spelar slumpad musik"
           ;; # 🦆 says ⮞ play favourite music playlist 
         playlist)
           matched_media="playlist"
-          tts "Spelar upp spellista"
+          yo say "Spelar upp spellista"
           ;; # 🦆 says ⮞ save track to playlist               
         add)
           matched_media="$media_type"
-          tts "Sparar låten till din spellista."
+          yo say "Sparar låten till din spellista."
           ;; # 🦆 says ⮞ next track     
         next)
           dt_debug "Next track .."
@@ -550,7 +550,7 @@ in {
           ;; # 🦆 says ⮞ TODO handle live tv channels properly
         livetv)
           matched_media="$media_type"
-          tts "Aktiverar $media_type"
+          yo say "Aktiverar $media_type"
           ;; # 🦆 says ⮞ find remote     
         call)
           dt_debug "Calling remote.."

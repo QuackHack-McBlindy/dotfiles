@@ -32,7 +32,17 @@ in {
         theme.name = "gtk3.css"; 
         user = {       
             enable = true;
-            me.name = "pungkula";
+            me = {
+                name = "pungkula";
+                repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
+                dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
+                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
+                mobileDevices = {
+                    iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
+                    tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
+                };
+            };
+            i18n = "sv_SE.UTF-8";
         };
         host = {
             system = "x86_64-linux";
@@ -45,7 +55,7 @@ in {
                 system = [ "nix" "pkgs" ];
                 networking = [ "default" "caddy" ];
                 services = [ "ssh" "adb" "backup" "borg" ];
-                programs = [ ];
+                programs = [ "default" ];
                 virtualisation = [ "docker-rootless" "arr" ];
             };  
             keys.publicKeys = {

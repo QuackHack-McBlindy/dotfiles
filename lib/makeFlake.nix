@@ -44,6 +44,9 @@
           };
           modules = [
             inputs.sops-nix.nixosModules.sops # 🦆 duck say ⮞ secret keepin'
+            {
+              nixpkgs.overlays = overlays; 
+            }
             ../. # 🦆 duck say ⮞ loads ../default.nix
             hostConfig             
             ../modules/home.nix # 🦆 duck say ⮞ home is where your duck's at
@@ -110,5 +113,4 @@ in { # 🦆 duck say ⮞ expose makeApp & makeFlake for use in flake
   inherit makeApp;
   makeFlake = args: makeFlakeInternal args;  
   } # 🦆 duck say ⮞ da end
-
 

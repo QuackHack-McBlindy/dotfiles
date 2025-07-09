@@ -14,4 +14,11 @@
         lib.mapAttrs' # 🦆 duck say ⮞ maps each filename to da result of function
             (name: _: lib.nameValuePair (lib.removeSuffix ".nix" name) (fn (dir + "/${name}")))
             (lib.filterAttrs (n: _: lib.hasSuffix ".nix" n) (builtins.readDir dir));
+            
+    # 🦆 duck say ⮞ dis one map all .nix overlay files and return dem as a list for nixpkgs.overlays
+    mapOverlays = dir: args:
+      lib.mapAttrsToList
+        (name: _: import (dir + "/${name}") args)
+        (lib.filterAttrs (name: type: lib.hasSuffix ".nix" name) (builtins.readDir dir));
+        
     }

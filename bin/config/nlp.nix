@@ -361,16 +361,13 @@
   environment.variables."ỲO_FUZZY_INDEX" = fuzzyIndexFile;   
   environment.variables."MATCHER_DIR" = matcherDir;
   environment.variables."MATCHER_SOURCE" = matcherSourceScript;
-  
-  
-  # 🦆 says ⮞ Enhanced priority system for runtime optimization
+    
+  # 🦆 says ⮞ priority system 4 runtime optimization
   scriptRecordsWithIntents = 
-    let
-      # 🦆 says ⮞ Calculate priority with sensible defaults
+    let # 🦆 says ⮞ calculate priority
       calculatePriority = scriptName:
         config.yo.bitch.intents.${scriptName}.priority or 3; # Default medium
-
-      # 🦆 says ⮞ create script records with metadata
+      # 🦆 says ⮞ create script records metadata
       makeRecord = scriptName: rec {
         name = scriptName;
         priority = calculatePriority scriptName;
@@ -379,20 +376,18 @@
             intent = config.yo.bitch.intents.${scriptName};
             patterns = lib.concatMap (d: d.sentences) intent.data;
           in builtins.any (p: lib.hasInfix "{" p || lib.hasInfix "[" p) patterns;
-      };
-      
+      };    
     in lib.sort (a: b:
-        # 🦆 says ⮞ primary sort: custom priority (lower number = higher priority)
+        # 🦆 says ⮞ primary sort: lower number = higher priority
         a.priority < b.priority 
         # 🦆 says ⮞ secondary sort: simple patterns before complex ones
         || (a.priority == b.priority && !a.hasComplexPatterns && b.hasComplexPatterns)
-        # 🦆 says ⮞ tertiary sort: alphabetical for determinism
+        # 🦆 says ⮞ third sort: alphabetical for determinism
         || (a.priority == b.priority && a.hasComplexPatterns == b.hasComplexPatterns && a.name < b.name)
       ) (map makeRecord scriptNamesWithIntents);
-
-  # 🦆 says ⮞ Generate optimized processing order
+  # 🦆 says ⮞ generate optimized processing order
   processingOrder = map (r: r.name) scriptRecordsWithIntents;
-
+  
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
@@ -400,7 +395,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
       # 🦆 says ⮞ natural means.... human? 
       category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
-      logLevel = "DEBUG";
+      logLevel = "INFO";
       autoStart = false;
       parameters = [{ name = "input"; description = "Text to parse into a yo command"; optional = false; }]; 
       # 🦆 says ⮞ run yo bitch --help to display all defined voice commands
@@ -551,7 +546,6 @@ EOF
         # 🦆 says ⮞ insert matchers, build da regex empire. yo
 #        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         # 🦆 says ⮞ for dem scripts u defined intents for ..
-#        for script in ${toString scriptNamesWithIntents}; do
         for script in "''${scripts_ordered_by_priority[@]}"; do
           # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
           resolved_output=$(resolve_entities "$script" "$text")

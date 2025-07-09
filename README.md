@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/2ylzbxalkbfc7fsvc6wrsg8l667jhc6x-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/wyfaka8byfb0w7dp4y6dg7ra2wisk6p7-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -182,7 +182,9 @@ I like my flakes tiny & ny modules dynamically loaded,
             };                   
         in lib.makeFlake { # 🦆 duck say ⮞ make my flake
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
-            overlays = [ ];
+#            overlays = [ (import ./overlays/noisereduce.nix { inherit lib; }) ];
+#            overlays = import ./overlays { inherit (nixpkgs) lib; };
+            overlays = lib.mapOverlays ./overlays { inherit lib; };
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
@@ -332,7 +334,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo say --text [--model] [--modelDir] [--silence]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--debug]` |  | Automated unit testing |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
-| `yo transcribe [--port] [--model] [--language] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
+| `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
 | `yo wake [--threshold] [--cooldown] [--sound]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
 | `yo askDuck --question [--area] [--minScoreThreshold] [--phrasesFilePath] [--searchDepth] [--fallback] [--loop]` | duck | Ask da duck any question - Quacktastic assistant |
@@ -346,6 +348,8 @@ Set default values for your parameters to have them marked [optional]
 | `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
+| `yo notify --message [--topic] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |
+| `yo notify-me [--topic] [--base_urlFile] [--sound]` |  | Listener for notifications and run actions |
 | `yo speed ` | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
 | `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |

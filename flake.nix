@@ -16,7 +16,9 @@
             };                   
         in lib.makeFlake { # 🦆 duck say ⮞ make my flake
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
-            overlays = [ ];
+#            overlays = [ (import ./overlays/noisereduce.nix { inherit lib; }) ];
+#            overlays = import ./overlays { inherit (nixpkgs) lib; };
+            overlays = lib.mapOverlays ./overlays { inherit lib; };
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;

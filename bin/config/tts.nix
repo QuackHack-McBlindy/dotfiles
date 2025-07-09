@@ -28,7 +28,7 @@ in { # 🦆 says ⮞ yo yo yo yo
       MODEL_PATH="$MODEL_DIR/$MODEL"
       SENTENCE_SILENCE="$silence"
       if [ ! -f "$MODEL_PATH" ]; then
-        echo "❌ Model not found: $MODEL_PATH"
+        dt_error "Model not found: $MODEL_PATH"
         exit 1
       fi  
       
@@ -39,9 +39,6 @@ in { # 🦆 says ⮞ yo yo yo yo
         aplay "$TMP_WAV" >/dev/null 2>&1
       ) &      
       
-#      TMP_WAV=$(mktemp --suffix=.wav)
-#      trap 'rm -f "$TMP_WAV"' EXIT
-#      echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence $SENTENCE_SILENCE >>/dev/null && aplay "$TMP_WAV" >>/dev/null
     ''; # 🦆 says ⮞ quack quack quack   
   };} # 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  

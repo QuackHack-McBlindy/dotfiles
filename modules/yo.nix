@@ -416,7 +416,10 @@ EOF
           export LC_NUMERIC=C
           start=$(date +%s.%N)
           trap 'end=$(date +%s.%N); elapsed=$(echo "$end - $start" | bc); printf "[🦆⏱] Total time: %.3f seconds\n" "$elapsed"' EXIT
-          export DT_LOG_FILE="${name}" # 🦆 duck say ⮞ duck tracin' be namin' da log file for da ran script
+          export DT_LOG_PATH="$HOME/.config/duckTrace/"
+          mkdir -p "$DT_LOG_PATH"   
+          export DT_LOG_FILE="${name}.log" # 🦆 duck say ⮞ duck tracin' be namin' da log file for da ran script
+          touch "$DT_LOG_PATH/$DT_LOG_FILE"
           export DT_LOG_LEVEL="${script.logLevel}" # 🦆 duck say ⮞ da tracin' duck back to fetch da log level yo
           export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy      
           
@@ -546,6 +549,9 @@ EOF
             ''}
           '') script.parameters)}
 
+          # 🦆 duck say ⮞ execute other yo scripts (when everying else fails)  
+          run_yo() { ${yoScriptRunner}/bin/yo-run "$@"; }
+
           # 🦆 duck say ⮞ EXECUTEEEEEAAAOO 🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆yo
           ${script.code}
         '';
@@ -604,7 +610,15 @@ EOF
         ) scripts)
     ) sortedCategories;
   in concatStringsSep "\n" rows;
-  
+
+  # 🦆 duck say ⮞ ... for edge cases wen normal execution do not work yo
+  yoScriptRunner = pkgs.writeShellScriptBin "yo-run" ''
+    if [[ -n "$YO_STORE" ]]; then
+      exec "$YO_STORE/bin/yo-$1" "''${@:2}"
+    else
+      exec yo "$@"
+    fi
+  '';  
 in { # 🦆 duck say ⮞ options options duck duck
   options = { # 🦆 duck say ⮞ 
     yo = {
@@ -806,6 +820,8 @@ in { # 🦆 duck say ⮞ options options duck duck
             "PULSE_SERVER=unix:%t/pulse/native"
             "HOME=/home/${config.this.user.me.name}"
             "PATH=/run/current-system/sw/bin:/bin:/usr/bin"
+            "YO_STORE=${yoScriptsPackage}"
+            "PATH=${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
           ];
         };
       })
@@ -813,5 +829,3 @@ in { # 🦆 duck say ⮞ options options duck duck
   };} # 🦆 duck say ⮞ 2 long script 4 jokez.. nao bai bai yo
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤
-
-

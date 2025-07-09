@@ -13,12 +13,6 @@ in { # 🦆 says ⮞ .. nuthin' in?
     description = "Run Wake word detection for audio recording and transcription";
     category = "⚙️ Configuration"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     autoStart = config.this.host.hostname == "desktop";
-#    helpFooter = '' # 🦆 says ⮞ TODO some fun & useful helpFooter - think, think, tink.. 
-#      WIDTH=100
-#      cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
-## ──────⋆⋅☆⋅⋆────── ##
-#EOF
-##    '';
     logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
