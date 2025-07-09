@@ -19,9 +19,6 @@ in {
        { name = "port"; description = "SSH port"; optional = true; default = "2222"; }
        { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
-#     helpFooter = ''
-
-#     '';
      code = ''   
        ${cmdHelpers}
        
@@ -35,7 +32,7 @@ in {
          echo "❗ Test run: reboot will revert activation"
        fi
        
-       # Validate host connectivity early
+       # 🦆 duck say ⮞ validate host connectivity
        if ! ssh -p "$port" -o ConnectTimeout=5 "$user@$host" true; then
          fail "❌ Cannot connect to $host via SSH."
        fi
@@ -59,7 +56,7 @@ in {
        if [ "$result" = "true" ]; then
          run_cmd echo "✅ Dotfiles repo exists on $host"
        else
-         # Otherwise clone it to $flake parameter
+         # 🦆 duck say ⮞ otherwise clone it to $flake parameter
          bootstrap_mode=true
          run_cmd echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"
          https_repo=$(convert_git_to_https "$repo")
@@ -73,7 +70,7 @@ in {
              tmpkey=$(mktemp) || fail "❌ Failed to create temp file"
              trap 'rm -f "$tmpkey"' EXIT
     
-             # Decrypt key
+             # 🦆 duck say ⮞ decrypt key
              yo yubi decrypt "$flake/secrets/hosts/$host/age.key" > "$tmpkey" || fail "❌ Decryption failed"
     
              ssh -p "$port" "$user@$host" "sudo mkdir -p '$key_dir' && sudo chown $(whoami) '$key_dir'" || fail "❌ Directory setup failed"
@@ -113,7 +110,7 @@ in {
            --show-trace
        )
 
-       # If first deployment, signature key will be missing and a remote build is required.
+       # 🦆 duck say ⮞ if first deployment, signature key will be missing and a remote build is required.
        if $bootstrap_mode; then
          cmd+=( --build-host "$user@$host" )
        fi      
@@ -136,17 +133,17 @@ in {
        if ! $DRY_RUN; then
          echo -e "\033[1;34m🔍 Retrieving generation number from $host...\033[0m"
 
-         # Fetch the generation number using SSH
+         # 🦆 duck say ⮞ fetch the generation number using SSH
          GEN_NUM=$(ssh -T "$user@$host" "sudo -n nix-env --list-generations -p /nix/var/nix/profiles/system" | awk '/current/ {print $1}' | tail -n1)
 
-         # Validate the generation number
+         # 🦆 duck say ⮞ validate the generation number
          if [[ -z "$GEN_NUM" ]] || ! [[ "$GEN_NUM" =~ ^[0-9]+$ ]]; then
            echo -e "\033[1;31m❌ Failed to retrieve generation number from $host"
            echo -e "Received output: '$GEN_NUM'\033[0m"
            exit 1
          fi
 
-         # Continue if the generation number is valid
+         # 🦆 duck say ⮞ validate the gen number
          echo "📦 Tagging deployment for $host generation $GEN_NUM..."
          yo push --flake "$flake" --repo "$repo" --host "$host" --generation "$GEN_NUM"
        fi     
