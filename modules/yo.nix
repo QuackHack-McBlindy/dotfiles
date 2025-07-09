@@ -794,7 +794,7 @@ in { # 🦆 duck say ⮞ options options duck duck
         enable = true;
         wantedBy = ["multi-user.target"];
         after = ["sound.target" "network.target"  "pulseaudio.socket" "sops-nix.service"];
-        requires = [ "sops-nix.service" ];
+        
         serviceConfig = {
           ExecStart = let
             args = lib.concatMapStringsSep " " (param:
