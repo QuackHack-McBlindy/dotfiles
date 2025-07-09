@@ -33,7 +33,7 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
     description = "Listener for notifications and run actions";
     category = "🌐 Networking";
     logLevel = "DEBUG";
-    autoStart = true;  
+    autoStart = false;  
     parameters = [
       { name = "topic"; description = "Topic to subscribe to"; default = "quack"; }
       { name = "base_urlFile"; description = ""; default = config.sops.secrets.ntfy-url.path; }
