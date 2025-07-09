@@ -129,6 +129,7 @@ in { # 🦆 says ⮞ Options for da house
             "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; endpoint = 1; };
             # 🦆 says ⮞ HALLWAY
             "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
+            "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; room = "hallway"; type = "sensor"; endpoint = 1; };
             "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; endpoint = 11; };
             "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; endpoint = 1; };
             # 🦆 says ⮞ WC
@@ -144,6 +145,8 @@ in { # 🦆 says ⮞ Options for da house
             "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ THATS TOO FAST!!
             "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
             # 🦆 says ⮞ MISCELLANEOUS
+            "0xa4c1382553627626" = { friendly_name = "Power Plug"; room = "other"; type = "powerplug"; endpoint = 1; };
+            "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "powerplug"; endpoint = 1; };
             "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; endpoint = 1; };
             "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
             "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };

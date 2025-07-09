@@ -180,6 +180,24 @@ EOF
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
       BACKUP_ID=""
       BACKUP_TMP_FILE=""
+      LARMED_FILE="$STATE_DIR/security_state.json"
+
+      set_larmed() {
+        local state="$1"
+        jq -n --argjson val "$state" '{larmed: $val}' > "$LARMED_FILE"
+        mqtt_pub -t "zigbee2mqtt/security/state" -m "$(cat "$LARMED_FILE")"
+      }
+
+      get_larmed() {
+        if [ -f "$LARMED_FILE" ]; then
+          jq -r '.larmed // false' "$LARMED_FILE"
+        else
+          echo "false"
+        fi
+      }
+
+      LARMED=$(jq -r '.larmed // false' "$LARMED_FILE" 2>/dev/null || echo "false")
+
       # 🦆 says ⮞ zigbee coordinator backup function
       perform_zigbee_backup() {
         BACKUP_ID="zigbee_backup_$(date +%Y%m%d_%H%M%S)"
@@ -192,7 +210,7 @@ EOF
         local line="$1"
         local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')        
         if [ "$backup_id" != "$BACKUP_ID" ]; then
-          dt_debug "🦆 ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
+          dt_debug "ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
           return
         fi      
         local status=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.status')
@@ -200,14 +218,16 @@ EOF
           echo "$line" | ${pkgs.jq}/bin/jq -r '.data.backup' > "$BACKUP_TMP_FILE"
           dt_debug "Encrypting Zigbee coordinator backup with sops..."   
           if "''${config.pkgs.yo}/bin/yo-sops" "$BACKUP_TMP_FILE" > "${backupEncryptedFile}"; then
-            say_duck "✅ Backup saved to: ${backupEncryptedFile}"
+            dt_info "Backup saved to: ${backupEncryptedFile}"
           else
             say_duck "fuck ❌ Encryption failed for zigbee coordinator backup!"
+            dt_critical "Encryption failed for zigbee coordinator backup!"
           fi
           rm -f "$BACKUP_TMP_FILE"
         else
           local error_msg=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.error')
           say_duck "❌ Backup failed: $error_msg"
+          dt_critical "Backup failed: $error_msg"
         fi    
         # 🦆 says ⮞ reset states
         BACKUP_ID=""
@@ -228,23 +248,79 @@ EOF
           if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
           # 🦆 says ⮞ trigger backup from MQTT
           if [ "$topic" = "zigbee2mqtt/backup/request" ]; then perform_zigbee_backup; fi
- 
+
+          # 🦆 says ⮞ 🚨 alarm
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("security")' > /dev/null; then 
+            if [ "$LARMED " = "true" ]; then
+              dt_info "Larmed apartment"
+              yo notify "Larm på"
+            fi
+          fi
+     
           # 🦆 says ⮞ 🕵️ quick quack motion detect
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
             device_check            
             if [ "$occupancy" = "true" ]; then
-              say_duck "🕵️ Motion in $device_name $dev_room"
+              dt_info "🕵️ Motion in $device_name $dev_room"
               # 🦆 says ⮞ If current time is within motion > light timeframe - turn on lights
               if is_dark_time; then
                 room_lights_on "$room"
                 reset_room_timer "$room"
-                else
-                  dt_debug "❌ Daytime - no lights activated by motion."
+              else
+                dt_debug "❌ Daytime - no lights activated by motion."
               fi
             else
               dt_debug "🛑 No more motion in $device_name $dev_room"            
             fi
           fi
+
+          # 🦆 says ⮞ 💧 water sensor
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("water_leak")' > /dev/null; then
+            device_check            
+            if [ "$water_leak " = "true" ]; then
+              dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_nam"
+              yo notify "💧 WATER LEAK DETECTED in $dev_room on $device_nam"
+              sleep 15
+              yo notify "WATER LEAK DETECTED in $dev_room on $device_nam"
+              dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_nam"       
+            fi
+          fi
+          
+          # 🦆 says ⮞ 🚪 door and window sensor yo 
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
+            device_check            
+            if [ "$contact " = "false" ]; then
+              dt_info "🚪 Door open in $dev_room  ( $device_nam )"
+              if [ "$LARMED " = "true" ]; then
+                dt_critical "🚪 Door open in $dev_room  ( $device_nam )"  
+                yo notify "Door open in $dev_room !"
+                sleep 15
+                yo notify "Door open in $dev_room !"
+              fi       
+            fi
+          fi          
+
+          # 🦆 says ⮞ 🪟 BLIND & shaderz
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("position")' > /dev/null; then
+            device_check            
+            if [ "$position" = "0" ]; then
+              dt_info "🪟 Rolled DOWN $device_name in $dev_room"
+            fi     
+            if [ "$position" = "100" ]; then
+              dt_info "🪟 Rolled UP $device_name in $dev_room"
+            fi
+          fi     
+
+          # 🦆 says ⮞ 🔌 power plugz & energy meterz
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("state")' > /dev/null; then
+            device_check            
+            if [ "$state" = "ON" ]; then
+              dt_info "🔌 $device_name Turned ON in $dev_room"
+            fi       
+            if [ "$state" = "OFF" ]; then
+              dt_info "🔌 $device_name Turned OFF in $dev_room"
+            fi  
+          fi  
 
           # 🦆 says ⮞ 🎚 Dimmer Switch actions
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("action")' > /dev/null; then
@@ -255,12 +331,12 @@ EOF
             # 🦆 says ⮞ yo homie, turn the fan on when grillin'
             if [ "$clean_room" == "kitchen" ]; then mqtt_pub -t "zigbee2mqtt/Fläkt/set" -m '{"state":"ON"}'; fi
             fi
-            if [ "$action" == "on_hold_release" ]; then scene "max" && say_duck "✅💡 MAX LIGHTS ON"; fi
+            if [ "$action" == "on_hold_release" ]; then scene "max" && dt_debug "✅💡 MAX LIGHTS ON"; fi
             if [ "$action" == "up_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
                 ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                   while read -r light_id; do
-                    say_duck "🔺 Increasing brightness on $light_id in $clean_room"
+                    dt_debug "🔺 Increasing brightness on $light_id in $clean_room"
                     mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":50,"transition":3.5}'
                   done
             fi
@@ -269,13 +345,13 @@ EOF
               clean_room=$(echo "$dev_room" | sed 's/"//g')
               ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                 while read -r light_id; do
-                  say_duck "🔻 Decreasing $light_id in $clean_room"
+                  dt_debug "🔻 Decreasing $light_id in $clean_room"
                   mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":-50,"transition":3.5}'
                 done
             fi
             if [ "$action" == "down_hold_release" ]; then dt_debug "$action"; fi
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
-            if [ "$action" == "off_hold_release" ]; then scene "dark" && say_duck "🚫 DARKNESS ON"; fi
+            if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "🚫 DARKNESS ON"; fi
           fi
         done
       }
