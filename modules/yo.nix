@@ -549,9 +549,6 @@ EOF
             ''}
           '') script.parameters)}
 
-          # 🦆 duck say ⮞ execute other yo scripts (when everying else fails)  
-          run_yo() { ${yoScriptRunner}/bin/yo-run "$@"; }
-
           # 🦆 duck say ⮞ EXECUTEEEEEAAAOO 🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆yo
           ${script.code}
         '';
@@ -611,14 +608,6 @@ EOF
     ) sortedCategories;
   in concatStringsSep "\n" rows;
 
-  # 🦆 duck say ⮞ ... for edge cases wen normal execution do not work yo
-  yoScriptRunner = pkgs.writeShellScriptBin "yo-run" ''
-    if [[ -n "$YO_STORE" ]]; then
-      exec "$YO_STORE/bin/yo-$1" "''${@:2}"
-    else
-      exec yo "$@"
-    fi
-  '';  
 in { # 🦆 duck say ⮞ options options duck duck
   options = { # 🦆 duck say ⮞ 
     yo = {
@@ -804,7 +793,8 @@ in { # 🦆 duck say ⮞ options options duck duck
       lib.nameValuePair "yo-${name}" (mkIf script.autoStart {
         enable = true;
         wantedBy = ["multi-user.target"];
-        after = ["sound.target" "network.target"  "pulseaudio.socket"];
+        after = ["sound.target" "network.target"  "pulseaudio.socket" "sops-nix.service"];
+        requires = [ "sops-nix.service" ];
         serviceConfig = {
           ExecStart = let
             args = lib.concatMapStringsSep " " (param:

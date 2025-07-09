@@ -52,7 +52,8 @@ in {
        }
 
        bootstrap_mode=false
-       result=$(ssh -p "$port" "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
+#       result=$(ssh -p "$port" "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
+       result=$(ssh -T -p "$port" "$user@$host" "bash --noprofile --norc -c '[ -d \"$flake/.git\" ] && echo true || echo false'")
        if [ "$result" = "true" ]; then
          run_cmd echo "✅ Dotfiles repo exists on $host"
        else
