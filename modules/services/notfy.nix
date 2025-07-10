@@ -39,8 +39,8 @@ in {
     networking.firewall.allowedTCPPorts = [ 9913 ];
 
 
-    sops.secrets = lib.mkIf (lib.elem "notfy" config.this.host.modules.services) {
-        ntfy-private = {
+    sops.secrets = {
+        ntfy-private = lib.mkIf (lib.elem "notfy" config.this.host.modules.services) {
             sopsFile = ./../../secrets/ntfy-private.yaml;
             owner = "ntfy-sh";
             group = "ntfy-sh";
@@ -54,8 +54,9 @@ in {
         };
     };
     
-    systemd.services.ntfy-setup = lib.mkIf (lib.elem "notfy" config.this.host.modules.services) {
+    systemd.services.ntfy-setup = {
         wantedBy = [ "multi-user.target" ];
+        after = [ "sops-nix.service" ];
         preStart = ''
             mkdir -p /var/lib/ntfy-sh
             touch /var/lib/ntfy-sh/baseurl

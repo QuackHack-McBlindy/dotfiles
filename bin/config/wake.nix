@@ -12,12 +12,12 @@ in { # 🦆 says ⮞ .. nuthin' in?
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
     category = "⚙️ Configuration"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
-    autoStart = config.this.host.hostname == [ "desktop" "nasty" ];
+    autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" ];
     logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
       { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "30"; }
-      { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav";  } 
+      { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}

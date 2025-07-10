@@ -11,6 +11,7 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
   yo.scripts.notify = { 
     description = "Send Notifications eazy as-quick quack done";
     category = "🌐 Networking";
+    autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "message"; description = "Notification content"; optional = false; }    
@@ -33,7 +34,8 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
     description = "Listener for notifications and run actions";
     category = "🌐 Networking";
     logLevel = "DEBUG";
-    autoStart = false;  
+#    autoStart = false;  
+    autoStart = builtins.elem config.this.host.hostname [ "desktop" "homie" ];
     parameters = [
       { name = "topic"; description = "Topic to subscribe to"; default = "quack"; }
       { name = "base_urlFile"; description = ""; default = config.sops.secrets.ntfy-url.path; }

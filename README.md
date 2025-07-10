@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/cmi698xsbyq2j2yymqqsiigwfnnmw90j-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/jdbr6q1d4mja8yqxcr8gxk2lk6jvyjxc-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -331,7 +331,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo bitch --input` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
-| `yo say --text [--model] [--modelDir] [--silence]` |  | Text to speech with built in language detection and automatic model downloading |
+| `yo say --text [--model] [--modelDir] [--silence] [--host]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--debug]` |  | Automated unit testing |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |

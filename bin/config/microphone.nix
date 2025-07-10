@@ -12,14 +12,11 @@
   
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  transcriptionHost = lib.findSingle
+  transcriptionHost = lib.findFirst
     (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.yo.scripts.transcribe.autoStart or false
-    )
-    null
-    null
-    sysHosts;
+    ) null sysHosts;
   transcriptionHostIP = if transcriptionHost != null then
     self.nixosConfigurations.${transcriptionHost}.config.this.host.ip
   else
