@@ -10,8 +10,7 @@
 
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
-  # 🦆 says ⮞ Verbose logging 
-  dt_debug = false;
+
   # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
 
@@ -113,6 +112,22 @@
   mappingJSON = builtins.toJSON ieeeToFriendly;
   mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
 
+  # 🦆 says ⮞ 
+#  networkkey = ''
+#    "@NETWORKKEY@"
+#  '';
+#;
+#  networkkeyFile = 
+#    pkgs.runCommand "networkkeyFile"
+#      { preferLocalBuild = true; }
+#      ''
+#        cat > $out <<EOF
+#${networkkey}
+#EOF
+#      '';
+#  networkkeyRaw = builtins.readFile ./../../networkkey;
+#  networkkeyCleaned = lib.strings.removeSuffix "\n" networkkeyRaw;
+ 
   # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
   deviceMeta = builtins.toJSON (
     lib.listToAttrs (
@@ -378,6 +393,12 @@ EOF
       group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
+    zigbee_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
+      sopsFile = ./../../secrets/zigbee-network-key.json; 
+      owner = "zigbee2mqtt";
+      group = "zigbee2mqtt";
+      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+    };  
     z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
       sopsFile = ./../../secrets/z2m_mosquitto.yaml; 
       owner = "zigbee2mqtt";
@@ -449,11 +470,13 @@ EOF
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
-          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it, decrypt and use da real deal down below yo
-          network_key = [ # 🦆 says ⮞ placeholder net yo
-              86 208 29 190 33 225 60 93
-              199 70 36 29 123 129 73 40
-            ];
+          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo
+          network_key = 
+            let
+              json = builtins.fromJSON (builtins.readFile config.sops.secrets.zigbee_network_key.path);
+            in
+              json.zigbee_network_key;
+
             pan_id = 60410;
           };
           device_options = { legacy = false; };
@@ -580,7 +603,7 @@ EOF
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];
-    after = [ "network.target" ];
+    after = [ "sops-nix" "network.target" ];
 #    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
@@ -613,4 +636,9 @@ EOF
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤
+
+
+
+
+ 
 

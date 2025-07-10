@@ -33,6 +33,9 @@
     import subprocess
     import shutil
     import noisereduce as nr 
+    import logging
+    logging.basicConfig(level=logging.INFO)
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8000)
     parser.add_argument('--model', type=str, default='medium')
@@ -63,7 +66,9 @@
                 temperature=0.0,
                 beam_size=args.beamSize,
             )
-            return {"transcription": " ".join(segment.text for segment in segments)}
+            transcription = " ".join(segment.text for segment in segments)
+            logging.info(f"[transcription] {transcription}")
+            return {"transcription": transcription}
  
     # 🦆 says ⮞ handle certs
     ssl_params = {}
@@ -133,7 +138,14 @@ in { # 🦆 says ⮞ yo yo yo yo
         --device "$DEVICE" \
         --beamSize "$BEAMSIZE" \
         --cert "$CERT" \
-        --key "$KEY"                
+        --key "$KEY"            
+        --key "$KEY" 2>&1 | while IFS= read -r line; do
+          if echo "$line" | grep -q "\[transcription\]"; then
+            dt_debug "Transcribed: ''${line#*\[transcription\] }"
+          else
+            echo "$line"
+          fi
+        done
     '';
   };
 

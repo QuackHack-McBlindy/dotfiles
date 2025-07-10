@@ -7,7 +7,6 @@
     ...
 } : let # 🦆 duck say ⮞ grabbin' some of dat sweet sweet nix option for fancy fancy configz
   inherit (lib) types mkOption mkEnableOption mkMerge;
-
   # 🦆 duck say ⮞ recursive nix importer — let'z waddle throu' them dirz through the reeds
   importModulesRecursive = dir: 
     let
@@ -88,8 +87,12 @@
     # 🦆 says ⮞ log levels (in order of most critical)
     dt_debug() {
       local elapsed_time=$(elapsed_since_start)
-      _dt_log "DEBUG" "⁉️" "$BLUE" "+$elapsed_time s $1"
-    }    
+      local elapsed_text=""
+      if (( $(echo "$elapsed_time < 10000" | bc -l) )); then
+        elapsed_text="+$elapsed_time s "
+      fi
+      _dt_log "DEBUG" "⁉️" "$BLUE" "''${elapsed_text}$1"
+    }
     dt_info() {
       _dt_log "INFO" "✅" "$GREEN" "$1"
     }
@@ -236,12 +239,19 @@
     }
     # 🦆 says ⮞ device parser for zigduck
     device_check() { 
-      occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && debug "occupancy: $occupancy"
-      action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action') && debug "action: $action"
-      device_name="''${topic#zigbee2mqtt/}" && debug "device_name: $device_name"
-      dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && debug "dev_room: $dev_room"
-      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && debug "dev_type: $dev_type"     
-      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && debug "dev_id: $dev_id"  
+#      occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && dt_debug "occupancy: $occupancy"
+#      action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action') && dt_debug "action: $action"
+      occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '."occupancy" // empty') && dt_debug "occupancy: $occupancy"
+      action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '."action" // empty') && dt_debug "action: $action"
+      contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '."contact" // empty') && dt_debug "contact: $contact"
+      position=$(echo "$line" | ${pkgs.jq}/bin/jq -r '."position" // empty') && dt_debug "position: $position"
+      state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '."state" // empty') && dt_debug "state: $state"
+      water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '."water_leak" // empty') && dt_debug "water_leak: $water_leak"
+
+      device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
+      dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
+      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
+      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
       room="''${dev_room//\"/}"
     }
     # 🦆 says ⮞ turn on specified room

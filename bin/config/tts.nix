@@ -41,10 +41,11 @@ in { # 🦆 says ⮞ yo yo yo yo
           TMP_WAV=$(mktemp --suffix=.wav)
           trap 'rm -f "$TMP_WAV"' EXIT
           echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
-          aplay "$TMP_WAV" >/dev/null 2>&1
+          ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
         ) &
       else
-        ssh "$HOST" yo say \
+                   
+        ${pkgs.openssh}/bin/ssh "$HOST" yo say \
           --text "$(printf '%q' "$INPUT")" \
           --model "$(printf '%q' "$MODEL")" \
           --modelDir "$(printf '%q' "$MODEL_DIR")" \
