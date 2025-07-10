@@ -393,12 +393,12 @@ EOF
       group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
-    zigbee_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
-      sopsFile = ./../../secrets/zigbee-network-key.json; 
-      owner = "zigbee2mqtt";
-      group = "zigbee2mqtt";
-      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    };  
+#    zigbee_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
+#      sopsFile = ./../../secrets/zigbee-network-key.json; 
+#      owner = "zigbee2mqtt";
+#      group = "zigbee2mqtt";
+#      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+#    };  
     z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
       sopsFile = ./../../secrets/z2m_mosquitto.yaml; 
       owner = "zigbee2mqtt";
@@ -471,12 +471,8 @@ EOF
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
           # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo
-          network_key = 
-            let
-              json = builtins.fromJSON (builtins.readFile config.sops.secrets.zigbee_network_key.path);
-            in
-              json.zigbee_network_key;
-
+          network_key = lib.mkForce null;
+           
             pan_id = 60410;
           };
           device_options = { legacy = false; };
@@ -603,7 +599,7 @@ EOF
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];
-    after = [ "sops-nix" "network.target" ];
+    after = [ "sops-nix.service" "network.target" ];
 #    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
@@ -611,27 +607,27 @@ EOF
       mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
       sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-#      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
-#      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
-#      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
+      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
         # 🦆 says ⮞ match line starting with whitespace + network_key
-#        /^[[:space:]]*network_key:[[:space:]]*$/ {
-#          print
-#          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
-#          while ((getline < keyfile) > 0) {
-#            print indent "  " $0
-#          }
-#          close(keyfile)
-#          skip = 1
-#          next
-#        }
+        /^[[:space:]]*network_key:[[:space:]]*$/ {
+          print
+          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
+          while ((getline < keyfile) > 0) {
+            print indent "  " $0
+          }
+          close(keyfile)
+          skip = 1
+          next
+        }
         # 🦆 says ⮞ stop skipping when non indented key come by duck
-#        skip && /^[^[:space:]]/ { skip = 0 }
-#        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
-#        skip { next }
-#        { print }
-#      ' "$CFGFILE" > "$TMPFILE"  
-#      mv "$TMPFILE" "$CFGFILE"    
+        skip && /^[^[:space:]]/ { skip = 0 }
+        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
+        skip { next }
+        { print }
+      ' "$CFGFILE" > "$TMPFILE"  
+      mv "$TMPFILE" "$CFGFILE"    
     ''; # 🦆 says ⮞ thnx fo quackin' along! 💫⭐
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
