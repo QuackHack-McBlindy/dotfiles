@@ -807,10 +807,10 @@ in { # 🦆 duck say ⮞ options options duck duck
           Restart = "on-failure";
           Environment = [ # 🦆 ⮞ for microphone
             "XDG_RUNTIME_DIR=/run/user/1000"
+            "XDG_RUNTIME_DIR=/run/user/1002"
             "PULSE_SERVER=unix:%t/pulse/native"
             "HOME=/home/${config.this.user.me.name}"
             "PATH=/run/current-system/sw/bin:/bin:/usr/bin"
-            "YO_STORE=${yoScriptsPackage}"
             "PATH=${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
           ];
         };

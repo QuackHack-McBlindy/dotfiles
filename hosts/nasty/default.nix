@@ -54,7 +54,7 @@ in {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" ];
                 networking = [ "default" "caddy" ];
-                services = [ "ssh" "adb" "backup" "borg" ];
+                services = [ "ssh" "adb" "backup" "borg" "navidrome" ];
                 programs = [ "default" ];
                 virtualisation = [ "docker-rootless" "arr" ];
             };  
