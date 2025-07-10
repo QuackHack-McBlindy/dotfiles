@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/6j198qb6d688zrinxjmwg93q0gnlk4q7-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9vilfi1dk2kd78g1v7laj9izj1i9rv0w-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -335,7 +335,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo tests [--debug]` |  | Automated unit testing |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
-| `yo wake [--threshold] [--cooldown] [--sound]` |  | Run Wake word detection for audio recording and transcription |
+| `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
 | `yo askDuck --question [--area] [--minScoreThreshold] [--phrasesFilePath] [--searchDepth] [--fallback] [--loop]` | duck | Ask da duck any question - Quacktastic assistant |
 | `yo calculator --expression` | calc | Calculate math expressions |

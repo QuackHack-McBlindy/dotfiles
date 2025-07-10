@@ -6,7 +6,10 @@
   pkgs,
   cmdHelpers,
   ... 
-} : let # 🦆 says ⮞ dependencies  
+} : let
+  transcriptionAutoStart = config.yo.scripts.transcribe.autoStart or false;
+
+  # 🦆 says ⮞ dependencies  
   environment.systemPackages = [ pkgs.alsa-utils pkgs.whisper-cpp ];  
   pyEnv = pkgs.python3.withPackages (ps: [
     ps.fastapi
@@ -135,7 +138,8 @@ in { # 🦆 says ⮞ yo yo yo yo
   };
 
   # 🦆 says ⮞ firewall rulez
-  networking.firewall = lib.mkIf (lib.elem "whisperd" config.this.host.modules.services) { allowedTCPPorts = [ 25451 ]; };
+  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 ]; };
+ 
   } # 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  
 
