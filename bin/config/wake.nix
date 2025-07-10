@@ -31,7 +31,19 @@ in {
       WAKE_COOLDOWN="$cooldown"
       AWAKE_SOUND="$sound"
       LAST_TRIGGER_TIME=0
+      REMOTE_SOUND="$remoteSound"
 
+      # 🦆 says ⮞ playz sound on detection
+
+      play_wav() {
+        if [ "$REMOTE_SOUND" = "$HOSTNAME" ]; then
+          ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1
+        else
+          ${pkgs.openssh}/bin/ssh -o ConnectTimeout=3 "$REMOTE_SOUND" \
+            ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1
+        fi
+      }
+      
       # 🦆 says ⮞ startz up a fake satellite as a background process to establish connection to openwakeword 
       wakeword_connection() { # 🦆 says ⮞ requred to read da probability threashold
         ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
@@ -42,14 +54,6 @@ in {
           --wake-uri tcp://0.0.0.0:10400 &
         SATELLITE_PID=$!            
       }      
-      # 🦆 says ⮞ playz sound on detection
-      play_wav() {
-        if [ "$remoteSound" = "$HOSTNAME" ]; then
-          ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1
-        else
-          ${pkgs.openssh}/bin/ssh "$remoteSound" ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1
-        fi
-      }
 
       # 🦆 says ⮞ start the connection letz uz read probability yo
       wakeword_connection
@@ -77,7 +81,7 @@ in {
                   # 🦆 says ⮞ put sum duck tracin' in da logz 
                   dt_info "⚠️ [Wake Word] Detected! Probability: $probability."
                   # 🦆 says ⮞ play sound
-                  play_wav "$AWAKE_SOUND"
+                  play_wav
                   # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
                   TRANSCRIPTION=$(yo-mic)
                 
