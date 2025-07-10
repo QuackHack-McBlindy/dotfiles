@@ -6,9 +6,9 @@
   pkgs,
   cmdHelpers,
   ... 
-} : let # 🦆 says ⮞ let ...
-in { # 🦆 says ⮞ .. nuthin' in?
-# 🦆 says ⮞ dat'z strange... but ok yo
+} : let
+  wakeAutoStart = config.yo.scripts.wake.autoStart or false;
+in { 
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
     category = "⚙️ Configuration"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
@@ -94,17 +94,17 @@ in { # 🦆 says ⮞ .. nuthin' in?
   };
 
   # 🦆 says ⮞ duckz hatez rulez - but dat firewall rulez iz all good yo
-  networking.firewall = lib.mkIf (lib.elem "wake" config.this.host.modules.services) { allowedTCPPorts = [ 10400 10700 ]; };
+  networking.firewall = lib.mkIf wakeAutoStart { allowedTCPPorts = [ 10400 10700 ]; };
     
   # 🦆 says ⮞ dependencies
-  environment.systemPackages = lib.mkIf (lib.elem "wake" config.this.host.modules.services) [
+  environment.systemPackages = lib.mkIf wakeAutoStart [
     pkgs.wyoming-openwakeword
     pkgs.wyoming-satellite
     pkgs.alsa-utils  
   ];  
   
-  # 🦆 says ⮞ hero of da day
-  services.wyoming.openwakeword = lib.mkIf (lib.elem "wake" config.this.host.modules.services) { # 🦆 says ⮞ again -- server config on single host
+  # 🦆 says ⮞ How do I change this lib.mkIf statement to use if wakeAutoStart is true instead?
+  services.wyoming.openwakeword = lib.mkIf wakeAutoStart {
     enable = true;
     uri = "tcp://0.0.0.0:10400";
     preloadModels = [ "yo_bitch" ]; # 🦆 says ⮞ mature....

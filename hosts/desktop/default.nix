@@ -74,7 +74,7 @@
             modules = {
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-                networking = [ "default" "pool" "wg-server" ];
+                networking = [ "default" "pool" ];
                 services = [ "ssh" "adb" "backup" "cache" "keyd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
