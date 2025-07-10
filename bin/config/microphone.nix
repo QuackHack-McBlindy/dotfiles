@@ -2,12 +2,28 @@
 { # 🦆 says ⮞ Records audio from microphone input and sends to yo transcription.
   config, 
   lib,
+  self,
   pkgs,       # 🦆 says ⮞ create a noise profile
   cmdHelpers, # 1. arecord -d 5 -f S16_LE -r 16000 -c 1 noise.wav
   ...         # 2. sox noise.wav -n noiseprof noise.prof
 } : let 
   # 🦆 says ⮞ auto correct list yo 
   autocorrect = import ./../autoCorrect.nix;
+  
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  transcriptionHost = lib.findSingle
+    (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.yo.scripts.transcribe.autoStart or false
+    )
+    null
+    null
+    sysHosts;
+  transcriptionHostIP = if transcriptionHost != null then
+    self.nixosConfigurations.${transcriptionHost}.config.this.host.ip
+  else
+    "0.0.0.0";
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {
       description = "Trigger microphone recording sent to transcription.";
@@ -15,8 +31,9 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
       logLevel = "CRITICAL";
       parameters = [ # 🦆 says ⮞ some paramz to know where to pass audio
         { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit 
-        { name = "host"; description = "Host ip that has transcription"; default = "0.0.0.0"; } # 🦆 says ⮞ set default values to avoid manual param wen executin'
+        { name = "host"; description = "Host ip that has transcription"; default = transcriptionHostIP; } # 🦆 says ⮞ set default values to avoid manual param wen executin'
         { name = "seconds"; description = "How many seconds to record before sending for transcription"; default = "5"; }
+#        { name = "device"; description = "Input device used for recording"; default = "hw:1,0"; }
 #        { name = "beamSize"; description = "Beam size for transcription"; default = "5"; }
       ];  
       code = ''
@@ -25,6 +42,7 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         FORMAT="S16_LE"
         CHANNELS="1"
         HOST="$host"
+#        DEVICE="$device"
         PORT="$port"
         SECONDS_RECORDING="$seconds"
         AUDIO_FILE="$(${pkgs.coreutils}/bin/mktemp --suffix=.raw)"

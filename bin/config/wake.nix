@@ -12,7 +12,7 @@ in { # 🦆 says ⮞ .. nuthin' in?
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
     category = "⚙️ Configuration"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
-    autoStart = config.this.host.hostname == "desktop";
+    autoStart = config.this.host.hostname == [ "desktop" "nasty" ];
     logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }

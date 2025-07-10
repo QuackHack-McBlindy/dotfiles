@@ -109,7 +109,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "gpu/amd" "audio" ];
     networking = [ "default" "pool" "wg-server" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "adb" "backup" "cache" "keyd" "wake" "whisperd" "navidrome" ];
+    services = [ "ssh" "adb" "backup" "cache" "keyd" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ki2sd4lpz8pfai3xvrwxd3z20svfxjk7-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/cmi698xsbyq2j2yymqqsiigwfnnmw90j-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
