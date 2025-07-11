@@ -48,7 +48,7 @@ in {
                         "8686:8686"       # Lidarr:
                         "8787:8787"       # Readarr:
                         "6767:6767"       # Bazarr:
-                        "4533:4533"       # Navidrome:
+#                        "4533:4533"       # Navidrome:
                         "5055:5055"       # Jellyseer:
                         "4545:4545"       # Requestrr:
                         "9696:9696"       # Prowlarr
