@@ -1,4 +1,5 @@
-{ 
+# dotfiles/modules/virtualisation/gluetun.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ Containerized VPN connection
   config,
   lib,
   pkgs,

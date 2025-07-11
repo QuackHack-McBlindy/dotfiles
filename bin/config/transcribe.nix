@@ -96,7 +96,6 @@ in { # 🦆 says ⮞ yo yo yo yo
     ];
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
-      export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy
       PORT="$port"
       MODEL="$model"
       BEAMSIZE="$beamSize"

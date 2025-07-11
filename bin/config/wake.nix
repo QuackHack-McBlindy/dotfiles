@@ -35,12 +35,12 @@ in {
 
       # 🦆 says ⮞ playz sound on detection
       play_wav() {
-#        if [ "$REMOTE_SOUND" = "$HOSTNAME" ]; then
-        ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
-#        else
-#          ${pkgs.openssh}/bin/ssh -o ConnectTimeout=3 "$REMOTE_SOUND" \
-#            ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
-#        fi
+        if [ "$REMOTE_SOUND" = "$HOSTNAME" ]; then
+          ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
+        else
+          ${pkgs.openssh}/bin/ssh -o ConnectTimeout=3 "$REMOTE_SOUND" \
+            ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
+        fi
       }
       
       # 🦆 says ⮞ startz up a fake satellite as a background process to establish connection to openwakeword 
@@ -53,8 +53,6 @@ in {
           --wake-uri tcp://0.0.0.0:10400 &
         SATELLITE_PID=$!            
       }      
-
-
 
       # 🦆 says ⮞ start the connection letz uz read probability yo
       wakeword_connection

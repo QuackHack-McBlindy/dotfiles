@@ -28,7 +28,7 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
       logLevel = "CRITICAL";
       parameters = [ # 🦆 says ⮞ some paramz to know where to pass audio
         { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit 
-        { name = "host"; description = "Host ip that has transcription"; default = transcriptionHostIP; } # 🦆 says ⮞ set default values to avoid manual param wen executin'
+        { name = "host"; description = "Host ip that has transcription"; default = transcriptionHostIP; }
         { name = "seconds"; description = "How many seconds to record before sending for transcription"; default = "5"; }
 #        { name = "device"; description = "Input device used for recording"; default = "hw:1,0"; }
 #        { name = "beamSize"; description = "Beam size for transcription"; default = "5"; }

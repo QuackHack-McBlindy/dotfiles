@@ -168,7 +168,6 @@ EOF
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
-      export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}" && dt_debug "$MQTT_BROKER"

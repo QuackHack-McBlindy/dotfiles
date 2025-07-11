@@ -415,14 +415,13 @@ EOF
           ${yoEnvGenVar script} # 🦆 duck say ⮞ inject da env quack quack.... quack
           export LC_NUMERIC=C
           start=$(date +%s.%N)
-          trap 'end=$(date +%s.%N); elapsed=$(echo "$end - $start" | bc); printf "[🦆⏱] Total time: %.3f seconds\n" "$elapsed"' EXIT
+#          trap 'end=$(date +%s.%N); elapsed=$(echo "$end - $start" | bc); printf "[🦆⏱] Total time: %.3f seconds\n" "$elapsed"' EXIT
           export DT_LOG_PATH="$HOME/.config/duckTrace/"
           mkdir -p "$DT_LOG_PATH"   
           export DT_LOG_FILE="${name}.log" # 🦆 duck say ⮞ duck tracin' be namin' da log file for da ran script
           touch "$DT_LOG_PATH/$DT_LOG_FILE"
           export DT_LOG_LEVEL="${script.logLevel}" # 🦆 duck say ⮞ da tracin' duck back to fetch da log level yo
-          export PATH="$PATH:/run/current-system/sw/bin" # 🦆 says ⮞ annoying but easy      
-          
+
           # 🦆 duck say ⮞ PHASE 1: preprocess special flagz woop woop
           VERBOSE=0
           DRY_RUN=false
@@ -814,8 +813,7 @@ in { # 🦆 duck say ⮞ options options duck duck
             }"
             "PULSE_SERVER=unix:%t/pulse/native"
             "HOME=/home/${config.this.user.me.name}"
-            "PATH=/run/current-system/sw/bin:/bin:/usr/bin"
-            "PATH=${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
+            "PATH=/run/current-system/sw/bin:/bin:/usr/bin:${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
           ];
         };
       })
