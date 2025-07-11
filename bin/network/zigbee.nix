@@ -1,11 +1,11 @@
 # dotfiles/bin/network/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 💫  
+{ # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 
   self, 
-  lib, # 🦆 says ⮞ 📌 FEATURES:
-  config,     # 🦆 says ⮞ ⭐Autoconfigures: Lights, Zigbee Coordinator+encrypted backup, Dimmers, Scenes, Automations, Power Switches, Motion+Sensors, Blinds, etc.. 
-  pkgs,       # 🦆 says ⮞ ⭐ Display Battery Dashboard in Markdown within `--help` command in CLI
-  cmdHelpers, # 🦆 says ⮞ ⭐  etc, etc, etc... 
-  ... # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
+  lib, 
+  config, # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
+  pkgs,
+  cmdHelpers,
+  ... 
 } : let # yo follow 🦆 home – ⬇⬇ 🦆 says diz way plz? quack quackz
 
   # 🦆 says ⮞ Directpry  for this configuration 
@@ -111,22 +111,6 @@
   ieeeToFriendly = lib.mapAttrs (ieee: dev: dev.friendly_name) zigbeeDevices;
   mappingJSON = builtins.toJSON ieeeToFriendly;
   mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
-
-  # 🦆 says ⮞ 
-#  networkkey = ''
-#    "@NETWORKKEY@"
-#  '';
-#;
-#  networkkeyFile = 
-#    pkgs.runCommand "networkkeyFile"
-#      { preferLocalBuild = true; }
-#      ''
-#        cat > $out <<EOF
-#${networkkey}
-#EOF
-#      '';
-#  networkkeyRaw = builtins.readFile ./../../networkkey;
-#  networkkeyCleaned = lib.strings.removeSuffix "\n" networkkeyRaw;
  
   # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
   deviceMeta = builtins.toJSON (
@@ -177,7 +161,7 @@ $(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
 ## ──────⋆⋅☆⋅⋆────── ##
 EOF
     '';
-    logLevel = "DEBUG";
+    logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
@@ -393,12 +377,6 @@ EOF
       group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
-#    zigbee_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
-#      sopsFile = ./../../secrets/zigbee-network-key.json; 
-#      owner = "zigbee2mqtt";
-#      group = "zigbee2mqtt";
-#      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-#    };  
     z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
       sopsFile = ./../../secrets/z2m_mosquitto.yaml; 
       owner = "zigbee2mqtt";
@@ -470,9 +448,7 @@ EOF
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
-          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo
-          network_key = lib.mkForce null;
-           
+          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo - letz handle dat down below      
             pan_id = 60410;
           };
           device_options = { legacy = false; };
@@ -595,39 +571,41 @@ EOF
     '') 
   ];  
 
-
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];
     after = [ "sops-nix.service" "network.target" ];
-#    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
+    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack
       mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
-      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
+      # 🦆 says ⮞ Injecting password into config...
+      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml  
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
       TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
       CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+      # 🦆 says ⮞ starting awk decryption magic..."
       ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
-        # 🦆 says ⮞ match line starting with whitespace + network_key
-        /^[[:space:]]*network_key:[[:space:]]*$/ {
-          print
-          indent = substr($0, 1, match($0, /[^[:space:]]/) - 1)
-          while ((getline < keyfile) > 0) {
-            print indent "  " $0
+        /(^|[[:space:]])network_key:/ { found = 1 }
+
+        { lines[NR] = $0 }
+
+        END {
+          if (found) {
+            for (i = 1; i <= NR; i++) print lines[i]
+          } else {
+            print lines[1]
+            print "  network_key:"
+            while ((getline line < keyfile) > 0) {
+              print "    " line
+            }
+            close(keyfile)
+            for (i = 2; i <= NR; i++) print lines[i]
           }
-          close(keyfile)
-          skip = 1
-          next
         }
-        # 🦆 says ⮞ stop skipping when non indented key come by duck
-        skip && /^[^[:space:]]/ { skip = 0 }
-        # 🦆 says ⮞ while skipping, skip skip skip, oh man im so hiphop yo
-        skip { next }
-        { print }
-      ' "$CFGFILE" > "$TMPFILE"  
-      mv "$TMPFILE" "$CFGFILE"    
+      ' "$CFGFILE" > "$TMPFILE"      
+      mv "$TMPFILE" "$CFGFILE"
     ''; # 🦆 says ⮞ thnx fo quackin' along! 💫⭐
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!

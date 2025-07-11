@@ -37,10 +37,10 @@ in {
 
       play_wav() {
         if [ "$REMOTE_SOUND" = "$HOSTNAME" ]; then
-          ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1
+          ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
         else
           ${pkgs.openssh}/bin/ssh -o ConnectTimeout=3 "$REMOTE_SOUND" \
-            ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1
+            ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
         fi
       }
       
@@ -55,9 +55,15 @@ in {
         SATELLITE_PID=$!            
       }      
 
+      # 🦆 says ⮞ audio device reset function
+      reset_audio() {
+        ${pkgs.alsa-utils}/bin/alsactl restore >/dev/null 2>&1
+        sleep 0.5
+      }
+
       # 🦆 says ⮞ start the connection letz uz read probability yo
       wakeword_connection
-      
+      reset_audio      
       # 🦆 says ⮞ monitor da logz for detection yo
       while read -r line; do
         # 🦆 says ⮞ monitor wake word probability.. 
@@ -98,13 +104,16 @@ in {
                     export VOICE_MODE=1
                     # 🦆 says ⮞ yo bitch! take care of diz shit!
                     dt_info "yo bitch ⮞ $TRANSCRIPTION"
-                    yo-bitch --input "$TRANSCRIPTION"
+                    yo-bitch --input "$TRANSCRIPTION" &
                     # 🦆 says ⮞ nlp.nix take it from here yo
                     unset $VOICE_MODE
                   fi                                
               fi
           fi
       done < <(${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0)  
+      dt_error "Wake loop terminated! Restarting in 5 seconds..."
+      kill $SATELLITE_PID >/dev/null 2>&1
+      sleep 5
     '';
   };
 

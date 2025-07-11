@@ -414,6 +414,7 @@ EOF
 #          set -euo pipefail # 🦆 duck say ⮞ strict error handlin' yo - will exit on errorz
           ${yoEnvGenVar script} # 🦆 duck say ⮞ inject da env quack quack.... quack
           export LC_NUMERIC=C
+          export XDG_RUNTIME_DIR="/run/user/$(id -u ${config.this.user.me.name})"
           start=$(date +%s.%N)
           trap 'end=$(date +%s.%N); elapsed=$(echo "$end - $start" | bc); printf "[🦆⏱] Total time: %.3f seconds\n" "$elapsed"' EXIT
           export DT_LOG_PATH="$HOME/.config/duckTrace/"
@@ -806,8 +807,6 @@ in { # 🦆 duck say ⮞ options options duck duck
           RestartSec = 45;
           Restart = "on-failure";
           Environment = [ # 🦆 ⮞ for microphone
-            "XDG_RUNTIME_DIR=/run/user/1000"
-            "XDG_RUNTIME_DIR=/run/user/1002"
             "PULSE_SERVER=unix:%t/pulse/native"
             "HOME=/home/${config.this.user.me.name}"
             "PATH=/run/current-system/sw/bin:/bin:/usr/bin"
