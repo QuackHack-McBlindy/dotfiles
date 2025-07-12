@@ -12,8 +12,7 @@
         category = "⚙️ Configuration";
         aliases = [ "config" ];
         code = ''
-          ${cmdHelpers}
-        
+          ${cmdHelpers}       
           export GUM_CHOOSE_CURSOR="🦆 ➤ "  
           export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
           export GUM_CHOOSE_HEADER="❄️ yo CLI Tool" 
@@ -25,8 +24,7 @@
           validate_ip() {
             echo "$1" | grep -Eq '^([0-9]{1,3}\.){3}[0-9]{1,3}$'
           }
-
-                                                                                
+                                                                               
           validate_host() {
             if [[ ! " $sysHosts " =~ " $1 " ]]; then
               echo -e "\033[1;31m❌ Unknown host: $1\033[0m" >&2

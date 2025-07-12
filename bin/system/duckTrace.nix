@@ -18,7 +18,92 @@ in { # 🦆 says ⮞
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
       LOGFILE="$file"
+      unset BOLD ITALIC UNDERLINE    
       PAGER=''${PAGER:-less -R}
+      export GUM_CHOOSE_CURSOR="🦆 ➤ "  
+      export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
+      export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
+
+      get_service_name() {
+        local log_base
+        log_base=$(basename "$LOGFILE" .log)
+        # Remove yo.scripts prefix if present
+        if [[ "$log_base" == yo.scripts.* ]]; then
+          echo "yo-''${log_base#yo.scripts.}.service"
+        else
+          echo "yo-$log_base.service"
+        fi
+      }
+
+      systemd_log() {
+        local service
+        service=$(get_service_name)
+        ${pkgs.systemd}/bin/journalctl -u "$service" -f
+      }
+
+      restart_service() {
+        local service
+        service=$(get_service_name)
+        ${pkgs.systemd}/bin/systemctl restart "$service"
+        ${pkgs.gum}/bin/gum spin --spinner line --title "Restarting $service" -- sleep 2
+        ${pkgs.gum}/bin/gum format --theme=pink "# Service restarted!" 
+      }
+
+      start_service() {
+        local service
+        service=$(get_service_name)
+        ${pkgs.systemd}/bin/systemctl start "$service"
+        ${pkgs.gum}/bin/gum spin --spinner line --title "Starting $service" -- sleep 2
+        ${pkgs.gum}/bin/gum format --theme=green "# Service started!"
+      }
+
+      stop_service() {
+        local service
+        service=$(get_service_name)
+        ${pkgs.systemd}/bin/systemctl stop "$service"
+        ${pkgs.gum}/bin/gum spin --spinner line --title "Stopping $service" -- sleep 2
+        ${pkgs.gum}/bin/gum format --theme=red "# Service stopped!"
+      }
+
+      edit_script() {
+        local script_name
+        script_name=$(basename "$LOGFILE" .log)
+
+        script_name=''${script_name#yo.scripts.}
+        local script_path="$HOME/dotfiles/bin/$script_name.nix"
+        
+        if [[ -f "$script_path" ]]; then
+          ${pkgs.gum}/bin/gum format "# Editing $script_path"
+          ${pkgs.vim}/bin/vim "$script_path"
+        else
+          ${pkgs.gum}/bin/gum format --theme=red "# Script not found!"
+          ${pkgs.gum}/bin/gum format "Couldn't find: $script_path"
+        fi
+      }
+
+
+      menu() {
+        while true; do
+          selection=$(${pkgs.gum}/bin/gum choose \
+            "View systemd log" \
+            "Restart service" \
+            "Start service" \
+            "Stop service" \
+            "Print log" \
+            "Edit yo script" \
+            "🚫 Exit")
+         case "$selection" in
+            "View systemd log") systemd_log ;;            
+            "Restart service") restart_service ;;
+            "Start service") start_service ;;                 
+            "Stop service") stop_service ;;
+            "Print log") cat "$LOGFILE" ;;
+            "Edit yo script") edit_script ;;
+            "🚫 Exit") exit 0 ;;
+          esac
+        done
+      }
+
 
       if [[ -z "$LOGFILE" ]]; then
         cd "$DT_LOG_PATH" || exit 1
@@ -47,12 +132,11 @@ in { # 🦆 says ⮞
           fi
         fi
       fi
-
-
+      
       if [[ -n "$FILTER" ]]; then
         grep --color=always "$FILTER" "$LOGFILE"
       else
-        cat "$LOGFILE"
+        menu
       fi
 
     '';    

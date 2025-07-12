@@ -275,7 +275,7 @@ EOF
           # 🦆 says ⮞ 💧 water sensor
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("water_leak")' > /dev/null; then
             device_check            
-            if [ "$water_leak " = "true" ]; then
+            if [[ "$water_leak" == "true" || "$waterleak" == "true" || "$leak" == "true" || "$water" == "true" ]]; then
               dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_nam"
               yo notify "💧 WATER LEAK DETECTED in $dev_room on $device_nam"
               sleep 15
@@ -300,25 +300,38 @@ EOF
 
           # 🦆 says ⮞ 🪟 BLIND & shaderz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("position")' > /dev/null; then
-            device_check            
-            if [ "$position" = "0" ]; then
-              dt_info "🪟 Rolled DOWN $device_name in $dev_room"
-            fi     
-            if [ "$position" = "100" ]; then
-              dt_info "🪟 Rolled UP $device_name in $dev_room"
-            fi
-          fi     
+            device_check
+            if [ "$dev_type" = "blind" ]; then 
+              if [ "$position" = "0" ]; then
+                dt_info "🪟 Rolled DOWN $device_name in $dev_room"
+              fi     
+              if [ "$position" = "100" ]; then
+                dt_info "🪟 Rolled UP $device_name in $dev_room"
+              fi
+            fi  
+          fi  
 
           # 🦆 says ⮞ 🔌 power plugz & energy meterz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("state")' > /dev/null; then
-            device_check            
-            if [ "$state" = "ON" ]; then
-              dt_info "🔌 $device_name Turned ON in $dev_room"
-            fi       
-            if [ "$state" = "OFF" ]; then
-              dt_info "🔌 $device_name Turned OFF in $dev_room"
+            device_check     
+            if [[ "$dev_type" == "plug" || "$dev_type" == "power" || "$dev_type" == "outlet" ]]; then
+              if [ "$state" = "ON" ]; then      
+                dt_info "🔌 $device_name Turned ON in $dev_room"
+              fi       
+              if [ "$state" = "OFF" ]; then
+                dt_info "🔌 $device_name Turned OFF in $dev_room"
+              fi  
+            else  
+
+          # 🦆 says ⮞ 💡 state change (debug)      
+              if [ "$state" = "OFF" ]; then
+                dt_debug "💡 $device_name Turned OFF in $dev_room"
+              fi  
+              if [ "$state" = "ON" ]; then
+                dt_debug "💡 $device_name Turned ON in $dev_room"
+              fi                
             fi  
-          fi  
+          fi 
 
           # 🦆 says ⮞ 🎚 Dimmer Switch actions
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("action")' > /dev/null; then
@@ -353,7 +366,9 @@ EOF
           fi
         done
       }
-      # 🦆 says ⮞ ran dis thang
+      
+      
+      # 🦆 says ⮞ ran diz thang
       echo " Ready for liftoff?"    
       echo "🚀 Starting zigduck automation system"  
       say_duck "🚀 quack to the moon yo!"

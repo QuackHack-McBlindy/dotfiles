@@ -149,8 +149,13 @@ in { # 🦆 says ⮞ yo yo yo yo
   };
 
   # 🦆 says ⮞ firewall rulez
-  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 ]; };
- 
-  } # 🦆 says ⮞ duckie duck duck
+  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 6379 ]; };
+
+  # 🦆 says ⮞ used for wake word locking yo
+  services.redis = lib.mkIf transcriptionAutoStart {
+    enable = true;
+    bind = "127.0.0.1";
+    port = 6379;
+  };} # 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  
 

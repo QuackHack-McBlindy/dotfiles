@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/6w61d6pa20l313qbg69xncgj3mdrbh26-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/r22w4alz3dmhwzwv3125cxbd38k5lyd9-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -335,7 +335,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo tests [--debug]` |  | Automated unit testing |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
-| `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound]` |  | Run Wake word detection for audio recording and transcription |
+| `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
 | `yo askDuck --question [--area] [--minScoreThreshold] [--phrasesFilePath] [--searchDepth] [--fallback] [--loop]` | duck | Ask da duck any question - Quacktastic assistant |
 | `yo calculator --expression` | calc | Calculate math expressions |
@@ -367,6 +367,7 @@ Set default values for your parameters to have them marked [optional]
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |
 | `yo joke [--jokeFile]` |  | Tells a quacktastic joke |
+| `yo post [--postalCodeFile] [--postalCode]` |  | Search for the next postal delivery day is in Sweden |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo reminder --about [--date]` | remind | Reminder Assistant |
 | `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |

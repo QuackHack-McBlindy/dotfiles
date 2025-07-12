@@ -6,9 +6,27 @@
   pkgs,
   cmdHelpers,
   ... 
-} : let # 🦆 says ⮞ fetchez all host withat runz diz service
+} : let 
+  transcriptionAutoStart =
+    if builtins.isString config.yo.scripts.transcribe.autoStart
+    then config.yo.scripts.transcribe.autoStart
+    else false;
+  transcriptionHost =
+    if transcriptionAutoStart == config.this.host.hostname
+    then "localhost"
+    else if builtins.isString transcriptionAutoStart
+    then
+      let
+        targetHost = self.nixosConfigurations.${transcriptionAutoStart};
+      in
+        targetHost.config.this.host.ip
+    else
+      null; 
+      
+  # 🦆 says ⮞ fetchez all host withat runz diz service
   wakeAutoStart = config.yo.scripts.wake.autoStart or false;
-  # 🦆 says ⮞ host to playback mappin' yo
+  
+  # 🦆 says ⮞ host to audio playback mappin' yo
   remoteSoundHost = {
     homie   = "desktop";
     nasty   = "desktop";
@@ -24,6 +42,7 @@ in {
       { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "30"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = remoteSoundHost; }
+      { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHost; }
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}
@@ -32,6 +51,26 @@ in {
       AWAKE_SOUND="$sound"
       LAST_TRIGGER_TIME=0
       REMOTE_SOUND="$remoteSound"
+      REDIS_HOST="$redisHost"
+      LOCK_TIMEOUT="$WAKE_COOLDOWN"
+      LOCK_KEY="wake:lock"
+      LOCK_VALUE="$HOSTNAME:$$"
+
+      acquire_lock() {
+        local result
+        result=$(${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" SET "$LOCK_KEY" "$LOCK_VALUE" NX EX "$LOCK_TIMEOUT")
+        [[ "$result" == "OK" ]]
+      }
+
+      release_lock() {
+        ${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" --eval <<'EOF'
+          if redis.call("GET", KEYS[1]) == ARGV[1] then
+            return redis.call("DEL", KEYS[1])
+          end
+          return 0
+EOF
+          "$LOCK_KEY" "$LOCK_VALUE" >/dev/null
+      }
 
       # 🦆 says ⮞ playz sound on detection
       play_wav() {
@@ -42,7 +81,7 @@ in {
             ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
         fi
       }
-      
+         
       # 🦆 says ⮞ startz up a fake satellite as a background process to establish connection to openwakeword 
       wakeword_connection() { # 🦆 says ⮞ requred to read da probability threashold
         ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
@@ -77,30 +116,34 @@ in {
                   # 🦆 says ⮞ set last trigger time to now
                   LAST_TRIGGER_TIME="$current_time"
                   TIME_FORMATTED=$(${pkgs.coreutils}/bin/date +"%H:%M:%S")
-                  # 🦆 says ⮞ put sum duck tracin' in da logz 
-                  dt_info "⚠️ [Wake Word] Detected! Probability: $probability."
-                  # 🦆 says ⮞ play sound
-                  play_wav
-                  # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
-                  TRANSCRIPTION=$(yo-mic)
-                
-                  # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
-                  if [[ -z "$TRANSCRIPTION" ]]; then
-                    dt_debug "Empty transcription"
-                    LAST_TRIGGER_TIME=$((current_time - WAKE_COOLDOWN + 5))
-                  else # 🦆 says ⮞ ELSE WAT?!
-                    # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
-                    # 🦆 says ⮞ clean it up, trim it down, remove stuffz, collapz stuffz and lowercase shit upside-down - it'z all done from yo-mic
-                    # 🦆 says ⮞ trace it - log it or dump it - i don't rly care                  
-                    dt_debug "Transcribed text: $TRANSCRIPTION"
-                    # 🦆 says ⮞ ok had enuff - say bai bai
-                    export VOICE_MODE=1
-                    # 🦆 says ⮞ yo bitch! take care of diz shit!
-                    dt_info "yo bitch ⮞ $TRANSCRIPTION"
-                    yo-bitch --input "$TRANSCRIPTION"
-                    # 🦆 says ⮞ nlp.nix take it from here yo
-                    unset $VOICE_MODE
-                  fi                                
+                  
+                  # 🦆 says ⮞ attempt to acquire distributed lock
+                  if acquire_lock; then
+                      # 🦆 says ⮞ put sum duck tracin' in da logz 
+                      dt_info "⚠️ [Wake Word] Detected! Probability: $probability."
+                      # 🦆 says ⮞ play sound
+                      play_wav
+                      # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
+                      TRANSCRIPTION=$(yo-mic)
+                    
+                      # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
+                      if [[ -z "$TRANSCRIPTION" ]]; then
+                        dt_debug "Empty transcription"
+                        LAST_TRIGGER_TIME=$((current_time - WAKE_COOLDOWN + 5))
+                      else # 🦆 says ⮞ ELSE WAT?!
+                        # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
+                        dt_debug "Transcribed text: $TRANSCRIPTION"
+                        export VOICE_MODE=1
+                        dt_info "yo bitch ⮞ $TRANSCRIPTION"
+                        yo-bitch --input "$TRANSCRIPTION"
+                        unset VOICE_MODE
+                      fi
+                      
+                      # 🦆 says ⮞ release da lock
+                      release_lock
+                  else
+                      dt_info "⚠️ [LOCKED Wake Word] Detected! Probability: $probability."
+                  fi                                                   
               fi
           fi
       done < <(${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0)  
@@ -113,11 +156,11 @@ in {
   # 🦆 says ⮞ dependencies
   environment.systemPackages = lib.mkIf wakeAutoStart [
     pkgs.wyoming-openwakeword
+    pkgs.redis
     pkgs.wyoming-satellite
     pkgs.alsa-utils  
   ];  
   
-  # 🦆 says ⮞ How do I change this lib.mkIf statement to use if wakeAutoStart is true instead?
   services.wyoming.openwakeword = lib.mkIf wakeAutoStart {
     enable = true;
     uri = "tcp://0.0.0.0:10400";
