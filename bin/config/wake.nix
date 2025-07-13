@@ -7,30 +7,23 @@
   cmdHelpers,
   ... 
 } : let 
-  transcriptionAutoStart =
-    if builtins.isString config.yo.scripts.transcribe.autoStart
-    then config.yo.scripts.transcribe.autoStart
-    else false;
-  transcriptionHost =
-    if transcriptionAutoStart == config.this.host.hostname
-    then "localhost"
-    else if builtins.isString transcriptionAutoStart
-    then
-      let
-        targetHost = self.nixosConfigurations.${transcriptionAutoStart};
-      in
-        targetHost.config.this.host.ip
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  transcriptionHost = lib.findFirst
+    (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.yo.scripts.transcribe.autoStart or false
+    ) null sysHosts;
+  transcriptionHostIP = let
+    ip = if transcriptionHost != null then
+      self.nixosConfigurations.${transcriptionHost}.config.this.host.ip
     else
-      null; 
-      
+      "0.0.0.0";
+  in
+    if ip == config.this.host.ip then "0.0.0.0" else ip;
+
   # 🦆 says ⮞ fetchez all host withat runz diz service
   wakeAutoStart = config.yo.scripts.wake.autoStart or false;
-  
-  # 🦆 says ⮞ host to audio playback mappin' yo
-  remoteSoundHost = {
-    homie   = "desktop";
-    nasty   = "desktop";
-  }.${config.this.host.hostname} or config.this.host.hostname; # 🦆 says ⮞ fallback to play awake sound locally
 in { 
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
@@ -41,8 +34,10 @@ in {
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
       { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "30"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
-      { name = "remoteSound"; description = "Host to play the awake sound on"; default = remoteSoundHost; }
-      { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHost; }
+      { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
+          then "true"
+          else "false"; }
+      { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHostIP; }
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}
@@ -52,6 +47,8 @@ in {
       LAST_TRIGGER_TIME=0
       REMOTE_SOUND="$remoteSound"
       REDIS_HOST="$redisHost"
+      TRANSCRIPTION_HOST="$REDIS_HOST"
+      TRANSCRIBE_PORT=$(nix eval .#nixosConfigurations.$HOSTNAME.config.yo.scripts.transcribe.parameters --json | jq -r '.[] | select(.name == "port") | .default')
       LOCK_TIMEOUT="$WAKE_COOLDOWN"
       LOCK_KEY="wake:lock"
       LOCK_VALUE="$HOSTNAME:$$"
@@ -63,24 +60,24 @@ in {
       }
 
       release_lock() {
-        ${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" --eval <<'EOF'
-          if redis.call("GET", KEYS[1]) == ARGV[1] then
-            return redis.call("DEL", KEYS[1])
-          end
-          return 0
-EOF
-          "$LOCK_KEY" "$LOCK_VALUE" >/dev/null
+        ${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" EVAL \
+          "if redis.call('GET', KEYS[1]) == ARGV[1] then 
+             return redis.call('DEL', KEYS[1]) 
+           end 
+           return 0" \
+          1 "$LOCK_KEY" "$LOCK_VALUE" >/dev/null
       }
 
       # 🦆 says ⮞ playz sound on detection
       play_wav() {
-        if [ "$REMOTE_SOUND" = "$HOSTNAME" ]; then
+        if [ "$REMOTE_SOUND" = "true" ]; then
+          curl http://$TRANSCRIPTION_HOST:$TRANSCRIBE_PORT/play?sound=$AWAKE_SOUND
+        fi
+        if [ "$REMOTE_SOUND" = "false" ]; then
           ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
-        else
-          ${pkgs.openssh}/bin/ssh -o ConnectTimeout=3 "$REMOTE_SOUND" \
-            ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
         fi
       }
+
          
       # 🦆 says ⮞ startz up a fake satellite as a background process to establish connection to openwakeword 
       wakeword_connection() { # 🦆 says ⮞ requred to read da probability threashold

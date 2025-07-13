@@ -24,7 +24,7 @@
   server = pkgs.writeScript "whisperd-server.py" ''
     #!${pyEnv}/bin/python
     import argparse
-    from fastapi import FastAPI, UploadFile, File, Form
+    from fastapi import FastAPI, UploadFile, File, Form, Query
     import uvicorn
     import soundfile as sf
     import numpy as np
@@ -47,6 +47,11 @@
     args = parser.parse_args()
     app = FastAPI()
     model = WhisperModel(args.model, device=args.device)
+
+    @app.get("/play")
+    def play(sound: str = Query(...)):
+        subprocess.Popen(["aplay", sound])
+        return {"status": "playing", "file": sound}
 
     # 🦆 says ⮞ api endpoint
     @app.post("/transcribe")

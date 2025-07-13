@@ -81,7 +81,6 @@ in { # 🦆 says ⮞
         fi
       }
 
-
       menu() {
         while true; do
           selection=$(${pkgs.gum}/bin/gum choose \
@@ -107,7 +106,7 @@ in { # 🦆 says ⮞
 
       if [[ -z "$LOGFILE" ]]; then
         cd "$DT_LOG_PATH" || exit 1
-        FILES=(*)
+        FILES=($(${pkgs.findutils}/bin/find . -type f -size +0c -printf '%f\n'))
         if [[ ''${#FILES[@]} -eq 0 ]]; then
           dt_error "No log files found in $DT_LOG_PATH"
           exit 1
