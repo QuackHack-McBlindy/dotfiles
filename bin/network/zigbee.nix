@@ -161,7 +161,7 @@ $(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
 ## ──────⋆⋅☆⋅⋆────── ##
 EOF
     '';
-    logLevel = "INFO";
+    logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }

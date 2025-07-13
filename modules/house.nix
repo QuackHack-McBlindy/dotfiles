@@ -114,7 +114,7 @@ in { # 🦆 says ⮞ Options for da house
             "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; endpoint = 11; };
             "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; endpoint = 11; };
             "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; endpoint = 11; };
-#            "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; endpoint = 1; batteryType = "CR2032"; }; 
+            "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; endpoint = 1; batteryType = "CR2032"; }; 
             "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; endpoint = 1; };
             "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; endpoint = 1; };    
             # 🦆 says ⮞ LIVING ROOM
@@ -141,15 +141,15 @@ in { # 🦆 says ⮞ Options for da house
             "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; endpoint = 11; };
             "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; endpoint = 11; };
             "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; endpoint = 11; };
-#            "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; endpoint = 1; batteryType = "CR2032"; };
+            "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; endpoint = 1; batteryType = "CR2032"; };
             "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ THATS TOO FAST!!
             "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
             # 🦆 says ⮞ MISCELLANEOUS
             "0xa4c1382553627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; endpoint = 1; };
             "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; endpoint = 1; };
             "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; endpoint = 1; };
-#            "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
-#            "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
+            "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
+            "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; endpoint = 1; batteryType = "CR2032"; };
         }; # 🦆 says ⮞ that's way too many devices huh
       }  # 🦆 says ⮞ that's actually not too bad when they on single line each
 
