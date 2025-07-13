@@ -159,8 +159,18 @@ in { # 🦆 says ⮞ yo yo yo yo
   # 🦆 says ⮞ used for wake word locking yo
   services.redis = lib.mkIf transcriptionAutoStart {
     enable = true;
-    bind = "127.0.0.1";
+    bind = "0.0.0.0";
     port = 6379;
+    requirePassFile = config.sops.secrets.redis.path;
+  };
+  
+  sops.secrets = {
+    redis = {
+      sopsFile = ./../../secrets/redis.yaml;
+      owner = config.this.user.me.name;
+      group = config.this.user.me.name;
+      mode = "0440";
+    };    
   };} # 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  
 

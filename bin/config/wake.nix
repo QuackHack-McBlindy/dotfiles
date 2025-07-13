@@ -29,7 +29,7 @@ in {
     description = "Run Wake word detection for audio recording and transcription";
     category = "⚙️ Configuration"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
-    logLevel = "INFO";
+    logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
       { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "30"; }
@@ -38,6 +38,7 @@ in {
           then "true"
           else "false"; }
       { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHostIP; }
+      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }      
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}
@@ -52,26 +53,30 @@ in {
       LOCK_TIMEOUT="$WAKE_COOLDOWN"
       LOCK_KEY="wake:lock"
       LOCK_VALUE="$HOSTNAME:$$"
+      REDIS_PASSWORD=$(cat $redis_pwFile)
+      dt_debug "Redis host: $REDIS_HOST, Password file: $redis_pwFile"
 
       acquire_lock() {
         local result
-        result=$(${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" SET "$LOCK_KEY" "$LOCK_VALUE" NX EX "$LOCK_TIMEOUT")
+        result=$(${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" -a "$REDIS_PASSWORD" SET "$LOCK_KEY" "$LOCK_VALUE" NX EX "$LOCK_TIMEOUT")
         [[ "$result" == "OK" ]]
+        dt_debug "Acquired lock successfully"
       }
 
       release_lock() {
-        ${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" EVAL \
+        ${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" -a "$REDIS_PASSWORD" EVAL \
           "if redis.call('GET', KEYS[1]) == ARGV[1] then 
              return redis.call('DEL', KEYS[1]) 
            end 
            return 0" \
           1 "$LOCK_KEY" "$LOCK_VALUE" >/dev/null
+          dt_debug "Released lock successfully"
       }
 
       # 🦆 says ⮞ playz sound on detection
       play_wav() {
         if [ "$REMOTE_SOUND" = "true" ]; then
-          curl http://$TRANSCRIPTION_HOST:$TRANSCRIBE_PORT/play?sound=$AWAKE_SOUND
+          curl -k https://$TRANSCRIPTION_HOST:25451/play?sound=$AWAKE_SOUND
         fi
         if [ "$REMOTE_SOUND" = "false" ]; then
           ${pkgs.alsa-utils}/bin/aplay "$AWAKE_SOUND" >/dev/null 2>&1 &
