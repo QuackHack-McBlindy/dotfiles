@@ -137,16 +137,23 @@
         ["cyan"]="0,255,255:0,200,200"
         ["magenta"]="255,0,255:180,0,180"
       )
-      if [[ -z "''${color_ranges[$color]}" ]]; then
-        echo "Unknown color: $color" >&2
-        return 1
+
+      local r g b
+
+      if [[ -z "$color" || "$color" == "random" || -z "''${color_ranges[$color]}" ]]; then
+        # Empty, 'random', or unknown color name: full random fallback
+        r=$(( RANDOM % 256 ))
+        g=$(( RANDOM % 256 ))
+        b=$(( RANDOM % 256 ))
+      else
+        IFS=':' read -r min_range max_range <<< "''${color_ranges[$color]}"
+        IFS=',' read -r min_r min_g min_b <<< "$min_range"
+        IFS=',' read -r max_r max_g max_b <<< "$max_range"
+        r=$(( min_r + RANDOM % (max_r - min_r + 1) ))
+        g=$(( min_g + RANDOM % (max_g - min_g + 1) ))
+        b=$(( min_b + RANDOM % (max_b - min_b + 1) ))
       fi
-      IFS=':' read -r min_range max_range <<< "''${color_ranges[$color]}"
-      IFS=',' read -r min_r min_g min_b <<< "$min_range"
-      IFS=',' read -r max_r max_g max_b <<< "$max_range"
-      local r=$(( min_r + RANDOM % (max_r - min_r + 1) ))
-      local g=$(( min_g + RANDOM % (max_g - min_g + 1) ))
-      local b=$(( min_b + RANDOM % (max_b - min_b + 1) ))
+
       printf "%02x%02x%02x\n" "$r" "$g" "$b"
     }
     validate_devShell() {  # 🦆 duck say ⮞ check development enviorment exist yo!

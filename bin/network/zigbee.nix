@@ -1,12 +1,12 @@
 # dotfiles/bin/network/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 
-  self, 
+{ # From Quack to Stack: Declarative Zigbee and home automations
+  self, # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 
   lib, 
   config, # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
   pkgs,
-  cmdHelpers,
+  cmdHelpers, # 🦆 with MQTT dreams and zigbee schemes.
   ... 
-} : let # yo follow 🦆 home – ⬇⬇ 🦆 says diz way plz? quack quackz
+} : let # yo follow 🦆 home ⬇⬇ 🦆 says diz way plz? quack quackz
 
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
@@ -111,7 +111,7 @@
   ieeeToFriendly = lib.mapAttrs (ieee: dev: dev.friendly_name) zigbeeDevices;
   mappingJSON = builtins.toJSON ieeeToFriendly;
   mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
- 
+
   # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
   deviceMeta = builtins.toJSON (
     lib.listToAttrs (
@@ -366,13 +366,11 @@ EOF
           fi
         done
       }
-      
-      
+            
       # 🦆 says ⮞ ran diz thang
-      echo " Ready for liftoff?"    
-      echo "🚀 Starting zigduck automation system"  
+      dt_info "🚀 Starting zigduck automation system"  
       say_duck "🚀 quack to the moon yo!"
-      echo "📡 Listening to all Zigbee events..."
+      dt_info "📡 Listening to all Zigbee events..."
       start_listening             
     '';
   };

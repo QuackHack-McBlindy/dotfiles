@@ -1,4 +1,4 @@
-# dotfiles/overlays/noisereduce.nix
+# dotfiles/overlays/noisereduce.nix  ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { lib, ... }: self: super:
 let
   inherit (super) python3;
