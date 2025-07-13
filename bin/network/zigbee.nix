@@ -161,7 +161,7 @@ $(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
 ## ──────⋆⋅☆⋅⋆────── ##
 EOF
     '';
-    logLevel = "DEBUG";
+    logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
@@ -254,7 +254,16 @@ EOF
               yo notify "Larm på"
             fi
           fi
-     
+          
+          # 🦆 says ⮞ left home yo
+          if [ "$line" = "LEFT" ]; then
+            dt_warning "LEAVING HOME!"
+          fi
+          # 🦆 says ⮞ returned homez
+          if [ "$line" = "RETURN" ]; then
+            dt_warning "Returned home!"
+          fi
+          
           # 🦆 says ⮞ 🕵️ quick quack motion detect
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
             device_check            
@@ -436,7 +445,7 @@ EOF
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
+          enabled = false; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0";  # 🦆 says ⮞ duck means cool by the way - in case u did not realize 
           port = 8099; 
         };
@@ -460,7 +469,8 @@ EOF
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
-          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo - letz handle dat down below      
+          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo - letz handle dat down below
+            # network_key = [ "..." ]
             pan_id = 60410;
           };
           device_options = { legacy = false; };

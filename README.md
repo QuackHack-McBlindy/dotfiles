@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/5dqh4k07pw98j8d6n7ylgfbfdv0dkw1v-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/63cfkc829zg39qhria6nvcffcg3kb1ad-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -345,6 +345,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
+| `yo transport --arrival [--departure] [--apikeyPath]` | bus | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
 | `yo weather [--location]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
@@ -357,7 +358,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
 | `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |
 | **🔐 Security & Encryption** | | |
-| `yo sops --input [--agePub]` | e | Encrypts a file with sops-nix |
+| `yo sops --input [--agePub] [--operation]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🛒 Shopping** | | |
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |

@@ -253,6 +253,9 @@
       state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.state') && dt_debug "state: $state"
       water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak') && dt_debug "water_leak: $water_leak"
       waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak') && dt_debug "waterleak: $waterleak"
+      temoerature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature') && dt_debug "temperature: $temperature"
+      battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery') && dt_debug "battery: $battery"
+        
       
       device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
       dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"

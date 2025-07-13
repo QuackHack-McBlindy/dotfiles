@@ -1,7 +1,7 @@
 import os
 from dotenv import load_dotenv
 load_dotenv()
-
+import json
 import requests
 import sys
 import re
@@ -96,7 +96,7 @@ def format_response(trips):
         
         minutes_to_departure = int((dep_time - now).total_seconds() / 60)
         day = dep_time.strftime("%A")  # Get the day of the week in Swedish
-        bus_number = product['num']  # Get the bus number
+        bus_number = product.get('num', 'okänd')
         
         if i == 0:
             formatted_response += (
@@ -109,6 +109,7 @@ def format_response(trips):
             )
 
     return formatted_response
+
 
 def main():
     if len(sys.argv) != 2:
@@ -127,7 +128,12 @@ def main():
     dest_id = get_stop_id(dest_stop)
     
     trips = get_next_route(origin_id, dest_id)
-    
+
+    # ✅ Raw JSON print
+    print("----- RAW TRIP DATA -----")
+    print(json.dumps(trips, indent=2, ensure_ascii=False)) 
+    print("-------------------------\n")
+
     response = format_response(trips)
     print(response)
 

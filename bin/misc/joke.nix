@@ -17,7 +17,7 @@ in {
     autoStart = false;
     logLevel = "INFO";
     parameters = [  
-      { name = "jokeFile"; description = "A file containing jokes separated by newline."; default = "/home/" + config.this.user.me.name + "/jokes"; }
+      { name = "jokeFile"; description = "A file containing jokes separated by newline."; default = config.sops.secrets.jokes.path; }
     ];
     code = ''
       ${cmdHelpers}
@@ -26,4 +26,13 @@ in {
       yo-say "$JOKE"
       say_duck "$JOKE"
     '';   
-  };}
+  };
+  
+  sops.secrets = {
+    jokes = { # 🦆 says ⮞ i like dirty jokes!
+      sopsFile = ./../../secrets/jokes.yaml; 
+      owner = config.this.user.me.name;
+      group = config.this.user.me.name;
+      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+    };
+  };}  

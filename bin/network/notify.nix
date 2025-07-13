@@ -71,6 +71,20 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
           exit
         fi
         
+        if [[ "$lower_msg" == @(left|Left)\ home* ]]; then
+          yo say "Varning! Du har lämnat hemmet. Jag larmar om 30 sekunder!"
+          sleep 30 # 🦆 says ⮞ .. da bitch ya get
+          yo say "Larmat!"
+          sleep 2
+          mqtt_pub -t "zigbee2mqtt/leave_home/set" -m 'LEFT'
+          dt_warning "Left home! Turning off lights and arming security..."
+        fi
+        if [[ "$lower_msg" == @(return|returned)\ home* ]]; then
+          mqtt_pub -t "zigbee2mqtt/return_home/set" -m 'RETURN'
+          yo say "Välkommen home brusschaan!!"
+          sleep 0.1
+          dt_info "Welcome home!"
+        fi
         yo say "Viktigt meddelande från bitchen!" && sleep 4
         yo say "$msg"
       done

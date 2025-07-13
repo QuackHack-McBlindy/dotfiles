@@ -15,7 +15,7 @@
     pyPkgs.requests 
     pyPkgs.lz4 
     pyPkgs.python-dotenv 
-    pyPkgs.noisereduce  # 🦆 this should now exist via overlay!
+#    pyPkgs.noisereduce 
   ];
   myPython = pyPkgs.python.withPackages (_: pythonPackages);
   
