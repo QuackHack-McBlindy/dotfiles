@@ -7,7 +7,7 @@ epg.xml
 home/.config/Yubico
 
 home/.local/share/piper
-
+overlays/dump
 modules/networking/caddy.nix.save
 borg_settings.txt
 baseurl

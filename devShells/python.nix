@@ -15,7 +15,7 @@
     pyPkgs.requests 
     pyPkgs.lz4 
     pyPkgs.python-dotenv 
-#    pyPkgs.noisereduce 
+    pyPkgs.noisereduce 
   ];
   myPython = pyPkgs.python.withPackages (_: pythonPackages);
   
@@ -53,8 +53,7 @@ in {
     else
       source .venv/bin/activate
     fi
-    
-    
+        
   '';
 
   NIX_CONFIG = "system = ${system}";

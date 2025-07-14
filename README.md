@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/0zdwfly5l2r7zddn7bk40y3wvk9p4zqy-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/6h3z26wil9za3kq8r2nra6x61dp5ayrd-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -345,8 +345,8 @@ Set default values for your parameters to have them marked [optional]
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
-| `yo travel --arrival [--departure] [--apikeyPath]` | bus | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
-| `yo weather [--location]` | weat | Tiny Weather Report. |
+| `yo travel --arrival [--departure] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
+| `yo weather [--location] [--day] [--condition]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo notify --message [--topic] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |

@@ -1,4 +1,4 @@
-# dotfiles/bin/system/transport.nix
+# dotfiles/bin/system/transport.nix  ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   config,
   lib,
@@ -10,7 +10,7 @@
 in {
   yo.scripts.travel = {
     description = "Public transportation helper. Fetches current bus and train schedules. (Sweden)";
-    aliases = [ "bus" ];
+#    aliases = [ "" ];
     category = "🌍 Localization";
     autoStart = false;
     logLevel = "INFO";
@@ -20,12 +20,12 @@ in {
       { name = "apikeyPath"; description = "Trafiklab API key path"; optional = true; default = config.sops.secrets.resrobot.path; }
     ];
     code = ''
-      ${cmdHelpers}
-      export TZ="Europe/Stockholm"    
+      ${cmdHelpers}      
       API_KEY=$(cat "$apikeyPath")
       origin="$departure"
       destination="$arrival"
-      
+      export TZ="Europe/Stockholm"      
+
       PATH="${lib.makeBinPath runtimeDeps}:$PATH"
       
       get_stop_id() {
@@ -93,19 +93,17 @@ in {
         
         local start_time="''${start:11:5}"
         local end_time="''${end:11:5}"
-        
         local start_hour="''${start_time:0:2}"
         local start_min="''${start_time:3:2}"
         local end_hour="''${end_time:0:2}"
         local end_min="''${end_time:3:2}"
         
-
         if ! [[ "$start_hour" =~ ^[0-9]+$ ]] || ! [[ "$start_min" =~ ^[0-9]+$ ]] ||
            ! [[ "$end_hour" =~ ^[0-9]+$ ]] || ! [[ "$end_min" =~ ^[0-9]+$ ]]; then
           echo "N/A"
           return
         fi
-
+        
         local start_minutes=$((10#$start_hour * 60 + 10#$start_min))
         local end_minutes=$((10#$end_hour * 60 + 10#$end_min))
         local duration=$((end_minutes - start_minutes))
@@ -141,7 +139,6 @@ in {
           fi
         fi
         
-
         if ! [ "$minutes_until" -eq "$minutes_until" ] 2>/dev/null || [ -z "$minutes_until" ]; then
           minutes_until="?"
         fi
@@ -151,13 +148,13 @@ in {
           time_color="\\033[31m"  # Red
         elif [ "$minutes_until" != "?" ] && [ "$minutes_until" -lt 15 ] 2>/dev/null; then
           time_color="\\033[33m"  # Yellow
-        fi        
-
+        fi
+        
         if [ "$idx" -eq 0 ]; then
           echo -e "\n\\033[1mRoute: $origin_name → $dest_name\\033[0m"
           echo "────────────────────────────────────────────────────────────"
-        fi        
-
+        fi
+        
         printf "%2d. ''${time_color}%3s min\\033[0m │ %s → %s │ " "$((idx+1))" "$minutes_until" "$dep_short" "$arr_short"
         printf "⏱ $duration │ "
         echo -e "🚌 \\033[1m''${transport_type} ''${line_number}\\033[0m"
@@ -168,7 +165,6 @@ in {
       
       trips_json=$(get_next_route "$origin_id" "$dest_id")
       
-
       echo -e "\n\\033[1mUpcoming Trips\\033[0m"
       
       trip_count=$(echo "$trips_json" | jq -r '.Trip | length' 2>/dev/null)
@@ -177,25 +173,24 @@ in {
         exit 0
       fi
       
-
       for i in $(seq 0 $((trip_count - 1))); do
         trip=$(echo "$trips_json" | jq -c ".Trip[$i]" 2>/dev/null)
         if [ -z "$trip" ] || [ "$trip" = "null" ]; then
           continue
         fi
         
-       origin_name=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.name // "Unknown"' 2>/dev/null)
-       dest_name=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.name // "Unknown"' 2>/dev/null)
-       dep_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.date // ""' 2>/dev/null)
-       dep_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.time // ""' 2>/dev/null)
-       arr_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.date // ""' 2>/dev/null)
-       arr_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.time // ""' 2>/dev/null)
+        origin_name=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.name // "Unknown"' 2>/dev/null)
+        dest_name=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.name // "Unknown"' 2>/dev/null)
+        dep_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.date // ""' 2>/dev/null)
+        dep_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.time // ""' 2>/dev/null)
+        arr_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.date // ""' 2>/dev/null)
+        arr_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.time // ""' 2>/dev/null)
 
-       dep_time="''${dep_date}T''${dep_time_val}"
-       arr_time="''${arr_date}T''${arr_time_val}"
-       
-       transport_type="Transport"
-       line_number="N/A"
+        dep_time="''${dep_date}T''${dep_time_val}"
+        arr_time="''${arr_date}T''${arr_time_val}"
+
+        transport_type="Transport"
+        line_number="N/A"
         
         product=$(echo "$trip" | jq -c '.LegList.Leg[0].Product' 2>/dev/null)
         if [ -n "$product" ] && [ "$product" != "null" ]; then
@@ -219,7 +214,7 @@ in {
       fi
     '';    
   };
-
+  
   yo.bitch = { 
     intents = {
       travel = {
@@ -247,7 +242,8 @@ in {
       };
     };
   };
-     
+
+  
   sops = {
     secrets = {
       resrobot = {

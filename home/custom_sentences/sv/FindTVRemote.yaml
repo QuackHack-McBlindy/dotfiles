@@ -1,8 +1,0 @@
-language: "sv"
-intents:
-  FindTVRemote:
-    data:
-      - sentences:
-          - "(var|vart|vars) är [tv] fjärrkontrollen"
-          - "jag hittar inte fjärrkontrollen"
-          - "fjärrkontrollen"

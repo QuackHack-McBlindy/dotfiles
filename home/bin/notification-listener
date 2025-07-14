@@ -2,12 +2,12 @@
 # [ Intercepts notifications and sends to TTS ]
 # ------------------------
 
-PIPER_SCRIPT="/home/$USER/dotfiles/home/bin/say"
+PIPER_SCRIPT="/run/current-system/sw/"
 
 # Enable debug mode (set to 1 to enable, 0 to disable)
 DEBUG=0
 
-# Monitor notifications
+
 #dbus-monitor "interface='org.freedesktop.Notifications',member='Notify'" | \
 /run/current-system/sw/bin/dbus-monitor "interface='org.freedesktop.Notifications',member='Notify'" | \
 while read -r line; do
@@ -29,7 +29,7 @@ while read -r line; do
 
         # Speak if not empty
         if [[ -n "$message" ]]; then
-            bash "$PIPER_SCRIPT" "$message"
+            yo say "$message"
         fi
     fi
 done

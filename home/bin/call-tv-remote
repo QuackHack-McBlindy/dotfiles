@@ -1,1 +1,0 @@
-adb am start -a android.intent.action.VIEW-d-n com.nvidia.remotelocator/.ShieldRemoteLocatorActivit

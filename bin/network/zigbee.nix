@@ -241,7 +241,7 @@ EOF
         
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
-          dt_debug "Topic: $topic" && dt_debug "Payload: $line"         
+          dt_info "TOPIC: \n$topic" && dt_info "PAYLOAD: \n$line"         
           # 🦆 says ⮞ backup handling
           if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
           # 🦆 says ⮞ trigger backup from MQTT
@@ -334,10 +334,10 @@ EOF
 
           # 🦆 says ⮞ 💡 state change (debug)      
               if [ "$state" = "OFF" ]; then
-                dt_debug "💡 $device_name Turned OFF in $dev_room"
+                dt_info "💡 $device_name Turned OFF in $dev_room"
               fi  
               if [ "$state" = "ON" ]; then
-                dt_debug "💡 $device_name Turned ON in $dev_room"
+                dt_info "💡 $device_name Turned ON in $dev_room"
               fi                
             fi  
           fi 
@@ -356,11 +356,11 @@ EOF
               clean_room=$(echo "$dev_room" | sed 's/"//g')
                 ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                   while read -r light_id; do
-                    dt_debug "🔺 Increasing brightness on $light_id in $clean_room"
+                    dt_info "🔺 Increasing brightness on $light_id in $clean_room"
                     mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":50,"transition":3.5}'
                   done
             fi
-            if [ "$action" == "up_hold_release" ]; then dt_debug "$action"; fi
+            if [ "$action" == "up_hold_release" ]; then dt_info "$action"; fi
             if [ "$action" == "down_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
               ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
@@ -369,9 +369,9 @@ EOF
                   mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":-50,"transition":3.5}'
                 done
             fi
-            if [ "$action" == "down_hold_release" ]; then dt_debug "$action"; fi
+            if [ "$action" == "down_hold_release" ]; then dt_info "$action"; fi
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
-            if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "🚫 DARKNESS ON"; fi
+            if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_info "🚫 DARKNESS ON"; fi
           fi
         done
       }
