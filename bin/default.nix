@@ -271,20 +271,16 @@
         'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
         $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
-          dt_debug "💡 $light_id ON in $clean_room"
           mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"ON"}'
         done      
-      say_duck "💡 Lights ON in $clean_room"  
     }
     # 🦆 says ⮞ turn off specified room
     room_lights_off() { 
       local clean_room=$(echo "$1" | sed 's/"//g')
       ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
-          dt_debug "🚫 $light_id OFF in $clean_room"
           mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
         done    
-      say_duck "🚫 Lights OFF in $clean_room"  
     }
     # 🦆 says ⮞ pure fuzz – Nixified Bash Levenshtein
     levenshtein() {

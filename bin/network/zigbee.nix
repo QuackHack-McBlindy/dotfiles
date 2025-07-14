@@ -174,6 +174,7 @@ EOF
       MQTT_USER="$user" && dt_debug "$MQTT_USER"
       MQTT_PASSWORD=$(cat "$pwfile")
       STATE_DIR="${zigduckDir}"
+      STATE_FILE="$STATE_DIR/state.json"
       TIMER_DIR="$STATE_DIR/timers" 
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
       BACKUP_ID=""
@@ -251,7 +252,9 @@ EOF
         
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
-          dt_info "TOPIC: \n$topic" && dt_info "PAYLOAD: \n$line"         
+          dt_debug "TOPIC: 
+          $topic" && dt_debug "PAYLOAD: 
+          $line"         
           # 🦆 says ⮞ backup handling
           if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
           # 🦆 says ⮞ trigger backup from MQTT
@@ -265,7 +268,7 @@ EOF
             fi
           fi
           
-          # 🦆 says ⮞ 🔋 battery reporting
+          # 🦆 says ⮞ 🔋 battery
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("battery")' > /dev/null; then
             device_check
             prev_battery=$(${pkgs.jq}/bin/jq -r ".\"$device_name\".battery" "$STATE_FILE")
@@ -274,7 +277,7 @@ EOF
             fi
           fi
 
-          # 🦆 says ⮞ 🌡️ temperature reporting
+          # 🦆 says ⮞ 🌡️ temperature
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("temperature")' > /dev/null; then
             device_check
             prev_temp=$(${pkgs.jq}/bin/jq -r ".\"$device_name\".temperature" "$STATE_FILE")
@@ -441,7 +444,7 @@ EOF
         port = 1883;
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
+#        settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
     }];
@@ -459,7 +462,7 @@ EOF
     dataDir = "/var/lib/zigbee";
     settings = {
         experimental.output = "json";
-        homeassistant = true;
+        homeassistant = false; # 🦆 says ⮞ no thnx....
         mqtt = {
           server = "mqtt://localhost:1883";
           user = "mqtt";
