@@ -295,17 +295,17 @@ EOF
           
           # 🦆 says ⮞ 🚪 door and window sensor yo 
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
-            device_check
-            if [ "$contact " = "false" ]; then
-              dt_info "🚪 Door open in $dev_room  ( $device_nam )"
-              if [ "$LARMED " = "true" ]; then
-                dt_critical "🚪 Door open in $dev_room  ( $device_nam )"  
-                yo notify "Door open in $dev_room !"
+            device_check            
+            if [ "$contact" = "false" ]; then  # FIXED: Removed trailing space
+              dt_info "🚪 Door open in $dev_room ($device_name)"  # FIXED: Correct variable name    
+              if [ "$LARMED" = "true" ]; then  # FIXED: Removed trailing space
+                dt_critical "🚨 ALARM! Door open in $dev_room ($device_name) while armed!"  
+                yo notify "🚨 ALARM! Door open in $dev_room!"
                 sleep 15
-                yo notify "Door open in $dev_room !"
+                yo notify "🚨 ALARM! Door open in $dev_room!"
               fi       
             fi
-          fi          
+          fi       
 
           # 🦆 says ⮞ 🪟 BLIND & shaderz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("position")' > /dev/null; then
