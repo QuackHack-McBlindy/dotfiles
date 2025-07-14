@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/64ig4a6qykay1zidx8lrh9ghhmbbj4q5-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/xma6mqfpksf23wijw6wn0jayl2rwin1m-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -223,6 +223,10 @@ git+file:///home/pungkula/dotfiles
 │   ├───homie: NixOS configuration
 │   ├───laptop: NixOS configuration
 │   └───nasty: NixOS configuration
+├───overlays
+│   ├───beutifulsoup: Nixpkgs overlay
+│   ├───ddgs: Nixpkgs overlay
+│   └───noisereduce: Nixpkgs overlay
 └───packages
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)

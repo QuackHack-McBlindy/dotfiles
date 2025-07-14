@@ -1,5 +1,6 @@
 modules/dump
 bin/dump
+devShells/dump
 home/.config/ha
 home/.config/home-assistant
 result/

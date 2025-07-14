@@ -13,7 +13,7 @@ in {
 #    aliases = [ "" ];
     category = "🌍 Localization";
     autoStart = false;
-    logLevel = "INFO";
+    logLevel = "DEBUG";
     parameters = [
       { name = "arrival"; description = "Destination stop or city"; optional = false; }
       { name = "departure"; description = "Departure stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
@@ -208,10 +208,10 @@ in {
         fi
       done
       
-      if [ "$logLevel" = "DEBUG" ]; then
-        echo -e "\n\\033[2m----- RAW DATA -----\\033[0m"
-        echo "$trips_json" | jq .
-      fi
+      
+      dt_debug "\n\\033[2m----- RAW DATA -----\\033[0m"
+      dt_debug "$trips_json" | jq .
+      
     '';    
   };
   

@@ -244,7 +244,6 @@ in {
       
       # 🦆 says ⮞ display 3-day forecast
       show_5day_forecast() {
-        # Process JSON for all days
         local processed=$(jq '[.weather[] | {
           date,
           mintempC,
@@ -298,50 +297,50 @@ in {
             sunny|partly\ cloudy|cloudy|rain|sleet|snow|thunderstorm|fog)
                 local codes="''${CONDITION_CODES[$condition]}"
                 if [[ " $codes " =~ " $weather_code " ]]; then
-                    echo "Ja, det blir $swedish_condition $display_name."
+                    dt_info "Ja, det blir $swedish_condition $display_name."
                     if_voice_say "Ja, det blir $swedish_condition $display_name."
                     return 0
                 else
-                    echo "Nej, det blir inte $swedish_condition $display_name."
+                    dt_info "Nej, det blir inte $swedish_condition $display_name."
                     if_voice_say "Nej, det blir inte $swedish_condition $display_name."
                     return 1
                 fi
                 ;;
             windy)
                 if (( wind_speed > 20 )); then
-                    echo "Ja, det blir $swedish_condition $display_name ($wind_speed km/h)."
+                    dt_info "Ja, det blir $swedish_condition $display_name ($wind_speed km/h)."
                     if_voice_say "Ja, det blir $swedish_condition $display_name med $wind_speed kilometer per timme."
                     return 0
                 else
-                    echo "Nej, det blir inte $swedish_condition $display_name ($wind_speed km/h)."
+                    dt_info "Nej, det blir inte $swedish_condition $display_name ($wind_speed km/h)."
                     if_voice_say "Nej, det blir inte $swedish_condition $display_name. Vinden är bara $wind_speed kilometer per timme."
                     return 1
                 fi
                 ;;
             hot)
                 if (( maxtempC > 25 )); then
-                    echo "Ja, det blir $swedish_condition $display_name ($maxtempC°C)."
+                    dt_info "Ja, det blir $swedish_condition $display_name ($maxtempC°C)."
                     if_voice_say "Ja, det blir $swedish_condition $display_name med upp till $maxtempC grader."
                     return 0
                 else
-                    echo "Nej, det blir inte $swedish_condition $display_name ($maxtempC°C)."
+                    dt_ubfi "Nej, det blir inte $swedish_condition $display_name ($maxtempC°C)."
                     if_voice_say "Nej, det blir inte $swedish_condition $display_name. Maximalt $maxtempC grader."
                     return 1
                 fi
                 ;;
             cold)
                 if (( mintempC < 10 )); then
-                    echo "Ja, det blir $swedish_condition $display_name ($mintempC°C)."
+                    dt_info "Ja, det blir $swedish_condition $display_name ($mintempC°C)."
                     if_voice_say "Ja, det blir $swedish_condition $display_name med minst $mintempC grader."
                     return 0
                 else
-                    echo "Nej, det blir inte $swedish_condition $display_name ($mintempC°C)."
+                    dt_info "Nej, det blir inte $swedish_condition $display_name ($mintempC°C)."
                     if_voice_say "Nej, det blir inte $swedish_condition $display_name. Minst $mintempC grader."
                     return 1
                 fi
                 ;;
             *)
-                echo "Okänd väderförhållande: $condition"
+                dt_info "Okänd väderförhållande: $condition"
                 return 1
                 ;;
         esac

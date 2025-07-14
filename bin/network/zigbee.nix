@@ -1,5 +1,5 @@
 # dotfiles/bin/network/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # From Quack to Stack: Declarative Zigbee and home automations
+{ # From Quack to Stack: A fiööy Declarative Zigbee and home automation system
   self, # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 
   lib, 
   config, # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
@@ -212,7 +212,7 @@ EOF
         BACKUP_ID="zigbee_backup_$(date +%Y%m%d_%H%M%S)"
         BACKUP_TMP_FILE="$(mktemp)"
         say_duck "Triggering Zigbee coordinator backup: $BACKUP_ID"
-        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
+state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
       }
       # 🦆 says ⮞ handle backup response function
       handle_backup_response() {
@@ -327,7 +327,7 @@ EOF
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
             device_check            
             if [ "$contact" = "false" ]; then  # FIXED: Removed trailing space
-              dt_info "🚪 Door open in $dev_room ($device_name)"  # FIXED: Correct variable name    
+              dt_info "🚪 Door open in $dev_room ($device_name)"    
               if [ "$LARMED" = "true" ]; then  # FIXED: Removed trailing space
                 dt_critical "🚨 ALARM! Door open in $dev_room ($device_name) while armed!"  
                 yo notify "🚨 ALARM! Door open in $dev_room!"
@@ -364,10 +364,10 @@ EOF
 
           # 🦆 says ⮞ 💡 state change (debug)      
               if [ "$state" = "OFF" ]; then
-                dt_info "💡 $device_name Turned OFF in $dev_room"
+                dt_debug "💡 $device_name Turned OFF in $dev_room"
               fi  
               if [ "$state" = "ON" ]; then
-                dt_info "💡 $device_name Turned ON in $dev_room"
+                dt_debug "💡 $device_name Turned ON in $dev_room"
               fi                
             fi  
           fi 
@@ -386,11 +386,11 @@ EOF
               clean_room=$(echo "$dev_room" | sed 's/"//g')
                 ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
                   while read -r light_id; do
-                    dt_info "🔺 Increasing brightness on $light_id in $clean_room"
+                    dt_debug "🔺 Increasing brightness on $light_id in $clean_room"
                     mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":50,"transition":3.5}'
                   done
             fi
-            if [ "$action" == "up_hold_release" ]; then dt_info "$action"; fi
+            if [ "$action" == "up_hold_release" ]; then dt_debug "$action"; fi
             if [ "$action" == "down_press_release" ]; then
               clean_room=$(echo "$dev_room" | sed 's/"//g')
               ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
@@ -399,9 +399,9 @@ EOF
                   mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"brightness_step":-50,"transition":3.5}'
                 done
             fi
-            if [ "$action" == "down_hold_release" ]; then dt_info "$action"; fi
+            if [ "$action" == "down_hold_release" ]; then dt_debug "$action"; fi
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
-            if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_info "🚫 DARKNESS ON"; fi
+            if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "DARKNESS ON"; fi
           fi
         done
       }
@@ -475,7 +475,7 @@ EOF
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = false; # 🦆 says ⮞ 2duck4frontend yo
+          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
           host = "0.0.0.0";  # 🦆 says ⮞ duck means cool by the way - in case u did not realize 
           port = 8099; 
         };
@@ -662,9 +662,3 @@ EOF
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤
-
-
-
-
- 
-

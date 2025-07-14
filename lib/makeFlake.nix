@@ -108,6 +108,12 @@
       );
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);
+      # 🦆 duck say ⮞ show overlays in nix flake show
+      overlays = lib.mapAttrs'
+        (name: _: lib.nameValuePair (lib.removeSuffix ".nix" name)
+          (import (../overlays + "/${name}") { inherit lib; }))
+        (lib.filterAttrs (name: type: lib.hasSuffix ".nix" name)
+          (builtins.readDir ../overlays));
     };
 in { # 🦆 duck say ⮞ expose makeApp & makeFlake for use in flake
   inherit makeApp;
