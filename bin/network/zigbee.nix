@@ -180,12 +180,22 @@ EOF
       BACKUP_TMP_FILE=""
       LARMED_FILE="$STATE_DIR/security_state.json"
 
+      [ ! -f "$STATE_FILE" ] && echo "{}" > "$STATE_FILE"
+
+      update_device_state() {
+        local device="$1"
+        local key="$2"
+        local value="$3"
+        ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
+          '.[$dev][$key] = $val' "$STATE_FILE" > tmp.$$.json && mv tmp.$$.json "$STATE_FILE"
+      }
+
       set_larmed() {
         local state="$1"
         jq -n --argjson val "$state" '{larmed: $val}' > "$LARMED_FILE"
         mqtt_pub -t "zigbee2mqtt/security/state" -m "$(cat "$LARMED_FILE")"
       }
-
+      
       get_larmed() {
         if [ -f "$LARMED_FILE" ]; then
           jq -r '.larmed // false' "$LARMED_FILE"
@@ -194,7 +204,7 @@ EOF
         fi
       }
 
-      LARMED=$(jq -r '.larmed // false' "$LARMED_FILE" 2>/dev/null || echo "false")
+      LARMED=$(get_larmed)
 
       # 🦆 says ⮞ zigbee coordinator backup function
       perform_zigbee_backup() {
@@ -249,12 +259,30 @@ EOF
 
           # 🦆 says ⮞ 🚨 alarm
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("security")' > /dev/null; then 
-            if [ "$LARMED " = "true" ]; then
+            if [ "$LARMED" = "true" ]; then
               dt_info "Larmed apartment"
               yo notify "Larm på"
             fi
           fi
           
+          # 🦆 says ⮞ 🔋 battery reporting
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("battery")' > /dev/null; then
+            device_check
+            prev_battery=$(${pkgs.jq}/bin/jq -r ".\"$device_name\".battery" "$STATE_FILE")
+            if [ "$battery" != "$prev_battery" ] && [ "$prev_battery" != "null" ]; then
+              dt_info "🔋 Battery update for $device_name: ''${prev_battery}% > ''${battery}%"
+            fi
+          fi
+
+          # 🦆 says ⮞ 🌡️ temperature reporting
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("temperature")' > /dev/null; then
+            device_check
+            prev_temp=$(${pkgs.jq}/bin/jq -r ".\"$device_name\".temperature" "$STATE_FILE")
+            if [ "$temperature" != "$prev_temp" ] && [ "$prev_temp" != "null" ]; then
+              dt_info "🌡️ Temperature update for $device_name: ''${prev_temp}°C > ''${temperature}°C"
+            fi
+          fi
+         
           # 🦆 says ⮞ left home yo
           if [ "$line" = "LEFT" ]; then
             dt_warning "LEAVING HOME!"
@@ -284,12 +312,11 @@ EOF
           # 🦆 says ⮞ 💧 water sensor
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("water_leak")' > /dev/null; then
             device_check            
-            if [[ "$water_leak" == "true" || "$waterleak" == "true" || "$leak" == "true" || "$water" == "true" ]]; then
-              dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_nam"
-              yo notify "💧 WATER LEAK DETECTED in $dev_room on $device_nam"
+            if [[ "$water_leak" == "true" || "$waterleak" == "true" ]]; then
+              dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_name"
+              yo notify "💧 WATER LEAK DETECTED in $dev_room on $device_name"
               sleep 15
-              yo notify "WATER LEAK DETECTED in $dev_room on $device_nam"
-              dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_nam"       
+              yo notify "WATER LEAK DETECTED in $dev_room on $device_name"
             fi
           fi
           
