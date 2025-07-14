@@ -25,7 +25,7 @@ in {
     services.ntfy-sh = lib.mkIf (lib.elem "notfy" config.this.host.modules.services) {
        enable = true;
        settings = { # 🦆 duck say ⮞ dummy url yo!
-           base-url = builtins.readFile config.sops.secrets.ntfy-url.path;
+           base-url = "https://notfy.duckdns.org";
            listen-http = ":9913";
            behind-proxy = true;      
            web-push-public-key = "BGxWiWgvfogQXS9Lz9diQe7G29jvuca0856U6Fb8m9NPUQj525BS62syNrBXUTFx4H32GQFomdVs0lHrHDIXD3U";

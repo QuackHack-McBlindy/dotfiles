@@ -8,7 +8,7 @@
 }: let
   runtimeDeps = with pkgs; [ curl jq coreutils gnused ];
 in {
-  yo.scripts.transport = {
+  yo.scripts.travel = {
     description = "Public transportation helper. Fetches current bus and train schedules. (Sweden)";
     aliases = [ "bus" ];
     category = "🌍 Localization";
@@ -219,7 +219,35 @@ in {
       fi
     '';    
   };
-  
+
+  yo.bitch = { 
+    intents = {
+      travel = {
+        priority = 3;
+        data = [{
+          sentences = [
+            "när går bussen från {departure} till {arrival}"
+            "vilken tid går bussen från {departure} till {arrival}"
+            "när går bussen till {arrival} från {departure}"
+            "vilken tid går bussen till {arrival} från {departure}"
+            "när går (tåg|tåget) från {departure} till {arrival}"
+            "vilken tid går (tåg|tåget) från {departure} till {arrival}"
+            "när går (tåg|tåget) till {arrival} från {departure}"
+            "vilken tid går (tåg|tåget) till {arrival} från {departure}"           
+            "mår går tåget till {arrival}"
+            "vilken tid går tåget till {arrival}"
+            "mår går bussen till {arrival}"
+            "vilken tid går bussen till {arrival}"
+          ];    
+          lists = {
+            departure.wildcard = true;
+            arrival.wildcard = true;    
+          };
+        }];
+      };
+    };
+  };
+     
   sops = {
     secrets = {
       resrobot = {
@@ -235,5 +263,4 @@ in {
         mode = "0440";
       };      
     };
-  };
-}
+  };}
