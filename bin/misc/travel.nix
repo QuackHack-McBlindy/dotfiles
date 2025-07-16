@@ -235,14 +235,30 @@ in { # 🦆 says ⮞ voice intents
         exit 0
       fi
       
+      tts_messages=()
       echo -e "\n\\033[1mUpcoming Trips\\033[0m"
       displayed_count=0
       for i in $(seq 0 $((trip_count - 1))); do
+        tts_type=""
+        case "$transport_type" in
+          "BLT") tts_type="bussen" ;;
+          "TRM") tts_type="spårvagnen" ;;
+          "SHP") tts_type="färjan" ;;
+          "MTB") tts_type="tunnelbanan" ;;
+          "FLY") tts_type="flyget" ;;
+          "")    tts_type="tåget" ;;
+          *)     tts_type="fordonet" ;;
+        esac
         trip=$(echo "$trips_json" | jq -c ".Trip[$i]" 2>/dev/null)
         if [ -z "$trip" ] || [ "$trip" = "null" ]; then
           continue
         fi
-        
+        dep_short=$(format_time "$dep_time")
+        msg="$tts_type från $origin_name till $dest_name"
+        msg+=" avgår klockan $dep_short"
+        [ -n "$line_number" ] && [ "$line_number" != "N/A" ] && msg+=" med linje $line_number"
+    
+        tts_messages+=("$msg")         
         origin_name=$(echo "$trip" | jq -r '.Origin.name')
         dest_name=$(echo "$trip" | jq -r '.Destination.name') 
         dep_time=$(echo "$trip" | jq -r '.Origin.date + "T" + .Origin.time')
@@ -294,17 +310,9 @@ in { # 🦆 says ⮞ voice intents
       else
         echo "" 
       fi
-      tts_type=""
-      case "$transport_type" in
-        "BLT") tts_type="bussen" ;;
-        "TRM") tts_type="spårvagnen" ;;
-        "SHP") tts_type="färjan" ;;
-        "MTB") tts_type="tunnelbanan" ;;
-        "FLY") tts_type="flyget" ;;
-        "")    tts_type="tåget" ;;  # default to train
-        *)     tts_type="fordonet" ;;
-      esac
-      tts "$tts_type från $origin_name till $dest_name avgår med linje $line_number klockan $(format_time '$dep_time')"
+      if [ ''${#tts_messages[@]} -gt 0 ]; then
+        tts "Nästa resor: $(IFS='; '; echo "''${tts_messages[*]}")"
+      fi
     '';    
   };
     

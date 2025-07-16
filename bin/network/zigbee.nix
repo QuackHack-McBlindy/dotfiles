@@ -189,8 +189,11 @@ EOF
         local device="$1"
         local key="$2"
         local value="$3"
+        local tmpfile
+        tmpfile=$(mktemp -p "$STATE_DIR" tmp.XXXXXX)
+        chmod 600 "$tmpfile"
         ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
-          '.[$dev][$key] = $val' "$STATE_FILE" > tmp.$$.json && mv tmp.$$.json "$STATE_FILE"
+          '.[$dev][$key] = $val' "$STATE_FILE" > "$tmpfile" && mv "$tmpfile" "$STATE_FILE"
       }
 
       set_larmed() {
