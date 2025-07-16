@@ -23,7 +23,7 @@ in {
        ${cmdHelpers}
        
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
-         echo -e "\033[1;31m❌ $1\033[0m Unknown host: $host" >&2
+         say_duck "fuck ❌ Unknown host: $host" >&2
          echo "Available hosts: ${toString sysHosts}" >&2
          exit 1
        fi
@@ -74,12 +74,20 @@ in {
              # 🦆 duck say ⮞ decrypt key
              yo yubi decrypt "$flake/secrets/hosts/$host/age.key" > "$tmpkey" || fail "❌ Decryption failed"
     
-             ssh -p "$port" "$user@$host" "sudo mkdir -p '$key_dir' && sudo chown $(whoami) '$key_dir'" || fail "❌ Directory setup failed"
+             ssh -tt -p "$port" "$user@$host" "sudo mkdir -p '$key_dir' && sudo chown '$user' '$key_dir'" || fail "❌ Directory setup failed"
+
+#             tmp_remote_path="/home/$user/age.key.tmp"
+ #            scp -P "$port" "$tmpkey" "$user@$host:$tmp_remote_path" || fail "❌ Copy key failed"
+
+             tmp_remote_path="$key_path.tmp"
     
-             scp -P "$port" "$tmpkey" "$user@$host:$key_path.tmp" || fail "❌ Copy key failed"
-             ssh -p "$port" "$user@$host" "sudo mv '$key_path.tmp' '$key_path' && sudo chmod 600 '$key_path' && sudo chown root:root '$key_path'" || fail "❌ Key setup failed"
+             ssh -p "$port" "$user@$host" "cat > '$tmp_remote_path'" < "$tmpkey" || fail "❌ Copy key failed"
+
+             ssh -tt -p "$port" "$user@$host" "sudo mv '$tmp_remote_path' '$key_path' && sudo chmod 600 '$key_path' && sudo chown root:root '$key_path'" || fail "❌ Key setup failed"
+    
+             
              rm -f "$tmpkey"
-             echo "✅ Pre-bootstrap steps completed."
+             echo "🎉 Pre-bootstrap steps completed."
          else
              echo "Would set up age key at $key_path"
          fi

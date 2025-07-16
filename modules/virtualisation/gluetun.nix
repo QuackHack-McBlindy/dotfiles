@@ -115,26 +115,26 @@ in {
         sops.secrets = {
             PROTON_OPENVPN_USER = {
                 sopsFile = ./../../secrets/PROTON_OPENVPN_USER.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
             PROTON_OPENVPN_PASSWORD = {
                 sopsFile = ./../../secrets/PROTON_OPENVPN_PASSWORD.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
             SHADOWSOCKS_PASSWORD = {
                 sopsFile = ./../../secrets/SHADOWSOCKS_PASSWORD.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
             transmission = {
                 sopsFile = ./../../secrets/transmission.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
         };

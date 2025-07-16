@@ -1,5 +1,5 @@
 # dotfiles/bin/misc/time.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ one file for all time related scripts and intents
+{ # 🦆 says ⮞ Handles time related scripts.  
   self,
   lib,
   config,

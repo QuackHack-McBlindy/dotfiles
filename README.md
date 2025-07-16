@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/xma6mqfpksf23wijw6wn0jayl2rwin1m-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/m476fd24mcj6x1qaxr7q59zrj70r5b8w-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -182,8 +182,6 @@ I like my flakes tiny & ny modules dynamically loaded,
             };                   
         in lib.makeFlake { # 🦆 duck say ⮞ make my flake
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
-#            overlays = [ (import ./overlays/noisereduce.nix { inherit lib; }) ];
-#            overlays = import ./overlays { inherit (nixpkgs) lib; };
             overlays = lib.mapOverlays ./overlays { inherit lib; };
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
@@ -349,7 +347,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp ` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
-| `yo travel --arrival [--departure] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
+| `yo travel --arrival [--departure] [--type] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
 | `yo weather [--location] [--day] [--condition]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
@@ -358,11 +356,11 @@ Set default values for your parameters to have them marked [optional]
 | `yo speed ` | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
 | `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
-| `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--max_items]` | remote | Android TV Controller |
+| `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--favoritesPlaylist] [--max_items]` | remote | Android TV Controller |
 | `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
 | `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |
 | **🔐 Security & Encryption** | | |
-| `yo sops --input [--agePub] [--operation]` | e | Encrypts a file with sops-nix |
+| `yo sops --input [--operation] [--value] [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🛒 Shopping** | | |
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |

@@ -403,26 +403,26 @@ in {
         sops.secrets = lib.mkIf (!config.this.installer) {
             transmission = {
                 sopsFile = ./../../secrets/transmission.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
             discordToken = {
                 sopsFile = ./../../secrets/discordToken.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
             requestrrPassword = {
                 sopsFile = ./../../secrets/requestrrPassword.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
             requestrrPrivateKey = {
                 sopsFile = ./../../secrets/requestrrPrivateKey.yaml;
-                owner = "dockeruser";
-                group = "dockeruser";
+                owner = config.this.user.me.name;
+                group = config.this.user.me.name;
                 mode = "0440";
             };
         };

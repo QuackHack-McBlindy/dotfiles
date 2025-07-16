@@ -359,7 +359,22 @@
         yo-say "Ogiltigt svar brosh. Försök igen."
         confirm "$question"
       fi
-    }  
+    } 
+    urlencode() {
+        local string="$1"
+        local strlen=''${#string}
+        local encoded=""
+        local pos c o    
+        for (( pos=0; pos<strlen; pos++ )); do
+            c=''${string:$pos:1}
+            case "$c" in
+                [-_.~a-zA-Z0-9]) o="$c" ;;
+                *) printf -v o '%%%02X' "'$c" ;;
+            esac
+            encoded+="''${o}"
+        done
+        echo "$encoded"
+    }
     log_failed_input() {
       local sentence="$1"
       local config_dir="/home/${config.this.user.me.name}/.config"

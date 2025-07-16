@@ -19,17 +19,21 @@ in {
             "jag vill se {typ} {search} i {device}"    
             "jag vill lyssna på {typ} i {device}"
             "jag vill höra {typ} {search} i {device}"
-            "ring {typ}"
-            "hitta {typ}"
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
             "tv {typ} i {device}"
             # 🦆 says ⮞ default player
             "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
             "jag vill se {typ} {search}"    
-            "jag vill lyssna på {typ}"
-            "jag vill höra {typ}"
+            "jag vill lyssna på [mina] {typ}"
+            "jag vill höra [mina] {typ}"
             "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten)"       
-            "tv [typ}"
+            "tv {typ}"
+            # 🦆 says ⮞ append to favorites playlist
+            "spara i {typ}"
+            "lägg till den här [låten] i {typ}"
+            # 🦆 says ⮞ find remote
+            "ring {typ}"
+            "hitta {typ}"            
           ];    
           lists = {
             typ.values = [
@@ -42,7 +46,7 @@ in {
               { "in" = "[ljudbok|ljudboken]"; out = "audiobook"; }
               { "in" = "video"; out = "othervideo"; }
               { "in" = "[musicvideo|musikvideo]"; out = "musicvideo"; }
-              { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "playlist"; }
+              { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "favorites"; }
               { "in" = "[kanal|kanalen|kannal]"; out = "livetv"; }
               { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }
               { "in" = "[paus|pause|pausa|tyst|tysta|mute|stop]"; out = "pause"; }
@@ -51,7 +55,8 @@ in {
               { "in" = "[sänk|sänkt|ner|ned]"; out = "down"; }
               { "in" = "[näst|nästa|nästan|next|fram|framåt]"; out = "next"; }
               { "in" = "[förr|förra|föregående|backa|bakåt]"; out = "previous"; }
-              { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
+#              { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
+              { "in" = "[favorit|favoriter|bästa]"; out = "add"; }
               { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }   
               { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "call"; }   
               { "in" = "[av|stäng av]"; out = "off"; }            
@@ -75,7 +80,7 @@ in {
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "typ"; description = "Media type"; default = "tv"; optional = true; }
+      { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube"; default = "tv"; optional = true; }
       { name = "search"; description = "Media to search"; optional = true; }
       { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }      
       { name = "shuffle"; description = "Shuffle Toggle, true or false"; default = "true"; }   
@@ -89,7 +94,8 @@ in {
       { name = "youtubeAPIkeyFile"; description = "File containing YouTube API key"; default = config.sops.secrets.youtube_api_key.path; }
       { name = "webserver"; description = "File containing webserver URL that stores media"; default = config.sops.secrets.webserver.path; }     
       { name = "defaultPlaylist"; description = "Default playlist path"; default = "/Pool/playlist.m3u"; }
-      { name = "max_items"; description = "Max number of items in playlist"; default = "200"; }         
+      { name = "favoritesPlaylist"; description = "File path for Favouyrites tagged entries"; default = "/Pool/favorites.m3u"; }      
+      { name = "max_items"; description = "Set a maximum number of items in playlist"; default = "200"; }         
     ];
     code = ''    
       ${cmdHelpers}
@@ -108,6 +114,8 @@ in {
       playlist_file="$defaultPlaylist"
       WEBSERVER=$(cat $webserver)
       PLAYLIST_SAVE_PATH="$playlist_file"
+      FAVORITES_PATH="$favoritesPlaylist"
+      FAVORITES="$WEBSERVER/favorites.m3u"
       INTRO_URL="$WEBSERVER/intro.mp4"
 
       declare -A SEARCH_FOLDERS=(
@@ -180,6 +188,26 @@ in {
           rm "$temp_file"
           dt_info "Playlist generated: $PLAYLIST_SAVE_PATH (shuffle: $SHUFFLE)"
       }
+      play_favorites() {
+          local device_ip="$1"
+          local playlist_url="$FAVORITES"
+          control_device "$device_ip" power_on
+          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
+          if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
+              dt_debug "Started playing favorites on device ''${device_ip}"
+          else
+              adb disconnect ''${device_ip}
+              sleep 0.2
+              adb connect ''${device_ip}
+              sleep 0.1
+              if (( retries < max_retries )); then
+                dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
+                start_playlist "$device_ip" $((retries + 1))
+              else
+                dt_error "Max retries reached. Could not start playlist on ''${device_ip}"
+              fi
+          fi
+      }
       start_playlist() {
           local device_ip="$1"
           local playlist_url="$WEBSERVER/playlist.m3u"
@@ -188,7 +216,16 @@ in {
           if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
               dt_debug "Playlist started successfully on device ''${device_ip}"
           else
-              dt_error "Failed to start playlist on device ''${device_ip}"
+              adb disconnect ''${device_ip}
+              sleep 0.2
+              adb connect ''${device_ip}
+              sleep 0.1
+              if (( retries < max_retries )); then
+                dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
+                start_playlist "$device_ip" $((retries + 1))
+              else
+                dt_error "Max retries reached. Could not start playlist on ''${device_ip}"
+              fi
           fi
       }
                 
@@ -258,35 +295,16 @@ in {
           sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |  # Trim spaces
           sed -e 's/[[:space:]]+/ /g'          # Normalize spaces
       }
-
-      urlencode() {
-          local string="$1"
-          local strlen=''${#string}
-          local encoded=""
-          local pos c o    
-          for (( pos=0; pos<strlen; pos++ )); do
-              c=''${string:$pos:1}
-              case "$c" in
-                  [-_.~a-zA-Z0-9]) o="$c" ;;
-                  *) printf -v o '%%%02X' "'$c" ;;
-              esac
-              encoded+="''${o}"
-          done
-          echo "$encoded"
-      }
-    
+  
       template_single_path() {
           local path="$1"
           local media_type="$2"
-          local base_path="''${SEARCH_FOLDERS[$media_type]}"
-          
+          local base_path="''${SEARCH_FOLDERS[$media_type]}" 
           base_path="''${base_path%/}"
           local folder_name=$(basename "$base_path")
-          
           local relative_path="''${path#$base_path/}"
           relative_path="''${relative_path#$base_path}"
           relative_path="''${relative_path#/}"
-          
           local encoded_path=""
           IFS='/' read -ra parts <<< "$relative_path"
           for part in "''${parts[@]}"; do
@@ -305,7 +323,6 @@ in {
           local normalized_search
           normalized_search=$(normalize_string "$search")
           local -a results
-          
           local find_cmd="find \"$dir\" -type f"
           if [ ''${#exts[@]} -gt 0 ]; then
               find_cmd+=" \("
@@ -316,29 +333,25 @@ in {
               find_cmd+=" \)"
           fi
           find_cmd+=" -print0"
-          
+
           # 🦆 says ⮞ process filez
           while IFS= read -r -d $'\0' file; do
               local filename=$(basename "$file")
               local base_name="''${filename%.*}"
               local normalized_item
-              normalized_item=$(normalize_string "$base_name")
-              
+              normalized_item=$(normalize_string "$base_name") 
               local tri_score lev_score combined_score
               tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
               lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
               combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-              
               results+=("$combined_score:$file:$base_name")
           done < <(eval "$find_cmd")
-          
           # 🦆 says ⮞ sort by match % and select da top 3 yo
           IFS=$'\n' sorted=($(printf "%s\n" "''${results[@]}" | sort -t':' -k1 -nr | head -n 3))
-          unset IFS
-          
+          unset IFS  
           printf "%s\n" "''${sorted[@]}"
       }
-
+      # 🦆 says ⮞ play youtube video yo
       play_youtube_video() {
           local device_ip="$1"
           local video_url="$2"
@@ -348,42 +361,34 @@ in {
               dt_error "Failed to start YouTube on device ''${device_ip}"
           fi          
       }
-      
+      # 🦆 says ⮞ search 4 youtube video yo
       search_youtube() {
           local query="$1"
           local api_key_file="$2"
-          
           if [[ ! -f "$api_key_file" ]]; then
               dt_error "YouTube API key file not found: $api_key_file"
               return 1
           fi
           local api_key
           api_key=$(<"$api_key_file")
-          
           local encoded_query
           encoded_query=$(urlencode "$query")
-          
           local url="https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=5&q=$encoded_query&key=$api_key"
-          
           local response
           response=$(curl -s -w "%{http_code}" "$url")
           local status_code="''${response: -3}"
-          local content="''${response%???}"
-          
+          local content="''${response%???}" 
           if [[ "$status_code" != "200" ]]; then
               dt_error "YouTube API request failed. Status: $status_code"
               return 1
-          fi
-          
+          fi  
           local video_id title
           video_id=$(echo "$content" | jq -r '.items[0].id.videoId // empty')
           title=$(echo "$content" | jq -r '.items[0].snippet.title // empty')
-          
           if [[ -z "$video_id" ]]; then
               dt_error "No YouTube videos found for: $query"
               return 1
           fi
-          
           echo "https://www.youtube.com/watch?v=$video_id"
           echo "$title"
           return 0
@@ -458,12 +463,11 @@ in {
       # 🦆 says ⮞ file based searchez - like song etc, yo!  
       song|othervideo)
           case "$media_type" in
-            # 🦆 says ⮞ search 4 music song yo
-            song)
+            song) # 🦆 says ⮞ search 4 music song yo
               search_dir="$MUSICDIR"
               extensions=("*.mp3" "*.flac" "*.m4a" "*.wav")
-              ;; # 🦆 says ⮞ other videos not categorized elsewhere
-            othervideo)
+              ;; 
+            othervideo) # 🦆 says ⮞ other videos not categorized elsewhere
               search_dir="$VIDEOSDIR"
               extensions=("*.mp4" "*.mkv" "*.avi" "*.mov")
               ;;
@@ -492,50 +496,56 @@ in {
               dt_error "Inga filer hittades för $media_search"
               exit 1
           fi
-          ;; # 🦆 says ⮞ shuffled randomized music
-        jukebox)
+          ;; 
+        jukebox) # 🦆 says ⮞ shuffled randomized music
           matched_media="shuffle"
           yo say "Spelar slumpad musik"
-          ;; # 🦆 says ⮞ play favourite music playlist 
-        playlist)
-          matched_media="playlist"
-          yo say "Spelar upp spellista"
-          ;; # 🦆 says ⮞ save track to playlist               
-        add)
-          matched_media="$media_type"
-          yo say "Sparar låten till din spellista."
-          ;; # 🦆 says ⮞ next track     
-        next)
+          ;; 
+        favorites) # 🦆 says ⮞ play favourite music playlist 
+          play_favorites
+          ;; 
+        add) # 🦆 says ⮞ save track to favorites 
+          current_track=$(adb -s $DEVICE:5555 shell dumpsys media_session | grep -oP 'description=\K[^,]+' | head -n 1)
+          if grep -qF "$current_track" "$FAVORITES_PATH"; then
+            yo say "Låten finns redan i dina favoriter"
+          else 
+            echo "$current_track" >> "$FAVORITES_PATH"
+            dt_info "$current_track har lagts till i dina favoriter"
+            yo say "$current_track har lagts till i dina favoriter"
+            exit 0
+          fi  
+          ;;   
+        next) # 🦆 says ⮞ next track   
           dt_debug "Next track .."
           control_device "$DEVICE" next
           exit 0
-          ;; # 🦆 says ⮞ previous track     
-        previous)
+          ;;  
+        previous) # 🦆 says ⮞ previous track    
           dt_debug "Previous track .."
           control_device "$DEVICE" previous
           exit 0
-          ;; # 🦆 says ⮞ pause/play     
-        pause|play)
+          ;;  
+        pause|play) # 🦆 says ⮞ pause/play command
           dt_debug "Pause/Play .."
           control_device "$DEVICE" play_pause
           exit 0
-          ;; # 🦆 says ⮞ volume down     
-        down)
+          ;; 
+        down) # 🦆 says ⮞ volume down     
           dt_debug "Lowering volume.."
           control_device "$DEVICE" volume_down && control_device "$DEVICE" volume_down && control_device "$DEVICE" volume_down
           exit 0
-          ;; # 🦆 says ⮞ volume up     
-        up)
+          ;;     
+        up) # 🦆 says ⮞ volume up 
           dt_debug "Volume up.."
           control_device "$DEVICE" volume_up && control_device "$DEVICE" volume_up
           exit 0
-          ;; # 🦆 says ⮞ newz, handled externally by yo news            
-        news)
+          ;;         
+        news) # 🦆 says ⮞ newz, handled externally by yo news  
           dt_debug "Playing news"
           yo-news
           exit 0
-          ;; # 🦆 says ⮞ play youtube videoz yo          
-        youtube)
+          ;;     
+        youtube) # 🦆 says ⮞ play youtube videoz yo      
           dt_debug "Playing YouTube"
           video_info=$(search_youtube "$media_search" "$youtubeAPIkeyFile")
           if [[ $? -eq 0 ]]; then
@@ -547,22 +557,22 @@ in {
             dt_error "YouTube search failed"
           fi
           exit 0
-          ;; # 🦆 says ⮞ TODO handle live tv channels properly
-        livetv)
+          ;; 
+        livetv) # 🦆 says ⮞ TODO handle live tv channels properly
           matched_media="$media_type"
           yo say "Aktiverar $media_type"
-          ;; # 🦆 says ⮞ find remote     
-        call)
+          ;; 
+        call) # 🦆 says ⮞ find remote     
           dt_debug "Calling remote.."
           control_device "$DEVICE" find_remote
           exit 0
-          ;; # 🦆 says ⮞ power on device     
-        on)
+          ;; 
+        on) # 🦆 says ⮞ power on device     
           dt_debug "Powering on $DEVICE .."
           control_device "$DEVICE" power_on
           exit 0
-          ;; # 🦆 says ⮞ power off device     
-        off)
+          ;;  
+        off) # 🦆 says ⮞ power off device    
           dt_debug "Powering off $DEVICE .."
           control_device "$DEVICE" power_off
           exit 0

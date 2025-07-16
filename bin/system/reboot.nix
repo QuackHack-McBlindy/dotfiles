@@ -13,7 +13,7 @@
           ${cmdHelpers}
 
           if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
-            echo -e "\033[1;31m❌ Invalid host: $host\033[0m" >&2
+            say_duck "fuck ❌ Invalid host: $host"
             echo "Available hosts: ${toString sysHosts}" >&2
             exit 1
           fi

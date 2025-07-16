@@ -59,7 +59,7 @@ in {
       
       if [ ! -f "$jsonFilePath" ]; then
         yo tv-scraper
-        sleep 5
+        sleep 6
       fi
       
       clean_title() {

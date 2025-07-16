@@ -1,6 +1,12 @@
-# dotfiles/bin/security/yk.nix
-{ pkgs, cmdHelpers, ... }:
-{
+# dotfiles/bin/security/yknix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞
+  self,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : let
+in { 
     yo.scripts = {
       yubi = {
         description = "Encrypts and decrypts files using a Yubikey and AGE";

@@ -1,22 +1,57 @@
-# dotfiles/bin/system/transport.nix  ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+# dotfiles/bin/system/travel.nix  ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ Swedish Public Transportation assistant.
   config,
   lib,
   pkgs,
   cmdHelpers,
   ...
 }: let
-  runtimeDeps = with pkgs; [ curl jq coreutils gnused ];
-in {
+
+in { # 🦆 says ⮞ voice intents
+  yo.bitch = { 
+    intents = {
+      travel = { # 🦆 says ⮞ intent priority, 1 for fastest - 5 for slowest
+        priority = 3;
+        data = [{
+          sentences = [
+            # 🦆 says ⮞ using default --departure
+            "mår går tåget till {arrival}"
+            "vilken tid går tåget till {arrival}"
+            "mår går bussen till {arrival}"
+            "vilken tid går bussen till {arrival}"
+            # 🦆 says ⮞ call using type, arrival, and departure
+            "när går {type} från {departure} till {arrival}"
+            "vilken tid går {type} från {departure} till {arrival}"
+            "när går {type} till {arrival} från {departure}"
+            "vilken tid går {type} till {arrival} från {departure}"
+          ];    
+          lists = {
+            departure.wildcard = true;
+            arrival.wildcard = true;    
+            type.values = [
+              { "in" = "[bus|buss|bussen]"; out = "bus"; }
+              { "in" = "[tåg|tåget]"; out = "train"; }
+              { "in" = "[flyg|flyget]"; out = "air"; }              
+              { "in" = "[spårvagn|spårvagnen|vagnen]"; out = "tram"; }
+              { "in" = "[tunnelbana|tunnelbanan]"; out = "metro"; }              
+              { "in" = "[färja|färjan|båt|båten]"; out = "ferry"; }
+            ];
+          };
+        }];
+      };
+    };
+  };
+  
+  # 🦆 says ⮞ da script yo
   yo.scripts.travel = {
     description = "Public transportation helper. Fetches current bus and train schedules. (Sweden)";
-#    aliases = [ "" ];
     category = "🌍 Localization";
     autoStart = false;
-    logLevel = "DEBUG";
+    logLevel = "INFO";
     parameters = [
       { name = "arrival"; description = "Destination stop or city"; optional = false; }
       { name = "departure"; description = "Departure stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
+      { name = "type"; description = "Optionally specify a transportation type"; optional = true; }      
       { name = "apikeyPath"; description = "Trafiklab API key path"; optional = true; default = config.sops.secrets.resrobot.path; }
     ];
     code = ''
@@ -24,53 +59,93 @@ in {
       API_KEY=$(cat "$apikeyPath")
       origin="$departure"
       destination="$arrival"
+      transport_type="$type"
       export TZ="Europe/Stockholm"      
+   
+      # 🦆 says ⮞ type mappin'
+      declare -A TYPE_MATCH=(
+        ["bus"]="BLT"
+        ["train"]=""
+        ["air"]="FLY"
+        ["tram"]="TRM"
+        ["metro"]="MTB"
+        ["ferry"]="SHP"
+      )
 
-      PATH="${lib.makeBinPath runtimeDeps}:$PATH"
-      
+      get_icon_for_type() {
+        local type="$1"
+        case "$type" in
+          bus) echo "🚌" ;;
+          train) echo "🚆" ;;
+          air) echo "✈️" ;;
+          tram) echo "🚋" ;;
+          metro) echo "🚇" ;;
+          ferry) echo "⛴️" ;;
+          *) echo "❓" ;;
+        esac
+      }
+
+      # 🦆 says ⮞ fetch stop id'z
       get_stop_id() {
         local stop_name="$1"
-        local url="https://api.resrobot.se/v2.1/location.name?input=$stop_name&format=json&accessId=$API_KEY"
-        
+#        dt_debug "Fetching stop ID for: $stop_name" 
+        local encoded_stop_name
+        encoded_stop_name=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$stop_name")
+        local url="https://api.resrobot.se/v2.1/location.name?input=$encoded_stop_name&format=json&accessId=$API_KEY"
         local response
-        response=$(curl -s -w "%{http_code}" "$url")
-        local status_code=$(printf '%s' "$response" | tail -c 3)
-        local content=$(printf '%s' "$response" | head -c -3)
-        
-        if [ "$status_code" -ne 200 ]; then
-          dt_error "API error: Received status $status_code"
-          exit 1
+        response=$(curl -s "$url")
+#        dt_debug "Location API response: $response"
+
+        local stop_id
+        stop_id=$(echo "$response" | jq -r '.stopLocationOrCoordLocation[]?.StopLocation?.extId' 2>/dev/null | head -1)
+
+        if [ -n "$stop_id" ] && [ "$stop_id" != "null" ]; then
+          echo "$stop_id"
+          return
         fi
-        
-        local stop_id=$(echo "$content" | jq -r '.stopLocationOrCoordLocation[].StopLocation.extId' 2>/dev/null | head -1)
-        
-        if [ -z "$stop_id" ]; then
-          dt_error "No stops found for $stop_name"
-          exit 1
+
+        # 🦆 says ⮞ fallback to CoordLocation (lat/lon)
+        local lat
+        local lon
+        lat=$(echo "$response" | jq -r '.stopLocationOrCoordLocation[]?.CoordLocation?.lat' 2>/dev/null | head -1)
+        lon=$(echo "$response" | jq -r '.stopLocationOrCoordLocation[]?.CoordLocation?.lon' 2>/dev/null | head -1)
+
+        if [ -n "$lat" ] && [ -n "$lon" ]; then
+          echo "$lat,$lon"  # Special marker
+          return
         fi
-        
-        echo "$stop_id"
+
+        dt_error "No stops found for $stop_name"
       }
       
+      # 🦆 says ⮞ fetchin' route info
       get_next_route() {
         local origin_id="$1"
         local dest_id="$2"
-        local url="https://api.resrobot.se/v2.1/trip?format=json&originId=$origin_id&destId=$dest_id&passlist=0&showPassingPoints=0&numF=3&accessId=$API_KEY"
-        
-        local response
-        response=$(curl -s -w "%{http_code}" "$url")
-        local status_code=$(printf '%s' "$response" | tail -c 3)
-        local content=$(printf '%s' "$response" | head -c -3)
-        
-        if [ "$status_code" -eq 400 ]; then
-          dt_error "Bad request - Invalid stop combination"
-          exit 1
-        elif [ "$status_code" -ne 200 ]; then
-          dt_error "API error: Received status $status_code"
-          exit 1
+        local origin_param=""
+        local dest_param=""
+
+        if [[ "$origin_id" == *,* ]]; then
+          local lat="''${origin_id%%,*}"
+          local lon="''${origin_id##*,}"
+          origin_param="originCoordLat=$lat&originCoordLong=$lon"
+        else
+          origin_param="originId=$origin_id"
         fi
-        
-        echo "$content"
+
+        if [[ "$dest_id" == *,* ]]; then
+          local lat="''${dest_id%%,*}"
+          local lon="''${dest_id##*,}"
+          dest_param="destCoordLat=$lat&destCoordLong=$lon"
+        else
+          dest_param="destId=$dest_id"
+        fi
+        local url="https://api.resrobot.se/v2.1/trip?format=json&$origin_param&$dest_param&passlist=0&showPassingPoints=0&numF=3&accessId=$API_KEY"
+#        dt_debug "API URL: $url"
+        local response
+        response=$(curl -s "$url")
+
+        echo "$response"
       }
       
       format_time() {
@@ -85,34 +160,18 @@ in {
       calculate_duration() {
         local start="$1"
         local end="$2"
-        
         if [ -z "$start" ] || [ -z "$end" ] || [ "$start" = "N/A" ] || [ "$end" = "N/A" ]; then
           echo "N/A"
           return
-        fi
-        
-        local start_time="''${start:11:5}"
-        local end_time="''${end:11:5}"
-        local start_hour="''${start_time:0:2}"
-        local start_min="''${start_time:3:2}"
-        local end_hour="''${end_time:0:2}"
-        local end_min="''${end_time:3:2}"
-        
-        if ! [[ "$start_hour" =~ ^[0-9]+$ ]] || ! [[ "$start_min" =~ ^[0-9]+$ ]] ||
-           ! [[ "$end_hour" =~ ^[0-9]+$ ]] || ! [[ "$end_min" =~ ^[0-9]+$ ]]; then
+        fi    
+        local start_epoch=$(date -d "$start" +%s 2>/dev/null)
+        local end_epoch=$(date -d "$end" +%s 2>/dev/null)      
+        if [ -z "$start_epoch" ] || [ -z "$end_epoch" ]; then
           echo "N/A"
           return
-        fi
-        
-        local start_minutes=$((10#$start_hour * 60 + 10#$start_min))
-        local end_minutes=$((10#$end_hour * 60 + 10#$end_min))
-        local duration=$((end_minutes - start_minutes))
-        
-        if [ $duration -lt 0 ]; then
-          duration=$((duration + 24 * 60))
-        fi
-        
-        printf "%dh %02dm" $((duration / 60)) $((duration % 60))
+        fi        
+        local duration=$((end_epoch - start_epoch))
+        printf "%dh %02dm" $((duration / 3600)) $(( (duration % 3600) / 60 ))
       }
       
       display_trip() {
@@ -122,32 +181,29 @@ in {
         local dep_time="$4"
         local arr_time="$5"
         local transport_type="$6"
-        local line_number="$7"
-        
+        local line_number="$7"   
         local dep_short=$(format_time "$dep_time")
         local arr_short=$(format_time "$arr_time")
-        local duration=$(calculate_duration "$dep_time" "$arr_time")
-        
+        local duration=$(calculate_duration "$dep_time" "$arr_time")  
         local minutes_until="?"
         if [ -n "$dep_time" ] && [ ''${#dep_time} -ge 16 ]; then
           local now_epoch=$(date +%s)
-          local date_part="''${dep_time:0:10}"
-          local time_part="''${dep_time:11:5}"
-          
-          if dep_epoch=$(date -d "$date_part $time_part" +%s 2>/dev/null); then
+          if dep_epoch=$(date -d "$dep_time" +%s 2>/dev/null); then
             minutes_until=$(((dep_epoch - now_epoch) / 60))
           fi
         fi
         
-        if ! [ "$minutes_until" -eq "$minutes_until" ] 2>/dev/null || [ -z "$minutes_until" ]; then
+        if ! [[ "$minutes_until" =~ ^[0-9]+$ ]]; then
           minutes_until="?"
         fi
         
         local time_color="\\033[32m"  # Green
-        if [ "$minutes_until" != "?" ] && [ "$minutes_until" -lt 5 ] 2>/dev/null; then
-          time_color="\\033[31m"  # Red
-        elif [ "$minutes_until" != "?" ] && [ "$minutes_until" -lt 15 ] 2>/dev/null; then
-          time_color="\\033[33m"  # Yellow
+        if [ "$minutes_until" != "?" ]; then
+          if [ "$minutes_until" -lt 5 ]; then
+            time_color="\\033[31m"  # Red
+          elif [ "$minutes_until" -lt 15 ]; then
+            time_color="\\033[33m"  # Yellow
+          fi
         fi
         
         if [ "$idx" -eq 0 ]; then
@@ -157,93 +213,101 @@ in {
         
         printf "%2d. ''${time_color}%3s min\\033[0m │ %s → %s │ " "$((idx+1))" "$minutes_until" "$dep_short" "$arr_short"
         printf "⏱ $duration │ "
-        echo -e "🚌 \\033[1m''${transport_type} ''${line_number}\\033[0m"
+        icon=$(get_icon_for_type "$type")
+        echo -e "$icon \\033[1m''${transport_type} ''${line_number}\\033[0m"
       }
       
       origin_id=$(get_stop_id "$origin")
       dest_id=$(get_stop_id "$destination")
+      dt_debug "Using Origin ID: $origin_id, Destination ID: $dest_id"
       
-      trips_json=$(get_next_route "$origin_id" "$dest_id")
-      
-      echo -e "\n\\033[1mUpcoming Trips\\033[0m"
+      trips_json=$(get_next_route "$origin_id" "$dest_id")      
+      if [ -z "$trips_json" ]; then
+        dt_error "Empty trip data from API"
+        exit 1
+      fi
       
       trip_count=$(echo "$trips_json" | jq -r '.Trip | length' 2>/dev/null)
+      dt_debug "Found $trip_count trips"
+      
       if [ -z "$trip_count" ] || [ "$trip_count" -eq 0 ]; then
         dt_info "No trips found"
         exit 0
       fi
       
+      echo -e "\n\\033[1mUpcoming Trips\\033[0m"
+      displayed_count=0
       for i in $(seq 0 $((trip_count - 1))); do
         trip=$(echo "$trips_json" | jq -c ".Trip[$i]" 2>/dev/null)
         if [ -z "$trip" ] || [ "$trip" = "null" ]; then
           continue
         fi
         
-        origin_name=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.name // "Unknown"' 2>/dev/null)
-        dest_name=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.name // "Unknown"' 2>/dev/null)
+        origin_name=$(echo "$trip" | jq -r '.Origin.name')
+        dest_name=$(echo "$trip" | jq -r '.Destination.name') 
+        dep_time=$(echo "$trip" | jq -r '.Origin.date + "T" + .Origin.time')
+        arr_time=$(echo "$trip" | jq -r '.Destination.date + "T" + .Destination.time')
+        
         dep_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.date // ""' 2>/dev/null)
         dep_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.time // ""' 2>/dev/null)
         arr_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.date // ""' 2>/dev/null)
         arr_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Destination.time // ""' 2>/dev/null)
-
-        dep_time="''${dep_date}T''${dep_time_val}"
-        arr_time="''${arr_date}T''${arr_time_val}"
-
+        
         transport_type="Transport"
         line_number="N/A"
         
         product=$(echo "$trip" | jq -c '.LegList.Leg[0].Product' 2>/dev/null)
+
+        transport_type="Transport"
+        line_number="N/A"
+        product_code=""
+
         if [ -n "$product" ] && [ "$product" != "null" ]; then
           if echo "$product" | jq -e 'type == "array"' &>/dev/null; then
             transport_type=$(echo "$product" | jq -r '.[0].catOut // "Transport"' 2>/dev/null)
             line_number=$(echo "$product" | jq -r '.[0].num // "N/A"' 2>/dev/null)
+            product_code=$(echo "$product" | jq -r '.[0].catCode // empty' 2>/dev/null)
           else
             transport_type=$(echo "$product" | jq -r '.catOut // "Transport"' 2>/dev/null)
             line_number=$(echo "$product" | jq -r '.num // "N/A"' 2>/dev/null)
+            product_code=$(echo "$product" | jq -r '.catCode // empty' 2>/dev/null)
           fi
         fi
-        
+
+        # 🦆 says ⮞ skip if type is set and dont match 
+        if [ -n "$type" ]; then
+          expected_cat="''${TYPE_MATCH[$type]}"
+          if [ -n "$expected_cat" ] && [[ "$transport_type" != "$expected_cat" ]]; then
+            continue
+          fi
+        fi
+
         if [ -n "$origin_name" ] && [ -n "$dest_name" ]; then
-          display_trip "$i" "$origin_name" "$dest_name" "$dep_time" "$arr_time" "$transport_type" "$line_number"
+          display_trip "$displayed_count" "$origin_name" "$dest_name" "$dep_time" "$arr_time" "$transport_type" "$line_number"
+          displayed_count=$((displayed_count + 1))
         fi
       done
-      
-      
+        
       dt_debug "\n\\033[2m----- RAW DATA -----\\033[0m"
-      dt_debug "$trips_json" | jq .
-      
+      if echo "$trips_json" | jq empty &>/dev/null; then
+        dt_debug "$trips_json" | jq .
+      else
+        echo "" 
+      fi
+      tts_type=""
+      case "$transport_type" in
+        "BLT") tts_type="bussen" ;;
+        "TRM") tts_type="spårvagnen" ;;
+        "SHP") tts_type="färjan" ;;
+        "MTB") tts_type="tunnelbanan" ;;
+        "FLY") tts_type="flyget" ;;
+        "")    tts_type="tåget" ;;  # default to train
+        *)     tts_type="fordonet" ;;
+      esac
+      tts "$tts_type från $origin_name till $dest_name avgår med linje $line_number klockan $(format_time '$dep_time')"
     '';    
   };
-  
-  yo.bitch = { 
-    intents = {
-      travel = {
-        priority = 3;
-        data = [{
-          sentences = [
-            "när går bussen från {departure} till {arrival}"
-            "vilken tid går bussen från {departure} till {arrival}"
-            "när går bussen till {arrival} från {departure}"
-            "vilken tid går bussen till {arrival} från {departure}"
-            "när går (tåg|tåget) från {departure} till {arrival}"
-            "vilken tid går (tåg|tåget) från {departure} till {arrival}"
-            "när går (tåg|tåget) till {arrival} från {departure}"
-            "vilken tid går (tåg|tåget) till {arrival} från {departure}"           
-            "mår går tåget till {arrival}"
-            "vilken tid går tåget till {arrival}"
-            "mår går bussen till {arrival}"
-            "vilken tid går bussen till {arrival}"
-          ];    
-          lists = {
-            departure.wildcard = true;
-            arrival.wildcard = true;    
-          };
-        }];
-      };
-    };
-  };
-
-  
+    
   sops = {
     secrets = {
       resrobot = {

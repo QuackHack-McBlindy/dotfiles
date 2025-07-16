@@ -176,13 +176,15 @@ EOF
       STATE_DIR="${zigduckDir}"
       STATE_FILE="$STATE_DIR/state.json"
       TIMER_DIR="$STATE_DIR/timers" 
-      mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"     
       BACKUP_ID=""
       BACKUP_TMP_FILE=""
       LARMED_FILE="$STATE_DIR/security_state.json"
-
-      [ ! -f "$STATE_FILE" ] && echo "{}" > "$STATE_FILE"
-
+      umask 077
+      mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"
+      if [ ! -f "$STATE_FILE" ]; then
+        echo "{}" > "$STATE_FILE"
+        chmod 600 "$STATE_FILE"  # Explicitly set permissions
+      fi   
       update_device_state() {
         local device="$1"
         local key="$2"
