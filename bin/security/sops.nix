@@ -57,25 +57,25 @@ in {
             fi  
           
           # 🦆 duck say ⮞ APPEND
-          elif [[ "$OPERATION" == "append" ]]; then
-            if [[ -z "$value" ]]; then
-              say_duck "fuck ❌ Error: Value to append not provided!"
-              exit 1
-            fi
-            dt_debug "Decrypting '$INPUT_FILE' for append..."
-            TEMP_FILE=$(mktemp)
-            cleanup() { rm -f "$TEMP_FILE"; }
-            trap cleanup EXIT
-            ${pkgs.sops}/bin/sops -d "$INPUT_FILE" > "$TEMP_FILE"
-            ${pkgs.yq}/bin/yq -i -Y '
-              (select(tag == "!!str") |= . + "\n'"$value"'" |
-              (.. | select(tag == "!!str" and style == "literal") |= . + "\n'"$value"'" |
-              (select(tag == "!!seq") |= . + ["'"$value"'"])
-            ' "$TEMP_FILE"
+#          elif [[ "$OPERATION" == "append" ]]; then
+#            if [[ -z "$value" ]]; then
+#              say_duck "fuck ❌ Error: Value to append not provided!"
+#              exit 1
+#            fi
+#            dt_debug "Decrypting '$INPUT_FILE' for append..."
+#            TEMP_FILE=$(mktemp)
+#            cleanup() { rm -f "$TEMP_FILE"; }
+#            trap cleanup EXIT
+#            ${pkgs.sops}/bin/sops -d "$INPUT_FILE" > "$TEMP_FILE"
+#            ${pkgs.yq}/bin/yq -i -Y '
+#              (select(tag == "!!str") |= . + "\n'"$value"'" |
+#              (.. | select(tag == "!!str" and style == "literal") |= . + "\n'"$value"'" |
+#              (select(tag == "!!seq") |= . + ["'"$value"'"])
+#            ' "$TEMP_FILE"
   
-            ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --input-type yaml --output-type yaml "$TEMP_FILE" > "$INPUT_FILE"
-            dt_info "Line appended, File re-encrypted!"
-            exit 
+#            ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --input-type yaml --output-type yaml "$TEMP_FILE" > "$INPUT_FILE"
+#            dt_info "Line appended, File re-encrypted!"
+#            exit 
           fi  
         '';
       };

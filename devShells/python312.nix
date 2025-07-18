@@ -1,36 +1,36 @@
-# dotfiles/devShells/python.nix
+# dotfiles/devShells/python312.nix
 { 
   pkgs,
   system,
   inputs,
   self
 } : let # 🦆 duck say ⮞ put them python pkgs here yo!
+  myPython = pkgs.python312;
+  
+
   pythonPackages = ps: [ 
-    ps.numpy
-    ps.pip
-    ps.requests
-    ps.lz4
-    ps.python-dotenv
-    ps.noisereduce
-    ps.pytickersymbols
-    ps.yfinance
-#    ps.onnxruntime
-#    ps.openwakeword
+    ps.numpy 
+    ps.pip 
+    ps.requests 
+    ps.lz4 
+    ps.python-dotenv 
+    ps.pytickersymbols 
   ];
   
-  myPython = pkgs.python3.withPackages pythonPackages;
-  actualPythonPkgs = pythonPackages pkgs.python3.pkgs;
+
+  actualPythonPkgs = pythonPackages myPython.pkgs;
 
   myBuildInputs = with pkgs; [
     git
     nixpkgs-fmt
-    myPython    
+    (myPython.withPackages pythonPackages)
     virtualenv
   ];
 
   pythonPkgNames = builtins.map (pkg: pkg.pname or pkg.name) actualPythonPkgs;
   formatRed = name: "echo - \$'\\e[0;31m'${name}\$'\\e[0m'";
   formatHeader = text: "echo \$'\\e[1m'${text}\$'\\e[0m'";
+
 in {
   buildInputs = myBuildInputs;
 

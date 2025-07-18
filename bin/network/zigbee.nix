@@ -418,7 +418,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
       start_listening             
     '';
   };
-
+   
   # 🦆 says ⮞ how does ducks say ssschh?
   sops.secrets = {
     mosquitto = { # 🦆 says ⮞ quack, stupid!
@@ -667,3 +667,4 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤
+

@@ -64,9 +64,17 @@
 
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-in {  
+in { # 🦆 says ⮞ Voice Intents
   yo.bitch = { 
     intents = {
+      indoorTemp = { priority = 3; data = [{ sentences = [ "hur varmt är det (inne|inomhus)" "vad är det för (temp|temperatur) (inne|inomhus)" "hur varmmt är det inne" ];}]; };  
+      fanOff = { priority = 2; data = [{ sentences = [ "(stäng|stänga) [av] (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}]; };  
+      fanOn = { priority = 2; data = [{ sentences = [ "(start|starta) (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}]; };  
+      goodmorning = { priority = 2; data = [{ sentences = [ "godmorgon" "god morgon" ];}]; };  
+      goodnight = { priority = 2; data = [{ sentences = [ "godnatt" "god natt" "jag vill inte se ut" ];}]; };
+      blindsUp.data = [{ sentences = [ "jag vill [kunna] se ut" "(persienner|persiennerna) upp" ];}];    
+      blindsDown.data = [{ sentences = [ "jag vill inte [kunna] se ut" "(persienner|persiennerna) (ner|ned)" ];}];    
+
       house = {
         priority = 1;
         data = [{
@@ -165,9 +173,23 @@ in {
     };
   };
 
+
   yo.scripts.house = {
     description = "Control lights and other home automatioon devices";
     category = "🛖 Home Automation";
+    autoStart = false;
+    helpFooter = ''             
+      echo "## ──────⋆⋅☆⋅⋆────── ##"
+      echo "## Battery Status"
+      ssh ${mqttHost} cat /home/pungkula/.config/zigduck/state.json | \
+      jq -r '
+      to_entries[] 
+      | select(.value.battery != "null") 
+      | .key as $key 
+      | (.value.battery | tonumber) as $battery 
+      | "\($key):\n\((if $battery > 40 then "🔋" else "🪫" end)) \($battery)%\n"'
+      echo "## ──────⋆⋅☆⋅⋆────── ##"
+    '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
       { name = "state"; description = "State of the device or group"; default = "on"; } 
@@ -329,36 +351,32 @@ in {
     ''; 
   };
 
-  yo.bitch.intents.fanOff = {
-    priority = 2;
-    data = [{ sentences = [ "(stäng|stänga) [av] (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];
-  };  
-  yo.bitch.intents.fanOn = {
-    priority = 2;
-    data = [{ sentences = [ "(start|starta) (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}];  
-  };  
-  yo.bitch.intents.goodmorning = {
-    priority = 2;
-    data = [{ sentences = [ "godmorgon" "god morgon" ];}];    
-  };  
-  yo.bitch.intents.goodnight = {
-    priority = 2;
-    data = [{ sentences = [ "godnatt" "god natt" "jag vill inte se ut" ];}];    
-  };
-  yo.bitch.intents.blindsUp.data = [{ sentences = [ "jag vill [kunna] se ut" "(persienner|persiennerna) upp" ];}];    
-  yo.bitch.intents.blindsDown.data = [{ sentences = [ "jag vill inte [kunna] se ut" "(persienner|persiennerna) (ner|ned)" ];}];    
   yo.scripts.fanOff.code = "zig Fläkt off";
+  
   yo.scripts.fanOn.code = "zig Fläkt on";
+  
   yo.scripts.goodmorning.code = ''
     yo-say "godmorgon bruschhaan kebab"
     zig 'Roller Shade' on    
   '';
+  
   yo.scripts.goodnight.code = ''
     yo-say "natti natti putti nuttiii brusschaan!" 
     scene dark
     zig "Roller Shade" off
     yo-tv off
   '';
+  
   yo.scripts.blindsUp.code = "zig 'Roller Shade' on";
+  
   yo.scripts.blindsDown.code = "zig 'Roller Shade' off";
-  }
+  
+  yo.scripts.indoorTemp.code = ''
+    ${cmdHelpers}
+    STATE_DIR="${zigduckDir}"
+    STATE_FILE="$STATE_DIR/state.json"
+    MQTT_HOST="${mqttHost}"
+    TEMP=$(ssh "$MQTT_HOST" cat $STATE_FILE | jq -r '.. | objects | .temperature? | select(. != null and . != "null") | tonumber' $STATE_FILE | awk '{sum += $1; count++} END {if (count > 0) print sum / count; else print "No temperatures found"}')
+    dt_info "$TEMP"
+    if_voice_say "Medeltemperaturen inomhus är: $TEMP"
+  '';}

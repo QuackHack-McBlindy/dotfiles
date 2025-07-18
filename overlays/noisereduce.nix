@@ -5,6 +5,8 @@ let
 in {
   python3 = python3.override {
     packageOverrides = pySelf: pySuper: {
+      
+      # NOISEREDUCE
       noisereduce = pySuper.buildPythonPackage rec {
         pname = "noisereduce";
         version = "3.0.3";
@@ -23,6 +25,60 @@ in {
 
         doCheck = false;
       };
+      
+      # PYTICKERSYMBOLS
+      pytickersymbols = pySuper.buildPythonPackage rec {
+        pname = "pytickersymbols";
+        version = "1.15.0";
+        src = pySuper.fetchPypi {
+          inherit pname version;
+          sha256 = "jDTJDr+ykeSk90afTnDj+/T1FfD3b9IOpBkLQ+uteMs=";
+        };
+        format = "pyproject";
+        nativeBuildInputs = with pySuper; [ setuptools wheel poetry-core ];
+        propagatedBuildInputs = with pySuper; [ ];        
+        meta = {
+          description = "Fundamental stock data and yahoo/google ticker symbols for several indices. ";
+          homepage = "https://github.com/portfolioplus/pytickersymbols";
+        };
+        doCheck = false;
+      };
+    
+      # TFLITE_RUNTIME
+##      tflite-runtime = pySuper.buildPythonPackage rec {
+#        pname = "tflite-runtime";
+#        version = "2.11.0";  # or latest available on PyPI
+#        src = pySuper.fetchPypi {
+#          inherit pname version;
+#          sha256 = "0c7khn27kcv4qdrw0sz0nvx1frd9kfsn7p41rsq3sww3k8zmrhfm";
+#        };
+##        format = "pyproject";
+#        nativeBuildInputs = with pySuper; [ poetry-core setuptools wheel ];
+#        propagatedBuildInputs = with pySuper; [ ];
+#        doCheck = false;
+#      };
+      
+      # OPEN WAKE WORD     
+#      openwakeword = pySuper.buildPythonPackage rec {
+#        pname = "openwakeword";
+#        version = "0.6.0";
+#        src = pySuper.fetchPypi {
+#          inherit pname version;
+#          sha256 = "NoWNkPEYPjB0hVl6kSpOPDOEsU6pkj+D/q/658FWVWU=";
+#        };
+#        format = "pyproject";
+#        nativeBuildInputs = with pySuper; [ poetry-core setuptools wheel ];
+#        propagatedBuildInputs = with pySelf; [
+#          onnxruntime
+#          tflite-runtime
+#          tqdm
+#          scipy
+#          scikit-learn
+#          requests
+#        ];
+
+#        doCheck = false;
+#      };
     };
   };
 }

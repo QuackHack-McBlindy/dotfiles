@@ -6,7 +6,7 @@
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.30-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-48.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12.9-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
 <!-- VERSIONS_END -->
 
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/1bb9v83c7jh0wp614anp7s5vn22i900n-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/p7pvvl0xm13ik6p5yng51jsjxmpsj43q-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -208,6 +208,7 @@ git+file:///home/pungkula/dotfiles
 │   │   ├───java omitted (use '--all-systems' to show)
 │   │   ├───node omitted (use '--all-systems' to show)
 │   │   ├───python omitted (use '--all-systems' to show)
+│   │   ├───python312 omitted (use '--all-systems' to show)
 │   │   └───rust omitted (use '--all-systems' to show)
 │   └───x86_64-linux
 │       ├───android: development environment 'nix-shell'
@@ -215,6 +216,7 @@ git+file:///home/pungkula/dotfiles
 │       ├───java: development environment 'nix-shell'
 │       ├───node: development environment 'nix-shell'
 │       ├───python: development environment 'nix-shell'
+│       ├───python312: development environment 'nix-shell'
 │       └───rust: development environment 'nix-shell'
 ├───nixosConfigurations
 │   ├───desktop: NixOS configuration
@@ -329,6 +331,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo fanOn ` |  |  |
 | `yo goodmorning ` |  |  |
 | `yo goodnight ` |  |  |
+| `yo indoorTemp ` |  |  |
 | **⚙️ Configuration** | | |
 | `yo bitch --input` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo edit ` | config | yo CLI configuration mode |
@@ -374,6 +377,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo reminder --about [--date]` | remind | Reminder Assistant |
 | `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |
+| `yo tibber [--homeIDFile] [--APIKeyFile]` | el | Fetches home electricity price data |
 | `yo time ` |  | Tells time, day and date |
 | `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |
 | **🧹 Maintenance** | | |
