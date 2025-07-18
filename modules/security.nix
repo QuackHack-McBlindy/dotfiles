@@ -89,7 +89,10 @@
   };
 
   # 🦆 duck say ⮞ quacky hacky with no passy    
-  security.sudo.extraRules = [
+  security.sudo.extraConfig = ''
+    pungkula ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/systemctl restart yo-wake
+  '';
+  security.sudo.extraRules = [  
     {
       users = [ "pungkula" ];
       commands = [
@@ -116,7 +119,7 @@
         {
           command = "/run/current-system/sw/bin/reboot";
           options = [ "NOPASSWD" ];
-        }        
+        }
       ];
     }
     {
