@@ -56,7 +56,7 @@ in {
                 networking = [ "default" "caddy" ];
                 services = [ "ssh" "adb" "backup" "borg" "navidrome" ];
                 programs = [ "default" ];
-                virtualisation = [ ];
+                virtualisation = [ "docker-rootless" "arr" ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIARvG4osF3sXi0nN1fMQecMZaUmiOADw8o6+Wis2q77O";
