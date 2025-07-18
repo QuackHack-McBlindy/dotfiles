@@ -515,7 +515,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           };
           device_options = { legacy = false; };
           availability = true;
-          permit_join = true; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
+          permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
           devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
           groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
             all_lights = { # 🦆 says ⮞ + create a group containing all light devices

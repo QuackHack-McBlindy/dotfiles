@@ -16,7 +16,6 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
     parameters = [
       { name = "message"; description = "Notification content"; optional = false; }    
       { name = "topic"; description = "Topic to publish to"; default = "quack"; }
-      { name = "device"; description = "Topic to subscribe to"; optional = true; }
       { name = "base_urlFile"; description = ""; default = config.sops.secrets.ntfy-url.path; }
     ]; # 🦆 says ⮞ call diz like dat: `yo notify this is my message`
     code = ''
@@ -26,9 +25,6 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
         dt_error "Cannot run without base URL!" >&2
         exit 1
       fi
-      if [ -n "$device" ]; then
-        topic="$topic/$device"
-      fi
       ${pkgs.ntfy-sh}/bin/ntfy publish "$BASE_URL"/"$topic" "$message"
     '';
   };  
@@ -37,9 +33,9 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
   yo.scripts.notify-me = {
     description = "Listener for notifications and run actions";
     category = "🌐 Networking";
-    logLevel = "DEBUG";
+    logLevel = "INFO";
 #    autoStart = false;  
-    autoStart = builtins.elem config.this.host.hostname [ "desktop" "homie" ];
+    autoStart = builtins.elem config.this.host.hostname [ "homie" ];
     parameters = [
       { name = "topic"; description = "Topic to subscribe to"; default = "quack"; }
       { name = "base_urlFile"; description = ""; default = config.sops.secrets.ntfy-url.path; }
@@ -47,61 +43,50 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
     ]; 
     code = ''
       ${cmdHelpers}
-
       BASE_URL=$(cat $base_urlFile)
-      play_wav() { ${pkgs.alsa-utils}/bin/aplay "$sound" >/dev/null 2>&1; }
+#      play_wav() { ${pkgs.alsa-utils}/bin/aplay "$sound" >/dev/null 2>&1; }
 
       if [ -z "$BASE_URL" ]; then
         dt_error "No base URL provided!"
         exit 1
       fi
-      
-      if [ -n "$device" ]; then
-        TOPICS="$topic,$topic/$device"
-      else
-        TOPICS="$topic"
-      fi
-      dt_info "Listening to $BASE_URL/{$TOPICS}"
+      dt_info "Listening to $BASE_URL/$topic"
 
-      ${pkgs.ntfy-sh}/bin/ntfy subscribe "$BASE_URL/$TOPICS" | while IFS= read -r json; do
+      ${pkgs.ntfy-sh}/bin/ntfy subscribe "$BASE_URL/$topic" | while IFS= read -r json; do
         msg=$(echo "$json" | ${pkgs.jq}/bin/jq -r '.message')
         ts=$(echo "$json" | ${pkgs.jq}/bin/jq -r '.time')
-        time_fmt=$(date -d "@$ts" +"%H:%M")
-        dt_info "[$time_fmt] $msg"
+        time_fmt=$(${pkgs.coreutils}/bin/date -d "@$ts" +"%H:%M")
+        dt_info "$time_fmt > $msg"
         play_wav && sleep 2
         
-        if [[ "$msg" == *"VARNING!"* ]]; then
-          dt_debug "Skipping self-generated message"
-          continue
-        fi
-        
+        # 🦆 says ⮞ if yo call da bitch..
         lower_msg=$(echo "$msg" | tr '[:upper:]' '[:lower:]')
         if [[ "$lower_msg" == @(yo|jo)\ bitch* ]]; then
           clean_msg="''${msg#yo bitch }"
-          yo say "VARNING! Skickar $clean_msg till bitchen" || true
-          sleep 4
-          dt_warning "Processing command: $clean_msg"
+          yo say "Varning! Skickar $clean_msg till bitchen"
+          sleep 4 # 🦆 says ⮞ .. da bitch ya get
+          dt_warning "Skickar $clean_msg till bitchen"
+          # 🦆 says ⮞ route to NLP - gives notifications access to run all yo scripts  
           COMMAND=$(yo bitch "$clean_msg" 2>&1)
-          yo notify --device iphone --message "$COMMAND" &
+          yo notify --message "$COMMAND" --topic "iphone" 
         fi
         
-        if [[ "$lower_msg" == @(left|leave)\ home* ]]; then
-          yo say "VARNING! Lämnar hemmet - larm om 30s" || true
-          sleep 30
+        if [[ "$lower_msg" == @(left|Left)\ home* ]]; then
+          yo say "Varning! Du har lämnat hemmet. Jag larmar om 30 sekunder!"
+          sleep 30 # 🦆 says ⮞ .. da bitch ya get
+          yo say "Larmat!"
+          sleep 2
           mqtt_pub -t "zigbee2mqtt/leave_home/set" -m 'LEFT'
-          dt_warning "Left home sequence activated"
+          dt_warning "Left home! Turning off lights and arming security..."
         fi
-        
-        if [[ "$lower_msg" == @(return|arrive)\ home* ]]; then
+        if [[ "$lower_msg" == @(return|returned)\ home* ]]; then
           mqtt_pub -t "zigbee2mqtt/return_home/set" -m 'RETURN'
-          yo say "Välkommen hem!" || true
-          dt_info "Welcome home sequence"
+          yo say "Välkommen home brusschaan!!"
+          sleep 0.1
+          dt_info "Welcome home!"
         fi
-        
-        # Skip TTS for system messages
-        if [[ ! "$msg" =~ (VARNING!|Larm|bitchen) ]]; then
-          yo say "Meddelande: $msg" &
-        fi
+        yo say "Viktigt meddelande från bitchen!" && sleep 4
+        yo say "$msg"
       done
     '';
   }; # 🦆 says ⮞ TODO i should probably put a key on diz?
