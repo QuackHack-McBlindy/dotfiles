@@ -404,25 +404,25 @@ in {
             transmission = {
                 sopsFile = ./../../secrets/transmission.yaml;
                 owner = "dockeruser";
-                owner = "dockeruser";
+                group = "dockeruser";
                 mode = "0440";
             };
             discordToken = {
                 sopsFile = ./../../secrets/discordToken.yaml;
                 owner = "dockeruser";
-                owner = "dockeruser";
+                group = "dockeruser";
                 mode = "0440";
             };
             requestrrPassword = {
                 sopsFile = ./../../secrets/requestrrPassword.yaml;
                 owner = "dockeruser";
-                owner = "dockeruser";
+                group = "dockeruser";
                 mode = "0440";
             };
             requestrrPrivateKey = {
                 sopsFile = ./../../secrets/requestrrPrivateKey.yaml;
                 owner = "dockeruser";
-                owner = "dockeruser";
+                group = "dockeruser";
                 mode = "0440";
             };
         };

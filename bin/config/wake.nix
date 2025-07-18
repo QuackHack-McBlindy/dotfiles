@@ -143,8 +143,7 @@ in {
                       
                       # 🦆 says ⮞ release da lock
                       release_lock
-                      # 🦆 says ⮞ until fixed some machines needs to restart service
-                      sudo systemctl restart yo-wake
+
                   else
                       dt_info "⚠️ [LOCKED Wake Word] Detected! Probability: $probability."
                   fi                                                   
