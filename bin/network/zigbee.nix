@@ -277,6 +277,9 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("battery")' > /dev/null; then
             device_check
             prev_battery=$(${pkgs.jq}/bin/jq -r ".\"$device_name\".battery" "$STATE_FILE")
+            if [ "$battery" -eq 5 ] || [ "$battery" -eq 10 ] || [ "$battery" -eq 15 ]; then
+              yo notify "Low battery ($battery%) for $device_name"
+            fi
             if [ "$battery" != "$prev_battery" ] && [ "$prev_battery" != "null" ]; then
               dt_info "🔋 Battery update for $device_name: ''${prev_battery}% > ''${battery}%"
             fi
@@ -304,6 +307,8 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
             device_check            
             if [ "$occupancy" = "true" ]; then
+              # 🦆 says ⮞ save for easy user localisation
+              echo "{\"last_active_room\": \"$dev_room\"}" > "$STATE_DIR/last_motion.json"
               dt_info "🕵️ Motion in $device_name $dev_room"
               # 🦆 says ⮞ If current time is within motion > light timeframe - turn on lights
               if is_dark_time; then
@@ -331,9 +336,9 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           # 🦆 says ⮞ 🚪 door and window sensor yo 
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
             device_check            
-            if [ "$contact" = "false" ]; then  # FIXED: Removed trailing space
+            if [ "$contact" = "false" ]; then
               dt_info "🚪 Door open in $dev_room ($device_name)"    
-              if [ "$LARMED" = "true" ]; then  # FIXED: Removed trailing space
+              if [ "$LARMED" = "true" ]; then
                 dt_critical "🚨 ALARM! Door open in $dev_room ($device_name) while armed!"  
                 yo notify "🚨 ALARM! Door open in $dev_room!"
                 sleep 15
