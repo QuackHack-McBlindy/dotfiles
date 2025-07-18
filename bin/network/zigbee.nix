@@ -308,7 +308,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             device_check            
             if [ "$occupancy" = "true" ]; then
               # 🦆 says ⮞ save for easy user localisation
-              echo "{\"last_active_room\": \"$dev_room\"}" > "$STATE_DIR/last_motion.json"
+              echo "{\"last_active_room\": \$dev_room\}" > "$STATE_DIR/last_motion.json"
               dt_info "🕵️ Motion in $device_name $dev_room"
               # 🦆 says ⮞ If current time is within motion > light timeframe - turn on lights
               if is_dark_time; then

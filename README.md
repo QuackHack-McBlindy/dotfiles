@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/29icq8r7cihqx5bgxys8a7acpwdckn8a-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/jjpxcqg77c5y1bywlg3zgfwn9bcwcigk-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -354,8 +354,8 @@ Set default values for your parameters to have them marked [optional]
 | `yo weather [--location] [--day] [--condition]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo notify --message [--topic] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |
-| `yo notify-me [--topic] [--base_urlFile] [--sound]` |  | Listener for notifications and run actions |
+| `yo notify --message [--topic] [--device] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |
+| `yo notify-me [--topic] [--device] [--base_urlFile] [--sound]` |  | Listener for notifications and run actions |
 | `yo speed ` | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
 | `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |

@@ -16,14 +16,18 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
     parameters = [
       { name = "message"; description = "Notification content"; optional = false; }    
       { name = "topic"; description = "Topic to publish to"; default = "quack"; }
+      { name = "device"; description = "Target device hostname"; optional = true; }
       { name = "base_urlFile"; description = ""; default = config.sops.secrets.ntfy-url.path; }
     ]; # 🦆 says ⮞ call diz like dat: `yo notify this is my message`
-    code = ''
+  code = ''
       ${cmdHelpers}
       BASE_URL=$(cat $base_urlFile)
       if [ -z "$BASE_URL" ]; then
         dt_error "Cannot run without base URL!" >&2
         exit 1
+      fi
+      if [ -n "$device" ]; then
+        topic="$topic_$device"
       fi
       ${pkgs.ntfy-sh}/bin/ntfy publish "$BASE_URL"/"$topic" "$message"
     '';
@@ -34,10 +38,10 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
     description = "Listener for notifications and run actions";
     category = "🌐 Networking";
     logLevel = "DEBUG";
-#    autoStart = false;  
-    autoStart = builtins.elem config.this.host.hostname [ "desktop" "homie" ];
+    autoStart = builtins.elem config.this.host.hostname [ "desktop" "homie" "nasty" ];
     parameters = [
       { name = "topic"; description = "Topic to subscribe to"; default = "quack"; }
+      { name = "device"; description = "Topic to subscribe to"; default = config.this.host.hostname; }
       { name = "base_urlFile"; description = ""; default = config.sops.secrets.ntfy-url.path; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav";  } 
     ]; 
@@ -50,44 +54,55 @@ in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
         dt_error "No base URL provided!"
         exit 1
       fi
+      
+      if [ -n "$device" ]; then
+        TOPICS="$topic,$topic_$device"
+      else
+        TOPICS="$topic"
+      fi
       dt_info "Listening to $BASE_URL/$topic"
 
-      ${pkgs.ntfy-sh}/bin/ntfy subscribe "$BASE_URL/$topic" | while IFS= read -r json; do
-        msg=$(echo "$json" | ${pkgs.jq}/bin/jq -r '.message')
-        ts=$(echo "$json" | ${pkgs.jq}/bin/jq -r '.time')
-        time_fmt=$(${pkgs.coreutils}/bin/date -d "@$ts" +"%H:%M")
-        dt_info "$time_fmt > $msg"
-        play_wav && sleep 2
+
+      IFS=',' read -ra TOPIC_LIST <<< "$TOPICS"
+      for topic in "''${TOPIC_LIST[@]}"; do
+        ${pkgs.ntfy-sh}/bin/ntfy subscribe "$BASE_URL/$topic" | while IFS= read -r json; do
+          msg=$(echo "$json" | ${pkgs.jq}/bin/jq -r '.message')
+          ts=$(echo "$json" | ${pkgs.jq}/bin/jq -r '.time')
+          time_fmt=$(${pkgs.coreutils}/bin/date -d "@$ts" +"%H:%M")
+          dt_info "$time_fmt > $msg"
+          play_wav && sleep 2
         
-        # 🦆 says ⮞ if yo call da bitch..
-        lower_msg=$(echo "$msg" | tr '[:upper:]' '[:lower:]')
-        if [[ "$lower_msg" == @(yo|jo)\ bitch* ]]; then
-          clean_msg="''${msg#yo bitch }"
-          yo say "Varning! Skickar $clean_msg till bitchen"
-          sleep 4 # 🦆 says ⮞ .. da bitch ya get
-          dt_warning "Skickar $clean_msg till bitchen"
-          # 🦆 says ⮞ route to NLP - gives notifications access to run all yo scripts  
-          yo bitch "$clean_msg"
-          exit
-        fi
+          # 🦆 says ⮞ if yo call da bitch..
+          lower_msg=$(echo "$msg" | tr '[:upper:]' '[:lower:]')
+          if [[ "$lower_msg" == @(yo|jo)\ bitch* ]]; then
+           clean_msg="''${msg#yo bitch }"
+            yo say "Varning! Skickar $clean_msg till bitchen"
+            sleep 4 # 🦆 says ⮞ .. da bitch ya get
+            dt_warning "Skickar $clean_msg till bitchen"
+            # 🦆 says ⮞ route to NLP - gives notifications access to run all yo scripts  
+            COMMAND=$(yo bitch "$clean_msg")
+            yo notify --device iphone --message "$COMMAND"
+          fi
         
-        if [[ "$lower_msg" == @(left|Left)\ home* ]]; then
-          yo say "Varning! Du har lämnat hemmet. Jag larmar om 30 sekunder!"
-          sleep 30 # 🦆 says ⮞ .. da bitch ya get
-          yo say "Larmat!"
-          sleep 2
-          mqtt_pub -t "zigbee2mqtt/leave_home/set" -m 'LEFT'
-          dt_warning "Left home! Turning off lights and arming security..."
-        fi
-        if [[ "$lower_msg" == @(return|returned)\ home* ]]; then
-          mqtt_pub -t "zigbee2mqtt/return_home/set" -m 'RETURN'
-          yo say "Välkommen home brusschaan!!"
-          sleep 0.1
-          dt_info "Welcome home!"
-        fi
-        yo say "Viktigt meddelande från bitchen!" && sleep 4
-        yo say "$msg"
+          if [[ "$lower_msg" == @(left|Left)\ home* ]]; then
+            yo say "Varning! Du har lämnat hemmet. Jag larmar om 30 sekunder!"
+            sleep 30 # 🦆 says ⮞ .. da bitch ya get
+            yo say "Larmat!"
+            sleep 2
+            mqtt_pub -t "zigbee2mqtt/leave_home/set" -m 'LEFT'
+            dt_warning "Left home! Turning off lights and arming security..."
+          fi
+          if [[ "$lower_msg" == @(return|returned)\ home* ]]; then
+            mqtt_pub -t "zigbee2mqtt/return_home/set" -m 'RETURN'
+            yo say "Välkommen home brusschaan!!"
+            sleep 0.1
+            dt_info "Welcome home!"
+          fi
+          yo say "Viktigt meddelande från bitchen!" && sleep 4
+          yo say "$msg"
+        done &
       done
+      wait
     '';
   }; # 🦆 says ⮞ TODO i should probably put a key on diz?
   
