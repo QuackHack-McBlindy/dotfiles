@@ -449,7 +449,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
         port = 1883;
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-#        settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
+        settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
     }];
