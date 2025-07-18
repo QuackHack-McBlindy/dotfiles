@@ -178,16 +178,29 @@ in { # 🦆 says ⮞ Voice Intents
     description = "Control lights and other home automatioon devices";
     category = "🛖 Home Automation";
     autoStart = false;
-    helpFooter = ''             
+    helpFooter = ''  
+      MQTT_HOST="${mqttHost}"
+      ZIGDUCKDIR="${zigduckDir}"
+      STATE_FILE="$ZIGDUCKDIR/state.json"
       echo "## ──────⋆⋅☆⋅⋆────── ##"
       echo "## Battery Status"
-      ssh ${mqttHost} cat /home/pungkula/.config/zigduck/state.json | \
-      jq -r '
-      to_entries[] 
-      | select(.value.battery != "null") 
-      | .key as $key 
-      | (.value.battery | tonumber) as $battery 
-      | "\($key):\n\((if $battery > 40 then "🔋" else "🪫" end)) \($battery)%\n"'
+      if [[ "$MQTT_HOST" == "$HOSTNAME" ]]; then
+        cat $STATE_FILE | \
+          jq -r '
+          to_entries[] 
+          | select(.value.battery != "null") 
+          | .key as $key 
+          | (.value.battery | tonumber) as $battery 
+          | "\($key):\n\((if $battery > 40 then "🔋" else "🪫" end)) \($battery)%\n"'
+      else
+        ssh ${mqttHost} cat /home/pungkula/.config/zigduck/state.json | \
+        jq -r '
+        to_entries[] 
+        | select(.value.battery != "null") 
+        | .key as $key 
+        | (.value.battery | tonumber) as $battery 
+        | "\($key):\n\((if $battery > 40 then "🔋" else "🪫" end)) \($battery)%\n"'
+      fi  
       echo "## ──────⋆⋅☆⋅⋆────── ##"
     '';
     parameters = [   

@@ -575,7 +575,9 @@ EOF
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
             exec "yo-$script" "''${args[@]}"   
           fi         
-        done # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON   
+        done 
+        
+        # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON   
         if ! match_$script "$resolved_text"; then               
           fuzzy_result=$(find_best_fuzzy_match "$text")
           ret=$? # 🦆 says ⮞ timeout case        
@@ -608,8 +610,7 @@ EOF
             exit 1
           fi
         fi
-      '';
- 
+      ''; 
     };
     
     # 🦆 says ⮞ automatic bitchin' sentencin' testin'

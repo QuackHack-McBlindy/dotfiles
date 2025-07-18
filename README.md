@@ -6,7 +6,7 @@
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.30-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-48.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.9-%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
 <!-- VERSIONS_END -->
 
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/p7pvvl0xm13ik6p5yng51jsjxmpsj43q-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/69gndqz1f5c937258d5r3hn5viblj8r4-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
