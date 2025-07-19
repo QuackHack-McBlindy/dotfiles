@@ -8,13 +8,14 @@
   pythonPackages = ps: [ 
     ps.numpy
     ps.pip
-    ps.requests
+    ps.requests   
     ps.lz4
     ps.python-dotenv
     ps.noisereduce
     ps.pytickersymbols
     ps.yfinance
 #    ps.onnxruntime
+#    ps.tflite-runtime
 #    ps.openwakeword
   ];
   

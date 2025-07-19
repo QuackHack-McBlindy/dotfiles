@@ -490,11 +490,8 @@ EOF
           for candidate in "''${candidates[@]}"; do
             IFS=':' read -r script sentence <<< "$candidate"
             local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
-      
-            # 🦆 FIX: Use normalized sentence for comparison
             local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
             (( tri_score < 30 )) && continue
-      
             local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
             if (( score > best_score )); then
               best_score=$score
@@ -502,7 +499,6 @@ EOF
               dt_debug "New best match: $best_match ($score%)" >&2
             fi
           done
-        
           if [[ -n "$best_match" ]]; then
             echo "$best_match|$best_score"
           else

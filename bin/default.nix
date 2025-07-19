@@ -274,48 +274,116 @@
           mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
         done    
     }
-    # 🦆 says ⮞ pure fuzz – Nixified Bash Levenshtein
-    levenshtein() {
+    
+    trigram_similarity() {
       local str1="$1"
       local str2="$2"
-      local len1="''${#str1}"
-      local len2="''${#str2}"
-      local i j cost 
-      declare -A matrix  ## ⮜ associative array says 🦆 
-      # 🦆 says ⮞ init matrix
-      for ((i=0; i<=len1; i++)); do
-        matrix["''$i,0"]=$i
+      declare -a tri1 tri2
+      for ((i=0; i<''${#str1}-2; i++)); do
+        tri1+=( "''${str1:i:3}" )
       done
-      for ((j=0; j<=len2; j++)); do
-        matrix["0,$j"]=$j
+      for ((i=0; i<''${#str2}-2; i++)); do
+        tri2+=( "''${str2:i:3}" )
       done
-      # 🦆 says ⮞ compute distances
-      for ((i=1; i<=len1; i++)); do
-        for ((j=1; j<=len2; j++)); do
-          [[ "''${str1:i-1:1}" == "''${str2:j-1:1}" ]] && cost=0 || cost=1
-          local del=''$((matrix["$((i-1)),$j"] + 1))
-          local ins=$((matrix["$i,$((j-1))"] + 1))
-          local sub=$((matrix["$((i-1)),$((j-1))"] + cost))
-          matrix["$i,$j"]=$(min3 "$del" "$ins" "$sub")
-        done
+      local matches=0
+      for t in "''${tri1[@]}"; do
+        [[ " ''${tri2[*]} " == *" $t "* ]] && ((matches++))
       done
-      echo "''${matrix["''$len1,''$len2"]}"
+      local total=$(( ''${#tri1[@]} + ''${#tri2[@]} ))
+      (( total == 0 )) && echo 0 && return
+      echo $(( 100 * 2 * matches / total ))
+    }       
+     
+    levenshtein_similarity() {
+      local a="$1" b="$2"
+      local len_a=''${#a} len_b=''${#b}
+      local max_len=$(( len_a > len_b ? len_a : len_b ))   
+      (( max_len == 0 )) && echo 100 && return     
+      local dist=$(levenshtein "$a" "$b")
+      local score=$(( 100 - (dist * 100 / max_len) ))         
+      [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
+      echo $(( score > 100 ? 100 : score ))
     }
+    
+    levenshtein() {
+      local a="$1" b="$2"
+      local len_a=''${#a} len_b=''${#b}
+      [ "$len_a" -eq 0 ] && echo "$len_b" && return
+      [ "$len_b" -eq 0 ] && echo "$len_a" && return
+      local i j cost
+      local -a d  
+      for ((i=0; i<=len_a; i++)); do
+          d[i*len_b+0]=$i
+      done
+      for ((j=0; j<=len_b; j++)); do
+          d[0*len_b+j]=$j
+      done
+      for ((i=1; i<=len_a; i++)); do
+          for ((j=1; j<=len_b; j++)); do
+              [ "''${a:i-1:1}" = "''${b:j-1:1}" ] && cost=0 || cost=1
+              del=$(( d[(i-1)*len_b+j] + 1 ))
+              ins=$(( d[i*len_b+j-1] + 1 ))
+              alt=$(( d[(i-1)*len_b+j-1] + cost ))
+              
+              min=$del
+              [ $ins -lt $min ] && min=$ins
+              [ $alt -lt $min ] && min=$alt
+              d[i*len_b+j]=$min
+          done
+      done
+      echo ''${d[len_a*len_b+len_b]}
+    }
+    normalize_string() {
+      echo "$1" | 
+        iconv -f utf-8 -t ascii//TRANSLIT | 
+        tr '[:upper:]' '[:lower:]' |         
+        tr -d '[:punct:]' |          
+        sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |  # Trim spaces
+        sed -e 's/[[:space:]]+/ /g'          # Normalize spaces
+    }    
+    
+    # 🦆 says ⮞ pure fuzz – Nixified Bash Levenshtein
+#    levenshtein() {
+#      local str1="$1"
+#      local str2="$2"
+#      local len1="''${#str1}"
+#      local len2="''${#str2}"
+#      local i j cost 
+#      declare -A matrix  ## ⮜ associative array says 🦆 
+      # 🦆 says ⮞ init matrix
+#      for ((i=0; i<=len1; i++)); do
+#        matrix["''$i,0"]=$i
+#      done
+#      for ((j=0; j<=len2; j++)); do
+#        matrix["0,$j"]=$j
+#      done
+#      # 🦆 says ⮞ compute distances
+#      for ((i=1; i<=len1; i++)); do
+#        for ((j=1; j<=len2; j++)); do
+#          [[ "''${str1:i-1:1}" == "''${str2:j-1:1}" ]] && cost=0 || cost=1
+#          local del=''$((matrix["$((i-1)),$j"] + 1))
+#          local ins=$((matrix["$i,$((j-1))"] + 1))
+#          local sub=$((matrix["$((i-1)),$((j-1))"] + cost))
+#          matrix["$i,$j"]=$(min3 "$del" "$ins" "$sub")
+#        done
+#      done
+#      echo "''${matrix["''$len1,''$len2"]}"
+#    }
     min3() {
       printf "%s\n" "$@" | sort -n | head -n1
     }
     # 🦆 duck say ⮞ true bash fuzz
-    levenshtein_similarity() {
-      local a="$1"
-      local b="$2"
-      local dist=$(levenshtein "$a" "$b")
-      local max_len=$(( ''${#a} > ''${#b} ? ''${#a} : ''${#b} ))
-      if [[ ''$max_len -eq 0 ]]; then
-        echo "100"  # Both strings empty
-      else
-        echo $(( 100 - (dist * 100 / max_len) ))
-      fi
-    }
+#    levenshtein_similarity() {
+#      local a="$1"
+#      local b="$2"
+#      local dist=$(levenshtein "$a" "$b")
+#      local max_len=$(( ''${#a} > ''${#b} ? ''${#a} : ''${#b} ))
+#      if [[ ''$max_len -eq 0 ]]; then
+#        echo "100"  # Both strings empty
+#      else
+#        echo $(( 100 - (dist * 100 / max_len) ))
+#      fi
+#    }
     # 🦆 duck say ⮞ TTS function for when no intent is matched to sentence
     say_no_match() { # 🦆 duck say ⮞ very mature sentences incomin' yo!
       local responses=(
@@ -336,7 +404,7 @@
       yo-say --text "$1"
     }
     if_voice_say() { 
-      if [ "$VOICE_MODE" = "1" ]; then yo-say --host "desktop"-- text "$1"; fi
+      if [ "$VOICE_MODE" = "1" ]; then yo-say "$1"; fi
     }    
     confirm() {
       local question="$1"

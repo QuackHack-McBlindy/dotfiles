@@ -58,7 +58,7 @@ Define yourself at `config.this.user.me`.
   discord = "https://discordapp.com/users/675530282849533952";
   dotfilesDir = "/home/pungkula/dotfiles";
   email = "isthisrandomenough@protonmail.com";
-  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ];
+  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" ];
   hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
   matrix = "";
   mobileDevices =   {
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/n61qf000qycfadz46pqqzj5cgc44ybzl-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/i2l1ijq213d7fr91qxwbwvn7m54rxhvc-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -348,10 +348,11 @@ Set default values for your parameters to have them marked [optional]
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
-| `yo scp ` |  | Move files between hosts interactively |
+| `yo scp --host [--path] [--username] [--downloadPath]` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
+| `yo stores --store_name [--location] [--radius]` | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
 | `yo travel --arrival [--departure] [--type] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
-| `yo weather [--location] [--day] [--condition]` | weat | Tiny Weather Report. |
+| `yo weather [--location] [--day] [--condition] [--locationPath]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo notify --message [--topic] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |
@@ -359,6 +360,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo speed ` | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
 | `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
+| `yo transcode [--directory]` | trans | Transcode media files |
 | `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--favoritesPlaylist] [--max_items]` | remote | Android TV Controller |
 | `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
 | `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |

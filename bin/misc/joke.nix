@@ -1,5 +1,5 @@
-# dotfiles/bin/misc/time.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ one file for all time related scripts and intents
+# dotfiles/bin/misc/joke.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ Tells bad jokes
   self,
   lib,
   config,
@@ -9,7 +9,7 @@
 } : let
 in {  
   yo.bitch.intents.joke.priority = 2;
-  yo.bitch.intents.joke.data = [{ sentences = [ "[få] (säg|berätta|höra) ett [rolig|roligt|bra] skämt" "gör mig glad" "få mig [att] (skratt|skratta)" ]; }];
+  yo.bitch.intents.joke.data = [{ sentences = [ "[få] (säg|berätta|höra) ett [rolig|roligt|bra] [ett] skämt" "gör mig glad" "få mig [att] (skratt|skratta)" ]; }];
 
   yo.scripts.joke = {
     description = "Tells a quacktastic joke";

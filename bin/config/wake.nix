@@ -32,7 +32,7 @@ in {
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
-      { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "30"; }
+      { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "20"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
           then "true"
@@ -123,15 +123,18 @@ in {
                   if acquire_lock; then
                       # 🦆 says ⮞ put sum duck tracin' in da logz 
                       dt_info "⚠️ [Wake Word] Detected! Probability: $probability."
+                      current_time=$(${pkgs.coreutils}/bin/date +%s)
+                      LAST_TRIGGER_TIME="$current_time"
                       # 🦆 says ⮞ play sound
                       play_wav
+                      
                       # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
                       TRANSCRIPTION=$(yo-mic)
                     
                       # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
                       if [[ -z "$TRANSCRIPTION" ]]; then
                         dt_debug "Empty transcription"
-                        LAST_TRIGGER_TIME=$((current_time - WAKE_COOLDOWN + 5))
+                        
                       else # 🦆 says ⮞ ELSE WAT?!
                         # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
                         dt_debug "Transcribed text: $TRANSCRIPTION"
@@ -142,8 +145,9 @@ in {
                       fi
                       
                       # 🦆 says ⮞ release da lock
+                      current_time=$(${pkgs.coreutils}/bin/date +%s)
+                      LAST_TRIGGER_TIME="$current_time"
                       release_lock
-
                   else
                       dt_info "⚠️ [LOCKED Wake Word] Detected! Probability: $probability."
                   fi                                                   

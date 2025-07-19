@@ -43,6 +43,20 @@ in {
         };
         doCheck = false;
       };
+
+      # ONNXRUNTIME
+#      onnxruntime = pySuper.buildPythonPackage rec {
+#        pname = "onnxruntime";
+#        version = "1.22.1";  # or latest available on PyPI
+#        src = pySuper.fetchPypi {
+#          inherit pname version;
+#          sha256 = "";
+#        };
+#        format = "pyproject";
+#        nativeBuildInputs = with pySuper; [ poetry-core setuptools wheel ];
+#        propagatedBuildInputs = with pySuper; [ ];
+#        doCheck = false;
+#      };
     
       # TFLITE_RUNTIME
 ##      tflite-runtime = pySuper.buildPythonPackage rec {
@@ -69,8 +83,6 @@ in {
 #        format = "pyproject";
 #        nativeBuildInputs = with pySuper; [ poetry-core setuptools wheel ];
 #        propagatedBuildInputs = with pySelf; [
-#          onnxruntime
-#          tflite-runtime
 #          tqdm
 #          scipy
 #          scikit-learn

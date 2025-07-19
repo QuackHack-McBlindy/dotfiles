@@ -9,7 +9,6 @@
 } : let # 🦆 says ⮞ dependencies  
   pyEnv = pkgs.python3.withPackages (ps: [ 
     ps.requests 
-    ps.duckduckgo-search
     ps.beautifulsoup4
     ps.yfinance
     ps.langdetect

@@ -14,8 +14,8 @@ in {
         priority = 3;
         data = [{
           sentences = [
-            "vad kostar strömmen [just nu]"
-            "hur mycket kostar strömmen [just nu]"
+            "vad kostar strömmen"
+            "hur mycket kostar strömmen"
           ];        
         }];
       };      

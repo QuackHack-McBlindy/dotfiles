@@ -84,12 +84,21 @@ in {
     category = "🌍 Localization";
     aliases = [ "weat" ];
     parameters = [
-      { name = "location"; description = "Location to check (e.g., 'London' or 'New+York')"; default = "Stockholm, Sweden"; }
+      { name = "location"; description = "Location to check (City, Country)"; optional = true; }
       { name = "day"; description = "Search weather for a specified day"; optional = true; }
-      { name = "condition"; description = "Check for a specific weather condition"; optional = true; }      
+      { name = "condition"; description = "Check for a specific weather condition"; optional = true; }   
+      { name = "locationPath"; description = "File path contianing location to check (City, Country)"; default = config.sops.secrets."users/pungkula/homeCityCountry".path; }      
     ]; 
     code = ''
       ${cmdHelpers}
+      if [ -n "$location" ]; then
+        :
+      elif [ -f "$locationPath" ]; then
+        location=$(cat "$locationPath")
+      else
+        dt_error "Error: No location is provided."
+        exit 1
+      fi
       declare -A WEATHER_CODES=(
         ["113"]="☀️"  ["116"]="⛅"  ["119"]="☁️"  ["122"]="☁️"  ["143"]="☁️"
         ["176"]="🌧️"  ["179"]="🌧️"  ["182"]="🌧️"  ["185"]="🌧️"  ["200"]="⛈️"
@@ -129,7 +138,6 @@ in {
         ["hot"]="varmt"
         ["cold"]="kallt"
       )
-
 
       get_day_name_from_epoch() {
         local epoch=$1
@@ -257,7 +265,7 @@ in {
           })
         }]' "$weather_file")
         
-        display_weather_table "$processed" "Weather Forecast for $location_param"
+        display_weather_table "$processed" "$location_param"
       }
 
       # 🦆 says ⮞ check for specific condition
@@ -359,4 +367,11 @@ in {
           show_5day_forecast
       fi
     '';
+  };
+  
+  sops.secrets."users/pungkula/homeCityCountry" = {
+    sopsFile = ./../../secrets/users/pungkula/homeCityCountry.yaml;
+    owner = config.this.user.me.name;
+    group = config.this.user.me.name;
+    mode = "0440";
   };}

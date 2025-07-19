@@ -15,7 +15,7 @@
         clean_url=$(echo "$url" | sed -E 's|https?://||')      
         block_entry="||$clean_url^"
         echo "$block_entry" >> "$blocklist"
-        echo "Added: $block_entry to ''$blocklist"
+        dt_info "Added: $block_entry to ''$blocklist"
       '';
     };
   };}  

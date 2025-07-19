@@ -38,17 +38,7 @@ let # 🦆 duck say ⮞ big ducks build their own home
         chown ${user}:users "$dir"
       fi
 
-#      [[ -e "$target" && ! -L "$target" ]] && mv -f "$target" "$target.backup"
-      if [[ -e "$target" && ! -L "$target" ]]; then
-        echo "🦆 duck warn ⮞ $target exists and is not a symlink. Trying to backup..."
-        if ! mv -f "$target" "$target.backup" 2>/dev/null; then
-          echo "🦆 duck ERROR ⮞ Failed to backup $target. Attempting to chmod 644 and retry..."
-          chmod u+w "$target" && mv -f "$target" "$target.backup" || {
-            echo "🦆 duck CRITICAL ⮞ Still couldn't backup $target. Skipping."
-            continue
-          }
-        fi
-      fi
+      [[ -e "$target" && ! -L "$target" ]] && mv -f "$target" "$target.backup"
 
       ln -vsfn "$src" "$target"
       chown -h ${user}:users "$target"

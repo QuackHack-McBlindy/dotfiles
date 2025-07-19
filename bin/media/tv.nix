@@ -212,7 +212,11 @@ in {
           local device_ip="$1"
           local playlist_url="$WEBSERVER/playlist.m3u"
           control_device "$device_ip" power_on
-          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
+#          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
+          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" \
+            --ez \"extra_force_software\" true \
+            -t \"audio/x-mpegurl\""
+
           if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
               dt_debug "Playlist started successfully on device ''${device_ip}"
           else
@@ -229,72 +233,7 @@ in {
           fi
       }
                 
-      trigram_similarity() {
-        local str1="$1"
-        local str2="$2"
-        declare -a tri1 tri2
-        for ((i=0; i<''${#str1}-2; i++)); do
-          tri1+=( "''${str1:i:3}" )
-        done
-        for ((i=0; i<''${#str2}-2; i++)); do
-          tri2+=( "''${str2:i:3}" )
-        done
-        local matches=0
-        for t in "''${tri1[@]}"; do
-          [[ " ''${tri2[*]} " == *" $t "* ]] && ((matches++))
-        done
-        local total=$(( ''${#tri1[@]} + ''${#tri2[@]} ))
-        (( total == 0 )) && echo 0 && return
-        echo $(( 100 * 2 * matches / total ))
-      }       
-      
-      levenshtein_similarity() {
-        local a="$1" b="$2"
-        local len_a=''${#a} len_b=''${#b}
-        local max_len=$(( len_a > len_b ? len_a : len_b ))   
-        (( max_len == 0 )) && echo 100 && return     
-        local dist=$(levenshtein "$a" "$b")
-        local score=$(( 100 - (dist * 100 / max_len) ))         
-        [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
-        echo $(( score > 100 ? 100 : score ))
-      }
-    
-      levenshtein() {
-        local a="$1" b="$2"
-        local len_a=''${#a} len_b=''${#b}
-        [ "$len_a" -eq 0 ] && echo "$len_b" && return
-        [ "$len_b" -eq 0 ] && echo "$len_a" && return
-        local i j cost
-        local -a d  
-        for ((i=0; i<=len_a; i++)); do
-            d[i*len_b+0]=$i
-        done
-        for ((j=0; j<=len_b; j++)); do
-            d[0*len_b+j]=$j
-        done
-        for ((i=1; i<=len_a; i++)); do
-            for ((j=1; j<=len_b; j++)); do
-                [ "''${a:i-1:1}" = "''${b:j-1:1}" ] && cost=0 || cost=1
-                del=$(( d[(i-1)*len_b+j] + 1 ))
-                ins=$(( d[i*len_b+j-1] + 1 ))
-                alt=$(( d[(i-1)*len_b+j-1] + cost ))
-                
-                min=$del
-                [ $ins -lt $min ] && min=$ins
-                [ $alt -lt $min ] && min=$alt
-                d[i*len_b+j]=$min
-            done
-        done
-        echo ''${d[len_a*len_b+len_b]}
-      }
-      normalize_string() {
-        echo "$1" | 
-          iconv -f utf-8 -t ascii//TRANSLIT | 
-          tr '[:upper:]' '[:lower:]' |         
-          tr -d '[:punct:]' |          
-          sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |  # Trim spaces
-          sed -e 's/[[:space:]]+/ /g'          # Normalize spaces
-      }
+
   
       template_single_path() {
           local path="$1"
