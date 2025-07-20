@@ -255,6 +255,9 @@
       room="''${dev_room//\"/}"
       [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
       [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
+      [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
+      [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
+      [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
     }
     # 🦆 says ⮞ turn on specified room
     room_lights_on() { 
