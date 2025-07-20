@@ -253,12 +253,25 @@
       dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
       dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
       room="''${dev_room//\"/}"
-      [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
-      [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
-      [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
-      [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
-      [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
-    }
+      should_update() {
+        case "$device_name" in
+          */set|*/availability)
+            return 1
+          ;;
+          *)
+            return 0  
+          ;;
+        esac
+      }
+
+      if should_update; then
+        [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
+        [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
+        [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
+        [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
+        [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
+       fi
+     }   
 
     # 🦆 says ⮞ turn on specified room
     room_lights_on() { 

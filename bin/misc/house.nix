@@ -188,68 +188,49 @@ in { # 🦆 says ⮞ Voice Intents
         BATTERY_DATA=$(ssh ${mqttHost} cat /home/pungkula/.config/zigduck/state.json)
       fi
       mk_table() {
-        echo "| On/Off | Device | Status | Temperature |"
-        echo "| :----- | :----- | :----- | :---------- |"
+        echo "| State  | Device | Battery | Temperature |"
+        echo "| :- | :-- | :-- | :-- |"
         while IFS= read -r line; do
           [ -z "$line" ] && continue        
-          device=$(echo "$line" | cut -d'|' -f1)
-          status=$(echo "$line" | cut -d'|' -f2)
-          temp=$(echo "$line" | cut -d'|' -f3)
+          device=$(echo "$line" | cut -d'|' -f2)
+          state=$(echo "$line" | cut -d'|' -f1)
+          battery=$(echo "$line" | cut -d'|' -f3)
+          temp=$(echo "$line" | cut -d'|' -f4)
           device_single_line=$(echo "$device" | tr '\n' ' ' | sed 's/ \{2,\}/ /g')   
-          echo "| $device_single_line | $status | $temp |"
-        done <<< "$1"
-      }
-      mk_state_table() {
-        echo "| Device | State |"
-        echo "| :----- | :---- |"
-        while IFS= read -r line; do
-          [ -z "$line" ] && continue
-          device=$(echo "$line" | cut -d'|' -f1)
-          state=$(echo "$line" | cut -d'|' -f2)
-          device_single_line=$(echo "$device" | tr '\n' ' ' | sed 's/ \{2,\}/ /g')
-          echo "| $device_single_line | $state |"
+          echo "| $device_single_line | $state | $battery | $temp |"
         done <<< "$1"
       }
       TABLE_DATA=$(
         echo "$BATTERY_DATA" | \
         jq -r '
           to_entries[] 
-          | select(.value.battery != "null") 
           | .key as $key 
-          | (.value.battery | tonumber) as $battery 
-          | (.value.temperature | if . != "null" and . != null then "\(.)°C" else "" end) as $temp
-          | "\($key)|\(if $battery > 40 then "🔋" else "🪫" end) \($battery)%|\($temp)"' 
-      )
-      STATE_DATA=$(
-        echo "$BATTERY_DATA" | \
-        jq -r '
-          to_entries[] 
-          | select(
-              (.value.state? == "ON" or .value.state? == "OFF") or
-              (.value.position? == "100") or
-              (.value.contact? != null)
-            )
-          | .key as $key
           | .value as $v
-          | if $v.position? == "100" then
-              "\($key)|OPEN"
-            elif $v.contact? == "true" then
-              "\($key)|CLOSED"
-            elif $v.contact? == "false" then
-              "\($key)|OPEN"
-            elif $v.state? == "ON" or $v.state? == "OFF" then
-              "\($key)|\($v.state)"
-            else
-              empty
-            end'
+          | {
+              key: $key,
+              state: (
+                if $v.state? == "ON" or $v.state? == "OFF" then $v.state
+                elif $v.position? == "100" then "OPEN"
+                elif $v.contact? == "true" then "CLOSED"
+                elif $v.contact? == "false" then "OPEN"
+                else null
+                end
+              ),
+              battery: (if $v.battery? and $v.battery != "null" then $v.battery | tonumber else null end),
+              temperature: (if $v.temperature? and $v.temperature != "null" then $v.temperature else null end)
+            }
+          | select(.state != null or .battery != null or .temperature != null)
+          | [
+              .key,
+              (if .state then .state else "" end),
+              (if .battery != null then (if .battery > 40 then "🔋" else "🪫" end) + " \(.battery)%" else "" end),
+              (if .temperature != null then "\(.temperature)°C" else "" end)
+            ]
+          | join("|")' 
       )
       echo -e "\n## ──────⋆⋅☆⋅⋆────── ##"
-      echo "## Battery Status"
+      echo "## Device Status"
       mk_table "$TABLE_DATA"
-      echo "## ──────⋆⋅☆⋅⋆────── ##"
-      echo -e "\n## ──────⋆⋅☆⋅⋆────── ##"
-      echo "## Device States"
-      mk_state_table "$STATE_DATA"
       echo "## ──────⋆⋅☆⋅⋆────── ##"
     '';
     parameters = [   
