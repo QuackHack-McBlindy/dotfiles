@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/dyr75yzsc41kcbk86n6jja8p4mjkxbic-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/cbab5acy81np7kiindam053rjg0kij4d-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -365,12 +365,12 @@ Set default values for your parameters to have them marked [optional]
 | `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
 | `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |
 | **🔐 Security & Encryption** | | |
-| `yo sops --input [--operation] [--value] [--agePub]` | e | Encrypts a file with sops-nix |
+| `yo sops --input [--operation] [--value] [--output] [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🛒 Shopping** | | |
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
-| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
+| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
 | `yo zigduck [--user] [--pwfile]` | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |

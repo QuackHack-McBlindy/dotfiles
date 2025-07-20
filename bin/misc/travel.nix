@@ -1,13 +1,15 @@
 # dotfiles/bin/system/travel.nix  ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Swedish Public Transportation assistant.
   config,
+  self,
   lib,
   pkgs,
   cmdHelpers,
   ...
 }: let
-
+  mkTable = self.mkTable;
 in { # 🦆 says ⮞ voice intents
+  
   yo.bitch = { 
     intents = {
       travel = { # 🦆 says ⮞ intent priority, 1 for fastest - 5 for slowest

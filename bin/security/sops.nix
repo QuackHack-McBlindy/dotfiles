@@ -16,12 +16,14 @@ in {
           { name = "input"; description = "Input file to encrypt"; optional = false; } 
           { name = "operation"; description = "Operational mode, encrypt or edit"; default = "encrypt"; }           
           { name = "value"; description = "Value to append at the end of file (append mode only)"; optional = true; }
+          { name = "output"; description = "Optional output file path"; optional = true; }          
           { name = "agePub"; description = "The AGE public key used for encrypting the file"; optional = true; default = config.this.host.keys.publicKeys.age; } 
         ];
         code = ''
           ${cmdHelpers}
           INPUT_FILE="$input"
-          OUTPUT_FILE="''${INPUT_FILE%.*}.enc.yaml"
+#          OUTPUT_FILE="''${INPUT_FILE%.*}.enc.yaml"
+          OUTPUT_FILE="$output"
           if [[ ! -f "$INPUT_FILE" ]]; then
             say_duck "fuck ❌ Error: Input file '$INPUT_FILE' not found!"
             exit 1
@@ -36,9 +38,16 @@ in {
           # 🦆 duck say ⮞ ENCRYPT
           if [[ "$OPERATION" == "encrypt" ]]; then     
             dt_debug "Encrypting '$INPUT_FILE'..."
-            ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --output "$OUTPUT_FILE" "$INPUT_FILE"
-            mv "$OUTPUT_FILE" "$INPUT_FILE"
-            dt_info "Encrypted: $INPUT_FILE"
+#            ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --output "$OUTPUT_FILE" "$INPUT_FILE"
+#            mv "$OUTPUT_FILE" "$INPUT_FILE"
+            if [[ -n "$OUTPUT_FILE" ]]; then
+              ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --output "$OUTPUT_FILE" "$INPUT_FILE"
+              dt_info "Encrypted: $INPUT_FILE → $OUTPUT_FILE"
+            else
+              ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --output "$INPUT_FILE" "$INPUT_FILE"
+              dt_info "Encrypted in place: $INPUT_FILE"
+            fi
+
           
           # 🦆 duck say ⮞ EDIT
           elif [[ "$OPERATION" == "edit" ]]; then

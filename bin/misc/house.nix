@@ -182,25 +182,53 @@ in { # 🦆 says ⮞ Voice Intents
       MQTT_HOST="${mqttHost}"
       ZIGDUCKDIR="${zigduckDir}"
       STATE_FILE="$ZIGDUCKDIR/state.json"
-      echo "## ──────⋆⋅☆⋅⋆────── ##"
-      echo "## Battery Status"
       if [[ "$MQTT_HOST" == "$HOSTNAME" ]]; then
-        cat $STATE_FILE | \
-          jq -r '
+        BATTERY_DATA=$(cat $STATE_FILE)
+      else
+        BATTERY_DATA=$(ssh ${mqttHost} cat /home/pungkula/.config/zigduck/state.json)
+      fi
+      mk_table() {
+        echo "| On/Off | Device | Status | Temperature |"
+        echo "| :----- | :----- | :----- | :---------- |"
+        while IFS= read -r line; do
+          [ -z "$line" ] && continue        
+          device=$(echo "$line" | cut -d'|' -f1)
+          status=$(echo "$line" | cut -d'|' -f2)
+          temp=$(echo "$line" | cut -d'|' -f3)
+          device_single_line=$(echo "$device" | tr '\n' ' ' | sed 's/ \{2,\}/ /g')   
+          echo "| $device_single_line | $status | $temp |"
+        done <<< "$1"
+      }   
+      TABLE_DATA=$(
+        echo "$BATTERY_DATA" | \
+        jq -r '
+          to_entries[] 
+          | .key as $key 
+          | .value as $val
+          | if ($val.state == "ON" or $val.state == "OFF") then
+              "\($key)|\($val.state)|"
+            elif ($val.position == "100") then
+              "\($key)|OPEN|"
+            elif ($val.contact == true) then
+              "\($key)|CLOSED|"
+            elif ($val.contact == false) then
+              "\($key)|OPEN|"
+            else 
+              empty 
+            end
+          | . + "\(.value.temperature // "")"
+        ' && echo "$BATTERY_DATA" | \
+        jq -r '
           to_entries[] 
           | select(.value.battery != "null") 
           | .key as $key 
           | (.value.battery | tonumber) as $battery 
-          | "\($key):\n\((if $battery > 40 then "🔋" else "🪫" end)) \($battery)%\n"'
-      else
-        ssh ${mqttHost} cat /home/pungkula/.config/zigduck/state.json | \
-        jq -r '
-        to_entries[] 
-        | select(.value.battery != "null") 
-        | .key as $key 
-        | (.value.battery | tonumber) as $battery 
-        | "\($key):\n\((if $battery > 40 then "🔋" else "🪫" end)) \($battery)%\n"'
-      fi  
+          | (.value.temperature | if . != "null" and . != null then "\(.)°C" else "" end) as $temp
+          | "\($key)|\(if $battery > 40 then "🔋" else "🪫" end) \($battery)%|\($temp)"' 
+      )     
+      echo -e "\n## ──────⋆⋅☆⋅⋆────── ##"
+      echo "## Battery Status"
+      mk_table "$TABLE_DATA"
       echo "## ──────⋆⋅☆⋅⋆────── ##"
     '';
     parameters = [   
@@ -209,6 +237,7 @@ in { # 🦆 says ⮞ Voice Intents
       { name = "brightness"; description = "Brightness value of the device or group"; optional = true; type = "int"; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
+      { name = "scene"; description = "Activate a predefined scene"; optional = true; }                
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
       { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }    
@@ -223,6 +252,7 @@ in { # 🦆 says ⮞ Voice Intents
       STATE_DIR="${zigduckDir}"
       DEVICE="$device"
       STATE="$state"
+      SCENE="$scene"
       BRIGHTNESS="$brightness"
       COLOR="$color"
       TEMP="$temperature"
@@ -263,6 +293,11 @@ in { # 🦆 says ⮞ Voice Intents
           fi
         fi
         
+        if [[ -n "$SCENE" ]]; then
+          scene $SCENE
+          say_duck "Activated scene $SCENE"
+        fi   
+        
         if [[ "$state" == "off" ]]; then
           mqtt_publish "zigbee2mqtt/$dev/set" '{"state":"OFF"}'
           say_duck "Turned off $dev"
@@ -271,7 +306,7 @@ in { # 🦆 says ⮞ Voice Intents
           # 🦆 says ⮞ Validate brightness value
           if [[ -n "$brightness" ]]; then
             if ! [[ "$brightness" =~ ^[0-9]+$ ]] || [ "$brightness" -lt 1 ] || [ "$brightness" -gt 100 ]; then
-              echo "$(date) - ❌ Unknown brightness: $brightness" >> "$STATE_DIR/voice-debug.log"
+              echo "Unknown brightness: $brightness" >> "$STATE_DIR/voice-debug.log"
               say_duck "Ogiltig ljusstyrka: $brightness%. Ange 1-100."
               exit 1
             fi
@@ -293,7 +328,7 @@ in { # 🦆 says ⮞ Voice Intents
         if [[ -n "$exact_name" ]]; then
           control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
           exit 0
-          #
+
         else
           for dev in "''${!device_map[@]}"; do
             if [[ "$dev" == *"$input_lower"* ]]; then

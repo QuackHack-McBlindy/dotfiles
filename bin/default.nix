@@ -237,63 +237,28 @@
       ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
     }
     # 🦆 says ⮞ device parser for zigduck
-#    device_check() { 
-#      occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy') && dt_debug "occupancy: $occupancy"
-#      action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action') && dt_debug "action: $action"
-#      contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.contact') && dt_debug "contact: $contact"
-#      position=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.position') && dt_debug "position: $position"
-#      state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.state') && dt_debug "state: $state"
-#      water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak') && dt_debug "water_leak: $water_leak"
-#      waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak') && dt_debug "waterleak: $waterleak"
-#      temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature') && dt_debug "temperature: $temperature" # 🆙 Fixed typo
-#      battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery') && dt_debug "battery: $battery"
+    device_check() { 
+      occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy // empty') && dt_debug "occupancy: $occupancy"
+      action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action // empty') && dt_debug "action: $action"
+      contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.contact // empty') && dt_debug "contact: $contact"
+      position=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.position // empty') && dt_debug "position: $position"
+      state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.state // empty') && dt_debug "state: $state"
+      water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak // empty') && dt_debug "water_leak: $water_leak"
+      waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
+      temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature" # 🆙 Fixed typo
+      battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery // empty') && dt_debug "battery: $battery"
               
-#      device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
-#      dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
-#      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
-#      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
-#      room="''${dev_room//\"/}"
-#      [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
-#      [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
-#      [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
-#      [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
-#      [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
-#    }
-
-    device_check() {
-        local json_fields
-        json_fields=$(echo "$line" | ${pkgs.jq}/bin/jq -r '
-            .occupancy // empty,
-            .action // empty,
-            .contact // empty,
-            .position // empty,
-            .state // empty,
-            (.water_leak // .waterleak) // empty,  # Handle both naming conventions
-            .temperature // empty,
-            .battery // empty
-        ' | tr '\n' ' ')  # Convert to single line
-    
-        read -r occupancy action contact position state water_status temperature battery <<< "$json_fields"  
-        device_name="''${topic#zigbee2mqtt/}"
-        dev_data=$(${pkgs.jq}/bin/jq ".\"$device_name\"" $STATE_DIR/zigbee_devices.json)
-    
-        [ -n "$occupancy" ] && dt_debug "occupancy: $occupancy"
-        [ -n "$action" ] && dt_debug "action: $action"
-        [ -n "$contact" ] && dt_debug "contact: $contact"
-        [ -n "$position" ] && dt_debug "position: $position"
-        [ -n "$state" ] && dt_debug "state: $state"
-        [ -n "$water_status" ] && dt_debug "water_status: $water_status"
-        [ -n "$temperature" ] && dt_debug "temperature: $temperature"
-        [ -n "$battery" ] && dt_debug "battery: $battery"
-    
-        [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
-        [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
-        [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
-        [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
-        [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
-        [ -n "$water_status" ] && update_device_state "$device_name" "water_status" "$water_status"
+      device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
+      dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
+      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
+      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
+      room="''${dev_room//\"/}"
+      [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
+      [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
+      [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
+      [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
+      [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
     }
-
 
     # 🦆 says ⮞ turn on specified room
     room_lights_on() { 
