@@ -198,26 +198,20 @@ in { # 🦆 says ⮞ Voice Intents
           device_single_line=$(echo "$device" | tr '\n' ' ' | sed 's/ \{2,\}/ /g')   
           echo "| $device_single_line | $status | $temp |"
         done <<< "$1"
-      }   
+      }
+      mk_state_table() {
+        echo "| Device | State |"
+        echo "| :----- | :---- |"
+        while IFS= read -r line; do
+          [ -z "$line" ] && continue
+          device=$(echo "$line" | cut -d'|' -f1)
+          state=$(echo "$line" | cut -d'|' -f2)
+          device_single_line=$(echo "$device" | tr '\n' ' ' | sed 's/ \{2,\}/ /g')
+          echo "| $device_single_line | $state |"
+        done <<< "$1"
+      }
       TABLE_DATA=$(
         echo "$BATTERY_DATA" | \
-        jq -r '
-          to_entries[] 
-          | .key as $key 
-          | .value as $val
-          | if ($val.state == "ON" or $val.state == "OFF") then
-              "\($key)|\($val.state)|"
-            elif ($val.position == "100") then
-              "\($key)|OPEN|"
-            elif ($val.contact == true) then
-              "\($key)|CLOSED|"
-            elif ($val.contact == false) then
-              "\($key)|OPEN|"
-            else 
-              empty 
-            end
-          | . + "\(.value.temperature // "")"
-        ' && echo "$BATTERY_DATA" | \
         jq -r '
           to_entries[] 
           | select(.value.battery != "null") 
@@ -225,10 +219,37 @@ in { # 🦆 says ⮞ Voice Intents
           | (.value.battery | tonumber) as $battery 
           | (.value.temperature | if . != "null" and . != null then "\(.)°C" else "" end) as $temp
           | "\($key)|\(if $battery > 40 then "🔋" else "🪫" end) \($battery)%|\($temp)"' 
-      )     
+      )
+      STATE_DATA=$(
+        echo "$BATTERY_DATA" | \
+        jq -r '
+          to_entries[] 
+          | select(
+              (.value.state? == "ON" or .value.state? == "OFF") or
+              (.value.position? == "100") or
+              (.value.contact? != null)
+            )
+          | .key as $key
+          | .value as $v
+          | if $v.position? == "100" then
+              "\($key)|OPEN"
+            elif $v.contact? == "true" then
+              "\($key)|CLOSED"
+            elif $v.contact? == "false" then
+              "\($key)|OPEN"
+            elif $v.state? == "ON" or $v.state? == "OFF" then
+              "\($key)|\($v.state)"
+            else
+              empty
+            end'
+      )
       echo -e "\n## ──────⋆⋅☆⋅⋆────── ##"
       echo "## Battery Status"
       mk_table "$TABLE_DATA"
+      echo "## ──────⋆⋅☆⋅⋆────── ##"
+      echo -e "\n## ──────⋆⋅☆⋅⋆────── ##"
+      echo "## Device States"
+      mk_state_table "$STATE_DATA"
       echo "## ──────⋆⋅☆⋅⋆────── ##"
     '';
     parameters = [   
