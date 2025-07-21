@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/z7kp4hh2hf19axs01lqnh4c8qlvfr0rb-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/xll18y1mx4pgs1qlap5rlarzwr8wmrdz-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -200,7 +200,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=5eae18c316bed5844ff00486825c2183d562a744
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -327,6 +327,7 @@ Set default values for your parameters to have them marked [optional]
 | **** | | |
 | `yo blindsDown ` |  |  |
 | `yo blindsUp ` |  |  |
+| `yo blink [--duration]` |  | Blink all lights for a specified duration |
 | `yo fanOff ` |  |  |
 | `yo fanOn ` |  |  |
 | `yo goodmorning ` |  |  |

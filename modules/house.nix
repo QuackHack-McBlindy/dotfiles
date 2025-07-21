@@ -218,6 +218,29 @@ in { # 🦆 says ⮞ Options for da house
                 "Takkrona 3" = { state = "OFF"; transition = 10; };   
                 "Takkrona 4" = { state = "OFF"; transition = 10; };   
             };  
+            "dark-fast" = { # 🦆 says ⮞ eat darkness... NAO!  
+                "Bloom" = { state = "OFF"; };
+                "Dörr" = { state = "OFF"; };
+                "Golvet" = { state = "OFF"; };
+                "Kök Bänk Slinga" = { state = "OFF"; };
+                "PC" = { state = "OFF"; };
+                "Rustning" = { state = "OFF"; };
+                "Spotlight Kök 2" = { state = "OFF"; };
+                "Spotlight kök 1" = { state = "OFF"; };
+                "Sänggavel" = { state = "OFF"; };
+                "Sänglampa" = { state = "OFF"; };
+                "Tak Hall" = { state = "OFF"; };
+                "Taket Sovrum 1" = { state = "OFF"; };
+                "Taket Sovrum 2" = { state = "OFF"; };
+                "Uppe" = { state = "OFF"; };
+                "Vägg" = { state = "OFF"; };
+                "WC 1" = { state = "OFF"; };
+                "WC 2" = { state = "OFF"; };
+                "Takkrona 1" = { state = "OFF"; };   
+                "Takkrona 2" = { state = "OFF"; };
+                "Takkrona 3" = { state = "OFF"; };   
+                "Takkrona 4" = { state = "OFF"; };   
+            };  
             "max" = { # 🦆 says ⮞ let there be light
                 "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
                 "Dörr" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };

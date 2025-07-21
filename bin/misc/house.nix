@@ -400,6 +400,28 @@ in { # 🦆 says ⮞ Voice Intents
     ''; 
   };
 
+  yo.scripts.blink = {
+    description = "Blink all lights for a specified duration";
+    parameters = [
+      { name = "duration"; description = "Blink duration in seconds"; default = "10"; }
+    ];
+    code = ''
+      ${cmdHelpers}
+      duration=''${1:-10}
+      interval=1.5
+      end=$((SECONDS + duration))    
+      dt_info "Blinking all lights for $duration seconds..."
+      if_voice_say "Jag blinkar alla lampor i $duration sekunder!"    
+      while ((SECONDS < end)); do
+        scene max
+        sleep $interval
+        scene dark-fast
+        sleep $interval
+      done    
+      dt_info "Finished blinking lights"
+    '';
+  };
+
   yo.scripts.fanOff.code = "zig Fläkt off";
   
   yo.scripts.fanOn.code = "zig Fläkt on";

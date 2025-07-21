@@ -241,6 +241,8 @@
       contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.contact // empty') && dt_debug "contact: $contact"
       position=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.position // empty') && dt_debug "position: $position"
       state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.state // empty') && dt_debug "state: $state"
+      brightness=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.brightness // empty') && dt_debug "brightness: $brightness"
+      color=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.color // empty') && dt_debug "color: $color"
       water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak // empty') && dt_debug "water_leak: $water_leak"
       waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
       temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature" # 🆙 Fixed typo
@@ -266,6 +268,8 @@
         [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
         [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
         [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
+        [ -n "$brightness" ] && update_device_state "$device_name" "brightness" "$brightness"
+        [ -n "$color" ] && update_device_state "$device_name" "color" "$color"        
         [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
         [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
        fi

@@ -7,7 +7,8 @@
 
   services.jellyfin = lib.mkIf (lib.elem "jelly" config.this.host.modules.services) {
     enable = true;
- 
+    package = pkgs.jellyfin-ffmpeg;
+    openFirewall = true;
 #    webPackage = pkgs.jellyfin-web.override {
 #      forceEnableBackdrops = true;
 #    };

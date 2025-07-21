@@ -21,4 +21,6 @@
   "fälla upp" = "spela upp";
   "vi tar upp serien" = "spela upp serien";
   "bläcken" = "fläkten";
+  "blinkepåkaj" = "blinkepartaj";
+  "blinkepartij" = "blinkepartaj";
 }
