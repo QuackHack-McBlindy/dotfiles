@@ -8,8 +8,11 @@
   rocmPkgs = pkgs.rocmPackages_5;
 in {
     config = lib.mkIf (lib.elem "gpu/amd" config.this.host.modules.hardware) {
+        boot.initrd.kernelModules = [ "amdgpu" ];
+        services.xserver.videoDrivers = [ "amdgpu" ];
+        
         hardware.amdgpu = {
-            opencl.enable = true;
+            opencl.enable = true; 
             amdvlk = {
                 enable = true;
                 settings = {

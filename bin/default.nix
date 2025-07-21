@@ -73,10 +73,9 @@
       local blink_code=""
       [[ "$blink" == "true" ]] && blink_code="$BLINK"
       local level_num="''${DT_LEVEL_MAP[$level]:-0}"
-      (( level_num < DT_LOG_LEVEL_NUM )) && return    
-##    (( level_num >= DT_LOG_LEVEL_NUM )) || return  
+      (( level_num < DT_LOG_LEVEL_NUM )) && return      
       local max_size=1048576 # 1MB     
-      # rorate logs
+      # 🦆 says ⮞ rorate logs
       if [[ -f "$log_path" && $(stat -c%s "$log_path") -gt $max_size ]]; then mv "$log_path" "$log_path.old"; fi
       # 🦆 says ⮞ format output
       local output="''${color}''${BOLD}''${blink_code}[🦆📜] [''${timestamp}] ''${symbol}''${level}''${symbol} ⮞ ''${message}''${RESET}"
@@ -91,19 +90,19 @@
       if (( $(echo "$elapsed_time < 10000" | bc -l) )); then
         elapsed_text="+$elapsed_time s "
       fi
-      _dt_log "DEBUG" "⁉️" "$BLUE" "''${elapsed_text}$1"
+      _dt_log "DEBUG" "⁉️" "$BLUE" "''${elapsed_text}$1" >&2
     }
     dt_info() {
-      _dt_log "INFO" "✅" "$GREEN" "$1"
+      _dt_log "INFO" "✅" "$GREEN" "$1" >&2
     }
     dt_warning() {
-      _dt_log "WARNING" "⚠️" "$YELLOW" "$1"
+      _dt_log "WARNING" "⚠️" "$YELLOW" "$1" >&2
     }
     dt_error() {
-      _dt_log "ERROR" "❌" "$RED" "$1" true
+      _dt_log "ERROR" "❌" "$RED" "$1" true >&2
     }
     dt_critical() {
-      _dt_log "CRITICAL" "🚨" "$RED" "$1" true
+      _dt_log "CRITICAL" "🚨" "$RED" "$1" true >&2
     }
     # 🦆 says ⮞ END OF DUCK TRACE ='( 
     parse_flags() { # 🦆 says ⮞ quite self explained  
@@ -153,7 +152,6 @@
         g=$(( min_g + RANDOM % (max_g - min_g + 1) ))
         b=$(( min_b + RANDOM % (max_b - min_b + 1) ))
       fi
-
       printf "%02x%02x%02x\n" "$r" "$g" "$b"
     }
     validate_devShell() {  # 🦆 duck say ⮞ check development enviorment exist yo!

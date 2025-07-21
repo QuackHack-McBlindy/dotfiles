@@ -231,7 +231,6 @@ in { # 🦆 says ⮞ Voice Intents
       echo -e "\n## ──────⋆⋅☆⋅⋆────── ##"
       echo "## Device Status"
       mk_table "$TABLE_DATA"
-      echo "## ──────⋆⋅☆⋅⋆────── ##"
     '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
