@@ -13,6 +13,8 @@
                 pkgs.nix-prefetch-github 
                 pkgs.ollama
                 pkgs.whisper-cpp
+                pkgs.jellyfin-web
+                pkgs.jellycli
              #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
         

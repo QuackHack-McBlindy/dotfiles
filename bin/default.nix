@@ -223,10 +223,25 @@
       dt_debug "Reset 5m timer for $room (PID: $!)"
     }
     # 🦆 says ⮞ Time window of day that allow motion triggering lights on
-    is_dark_time() { 
-      local current_hour=$((10#$(date +%H)))
-      [[ ($current_hour -ge 0 && $current_hour -lt 8) || # 🦆 says ⮞ from 00,00 to 08.00
-         ($current_hour -ge 16 && $current_hour -le 23) ]] # 🦆 says ⮞ & from 16,00 to 23.00
+#    is_dark_time() { 
+#      local current_hour=$((10#$(date +%H)))
+#      [[ ($current_hour -ge 0 && $current_hour -lt 8) || # 🦆 says ⮞ from 00,00 to 08.00
+#         ($current_hour -ge 16 && $current_hour -le 23) ]] # 🦆 says ⮞ & from 16,00 to 23.00
+#    }
+    is_dark_time() {
+      source /etc/dark-time.conf
+      local now_hour now_min now total_now
+      IFS=: read -r now_hour now_min <<< "$(date +%H:%M)"
+      total_now=$((10#$now_hour * 60 + 10#$now_min))
+      IFS=: read -r start_hour start_min <<< "$DARK_TIME_START"
+      local start_total=$((10#$start_hour * 60 + 10#$start_min))
+      IFS=: read -r end_hour end_min <<< "$DARK_TIME_END"
+      local end_total=$((10#$end_hour * 60 + 10#$end_min))
+      if (( start_total <= end_total )); then
+        (( total_now >= start_total && total_now < end_total ))
+      else
+        (( total_now >= start_total || total_now < end_total ))
+      fi
     }
     mqtt_pub() { # 🦆 says ⮞ publish Mosquitto
       ${pkgs.mosquitto}/bin/mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"

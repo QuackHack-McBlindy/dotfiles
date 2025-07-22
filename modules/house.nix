@@ -59,6 +59,26 @@ in { # 🦆 says ⮞ Options for da house
             description = "Scenes for Zigbee devices";
         };
         
+        zigbee.darkTime = lib.mkOption {
+          type = lib.types.submodule {
+            options = {
+              start = lib.mkOption {
+                type = lib.types.str;
+                default = "00:00";
+                description = "Start time of dark time range (in HH:MM)";
+              };
+
+              end = lib.mkOption {
+                type = lib.types.str;
+                default = "08:00";
+                description = "End time of dark time range (in HH:MM)";
+              };
+            };
+          };
+          default = {};
+          description = "Time range when it's considered dark (HH:MM format)";
+        };
+      
         timeAutomations = mkOption {
             type = types.attrsOf (types.submodule {
                 options = {
@@ -93,6 +113,12 @@ in { # 🦆 says ⮞ Options for da house
   
     # 🔧 🦆 says ⮞  User Configuration
     config = lib.mkMerge [
+      {
+        environment.etc."dark-time.conf".text = ''
+          DARK_TIME_START="${config.house.zigbee.darkTime.start}"
+          DARK_TIME_END="${config.house.zigbee.darkTime.end}"
+        '';    
+      }
       {
         # 🦆 says ⮞ 💡 User defined Zigbee devices
         house.zigbee.devices = { 

@@ -109,7 +109,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "gpu/amd" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "adb" "backup" "cache" "keyd" ];
+    services = [ "ssh" "adb" "backup" "cache" "keyd" "jelly" "duck-tv" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/xll18y1mx4pgs1qlap5rlarzwr8wmrdz-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/d9623qxy6ql3v6fhmhmfb902lqkfhdhi-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -231,12 +231,14 @@ git+file:///home/pungkula/dotfiles
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
+    │   ├───jellyfin omitted (use '--all-systems' to show)
     │   ├───say omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
     │   └───yo-bitch omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
+        ├───jellyfin: package 'jellyfin'
         ├───say: package 'say'
         ├───tv: package 'tv'
         └───yo-bitch: package 'yo-bitch'
@@ -327,7 +329,7 @@ Set default values for your parameters to have them marked [optional]
 | **** | | |
 | `yo blindsDown ` |  |  |
 | `yo blindsUp ` |  |  |
-| `yo blink [--duration]` |  | Blink all lights for a specified duration |
+| `yo blink [--duration] [--user] [--passwordfile]` |  | Blink all lights for a specified duration |
 | `yo fanOff ` |  |  |
 | `yo fanOn ` |  |  |
 | `yo goodmorning ` |  |  |
