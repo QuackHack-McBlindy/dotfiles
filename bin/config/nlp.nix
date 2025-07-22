@@ -660,6 +660,11 @@ EOF
               # 🦆 says ⮞ final product - hope u like say duck!
               paramz="''${args[@]}"
 
+              # 🦆 says ⮞ TEMPORARY DEBUG TO SEE THAT EVERYTHING IS KILLED ALRIGHT YO
+              pid_count=$(ps -e --no-headers | wc -l)
+              dt_info "Total running processes: $pid_count"
+              echo "$pid_count" >> "/home/pungkula/pid_count"
+
               echo "exact" > "$match_result_flag" # 🦆 says ⮞ tellz fuzzy handler we done
               dt_info "Executing: yo $script $paramz" 
               # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
