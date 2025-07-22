@@ -315,10 +315,10 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
                 room_lights_on "$room"
                 reset_room_timer "$room"
               else
-                dt_debug "❌ Daytime - no lights activated by motion."
+                dt_info "❌ Daytime - no lights activated by motion."
               fi
             else
-              dt_debug "🛑 No more motion in $device_name $dev_room"            
+              dt_info "🛑 No more motion in $device_name $dev_room"            
             fi
           fi
 
