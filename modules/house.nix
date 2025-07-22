@@ -64,7 +64,7 @@ in { # 🦆 says ⮞ Options for da house
             options = {
               start = lib.mkOption {
                 type = lib.types.str;
-                default = "23:58";
+                default = "00:01";
                 description = "Start time of dark time range (in HH:MM)";
               };
 
