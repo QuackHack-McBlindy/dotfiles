@@ -96,7 +96,26 @@ in { # 🦆 says ⮞ voice intents
         ["metro"]="MTB"
         ["ferry"]="SHP"
       )
+      declare -A CODE_TO_SWEDISH=(
+        ["BLT"]="bussen"
+        ["TRM"]="spårvagnen"
+        ["SHP"]="färjan"
+        ["MTB"]="tunnelbanan"
+        ["FLY"]="flyget"
+        # [""]="tåget"
+      )
 
+      get_swedish_type_name() {
+        case "$1" in
+          bus) echo "bussen" ;;
+          train) echo "tåget" ;;
+          air) echo "flyget" ;;
+          tram) echo "spårvagnen" ;;
+          metro) echo "tunnelbanan" ;;
+          ferry) echo "färjan" ;;
+          *) echo "fordonet" ;;
+        esac
+      }
       get_icon_for_type() {
         local type="$1"
         case "$type" in
@@ -263,6 +282,7 @@ in { # 🦆 says ⮞ voice intents
       tts_messages=()
       echo -e "\n\\033[1mUpcoming Trips\\033[0m"
       displayed_count=0
+      tts_phrases=()
       for i in $(seq 0 $((trip_count - 1))); do
         tts_type=""
         case "$transport_type" in
@@ -288,6 +308,14 @@ in { # 🦆 says ⮞ voice intents
         dest_name=$(echo "$trip" | jq -r '.Destination.name') 
         dep_time=$(echo "$trip" | jq -r '.Origin.date + "T" + .Origin.time')
         arr_time=$(echo "$trip" | jq -r '.Destination.date + "T" + .Destination.time')
+
+        minutes_until="?"
+        if [ -n "$dep_time" ] && [ ''${#dep_time} -ge 16 ]; then
+          now_epoch=$(date +%s)
+          if dep_epoch=$(date -d "$dep_time" +%s 2>/dev/null); then
+            minutes_until=$(((dep_epoch - now_epoch) / 60))
+          fi
+        fi
         
         dep_date=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.date // ""' 2>/dev/null)
         dep_time_val=$(echo "$trip" | jq -r '.LegList.Leg[0].Origin.time // ""' 2>/dev/null)
@@ -324,6 +352,35 @@ in { # 🦆 says ⮞ voice intents
         fi
 
         if [ -n "$origin_name" ] && [ -n "$dest_name" ]; then
+          if [ -n "$type" ]; then
+            swedish_type=$(get_swedish_type_name "$type")
+          else
+            swedish_type="''${CODE_TO_SWEDISH[$transport_type]}"
+            [[ -z "$swedish_type" ]] && swedish_type="fordonet"
+          fi
+
+          line_info=""
+          if [ -n "$line_number" ] && [ "$line_number" != "N/A" ]; then
+            line_info=" med linje $line_number"
+          fi
+
+          if [[ "$minutes_until" =~ ^[0-9]+$ ]]; then
+            time_info=" om $minutes_until minuter"
+          else
+            dep_short=$(format_time "$dep_time")
+            time_info=" klockan $dep_short"
+          fi
+
+          if [ $displayed_count -eq 0 ]; then
+            phrase="Nästa $swedish_type$line_info$time_info"
+          elif [ $displayed_count -eq 1 ]; then
+            phrase="Sedan$line_info$time_info"
+          else
+            phrase="Därefter$line_info$time_info"
+          fi
+        
+          tts_phrases+=("$phrase")
+        
           display_trip "$displayed_count" "$origin_name" "$dest_name" "$dep_time" "$arr_time" "$transport_type" "$line_number"
           displayed_count=$((displayed_count + 1))
         fi
@@ -343,7 +400,7 @@ in { # 🦆 says ⮞ voice intents
           fi
           tts_final+="''${tts_phrases[$idx]}"
         done
-        tts_final+="." 
+        tts_final+="."
         tts "$tts_final"
       fi
     '';    
