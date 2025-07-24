@@ -548,61 +548,30 @@ EOF
         for f in "$MATCHER_DIR"/*.sh; do [[ -f "$f" ]] && source "$f"; done
         scripts_ordered_by_priority=( ${lib.concatMapStringsSep "\n" (name: "  \"${name}\"") processingOrder} )
  
-  
         find_best_fuzzy_match() {
           local input="$1"
           local best_score=0
           local best_match=""
           local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
           local candidates
-          mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")          
-          dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching" >&2
-          if [[ -z "$normalized" || "$normalized" =~ ^[[:space:]]*$ ]]; then
-            dt_error "Empty input after normalization"
-            return 1
-          fi
-          
+          mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
+          dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching"
           for candidate in "''${candidates[@]}"; do
             IFS=':' read -r script sentence <<< "$candidate"
             local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
-            if [[ -z "$norm_sentence" ]]; then
-              dt_debug "Skipping empty pattern for: $script"
-              continue
-            fi
-            local input_words=($normalized)
-            local pattern_words=($norm_sentence)
-            local match_count=0      
-            for iword in "''${input_words[@]}"; do
-              for pword in "''${pattern_words[@]}"; do
-                # 🦆 says ⮞  skip da param placeholders
-                if [[ "$pword" == \{* ]]; then
-                  continue
-                fi        
-                # 🦆 says ⮞  basic substring match
-                if [[ "$iword" == *"$pword"* || "$pword" == *"$iword"* ]]; then
-                  ((match_count++))
-                  break
-                fi
-              done
-            done
-            local score=$(( (match_count * 100) / ''${#pattern_words[@]} )) # 🦆 says ⮞  calculate score as percentage of matched words   
-            # 🦆 says ⮞  ensures score is within bounds
-            if (( score > 100 )); then
-              score=100
-            elif (( score < 0 )); then
-              score=0
-            fi   
-            dt_debug "Candidate: $norm_sentence ⮞ $match_count/''${#pattern_words[@]} words ⮞ $score%"
+            local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
+            (( tri_score < 30 )) && continue
+            local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
             if (( score > best_score )); then
               best_score=$score
               best_match="$script:$sentence"
-              dt_debug "New best match: $best_match ($score%)" >&2
+              dt_info "New best match: $best_match ($score%)"
             fi
           done
-          if (( best_score > 15 )); then
-              echo "$best_match|$best_score" | tr -d '\n'
+          if [[ -n "$best_match" ]]; then
+            echo "$best_match|$best_score"
           else
-              echo ""
+            echo ""
           fi
         }
            
@@ -610,8 +579,6 @@ EOF
 #        ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         # 🦆 says ⮞ for dem scripts u defined intents for ..
         exact_match_handler() {        
-          fuzzy_match_handler &
-          pid2=$!
           for script in "''${scripts_ordered_by_priority[@]}"; do
             # 🦆 says ⮞ .. we insert wat YOU sayz & resolve entities wit dat yo
             resolved_output=$(resolve_entities "$script" "$text")
@@ -701,9 +668,9 @@ EOF
               args+=("$arg")  # 🦆 says ⮞ collecting them shell spell ingredients
             done
             # 🦆 says ⮞ wait for exact match to finish
-            # while kill -0 "$pid1" 2>/dev/null; do
-            #  sleep 0.05
-            # done
+            while kill -0 "$pid1" 2>/dev/null; do
+              sleep 0.05
+            done
             
             # 🦆 says ⮞ checkz if exact match succeeded yo
             if [[ -f "$match_result_flag" && "$(cat "$match_result_flag")" == "exact" ]]; then
@@ -740,7 +707,10 @@ EOF
         }        
 
         # 🦆 says ⮞ if exact match winz, no need for fuzz! but fuzz ready to quack when regex chokes
-        exact_match_handler
+        exact_match_handler &
+        pid1=$!
+        fuzzy_match_handler
+#        pid1=$!
         exit
       '';
     };
