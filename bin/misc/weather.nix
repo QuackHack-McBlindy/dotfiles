@@ -156,8 +156,8 @@ in {
 
       # 🦆 says ⮞ get 3-day forecast
       weather_file="/home/pungkula/weather.json"
-      curl -s "https://wttr.in/$location_param?format=j1&days=5" -o "$weather_file"
-      weather=$(cat "$weather_file")
+      curl -s "https://wttr.in/$location_param?format=j1&days=5" -o "/home/pungkula/weather.json"
+      weather=$(cat "/home/pungkula/weather.json")
 
       # 🦆 says ⮞ get Swedish day name
       get_day_name() {

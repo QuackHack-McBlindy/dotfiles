@@ -1,6 +1,9 @@
 # Training data is automatically inserted by `yo train` and corrected by `yo mic`.
 {
 
+  "i mån" = "imorgon";
+  "i moln" = "imorgon";
+
   "tänk av fläkten" = "stäng av fläkten";
   "flekta" = "fläkten";
   "flykten" = "fläkten";

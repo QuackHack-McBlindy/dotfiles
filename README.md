@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/7lknyg248c31apqa84b5lpqs5ax90nz3-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/d489k6zkzfhd9hkkbgbkvrhkga93l4pr-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -224,8 +224,6 @@ git+file:///home/pungkula/dotfiles
 │   ├───laptop: NixOS configuration
 │   └───nasty: NixOS configuration
 ├───overlays
-│   ├───beutifulsoup: Nixpkgs overlay
-│   ├───ddgs: Nixpkgs overlay
 │   └───noisereduce: Nixpkgs overlay
 └───packages
     ├───aarch64-linux
@@ -340,7 +338,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
 | `yo say --text [--model] [--modelDir] [--silence] [--host]` |  | Text to speech with built in language detection and automatic model downloading |
-| `yo tests [--debug]` |  | Extensive automated sentence testing for the NLP |
+| `yo tests [--input]` |  | Extensive automated sentence testing for the NLP |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
 | `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle]` |  | Run Wake word detection for audio recording and transcription |

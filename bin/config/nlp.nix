@@ -548,30 +548,61 @@ EOF
         for f in "$MATCHER_DIR"/*.sh; do [[ -f "$f" ]] && source "$f"; done
         scripts_ordered_by_priority=( ${lib.concatMapStringsSep "\n" (name: "  \"${name}\"") processingOrder} )
  
+  
         find_best_fuzzy_match() {
           local input="$1"
           local best_score=0
           local best_match=""
           local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
           local candidates
-          mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
+          mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")          
           dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching" >&2
+          if [[ -z "$normalized" || "$normalized" =~ ^[[:space:]]*$ ]]; then
+            dt_error "Empty input after normalization"
+            return 1
+          fi
+          
           for candidate in "''${candidates[@]}"; do
             IFS=':' read -r script sentence <<< "$candidate"
             local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
-            local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
-            (( tri_score < 30 )) && continue
-            local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
+            if [[ -z "$norm_sentence" ]]; then
+              dt_debug "Skipping empty pattern for: $script"
+              continue
+            fi
+            local input_words=($normalized)
+            local pattern_words=($norm_sentence)
+            local match_count=0      
+            for iword in "''${input_words[@]}"; do
+              for pword in "''${pattern_words[@]}"; do
+                # 🦆 says ⮞  skip da param placeholders
+                if [[ "$pword" == \{* ]]; then
+                  continue
+                fi        
+                # 🦆 says ⮞  basic substring match
+                if [[ "$iword" == *"$pword"* || "$pword" == *"$iword"* ]]; then
+                  ((match_count++))
+                  break
+                fi
+              done
+            done
+            local score=$(( (match_count * 100) / ''${#pattern_words[@]} )) # 🦆 says ⮞  calculate score as percentage of matched words   
+            # 🦆 says ⮞  ensures score is within bounds
+            if (( score > 100 )); then
+              score=100
+            elif (( score < 0 )); then
+              score=0
+            fi   
+            dt_debug "Candidate: $norm_sentence ⮞ $match_count/''${#pattern_words[@]} words ⮞ $score%"
             if (( score > best_score )); then
               best_score=$score
               best_match="$script:$sentence"
-              dt_info "New best match: $best_match ($score%)" >&2
+              dt_debug "New best match: $best_match ($score%)" >&2
             fi
           done
-          if [[ -n "$best_match" ]]; then
-            echo "$best_match|$best_score"
+          if (( best_score > 15 )); then
+              echo "$best_match|$best_score" | tr -d '\n'
           else
-            echo ""
+              echo ""
           fi
         }
            
@@ -683,7 +714,7 @@ EOF
             # 🦆 says ⮞ final product - hope u like say duck!
             paramz="''${args[@]}" && echo
             echo "   ┌─(yo-$matched_script)"
-            echo "   │🦆"
+            echo "   │🦆 Fuzzy"
             if [ ''${#args[@]} -eq 0 ]; then
               echo "   └─🦆 says ⮞ no parameters yo"
             else
@@ -713,6 +744,7 @@ EOF
         exit
       '';
     };
+         
            
     # 🦆 says ⮞ automatic bitchin' sentencin' testin'
     tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
@@ -720,7 +752,7 @@ EOF
       category = "⚙️ Configuration";
       autoStart = false;
       logLevel = "INFO";
-      parameters = [{ name = "debug"; description = "Using this flag when running the tests gives extensive debug logging."; optional = true; }];       
+      parameters = [{ name = "input"; description = "Text to test as a single  sentence test"; optional = true; }];       
       code = ''    
         set +u  
         ${cmdHelpers}
@@ -733,7 +765,7 @@ EOF
         total_negative=0
         passed_boundary=0
         failures=()
-                 
+             
         resolve_entities() {
           local script="$1"
           local text="$2"
@@ -801,6 +833,85 @@ EOF
           sentence=$(echo "$sentence" | tr -s ' ' | sed -e 's/^ //' -e 's/ $//')
           echo "$sentence"
         }
+        if [[ -n "$input" ]]; then
+            echo "[🦆📜] Testing single input: '$input'"
+            FUZZY_THRESHOLD=15
+            YO_FUZZY_INDEX="${fuzzyIndexFile}"
+            priorityList="${toString (lib.concatStringsSep " " processingOrder)}"
+            scripts_ordered_by_priority=($priorityList)
+            ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}
+            ${lib.concatMapStrings (name: makeFuzzyPatternMatcher name) scriptNamesWithIntents}
+            for f in "$MATCHER_DIR"/*.sh; do [[ -f "$f" ]] && source "$f"; done
+            find_best_fuzzy_match() {
+              local input="$1"
+              local best_score=0
+              local best_match=""
+              local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
+              local candidates
+              mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
+              dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching"
+              for candidate in "''${candidates[@]}"; do
+                IFS=':' read -r script sentence <<< "$candidate"
+                local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
+                local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
+                (( tri_score < 30 )) && continue
+                local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
+                if (( score > best_score )); then
+                  best_score=$score
+                  best_match="$script:$sentence"
+                  dt_info "New best match: $best_match ($score%)"
+                fi
+              done
+              if [[ -n "$best_match" ]]; then
+                echo "$best_match|$best_score"
+              else
+                echo ""
+              fi
+            }
+            test_single_input() {
+                local input="$1"
+                dt_info "Testing input: '$input'"
+                for script in "''${scripts_ordered_by_priority[@]}"; do
+                    resolved_output=$(resolve_entities "$script" "$input")
+                    resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
+                    dt_debug "Trying exact match: $script '$resolved_text'" 
+                    if match_$script "$resolved_text"; then
+                        dt_info "✅ EXACT MATCH: $script"
+                        dt_info "Parameters:"
+                        for arg in "''${cmd_args[@]}"; do
+                            dt_info "  - $arg"
+                        done
+                        return 0
+                    fi
+                done
+                dt_info "No exact match found. Attempting fuzzy match..."
+                fuzzy_result=$(find_best_fuzzy_match "$input")
+                if [[ -z "$fuzzy_result" ]]; then
+                    dt_info "❌ No fuzzy candidates found"
+                    return 1
+                fi  
+                IFS='|' read -r combined match_score <<< "$fuzzy_result"
+                IFS=':' read -r matched_script matched_sentence <<< "$combined"
+                dt_info "Best fuzzy candidate: $matched_script (score: $match_score%)"
+                dt_info "Matched sentence: '$matched_sentence'"
+                resolved_output=$(resolve_entities "$matched_script" "$input")
+                resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
+                if match_fuzzy_$matched_script "$resolved_text" "$matched_sentence"; then
+                    dt_info "✅ FUZZY MATCH ACCEPTED: $matched_script"
+                    dt_info "Parameters:"
+                    for arg in "''${cmd_args[@]}"; do
+                        dt_info "  - $arg"
+                    done
+                    return 0
+                else
+                    dt_info "❌ Fuzzy match rejected (parameter resolution failed)"
+                    return 1
+                fi
+            }
+            test_single_input "$input"
+            exit $?
+        fi
+    
         # 🦆 says ⮞ insert matchers
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         test_positive_cases() {
