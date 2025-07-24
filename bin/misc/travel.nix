@@ -21,6 +21,11 @@ in { # 🦆 says ⮞ voice intents
             "vilken tid går tåget till {arrival}"
             "mår går bussen till {arrival}"
             "vilken tid går bussen till {arrival}"
+            
+            "mår går tåget från {departure}"
+            "vilken tid går tåget från {departure}"
+            "mår går bussen från {departure}"
+            "vilken tid går bussen från {departure}"
             # 🦆 says ⮞ call using type, arrival, and departure
             "när går {type} från {departure} till {arrival}"
             "vilken tid går {type} från {departure} till {arrival}"
@@ -51,7 +56,7 @@ in { # 🦆 says ⮞ voice intents
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "arrival"; description = "Destination stop or city"; optional = false; }
+      { name = "arrival"; description = "Destination stop or city"; optional = false; default = config.sops.secrets."users/pungkula/homeStop".path; }
       { name = "departure"; description = "Departure stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
       { name = "type"; description = "Optionally specify a transportation type"; optional = true; }      
       { name = "apikeyPath"; description = "Trafiklab API key path"; optional = true; default = config.sops.secrets.resrobot.path; }
@@ -59,8 +64,26 @@ in { # 🦆 says ⮞ voice intents
     code = ''
       ${cmdHelpers}      
       API_KEY=$(cat "$apikeyPath")
-      origin="$departure"
-      destination="$arrival"
+      if [[ "$departure" == /* ]]; then
+        if [[ -f "$departure" ]]; then
+          origin="$(cat "$departure")"
+        else
+          dt_error "File $departure not found."
+          exit 1
+        fi
+      else
+        origin="$departure"
+      fi 
+      if [[ "$arrival" == /* ]]; then
+        if [[ -f "$arrival" ]]; then
+          destination="$(cat "$arrival")"
+        else
+          dt_error "File $arrival not found."
+          exit 1
+        fi
+      else
+        destination="$arrival"
+      fi
       transport_type="$type"
       export TZ="Europe/Stockholm"      
    
@@ -306,14 +329,22 @@ in { # 🦆 says ⮞ voice intents
         fi
       done
         
-      dt_debug "\n\\033[2m----- RAW DATA -----\\033[0m"
+      dt_debug "----- RAW DATA -----"
       if echo "$trips_json" | jq empty &>/dev/null; then
         dt_debug "$trips_json" | jq .
       else
         echo "" 
       fi
-      if [ ''${#tts_messages[@]} -gt 0 ]; then
-        tts "Nästa resor: $(IFS='; '; echo "''${tts_messages[*]}")"
+      if ((''${#tts_phrases[@]} > 0)); then
+        tts_final=""
+        for idx in "''${!tts_phrases[@]}"; do
+          if [[ $idx -gt 0 ]]; then
+            tts_final+=". "
+          fi
+          tts_final+="''${tts_phrases[$idx]}"
+        done
+        tts_final+="." 
+        tts "$tts_final"
       fi
     '';    
   };

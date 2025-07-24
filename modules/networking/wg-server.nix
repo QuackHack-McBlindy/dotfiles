@@ -42,7 +42,6 @@
     group = "wgUser";
     mode = "0440";
   };
-
 in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.modules.networking`
   config = lib.mkIf (lib.elem "wg-server" serverCfg.modules.networking) {
     sops.secrets = (
@@ -129,7 +128,6 @@ EOF
           rm -rf "$TEMP_DIR" # 🦆 says ⮞ cleanup
         '';
       in ''
-        # 🦆 says ⮞ juzt 2 make sure it rly existz 
         mkdir -p "${wgUserHome}"        
         ${deleteOld}
         ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}

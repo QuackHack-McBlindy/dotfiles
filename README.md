@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/k7pbgk0rvv619c23ny23inf2z6652ish-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/v7vkfwg341hijcd63fwphzf2wax4w2pm-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -336,11 +336,11 @@ Set default values for your parameters to have them marked [optional]
 | `yo goodnight ` |  |  |
 | `yo indoorTemp ` |  |  |
 | **⚙️ Configuration** | | |
-| `yo bitch --input` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
+| `yo bitch --input [--fuzzyThreshold]` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo edit ` | config | yo CLI configuration mode |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
 | `yo say --text [--model] [--modelDir] [--silence] [--host]` |  | Text to speech with built in language detection and automatic model downloading |
-| `yo tests [--debug]` |  | Automated unit testing |
+| `yo tests [--debug]` |  | Extensive automated sentence testing for the NLP |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
 | `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle]` |  | Run Wake word detection for audio recording and transcription |
@@ -354,7 +354,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo scp --host [--path] [--username] [--downloadPath]` |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
 | `yo stores --store_name [--location] [--radius]` | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
-| `yo travel --arrival [--departure] [--type] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
+| `yo travel [--arrival] [--departure] [--type] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
 | `yo weather [--location] [--day] [--condition] [--locationPath]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |

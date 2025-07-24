@@ -12,9 +12,9 @@
       ${cmdHelpers}
       target_host="$host"
       if [[ "$target_host" == "$(hostname)" ]]; then
-        run_cmd sudo health | jq
+        sudo health | jq
       else
-        run_cmd ssh "$target_host" sudo health
+        ssh "$target_host" sudo health | jq
       fi
     '';  
   };

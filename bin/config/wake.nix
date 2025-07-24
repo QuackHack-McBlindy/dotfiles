@@ -32,7 +32,7 @@ in {
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.8"; }
-      { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "20"; }
+      { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "15"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
           then "true"
@@ -142,11 +142,11 @@ in {
                         dt_info "yo bitch ⮞ $TRANSCRIPTION"
                         yo-bitch --input "$TRANSCRIPTION"
                         unset VOICE_MODE
+                        current_time=$(${pkgs.coreutils}/bin/date +%s)
+                        LAST_TRIGGER_TIME="$current_time"
                       fi
                       
                       # 🦆 says ⮞ release da lock
-                      current_time=$(${pkgs.coreutils}/bin/date +%s)
-                      LAST_TRIGGER_TIME="$current_time"
                       release_lock
                   else
                       dt_info "⚠️ [LOCKED Wake Word] Detected! Probability: $probability."

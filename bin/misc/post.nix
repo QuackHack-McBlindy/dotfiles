@@ -76,9 +76,7 @@ in {
 
       dt_info "$MESSAGE1"
       dt_info "$MESSAGE2"
-      if_voice_say "$MESSAGE1"
-      sleep 1
-      if_voice_say "$MESSAGE2"
+      if_voice_say "$MESSAGE1 . $MESSAGE2"
     '';
   };
  
