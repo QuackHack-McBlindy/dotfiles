@@ -9,7 +9,7 @@
 } : let
 in {  
   yo.bitch.intents.joke.priority = 2;
-  yo.bitch.intents.joke.data = [{ sentences = [ "[få] (säg|berätta|höra) ett [rolig|roligt|bra] [ett] skämt" "gör mig glad" "få mig [att] (skratt|skratta)" ]; }];
+  yo.bitch.intents.joke.data = [{ sentences = [ "få höra ett [rolig|roligt] skämt" "säg ett skämt" "berätta ett [rolig|roligt] skämt" "gör mig glad" "få mig [att] (skratt|skratta)" ]; }];
 
   yo.scripts.joke = {
     description = "Tells a quacktastic joke";

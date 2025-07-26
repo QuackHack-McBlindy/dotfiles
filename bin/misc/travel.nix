@@ -7,9 +7,7 @@
   cmdHelpers,
   ...
 }: let
-  mkTable = self.mkTable;
 in { # 🦆 says ⮞ voice intents
-  
   yo.bitch = { 
     intents = {
       travel = { # 🦆 says ⮞ intent priority, 1 for fastest - 5 for slowest
@@ -21,7 +19,7 @@ in { # 🦆 says ⮞ voice intents
             "vilken tid går tåget till {arrival}"
             "mår går bussen till {arrival}"
             "vilken tid går bussen till {arrival}"
-            
+            # 🦆 says ⮞ using default --arrival
             "mår går tåget från {departure}"
             "vilken tid går tåget från {departure}"
             "mår går bussen från {departure}"

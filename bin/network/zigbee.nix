@@ -295,12 +295,16 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           fi
          
           # 🦆 says ⮞ left home yo
+          # call with: mosquitto_pub -h IP -t "zigbee2mqtt/leaving_home" -m "LEFT"
           if [ "$line" = "LEFT" ]; then
             dt_warning "LEAVING HOME!"
+            set_larmed true
           fi
           # 🦆 says ⮞ returned homez
+          # calll with: mosquitto_pub -h IP -t "zigbee2mqtt/returning_home" -m "RETURN" 
           if [ "$line" = "RETURN" ]; then
             dt_warning "Returned home!"
+            set_larmed false
           fi
           
           # 🦆 says ⮞ 🕵️ quick quack motion detect

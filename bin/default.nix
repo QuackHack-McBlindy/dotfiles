@@ -374,35 +374,60 @@
         tr -d '[:punct:]' |          
         sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |  # Trim spaces
         sed -e 's/[[:space:]]+/ /g'          # Normalize spaces
-    }    
-    
-    # 🦆 says ⮞ pure fuzz – Nixified Bash Levenshtein
-#    levenshtein() {
-#      local str1="$1"
-#      local str2="$2"
-#      local len1="''${#str1}"
-#      local len2="''${#str2}"
-#      local i j cost 
-#      declare -A matrix  ## ⮜ associative array says 🦆 
-      # 🦆 says ⮞ init matrix
-#      for ((i=0; i<=len1; i++)); do
-#        matrix["''$i,0"]=$i
-#      done
-#      for ((j=0; j<=len2; j++)); do
-#        matrix["0,$j"]=$j
-#      done
-#      # 🦆 says ⮞ compute distances
-#      for ((i=1; i<=len1; i++)); do
-#        for ((j=1; j<=len2; j++)); do
-#          [[ "''${str1:i-1:1}" == "''${str2:j-1:1}" ]] && cost=0 || cost=1
-#          local del=''$((matrix["$((i-1)),$j"] + 1))
-#          local ins=$((matrix["$i,$((j-1))"] + 1))
-#          local sub=$((matrix["$((i-1)),$((j-1))"] + cost))
-#          matrix["$i,$j"]=$(min3 "$del" "$ins" "$sub")
-#        done
-#      done
-#      echo "''${matrix["''$len1,''$len2"]}"
-#    }
+    } 
+    find_best_fuzzy_match() {
+      local input="$1"
+      local best_score=0
+      local best_match=""
+      local normalized=$(echo "$input" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
+      local candidates
+      mapfile -t candidates < <(jq -r '.[] | .[] | "\(.script):\(.sentence)"' "$YO_FUZZY_INDEX")
+      dt_debug "Found ''${#candidates[@]} candidates for fuzzy matching"
+      for candidate in "''${candidates[@]}"; do
+        IFS=':' read -r script sentence <<< "$candidate"
+        local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
+        local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
+        (( tri_score < 30 )) && continue
+        local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
+        if (( score > best_score )); then
+          best_score=$score
+          best_match="$script:$sentence"
+          dt_info "New best match: $best_match ($score%)"
+        fi
+      done
+      if [[ -n "$best_match" ]]; then
+        echo "$best_match|$best_score"
+      else
+        echo ""
+      fi
+    }
+    resolve_entities() {
+      local script="$1"
+      local text="$2"
+      local replacements
+      local pattern out
+      declare -A substitutions
+      # 🦆 says ⮞ skip subs if script haz no listz
+      has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
+      if [[ "$has_lists" != "true" ]]; then
+        echo -n "$text"
+        echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
+        sleep 0.1           
+      fi                    
+      # 🦆 says ⮞ dis is our quacktionary yo 
+      replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
+      while IFS="|" read -r pattern out; do
+        if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
+          original="''${BASH_REMATCH[0]}"
+          [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
+          substitutions["''$original"]="$out"
+          substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
+          text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
+        fi
+      done <<< "$replacements"      
+      echo -n "$text"
+      echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
+    } # 🦆 says ⮞ process sentence to replace {parameters} with real wordz yo   
     min3() {
       printf "%s\n" "$@" | sort -n | head -n1
     }

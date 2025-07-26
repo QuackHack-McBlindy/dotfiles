@@ -547,7 +547,7 @@ EOF
         
         for f in "$MATCHER_DIR"/*.sh; do [[ -f "$f" ]] && source "$f"; done
         scripts_ordered_by_priority=( ${lib.concatMapStringsSep "\n" (name: "  \"${name}\"") processingOrder} )
- 
+        dt_info "$scripts_ordered_by_priority"
         find_best_fuzzy_match() {
           local input="$1"
           local best_score=0
@@ -628,8 +628,8 @@ EOF
               dt_debug "Executing: yo $script $paramz" 
               # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
               exec "yo-$script" "''${args[@]}"   
-              kill -9 $$  # 🦆 says ⮞ kill the entire script process
-              exit
+              # kill -9 $$  # 🦆 says ⮞ kill the entire script process
+              return 0
             fi         
           done 
         }        
@@ -668,16 +668,16 @@ EOF
               args+=("$arg")  # 🦆 says ⮞ collecting them shell spell ingredients
             done
             # 🦆 says ⮞ wait for exact match to finish
-            while kill -0 "$pid1" 2>/dev/null; do
+            # while kill -0 "$pid1" 2>/dev/null; do
+            while [[ ! -f "$match_result_flag" || $(cat "$match_result_flag") != "exact_finished" ]]; do
               sleep 0.05
             done
-            
-            # 🦆 says ⮞ checkz if exact match succeeded yo
-            if [[ -f "$match_result_flag" && "$(cat "$match_result_flag")" == "exact" ]]; then
-              dt_debug "Exact match already handled execution. Fuzzy exiting."
+            # 🦆 says ⮞ checkz if exact match succeeded yo  
+            if [[ $(cat "$match_result_flag") == "exact" ]]; then 
+              dt_debug "Exact match already handled execution. Fuzzy exiting."             
               exit 0
             fi
-       
+                   
             # 🦆 says ⮞ final product - hope u like say duck!
             paramz="''${args[@]}" && echo
             echo "   ┌─(yo-$matched_script)"
@@ -702,7 +702,7 @@ EOF
             dt_info "Executing: yo $matched_script $paramz" 
             # 🦆 says ⮞ EXECUTEEEEEEEAAA  – HERE WE QUAAAAACKAAAOAA
             exec "yo-$matched_script" "''${args[@]}"
-            exit
+            return 0
           fi
         }        
 
@@ -713,8 +713,7 @@ EOF
 #        pid1=$!
         exit
       '';
-    };
-         
+    };    
            
     # 🦆 says ⮞ automatic bitchin' sentencin' testin'
     tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
@@ -734,35 +733,7 @@ EOF
         passed_negative=0
         total_negative=0
         passed_boundary=0
-        failures=()
-             
-        resolve_entities() {
-          local script="$1"
-          local text="$2"
-          local replacements
-          local pattern out
-          declare -A substitutions
-          # 🦆 says ⮞ skip subs if script haz no listz
-          has_lists=$(jq -e '."'"$script"'"?.substitutions | length > 0' "$intent_data_file" 2>/dev/null || echo false)
-          if [[ "$has_lists" != "true" ]]; then
-            echo -n "$text"
-            echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
-            sleep 0.1           
-          fi                    
-          # 🦆 says ⮞ dis is our quacktionary yo 
-          replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
-          while IFS="|" read -r pattern out; do
-            if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
-              original="''${BASH_REMATCH[0]}"
-              [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
-              substitutions["''$original"]="$out"
-              substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
-              text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
-            fi
-          done <<< "$replacements"      
-          echo -n "$text"
-          echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
-        } # 🦆 says ⮞ process sentence to replace {parameters} with real wordz yo        
+        failures=()     
         resolve_sentence() {
           local script="$1"
           config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null)
@@ -937,7 +908,6 @@ EOF
             ((total_negative++))
           done
         }
-    
         test_boundary_cases() {
           echo "[🦆🔲] Testing Boundary Cases"
           boundary_cases=("" "   " "." "!@#$%^&*()")  
@@ -1001,4 +971,4 @@ EOF
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
     }; # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
   };}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
-# 🦆 says ⮞ QuackHack-McBLindy out!
+# 🦆 says ⮞ QuackHack-McBLindy out!  

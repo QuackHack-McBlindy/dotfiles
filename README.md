@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/8187hf20naglf5fii4xv8vclks80838w-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/dq41xjxsjbqb78jp6fci2rc4cjw2syyx-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -200,7 +200,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=e9a6cb4602af7ddfc287fa6706b0168196032e92
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -372,6 +372,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
 | `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
+| `yo ip-updater [--token1] [--token2] [--token3]` |  | Domain updater |
 | `yo zigduck [--user] [--pwfile]` | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |

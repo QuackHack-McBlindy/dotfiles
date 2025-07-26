@@ -99,6 +99,22 @@ in {
         dt_error "Error: No location is provided."
         exit 1
       fi
+      # 🦆 says ⮞ get 3-day forecast    
+      weather_file="/home/pungkula/weather.json"
+      cache_age=1800   
+      refresh_cache=true
+      if [ -f "$weather_file" ]; then
+        current_time=$(date +%s)
+        file_time=$(stat -c %Y "$weather_file")
+        if (( current_time - file_time < cache_age )); then
+          refresh_cache=false
+        fi
+      fi
+      if [ "$refresh_cache" = true ]; then
+        curl -s "https://wttr.in/$location_param?format=j1" -o "$weather_file"
+      fi
+      weather=$(cat "$weather_file")
+       
       declare -A WEATHER_CODES=(
         ["113"]="☀️"  ["116"]="⛅"  ["119"]="☁️"  ["122"]="☁️"  ["143"]="☁️"
         ["176"]="🌧️"  ["179"]="🌧️"  ["182"]="🌧️"  ["185"]="🌧️"  ["200"]="⛈️"
@@ -154,10 +170,6 @@ in {
       condition_param="$condition"
 
 
-      # 🦆 says ⮞ get 3-day forecast
-      weather_file="/home/pungkula/weather.json"
-      curl -s "https://wttr.in/$location_param?format=j1&days=5" -o "/home/pungkula/weather.json"
-      weather=$(cat "/home/pungkula/weather.json")
 
       # 🦆 says ⮞ get Swedish day name
       get_day_name() {
