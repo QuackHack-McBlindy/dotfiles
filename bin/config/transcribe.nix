@@ -24,7 +24,7 @@
   server = pkgs.writeScript "whisperd-server.py" ''
     #!${pyEnv}/bin/python
     import argparse
-    from fastapi import FastAPI, UploadFile, File, Form, Query
+    from fastapi import FastAPI, UploadFile, File, Form, Query, WebSocket, WebSocketDisconnect
     import uvicorn
     import soundfile as sf
     import numpy as np
@@ -34,6 +34,9 @@
     import shutil
     import noisereduce as nr 
     import logging
+    import asyncio
+    import wave
+    import io
     logging.basicConfig(level=logging.INFO)
 
     parser = argparse.ArgumentParser()
@@ -47,6 +50,16 @@
     args = parser.parse_args()
     app = FastAPI()
     model = WhisperModel(args.model, device=args.device)
+
+    @app.post("/audio_upload", methods=["POST"])
+    def receive_audio():
+        global audio_buffer
+        audio_chunk = request.data
+        if audio_chunk:
+            audio_buffer.extend(audio_chunk)
+            print(f"Received chunk: {len(audio_chunk)} bytes")
+            return "OK", 200
+        return "No data", 400
 
     @app.get("/play")
     def play(sound: str = Query(...)):
@@ -141,8 +154,7 @@ in { # 🦆 says ⮞ yo yo yo yo
         --language "$LANGUAGE" \
         --device "$DEVICE" \
         --beamSize "$BEAMSIZE" \
-        --cert "$CERT" \
-        --key "$KEY"            
+        --cert "$CERT" \         
         --key "$KEY" 2>&1 | while IFS= read -r line; do
           if echo "$line" | grep -q "\[transcription\]"; then
             dt_debug "Transcribed: ''${line#*\[transcription\] }"

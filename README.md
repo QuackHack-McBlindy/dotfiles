@@ -150,7 +150,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/dq41xjxsjbqb78jp6fci2rc4cjw2syyx-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/qd57l0gb4vgh34z3mns9v84617yml3qz-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -165,22 +165,22 @@ I like my flakes tiny & ny modules dynamically loaded,
 <!-- FLAKE_START -->
 ```nix
 # dotfiles/flake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{  # 🦆 duck say ⮞ welcome to
+{
     description = "❄️🦆 ⮞ QuackHack-McBLindy's big dot of flakyfiles with extra quackz.";
-    inputs = { # 🦆 duck say ⮞ inputz stuff
+    inputs = {
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
-    }; # 🦆 duck say ⮞ outputz other ducky stuffz
+    };
     outputs = inputs @ { self, systems, nixpkgs, ... }:
         let
             lib = import ./lib { 
                 inherit self inputs;
                 lib = nixpkgs.lib;      
             };                   
-        in lib.makeFlake { # 🦆 duck say ⮞ make my flake
+        in lib.makeFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ]; 
             overlays = lib.mapOverlays ./overlays { inherit lib; };
             hosts = lib.mapHosts ./hosts;
@@ -204,6 +204,7 @@ git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
+│   │   ├───esphome omitted (use '--all-systems' to show)
 │   │   ├───go omitted (use '--all-systems' to show)
 │   │   ├───java omitted (use '--all-systems' to show)
 │   │   ├───node omitted (use '--all-systems' to show)
@@ -212,6 +213,7 @@ git+file:///home/pungkula/dotfiles
 │   │   └───rust omitted (use '--all-systems' to show)
 │   └───x86_64-linux
 │       ├───android: development environment 'nix-shell'
+│       ├───esphome: development environment 'nix-shell'
 │       ├───go: development environment 'nix-shell'
 │       ├───java: development environment 'nix-shell'
 │       ├───node: development environment 'nix-shell'
@@ -360,7 +362,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo notify-me [--topic] [--base_urlFile] [--sound]` |  | Listener for notifications and run actions |
 | `yo speed ` | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
-| `yo news [--apis] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
+| `yo news [--apis] [--clean] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
 | `yo transcode [--directory]` | trans | Transcode media files |
 | `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--favoritesPlaylist] [--max_items]` | remote | Android TV Controller |
 | `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
@@ -379,7 +381,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo joke [--jokeFile]` |  | Tells a quacktastic joke |
 | `yo post [--postalCodeFile] [--postalCode]` |  | Search for the next postal delivery day is in Sweden |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
-| `yo reminder --about [--date]` | remind | Reminder Assistant |
+| `yo reminder [--about] [--list]` | remind | Reminder Assistant |
 | `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo tibber [--homeIDFile] [--APIKeyFile]` | el | Fetches home electricity price data |
 | `yo time ` |  | Tells time, day and date |

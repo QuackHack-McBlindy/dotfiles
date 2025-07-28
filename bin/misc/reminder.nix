@@ -37,43 +37,49 @@
     autoStart = false;
     logLevel = "DEBUG";
     parameters = [
-      { name = "about"; description = "What to be reminded about"; optional = false; }
-      { name = "date"; description = "When to remind"; optional = true; }
+      { name = "about"; description = "What to be reminded about"; optional = true; }
+      { name = "list"; description = "Flag for listing all reminders"; optional = true; }            
+#      { name = "date"; description = "When to remind"; optional = true; }
     ];
     code = ''
       ${cmdHelpers}
-      target_time=$(date -d "1 minute" +"%F %T")
-    
-      if [[ -n "$date" ]]; then
-        if [[ "$date" =~ ^[0-9]{1,2}:[0-9]{2}$ ]]; then
-          target_time=$(date -d "$date" +"%F %T")
+      ${cmdHelpers}
+  
+      REMINDER_DIR="/home/pungkula/.reminders"
+      mkdir -p "$REMINDER_DIR"
+  
+      list_reminders() {
+
+        local count=1  
+        if [ "$(ls -A "$REMINDER_DIR")" ]; then
+          for file in "$REMINDER_DIR"/*; do
+            if [ -f "$file" ]; then
+              varname=$(printf "REMINDER%02d" "$count")
+              content=$(<"$file")
+              printf -v "$varname" "%s" "$content"
+              dt_debug "Reminder: ''${!varname}"
+              yo say "Reminder: ''${!varname}"
+              sleep 2
+              ((count++))
+            fi
+          done
         else
-          target_time=$(date -d "$date" +"%F %T" 2>/dev/null || {
-            dt_error "Invalid date format: $date"
-            exit 1
-          })
+          echo "No reminder files found in $REMINDER_DIR."
         fi
-      fi
-
-      reminder_cmd=""
-      reminder_cmd+="PATH=/run/current-system/sw/bin:/bin:/usr/bin"    
-      reminder_cmd+="notify-send 'Påminnelse' '$about' --icon=dialog-information; "
-      reminder_cmd+="yo-say 'Kom ihåg: $about'"
-
-      if systemctl --user list-timers > /dev/null 2>&1; then
-        systemd-run --user \
-          --on-calendar="$target_time" \
-          /bin/sh -c "$reminder_cmd"
-        dt_info "Reminder set via systemd: $(date -d "$target_time" +'%F %H:%M')"
-
-      elif command -v at >/dev/null; then
-        echo "$reminder_cmd" | 
-          at "$(date -d "$target_time" +'%H:%M %F')" 2>/dev/null
-        dt_debug "Using fallback (at command) for: $(date -d "$target_time" +'%F %H:%M')"
-    
+      }
+  
+      add_reminder() {
+        local id
+        id=$(date +%s)
+        echo "$about" > "$REMINDER_DIR/$id"
+        echo "Reminder added: $about"
+        dt_debug "Saved reminder to $REMINDER_DIR/$id"
+      }
+  
+      if [[ -n "$about" ]]; then
+        add_reminder
       else
-        dt_error "Requires systemd or at"
-        exit 1
+        list_reminders
       fi
     '';
   };}

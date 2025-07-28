@@ -31,8 +31,11 @@
       
       # 🦆 duck say ⮞ builds nixosConfiguration for each host
       nixosConfigurations = lib.mapAttrs (hostName: hostConfig:
+        let
+          system = hostConfig.host.system or hostName;
+        in
         inputs.nixpkgs.lib.nixosSystem {
-          system = hostName;
+          inherit system;
           specialArgs = {
             inherit self inputs;
             inherit hostName;
@@ -51,8 +54,8 @@
             hostConfig             
             ../modules/home.nix # 🦆 duck say ⮞ home is where your duck's at
           ];
-        }) (dirMap.mapHosts ../hosts);
-        
+        }) hosts;
+      
       # 🦆 duck say ⮞ for each system build packages, apps & devShells
       perSystem = system: let # 🦆 duck say ⮞ init dis system with nixpkgs & overlays
         pkgs = makePkgs system inputs.nixpkgs flake.overlays; 

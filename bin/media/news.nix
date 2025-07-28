@@ -20,6 +20,7 @@ in {
     logLevel = "INFO";
     parameters = [  
       { name = "apis"; description = "Comma seperated list of API's to fetch data form."; default = "http://api.sr.se/api/v2/news/episodes?format=json,http://api.sr.se/api/v2/podfiles?programid=178&format=json,http://api.sr.se/api/v2/podfiles?programid=5524&format=json,http://api.sr.se/api/v2/podfiles?programid=5413&format=json"; }
+      { name = "clean"; description = "Clean playedFile"; optional = true; }
       { name = "playedFile"; description = "Path to location where to write played news metadata"; default = "/home/" + config.this.user.me.name + "/played_news"; } 
     ];
     code = ''
@@ -30,7 +31,10 @@ in {
       PLAYED_NEWS_FILE="$playedFile"
       MAX_PLAYED_NEWS_ENTRIES=350
       PLAYLIST_FILE="/tmp/news_playlist.m3u"
-
+      if [ -n "$clean" ]; then
+        rm -rf "$playedFile"
+      fi
+      
       mkdir -p "$(dirname "$PLAYED_NEWS_FILE")"
       touch "$PLAYED_NEWS_FILE"
 

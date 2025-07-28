@@ -15,6 +15,8 @@
                 pkgs.whisper-cpp
                 pkgs.jellyfin-web
                 pkgs.jellycli
+                pkgs.kanata
+                pkgs.arduino-ide
              #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
         

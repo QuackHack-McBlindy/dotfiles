@@ -65,7 +65,7 @@ in {
             { "in" = "[snö|snöar|snöfall]"; out = "snow"; }
             # ⛈️ Thunderstorm
             { "in" = "[åska|åskväder|åskregn|blixt]"; out = "thunderstorm"; }
-            # 🌫️ Fog / Mist (not emoji-mapped but common)
+                                                   # 🌫️ Fog / Mist (not emoji-mapped but common)
             { "in" = "[dimma|dis|töcken]"; out = "fog"; }
             # 🌬️ Windy
             { "in" = "[blåsigt|vind|vindigt]"; out = "windy"; }
@@ -154,7 +154,17 @@ in {
         ["hot"]="varmt"
         ["cold"]="kallt"
       )
-
+      declare -A WEATHER_SWEDISH_DESC=(
+        ["Clear"]="klart väder"
+        ["Sunny"]="soligt"
+        ["Partly Cloudy"]="delvis molnigt"
+        ["Patchy rain nearby"]="delvis regn i närheten"
+        ["Cloudy"]="molnigt"
+        ["Overcast"]="mulet"
+        ["Light Rain"]="lätt regn"
+        ["Light rain shower"]="lätt regnskur"
+        ["Moderate Rain"]="måttligt regn"
+      )
       get_day_name_from_epoch() {
         local epoch=$1
         local days_sv=("söndag" "måndag" "tisdag" "onsdag" "torsdag" "fredag" "lördag")
@@ -251,7 +261,7 @@ in {
             2) display_name="I övermorgon" ;;
             *) display_name="$(get_day_name $offset)" ;;
         esac
-        
+
         day_data=$(echo "$processed" | jq -r '.[0]')
         weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
         condition_emoji="''${WEATHER_CODES[$weather_code]:-❓}"
@@ -259,7 +269,17 @@ in {
         mintempC=$(echo "$day_data" | jq -r '.mintempC')
         maxtempC=$(echo "$day_data" | jq -r '.maxtempC')        
         display_weather_table "$processed" "Weather Forecast for $location_param ($display_name)"       
-        if_voice_say "$display_name: $condition_text. Min $mintempC grader, max $maxtempC grader."
+        lookup_key=$(echo "$condition_text" | sed 's/.*/\L&/; s/\b\(.\)/\u\1/g')  # lowercase all, then capitalize first letters
+        precipMM=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
+        lookup_key=$(echo "$condition_text" | sed -E 's/(^| )([a-z])/\1\u\2/g')
+        dt_debug "condition_text=$condition_text, lookup_key=$lookup_key"
+        swedish_condition="''${WEATHER_SWEDISH_DESC[$lookup_key]:-''${condition_text,,}}"
+        local precip_text=""
+        if (( $(echo "$precipMM > 0" | bc -l) )); then
+          precip_text=", med $precipMM millimeter nederbörd"
+        fi
+        yo-say "$display_name: $swedish_condition. Min $mintempC grader, max $maxtempC grader$precip_text."
+
       }
       
       # 🦆 says ⮞ display 3-day forecast
@@ -318,44 +338,44 @@ in {
                 local codes="''${CONDITION_CODES[$condition]}"
                 if [[ " $codes " =~ " $weather_code " ]]; then
                     dt_info "Ja, det blir $swedish_condition $display_name."
-                    if_voice_say "Ja, det blir $swedish_condition $display_name."
+                    tts "Ja, det blir $swedish_condition $display_name."
                     return 0
                 else
                     dt_info "Nej, det blir inte $swedish_condition $display_name."
-                    if_voice_say "Nej, det blir inte $swedish_condition $display_name."
+                    tts "Nej, det blir inte $swedish_condition $display_name."
                     return 1
                 fi
                 ;;
             windy)
                 if (( wind_speed > 20 )); then
                     dt_info "Ja, det blir $swedish_condition $display_name ($wind_speed km/h)."
-                    if_voice_say "Ja, det blir $swedish_condition $display_name med $wind_speed kilometer per timme."
+                    tts "Ja, det blir $swedish_condition $display_name med $wind_speed kilometer per timme."
                     return 0
                 else
                     dt_info "Nej, det blir inte $swedish_condition $display_name ($wind_speed km/h)."
-                    if_voice_say "Nej, det blir inte $swedish_condition $display_name. Vinden är bara $wind_speed kilometer per timme."
+                    tts "Nej, det blir inte $swedish_condition $display_name. Vinden är bara $wind_speed kilometer per timme."
                     return 1
                 fi
                 ;;
             hot)
                 if (( maxtempC > 25 )); then
                     dt_info "Ja, det blir $swedish_condition $display_name ($maxtempC°C)."
-                    if_voice_say "Ja, det blir $swedish_condition $display_name med upp till $maxtempC grader."
+                    tts "Ja, det blir $swedish_condition $display_name med upp till $maxtempC grader."
                     return 0
                 else
                     dt_ubfi "Nej, det blir inte $swedish_condition $display_name ($maxtempC°C)."
-                    if_voice_say "Nej, det blir inte $swedish_condition $display_name. Maximalt $maxtempC grader."
+                    tts "Nej, det blir inte $swedish_condition $display_name. Maximalt $maxtempC grader."
                     return 1
                 fi
                 ;;
             cold)
                 if (( mintempC < 10 )); then
                     dt_info "Ja, det blir $swedish_condition $display_name ($mintempC°C)."
-                    if_voice_say "Ja, det blir $swedish_condition $display_name med minst $mintempC grader."
+                    tts "Ja, det blir $swedish_condition $display_name med minst $mintempC grader."
                     return 0
                 else
                     dt_info "Nej, det blir inte $swedish_condition $display_name ($mintempC°C)."
-                    if_voice_say "Nej, det blir inte $swedish_condition $display_name. Minst $mintempC grader."
+                    tts "Nej, det blir inte $swedish_condition $display_name. Minst $mintempC grader."
                     return 1
                 fi
                 ;;

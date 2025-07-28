@@ -12,6 +12,8 @@
     ps.lz4
     ps.python-dotenv
     ps.noisereduce
+    ps.websockets
+    ps.aioesphomeapi
     ps.pytickersymbols
 #    ps.yfinance
     ps.pyannote-audio
@@ -24,8 +26,17 @@
   actualPythonPkgs = pythonPackages pkgs.python3.pkgs;
 
   myBuildInputs = with pkgs; [
-    git
     nixpkgs-fmt
+    git
+    wget
+    gnumake
+    flex
+    bison
+    gperf
+    pkg-config
+    cmake
+    ncurses5
+    ninja
     myPython    
     virtualenv
   ];
@@ -46,12 +57,18 @@ in {
     ${pkgs.lib.concatMapStringsSep "\n" formatRed pythonPkgNames}
 
     if [ ! -d ".venv" ]; then
-      virtualenv .venv
-      source .venv/bin/activate
-      pip install https://github.com/google-coral/pycoral/releases/download/v2.0.0/tflite_runtime-2.5.0-cp310-cp310-linux_x86_64.whl
-    else
-      source .venv/bin/activate
-    fi
+      export IDF_PATH=$(pwd)/esp-idf
+      export PATH=$IDF_PATH/tools:$PATH
+      export IDF_PYTHON_ENV_PATH=$(pwd)/.python_env
+
+      if [ ! -e $IDF_PYTHON_ENV_PATH ]; then
+        python -m venv $IDF_PYTHON_ENV_PATH
+        . $IDF_PYTHON_ENV_PATH/bin/activate
+        pip install -r $IDF_PATH/requirements.txt
+      else
+        . $IDF_PYTHON_ENV_PATH/bin/activate
+      fi
+    fi  
   '';
 
   NIX_CONFIG = "system = ${system}";

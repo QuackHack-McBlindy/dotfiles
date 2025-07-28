@@ -1,10 +1,10 @@
 # dotfiles/modules/programs/firefox.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ diz iz my 🦊 even tho i be a 🦆
   config,
-  lib, # 🦆 says ⮞ 📌 FEATURES:
-  pkgs,  # 🦆 says ⮞ ⭐ Dynamic bookmarks from LZ4 backups & fallback to Nix declarative defined bookmarks
-  ...    # 🦆 says ⮞ ⭐ Custom search engines, hardened privacy prefs, systemd applied FF-profile setup & system CSS theming
-} : let  # 🦆 says ⮞ ⭐ Declarative Firefox Extensions (Addons)
+  lib,
+  pkgs,
+  ...  
+  } : let
   
   # 🦆 duck say ⮞  configuration options
   cfg = config.this.host.modules.programs;

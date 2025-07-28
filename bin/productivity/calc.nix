@@ -168,7 +168,7 @@
         calculator = {
           data = [{
             sentences = [
-              "[kan du] (beräkna|beräknar|räkna|räknar) [ut] {expression}"
+              "(beräkna|beräknar|räkna|räknar) [ut] {expression}"
               "(beräkna|beräknar|räkna|räknar) ut {expression}"
               "lös ekvationen {expression}"
             ];
