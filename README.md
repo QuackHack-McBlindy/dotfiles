@@ -22,21 +22,18 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 > **That's my job.** 🧑‍🦯
 <br>
 
-🦆 _duck say ⮞_ __Oh hellow? please quack on in,__ <br>
-🦆 _duck say ⮞_ __while duckie quite stuckie in dis endless rabbit hole__ <br>
+__Oh hellow? please quack on in,__ <br>
+__while duckie quite stuckie in dis endless rabbit hole__ <br>
 
-## **📌 Highlights** 
+## **What makes this configuration unique?** 
 
-- 🛖 **[Simple Home Management](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/home.nix)** *(auto symlinks ./home to /home)*  
-- 🛠️ **[yo CLI](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/yo.nix)** *(CLI framework - dynamically generates scripts executables & much more Nix+Bash+🦆 )*    
-- 🎙️ **[Nix/Bash NLP](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/nlp.nix)** *(Translates natural language to yo scripts - Dynamic regex+Automatic parameter resolution+++ Speak directly to your Shell)* 
-- 📡 **[Smart Home](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/zigbee.nix)** *(Nix Smart Home - Living right down the Rabbit Hole)* 
-- 🛡️ **[Dynamic WireGuard Server](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/networking/wg-server.nix)** *(with automatic QR codes for mobile devices)* 
-- 🗣️ **[Language-Aware TTS](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/packages/say.nix)** *(LangID & Piper, TTS notifications, Orca plugin)* 
-- 🦊 **[Firefox as Code](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/programs/firefox.nix)** *(Extensions, Bookmarks & Settings)* 
-- 📥 **[Declarative Self-Hosted Services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/virtualisation/arr.nix)** *(Servarr, Navidrome, ...)* 
-- 🎨 **[Global Theme Orchestration](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/themes/default.nix)** *(GTK, icons, cursor, Discord, Firefox & Shell)* 
-- 📝 **[Self-Documenting](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/git.nix)** *(CLI usage, Git tags & README.md)*
+Declarative configuration files, while modules are loaded and handled and evaluated dynamically.
+No Home Manager - Not a fan of it, I auto symlink /home. 
+Zigbee deeply integrated for full house control.
+
+Self-documenting and ran by voice.
+Input text is proccesed with a homemade Natural language processor written in Nix & Bash, to dynamically generate millions of regex patterns used for matching.
+With a no limit parameter resolution rate for the Shell translator - I guess this is a niche repository..
 
 <br>
 
@@ -150,7 +147,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/qd57l0gb4vgh34z3mns9v84617yml3qz-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/rgnmpgbfx1hyy8dwzjhxf5n3kqk9wkpy-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
