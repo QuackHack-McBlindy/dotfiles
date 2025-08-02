@@ -4,24 +4,27 @@
   system,
   inputs,
   self
-} : let # 🦆 duck say ⮞ put them python pkgs here yo!
+} : let
+  # 🦆 duck say ⮞ put them python pkgs here yo!
   pythonPackages = ps: [ 
     ps.numpy
     ps.pip
     ps.requests   
     ps.lz4
+    ps.flask
     ps.python-dotenv
-    ps.noisereduce
-    ps.pytickersymbols
+#    ps.noisereduce
+#    ps.pytickersymbols
 #    ps.yfinance
     ps.pyannote-audio
 #    ps.onnxruntime
 #    ps.tflite-runtime
 #    ps.openwakeword
   ];
-  
-  myPython = pkgs.python3.withPackages pythonPackages;
-  actualPythonPkgs = pythonPackages pkgs.python3.pkgs;
+
+  # 👇 Use Python 3.10 (since 3.8 isn't available in your Nixpkgs)
+  myPython = pkgs.python310.withPackages pythonPackages;
+  actualPythonPkgs = pythonPackages pkgs.python310.pkgs;
 
   myBuildInputs = with pkgs; [
     git
@@ -46,9 +49,9 @@ in {
     ${pkgs.lib.concatMapStringsSep "\n" formatRed pythonPkgNames}
 
     if [ ! -d ".venv" ]; then
-      virtualenv .venv
+      virtualenv .venv -p python3.10
       source .venv/bin/activate
-      pip install https://github.com/google-coral/pycoral/releases/download/v2.0.0/tflite_runtime-2.5.0-cp310-cp310-linux_x86_64.whl
+      pip install openwakeword https://github.com/google-coral/pycoral/releases/download/v2.0.0/tflite_runtime-2.13.0-cp310-cp310-manylinux2014_x86_64.whl
     else
       source .venv/bin/activate
     fi

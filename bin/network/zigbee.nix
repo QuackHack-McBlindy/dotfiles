@@ -301,10 +301,19 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             set_larmed true
           fi
           # 🦆 says ⮞ returned homez
-          # calll with: mosquitto_pub -h IP -t "zigbee2mqtt/returning_home" -m "RETURN" 
+          # calllmosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/returning_home" -m "RETURN" 
           if [ "$line" = "RETURN" ]; then
             dt_warning "Returned home!"
             set_larmed false
+          fi
+
+          # 🦆 says ⮞ ❤️‍🔥 SMOKE SMOKE SMOKE
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("smoke")' > /dev/null; then
+            device_check            
+            if [ "$smoke" = "true" ]; then
+              dt_critical "❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥"
+              dt_critical "❤️‍🔥❤️‍🔥 SMOKE! in in $device_name $dev_room"
+            fi
           fi
           
           # 🦆 says ⮞ 🕵️ quick quack motion detect

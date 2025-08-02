@@ -27,13 +27,20 @@ __while duckie quite stuckie in dis endless rabbit hole__ <br>
 
 ## **What makes this configuration unique?** 
 
-Declarative configuration files, while modules are loaded and handled and evaluated dynamically.
-No Home Manager - Not a fan of it, I auto symlink /home. 
-Zigbee deeply integrated for full house control.
+Nix Declarative configuration style, custom modules evaluated dynamically for each host. <br>
+Home Manager - No duckng way. I just auto symlink ./home to /home <br>
+Zigbee and smart home deeply integrated with Nix. For not just a declarative house but also deployable apartments. <br>
 
-Self-documenting and ran by voice.
-Input text is proccesed with a homemade Natural language processor written in Nix & Bash, to dynamically generate millions of regex patterns used for matching.
-With a no limit parameter resolution rate for the Shell translator - I guess this is a niche repository..
+While building the OS, it will dynamically generating code for esp32 devices which configures: <br>
+Webserver with frontend for everything device related. <br>
+Zigbee device control UI, RGB and brightness control etc . <br>
+Microphone for voice input. <br>
+
+Plug in your device and run `yo esp`. <br>
+
+Self-documented and fully voice controlled. <br>
+Input text is proccesed with a Quack Powered Natural language Processor written in Nix & Bash, to dynamically generate millions of regex patterns used for exact matching and async fuzzy matching. <br>
+With no parameter limit for resolution for the Shell translator - I can make the fair assumption this is probably a quite niche repository... <br>
 
 <br>
 
@@ -147,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/rgnmpgbfx1hyy8dwzjhxf5n3kqk9wkpy-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/04anr0hkvna9irzxh0s63vdx60crjrsy-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -205,8 +212,8 @@ git+file:///home/pungkula/dotfiles
 │   │   ├───go omitted (use '--all-systems' to show)
 │   │   ├───java omitted (use '--all-systems' to show)
 │   │   ├───node omitted (use '--all-systems' to show)
-│   │   ├───python omitted (use '--all-systems' to show)
 │   │   ├───python312 omitted (use '--all-systems' to show)
+│   │   ├───python38 omitted (use '--all-systems' to show)
 │   │   └───rust omitted (use '--all-systems' to show)
 │   └───x86_64-linux
 │       ├───android: development environment 'nix-shell'
@@ -214,8 +221,8 @@ git+file:///home/pungkula/dotfiles
 │       ├───go: development environment 'nix-shell'
 │       ├───java: development environment 'nix-shell'
 │       ├───node: development environment 'nix-shell'
-│       ├───python: development environment 'nix-shell'
 │       ├───python312: development environment 'nix-shell'
+│       ├───python38: development environment 'nix-shell'
 │       └───rust: development environment 'nix-shell'
 ├───nixosConfigurations
 │   ├───desktop: NixOS configuration
@@ -320,6 +327,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo deploy --host [--flake] [--user] [--repo] [--port] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
 | `yo dev [--devShell]` |  | Start development enviorment |
 | `yo duckTrace [--file]` | log | View duckTrace logs quick and quack. |
+| `yo esp [--device] [--serialPort] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP]` |  | Nixiflyin' ESP flasher script |
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
@@ -342,7 +350,6 @@ Set default values for your parameters to have them marked [optional]
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
 | `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle]` |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
-| `yo askDuck --question [--area] [--minScoreThreshold] [--phrasesFilePath] [--searchDepth] [--fallback] [--loop]` | duck | Ask da duck any question - Quacktastic assistant |
 | `yo calculator --expression` | calc | Calculate math expressions |
 | `yo calendar --operation` | kal | Calendar assistant |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |

@@ -24,20 +24,23 @@
   server = pkgs.writeScript "whisperd-server.py" ''
     #!${pyEnv}/bin/python
     import argparse
-    from fastapi import FastAPI, UploadFile, File, Form, Query, WebSocket, WebSocketDisconnect
-    import uvicorn
-    import soundfile as sf
-    import numpy as np
-    import tempfile
-    from faster_whisper import WhisperModel
-    import subprocess
-    import shutil
-    import noisereduce as nr 
-    import logging
     import asyncio
     import wave
-    import io
-    logging.basicConfig(level=logging.INFO)
+    import threading
+    import subprocess
+    import time
+    import logging
+    import tempfile
+    from fastapi import FastAPI, Request, HTTPException, UploadFile, File, Form, Query
+    from faster_whisper import WhisperModel
+    import soundfile as sf
+    import numpy as np
+    import noisereduce as nr
+    import uvicorn
+    from collections import defaultdict
+    from contextlib import asynccontextmanager
+    import os
+    import concurrent.futures
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8000)
@@ -48,18 +51,175 @@
     parser.add_argument('--cert', type=str, default=None)
     parser.add_argument('--key', type=str, default=None)
     args = parser.parse_args()
-    app = FastAPI()
-    model = WhisperModel(args.model, device=args.device)
+    # 🦆 says ⮞ Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger("whisperd")
+    
+    # 🦆 says ⮞ Audio configuration
+    SAMPLE_RATE = 16000
+    SAMPLE_WIDTH = 2  # 16-bit = 2 bytes
+    CHANNELS = 1
+    SESSION_TIMEOUT = 2.0  # seconds
+    
+    # 🦆 says ⮞ Session management
+    sessions_lock = threading.Lock()
+    sessions = defaultdict(lambda: {
+        'chunks': [],
+        'last_received': 0,
+        'recording': False
+    })
+    
+    # 🦆 says ⮞ Thread pool for transcription
+    transcription_executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
+    
+    # 🦆 says ⮞ Initialize model
+    logger.info(f"Loading Whisper model: {args.model} on {args.device}")
+    model = WhisperModel(
+        args.model,
+        device=args.device,
+        compute_type="float32" if args.device == "cpu" else "float16"
+    )
+    model_lock = threading.Lock()
+    
+    @asynccontextmanager
+    async def lifespan(app: FastAPI):
+        """Start and stop background tasks"""
+        # Start session cleaner
+        cleaner_thread = threading.Thread(
+            target=cleanup_expired_sessions,
+            daemon=True
+        )
+        cleaner_thread.start()
+        logger.info("Started session cleanup thread")
+        
+        yield
+        
+        # Cleanup on shutdown
+        transcription_executor.shutdown(wait=False)
+        logger.info("Server shutdown complete")
 
-    @app.post("/audio_upload", methods=["POST"])
-    def receive_audio():
-        global audio_buffer
-        audio_chunk = request.data
-        if audio_chunk:
-            audio_buffer.extend(audio_chunk)
-            print(f"Received chunk: {len(audio_chunk)} bytes")
-            return "OK", 200
-        return "No data", 400
+    app = FastAPI(lifespan=lifespan)
+    
+    def transcribe_audio(audio_data: np.ndarray, reduce_noise: bool = True) -> str:
+        """Transcribe audio data using Whisper model"""
+        try:
+            if reduce_noise:
+                logger.debug("Applying noise reduction")
+                audio_data = nr.reduce_noise(
+                    y=audio_data, 
+                    sr=SAMPLE_RATE,
+                    stationary=True,
+                    prop_decrease=0.75
+                )
+            
+            with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
+                sf.write(tmp.name, audio_data, SAMPLE_RATE)
+                
+                with model_lock:
+                    logger.debug("Starting transcription")
+                    segments, _ = model.transcribe(
+                        tmp.name,
+                        language=args.language,
+                        vad_filter=True,
+                        temperature=0.0,
+                        beam_size=args.beamSize,
+                        without_timestamps=True
+                    )
+                    transcription = " ".join(segment.text for segment in segments)
+                    logger.info(f"Transcription complete: {transcription[:50]}...")
+                    return transcription
+        except Exception as e:
+            logger.error(f"Transcription failed: {str(e)}")
+            return ""
+
+    def process_completed_session(client_ip: str, chunks: list):
+        """Process completed audio session and transcribe"""
+        logger.info(f"Processing completed session for {client_ip}")
+        try:
+            # Combine all audio chunks using b"" instead of bytes()
+            raw_audio = b"".join(chunks)
+            audio_data = np.frombuffer(raw_audio, dtype=np.int16)
+            
+            # Submit transcription to thread pool
+            future = transcription_executor.submit(
+                transcribe_audio, 
+                audio_data,
+                True
+            )
+            transcription = future.result()
+            
+            logger.info(f"Transcription for {client_ip}: {transcription}")
+            # 🦆 says ⮞ Here you could send to MQTT, save to DB, etc.
+            
+        except Exception as e:
+            logger.error(f"Session processing failed for {client_ip}: {str(e)}")
+
+
+    def cleanup_expired_sessions():
+        """Close sessions older than SESSION_TIMEOUT and process them"""
+        while True:
+            time.sleep(1)
+            current_time = time.time()
+            expired_ips = []
+            
+            with sessions_lock:
+                for ip, session in list(sessions.items()):
+                    # Skip if no chunks or recently active
+                    if not session['chunks'] or current_time - session['last_received'] < SESSION_TIMEOUT:
+                        continue
+                    
+                    # Handle completed recording session
+                    if session['recording']:
+                        logger.info(f"Session completed for {ip}")
+                        # Process in background without blocking
+                        threading.Thread(
+                            target=process_completed_session,
+                            args=(ip, session['chunks']),
+                            daemon=True
+                        ).start()
+                        session['recording'] = False
+                        session['chunks'] = []
+                    else:
+                        # Clear orphaned chunks
+                        logger.warning(f"Clearing expired chunks for {ip}")
+                        session['chunks'] = []
+                    
+                    # Remove if completely idle
+                    if not session['recording'] and not session['chunks']:
+                        expired_ips.append(ip)
+                
+                # Remove expired sessions
+                for ip in expired_ips:
+                    del sessions[ip]
+
+    @app.post("/audio_upload")
+    async def receive_audio(request: Request):
+        client_ip = request.client.host
+        if not client_ip:
+            raise HTTPException(status_code=400, detail="Client IP unavailable")
+        
+        # Read binary data
+        audio_data = await request.body()
+        if not audio_data:
+            raise HTTPException(status_code=400, detail="Empty audio data")
+        
+        with sessions_lock:
+            session = sessions[client_ip]
+            
+            # Detect new recording session
+            if not session['recording']:
+                logger.info(f"New recording session started for {client_ip}")
+                session['recording'] = True
+            
+            session['chunks'].append(audio_data)
+            session['last_received'] = time.time()
+        
+        logger.debug(f"Received {len(audio_data)} bytes from {client_ip}")
+        return {"status": "received", "bytes": len(audio_data)}
+
 
     @app.get("/play")
     def play(sound: str = Query(...)):
@@ -154,12 +314,13 @@ in { # 🦆 says ⮞ yo yo yo yo
         --language "$LANGUAGE" \
         --device "$DEVICE" \
         --beamSize "$BEAMSIZE" \
-        --cert "$CERT" \         
+        --cert "$CERT" \
         --key "$KEY" 2>&1 | while IFS= read -r line; do
           if echo "$line" | grep -q "\[transcription\]"; then
             dt_debug "Transcribed: ''${line#*\[transcription\] }"
           else
             echo "$line"
+            dt_debug "$line"
           fi
         done
     '';

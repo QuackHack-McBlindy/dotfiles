@@ -1,64 +1,177 @@
 # dotfiles/modules/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-# 🦆 duck say ⮞ here we define options that help us control our house yo
-{ 
+{ # 🦆 duck say ⮞ here we define options that help us control our house yo 
     config,
     lib,
     pkgs,
     ...
 } : let
-  inherit (lib) types mkOption mkEnableOption mkMerge;
+  inherit (lib) types mkOption mkEnableOption mkMerge;  
+  roomType = types.submodule {
+    options = {
+      icon = mkOption {
+        type = types.str;
+        description = "Icon representing the room.";
+      };
+    };
+  }; 
+
+  # 🦆 duck say ⮞ supported boards
+  supportedBoards = {
+    esp32s3box = {
+      board = "esp32:esp32:esp32s3box";
+      sketch = "esp32s3box.ino";
+    };
+    esp32s3-twatch = {
+      board = "esp32:esp32:esp32s3dev";
+      sketch = "esp32s3-twatch.ino";
+    };
+  };
 in { # 🦆 says ⮞ Options for da house
     options.house = {
-        zigbee.devices = lib.mkOption {
-            type = lib.types.attrsOf (lib.types.submodule {
-                options = {
-                    friendly_name = mkOption {
-                        type = types.str;
-                        description = "A human-readable device name.";
-                        example = "Kitchen Dimmer";
-                    };
-                    room = lib.mkOption { 
-                        type = lib.types.str;
-                        description = "The room this device belongs to.";
-                        example = "kitchen";
-                    };
-                    type = lib.mkOption { 
-                        type = lib.types.str;
-                        description = "The type of device (e.g., light, dimmer, motion, etc).";
-                        example = "light";
-                    };
-                    batteryType = mkOption {
-                      type = types.nullOr types.str;
-                      default = null;
-                      description = "Optional type of battery the device uses, if applicable.";
-                      example = "CR2032";
-                    };
-                    endpoint = lib.mkOption { 
-                        type = lib.types.int;
-                        description = "The Zigbee endpoint to control this device.";
-                        example = 11;
-                    };
-                };
-            });
-            default = {};
-            description = "Zigbee device definitions keyed by device ID.";
-            example = {
-                "0x0017880103ca6e95" = {
-                    friendly_name = "Kitchen Dimmer";
-                    room = "kitchen";
-                    type = "dimmer";
-                    endpoint = 1;
-                    batteryType = "CR3032";
-                };
-            };    
+      # 🦆 duck say ⮞ set house rooms
+      rooms = mkOption {
+        type = types.attrsOf roomType;
+        default = {
+          bedroom.icon = "🛏️";
+          hallway.icon = "🚪";
+          kitchen.icon = "🍳";
+          livingroom.icon = "🛋️";
+          wc.icon = "🚽";
+          other.icon = "⁉️";
+        };
+        description = "A set of rooms in the house with their attributes.";
+      };
+
+      # 🦆 duck say ⮞ set our esp device info
+      tv = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            enable = lib.mkEnableOption "Enable this Android TVOS device";
+            room = lib.mkOption {
+              type = lib.types.strMatching (lib.concatStringsSep "|" (lib.attrNames config.house.rooms));
+              description = "Room where TV is located";
+            };
+            ip = lib.mkOption {
+              type = lib.types.str;
+              description = "TV's static IP address";
+            };
+          };
+        });
+        default = {};
+      };
+      
+      # 🦆 duck say ⮞ set our esp device info
+      esp = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
+          options = {
+            enable = lib.mkEnableOption "Enable this ESP device";
+            type = lib.mkOption {
+              type = lib.types.enum (lib.attrNames supportedBoards);
+              default = "esp32s3box";
+              description = "Device hardware type";
+            };
+            ip = lib.mkOption {
+              type = lib.types.str;
+              description = "Static IP address for the device";
+            };
+            mac = lib.mkOption {
+              type = lib.types.str;
+              description = "MAC address for DHCP reservation";
+            };
+            serialPort = lib.mkOption {
+              type = lib.types.str;
+              default = "/dev/ttyACM0";
+              description = "Default serial port for flashing";
+            };
+            description = lib.mkOption {
+              type = lib.types.str;
+              default = "";
+              description = "Human-readable device description";
+            };
+        
+            # 🦆 duck say ⮞ internal  
+            board = lib.mkOption {
+              type = lib.types.str;
+              internal = true;
+              readOnly = true;
+            };
+            sketch = lib.mkOption {
+              type = lib.types.str;
+              internal = true;
+              readOnly = true;
+            };
+          };
+      
+          config = let
+            type = config.type or "esp32s3box";
+            boardInfo = supportedBoards.${type};
+          in {
+            board = boardInfo.board;
+            sketch = boardInfo.sketch;
+          };
+        }));
+        default = {};
+        description = "Configuration for ESP devices";
+      };
+  
+      # 🦆 duck say ⮞ lights don't help blind ducks but guests might like
+      zigbee.devices = lib.mkOption {
+        type = lib.types.attrsOf (lib.types.submodule {
+          options = {
+            friendly_name = mkOption {
+              type = types.str;
+              description = "A human-readable device name.";
+              example = "Kitchen Dimmer";
+            };
+            room = lib.mkOption { 
+              type = lib.types.strMatching (lib.concatStringsSep "|" (lib.attrNames config.house.rooms));
+              description = "The room this device belongs to.";
+              example = "kitchen";
+            };
+            type = lib.mkOption { 
+              type = lib.types.str;
+              description = "The type of device (e.g., light, dimmer, motion, etc).";
+              example = "light";
+            };
+            batteryType = mkOption {
+              type = types.nullOr (types.enum ["CR2032" "CR2450" "AAA" "AA"]);
+              default = null;
+              description = "Optional type of battery the device uses, if applicable.";
+              example = "CR2032";
+            };
+            supports_color = mkOption {
+              type = types.bool;
+              default = false;
+              description = "Whether the device supports setting color.";
+              example = true;
+            };
+            endpoint = lib.mkOption { 
+              type = lib.types.int;
+              description = "The Zigbee endpoint to control this device.";
+              example = 11;
+            };
+          };
+        });
+        default = {};
+          description = "Zigbee device definitions keyed by device ID.";
+          example = {
+            "0x0017880103ca6e95" = {
+              friendly_name = "Kitchen Dimmer";
+              room = "kitchen";
+              type = "dimmer";
+              endpoint = 1;
+              batteryType = "CR3032";
+              supports_color = false;
+            };
+          };    
         };
         
         zigbee.scenes = lib.mkOption {
-            type = lib.types.attrsOf (lib.types.attrsOf (lib.types.attrs));
-            default = {};
-            description = "Scenes for Zigbee devices";
+          type = lib.types.attrsOf (lib.types.attrsOf (lib.types.attrs));
+          default = {};
+          description = "Scenes for Zigbee devices";
         };
-        
+            
         zigbee.darkTime = lib.mkOption {
           type = lib.types.submodule {
             options = {
@@ -137,21 +250,21 @@ in { # 🦆 says ⮞ Options for da house
                 endpoint = 11; # 🦆 says ⮞ i'll tell u when to stop ='(
             };
             "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; endpoint = 11; };
-            "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; endpoint = 11; };
-            "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; endpoint = 11; };
+            "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; endpoint = 11; supports_color = true; };
+            "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; endpoint = 11; supports_color = true; };
             "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; endpoint = 11; };
             "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; endpoint = 1; batteryType = "CR2032"; }; 
             "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; endpoint = 1; };
             "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; endpoint = 1; };    
             # 🦆 says ⮞ LIVING ROOM
             "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; endpoint = 1; batteryType = "CR2450"; };
-            "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; endpoint = 1; };   
-            "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; endpoint = 1; };  
-            "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; endpoint = 1; };                  
-            "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; endpoint = 1; };  
+            "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; endpoint = 1; supports_color = true; };   
+            "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; endpoint = 1; supports_color = true; };  
+            "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; endpoint = 1; supports_color = true; };                  
+            "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; endpoint = 1; supports_color = true; };  
             "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; endpoint = 1; };
-            "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; endpoint = 11; };
-            "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; endpoint = 11; };
+            "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; endpoint = 11; supports_color = true; };
+            "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; endpoint = 11; supports_color = true; };
             "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; endpoint = 1; };
             # 🦆 says ⮞ HALLWAY
             "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
@@ -163,13 +276,13 @@ in { # 🦆 says ⮞ Options for da house
             "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; endpoint = 11; };
             # 🦆 says ⮞ BEDROOM
             "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; endpoint = 1; batteryType = "CR2450"; }; 
-            "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; endpoint = 11; };
-            "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; endpoint = 11; };
-            "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; endpoint = 11; };
-            "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; endpoint = 11; };
+            "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; endpoint = 11; supports_color = true; };
+            "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; endpoint = 11; supports_color = true; };
+            "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; endpoint = 11; supports_color = true; };
+            "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; endpoint = 11; supports_color = true; };
             "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; endpoint = 1; batteryType = "CR2032"; };
-            "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ THATS TOO FAST!!
-            "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; endpoint = 11; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
+            "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; endpoint = 11; supports_color = true; }; # 🦆 says ⮞ THATS TOO FAST!!
+            "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; endpoint = 11; supports_color = true; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
             # 🦆 says ⮞ MISCELLANEOUS
             "0xa4c1382553627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; endpoint = 1; };
             "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; endpoint = 1; };
@@ -338,6 +451,5 @@ in { # 🦆 says ⮞ Options for da house
                 '';
             };
         };
-      }
-      
+      }  
     ];}

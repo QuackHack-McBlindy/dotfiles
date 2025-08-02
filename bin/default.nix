@@ -140,7 +140,6 @@
       local r g b
 
       if [[ -z "$color" || "$color" == "random" || -z "''${color_ranges[$color]}" ]]; then
-        # Empty, 'random', or unknown color name: full random fallback
         r=$(( RANDOM % 256 ))
         g=$(( RANDOM % 256 ))
         b=$(( RANDOM % 256 ))
@@ -223,11 +222,6 @@
       dt_debug "Reset 5m timer for $room (PID: $!)"
     }
     # 🦆 says ⮞ Time window of day that allow motion triggering lights on
-#    is_dark_time() { 
-#      local current_hour=$((10#$(date +%H)))
-#      [[ ($current_hour -ge 0 && $current_hour -lt 8) || # 🦆 says ⮞ from 00,00 to 08.00
-#         ($current_hour -ge 16 && $current_hour -le 23) ]] # 🦆 says ⮞ & from 16,00 to 23.00
-#    }
     is_dark_time() {
       source /etc/dark-time.conf
       local now_hour now_min now total_now
@@ -261,8 +255,13 @@
       water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak // empty') && dt_debug "water_leak: $water_leak"
       waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
       temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature" # 🆙 Fixed typo
+
       battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery // empty') && dt_debug "battery: $battery"
-              
+      battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
+      tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
+      smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
+            
+    
       device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
       dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
       dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
@@ -287,6 +286,13 @@
         [ -n "$color" ] && update_device_state "$device_name" "color" "$color"        
         [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
         [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
+        [ -n "$tamper" ] && update_device_state "$device_name" "tamper" "$tamper"
+        [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
+        [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"        
+       fi
+       if [ "$device_name" = "Vägg" ] && [ -n "$brightness" ] && [ "$brightness" -gt 1 ]; then
+         dt_info "Correcting Vägg brightness from $brightness to 1 (max allowed)"
+         mqtt_pub -t "zigbee2mqtt/Vägg/set" -m '{"brightness":1}'
        fi
      }   
 
@@ -431,18 +437,6 @@
     min3() {
       printf "%s\n" "$@" | sort -n | head -n1
     }
-    # 🦆 duck say ⮞ true bash fuzz
-#    levenshtein_similarity() {
-#      local a="$1"
-#      local b="$2"
-#      local dist=$(levenshtein "$a" "$b")
-#      local max_len=$(( ''${#a} > ''${#b} ? ''${#a} : ''${#b} ))
-#      if [[ ''$max_len -eq 0 ]]; then
-#        echo "100"  # Both strings empty
-#      else
-#        echo $(( 100 - (dist * 100 / max_len) ))
-#      fi
-#    }
     # 🦆 duck say ⮞ TTS function for when no intent is matched to sentence
     say_no_match() { # 🦆 duck say ⮞ very mature sentences incomin' yo!
       local responses=(

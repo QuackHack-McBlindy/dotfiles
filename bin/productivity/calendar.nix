@@ -9,134 +9,130 @@
         helpFooter = ''
           ${cmdHelpers}
           echo "## ──────⋆⋅☆⋅⋆────── ##"
-          echo "## Calendar Assistant"
+          echo "## Calendar"
           echo "## ──────⋆⋅☆⋅⋆────── ##"
-          echo "Usage:"
-          echo "  kal add <event> [--date YYYY-MM-DD]"
-          echo "  kal remove <id>"
-          echo "  kal list [--today|--upcoming]"
-          echo "  kal check <id>"
-          echo ""
-          echo "Examples:"
-          echo "  kal add 'Team meeting' --date 2023-12-15"
-          echo "  kal list --today"
-          echo "  kal remove 3"
+  
           echo "## ──────⋆⋅☆⋅⋆────── ##"        
         '';
-        parameters = [{ name = "operation"; description = "Operational action. Can be add, remove, list."; optional = false; }];
-        code = let 
-          dbPath = "\${XDG_DATA_HOME:-$HOME/.local/share}/kalendar/events.json";
-        in ''
+        parameters = [{ name = "operation"; description = "Supported values: add, remove, list."; optional = false; }];
+        code = ''
           ${cmdHelpers}
-          operation="$1"
-          shift
-
-          # Initialize database if missing
-          mkdir -p "$(dirname "${dbPath}")"
-          if [ ! -f "${dbPath}" ]; then
-            echo "[]" > "${dbPath}"
-          fi
-
-          case "$operation" in
-            add)
-              item=""
-              date=""
-              while [[ $# -gt 0 ]]; do
-                case "$1" in
-                  --date)
-                    if [ -z "$2" ]; then
-                      dt_error "Error: --date requires value"
-                      exit 1
-                    fi
-                    date="$2"
-                    shift 2
-                    ;;
-                  *)
-                    item+="$1 "
-                    shift
-                    ;;
-                esac
-              done
-              item="''${item%% }"
-              
-              if [[ -z "$item" ]]; then
-                dt_error "Error: Missing event description"
-                exit 1
-              fi
-
-              : "''${date:=$(date +%Y-%m-%d)}"
-              id=$(${pkgs.coreutils}/bin/shuf -i 1000-9999 -n 1)
-              
-              ${pkgs.jq}/bin/jq \
-                --arg id "$id" \
-                --arg item "$item" \
-                --arg date "$date" \
-                '. + [{"id": $id, "event": $item, "date": $date}]' \
-                "${dbPath}" > tmp.json && mv tmp.json "${dbPath}"
-              
-              echo "Added [$id] $item on $date"
-              ;;
-            
-            remove)
-              if [ -z "$1" ]; then
-                dt_error "Error: Missing event ID"
-                exit 1
-              fi
-              if ! ${pkgs.jq}/bin/jq -e ".[] | select(.id == \"$1\")" "${dbPath}" >/dev/null; then
-                dt_error "Error: Event $1 not found"
-                exit 1
-              fi
-              ${pkgs.jq}/bin/jq "map(select(.id != \"$1\"))" "${dbPath}" > tmp.json && mv tmp.json "${dbPath}"
-              echo "Removed event $1"
-              ;;
-            
-            list)
-              filter=""
-              while [[ $# -gt 0 ]]; do
-                case "$1" in
-                  --today)
-                    today=$(date +%Y-%m-%d)
-                    filter="| map(select(.date == \"$today\"))"
-                    shift
-                    ;;
-                  --upcoming)
-                    filter="| map(select(.date >= \"$(date +%Y-%m-%d)\"))"
-                    shift
-                    ;;
-                  *)
-                    shift
-                    ;;
-                esac
-              done
-              
-              result=$(${pkgs.jq}/bin/jq -r "sort_by(.date) $filter | .[] | \"\(.id)\t\(.date)\t\(.event)\"" "${dbPath}")
-              if [ -n "$result" ]; then
-                echo "$result" | ${pkgs.coreutils}/bin/column -t -s$'\t'
+          
+         CALENDAR_SOURCES=(
+              "/home/pungkula/calendar.ics"
+              "https://mydomain.org/calendar.ics"
+          )
+          TODO_FILES=("/home/pungkula/todo.txt")
+          DURATION_DAYS=7
+          
+          current_weekday=$(date +%A)
+          declare -A weekday_map=(
+              ["Monday"]="måndag" ["Tuesday"]="tisdag" ["Wednesday"]="onsdag"
+              ["Thursday"]="torsdag" ["Friday"]="fredag" ["Saturday"]="lördag" ["Sunday"]="söndag"
+          )
+          swedish_weekday=''${weekday_map[$current_weekday]}
+          
+          today_date=$(date +%Y-%m-%d)
+          tomorrow_date=$(date -d "+1 day" +%Y-%m-%d)
+          end_date=$(date -d "+$DURATION_DAYS days" +%Y-%m-%d)
+          
+          declare -A events
+          for calendar in "''${CALENDAR_SOURCES[@]}"; do
+              if [[ $calendar == http* ]]; then
+                  ical_data=$(curl -s "$calendar")
               else
-                echo "No events found"
+                  ical_data=$(<"$calendar")
               fi
-              ;;
-            
-            check)
-              if [ -z "$1" ]; then
-                dt_error "Error: Missing event ID"
-                exit 1
+          
+              echo "$ical_data" | awk -v today="$today_date" -v tomorrow="$tomorrow_date" -v end="$end_date" '
+              BEGIN { RS = "BEGIN:VEVENT"; FS = "\n" }
+              /DTSTART/ {
+                  summary = ""; start = ""
+                  for (i = 1; i <= NF; i++) {
+                      if ($i ~ /^SUMMARY/) summary = substr($i, index($i, ":") + 1)
+                      if ($i ~ /^DTSTART;VALUE=DATE:/) start = substr($i, index($i, ":") + 1)
+                      if ($i ~ /^DTSTART:/ && !start) start = substr($i, index($i, ":") + 1)
+                  }
+          
+                  if (!start || !summary) next
+                  
+                  gsub(/\\,/, ",", summary)
+                  gsub(/\\n/, " ", summary)
+                  
+                  if (length(start) == 8) 
+                      event_date = substr(start,1,4) "-" substr(start,5,2) "-" substr(start,7,2)
+                  else if (start ~ /T/)
+                      event_date = substr(start,1,10)
+                  else next
+          
+                  if (event_date >= today && event_date <= end) {
+                      events[event_date][summary] = 1
+                  }
+              }
+              END {
+                  for (date in events) {
+                      for (summary in events[date]) {
+                          print date "|" summary
+                      }
+                  }
+              }' | while IFS='|' read -r event_date summary; do
+                  events["$event_date|$summary"]=1
+              done
+          done
+          
+
+          print_header() {
+              echo -e "\n\033[1m$1\033[0m"
+          }
+          
+          today_printed=0
+          tomorrow_printed=0
+          upcoming_printed=0
+
+          # Fixed Swedish weekday names array
+          weekday_names=("måndag" "tisdag" "onsdag" "torsdag" "fredag" "lördag" "söndag")
+          
+          for key in "''${!events[@]}"; do
+              IFS='|' read -r event_date summary <<< "$key"
+              
+              if [[ $event_date == "$today_date" ]]; then
+                  formatted_date="Idag"
+                  if (( today_printed == 0 )); then
+                      print_header "Idag:"
+                      today_printed=1
+                  fi
+              elif [[ $event_date == "$tomorrow_date" ]]; then
+                  formatted_date="Imorgon"
+                  if (( tomorrow_printed == 0 )); then
+                      print_header "Imorgon:"
+                      tomorrow_printed=1
+                  fi
+              else
+                  if (( upcoming_printed == 0 )); then
+                      print_header "Kommande evenemang:"
+                      upcoming_printed=1
+                  fi
+                  dow_num=$(date -d "$event_date" +%u)
+                  index=$((dow_num - 1))
+                  dow="''${weekday_names[index]}"
+                  formatted_date="$dow den $(date -d "$event_date" "+%d %B")"
               fi
-              if ! ${pkgs.jq}/bin/jq -e ".[] | select(.id == \"$1\")" "${dbPath}" >/dev/null; then
-                dt_error "Error: Event $1 not found"
-                exit 1
+              echo "$formatted_date: $summary"
+          done | sort -t'|' -k1
+          
+          total_items=0
+          for file in "''${TODO_FILES[@]}"; do
+              if [[ -f $file ]]; then
+                  count=$(grep -c '^[^-].*' "$file")
+                  total_items=$((total_items + count))
               fi
-              ${pkgs.jq}/bin/jq -r ".[] | select(.id == \"$1\") | \"[\(.id)] \(.date): \(.event)\"" "${dbPath}"
-              ;;
-            
-            *)
-              dt_error "Invalid operation: $operation"
-              exit 1
-              ;;
-          esac
+          done
+          
+          echo -e "\nDu har $total_items stycken objekt på Att Göra listan idag!"               
         '';
       };
     };
+    
     
     bitch = {
       intents = {
@@ -156,5 +152,4 @@
         };  
       };
     };  
-  };
-}
+  };}
