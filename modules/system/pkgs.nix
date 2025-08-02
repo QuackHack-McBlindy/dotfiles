@@ -17,6 +17,7 @@
                 pkgs.jellycli
                 pkgs.kanata
                 pkgs.arduino-ide
+                pkgs.arduino-cli
              #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
         

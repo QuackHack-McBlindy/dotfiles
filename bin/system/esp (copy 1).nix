@@ -35,7 +35,7 @@
   else
     "0.0.0.0"; 
 
- # 🦆 says ⮞ get house.esp
+  # 🦆 says ⮞ get house.esp
   espDevices = lib.filterAttrs (_: cfg: cfg.enable) config.house.esp;
   # 🦆 says ⮞ get house.zigbee.devices
   zigbeeDevices = config.house.zigbee.devices;
@@ -53,15 +53,15 @@
   roomSections = lib.concatMapStrings (room: ''
     <div class="room-section">
       <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('${room}')">
-        <span class="room-toggle">▼</span>
+        <span class="room-toggle">▶</span>
         ${roomIcons.${room} or "💡"} ${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}
       </h4>
-      <div class="room-content" id="room-content-${room}">
+      <div class="room-content" id="room-content-${room}" style="display:none">
         ${lib.concatMapStrings (device: deviceEntry device) devicesByRoom.${room}}
       </div>
     </div>
   '') sortedRooms;
-  
+
 
   deviceEntry = device: ''
     <div class="device" data-id="${device.id}">
@@ -84,7 +84,10 @@
         ${lib.optionalString (device.supports_color or false) ''
           <div class="control-row">
             <label>Color:</label>
-            <input type="color" class="color-picker" data-device="${device.id}" value="#ffffff">
+            <div class="color-control">
+              <input type="range" min="0" max="360" value="0" class="hue-slider" data-device="${device.id}">
+              <div class="color-preview" id="preview-${device.id}"></div>
+            </div>
           </div>
         ''}
       </div>
@@ -92,17 +95,130 @@
   '';
 
 
+  # 🦆 says ⮞ js injection - quack! nice name for rockband yo
+  JSinject = ''
+    <script>
+      // 🦆 says ⮞ hsl to rgb
+      function hslToRgb(h, s, l) {
+        h /= 360;
+        s /= 100;
+        l /= 100;
+        let r, g, b;
+        
+        if (s === 0) {
+          r = g = b = l;
+        } else {
+          const hue2rgb = (p, q, t) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1/6) return p + (q - p) * 6 * t;
+            if (t < 1/2) return q;
+            if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+          };
+          
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+          const p = 2 * l - q;
+          r = hue2rgb(p, q, h + 1/3);
+          g = hue2rgb(p, q, h);
+          b = hue2rgb(p, q, h - 1/3);
+        }
+        
+        return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+      }
+
+      function updateColor(deviceId, hue) {
+        const [r, g, b] = hslToRgb(hue, 100, 50);
+        const hexColor = "#" + 
+          r.toString(16).padStart(2, '0') + 
+          g.toString(16).padStart(2, '0') + 
+          b.toString(16).padStart(2, '0');
+        document.getElementById(`preview-''${deviceId}`).style.backgroundColor = hexColor;        
+        fetch(`/zigbee/color?id=''${encodeURIComponent(deviceId)}&color=''${hexColor.substring(1)}`)
+          .then(res => {
+            if (!res.ok) console.error(`Set color failed for ''${deviceId}`);
+          });
+      }
+      document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.hue-slider').forEach(slider => {
+          const deviceId = slider.dataset.device;
+          updateColor(deviceId, slider.value);          
+          slider.addEventListener('input', function() {
+            updateColor(deviceId, this.value);
+          });
+        });
+      });
+
+
+      function toggleRoom(roomId) {
+        const roomContent = document.getElementById(`room-content-''${roomId}`);
+        const roomToggle = document.querySelector(`[onclick="toggleRoom(''${roomId}')] .room-toggle`);
+      
+        if (roomContent.style.display === 'none' || !roomContent.style.display) {
+          roomContent.style.display = 'block';
+          roomToggle.textContent = '▼';
+          localStorage.setItem(`room-''${roomId}-expanded`, 'true');
+        } else {
+          roomContent.style.display = 'none';
+          roomToggle.textContent = '▶';
+          localStorage.removeItem(`room-''${roomId}-expanded`);
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', function() {
+        ${lib.concatMapStrings (room: ''
+          if (localStorage.getItem('room-${room}-expanded') === 'true') {
+            document.getElementById('room-content-${room}').style.display = 'block';
+            document.querySelector('[onclick="toggleRoom(\'${room}\')] .room-toggle').textContent = '▼';
+          }
+        '') sortedRooms}
+      });
+    </script>
+  '';
+
+  # 🦆 says ⮞ css injection
+  pewpewCSS = ''
+    <style>
+      .color-control {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }      
+      .hue-slider {
+        flex-grow: 1;
+        height: 20px;
+        background: linear-gradient(to right,
+          #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000
+        );
+        border-radius: 10px;
+        outline: none;
+      }      
+      .color-preview {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 2px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      }
+      .room-content {
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out;
+      }    
+      .room-toggle {
+        display: inline-block;
+        width: 20px;
+        text-align: center;
+        margin-right: 8px;
+      }
+    </style>
+  '';
+
   espDevicesHeader = let
     deviceEntries = lib.mapAttrsToList (name: cfg: 
       "{ \"${name}\", \"${cfg.ip}\", \"${cfg.description}\", false, 0 }"
     ) espDevices;
   in lib.concatStringsSep ",\n" deviceEntries;
- 
-#  espDevicesHeader = let
-#    deviceEntries = lib.mapAttrsToList (name: cfg: 
-#      "{ \"${name}\", \"${cfg.ip}\", \"${cfg.description}\", false, 0 }"
-#    ) espDevices;
-#  in lib.concatStringsSep ",\n" deviceEntries;
  
   # 🦆 says ⮞ nix generated code injection
   boxSketchContent = lib.readFile ./../../home/sketchbook/boards/esp32s3box.ino;
@@ -110,10 +226,12 @@
     placeholders = [
       "ZIGBEEDEVICESHERE"
       "DEVICESTATUSINITHERE"
+      "/* 🦆CSSANDJSINJECTFEST🦆 */"
     ];  
     replacements = [
       "String zigbeeDevicesHTML = R\"rawliteral(${roomSections})rawliteral\";"
       "${espDevicesHeader}" 
+      "${pewpewCSS}${JSinject}"
     ];  
   in lib.replaceStrings placeholders replacements boxSketchContent;
 
@@ -130,7 +248,7 @@ in { # 🦆 says ⮞ my microcontrollerz yo
       enable = true;
       type = "esp32s3box";
       ip = "192.168.1.13";
-      mac = "30:30:f9:5a:ba:d0";
+      mac = "AA:BB:CC:DD:EE:FF";
     };    
     watch = { # 🦆 says ⮞ yo cool watch - cat!
       enable = false;
@@ -222,6 +340,8 @@ in { # 🦆 says ⮞ my microcontrollerz yo
         fi
 
         # 🦆 says ⮞ datz it yo - compile and upload quaack
+        # arduino-cli compile --fqbn "$board" "$tmpDir/sketch"
+        # arduino-cli upload -p "$actualSerialPort" --fqbn "$board" "$tmpDir/sketch"
         arduino-cli compile --fqbn "$board" "$tmpDir/sketch"
         # 🦆 TODO ⮞ version taggin' all dat wit git pushin' all night disco duck yo       
         arduino-cli upload -p "$actualPort" $extraFlags --fqbn "$board" "$tmpDir/sketch"

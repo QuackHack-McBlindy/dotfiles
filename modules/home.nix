@@ -26,9 +26,9 @@ let # 🦆 duck say ⮞ big ducks build their own home
       target="${userHome}/''${rel_path}"
     
       # 🦆 duck say ⮞ Skip if symlink already correct
-      if [[ -L "$target" && "$(readlink -f "$target")" == "$src" ]]; then
-        continue
-      fi
+      # if [[ -L "$target" && "$(readlink -f "$target")" == "$src" ]]; then
+      #  continue
+      # fi
     
       echo "🦆 duck say ⮞ Linking: $rel_path"
       mkdir -vp "$(dirname "$target")"
