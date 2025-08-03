@@ -290,10 +290,10 @@
         [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
         [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"        
        fi
-       if [ "$device_name" = "Vägg" ] && [ -n "$brightness" ] && [ "$brightness" -gt 1 ]; then
-         dt_info "Correcting Vägg brightness from $brightness to 1 (max allowed)"
-         mqtt_pub -t "zigbee2mqtt/Vägg/set" -m '{"brightness":1}'
-       fi
+#       if [ "$device_name" = "Vägg" ] && [ -n "$brightness" ] && [ "$brightness" -gt 1 ]; then
+#         dt_info "Correcting Vägg brightness from $brightness to 1 (max allowed)"
+#         mqtt_pub -t "zigbee2mqtt/Vägg/set" -m '{"brightness":1}'
+#       fi
      }   
 
     # 🦆 says ⮞ turn on specified room

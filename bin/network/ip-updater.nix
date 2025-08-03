@@ -10,8 +10,8 @@
 
 in {
   yo.scripts.ip-updater = {
-    description = "Domain updater";
-    category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
+    description = "domain updater";
+    category = "🌐 Networking";
 #    autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    aliases = [ "zigb" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!

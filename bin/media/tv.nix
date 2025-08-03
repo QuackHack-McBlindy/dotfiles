@@ -8,6 +8,10 @@
   ... 
 } : let # 🦆 says ⮞ yo    
 in {   
+  house.tv = {
+    shield = { room = "livingroom"; ip = "192.168.1.223"; };
+    arris = { room = "bedroom"; ip = "192.168.1.152"; };
+  };  
   yo.bitch = { 
     intents = {
       tv = {  # 🦆 says ⮞ high priority for fast script executionz

@@ -92,6 +92,8 @@ in { # 🦆 says ⮞ Voice Intents
             "starta {state} {device}"
             # Color Control
             "(ändra|gör) färgen [på|i] {device} till {color}"
+            "(ändra|gör) {device} {color}"
+            
             # Brightness Control
             "justera {device} till {brightness} procent"
           ];        
@@ -300,7 +302,7 @@ in { # 🦆 says ⮞ Voice Intents
         fi   
         
         if [[ "$state" == "off" ]]; then
-          mqtt_publish "zigbee2mqtt/$dev/set" '{"state":"OFF"}'
+          mqtt_pub "zigbee2mqtt/$dev/set" '{"state":"OFF"}'
           say_duck "Turned off $dev"
           if_voice_say "Stängde av $dev"
         else
@@ -317,7 +319,7 @@ in { # 🦆 says ⮞ Voice Intents
           [[ -n "$brightness" ]] && payload+=", \"brightness\":$brightness"
           [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
           payload+="}"
-          mqtt_publish "zigbee2mqtt/$dev/set" "$payload"
+          mqtt_pub "zigbee2mqtt/$dev/set" "$payload"
           say_duck "Set $dev: $payload"
           if_voice_say "Klart kompis"
         fi

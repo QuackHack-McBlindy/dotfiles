@@ -8,6 +8,8 @@
   pythonPackages = ps: [ 
     ps.numpy
     ps.pip
+    ps.fastapi
+    ps.uvicorn
     ps.requests   
     ps.lz4
     ps.flask

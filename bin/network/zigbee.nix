@@ -234,7 +234,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           if "''${config.pkgs.yo}/bin/yo-sops" "$BACKUP_TMP_FILE" > "${backupEncryptedFile}"; then
             dt_info "Backup saved to: ${backupEncryptedFile}"
           else
-            say_duck "fuck ❌ Encryption failed for zigbee coordinator backup!"
+            say_duck "fuck ❌ encryption failed for zigbee coordinator backup!"
             dt_critical "Encryption failed for zigbee coordinator backup!"
           fi
           rm -f "$BACKUP_TMP_FILE"
@@ -311,7 +311,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("smoke")' > /dev/null; then
             device_check            
             if [ "$smoke" = "true" ]; then
-              dt_critical "❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥"
+              echo "❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥"
               dt_critical "❤️‍🔥❤️‍🔥 SMOKE! in in $device_name $dev_room"
             fi
           fi
@@ -606,7 +606,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
       input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
       exact_name=''${device_map["$input_lower"]}
       if [[ -z "$exact_name" ]]; then
-        say_duck "fuck ❌ Device not found: $DEVICE" >&2
+        say_duck "fuck ❌ device not found: $DEVICE" >&2
         say_duck "Available devices: ${toString (builtins.attrNames zigbeeDevices)}" >&2
         exit 1
       fi

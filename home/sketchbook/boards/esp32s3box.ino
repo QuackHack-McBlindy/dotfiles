@@ -47,15 +47,24 @@
 #define TOUCH_RESET_PIN TFT_RST
 #define TOUCH_INT_PIN   TS_IRQ
 // 🦆 says ⮞  audio
-#define SAMPLE_RATE     16000  // 16KHz
+#define SAMPLE_RATE     16000
 #define SAMPLE_BITS     16
 #define BUFFER_SIZE     1024
+// 🦆 says ⮞ mic
+const int sampleRate = 16000;
+const int recordDuration = 3;
+const int bufferSize = sampleRate * recordDuration * sizeof(int16_t);
+uint8_t* audioBuffer = NULL;
+#define I2S_WS   42  // 🦆 says ⮞ correct
+#define I2S_SD   41 // 🦆 says ⮞ correct
+#define I2S_SCK  40 // 🦆 says ⮞ correct
 
 #define ES7210_ADDR 0x40 
 // 🦆 says ⮞  wifi & api
 const char* ssid = "WIFISSIDHERE";
 const char* password = "WIFIPASSWORDHERE";
 const char* apiEndpoint = "https://TRANSCRIPTIONHOSTIPHERE:25451/audio_upload";
+const char* serverURL = "http://TRANSCRIPTIONHOSTIPHERE:8111/upload_audio";
 // 🦆 says ⮞  mqtt Configuration
 const char* mqtt_server = "MQTTHOSTIPHERE";
 const char* mqtt_user = "MQTTUSERNAMEHERE";
@@ -178,6 +187,33 @@ bool checkTouch() {
   }
   return false;
 }
+void stopRecording() {
+  if (isRecording) return;
+  isRecording = true;  
+  Serial.println("Recording...");
+  size_t bytesRead = 0;
+  i2s_read(I2S_NUM_0, audioBuffer, bufferSize, &bytesRead, portMAX_DELAY);
+  Serial.printf("Recording done. Bytes read: %d\n", bytesRead);
+  WiFiClient client;
+  HTTPClient http;
+  if (!http.begin(client, serverURL)) {
+    Serial.println("HTTP begin failed");
+    return;
+  }
+  http.addHeader("Content-Type", "application/octet-stream");
+  Serial.println("Sending audio via POST...");
+  int httpCode = http.POST(audioBuffer, bytesRead);
+  Serial.printf("HTTP code: %d\n", httpCode);
+  if (httpCode > 0) {
+    Serial.println(http.getString());
+  } else {
+    Serial.println(http.errorToString(httpCode));
+  }
+
+  http.end();
+  free(audioBuffer);
+  i2s_driver_uninstall(I2S_NUM_0);
+}
 
 void updateTouchState() {
   if (millis() - lastTouchCheck < TOUCH_CHECK_INTERVAL) return;
@@ -214,38 +250,31 @@ void recordError(String message, String details) {
 
 void startRecording() {
   if (isRecording) return;
-  
-  Serial.println("Recording started (touch detected)");
-  digitalWrite(TFT_BL, HIGH);
-  isRecording = true;
-  
-  // 🦆 says ⮞ start da http connection
-  audioClient.setInsecure(); // 🦆 TODO ⮞ not suitable for prod yo 
-  if (audioHttp.begin(audioClient, apiEndpoint)) {
-    audioHttp.addHeader("Content-Type", "application/octet-stream");
-    httpInitialized = true;
+  isRecording = true;  
+  Serial.println("Recording...");
+  size_t bytesRead = 0;
+  i2s_read(I2S_NUM_0, audioBuffer, bufferSize, &bytesRead, portMAX_DELAY);
+  Serial.printf("Recording done. Bytes read: %d\n", bytesRead);
+  WiFiClient client;
+  HTTPClient http;
+  if (!http.begin(client, serverURL)) {
+    Serial.println("HTTP begin failed");
+    return;
+  }
+  http.addHeader("Content-Type", "application/octet-stream");
+  Serial.println("Sending audio via POST...");
+  int httpCode = http.POST(audioBuffer, bytesRead);
+  Serial.printf("HTTP code: %d\n", httpCode);
+  if (httpCode > 0) {
+    Serial.println(http.getString());
   } else {
-    recordError("HTTP Begin Failed", "Could not connect to: " + String(apiEndpoint));
-    httpInitialized = false;
+    Serial.println(http.errorToString(httpCode));
   }
-  
-  i2s_start(I2S_NUM_0);
-}
 
-void stopRecording() {
-  if (!isRecording) return;
-  
-  Serial.println("Recording stopped (touch released)");
-  isRecording = false;
-  
-  i2s_stop(I2S_NUM_0);
-  
-  if (httpInitialized) {
-    audioHttp.end();
-    httpInitialized = false;
-  }
+  http.end();
+  free(audioBuffer);
+  i2s_driver_uninstall(I2S_NUM_0);
 }
-
 
 // ===========================================
 // 🦆 says ⮞ MQTT FUNCTIONS
@@ -503,36 +532,35 @@ void es7210_init() {
 }
 
 // ===========================================
-// 🦆 says ⮞ I2S INIT
-void initI2S() {
-  i2s_config_t i2s_config = {
-    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
-    .sample_rate = SAMPLE_RATE,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-    .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-    .dma_buf_count = 8,
-    .dma_buf_len = BUFFER_SIZE,
-    .use_apll = true,
-    .tx_desc_auto_clear = false
-  };
+// 🦆 says ⮞ MIC
+void recordPOST() {
+  Serial.println("Recording...");
+  size_t bytesRead = 0;
+  i2s_read(I2S_NUM_0, audioBuffer, bufferSize, &bytesRead, portMAX_DELAY);
+  Serial.printf("Recording done. Bytes read: %d\n", bytesRead);
 
-  i2s_pin_config_t pin_config = {
-    .mck_io_num = I2S_MCLK,
-    .bck_io_num = I2S_SCLK,
-    .ws_io_num = I2S_LRCK,
-    .data_out_num = I2S_PIN_NO_CHANGE,
-    .data_in_num = I2S_SDIN
-  };
-  
-  // 🦆 says ⮞ install & start I2S driver
-  i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
-  i2s_set_pin(I2S_NUM_0, &pin_config);
-  
-  // 🦆 says ⮞ ES7210 ADC
-  es7210_init();
+  WiFiClient client;
+  HTTPClient http;
+
+  if (!http.begin(client, serverURL)) {
+    Serial.println("HTTP begin failed");
+    return;
+  }
+  http.addHeader("Content-Type", "application/octet-stream");
+  Serial.println("Sending audio via POST...");
+  int httpCode = http.POST(audioBuffer, bytesRead);
+  Serial.printf("HTTP code: %d\n", httpCode);
+  if (httpCode > 0) {
+    Serial.println(http.getString());
+  } else {
+    Serial.println(http.errorToString(httpCode));
+  }
+
+  http.end();
+  free(audioBuffer);
+  i2s_driver_uninstall(I2S_NUM_0);
 }
+
 
 void handleRFSend() {
   String code = server.arg("code");
@@ -976,8 +1004,6 @@ void setup() {
   
   es7210_init();
   
-  initI2S();
-
   // 🦆 says ⮞ touch init
   tt21100_init();  
   if (touchControllerAvailable) {
@@ -1016,6 +1042,37 @@ void setup() {
   }
   
   setupOTA(); 
+  i2s_config_t i2s_config = {
+    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
+    .sample_rate = sampleRate,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
+    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+    .dma_buf_count = 8,
+    .dma_buf_len = 1024,
+    .use_apll = false,
+    .tx_desc_auto_clear = false,
+    .fixed_mclk = 0
+  };
+
+  i2s_pin_config_t pin_config = {
+    .bck_io_num = I2S_SCK,
+    .ws_io_num = I2S_WS,
+    .data_out_num = I2S_PIN_NO_CHANGE,
+    .data_in_num = I2S_SD
+  };
+
+  i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
+  i2s_set_pin(I2S_NUM_0, &pin_config);
+  i2s_zero_dma_buffer(I2S_NUM_0);
+
+  audioBuffer = (uint8_t*)malloc(bufferSize);
+  if (!audioBuffer) {
+    Serial.println("Failed to allocate audio buffer.");
+    return;
+  }
+
  
   server.on("/", handleRoot);
   server.on("/record", handleRecord);

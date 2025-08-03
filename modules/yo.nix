@@ -100,16 +100,6 @@ let
 ## 🚀 **yo CLI 🦆🦆🦆🦆🦆🦆**
 **Usage:** \`yo <command> [arguments]\`  
 
-**yo CLI config mode:** \`yo config\`, \`yo edit\` 
-
-``` 
-❄️ yo CLI Tool
-🦆 ➤ Edit hosts
-     Edit flake
-     Edit yo CLI scripts
-     🚫 Exit
-``` 
-
 ### **Usage Examples:**  
 The yo CLI supports flexible parameter parsing through two primary mechanisms:  
 

@@ -25,6 +25,12 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 __Oh hellow? please quack on in,__ <br>
 __while duckie quite stuckie in dis endless rabbit hole__ <br>
 
+__Here lives home machines configurations,__  
+__crafted as a tiny Nix flake__  
+__Glued together by a Nix-flavoured command line utility,__  
+__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
+ 
+
 ## **What makes this configuration unique?** 
 
 Nix Declarative configuration style, custom modules evaluated dynamically for each host. <br>
@@ -42,13 +48,7 @@ Self-documented and fully voice controlled. <br>
 Input text is proccesed with a Quack Powered Natural language Processor written in Nix & Bash, to dynamically generate millions of regex patterns used for exact matching and async fuzzy matching. <br>
 With no parameter limit for resolution for the Shell translator - I can make the fair assumption this is probably a quite niche repository... <br>
 
-<br>
-
-__Here lives home machines configurations,__  
-__crafted as a tiny Nix flake__  
-__Glued together by a Nix-flavoured command line utility,__  
-__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
-  
+<br> 
   
 ## ❄️ **Flake**
 
@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/8f87jj5lpsq2nrgb07i3s5vvp1a4c7nl-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/xa4x5k5ya8nkrdv4qhydknl1vrsj159x-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -288,16 +288,6 @@ $ yo deploy laptop
 ## 🚀 **yo CLI 🦆🦆🦆🦆🦆🦆**
 **Usage:** `yo <command> [arguments]`  
 
-**yo CLI config mode:** `yo config`, `yo edit` 
-
-``` 
-❄️ yo CLI Tool
-🦆 ➤ Edit hosts
-     Edit flake
-     Edit yo CLI scripts
-     🚫 Exit
-``` 
-
 ### **Usage Examples:**  
 The yo CLI supports flexible parameter parsing through two primary mechanisms:  
 
@@ -335,6 +325,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo blindsDown ` |  |  |
 | `yo blindsUp ` |  |  |
 | `yo blink [--duration] [--user] [--passwordfile]` |  | Blink all lights for a specified duration |
+| `yo espaudio ` |  |  |
 | `yo fanOff ` |  |  |
 | `yo fanOn ` |  |  |
 | `yo goodmorning ` |  |  |
@@ -342,7 +333,6 @@ Set default values for your parameters to have them marked [optional]
 | `yo indoorTemp ` |  |  |
 | **⚙️ Configuration** | | |
 | `yo bitch --input [--fuzzyThreshold]` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
-| `yo edit ` | config | yo CLI configuration mode |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
 | `yo say --text [--model] [--modelDir] [--silence] [--host]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--input]` |  | Extensive automated sentence testing for the NLP |
@@ -362,6 +352,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo weather [--location] [--day] [--condition] [--locationPath]` | weat | Tiny Weather Report. |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
+| `yo ip-updater [--token1] [--token2] [--token3]` |  | domain updater |
 | `yo notify --message [--topic] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |
 | `yo notify-me [--topic] [--base_urlFile] [--sound]` |  | Listener for notifications and run actions |
 | `yo speed ` | st | Test your internets Download speed |
@@ -378,7 +369,6 @@ Set default values for your parameters to have them marked [optional]
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
 | `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
-| `yo ip-updater [--token1] [--token2] [--token3]` |  | Domain updater |
 | `yo zigduck [--user] [--pwfile]` | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |

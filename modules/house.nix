@@ -113,7 +113,7 @@ in { # 🦆 says ⮞ Options for da house
         default = {};
         description = "Configuration for ESP devices";
       };
-  
+
       # 🦆 duck say ⮞ lights don't help blind ducks but guests might like
       zigbee.devices = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {

@@ -1,6 +1,6 @@
 # dotfiles/bin/config/transcribe.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Configures and runs a TLS/SSL transcription server API endpoint featuring faster-whisper.  
-  self, # 🦆 says ⮞ Define `"whisperd"` at `ccnfig.this.host.modules.services` to enable, install dependencies & start it at boot.
+  self, # 🦆 says ⮞ Define "whisperd" at ccnfig.this.host.modules.services to enable, install dependencies & start it at boot.
   lib,
   config,
   pkgs,
@@ -8,7 +8,6 @@
   ... 
 } : let
   transcriptionAutoStart = config.yo.scripts.transcribe.autoStart or false;
-
   # 🦆 says ⮞ dependencies  
   environment.systemPackages = [ pkgs.alsa-utils pkgs.whisper-cpp ];  
   pyEnv = pkgs.python3.withPackages (ps: [
@@ -16,10 +15,46 @@
     ps.uvicorn
     ps.faster-whisper
     ps.numpy
+    ps.flask
     ps.soundfile
     ps.python-multipart
     ps.noisereduce
-  ]);
+  ]); # 🦆 TODO ⮞ merge 
+  espserver = pkgs.writeScript "whisperd-server.py" ''
+    #!${pyEnv}/bin/python      
+    from flask import Flask, request
+    import subprocess
+    import numpy as np
+    import tempfile
+    import soundfile as sf
+    import logging
+    from faster_whisper import WhisperModel
+    import noisereduce as nr
+    app = Flask(__name__)
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger("espserver")
+    model = WhisperModel("base", device="cpu")
+    @app.route('/upload_audio', methods=['POST'])
+    def upload_audio():
+        audio_data = request.data
+        if not audio_data:
+            return 'No audio data received', 400
+        try:
+            audio_np = np.frombuffer(audio_data, dtype=np.int16)
+            audio_np = nr.reduce_noise(y=audio_np, sr=16000)
+            with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
+                sf.write(tmp.name, audio_np, 16000)
+                segments, _ = model.transcribe(tmp.name, vad_filter=True)
+                transcription = " ".join(segment.text for segment in segments)
+            logger.info(f"[transcription] {transcription}")
+            subprocess.Popen(["/path/to/your/script.sh", transcription])
+            return {'transcription': transcription}, 200
+        except Exception as e:
+            logger.error(f"Failed to transcribe audio: {str(e)}")
+            return 'Transcription failed', 500
+    if __name__ == '__main__':
+        app.run(host='0.0.0.0', port=8111)
+  '';
   # 🦆 says ⮞ creates TLS/SSL API endpoint fpr receivin' dat audio dat needz transcription - yo
   server = pkgs.writeScript "whisperd-server.py" ''
     #!${pyEnv}/bin/python
@@ -51,20 +86,19 @@
     parser.add_argument('--cert', type=str, default=None)
     parser.add_argument('--key', type=str, default=None)
     args = parser.parse_args()
-    # 🦆 says ⮞ Configure logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     logger = logging.getLogger("whisperd")
     
-    # 🦆 says ⮞ Audio configuration
+    # 🦆 says ⮞ audio configuration
     SAMPLE_RATE = 16000
-    SAMPLE_WIDTH = 2  # 16-bit = 2 bytes
+    SAMPLE_WIDTH = 2
     CHANNELS = 1
     SESSION_TIMEOUT = 2.0  # seconds
     
-    # 🦆 says ⮞ Session management
+    # 🦆 says ⮞ session management
     sessions_lock = threading.Lock()
     sessions = defaultdict(lambda: {
         'chunks': [],
@@ -72,7 +106,7 @@
         'recording': False
     })
     
-    # 🦆 says ⮞ Thread pool for transcription
+    # 🦆 says ⮞ thread pool for transcription
     transcription_executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
     
     # 🦆 says ⮞ Initialize model
@@ -86,25 +120,19 @@
     
     @asynccontextmanager
     async def lifespan(app: FastAPI):
-        """Start and stop background tasks"""
-        # Start session cleaner
         cleaner_thread = threading.Thread(
             target=cleanup_expired_sessions,
             daemon=True
         )
         cleaner_thread.start()
-        logger.info("Started session cleanup thread")
-        
+        logger.info("Started session cleanup thread")    
         yield
-        
-        # Cleanup on shutdown
         transcription_executor.shutdown(wait=False)
         logger.info("Server shutdown complete")
 
     app = FastAPI(lifespan=lifespan)
     
     def transcribe_audio(audio_data: np.ndarray, reduce_noise: bool = True) -> str:
-        """Transcribe audio data using Whisper model"""
         try:
             if reduce_noise:
                 logger.debug("Applying noise reduction")
@@ -113,11 +141,9 @@
                     sr=SAMPLE_RATE,
                     stationary=True,
                     prop_decrease=0.75
-                )
-            
+                )   
             with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
-                sf.write(tmp.name, audio_data, SAMPLE_RATE)
-                
+                sf.write(tmp.name, audio_data, SAMPLE_RATE)  
                 with model_lock:
                     logger.debug("Starting transcription")
                     segments, _ = model.transcribe(
@@ -136,45 +162,32 @@
             return ""
 
     def process_completed_session(client_ip: str, chunks: list):
-        """Process completed audio session and transcribe"""
         logger.info(f"Processing completed session for {client_ip}")
         try:
-            # Combine all audio chunks using b"" instead of bytes()
             raw_audio = b"".join(chunks)
             audio_data = np.frombuffer(raw_audio, dtype=np.int16)
-            
-            # Submit transcription to thread pool
             future = transcription_executor.submit(
                 transcribe_audio, 
                 audio_data,
                 True
             )
-            transcription = future.result()
-            
-            logger.info(f"Transcription for {client_ip}: {transcription}")
-            # 🦆 says ⮞ Here you could send to MQTT, save to DB, etc.
-            
+            transcription = future.result()  
+            logger.info(f"Transcription for {client_ip}: {transcription}")          
         except Exception as e:
             logger.error(f"Session processing failed for {client_ip}: {str(e)}")
 
-
     def cleanup_expired_sessions():
-        """Close sessions older than SESSION_TIMEOUT and process them"""
         while True:
             time.sleep(1)
             current_time = time.time()
-            expired_ips = []
-            
+            expired_ips = [] 
             with sessions_lock:
                 for ip, session in list(sessions.items()):
-                    # Skip if no chunks or recently active
                     if not session['chunks'] or current_time - session['last_received'] < SESSION_TIMEOUT:
                         continue
                     
-                    # Handle completed recording session
                     if session['recording']:
                         logger.info(f"Session completed for {ip}")
-                        # Process in background without blocking
                         threading.Thread(
                             target=process_completed_session,
                             args=(ip, session['chunks']),
@@ -183,15 +196,10 @@
                         session['recording'] = False
                         session['chunks'] = []
                     else:
-                        # Clear orphaned chunks
                         logger.warning(f"Clearing expired chunks for {ip}")
-                        session['chunks'] = []
-                    
-                    # Remove if completely idle
+                        session['chunks'] = []   
                     if not session['recording'] and not session['chunks']:
-                        expired_ips.append(ip)
-                
-                # Remove expired sessions
+                        expired_ips.append(ip)   
                 for ip in expired_ips:
                     del sessions[ip]
 
@@ -200,26 +208,18 @@
         client_ip = request.client.host
         if not client_ip:
             raise HTTPException(status_code=400, detail="Client IP unavailable")
-        
-        # Read binary data
         audio_data = await request.body()
         if not audio_data:
-            raise HTTPException(status_code=400, detail="Empty audio data")
-        
+            raise HTTPException(status_code=400, detail="Empty audio data")  
         with sessions_lock:
             session = sessions[client_ip]
-            
-            # Detect new recording session
             if not session['recording']:
                 logger.info(f"New recording session started for {client_ip}")
                 session['recording'] = True
-            
             session['chunks'].append(audio_data)
-            session['last_received'] = time.time()
-        
+            session['last_received'] = time.time() 
         logger.debug(f"Received {len(audio_data)} bytes from {client_ip}")
         return {"status": "received", "bytes": len(audio_data)}
-
 
     @app.get("/play")
     def play(sound: str = Query(...)):
@@ -247,6 +247,15 @@
             transcription = " ".join(segment.text for segment in segments)
             logging.info(f"[transcription] {transcription}")
             return {"transcription": transcription}
+
+    @app.post("/trans")
+    async def trans(request: Request):
+        audio_bytes = await request.body()
+        if not audio_bytes:
+            raise HTTPException(status_code=400, detail="No audio data received")
+        audio_np = np.frombuffer(audio_bytes, dtype=np.int16)
+        transcription = transcribe_audio_np(audio_np, reduce_noise=True)
+        return {"transcription": transcription}
  
     # 🦆 says ⮞ handle certs
     ssl_params = {}
@@ -327,7 +336,7 @@ in { # 🦆 says ⮞ yo yo yo yo
   };
 
   # 🦆 says ⮞ firewall rulez
-  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 6379 ]; };
+  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 6379 8111 ]; };
 
   # 🦆 says ⮞ used for wake word locking yo
   services.redis = lib.mkIf transcriptionAutoStart {
@@ -344,6 +353,12 @@ in { # 🦆 says ⮞ yo yo yo yo
       group = config.this.user.me.name;
       mode = "0440";
     };    
-  };} # 🦆 says ⮞ duckie duck duck
+  };
+  yo.scripts.espaudio = {
+    logLevel = "DEBUG";
+    autoStart = false;
+    code = ''
+      ${espserver}    
+    '';
+  };}# 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  
-

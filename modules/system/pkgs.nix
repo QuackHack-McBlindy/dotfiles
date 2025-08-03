@@ -60,6 +60,7 @@
                 pkgs.efibootmgr
                 pkgs.grafana-loki
                 pkgs.pm2
+                pkgs.mosquitto
                 pkgs.nixos-option
                 pkgs.inotify-tools
                 pkgs.wyoming-satellite
