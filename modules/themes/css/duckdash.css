@@ -1,12 +1,140 @@
-.device-header { margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; }
-.device-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-.device-card { padding: 12px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: transform 0.2s; }
-.device-card:hover { transform: translateY(-3px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
-.device-status { font-size: 24px; margin-bottom: 8px; }
-.device-name { font-weight: bold; margin-bottom: 4px; }
-.device-desc { font-size: 0.85em; color: #666; margin-bottom: 4px; }
-.device-ip { font-size: 0.8em; color: #4a5568; }
+input.rgb-slider {
+  background: linear-gradient(to right, 
+    red, yellow, lime, cyan, blue, magenta, red);
+  height: 6px;
+  border-radius: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+}
 
+input.rgb-slider::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #888;
+  cursor: pointer;
+}
+
+input.rgb-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #888;
+  cursor: pointer;
+}
+
+/* HEADER STYLES */
+header {
+  background: linear-gradient(135deg, #2b6cb0 0%, #3498db 100%);
+  color: white;
+  padding: 15px 20px 0;
+  border-radius: 12px 12px 0 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 15px;
+}
+
+.logo-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo {
+  font-size: 2.2rem;
+  font-weight: 800;
+  letter-spacing: -1px;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  margin-top: -3px;
+}
+
+.status-badges {
+  display: flex;
+  gap: 12px;
+}
+
+.badge {
+  background: rgba(255,255,255,0.15);
+  border-radius: 50px;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+  position: relative;
+  overflow: hidden;
+}
+
+.battery {
+  padding-right: 30px;
+}
+
+.battery-level {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.3);
+  border-radius: 0 50px 50px 0;
+  transition: width 0.5s ease;
+}
+
+.battery .text {
+  z-index: 2;
+}
+
+.wifi .icon {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.recording {
+  background: ${isRecording ? 'rgba(231, 76, 60, 0.3)' : 'rgba(255,255,255,0.15)'};
+}
+
+.recording .icon {
+  ${isRecording ? 'animation: blink 1.5s infinite;' : ''}
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+.header-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  height: 40px;
+}
+
+.header-wave svg {
+  width: 100%;
+  height: 100%;
+}
 .room-toggle {
   display: inline-block;
   width: 20px;
@@ -50,46 +178,6 @@
 
 .control-row input[type="range"] {
   flex: 1;
-}
-.room-section {
-  margin-bottom: 25px;
-  padding-bottom: 15px;
-  border-bottom: 1px solid #e2e2e2;
-}
-
-.device {
-  margin: 10px 0;
-  padding: 10px;
-  background: #f8f8f8;
-  border-radius: 8px;
-}
-
-.device-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  cursor: pointer;
-}
-
-.device-controls {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px dashed #ddd;
-}
-
-.control-row {
-  display: flex;
-  align-items: center;
-  margin: 8px 0;
-}
-
-.control-row label {
-  width: 80px;
-  margin-right: 10px;
-}
-
-.control-row input[type="range"] {
-  flex-grow: 1;
 }
 .room-section {
   margin-bottom: 25px;
@@ -139,17 +227,13 @@
   background-size: 200% 100%;
   animation: charging 2s linear infinite;
 }
-@keyframes pulseUpdate {
-  0%   { background-color: #c6f6d5; box-shadow: 0 0 0px rgba(72, 187, 120, 0.6); }
-  50%  { box-shadow: 0 0 10px rgba(72, 187, 120, 0.6); }
-  100% { background-color: transparent; box-shadow: 0 0 0px transparent; }
-}
 
 
 @keyframes pulseUpdate {
   0%   { background-color: #c6f6d5; }
   100% { background-color: transparent; }
 }
+
 .status-value.updated {
   animation: pulseUpdate 1s ease;
 }
@@ -332,45 +416,7 @@ input:checked + .slider:before {
 .battery-medium { background: linear-gradient(90deg, #dd6b20, #f6ad55); }
 .battery-high { background: linear-gradient(90deg, #38a169, #68d391); }
 
-<script>
-function toggleDeviceControls(deviceId) {
-  const controls = document.getElementById('controls-' + deviceId);
-  controls.style.display = controls.style.display === 'none' ? 'block' : 'none';
-}
 
-function setColor(deviceId, color) {
-  fetch(`/zigbee/color?id=${encodeURIComponent(deviceId)}&color=${encodeURIComponent(color)}`)
-    .then(res => {
-      if (!res.ok) alert(`Color set failed for ${deviceId}`);
-    });
-}
-
-function setBrightness(deviceId, value) {
-  fetch(`/zigbee/brightness?id=${encodeURIComponent(deviceId)}&brightness=${value}`)
-    .then(res => {
-      if (!res.ok) alert(`Brightness set failed for ${deviceId}`);
-    });
-}
-
-// Initialize event listeners
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.color-picker').forEach(picker => {
-    picker.addEventListener('change', (e) => {
-      setColor(e.target.dataset.device, e.target.value);
-    });
-  });
-  
-  document.querySelectorAll('.brightness-slider').forEach(slider => {
-    slider.addEventListener('input', (e) => {
-      setBrightness(e.target.dataset.device, e.target.value);
-    });
-  });
-});
-</script>
-Add CSS Styling
-
-cpp
-// In handleRoot() <style> section
 .device {
   margin-bottom: 15px;
   border: 1px solid #e2e8f0;
@@ -420,5 +466,3 @@ cpp
   flex: 1;
   height: 6px;
 }
-
-

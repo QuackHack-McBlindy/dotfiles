@@ -20,7 +20,6 @@
 // 🦆 says ⮞  libs
 #include <vector>
 #include <WiFiClientSecure.h>
-#include <ArduinoOTA.h>
 #include <map>
 #include <PubSubClient.h>
 #include "driver/temp_sensor.h"
@@ -47,31 +46,21 @@
 #define TOUCH_RESET_PIN TFT_RST
 #define TOUCH_INT_PIN   TS_IRQ
 // 🦆 says ⮞  audio
-#define SAMPLE_RATE     16000
+#define SAMPLE_RATE     16000  // 16KHz
 #define SAMPLE_BITS     16
 #define BUFFER_SIZE     1024
-// 🦆 says ⮞ mic
-const int sampleRate = 16000;
-const int recordDuration = 3;
-const int bufferSize = sampleRate * recordDuration * sizeof(int16_t);
-uint8_t* audioBuffer = NULL;
-#define I2S_WS   42  // 🦆 says ⮞ correct
-#define I2S_SD   41 // 🦆 says ⮞ correct
-#define I2S_SCK  40 // 🦆 says ⮞ correct
 
-#define ES7210_ADDR 0x40 
 // 🦆 says ⮞  wifi & api
 const char* ssid = "WIFISSIDHERE";
 const char* password = "WIFIPASSWORDHERE";
 const char* apiEndpoint = "https://TRANSCRIPTIONHOSTIPHERE:25451/audio_upload";
-const char* serverURL = "http://TRANSCRIPTIONHOSTIPHERE:8111/upload_audio";
 // 🦆 says ⮞  mqtt Configuration
 const char* mqtt_server = "MQTTHOSTIPHERE";
 const char* mqtt_user = "MQTTUSERNAMEHERE";
 const char* mqtt_password = "MQTTPASSWORDHERE";
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
-// 🦆 says ⮞ battery
+// 🦆 says ⮞ battery (reversed for BOX3)
 #define BATTERY_MIN_VOLTAGE 3.3
 #define BATTERY_MAX_VOLTAGE 2.01
 
@@ -102,9 +91,9 @@ struct DeviceStatus {
 };
 
 // 🦆 says ⮞ other esp devices for header
-std::vector<DeviceStatus> deviceStatuses = {
-  { "box", "192.168.1.13", "", false, 0 }
-};
+//std::vector<DeviceStatus> deviceStatuses = {
+//  { "box", "192.168.1.13", "", false, 0 }
+//};
 
 // 🦆 says ⮞ dynamic injection of zigbee devices
 String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
@@ -129,9 +118,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x00178801001ecdaa">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x00178801001ecdaa" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x00178801001ecdaa" value="#ffffff">
 </div>
 
@@ -153,9 +146,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c7467d">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c7467d" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103c7467d" value="#ffffff">
 </div>
 
@@ -177,9 +174,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103f44b5f">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103f44b5f" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103f44b5f" value="#ffffff">
 </div>
 
@@ -201,9 +202,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880104051a86">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880104051a86" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880104051a86" value="#ffffff">
 </div>
 
@@ -225,9 +230,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880106156cb0">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880106156cb0" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880106156cb0" value="#ffffff">
 </div>
 
@@ -249,9 +258,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880109ac14f3">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880109ac14f3" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880109ac14f3" value="#ffffff">
 </div>
 
@@ -282,7 +295,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x000b57fffe0e2a04">
     </div>
-    
+   
     
   </div>
 </div>
@@ -302,7 +315,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103eafdd6">
     </div>
-    
+   
     
   </div>
 </div>
@@ -331,7 +344,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102f0848a">
     </div>
-    
+   
     
   </div>
 </div>
@@ -351,7 +364,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102f08526">
     </div>
-    
+   
     
   </div>
 </div>
@@ -371,9 +384,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103a0d280">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103a0d280" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103a0d280" value="#ffffff">
 </div>
 
@@ -395,9 +412,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103e0add1">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103e0add1" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103e0add1" value="#ffffff">
 </div>
 
@@ -419,7 +440,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0xa4c13873044cb7ea">
     </div>
-    
+   
     
   </div>
 </div>
@@ -448,9 +469,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102de8570">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880102de8570" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880102de8570" value="#ffffff">
 </div>
 
@@ -472,9 +497,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x00178801037e754e">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x00178801037e754e" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x00178801037e754e" value="#ffffff">
 </div>
 
@@ -496,9 +525,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c73f85">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c73f85" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103c73f85" value="#ffffff">
 </div>
 
@@ -520,9 +553,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c753b8">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c753b8" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103c753b8" value="#ffffff">
 </div>
 
@@ -544,9 +581,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103f94041">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103f94041" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103f94041" value="#ffffff">
 </div>
 
@@ -568,9 +609,13 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880104540411">
     </div>
-    
+   
     <div class="control-row">
   <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880104540411" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880104540411" value="#ffffff">
 </div>
 
@@ -601,7 +646,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103406f41">
     </div>
-    
+   
     
   </div>
 </div>
@@ -621,7 +666,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x001788010361b842">
     </div>
-    
+   
     
   </div>
 </div>
@@ -647,43 +692,6 @@ const char* zigbeeEndpoint = "http://192.168.1.111:25451/zigbee_devices";
 bool touchActive = false;
 unsigned long lastTouchCheck = 0;
 const unsigned long TOUCH_CHECK_INTERVAL = 50; // ms
-
-// ===========================================
-// 🦆 says ⮞ OTA
-void setupOTA() {
-  ArduinoOTA.setPort(OTAPORTHERE);
-  ArduinoOTA.setPassword("OTAPASSWORDHERE");
-  
-  ArduinoOTA
-    .onStart([]() {
-      String type;
-      if (ArduinoOTA.getCommand() == U_FLASH) {
-        type = "sketch";
-      } else { // U_SPIFFS
-        type = "filesystem";
-      }
-      Serial.println("Start updating " + type);
-    })
-    .onEnd([]() {
-      Serial.println("\nEnd");
-    })
-    .onProgress([](unsigned int progress, unsigned int total) {
-      Serial.printf("Progress: %u%%\r", (progress / (total / 100)));
-    })
-    .onError([](ota_error_t error) {
-      Serial.printf("Error[%u]: ", error);
-      if (error == OTA_AUTH_ERROR) Serial.println("Auth Failed");
-      else if (error == OTA_BEGIN_ERROR) Serial.println("Begin Failed");
-      else if (error == OTA_CONNECT_ERROR) Serial.println("Connect Failed");
-      else if (error == OTA_RECEIVE_ERROR) Serial.println("Receive Failed");
-      else if (error == OTA_END_ERROR) Serial.println("End Failed");
-    });
-
-  ArduinoOTA.begin();
-}
-void handleOTA() {
-  ArduinoOTA.handle();
-}
 
 // ===========================================
 // 🦆 says ⮞ TOUCH FUNCTIONS
@@ -744,31 +752,38 @@ void recordError(String message, String details) {
 
 void startRecording() {
   if (isRecording) return;
-  isRecording = true;  
-  Serial.println("Recording...");
-  size_t bytesRead = 0;
-  i2s_read(I2S_NUM_0, audioBuffer, bufferSize, &bytesRead, portMAX_DELAY);
-  Serial.printf("Recording done. Bytes read: %d\n", bytesRead);
-  WiFiClient client;
-  HTTPClient http;
-  if (!http.begin(client, serverURL)) {
-    Serial.println("HTTP begin failed");
-    return;
-  }
-  http.addHeader("Content-Type", "application/octet-stream");
-  Serial.println("Sending audio via POST...");
-  int httpCode = http.POST(audioBuffer, bytesRead);
-  Serial.printf("HTTP code: %d\n", httpCode);
-  if (httpCode > 0) {
-    Serial.println(http.getString());
+  
+  Serial.println("Recording started (touch detected)");
+  digitalWrite(TFT_BL, HIGH);
+  isRecording = true;
+  
+  // 🦆 says ⮞ start da http connection
+  audioClient.setInsecure(); // 🦆 TODO ⮞ not suitable for prod yo 
+  if (audioHttp.begin(audioClient, apiEndpoint)) {
+    audioHttp.addHeader("Content-Type", "application/octet-stream");
+    httpInitialized = true;
   } else {
-    Serial.println(http.errorToString(httpCode));
+    recordError("HTTP Begin Failed", "Could not connect to: " + String(apiEndpoint));
+    httpInitialized = false;
   }
-
-  http.end();
-  free(audioBuffer);
-  i2s_driver_uninstall(I2S_NUM_0);
+  
+  i2s_start(I2S_NUM_0);
 }
+
+void stopRecording() {
+  if (!isRecording) return;
+  
+  Serial.println("Recording stopped (touch released)");
+  isRecording = false;
+  
+  i2s_stop(I2S_NUM_0);
+  
+  if (httpInitialized) {
+    audioHttp.end();
+    httpInitialized = false;
+  }
+}
+
 
 // ===========================================
 // 🦆 says ⮞ MQTT FUNCTIONS
@@ -839,34 +854,34 @@ void reconnectMQTT() {
 
 // ===========================================
 // 🦆 says ⮞ DEVICE STATUS CHECKING
-void initializeDeviceStatuses() {
+//void initializeDeviceStatuses() {
   // This will be filled by Nix injection
-  deviceStatuses = {
-    {"box", "192.168.1.13", "dope dev toolboxin'z crazy", false, 0},
-    {"watch", "192.168.1.101", "yo cool watch - cat!", false, 0}
-  };
-}
+//  deviceStatuses = {
+//    {"box", "192.168.1.13", "dope dev toolboxin'z crazy", false, 0},
+//    {"watch", "192.168.1.101", "yo cool watch - cat!", false, 0}
+//  };
+//}
 
-bool checkDeviceOnline(const String& ip) {
-  WiFiClient client;
-  const int port = 80;
-  const int timeout = 500; // ms
+///bool checkDeviceOnline(const String& ip) {
+//  WiFiClient client;
+//  const int port = 80;
+//  const int timeout = 500; // ms
   
-  if (client.connect(ip.c_str(), port)) {
-    client.stop();
-    return true;
-  }
-  return false;
-}
+//7  if (client.connect(ip.c_str(), port)) {
+//    client.stop();
+//    return true;
+//  }
+//  return false;
+//}
 
-void updateDeviceStatuses() {
-  for (auto& device : deviceStatuses) {
-    if (millis() - device.lastChecked > 10000) { // Check every 10s
-      device.online = checkDeviceOnline(device.ip);
-      device.lastChecked = millis();
-    }
-  }
-}
+//void updateDeviceStatuses() {
+//  for (auto& device : deviceStatuses) {
+//    if (millis() - device.lastChecked > 10000) { // Check every 10s
+//      device.online = checkDeviceOnline(device.ip);
+//      device.lastChecked = millis();
+//    }
+//  }
+//}
 
 // ===========================================
 // 🦆 says ⮞ BATTERY FUNCTIONS
@@ -1026,35 +1041,37 @@ void es7210_init() {
 }
 
 // ===========================================
-// 🦆 says ⮞ MIC
-void recordPOST() {
-  Serial.println("Recording...");
-  size_t bytesRead = 0;
-  i2s_read(I2S_NUM_0, audioBuffer, bufferSize, &bytesRead, portMAX_DELAY);
-  Serial.printf("Recording done. Bytes read: %d\n", bytesRead);
+// 🦆 says ⮞ I2S INIT
+void initI2S() {
+  i2s_config_t i2s_config = {
+    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
+    .sample_rate = SAMPLE_RATE,
+    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
+    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
+    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
+    .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
+    .dma_buf_count = 8,  // Increased buffer count
+    .dma_buf_len = BUFFER_SIZE,
+    .use_apll = true,    // Use audio PLL for better clock stability
+    .tx_desc_auto_clear = false,
+    .fixed_mclk = 0
+  };
 
-  WiFiClient client;
-  HTTPClient http;
-
-  if (!http.begin(client, serverURL)) {
-    Serial.println("HTTP begin failed");
-    return;
-  }
-  http.addHeader("Content-Type", "application/octet-stream");
-  Serial.println("Sending audio via POST...");
-  int httpCode = http.POST(audioBuffer, bytesRead);
-  Serial.printf("HTTP code: %d\n", httpCode);
-  if (httpCode > 0) {
-    Serial.println(http.getString());
-  } else {
-    Serial.println(http.errorToString(httpCode));
-  }
-
-  http.end();
-  free(audioBuffer);
-  i2s_driver_uninstall(I2S_NUM_0);
+  i2s_pin_config_t pin_config = {
+    .mck_io_num = I2S_MCLK,
+    .bck_io_num = I2S_SCLK,
+    .ws_io_num = I2S_LRCK,
+    .data_out_num = I2S_PIN_NO_CHANGE,
+    .data_in_num = I2S_SDIN
+  };
+  
+  // 🦆 says ⮞ install & start I2S driver
+  i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
+  i2s_set_pin(I2S_NUM_0, &pin_config);
+  
+  // 🦆 says ⮞ ES7210 ADC
+  es7210_init();
 }
-
 
 void handleRFSend() {
   String code = server.arg("code");
@@ -1067,38 +1084,33 @@ void handleRFSend() {
 // ===========================================
 // 🦆 says ⮞ WEB SERVER quack quack
 
-String generateDeviceHeaderHTML() {
-  String html = R"(
-  <div class="device-header">
-    <h2 style="margin-bottom: 15px;">ESP Devices</h2>
-    <div class="device-grid">
-  )";
-  
-  for (const auto& device : deviceStatuses) {
-    html += R"(
-      <div class="device-card" onclick="window.location.href='http://)" + device.ip + R"(';">
-        <div class="device-status">)";
-    html += device.online ? "🟢" : "⚠️";
-    html += R"(</div>
-        <div class="device-info">
-          <div class="device-name">)" + device.name + R"(</div>
-          <div class="device-desc">)" + device.description + R"(</div>
-          <div class="device-ip">)" + device.ip + R"(</div>
-        </div>
-      </div>
-    )";
-  }
-  
-  html += R"(
-    </div>
-  </div>
-  )";
-  
-  return html;
-}
-
 // 🦆 says ⮞ JAVASCRIPT
 static const char* jsCode PROGMEM = R"=====(
+  function hslToHex(h, s, l) {
+    h = h % 360;
+    s /= 100;
+    l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n =>
+      l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    const toHex = x =>
+      Math.round(x * 255).toString(16).padStart(2, "0");
+    return `#${toHex(f(0))}${toHex(f(8))}${toHex(f(4))}`;
+  }
+
+  function updateRGBColor(slider) {
+    const hue = parseInt(slider.value);
+    const color = hslToHex(hue, 100, 50);
+    slider.style.background = `linear-gradient(to right, 
+      red, yellow, lime, cyan, blue, magenta, red)`;
+    const deviceId = slider.dataset.device;
+    console.log(`Set color of device ${deviceId} to ${color}`);
+    const colorPicker = document.querySelector(`.color-picker[data-device="${deviceId}"]`);
+    if (colorPicker) colorPicker.value = color;
+    setDeviceColor(deviceId, color);
+  }
+
   function toggleRoom(roomId) {
     const content = document.getElementById(`room-${roomId}-content`);
     content.style.display = content.style.display === 'none' ? 'block' : 'none';
@@ -1171,6 +1183,7 @@ static const char* jsCode PROGMEM = R"=====(
 
 // ===========================================
 // 🦆 says ⮞ HANDLE ROOT
+
 void handleRoot() {
   float batteryVoltage = getBatteryVoltage();
   int batteryPercent = getBatteryPercentage();
@@ -1188,54 +1201,12 @@ void handleRoot() {
   <meta charset="UTF-8">
   <title>🦆'Dash</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://qwackify.duckdns.org/duckdash.css">
-  /* 🦆CSSANDJSINJECTFEST🦆 */
-  
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/quackhack-mcblindy/dotfiles@main/modules/themes/css/duckdash.css">
   <script>
 )rawliteral";
 
   // 🦆 says ⮞ add da cool JS functions
   html += jsCode;
-
-  html += R"=====(
-    function toggleRoom(roomId) {
-      const roomContent = document.getElementById('room-content-' + roomId);
-      const roomToggle = document.querySelector('#room-content-' + roomId)
-        .previousElementSibling.querySelector('.room-toggle');
-    
-      if (roomContent.style.maxHeight) {
-        // 🦆 says ⮞ collapse
-        roomContent.style.maxHeight = null;
-        roomToggle.textContent = '▼';
-        localStorage.setItem('room-' + roomId + '-collapsed', 'true');
-      } else {
-        // 🦆 says ⮞ expand
-        roomContent.style.maxHeight = roomContent.scrollHeight + 'px';
-        roomToggle.textContent = '▲';
-        localStorage.removeItem('room-' + roomId + '-collapsed');
-      }
-    }
-
-    // 🦆 says ⮞ init room states from localStorage
-    document.addEventListener('DOMContentLoaded', function() {
-      document.querySelectorAll('.room-content').forEach(roomContent => {
-        const roomId = roomContent.id.split('room-content-')[1];
-        const roomToggle = roomContent.previousElementSibling.querySelector('.room-toggle');
-      
-        if (localStorage.getItem('room-' + roomId + '-collapsed') === 'true') {
-          roomContent.style.maxHeight = null;
-          roomToggle.textContent = '▼';
-        } else {
-          roomContent.style.maxHeight = roomContent.scrollHeight + 'px';
-          roomToggle.textContent = '▲';
-        }
-      
-        // 🦆 says ⮞ smooth transition criminal moonwalk yo
-        roomContent.style.transition = 'max-height 0.3s ease-in-out';
-        roomContent.style.overflow = 'hidden';
-      });
-    });
-  )=====";
   
   // 🦆 says ⮞ error handler
   html += R"(
@@ -1260,40 +1231,16 @@ void handleRoot() {
   <div class="container">
     <!-- 🦆 says ⮞ HEADER -->
     <header>
-      <div class="header-container">
-        <div class="logo-container">
-          <div class="logo">🦆'Dash</div>
-          <div class="subtitle">ESP32S3BOX v1.2</div>
-        </div>
-    
-        <div class="status-badges">
-          <div class="badge wifi">
-            <span class="icon">📶</span>
-            <span class="text">${WiFi.status() == WL_CONNECTED ? WiFi.localIP().toString() : "OFFLINE"}</span>
-          </div>
-      
-          <div class="badge battery">
-            <span class="icon">🔋</span>
-            <span class="text">${batteryPercent}%</span>
-            <div class="battery-level" style="width:${batteryPercent}%"></div>
-          </div>
-      
-          <div class="badge recording">
-            <span class="icon">${isRecording ? '⏺️' : '⏹️'}</span>
-            <span class="text">${isRecording ? 'REC' : 'READY'}</span>
-          </div>
-        </div>
-      </div>
-  
-      <div class="header-wave">
-        <svg viewBox="0 0 1200 120" preserveAspectRatio="none">
-          <path d="M0,0 Q150,80 300,20 T600,70 T900,30 T1200,70 L1200,120 L0,120 Z" fill="#f0f9ff"></path>
-        </svg>
-      </div>
+      <h1>🦆Dash for device ESP32S3BOX3y</h1>
     </header>
 
-  
-    <!-- 🦆 says ⮞ BATTERY STATUS -->
+  html += R"rawliteral(</script>
+  </head>
+  <body>
+    <div class="container">
+  )rawliteral";
+
+  html += R"rawliteral(
     <div class="battery-section">
       <div class="status-icon">🔋</div>
       <div class="battery-percent">)rawliteral";
@@ -1419,10 +1366,6 @@ void handleRoot() {
   server.send(200, "text/html", html);
 }
 
-
-// ===========================================
-// 🦆 says ⮞ 
-
 void handleRecord() {
   if (server.arg("state") == "on") {
     startRecording();
@@ -1537,38 +1480,6 @@ void setup() {
     Serial.println("MAC Address:");
   }
   
-  setupOTA(); 
-  i2s_config_t i2s_config = {
-    .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
-    .sample_rate = sampleRate,
-    .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
-    .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
-    .communication_format = I2S_COMM_FORMAT_STAND_I2S,
-    .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-    .dma_buf_count = 8,
-    .dma_buf_len = 1024,
-    .use_apll = false,
-    .tx_desc_auto_clear = false,
-    .fixed_mclk = 0
-  };
-
-  i2s_pin_config_t pin_config = {
-    .bck_io_num = I2S_SCK,
-    .ws_io_num = I2S_WS,
-    .data_out_num = I2S_PIN_NO_CHANGE,
-    .data_in_num = I2S_SD
-  };
-
-  i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
-  i2s_set_pin(I2S_NUM_0, &pin_config);
-  i2s_zero_dma_buffer(I2S_NUM_0);
-
-  audioBuffer = (uint8_t*)malloc(bufferSize);
-  if (!audioBuffer) {
-    Serial.println("Failed to allocate audio buffer.");
-    return;
-  }
-
  
   server.on("/", handleRoot);
   server.on("/record", handleRecord);
@@ -1577,8 +1488,6 @@ void setup() {
   server.on("/zigbee/brightness", handleZigbeeBrightness);
   server.begin();
 
-  initializeDeviceStatuses();
-  updateDeviceStatuses();
   
   pinMode(TOUCH_INT_PIN, INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(TOUCH_INT_PIN), touchISR, FALLING);  
@@ -1590,7 +1499,6 @@ void setup() {
 // ===========================================
 // 🦆 says ⮞ DA LOOP YO
 void loop() {
-  handleOTA();
   server.handleClient();  
   if (touchControllerAvailable) {
     if (touchDetected) {
@@ -1609,7 +1517,7 @@ void loop() {
     lastZigbeeFetch = millis();
   }
 
-  updateDeviceStatuses();
+  //  updateDeviceStatuses();
   
   if (isRecording) {
     streamAudio();

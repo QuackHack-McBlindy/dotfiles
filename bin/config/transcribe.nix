@@ -47,7 +47,8 @@
                 segments, _ = model.transcribe(tmp.name, vad_filter=True)
                 transcription = " ".join(segment.text for segment in segments)
             logger.info(f"[transcription] {transcription}")
-            subprocess.Popen(["/path/to/your/script.sh", transcription])
+            subprocess.Popen(["yo-bitch", 'transcription'])
+            print(transcription, flush=True)
             return {'transcription': transcription}, 200
         except Exception as e:
             logger.error(f"Failed to transcribe audio: {str(e)}")
@@ -356,9 +357,10 @@ in { # 🦆 says ⮞ yo yo yo yo
   };
   yo.scripts.espaudio = {
     logLevel = "DEBUG";
-    autoStart = false;
+    autoStart = true;
     code = ''
-      ${espserver}    
+      ${espserver}
+      dt_info "Started ESPAudio sucessfully"
     '';
   };}# 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  

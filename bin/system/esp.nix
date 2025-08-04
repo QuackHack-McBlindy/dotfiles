@@ -80,10 +80,14 @@
           <label>Brightness:</label>
           <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="${device.id}">
         </div>
-        
-        ${lib.optionalString (device.supports_color or false) ''
+       
+        ${lib.optionalString (device.supports_color or false) ''          
           <div class="control-row">
             <label>Color:</label>
+            <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="${device.id}" oninput="updateRGBColor(this)">
+          </div>        
+          
+          <div class="control-row">
             <input type="color" class="color-picker" data-device="${device.id}" value="#ffffff">
           </div>
         ''}
@@ -92,17 +96,17 @@
   '';
 
 
-  espDevicesHeader = let
-    deviceEntries = lib.mapAttrsToList (name: cfg: 
-      "{ \"${name}\", \"${cfg.ip}\", \"${cfg.description}\", false, 0 }"
-    ) espDevices;
-  in lib.concatStringsSep ",\n" deviceEntries;
- 
 #  espDevicesHeader = let
 #    deviceEntries = lib.mapAttrsToList (name: cfg: 
 #      "{ \"${name}\", \"${cfg.ip}\", \"${cfg.description}\", false, 0 }"
 #    ) espDevices;
 #  in lib.concatStringsSep ",\n" deviceEntries;
+ 
+  espDevicesHeader = let
+    deviceEntries = lib.mapAttrsToList (name: cfg: 
+      "{ \"${name}\", \"${cfg.ip}\", \"${cfg.description}\", false, 0 }"
+    ) espDevices;
+  in lib.concatStringsSep ",\n" deviceEntries;
  
   # 🦆 says ⮞ nix generated code injection
   boxSketchContent = lib.readFile ./../../home/sketchbook/boards/esp32s3box.ino;
@@ -136,8 +140,6 @@ in { # 🦆 says ⮞ my microcontrollerz yo
       enable = false;
       type = "esp32s3-twatch";
       ip = "192.168.1.101";
-      mac = "AA:BB:CC:DD:EE:00";
-      description = "ESP Smart Watch, ESP32S3 T-Watch LoRa";
     };
   };
 
@@ -184,7 +186,46 @@ in { # 🦆 says ⮞ my microcontrollerz yo
             exit 1
             ;;
         esac
-        
+
+        # 🦆 says ⮞ safe dump - no leaks
+        dump_sketch_safe() {
+          redacted_sketch="$(sed \
+            -e "s#$MQTTPASSWORD#***REDACTED***#g" \
+            -e "s#$WIFIPASSWORD#***REDACTED***#g" \
+            -e "s#$OTAPASSWORD#***REDACTED***#g" \
+            "$tmpDir/sketch/sketch.ino")"
+          echo "$redacted_sketch"
+        } # 🦆 says ⮞ basic
+        version_control() {
+          local device="$1"
+          local dir="./../../home/sketchbook/devices/$device"
+          local base_name="$device"
+          local ext="ino"
+          local max_files=5
+          mkdir -p "$dir"
+          # 🦆 says ⮞ count & remove
+          local files=($(ls -1 "$dir"/"$base_name"_v*."$ext" 2>/dev/null | sort))
+          local count=''${#files[@]}
+          if (( count >= max_files )); then
+              dt_debug "Deleting oldest file: ''${files[0]}"
+              rm -f "''${files[0]}"
+          fi
+          # 🦆 says ⮞ find latest
+          local latest_version=0.0
+          for f in "''${files[@]}"; do
+              ver=$(basename "$f" | sed -E "s/''${base_name}_v([0-9]+\.[0-9]+)\.''${ext}/\1/")
+              if awk "BEGIN {exit !($ver > $latest_version)}"; then
+                  latest_version=$ver
+              fi
+          done
+          # 🦆 says ⮞ set version
+          new_version=$(awk "BEGIN {printf \"%.2f\", $latest_version + 0.01}")
+          new_file="''${dir}/''${base_name}_v''${new_version}.''${ext}"
+          # 🦆 says ⮞ save new version
+          dump_sketch_safe > "$new_file"
+          dt_info "New version saved: $new_file"
+        }
+
         actualSerialPort="''${serialPort:-$serialPortDefault}"
         useOTA=''${ota:-false}
         otaPort=''${otaPort:-3232}
@@ -221,10 +262,33 @@ in { # 🦆 says ⮞ my microcontrollerz yo
           extraFlags=""
         fi
 
-        # 🦆 says ⮞ datz it yo - compile and upload quaack
-        arduino-cli compile --fqbn "$board" "$tmpDir/sketch"
-        # 🦆 TODO ⮞ version taggin' all dat wit git pushin' all night disco duck yo       
-        arduino-cli upload -p "$actualPort" $extraFlags --fqbn "$board" "$tmpDir/sketch"
+        # 🦆 says ⮞ datz it - compile yo
+        if ! arduino-cli compile --fqbn "$board" "$tmpDir/sketch"; then
+          dt_error "Compilation failed!"
+          say_duck "fuck ❌ Compiling failed!"
+          play_fail
+          echo -n "🦆 Show safe sketch? [y/N] "
+          read -t 30 -n 1 answer
+          echo ""
+          if [[ "$answer" =~ ^[Yy]$ ]]; then
+            dump_sketch_safe
+          else
+            echo "Skipped sketch dump."
+          fi
+          exit 1          
+        fi 
+
+        # 🦆 says ⮞ and upload quack
+        if ! arduino-cli upload -p "$actualPort" $extraFlags --fqbn "$board" "$tmpDir/sketch"; then
+          dt_error "Upload failed!"
+          say_duck "fuck ❌ Upload failed!"
+          play_fail
+          exit 1
+        else
+          # 🦆 says ⮞ sucess? cool save dat code 
+          play_win
+          version_control "$device"
+        fi        
       '';
     };  
   };  
@@ -248,4 +312,4 @@ in { # 🦆 says ⮞ my microcontrollerz yo
       mode = "0440";
     };  # 🦆 says ⮞ quack hack   
   };} # 🦆 says ⮞ blind duck
-# 🦆 says ⮞ peace out yo
+# 🦆 says ⮞ bye bye sup

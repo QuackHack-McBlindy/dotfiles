@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/xa4x5k5ya8nkrdv4qhydknl1vrsj159x-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/ac020lrlcyniyclzms6b8zrzsm1k05rd-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -343,6 +343,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo calculator --expression` | calc | Calculate math expressions |
 | `yo calendar --operation` | kal | Calendar assistant |
 | `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
+| `yo google --search [--apiKeyFile] [--searchIDFile]` | g | Perform web search on google |
 | `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
 | `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
 | `yo scp --host [--path] [--username] [--downloadPath]` |  | Move files between hosts interactively |
