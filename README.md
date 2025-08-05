@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ac020lrlcyniyclzms6b8zrzsm1k05rd-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/hc83spjxddsqgmpsij876bi8dk3hq5c3-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -317,7 +317,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo deploy --host [--flake] [--user] [--repo] [--port] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
 | `yo dev [--devShell]` |  | Start development enviorment |
 | `yo duckTrace [--file]` | log | View duckTrace logs quick and quack. |
-| `yo esp [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP]` |  | Nix ESP32 flasher tool |
+| `yo esp [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP]` |  | Declarative firmware deployment tool for ESP32 boards  |
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |

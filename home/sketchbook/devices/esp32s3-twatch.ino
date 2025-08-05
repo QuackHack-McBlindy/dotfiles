@@ -79,7 +79,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🛏️ Bedroom
   </h4>
-  <div class="room-content" id="room-content-bedroom">
+  <div class="room-content" id="room-content-bedroom" style="display: none;">
     <div class="device" data-id="0x00178801001ecdaa">
   <div class="device-header" onclick="toggleDeviceControls('0x00178801001ecdaa')">
     <div class="control-label">
@@ -256,7 +256,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🚪 Hallway
   </h4>
-  <div class="room-content" id="room-content-hallway">
+  <div class="room-content" id="room-content-hallway" style="display: none;">
     <div class="device" data-id="0x000b57fffe0e2a04">
   <div class="device-header" onclick="toggleDeviceControls('0x000b57fffe0e2a04')">
     <div class="control-label">
@@ -305,7 +305,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🍳 Kitchen
   </h4>
-  <div class="room-content" id="room-content-kitchen">
+  <div class="room-content" id="room-content-kitchen" style="display: none;">
     <div class="device" data-id="0x0017880102f0848a">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880102f0848a')">
     <div class="control-label">
@@ -430,7 +430,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🛋️ Livingroom
   </h4>
-  <div class="room-content" id="room-content-livingroom">
+  <div class="room-content" id="room-content-livingroom" style="display: none;">
     <div class="device" data-id="0x0017880102de8570">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880102de8570')">
     <div class="control-label">
@@ -607,7 +607,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🚽 Wc
   </h4>
-  <div class="room-content" id="room-content-wc">
+  <div class="room-content" id="room-content-wc" style="display: none;">
     <div class="device" data-id="0x0017880103406f41">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880103406f41')">
     <div class="control-label">

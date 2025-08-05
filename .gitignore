@@ -7,7 +7,7 @@ home/.config/home-assistant
 result/
 epg.xml
 home/.config/Yubico
-
+home/sketchbook/dump
 home/.local/share/piper
 overlays/dump
 modules/networking/caddy.nix.save

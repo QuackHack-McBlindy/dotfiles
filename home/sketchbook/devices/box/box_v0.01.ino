@@ -51,13 +51,13 @@
 #define BUFFER_SIZE     1024
 
 // 🦆 says ⮞  wifi & api
-const char* ssid = "WIFISSIDHERE";
-const char* password = "WIFIPASSWORDHERE";
-const char* apiEndpoint = "https://TRANSCRIPTIONHOSTIPHERE:25451/audio_upload";
+const char* ssid = "pungkula2";
+const char* password = "***REDACTED***";
+const char* apiEndpoint = "https://192.168.1.111:25451/audio_upload";
 // 🦆 says ⮞  mqtt Configuration
-const char* mqtt_server = "MQTTHOSTIPHERE";
-const char* mqtt_user = "MQTTUSERNAMEHERE";
-const char* mqtt_password = "MQTTPASSWORDHERE";
+const char* mqtt_server = "192.168.1.211";
+const char* mqtt_user = "mqtt";
+const char* mqtt_password = "***REDACTED***";
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
 // 🦆 says ⮞ battery (reversed for BOX3)
@@ -96,7 +96,584 @@ struct DeviceStatus {
 //};
 
 // 🦆 says ⮞ dynamic injection of zigbee devices
-ZIGBEEDEVICESHERE
+String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
+  <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('bedroom')">
+    <span class="room-toggle">▼</span>
+    🛏️ Bedroom
+  </h4>
+  <div class="room-content" id="room-content-bedroom">
+    <div class="device" data-id="0x00178801001ecdaa">
+  <div class="device-header" onclick="toggleDeviceControls('0x00178801001ecdaa')">
+    <div class="control-label">
+      <span>💡</span> Bloom
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x00178801001ecdaa', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x00178801001ecdaa" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x00178801001ecdaa">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x00178801001ecdaa" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x00178801001ecdaa" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880103c7467d">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103c7467d')">
+    <div class="control-label">
+      <span>💡</span> Taket Sovrum 2
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103c7467d', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103c7467d" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c7467d">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c7467d" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103c7467d" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880103f44b5f">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103f44b5f')">
+    <div class="control-label">
+      <span>💡</span> Dörr
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103f44b5f', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103f44b5f" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103f44b5f">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103f44b5f" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103f44b5f" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880104051a86">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880104051a86')">
+    <div class="control-label">
+      <span>💡</span> Sänggavel
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880104051a86', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880104051a86" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880104051a86">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880104051a86" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880104051a86" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880106156cb0">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880106156cb0')">
+    <div class="control-label">
+      <span>💡</span> Taket Sovrum 1
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880106156cb0', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880106156cb0" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880106156cb0">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880106156cb0" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880106156cb0" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880109ac14f3">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880109ac14f3')">
+    <div class="control-label">
+      <span>💡</span> Sänglampa
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880109ac14f3', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880109ac14f3" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880109ac14f3">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880109ac14f3" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880109ac14f3" value="#ffffff">
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+<div class="room-section">
+  <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('hallway')">
+    <span class="room-toggle">▼</span>
+    🚪 Hallway
+  </h4>
+  <div class="room-content" id="room-content-hallway">
+    <div class="device" data-id="0x000b57fffe0e2a04">
+  <div class="device-header" onclick="toggleDeviceControls('0x000b57fffe0e2a04')">
+    <div class="control-label">
+      <span>💡</span> Vägg
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x000b57fffe0e2a04', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x000b57fffe0e2a04" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x000b57fffe0e2a04">
+    </div>
+   
+    
+  </div>
+</div>
+<div class="device" data-id="0x0017880103eafdd6">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103eafdd6')">
+    <div class="control-label">
+      <span>💡</span> Tak Hall
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103eafdd6', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103eafdd6" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103eafdd6">
+    </div>
+   
+    
+  </div>
+</div>
+
+  </div>
+</div>
+<div class="room-section">
+  <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('kitchen')">
+    <span class="room-toggle">▼</span>
+    🍳 Kitchen
+  </h4>
+  <div class="room-content" id="room-content-kitchen">
+    <div class="device" data-id="0x0017880102f0848a">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880102f0848a')">
+    <div class="control-label">
+      <span>💡</span> Spotlight kök 1
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880102f0848a', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880102f0848a" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102f0848a">
+    </div>
+   
+    
+  </div>
+</div>
+<div class="device" data-id="0x0017880102f08526">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880102f08526')">
+    <div class="control-label">
+      <span>💡</span> Spotlight Kök 2
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880102f08526', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880102f08526" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102f08526">
+    </div>
+   
+    
+  </div>
+</div>
+<div class="device" data-id="0x0017880103a0d280">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103a0d280')">
+    <div class="control-label">
+      <span>💡</span> Uppe
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103a0d280', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103a0d280" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103a0d280">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103a0d280" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103a0d280" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880103e0add1">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103e0add1')">
+    <div class="control-label">
+      <span>💡</span> Golvet
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103e0add1', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103e0add1" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103e0add1">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103e0add1" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103e0add1" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0xa4c13873044cb7ea">
+  <div class="device-header" onclick="toggleDeviceControls('0xa4c13873044cb7ea')">
+    <div class="control-label">
+      <span>💡</span> Kök Bänk Slinga
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0xa4c13873044cb7ea', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0xa4c13873044cb7ea" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0xa4c13873044cb7ea">
+    </div>
+   
+    
+  </div>
+</div>
+
+  </div>
+</div>
+<div class="room-section">
+  <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('livingroom')">
+    <span class="room-toggle">▼</span>
+    🛋️ Livingroom
+  </h4>
+  <div class="room-content" id="room-content-livingroom">
+    <div class="device" data-id="0x0017880102de8570">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880102de8570')">
+    <div class="control-label">
+      <span>💡</span> Rustning
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880102de8570', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880102de8570" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102de8570">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880102de8570" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880102de8570" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x00178801037e754e">
+  <div class="device-header" onclick="toggleDeviceControls('0x00178801037e754e')">
+    <div class="control-label">
+      <span>💡</span> Takkrona 1
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x00178801037e754e', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x00178801037e754e" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x00178801037e754e">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x00178801037e754e" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x00178801037e754e" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880103c73f85">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103c73f85')">
+    <div class="control-label">
+      <span>💡</span> Takkrona 2
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103c73f85', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103c73f85" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c73f85">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c73f85" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103c73f85" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880103c753b8">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103c753b8')">
+    <div class="control-label">
+      <span>💡</span> Takkrona 4
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103c753b8', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103c753b8" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c753b8">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c753b8" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103c753b8" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880103f94041">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103f94041')">
+    <div class="control-label">
+      <span>💡</span> Takkrona 3
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103f94041', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103f94041" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103f94041">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103f94041" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103f94041" value="#ffffff">
+</div>
+
+  </div>
+</div>
+<div class="device" data-id="0x0017880104540411">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880104540411')">
+    <div class="control-label">
+      <span>💡</span> PC
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880104540411', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880104540411" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880104540411">
+    </div>
+   
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880104540411" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880104540411" value="#ffffff">
+</div>
+
+  </div>
+</div>
+
+  </div>
+</div>
+<div class="room-section">
+  <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('wc')">
+    <span class="room-toggle">▼</span>
+    🚽 Wc
+  </h4>
+  <div class="room-content" id="room-content-wc">
+    <div class="device" data-id="0x0017880103406f41">
+  <div class="device-header" onclick="toggleDeviceControls('0x0017880103406f41')">
+    <div class="control-label">
+      <span>💡</span> WC 2
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x0017880103406f41', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x0017880103406f41" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103406f41">
+    </div>
+   
+    
+  </div>
+</div>
+<div class="device" data-id="0x001788010361b842">
+  <div class="device-header" onclick="toggleDeviceControls('0x001788010361b842')">
+    <div class="control-label">
+      <span>💡</span> WC 1
+    </div>
+    <label class="toggle">
+      <input type="checkbox" onchange="toggleDevice('0x001788010361b842', this.checked)">
+      <span class="slider"></span>
+    </label>
+  </div>
+  
+  <div class="device-controls" id="controls-0x001788010361b842" style="display:none">
+    <div class="control-row">
+      <label>Brightness:</label>
+      <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x001788010361b842">
+    </div>
+   
+    
+  </div>
+</div>
+
+  </div>
+</div>
+)rawliteral";
 
 // 🦆 says ⮞ rooms
 std::map<String, String> roomIcons = {
@@ -533,16 +1110,10 @@ static const char* jsCode PROGMEM = R"=====(
     if (colorPicker) colorPicker.value = color;
     setDeviceColor(deviceId, color);
   }
-  function toggleRoom(roomName) {
-    const section = document.getElementById(`room-content-${roomName}`);
-    const toggleIcon = document.querySelector(`h4[onclick="toggleRoom('${roomName}')"] .room-toggle`);
-    if (section.style.display === "none") {
-      section.style.display = "block";
-      if (toggleIcon) toggleIcon.textContent = "▼";
-    } else {
-      section.style.display = "none";
-      if (toggleIcon) toggleIcon.textContent = "▶";
-    }
+
+  function toggleRoom(roomId) {
+    const content = document.getElementById(`room-${roomId}-content`);
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
   }
   function toggleDevice(id, checked) {
     fetch(`/zigbee/control?id=${encodeURIComponent(id)}&state=${checked ? 'on' : 'off'}`)
@@ -670,7 +1241,6 @@ void handleRoot() {
   )rawliteral";
 
   html += R"rawliteral(
-    <!-- 🦆 says ⮞ BATTERY STATUS -->
     <div class="battery-section">
       <div class="status-icon">🔋</div>
       <div class="battery-percent">)rawliteral";

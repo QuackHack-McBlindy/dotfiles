@@ -101,7 +101,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🛏️ Bedroom
   </h4>
-  <div class="room-content" id="room-content-bedroom">
+  <div class="room-content" id="room-content-bedroom" style="display: none;">
     <div class="device" data-id="0x00178801001ecdaa">
   <div class="device-header" onclick="toggleDeviceControls('0x00178801001ecdaa')">
     <div class="control-label">
@@ -278,7 +278,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🚪 Hallway
   </h4>
-  <div class="room-content" id="room-content-hallway">
+  <div class="room-content" id="room-content-hallway" style="display: none;">
     <div class="device" data-id="0x000b57fffe0e2a04">
   <div class="device-header" onclick="toggleDeviceControls('0x000b57fffe0e2a04')">
     <div class="control-label">
@@ -327,7 +327,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🍳 Kitchen
   </h4>
-  <div class="room-content" id="room-content-kitchen">
+  <div class="room-content" id="room-content-kitchen" style="display: none;">
     <div class="device" data-id="0x0017880102f0848a">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880102f0848a')">
     <div class="control-label">
@@ -452,7 +452,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🛋️ Livingroom
   </h4>
-  <div class="room-content" id="room-content-livingroom">
+  <div class="room-content" id="room-content-livingroom" style="display: none;">
     <div class="device" data-id="0x0017880102de8570">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880102de8570')">
     <div class="control-label">
@@ -629,7 +629,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🚽 Wc
   </h4>
-  <div class="room-content" id="room-content-wc">
+  <div class="room-content" id="room-content-wc" style="display: none;">
     <div class="device" data-id="0x0017880103406f41">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880103406f41')">
     <div class="control-label">
@@ -1110,10 +1110,16 @@ static const char* jsCode PROGMEM = R"=====(
     if (colorPicker) colorPicker.value = color;
     setDeviceColor(deviceId, color);
   }
-
-  function toggleRoom(roomId) {
-    const content = document.getElementById(`room-${roomId}-content`);
-    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+  function toggleRoom(roomName) {
+    const section = document.getElementById(`room-content-${roomName}`);
+    const toggleIcon = document.querySelector(`h4[onclick="toggleRoom('${roomName}')"] .room-toggle`);
+    if (section.style.display === "none") {
+      section.style.display = "block";
+      if (toggleIcon) toggleIcon.textContent = "▼";
+    } else {
+      section.style.display = "none";
+      if (toggleIcon) toggleIcon.textContent = "▶";
+    }
   }
   function toggleDevice(id, checked) {
     fetch(`/zigbee/control?id=${encodeURIComponent(id)}&state=${checked ? 'on' : 'off'}`)
@@ -1241,6 +1247,7 @@ void handleRoot() {
   )rawliteral";
 
   html += R"rawliteral(
+    <!-- 🦆 says ⮞ BATTERY STATUS -->
     <div class="battery-section">
       <div class="status-icon">🔋</div>
       <div class="battery-percent">)rawliteral";
