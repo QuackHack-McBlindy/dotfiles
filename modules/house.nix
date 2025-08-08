@@ -202,6 +202,15 @@ in { # 🦆 says ⮞ Options for da house
                             Time of day to trigger the automation. Can be a fixed time like "07:00" or a keyword like "sunrise".
                         '';
                     };
+                    everyMin = mkOption {
+                      type = types.nullOr types.int;
+                      example = 30;
+                      default = null;
+                      description = ''
+                        Interval in minutes to run this automation repeatedly.
+                        If set, overrides 'time' and 'days'.
+                      '';
+                    };
                     days = mkOption {
                         type = types.listOf types.str;
                         example = [ "Mon" "Tue" "Wed" "Thu" "Fri" ];
@@ -405,39 +414,76 @@ in { # 🦆 says ⮞ Options for da house
             };     
         };
       }  
-      {  # 🦆 says ⮞ ⏰ Configures systemd timers & voilá - time based automations 
-        # 🦆 says ⮞ use `systemctl list-timers --all` to list all timers
+      { 
         systemd.timers = lib.mapAttrs' (name: cfg:
-            let
-                daysStr = if cfg.days == [ "*" ]
-                    then "*"
-                    else lib.concatStringsSep "," cfg.days;
-                onCalendar = "${daysStr} ${cfg.time}";
-            in
-            lib.nameValuePair "house-automation-${name}" {
-                enable = true;  # CRITICAL: This was missing!
-                wantedBy = [ "timers.target" ];
-                timerConfig = {
-                    OnCalendar = onCalendar;
-                    Persistent = true;
-                };
-            }
+          let
+            timerConfig = if cfg.everyMin != null then {
+              OnBootSec = "1m";                       # Initial delay after boot
+              OnUnitActiveSec = "${toString cfg.everyMin}min";  # Repeat interval
+              Persistent = true;
+            } else let
+              daysStr = if cfg.days == [ "*" ] then "*" else lib.concatStringsSep "," cfg.days;
+              onCalendar = "${daysStr} ${cfg.time}";
+            in {
+              OnCalendar = onCalendar;
+              Persistent = true;
+            };
+          in
+          lib.nameValuePair "house-automation-${name}" {
+            enable = true;
+            wantedBy = [ "timers.target" ];
+            timerConfig = timerConfig;
+          }
+        ) config.house.timeAutomations;
+        
+        systemd.services = lib.mapAttrs' (name: cfg:
+          lib.nameValuePair "house-automation-${name}" {
+            serviceConfig = {
+              Type = "oneshot";
+              ExecStart = pkgs.writeShellScript "automation-${name}" ''
+                set -euo pipefail
+                ${cfg.action}
+              '';
+            };
+          }
         ) config.house.timeAutomations;
       }
+     
+        
+      
+#      {  # 🦆 says ⮞ ⏰ Configures systemd timers & voilá - time based automations 
+#        # 🦆 says ⮞ use `systemctl list-timers --all` to list all timers
+#        systemd.timers = lib.mapAttrs' (name: cfg:
+#            let
+#                daysStr = if cfg.days == [ "*" ]
+#                    then "*"
+#                    else lib.concatStringsSep "," cfg.days;
+#                onCalendar = "${daysStr} ${cfg.time}";
+#            in
+#            lib.nameValuePair "house-automation-${name}" {
+#                enable = true;
+#                wantedBy = [ "timers.target" ];
+#                timerConfig = {
+#                    OnCalendar = onCalendar;
+#                    Persistent = true;
+#                };
+#            }
+#        ) config.house.timeAutomations;
+#      }
  
-      {  # 🦆 says ⮞ ⏰ Creates the service for da timer 
-        systemd.services = lib.mapAttrs' (name: cfg:
-            lib.nameValuePair "house-automation-${name}" {
-                serviceConfig = {
-                    Type = "oneshot";
-                    ExecStart = pkgs.writeShellScript "automation-${name}" ''
-                        set -euo pipefail
-                        ${cfg.action}
-                    '';
-                };
-            }
-        ) config.house.timeAutomations;
-      }        
+#      {  # 🦆 says ⮞ ⏰ Creates the service for da timer 
+#        systemd.services = lib.mapAttrs' (name: cfg:
+#            lib.nameValuePair "house-automation-${name}" {
+#                serviceConfig = {
+#                    Type = "oneshot";
+#                    ExecStart = pkgs.writeShellScript "automation-${name}" ''
+#                        set -euo pipefail
+#                        ${cfg.action}
+#                    '';
+#                };
+#            }
+#        ) config.house.timeAutomations;
+#      }        
 #      {
         # 🦆 says ⮞ ⏰ Time triggered automations
 #        house.timeAutomations = {

@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/d33i2a6ijqs6kljzqlwadkafdzxxxd2s-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/0c929mnv3cjrinynbpfzg2ynacgj19wz-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -321,18 +321,9 @@ Set default values for your parameters to have them marked [optional]
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
-| **** | | |
-| `yo blindsDown ` |  |  |
-| `yo blindsUp ` |  |  |
-| `yo blink [--duration] [--user] [--passwordfile]` |  | Blink all lights for a specified duration |
-| `yo espaudio ` |  |  |
-| `yo fanOff ` |  |  |
-| `yo fanOn ` |  |  |
-| `yo goodmorning ` |  |  |
-| `yo goodnight ` |  |  |
-| `yo indoorTemp ` |  |  |
 | **⚙️ Configuration** | | |
 | `yo bitch --input [--fuzzyThreshold]` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
+| `yo espaudio ` |  |  |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
 | `yo say --text [--model] [--modelDir] [--silence] [--host]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--input]` |  | Extensive automated sentence testing for the NLP |
@@ -369,7 +360,11 @@ Set default values for your parameters to have them marked [optional]
 | **🛒 Shopping** | | |
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
+| `yo blinds [--state]` |  | Turn blinds up/down |
+| `yo blink [--duration] [--user] [--passwordfile]` |  | Blink all lights for a specified duration |
 | `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
+| `yo indoorTemp ` |  | Get all temperature values from sensors and return a average value. |
+| `yo kitchenFan [--state]` |  | Turns kitchen fan on/off |
 | `yo zigduck [--user] [--pwfile]` | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
 | `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |

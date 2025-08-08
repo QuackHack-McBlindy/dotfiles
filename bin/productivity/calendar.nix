@@ -18,7 +18,7 @@
         code = ''
           ${cmdHelpers}
           
-         CALENDAR_SOURCES=(
+          CALENDAR_SOURCES=(
               "/home/pungkula/calendar.ics"
               "https://mydomain.org/calendar.ics"
           )

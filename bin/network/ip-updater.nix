@@ -9,6 +9,15 @@
 } : let
 
 in {
+  house.timeAutomations = {
+    ip-updater = {
+      everyMin = 15;
+      action = ''
+        yo ip-updater
+      '';
+    };
+  };
+  
   yo.scripts.ip-updater = {
     description = "domain updater";
     category = "🌐 Networking";
@@ -50,7 +59,6 @@ in {
       update_duckdns "$duckdns1domains" "$duckdns1Token" "$ip_var"
       update_duckdns "$duckdns2domains" "$duckdns2Token" "$ip_var"
       update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"
-
     '';
   };  
   sops.secrets = lib.mkIf (!config.this.installer) {

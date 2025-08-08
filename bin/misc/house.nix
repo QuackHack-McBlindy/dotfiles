@@ -67,14 +67,35 @@
 in { # 🦆 says ⮞ Voice Intents
   yo.bitch = { 
     intents = {
-      indoorTemp = { priority = 3; data = [{ sentences = [ "hur varmt är det (inne|inomhus)" "vad är det för (temp|temperatur) (inne|inomhus)" "hur varmmt är det inne" ];}]; };  
-      fanOff = { priority = 2; data = [{ sentences = [ "(stäng|stänga) [av] (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}]; };  
-      fanOn = { priority = 2; data = [{ sentences = [ "(start|starta) (fläkt|fläck|fkäckt|fläckten|fläkten)" ];}]; };  
-      goodmorning = { priority = 2; data = [{ sentences = [ "godmorgon" "god morgon" ];}]; };  
-      goodnight = { priority = 2; data = [{ sentences = [ "godnatt" "god natt" "jag vill inte se ut" ];}]; };
-      blindsUp.data = [{ sentences = [ "jag vill [kunna] se ut" "(persienner|persiennerna) upp" ];}];    
-      blindsDown.data = [{ sentences = [ "jag vill inte [kunna] se ut" "(persienner|persiennerna) (ner|ned)" ];}];    
-
+      indoorTemp = { priority = 3; data = [{ sentences = [ "hur varmt är det (inne|inomhus)" "vad är det för (temp|temperatur) (inne|inomhus)" "hur varmmt är det inne" ];}]; };
+      blinds = {
+        priority = 3;
+        data = [{
+          sentences = [
+            "(persienner|persiennerna) {state}" 
+          ];
+          lists = {
+            state.values = [
+              { "in" = "[upp]"; out = "ON"; }             
+              { "in" = "[ned]"; out = "OFF"; } 
+            ];
+          };  
+        }];  
+      }; 
+      kitchenFan = {
+        priority = 1;
+        data = [{
+          sentences = [
+            "(fläkt|fläck|fkäckt|fläckten|fläkten) {state}" 
+          ];
+          lists = {
+            state.values = [
+              { "in" = "[på]"; out = "ON"; }             
+              { "in" = "[av]"; out = "OFF"; } 
+            ];
+          };  
+        }];  
+      };
       house = {
         priority = 1;
         data = [{
@@ -404,6 +425,7 @@ in { # 🦆 says ⮞ Voice Intents
 
   yo.scripts.blink = {
     description = "Blink all lights for a specified duration";
+    category = "🛖 Home Automation";
     parameters = [
       { name = "duration"; description = "Blink duration in seconds"; default = "12"; }
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
@@ -498,33 +520,49 @@ in { # 🦆 says ⮞ Voice Intents
     '';
   };
 
+  yo.scripts.blinds = {
+    description = "Turn blinds up/down";
+    category = "🛖 Home Automation";  
+    parameters = [    
+      { name = "state"; description = "State of the blinds"; default = "on"; }     
+    ];      
+    code = ''
+      ${cmdHelpers}
+      if [[ "$state" == "on" ]]; then
+        zig 'Roller Shade' on
+      else
+        zig 'Roller Shade' off
+      fi
+    '';
+  };
 
-  yo.scripts.fanOff.code = "zig Fläkt off";
+  yo.scripts.kitchenFan = {
+    description = "Turns kitchen fan on/off";
+    category = "🛖 Home Automation";  
+    parameters = [    
+      { name = "state"; description = "State of the device"; default = "on"; }     
+    ];      
+    code = ''
+      ${cmdHelpers}
+      if [[ "$state" == "on" ]]; then
+        zig Fläkt on
+      else
+        zig Fläkt off
+      fi
+    '';
+  };
   
-  yo.scripts.fanOn.code = "zig Fläkt on";
   
-  yo.scripts.goodmorning.code = ''
-    yo-say "godmorgon bruschhaan kebab"
-    zig 'Roller Shade' on    
-  '';
-  
-  yo.scripts.goodnight.code = ''
-    yo-say "natti natti putti nuttiii brusschaan!" 
-    scene dark
-    zig "Roller Shade" off
-    yo-tv off
-  '';
-  
-  yo.scripts.blindsUp.code = "zig 'Roller Shade' on";
-  
-  yo.scripts.blindsDown.code = "zig 'Roller Shade' off";
-  
-  yo.scripts.indoorTemp.code = ''
-    ${cmdHelpers}
-    STATE_DIR="${zigduckDir}"
-    STATE_FILE="$STATE_DIR/state.json"
-    MQTT_HOST="${mqttHost}"
-    TEMP=$(ssh "$MQTT_HOST" cat $STATE_FILE | jq -r '.. | objects | .temperature? | select(. != null and . != "null") | tonumber' $STATE_FILE | awk '{sum += $1; count++} END {if (count > 0) print sum / count; else print "No temperatures found"}')
-    dt_info "$TEMP"
-    if_voice_say "Medeltemperaturen inomhus är: $TEMP"
-  '';}
+  yo.scripts.indoorTemp = {
+    description = "Get all temperature values from sensors and return a average value.";
+    category = "🛖 Home Automation";     
+    code = ''
+      ${cmdHelpers}
+      STATE_DIR="${zigduckDir}"
+      STATE_FILE="$STATE_DIR/state.json"
+      MQTT_HOST="${mqttHost}"
+      TEMP=$(ssh "$MQTT_HOST" cat $STATE_FILE | jq -r '.. | objects | .temperature? | select(. != null and . != "null") | tonumber' $STATE_FILE | awk '{sum += $1; count++} END {if (count > 0) print sum / count; else print "No temperatures found"}')
+      dt_info "$TEMP"
+      if_voice_say "Medeltemperaturen inomhus är: $TEMP"
+    '';
+  };}

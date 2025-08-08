@@ -20,6 +20,7 @@
     ps.python-multipart
     ps.noisereduce
   ]); # 🦆 TODO ⮞ merge 
+  # test with: arecord -f S16_LE -r 16000 -d 10 -c 1 -t raw | curl -X POST -H "Content-Type: application/octet-stream" --data-binary @- http://192.168.1.111:8111/upload_audio
   espserver = pkgs.writeScript "whisperd-server.py" ''
     #!${pyEnv}/bin/python      
     from flask import Flask, request
@@ -44,7 +45,7 @@
             audio_np = nr.reduce_noise(y=audio_np, sr=16000)
             with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
                 sf.write(tmp.name, audio_np, 16000)
-                segments, _ = model.transcribe(tmp.name, vad_filter=True)
+                segments, _ = model.transcribe(tmp.name, vad_filter=False, language="sv")
                 transcription = " ".join(segment.text for segment in segments)
             logger.info(f"[transcription] {transcription}")
             subprocess.Popen(["yo-bitch", 'transcription'])
@@ -356,9 +357,11 @@ in { # 🦆 says ⮞ yo yo yo yo
     };    
   };
   yo.scripts.espaudio = {
+    category = "⚙️ Configuration"; 
     logLevel = "DEBUG";
     autoStart = true;
     code = ''
+      ${cmdHelpers}    
       ${espserver}
       dt_info "Started ESPAudio sucessfully"
     '';
