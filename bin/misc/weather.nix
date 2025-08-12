@@ -30,17 +30,20 @@ in {
           # 🦆 says ⮞ Specify day
           "hur (blir|är) vädret [på] {day}"
           "hur (varmt|kallt) (blir|är) det [på] {day}"
-          "vad blir det för väder på {day}"
+          "vad blir det för väder [på] {day}"
           # 🦆 says ⮞ check condition
           "hur {condition} (är|blir) det på {day}"
-          "blir det {condition} på {day}"
+          "blir det {condition} [på] {day}"
           "hur {condition} är det"
+          "kommer det att {condition} [på] {day}" 
         ];
         lists = {
           day.values = [
             { "in" = "[ida|idag]"; out = "idag"; }
             { "in" = "imorgon"; out = "imorgon"; }  
             { "in" = "i morgon"; out = "imorgon"; }  
+            { "in" = "i övermorgon"; out = "i övermorgon"; }
+            { "in" = "övermorgon"; out = "i övermorgon"; } 
             # 🦆 says ⮞ dayz
             { "in" = "måndag"; out = "måndag"; }
             { "in" = "tisdag"; out = "tisdag"; }  
@@ -62,7 +65,7 @@ in {
             # 🌨️ Snow Showers
             { "in" = "[snöblandat regn|snöblask|blötsnö]"; out = "sleet"; }
             # ❄️ Snow
-            { "in" = "[snö|snöar|snöfall]"; out = "snow"; }
+            { "in" = "[snö|snöa|snöar|snöfall]"; out = "snow"; }
             # ⛈️ Thunderstorm
             { "in" = "[åska|åskväder|åskregn|blixt]"; out = "thunderstorm"; }
                                                    # 🌫️ Fog / Mist (not emoji-mapped but common)
@@ -80,7 +83,7 @@ in {
   };
 
   yo.scripts.weather = {
-    description = "Tiny Weather Report.";
+    description = "Weather Assistant. Ask anything weather related (3 day forecast)";
     category = "🌍 Localization";
     aliases = [ "weat" ];
     parameters = [
@@ -363,7 +366,7 @@ in {
                     tts "Ja, det blir $swedish_condition $display_name med upp till $maxtempC grader."
                     return 0
                 else
-                    dt_ubfi "Nej, det blir inte $swedish_condition $display_name ($maxtempC°C)."
+                    dt_info "Nej, det blir inte $swedish_condition $display_name ($maxtempC°C)."
                     tts "Nej, det blir inte $swedish_condition $display_name. Maximalt $maxtempC grader."
                     return 1
                 fi

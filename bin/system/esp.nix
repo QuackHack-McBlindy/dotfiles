@@ -125,6 +125,7 @@ in { # 🦆 says ⮞ my microcontrollerz yo
     watch = { # 🦆 says ⮞ yo cool watch - cat!
       enable = false;
       type = "esp32s3-twatch";
+      mac = "30:30:f9:5a:bb:d0";      
       ip = "192.168.1.101";
     };
   };

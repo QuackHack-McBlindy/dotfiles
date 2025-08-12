@@ -27,11 +27,24 @@ in {
     category = "🧩 Miscellaneous";
     aliases = ["el"];
     autoStart = false;
+    runEvery = "60";
     parameters = [  
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
       { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }       
     ];
     logLevel = "INFO";
+    helpFooter = ''
+      gnuplot -persist <<EOF
+set xdata time
+set timefmt "%Y-%m-%d %H:%M"
+set format x "%H:%M"
+set title "Tibber Electricity Price (SEK/kWh)"
+set xlabel "Time"
+set ylabel "Price"
+set grid
+plot "$XDG_CACHE_HOME/tibber_price_log.txt" using 1:3 with linespoints title "Price"
+EOF
+    '';
     code = ''
       ${cmdHelpers}
       TIBBER_TOKEN=$(cat $APIKeyFile)
@@ -47,7 +60,7 @@ in {
                     total
                     energy
                     tax
-                   startsAt
+                    startsAt
                     currency
                   }
                 }
@@ -66,6 +79,10 @@ in {
   
       TOTAL_RAW=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.data.viewer.home.currentSubscription.priceInfo.current.total')
       TOTAL=$(printf "%.2f" "$TOTAL_RAW")
+
+
+      TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
+      echo "$TIMESTAMP $TOTAL" >> "$XDG_CACHE_HOME/tibber_price_log.txt"
   
 
       dt_info "$TOTAL SEK / kWh"

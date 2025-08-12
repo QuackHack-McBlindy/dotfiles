@@ -427,7 +427,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     bitch = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
-      # 🦆 says ⮞ natural means.... human? 
+      aliases = ["b"];
       category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       logLevel = "WARNING";
       autoStart = false;
@@ -969,6 +969,6 @@ EOF
         say_duck "$duck_report"
         exit 1
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
-    }; # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
+    };# 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
   };}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
 # 🦆 says ⮞ QuackHack-McBLindy out!  

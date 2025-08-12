@@ -47,20 +47,25 @@
   
       REMINDER_DIR="/home/pungkula/.reminders"
       mkdir -p "$REMINDER_DIR"
+
+      estimate_speech_duration() {
+        local text="$1"
+        local words_per_minute=150  # average TTS rate
+        local words
+        words=$(echo "$text" | wc -w)
+        local seconds
+        seconds=$(awk -v wpm="$words_per_minute" -v w="$words" 'BEGIN { print int((w / wpm) * 60 + 1) }')
+        echo "$seconds"
+      }
+
   
       list_reminders() {
-
-        local count=1  
         if [ "$(ls -A "$REMINDER_DIR")" ]; then
           for file in "$REMINDER_DIR"/*; do
             if [ -f "$file" ]; then
-              varname=$(printf "REMINDER%02d" "$count")
               content=$(<"$file")
-              printf -v "$varname" "%s" "$content"
-              dt_debug "Reminder: ''${!varname}"
-              yo say "Reminder: ''${!varname}"
-              sleep 2
-              ((count++))
+              dt_debug "Reminder: $content"
+              yo say --text "Påminnelse: $content" --blocking "true"
             fi
           done
         else

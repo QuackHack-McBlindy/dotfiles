@@ -12,7 +12,6 @@
             (lib.mkIf (config.networking.hostName == "desktop") [ 
                 pkgs.nix-prefetch-github 
                 pkgs.ollama
-                pkgs.whisper-cpp
                 pkgs.jellyfin-web
                 pkgs.jellycli
                 pkgs.kanata
@@ -66,6 +65,7 @@
                 pkgs.wyoming-satellite
                 pkgs.mpg123
                 pkgs.hassil
+                pkgs.gnuplot
                # vaultwarden-postgressql
                 pkgs.neofetch
                 pkgs.rsync

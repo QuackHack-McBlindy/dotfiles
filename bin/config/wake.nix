@@ -31,7 +31,7 @@ in {
     autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
-      { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.9"; }
+      { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.85"; }
       { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "15"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]

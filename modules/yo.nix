@@ -347,6 +347,11 @@ EOF
         type = types.bool;
         default = false;
         description = "Run the script in the background at startup";
+      };
+      runEvery = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = "Run this script periodically every X minutes";
       }; # 🦆 duck say ⮞ code to be executed when calling tda script yo      
       code = mkOption {
         type = types.lines;
@@ -690,6 +695,18 @@ in { # 🦆 duck say ⮞ options options duck duck
             else null
         else null
       ) scripts;    
+      
+      nonInteractiveErrors = lib.mapAttrsToList (name: script:
+        if script.autoStart || script.runEvery != null then
+          let
+            missingParams = lib.filter (p: !p.optional && p.default == null) script.parameters;
+          in
+            if missingParams != [] then
+              "🦆 duck say ⮞ fuck ❌ Cannot schedule '${name}' - missing defaults for: " +
+              lib.concatMapStringsSep ", " (p: p.name) missingParams
+            else null
+        else null
+      ) scripts;      
       # 🦆 duck say ⮞ clean out dem' nullz! no nullz in ma ASSertionthz! ... quack
       actualAutoStartErrors = lib.filter (e: e != null) autoStartErrors;   
     in [
@@ -777,34 +794,72 @@ in { # 🦆 duck say ⮞ options options duck duck
       updateReadme
     ];
 
-    # 🦆 duck say ⮞ buildz systemd services if autoStart set to ttrue
-    systemd.services = lib.mapAttrs' (name: script:
-      lib.nameValuePair "yo-${name}" (mkIf script.autoStart {
+    # 🦆 duck say ⮞ buildz systemd services    
+    systemd.services = lib.mkMerge [
+      # 🦆 duck say ⮞ if `autoStart` is set
+      (lib.mapAttrs' (name: script:
+        lib.nameValuePair "yo-${name}" (mkIf script.autoStart {
+          enable = true;
+          wantedBy = ["multi-user.target"];
+          after = ["sound.target" "network.target" "pulseaudio.socket" "sops-nix.service"];
+    
+          serviceConfig = {
+            ExecStart = let
+              args = lib.concatMapStringsSep " " (param:
+                "--${param.name} ${lib.escapeShellArg param.default}"
+              ) (lib.filter (p: p.default != null) script.parameters);
+            in "${yoScriptsPackage}/bin/yo-${name} ${args}";
+            User = config.this.user.me.name;
+            Group = "audio";
+            RestartSec = 45;
+            Restart = "on-failure";
+            Environment = [
+              "XDG_RUNTIME_DIR=${
+                if config.this.host.hostname == "desktop" then "/run/user/1000"
+                else if config.this.host.hostname == "homie" then "/run/user/1002"
+                else if config.this.host.hostname == "nasty" then "/run/user/1000"
+                else "/run/user/1000"
+              }"
+              "PULSE_SERVER=unix:%t/pulse/native"
+              "HOME=/home/${config.this.user.me.name}"
+              "PATH=/run/current-system/sw/bin:/bin:/usr/bin:${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
+            ];
+          };
+        })
+      ) cfg.scripts)
+    
+      # 🦆 duck say ⮞ if `runEvery` is set 
+      (lib.mapAttrs' (name: script:
+        lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {
+          enable = true;
+          description = "Periodic execution of yo script ${name}";
+          serviceConfig = {
+            Type = "oneshot";
+            User = config.this.user.me.name;
+            Group = config.this.user.me.name;
+            Environment = [                        
+              "HOME=/home/${config.this.user.me.name}"
+              "PATH=/run/current-system/sw/bin:/bin:/usr/bin:${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
+            ];  
+            ExecStart = let
+              args = lib.concatMapStringsSep " " (param:
+                "--${param.name} ${lib.escapeShellArg param.default}"
+              ) (lib.filter (p: p.default != null) script.parameters);
+            in "${yoScriptsPackage}/bin/yo-${name} ${args}";
+          };
+        })
+      ) cfg.scripts)
+    ];
+    
+    # 🦆 duck say ⮞ systemd timer configuration if `runEvery` is configured for a script 
+    systemd.timers = lib.mapAttrs' (name: script:
+      lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {
         enable = true;
-        wantedBy = ["multi-user.target"];
-        after = ["sound.target" "network.target"  "pulseaudio.socket" "sops-nix.service"];
-        
-        serviceConfig = {
-          ExecStart = let
-            args = lib.concatMapStringsSep " " (param:
-              "--${param.name} ${lib.escapeShellArg param.default}"
-            ) (lib.filter (p: p.default != null) script.parameters);
-          in "${yoScriptsPackage}/bin/yo-${name} ${args}";
-          User = config.this.user.me.name;
-          Group = "audio";
-          RestartSec = 45;
-          Restart = "on-failure";
-          Environment = [ # 🦆 ⮞ for microphone
-            "XDG_RUNTIME_DIR=${
-              if config.this.host.hostname == "desktop" then "/run/user/1000"
-              else if config.this.host.hostname == "homie" then "/run/user/1002"
-              else if config.this.host.hostname == "nasty" then "/run/user/1000"
-              else "/run/user/1000"
-            }"
-            "PULSE_SERVER=unix:%t/pulse/native"
-            "HOME=/home/${config.this.user.me.name}"
-            "PATH=/run/current-system/sw/bin:/bin:/usr/bin:${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
-          ];
+        wantedBy = ["timers.target"];
+        timerConfig = {
+          OnCalendar = "*-*-* *:0/${script.runEvery}";
+          Unit = "yo-${name}-periodic.service";
+          Persistent = true;
         };
       })
     ) cfg.scripts;    

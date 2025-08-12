@@ -16,7 +16,7 @@
     ps.python-dotenv
     ps.noisereduce
     ps.pytickersymbols
-#    ps.yfinance
+    ps.yfinance
     ps.pyannote-audio
 #    ps.onnxruntime
 #    ps.tflite-runtime

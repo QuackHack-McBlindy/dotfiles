@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/0c929mnv3cjrinynbpfzg2ynacgj19wz-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/c5n7w9g6nw7wd7rxwb8xb7p8wyg77fh3-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -321,11 +321,13 @@ Set default values for your parameters to have them marked [optional]
 | `yo reboot [--host]` | restart | Force reboot and wait for host |
 | `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
 | `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
+| **** | | |
+| `yo demo [--action] [--target] [--intensity] [--duration] [--mode] [--confirm] [--wild]` |  |  |
 | **⚙️ Configuration** | | |
-| `yo bitch --input [--fuzzyThreshold]` |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
+| `yo bitch --input [--fuzzyThreshold]` | b | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo espaudio ` |  |  |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
-| `yo say --text [--model] [--modelDir] [--silence] [--host]` |  | Text to speech with built in language detection and automatic model downloading |
+| `yo say --text [--model] [--modelDir] [--silence] [--host] [--blocking]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--input]` |  | Extensive automated sentence testing for the NLP |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
@@ -341,7 +343,7 @@ Set default values for your parameters to have them marked [optional]
 | **🌍 Localization** | | |
 | `yo stores --store_name [--location] [--radius]` | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
 | `yo travel [--arrival] [--departure] [--type] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
-| `yo weather [--location] [--day] [--condition] [--locationPath]` | weat | Tiny Weather Report. |
+| `yo weather [--location] [--day] [--condition] [--locationPath]` | weat | Weather Assistant. Ask anything weather related (3 day forecast) |
 | **🌐 Networking** | | |
 | `yo block --url [--blocklist]` | ad | Block URLs using DNS |
 | `yo ip-updater [--token1] [--token2] [--token3]` |  | domain updater |
@@ -357,8 +359,6 @@ Set default values for your parameters to have them marked [optional]
 | **🔐 Security & Encryption** | | |
 | `yo sops --input [--operation] [--value] [--output] [--agePub]` | e | Encrypts a file with sops-nix |
 | `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
-| **🛒 Shopping** | | |
-| `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | **🛖 Home Automation** | | |
 | `yo blinds [--state]` |  | Turn blinds up/down |
 | `yo blink [--duration] [--user] [--passwordfile]` |  | Blink all lights for a specified duration |
@@ -372,6 +372,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo post [--postalCodeFile] [--postalCode]` |  | Search for the next postal delivery day is in Sweden |
 | `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
 | `yo reminder [--about] [--list]` | remind | Reminder Assistant |
+| `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |
 | `yo tibber [--homeIDFile] [--APIKeyFile]` | el | Fetches home electricity price data |
 | `yo time ` |  | Tells time, day and date |

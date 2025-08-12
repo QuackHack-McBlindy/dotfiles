@@ -14,21 +14,8 @@
           "vad har {store_name} för öppettider"          
           "var är närmaste {store_name}"
           "finns det någon {store_name} i närheten"
-          "visa närliggande {store_name}"
-          "öppna {store_name} nära mig"
-          "jag letar efter en {store_name} i {location}"
-          "finns det öppna {store_name} i {location}"
-          "visa {store_name} nära {location}"
-          "var kan jag hitta en {store_name} i {location}"
-          "letar efter {store_name} i {location}"
-          "jag behöver en {store_name} i närheten"
-          "vilka {store_name} är öppna i {location}"
-          "öppna butiker som heter {store_name}"
-          "jag vill hitta {store_name}"
-          "hitta {store_name} nära {location}"
-          "hitta närmaste {store_name}"
-          "vilken {store_name} är närmast"
-
+          "när stänger {store_name}"
+          "när öppnar {store_name}"
         ];          
         lists = {
           store_name.wildcard = true;

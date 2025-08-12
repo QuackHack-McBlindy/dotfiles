@@ -201,6 +201,7 @@ in { # 🦆 says ⮞ Voice Intents
     description = "Control lights and other home automatioon devices";
     category = "🛖 Home Automation";
     autoStart = false;
+    logLevel = "DEBUG";
     helpFooter = ''  
       MQTT_HOST="${mqttHost}"
       ZIGDUCKDIR="${zigduckDir}"
@@ -305,6 +306,10 @@ in { # 🦆 says ⮞ Voice Intents
         local brightness="$3"
         local color_input="$4"      
         local hex_code=""
+        if [[ "$dev" == "Smoke Alarm Kitchen" ]]; then
+          dt_info "$dev is a sensor, exiting"
+          return 0
+        fi
         if [[ -n "$color_input" ]]; then
           if [[ "$color_input" =~ ^#[0-9a-fA-F]{6}$ ]]; then
             hex_code="$color_input"
@@ -323,7 +328,7 @@ in { # 🦆 says ⮞ Voice Intents
         fi   
         
         if [[ "$state" == "off" ]]; then
-          mqtt_pub "zigbee2mqtt/$dev/set" '{"state":"OFF"}'
+          mqtt_pub -t "zigbee2mqtt/$dev/set" -m '{"state":"OFF"}'
           say_duck "Turned off $dev"
           if_voice_say "Stängde av $dev"
         else
@@ -340,7 +345,7 @@ in { # 🦆 says ⮞ Voice Intents
           [[ -n "$brightness" ]] && payload+=", \"brightness\":$brightness"
           [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
           payload+="}"
-          mqtt_pub "zigbee2mqtt/$dev/set" "$payload"
+          mqtt_pub -t "zigbee2mqtt/$dev/set" -m "$payload"
           say_duck "Set $dev: $payload"
           if_voice_say "Klart kompis"
         fi
@@ -397,7 +402,9 @@ in { # 🦆 says ⮞ Voice Intents
       
         for light_id in "''${devices[@]}"; do
           local hex_code=""
-          
+         
+        
+         
           if [[ -n "$COLOR" ]]; then
             hex_code=$(color2hex "$COLOR") || {
               echo "$(date) - ❌ Unknown color: $COLOR" >> "$STATE_DIR/voice-debug.log"
@@ -410,6 +417,12 @@ in { # 🦆 says ⮞ Voice Intents
           [[ -n "$BRIGHTNESS" ]] && payload+=", \"brightness\":$BRIGHTNESS"
           [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
           payload+="}"
+      
+          if [[ "$light_id" == *"Smoke"* || "$light_id" == *"Sensor"* || "$light_id" == *"Alarm"* ]]; then
+            echo "Skipping invalid light device: $light_id" >> "$STATE_DIR/voice-debug.log"
+            continue
+          fi
+
       
           mqtt_pub -t "zigbee2mqtt/$light_id/set" -m "$payload"
           say_duck "$light_id $payload"

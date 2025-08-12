@@ -9,18 +9,11 @@
 } : let
 
 in {
-  house.timeAutomations = {
-    ip-updater = {
-      everyMin = 15;
-      action = ''
-        yo ip-updater
-      '';
-    };
-  };
-  
+
   yo.scripts.ip-updater = {
     description = "domain updater";
     category = "🌐 Networking";
+    runEvery = "15";
 #    autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    aliases = [ "zigb" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
@@ -52,16 +45,21 @@ in {
         local ip=$3
         IFS=',' read -ra SUBDOMAINS <<< "$domains"
         for subdomain in "''${SUBDOMAINS[@]}"; do
-          curl -k "https://www.duckdns.org/update?domains=$subdomain&token=$token&ip=$ip"
+          if curl -k "https://www.duckdns.org/update?domains=$subdomain&token=$token&ip=$ip" | grep -q "OK"; then
+            dt_info "OK"
+          else
+            dt_error "DuckDNS update for $subdomain: FAILED"
+          fi
         done
       }
 
       update_duckdns "$duckdns1domains" "$duckdns1Token" "$ip_var"
       update_duckdns "$duckdns2domains" "$duckdns2Token" "$ip_var"
       update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"
+      
     '';
   };  
-  sops.secrets = lib.mkIf (!config.this.installer) {
+  sops.secrets = {
     duckdnsEnv-x = {
       sopsFile = ./../../secrets/duckdnsEnv-x.yaml;
       owner = config.this.user.me.name;
@@ -80,4 +78,34 @@ in {
       group = config.this.user.me.name;
       mode = "0660";
     };
+#  };
+  
+#  systemd = {
+#    services.ip-updater = {
+#      enable = true;
+#      description = "DuckDNS IP Updater Service";
+
+#      serviceConfig = {
+#        Type = "oneshot";
+#        User = config.this.user.me.name;
+#        Group = config.this.user.me.name;
+#        Environment = [
+#          "PATH=${lib.makeBinPath [pkgs.dnsutils pkgs.curl pkgs.gnused pkgs.gnugrep]}:${pkgs.coreutils}/bin"
+#        ];
+#        ExecStart = "${config.yo.pkgs}/bin/yo-ip-updater";
+#        Restart = "no";
+#      };
+#      path = with pkgs; [ bash coreutils ];
+#    };
+
+#    timers.ip-updater = {
+#      enable = true;
+#      wantedBy = ["timers.target"];
+#      timerConfig = {
+#        OnCalendar = "*:0/15";   # Every 15 minutes
+#        Unit = "ip-updater.service";
+#        Persistent = true;
+#        AccuracySec = "1m";
+#      };
+#    };
   };}

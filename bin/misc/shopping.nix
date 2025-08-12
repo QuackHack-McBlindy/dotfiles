@@ -44,7 +44,7 @@ in {
 
   yo.scripts.shopping_list = {
     description = "Shopping list management";
-    category = "🛒 Shopping";
+    category = "🧩 Miscellaneous";
     parameters = [
       { name = "operation"; description = "add, remove, or view"; default = "view"; }
       { name = "item"; description = "Item that will be managed"; }

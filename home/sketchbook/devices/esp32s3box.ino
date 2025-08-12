@@ -751,39 +751,6 @@ void recordError(String message, String details) {
   lastError.timestamp = millis();
 }
 
-void startRecording() {
-  if (isRecording) return;
-  
-  Serial.println("Recording started (touch detected)");
-  digitalWrite(TFT_BL, HIGH);
-  isRecording = true;
-  
-  // 🦆 says ⮞ start da http connection
-  audioClient.setInsecure(); // 🦆 TODO ⮞ not suitable for prod yo 
-  if (audioHttp.begin(audioClient, apiEndpoint)) {
-    audioHttp.addHeader("Content-Type", "application/octet-stream");
-    httpInitialized = true;
-  } else {
-    recordError("HTTP Begin Failed", "Could not connect to: " + String(apiEndpoint));
-    httpInitialized = false;
-  }
-  
-  i2s_start(I2S_NUM_0);
-}
-
-void stopRecording() {
-  if (!isRecording) return;
-  
-  Serial.println("Recording stopped (touch released)");
-  isRecording = false;
-  
-  i2s_stop(I2S_NUM_0);
-  
-  if (httpInitialized) {
-    audioHttp.end();
-    httpInitialized = false;
-  }
-}
 
 
 // ===========================================
@@ -1069,74 +1036,6 @@ void initI2S() {
   i2s_set_pin(I2S_NUM_0, &pin_config);
   i2s_zero_dma_buffer(I2S_NUM_0);
 }
-
-void startRecording() {
-  if (recording) {
-    Serial.println("Already recording.");
-    return;
-  }
-
-  audioBuffer = (uint8_t*)malloc(maxBufferSize);
-  if (!audioBuffer) {
-    Serial.println("Failed to allocate buffer.");
-    return;
-  }
-
-  totalBytesRecorded = 0;
-  recording = true;
-
-  Serial.println("Recording started.");
-}
-
-void stopRecordingAndSend() {
-  if (!recording) {
-    Serial.println("Not recording.");
-    return;
-  }
-  size_t bytesRead = 0;
-  while (totalBytesRecorded < maxBufferSize) {
-    size_t bytesToRead = 1024;
-    if (totalBytesRecorded + bytesToRead > maxBufferSize) {
-      bytesToRead = maxBufferSize - totalBytesRecorded;
-    }
-    size_t r = 0;
-    esp_err_t result = i2s_read(I2S_NUM_0, audioBuffer + totalBytesRecorded, bytesToRead, &r, 100 / portTICK_PERIOD_MS);
-    if (result != ESP_OK || r == 0) {
-      break;
-    }
-    totalBytesRecorded += r;
-  }
-  Serial.printf("Recording stopped. Bytes recorded: %d\n", totalBytesRecorded);
-  WiFiClient client;
-  HTTPClient http;
-  if (!http.begin(client, serverURL)) {
-    Serial.println("HTTP begin failed");
-    free(audioBuffer);
-    i2s_driver_uninstall(I2S_NUM_0);
-    recording = false;
-    return;
-  }
-
-  http.addHeader("Content-Type", "application/octet-stream");
-  Serial.println("Sending audio via POST...");
-  int httpCode = http.POST(audioBuffer, totalBytesRecorded);
-  Serial.printf("HTTP code: %d\n", httpCode);
-
-  if (httpCode > 0) {
-    Serial.println(http.getString());
-  } else {
-    Serial.println(http.errorToString(httpCode));
-  }
-
-  http.end();
-  free(audioBuffer);
-  audioBuffer = nullptr;
-  totalBytesRecorded = 0;
-  recording = false;
-
-  i2s_driver_uninstall(I2S_NUM_0);
-}
-
 
 
 void handleRFSend() {
@@ -1590,10 +1489,9 @@ void loop() {
     lastZigbeeFetch = millis();
   }
 
-  //  updateDeviceStatuses();
   
   if (isRecording) {
-    streamAudio();
+    startRecording();
   }
   delay(10);
 } // 🦆 says ⮞ bye bye!

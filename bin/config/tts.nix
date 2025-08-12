@@ -20,6 +20,7 @@ in { # 🦆 says ⮞ yo yo yo yo
       { name = "modelDir"; description = "Path to the directory containing model"; default = "/home/" + config.this.user.me.name + "/.local/share/piper"; }
       { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
       { name = "host"; description = "Host to play the audio on"; default = "desktop"; }       
+      { name = "blocking"; description = "Wait for TTS playback to finish"; default = "false"; }
     ];
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
@@ -28,6 +29,7 @@ in { # 🦆 says ⮞ yo yo yo yo
       MODEL="$model"
       HOST="$host"
       MODEL_PATH="$MODEL_DIR/$MODEL"
+      BLOCKING="$blocking"
       SENTENCE_SILENCE="$silence" 
       CURRENT_HOST=$(hostname)
 
@@ -36,13 +38,19 @@ in { # 🦆 says ⮞ yo yo yo yo
           dt_error "Model not found: $MODEL_PATH"
           exit 1
         fi
-
-        (
+        if [ "$BLOCKING" = "true" ]; then
           TMP_WAV=$(mktemp --suffix=.wav)
           trap 'rm -f "$TMP_WAV"' EXIT
           echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
           ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
-        ) &
+        else
+          (
+            TMP_WAV=$(mktemp --suffix=.wav)
+            trap 'rm -f "$TMP_WAV"' EXIT
+            echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
+            ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+          ) &
+        fi  
       else
                    
         ${pkgs.openssh}/bin/ssh "$HOST" yo say \

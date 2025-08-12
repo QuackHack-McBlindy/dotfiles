@@ -1,11 +1,29 @@
 # dotfiles/modules/programs/firefox.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ diz iz my 🦊 even tho i be a 🦆
   config,
+  self,
   lib,
   pkgs,
   ...  
   } : let
-  
+  # 🦆 says ⮞ dis fetch what host has Docker services configued
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  arrHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in lib.lists.elem "arr" cfg.this.host.modules.virtualisation
+    ) null null sysHosts;    
+  arrHostIP = if arrHost != null then
+    self.nixosConfigurations.${arrHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${arrHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+  else
+    throw "No host found with the 'arr' virtualisation module configured";
+     
   # 🦆 duck say ⮞  configuration options
   cfg = config.this.host.modules.programs;
   themeCSS = builtins.readFile config.this.theme.styles; # 🦆 duck say ⮞ reads NixOS module theme and applies it to firefox
@@ -90,6 +108,16 @@
     { Title = ""; URL = "https://www.github.com"; Favicon = "https://github.githubassets.com/favicons/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.pastebin.org"; Favicon = "https://pastebin.com/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; } 
+    { Title = "Transmission"; URL = "http://${arrHostIP}:9091"; Favicon = "http://${arrHostIP}:9091/favicon.ico"; Placement = "toolbar"; }    
+    { Title = "Radarr"; URL = "http://${arrHostIP}:7878"; Favicon = "http://${arrHostIP}:7878/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Sonarr"; URL = "http://${arrHostIP}:8989"; Favicon = "http://${arrHostIP}:8989/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Lidarr"; URL = "http://${arrHostIP}:8686"; Favicon = "http://${arrHostIP}:8686/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Readarr"; URL = "http://${arrHostIP}:8787"; Favicon = "http://${arrHostIP}:8787/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Bazarr"; URL = "http://${arrHostIP}:6767"; Favicon = "http://${arrHostIP}:6767/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Prowlarr"; URL = "http://${arrHostIP}:9696"; Favicon = "http://${arrHostIP}:9696/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Jellyseer"; URL = "http://${arrHostIP}:5055"; Favicon = "http://${arrHostIP}:5055/favicon.ico"; Placement = "toolbar"; }    
+    { Title = "Requesterr"; URL = "http://${arrHostIP}:4545"; Favicon = "http://${arrHostIP}:4545/favicon.ico"; Placement = "toolbar"; }    
+    { Title = "Navidrome"; URL = "http://${arrHostIP}:4533"; Favicon = "http://${arrHostIP}:4533/favicon.ico"; Placement = "toolbar"; }  
   ];
 
   # 🦆 duck say ⮞ Create bookmarks JSON from lz4

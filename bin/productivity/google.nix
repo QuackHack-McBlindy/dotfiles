@@ -19,7 +19,7 @@
         description = "Perform web search on google";
         category = "⚡ Productivity";
         aliases = [ "g" ];
-        logLevel = "INFO";
+        logLevel = "DEBUG";
         parameters = [
           { name = "search"; description = "What to search for"; optional = false; }
           { name = "apiKeyFile"; description = "Filepath containing your Google custom search engine API key"; optional = false; default = config.sops.secrets.googleSearch.path; }
