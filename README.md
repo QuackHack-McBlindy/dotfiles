@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/c5n7w9g6nw7wd7rxwb8xb7p8wyg77fh3-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/s4phpzlxvv3zjnw63x0jqm346jpd8k63-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -327,7 +327,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo bitch --input [--fuzzyThreshold]` | b | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
 | `yo espaudio ` |  |  |
 | `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
-| `yo say --text [--model] [--modelDir] [--silence] [--host] [--blocking]` |  | Text to speech with built in language detection and automatic model downloading |
+| `yo say --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file]` |  | Text to speech with built in language detection and automatic model downloading |
 | `yo tests [--input]` |  | Extensive automated sentence testing for the NLP |
 | `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
 | `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
@@ -374,7 +374,7 @@ Set default values for your parameters to have them marked [optional]
 | `yo reminder [--about] [--list]` | remind | Reminder Assistant |
 | `yo shopping_list [--operation] [--item]` |  | Shopping list management |
 | `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |
-| `yo tibber [--homeIDFile] [--APIKeyFile]` | el | Fetches home electricity price data |
+| `yo tibber [--homeIDFile] [--APIKeyFile] [--filePath]` | el | Fetches home electricity price data |
 | `yo time ` |  | Tells time, day and date |
 | `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |
 | **🧹 Maintenance** | | |

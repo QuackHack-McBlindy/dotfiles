@@ -78,34 +78,4 @@ in {
       group = config.this.user.me.name;
       mode = "0660";
     };
-#  };
-  
-#  systemd = {
-#    services.ip-updater = {
-#      enable = true;
-#      description = "DuckDNS IP Updater Service";
-
-#      serviceConfig = {
-#        Type = "oneshot";
-#        User = config.this.user.me.name;
-#        Group = config.this.user.me.name;
-#        Environment = [
-#          "PATH=${lib.makeBinPath [pkgs.dnsutils pkgs.curl pkgs.gnused pkgs.gnugrep]}:${pkgs.coreutils}/bin"
-#        ];
-#        ExecStart = "${config.yo.pkgs}/bin/yo-ip-updater";
-#        Restart = "no";
-#      };
-#      path = with pkgs; [ bash coreutils ];
-#    };
-
-#    timers.ip-updater = {
-#      enable = true;
-#      wantedBy = ["timers.target"];
-#      timerConfig = {
-#        OnCalendar = "*:0/15";   # Every 15 minutes
-#        Unit = "ip-updater.service";
-#        Persistent = true;
-#        AccuracySec = "1m";
-#      };
-#    };
   };}

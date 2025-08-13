@@ -301,6 +301,7 @@ EOF
     rm "$USER_TMP" "$HOST_TMP"
   '';
 
+
   # 🦆 duck say ⮞ expoort param into shell script
   yoEnvGenVar = script: let
     withDefaults = builtins.filter (p: p.default != null) script.parameters;
@@ -315,7 +316,7 @@ EOF
         internal = true;
         readOnly = true;
         default = name;
-        description = "Script name (derived from attribute key)";
+        description = "Script name derived from attribute key";
       }; # 🦆 duck say ⮞ describe yo script yo!
       description = mkOption {
         type = types.str;
@@ -559,6 +560,13 @@ EOF
     ) cfg.scripts; # 🦆 duck say ⮞ apply da logic to da yo scriptz
   }; 
 
+  githubBaseUrl = let
+    matches = builtins.match ".*github.com[:/]([^/]+)/([^/\\.]+).*" config.this.user.me.repo;
+  in if matches != null then
+    "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
+  else "";
+
+
   # 🦆 duck say ⮞ build da .md file
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
@@ -600,6 +608,7 @@ EOF
             "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
         ) scripts)
     ) sortedCategories;
+
   in concatStringsSep "\n" rows;
 
 in { # 🦆 duck say ⮞ options options duck duck

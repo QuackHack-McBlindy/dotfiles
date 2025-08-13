@@ -27,14 +27,15 @@ in {
     category = "🧩 Miscellaneous";
     aliases = ["el"];
     autoStart = false;
-    runEvery = "60";
+    runEvery = "120";
     parameters = [  
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
-      { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }       
+      { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }      
+      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }            
     ];
     logLevel = "INFO";
     helpFooter = ''
-      gnuplot -persist <<EOF
+      ${pkgs.gnuplot}/bin/gnuplot -persist <<EOF
 set xdata time
 set timefmt "%Y-%m-%d %H:%M"
 set format x "%H:%M"
@@ -42,13 +43,14 @@ set title "Tibber Electricity Price (SEK/kWh)"
 set xlabel "Time"
 set ylabel "Price"
 set grid
-plot "$XDG_CACHE_HOME/tibber_price_log.txt" using 1:3 with linespoints title "Price"
+plot "/home/pungkula/tibber_data.txt" using 1:3 with linespoints title "Price"
 EOF
     '';
     code = ''
       ${cmdHelpers}
       TIBBER_TOKEN=$(cat $APIKeyFile)
       HOME_ID=$(cat $homeIDFile)
+      SAVE_PATH="$filePath"
 
       QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
         --arg q "{
@@ -82,12 +84,11 @@ EOF
 
 
       TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
-      echo "$TIMESTAMP $TOTAL" >> "$XDG_CACHE_HOME/tibber_price_log.txt"
+      echo "$TIMESTAMP $TOTAL" >> "$SAVE_PATH"
   
 
       dt_info "$TOTAL SEK / kWh"
       if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
-
 
     '';
   };
