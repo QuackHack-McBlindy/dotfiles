@@ -124,12 +124,10 @@ in {
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
-            yo blink
           done
           sleep 15
           for i in {1..8}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
-            yo blink
           done
         else
           echo "Sound file not found: $SOUNDFILE"
@@ -187,14 +185,12 @@ in {
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
-            yo blink
           done
         
           sleep 30
         
          for i in {1..8}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
-            yo blink
           done
         fi
       ) > /tmp/yo-timer.log 2>&1 & disown

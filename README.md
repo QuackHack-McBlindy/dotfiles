@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/s4phpzlxvv3zjnw63x0jqm346jpd8k63-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/iiks52ryllhf0sil4ab9n9w179p3z401-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -314,72 +314,70 @@ Set default values for your parameters to have them marked [optional]
 | Command Syntax               | Aliases    | Description |
 |------------------------------|------------|-------------|
 | **🖥️ System Management** | | |
-| `yo deploy --host [--flake] [--user] [--repo] [--port] [--!]` | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
-| `yo dev [--devShell]` |  | Start development enviorment |
-| `yo duckTrace [--file]` | log | View duckTrace logs quick and quack. |
-| `yo esp [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP]` |  | Declarative firmware deployment tool for ESP32 boards  |
-| `yo reboot [--host]` | restart | Force reboot and wait for host |
-| `yo rollback --host [--flake] [--user]` |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
-| `yo switch [--flake] [--!]` | rb | Rebuild and switch Nix OS system configuration |
-| **** | | |
-| `yo demo [--action] [--target] [--intensity] [--duration] [--mode] [--confirm] [--wild]` |  |  |
+| [yo deploy --host [--flake] [--user] [--repo] [--port] [--!]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) | d | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. |
+| [yo dev [--devShell]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) |  | Start development enviorment |
+| [yo duckTrace [--file]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/duckTrace.nix) | log | View duckTrace logs quick and quack. |
+| [yo esp [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/esp.nix) |  | Declarative firmware deployment tool for ESP32 boards  |
+| [yo reboot [--host]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) | restart | Force reboot and wait for host |
+| [yo rollback --host [--flake] [--user]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. |
+| [yo switch [--flake] [--!]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) | rb | Rebuild and switch Nix OS system configuration |
 | **⚙️ Configuration** | | |
-| `yo bitch --input [--fuzzyThreshold]` | b | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
-| `yo espaudio ` |  |  |
-| `yo mic [--port] [--host] [--seconds]` |  | Trigger microphone recording sent to transcription. |
-| `yo say --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file]` |  | Text to speech with built in language detection and automatic model downloading |
-| `yo tests [--input]` |  | Extensive automated sentence testing for the NLP |
-| `yo train --phrase` |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
-| `yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]` |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
-| `yo wake [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle]` |  | Run Wake word detection for audio recording and transcription |
+| [yo bitch --input [--fuzzyThreshold]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/bitch.nix) | b | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion |
+| [yo espaudio ](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/espaudio.nix) |  |  |
+| [yo mic [--port] [--host] [--seconds]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/mic.nix) |  | Trigger microphone recording sent to transcription. |
+| [yo say --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/say.nix) |  | Text to speech with built in language detection and automatic model downloading |
+| [yo tests [--input]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/tests.nix) |  | Extensive automated sentence testing for the NLP |
+| [yo train --phrase](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/train.nix) |  | Trains the NLP module. Correct misclassified commands and update NLP patterns |
+| [yo transcribe [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/transcribe.nix) |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. |
+| [yo wake [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/wake.nix) |  | Run Wake word detection for audio recording and transcription |
 | **⚡ Productivity** | | |
-| `yo calculator --expression` | calc | Calculate math expressions |
-| `yo calendar --operation` | kal | Calendar assistant |
-| `yo fzf ` | f | Interactive fzf search for file content with quick edit & jump to line |
-| `yo google --search [--apiKeyFile] [--searchIDFile]` | g | Perform web search on google |
-| `yo pull [--flake]` | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
-| `yo push [--flake] [--repo] [--host] [--generation]` | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
-| `yo scp --host [--path] [--username] [--downloadPath]` |  | Move files between hosts interactively |
+| [yo calculator --expression](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calculator.nix) | calc | Calculate math expressions |
+| [yo calendar --operation](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) | kal | Calendar assistant |
+| [yo fzf ](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix) | f | Interactive fzf search for file content with quick edit & jump to line |
+| [yo google --search [--apiKeyFile] [--searchIDFile]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/google.nix) | g | Perform web search on google |
+| [yo pull [--flake]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pull.nix) | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. |
+| [yo push [--flake] [--repo] [--host] [--generation]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/push.nix) | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. |
+| [yo scp --host [--path] [--username] [--downloadPath]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) |  | Move files between hosts interactively |
 | **🌍 Localization** | | |
-| `yo stores --store_name [--location] [--radius]` | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
-| `yo travel [--arrival] [--departure] [--type] [--apikeyPath]` |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
-| `yo weather [--location] [--day] [--condition] [--locationPath]` | weat | Weather Assistant. Ask anything weather related (3 day forecast) |
+| [yo stores --store_name [--location] [--radius]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. |
+| [yo travel [--arrival] [--departure] [--type] [--apikeyPath]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) |
+| [yo weather [--location] [--day] [--condition] [--locationPath]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) | weat | Weather Assistant. Ask anything weather related (3 day forecast) |
 | **🌐 Networking** | | |
-| `yo block --url [--blocklist]` | ad | Block URLs using DNS |
-| `yo ip-updater [--token1] [--token2] [--token3]` |  | domain updater |
-| `yo notify --message [--topic] [--base_urlFile]` |  | Send Notifications eazy as-quick quack done |
-| `yo notify-me [--topic] [--base_urlFile] [--sound]` |  | Listener for notifications and run actions |
-| `yo speed ` | st | Test your internets Download speed |
+| [yo block --url [--blocklist]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) | ad | Block URLs using DNS |
+| [yo ip-updater [--token1] [--token2] [--token3]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/ip-updater.nix) |  | domain updater |
+| [yo notify --message [--topic] [--base_urlFile]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) |  | Send Notifications eazy as-quick quack done |
+| [yo notify-me [--topic] [--base_urlFile] [--sound]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) |  | Listener for notifications and run actions |
+| [yo speed ](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix) | st | Test your internets Download speed |
 | **🎧 Media Management** | | |
-| `yo news [--apis] [--clean] [--playedFile]` |  | API caller and playlist manager for latest Swedish news |
-| `yo transcode [--directory]` | trans | Transcode media files |
-| `yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--favoritesPlaylist] [--max_items]` | remote | Android TV Controller |
-| `yo tv-guide [--search] [--channel] [--jsonFilePath]` | tvg | TV-guide assistant.. |
-| `yo tv-scraper [--epgFilePath] [--jsonFilePath]` | tvc | Scrapes web for tv-listing data. |
+| [yo news [--apis] [--clean] [--playedFile]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/news.nix) |  | API caller and playlist manager for latest Swedish news |
+| [yo transcode [--directory]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/transcode.nix) | trans | Transcode media files |
+| [yo tv [--typ] [--search] [--device] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--favoritesPlaylist] [--max_items]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv.nix) | remote | Android TV Controller |
+| [yo tv-guide [--search] [--channel] [--jsonFilePath]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-guide.nix) | tvg | TV-guide assistant.. |
+| [yo tv-scraper [--epgFilePath] [--jsonFilePath]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-scraper.nix) | tvc | Scrapes web for tv-listing data. |
 | **🔐 Security & Encryption** | | |
-| `yo sops --input [--operation] [--value] [--output] [--agePub]` | e | Encrypts a file with sops-nix |
-| `yo yubi --operation --input` | yk | Encrypts and decrypts files using a Yubikey and AGE |
+| [yo sops --input [--operation] [--value] [--output] [--agePub]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) | e | Encrypts a file with sops-nix |
+| [yo yubi --operation --input](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) | yk | Encrypts and decrypts files using a Yubikey and AGE |
 | **🛖 Home Automation** | | |
-| `yo blinds [--state]` |  | Turn blinds up/down |
-| `yo blink [--duration] [--user] [--passwordfile]` |  | Blink all lights for a specified duration |
-| `yo house [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake]` |  | Control lights and other home automatioon devices |
-| `yo indoorTemp ` |  | Get all temperature values from sensors and return a average value. |
-| `yo kitchenFan [--state]` |  | Turns kitchen fan on/off |
-| `yo zigduck [--user] [--pwfile]` | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
+| [yo blinds [--state]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/blinds.nix) |  | Turn blinds up/down |
+| [yo blink [--duration] [--user] [--passwordfile]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/blink.nix) |  | Blink all lights for a specified duration |
+| [yo house [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/house.nix) |  | Control lights and other home automatioon devices |
+| [yo indoorTemp ](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/indoorTemp.nix) |  | Get all temperature values from sensors and return a average value. |
+| [yo kitchenFan [--state]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/kitchenFan.nix) |  | Turns kitchen fan on/off |
+| [yo zigduck [--user] [--pwfile]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/zigduck.nix) | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process |
 | **🧩 Miscellaneous** | | |
-| `yo alarm [--hours] [--minutes] [--sound]` | wakeup | Set an alarm for a specified time |
-| `yo joke [--jokeFile]` |  | Tells a quacktastic joke |
-| `yo post [--postalCodeFile] [--postalCode]` |  | Search for the next postal delivery day is in Sweden |
-| `yo qr --input [--icon] [--output]` |  | Create fun randomized QR codes from input. |
-| `yo reminder [--about] [--list]` | remind | Reminder Assistant |
-| `yo shopping_list [--operation] [--item]` |  | Shopping list management |
-| `yo suno --about [--date]` | mg | AI generated lyrics and music files powered by Suno |
-| `yo tibber [--homeIDFile] [--APIKeyFile] [--filePath]` | el | Fetches home electricity price data |
-| `yo time ` |  | Tells time, day and date |
-| `yo timer [--minutes] [--seconds] [--hours] [--sound]` |  | Set a timer |
+| [yo alarm [--hours] [--minutes] [--sound]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/alarm.nix) | wakeup | Set an alarm for a specified time |
+| [yo joke [--jokeFile]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) |  | Tells a quacktastic joke |
+| [yo post [--postalCodeFile] [--postalCode]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/post.nix) |  | Search for the next postal delivery day is in Sweden |
+| [yo qr --input [--icon] [--output]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/qr.nix) |  | Create fun randomized QR codes from input. |
+| [yo reminder [--about] [--list]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/reminder.nix) | remind | Reminder Assistant |
+| [yo shopping_list [--operation] [--item]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shopping_list.nix) |  | Shopping list management |
+| [yo suno --about [--date]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) | mg | AI generated lyrics and music files powered by Suno |
+| [yo tibber [--homeIDFile] [--APIKeyFile] [--filePath]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/tibber.nix) | el | Fetches home electricity price data |
+| [yo time ](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix) |  | Tells time, day and date |
+| [yo timer [--minutes] [--seconds] [--hours] [--sound]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/timer.nix) |  | Set a timer |
 | **🧹 Maintenance** | | |
-| `yo clean ` | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
-| `yo health [--host]` | hc | Check system health status across your machines |
+| [yo clean ](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix) | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune |
+| [yo health [--host]](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/health.nix) | hc | Check system health status across your machines |
 ### ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`

@@ -6,6 +6,20 @@
   ...        # 🦆 duck say ⮞ ⭐ Unified help commands + DuckTrace integrated logging + Start at Boot features.
 } : with lib;# 🦆 duck say ⮞ ⭐ Automatic README injection - display scripts in Markdown + Dynamic badge updates based on system versions. 
 let 
+  categoryDirMap = {
+    "⚙️ Configuration" = "bin/config";
+    "🧹 Maintenance" = "bin/maintenance";
+    "🎧 Media Management" = "bin/media";
+    "🧩 Miscellaneous" = "bin/misc";
+    "🌐 Networking" = "bin/network";
+    "🌍 Localization" = "bin/misc";
+    "⚡ Productivity" = "bin/productivity";
+    "🖥️ System Management" = "bin/system";
+    "🔐 Security & Encryption" = "bin/security";
+  };
+  
+  resolvedDir = categoryDirMap.${config.category} or "bin/misc";
+  
   # 🦆 says ⮞ for README version badge yo
   nixosVersion = let
     raw = builtins.readFile /etc/os-release;
@@ -307,8 +321,8 @@ EOF
     withDefaults = builtins.filter (p: p.default != null) script.parameters;
     exports = map (p: "export ${p.name}=${lib.escapeShellArg p.default}") withDefaults;
   in lib.concatStringsSep "\n" exports;
-  scriptType = types.submodule ({ name, ... }: {
-  
+#  scriptType = types.submodule ({ name, ... }: {
+  scriptType = types.submodule ({ name, configFinal, ... }: {  
 # 🦆 ⮞ OPTIONS 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
     options = { # 🦆 duck say ⮞ a name cool'd be cool right?
       name = mkOption {
@@ -327,7 +341,12 @@ EOF
         type = types.str;
         default = "";
         description = "Category of the script";
-      }; # 🦆 duck say ⮞ yo go ahead describe da script yo     
+      };
+      filePath = mkOption {
+        type = types.str;
+        readOnly = true;
+      };
+      # 🦆 duck say ⮞ yo go ahead describe da script yo     
       visibleInReadme = mkOption {
         type = types.bool;
         default = ./category != "";
@@ -388,7 +407,24 @@ EOF
         default = [];
         description = "Parameters accepted by this script";
       };
-    };        
+    };
+    config = let # 🦆 duck say ⮞ map categories to bin directories
+      categoryDirMap = {
+        "🎧 Media Management" = "bin/media";
+        "⚙️ Configuration" = "bin/config";
+        "🧹 Maintenance" = "bin/maintenance";
+        "🧩 Miscellaneous" = "bin/misc";
+        "🌐 Networking" = "bin/network";
+        "🌍 Localization" = "bin/misc";
+        "⚡ Productivity" = "bin/productivity";
+        "🖥️ System Management" = "bin/system";
+        "🔐 Security & Encryption" = "bin/security";
+      };  
+      category = config.yo.scripts.${name}.category;
+      resolvedDir = categoryDirMap.${category} or "bin/misc"; # 🦆 duck say ⮞ falback to bin/misc
+    in { # 🦆 duck say ⮞ set scripts filepath
+      filePath = mkDefault "${resolvedDir}/${name}.nix";
+    };
   });
   cfg = config.yo;
 
@@ -568,48 +604,102 @@ EOF
 
 
   # 🦆 duck say ⮞ build da .md file
+#  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
+  # 🦆 duck say ⮞ markdown help text
+#  helpText = let # 🦆 duck say ⮞ categorize scripts
+#    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
+    # 🦆 duck say ⮞ sort da scriptz by category
+#    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
+#    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
+#    sortedCategories = lib.sort (a: b: 
+      # 🦆 duck say ⮞ system management goes first yo
+#      if a == "🖥️ System Management" then true
+#      else if b == "🖥️ System Management" then false
+#      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
+#    ) (lib.attrNames groupedScripts);
+  
+    # 🦆 duck say ⮞ create table rows with category separatorz 
+#    rows = lib.concatMap (category:
+#      let  # 🦆 duck say ⮞ sort from A to Ö  
+#        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+#      in
+#        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
+#          "| **${escapeMD category}** | | |"
+#        ] 
+#        ++ # 🦆 duck say ⮞ each yo script goes into a table row
+#        (map (script:
+#          let # 🦆 duck say ⮞ format list of aliases
+#            aliasList = if script.aliases != [] then
+#              concatStringsSep ", " (map escapeMD script.aliases)
+#            else "";
+            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
+#            paramHint = concatStringsSep " " (map (param:
+#              if param.optional || param.default != null
+#              then "[--${param.name}]"
+#              else "--${param.name}"
+#            ) script.parameters);
+            # 🦆 duck say ⮞ render yo script syntax with param
+#            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
+#          in # 🦆 duck say ⮞ write full md table row - command | aliases | description
+#            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+#        ) scripts)
+#    ) sortedCategories;
+
+#  in concatStringsSep "\n" rows;
+
+  # 🦆 duck say ⮞ build da .md file
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
   helpText = let # 🦆 duck say ⮞ categorize scripts
-#    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
-    # 🦆 duck say ⮞ sort da scriptz by category
-    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
-    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
-    sortedCategories = lib.sort (a: b: 
-      # 🦆 duck say ⮞ system management goes first yo
-      if a == "🖥️ System Management" then true
-      else if b == "🖥️ System Management" then false
-      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
-    ) (lib.attrNames groupedScripts);
+  # 🦆 duck say ⮞ sort da scriptz by category
+  visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
+  groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
+  sortedCategories = lib.sort (a: b: 
+    # 🦆 duck say ⮞ system management goes first yo
+    if a == "🖥️ System Management" then true
+    else if b == "🖥️ System Management" then false
+    else a < b # 🦆 duck say ⮞ after dat everything else quack quack
+  ) (lib.attrNames groupedScripts);
   
-    # 🦆 duck say ⮞ create table rows with category separatorz 
-    rows = lib.concatMap (category:
-      let  # 🦆 duck say ⮞ sort from A to Ö  
-        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
-      in
-        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-          "| **${escapeMD category}** | | |"
-        ] 
-        ++ # 🦆 duck say ⮞ each yo script goes into a table row
-        (map (script:
-          let # 🦆 duck say ⮞ format list of aliases
-            aliasList = if script.aliases != [] then
-              concatStringsSep ", " (map escapeMD script.aliases)
-            else "";
-            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
-            paramHint = concatStringsSep " " (map (param:
-              if param.optional || param.default != null
-              then "[--${param.name}]"
-              else "--${param.name}"
-            ) script.parameters);
-            # 🦆 duck say ⮞ render yo script syntax with param
-            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
-          in # 🦆 duck say ⮞ write full md table row - command | aliases | description
-            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
-        ) scripts)
-    ) sortedCategories;
-
+  # 🦆 duck say ⮞ URL escape helper for GitHub links
+  escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
+  
+  # 🦆 duck say ⮞ create table rows with category separatorz 
+  rows = lib.concatMap (category:
+    let  # 🦆 duck say ⮞ sort from A to Ö  
+      scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+    in
+      [ # 🦆 duck say ⮞ add **BOLD** header table row for category
+        "| **${escapeMD category}** | | |"
+      ] 
+      ++ # 🦆 duck say ⮞ each yo script goes into a table row
+      (map (script:
+        let # 🦆 duck say ⮞ format list of aliases
+          aliasList = if script.aliases != [] then
+            concatStringsSep ", " (map escapeMD script.aliases)
+          else "";
+          # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
+          paramHint = concatStringsSep " " (map (param:
+            if param.optional || param.default != null
+            then "[--${param.name}]"
+            else "--${param.name}"
+          ) script.parameters);
+          # 🦆 duck say ⮞ render yo script syntax with param and link to source
+          syntax = let
+            escapedName = escapeMD script.name;
+            commandText = "yo ${escapedName} ${paramHint}";
+          in if githubBaseUrl != "" then
+            "[${commandText}](${githubBaseUrl}/${escapeURL script.filePath})"
+          else commandText;
+        in # 🦆 duck say ⮞ write full md table row - command | aliases | description
+          "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+      ) scripts)
+  ) sortedCategories;
+  
   in concatStringsSep "\n" rows;
+  
+
+
 
 in { # 🦆 duck say ⮞ options options duck duck
   options = { # 🦆 duck say ⮞ 
@@ -668,8 +758,7 @@ in { # 🦆 duck say ⮞ options options duck duck
     };
   };  
   # 🦆 ⮞ CONFIG  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
-  config = { 
-    # 🦆 duck say ⮞ expose diz module and all yo.scripts as a package
+  config = {  # 🦆 duck say ⮞ expose diz module and all yo.scripts as a package  
     yo.pkgs = yoScriptsPackage; # 🦆 duck say ⮞ reference as: ${config.pkgs.yo}/bin/yo-<name>
     assertions = let # 🦆 ⮞ safety first
       scripts = cfg.scripts;

@@ -2,26 +2,7 @@
 { self, config, pkgs, cmdHelpers, ... }:
 {  
 
-  yo.scripts = {
-    demo = {
-      logLevel = "DEBUG";
-      parameters = [
-        { name = "action"; description = "Action to perform"; default = "run"; }
-        { name = "target"; description = "Target of the action"; }
-        { name = "intensity"; description = "Level of intensity"; type = "int"; optional = true; }
-        { name = "duration"; description = "Duration in seconds"; type = "int"; optional = true; }
-        { name = "mode"; description = "Mode of operation"; optional = true; }
-        { name = "confirm"; description = "Whether to confirm the action"; optional = true; }
-        { name = "wild"; description = "Wildcard testing"; optional = true; }     
-      ];
-      code = ''
-        ${cmdHelpers}
-        dt_debug "Script Started!"
-        dt_debug "SCript Executed!"
-        dt_debug "Script finished!"
-      '';
-    };
-  };
+
   yo.scripts.speed = {
     description = "Test your internets Download speed";
     category = "🌐 Networking";
@@ -94,41 +75,6 @@
   
   yo.bitch = {    
     intents = {
-      demo = {
-        priority = 1;
-        data = [{
-          sentences = [
-            "please {action} {target} {mode} {duration} {confirm} {wild}"
-          ];
-          lists = {
-            action.values = [
-              { "in" = "[run|execute|start]"; out = "RUN"; }
-              { "in" = "[stop|terminate|halt]"; out = "STOP"; }
-            ];
-            target.values = [
-              { "in" = "[process|program|sequence]"; out = "PROCESS"; }
-              { "in" = "[test|check|validation]"; out = "TEST"; }
-            ];
-            mode.values = [
-              { "in" = "[auto|automatic]"; out = "AUTO"; }
-              { "in" = "[manual|manually]"; out = "MANUAL"; }
-            ];
-            confirm.values = [
-              { "in" = "[yes|confirm|sure]"; out = "YES"; }
-              { "in" = "[no|cancel|decline]"; out = "NO"; }
-            ];
-            intensity.values = builtins.genList (i: {
-              "in" = toString (i + 1);
-              out = toString (i + 1);
-            }) 10;
-            duration.values = builtins.genList (i: {
-              "in" = toString ((i + 1) * 10);
-              out = toString ((i + 1) * 10);
-            }) 6;
-            wild.wildcard = true;
-          };
-        }];
-      };  
       speed = {
         data = [{
           sentences = [
