@@ -8,23 +8,8 @@
   ...
 } : let
 in {  
-  yo.bitch = { 
-    intents = {
-      post = {
-        priority = 3;
-        data = [{
-          sentences = [
-            "när kommer posten"
-            "när kommer [nästa] post (leverans|leveransen)"
-            "vilken dag kommer posten"
-          ];        
-        }];
-      };      
-    };
-  };
-
   yo.scripts.post = {
-    description = "Search for the next postal delivery day is in Sweden";
+    description = "Check for the next postal delivery day. (Sweden)";
     category = "🧩 Miscellaneous";
     parameters = [  
       { name = "postalCodeFile"; description = "Path to a file containing the postal code to search for"; default = config.sops.secrets.zipcode.path;  }   
@@ -78,6 +63,14 @@ in {
       dt_info "$MESSAGE2"
       if_voice_say "$MESSAGE1 . $MESSAGE2"
     '';
+    voice = {
+      priority = 3;
+      sentences = [
+        "när kommer posten"
+        "när kommer [nästa] post (leverans|leveransen)"
+        "vilken dag kommer posten"
+      ];       
+    };
   };
  
   sops.secrets = {

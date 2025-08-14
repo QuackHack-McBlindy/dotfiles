@@ -407,11 +407,50 @@ EOF
         default = [];
         description = "Parameters accepted by this script";
       };
+      voice = mkOption {
+        type = types.nullOr (types.submodule {
+          options = {
+            priority = mkOption {
+              type = types.ints.between 1 5;
+              default = 3;
+              description = "Processing priority (1=highest, 5=lowest)";
+            };
+            sentences = mkOption {
+              type = types.listOf types.str;
+              default = [];
+              description = "Voice command patterns for this script";
+            };
+            lists = mkOption {
+              type = types.attrsOf (types.submodule {
+                options = {
+                  wildcard = mkOption {
+                    type = types.bool;
+                    default = false;
+                    description = "Accept free-form text input";
+                  };
+                  values = mkOption {
+                    type = types.listOf (types.submodule {
+                      options."in" = mkOption { type = types.str; };
+                      options.out = mkOption { type = types.str; };
+                    });
+                    default = [];
+                  };
+                };
+              });
+              default = {};
+              description = "Entity lists for voice parameters";
+            };
+          };
+        });
+        default = null;
+        description = "Voice command configuration for this script";
+      };
     };
     config = let # 🦆 duck say ⮞ map categories to bin directories
       categoryDirMap = {
         "🎧 Media Management" = "bin/media";
         "⚙️ Configuration" = "bin/config";
+        "🛖 Home Automation" = "bin/home";
         "🧹 Maintenance" = "bin/maintenance";
         "🧩 Miscellaneous" = "bin/misc";
         "🌐 Networking" = "bin/network";
@@ -603,51 +642,51 @@ EOF
   else "";
 
 
-  # 🦆 duck say ⮞ build da .md file
-#  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
+  # 🦆 duck say ⮞ build scripts for da --help command
+  terminalScriptsTableFile = pkgs.writeText "yo-helptext.md" terminalScriptsTable;
   # 🦆 duck say ⮞ markdown help text
-#  helpText = let # 🦆 duck say ⮞ categorize scripts
-#    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
+  terminalScriptsTable = let # 🦆 duck say ⮞ categorize scripts
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues cfg.scripts);
     # 🦆 duck say ⮞ sort da scriptz by category
-#    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
-#    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
-#    sortedCategories = lib.sort (a: b: 
+    visibleScripts2 = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
+    groupedScripts2 = lib.groupBy (script: script.category) (lib.attrValues visibleScripts2);
+    sortedCategories2 = lib.sort (a: b: 
       # 🦆 duck say ⮞ system management goes first yo
-#      if a == "🖥️ System Management" then true
-#      else if b == "🖥️ System Management" then false
-#      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
-#    ) (lib.attrNames groupedScripts);
+      if a == "🖥️ System Management" then true
+      else if b == "🖥️ System Management" then false
+      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
+    ) (lib.attrNames groupedScripts2);
   
     # 🦆 duck say ⮞ create table rows with category separatorz 
-#    rows = lib.concatMap (category:
-#      let  # 🦆 duck say ⮞ sort from A to Ö  
-#        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
-#      in
-#        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-#          "| **${escapeMD category}** | | |"
-#        ] 
-#        ++ # 🦆 duck say ⮞ each yo script goes into a table row
-#        (map (script:
-#          let # 🦆 duck say ⮞ format list of aliases
-#            aliasList = if script.aliases != [] then
-#              concatStringsSep ", " (map escapeMD script.aliases)
-#            else "";
+    rows = lib.concatMap (category:
+      let  # 🦆 duck say ⮞ sort from A to Ö  
+        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+      in
+        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
+          "| **${escapeMD category}** | | |"
+        ] 
+        ++ # 🦆 duck say ⮞ each yo script goes into a table row
+        (map (script:
+          let # 🦆 duck say ⮞ format list of aliases
+            aliasList = if script.aliases != [] then
+              concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
             # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
-#            paramHint = concatStringsSep " " (map (param:
-#              if param.optional || param.default != null
-#              then "[--${param.name}]"
-#              else "--${param.name}"
-#            ) script.parameters);
+            paramHint = concatStringsSep " " (map (param:
+              if param.optional || param.default != null
+              then "[--${param.name}]"
+              else "--${param.name}"
+            ) script.parameters);
             # 🦆 duck say ⮞ render yo script syntax with param
-#            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
-#          in # 🦆 duck say ⮞ write full md table row - command | aliases | description
-#            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
-#        ) scripts)
-#    ) sortedCategories;
+            syntax = "\\`yo ${escapeMD script.name} ${paramHint}\\`";
+          in # 🦆 duck say ⮞ write full md table row - command | aliases | description
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+        ) scripts)
+    ) sortedCategories2;
 
-#  in concatStringsSep "\n" rows;
+  in concatStringsSep "\n" rows;
 
-  # 🦆 duck say ⮞ build da .md file
+  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
   helpText = let 
@@ -863,7 +902,7 @@ in { # 🦆 duck say ⮞ options options duck duck
         Parameters inside brackets are [optional]
         | Command Syntax               | Aliases    | Description |
         |------------------------------|------------|-------------|
-        ${helpText}
+        ${terminalScriptsTable}
         ## ──────⋆⋅☆☆☆⋅⋆────── ##
         ## 🦆❓ Detailed Help
         For specific command help: \`yo <command> --help\`

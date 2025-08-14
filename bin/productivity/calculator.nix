@@ -159,22 +159,17 @@
           say_duck "$(bold "Answer:") $formatted_result"
           if_voice_say "Svaret är $formatted_result"
         '';
-      };
-    };
-    
-    # 🦆 duck say ⮞ defined intents for calculations from voice commands 
-    bitch = {
-      intents = {
-        calculator = {
-          data = [{
-            sentences = [
-              "(beräkna|beräknar|räkna|räknar) [ut] {expression}"
-              "(beräkna|beräknar|räkna|räknar) ut {expression}"
-              "lös ekvationen {expression}"
-            ];
-            lists.expression.wildcard = true;
-          }];  
+        voice = {
+          sentences = [
+            "(beräkna|beräknar|räkna|räknar) [ut] {expression}"
+            "(beräkna|beräknar|räkna|räknar) ut {expression}"
+            "lös ekvationen {expression}"
+          ];
+          lists = {
+            expression.wildcard = true;
+          };
         };  
       };
-    };  
+    };   
+   
   };}

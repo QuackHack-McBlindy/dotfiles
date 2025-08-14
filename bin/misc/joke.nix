@@ -8,9 +8,6 @@
   ...
 } : let
 in {  
-  yo.bitch.intents.joke.priority = 2;
-  yo.bitch.intents.joke.data = [{ sentences = [ "få höra ett [rolig|roligt] skämt" "säg ett skämt" "berätta ett [rolig|roligt] skämt" "gör mig glad" "få mig [att] (skratt|skratta)" ]; }];
-
   yo.scripts.joke = {
     description = "Tells a quacktastic joke";
     category = "🧩 Miscellaneous";
@@ -26,6 +23,16 @@ in {
       yo-say "$JOKE"
       say_duck "$JOKE"
     '';   
+    voice = {
+      priority = 2;
+      sentences = [
+        "få höra ett [rolig|roligt] skämt"
+        "säg ett skämt"
+        "berätta ett [rolig|roligt] skämt"
+        "gör mig glad"
+        "få mig [att] (skratt|skratta)"
+      ];      
+    };
   };
   
   sops.secrets = {

@@ -1,4 +1,4 @@
-# dotfiles/bin/misc/tibber.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/home/tibber.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Fetches electricity price data
   self,
   lib,
@@ -8,23 +8,9 @@
   ...
 } : let
 in {  
-  yo.bitch = { 
-    intents = {
-      tibber = {
-        priority = 3;
-        data = [{
-          sentences = [
-            "vad kostar strömmen"
-            "hur mycket kostar strömmen"
-          ];        
-        }];
-      };      
-    };
-  };
-
   yo.scripts.tibber = {
     description = "Fetches home electricity price data";
-    category = "🧩 Miscellaneous";
+    category = "🛖 Home Automation";
     aliases = ["el"];
     autoStart = false;
     runEvery = "120";
@@ -91,6 +77,13 @@ EOF
       if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
 
     '';
+    voice = {
+      priority = 3;
+      sentences = [
+        "vad kostar strömmen"
+        "hur mycket kostar strömmen"
+      ];         
+    };
   };
  
   sops.secrets = {
@@ -106,4 +99,5 @@ EOF
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     }; 
+    
   };}

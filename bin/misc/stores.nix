@@ -1,29 +1,11 @@
-# dotfiles/bin/system/weather.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/misc/stores.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { 
   config,
   lib,
   pkgs,
   cmdHelpers,
   ...
-} : {  
-  yo.bitch.intents = {
-    stores = {
-      data = [{
-        sentences = [
-          "vilken tid (öppnar|stänger) {store_name}"
-          "vad har {store_name} för öppettider"          
-          "var är närmaste {store_name}"
-          "finns det någon {store_name} i närheten"
-          "när stänger {store_name}"
-          "när öppnar {store_name}"
-        ];          
-        lists = {
-          store_name.wildcard = true;
-        };  
-      }];
-    };   
-  };
-
+} : {
   yo.scripts.stores = {
     description = "Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours.";
     category = "🌍 Localization";
@@ -164,6 +146,20 @@
       dt_info "https://www.openstreetmap.org/?mlat=$lat&mlon=$lon#map=18/$lat/$lon"
       yo say "$name på $addr i $city har öppet: $natural_hours"
     '';
+    voice = {
+      sentences = [
+        "vilken tid (öppnar|stänger) {store_name}"
+        "vad har {store_name} för öppettider"          
+        "var är närmaste {store_name}"
+        "finns det någon {store_name} i närheten"
+        "när stänger {store_name}"
+        "när öppnar {store_name}"
+      ];          
+      lists = {
+        store_name.wildcard = true;
+      };  
+    };   
+   
   };
   sops = {
       secrets = {

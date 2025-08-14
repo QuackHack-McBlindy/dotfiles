@@ -1,6 +1,13 @@
-# dotfiles/bin/maintenance/health.nix
-{ self, config, pkgs, cmdHelpers, ... }:
-{  
+# dotfiles/bin/maintenance/health.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ systemwide health checks  
+  self,
+  lib,
+  config,
+  pkgs,
+  cmdHelpers,
+  ... 
+} : let   
+in { # 🦆 says ⮞  
   yo.scripts.health = {
     description = "Check system health status across your machines";
     category = "🧹 Maintenance";
@@ -17,40 +24,23 @@
         ssh "$target_host" sudo health | jq
       fi
     '';  
-  };
-  
-  yo.bitch = { 
-    intents = {
-      health = {
-        data = [{
-          sentences = [
-            "health check"
-            "system status"
-            "check health"
-            "how is my {host} doing"
-            "run health check on {host}"
-            "is {host} healthy"    
-            "give me {host} health report"
-            "show me {host} system stats"
-            "check temps on {host}"
-            "is {host} overheating"
-          
-            "kolla hälsan på {host}"
-            "hur mår {host}"
-            "visa status för {host}"
-          ];
-          lists = {
-            host.values = [
-              { "in" = "local"; out = config.this.host.hostname; }
-              { "in" = "main"; out = "desktop"; }
-              { "in" = "nas"; out = "nasty"; }
-              { "in" = "laptop"; out = "laptop"; }
-              { "in" = "homie"; out = "homie"; }
-              { "in" = "desktop"; out = "desktop"; }
-            ];
-          };
-        }];
-      };
-    };
+    voice = {
+      priority = 4;
+      sentences = [
+        "kolla hälsan på {host}"
+        "hur mår {host}"
+        "visa status för {host}"
+      ];
+      lists = {
+        host.values = [
+          { "in" = "local"; out = config.this.host.hostname; }
+          { "in" = "main"; out = "desktop"; }
+          { "in" = "nas"; out = "nasty"; }
+          { "in" = "laptop"; out = "laptop"; }
+          { "in" = "homie"; out = "homie"; }
+          { "in" = "desktop"; out = "desktop"; }
+        ];
+      };   
+    };  
   };}
      

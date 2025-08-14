@@ -1,5 +1,5 @@
-# dotfiles/bin/misc/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ home controller
+# dotfiles/bin/home/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ main home controller
   self,
   lib,
   config,
@@ -65,138 +65,6 @@
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
 in { # 🦆 says ⮞ Voice Intents
-  yo.bitch = { 
-    intents = {
-      indoorTemp = { priority = 3; data = [{ sentences = [ "hur varmt är det (inne|inomhus)" "vad är det för (temp|temperatur) (inne|inomhus)" "hur varmmt är det inne" ];}]; };
-      blinds = {
-        priority = 3;
-        data = [{
-          sentences = [
-            "(persienner|persiennerna) {state}" 
-          ];
-          lists = {
-            state.values = [
-              { "in" = "[upp]"; out = "ON"; }             
-              { "in" = "[ned]"; out = "OFF"; } 
-            ];
-          };  
-        }];  
-      }; 
-      kitchenFan = {
-        priority = 1;
-        data = [{
-          sentences = [
-            "(fläkt|fläck|fkäckt|fläckten|fläkten) {state}" 
-          ];
-          lists = {
-            state.values = [
-              { "in" = "[på]"; out = "ON"; }             
-              { "in" = "[av]"; out = "OFF"; } 
-            ];
-          };  
-        }];  
-      };
-      house = {
-        priority = 1;
-        data = [{
-          sentences = [
-            # Multi taskerz
-            "{device} {state} och färg {color}"
-            "{device} {state} och ljusstyrka {brightness} procent"
-            "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
-            "(tänd|tänk|släck|starta|stäng) {device}"
-            "{slate} alla lampor i {device}"
-            "{state} {device} lampor"   
-            "{state} lamporna i {device}"
-            "{state} alla lampor"
-            "stäng {state} {device}"
-            "starta {state} {device}"
-            # Color Control
-            "(ändra|gör) färgen [på|i] {device} till {color}"
-            "(ändra|gör) {device} {color}"
-            
-            # Brightness Control
-            "justera {device} till {brightness} procent"
-          ];        
-          lists = {
-            state.values = [
-              { "in" = "[tänd|tända|tänk|start|starta|på]"; out = "ON"; }             
-              { "in" = "[släck|släcka|slick|av|stäng|stäng av]"; out = "OFF"; } 
-            ];
-            brightness.values = builtins.genList (i: {
-              "in" = toString (i + 1);
-              out = toString (i + 1);
-            }) 100;
-            device.values = let
-              reservedNames = [ "hall" "kök" "sovrum" "toa" "wc" "vardagsrum" "kitchen" "switch" ];
-              sanitize = str:
-                lib.replaceStrings [ "/" ] [ "" ] str;
-            in [
-              { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
-              { "in" = "[kök|köket]"; out = "kitchen"; }
-              { "in" = "[sovrum|sovrummet]"; out = "bedroom"; }
-              { "in" = "[hall|hallen]"; out = "hallway"; }
-              { "in" = "[toa|toan|toalett|toaletten|wc]"; out = "wc"; }
-              { "in" = "[all|alla|allt]"; out = "ALL_LIGHTS"; }    
-            ];
-
-# 🦆 says ⮞ automatically add all zigbee devices  
-#            ] ++
-#            (lib.filter (x: x != null) (
-#              lib.mapAttrsToList (_: device:
-#               let
-#                  baseRaw = lib.toLower device.friendly_name;
-#                  base = sanitize baseRaw;
-#                  baseWords = lib.splitString " " base;
-#                  isAmbiguous = lib.any (word: lib.elem word reservedNames) baseWords;
-#                  hasLampSuffix = lib.hasSuffix "lampa" base;
-#                  lampanVariant = if hasLampSuffix then [ "${base}n" ] else [];  
-#                  enVariant = [ "${base}en" ]; # ← always add the 'en' variant 
-#                  variations = lib.unique (
-#                    [
-#                      base
-#                      (sanitize (lib.replaceStrings [ " " ] [ "" ] base))
-##                    ] ++ lampanVariant ++ enVariant
-#                  );
-#                in if isAmbiguous then null else {
-#                  "in" = "[" + lib.concatStringsSep "|" variations + "]";
-#                  out = device.friendly_name;
-#               }
-#              ) zigbeeDevices
-#            ));      
-            color.values = [
-              { "in" = "[röd|rött|röda]"; out = "red"; }
-              { "in" = "[grön|grönt|gröna]"; out = "green"; }
-              { "in" = "[blå|blått|blåa]"; out = "blue"; }
-              { "in" = "[gul|gult|gula]"; out = "yellow"; }
-              { "in" = "[orange|orangefärgad|orangea]"; out = "orange"; }
-              { "in" = "[lila|lilla|violett|violetta]"; out = "purple"; }
-              { "in" = "[rosa|rosafärgad|rosaaktig]"; out = "pink"; }
-              { "in" = "[vit|vitt|vita]"; out = "white"; }
-              { "in" = "[svart|svarta]"; out = "black"; }
-              { "in" = "[grå|grått|gråa]"; out = "gray"; }
-              { "in" = "[brun|brunt|bruna]"; out = "brown"; }
-              { "in" = "[cyan|cyanblå|turkosblå]"; out = "cyan"; }
-              { "in" = "[magenta|cerise|fuchsia]"; out = "magenta"; }
-              { "in" = "[turkos|turkosgrön]"; out = "turquoise"; }
-              { "in" = "[teal|blågrön]"; out = "teal"; }
-              { "in" = "[lime|limegrön]"; out = "lime"; }
-              { "in" = "[maroon|mörkröd]"; out = "maroon"; }
-              { "in" = "[oliv|olivgrön]"; out = "olive"; }
-              { "in" = "[navy|marinblå]"; out = "navy"; }
-              { "in" = "[lavendel|ljuslila]"; out = "lavender"; }
-              { "in" = "[korall|korallröd]"; out = "coral"; }
-              { "in" = "[guld|guldfärgad]"; out = "gold"; }
-              { "in" = "[silver|silverfärgad]"; out = "silver"; }
-              { "in" = "[slumpmässig|random|valfri färg]"; out = "random"; }
-            ];
-          };
-        }];
-      };  
-    };
-  };
-
-
   yo.scripts.house = {
     description = "Control lights and other home automatioon devices";
     category = "🛖 Home Automation";
@@ -434,148 +302,100 @@ in { # 🦆 says ⮞ Voice Intents
         control_room $AREA
       fi        
     ''; 
-  };
+    voice = {
+      priority = 1;
+      sentences = [
+        # Multi taskerz
+        "{device} {state} och färg {color}"
+        "{device} {state} och ljusstyrka {brightness} procent"
+        "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
+        "(tänd|tänk|släck|starta|stäng) {device}"
+        "{slate} alla lampor i {device}"
+        "{state} {device} lampor"   
+        "{state} lamporna i {device}"
+        "{state} alla lampor"
+        "stäng {state} {device}"
+        "starta {state} {device}"
+        # Color Control
+        "(ändra|gör) färgen [på|i] {device} till {color}"
+        "(ändra|gör) {device} {color}"
+            
+        # Brightness Control
+        "justera {device} till {brightness} procent"
+      ];        
+      lists = {
+        state.values = [
+          { "in" = "[tänd|tända|tänk|start|starta|på]"; out = "ON"; }             
+          { "in" = "[släck|släcka|slick|av|stäng|stäng av]"; out = "OFF"; } 
+        ];
+        brightness.values = builtins.genList (i: {
+          "in" = toString (i + 1);
+          out = toString (i + 1);
+        }) 100;
+        device.values = let
+          reservedNames = [ "hall" "kök" "sovrum" "toa" "wc" "vardagsrum" "kitchen" "switch" ];
+          sanitize = str:
+            lib.replaceStrings [ "/" ] [ "" ] str;
+        in [
+          { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
+          { "in" = "[kök|köket]"; out = "kitchen"; }
+          { "in" = "[sovrum|sovrummet]"; out = "bedroom"; }
+          { "in" = "[hall|hallen]"; out = "hallway"; }
+          { "in" = "[toa|toan|toalett|toaletten|wc]"; out = "wc"; }
+          { "in" = "[all|alla|allt]"; out = "ALL_LIGHTS"; }    
+        ];
 
-  yo.scripts.blink = {
-    description = "Blink all lights for a specified duration";
-    category = "🛖 Home Automation";
-    parameters = [
-      { name = "duration"; description = "Blink duration in seconds"; default = "12"; }
-      { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
-      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }      
-    ];
-    logLevel =  "INFO";
-    code = ''
-      ${cmdHelpers}
-      MQTT_BROKER="${mqttHostIp}"
-      PWFILE="$passwordfile"
-      MQTT_USER="$user"
-      MQTT_PASSWORD=$(<"$PWFILE")
-      interval=1.2
-      end=$((SECONDS + duration))    
-      MQTT_HOST="${mqttHost}"
-      STATE_DIR="${zigduckDir}"
-      dt_debug "Mosquitto host: $MQTT_HOST"
-      INITIAL_STATE=$(ssh "$MQTT_HOST" "cat .config/zigduck/state.json")
-      dt_debug "init state: $INITIAL_STATE"
-      lightDeviceNames=( ${lib.concatMapStringsSep " " (dev: "\"${dev.friendly_name}\"") (lib.attrValues lightDevices)} )
-      declare -A initial_states=()
-      for device in "''${lightDeviceNames[@]}"; do
-          device_state=$(jq -r --arg dev "$device" '
-              .[$dev] as $d |
-              {
-                  state: ($d.state // null),
-                  brightness: ($d.brightness | if . then tonumber? else null end),
-                  color: ($d.color // null)
-              } | tostring
-          ' <<< "$INITIAL_STATE")          
-          initial_states["$device"]="$device_state"
-      done
-      restore_lights() {
-          dt_info "Restoring lights to original state..."
-          for device in "''${!initial_states[@]}"; do
-              state_json="''${initial_states[$device]}"
-              state=$(jq -r '.state' <<< "$state_json")
-              brightness=$(jq -r '.brightness' <<< "$state_json")
-              color_raw=$(jq -r '.color // empty' <<< "$state_json")
-              if jq -e 'type == "string"' <<< "$color_raw" >/dev/null; then
-                  color=$(jq -r '.' <<< "$color_raw" 2>/dev/null || echo null)
-              else
-                  color="$color_raw"
-              fi
-              if [[ "$state" == "null" || -z "$state" ]]; then
-                  dt_info "Skipping $device (no initial state)"
-                  continue
-              fi 
-              if [[ "$state" == "OFF" ]]; then
-                  mqtt_pub -t "zigbee2mqtt/$device/set" -m '{"state":"OFF"}'
-              else
-                  payload='{"state":"ON"'
-                  if [[ "$brightness" != "null" && -n "$brightness" ]]; then
-                      payload+=", \"brightness\":$brightness"
-                  fi
-                  if [[ "$color" != "null" && -n "$color" ]]; then
-                      color_type=$(jq -r 'type' <<< "$color")
-                      if [[ "$color_type" == "string" ]]; then
-                          parsed_color=$(jq -r '.' <<< "$color")
-                      else
-                          parsed_color="$color"
-                      fi
-                      if jq -e '.hue? and .saturation?' <<< "$parsed_color" >/dev/null; then
-                          hue=$(jq -r '.hue' <<< "$parsed_color")
-                          sat=$(jq -r '.saturation' <<< "$parsed_color")
-                          payload+=", \"color\":{\"hue\":$hue, \"saturation\":$sat}"
-                      elif jq -e '.x? and .y?' <<< "$parsed_color" >/dev/null; then
-                          x=$(jq -r '.x' <<< "$parsed_color")
-                          y=$(jq -r '.y' <<< "$parsed_color")
-                          payload+=", \"color\":{\"x\":$x, \"y\":$y}"
-                      fi
-                  fi
-                  payload+="}" 
-                  mqtt_pub -t "zigbee2mqtt/$device/set" -m "$payload"
-                  dt_debug "Restoring $device with payload: $payload"
-              fi
-          done
-          dt_info "Restoration complete"
-      }  
-      trap 'restore_lights' EXIT
-      dt_info "Blinking all lights for $duration seconds..."
-      if_voice_say "Jag blinkar alla lampor i $duration sekunder!"    
-      while ((SECONDS < end)); do
-          scene max
-          sleep $interval
-          scene dark-fast
-          sleep $interval
-      done
-      dt_info "Finished blinking lights"
-      restore_lights
-      trap - EXIT
-    '';
-  };
-
-  yo.scripts.blinds = {
-    description = "Turn blinds up/down";
-    category = "🛖 Home Automation";  
-    parameters = [    
-      { name = "state"; description = "State of the blinds"; default = "on"; }     
-    ];      
-    code = ''
-      ${cmdHelpers}
-      if [[ "$state" == "on" ]]; then
-        zig 'Roller Shade' on
-      else
-        zig 'Roller Shade' off
-      fi
-    '';
-  };
-
-  yo.scripts.kitchenFan = {
-    description = "Turns kitchen fan on/off";
-    category = "🛖 Home Automation";  
-    parameters = [    
-      { name = "state"; description = "State of the device"; default = "on"; }     
-    ];      
-    code = ''
-      ${cmdHelpers}
-      if [[ "$state" == "on" ]]; then
-        zig Fläkt on
-      else
-        zig Fläkt off
-      fi
-    '';
-  };
-  
-  
-  yo.scripts.indoorTemp = {
-    description = "Get all temperature values from sensors and return a average value.";
-    category = "🛖 Home Automation";     
-    code = ''
-      ${cmdHelpers}
-      STATE_DIR="${zigduckDir}"
-      STATE_FILE="$STATE_DIR/state.json"
-      MQTT_HOST="${mqttHost}"
-      TEMP=$(ssh "$MQTT_HOST" cat $STATE_FILE | jq -r '.. | objects | .temperature? | select(. != null and . != "null") | tonumber' $STATE_FILE | awk '{sum += $1; count++} END {if (count > 0) print sum / count; else print "No temperatures found"}')
-      dt_info "$TEMP"
-      if_voice_say "Medeltemperaturen inomhus är: $TEMP"
-    '';
+# 🦆 says ⮞ automatically add all zigbee devices  
+#            ] ++
+#            (lib.filter (x: x != null) (
+#              lib.mapAttrsToList (_: device:
+#               let
+#                  baseRaw = lib.toLower device.friendly_name;
+#                  base = sanitize baseRaw;
+#                  baseWords = lib.splitString " " base;
+#                  isAmbiguous = lib.any (word: lib.elem word reservedNames) baseWords;
+#                  hasLampSuffix = lib.hasSuffix "lampa" base;
+#                  lampanVariant = if hasLampSuffix then [ "${base}n" ] else [];  
+#                  enVariant = [ "${base}en" ]; # ← always add the 'en' variant 
+#                  variations = lib.unique (
+#                    [
+#                      base
+#                      (sanitize (lib.replaceStrings [ " " ] [ "" ] base))
+##                    ] ++ lampanVariant ++ enVariant
+#                  );
+#                in if isAmbiguous then null else {
+#                  "in" = "[" + lib.concatStringsSep "|" variations + "]";
+#                  out = device.friendly_name;
+#               }
+#              ) zigbeeDevices
+#            ));      
+        color.values = [
+          { "in" = "[röd|rött|röda]"; out = "red"; }
+          { "in" = "[grön|grönt|gröna]"; out = "green"; }
+          { "in" = "[blå|blått|blåa]"; out = "blue"; }
+          { "in" = "[gul|gult|gula]"; out = "yellow"; }
+          { "in" = "[orange|orangefärgad|orangea]"; out = "orange"; }
+          { "in" = "[lila|lilla|violett|violetta]"; out = "purple"; }
+          { "in" = "[rosa|rosafärgad|rosaaktig]"; out = "pink"; }
+          { "in" = "[vit|vitt|vita]"; out = "white"; }
+          { "in" = "[svart|svarta]"; out = "black"; }
+          { "in" = "[grå|grått|gråa]"; out = "gray"; }
+          { "in" = "[brun|brunt|bruna]"; out = "brown"; }
+          { "in" = "[cyan|cyanblå|turkosblå]"; out = "cyan"; }
+          { "in" = "[magenta|cerise|fuchsia]"; out = "magenta"; }
+          { "in" = "[turkos|turkosgrön]"; out = "turquoise"; }
+          { "in" = "[teal|blågrön]"; out = "teal"; }
+          { "in" = "[lime|limegrön]"; out = "lime"; }
+          { "in" = "[maroon|mörkröd]"; out = "maroon"; }
+          { "in" = "[oliv|olivgrön]"; out = "olive"; }
+          { "in" = "[navy|marinblå]"; out = "navy"; }
+          { "in" = "[lavendel|ljuslila]"; out = "lavender"; }
+          { "in" = "[korall|korallröd]"; out = "coral"; }
+          { "in" = "[guld|guldfärgad]"; out = "gold"; }
+          { "in" = "[silver|silverfärgad]"; out = "silver"; }
+          { "in" = "[slumpmässig|random|valfri färg]"; out = "random"; }
+        ];
+      };
+    };
+    
   };}

@@ -1,4 +1,4 @@
-# dotfiles/bin/system/duckTrace.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/maintenance/duckTrace.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ bringing logs back to da cool table  
   self,
   lib,

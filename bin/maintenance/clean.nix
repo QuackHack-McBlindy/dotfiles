@@ -1,6 +1,6 @@
-# bin/clean.nix
+# dotfiles/bin/maintenance/clean.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { config, self, pkgs, sysHosts, cmdHelpers, ... }:
-{
+{ # 🦆 says ⮞ system cleanup
     yo.scripts.clean = {
         description = "Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune";
         category = "🧹 Maintenance";

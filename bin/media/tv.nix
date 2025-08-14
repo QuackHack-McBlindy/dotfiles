@@ -540,6 +540,64 @@ in {
           dt_error "Unknown media type: $media_type"
       fi
     '';
+    voice = {
+        priority = 1;
+        sentences = [
+          # 🦆 says ⮞ devices control sentences
+          "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
+          "jag vill se {typ} {search} i {device}"    
+          "jag vill lyssna på {typ} i {device}"
+          "jag vill höra {typ} {search} i {device}"
+          "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
+          "tv {typ} i {device}"
+          # 🦆 says ⮞ default player
+          "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
+          "jag vill se {typ} {search}"    
+          "jag vill lyssna på [mina] {typ}"
+          "jag vill höra [mina] {typ}"
+          "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten)"       
+          "tv {typ}"
+          # 🦆 says ⮞ append to favorites playlist
+          "spara i {typ}"
+          "lägg till den här [låten] i {typ}"
+          # 🦆 says ⮞ find remote
+          "ring {typ}"
+          "hitta {typ}"            
+        ];    
+        lists = {
+          typ.values = [
+            { "in" = "[serie|serien|tvserien|tv-serien]"; out = "tv"; }
+            { "in" = "[pod|podd|podcost|poddan|podden|podcast]"; out = "podcast"; }
+            { "in" = "[slump|slumpa|random|musik|mix|shuffle]"; out = "jukebox"; }
+            { "in" = "[artist|artisten|band|bandet|grupp|gruppen]"; out = "music"; }
+            { "in" = "[låt|låten|sång|sången|biten]"; out = "song"; }
+            { "in" = "[film|filmen]"; out = "movie"; }
+            { "in" = "[ljudbok|ljudboken]"; out = "audiobook"; }
+            { "in" = "video"; out = "othervideo"; }
+            { "in" = "[musicvideo|musikvideo]"; out = "musicvideo"; }
+            { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "favorites"; }
+            { "in" = "[kanal|kanalen|kannal]"; out = "livetv"; }
+            { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }
+            { "in" = "[paus|pause|pausa|tyst|tysta|mute|stop]"; out = "pause"; }
+            { "in" = "[play|fortsätt|okej]"; out = "play"; }
+            { "in" = "[öj|höj|höjj|öka|hej]"; out = "up"; }
+            { "in" = "[sänk|sänkt|ner|ned]"; out = "down"; }
+            { "in" = "[näst|nästa|nästan|next|fram|framåt]"; out = "next"; }
+            { "in" = "[förr|förra|föregående|backa|bakåt]"; out = "previous"; }
+            { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
+            { "in" = "[favorit|favoriter|bästa]"; out = "add"; }
+            { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }   
+            { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "call"; }   
+            { "in" = "[av|stäng av]"; out = "off"; }            
+            { "in" = "på"; out = "on"; }        
+          ];
+          search.wildcard = true;
+          device.values = [
+            { "in" = "[sovrum|sovrummet|bedroom]"; out = "192.168.1.152"; }
+            { "in" = "[vardagsrum|vardagsrummet|livingroom]"; out = "192.168.1.223"; }              
+          ];  
+        };
+    };
   };
     
   sops.secrets = {

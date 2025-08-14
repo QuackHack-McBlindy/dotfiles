@@ -8,11 +8,6 @@
   ...
 } : let
 in {  
-  yo.bitch.intents.news.priority = 2;
-  yo.bitch.intents.news.data = [{ sentences = [
-    "(senast|senaste) (myt|nyt|nytt)"
-  ];}];
-
   yo.scripts.news = {
     description = "API caller and playlist manager for latest Swedish news";
     category = "🎧 Media Management";
@@ -84,4 +79,10 @@ in {
         if_voice_say "Inga nya nyheter."
       fi
     '';
+    voice = {
+      priority = 2;
+      sentences = [
+        "(senast|senaste) (myt|nyt|nytt)"
+      ];  
+    };
   };}  

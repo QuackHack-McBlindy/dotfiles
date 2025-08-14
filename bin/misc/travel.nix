@@ -8,45 +8,6 @@
   ...
 }: let
 in { # 🦆 says ⮞ voice intents
-  yo.bitch = { 
-    intents = {
-      travel = { # 🦆 says ⮞ intent priority, 1 for fastest - 5 for slowest
-        priority = 3;
-        data = [{
-          sentences = [
-            # 🦆 says ⮞ using default --departure
-            "mår går tåget till {arrival}"
-            "vilken tid går tåget till {arrival}"
-            "mår går bussen till {arrival}"
-            "vilken tid går bussen till {arrival}"
-            # 🦆 says ⮞ using default --arrival
-            "mår går tåget från {departure}"
-            "vilken tid går tåget från {departure}"
-            "mår går bussen från {departure}"
-            "vilken tid går bussen från {departure}"
-            # 🦆 says ⮞ call using type, arrival, and departure
-            "när går {type} från {departure} till {arrival}"
-            "vilken tid går {type} från {departure} till {arrival}"
-            "när går {type} till {arrival} från {departure}"
-            "vilken tid går {type} till {arrival} från {departure}"
-          ];    
-          lists = {
-            departure.wildcard = true;
-            arrival.wildcard = true;    
-            type.values = [
-              { "in" = "[bus|buss|bussen]"; out = "bus"; }
-              { "in" = "[tåg|tåget]"; out = "train"; }
-              { "in" = "[flyg|flyget]"; out = "air"; }              
-              { "in" = "[spårvagn|spårvagnen|vagnen]"; out = "tram"; }
-              { "in" = "[tunnelbana|tunnelbanan]"; out = "metro"; }              
-              { "in" = "[färja|färjan|båt|båten]"; out = "ferry"; }
-            ];
-          };
-        }];
-      };
-    };
-  };
-  
   # 🦆 says ⮞ da script yo
   yo.scripts.travel = {
     description = "Public transportation helper. Fetches current bus and train schedules. (Sweden)";
@@ -401,7 +362,39 @@ in { # 🦆 says ⮞ voice intents
         tts_final+="."
         tts "$tts_final"
       fi
-    '';    
+    '';
+    voice = {
+      priority = 3;
+      sentences = [
+        # 🦆 says ⮞ using default --departure
+        "mår går tåget till {arrival}"
+        "vilken tid går tåget till {arrival}"
+        "mår går bussen till {arrival}"
+        "vilken tid går bussen till {arrival}"
+        # 🦆 says ⮞ using default --arrival
+        "mår går tåget från {departure}"
+        "vilken tid går tåget från {departure}"
+        "mår går bussen från {departure}"
+        "vilken tid går bussen från {departure}"
+        # 🦆 says ⮞ call using type, arrival, and departure
+        "när går {type} från {departure} till {arrival}"
+        "vilken tid går {type} från {departure} till {arrival}"
+        "när går {type} till {arrival} från {departure}"
+        "vilken tid går {type} till {arrival} från {departure}"
+      ];    
+      lists = {
+        departure.wildcard = true;
+        arrival.wildcard = true;    
+        type.values = [
+          { "in" = "[bus|buss|bussen]"; out = "bus"; }
+          { "in" = "[tåg|tåget]"; out = "train"; }
+          { "in" = "[flyg|flyget]"; out = "air"; }              
+          { "in" = "[spårvagn|spårvagnen|vagnen]"; out = "tram"; }
+          { "in" = "[tunnelbana|tunnelbanan]"; out = "metro"; }              
+          { "in" = "[färja|färjan|båt|båten]"; out = "ferry"; }
+        ];
+      };
+    };
   };
     
   sops = {

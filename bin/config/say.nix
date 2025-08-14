@@ -1,4 +1,4 @@
-# dotfiles/bin/config/tts.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/config/say.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ TTS with built in language detection and automatic model downloading.  
   self,
   lib,

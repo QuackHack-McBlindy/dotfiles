@@ -1,4 +1,4 @@
-# dotfiles/bin/system/weather.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/misc/weather.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Weather forecast
   config,
   lib,
@@ -20,68 +20,6 @@
   };
   
 in {
-  yo.bitch.intents = {
-    weather = {
-      data = [{
-        sentences = [ 
-          # 🦆 says ⮞ 3 day weather cast
-          "hur är vädret"
-          "vädret"
-          # 🦆 says ⮞ Specify day
-          "hur (blir|är) vädret [på] {day}"
-          "hur (varmt|kallt) (blir|är) det [på] {day}"
-          "vad blir det för väder [på] {day}"
-          # 🦆 says ⮞ check condition
-          "hur {condition} (är|blir) det på {day}"
-          "blir det {condition} [på] {day}"
-          "hur {condition} är det"
-          "kommer det att {condition} [på] {day}" 
-        ];
-        lists = {
-          day.values = [
-            { "in" = "[ida|idag]"; out = "idag"; }
-            { "in" = "imorgon"; out = "imorgon"; }  
-            { "in" = "i morgon"; out = "imorgon"; }  
-            { "in" = "i övermorgon"; out = "i övermorgon"; }
-            { "in" = "övermorgon"; out = "i övermorgon"; } 
-            # 🦆 says ⮞ dayz
-            { "in" = "måndag"; out = "måndag"; }
-            { "in" = "tisdag"; out = "tisdag"; }  
-            { "in" = "onsdag"; out = "onsdag"; }      
-            { "in" = "torsdag"; out = "torsdag"; }
-            { "in" = "fredag"; out = "fredag"; }  
-            { "in" = "lördag"; out = "lördag"; }      
-            { "in" = "söndag"; out = "söndag"; }      
-          ];  
-          condition.values = [
-            # ☀️ Sunny / Clear
-            { "in" = "[sol|soligt|klart]"; out = "sunny"; }
-            # ⛅ Partly Cloudy
-            { "in" = "[halvklart|delvis molnigt|växlande molnighet]"; out = "partly cloudy"; }
-            # ☁️ Cloudy / Overcast
-            { "in" = "[molnigt|mulet|övermulet]"; out = "cloudy"; }
-            # 🌧️ Rain / Showers
-            { "in" = "[regn|regnar|skurar|duschregn]"; out = "rain"; }
-            # 🌨️ Snow Showers
-            { "in" = "[snöblandat regn|snöblask|blötsnö]"; out = "sleet"; }
-            # ❄️ Snow
-            { "in" = "[snö|snöa|snöar|snöfall]"; out = "snow"; }
-            # ⛈️ Thunderstorm
-            { "in" = "[åska|åskväder|åskregn|blixt]"; out = "thunderstorm"; }
-                                                   # 🌫️ Fog / Mist (not emoji-mapped but common)
-            { "in" = "[dimma|dis|töcken]"; out = "fog"; }
-            # 🌬️ Windy
-            { "in" = "[blåsigt|vind|vindigt]"; out = "windy"; }
-            # 🌡️ Heat / Warm
-            { "in" = "[varmt|hett|värme]"; out = "hot"; }
-            # ❄️ Cold
-            { "in" = "[kallt|kyla|frost]"; out = "cold"; } 
-          ];  
-        };
-      }];
-    };   
-  };
-
   yo.scripts.weather = {
     description = "Weather Assistant. Ask anything weather related (3 day forecast)";
     category = "🌍 Localization";
@@ -402,6 +340,63 @@ in {
           show_5day_forecast
       fi
     '';
+    voice = {
+      sentences = [ 
+        # 🦆 says ⮞ 3 day weather cast
+        "hur är vädret"
+        "vädret"
+        # 🦆 says ⮞ Specify day
+        "hur (blir|är) vädret [på] {day}"
+        "hur (varmt|kallt) (blir|är) det [på] {day}"
+        "vad blir det för väder [på] {day}"
+        # 🦆 says ⮞ check condition
+        "hur {condition} (är|blir) det på {day}"
+        "blir det {condition} [på] {day}"
+        "hur {condition} är det"
+        "kommer det att {condition} [på] {day}" 
+      ];
+      lists = {
+        day.values = [
+          { "in" = "[ida|idag]"; out = "idag"; }
+          { "in" = "imorgon"; out = "imorgon"; }  
+          { "in" = "i morgon"; out = "imorgon"; }  
+          { "in" = "i övermorgon"; out = "i övermorgon"; }
+          { "in" = "övermorgon"; out = "i övermorgon"; } 
+          # 🦆 says ⮞ dayz
+          { "in" = "måndag"; out = "måndag"; }
+          { "in" = "tisdag"; out = "tisdag"; }  
+          { "in" = "onsdag"; out = "onsdag"; }      
+          { "in" = "torsdag"; out = "torsdag"; }
+          { "in" = "fredag"; out = "fredag"; }  
+          { "in" = "lördag"; out = "lördag"; }      
+          { "in" = "söndag"; out = "söndag"; }      
+        ];  
+        condition.values = [
+          # ☀️ Sunny / Clear
+          { "in" = "[sol|soligt|klart]"; out = "sunny"; }
+          # ⛅ Partly Cloudy
+          { "in" = "[halvklart|delvis molnigt|växlande molnighet]"; out = "partly cloudy"; }
+          # ☁️ Cloudy / Overcast
+          { "in" = "[molnigt|mulet|övermulet]"; out = "cloudy"; }
+          # 🌧️ Rain / Showers
+          { "in" = "[regn|regnar|skurar|duschregn]"; out = "rain"; }
+          # 🌨️ Snow Showers
+          { "in" = "[snöblandat regn|snöblask|blötsnö]"; out = "sleet"; }
+          # ❄️ Snow
+          { "in" = "[snö|snöa|snöar|snöfall]"; out = "snow"; }
+          # ⛈️ Thunderstorm
+          { "in" = "[åska|åskväder|åskregn|blixt]"; out = "thunderstorm"; }
+                                                  # 🌫️ Fog / Mist (not emoji-mapped but common)
+          { "in" = "[dimma|dis|töcken]"; out = "fog"; }
+          # 🌬️ Windy
+          { "in" = "[blåsigt|vind|vindigt]"; out = "windy"; }
+          # 🌡️ Heat / Warm
+          { "in" = "[varmt|hett|värme]"; out = "hot"; }
+          # ❄️ Cold
+          { "in" = "[kallt|kyla|frost]"; out = "cold"; } 
+        ];  
+      };
+    };
   };
   
   sops.secrets."users/pungkula/homeCityCountry" = {

@@ -9,7 +9,6 @@ in {
   yo.scripts = { 
    deploy = {
      description = "Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation.";
-     aliases = [ "d" ];
      category = "🖥️ System Management";
      parameters = [
        { name = "host"; description = "Host machine to build and activate"; optional = false; }

@@ -8,35 +8,6 @@
   ... 
 } : let # 🦆 says ⮞ yo    
 in {
-  yo.bitch.intents.tv-guide = {
-    data = [{
-      sentences = [
-        "vilken kanal (spelas|sänds) {search} på"  
-        "vad (sänds|visas) på [kanal] {channel} [just nu]"       
-      ];    
-      lists = {
-        channel.values = [
-          { "in" = "ettan"; out = "1"; }         
-          { "in" = "tvåan"; out = "2"; }      
-          { "in" = "trean"; out = "3"; }      
-          { "in" = "fyran"; out = "4"; }      
-          { "in" = "femman"; out = "5"; }         
-          { "in" = "sexan"; out = "6"; }      
-          { "in" = "sjuan"; out = "7"; }      
-          { "in" = "åttan"; out = "8"; }      
-          { "in" = "nian"; out = "9"; }         
-          { "in" = "tian"; out = "10"; }      
-          { "in" = "elvan"; out = "11"; }      
-          { "in" = "tolvan"; out = "12"; }   
-          { "in" = "sport 1"; out = "14"; }   
-          { "in" = "sport 2"; out = "15"; }   
-          { "in" = "sport 3"; out = "16"; }   
-          { "in" = "sport 4"; out = "17"; }                                           
-        ];
-        search.wildcard = true;
-      };
-    }];
-  };
   yo.scripts.tv-guide = {
     description = "TV-guide assistant..";
     aliases = [ "tvg" ];
@@ -198,4 +169,31 @@ in {
         fi
       fi
     '';   
+    voice = {
+      sentences = [
+        "vilken kanal (spelas|sänds) {search} på"  
+        "vad (sänds|visas) på [kanal] {channel} [just nu]"       
+      ];    
+      lists = {
+        channel.values = [
+          { "in" = "ettan"; out = "1"; }         
+          { "in" = "tvåan"; out = "2"; }      
+          { "in" = "trean"; out = "3"; }      
+          { "in" = "fyran"; out = "4"; }      
+          { "in" = "femman"; out = "5"; }         
+          { "in" = "sexan"; out = "6"; }      
+          { "in" = "sjuan"; out = "7"; }      
+          { "in" = "åttan"; out = "8"; }      
+          { "in" = "nian"; out = "9"; }         
+          { "in" = "tian"; out = "10"; }      
+          { "in" = "elvan"; out = "11"; }      
+          { "in" = "tolvan"; out = "12"; }   
+          { "in" = "sport 1"; out = "14"; }   
+          { "in" = "sport 2"; out = "15"; }   
+          { "in" = "sport 3"; out = "16"; }   
+          { "in" = "sport 4"; out = "17"; }                                           
+        ];
+        search.wildcard = true;
+      };    
+    };
   };}
