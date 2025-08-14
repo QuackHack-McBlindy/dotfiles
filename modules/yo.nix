@@ -650,54 +650,59 @@ EOF
   # 🦆 duck say ⮞ build da .md file
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
-  helpText = let # 🦆 duck say ⮞ categorize scripts
-  # 🦆 duck say ⮞ sort da scriptz by category
-  visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
-  groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
-  sortedCategories = lib.sort (a: b: 
-    # 🦆 duck say ⮞ system management goes first yo
-    if a == "🖥️ System Management" then true
-    else if b == "🖥️ System Management" then false
-    else a < b # 🦆 duck say ⮞ after dat everything else quack quack
-  ) (lib.attrNames groupedScripts);
+  helpText = let 
+    # 🦆 duck say ⮞ URL escape helper for GitHub links
+    escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
   
-  # 🦆 duck say ⮞ URL escape helper for GitHub links
-  escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
+    # 🦆 duck say ⮞ categorize scripts
+    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
+    sortedCategories = lib.sort (a: b: 
+      # 🦆 duck say ⮞ system management goes first yo
+      if a == "🖥️ System Management" then true
+      else if b == "🖥️ System Management" then false
+      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
+    ) (lib.attrNames groupedScripts);
   
-  # 🦆 duck say ⮞ create table rows with category separatorz 
-  rows = lib.concatMap (category:
-    let  # 🦆 duck say ⮞ sort from A to Ö  
-      scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
-    in
-      [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-        "| **${escapeMD category}** | | |"
-      ] 
-      ++ # 🦆 duck say ⮞ each yo script goes into a table row
-      (map (script:
-        let # 🦆 duck say ⮞ format list of aliases
-          aliasList = if script.aliases != [] then
-            concatStringsSep ", " (map escapeMD script.aliases)
-          else "";
-          # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
-          paramHint = concatStringsSep " " (map (param:
-            if param.optional || param.default != null
-            then "[--${param.name}]"
-            else "--${param.name}"
-          ) script.parameters);
-          # 🦆 duck say ⮞ render yo script syntax with param and link to source
-          syntax = let
-            escapedName = escapeMD script.name;
-            commandText = "yo ${escapedName} ${paramHint}";
-          in if githubBaseUrl != "" then
-            "[${commandText}](${githubBaseUrl}/${escapeURL script.filePath})"
-          else commandText;
-        in # 🦆 duck say ⮞ write full md table row - command | aliases | description
-          "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
-      ) scripts)
-  ) sortedCategories;
+    # 🦆 duck say ⮞ create table rows with category separatorz 
+    rows = lib.concatMap (category:
+      let  # 🦆 duck say ⮞ sort from A to Ö  
+        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+      in
+        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
+          "| **${escapeMD category}** | | |"
+        ] 
+        ++ # 🦆 duck say ⮞ each yo script goes into a table row
+        (map (script:
+          let 
+            # 🦆 duck say ⮞ format list of aliases
+            aliasList = if script.aliases != [] then
+              concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
+            
+            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
+            paramHint = concatStringsSep " " (map (param:
+              if param.optional || param.default != null
+              then "[--${param.name}]"
+              else "--${param.name}"
+            ) script.parameters);
+            
+            # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
+            syntax = 
+              if githubBaseUrl != "" then
+                "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
+              else
+                "yo ${escapeMD script.name} ${paramHint}";
+          in 
+            # 🦆 duck say ⮞ write full md table row - command | aliases | description
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+        ) scripts)
+    ) sortedCategories;
   
   in concatStringsSep "\n" rows;
   
+  
+
 
 
 
