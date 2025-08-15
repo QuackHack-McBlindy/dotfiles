@@ -1,25 +1,11 @@
 # dotfiles/modules/yo.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ Nix DSL yo CLI - Defines & Unifies all my scripts into a smart & duck powered script execution system   
-  config,# 🦆 says ⮞ 📌 FEATURES:   
-  lib,       # 🦆 duck say ⮞ ⭐ Flexible parameters (Named + positional) - Support default values and optional parameters.
-  pkgs,      # 🦆 duck say ⮞ ⭐ Voice command integration with declarative defined sentences and entity lists.
-  ...        # 🦆 duck say ⮞ ⭐ Unified help commands + DuckTrace integrated logging + Start at Boot features.
-} : with lib;# 🦆 duck say ⮞ ⭐ Automatic README injection - display scripts in Markdown + Dynamic badge updates based on system versions. 
+{ # 🦆 duck say ⮞ custom CLI framework for executing scripts   
+  config,
+  lib,       
+  pkgs,   
+  ...
+} : with lib;
 let 
-  categoryDirMap = {
-    "⚙️ Configuration" = "bin/config";
-    "🧹 Maintenance" = "bin/maintenance";
-    "🎧 Media Management" = "bin/media";
-    "🧩 Miscellaneous" = "bin/misc";
-    "🌐 Networking" = "bin/network";
-    "🌍 Localization" = "bin/misc";
-    "⚡ Productivity" = "bin/productivity";
-    "🖥️ System Management" = "bin/system";
-    "🔐 Security & Encryption" = "bin/security";
-  };
-  
-  resolvedDir = categoryDirMap.${config.category} or "bin/misc";
-  
   # 🦆 says ⮞ for README version badge yo
   nixosVersion = let
     raw = builtins.readFile /etc/os-release;
@@ -111,7 +97,7 @@ let
     HELP_CONTENT=$(<${helpTextFile})
 
     DOCS_CONTENT=$(cat <<'EOF'
-## 🚀 **yo CLI 🦆🦆🦆🦆🦆🦆**
+## 🚀 **yo CLI 🦆**
 **Usage:** \`yo <command> [arguments]\`  
 
 ### **Usage Examples:**  
@@ -124,21 +110,23 @@ $ yo deploy --host laptop --flake /home/pungkula/dotfiles
 # Positional Parameters
 $ yo deploy laptop /home/pungkula/dotfiles
 
-# Scripts can also be executed with voice, by saying:
-"yo bitch deploy laptop"
+# Scripts can also be executed with natural language text by typing:
+$ yo do "is laptop overheatiing"
+# Natural language voice commands are also supported, say:
+"yo bitch reboot the laptop"
 
 # If the server is not running, it can be manually started with:
 $ yo transcription
 $ yo wake
 
 # Get list of all defined sentences for voice commands:
-$ yo bitch --help
+$ yo do --help
 ```
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
-| Command Syntax               | Aliases    | Description |
-|------------------------------|------------|-------------|
+| Command Syntax               | Aliases    | Description | VoiceReady |
+|------------------------------|------------|-------------|--|
 ${helpText}
 ### ❓ Detailed Help
 For specific command help: 
@@ -315,7 +303,6 @@ EOF
     rm "$USER_TMP" "$HOST_TMP"
   '';
 
-
   # 🦆 duck say ⮞ expoort param into shell script
   yoEnvGenVar = script: let
     withDefaults = builtins.filter (p: p.default != null) script.parameters;
@@ -323,6 +310,7 @@ EOF
   in lib.concatStringsSep "\n" exports;
 #  scriptType = types.submodule ({ name, ... }: {
   scriptType = types.submodule ({ name, configFinal, ... }: {  
+
 # 🦆 ⮞ OPTIONS 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
     options = { # 🦆 duck say ⮞ a name cool'd be cool right?
       name = mkOption {
@@ -445,6 +433,12 @@ EOF
         default = null;
         description = "Voice command configuration for this script";
       };
+      voiceReady = mkOption {
+        type = types.bool;
+        internal = true;
+        readOnly = true;
+        description = "Whether this script has voice commands configured";
+      };
     };
     config = let # 🦆 duck say ⮞ map categories to bin directories
       categoryDirMap = {
@@ -459,10 +453,17 @@ EOF
         "🖥️ System Management" = "bin/system";
         "🔐 Security & Encryption" = "bin/security";
       };  
+      script = config.yo.scripts.${name};      
+      vr = config.yo.scripts.${name}.voiceReady;      
       category = config.yo.scripts.${name}.category;
       resolvedDir = categoryDirMap.${category} or "bin/misc"; # 🦆 duck say ⮞ falback to bin/misc
     in { # 🦆 duck say ⮞ set scripts filepath
       filePath = mkDefault "${resolvedDir}/${name}.nix";
+      voiceReady = mkDefault (
+        script.voice != null && 
+        script.voice.sentences != [] &&
+        script.voice.sentences != null
+      );
     };
   });
   cfg = config.yo;
@@ -704,45 +705,78 @@ EOF
     ) (lib.attrNames groupedScripts);
   
     # 🦆 duck say ⮞ create table rows with category separatorz 
+#    rows = lib.concatMap (category:
+#      let  # 🦆 duck say ⮞ sort from A to Ö  
+#        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+#      in
+#        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
+#          "| **${escapeMD category}** | | |"
+#        ] 
+#        ++ # 🦆 duck say ⮞ each yo script goes into a table row
+#        (map (script:
+#          let 
+            # 🦆 duck say ⮞ format list of aliases
+#            aliasList = if script.aliases != [] then
+#              concatStringsSep ", " (map escapeMD script.aliases)
+#            else "";
+            
+            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
+#            paramHint = concatStringsSep " " (map (param:
+#              if param.optional || param.default != null
+#              then "[--${param.name}]"
+#              else "--${param.name}"
+#            ) script.parameters);
+            
+            # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
+#            syntax = 
+#              if githubBaseUrl != "" then
+#                "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
+#              else
+#                "yo ${escapeMD script.name} ${paramHint}";
+#          in 
+            # 🦆 duck say ⮞ write full md table row - command | aliases | description
+#            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+#        ) scripts)
+#    ) sortedCategories;
+  
+#  in concatStringsSep "\n" rows;
+  
+    # 🦆 duck say ⮞ create table rows with category separatorz 
     rows = lib.concatMap (category:
-      let  # 🦆 duck say ⮞ sort from A to Ö  
+      let # 🦆 duck say ⮞ sort from A to Ö  
         scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
       in
         [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-          "| **${escapeMD category}** | | |"
+          "| **${escapeMD category}** | | | |"
         ] 
-        ++ # 🦆 duck say ⮞ each yo script goes into a table row
-        (map (script:
-          let 
-            # 🦆 duck say ⮞ format list of aliases
+        # 🦆 duck say ⮞ each yo script goes into a table row
+        ++ (map (script:
+          let  # 🦆 duck say ⮞ format list of aliases
             aliasList = if script.aliases != [] then
               concatStringsSep ", " (map escapeMD script.aliases)
             else "";
-            
             # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
             paramHint = concatStringsSep " " (map (param:
               if param.optional || param.default != null
               then "[--${param.name}]"
               else "--${param.name}"
             ) script.parameters);
-            
             # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
             syntax = 
               if githubBaseUrl != "" then
                 "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
               else
                 "yo ${escapeMD script.name} ${paramHint}";
+              
+            # 🦆 duck say ⮞ add voice ready indicator
+            voiceIndicator = if script.voiceReady then "✅" else "📛";
           in 
-            # 🦆 duck say ⮞ write full md table row - command | aliases | description
-            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+            # 🦆 duck say ⮞ voice indicator to the row
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} | ${voiceIndicator} |"
         ) scripts)
     ) sortedCategories;
-  
+
   in concatStringsSep "\n" rows;
-  
-  
-
-
 
 
 in { # 🦆 duck say ⮞ options options duck duck
