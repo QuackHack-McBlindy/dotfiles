@@ -7,7 +7,9 @@
   cmdHelpers,
   ... 
 } : let 
-in { # 🦆 says ⮞ call diz wen u wantz to sendz notifications
+in {
+  networking.firewall.allowedTCPPorts = [9913];
+  # 🦆 says ⮞ call diz wen u wantz to sendz notifications
   yo.scripts.notify = { 
     description = "Send Notifications eazy as-quick quack done";
     category = "🌐 Networking";

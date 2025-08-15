@@ -31,7 +31,7 @@ in {
            web-push-public-key = "BGxWiWgvfogQXS9Lz9diQe7G29jvuca0856U6Fb8m9NPUQj525BS62syNrBXUTFx4H32GQFomdVs0lHrHDIXD3U";
            web-push-private-key = config.sops.secrets.ntfy-private.path;
            web-push-file = "/var/lib/ntfy-sh/webpush.db";
-           web-push-email-address = "example@mail.com";
+           web-push-email-address = "anton-nordstrom@hotmail.com";
            enable-web-push = true;
        };
     };   
