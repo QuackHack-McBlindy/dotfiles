@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fq6dzin4mcrivm8v3x2mkydf0sxanc94-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/rhd2vcg1qy8ky5qvifpykcfb9jy0vcn1-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -347,7 +347,8 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | | |
 | [yo block](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) --url [--blocklist] | ad | Block URLs using DNS | 📛 |
 | [yo ip-updater](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/ip-updater.nix) [--token1] [--token2] [--token3] |  | domain updater | 📛 |
-| [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] |  | Notification server for iOS devices | 📛 |
+| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) [--text] [--title] [--icon] [--url] [--group] [--sound] [--base_urlFile] [--deviceKeyFile] |  | Send custom push to iOS devices | 📛 |
+| [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] [--dataDir] |  | Notification server for iOS devices | 📛 |
 | [yo speed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix)  | st | Test your internets Download speed | 📛 |
 | **🎧 Media Management** | | | |
 | [yo news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/news.nix) [--apis] [--clean] [--playedFile] |  | API caller and playlist manager for latest Swedish news | ✅ |
