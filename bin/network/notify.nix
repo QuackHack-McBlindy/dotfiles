@@ -114,7 +114,7 @@ in {
 #      PASSWORDFILE=$pwFile
 #      PASSWORD=$(cat PASSWORDFILE)
 #      DEVICE_KEY=$deviceKey
-#      bark-server --addr $address:$port
+      ${pkgs.bark-server}/bin/bark-server --addr $address:$port
     '';  
   };
   
