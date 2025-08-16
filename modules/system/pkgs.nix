@@ -62,6 +62,7 @@
                 pkgs.mosquitto
                 pkgs.nixos-option
                 pkgs.inotify-tools
+                pkgs.bark-server
                 pkgs.wyoming-satellite
                 pkgs.mpg123
                 pkgs.hassil

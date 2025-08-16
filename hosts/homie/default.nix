@@ -67,7 +67,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" ];
                 networking = [ "default" "dns" "pool" "wg-server" ];
-                services = [ "ssh" "adb" "pairdrop" "zigduck" "navidrome" "ip-updater" "notfy" "jelly" ];
+                services = [ "ssh" "adb" "pairdrop" "zigduck" "navidrome" "ip-updater" "jelly" ];
                 programs = [ "default" ];
                 virtualisation = [ "docker-rootless" "home-assistant" ];
             };  
