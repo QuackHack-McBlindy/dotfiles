@@ -99,11 +99,12 @@ in {
     category = "🌐 Networking";
     logLevel = "DEBUG";
 #    autoStart = false;  
-#    autoStart = builtins.elem config.this.host.hostname [ "homie" ];
+    autoStart = builtins.elem config.this.host.hostname [ "homie" ];
     parameters = [
 #      { name = "deviceKey"; description = "Device token"; default = "X"; }  
       { name = "address"; description = "IP to run server on"; default = "0.0.0.0"; }
       { name = "port"; description = "Port for the service"; default = "9913";  } 
+      { name = "dataDir"; description = "Directory path to store server data"; default = "/home/pungkula/barks";  }       
 #      { name = "user"; description = "Username authentication for the service"; default = "9913";  } 
 #      { name = "pwFile"; description = "FIle path of file containing password the service"; default = config.sops.secrets.bark.path;  } 
     ]; 
@@ -114,7 +115,8 @@ in {
 #      PASSWORDFILE=$pwFile
 #      PASSWORD=$(cat PASSWORDFILE)
 #      DEVICE_KEY=$deviceKey
-      ${pkgs.bark-server}/bin/bark-server --addr $address:$port
+      mkdir $dataDir
+      ${pkgs.bark-server}/bin/bark-server --addr $address:$port --data $dataDir
     '';  
   };
   
