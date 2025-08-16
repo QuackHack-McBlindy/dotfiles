@@ -178,7 +178,7 @@ EOF
       TIMER_DIR="$STATE_DIR/timers" 
       BACKUP_ID=""
       BACKUP_TMP_FILE=""
-      # 🦆 says ⮞ 🚨 Improved Security System with State Management
+
       LARMED_FILE="$STATE_DIR/security_state.json"
       umask 077
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"
@@ -205,14 +205,21 @@ EOF
         local state="$1"
         jq -n --argjson val "$state" '{larmed: $val}' > "$LARMED_FILE"
         mqtt_pub -t "zigbee2mqtt/security/state" -m "$(cat "$LARMED_FILE")"
+        
+        if [ "$state" = "true" ]; then
+          dt_warning "🛡️ Security system ARMED"
+          yo notify "🛡️ Security armed"
+        else
+          dt_warning "🛡️ Security system DISARMED"
+          yo notify "🛡️ Security disarmed"
+        fi
       }
       
       get_larmed() {
         ${pkgs.jq}/bin/jq -r '.larmed' "$LARMED_FILE"
       }
 
-      LARMED=$(get_larmed)
-
+  
       # 🦆 says ⮞ zigbee coordinator backup function
       perform_zigbee_backup() {
         BACKUP_ID="zigbee_backup_$(date +%Y%m%d_%H%M%S)"
@@ -298,13 +305,11 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           # 🦆 says ⮞ left home yo
           # call with: mosquitto_pub -h IP -t "zigbee2mqtt/leaving_home" -m "LEFT"
           if [ "$line" = "LEFT" ]; then
-            dt_warning "LEAVING HOME!"
-            set_larmed true
+            set_larmed true            
           fi
           # 🦆 says ⮞ returned homez
           # calll mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/returning_home" -m "RETURN" 
           if [ "$line" = "RETURN" ]; then
-            dt_warning "Returned home!"
             set_larmed false
           fi
 
@@ -353,9 +358,9 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             device_check            
             if [ "$contact" = "false" ]; then
               dt_info "🚪 Door open in $dev_room ($device_name)"    
-              LARMED=$(get_larmed)  # 🦆 says ⮞ Get current security state
-              if [ "$LARMED" = "true" ]; then
-                dt_critical "🚨 ALARM! Door open in $dev_room ($device_name) while armed!"  
+              CURRENT_LARMED=$(get_larmed)
+              if [ "$CURRENT_LARMED" = "true" ]; then
+                dt_critical "🚨 ALARM! Door open while armed!"
                 yo notify "🚨 ALARM! Door open in $dev_room!"
                 sleep 15
                 yo notify "🚨 ALARM! Door open in $dev_room!"
