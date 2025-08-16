@@ -1,5 +1,5 @@
-# dotfiles/bin/home/returned.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Disarm security, set returned home state etc
+# dotfiles/bin/home/leaving.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ Arm security, set away state etc
   self,
   lib,
   config,
@@ -25,8 +25,8 @@
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
 in {  
-  yo.scripts.returned = {
-    description = "Run when returned home to set home state";
+  yo.scripts.leaving = {
+    description = "Run when leaving house to set away state";
     category = "🛖 Home Automation";
     autoStart = false;
     parameters = [  
@@ -35,8 +35,8 @@ in {
     logLevel = "INFO";
     code = ''
       ${cmdHelpers}
-      mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/returning_home" -m "RETURN" 
-      dt_info "Set state to returned home!"
+      mosquitto_pub -h ${mqttHostip} -t "zigbee2mqtt/leaving_home" -m "LEFT"
+      dt_info "Set state to away!"
     '';
     
   };}

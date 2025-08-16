@@ -65,7 +65,7 @@
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
 in { 
-  yo.scripts.indoorTemp = {
+  yo.scripts.temperatures = {
     description = "Get all temperature values from sensors and return a average value.";
     category = "🛖 Home Automation";     
     code = ''

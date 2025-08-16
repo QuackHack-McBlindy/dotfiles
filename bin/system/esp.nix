@@ -189,7 +189,7 @@ in { # 🦆 says ⮞ my microcontrollerz yo
 
   yo.scripts = { 
     esp = { # 🦆 says ⮞ quackin' flashin' helpin' scriptin' - yo 
-      description = "Declarative firmware deployment tool for ESP32 boards ";
+      description = "Declarative firmware deployment tool for ESP32 boards with built-in version control.";
       category = "🖥️ System Management";
       logLevel = "DEBUG";
       parameters = [

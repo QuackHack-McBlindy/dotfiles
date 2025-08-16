@@ -326,13 +326,9 @@ in { # 🦆 says ⮞ yo yo yo yo
         --device "$DEVICE" \
         --beamSize "$BEAMSIZE" \
         --cert "$CERT" \
-        --key "$KEY" 2>&1 | while IFS= read -r line; do
-          if echo "$line" | grep -q "\[transcription\]"; then
-            dt_debug "Transcribed: ''${line#*\[transcription\] }"
-          else
-            echo "$line"
-            dt_debug "$line"
-          fi
+        --key "$KEY" \
+        2>&1 | while IFS= read -r line; do
+          dt_info "$line"
         done
     '';
   };
