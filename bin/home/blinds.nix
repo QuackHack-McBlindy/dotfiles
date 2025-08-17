@@ -82,6 +82,7 @@ in {
     voice = {
       sentences = [
         "(persienner|persiennerna) {state}" 
+        "(blind|blinds) {state}"
       ];
       lists = {
         state.values = [

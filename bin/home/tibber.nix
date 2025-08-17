@@ -12,8 +12,7 @@ in {
     description = "Fetches home electricity price data";
     category = "🛖 Home Automation";
     aliases = ["el"];
-    autoStart = false;
-    runEvery = "120";
+    runEvery = "60";
     parameters = [  
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
       { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }      

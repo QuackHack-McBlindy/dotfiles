@@ -160,8 +160,10 @@ in {
       restore_lights
       trap - EXIT
     '';
-#    voice = {
-    
-#    };
+    voice = {
+      sentences = [
+        "blinka alla [lampor|lamporna]"
+      ];
+    };
   };}
 

@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/988gr8iv17sgqy4r1la644bnb910lgl2-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/2ry5klw0bb8f518lfv243pwb6hmyyxsi-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -334,7 +334,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo wake](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/wake.nix) [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle] |  | Run Wake word detection for audio recording and transcription | 📛 |
 | **⚡ Productivity** | | | |
 | [yo calculator](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calculator.nix) --expression | calc | Calculate math expressions | ✅ |
-| [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) --operation | kal | Calendar assistant | 📛 |
+| [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) --operation [--calenders] | kal | Calendar assistant | ✅ |
 | [yo fzf](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix)  | f | Interactive fzf search for file content with quick edit & jump to line | 📛 |
 | [yo google](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/google.nix) --search [--apiKeyFile] [--searchIDFile] | g | Perform web search on google | 📛 |
 | [yo pull](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pull.nix) [--flake] | pl | Pull the latest changes from your dotfiles repo. Safely resets local state and syncs with origin/main cleanly. | 📛 |
@@ -347,7 +347,7 @@ Set default values for your parameters to have them marked [optional]
 | **🌐 Networking** | | | |
 | [yo block](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) --url [--blocklist] | ad | Block URLs using DNS | 📛 |
 | [yo ip-updater](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/ip-updater.nix) [--token1] [--token2] [--token3] |  | domain updater | 📛 |
-| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) [--text] [--title] [--icon] [--url] [--group] [--sound] [--base_urlFile] [--deviceKeyFile] |  | Send custom push to iOS devices | 📛 |
+| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) [--text] [--title] [--icon] [--url] [--group] [--sound] [--level] [--base_urlFile] [--deviceKeyFile] |  | Send custom push to iOS devices | 📛 |
 | [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] [--dataDir] |  | Notification server for iOS devices | 📛 |
 | [yo speed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix)  | st | Test your internets Download speed | 📛 |
 | **🎧 Media Management** | | | |
@@ -362,7 +362,8 @@ Set default values for your parameters to have them marked [optional]
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
-| [yo blink](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blink.nix) [--duration] [--user] [--passwordfile] |  | Blink all lights for a specified duration | 📛 |
+| [yo blink](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blink.nix) [--duration] [--user] [--passwordfile] |  | Blink all lights for a specified duration | ✅ |
+| [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] |  | Control lights and other home automatioon devices | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |

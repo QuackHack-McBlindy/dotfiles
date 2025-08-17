@@ -20,6 +20,7 @@ in {
       { name = "url"; description = "Optional URL to open on tap"; default = "https://example.com"; }
       { name = "group"; description = "Notification group/channel"; default = "default"; }
       { name = "sound"; description = "Notification sound. Available sounds: minuet, electronic, horn, bark, bell, chime, glass, healthnotification."; default = "minuet"; } 
+      { name = "level"; description = "Notification level. Available values are: info, critical, error."; default = "info"; }
       { name = "base_urlFile"; description = "File path containing a HTTPS domain"; default = config.sops.secrets.ntfy-url.path; }
       { name = "deviceKeyFile"; description = "The receiving devices key file"; default = config.sops.secrets.bark_key.path; }    
     ]; # 🦆 says ⮞ call diz like dat: `yo notify this is my message`
@@ -40,6 +41,7 @@ in {
       ICON=$icon
       SOUND=$sound
       GROUP=$group
+      LEVEL=$level
       URL=$url
       
       JSON=$(cat <<EOF
@@ -49,8 +51,10 @@ in {
   "title": "$TITLE",
   "badge": 1,
   "sound": "$SOUND",
+  "volume": 5,
   "icon": "$ICON",
   "group": "$GROUP",
+  "level": "critical",  
   "url": "$URL"
 }
 EOF
