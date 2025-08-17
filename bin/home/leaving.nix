@@ -37,6 +37,7 @@ in {
       ${cmdHelpers}
       mosquitto_pub -h ${mqttHostip} -t "zigbee2mqtt/leaving_home" -m "LEFT"
       dt_info "Set state to away!"
+      yo notify --text "Left home"
     '';
     
   };}

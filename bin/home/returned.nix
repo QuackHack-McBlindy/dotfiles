@@ -37,6 +37,7 @@ in {
       ${cmdHelpers}
       mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/returning_home" -m "RETURN" 
       dt_info "Set state to returned home!"
+      yo notify --text "Returned home!"
     '';
     
   };}
