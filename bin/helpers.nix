@@ -361,8 +361,8 @@ in
         iconv -f utf-8 -t ascii//TRANSLIT | 
         tr '[:upper:]' '[:lower:]' |         
         tr -d '[:punct:]' |          
-        sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |  # Trim spaces
-        sed -e 's/[[:space:]]+/ /g'          # Normalize spaces
+        sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |
+        sed -e 's/[[:space:]]+/ /g'
     } 
     find_best_fuzzy_match() {
       local input="$1"

@@ -24,6 +24,7 @@ in {
       { name = "copy"; description = "Value to copy to device."; optional = true; } 
       { name = "autoCopy"; description = "Must be 1 to copy"; default = "0"; } 
       { name = "level"; description = "Notification level. Available values are: info, critical, error."; default = "info"; }
+      { name = "encrypt"; description = "Set to 1 to encrypt the notification"; default = "0"; }
       { name = "base_urlFile"; description = "File path containing a HTTPS domain"; default = config.sops.secrets.ntfy-url.path; }
       { name = "deviceKeyFile"; description = "The receiving devices key file"; default = config.sops.secrets.bark_key.path; }    
     ]; # 🦆 says ⮞ call diz like dat: `yo notify this is my message`
@@ -72,6 +73,31 @@ EOF
       if [ -n "$copy" ]; then
         JSON=$(echo "$JSON" | jq --arg copy "$COPY" '. + {copy: $COPY}')
       fi
+
+      if [ "$encrypt" = "1" ]; then
+        # 🦆 says ⮞ generate random nonce 12 bytes
+        NONCE=$(${pkgs.openssl}/bin/openssl rand -hex 12)
+        
+        # 🦆 says ⮞ pad device_key to 32 bytes AES-256
+        KEY=$(echo -n "$DEVICE_KEY" | ${pkgs.xxd}/bin/xxd -p | tr -d '\n' | head -c 64 | awk '{ printf "%-64s", $1 }' | tr ' ' '0')
+        
+        # 🦆 says ⮞ encrypt and get binary output
+        CIPHERTEXT_TAG_BIN=$(echo -n "$TEXT" | ${pkgs.openssl}/bin/openssl enc -aes-256-gcm -e -K "$KEY" -iv "$NONCE" 2>/dev/null)
+        
+        # 🦆 says ⮞ convert nonce to binary
+        NONCE_BIN=$(echo -n "$NONCE" | ${pkgs.xxd}/bin/xxd -r -p)
+        
+        # 🦆 says ⮞ combine nonce + ciphertext + tag
+        BLOB="$NONCE_BIN$CIPHERTEXT_TAG_BIN"
+        
+        # 🦆 says ⮞ base64 encode the entire blob
+        CIPHERTEXT_BASE64=$(echo -n "$BLOB" | ${pkgs.coreutils}/bin/base64 -w0)
+
+        JSON=$(echo "$JSON" | jq \
+          --arg ciphertext "$CIPHERTEXT_BASE64" \
+          '. + {ciphertext: $ciphertext, isArchive: "1"} | del(.body)')
+      fi
+
 
       ${pkgs.curl}/bin/curl -X POST "$BASE_URL/push" \
         -H 'Content-Type: application/json' \

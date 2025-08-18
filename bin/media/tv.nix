@@ -78,7 +78,7 @@ in {
   };
    
   yo.scripts.tv = {
-    description = "Android TV Controller";
+    description = "Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. Fully conttrollable.";
     category = "🎧 Media Management";
     aliases = [ "remote" ];
     autoStart = false;
