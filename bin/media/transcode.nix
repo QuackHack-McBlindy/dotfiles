@@ -1,4 +1,4 @@
-# dotfiles/bin/media/tv-guide.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/media/transcode.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Fancy markdown & Text-To-Speech EPG in da terminal! 
   self,
   lib,
@@ -18,7 +18,6 @@ in {
 #    '';
     parameters = [
       { name = "directory"; description = "Directory path to look for media that shall be transcoded"; default = "/Pool/TV/House"; }  
-
     ];
     code = ''
       ${cmdHelpers}

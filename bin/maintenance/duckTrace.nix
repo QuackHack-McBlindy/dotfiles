@@ -9,7 +9,7 @@
 } : let   
 in { # 🦆 says ⮞  
   yo.scripts.duckTrace = {
-    description = "View duckTrace logs quick and quack.";
+    description = "View duckTrace logs quick and quack, unified logging system";
     aliases = [ "log" ];    
     category = "🖥️ System Management";
 #    helpFooter = '' # 🦆 says ⮞ display log file in markdown with Glow
@@ -27,7 +27,7 @@ in { # 🦆 says ⮞
       get_service_name() {
         local log_base
         log_base=$(basename "$LOGFILE" .log)
-        # Remove yo.scripts prefix if present
+        # 🦆 says ⮞ remove yo.scripts prefix if present
         if [[ "$log_base" == yo.scripts.* ]]; then
           echo "yo-''${log_base#yo.scripts.}.service"
         else

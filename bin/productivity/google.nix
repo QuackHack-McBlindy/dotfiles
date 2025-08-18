@@ -1,19 +1,14 @@
-{ self, config, pkgs, cmdHelpers, ... }:
-{
-  yo = {
-    bitch = {
-      intents = {
-        calendar = {
-          data = [{
-            sentences = [
-              "(google|googla|sök) [efter|på|om] {search}"
-            ];
-            lists.search.wildcard = true;
-          }];  
-        };  
-      };
-    };  
-    
+# dotfiles/bin/productivity/google.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ custom google search
+  self,
+  lib,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : let
+in {  
+  yo = {   
     scripts = {
       google = {
         description = "Perform web search on google";
@@ -34,8 +29,6 @@
           response=$(curl -s "https://www.googleapis.com/customsearch/v1?key=$GOOGLE_API_KEY&cx=$SEARCH_ENGINE_ID&q=$query")
           dt_debug "$response"
           
-         
-          # Error handling
           error=$(echo "$response" | jq -r '.error.message // empty')
           if [ -n "$error" ]; then
             dt_error "Google search error: $error"
@@ -54,7 +47,7 @@
           
 
           echo ""
-          # display
+          # 🦆 says ⮞ display
           for i in "''${!results[@]}"; do
             echo "Search results for: $search"
             if_voice_say "Hittade dessa resultat när jag ssökte på: $search"
@@ -64,7 +57,7 @@
             link=$(echo "$item" | jq -r '.link // ""')
             snippet=$(echo "$item" | jq -r '.snippet // ""')
             
-            # 1st result
+            # 🦆 says ⮞ 1st result
             if [ $i -eq 0 ]; then
               echo "  ''${title}"
               [ -n "$link" ] && echo "  ''${link}"
@@ -80,7 +73,7 @@
             fi
           done
           
-          # interactive mode
+          # 🦆 says ⮞ interactive mode
           if [ -t 0 ]; then
             echo "———————————————————————————————————————"
             echo "Navigate: [1-5] Open result | [q] Quit"
@@ -144,6 +137,12 @@
             exit 0
           fi
         '';
+        voice = {
+          sentences = [
+            "(google|googla|sök) [efter|på|om] {search}"
+          ];
+          lists.search.wildcard = true;
+        };
       };
     };
   };

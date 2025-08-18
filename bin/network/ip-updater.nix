@@ -11,7 +11,7 @@
 in {
 
   yo.scripts.ip-updater = {
-    description = "domain updater";
+    description = "DDNS updater";
     category = "🌐 Networking";
     runEvery = "15";
 #    autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
