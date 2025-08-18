@@ -176,20 +176,20 @@ in {
         };
         duckdnsEnv-x = {
           sopsFile = ./../../secrets/duckdnsEnv-x.yaml;
-          owner = "duckdns";
-          group = "duckdns";
+          owner = lib.mkForce "duckdns";
+          group = lib.mkForce "duckdns";
           mode = "0660";
         };
         duckdnsEnv-gh-pungkula = {
           sopsFile = ./../../secrets/duckdnsEnv-gh-pungkula.yaml;
-          owner = "duckdns";
-          group = "duckdns";
+          owner = lib.mkForce "duckdns";
+          group = lib.mkForce "duckdns";
           mode = "0660";
         };
         duckdnsEnv-gh-quackhack = {
           sopsFile = ./../../secrets/duckdnsEnv-gh-quackhack.yaml;
-          owner = "duckdns";
-          group = "duckdns";
+          owner = lib.mkForce "duckdns";
+          group = lib.mkForce "duckdns";
           mode = "0660";
         };
       };

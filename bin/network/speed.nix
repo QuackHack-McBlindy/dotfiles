@@ -4,7 +4,7 @@
 
 
   yo.scripts.speed = {
-    description = "Test your internets Download speed";
+    description = "Test internet download speed";
     category = "🌐 Networking";
     aliases = [ "st" ];
     helpFooter = ''

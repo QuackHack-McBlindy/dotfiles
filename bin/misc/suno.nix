@@ -60,12 +60,11 @@
 #    helpFooter = ''
 #    '';
     parameters = [
-      { name = "about"; description = "What do you want to be reminded aobut? used for the generated lyrics"; optional = false; }    
-      { name = "date"; description = "an optional date for reminder"; optional = true; }
-
+      { name = "prompt"; description = "Prompt for the song. used for the generated lyrics"; optional = false; }    
+      { name = "genre"; description = "Optionally enter a Song genre"; optional = true; }
     ];
     code = ''
       ${cmdHelpers}
-    
+      # TODO suno api    
     '';
   };}

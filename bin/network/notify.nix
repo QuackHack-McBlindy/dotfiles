@@ -17,9 +17,12 @@ in {
       { name = "text"; description = "Notification content"; }    
       { name = "title"; description = "Topic to publish to"; default = "Yo! Notis!"; }
       { name = "icon"; description = "Push image icon"; default = "https://avatars.githubusercontent.com/u/175031622?s=96&v=4"; }    
-      { name = "url"; description = "Optional URL to open on tap"; default = "https://example.com"; }
+      { name = "url"; description = "Optional URL to open on tap"; optional = true; }
       { name = "group"; description = "Notification group/channel"; default = "default"; }
       { name = "sound"; description = "Notification sound. Available sounds: minuet, electronic, horn, bark, bell, chime, glass, healthnotification."; default = "minuet"; } 
+      { name = "volume"; description = "Set volume level for the notification sound. 1 (lowest) - 10 (highest)."; default = "5"; }      
+      { name = "copy"; description = "Value to copy to device."; optional = true; } 
+      { name = "autoCopy"; description = "Must be 1 to copy"; default = "0"; } 
       { name = "level"; description = "Notification level. Available values are: info, critical, error."; default = "info"; }
       { name = "base_urlFile"; description = "File path containing a HTTPS domain"; default = config.sops.secrets.ntfy-url.path; }
       { name = "deviceKeyFile"; description = "The receiving devices key file"; default = config.sops.secrets.bark_key.path; }    
@@ -40,10 +43,15 @@ in {
       TITLE=$title
       ICON=$icon
       SOUND=$sound
+      VOLUME=$volume
       GROUP=$group
       LEVEL=$level
       URL=$url
-      
+      AUTOCOPY=0
+      if [ -n "$copy" ]; then    
+        AUTOCOPY=1
+        COPY=$copy
+      fi  
       JSON=$(cat <<EOF
 {
   "body": "$TEXT",
@@ -51,14 +59,19 @@ in {
   "title": "$TITLE",
   "badge": 1,
   "sound": "$SOUND",
-  "volume": 5,
+  "volume": "$VOLUME",
   "icon": "$ICON",
   "group": "$GROUP",
-  "level": "critical",  
-  "url": "$URL"
+  "level": "$LEVEL",  
+  "url": "$URL",
+  "autoCopy": "$AUTOCOPY"
 }
 EOF
       )      
+
+      if [ -n "$copy" ]; then
+        JSON=$(echo "$JSON" | jq --arg copy "$COPY" '. + {copy: $COPY}')
+      fi
 
       ${pkgs.curl}/bin/curl -X POST "$BASE_URL/push" \
         -H 'Content-Type: application/json' \

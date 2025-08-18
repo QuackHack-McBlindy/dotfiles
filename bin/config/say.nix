@@ -21,7 +21,8 @@ in { # 🦆 says ⮞ yo yo yo yo
       { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
       { name = "host"; description = "Host to play the audio on"; default = "desktop"; }       
       { name = "blocking"; description = "Wait for TTS playback to finish"; default = "false"; }
-      { name = "file"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }      
+      { name = "file"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }
+      { name = "caf"; description = "Path to output .caf file"; default = ""; }
     ];
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
@@ -33,6 +34,7 @@ in { # 🦆 says ⮞ yo yo yo yo
       BLOCKING="$blocking"
       SENTENCE_SILENCE="$silence" 
       CURRENT_HOST=$(hostname)
+      CAF_OUTPUT="$caf"
 
       if [ -z "$HOST" ] || [ "$HOST" = "$CURRENT_HOST" ]; then
         if [ ! -f "$MODEL_PATH" ]; then
@@ -43,13 +45,25 @@ in { # 🦆 says ⮞ yo yo yo yo
           TMP_WAV=$(mktemp --suffix=.wav)
           trap 'rm -f "$TMP_WAV"' EXIT
           echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
-          ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+
+          if [ -n "$CAF_OUTPUT" ]; then
+            ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i "$TMP_WAV" "$CAF_OUTPUT"
+          else
+            ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+          fi
+
+##          ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
         else
           (
             TMP_WAV=$(mktemp --suffix=.wav)
             trap 'rm -f "$TMP_WAV"' EXIT
             echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
-            ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+#            ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+            if [ -n "$CAF_OUTPUT" ]; then
+              ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i "$TMP_WAV" "$CAF_OUTPUT"
+            else
+              ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+            fi
           ) &
         fi  
       else
