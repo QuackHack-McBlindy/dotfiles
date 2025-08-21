@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fwygkhl2d1jzjq8c4jdk82blqczzy9vq-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/099q87i8ararc4ydkd3094csvy3h59py-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -365,7 +365,6 @@ Set default values for your parameters to have them marked [optional]
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
-| [yo blink](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blink.nix) [--duration] [--user] [--passwordfile] |  | Blink all lights for a specified duration | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] |  | Control lights and other home automatioon devices | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
