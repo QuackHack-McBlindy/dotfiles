@@ -285,13 +285,39 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("battery")' > /dev/null; then
             device_check
             prev_battery=$(${pkgs.jq}/bin/jq -r ".\"$device_name\".battery" "$STATE_FILE")
-            if [ "$battery" -eq 5 ] || [ "$battery" -eq 10 ] || [ "$battery" -eq 15 ]; then
-              yo notify "Low battery ($battery%) for $device_name"
-            fi
+
+            update_device_state "$device_name" "battery" "$battery"
+            BATTERY_NOTIFY_DIR="$STATE_DIR/battery_notifications"
+            mkdir -p "$BATTERY_NOTIFY_DIR"
+            device_notify_file="''$BATTERY_NOTIFY_DIR/''${device_name}"
+    
             if [ "$battery" != "$prev_battery" ] && [ "$prev_battery" != "null" ]; then
-              dt_info "🔋 Battery update for $device_name: ''${prev_battery}% > ''${battery}%"
+                dt_info "🔋 Battery update for $device_name: ''${prev_battery}% -> ''${battery}%"
             fi
-          fi
+    
+            thresholds=(5 10 15)
+            for threshold in "''${thresholds[@]}"; do
+                if [ "$battery" -eq "$threshold" ]; then
+                    if ! grep -q "^$threshold$" "$device_notify_file" 2>/dev/null; then
+                        yo notify "Low battery ($battery%) for $device_name"
+                       echo "$threshold" >> "$device_notify_file"
+                   fi
+                    break
+                fi
+            done
+    
+            if [ "$battery" -gt 15 ] && [ -f "$device_notify_file" ]; then
+                rm -f "$device_notify_file"
+            fi
+        fi
+
+#            if [ "$battery" -eq 5 ] || [ "$battery" -eq 10 ] || [ "$battery" -eq 15 ]; then
+#              yo notify "Low battery ($battery%) for $device_name"
+#            fi
+#            if [ "$battery" != "$prev_battery" ] && [ "$prev_battery" != "null" ]; then
+#              dt_info "🔋 Battery update for $device_name: ''${prev_battery}% > ''${battery}%"
+#            fi
+#          fi
 
           # 🦆 says ⮞ 🌡️ temperature
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("temperature")' > /dev/null; then
