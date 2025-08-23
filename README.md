@@ -22,8 +22,6 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 > **That's my job.** 🧑‍🦯
 <br>
 
-__Oh hellow? please quack on in,__ <br>
-__while duckie quite stuckie in dis endless rabbit hole__ <br>
 
 __Here lives home machines configurations,__  
 __crafted as a tiny Nix flake__  
@@ -35,18 +33,20 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 
 Nix Declarative configuration style, custom modules evaluated dynamically for each host. <br>
 Home Manager - No duckng way. I just auto symlink ./home to /home <br>
-Zigbee and smart home deeply integrated with Nix. For not just a declarative house but also deployable apartments. <br>
+Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br><br>
 
-While building the OS, it will dynamically generating code for esp32 devices which configures: <br>
-Webserver with frontend for everything device related. <br>
-Zigbee device control UI, RGB and brightness control etc . <br>
-Microphone for voice input. <br>
+__60+ scripts in /bin__ <br>
+__Smart Home Nix style__ <br>
+__Natural Language support - full voice pipeline__ <br>
+__Infra as everyday accessibility__ <br>
+__Yubikey Encrypted Deployment system__ <br>
+__Self Documenting__<br><br>
 
-Plug in your device and run `yo esp`. <br>
+_List would get very long,_ <br>
+_perhaps a more suitable question would be:_ <br>
+_What makes this configuration common?_ <br>
 
-Self-documented and fully voice controlled. <br>
-Input text is proccesed with a Quack Powered Natural language Processor written in Nix & Bash, to dynamically generate millions of regex patterns used for exact matching and async fuzzy matching. <br>
-With no parameter limit for resolution for the Shell translator - I can make the fair assumption this is probably a quite niche repository... <br>
+
 
 <br> 
   
@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/v20b9kcmm5i3d99mf8j0wisvc2x2x5an-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/nswf214rrnvy27rr9csc65sflggq50cw-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -365,7 +365,7 @@ Set default values for your parameters to have them marked [optional]
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
-| [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] | dash | A mobile-first dashboard, a unified frontend for zigbee devices, tv remotes and other smart home tech stuff. | 📛 |
+| [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] | dash | Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home tech stuff. | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] |  | Control lights and other home automatioon devices | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
@@ -391,6 +391,14 @@ For specific command help:
 `yo <command> --help`
 `yo <command> -h`
 <!-- YO_DOCS_END -->
+
+
+<br>
+
+> [!CAUTION]
+> __Im not blind.__ <br>
+> **I just can't see.** 🧑‍🦯
+<br>
 
 
 ## 💬 **Comments?**

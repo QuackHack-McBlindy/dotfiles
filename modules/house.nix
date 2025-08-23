@@ -133,6 +133,12 @@ in { # 🦆 says ⮞ Options for da house
               description = "The type of device (e.g., light, dimmer, motion, etc).";
               example = "light";
             };
+            icon = lib.mkOption { 
+              type = lib.types.str;
+              description = "Material Design icon name representing this device.";
+              default = "mdi:monitor-shimmer";
+              example = "mdi:cancel";
+            };
             batteryType = mkOption {
               type = types.nullOr (types.enum ["CR2032" "CR2450" "AAA" "AA"]);
               default = null;
