@@ -30,8 +30,6 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit 
         { name = "host"; description = "Host ip that has transcription"; default = transcriptionHostIP; }
         { name = "seconds"; description = "How many seconds to record before sending for transcription"; default = "5"; }
-#        { name = "device"; description = "Input device used for recording"; default = "hw:1,0"; }
-#        { name = "beamSize"; description = "Beam size for transcription"; default = "5"; }
       ];  
       code = ''
         ${cmdHelpers}
@@ -39,7 +37,6 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         FORMAT="S16_LE"
         CHANNELS="1"
         HOST="$host"
-#        DEVICE="$device"
         PORT="$port"
         SECONDS_RECORDING="$seconds"
         AUDIO_FILE="$(${pkgs.coreutils}/bin/mktemp --suffix=.raw)"
@@ -100,6 +97,4 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         # 🦆 says ⮞ aaaand... deliver! .. yo!
         ${pkgs.coreutils}/bin/echo "$CLEANED_TEXT"
       '';    
-  };} # 🦆 says ⮞ cyaaaa!
-  # 🦆 says ⮞ quacky hacky ducky jumpy to da next filez yo
-# 🦆 says ⮞ QuackHack-McBLindy - out yo!  
+  };} # 🦆 says ⮞ QuackHack-McBLindy - out yo!  

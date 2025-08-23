@@ -468,19 +468,31 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
   # 🦆 says ⮞ we only need server configuration on one host - so set zigduck at config.this.host.module services in your host config
   services.mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     enable = true;
-    listeners = [{
+    listeners = [
+      {
         acl = [ "pattern readwrite #" ];
         port = 1883;
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = true; # 🦆 says ⮞ never forget, never forgive right?
+        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
-    }];
+      }
+      
+      {
+        port = 9001;
+        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
+        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
+        settings = {
+          protocol = "websockets";
+          allow_anonymous = false;
+        };
+      }
+    ];
+
   };
-  
   # 🦆 says ⮞ open firewall 4 Z2MQTT & Mosquitto on the server host
-  networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { allowedTCPPorts = [ 1883 8099 ]; };
+  networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { allowedTCPPorts = [ 1883 8099 9001 ]; };
 
   # 🦆 says ⮞ Create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
@@ -503,9 +515,9 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
          port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
-        frontend = { # 🦆 says ⮞ who needs dis?
-          enabled = true; # 🦆 says ⮞ 2duck4frontend yo
-          host = "0.0.0.0";  # 🦆 says ⮞ duck means cool by the way - in case u did not realize 
+        frontend = { 
+          enabled = true;
+          host = "0.0.0.0";   
           port = 8099; 
         };
         advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
@@ -691,4 +703,3 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤
-

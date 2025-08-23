@@ -61,6 +61,17 @@ const char* mqtt_user = "MQTTUSERNAMEHERE";
 const char* mqtt_password = "MQTTPASSWORDHERE";
 WiFiClient espClient;
 PubSubClient mqttClient(espClient);
+void startRecording();
+void stopRecording();
+
+
+
+
+
+
+
+
+
 // 🦆 says ⮞ battery (reversed for BOX3)
 #define BATTERY_MIN_VOLTAGE 3.3
 #define BATTERY_MAX_VOLTAGE 2.01
@@ -102,7 +113,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🛏️ Bedroom
   </h4>
-  <div class="room-content" id="room-content-bedroom" style="display: none;">
+  <div class="room-content" id="room-content-bedroom">
     <div class="device" data-id="0x00178801001ecdaa">
   <div class="device-header" onclick="toggleDeviceControls('0x00178801001ecdaa')">
     <div class="control-label">
@@ -279,7 +290,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🚪 Hallway
   </h4>
-  <div class="room-content" id="room-content-hallway" style="display: none;">
+  <div class="room-content" id="room-content-hallway">
     <div class="device" data-id="0x000b57fffe0e2a04">
   <div class="device-header" onclick="toggleDeviceControls('0x000b57fffe0e2a04')">
     <div class="control-label">
@@ -328,7 +339,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🍳 Kitchen
   </h4>
-  <div class="room-content" id="room-content-kitchen" style="display: none;">
+  <div class="room-content" id="room-content-kitchen">
     <div class="device" data-id="0x0017880102f0848a">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880102f0848a')">
     <div class="control-label">
@@ -453,7 +464,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🛋️ Livingroom
   </h4>
-  <div class="room-content" id="room-content-livingroom" style="display: none;">
+  <div class="room-content" id="room-content-livingroom">
     <div class="device" data-id="0x0017880102de8570">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880102de8570')">
     <div class="control-label">
@@ -630,7 +641,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
     <span class="room-toggle">▼</span>
     🚽 Wc
   </h4>
-  <div class="room-content" id="room-content-wc" style="display: none;">
+  <div class="room-content" id="room-content-wc">
     <div class="device" data-id="0x0017880103406f41">
   <div class="device-header" onclick="toggleDeviceControls('0x0017880103406f41')">
     <div class="control-label">
@@ -751,6 +762,39 @@ void recordError(String message, String details) {
   lastError.timestamp = millis();
 }
 
+void startRecording() {
+  if (isRecording) return;
+  
+  Serial.println("Recording started (touch detected)");
+  digitalWrite(TFT_BL, HIGH);
+  isRecording = true;
+  
+  // 🦆 says ⮞ start da http connection
+  audioClient.setInsecure(); // 🦆 TODO ⮞ not suitable for prod yo 
+  if (audioHttp.begin(audioClient, apiEndpoint)) {
+    audioHttp.addHeader("Content-Type", "application/octet-stream");
+    httpInitialized = true;
+  } else {
+    recordError("HTTP Begin Failed", "Could not connect to: " + String(apiEndpoint));
+    httpInitialized = false;
+  }
+  
+  i2s_start(I2S_NUM_0);
+}
+
+void stopRecording() {
+  if (!isRecording) return;
+  
+  Serial.println("Recording stopped (touch released)");
+  isRecording = false;
+  
+  i2s_stop(I2S_NUM_0);
+  
+  if (httpInitialized) {
+    audioHttp.end();
+    httpInitialized = false;
+  }
+}
 
 
 // ===========================================
@@ -869,7 +913,50 @@ int getBatteryPercentage() {
   percentage = constrain(percentage, 0, 100);
   return percentage;
 }
+void startRecording() {
+    if (isRecording) return;
+    
+    // Initialize audio buffer
+    if (audioBuffer == nullptr) {
+        audioBuffer = (uint8_t*)malloc(maxBufferSize);
+        if (audioBuffer == nullptr) {
+            recordError("Audio Buffer Allocation", "Failed to allocate memory for audio buffer");
+            return;
+        }
+    }
+    
+    totalBytesRecorded = 0;
+    isRecording = true;
+    
+    // Initialize HTTP client for audio upload
+    audioClient.setInsecure(); // Bypass SSL certificate verification
+    audioHttp.begin(audioClient, apiEndpoint);
+    audioHttp.addHeader("Content-Type", "application/octet-stream");
+    httpInitialized = true;
+    
+    recordError("Recording Started", "Audio recording initialized");
+}
 
+void stopRecording() {
+    if (!isRecording) return;
+    
+    isRecording = false;
+    
+    // Finalize and send the recording
+    if (httpInitialized && totalBytesRecorded > 0) {
+        audioHttp.POST(audioBuffer, totalBytesRecorded);
+        audioHttp.end();
+        httpInitialized = false;
+    }
+    
+    // Free the audio buffer
+    if (audioBuffer != nullptr) {
+        free(audioBuffer);
+        audioBuffer = nullptr;
+    }
+    
+    recordError("Recording Stopped", "Audio recording finalized and sent");
+}
 // ===========================================
 // 🦆 says ⮞ ZIGBEE FUNC yeah
 
@@ -1013,30 +1100,33 @@ void es7210_init() {
 void initI2S() {
   i2s_config_t i2s_config = {
     .mode = (i2s_mode_t)(I2S_MODE_MASTER | I2S_MODE_RX),
-    .sample_rate = sampleRate,
+    .sample_rate = SAMPLE_RATE,
     .bits_per_sample = I2S_BITS_PER_SAMPLE_16BIT,
     .channel_format = I2S_CHANNEL_FMT_ONLY_LEFT,
     .communication_format = I2S_COMM_FORMAT_STAND_I2S,
     .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,
-    .dma_buf_count = 8,
-    .dma_buf_len = 1024,
-    .use_apll = false,
+    .dma_buf_count = 8,  // Increased buffer count
+    .dma_buf_len = BUFFER_SIZE,
+    .use_apll = true,    // Use audio PLL for better clock stability
     .tx_desc_auto_clear = false,
     .fixed_mclk = 0
   };
 
   i2s_pin_config_t pin_config = {
-    .bck_io_num = I2S_SCK,
-    .ws_io_num = I2S_WS,
+    .mck_io_num = I2S_MCLK,
+    .bck_io_num = I2S_SCLK,
+    .ws_io_num = I2S_LRCK,
     .data_out_num = I2S_PIN_NO_CHANGE,
-    .data_in_num = I2S_SD
+    .data_in_num = I2S_SDIN
   };
-
+  
+  // 🦆 says ⮞ install & start I2S driver
   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
   i2s_set_pin(I2S_NUM_0, &pin_config);
-  i2s_zero_dma_buffer(I2S_NUM_0);
+  
+  // 🦆 says ⮞ ES7210 ADC
+  es7210_init();
 }
-
 
 void handleRFSend() {
   String code = server.arg("code");
@@ -1212,7 +1302,6 @@ void handleRoot() {
   )rawliteral";
 
   html += R"rawliteral(
-    <!-- 🦆 says ⮞ BATTERY STATUS -->
     <div class="battery-section">
       <div class="status-icon">🔋</div>
       <div class="battery-percent">)rawliteral";
@@ -1489,9 +1578,10 @@ void loop() {
     lastZigbeeFetch = millis();
   }
 
+  //  updateDeviceStatuses();
   
   if (isRecording) {
-    startRecording();
+    streamAudio();
   }
   delay(10);
 } // 🦆 says ⮞ bye bye!
