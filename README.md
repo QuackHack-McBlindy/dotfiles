@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/85953ngwp5w9pzmg33x3mnkb77bxgwiz-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/bmk6qyq58hyhlygs8w9ck99jfa2pi4dy-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -394,10 +394,6 @@ For specific command help:
 
 <br>
 
-> [!CAUTION]
-> __Im not blind.__ <br>
-> **I just can't see.** 🧑‍🦯
-<br>
 
 
 ## 💬 **Comments?**
@@ -412,3 +408,10 @@ For specific command help:
 [![GitHub Discussions](https://img.shields.io/badge/Discussions-Join-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/QuackHack-McBlindy/dotfiles/discussions)
 
 <!-- CONTACT_END -->
+
+<br>
+
+> [!NOTE]
+> __Im not blind.__ <br>
+> **I just can't see.** 🧑‍🦯
+<br>
