@@ -35,16 +35,16 @@ Nix Declarative configuration style, custom modules evaluated dynamically for ea
 Home Manager - No duckng way. I just auto symlink ./home to /home <br>
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br><br>
 
-__60+ scripts in /bin__ <br>
+__60+ in /bin__ <br>
 __Smart Home Nix style__ <br>
-__Natural Language support - full voice pipeline__ <br>
+__Natural Language support with complete voice pipeline__ <br>
 __Infra as everyday accessibility__ <br>
-__Yubikey Encrypted Deployment system__ <br>
-__Self Documenting__<br><br>
+__Yubikey encrypted deployment system__ <br>
+__Self Documenting__<br>
 
-_List would get very long,_ <br>
+_list would get very long,_ <br>
 _perhaps a more suitable question would be:_ <br>
-_What makes this configuration common?_ <br>
+_What makes this configuration common.._ <br>
 
 
 
@@ -154,7 +154,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/nswf214rrnvy27rr9csc65sflggq50cw-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9fmpb0904979fq7kvvidqqcmpwv0518y-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
