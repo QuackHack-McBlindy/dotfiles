@@ -1,4 +1,4 @@
-# dotfiles/bin/system/duckDash.nix
+# dotfiles/bin/home/duckDash.nix
 { # 🦆 says ⮞ This file automatically generates and serves an advanced web interface -
   self, # 🦆 says ⮞ for all declared zugbee and other smart home gadgets for full control through the browser
   config,
@@ -1923,6 +1923,8 @@ in {
     mode = "0644";
   };
 
+  networking.firewall.allowedTCPPorts = [ 13337 ];
+  
   yo.scripts = { 
     duckDash = {
       description = "Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home tech stuff.";
