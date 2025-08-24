@@ -432,6 +432,16 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
             if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "DARKNESS ON"; fi
           fi
+          
+          # 🦆 says ⮞ handle yo do commands
+          if [ "$topic" = "zigbee2mqtt/do" ]; then
+            command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.command')
+            if [ -n "$command" ]; then
+              dt_info "Executing yo do command: $command"
+              yo do "$command"
+            fi
+            continue
+          fi
         done
       }
             

@@ -1027,62 +1027,31 @@
             }        
 
             // 🦆 says ⮞ duck assist 
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase();
+                const deviceItems = document.querySelectorAll('.device-item');
+    
+                deviceItems.forEach(item => {
+                    const deviceName = item.textContent.toLowerCase();
+                    if (deviceName.includes(searchTerm)) {
+                        item.style.display = 'flex';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+
             searchInput.addEventListener('keydown', function(event) {
                 if (event.key === 'Enter') {
                     const query = this.value.trim();
                     if (query) {
-                        if (query.toLowerCase().startsWith('yo ')) {
-                            executeYoCommand(query);
-                            this.value = "";
-                        } else {
-                            // 🦆 says ⮞ regular search
-                            const deviceItems = document.querySelectorAll('.device-item, .scene-item');
-                            let found = false;
-                
-                            deviceItems.forEach(item => {
-                               const itemName = item.textContent.toLowerCase();
-                                if (itemName.includes(query.toLowerCase())) {
-                                    item.style.display = 'flex';
-                                    found = true;
-                        
-                                    if (item.classList.contains('scene-item')) {
-                                        item.click();
-                                    }
-                                } else {
-                                    item.style.display = 'none';
-                                }
-                            });
-                
-                            if (!found) {
-                                showNotification('No devices or scenes found matching "' + query + '"');
-                            }
-                        }
+                        executeYoDoCommand(query);
+                        this.value = "";
                     }
                 }
             });
 
-            // 🦆 says ⮞ function to execute yo commands
-            function executeYoCommand(command) {
-                if (!client || !client.connected) {
-                    showNotification('Error: Not connected to MQTT broker', 'error');
-                    return;
-                }
-    
-                const yoCommand = command.substring(3).trim();
-    
-                const topic = 'zigbee2mqtt/do';
-                const message = JSON.stringify({
-                    command: yoCommand,
-                    timestamp: new Date().toISOString(),
-                    origin: 'dashboard'
-                });
-    
-                client.publish(topic, message);
-                console.log('Published yo command:', topic, message);
-    
-                showNotification('Executing: yo ' + yoCommand);
-            }
-
+  
             // 🦆 says ⮞ update notification function to support different types
             function showNotification(message, type = 'success') {
                 const notification = document.createElement('div');
@@ -1841,7 +1810,7 @@
                 updateConnectionStatus('connecting', 'Connecting to MQTT...');
                 connectMqtt();
             }
-            
+          
             // 🦆 says ⮞ start the temperature cycle when the DOM is loaded
             document.addEventListener('DOMContentLoaded', function() {
                 renderSidebar();
@@ -1854,16 +1823,24 @@
                 setTimeout(startTemperatureCycle, 2000);
             });
        
-            document.addEventListener('DOMContentLoaded', function() {
-                renderSidebar();
-                connectMqtt();
-                const logoutBtn = document.createElement('button');
-                logoutBtn.className = 'btn btn-outline';
-                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>Logout';
-                logoutBtn.onclick = forgetPassword;
-                connectionStatus.appendChild(logoutBtn);
-            });
-            
+            function executeYoDoCommand(command) {
+                if (!client || !client.connected) {
+                    showNotification('Error: Not connected to MQTT broker', 'error');
+                    return;
+                }
+
+                const topic = 'zigbee2mqtt/do';
+                const message = JSON.stringify({
+                    command: command,
+                    timestamp: new Date().toISOString(),
+                    origin: 'dashboard'
+                });
+
+                client.publish(topic, message);
+                console.log('Published yo do command:', topic, message);
+                showNotification('Executing: yo do "' + command + '"');
+            }
+               
             // 🦆 says ⮞ tv apps
             const TV_APPS = {
                 "netflix": "com.netflix.ninja",
