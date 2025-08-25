@@ -878,7 +878,7 @@
 
             // 🦆 says ⮞ mqtt configuration
             const MQTT_HOST = '${mqttHostip}';
-            const MQTT_PORT = 1883;
+            const MQTT_PORT = 9001;
             const MQTT_USERNAME = 'mqtt';
             
             let client = null;
@@ -925,12 +925,17 @@
             // 🦆 says ⮞ function to collect temperature data from sensors
             function collectTemperatureData() {
                 temperatureReadings = [];
-    
+
                 DEVICES.forEach(device => {
                     const state = deviceStates[device.id];
-                    if (state && state.temperature !== undefined) {
+                    // Look for temperature in various possible locations
+                    const temp = state?.temperature || 
+                                state?.device_temperature || 
+                                (state?.action_values?.temperature);
+        
+                    if (temp !== undefined && temp !== null) {
                         temperatureReadings.push({
-                            value: state.temperature,
+                            value: temp,
                             location: device.name,
                             room: device.room,
                             timestamp: state.last_seen || 'Recently',
@@ -938,7 +943,7 @@
                         });
                     }
                 });
-    
+
                 if (temperatureReadings.length === 0) {
                     temperatureReadings.push({
                         value: 23.5,
@@ -948,9 +953,10 @@
                         deviceId: null
                     });
                 }
-    
+
                 return temperatureReadings;
             }
+
 
             // 🦆 says ⮞ function to update temperature display with animation
             function updateTemperatureDisplay() {
@@ -1003,28 +1009,42 @@
                 try {
                     const data = JSON.parse(message);
                     const deviceId = topic.split('/')[1];
-        
-                    // 🦆 says ⮞ store device state
+                    const device = DEVICES.find(d => d.id === deviceId);
+
+                    // Store device state - handle nested structures
                     if (!deviceStates[deviceId]) {
                         deviceStates[deviceId] = {};
                     }
+
+                    // Deep merge to preserve nested structures
+                    deviceStates[deviceId] = deepMerge(deviceStates[deviceId], data);
         
-                    Object.assign(deviceStates[deviceId], data);
-        
-                    // 🦆 says ⮞ if this is a temperature sensor, update our readings
-                    const device = DEVICES.find(d => d.id === deviceId);
-                    if (device && device.type === 'sensor' && data.temperature !== undefined) {
+                    // Check if this device might have temperature data
+                    if (device && (data.temperature !== undefined || 
+                                  data.device_temperature !== undefined ||
+                                  (data.action_values && data.action_values.temperature !== undefined))) {
                         collectTemperatureData();
                     }
-        
-                    // 🦆 says ⮞ this current device? update UI
+
                     if (currentDevice && currentDevice.id === deviceId) {
                         updateDeviceControls(currentDevice);
                     }
                 } catch (e) {
                     console.error('Error parsing message:', e);
                 }
-            }        
+            }
+
+            function deepMerge(target, source) {
+                for (const key in source) {
+                    if (source[key] instanceof Object && key in target) {
+                        deepMerge(target[key], source[key]);
+                    } else {
+                        target[key] = source[key];
+                    }
+                }
+                return target;
+            }
+
 
             // 🦆 says ⮞ duck assist 
             searchInput.addEventListener('input', function() {

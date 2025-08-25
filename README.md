@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/63zrxr7afghqsawxbajyps5h9767s0d7-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9cph7gx2pnmi7n0sbjv0h2vvdhf61gvl-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -371,7 +371,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo temperatures](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/temperatures.nix)  |  | Get all temperature values from sensors and return a average value. | ✅ |
-| [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--homeIDFile] [--APIKeyFile] [--filePath] | el | Fetches home electricity price data | ✅ |
+| [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--sound] |  | Set a timer | ✅ |
 | [yo zigduck](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/zigduck.nix) [--user] [--pwfile] | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process | 📛 |
 | **🧩 Miscellaneous** | | | |

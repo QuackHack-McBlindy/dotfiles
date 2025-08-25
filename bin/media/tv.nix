@@ -216,6 +216,7 @@ in {
           local device_ip="$1"
           local playlist_url="$WEBSERVER/playlist.m3u"
           control_device "$device_ip" power_on
+          local retries="''${2:-0}"
 #          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
           local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" \
             --ez \"extra_force_software\" true \

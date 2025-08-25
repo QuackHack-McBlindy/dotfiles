@@ -228,6 +228,8 @@ in
     }
     # 🦆 says ⮞ device parser for zigduck
     device_check() { 
+      linkquality=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.linkquality // empty') && dt_debug "linkquality: $linkquality"
+      last_seen=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.last_seen // empty') && dt_debug "last_seen: $last_seen"
       occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy // empty') && dt_debug "occupancy: $occupancy"
       action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action // empty') && dt_debug "action: $action"
       contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.contact // empty') && dt_debug "contact: $contact"
@@ -237,7 +239,8 @@ in
       color=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.color // empty') && dt_debug "color: $color"
       water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak // empty') && dt_debug "water_leak: $water_leak"
       waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
-      temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature" # 🆙 Fixed typo
+      temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature"
+
 
       battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery // empty') && dt_debug "battery: $battery"
       battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
@@ -250,6 +253,7 @@ in
       dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
       dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
       room="''${dev_room//\"/}"
+      
       should_update() {
         case "$device_name" in
           */set|*/availability)
@@ -271,13 +275,13 @@ in
         [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
         [ -n "$tamper" ] && update_device_state "$device_name" "tamper" "$tamper"
         [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
-        [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"        
-       fi
-#       if [ "$device_name" = "Vägg" ] && [ -n "$brightness" ] && [ "$brightness" -gt 1 ]; then
-#         dt_info "Correcting Vägg brightness from $brightness to 1 (max allowed)"
-#         mqtt_pub -t "zigbee2mqtt/Vägg/set" -m '{"brightness":1}'
-#       fi
-     }   
+        [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"
+        [ -n "$occupancy" ] && update_device_state "$device_name" "occupancy" "$occupancy"
+        
+        [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"        
+        [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"        
+      fi
+    }   
 
     # 🦆 says ⮞ turn on specified room
     room_lights_on() { 

@@ -434,10 +434,10 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           fi
           
           # 🦆 says ⮞ handle yo do commands
-          if [ "$topic" = "zigbee2mqtt/do" ]; then
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("command")' > /dev/null; then
             command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.command')
             if [ -n "$command" ]; then
-              dt_info "Executing yo do command: $command"
+              dt_info "yo do execution requested from web interface: yo do $command"
               yo do "$command"
             fi
             continue
@@ -490,13 +490,12 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
       }
       
       {
+        acl = [ "pattern readwrite #" ];
         port = 9001;
+        settings.protocol = "websockets";
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings = {
-          protocol = "websockets";
-          allow_anonymous = false;
-        };
+        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
       }
     ];
 
