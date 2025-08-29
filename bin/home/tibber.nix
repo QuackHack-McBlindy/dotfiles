@@ -75,6 +75,7 @@ EOF
   
 
         dt_info "$TOTAL SEK / kWh"
+        mqtt_pub -t "zigbee2mqtt/tibber/price" -m '{"current_price": "$TOTAL"}'
         if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi  
 
@@ -142,6 +143,7 @@ EOF
 
         dt_debug "Elförbrukning hittills i $MONTH_NAME: ''${TOTAL_KWH} kWh"
         echo "''${TOTAL_KWH}"
+        mqtt_pub -t "zigbee2mqtt/tibber/usage" -m  -m '{"monthly_usage": "''${TOTAL_KWH}"}'
       fi   
     '';
     voice = {
