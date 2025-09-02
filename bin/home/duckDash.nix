@@ -367,6 +367,41 @@
         <div class="notification hidden" id="notification"></div>
     
         <script> 
+            function setColor(hex) {
+                const r = parseInt(hex.slice(1, 3), 16);
+                const g = parseInt(hex.slice(3, 5), 16);
+                const b = parseInt(hex.slice(5, 7), 16);
+    
+                publishPatch({ color: { r, g, b } });
+            }
+
+            function openColorPicker() {
+                document.getElementById('hiddenColorPicker').click();
+            }
+
+            function normalizeColor(color) {
+                if (typeof color === 'string' && color.startsWith('#')) {
+                    const hex = color.substring(1);
+                    return {
+                        r: parseInt(hex.substr(0, 2), 16),
+                        g: parseInt(hex.substr(2, 2), 16),
+                        b: parseInt(hex.substr(4, 2), 16),
+                        hex: color
+                    };
+                } else if (color && typeof color === 'object') {
+                    const r = color.r || 0;
+                    const g = color.g || 0;
+                    const b = color.b || 0;
+                    return {
+                        r, g, b,
+                        hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+                    };
+                }
+    
+                return { r: 255, g: 255, b: 255, hex: '#ffffff' };
+            }
+            
+            
             document.addEventListener('DOMContentLoaded', function() {
                 // 🦆 says ⮞ mqtt
                 let client = null;
@@ -841,39 +876,6 @@
                     return Math.min(Math.max(value, min), max);
                 }    
 
-                function setColor(hex) {
-                    const r = parseInt(hex.slice(1, 3), 16);
-                    const g = parseInt(hex.slice(3, 5), 16);
-                    const b = parseInt(hex.slice(5, 7), 16);
-    
-                    publishPatch({ color: { r, g, b } });
-                }
-
-                function openColorPicker() {
-                    document.getElementById('hiddenColorPicker').click();
-                }
-
-                function normalizeColor(color) {
-                    if (typeof color === 'string' && color.startsWith('#')) {
-                        const hex = color.substring(1);
-                        return {
-                            r: parseInt(hex.substr(0, 2), 16),
-                            g: parseInt(hex.substr(2, 2), 16),
-                            b: parseInt(hex.substr(4, 2), 16),
-                            hex: color
-                        };
-                    } else if (color && typeof color === 'object') {
-                        const r = color.r || 0;
-                        const g = color.g || 0;
-                        const b = color.b || 0;
-                        return {
-                            r, g, b,
-                            hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
-                        };
-                    }
-    
-                    return { r: 255, g: 255, b: 255, hex: '#ffffff' };
-                }
     
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ RENDER MESSAGE
@@ -1010,8 +1012,6 @@
                                </div>
                                <div class="position-display">
                                     <div class="position-value">''${position}%</div>
-                                    <input type="range" min="0" max="100" value="''${position}" 
-                                        class="position-slider" oninput="updatePosition(this.value)">
                                </div>
                             </div>`;
                     }
@@ -1079,7 +1079,7 @@
                                     </div>
                                     <div class="color-picker-container">
                                         <button class="color-picker-btn" onclick="openColorPicker()">
-                                            <i class="fas fa-palette"></i> Custom Color
+                                            <i class="fas fa-palette"></i> 🦆 says ⮞ custom color
                                         </button>
                                         <input type="color" id="hiddenColorPicker" style="display: none;" onchange="setColor(this.value)">
                                    </div>
