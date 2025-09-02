@@ -881,7 +881,7 @@
 
         
                         controlsHtml += `
-                            <div class="section">Contact Sensor</div>
+                            <div class="section">Contactr</div>
                             <div class="row special">
                                 <div class="contact-status ''${contactClass}">
                                     ''${contactText}
