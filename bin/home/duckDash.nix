@@ -172,7 +172,7 @@
             </header>
     
             <select id="deviceSelect" class="device-selector">
-            <option value="">🦆 says ⮞ pick a device </option>
+            <option value="">🦆 says > pick a device </option>
             </select>
     
             <div class="connection-status status-connecting" id="connectionStatus">
@@ -345,6 +345,9 @@
                 </div>
             </div>
             
+            /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+             🦆 says ⮞ TABS
+             🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
             <div class="nav-tabs">
                 <div class="nav-tab active" data-page="0">
                     <i class="mdi mdi-cellphone"></i>
@@ -540,7 +543,10 @@
                     }
                 }
                 
-                // 🦆 says ⮞ connect da duck
+                
+                /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ ZIGDUCK CONNECT 
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
                 function connectToMQTT() {
                     statusElement.className = 'connection-status status-connecting';
                     statusElement.innerHTML = '<i class="fas fa-plug"></i><span>📛</span>';
