@@ -27,12 +27,82 @@ let
 
   # 🦆 duck say ⮞ manual readme is so 1999 duckie
   updateReadme = pkgs.writeShellScriptBin "update-readme" ''
-    set -euo pipefail
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
     CONTACT_OUTPUT=""
     USER_TMP=$(mktemp)
     HOST_TMP=$(mktemp)
-    
+
+    # 🦆 duck say ⮞ nix > json > nix lol
+    json2nix() {
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config."$1" --json | jq -r -f <(cat <<'JQ'
+def indent(n): reduce range(0;n) as $i (""; . + "  ");
+def toNixValue(level):
+  if type == "object" then
+    "{\n" +
+    (to_entries
+     | map(indent(level+1) + "\(.key) = \(.value|toNixValue(level+1));")
+     | join("\n")) +
+    "\n" + indent(level) + "}"
+  elif type == "array" then
+    "[\n" +
+    (map(indent(level+1) + (toNixValue(level+1)))
+     | join("\n")) +
+    "\n" + indent(level) + "]"
+  elif type == "string" then
+    "\"\(.|tostring)\""
+  elif type == "boolean" then
+    if . then "true" else "false" end
+  elif . == null then
+    "null"
+  else
+    tostring
+  end;
+
+def toNix: toNixValue(0);
+toNix
+JQ
+)
+    }
+
+    # 🦆 duck say ⮞ get da defined smart home
+    ZIGBEE_DEVICES_BLOCK=$(json2nix house.zigbee.devices)
+    ZIGBEE_SCENES_BLOCK=$(json2nix house.zigbee.scenes)
+    TVS_BLOCK=$(json2nix house.tv)
+
+    SMART_HOME_BLOCK=$(
+      echo "<details><summary><strong>"
+      echo "Zigbee devices at \`config.house.zigbee.devices\`."
+      echo "</strong></summary>"
+      echo "<!-- ZIGBEE_DEVICES_START -->"
+      echo '```nix'
+      echo "$ZIGBEE_DEVICES_BLOCK"
+      echo '```'
+      echo "<!-- ZIGBEE_DEVICES_END -->"
+      echo "</details>"
+  
+      echo "<br>"
+      echo "<details><summary><strong>"
+      echo "Zigbee scenes at \`config.house.zigbee.scenes\`."
+      echo "</strong></summary>"
+      echo "<!-- ZIGBEE_SCENES_START -->"
+      echo '```nix'
+      echo "$ZIGBEE_SCENES_BLOCK"
+      echo '```'
+      echo "<!-- ZIGBEE_SCENES_END -->"
+      echo "</details>"
+
+      echo "<br>"
+      echo "<details><summary><strong>"
+      echo "Android TV devices at \`config.house.tv\`."
+      echo "</strong></summary>"
+      echo "<!-- TVS_START -->"
+      echo '```nix'
+      echo "$TVS_BLOCK"
+      echo '```'
+      echo "<!-- TVS_END -->"
+      echo "</details>"      
+    )
+
     # 🦆 duck say ⮞ Extract versions
     nixos_version=$(nixos-version | cut -d. -f1-2)
     kernel_version=$(uname -r | cut -d'-' -f1)
@@ -258,21 +328,24 @@ EOF
         -v host="$HOST_BLOCK" \
         -v user="$USER_BLOCK" \
         -v theme="$THEME_BLOCK" \
+        -v smart="$SMART_HOME_BLOCK" \
         '
-      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; printed=0 }
+      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; in_smart=0; printed=0 }
       /<!-- YO_DOCS_START -->/ { in_docs=1; print; print docs; next }
       /<!-- YO_DOCS_END -->/ { in_docs=0; print; next }
       /<!-- HOST_START -->/ { in_host=1; print; print host; next }
       /<!-- HOST_END -->/ { in_host=0; print; next }
       /<!-- THEME_START -->/ { in_theme=1; print; print theme; next }
       /<!-- THEME_END -->/ { in_theme=0; print; next }
+      /<!-- SMARTHOME_START -->/ { in_smart=1; print; print smart; next }
+      /<!-- SMARTHOME_END -->/ { in_smart=0; print; next }
       /<!-- USER_START -->/ { in_user=1; print; print user; next }
       /<!-- USER_END -->/ { in_user=0; print; next }
       /<!-- TREE_START -->/ { in_tree=1; print; print tree; next }
       /<!-- TREE_END -->/ { in_tree=0; print; next }
       /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
       /<!-- FLAKE_END -->/ { in_flake=0; print; next }
-      !in_docs && !in_tree && !in_theme && !in_flake && !in_host && !in_user { print }
+      !in_docs && !in_tree && !in_theme && !in_flake && !in_smart && !in_host && !in_user { print }
       ' "$README_PATH" > "$tmpfile"  
 
     # 🦆 duck say ⮞ Diff check

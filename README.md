@@ -153,12 +153,901 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/h8yrc0rqiwm7ja6figzv5ngjf2lhxf8c-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/bna66877hm25yz1jy7nl6scv50dzyv3h-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
 
 </details>
+
+
+<details><summary><strong>
+For smart home integration, define your devices at `config.house`.
+</strong></summary>
+
+<!-- SMARTHOME_START -->
+<details><summary><strong>
+Zigbee devices at `config.house.zigbee.devices`.
+</strong></summary>
+<!-- ZIGBEE_DEVICES_START -->
+```nix
+{
+  0x000b57fffe0e2a04 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Vägg";
+    icon = "mdi:monitor-shimmer";
+    room = "hallway";
+    supports_color = false;
+    type = "light";
+  };
+  0x000b57fffe0f0807 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "IKEA 5 Dimmer";
+    icon = "mdi:monitor-shimmer";
+    room = "other";
+    supports_color = false;
+    type = "remote";
+  };
+  0x00158d00053ec9b1 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Door Sensor Hall";
+    icon = "mdi:monitor-shimmer";
+    room = "hallway";
+    supports_color = false;
+    type = "sensor";
+  };
+  0x00178801001ecdaa = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Bloom";
+    icon = "mdi:monitor-shimmer";
+    room = "bedroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x00178801021311c4 = {
+    batteryType = "AAA";
+    endpoint = 1;
+    friendly_name = "Motion Sensor Hall";
+    icon = "mdi:monitor-shimmer";
+    room = "hallway";
+    supports_color = false;
+    type = "motion";
+  };
+  0x0017880102de8570 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Rustning";
+    icon = "mdi:spotlight";
+    room = "livingroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880102f0848a = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Spotlight kök 1";
+    icon = "mdi:spotlight";
+    room = "kitchen";
+    supports_color = false;
+    type = "light";
+  };
+  0x0017880102f08526 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Spotlight Kök 2";
+    icon = "mdi:spotlight";
+    room = "kitchen";
+    supports_color = false;
+    type = "light";
+  };
+  0x0017880103406f41 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "WC 2";
+    icon = "mdi:monitor-shimmer";
+    room = "wc";
+    supports_color = false;
+    type = "light";
+  };
+  0x001788010361b842 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "WC 1";
+    icon = "mdi:monitor-shimmer";
+    room = "wc";
+    supports_color = false;
+    type = "light";
+  };
+  0x00178801037e754e = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Takkrona 1";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103a0d280 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Uppe";
+    icon = "mdi:light-strip";
+    room = "kitchen";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103c73f85 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Takkrona 2";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103c7467d = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Taket Sovrum 2";
+    icon = "mdi:monitor-shimmer";
+    room = "bedroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103c753b8 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Takkrona 4";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103ca6e95 = {
+    batteryType = "CR2450";
+    endpoint = 1;
+    friendly_name = "Dimmer Switch Kök";
+    icon = "mdi:light-switch";
+    room = "kitchen";
+    supports_color = false;
+    type = "dimmer";
+  };
+  0x0017880103e0add1 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Golvet";
+    icon = "mdi:light-strip";
+    room = "kitchen";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103eafdd6 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Tak Hall";
+    icon = "mdi:monitor-shimmer";
+    room = "hallway";
+    supports_color = false;
+    type = "light";
+  };
+  0x0017880103f44b5f = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Dörr";
+    icon = "mdi:light-strip";
+    room = "bedroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880103f94041 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Takkrona 3";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880104051a86 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Sänggavel";
+    icon = "mdi:light-strip";
+    room = "bedroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880104540411 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "PC";
+    icon = "mdi:spotlight";
+    room = "livingroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880104f77d61 = {
+    batteryType = "CR2450";
+    endpoint = 1;
+    friendly_name = "Dimmer Switch Sovrum";
+    icon = "mdi:monitor-shimmer";
+    room = "bedroom";
+    supports_color = false;
+    type = "dimmer";
+  };
+  0x0017880104f78065 = {
+    batteryType = "CR2450";
+    endpoint = 1;
+    friendly_name = "Dimmer Switch Vardagsrum";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = false;
+    type = "dimmer";
+  };
+  0x0017880106156cb0 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Taket Sovrum 1";
+    icon = "mdi:monitor-shimmer";
+    room = "bedroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0017880109ac14f3 = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Sänglampa";
+    icon = "mdi:monitor-shimmer";
+    room = "bedroom";
+    supports_color = true;
+    type = "light";
+  };
+  0x0c4314fffe179b05 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Fläkt";
+    icon = "mdi:monitor-shimmer";
+    room = "kitchen";
+    supports_color = false;
+    type = "outlet";
+  };
+  0x540f57fffe85c9c3 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Water Sensor";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = false;
+    type = "sensor";
+  };
+  0x54ef4410003e58e2 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Roller Shade";
+    icon = "mdi:monitor-shimmer";
+    room = "livingroom";
+    supports_color = false;
+    type = "blind";
+  };
+  0x70ac08fffe6497be = {
+    batteryType = "CR2032";
+    endpoint = 1;
+    friendly_name = "On/Off Switch 1";
+    icon = "mdi:monitor-shimmer";
+    room = "other";
+    supports_color = false;
+    type = "remote";
+  };
+  0x70ac08fffe65211e = {
+    batteryType = "CR2032";
+    endpoint = 1;
+    friendly_name = "On/Off Switch 2";
+    icon = "mdi:monitor-shimmer";
+    room = "other";
+    supports_color = false;
+    type = "remote";
+  };
+  0x70ac08fffe9fa3d1 = {
+    batteryType = "CR2032";
+    endpoint = 1;
+    friendly_name = "Motion Sensor Kök";
+    icon = "mdi:monitor-shimmer";
+    room = "kitchen";
+    supports_color = false;
+    type = "motion";
+  };
+  0xa4c1380afa9f7f3e = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Smoke Alarm Kitchen";
+    icon = "mdi:smoke-detector";
+    room = "kitchen";
+    supports_color = false;
+    type = "sensor";
+  };
+  0xa4c1382553627626 = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Power Plug";
+    icon = "mdi:monitor-shimmer";
+    room = "other";
+    supports_color = false;
+    type = "outlet";
+  };
+  0xa4c13873044cb7ea = {
+    batteryType = null;
+    endpoint = 11;
+    friendly_name = "Kök Bänk Slinga";
+    icon = "mdi:light-strip";
+    room = "kitchen";
+    supports_color = false;
+    type = "light";
+  };
+  0xa4c138b9aab1cf3f = {
+    batteryType = null;
+    endpoint = 1;
+    friendly_name = "Power Plug 2";
+    icon = "mdi:monitor-shimmer";
+    room = "other";
+    supports_color = false;
+    type = "outlet";
+  };
+  0xf4b3b1fffeaccb27 = {
+    batteryType = "CR2032";
+    endpoint = 1;
+    friendly_name = "Motion Sensor Sovrum";
+    icon = "mdi:monitor-shimmer";
+    room = "bedroom";
+    supports_color = false;
+    type = "motion";
+  };
+}
+```
+<!-- ZIGBEE_DEVICES_END -->
+</details>
+<br>
+<details><summary><strong>
+Zigbee scenes at `config.house.zigbee.scenes`.
+</strong></summary>
+<!-- ZIGBEE_SCENES_START -->
+```nix
+{
+  Chill Scene = {
+    Bloom = {
+      brightness = 200;
+      color = {
+        hex = "#FFB6C1";
+      };
+      state = "ON";
+    };
+    Golvet = {
+      brightness = 200;
+      color = {
+        hex = "#40E0D0";
+      };
+      state = "ON";
+    };
+    PC = {
+      brightness = 200;
+      color = {
+        hex = "#8A2BE2";
+      };
+      state = "ON";
+    };
+    Spotlight Kök 1 = {
+      brightness = 200;
+      color = {
+        hex = "#FFD700";
+      };
+      state = "OFF";
+    };
+    Spotlight Kök 2 = {
+      brightness = 200;
+      color = {
+        hex = "#FF8C00";
+      };
+      state = "OFF";
+    };
+    Sänggavel = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Taket Sovrum 1 = {
+      brightness = 200;
+      color = {
+        hex = "#00CED1";
+      };
+      state = "ON";
+    };
+    Taket Sovrum 2 = {
+      brightness = 200;
+      color = {
+        hex = "#9932CC";
+      };
+      state = "ON";
+    };
+    Takkrona 1 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Takkrona 2 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Takkrona 3 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Takkrona 4 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Uppe = {
+      brightness = 200;
+      color = {
+        hex = "#FF69B4";
+      };
+      state = "ON";
+    };
+  };
+  Duck Scene = {
+    PC = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+  };
+  Green D = {
+    Bloom = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+    Golvet = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+    PC = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+    Spotlight Kök 1 = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "OFF";
+    };
+    Spotlight Kök 2 = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "OFF";
+    };
+    Sänggavel = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+    Taket Sovrum 1 = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+    Taket Sovrum 2 = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+    Takkrona 1 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Takkrona 2 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Takkrona 3 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Takkrona 4 = {
+      brightness = 200;
+      color = {
+        hex = "#7FFFD4";
+      };
+      state = "ON";
+    };
+    Uppe = {
+      brightness = 200;
+      color = {
+        hex = "#00FF00";
+      };
+      state = "ON";
+    };
+  };
+  dark = {
+    Bloom = {
+      state = "OFF";
+      transition = 10;
+    };
+    Dörr = {
+      state = "OFF";
+      transition = 10;
+    };
+    Golvet = {
+      state = "OFF";
+      transition = 10;
+    };
+    Kök Bänk Slinga = {
+      state = "OFF";
+      transition = 10;
+    };
+    PC = {
+      state = "OFF";
+      transition = 10;
+    };
+    Rustning = {
+      state = "OFF";
+      transition = 10;
+    };
+    Spotlight Kök 2 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Spotlight kök 1 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Sänggavel = {
+      state = "OFF";
+      transition = 10;
+    };
+    Sänglampa = {
+      state = "OFF";
+      transition = 10;
+    };
+    Tak Hall = {
+      state = "OFF";
+      transition = 10;
+    };
+    Taket Sovrum 1 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Taket Sovrum 2 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Takkrona 1 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Takkrona 2 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Takkrona 3 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Takkrona 4 = {
+      state = "OFF";
+      transition = 10;
+    };
+    Uppe = {
+      state = "OFF";
+      transition = 10;
+    };
+    Vägg = {
+      state = "OFF";
+      transition = 10;
+    };
+    WC 1 = {
+      state = "OFF";
+      transition = 10;
+    };
+    WC 2 = {
+      state = "OFF";
+      transition = 10;
+    };
+  };
+  dark-fast = {
+    Bloom = {
+      state = "OFF";
+    };
+    Dörr = {
+      state = "OFF";
+    };
+    Golvet = {
+      state = "OFF";
+    };
+    Kök Bänk Slinga = {
+      state = "OFF";
+    };
+    PC = {
+      state = "OFF";
+    };
+    Rustning = {
+      state = "OFF";
+    };
+    Spotlight Kök 2 = {
+      state = "OFF";
+    };
+    Spotlight kök 1 = {
+      state = "OFF";
+    };
+    Sänggavel = {
+      state = "OFF";
+    };
+    Sänglampa = {
+      state = "OFF";
+    };
+    Tak Hall = {
+      state = "OFF";
+    };
+    Taket Sovrum 1 = {
+      state = "OFF";
+    };
+    Taket Sovrum 2 = {
+      state = "OFF";
+    };
+    Takkrona 1 = {
+      state = "OFF";
+    };
+    Takkrona 2 = {
+      state = "OFF";
+    };
+    Takkrona 3 = {
+      state = "OFF";
+    };
+    Takkrona 4 = {
+      state = "OFF";
+    };
+    Uppe = {
+      state = "OFF";
+    };
+    Vägg = {
+      state = "OFF";
+    };
+    WC 1 = {
+      state = "OFF";
+    };
+    WC 2 = {
+      state = "OFF";
+    };
+  };
+  max = {
+    Bloom = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Dörr = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Golvet = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Kök Bänk Slinga = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    PC = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Rustning = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Spotlight Kök 2 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Spotlight kök 1 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Sänggavel = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Sänglampa = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Tak Hall = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Taket Sovrum 1 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Taket Sovrum 2 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Takkrona 1 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Takkrona 2 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Takkrona 3 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Takkrona 4 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Uppe = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    Vägg = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    WC 1 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+    WC 2 = {
+      brightness = 255;
+      color = {
+        hex = "#FFFFFF";
+      };
+      state = "ON";
+    };
+  };
+}
+```
+<!-- ZIGBEE_SCENES_END -->
+</details>
+<br>
+<details><summary><strong>
+Android TV devices at `config.house.tv`.
+</strong></summary>
+<!-- TVS_START -->
+```nix
+{
+  arris = {
+    enable = false;
+    ip = "192.168.1.152";
+    room = "bedroom";
+  };
+  shield = {
+    enable = false;
+    ip = "192.168.1.223";
+    room = "livingroom";
+  };
+}
+```
+<!-- TVS_END -->
+</details>
+<!-- SMARTHOME_END -->
+
+</details>
+
+
+<details><summary><strong>
+And you'll get a dashboard for your devices  generate at http://localhost:13337  
+</strong></summary>
+🦆 duck say ⮞ TODO 🦆'Dash image
+
+</details>
+
 
 
 <details><summary><strong>
@@ -319,6 +1208,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] |  | Start development enviorment | 📛 |
 | [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/duckTrace.nix) [--file] | log | View duckTrace logs quick and quack, unified logging system | 📛 |
 | [yo esp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/esp.nix) [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP] |  | Declarative firmware deployment tool for ESP32 boards with built-in version control. | 📛 |
+| [yo readme](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/readme.nix)  |  | Generate README.MD | 📛 |
 | [yo reboot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) [--host] | restart | Force reboot and wait for host | 📛 |
 | [yo rollback](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) --host [--flake] [--user] |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. | 📛 |
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration | 📛 |
@@ -371,7 +1261,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo temperatures](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/temperatures.nix)  |  | Get all temperature values from sensors and return a average value. | ✅ |
-| [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] | el | Fetches home electricity price data | ✅ |
+| [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--sound] |  | Set a timer | ✅ |
 | [yo zigduck](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/zigduck.nix) [--user] [--pwfile] | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process | 📛 |
 | **🧩 Miscellaneous** | | | |

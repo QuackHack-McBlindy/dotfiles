@@ -601,7 +601,7 @@ input:checked + .slider:before {
 }
             
 .device-selector {
-  width: 100%;
+  width: 200px; 
   padding: 10px;
   border: 1px solid #e2e8f0;
   border-radius: 8px;

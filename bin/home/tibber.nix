@@ -7,19 +7,39 @@
   cmdHelpers,
   ...
 } : let
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+  
 in {  
   yo.scripts.tibber = {
     description = "Fetches home electricity price data";
     category = "🛖 Home Automation";
     aliases = ["el"];
-    runEvery = "60";
+#    runEvery = "60";
     parameters = [
       { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "price";  }         
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
       { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }      
-      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }            
+      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }           
+      { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
+      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ];
-    logLevel = "INFO";
+    logLevel = "DEBUG";
     helpFooter = ''
       ${pkgs.gnuplot}/bin/gnuplot -persist <<EOF
 set xdata time
@@ -34,6 +54,9 @@ EOF
     '';
     code = ''
       ${cmdHelpers}
+      MQTT_BROKER="${mqttHostip}" && dt_debug "$MQTT_BROKER"
+      MQTT_USER="$user" && dt_debug "$MQTT_USER"
+      MQTT_PASSWORD=$(cat "$pwfile")
       TIBBER_TOKEN=$(cat $APIKeyFile)
       HOME_ID=$(cat $homeIDFile)
       SAVE_PATH="$filePath"
@@ -74,8 +97,9 @@ EOF
         echo "$TIMESTAMP $TOTAL" >> "$SAVE_PATH"
   
 
-        dt_info "$TOTAL SEK / kWh"
-        mqtt_pub -t "zigbee2mqtt/tibber/price" -m '{"current_price": "$TOTAL"}'
+        dt_debug "$TOTAL SEK / kWh"
+        echo "$TOTAL SEK / kWh"
+        mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": $TOTAL}"
         if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi  
 
@@ -141,9 +165,9 @@ EOF
 
         MONTH_NAME=$(LC_TIME=sv_SE.UTF-8 date +%B)
 
-        dt_debug "Elförbrukning hittills i $MONTH_NAME: ''${TOTAL_KWH} kWh"
-        echo "''${TOTAL_KWH}"
-        mqtt_pub -t "zigbee2mqtt/tibber/usage" -m  -m '{"monthly_usage": "''${TOTAL_KWH}"}'
+        dt_debug "Elförbrukning hittills i $MONTH_NAME: $TOTAL_KWH kWh"
+        echo "$TOTAL_KWH"
+        mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
       fi   
     '';
     voice = {
