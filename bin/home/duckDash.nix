@@ -345,7 +345,7 @@
                 </div>
             </div>
             
-            /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+            /* 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
              🦆 says ⮞ TABS
              🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
             <div class="nav-tabs">
@@ -413,7 +413,21 @@
                     // 🦆 says ⮞ white default
                     return { r: 255, g: 255, b: 255, w: 0, hex: '#ffffff' };
                 }
-                
+         
+                function updateBattery(percent) {
+                  const fill = document.querySelector(".battery-fill");
+                  const text = document.querySelector(".battery-text");
+
+                  fill.style.width = percent + "%";
+                  text.textContent = percent + "%";
+
+                  fill.className = "battery-fill"; // reset
+                  if (percent > 60) fill.classList.add("high");
+                  else if (percent > 30) fill.classList.add("medium");
+                  else if (percent > 15) fill.classList.add("low");
+                  else fill.classList.add("critical");
+                }         
+         
                 function setRangeGradient(slider, startColor, endColor) {
                     // 🦆 says ⮞ todo?
                     
@@ -746,6 +760,22 @@
                     
                     saveState();
                 }
+
+                function updateLinkquality(percent) {
+                  const bars = document.querySelectorAll(".lq-bar");
+                  const activeBars = Math.round((percent / 100) * bars.length);
+                  bars.forEach((bar, idx) => {
+                    bar.className = "lq-bar"; // reset
+                    if (idx < activeBars) {
+                      if (percent > 75) bar.classList.add("good");
+                      else if (percent > 50) bar.classList.add("ok");
+                      else if (percent > 25) bar.classList.add("bad");
+                      else bar.classList.add("terrible");
+                    } else {
+                      bar.classList.add("off");
+                    }
+                  });
+                }
     
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ RENDER MESSAGE
@@ -793,7 +823,35 @@
                                 <div class="battery-text">''${level}%</div>
                             </div>`;
                     }
-    
+                    
+                    if ('linkquality' in parsed) {
+                        const lq = clamp(Number(parsed.linkquality) || 0, 0, 100);
+                        const totalBars = 4;
+                        const activeBars = Math.round((lq / 100) * totalBars);
+
+                        let barsHtml = "";
+                        for (let i = 0; i < totalBars; i++) {
+                            let height = ((i + 1) * 25); // 25%, 50%, 75%, 100%
+                            let classes = 'lq-bar';
+                            if (i < activeBars) {
+                                if (lq > 75) classes += ' good';
+                                else if (lq > 50) classes += ' ok';
+                                else if (lq > 25) classes += ' bad';
+                                else classes += ' terrible';
+                            } else {
+                                classes += ' off';
+                            }
+                            barsHtml += `<div class="''${classes}" style="height:''${height}%"></div>`;
+                        }
+
+                        controlsHtml += `
+                            <div class="section">Link Quality</div>
+                            <div class="linkquality-container">
+                                ''${barsHtml}
+                            </div>`;
+                    }
+
+                        
                     // 🦆 says ⮞ BRIGHTNESS
                     if ('brightness' in parsed) {
                         const v = clamp(Number(parsed.brightness) || 0, 0, 255);

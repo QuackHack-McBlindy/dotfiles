@@ -459,7 +459,7 @@
               95%  { transform: scale(8) rotate(20deg) translateY(0); }
 
               /* 🦆 says ⮞ 6–7s: quick pop */
-              100% { transform: scale(8) translateY(0); }
+              100% { transform: scale(0) translateY(0); }
             }
 
             /* 🦆 says ⮞ NAVBAR BUTTONS */            
@@ -544,8 +544,6 @@
             .device-selector {
               appearance: none;
               -webkit-appearance: none;
-              -moz-appearance: none;
-    
               width: 100%;
               max-width: 280px;
               padding: 12px 44px 12px 14px;
@@ -554,9 +552,7 @@
               border: 2px solid #38bdf8;
               border-radius: 14px;
               background: #f0f9ff;
-              color: #0c4a6e;
-            
-    
+              color: #0c4a6e; 
               box-shadow: 0 3px 8px rgba(0,0,0,0.08);
               transition: all 0.2s ease-in-out;
             }
@@ -616,7 +612,6 @@
                 background: var(--secondary);
             }
     
-            /* Styles for renderMessage */
             .device-panel {
                 margin-top: 15px;
             }
@@ -750,11 +745,10 @@
                 border-radius: 8px;
                 border: 1px solid #eee;
             }
-            
-            
+                        
             .battery-container {
-              width: 240px;
-              height: 100px;
+              width: 120px;
+              height: 60px;
               position: relative;
               border: 3px solid #38bdf8;
               border-radius: 16px;
@@ -767,10 +761,24 @@
             .battery-fill {
               height: 100%;
               width: 0%;
-              background: linear-gradient(90deg, #22c55e, #84cc16, #facc15, #f97316, #ef4444);
-              background-size: 400% 100%;
-              animation: gradientShift 4s linear infinite;
-              transition: width 0.5s ease;
+              transition: width 0.5s ease, background-color 0.5s ease;
+            }
+
+            .battery-fill.high {
+              background-color: #22c55e;
+            }
+
+            
+            .battery-fill.medium {
+              background-color: #facc15;
+            }
+
+            .battery-fill.low {
+              background-color: #f97316;
+            }
+
+            .battery-fill.critical {
+              background-color: #ef4444;
             }
 
             .battery-text {
@@ -789,3 +797,29 @@
               0% { background-position: 0% 50%; }
               100% { background-position: 100% 50%; }
             }
+            
+            .linkquality-container {
+              display: flex;
+              align-items: flex-end;
+              gap: 6px;
+              height: 100px;
+              margin: 8px 0;
+            }
+
+            .lq-bar {
+              width: 20px;
+              background: #334155;          /* default dark background */
+              border-radius: 4px;
+              box-shadow: inset 0 0 4px #38bdf8;
+              transition: background-color 0.3s ease;
+            }
+
+            .lq-bar.off {
+              background: #1e293b;
+              box-shadow: none;
+            }
+
+            .lq-bar.good { background-color: #22c55e; }
+            .lq-bar.ok { background-color: #facc15; }
+            .lq-bar.bad { background-color: #f97316; }
+            .lq-bar.terrible { background-color: #ef4444; }
