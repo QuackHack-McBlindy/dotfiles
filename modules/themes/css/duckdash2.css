@@ -669,7 +669,12 @@
             }
             
             .section {
-                font-weight: 600;
+                font-weight: 900;
+                font-size: 3rem;
+                margin: 8px 0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
                 margin-top: 15px;
                 margin-bottom: 10px;
                 color: var(--secondary);
@@ -747,6 +752,10 @@
             }
                         
             .battery-container {
+              margin: 8px 0;
+              display: flex;
+              justify-content: center;
+              align-items: center;
               width: 120px;
               height: 60px;
               position: relative;
@@ -755,7 +764,6 @@
               overflow: hidden;
               background: #1e293b;
               box-shadow: 0 0 20px #38bdf8, inset 0 0 10px #38bdf8;
-              margin: 8px 0;
             }
 
             .battery-fill {
@@ -799,16 +807,17 @@
             }
             
             .linkquality-container {
+              margin: 8px 0;
               display: flex;
-              align-items: flex-end;
+              justify-content: center;
+              align-items: center;
               gap: 6px;
               height: 100px;
-              margin: 8px 0;
             }
 
             .lq-bar {
               width: 20px;
-              background: #334155;          /* default dark background */
+              background: #334155;
               border-radius: 4px;
               box-shadow: inset 0 0 4px #38bdf8;
               transition: background-color 0.3s ease;
