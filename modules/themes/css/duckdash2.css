@@ -1024,6 +1024,77 @@ input:checked + .slider-round:before {
 }
 
 
+/* 🦆 says ⮞ BLINDs YAAAY */
+.position-controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.cover-btn {
+    padding: 8px 12px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition);
+}
+
+.cover-btn.open {
+    background-color: #22c55e;
+    color: white;
+}
+
+.cover-btn.stop {
+    background-color: #f59e0b;
+    color: white;
+}
+
+.cover-btn.close {
+    background-color: #ef4444;
+    color: white;
+}
+
+.cover-btn:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+}
+
+.position-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 10px;
+}
+
+.position-value {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.position-slider {
+    width: 100%;
+    height: 6px;
+    border-radius: 5px;
+    background: var(--light);
+    outline: none;
+    -webkit-appearance: none;
+}
+
+.position-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+}
 
 
 
@@ -1119,4 +1190,104 @@ input:checked + .slider-round:before {
     font-weight: 600;
     font-size: 1.4rem;
     color: var(--dark);
+}
+
+
+@font-face {
+    font-family: 'Duckymanly';
+    src: url('https://raw.githubusercontent.com/QuackHack-McBlindy/dotfiles/main/modules/themes/fonts/duckymanly/Duckymanly%20Demo.otf') format('opentype');
+    font-weight: normal;
+    font-style: normal;
+}
+        
+.dash-text {
+    font-family: 'Duckymanly', 'Poppins', sans-serif;
+    font-size: 2.8rem;
+    background: linear-gradient(45deg, #4a6fa5, #ff7846, #2ecc71);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7), 
+                 0 0 20px rgba(255, 255, 255, 0.4),
+                 0 0 40px rgba(78, 205, 196, 0.3);
+    letter-spacing: 1px;
+    margin-left: 6px;
+    display: inline-block;
+    transform: skew(-5deg, 0);
+    padding: 0 5px;
+    animation: glow 3s ease-in-out infinite alternate;
+}
+        
+@keyframes glow {
+    from {
+        text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.7), 
+                     0 0 20px rgba(255, 255, 255, 0.4),
+                     0 0 40px rgba(78, 205, 196, 0.3);
+    }
+    to {
+        text-shadow: 3px 3px 8px rgba(0, 0, 0, 0.8), 
+                     0 0 30px rgba(255, 255, 255, 0.6),
+                     0 0 60px rgba(78, 205, 196, 0.5);
+    }
+}
+        
+.color-presets {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+    width: 100%;
+    max-width: 280px;
+}
+        
+.color-preset {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+        
+.color-preset:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+        
+.color-picker-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    width: 100%;
+}
+        
+.color-picker-btn {
+    padding: 10px 20px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+        
+.color-picker-btn:hover {
+    background: var(--secondary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+        
+.color-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }

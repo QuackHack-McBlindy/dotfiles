@@ -829,6 +829,51 @@
     
                     document.head.appendChild(style);
                 }
+
+
+                function updatePosition(value) {
+                    const position = clamp(parseInt(value), 0, 100);
+                    document.querySelector('.position-value').textContent = `''${position}%`;
+                
+                }
+    
+                function clamp(value, min, max) {
+                    return Math.min(Math.max(value, min), max);
+                }    
+
+                function setColor(hex) {
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
+    
+                    publishPatch({ color: { r, g, b } });
+                }
+
+                function openColorPicker() {
+                    document.getElementById('hiddenColorPicker').click();
+                }
+
+                function normalizeColor(color) {
+                    if (typeof color === 'string' && color.startsWith('#')) {
+                        const hex = color.substring(1);
+                        return {
+                            r: parseInt(hex.substr(0, 2), 16),
+                            g: parseInt(hex.substr(2, 2), 16),
+                            b: parseInt(hex.substr(4, 2), 16),
+                            hex: color
+                        };
+                    } else if (color && typeof color === 'object') {
+                        const r = color.r || 0;
+                        const g = color.g || 0;
+                        const b = color.b || 0;
+                        return {
+                            r, g, b,
+                            hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+                        };
+                    }
+    
+                    return { r: 255, g: 255, b: 255, hex: '#ffffff' };
+                }
     
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ RENDER MESSAGE
@@ -860,7 +905,6 @@
                         controlsHtml += `
                             <div class="section">Power</div>
                             <div class="row special">
-                                <div class="key">Status</div>
                                 <div class="state-display ''${stateClass}">
                                     <label class="switch">
                                         <input type="checkbox" id="stateToggle" ''${checked}>
@@ -902,7 +946,6 @@
                     }
 
 
-                    // 🦆 says ⮞ TODO decrease size and make dedicated icon in upper rigjt corner
                     // 🦆 says ⮞ LINK QUALITY
                     if ('linkquality' in parsed) {
                         const lq = clamp(Number(parsed.linkquality) || 0, 0, 100);
@@ -938,7 +981,6 @@
                         const contactText = contact ? 'Closed' : 'Open';
                         const contactClass = contact ? 'contact-closed' : 'contact-open';
 
-        
                         controlsHtml += `
                             <div class="section">Contactr</div>
                             <div class="row special">
@@ -948,6 +990,31 @@
                             </div>`;
                     }
 
+                    // 🦆 says ⮞ BLINDs YAAAAY
+                    if ('position' in parsed) {
+                        const position = clamp(Number(parsed.position) || 0, 0, 100);
+    
+                        controlsHtml += `
+                            <div class="section">Position</div>
+                            <div class="row special">
+                                <div class="position-controls">
+                                    <button class="cover-btn open" onclick="publishPatch({position: 100})">
+                                        <i class="fas fa-arrow-up"></i> Open
+                                    </button>
+                                    <button class="cover-btn stop" onclick="publishPatch({stop: true})">
+                                        <i class="fas fa-stop"></i> Stop
+                                    </button>
+                                    <button class="cover-btn close" onclick="publishPatch({position: 0})">
+                                        <i class="fas fa-arrow-down"></i> Close
+                                    </button>
+                               </div>
+                               <div class="position-display">
+                                    <div class="position-value">''${position}%</div>
+                                    <input type="range" min="0" max="100" value="''${position}" 
+                                        class="position-slider" oninput="updatePosition(this.value)">
+                               </div>
+                            </div>`;
+                    }
 
                     // 🦆 says ⮞ MOTION
                     if ('occupancy' in parsed) {
@@ -976,9 +1043,7 @@
                                 <div class="occupancy-status ''${occupancyClass}">''${occupancyText}</div>
                             </div>`;
                     }
-
-                        
-                        
+                    
                     // 🦆 says ⮞ BRIGHTNESS
                     if ('brightness' in parsed) {
                         const v = clamp(Number(parsed.brightness) || 0, 0, 255);
@@ -987,7 +1052,6 @@
                         controlsHtml += `
                             <div class="section">Brightness</div>
                             <div class="row special">
-                                <div class="key">Level</div>
                                 <div class="brightness-display">
                                     <div class="brightness-value">''${percent}%</div>
                                     <div class="slider-row">
@@ -997,41 +1061,28 @@
                             </div>`;
                     }
                     
-                    // 🦆 says ⮞ COLOR PICKER
+                    // 🦆 says ⮞ COLOR
                     if ('color' in parsed) {
                         const col = normalizeColor(parsed.color);
+    
                         controlsHtml += `
                             <div class="section">Color</div>
-                            <div class="row">
-                                <div class="key">Color Picker</div>
-                                <div style="display:grid; gap:8px;">
-                                    <input type="color" id="colorPicker" value="''${col.hex}" style="width:120px; height:36px; padding:0; border: 1px solid #ddd; border-radius:8px;">
-                                    <div class="preview" id="colorPreview" style="background:''${col.hex};"></div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="key">RGBW Sliders</div>
-                                <div style="display:grid; gap:8px;">
-                                    <div class="slider-row">
-                                        <span>R</span>
-                                        <input type="range" min="0" max="255" value="''${col.r}" id="rSlider">
-                                        <span class="badge" id="rBadge">''${col.r}</span>
+                            <div class="row special">
+                                <div class="color-section">
+                                    <div class="color-presets">
+                                        <div class="color-preset" style="background: #ff3b30;" onclick="setColor('#ff3b30')"></div>
+                                        <div class="color-preset" style="background: #ff9500;" onclick="setColor('#ff9500')"></div>
+                                        <div class="color-preset" style="background: #ffcc00;" onclick="setColor('#ffcc00')"></div>
+                                        <div class="color-preset" style="background: #4cd964;" onclick="setColor('#4cd964')"></div>
+                                        <div class="color-preset" style="background: #5ac8fa;" onclick="setColor('#5ac8fa')"></div>
+                                        <div class="color-preset" style="background: #007aff;" onclick="setColor('#007aff')"></div>
                                     </div>
-                                    <div class="slider-row">
-                                        <span>G</span>
-                                        <input type="range" min="0" max="255" value="''${col.g}" id="gSlider">
-                                        <span class="badge" id="gBadge">''${col.g}</span>
-                                    </div>
-                                    <div class="slider-row">
-                                        <span>B</span>
-                                        <input type="range" min="0" max="255" value="''${col.b}" id="bSlider">
-                                        <span class="badge" id="bBadge">''${col.b}</span>
-                                    </div>
-                                    <div class="slider-row">
-                                        <span>W</span>
-                                        <input type="range" min="0" max="255" value="''${col.w}" id="wSlider">
-                                        <span class="badge" id="wBadge">''${col.w}</span>
-                                    </div>
+                                    <div class="color-picker-container">
+                                        <button class="color-picker-btn" onclick="openColorPicker()">
+                                            <i class="fas fa-palette"></i> Custom Color
+                                        </button>
+                                        <input type="color" id="hiddenColorPicker" style="display: none;" onchange="setColor(this.value)">
+                                   </div>
                                 </div>
                             </div>`;
                     }
