@@ -429,8 +429,32 @@
                 }         
          
                 function setRangeGradient(slider, startColor, endColor) {
-                    // 🦆 says ⮞ todo?
-                    
+                    const existingStyle = document.getElementById('sliderGradientStyle');
+                    if (existingStyle) {
+                        existingStyle.remove();
+                    }
+    
+                    const style = document.createElement('style');
+                    style.id = 'sliderGradientStyle';
+    
+                    const sliderId = `slider-''${Math.random().toString(36).substr(2, 9)}`;
+                    slider.id = sliderId;
+    
+                    style.textContent = `
+                        #''${sliderId} {
+                            background: linear-gradient(to right, ''${startColor}, ''${endColor});
+                        }
+        
+                        #''${sliderId}::-webkit-slider-thumb {
+                            background: var(--primary);
+                        }
+        
+                        #''${sliderId}::-moz-range-thumb {
+                            background: var(--primary);
+                        }
+                    `;
+    
+                    document.head.appendChild(style);
                 }
                 
                 function valueColor(key, value) {
