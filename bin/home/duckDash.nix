@@ -382,7 +382,7 @@
 
             window.setColor = setColor;
             window.openColorPicker = openColorPicker;
-        
+
             document.addEventListener('DOMContentLoaded', function() {
                 // 🦆 says ⮞ mqtt
                 let client = null;
@@ -403,6 +403,8 @@
                 const pageContainer = document.getElementById('pageContainer');
                 const navTabs = document.querySelectorAll('.nav-tab');
                 let currentPage = 0;
+
+                window.selectedDevice = selectedDevice;
                 
                 // 🦆 says ⮞ helperz 4 renderMessage
                 function clamp(value, min, max) {
@@ -868,7 +870,6 @@
                 }
 
                 window.publishPatch = publishPatch;
-                window.selectedDevice = selectedDevice;
 
 
                 
