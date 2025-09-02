@@ -345,9 +345,9 @@
                 </div>
             </div>
             
-            /* 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+            <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
              🦆 says ⮞ TABS
-             🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
+             🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
             <div class="nav-tabs">
                 <div class="nav-tab active" data-page="0">
                     <i class="mdi mdi-cellphone"></i>
@@ -370,7 +370,7 @@
             document.addEventListener('DOMContentLoaded', function() {
                 // 🦆 says ⮞ mqtt
                 let client = null;
-                const brokerUrl = 'ws://192.168.1.211:9001';
+                const brokerUrl = 'ws://${mqttHostip}:9001';
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
                 
@@ -1189,44 +1189,10 @@
             });
         </script>
     </body>
-    </html>
-    
-    
-
-    
-   
+    </html>       
   '';
 
 in {
-
-  environment.etc."index.html" = {
-    text = indexHtml;
-    mode = "0644";
-  };
-
-  environment.etc."devices.json".source =
-    pkgs.writeTextFile {
-      name = "devices.json";
-      text = builtins.toJSON config.house.zigbee.devices;
-    };
-
-  environment.etc."rooms.json".source =
-    pkgs.writeTextFile {
-      name = "rooms.json";
-      text = builtins.toJSON config.house.rooms;
-    };
-  
-
-  environment.etc."tv.json".source =
-    pkgs.writeTextFile {
-      name = "tv.json";
-      text = builtins.toJSON config.house.tv;
-    };
-
-
-
-  networking.firewall.allowedTCPPorts = [ 13337 ];
-  
   yo.scripts = { 
     duckDash = {
       description = "Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home tech stuff.";
@@ -1245,5 +1211,31 @@ in {
         ${httpServer}/bin/serve-dashboard "$HOST" "$PORT" 
       '';
     };  
-  };}
+  };
+
+  networking.firewall.allowedTCPPorts = [ 13337 ];
+  
+  environment.etc."index.html" = {
+    text = indexHtml;
+    mode = "0644";
+  };
+
+  environment.etc."devices.json".source =
+    pkgs.writeTextFile {
+      name = "devices.json";
+      text = builtins.toJSON config.house.zigbee.devices;
+    };
+
+  environment.etc."rooms.json".source =
+    pkgs.writeTextFile {
+      name = "rooms.json";
+      text = builtins.toJSON config.house.rooms;
+    };
+  
+  environment.etc."tv.json".source =
+    pkgs.writeTextFile {
+      name = "tv.json";
+      text = builtins.toJSON config.house.tv;
+    };
+  }
 

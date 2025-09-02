@@ -443,23 +443,6 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             continue
           fi
           
-          
-          
-          # 🦆 says ⮞ electricity price 
-#          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("current_price")' > /dev/null; then
-#            tibberPrice=$(yo tibber)
-#            if [ -n "$tibberPrice" ]; then
-#              echo "$tibberPrice"
-#            fi
-#          fi
-
-#          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("monthly_usage")' > /dev/null; then
-#            tibberUsage=$(yo tibber usage)
-#            if [ -n "$tibberUsage" ]; then
-#              echo "$tibberUsage"
-#            fi
-#          fi
-          
         done
       }
             
