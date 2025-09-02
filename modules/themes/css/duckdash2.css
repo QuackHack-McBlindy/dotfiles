@@ -751,19 +751,28 @@
                 border: 1px solid #eee;
             }
                         
-            .battery-container {
-              margin: 8px 0;
+            .battery-container,
+            .linkquality-container,
+            .temperature-container {
               display: flex;
-              justify-content: center;
+              flex-direction: column;
               align-items: center;
-              width: 120px;
-              height: 60px;
-              position: relative;
-              border: 3px solid #38bdf8;
-              border-radius: 16px;
-              overflow: hidden;
-              background: #1e293b;
-              box-shadow: 0 0 20px #38bdf8, inset 0 0 10px #38bdf8;
+              justify-content: center;
+              margin: 15px 0;
+              padding: 10px;
+              border-radius: 12px;
+              background: rgba(245, 247, 250, 0.7);
+            }
+
+            .section.special {
+              font-weight: 900;
+              font-size: 1.4rem;
+              text-align: center;
+              margin: 15px 0 10px;
+              color: #4a6fa5;
+              width: 100%;
+              letter-spacing: 0.5px;
+              text-transform: uppercase;
             }
 
             .battery-fill {
@@ -805,16 +814,7 @@
               0% { background-position: 0% 50%; }
               100% { background-position: 100% 50%; }
             }
-            
-            .linkquality-container {
-              margin: 8px 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-              gap: 6px;
-              height: 100px;
-            }
-
+        
             .lq-bar {
               width: 20px;
               background: #334155;
@@ -834,13 +834,6 @@
             .lq-bar.terrible { background-color: #ef4444; }
             
             
-            .temperature-container {
-              margin: 8px 0;
-              display: flex;
-              justify-content: center;
-              align-items: center;
-            }
-
             .temperature-value {
               font-size: 1.5rem;
               font-weight: bold;
@@ -851,9 +844,118 @@
               transition: background-color 0.3s ease;
             }
 
-            .temperature-value.cold   { background-color: #3b82f6; } /* blue */
-            .temperature-value.good   { background-color: #22c55e; } /* green */
-            .temperature-value.warm   { background-color: #facc15; } /* yellow */
-            .temperature-value.warmer { background-color: #f97316; } /* orange */
-            .temperature-value.hot    { background-color: #ef4444; } /* red */
+            .temperature-value.cold   { background-color: #3b82f6; }
+            .temperature-value.good   { background-color: #22c55e; }
+            .temperature-value.warm   { background-color: #facc15; }
+            .temperature-value.warmer { background-color: #f97316; }
+            .temperature-value.hot    { background-color: #ef4444; }
 
+            .section:has(+ .row .battery-container),
+            .section:has(+ .row .linkquality-container), 
+            .section:has(+ .row .temperature-container) {
+              text-align: center;
+              font-size: 1.4rem !important;
+              margin: 15px 0 10px !important;
+              color: var(--primary);
+              width: 100%;
+              letter-spacing: 0.5px;
+              text-transform: uppercase;
+            }
+
+            .battery-container,
+            .linkquality-container,
+            .temperature-container {
+              display: flex !important;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              margin: 15px auto !important;
+              padding: 10px;
+              border-radius: 12px;
+              background: rgba(245, 247, 250, 0.7);
+              width: fit-content;
+            }
+
+            .battery-container {
+              width: 140px;
+              height: 70px;
+              border: 3px solid #38bdf8;
+              border-radius: 16px;
+              overflow: hidden;
+              background: #1e293b;
+              box-shadow: 0 0 20px #38bdf8, inset 0 0 10px #38bdf8;
+            }
+
+            .battery-text {
+              font-size: 1.6rem !important;
+              font-weight: 800 !important;
+            }
+
+            .linkquality-container {
+              height: 120px;
+              gap: 8px;
+            }
+
+            .lq-bar {
+              width: 24px !important;
+            }
+
+            .temperature-value {
+              font-size: 2rem !important;
+              font-weight: 800 !important;
+              padding: 12px 20px !important;
+              min-width: 140px;
+              text-align: center;
+            }
+
+            .row:has(.battery-container),
+            .row:has(.linkquality-container),
+            .row:has(.temperature-container) {
+              display: flex !important;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              text-align: center;
+              padding: 15px 0;
+              border-bottom: 1px solid #eee;
+            }
+
+            .row:has(.battery-container) .key,
+            .row:has(.linkquality-container) .key, 
+            .row:has(.temperature-container) .key {
+              font-weight: 700 !important;
+              color: var(--primary);
+              font-size: 1.2rem;
+              margin-bottom: 8px;
+              letter-spacing: 0.5px;
+            }
+
+            .row:has(.battery-container) .value,
+            .row:has(.linkquality-container) .value,
+            .row:has(.temperature-container) .value {
+              font-weight: 600;
+              font-size: 1.4rem;
+              color: var(--dark);
+            }
+
+            .val-number.important {
+              font-size: 1.3rem;
+              font-weight: 700;
+              color: var(--primary);
+              text-align: center;
+              display: block;
+              width: 100%;
+            }
+
+            .row:has(.battery-container) .slider-row,
+            .row:has(.linkquality-container) .slider-row,
+            .row:has(.temperature-container) .slider-row {
+              justify-content: center;
+              margin-top: 10px;
+            }
+
+            .row:has(.battery-container) .preview,
+            .row:has(.linkquality-container) .preview,
+            .row:has(.temperature-container) .preview {
+              margin: 10px auto;
+            }
