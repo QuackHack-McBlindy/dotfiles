@@ -824,6 +824,25 @@
                             </div>`;
                     }
                     
+                    // 🦆 says ⮞ TEMPERATURE 
+                    if ('temperature' in parsed) {
+                        const temp = Number(parsed.temperature) || 0;
+                        let classes = 'temperature-value';
+
+                        if (temp < 20.0) classes += ' cold';
+                        else if (temp < 23.0) classes += ' good';
+                        else if (temp < 23.5) classes += ' warm';
+                        else if (temp < 24.0) classes += ' warmer';
+                        else classes += ' hot';
+
+                        controlsHtml += `
+                            <div class="section">Temperature</div>
+                            <div class="temperature-container">
+                                <div class="''${classes}">''${temp.toFixed(2)}°C</div>
+                            </div>`;
+                    }
+
+                    // 🦆 says ⮞ LINK QUALITY
                     if ('linkquality' in parsed) {
                         const lq = clamp(Number(parsed.linkquality) || 0, 0, 100);
                         const totalBars = 4;
