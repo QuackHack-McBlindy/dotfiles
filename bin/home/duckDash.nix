@@ -366,53 +366,39 @@
     
         <div class="notification hidden" id="notification"></div>
     
-        <script> 
+        <script>          
             function setColor(hex) {
-                const r = parseInt(hex.slice(1, 3), 16);
-                const g = parseInt(hex.slice(3, 5), 16);
-                const b = parseInt(hex.slice(5, 7), 16);
-    
-                publishPatch({ color: { r, g, b } });
+                if (window.selectedDevice && window.publishPatch) {
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
+                    window.publishPatch({ color: { r, g, b } });
+                }
             }
 
             function openColorPicker() {
                 document.getElementById('hiddenColorPicker').click();
             }
 
-            function normalizeColor(color) {
-                if (typeof color === 'string' && color.startsWith('#')) {
-                    const hex = color.substring(1);
-                    return {
-                        r: parseInt(hex.substr(0, 2), 16),
-                        g: parseInt(hex.substr(2, 2), 16),
-                        b: parseInt(hex.substr(4, 2), 16),
-                        hex: color
-                    };
-                } else if (color && typeof color === 'object') {
-                    const r = color.r || 0;
-                    const g = color.g || 0;
-                    const b = color.b || 0;
-                    return {
-                        r, g, b,
-                        hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
-                    };
-                }
-    
-                return { r: 255, g: 255, b: 255, hex: '#ffffff' };
-            }
-            
-            
+            window.setColor = setColor;
+            window.openColorPicker = openColorPicker;
+        
             document.addEventListener('DOMContentLoaded', function() {
                 // 🦆 says ⮞ mqtt
                 let client = null;
                 const brokerUrl = 'ws://${mqttHostip}:9001';
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
-                
+             
+                window.publishPatch = publishPatch;
+                window.selectedDevice = selectedDevice;
+                 
+             
                 // 🦆 says ⮞ device state
                 let devices = {};
                 let selectedDevice = null;
-                
+
+  
                 // 🦆 says ⮞ page
                 const pageContainer = document.getElementById('pageContainer');
                 const navTabs = document.querySelectorAll('.nav-tab');
@@ -542,15 +528,7 @@
                     return 'Just now';
                 }
                 
-                function publishPatch(payload) {
-                    if (!selectedDevice) {
-                        showNotification('Please select a device first', 'error');
-                        return;
-                    }
-                    
-                    sendCommand(selectedDevice, payload);
-                }
-                
+
                 function loadSavedState() {
                     try {
                         const savedState = localStorage.getItem('duckDashState');
@@ -565,6 +543,7 @@
                             
                             if (state.selectedDevice) {
                                 selectedDevice = state.selectedDevice;
+                                window.selectedDevice = selectedDevice; 
                                 document.getElementById('deviceSelect').value = selectedDevice;
                                 if (devices[selectedDevice]) {
                                     updateDeviceUI(devices[selectedDevice]);
@@ -605,6 +584,7 @@
                         localStorage.removeItem('duckDashState');
                         devices = {};
                         selectedDevice = null;
+                        window.selectedDevice = null;
                         updateDeviceSelector();
                         updateStatusCards();
                         document.getElementById('currentDeviceName').textContent = 'quack or tap a device';
@@ -752,6 +732,8 @@
                         selector.value = currentValue;
                     }
                 }
+
+
                 
                 function updateDeviceUI(data) {
                     document.getElementById('currentDeviceName').textContent = selectedDevice;
@@ -876,7 +858,54 @@
                     return Math.min(Math.max(value, min), max);
                 }    
 
+                function publishPatch(payload) {
+                    if (!selectedDevice) {
+                        showNotification('Please select a device first', 'error');
+                        return;
+                    }
+                    
+                    sendCommand(selectedDevice, payload);
+                }
+
+                window.publishPatch = publishPatch;
+                window.selectedDevice = selectedDevice;
+
+
+                
+                function setColor(hex) {
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
     
+                    publishPatch({ color: { r, g, b } });
+                }
+
+                function openColorPicker() {
+                    document.getElementById('hiddenColorPicker').click();
+                }
+
+                function normalizeColor(color) {
+                    if (typeof color === 'string' && color.startsWith('#')) {
+                        const hex = color.substring(1);
+                        return {
+                            r: parseInt(hex.substr(0, 2), 16),
+                            g: parseInt(hex.substr(2, 2), 16),
+                            b: parseInt(hex.substr(4, 2), 16),
+                            hex: color
+                        };
+                    } else if (color && typeof color === 'object') {
+                        const r = color.r || 0;
+                        const g = color.g || 0;
+                        const b = color.b || 0;
+                        return {
+                            r, g, b,
+                            hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+                        };
+                    }
+    
+                    return { r: 255, g: 255, b: 255, hex: '#ffffff' };
+                }
+            
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ RENDER MESSAGE
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
@@ -1250,6 +1279,7 @@
                     
                     document.getElementById('deviceSelect').addEventListener('change', function() {
                         selectedDevice = this.value;
+                        window.selectedDevice = selectedDevice;
                         if (selectedDevice && devices[selectedDevice]) {
                             updateDeviceUI(devices[selectedDevice]);
                         } else {
