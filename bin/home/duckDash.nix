@@ -163,9 +163,6 @@
                   <span class="dash-text">'Dash!</span>
                 </div>
                 
-                <button id="shopButton" class="mic-btn">🛒</button>
-                <button id="calButton" class="mic-btn">📅</button>
-                
                 <div class="search-bar">
                   <i class="fas fa-search"></i>
                   <input type="text" placeholder="🦆 quack quack, may I assist?" id="searchInput">
@@ -175,12 +172,12 @@
             </header>
     
             <select id="deviceSelect" class="device-selector">
-            <option value="">device</option>
+            <option value="">🦆 says ⮞ pick a device </option>
             </select>
     
             <div class="connection-status status-connecting" id="connectionStatus">
                 <i class="fas fa-plug"></i>
-                <span>...</span>
+               <span>⚠️</span>
             </div>
     
     
@@ -244,8 +241,8 @@
                                 <i class="fas fa-lightbulb"></i>
                             </div>
                             <div class="device-info">
-                                <h2 id="currentDeviceName">quack or tap a device</h2>
-                                <p id="currentDeviceStatus">up there yo</p>
+                                <h2 id="currentDeviceName">Select a device</h2>
+                                <p id="currentDeviceStatus">Or swipe around!</p>
                             </div>
                         </div>
                         
@@ -258,7 +255,7 @@
                 <!-- 🦆 says ⮞ PAGE 2 - SCENES -->
                 <div class="page" id="pageScenes">
                     <h2>Scenes</h2>
-                    <p>Tap to generate Nix code</p>
+                    <p>Define yourr scenes at `config.house.zigbee.scenes`</p>
                     
                     <div class="scene-grid" id="scenesContainer">
                         <div class="scene-item" data-scene="morning">
@@ -344,13 +341,6 @@
                             </button>
                         </div>
                         
-                        <div class="tv-navigation">
-                            <button class="tv-btn channel-btn" data-channel="1">1</button>
-                            <button class="tv-btn channel-btn" data-channel="2">2</button>
-                            <button class="tv-btn channel-btn" data-channel="3">3</button>
-                            <button class="tv-btn channel-btn" data-channel="4">4</button>
-                            <button class="tv-btn channel-btn" data-channel="5">5</button>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -553,7 +543,7 @@
                 // 🦆 says ⮞ connect da duck
                 function connectToMQTT() {
                     statusElement.className = 'connection-status status-connecting';
-                    statusElement.innerHTML = '<i class="fas fa-plug"></i><span>⚠️📛</span>';
+                    statusElement.innerHTML = '<i class="fas fa-plug"></i><span>📛</span>';
                    
                     let password = localStorage.getItem('mqttPassword');
                     if (!password) {

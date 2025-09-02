@@ -40,64 +40,46 @@ in {
         dt_error "Cannot run without base URL!" >&2
         exit 1
       fi
-      TEXT=$text
-      TITLE=$title
-      ICON=$icon
-      SOUND=$sound
-      VOLUME=$volume
-      GROUP=$group
-      LEVEL=$level
-      URL=$url
-      AUTOCOPY=0
-      if [ -n "$copy" ]; then    
-        AUTOCOPY=1
-        COPY=$copy
-      fi  
-      JSON=$(cat <<EOF
-{
-  "body": "$TEXT",
-  "device_key": "$DEVICE_KEY",
-  "title": "$TITLE",
-  "badge": 1,
-  "sound": "$SOUND",
-  "volume": "$VOLUME",
-  "icon": "$ICON",
-  "group": "$GROUP",
-  "level": "$LEVEL",  
-  "url": "$URL",
-  "autoCopy": "$AUTOCOPY"
-}
-EOF
-      )      
 
-      if [ -n "$copy" ]; then
-        JSON=$(echo "$JSON" | jq --arg copy "$COPY" '. + {copy: $COPY}')
-      fi
+      JSON=$(jq -n \
+        --arg body "$text" \
+        --arg device_key "$DEVICE_KEY" \
+        --arg title "$title" \
+        --arg icon "$icon" \
+        --arg sound "$sound" \
+        --arg volume "$volume" \
+        --arg group "$group" \
+        --arg level "$level" \
+        --arg url "$url" \
+        --arg copy "$copy" \
+        --argjson automaticallyCopy "$( [ -n "$copy" ] && echo 1 || echo 0 )" \
+        '{
+          body: $body,
+          device_key: $device_key,
+          title: $title,
+          badge: 1,
+          sound: $sound,
+          volume: $volume,
+          icon: $icon,
+          group: $group,
+          level: $level,
+          url: $url,
+          automaticallyCopy: $automaticallyCopy
+        } + (if $copy != "" then {copy: $copy} else {} end)'
+      )
 
       if [ "$encrypt" = "1" ]; then
-        # 🦆 says ⮞ generate random nonce 12 bytes
         NONCE=$(${pkgs.openssl}/bin/openssl rand -hex 12)
-        
-        # 🦆 says ⮞ pad device_key to 32 bytes AES-256
         KEY=$(echo -n "$DEVICE_KEY" | ${pkgs.xxd}/bin/xxd -p | tr -d '\n' | head -c 64 | awk '{ printf "%-64s", $1 }' | tr ' ' '0')
-        
-        # 🦆 says ⮞ encrypt and get binary output
-        CIPHERTEXT_TAG_BIN=$(echo -n "$TEXT" | ${pkgs.openssl}/bin/openssl enc -aes-256-gcm -e -K "$KEY" -iv "$NONCE" 2>/dev/null)
-        
-        # 🦆 says ⮞ convert nonce to binary
+        CIPHERTEXT_TAG_BIN=$(echo -n "$text" | ${pkgs.openssl}/bin/openssl enc -aes-256-gcm -e -K "$KEY" -iv "$NONCE" 2>/dev/null)
         NONCE_BIN=$(echo -n "$NONCE" | ${pkgs.xxd}/bin/xxd -r -p)
-        
-        # 🦆 says ⮞ combine nonce + ciphertext + tag
         BLOB="$NONCE_BIN$CIPHERTEXT_TAG_BIN"
-        
-        # 🦆 says ⮞ base64 encode the entire blob
         CIPHERTEXT_BASE64=$(echo -n "$BLOB" | ${pkgs.coreutils}/bin/base64 -w0)
 
         JSON=$(echo "$JSON" | jq \
           --arg ciphertext "$CIPHERTEXT_BASE64" \
           '. + {ciphertext: $ciphertext, isArchive: "1"} | del(.body)')
       fi
-
 
       ${pkgs.curl}/bin/curl -X POST "$BASE_URL/push" \
         -H 'Content-Type: application/json' \

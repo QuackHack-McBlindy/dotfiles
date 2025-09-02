@@ -22,6 +22,6 @@ in {
     code = ''
       ${cmdHelpers}
       COPY=$copy
-      yo notify --text "Click to copy" --copy "$COPY"
+      yo notify --text "Clipboard received" --title "yo klistra in" --autoCopy 1 --copy "$COPY"
     '';
   };}
