@@ -864,6 +864,8 @@ input:checked + .slider-round:before {
 /* 🦆 says ⮞ special row */
 .row:has(.battery-container),
 .row:has(.linkquality-container),
+.row:has(.contact-container),
+.row:has(.occupancy-container),
 .row:has(.temperature-container) {
     display: flex;
     flex-direction: column;
@@ -876,6 +878,8 @@ input:checked + .slider-round:before {
 
 .row:has(.battery-container) .key,
 .row:has(.linkquality-container) .key, 
+.row:has(.occupancy-container) .key,
+.row:has(.contact-container) .key, 
 .row:has(.temperature-container) .key {
     font-weight: 700;
     color: var(--primary);
@@ -886,6 +890,8 @@ input:checked + .slider-round:before {
 
 .row:has(.battery-container) .value,
 .row:has(.linkquality-container) .value,
+.row:has(.contact-container) .value,
+.row:has(.occupancy-container) .value,
 .row:has(.temperature-container) .value {
     font-weight: 600;
     font-size: 1.4rem;
@@ -903,6 +909,8 @@ input:checked + .slider-round:before {
 
 .row:has(.battery-container) .slider-row,
 .row:has(.linkquality-container) .slider-row,
+.row:has(.contact-container) .slider-row,
+.row:has(.occupancy-container) .slider-row,
 .row:has(.temperature-container) .slider-row {
     justify-content: center;
     margin-top: 10px;
@@ -910,6 +918,8 @@ input:checked + .slider-round:before {
 
 .row:has(.battery-container) .preview,
 .row:has(.linkquality-container) .preview,
+.row:has(.contact-container) .preview,
+.row:has(.occupancy-container) .preview,
 .row:has(.temperature-container) .preview {
     margin: 10px auto;
 }
@@ -934,4 +944,34 @@ input:checked + .slider-round:before {
     background-color: #28a745;
     color: white;
     box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+/* 🦆 says ⮞ door/window sensor */
+.contact-status {
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-align: center;
+    min-width: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.contact-closed {
+    background-color: #28a745;
+    color: white;
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.5);
+}
+
+.contact-open {
+    background-color: #dc3545;
+    color: white;
+    box-shadow: 0 0 10px rgba(220, 53, 69, 0.5);
+}
+
+.contact-icon {
+    font-size: 1.2rem;
 }

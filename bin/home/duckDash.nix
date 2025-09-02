@@ -842,6 +842,8 @@
                             </div>`;
                     }
 
+
+                    // 🦆 says ⮞ TODO decrease size and make dedicated icon in upper rigjt corner
                     // 🦆 says ⮞ LINK QUALITY
                     if ('linkquality' in parsed) {
                         const lq = clamp(Number(parsed.linkquality) || 0, 0, 100);
@@ -870,6 +872,25 @@
                             </div>`;
                     }
 
+                    // 🦆 says ⮞ CONTACT
+                    if ('contact' in parsed) {
+                        const contact = parsed.contact;
+                        const contactText = contact ? 'Closed' : 'Open';
+                        const contactClass = contact ? 'contact-closed' : 'contact-open';
+                        const contactIcon = contact ? '🔒' : '🔓';
+        
+                        controlsHtml += `
+                            <div class="section">Contact Sensor</div>
+                            <div class="row special">
+                                <div class="key">Status</div>
+                                <div class="contact-status ''${contactClass}">
+                                    <span class="contact-icon">''${contactIcon}</span>
+                                    ''${contactText}
+                                </div>
+                            </div>`;
+                    }
+
+
                     // 🦆 says ⮞ MOTION
                     if ('occupancy' in parsed) {
                         const occupancy = parsed.occupancy;
@@ -877,7 +898,7 @@
                         const occupancyClass = occupancy ? 'occupancy-detected' : 'occupancy-clear';
         
                         controlsHtml += `
-                            <div class="section">Motion Sensor</div>
+                            <div class="section">Motion</div>
                             <div class="row special">
                                 <div class="key">Status</div>
                                 <div class="occupancy-status ''${occupancyClass}">''${occupancyText}</div>
