@@ -782,7 +782,18 @@
                                 </div>
                             </div>`;
                     }
-                    
+               
+                    // 🦆 says ⮞ BATTERY METER
+                    if ('battery' in parsed) {
+                        const level = clamp(Number(parsed.battery) || 0, 0, 100);
+                        controlsHtml += `
+                            <div class="section">Battery</div>
+                            <div class="battery-container">
+                                <div class="battery-fill" style="width:''${level}%"></div>
+                                <div class="battery-text">''${level}%</div>
+                            </div>`;
+                    }
+    
                     // 🦆 says ⮞ BRIGHTNESS
                     if ('brightness' in parsed) {
                         const v = clamp(Number(parsed.brightness) || 0, 0, 255);

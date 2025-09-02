@@ -420,28 +420,49 @@
                 background-color: var(--danger);
             }
     
+            /* 🦆 says ⮞ FLOATING DUCK */
             .floating-duck {
-              display: inline-block;
-              animation: float 3s ease-in-out infinite;
               display: inline-block;
               animation: float 3s ease-in-out infinite;
               transition: all 0.25s ease-in-out;
             }
-    
+
             .floating-duck:hover {
               text-shadow: 
                 0 0 6px #00ff00,
                 0 0 12px #00ff00,
                 0 0 24px #00ff00,
                 0 0 48px #00ff00;
-              transform: scale(1.15);
+              animation: float 3s ease-in-out infinite, duckAnimation 7s forwards;
             }
-    
+
             @keyframes float {
               0% { transform: translateY(0px); }
               50% { transform: translateY(-8px); }
               100% { transform: translateY(0px); }
             }
+
+            @keyframes duckAnimation {
+              /* 🦆 says ⮞ 0–3s: slow growth */
+              0%   { transform: scale(1) translateY(0); }
+              43%  { transform: scale(3.0) translateY(0); }
+
+              /* 🦆 says ⮞ 3–5s: grow faster */
+              71%  { transform: scale(8) translateY(0); }
+
+              /* 🦆 says ⮞ 5–6s: strong shaking */
+              85%  { transform: scale(8) rotate(-10deg) translateY(0); }
+              87%  { transform: scale(8) rotate(10deg) translateY(0); }
+              89%  { transform: scale(8) rotate(-15deg) translateY(0); }
+              91%  { transform: scale(8) rotate(15deg) translateY(0); }
+              93%  { transform: scale(8) rotate(-20deg) translateY(0); }
+              95%  { transform: scale(8) rotate(20deg) translateY(0); }
+
+              /* 🦆 says ⮞ 6–7s: quick pop */
+              100% { transform: scale(8) translateY(0); }
+            }
+
+            /* 🦆 says ⮞ NAVBAR BUTTONS */            
             .notify-btn {
               background: none;
               border: none;
@@ -728,4 +749,43 @@
                 height: 50px;
                 border-radius: 8px;
                 border: 1px solid #eee;
+            }
+            
+            
+            .battery-container {
+              width: 240px;
+              height: 100px;
+              position: relative;
+              border: 3px solid #38bdf8;
+              border-radius: 16px;
+              overflow: hidden;
+              background: #1e293b;
+              box-shadow: 0 0 20px #38bdf8, inset 0 0 10px #38bdf8;
+              margin: 8px 0;
+            }
+
+            .battery-fill {
+              height: 100%;
+              width: 0%;
+              background: linear-gradient(90deg, #22c55e, #84cc16, #facc15, #f97316, #ef4444);
+              background-size: 400% 100%;
+              animation: gradientShift 4s linear infinite;
+              transition: width 0.5s ease;
+            }
+
+            .battery-text {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%);
+              font-size: 1.5rem;
+              font-weight: bold;
+              color: #f8fafc;
+              text-shadow: 0 0 8px #38bdf8, 0 0 16px #38bdf8;
+              letter-spacing: 1px;
+            }
+
+            @keyframes gradientShift {
+              0% { background-position: 0% 50%; }
+              100% { background-position: 100% 50%; }
             }
