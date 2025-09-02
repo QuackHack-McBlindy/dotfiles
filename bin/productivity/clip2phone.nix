@@ -21,6 +21,7 @@ in {
     ];  
     code = ''
       ${cmdHelpers}
-      yo notify --text "Click to copy" --copy "$copy"
+      COPY=$copy
+      yo notify --text "Click to copy" --copy "$COPY"
     '';
   };}
