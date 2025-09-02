@@ -852,8 +852,7 @@
 
                         let barsHtml = "";
                         for (let i = 0; i < totalBars; i++) {
-                            let height = ((i + 1) * 25); // 25%, 50%, 75%, 100%
-                            let classes = 'lq-bar';
+                            let classes = 'lq-bar-mini';
                             if (i < activeBars) {
                                 if (lq > 75) classes += ' good';
                                 else if (lq > 50) classes += ' ok';
@@ -862,14 +861,16 @@
                             } else {
                                 classes += ' off';
                             }
-                            barsHtml += `<div class="''${classes}" style="height:''${height}%"></div>`;
+                            barsHtml += `<div class="''${classes}"></div>`;
                         }
-
-                        controlsHtml += `
-                            <div class="section">Signal</div>
-                            <div class="linkquality-container">
-                                ''${barsHtml}
-                            </div>`;
+                        const deviceHeader = document.querySelector('.device-header');
+                        if (deviceHeader && !deviceHeader.querySelector('.linkquality-mini')) {
+                            deviceHeader.innerHTML += `
+                                <div class="linkquality-mini">
+                                    <div class="lq-bars">''${barsHtml}</div>
+                                    <span class="lq-value">''${lq}</span>
+                                </div>`;
+                        }
                     }
 
                     // 🦆 says ⮞ CONTACT
@@ -877,14 +878,12 @@
                         const contact = parsed.contact;
                         const contactText = contact ? 'Closed' : 'Open';
                         const contactClass = contact ? 'contact-closed' : 'contact-open';
-                        const contactIcon = contact ? '🔒' : '🔓';
+
         
                         controlsHtml += `
                             <div class="section">Contact Sensor</div>
                             <div class="row special">
-                                <div class="key">Status</div>
                                 <div class="contact-status ''${contactClass}">
-                                    <span class="contact-icon">''${contactIcon}</span>
                                     ''${contactText}
                                 </div>
                             </div>`;
@@ -894,13 +893,27 @@
                     // 🦆 says ⮞ MOTION
                     if ('occupancy' in parsed) {
                         const occupancy = parsed.occupancy;
-                        const occupancyText = occupancy ? 'Motion detected' : 'No motion';
-                        const occupancyClass = occupancy ? 'occupancy-detected' : 'occupancy-clear';
-        
+                        let occupancyText, occupancyClass;
+    
+                        if (occupancy) {
+                            occupancyText = 'Motion detected';
+                            occupancyClass = 'occupancy-detected';
+                            if (devices[selectedDevice]) {
+                                devices[selectedDevice].lastMotion = new Date().toISOString();
+                                saveState();
+                            }
+                        } else {
+                            occupancyClass = 'occupancy-clear';
+                            if (devices[selectedDevice] && devices[selectedDevice].lastMotion) {
+                                occupancyText = 'Last motion ' + timeAgo(devices[selectedDevice].lastMotion);
+                            } else {
+                               occupancyText = 'No motion detected';
+                            }
+                        }
+
                         controlsHtml += `
                             <div class="section">Motion</div>
                             <div class="row special">
-                                <div class="key">Status</div>
                                 <div class="occupancy-status ''${occupancyClass}">''${occupancyText}</div>
                             </div>`;
                     }

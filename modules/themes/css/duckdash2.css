@@ -777,16 +777,30 @@ input:checked + .slider-round:before {
     background: #1e293b;
     box-shadow: 0 0 20px #38bdf8, inset 0 0 10px #38bdf8;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .battery-fill {
-    height: 100%;
+    height: 80%;
     width: 0%;
     transition: width 0.5s ease, background-color 0.5s ease;
     position: absolute;
-    left: 0;
-    bottom: 0;
+    left: 5px;
+    bottom: 5px;
     z-index: 1;
+    border-radius: 4px;
+}
+
+.battery-text {
+    position: relative;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #f8fafc;
+    text-shadow: 0 0 8px #38bdf8, 0 0 16px #38bdf8;
+    letter-spacing: 1px;
+    z-index: 2;
 }
 
 .battery-fill.high {
@@ -804,43 +818,49 @@ input:checked + .slider-round:before {
 .battery-fill.critical {
     background-color: #ef4444;
 }
-
-.battery-text {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: #f8fafc;
-    text-shadow: 0 0 8px #38bdf8, 0 0 16px #38bdf8;
-    letter-spacing: 1px;
-    z-index: 2;
-}
-
 /* 🦆 says ⮞ Link quality */
-.linkquality-container {
-    height: 120px;
-    gap: 8px;
+.linkquality-mini {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 5px 8px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.lq-bar {
-    width: 24px;
-    background: #334155;
-    border-radius: 4px;
-    box-shadow: inset 0 0 4px #38bdf8;
-    transition: background-color 0.3s ease;
+.lq-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 20px;
 }
 
-.lq-bar.off {
-    background: #1e293b;
-    box-shadow: none;
+.lq-bar-mini {
+    width: 4px;
+    border-radius: 1px;
+    transition: height 0.3s ease, background-color 0.3s ease;
 }
 
-.lq-bar.good { background-color: #22c55e; }
-.lq-bar.ok { background-color: #facc15; }
-.lq-bar.bad { background-color: #f97316; }
-.lq-bar.terrible { background-color: #ef4444; }
+.lq-bar-mini:nth-child(1) { height: 5px; }
+.lq-bar-mini:nth-child(2) { height: 10px; }
+.lq-bar-mini:nth-child(3) { height: 15px; }
+.lq-bar-mini:nth-child(4) { height: 20px; }
+
+.lq-bar-mini.good { background-color: #22c55e; }
+.lq-bar-mini.ok { background-color: #facc15; }
+.lq-bar-mini.bad { background-color: #f97316; }
+.lq-bar-mini.terrible { background-color: #ef4444; }
+.lq-bar-mini.off { background-color: #ccc; }
+
+.lq-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #333;
+}
 
 /* 🦆 says ⮞ temp */
 .temperature-value {
@@ -947,17 +967,44 @@ input:checked + .slider-round:before {
 }
 
 /* 🦆 says ⮞ door/window sensor */
-.contact-status {
-    padding: 8px 16px;
-    border-radius: 20px;
-    font-weight: 600;
-    font-size: 1.1rem;
+.contact-status,
+.occupancy-status {
+    padding: 12px 20px;
+    border-radius: 25px;
+    font-weight: 700;
+    font-size: 1.3rem;
     text-align: center;
-    min-width: 140px;
+    min-width: 160px;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+}
+
+.contact-status {
+    font-size: 1.4rem;
+}
+
+.row.special {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 15px 0;
+}
+
+.row.special .key {
+    font-weight: 700;
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 8px;
+    letter-spacing: 0.5px;
+}
+
+.row.special .value {
+    font-weight: 600;
+    font-size: 1.4rem;
+    color: var(--dark);
 }
 
 .contact-closed {
