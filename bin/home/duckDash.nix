@@ -777,6 +777,35 @@
                   });
                 }
     
+                function setRangeGradient(slider, startColor, endColor) {
+                    const existingStyle = document.getElementById('sliderGradientStyle');
+                    if (existingStyle) {
+                        existingStyle.remove();
+                    }
+    
+                    const style = document.createElement('style');
+                    style.id = 'sliderGradientStyle';
+    
+                    const sliderId = `slider-''${Math.random().toString(36).substr(2, 9)}`;
+                    slider.id = sliderId;
+    
+                    style.textContent = `
+                        #''${sliderId} {
+                            background: linear-gradient(to right, ''${startColor}, ''${endColor});
+                        }
+        
+                        #''${sliderId}::-webkit-slider-thumb {
+                            background: var(--primary);
+                        }
+        
+                        #''${sliderId}::-moz-range-thumb {
+                            background: var(--primary);
+                        }
+                    `;
+    
+                    document.head.appendChild(style);
+                }
+    
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ RENDER MESSAGE
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
@@ -801,17 +830,23 @@
                     // 🦆 says ⮞ STATE (toggle)
                     if ('state' in parsed) {
                         const checked = String(parsed.state).toUpperCase() === 'ON' ? 'checked' : "";
+                        const stateText = parsed.state === 'ON' ? 'ON' : 'OFF';
+                        const stateClass = parsed.state === 'ON' ? 'state-on' : 'state-off';
+    
                         controlsHtml += `
-                            <div class="row">
-                                <div class="key">Power</div>
-                                <div>
+                            <div class="section">Power</div>
+                            <div class="row special">
+                                <div class="key">Status</div>
+                                <div class="state-display ''${stateClass}">
                                     <label class="switch">
                                         <input type="checkbox" id="stateToggle" ''${checked}>
                                         <span class="slider-round"></span>
                                     </label>
+                                    <span class="state-text">''${stateText}</span>
                                 </div>
                             </div>`;
                     }
+
                
                     // 🦆 says ⮞ BATTERY METER
                     if ('battery' in parsed) {
@@ -923,12 +958,17 @@
                     // 🦆 says ⮞ BRIGHTNESS
                     if ('brightness' in parsed) {
                         const v = clamp(Number(parsed.brightness) || 0, 0, 255);
+                        const percent = Math.round((v / 255) * 100);
+    
                         controlsHtml += `
-                            <div class="row">
-                                <div class="key">Brightness</div>
-                                <div class="slider-row">
-                                    <input type="range" min="0" max="255" value="''${v}" id="brightnessSlider">
-                                    <span class="badge" id="brightnessBadge">''${v}</span>
+                            <div class="section">Brightness</div>
+                            <div class="row special">
+                                <div class="key">Level</div>
+                                <div class="brightness-display">
+                                    <div class="brightness-value">''${percent}%</div>
+                                    <div class="slider-row">
+                                        <input type="range" min="0" max="255" value="''${v}" id="brightnessSlider" class="brightness-slider">
+                                    </div>
                                 </div>
                             </div>`;
                     }
@@ -1015,17 +1055,32 @@
                     const toggle = document.getElementById('stateToggle');
                     if (toggle) {
                         toggle.onchange = () => {
-                            publishPatch({ state: toggle.checked ? 'ON' : 'OFF' });
+                            const stateText = document.querySelector('.state-text');
+                            const stateDisplay = document.querySelector('.state-display');
+        
+                            if (toggle.checked) {
+                                stateText.textContent = 'ON';
+                                stateDisplay.classList.remove('state-off');
+                                stateDisplay.classList.add('state-on');
+                                publishPatch({ state: 'ON' });
+                            } else {
+                                stateText.textContent = 'OFF';
+                                stateDisplay.classList.remove('state-on');
+                                stateDisplay.classList.add('state-off');
+                                publishPatch({ state: 'OFF' });
+                            }
                         };
                     }
-                    
+
                     const bright = document.getElementById('brightnessSlider');
-                    const brightBadge = document.getElementById('brightnessBadge');
-                    if (bright && brightBadge) {
+                    const brightValue = document.querySelector('.brightness-value');
+                    if (bright && brightValue) {
                         setRangeGradient(bright, '#000', '#ffd166');
+    
                         bright.oninput = () => {
                             const v = clamp(parseInt(bright.value), 0, 255);
-                            brightBadge.textContent = v;
+                            const percent = Math.round((v / 255) * 100);
+                            brightValue.textContent = `''${percent}%`;
                             publishPatch({ brightness: v });
                         };
                     }
