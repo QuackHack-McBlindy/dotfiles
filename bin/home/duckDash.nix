@@ -864,12 +864,27 @@
                         }
 
                         controlsHtml += `
-                            <div class="section">Link Quality</div>
+                            <div class="section">Signal</div>
                             <div class="linkquality-container">
                                 ''${barsHtml}
                             </div>`;
                     }
 
+                    // 🦆 says ⮞ MOTION
+                    if ('occupancy' in parsed) {
+                        const occupancy = parsed.occupancy;
+                        const occupancyText = occupancy ? 'Motion detected' : 'No motion';
+                        const occupancyClass = occupancy ? 'occupancy-detected' : 'occupancy-clear';
+        
+                        controlsHtml += `
+                            <div class="section">Motion Sensor</div>
+                            <div class="row special">
+                                <div class="key">Status</div>
+                                <div class="occupancy-status ''${occupancyClass}">''${occupancyText}</div>
+                            </div>`;
+                    }
+
+                        
                         
                     // 🦆 says ⮞ BRIGHTNESS
                     if ('brightness' in parsed) {
