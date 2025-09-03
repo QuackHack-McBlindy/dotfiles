@@ -53,13 +53,6 @@
   iconData = builtins.toJSON zigbeeDevicesIcon;
 
 
-  # 🦆 says ⮞ generate scene HTML
-#  sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: ''
-#    <div class="scene-item" data-scene="${lib.escapeXML name}">
-#      <i class="fas fa-lightbulb"></i>
-#      <span>${lib.escapeXML name}</span>
-#    </div>
-#  '') zigbeeScenes);
 
   # 🦆 says ⮞ generate  scene gradients css
   sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
@@ -91,7 +84,8 @@
         ${if background == "white" then "color: black;" else ""}
       }"
   ) zigbeeScenes);
-  
+
+  # 🦆 says ⮞ generate scene HTML  
   sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
       colors = lib.concatMap (device: 
@@ -341,13 +335,11 @@
                 <!-- 🦆 says ⮞ PAGE 2 - SCENES -->
                 <div class="page" id="pageScenes">
                     <h2>Scenes</h2>
-                    <p>Define yourr scenes at `config.house.zigbee.scenes`</p>
-                   
                     <div class="scene-grid" id="scenesContainer">
                       ${sceneGridHtml}
                     </div>
-
                 </div>
+                
                 
                 <!-- 🦆 says ⮞ PAGE 3 - TV - -->
                 <div class="page" id="pageTV">
@@ -1181,6 +1173,12 @@
                             </div>`;
                     }
                     
+               //🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                    // 🦆 likez it ⮞  RAW!  ⮜ ti zekl 🦆 \\
+               //🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆                    
+                   
+                    <p>RAW</p>
+                   
                     // 🦆 says ⮞ OTHER FIELDS
                     for (const [key, value] of entries) {
                         const lower = key.toLowerCase();

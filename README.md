@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/vamd5n1l1lkjc5pi8gfvl0jvj9170d1h-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/0gzs24nicjamfpl092466i73x2bji5hq-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -176,7 +176,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Vägg";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:lightbulb";
     room = "hallway";
     supports_color = false;
     type = "light";
@@ -185,7 +185,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "IKEA 5 Dimmer";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:remote";
     room = "other";
     supports_color = false;
     type = "remote";
@@ -194,7 +194,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Door Sensor Hall";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:door";
     room = "hallway";
     supports_color = false;
     type = "sensor";
@@ -203,7 +203,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "Bloom";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:lightbulb";
     room = "bedroom";
     supports_color = true;
     type = "light";
@@ -212,7 +212,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "AAA";
     endpoint = 1;
     friendly_name = "Motion Sensor Hall";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:motion-sensor";
     room = "hallway";
     supports_color = false;
     type = "motion";
@@ -248,7 +248,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "WC 2";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "wc";
     supports_color = false;
     type = "light";
@@ -257,7 +257,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "WC 1";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "wc";
     supports_color = false;
     type = "light";
@@ -266,7 +266,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Takkrona 1";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "livingroom";
     supports_color = true;
     type = "light";
@@ -284,7 +284,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Takkrona 2";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "livingroom";
     supports_color = true;
     type = "light";
@@ -293,7 +293,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "Taket Sovrum 2";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "bedroom";
     supports_color = true;
     type = "light";
@@ -302,7 +302,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Takkrona 4";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "livingroom";
     supports_color = true;
     type = "light";
@@ -311,7 +311,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2450";
     endpoint = 1;
     friendly_name = "Dimmer Switch Kök";
-    icon = "mdi:light-switch";
+    icon = "mdi:toggle-switch";
     room = "kitchen";
     supports_color = false;
     type = "dimmer";
@@ -329,7 +329,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "Tak Hall";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "hallway";
     supports_color = false;
     type = "light";
@@ -347,7 +347,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Takkrona 3";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "livingroom";
     supports_color = true;
     type = "light";
@@ -374,7 +374,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2450";
     endpoint = 1;
     friendly_name = "Dimmer Switch Sovrum";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:toggle-switch";
     room = "bedroom";
     supports_color = false;
     type = "dimmer";
@@ -383,7 +383,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2450";
     endpoint = 1;
     friendly_name = "Dimmer Switch Vardagsrum";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:toggle-switch";
     room = "livingroom";
     supports_color = false;
     type = "dimmer";
@@ -392,7 +392,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "Taket Sovrum 1";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:ceiling-light";
     room = "bedroom";
     supports_color = true;
     type = "light";
@@ -401,7 +401,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 11;
     friendly_name = "Sänglampa";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:lightbulb";
     room = "bedroom";
     supports_color = true;
     type = "light";
@@ -410,7 +410,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Fläkt";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:power-socket-eu";
     room = "kitchen";
     supports_color = false;
     type = "outlet";
@@ -419,7 +419,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Water Sensor";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:water";
     room = "livingroom";
     supports_color = false;
     type = "sensor";
@@ -428,7 +428,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Roller Shade";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:blinds";
     room = "livingroom";
     supports_color = false;
     type = "blind";
@@ -437,7 +437,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2032";
     endpoint = 1;
     friendly_name = "On/Off Switch 1";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:remote";
     room = "other";
     supports_color = false;
     type = "remote";
@@ -446,7 +446,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2032";
     endpoint = 1;
     friendly_name = "On/Off Switch 2";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:remote";
     room = "other";
     supports_color = false;
     type = "remote";
@@ -455,7 +455,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2032";
     endpoint = 1;
     friendly_name = "Motion Sensor Kök";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:motion-sensor";
     room = "kitchen";
     supports_color = false;
     type = "motion";
@@ -473,7 +473,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Power Plug";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:power-socket-eu";
     room = "other";
     supports_color = false;
     type = "outlet";
@@ -491,7 +491,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = null;
     endpoint = 1;
     friendly_name = "Power Plug 2";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:power-socket-eu";
     room = "other";
     supports_color = false;
     type = "outlet";
@@ -500,7 +500,7 @@ Zigbee devices at `config.house.zigbee.devices`.
     batteryType = "CR2032";
     endpoint = 1;
     friendly_name = "Motion Sensor Sovrum";
-    icon = "mdi:monitor-shimmer";
+    icon = "mdi:motion-sensor";
     room = "bedroom";
     supports_color = false;
     type = "motion";
