@@ -240,7 +240,7 @@
                     <div class="device-controls" id="deviceControls">
                         <div class="device-header">
                             <div class="device-icon">
-                                <i class="fas fa-lightbulb"></i>
+                                <i id="currentDeviceIcon" class="mdi"></i>
                             </div>
                             <div class="device-info">
                                 <h2 id="currentDeviceName">Select a device</h2>
@@ -357,6 +357,7 @@
                 let devices = {};
                 let selectedDevice = null;
                 let sceneData = ${sceneData};
+                let deviceIcons = ${builtins.toJSON (lib.mapAttrs (id: device: device.icon) zigbeeDevices)};  
   
                 // 🦆 says ⮞ page
                 const pageContainer = document.getElementById('pageContainer');
@@ -729,7 +730,14 @@
                     document.getElementById('securityStatus').textContent = 'Active';
                     document.getElementById('securityDetail').textContent = 'All secured';
                 }
-                
+      
+                function updateDeviceIcon(deviceName) {
+                    const icon = deviceIcons[deviceName] || "mdi:lightbulb";
+                    const iconName = icon.replace("mdi:", "");
+                    document.getElementById('currentDeviceIcon').className = `mdi mdi-''${iconName}`;
+                }   
+      
+      
                 function sendCommand(device, command) {
                     if (!client || !client.connected) {
                         showNotification('Not connected to MQTT', 'error');
@@ -1247,6 +1255,7 @@
                         window.selectedDevice = selectedDevice;
                         if (selectedDevice && devices[selectedDevice]) {
                             updateDeviceUI(devices[selectedDevice]);
+                            updateDeviceIcon(selectedDevice);
                             showPage(1);
                         } else {
                             document.getElementById('currentDeviceName').textContent = 'Select a device';
