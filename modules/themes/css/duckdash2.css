@@ -254,7 +254,7 @@ input:checked + .toggle-slider:before {
     margin-top: 20px;
 }
 
-.scene-item {
+/*.scene-item {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     padding: 15px;
@@ -268,7 +268,7 @@ input:checked + .toggle-slider:before {
     justify-content: center;
     gap: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
+}*/
 
 .scene-item:hover {
     transform: translateY(-3px);

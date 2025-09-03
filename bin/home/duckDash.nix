@@ -1,10 +1,11 @@
 # dotfiles/bin/home/duckDash.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ auto generate smart home dashboard wip 
-  self,
-  config,
-  lib,
+# 🦆 says ⮞ auto generate smart home dashboard
+{
+  self, 
+  config, # 🦆 says ⮞ not rly a fan of web interfaces
+  lib,# 🦆 says ⮞ but - 
   pkgs,
-  cmdHelpers,
+  cmdHelpers, # 🦆 feels ⮞ diz might have potential.. we'll see
   ...
 }: let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
@@ -36,19 +37,65 @@
   else
     "0.0.0.0"; 
 
+  # 🦆 says ⮞ get house.zigbee.devices
+  zigbeeDevices = config.house.zigbee.devices;
+  lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
+
   # 🦆 says ⮞ get house.zigbee.scenes
   zigbeeScenes = config.house.zigbee.scenes;
+  zigbeeDevicesIcon = lib.mapAttrs' (id: device: {
+    name = device.friendly_name;
+    value = device.icon;
+  }) zigbeeDevices;
 
   # 🦆 says ⮞ generate scene data
   sceneData = builtins.toJSON zigbeeScenes;
+  iconData = builtins.toJSON zigbeeDevicesIcon;
+
 
   # 🦆 says ⮞ generate scene HTML
-  sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: ''
-    <div class="scene-item" data-scene="${lib.escapeXML name}">
-      <i class="fas fa-lightbulb"></i>
-      <span>${lib.escapeXML name}</span>
-    </div>
-  '') zigbeeScenes);
+#  sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: ''
+#    <div class="scene-item" data-scene="${lib.escapeXML name}">
+#      <i class="fas fa-lightbulb"></i>
+#      <span>${lib.escapeXML name}</span>
+#    </div>
+#  '') zigbeeScenes);
+
+  # 🦆 says ⮞ generate  scene gradients css
+  sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
+    let
+      colors = lib.unique (lib.concatMap (device: 
+        if device.state == "ON" && device ? color then [device.color.hex] else []
+      ) (lib.attrValues scene));
+    
+      colorsLength = builtins.length colors;
+    
+      gradient = if colorsLength == 0 then "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
+      else if colorsLength == 1 then "linear-gradient(135deg, ${lib.elemAt colors 0} 0%, ${lib.elemAt colors 0}66 100%)"
+      else 
+        let
+          colorStops = lib.imap0 (i: color: 
+            "${color} ${toString (i * (100 / (colorsLength - 1)))}%"
+          ) colors;
+        in
+          "linear-gradient(135deg, ${lib.concatStringsSep ", " colorStops})";
+    in
+      ".scene-item[data-scene=\"${lib.escapeXML name}\"] { background: ${gradient}; }"
+  ) zigbeeScenes);
+
+  sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: 
+    let
+      colors = lib.concatMap (device: 
+        if device.state == "ON" && device ? color then [device.color.hex] else []
+      ) (lib.attrValues scene);
+
+      colorsAttr = if colors != [] then "data-colors='${builtins.toJSON colors}'" else "";
+    in
+      ''<div class="scene-item" data-scene="${lib.escapeXML name}" ${colorsAttr}>
+        <i class="fas fa-lightbulb"></i>
+        <span>${lib.escapeXML name}</span>
+      </div>''
+  ) zigbeeScenes);
 
   devicesJson = pkgs.writeTextFile {
     name = "devices.json";
@@ -65,9 +112,7 @@
     text = builtins.toJSON config.house.tv;
   };  
 
-  # 🦆 says ⮞ get house.zigbee.devices
-  zigbeeDevices = config.house.zigbee.devices;
-  lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
+
   # 🦆 says ⮞ get house.rooms
   roomIcons = lib.mapAttrs' (name: room: {
     name = name;
@@ -90,30 +135,33 @@
     </div>
   '') sortedRooms;
 
-  deviceEntry = device: ''
+  deviceEntry = device: let
+    icon = device.icon or "mdi:lightbulb";
+    iconName = lib.removePrefix "mdi:" icon;
+  in ''
     <div class="device" data-id="${device.id}">
       <div class="device-header" onclick="toggleDeviceControls('${device.id}')">
         <div class="control-label">
-          <span></span> ${lib.escapeXML device.friendly_name}
+          <i class="mdi mdi-${iconName}"></i> ${lib.escapeXML device.friendly_name}
         </div>
         <label class="toggle">
           <input type="checkbox" onchange="toggleDevice('${device.id}', this.checked)">
           <span class="slider"></span>
         </label>
       </div>
-    
+  
       <div class="device-controls" id="controls-${device.id}" style="display:none">
         <div class="control-row">
           <label>Brightness:</label>
           <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="${device.id}">
         </div>
-     
+   
         ${lib.optionalString (device.supports_color or false) ''        
           <div class="control-row">
             <label>Color:</label>
             <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="${device.id}" oninput="updateRGBColor(this)">
           </div>        
-      
+    
           <div class="control-row">
             <input type="color" class="color-picker" data-device="${device.id}" value="#ffffff">
           </div>
@@ -144,12 +192,31 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>🦆'Dash</title>
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/duckdash2.css">        
         <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
-
+        <style>
+            .scene-item {
+                color: white;
+                padding: 15px;
+                border-radius: 12px;
+                cursor: pointer;
+                transition: var(--transition);
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            }
+            ${sceneGradientCss}
+        </style>
     </head>
     <body>
         <div class="container">
@@ -357,7 +424,9 @@
                 let devices = {};
                 let selectedDevice = null;
                 let sceneData = ${sceneData};
-                let deviceIcons = ${builtins.toJSON (lib.mapAttrs (id: device: device.icon) zigbeeDevices)};  
+                let deviceIcons = ${iconData};  
+                console.log('All device icons:', deviceIcons);
+                console.log('Device friendly names:', Object.keys(deviceIcons));
   
                 // 🦆 says ⮞ page
                 const pageContainer = document.getElementById('pageContainer');
@@ -557,7 +626,45 @@
                         showNotification('Error clearing data', 'error');
                     }
                 }
+
+                window.publishPatch = publishPatch;
+                window.selectedDevice = selectedDevice;
                 
+                // 🦆 says ⮞ COLOR func
+                window.setColor = function(hex) {
+                    const r = parseInt(hex.slice(1, 3), 16);
+                    const g = parseInt(hex.slice(3, 5), 16);
+                    const b = parseInt(hex.slice(5, 7), 16);
+
+                    publishPatch({ color: { r, g, b } });
+                };
+
+                window.openColorPicker = function() {
+                    document.getElementById('hiddenColorPicker').click();
+                };
+
+                window.normalizeColor = function(color) {
+                    if (typeof color === 'string' && color.startsWith('#')) {
+                        const hex = color.substring(1);
+                        return {
+                            r: parseInt(hex.substr(0, 2), 16),
+                            g: parseInt(hex.substr(2, 2), 16),
+                            b: parseInt(hex.substr(4, 2), 16),
+                            hex: color
+                        };
+                    } else if (color && typeof color === 'object') {
+                        const r = color.r || 0;
+                        const g = color.g || 0;
+                        const b = color.b || 0;
+                        return {
+                            r, g, b,
+                            hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
+                        };
+                    }
+
+                    return { r: 255, g: 255, b: 255, hex: '#ffffff' };
+                };
+          
                 
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ ZIGDUCK CONNECT 
@@ -698,6 +805,8 @@
 
                 
                 function updateDeviceUI(data) {
+                    console.log('Updating device UI for:', selectedDevice);
+                    console.log('Device data:', data);
                     document.getElementById('currentDeviceName').textContent = selectedDevice;
                     
                     const statusText = data.state === 'ON' ? 'On • Connected' : 'Off • Connected';
@@ -705,6 +814,9 @@
                     
                     const topic = `zigbee2mqtt/''${selectedDevice}`;
                     renderMessage(data, topic);
+                    
+                    console.log('Device icon:', deviceIcons[selectedDevice]);
+                    updateDeviceIcon(selectedDevice);
                 }
                 
                 function updateStatusCards() {
@@ -732,11 +844,21 @@
                 }
       
                 function updateDeviceIcon(deviceName) {
+                    console.log('updateDeviceIcon called for:', deviceName);
                     const icon = deviceIcons[deviceName] || "mdi:lightbulb";
+                    console.log('Raw icon value:', icon);
+    
                     const iconName = icon.replace("mdi:", "");
-                    document.getElementById('currentDeviceIcon').className = `mdi mdi-''${iconName}`;
-                }   
-      
+                    console.log('Processed icon name:', iconName);
+    
+                    const iconElement = document.getElementById('currentDeviceIcon');
+                    console.log('Icon element found:', !!iconElement);
+    
+                    if (iconElement) {
+                        iconElement.className = 'mdi mdi-' + iconName;
+                        console.log('Final icon classes:', iconElement.className);
+                    }
+                }
       
                 function sendCommand(device, command) {
                     if (!client || !client.connected) {
@@ -837,45 +959,7 @@
                     sendCommand(selectedDevice, payload);
                 }
 
-                window.publishPatch = publishPatch;
-                window.selectedDevice = selectedDevice;
 
-
-                
-                function setColor(hex) {
-                    const r = parseInt(hex.slice(1, 3), 16);
-                    const g = parseInt(hex.slice(3, 5), 16);
-                    const b = parseInt(hex.slice(5, 7), 16);
-    
-                    publishPatch({ color: { r, g, b } });
-                }
-
-                function openColorPicker() {
-                    document.getElementById('hiddenColorPicker').click();
-                }
-
-                function normalizeColor(color) {
-                    if (typeof color === 'string' && color.startsWith('#')) {
-                        const hex = color.substring(1);
-                        return {
-                            r: parseInt(hex.substr(0, 2), 16),
-                            g: parseInt(hex.substr(2, 2), 16),
-                            b: parseInt(hex.substr(4, 2), 16),
-                            hex: color
-                        };
-                    } else if (color && typeof color === 'object') {
-                        const r = color.r || 0;
-                        const g = color.g || 0;
-                        const b = color.b || 0;
-                        return {
-                            r, g, b,
-                            hex: `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`
-                        };
-                    }
-    
-                    return { r: 255, g: 255, b: 255, hex: '#ffffff' };
-                }
-            
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ RENDER MESSAGE
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
@@ -1255,7 +1339,6 @@
                         window.selectedDevice = selectedDevice;
                         if (selectedDevice && devices[selectedDevice]) {
                             updateDeviceUI(devices[selectedDevice]);
-                            updateDeviceIcon(selectedDevice);
                             showPage(1);
                         } else {
                             document.getElementById('currentDeviceName').textContent = 'Select a device';
