@@ -40,18 +40,15 @@
   zigbeeScenes = config.house.zigbee.scenes;
 
   # 🦆 says ⮞ generate scene data
-  sceneData = builtins.toJSON (lib.mapAttrsToList (name: scene: {
-    inherit name;
-    devices = lib.mapAttrsToList (deviceName: state: {
-      id = deviceName;
-      state = state;
-    }) scene;
-  }) zigbeeScenes);
+  sceneData = builtins.toJSON zigbeeScenes;
 
-
-
-
-#  cssData = lib.readFile ./../../modules/themes/css/duckdash2.css;
+  # 🦆 says ⮞ generate scene HTML
+  sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: ''
+    <div class="scene-item" data-scene="${lib.escapeXML name}">
+      <i class="fas fa-lightbulb"></i>
+      <span>${lib.escapeXML name}</span>
+    </div>
+  '') zigbeeScenes);
 
   devicesJson = pkgs.writeTextFile {
     name = "devices.json";
@@ -182,6 +179,7 @@
     
     
             <div class="page-container" id="pageContainer"> 
+                <!-- 🦆 says ⮞ PAGE 0 HOME -->
                 <div class="page" id="pageHome">
                     <div class="status-cards">
                     <div class="status-cards">
@@ -248,6 +246,10 @@
                                 <h2 id="currentDeviceName">Select a device</h2>
                                 <p id="currentDeviceStatus">Or swipe around!</p>
                             </div>
+                            <div class="linkquality-mini">
+                                <div class="lq-bars"></div>
+                                <span class="lq-value">--</span>
+                            </div>
                         </div>
                         
                         <div id="devicePanel" class="device-panel">
@@ -260,38 +262,11 @@
                 <div class="page" id="pageScenes">
                     <h2>Scenes</h2>
                     <p>Define yourr scenes at `config.house.zigbee.scenes`</p>
-                    
+                   
                     <div class="scene-grid" id="scenesContainer">
-                        <div class="scene-item" data-scene="morning">
-                            <i class="fas fa-sun"></i>
-                            <span>Morning</span>
-                        </div>
-                        
-                        <div class="scene-item" data-scene="evening">
-                            <i class="fas fa-moon"></i>
-                            <span>Evening</span>
-                        </div>
-                        
-                        <div class="scene-item" data-scene="movie">
-                            <i class="fas fa-film"></i>
-                            <span>Movie Night</span>
-                        </div>
-                        
-                        <div class="scene-item" data-scene="dining">
-                            <i class="fas fa-utensils"></i>
-                            <span>Dining</span>
-                        </div>
-                        
-                        <div class="scene-item" data-scene="sleep">
-                            <i class="fas fa-bed"></i>
-                            <span>Sleep</span>
-                        </div>
-                        
-                        <div class="scene-item" data-scene="away">
-                            <i class="fas fa-door-open"></i>
-                            <span>Away</span>
-                        </div>
+                      ${sceneGridHtml}
                     </div>
+
                 </div>
                 
                 <!-- 🦆 says ⮞ PAGE 3 - TV - -->
@@ -370,8 +345,7 @@
     
         <div class="notification hidden" id="notification"></div>
     
-        <script>          
-        
+        <script>      
             document.addEventListener('DOMContentLoaded', function() {
                 // 🦆 says ⮞ mqtt
                 let client = null;
@@ -382,12 +356,14 @@
                 // 🦆 says ⮞ device state
                 let devices = {};
                 let selectedDevice = null;
-
+                let sceneData = ${sceneData};
   
                 // 🦆 says ⮞ page
                 const pageContainer = document.getElementById('pageContainer');
                 const navTabs = document.querySelectorAll('.nav-tab');
                 let currentPage = 0;
+                
+                
                 
                 // 🦆 says ⮞ helperz 4 renderMessage
                 function clamp(value, min, max) {
@@ -776,8 +752,9 @@
                     currentPage = pageIndex;
                     pageContainer.style.transform = `translateX(-''${pageIndex * 25}%)`;
     
-                    navTabs.forEach((tab, index) => {
-                        if (index === pageIndex) {
+                    navTabs.forEach((tab) => {
+                        const tabPageIndex = parseInt(tab.getAttribute('data-page'));
+                        if (tabPageIndex === pageIndex) {
                             tab.classList.add('active');
                         } else {
                             tab.classList.remove('active');
@@ -981,13 +958,11 @@
                             }
                             barsHtml += `<div class="''${classes}"></div>`;
                         }
-                        const deviceHeader = document.querySelector('.device-header');
-                        if (deviceHeader && !deviceHeader.querySelector('.linkquality-mini')) {
-                            deviceHeader.innerHTML += `
-                                <div class="linkquality-mini">
-                                    <div class="lq-bars">''${barsHtml}</div>
-                                    <span class="lq-value">''${lq}</span>
-                                </div>`;
+
+                        const lqMini = document.querySelector('.linkquality-mini');
+                        if (lqMini) {
+                            lqMini.querySelector('.lq-bars').innerHTML = barsHtml;
+                            lqMini.querySelector('.lq-value').textContent = lq;
                         }
                     }
 
@@ -1230,9 +1205,10 @@
                 
                 function initDashboard() {
                     loadSavedState();
-                    navTabs.forEach((tab, index) => {
+                    navTabs.forEach((tab) => {
                         tab.addEventListener('click', () => {
-                            showPage(index);
+                            const pageIndex = parseInt(tab.getAttribute('data-page'));
+                            showPage(pageIndex);
                         });
                     });
                     
@@ -1250,9 +1226,9 @@
                     pageContainer.addEventListener('touchend', () => {
                         const diff = startX - currentX;
                         const swipeThreshold = 50;
-                        
+    
                         if (Math.abs(diff) > swipeThreshold) {
-                            if (diff > 0 && currentPage < 2) {
+                            if (diff > 0 && currentPage < 3) {  // Changed from 2 to 3 for 4 pages
                                 // 🦆 says ⮞ swipe left
                                 showPage(currentPage + 1);
                             } else if (diff < 0 && currentPage > 0) {
@@ -1260,6 +1236,10 @@
                                 showPage(currentPage - 1);
                             }
                         }
+                    });
+
+                    document.querySelector('.logo').addEventListener('click', () => {
+                        showPage(0);
                     });
                     
                     document.getElementById('deviceSelect').addEventListener('change', function() {
@@ -1344,32 +1324,28 @@
                     connectToMQTT();
                 }
                 
-                function activateScene(scene) {
-                    showNotification(`Activating ''${scene} scene`, 'success');
-                    console.log(`Activating scene: ''${scene}`);
-                    
-                    switch(scene) {
-                        case 'morning':
-                            if (selectedDevice) {
-                                sendCommand(selectedDevice, { state: 'ON', brightness: 100, color_temp: 100 });
-                            }
-                            break;
-                        case 'evening':
-                            if (selectedDevice) {
-                                sendCommand(selectedDevice, { state: 'ON', brightness: 50, color_temp: 50 });
-                            }
-                            break;
-                        case 'movie':
-                            if (selectedDevice) {
-                                sendCommand(selectedDevice, { state: 'ON', brightness: 10, color_temp: 30 });
-                            }
-                            break;
-                        case 'sleep':
-                            if (selectedDevice) {
-                                sendCommand(selectedDevice, { state: 'OFF' });
-                            }
-                            break;
+                function activateScene(sceneName) {
+                    const scene = sceneData[sceneName];
+                    if (!scene) {
+                        showNotification(`Scene "''${sceneName}" not found`, 'error');
+                        return;
                     }
+    
+                    showNotification(`Activating "''${sceneName}" scene`, 'success');
+    
+                    Object.entries(scene).forEach(([device, settings]) => {
+                        let command = {...settings};
+                        if (command.color && command.color.hex) {
+                            const hex = command.color.hex.replace('#', "");
+                            command.color = {
+                                r: parseInt(hex.substr(0, 2), 16),
+                                g: parseInt(hex.substr(2, 2), 16),
+                                b: parseInt(hex.substr(4, 2), 16)
+                            };
+                        }
+        
+                        sendCommand(device, command);
+                    });
                 }
                 
                 function sendTVCommand(command, value) {
@@ -1435,4 +1411,3 @@ in {
       text = builtins.toJSON config.house.tv;
     };
   }
-

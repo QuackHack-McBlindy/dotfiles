@@ -145,6 +145,7 @@ header {
 }
 
 .device-header {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -166,7 +167,7 @@ header {
 .device-info h2 {
     font-weight: 600;
     margin-bottom: 5px;
-    font-size: 1.2rem;
+    font-size: 1.5rem;
 }
 
 .device-info p {
