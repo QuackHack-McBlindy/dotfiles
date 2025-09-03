@@ -157,7 +157,7 @@
     <body>
         <div class="container">
             <header>
-                <div class="logo">
+                 <div class="logo" onclick="showPage(0)" style="cursor: pointer;">
                   <i class="fas fa-home"></i>
                   <h1 class="floating-duck">🦆</h1>
                   <span class="dash-text">'Dash!</span>
@@ -181,9 +181,9 @@
             </div>
     
     
-            <div class="page-container" id="pageContainer">
-                <!-- 🦆 says ⮞ PAGE 1 DEVICES -->
-                <div class="page" id="pageDevices">
+            <div class="page-container" id="pageContainer"> 
+                <div class="page" id="pageHome">
+                    <div class="status-cards">
                     <div class="status-cards">
                         <div class="card">
                             <div class="card-header">
@@ -234,7 +234,11 @@
                             </div>
                         </div>
                     </div>
-                    
+                    </div>
+                </div>  
+                
+                <!-- 🦆 says ⮞ PAGE 1 DEVICES -->
+                <div class="page" id="pageDevices">                    
                     <div class="device-controls" id="deviceControls">
                         <div class="device-header">
                             <div class="device-icon">
@@ -349,15 +353,15 @@
              🦆 says ⮞ TABS
              🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
             <div class="nav-tabs">
-                <div class="nav-tab active" data-page="0">
+                <div class="nav-tab active" data-page="1">
                     <i class="mdi mdi-cellphone"></i>
                     <span>Devices</span>
                 </div>
-                <div class="nav-tab" data-page="1">
+                <div class="nav-tab" data-page="2">
                     <i class="mdi mdi-lightbulb"></i>
                     <span>Scenes</span>
                 </div>
-                <div class="nav-tab" data-page="2">
+                <div class="nav-tab" data-page="3">
                     <i class="mdi mdi-television"></i>
                     <span>TV</span>
                 </div>
@@ -367,33 +371,14 @@
         <div class="notification hidden" id="notification"></div>
     
         <script>          
-            function setColor(hex) {
-                if (window.selectedDevice && window.publishPatch) {
-                    const r = parseInt(hex.slice(1, 3), 16);
-                    const g = parseInt(hex.slice(3, 5), 16);
-                    const b = parseInt(hex.slice(5, 7), 16);
-                    window.publishPatch({ color: { r, g, b } });
-                }
-            }
-
-            function openColorPicker() {
-                document.getElementById('hiddenColorPicker').click();
-            }
-
-            window.setColor = setColor;
-            window.openColorPicker = openColorPicker;
-
+        
             document.addEventListener('DOMContentLoaded', function() {
                 // 🦆 says ⮞ mqtt
                 let client = null;
                 const brokerUrl = 'ws://${mqttHostip}:9001';
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
-             
-                window.publishPatch = publishPatch;
-                window.selectedDevice = selectedDevice;
-                 
-             
+                
                 // 🦆 says ⮞ device state
                 let devices = {};
                 let selectedDevice = null;
@@ -403,8 +388,6 @@
                 const pageContainer = document.getElementById('pageContainer');
                 const navTabs = document.querySelectorAll('.nav-tab');
                 let currentPage = 0;
-
-                window.selectedDevice = selectedDevice;
                 
                 // 🦆 says ⮞ helperz 4 renderMessage
                 function clamp(value, min, max) {
@@ -791,8 +774,8 @@
                 
                 function showPage(pageIndex) {
                     currentPage = pageIndex;
-                    pageContainer.style.transform = `translateX(-''${pageIndex * 33.333}%)`;
-                    
+                    pageContainer.style.transform = `translateX(-''${pageIndex * 25}%)`;
+    
                     navTabs.forEach((tab, index) => {
                         if (index === pageIndex) {
                             tab.classList.add('active');
@@ -800,7 +783,7 @@
                             tab.classList.remove('active');
                         }
                     });
-                    
+    
                     saveState();
                 }
 
@@ -870,6 +853,7 @@
                 }
 
                 window.publishPatch = publishPatch;
+                window.selectedDevice = selectedDevice;
 
 
                 
@@ -1283,14 +1267,17 @@
                         window.selectedDevice = selectedDevice;
                         if (selectedDevice && devices[selectedDevice]) {
                             updateDeviceUI(devices[selectedDevice]);
+                            showPage(1);
                         } else {
                             document.getElementById('currentDeviceName').textContent = 'Select a device';
                             document.getElementById('currentDeviceStatus').textContent = 'Choose a device from the dropdown';
                             document.getElementById('devicePanel').innerHTML = "";
+                            showPage(0)
                         }
-                        
+    
                         saveState();
                     });
+
                     
                     document.querySelectorAll('.scene-item').forEach(item => {
                         item.addEventListener('click', function() {

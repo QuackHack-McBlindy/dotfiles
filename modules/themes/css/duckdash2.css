@@ -83,12 +83,12 @@ header {
 
 .page-container {
     display: flex;
-    width: 300%;
+    width: 400%;
     transition: transform 0.3s ease;
 }
 
 .page {
-    width: 33.333%;
+    width: 25%;
     padding: 20px;
     min-height: 65vh;
 }
