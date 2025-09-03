@@ -277,7 +277,7 @@
                                 <i class="fas fa-power-off"></i>
                             </button>
                         </div>
-                        
+                    
                         <div class="tv-volume">
                             <button class="tv-btn" id="volDown">
                                 <i class="fas fa-volume-down"></i>
@@ -289,7 +289,7 @@
                                 <i class="fas fa-volume-up"></i>
                             </button>
                         </div>
-                        
+                    
                         <div class="tv-navigation">
                             <button class="tv-btn" id="navUp">
                                 <i class="fas fa-arrow-up"></i>
@@ -297,7 +297,7 @@
                             <button class="tv-btn" id="navLeft">
                                 <i class="fas fa-arrow-left"></i>
                             </button>
-                            <button class="tv-btn ok" id="navSelect">
+                           <button class="tv-btn ok" id="navSelect">
                                 <i class="fas fa-dot-circle"></i>
                             </button>
                             <button class="tv-btn" id="navRight">
@@ -307,7 +307,7 @@
                                 <i class="fas fa-arrow-down"></i>
                             </button>
                         </div>
-                        
+                    
                         <div class="tv-playback">
                             <button class="tv-btn" id="playbackBack">
                                 <i class="fas fa-backward"></i>
@@ -319,7 +319,7 @@
                                 <i class="fas fa-forward"></i>
                             </button>
                         </div>
-                        
+                    
                     </div>
                 </div>
             </div>
