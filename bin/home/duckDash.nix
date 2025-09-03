@@ -64,39 +64,52 @@
   # 🦆 says ⮞ generate  scene gradients css
   sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
+      deviceStates = lib.mapAttrsToList (_: device: device.state) scene;
+      onCount = lib.length (lib.filter (state: state == "ON") deviceStates);
+      offCount = lib.length (lib.filter (state: state == "OFF") deviceStates);
+      
       colors = lib.unique (lib.concatMap (device: 
         if device.state == "ON" && device ? color then [device.color.hex] else []
       ) (lib.attrValues scene));
-    
+      
       colorsLength = builtins.length colors;
-    
-      gradient = if colorsLength == 0 then "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
-      else if colorsLength == 1 then "linear-gradient(135deg, ${lib.elemAt colors 0} 0%, ${lib.elemAt colors 0}66 100%)"
-      else 
-        let
-          colorStops = lib.imap0 (i: color: 
-            "${color} ${toString (i * (100 / (colorsLength - 1)))}%"
-          ) colors;
-        in
-          "linear-gradient(135deg, ${lib.concatStringsSep ", " colorStops})";
+      
+      background = 
+        if offCount > onCount then "black"
+        else if colorsLength == 0 then "white"
+        else if colorsLength == 1 then "linear-gradient(135deg, ${lib.elemAt colors 0} 0%, ${lib.elemAt colors 0}66 100%)"
+        else 
+          let
+            colorStops = lib.imap0 (i: color: 
+              "${color} ${toString (i * (100 / (colorsLength - 1)))}%"
+            ) colors;
+          in
+            "linear-gradient(135deg, ${lib.concatStringsSep ", " colorStops})";
     in
-      ".scene-item[data-scene=\"${lib.escapeXML name}\"] { background: ${gradient}; }"
+      ".scene-item[data-scene=\"${lib.escapeXML name}\"] { 
+        background: ${background}; 
+        ${if background == "white" then "color: black;" else ""}
+      }"
   ) zigbeeScenes);
-
+  
   sceneGridHtml = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
       colors = lib.concatMap (device: 
         if device.state == "ON" && device ? color then [device.color.hex] else []
       ) (lib.attrValues scene);
-
+      
+      deviceStates = lib.mapAttrsToList (_: device: device.state) scene;
+      onCount = lib.length (lib.filter (state: state == "ON") deviceStates);
+      offCount = lib.length (lib.filter (state: state == "OFF") deviceStates);
       colorsAttr = if colors != [] then "data-colors='${builtins.toJSON colors}'" else "";
+      statesAttr = "data-on='${toString onCount}' data-off='${toString offCount}'";
     in
-      ''<div class="scene-item" data-scene="${lib.escapeXML name}" ${colorsAttr}>
+      ''<div class="scene-item" data-scene="${lib.escapeXML name}" ${colorsAttr} ${statesAttr}>
         <i class="fas fa-lightbulb"></i>
         <span>${lib.escapeXML name}</span>
       </div>''
   ) zigbeeScenes);
-
+  
   devicesJson = pkgs.writeTextFile {
     name = "devices.json";
     text = builtins.toJSON config.house.zigbee.devices;
@@ -201,7 +214,6 @@
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
             .scene-item {
-                color: white;
                 padding: 15px;
                 border-radius: 12px;
                 cursor: pointer;
@@ -213,7 +225,8 @@
                 justify-content: center;
                 gap: 8px;
                 box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: black;
+                color: white;
             }
             ${sceneGradientCss}
         </style>
