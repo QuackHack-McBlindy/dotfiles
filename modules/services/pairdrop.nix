@@ -1,10 +1,12 @@
-{ config, lib, pkgs, ... }:
-
-let
-  # Check if "pairdrop" is enabled via custom module list
+{ 
+  config,
+  lib,
+  pkgs,
+  ...
+} : let
   enabled = lib.elem "pairdrop" config.this.host.modules.services;
 in {
-  # Declare options unconditionally (but configuration is conditional)
+
   options.services.pairdrop = {
     package = lib.mkPackageOption pkgs "pairdrop" { };
     port = lib.mkOption {
@@ -14,7 +16,7 @@ in {
     };
     openFirewall = lib.mkOption {
       type = lib.types.bool;
-      default = false;
+      default = true;
       description = "Open firewall port for PairDrop";
     };
     extraEnv = lib.mkOption {
@@ -24,7 +26,6 @@ in {
     };
   };
 
-  # Conditionally apply the configuration
   config = lib.mkIf enabled {
     systemd.services.pairdrop = {
       description = "PairDrop file sharing service";

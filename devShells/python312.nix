@@ -17,6 +17,7 @@
     ps.noisereduce
     ps.pytickersymbols
     ps.yfinance
+    ps.websockets
     ps.pyannote-audio
 #    ps.onnxruntime
 #    ps.tflite-runtime
