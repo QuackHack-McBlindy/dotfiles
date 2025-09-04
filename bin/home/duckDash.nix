@@ -52,8 +52,6 @@
   sceneData = builtins.toJSON zigbeeScenes;
   iconData = builtins.toJSON zigbeeDevicesIcon;
 
-
-
   # 🦆 says ⮞ generate  scene gradients css
   sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
@@ -118,7 +116,6 @@
     name = "tv.json";
     text = builtins.toJSON config.house.tv;
   };  
-
 
   # 🦆 says ⮞ get house.rooms
   roomIcons = lib.mapAttrs' (name: room: {
@@ -866,7 +863,6 @@
                     }
                 }
       
-                // 🦆 says ⮞ duck assist
                 function sendCommand(device, command) {
                     if (!client || !client.connected) {
                         showNotification('Not connected to MQTT', 'error');
@@ -992,7 +988,15 @@
                 function showPage(pageIndex) {
                     currentPage = pageIndex;
                     pageContainer.style.transform = `translateX(-''${pageIndex * 25}%)`;
-    
+
+                    // 🦆 says ⮞ hide device selector on TV page
+                    const deviceSelector = document.getElementById('deviceSelect');
+                    if (pageIndex === 3) {
+                        deviceSelector.classList.add('hidden');
+                    } else {
+                        deviceSelector.classList.remove('hidden');
+                    }
+
                     navTabs.forEach((tab) => {
                         const tabPageIndex = parseInt(tab.getAttribute('data-page'));
                         if (tabPageIndex === pageIndex) {
@@ -1001,7 +1005,7 @@
                             tab.classList.remove('active');
                         }
                     });
-    
+
                     saveState();
                 }
 
@@ -1471,14 +1475,26 @@
                     searchInput.addEventListener('keypress', function(e) {
                         if (e.key === 'Enter') {
                             const command = this.value.trim();
+                            console.log('Enter key pressed, command:', command);
+        
                             if (command) {
+                                console.log('Command is not empty, processing...');
+                                const payload = {
+                                    command: command,
+                                };            
                                 if (client && client.connected) {
-                                    client.publish('command', command);
+                                    console.log('MQTT client is connected, publishing command to topic: dashboard/command');
+                                    client.publish('zigbee2mqtt/command', JSON.stringify(payload));
+                                    console.log('Command published successfully:', command);
                                     showNotification('Command sent: ' + command, 'success');
                                     this.value = "";
+                                    console.log('Search input cleared');
                                 } else {
+                                    console.error('MQTT client is not connected or client is null');
                                     showNotification('Not connected to MQTT', 'error');
                                 }
+                            } else {
+                                console.log('Command is empty, ignoring');
                             }
                         }
                     });

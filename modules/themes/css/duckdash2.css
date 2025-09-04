@@ -28,6 +28,9 @@ body {
 }
 
 .container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
     max-width: 100%;
     margin: 0 auto;
     background: white;
@@ -84,10 +87,15 @@ header {
 .page-container {
     display: flex;
     width: 400%;
+    flex: 1;
+    overflow: hidden; 
     transition: transform 0.3s ease;
 }
 
 .page {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     width: 25%;
     padding: 20px;
     min-height: 65vh;
@@ -137,6 +145,10 @@ header {
 }
 
 .device-controls {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; 
     background: white;
     border-radius: 15px;
     padding: 20px;
@@ -390,6 +402,10 @@ input:checked + .toggle-slider:before {
     font-size: 1rem;
 }
 
+.device-selector.hidden {
+    display: none;
+}
+
 .hidden {
     display: none;
 }
@@ -616,6 +632,8 @@ input:checked + .toggle-slider:before {
 }
 
 .device-panel {
+    flex: 1;
+    overflow-y: auto;
     margin-top: 15px;
 }
 
