@@ -1176,8 +1176,9 @@
                //🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                     // 🦆 likez it ⮞  RAW!  ⮜ ti zekl 🦆 \\
                //🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆                    
-                   
+                                    
                     // 🦆 says ⮞ OTHER FIELDS
+                    rowsHtml += `<div class="section">Raw</div>`;
                     for (const [key, value] of entries) {
                         const lower = key.toLowerCase();
                         if (lower === 'state' || lower === 'brightness' || lower === 'color') continue;
@@ -1359,6 +1360,24 @@
                         saveState();
                     });
 
+
+                    // 🦆 says ⮞ duck assist
+                    const searchInput = document.getElementById('searchInput');
+                    searchInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            const command = this.value.trim();
+                            if (command) {
+                                if (client && client.connected) {
+                                    client.publish('command', command);
+                                    showNotification('Command sent: ' + command, 'success');
+                                    this.value = "";
+                                } else {
+                                    showNotification('Not connected to MQTT', 'error');
+                                }
+                            }
+                        }
+                    });
+                    
                     
                     document.querySelectorAll('.scene-item').forEach(item => {
                         item.addEventListener('click', function() {
@@ -1469,7 +1488,7 @@
 in {
   yo.scripts = { 
     duckDash = {
-      description = "Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home tech stuff.";
+      description = "Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets.";
       aliases = [ "dash" ];
       category = "🛖 Home Automation";  
       autoStart = config.this.host.hostname == "homie";
