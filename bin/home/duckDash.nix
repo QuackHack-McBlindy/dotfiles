@@ -340,6 +340,8 @@
                 
                 <!-- 🦆 says ⮞ PAGE 3 - TV - -->
                 <div class="page" id="pageTV">
+                    <label for="targetTV">🦆 says ⮞ select a TV</label>
+                    <select id="targetTV" name="targetTV"></select>
                     <div class="tv-controls">
                         <div class="tv-power">
                             <button class="tv-btn power" id="tvPower">
