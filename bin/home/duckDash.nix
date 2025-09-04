@@ -829,7 +829,7 @@
                     document.getElementById('connectedDevicesCount').textContent = deviceCount;
                     document.getElementById('devicesStatus').textContent = deviceCount > 0 ? 'Devices online' : 'No devices';
                     
-                    //  🦆 says ⮞ find temp
+                    // 🦆 says ⮞ find temp
                     let temperature = '--.-';
                     let tempLocation = 'No sensor';
                     
@@ -848,6 +848,7 @@
                     document.getElementById('securityDetail').textContent = 'All secured';
                 }
       
+      
                 function updateDeviceIcon(deviceName) {
                     console.log('updateDeviceIcon called for:', deviceName);
                     const icon = deviceIcons[deviceName] || "mdi:lightbulb";
@@ -865,6 +866,7 @@
                     }
                 }
       
+                // 🦆 says ⮞ duck assist
                 function sendCommand(device, command) {
                     if (!client || !client.connected) {
                         showNotification('Not connected to MQTT', 'error');
@@ -882,6 +884,110 @@
                         }
                     });
                 }
+                
+                
+                // 🦆 says ⮞ recording variables
+                let mediaRecorder = null;
+                let audioChunks = [];
+                let audioSocket = null;
+                let isRecording = false;
+                const recordingIndicator = document.getElementById('recordingIndicator');
+                const micButton = document.getElementById('micButton');
+                
+                // 🦆 says ⮞ websocket server 
+                const WS_SERVER = 'ws://192.168.1.111:9002';
+                
+                // 🦆 says ⮞ init audio recording
+                async function initAudioRecording() {
+                    try {
+                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        mediaRecorder = new MediaRecorder(stream);
+                        
+                        mediaRecorder.ondataavailable = (event) => {
+                            if (event.data.size > 0) {
+                                audioChunks.push(event.data);
+                                
+                                if (audioSocket && audioSocket.readyState === WebSocket.OPEN) {
+                                    audioSocket.send(event.data);
+                                }
+                            }
+                        };
+                        
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                            audioChunks = [];
+                            
+                            if (!audioSocket || audioSocket.readyState !== WebSocket.OPEN) {
+                                console.warn('WebSocket not available, cannot send audio');
+                                
+                            }
+                        };
+                        
+                        console.log('Audio recording initialized');
+                    } catch (error) {
+                        console.error('Error initializing audio recording:', error);
+                        showNotification('Microphone access denied', 'error');
+                    }
+                }
+                
+                function connectWebSocket() {
+                    try {
+                        audioSocket = new WebSocket(WS_SERVER);
+                        
+                        audioSocket.onopen = () => {
+                            console.log('Connected to audio WebSocket server');
+                        };
+                        
+                        audioSocket.onclose = () => {
+                            console.log('Disconnected from audio WebSocket server');
+                        };
+                        
+                        audioSocket.onerror = (error) => {
+                            console.error('WebSocket error:', error);
+                            showNotification('Failed to connect to audio server', 'error');
+                        };
+                    } catch (error) {
+                        console.error('Error connecting to WebSocket:', error);
+                        showNotification('WebSocket connection failed', 'error');
+                    }
+                }
+                
+                function toggleRecording() {
+                    if (!mediaRecorder) {
+                        showNotification('Audio recording not initialized', 'error');
+                        return;
+                    }
+                    
+                    if (!isRecording) {
+                        // 🦆 says ⮞ record
+                        audioChunks = [];
+                        mediaRecorder.start(1000);
+                        isRecording = true;
+                        micButton.classList.add('recording');
+                        recordingIndicator.style.display = 'block';
+                        showNotification('Recording started', 'success');
+                    } else {
+                        // 🦆 says ⮞ stop
+                        mediaRecorder.stop();
+                        isRecording = false;
+                        micButton.classList.remove('recording');
+                        recordingIndicator.style.display = 'none';
+                        showNotification('Recording stopped', 'success');
+                    }
+                }
+                
+                async function initAudio() {
+                    // 🦆 says ⮞ request mic permission
+                    try {
+                        await initAudioRecording();
+                        connectWebSocket();
+                    } catch (error) {
+                        console.error('Failed to initialize audio:', error);
+                    }
+                }
+                
+                micButton.addEventListener('click', toggleRecording);
+                initAudio();                
                 
                 function showPage(pageIndex) {
                     currentPage = pageIndex;
@@ -903,14 +1009,13 @@
                   const bars = document.querySelectorAll(".lq-bar");
                   const activeBars = Math.round((percent / 100) * bars.length);
                   bars.forEach((bar, idx) => {
-                    bar.className = "lq-bar"; // reset
+                    bar.className = "lq-bar"; // 🦆 says ⮞ reset
                     if (idx < activeBars) {
                       if (percent > 75) bar.classList.add("good");
                       else if (percent > 50) bar.classList.add("ok");
                       else if (percent > 25) bar.classList.add("bad");
                       else bar.classList.add("terrible");
                     } else {
-                      bar.classList.add("off");
                     }
                   });
                 }

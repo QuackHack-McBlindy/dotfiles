@@ -78,6 +78,9 @@
     from contextlib import asynccontextmanager
     import os
     import concurrent.futures
+    import websockets
+    import datetime
+
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8000)
@@ -99,6 +102,30 @@
     SAMPLE_WIDTH = 2
     CHANNELS = 1
     SESSION_TIMEOUT = 2.0  # seconds
+
+    connected_clients = set()
+
+    async def handle_audio(websocket, path):
+        connected_clients.add(websocket)
+        print(f"Client connected. Total clients: {len(connected_clients)}")    
+        filename = f"audio_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.webm"
+    
+        try:
+            with open(filename, 'wb') as audio_file:
+                async for message in websocket:
+                    audio_file.write(message)
+                    print(f"Received {len(message)} bytes of audio data")
+                
+        except websockets.exceptions.ConnectionClosed:
+            print("Client disconnected")
+        finally:
+            connected_clients.remove(websocket)
+            print(f"Client disconnected. Total clients: {len(connected_clients)}")
+
+    start_server = websockets.serve(handle_audio, "0.0.0.0", 9002)
+
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
     
     # 🦆 says ⮞ session management
     sessions_lock = threading.Lock()
@@ -334,7 +361,7 @@ in { # 🦆 says ⮞ yo yo yo yo
   };
 
   # 🦆 says ⮞ firewall rulez
-  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 6379 8111 ]; };
+  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 6379 8111 9002 ]; };
 
   # 🦆 says ⮞ used for wake word locking yo
   services.redis = lib.mkIf transcriptionAutoStart {
