@@ -438,7 +438,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.command')
             if [ -n "$command" ]; then
               dt_info "yo do execution requested from web interface: yo do $command"
-              yo do "$command"
+              yo do "$command" &
             fi
             continue
           fi
