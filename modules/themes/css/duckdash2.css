@@ -297,157 +297,42 @@ input:checked + .toggle-slider:before {
     font-size: 0.9rem;
 }
 
-.tv-selector-container {
-    text-align: center;
-    margin: 20px 0;
-    padding: 0 15px;
-}
-    
-.tv-selector {
-    padding: 12px 20px;
-    border-radius: 12px;
-    border: 2px solid var(--primary);
-    font-size: 16px;
-    background: var(--card-bg);
-    color: var(--text);
-    width: 100%;
-    max-width: 300px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-}
-    
-.tv-selector:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-}
-    
-.tv-guide-placeholder {
-    text-align: center;
-    padding: 25px;
-    margin: 25px 15px;
-    background: var(--card-bg);
-    border-radius: 16px;
-    border: 2px dashed var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-    
-.tv-guide-placeholder i {
-    font-size: 2.5rem;
-    color: var(--primary);
-}
-    
-.tv-guide-placeholder span {
-    font-size: 1.1rem;
-    font-weight: 500;
-    color: var(--text);
-}
-    
-.tv-controls-grid {
-    display: flex;
-    flex-direction: column;
+.tv-controls {
+    display: grid;
+    grid-template-columns: 1fr;
     gap: 20px;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 0 15px 30px;
+    margin-top: 20px;
 }
-    
-.tv-control-row {
+
+.tv-power {
     display: flex;
     justify-content: center;
-    gap: 15px;
 }
-    
-.tv-control-btn {
-    padding: 16px 20px;
+
+.tv-volume, .tv-navigation, .tv-playback {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.tv-btn {
+    padding: 15px;
+    border-radius: 12px;
+    background: white;
     border: none;
-    border-radius: 16px;
-    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
+    font-size: 1.2rem;
     cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-weight: 500;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    min-width: 80px;
-    flex: 1;
+    transition: var(--transition);
 }
-    
-.tv-control-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-    background: var(--primary-light);
-}
-    
-.tv-control-btn:active {
-    transform: translateY(0);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-    
-.tv-control-btn.ok {
+
+.tv-btn:hover {
     background: var(--primary);
     color: white;
 }
-    
-.tv-control-btn.ok:hover {
-    background: var(--primary-dark);
-}
-    
-.tv-control-btn.icon-only {
-    padding: 16px;
-    min-width: 60px;
-    flex: 0 1 auto;
-}
-    
-@media (max-width: 480px) {
-    .tv-control-btn {
-        padding: 14px 12px;
-        font-size: 14px;
-        min-width: 60px;
-    }
-        
-    .tv-control-btn.icon-only {
-        padding: 14px;
-        min-width: 50px;
-    }
-        
-    .tv-control-row {
-        gap: 10px;
-    }
-}
-    
-@keyframes tvButtonPress {
-    0% { transform: scale(1); }
-    50% { transform: scale(0.95); }
-    100% { transform: scale(1); }
-}
-    
-.tv-control-btn:active {
-    animation: tvButtonPress 0.2s ease;
-}
-    
-.tv-control-btn::before {
-    content: '';
-    position: absolute;
-    top: -5px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 20px;
-    height: 10px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 10'%3E%3Cpath d='M10,0 C12,0 14,2 16,4 C18,6 20,8 20,10 L0,10 C0,8 2,6 4,4 C6,2 8,0 10,0Z' fill='%23ffd166'/%3E%3C/svg%3E") no-repeat;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-    
-.tv-control-btn:hover::before {
-    opacity: 1;
+
+.tv-btn.ok {
+    grid-column: 2;
 }
 
 .nav-tabs {
