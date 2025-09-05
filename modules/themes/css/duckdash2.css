@@ -1214,7 +1214,7 @@ input:checked + .slider-round:before {
 
 @font-face {
     font-family: 'Duckymanly';
-    src: url('https://raw.githubusercontent.com/QuackHack-McBlindy/dotfiles/main/modules/themes/fonts/duckymanly/Duckymanly%20Demo.otf') format('opentype');
+    src: url('https://raw.githubusercontent.com/QuackHack-McBlindy/dotfiles/main/modules/themes/fonts/Ducky/Ducky.otf') format('opentype');
     font-weight: normal;
     font-style: normal;
 }

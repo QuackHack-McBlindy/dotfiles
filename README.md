@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fmjbjk6x4aqqpkxcdcn1h24f8g33q6zl-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/i7gy2316qcv8m66i3w7s8c87szfns9i8-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1042,9 +1042,21 @@ Android TV devices at `config.house.tv`.
 
 
 <details><summary><strong>
-And you'll get a dashboard for your devices  generate at http://localhost:13337  
+And you'll get a dashboard for your devices generated and found at http://localhost:13337  
 </strong></summary>
-🦆 duck say ⮞ TODO 🦆'Dash image
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="50%"> <br>
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="50%"> <br>
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="50%"> <br>
+
+<br>
+The dashboard currently gives you: <br><br>
+
+- __Advanced zigbee device control__ <br>
+- __Remote for your Android TV devices__ <br>
+- __Set scenes__ <br>
+- __Access to `yo do` through both an text input field aswell as microphone__ <br>
+- __and more...__ <br>
+
 
 </details>
 
