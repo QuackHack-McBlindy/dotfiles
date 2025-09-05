@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/i7gy2316qcv8m66i3w7s8c87szfns9i8-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/lsrp8gglxvlsq1gsd0az887j608iwc3c-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1044,9 +1044,9 @@ Android TV devices at `config.house.tv`.
 <details><summary><strong>
 And you'll get a dashboard for your devices generated and found at http://localhost:13337  
 </strong></summary>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="50%"> <br>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="50%"> <br>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="50%"> <br>
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="25%">
 
 <br>
 The dashboard currently gives you: <br><br>
@@ -1243,6 +1243,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo push](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/push.nix) [--flake] [--repo] [--host] [--generation] | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. | 📛 |
 | [yo scp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) --host [--path] [--username] [--downloadPath] |  | Move files between hosts interactively | 📛 |
 | **🌍 Localization** | | | |
+| [yo darkTime](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/darkTime.nix) [--location] [--locationPath] |  | Configures darkTime - the window of time where motion is triggering lights based upon sunrise/sunset. | 📛 |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |
 | [yo travel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) [--arrival] [--departure] [--type] [--apikeyPath] |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) | ✅ |
 | [yo weather](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) [--location] [--day] [--condition] [--locationPath] | weat | Weather Assistant. Ask anything weather related (3 day forecast) | ✅ |
