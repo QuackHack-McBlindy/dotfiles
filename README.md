@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/gir4p163rcgvmzpzbib5l7zqzndh48x9-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9blhh2j2caw88x5rdmpnjgvyx55di7vc-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1047,6 +1047,7 @@ And you'll get a dashboard for your devices generated and found at http://localh
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="25%">
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%">
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash4.png?raw=true" width="25%">
 
 <br>
 The dashboard currently gives you: <br><br>
