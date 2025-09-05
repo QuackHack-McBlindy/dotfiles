@@ -111,14 +111,17 @@
     text = builtins.toJSON config.house.rooms;
   };
 
-  # 🦆 says ⮞ get house.tv configuration
-  tvConfig = config.house.tv;
+  # 🦆 says ⮞ get house.tv configuration with debug info
+  tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
 
-  # 🦆 says ⮞ generate TV selector options
-  tvOptions = lib.concatMapStrings (tvName: 
-    let tv = tvConfig.${tvName};
-    in if tv.enable then ''<option value="${tv.ip}">${tvName}</option>'' else ""
-  ) (lib.attrNames tvConfig);
+  # 🦆 says ⮞ generate TV selector options with debug
+  tvOptions = let
+    tvNames = lib.attrNames tvConfig;
+    options = lib.concatMapStrings (tvName: 
+      let tv = tvConfig.${tvName};
+      in if tv.enable then ''<option value="${tv.ip}">${tvName}</option>'' else ""
+    ) tvNames;
+  in builtins.trace "TV options: ${options}" options;
 
   # 🦆 says ⮞ get house.rooms
   roomIcons = lib.mapAttrs' (name: room: {
@@ -347,16 +350,16 @@
                         <select id="targetTV" class="tv-selector">
                             <option value="">Select a TV</option>
                             ${tvOptions}
-                       </select>
+                        </select>
                     </div>
-                
+                    
                     <div class="tv-guide-placeholder">
                         <i class="fas fa-tv"></i>
                         <span>Now Playing</span>
                     </div>
-                
+                    
                     <div class="tv-controls-grid">
-                        <!-- 🦆 says ⮞ ROW 1: channel / volume up -->
+                        <!-- Row 1: Channel and Volume Up -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_up')">
                                 <i class="fas fa-arrow-up"></i> Ch Up
@@ -365,8 +368,8 @@
                                 <i class="fas fa-volume-up"></i> Vol Up
                             </button>
                         </div>
-                    
-                        <!-- 🦆 says ⮞ ROW 2: channel / volume down -->
+                        
+                        <!-- Row 2: Channel and Volume Down -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_down')">
                                 <i class="fas fa-arrow-down"></i> Ch Down
@@ -375,8 +378,8 @@
                                 <i class="fas fa-volume-down"></i> Vol Down
                             </button>
                         </div>
-                    
-                        <!-- 🦆 says ⮞ ROW 3: navigation -->
+                        
+                        <!-- Row 3: Navigation with lightbulbs -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn icon-only">
                                 <i class="mdi mdi-lightbulb"></i>
@@ -388,8 +391,8 @@
                                 <i class="mdi mdi-lightbulb"></i>
                             </button>
                         </div>
-                    
-                        <!-- 🦆 says ⮞ ROW 4: navigation -->
+                        
+                        <!-- Row 4: Left, OK, Right -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('left')">
                                 <i class="fas fa-arrow-left"></i>
@@ -401,8 +404,8 @@
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
-                    
-                        <!-- 🦆 says ⮞ ROW 5: navigation -->
+                        
+                        <!-- Row 5: Navigation with lightbulbs -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn icon-only">
                                 <i class="mdi mdi-lightbulb"></i>
@@ -414,8 +417,8 @@
                                 <i class="mdi mdi-lightbulb"></i>
                             </button>
                         </div>
-                    
-                        <!-- 🦆 says ⮞ ROW 6: playback -->
+                        
+                        <!-- Row 6: Playback controls -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('previous')">
                                 <i class="fas fa-backward"></i> Prev
@@ -705,6 +708,29 @@
                     }
 
                     return { r: 255, g: 255, b: 255, hex: '#ffffff' };
+                };
+
+
+                // 🦆 says ⮞ TV control function
+                window.sendTVCommand = function(command) {
+                    const targetTV = document.getElementById('targetTV');
+                    const ip = targetTV.value;   
+                    if (!ip) {
+                        showNotification('Please select a TV first', 'error');
+                        return;
+                    }
+              
+                    const payload = {
+                        tvCommand: command,
+                        ip: ip
+                    };
+                
+                    if (client && client.connected) {
+                        client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload));
+                        showNotification('TV command sent: ' + command, 'success');
+                    } else {
+                        showNotification('Not connected to MQTT', 'error');
+                    }
                 };
           
                 
@@ -1515,10 +1541,8 @@
                     searchInput.addEventListener('keypress', function(e) {
                         if (e.key === 'Enter') {
                             const command = this.value.trim();
-                            console.log('Enter key pressed, command:', command);
         
                             if (command) {
-                                console.log('Command is not empty, processing...');
                                 const payload = {
                                     command: command,
                                 };            
@@ -1547,60 +1571,7 @@
                         });
                     });
                     
-                    document.getElementById('tvPower').addEventListener('click', function() {
-                        sendTVCommand('power');
-                    });
-                    
-                    document.getElementById('volDown').addEventListener('click', function() {
-                        sendTVCommand('volume_down');
-                    });
-                    
-                    document.getElementById('volMute').addEventListener('click', function() {
-                        sendTVCommand('mute');
-                    });
-                    
-                    document.getElementById('volUp').addEventListener('click', function() {
-                        sendTVCommand('volume_up');
-                    });
-                    
-                    document.getElementById('navUp').addEventListener('click', function() {
-                        sendTVCommand('up');
-                    });
-                    
-                    document.getElementById('navLeft').addEventListener('click', function() {
-                        sendTVCommand('left');
-                    });
-                    
-                    document.getElementById('navSelect').addEventListener('click', function() {
-                        sendTVCommand('select');
-                    });
-                    
-                    document.getElementById('navRight').addEventListener('click', function() {
-                        sendTVCommand('right');
-                    });
-                    
-                    document.getElementById('navDown').addEventListener('click', function() {
-                        sendTVCommand('down');
-                    });
-                    
-                    document.getElementById('playbackBack').addEventListener('click', function() {
-                        sendTVCommand('back');
-                    });
-                    
-                    document.getElementById('playbackPlay').addEventListener('click', function() {
-                        sendTVCommand('play_pause');
-                    });
-                    
-                    document.getElementById('playbackForward').addEventListener('click', function() {
-                        sendTVCommand('forward');
-                    });
-                    
-                    document.querySelectorAll('.channel-btn').forEach(btn => {
-                        btn.addEventListener('click', function() {
-                            const channel = this.getAttribute('data-channel');
-                            sendTVCommand('channel', channel);
-                        });
-                    });    
+
                     window.addEventListener('beforeunload', saveState);         
                     connectToMQTT();
                 }
@@ -1629,27 +1600,6 @@
                     });
                 }
                 
-                // 🦆 says ⮞ TV control function
-                function sendTVCommand(command) {
-                    const targetTV = document.getElementById('targetTV');
-                    const ip = targetTV.value;   
-                    if (!ip) {
-                        showNotification('Please select a TV first', 'error');
-                        return;
-                    }
-              
-                    const payload = {
-                        tvCommand: command,
-                        ip: ip
-                    };
-                
-                    if (client && client.connected) {
-                        client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload));
-                        showNotification('TV command sent: ' + command, 'success');
-                    } else {
-                        showNotification('Not connected to MQTT', 'error');
-                    }
-                }
                       
                 initDashboard();
             });
