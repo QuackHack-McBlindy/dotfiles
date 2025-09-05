@@ -450,6 +450,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             ip=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.ip')
             if [ -n "$command" ]; then
               dt_info "TV command receieved! Command: $command . IP: $ip"
+              yo tv --typ "$command" --device "$ip"
             fi
             continue
           fi

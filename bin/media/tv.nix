@@ -84,7 +84,7 @@ in {
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube"; default = "tv"; optional = true; }
+      { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; }
       { name = "search"; description = "Media to search"; optional = true; }
       { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }      
       { name = "shuffle"; description = "Shuffle Toggle, true or false"; default = "true"; }   
@@ -145,6 +145,16 @@ in {
           [previous]="KEYCODE_MEDIA_PREVIOUS"
           [volume_up]="KEYCODE_VOLUME_UP"
           [volume_down]="KEYCODE_VOLUME_DOWN"
+          # 🦆 says ⮞ navigation
+          [nav_up]="KEYCODE_DPAD_UP"
+          [nav_down]="KEYCODE_DPAD_DOWN"
+          [nav_left]="KEYCODE_DPAD_LEFT"
+          [nav_right]="KEYCODE_DPAD_RIGHT"
+          [nav_select]="KEYCODE_DPAD_CENTER"
+          [nav_back]="KEYCODE_BACK"
+          [nav_home]="KEYCODE_HOME"
+          [nav_menu]="KEYCODE_MENU"
+          [nav_recents]="KEYCODE_APP_SWITCH"       
         )
         if [[ "$action" == "find_remote" ]]; then
           adb -s "$device_ip" shell am start -a android.intent.action.VIEW -n com.nvidia.remotelocator/.ShieldRemoteLocatorActivity
@@ -506,6 +516,46 @@ in {
           matched_media="$media_type"
           yo say "Aktiverar $media_type"
           ;; 
+        nav_up) # 🦆 says ⮞ navigate up     
+          dt_debug "Navigating up"
+          control_device "$DEVICE" nav_up
+          exit 0
+          ;;
+        nav_down) # 🦆 says ⮞ navigate down     
+          dt_debug "Navigating down"
+          control_device "$DEVICE" nav_down
+          exit 0
+          ;;
+        nav_left) # 🦆 says ⮞ navigate left     
+          dt_debug "Navigating left"
+          control_device "$DEVICE" nav_left
+          exit 0
+          ;;
+        nav_right) # 🦆 says ⮞ navigate right     
+          dt_debug "Navigating right"
+          control_device "$DEVICE" nav_right
+          exit 0
+          ;;
+        nav_select) # 🦆 says ⮞ navigate select     
+          dt_debug "Navigating select"
+          control_device "$DEVICE" nav_select
+          exit 0
+          ;;
+        nav_back) # 🦆 says ⮞ navigate back     
+          dt_debug "Navigating back"
+          control_device "$DEVICE" nav_back
+          exit 0
+          ;;
+        nav_menu) # 🦆 says ⮞ navigate menu     
+          dt_debug "Navigating menu"
+          control_device "$DEVICE" nav_menu
+          exit 0
+          ;;  
+        nav_home) # 🦆 says ⮞ navigate home     
+          dt_debug "Navigating home"
+          control_device "$DEVICE" nav_home
+          exit 0
+          ;;  
         call) # 🦆 says ⮞ find remote     
           dt_debug "Calling remote.."
           control_device "$DEVICE" find_remote

@@ -359,7 +359,7 @@
                 <div class="page" id="pageTV">
                     <div class="tv-selector-container">
                         <select id="targetTV" class="tv-selector">
-                            <option value="">Select a TV</option>
+                            <option value="">🦆 says ⮞ pick a TV</option>
                             ${tvOptions}
                         </select>
                     </div>
@@ -375,7 +375,7 @@
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_up')">
                                 <i class="fas fa-arrow-up"></i> Ch Up
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('volume_up')">
+                            <button class="tv-control-btn" onclick="sendTVCommand('up')">
                                 <i class="fas fa-volume-up"></i> Vol Up
                             </button>
                         </div>
@@ -385,7 +385,7 @@
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_down')">
                                 <i class="fas fa-arrow-down"></i> Ch Down
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('volume_down')">
+                            <button class="tv-control-btn" onclick="sendTVCommand('down')">
                                 <i class="fas fa-volume-down"></i> Vol Down
                             </button>
                         </div>
@@ -395,7 +395,7 @@
                             <button class="tv-control-btn icon-only">
                                 <i class="mdi mdi-lightbulb"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('up')">
+                            <button class="tv-control-btn" onclick="sendTVCommand('nav_up')">
                                 <i class="fas fa-arrow-up"></i>
                             </button>
                             <button class="tv-control-btn icon-only">
@@ -405,13 +405,13 @@
                         
                         <!-- 🦆 says ⮞ ROW 4 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn" onclick="sendTVCommand('left')">
+                            <button class="tv-control-btn" onclick="sendTVCommand('nav_left')">
                                 <i class="fas fa-arrow-left"></i>
                             </button>
-                            <button class="tv-control-btn ok" onclick="sendTVCommand('select')">
+                            <button class="tv-control-btn ok" onclick="sendTVCommand('nav_select')">
                                 <i class="fas fa-dot-circle"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('right')">
+                            <button class="tv-control-btn" onclick="sendTVCommand('nav_right')">
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
@@ -421,7 +421,7 @@
                             <button class="tv-control-btn icon-only">
                                 <i class="mdi mdi-lightbulb"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('down')">
+                            <button class="tv-control-btn" onclick="sendTVCommand('nav_down')">
                                 <i class="fas fa-arrow-down"></i>
                             </button>
                             <button class="tv-control-btn icon-only">
@@ -432,13 +432,13 @@
                         <!-- 🦆 says ⮞ ROW 6 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('previous')">
-                                <i class="fas fa-backward"></i> Prev
+                                <i class="fas fa-backward"></i>
                             </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('play_pause')">
-                                <i class="fas fa-play"></i> Play/Pause
+                                <i class="fas fa-play"></i>
                             </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('next')">
-                                <i class="fas fa-forward"></i> Next
+                                <i class="fas fa-forward"></i>
                             </button>
                         </div>
                     </div>
