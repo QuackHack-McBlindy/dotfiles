@@ -210,6 +210,121 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            
+            /* 🦆 says ⮞ TV */
+            .tv-controls-grid {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .tv-control-row {
+                display: flex;
+                justify-content: center;
+                gap: 15px;
+            }
+            
+            .tv-control-btn {
+                padding: 15px 20px;
+                border: none;
+                border-radius: 12px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                min-width: 80px;
+                justify-content: center;
+            }
+            
+            .tv-control-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            
+            .tv-control-btn.ok {
+                background: linear-gradient(135deg, #4cd964 0%, #2ecc71 100%);
+            }
+            
+            .tv-control-btn.icon-only {
+                min-width: 60px;
+                padding: 15px;
+            }
+            
+            .tv-selector-container {
+                margin-bottom: 20px;
+                display: flex;
+                justify-content: center;
+            }
+            
+            .tv-selector {
+                padding: 12px;
+                border-radius: 8px;
+                border: 2px solid #38bdf8;
+                background: #f0f9ff;
+                font-size: 1rem;
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .tv-guide-placeholder {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 40px;
+                background: var(--light);
+                border-radius: 12px;
+                margin-bottom: 20px;
+                gap: 10px;
+                color: var(--gray);
+            }
+            
+            .tv-controls {
+                display: grid;
+                grid-template-columns: 1fr;
+                gap: 20px;
+                margin-top: 20px;
+            }
+            
+            .tv-power {
+                display: flex;
+                justify-content: center;
+            }
+            
+            .tv-volume, .tv-navigation, .tv-playback {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            .tv-btn {
+                padding: 15px;
+                border-radius: 12px;
+                background: white;
+                border: none;
+                box-shadow: var(--card-shadow);
+                font-size: 1.2rem;
+                cursor: pointer;
+                transition: var(--transition);
+            }
+            
+            .tv-btn:hover {
+                background: var(--primary);
+                color: white;
+            }
+            
+            .tv-btn.ok {
+                grid-column: 2;
+            }
+            
+            
+
             .scene-item {
                 padding: 15px;
                 border-radius: 12px;
@@ -363,43 +478,38 @@
                             ${tvOptions}
                         </select>
                     </div>
-                    
-                    <div class="tv-guide-placeholder">
-                        <i class="fas fa-tv"></i>
-                        <span>Now Playing</span>
-                    </div>
-                    
+
                     <div class="tv-controls-grid">
                         <!-- 🦆 says ⮞ ROW 1 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_up')">
-                                <i class="fas fa-arrow-up"></i> Ch Up
+                                <i class="fas fa-arrow-up"></i>
                             </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('up')">
-                                <i class="fas fa-volume-up"></i> Vol Up
+                                <i class="fas fa-volume-up"></i>
                             </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 2 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_down')">
-                                <i class="fas fa-arrow-down"></i> Ch Down
+                                <i class="fas fa-arrow-down"></i>
                             </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('down')">
-                                <i class="fas fa-volume-down"></i> Vol Down
+                                <i class="fas fa-volume-down"></i>
                             </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 3 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn icon-only">
-                                <i class="mdi mdi-lightbulb"></i>
-                            </button>
+                           <button class="tv-control-btn icon-only" onclick="sendTVCommand('menu')">
+                               <i class="mdi mdi-menu"></i>
+                           </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('nav_up')">
                                 <i class="fas fa-arrow-up"></i>
                             </button>
-                            <button class="tv-control-btn icon-only">
-                                <i class="mdi mdi-lightbulb"></i>
+                            <button class="tv-control-btn icon-only" onclick="sendTVCommand('home')">
+                                <i class="mdi mdi-home"></i>
                             </button>
                         </div>
                         
@@ -418,15 +528,16 @@
                         
                         <!-- 🦆 says ⮞ ROW 5 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn icon-only">
-                                <i class="mdi mdi-lightbulb"></i>
+                            <button class="tv-control-btn icon-only" onclick="sendTVCommand('back')">
+                                <i class="mdi mdi-arrow-left-circle"></i>
                             </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('nav_down')">
                                 <i class="fas fa-arrow-down"></i>
                             </button>
-                            <button class="tv-control-btn icon-only">
-                                <i class="mdi mdi-lightbulb"></i>
+                            <button class="tv-control-btn icon-only" onclick="sendTVCommand('app_switcher')">
+                                <i class="mdi mdi-apps"></i>
                             </button>
+
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 6 -->
