@@ -10,12 +10,12 @@
 in {
   yo.scripts.darkTime = {
     description = "Configures darkTime - the window of time where motion is triggering lights based upon sunrise/sunset.";
-    category = "🌍 Localization";
-    runEvery = "1440";
+    category = "🛖 Home Automation";      runEvery = "1440";
     logLevel = "DEBUG";
     parameters = [
       { name = "location"; description = "Location to fetch sunrise/sunset times for. (City, Country)"; optional = true; }
       { name = "locationPath"; description = "File path contianing location to fetch sunrise/sunset times for. (City, Country)"; default = config.sops.secrets."users/pungkula/homeCityCountry".path; }      
+      { name = "offset"; description = "Time offset."; optional = true; }
     ]; 
     code = ''
       ${cmdHelpers}
@@ -71,8 +71,8 @@ in {
       # 🦆 says ⮞ calculate sunrise and sunset times
       dt_debug "Calculating sunrise/sunset for $LATITUDE, $LONGITUDE" >&2
       
-      SUNRISE=$(sunwait list rise civil "$LATITUDE" "$LONGITUDE" | awk '{print $2}' | cut -d: -f1-2)
-      SUNSET=$(sunwait list set civil "$LATITUDE" "$LONGITUDE" | awk '{print $2}' | cut -d: -f1-2)
+      SUNRISE=$(sunwait list rise civil "$LATITUDE" "$LONGITUDE")
+      SUNSET=$(sunwait list set civil "$LATITUDE" "$LONGITUDE")
       
       # 🦆 says ⮞ apply offset if specified
       if [[ -n "''${OFFSET:-}" ]]; then
@@ -80,10 +80,10 @@ in {
           SUNSET=$(date -d "$SUNSET today + $OFFSET minutes" +"%H:%M")
       fi
       
-      echo "Sunrise: $SUNRISE, Sunset: $SUNSET" >&2
+      dt_info "Sunrise: $SUNRISE, Sunset: $SUNSET" >&2
       
       # 🦆 says ⮞ create .conf file for zigduck to read
-      cat > /etc/dark-time.conf <<EOF
+      cat > /home/${config.this.user.me.name}/.config/zigduck/dark-time.conf <<EOF
 DARK_TIME_START="$SUNSET"
 DARK_TIME_END="$SUNRISE"
 EOF

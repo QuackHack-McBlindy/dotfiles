@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/lsrp8gglxvlsq1gsd0az887j608iwc3c-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/s7zngj4y2xnac3yxgpd3x45gqbvh3zyc-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1243,7 +1243,6 @@ Set default values for your parameters to have them marked [optional]
 | [yo push](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/push.nix) [--flake] [--repo] [--host] [--generation] | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. | 📛 |
 | [yo scp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) --host [--path] [--username] [--downloadPath] |  | Move files between hosts interactively | 📛 |
 | **🌍 Localization** | | | |
-| [yo darkTime](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/darkTime.nix) [--location] [--locationPath] |  | Configures darkTime - the window of time where motion is triggering lights based upon sunrise/sunset. | 📛 |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |
 | [yo travel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) [--arrival] [--departure] [--type] [--apikeyPath] |  | Public transportation helper. Fetches current bus and train schedules. (Sweden) | ✅ |
 | [yo weather](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) [--location] [--day] [--condition] [--locationPath] | weat | Weather Assistant. Ask anything weather related (3 day forecast) | ✅ |
@@ -1266,6 +1265,7 @@ Set default values for your parameters to have them marked [optional]
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
+| [yo darkTime](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/darkTime.nix) [--location] [--locationPath] [--offset] |  | Configures darkTime - the window of time where motion is triggering lights based upon sunrise/sunset. | 📛 |
 | [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] | dash | Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets. | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] |  | Control lights and other home automatioon devices | ✅ |

@@ -206,7 +206,7 @@ in
     }
     # 🦆 says ⮞ Time window of day that allow motion triggering lights on
     is_dark_time() {
-      source /etc/dark-time.conf
+      source /home/${config.this.user.me.name}/.config/zigduck/dark-time.conf
       local now_hour now_min now total_now
       IFS=: read -r now_hour now_min <<< "$(date +%H:%M)"
       total_now=$((10#$now_hour * 60 + 10#$now_min))

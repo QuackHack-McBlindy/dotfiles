@@ -67,6 +67,7 @@
                 pkgs.mpg123
                 pkgs.hassil
                 pkgs.gnuplot
+                pkgs.sunwait
                # vaultwarden-postgressql
                 pkgs.neofetch
                 pkgs.rsync
