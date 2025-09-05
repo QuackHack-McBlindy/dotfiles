@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/pa4h36wciwdl3mwa6rbzgf24mfmsvvdj-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/n8x2gqf2fkyd8k08yrbd53mgl8sh23ac-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1023,12 +1023,12 @@ Android TV devices at `config.house.tv`.
 ```nix
 {
   arris = {
-    enable = false;
+    enable = true;
     ip = "192.168.1.152";
     room = "bedroom";
   };
   shield = {
-    enable = false;
+    enable = true;
     ip = "192.168.1.223";
     room = "livingroom";
   };

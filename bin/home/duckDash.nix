@@ -256,7 +256,9 @@
     
     
             <div class="page-container" id="pageContainer"> 
-                <!-- 🦆 says ⮞ PAGE 0 HOME -->
+                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageHome">
                     <div class="status-cards">
                     <div class="status-cards">
@@ -312,7 +314,10 @@
                     </div>
                 </div>  
                 
-                <!-- 🦆 says ⮞ PAGE 1 DEVICES -->
+                
+                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ PAGE 1 DEVICES
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->                
                 <div class="page" id="pageDevices">                    
                     <div class="device-controls" id="deviceControls">
                         <div class="device-header">
@@ -335,7 +340,10 @@
                     </div>
                 </div>
                 
-                <!-- 🦆 says ⮞ PAGE 2 - SCENES -->
+                
+                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ PAGE 2 - SCENES
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageScenes">
                     <h2>Scenes</h2>
                     <div class="scene-grid" id="scenesContainer">
@@ -344,7 +352,10 @@
                 </div>
                 
                 
-                <!-- 🦆 says ⮞ PAGE 3 - TV - -->
+                
+                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ PAGE 3 - TV
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageTV">
                     <div class="tv-selector-container">
                         <select id="targetTV" class="tv-selector">
@@ -359,7 +370,7 @@
                     </div>
                     
                     <div class="tv-controls-grid">
-                        <!-- Row 1: Channel and Volume Up -->
+                        <!-- 🦆 says ⮞ ROW 1 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_up')">
                                 <i class="fas fa-arrow-up"></i> Ch Up
@@ -369,7 +380,7 @@
                             </button>
                         </div>
                         
-                        <!-- Row 2: Channel and Volume Down -->
+                        <!-- 🦆 says ⮞ ROW 2 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('channel_down')">
                                 <i class="fas fa-arrow-down"></i> Ch Down
@@ -379,7 +390,7 @@
                             </button>
                         </div>
                         
-                        <!-- Row 3: Navigation with lightbulbs -->
+                        <!-- 🦆 says ⮞ ROW 3 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn icon-only">
                                 <i class="mdi mdi-lightbulb"></i>
@@ -392,20 +403,20 @@
                             </button>
                         </div>
                         
-                        <!-- Row 4: Left, OK, Right -->
+                        <!-- 🦆 says ⮞ ROW 4 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('left')">
                                 <i class="fas fa-arrow-left"></i>
                             </button>
                             <button class="tv-control-btn ok" onclick="sendTVCommand('select')">
-                                <i class="fas fa-dot-circle"></i> OK
+                                <i class="fas fa-dot-circle"></i>
                             </button>
                             <button class="tv-control-btn" onclick="sendTVCommand('right')">
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                         
-                        <!-- Row 5: Navigation with lightbulbs -->
+                        <!-- 🦆 says ⮞ ROW 5 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn icon-only">
                                 <i class="mdi mdi-lightbulb"></i>
@@ -418,7 +429,7 @@
                             </button>
                         </div>
                         
-                        <!-- Row 6: Playback controls -->
+                        <!-- 🦆 says ⮞ ROW 6 -->
                         <div class="tv-control-row">
                             <button class="tv-control-btn" onclick="sendTVCommand('previous')">
                                 <i class="fas fa-backward"></i> Prev
@@ -713,9 +724,16 @@
 
                 // 🦆 says ⮞ TV control function
                 window.sendTVCommand = function(command) {
+                    console.log('🦆 TV command triggered:', command);
+                    
                     const targetTV = document.getElementById('targetTV');
+                    console.log('🦆 TV selector element:', targetTV);
+                    
                     const ip = targetTV.value;   
+                    console.log('🦆 Selected TV IP:', ip);
+                    
                     if (!ip) {
+                        console.warn('🦆 No TV selected, showing error notification');
                         showNotification('Please select a TV first', 'error');
                         return;
                     }
@@ -724,11 +742,23 @@
                         tvCommand: command,
                         ip: ip
                     };
+                    
+                    console.log('🦆 MQTT payload:', payload);
+                    console.log('🦆 MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');
                 
                     if (client && client.connected) {
-                        client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload));
-                        showNotification('TV command sent: ' + command, 'success');
+                        console.log('🦆 Publishing to topic: zigbee2mqtt/tvCommand');
+                        client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload), function(err) {
+                            if (err) {
+                                console.error('🦆 MQTT publish error:', err);
+                                showNotification('Failed to send TV command', 'error');
+                            } else {
+                                console.log('🦆 TV command published successfully');
+                                showNotification('TV command sent: ' + command, 'success');
+                            }
+                        });
                     } else {
+                        console.warn('🦆 MQTT client not connected, showing error notification');
                         showNotification('Not connected to MQTT', 'error');
                     }
                 };

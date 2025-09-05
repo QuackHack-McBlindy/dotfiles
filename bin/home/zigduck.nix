@@ -433,12 +433,23 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "DARKNESS ON"; fi
           fi
           
-          # 🦆 says ⮞ handle yo do commands
+          # 🦆 says ⮞ yo do commands
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("command")' > /dev/null; then
             command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.command')
             if [ -n "$command" ]; then
               dt_info "yo do execution requested from web interface: yo do $command"
               yo do "$command"
+            fi
+            continue
+          fi
+
+
+          # 🦆 says ⮞ yo TV commands
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("TVcommand")' > /dev/null; then
+            command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.TVcommand')
+            ip=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.ip')
+            if [ -n "$command" ]; then
+              dt_info "TV command receieved! Command: $command . IP: $ip"
             fi
             continue
           fi
