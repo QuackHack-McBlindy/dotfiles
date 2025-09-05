@@ -748,7 +748,7 @@ input:checked + .toggle-slider:before {
 
 .device-panel {
     flex: 1;
-   /* overflow-y: auto; */
+    overflow-y: auto;
     margin-top: 15px;
 }
 
