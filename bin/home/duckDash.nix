@@ -198,28 +198,26 @@
   # 🦆 says ⮞ generates status cards
   status-cards = ''
     <div class="status-cards">
-      <div class="status-cards">
-        ${lib.concatStrings (lib.mapAttrsToList (cardName: cardConfig: 
-          lib.optionalString cardConfig.enable ''
-            <div class="card">
-              <div class="card-header">
-                <div class="card-title">${cardConfig.title}</div>
-                <i class="${cardConfig.icon}" style="color: ${cardConfig.color};"></i>
-              </div>
-              ${lib.optionalString (cardConfig.valueCount >= 1) ''
-                <div class="card-value" id="${cardName}Value1">--</div>
-              ''}
-              ${lib.optionalString (cardConfig.valueCount >= 2) ''
-                <div class="card-value" id="${cardName}Value2">--</div>
-              ''}
-              <div class="card-details">
-                <i class="fas fa-check-circle"></i>
-                <span>${cardConfig.details}</span>
-              </div>
+      ${lib.concatStrings (lib.mapAttrsToList (cardName: cardConfig: 
+        lib.optionalString cardConfig.enable ''
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">${cardConfig.title}</div>
+              <i class="${cardConfig.icon}" style="color: ${cardConfig.color};"></i>
             </div>
-          ''
-        ) config.house.dash.cards)}
-      </div>
+            ${lib.optionalString (cardConfig.valueCount >= 1) ''
+              <div class="card-value" id="${cardName}Value1">--</div>
+            ''}
+            ${lib.optionalString (cardConfig.valueCount >= 2) ''
+              <div class="card-value" id="${cardName}Value2">--</div>
+            ''}
+            <div class="card-details">
+              <i class="fas fa-check-circle"></i>
+              <span>${cardConfig.details}</span>
+            </div>
+          </div>
+        ''
+      ) config.house.dash.cards)}
     </div>
   '';
 
@@ -402,9 +400,9 @@
             <div class="page-container" id="pageContainer"> 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
-                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 
-                <div class="page" id="pageHome">
-                    <div class="status-cards">
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
+                <div class="page" id="pageHome"> 
+               <!-- <div class="status-cards">
                     <div class="status-cards">
                         <div class="card">
                             <div class="card-header">
