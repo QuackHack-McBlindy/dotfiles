@@ -194,34 +194,7 @@
       <span class="label">${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}</span>
     </li>
   '') (lib.attrNames config.house.rooms);
-
-  # 🦆 says ⮞ generates status cards
-  status-cards = ''
-    <div class="status-cards">
-      ${lib.concatStrings (lib.mapAttrsToList (cardName: cardConfig: 
-        lib.optionalString cardConfig.enable ''
-          <div class="card">
-            <div class="card-header">
-              <div class="card-title">${cardConfig.title}</div>
-              <i class="${cardConfig.icon}" style="color: ${cardConfig.color};"></i>
-            </div>
-            ${lib.optionalString (cardConfig.valueCount >= 1) ''
-              <div class="card-value" id="${cardName}Value1">--</div>
-            ''}
-            ${lib.optionalString (cardConfig.valueCount >= 2) ''
-              <div class="card-value" id="${cardName}Value2">--</div>
-            ''}
-            <div class="card-details">
-              <i class="fas fa-check-circle"></i>
-              <span>${cardConfig.details}</span>
-            </div>
-          </div>
-        ''
-      ) config.house.dash.cards)}
-    </div>
-  '';
-
-  # 🦆 says ⮞ generates the frontend htmk
+  
   indexHtml = ''    
     <!DOCTYPE html>
     <html lang="en">
@@ -401,8 +374,8 @@
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
-                <div class="page" id="pageHome"> 
-                <div class="status-cards">
+                <div class="page" id="pageHome">
+                    <div class="status-cards">
                     <div class="status-cards">
                         <div class="card">
                             <div class="card-header">
@@ -454,8 +427,8 @@
                         </div>
                     </div>
                     </div>
-                </div>
-         <!--   ${status-cards} -->
+                </div>  
+                
                 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 1 DEVICES
@@ -942,26 +915,6 @@
                             });
                         });
                         
-                        client.on('connect', function() {
-                          statusElement.className = 'connection-status status-connected';
-                          statusElement.innerHTML = '<i class="fas fa-plug"></i><span>🟢</span>';
-    
-                          client.subscribe('zigbee2mqtt/#', function(err) {
-                            if (!err) {
-                              showNotification('Subscribed to all devices', 'success');
-                            }
-                          });
-    
-                          ${lib.concatStrings (lib.mapAttrsToList (cardName: cardConfig: 
-                            lib.optionalString cardConfig.enable ''
-                              client.subscribe('${cardConfig.mqttTopic}', function(err) {
-                                if (!err) showNotification('Subscribed to ${cardName} data', 'success');
-                              });
-                            ''
-                          ) config.house.dash.cards)}
-                        });
-                          
-                        
                         client.on('error', function(err) {
                             statusElement.className = 'connection-status status-error';
                             statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>⚠️📛</span>';
@@ -969,82 +922,49 @@
                             showNotification('MQTT connection error', 'error');
                         });
                         
-                          client.on('message', function(topic, message) {
+                        client.on('message', function(topic, message) {
                             const topicParts = topic.split('/');
                             const deviceName = topicParts[1];
-
-                            // Handle card-specific messages
-                            ${lib.concatStrings (lib.mapAttrsToList (cardName: cardConfig: 
-                              lib.optionalString cardConfig.enable ''
-                                // Check if this topic matches our card pattern
-                                if (topic.startsWith('${lib.substring 0 (lib.stringLength cardConfig.mqttTopic - 1) cardConfig.mqttTopic}')) {
-                                  try {
-                                    const data = JSON.parse(message.toString());
-                                    const parsedValue = (${cardConfig.valueParser})(data);
-          
-                                    if (typeof parsedValue === 'object' && parsedValue !== null) {
-                                      // Handle object responses with multiple values
-                                      if (parsedValue.value1 !== undefined) {
-                                        const element = document.getElementById('${cardName}Value1');
-                                        if (element) element.textContent = parsedValue.value1;
-                                      }
-                                      if (parsedValue.value2 !== undefined) {
-                                        const element = document.getElementById('${cardName}Value2');
-                                        if (element) element.textContent = parsedValue.value2;
-                                      }
-                                    } else {
-                                      // Handle single value responses
-                                      const element = document.getElementById('${cardName}Value1');
-                                      if (element) element.textContent = parsedValue;
-                                    }
-                                  } catch (e) {
-                                    console.error('Error parsing ${cardName} message:', e);
-                                  }
-                                  return;
-                                }
-                              ''
-                            ) config.house.dash.cards)}
-                           
 
                             if (deviceName === 'tibber') {
                                 try {
                                     const data = JSON.parse(message.toString());
-
+            
                                     if (topicParts[2] === 'price') {
-                                        document.getElementById('energyPrice').textContent = 
-                                            data.current_price.toFixed(2) + ' SEK/kWh';
+                                       document.getElementById('energyPrice').textContent = 
+                                           data.current_price.toFixed(2) + ' SEK/kWh';
                                     } 
                                     else if (topicParts[2] === 'usage') {
                                         document.getElementById('energyUsage').textContent = 
-                                            data.monthly_usage.toFixed(1) + ' kWh (month)';
+                                        data.monthly_usage.toFixed(1) + ' kWh (month)';
                                     }
                                 } catch (e) {
                                     console.error('Error parsing Tibber message:', e);
                                 }
                                 return;
                             }
+    
 
                             if (topicParts.length === 2) {
                                 try {
                                     const data = JSON.parse(message.toString());
                                     devices[deviceName] = data;
-            
+                                    
                                     //🦆 says ⮞ auto-save when data arrives
                                     saveState();
-            
+                                    
                                     updateDeviceSelector();
-            
+                                    
                                     if (selectedDevice === deviceName) {
                                         updateDeviceUI(data);
                                     }
-            
+                                    
                                     updateStatusCards();
                                 } catch (e) {
                                     console.error('Error parsing message: ', e);
                                 }
                             }
                         });
-
                         
                         client.on('close', function() {
                             statusElement.className = 'connection-status status-error';
@@ -1874,57 +1794,4 @@ in {
       name = "tv.json";
       text = builtins.toJSON config.house.tv;
     };
-  
-  house.dash.cards = {
-    temperature = {
-      enable = true;
-      title = "Temperature";
-      icon = "fas fa-thermometer-half";
-      color = "#e74c3c";
-      mqttTopic = "zigbee2mqtt/";
-      valueParser = "data => data.temperature !== undefined ? data.temperature.toFixed(1) + '°C' : '--.-°C'";
-      valueCount = 1;
-      details = "Current temperature";
-    };
-      
-    energy = {
-      enable = true;
-      title = "Energy";
-      icon = "fas fa-bolt";
-      color = "#f39c12";
-      mqttTopic = "zigbee2mqtt/tibber/#";
-      valueParser = ''data => {
-        if (data.current_price !== undefined) {
-          return { value1: data.current_price.toFixed(2) + ' SEK/kWh' };
-        } else if (data.monthly_usage !== undefined) {
-          return { value2: data.monthly_usage.toFixed(1) + ' kWh (month)' };
-        }
-        return { value1: '--.- SEK/kWh', value2: '--.- kWh (month)' };
-      }'';
-      valueCount = 2;
-      details = "Current price & monthly usage";
-    };
-    
-
-    customSensor = {
-      enable = true;
-      title = "Custom Sensor";
-      icon = "fas fa-microchip";
-      color = "#3498db";
-      mqttTopic = "zigbee2mqtt/custom/sensor";
-      valueParser = "data => data.value !== undefined ? data.value + ' units' : '-- units'";
-      valueCount = 1;
-      details = "Custom sensor reading";
-    };
-    
-    security = {
-      enable = true;
-      title = "Security";
-      icon = "fas fa-shield-alt";
-      color = "#4a6fa5";
-      mqttTopic = "zigbee2mqtt/+/contact";
-      valueParser = "data => data.contact !== undefined ? (data.contact ? 'Closed' : 'Open') : '--'";
-      valueCount = 1;
-      details = "Door/window status";
-    };
-  };}
+  }
