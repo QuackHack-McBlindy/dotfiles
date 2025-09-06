@@ -402,7 +402,7 @@
                  🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageHome"> 
-               <!-- <div class="status-cards">
+                <div class="status-cards">
                     <div class="status-cards">
                         <div class="card">
                             <div class="card-header">
@@ -454,8 +454,8 @@
                         </div>
                     </div>
                     </div>
-                </div>  -->
-                ${status-cards}
+                </div>
+         <!--   ${status-cards} -->
                 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 1 DEVICES
