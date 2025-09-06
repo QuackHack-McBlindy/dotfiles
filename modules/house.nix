@@ -198,6 +198,47 @@ in { # 🦆 says ⮞ Options for da house
           description = "Time range when it's considered dark (HH:MM format)";
         };
       
+        dash.cards = lib.mkOption {
+          type = lib.types.attrsOf (lib.types.submodule {
+            options = {
+              enable = lib.mkEnableOption "Enable this dashboard card";
+              title = lib.mkOption {
+                type = lib.types.str;
+                description = "Title for the card";
+              };
+              icon = lib.mkOption {
+                type = lib.types.str;
+                description = "Icon class for the card";
+              };
+              color = lib.mkOption {
+                type = lib.types.str;
+                description = "Color for the card icon";
+              };
+              mqttTopic = lib.mkOption {
+                type = lib.types.str;
+                description = "MQTT topic to subscribe to for this card's data";
+              };
+              valueParser = lib.mkOption {
+                type = lib.types.str;
+                default = "payload => payload";
+                description = "JavaScript function to parse MQTT payload";
+              };
+              valueCount = lib.mkOption {
+                type = lib.types.int;
+                default = 1;
+                description = "Number of value fields to display (1 or 2)";
+              };
+              details = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = "Static details text for the card";
+              };
+            };
+          });
+          default = {};
+          description = "Dashboard card configurations";
+        };      
+      
         timeAutomations = mkOption {
             type = types.attrsOf (types.submodule {
                 options = {
