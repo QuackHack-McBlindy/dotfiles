@@ -595,6 +595,14 @@
                 console.log('All device icons:', deviceIcons);
                 console.log('Device friendly names:', Object.keys(deviceIcons));
   
+                // 🦆 says ⮞ recording variables
+                let mediaRecorder;
+                let audioChunks = [];
+                let recording = false;
+                const transcriptionServerURL = "https://localhost:25451/transcribe";
+                const recordingStatus = document.getElementById('recordingStatus');
+                const micButton = document.getElementById('micButton');  
+  
                 // 🦆 says ⮞ page
                 const pageContainer = document.getElementById('pageContainer');
                 const navTabs = document.querySelectorAll('.nav-tab');
@@ -1089,108 +1097,87 @@
                 }
                 
                 
-                // 🦆 says ⮞ recording variables
-                let mediaRecorder = null;
-                let audioChunks = [];
-                let audioSocket = null;
-                let isRecording = false;
-                const recordingIndicator = document.getElementById('recordingIndicator');
-                const micButton = document.getElementById('micButton');
-                
-                // 🦆 says ⮞ websocket server 
-                const WS_SERVER = 'ws://192.168.1.111:9002';
-                
-                // 🦆 says ⮞ init audio recording
+                // 🦆 says ⮞ Audio recording functions
                 async function initAudioRecording() {
                     try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                        const stream = await navigator.mediaDevices.getUserMedia({ 
+                            audio: {
+                                channelCount: 1,
+                                sampleRate: 16000,
+                                sampleSize: 16,
+                                echoCancellation: true,
+                                noiseSuppression: true
+                            } 
+                        });
+        
+                        // 🦆 says ⮞ set up media recorder
                         mediaRecorder = new MediaRecorder(stream);
-                        
+                        audioChunks = [];
+        
                         mediaRecorder.ondataavailable = (event) => {
-                            if (event.data.size > 0) {
+                           if (event.data.size > 0) {
                                 audioChunks.push(event.data);
-                                
-                                if (audioSocket && audioSocket.readyState === WebSocket.OPEN) {
-                                    audioSocket.send(event.data);
-                                }
-                            }
+                           }
                         };
-                        
-                        mediaRecorder.onstop = () => {
+        
+                        mediaRecorder.onstop = async () => {
                             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                            audioChunks = [];
-                            
-                            if (!audioSocket || audioSocket.readyState !== WebSocket.OPEN) {
-                                console.warn('WebSocket not available, cannot send audio');
-                                
-                            }
+                           await sendAudioToServer(audioBlob);
+                           audioChunks = [];
                         };
-                        
+        
                         console.log('Audio recording initialized');
                     } catch (error) {
                         console.error('Error initializing audio recording:', error);
                         showNotification('Microphone access denied', 'error');
                     }
                 }
-                
-                function connectWebSocket() {
+
+                async function sendAudioToServer(audioBlob) {
                     try {
-                        audioSocket = new WebSocket(WS_SERVER);
-                        
-                        audioSocket.onopen = () => {
-                            console.log('Connected to audio WebSocket server');
-                        };
-                        
-                        audioSocket.onclose = () => {
-                            console.log('Disconnected from audio WebSocket server');
-                        };
-                        
-                        audioSocket.onerror = (error) => {
-                            console.error('WebSocket error:', error);
-                            showNotification('Failed to connect to audio server', 'error');
-                        };
+                        const formData = new FormData();
+                        formData.append('audio', audioBlob, 'recording.webm');
+                        formData.append('reduce_noise', 'true');
+        
+                        const response = await fetch(transcriptionServerURL, {
+                            method: 'POST',
+                            body: formData
+                        });
+        
+                        if (!response.ok) {
+                            throw new Error(`Server returned ''${response.status}`);
+                        }
+        
+                        const result = await response.json();
+                        showNotification('Transcription: ' + result.transcription, 'success');
                     } catch (error) {
-                        console.error('Error connecting to WebSocket:', error);
-                        showNotification('WebSocket connection failed', 'error');
+                        console.error('Error sending audio to server:', error);
+                        showNotification('Transcription failed: ' + error.message, 'error');
                     }
                 }
-                
+
                 function toggleRecording() {
                     if (!mediaRecorder) {
                         showNotification('Audio recording not initialized', 'error');
                         return;
                     }
-                    
-                    if (!isRecording) {
-                        // 🦆 says ⮞ record
-                        audioChunks = [];
-                        mediaRecorder.start(1000);
-                        isRecording = true;
+    
+                    if (!recording) {
+                        // 🦆 says ⮞ start rec
+                        mediaRecorder.start();
+                        recording = true;
                         micButton.classList.add('recording');
-                        recordingIndicator.style.display = 'block';
+                        recordingStatus.style.display = 'block';
                         showNotification('Recording started', 'success');
                     } else {
-                        // 🦆 says ⮞ stop
+                        // 🦆 says ⮞ stop rec
                         mediaRecorder.stop();
-                        isRecording = false;
+                        recording = false;
                         micButton.classList.remove('recording');
-                        recordingIndicator.style.display = 'none';
+                        recordingStatus.style.display = 'none';
                         showNotification('Recording stopped', 'success');
                     }
                 }
-                
-                async function initAudio() {
-                    // 🦆 says ⮞ request mic permission
-                    try {
-                        await initAudioRecording();
-                        connectWebSocket();
-                    } catch (error) {
-                        console.error('Failed to initialize audio:', error);
-                    }
-                }
-                
-                micButton.addEventListener('click', toggleRecording);
-                initAudio();                
                 
                 function showPage(pageIndex) {
                     currentPage = pageIndex;

@@ -78,6 +78,7 @@
     from contextlib import asynccontextmanager
     import os
     import concurrent.futures
+    from fastapi.middleware.cors import CORSMiddleware
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--port', type=int, default=8000)
@@ -132,7 +133,16 @@
         transcription_executor.shutdown(wait=False)
         logger.info("Server shutdown complete")
 
+
     app = FastAPI(lifespan=lifespan)
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],  # Allows all origins
+        allow_credentials=True,
+        allow_methods=["*"],  # Allows all methods
+        allow_headers=["*"],  # Allows all headers
+    )
     
     def transcribe_audio(audio_data: np.ndarray, reduce_noise: bool = True) -> str:
         try:
