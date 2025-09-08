@@ -1179,6 +1179,9 @@
                     }
                 }
                 
+                initAudioRecording();
+                micButton.addEventListener('click', toggleRecording);
+                
                 function showPage(pageIndex) {
                     currentPage = pageIndex;
                     pageContainer.style.transform = `translateX(-''${pageIndex * 25}%)`;
