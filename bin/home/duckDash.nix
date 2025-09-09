@@ -1749,11 +1749,14 @@ in {
       parameters = [   
         { name = "host"; description = "IP address of the host (127.0.0.1 / 0.0.0.0"; default = "0.0.0.0"; }      
         { name = "port"; description = "Port to run the frontend service on"; default = "13337"; }
+        { name = "cert"; description = "Path to SSL certificate to run the sever on"; default = "/home/pungkula/.config/whisper/whisper/cert.pem"; } 
+        { name = "key"; description = "Path to key file to run the sever on"; default = "/home/pungkula/.config/whisper/whisper/key.pem"; } 
       ];
       code = ''
         ${cmdHelpers}
         HOST=$host
         PORT=$port
+        
         dt_info "Starting 🦆'Dash server on http://${mqttHostip}:$PORT"
         ${httpServer}/bin/serve-dashboard "$HOST" "$PORT" 
       '';

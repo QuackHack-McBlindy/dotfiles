@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/aln766vkg13k4980fyayzqdmkhm8rw2y-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/2ip3jwc1f2pyfz4hm60464s0i2m5gsiq-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1267,7 +1267,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
 | [yo darkTime](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/darkTime.nix) [--location] [--locationPath] [--offset] |  | Configures darkTime - the window of time where motion is triggering lights based upon sunrise/sunset. | 📛 |
-| [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] | dash | Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets. | 📛 |
+| [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets. | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] |  | Control lights and other home automatioon devices | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
