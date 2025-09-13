@@ -168,6 +168,9 @@ JQ
 
     DOCS_CONTENT=$(cat <<'EOF'
 ## 🚀 **yo CLI 🦆**
+The \`yo\` CLI is a framework designed to execute scripts defined in the \`./bin\` directory.  
+It provides a unified interface for script execution, and automatically updates documentation.  
+
 **Usage:** \`yo <command> [arguments]\`  
 
 ### **Usage Examples:**  
