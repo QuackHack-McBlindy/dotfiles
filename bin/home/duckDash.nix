@@ -183,8 +183,17 @@
   httpServer = pkgs.writeShellScriptBin "serve-dashboard" ''
     HOST=''${1:-0.0.0.0}
     PORT=''${2:-13337}
-    ${pkgs.python3}/bin/python3 -m http.server "$PORT" --bind "$HOST" -d /etc/
+  
+    WORKDIR=$(mktemp -d)
+    ln -sf /etc/index.html $WORKDIR/
+    ln -sf /etc/devices.json $WORKDIR/
+    ln -sf /etc/rooms.json $WORKDIR/
+    ln -sf /etc/tv.json $WORKDIR/
+    ln -sf /var/lib/zigduck/state.json $WORKDIR/
+  
+    ${pkgs.python3}/bin/python3 -m http.server "$PORT" --bind "$HOST" -d "$WORKDIR"
   '';
+
 
   roomList = lib.concatMapStrings (room: let
     icon = lib.removePrefix "mdi:" roomIcons.${room};
@@ -324,7 +333,6 @@
             }
             
             
-
             .scene-item {
                 padding: 15px;
                 border-radius: 12px;
@@ -474,7 +482,7 @@
                 <div class="page" id="pageTV">
                     <div class="tv-selector-container">
                         <select id="targetTV" class="tv-selector">
-                            <option value="">🦆 says ⮞ pick a TV</option>
+                            <option value="">🦆 says > pick a TV</option>
                             ${tvOptions}
                         </select>
                     </div>
@@ -734,19 +742,18 @@
                     return 'Just now';
                 }
                 
-
                 function loadSavedState() {
                     try {
                         const savedState = localStorage.getItem('duckDashState');
                         if (savedState) {
                             const state = JSON.parse(savedState);
-                            
+            
                             if (state.devices) {
-                                devices = state.devices;
+                                devices = {...state.devices, ...devices};
                                 updateDeviceSelector();
                                 updateStatusCards();
                             }
-                            
+            
                             if (state.selectedDevice) {
                                 selectedDevice = state.selectedDevice;
                                 window.selectedDevice = selectedDevice; 
@@ -755,11 +762,11 @@
                                     updateDeviceUI(devices[selectedDevice]);
                                 }
                             }
-                            
+            
                             if (state.currentPage !== undefined) {
                                 showPage(state.currentPage);
                             }
-                            
+            
                             showNotification('Saved state loaded', 'success');
                         }
                     } catch (e) {
@@ -776,7 +783,7 @@
                             currentPage: currentPage,
                             timestamp: new Date().toISOString()
                         };
-                        
+        
                         localStorage.setItem('duckDashState', JSON.stringify(state));
                         showNotification('State saved to localStorage', 'success');
                     } catch (e) {
@@ -862,22 +869,22 @@
                         ip: ip
                     };
                     
-                    console.log('🦆 MQTT payload:', payload);
-                    console.log('🦆 MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');
+                    console.log('MQTT payload:', payload);
+                    console.log('MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');
                 
                     if (client && client.connected) {
-                        console.log('🦆 Publishing to topic: zigbee2mqtt/tvCommand');
+                        console.log('Publishing to topic: zigbee2mqtt/tvCommand');
                         client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload), function(err) {
                             if (err) {
-                                console.error('🦆 MQTT publish error:', err);
+                                console.error('MQTT publish error:', err);
                                 showNotification('Failed to send TV command', 'error');
                             } else {
-                                console.log('🦆 TV command published successfully');
+                                console.log('TV command published successfully');
                                 showNotification('TV command sent: ' + command, 'success');
                             }
                         });
                     } else {
-                        console.warn('🦆 MQTT client not connected, showing error notification');
+                        console.warn('MQTT client not connected');
                         showNotification('Not connected to MQTT', 'error');
                     }
                 };
@@ -952,6 +959,26 @@
                                 return;
                             }
     
+                            if (topic.startsWith('zigbee2mqtt/tibber/')) {
+                                try {
+                                    const data = JSON.parse(message.toString());
+                                    devices.tibber = {...devices.tibber, ...data};
+            
+                                    if (data.current_price !== undefined) {
+                                        document.getElementById('energyPrice').textContent = 
+                                            data.current_price.toFixed(2) + ' SEK/kWh';
+                                    }
+                                    if (data.monthly_usage !== undefined) {
+                                        document.getElementById('energyUsage').textContent = 
+                                            data.monthly_usage.toFixed(1) + ' kWh (month)';
+                                    }
+            
+                                    saveState();
+                                } catch (e) {
+                                    console.error('Error parsing Tibber message:', e);
+                                }
+                                return;
+                            }
 
                             if (topicParts.length === 2) {
                                 try {
@@ -1019,8 +1046,7 @@
                     }
                 }
 
-
-                
+               
                 function updateDeviceUI(data) {
                     console.log('Updating device UI for:', selectedDevice);
                     console.log('Device data:', data);
@@ -1611,100 +1637,165 @@
                     });
                 }
                 
-                function initDashboard() {
-                    loadSavedState();
-                    navTabs.forEach((tab) => {
-                        tab.addEventListener('click', () => {
-                            const pageIndex = parseInt(tab.getAttribute('data-page'));
-                            showPage(pageIndex);
-                        });
-                    });
-                    
-                    // 🦆 says ⮞ swipe
-                    let startX = 0;
-                    let currentX = 0;  
-                    pageContainer.addEventListener('touchstart', (e) => {
-                        startX = e.touches[0].clientX;
-                    });
-                    
-                    pageContainer.addEventListener('touchmove', (e) => {
-                        currentX = e.touches[0].clientX;
-                    });
-                    
-                    pageContainer.addEventListener('touchend', () => {
-                        const diff = startX - currentX;
-                        const swipeThreshold = 50;
-    
-                        if (Math.abs(diff) > swipeThreshold) {
-                            if (diff > 0 && currentPage < 3) {  // Changed from 2 to 3 for 4 pages
-                                // 🦆 says ⮞ swipe left
-                                showPage(currentPage + 1);
-                            } else if (diff < 0 && currentPage > 0) {
-                                // 🦆 says ⮞ swipe right
-                                showPage(currentPage - 1);
+                async function loadInitialState() {
+                    try {
+                        const response = await fetch('/state.json');
+                        if (!response.ok) {
+                            throw new Error(`HTTP ''${response.status}: ''${response.statusText}`);
+                        }
+
+                        const serverState = await response.json();
+                        const { ['bridge/state']: bridgeState, ...devicesState } = serverState;
+
+                        // 🦆 says ⮞ convert string values to numbers
+                        for (const [device, data] of Object.entries(devicesState)) {
+                            for (const [key, value] of Object.entries(data)) {
+                                if (typeof value === 'string' && !isNaN(value) && value.trim() !== "") {
+                                    data[key] = Number(value);
+                                }
+
+                                if (key === 'color' && typeof value === 'string') {
+                                    try {
+                                        data[key] = JSON.parse(value);
+                                    } catch (e) {
+                                        console.warn('Failed to parse color for device', device, value);
+                                        delete data[key];
+                                    }
+                                }
                             }
                         }
-                    });
 
-                    document.querySelector('.logo').addEventListener('click', () => {
-                        showPage(0);
-                    });
-                    
-                    document.getElementById('deviceSelect').addEventListener('change', function() {
-                        selectedDevice = this.value;
-                        window.selectedDevice = selectedDevice;
+                        // 🦆 says ⮞ merge data
+                        for (const [device, data] of Object.entries(devicesState)) {
+                            devices[device] = {...devices[device], ...data};
+                        }
+
+                        if (devices.tibber) {
+                            if (devices.tibber.current_price !== undefined) {
+                                document.getElementById('energyPrice').textContent = 
+                                    devices.tibber.current_price.toFixed(2) + ' SEK/kWh';
+                            }
+                            if (devices.tibber.monthly_usage !== undefined) {
+                                document.getElementById('energyUsage').textContent = 
+                                    devices.tibber.monthly_usage.toFixed(1) + ' kWh (month)';
+                            }
+                        }
+
+                        updateDeviceSelector();
+                        updateStatusCards();
+
                         if (selectedDevice && devices[selectedDevice]) {
                             updateDeviceUI(devices[selectedDevice]);
-                            showPage(1);
-                        } else {
-                            document.getElementById('currentDeviceName').textContent = 'Select a device';
-                            document.getElementById('currentDeviceStatus').textContent = 'Choose a device from the dropdown';
-                            document.getElementById('devicePanel').innerHTML = "";
-                            showPage(0)
                         }
-    
-                        saveState();
-                    });
 
+                        showNotification('Initial state loaded from server', 'success');
+                    } catch (error) {
+                        console.error('Error loading initial state:', error);
+                        showNotification('Using cached device data', 'info');
+                    }
+                }
 
-                    // 🦆 says ⮞ duck assist
-                    const searchInput = document.getElementById('searchInput');
-                    searchInput.addEventListener('keypress', function(e) {
-                        if (e.key === 'Enter') {
-                            const command = this.value.trim();
+                function initDashboard() {
+                    // 🦆 says ⮞ load initial state from the server
+                    loadInitialState().then(() => {
+                        // 🦆 says ⮞ load state from localStorage
+                        loadSavedState();
         
-                            if (command) {
-                                const payload = {
-                                    command: command,
-                                };            
-                                if (client && client.connected) {
-                                    console.log('MQTT client is connected, publishing command to topic: dashboard/command');
-                                    client.publish('zigbee2mqtt/command', JSON.stringify(payload));
-                                    console.log('Command published successfully:', command);
-                                    showNotification('Command sent: ' + command, 'success');
-                                    this.value = "";
-                                    console.log('Search input cleared');
-                                } else {
-                                    console.error('MQTT client is not connected or client is null');
-                                    showNotification('Not connected to MQTT', 'error');
-                                }
-                            } else {
-                                console.log('Command is empty, ignoring');
-                            }
-                        }
-                    });
-                    
-                    
-                    document.querySelectorAll('.scene-item').forEach(item => {
-                        item.addEventListener('click', function() {
-                            const scene = this.getAttribute('data-scene');
-                            activateScene(scene);
+                        navTabs.forEach((tab) => {
+                            tab.addEventListener('click', () => {
+                                const pageIndex = parseInt(tab.getAttribute('data-page'));
+                                showPage(pageIndex);
+                            });
                         });
-                    });
-                    
+        
+                        // 🦆 says ⮞ swipe
+                        let startX = 0;
+                        let currentX = 0;  
+                        pageContainer.addEventListener('touchstart', (e) => {
+                            startX = e.touches[0].clientX;
+                        });
+        
+                        pageContainer.addEventListener('touchmove', (e) => {
+                            currentX = e.touches[0].clientX;
+                        });
+        
+                        pageContainer.addEventListener('touchend', () => {
+                            const diff = startX - currentX;
+                            const swipeThreshold = 50;
 
-                    window.addEventListener('beforeunload', saveState);         
-                    connectToMQTT();
+                            if (Math.abs(diff) > swipeThreshold) {
+                                if (diff > 0 && currentPage < 3) {  // Changed from 2 to 3 for 4 pages
+                                    // 🦆 says ⮞ swipe left
+                                    showPage(currentPage + 1);
+                                } else if (diff < 0 && currentPage > 0) {
+                                    // 🦆 says ⮞ swipe right
+                                    showPage(currentPage - 1);
+                                }
+                            }
+                        });
+
+                        document.querySelector('.logo').addEventListener('click', () => {
+                            showPage(0);
+                        });
+        
+                        document.getElementById('deviceSelect').addEventListener('change', function() {
+                            selectedDevice = this.value;
+                            window.selectedDevice = selectedDevice;
+                            if (selectedDevice && devices[selectedDevice]) {
+                                updateDeviceUI(devices[selectedDevice]);
+                                showPage(1);
+                            } else {
+                                document.getElementById('currentDeviceName').textContent = 'Select a device';
+                                document.getElementById('currentDeviceStatus').textContent = 'Choose a device from the dropdown';
+                                document.getElementById('devicePanel').innerHTML = "";
+                                showPage(0)
+                            }
+
+                            saveState();
+                        });
+
+                        // 🦆 says ⮞ duck assist
+                        const searchInput = document.getElementById('searchInput');
+                        searchInput.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter') {
+                                const command = this.value.trim();
+
+                                if (command) {
+                                    const payload = {
+                                        command: command,
+                                    };            
+                                    if (client && client.connected) {
+                                        console.log('MQTT client is connected, publishing command to topic: command');
+                                        client.publish('zigbee2mqtt/command', JSON.stringify(payload));
+                                        console.log('Command published successfully:', command);
+                                        showNotification('Command sent: ' + command, 'success');
+                                        this.value = "";
+                                        console.log('Search input cleared');
+                                    } else {
+                                        console.error('MQTT client is not connected or client is null');
+                                        showNotification('Not connected to MQTT', 'error');
+                                    }
+                                } else {
+                                    console.log('Command is empty, ignoring');
+                                }
+                            }
+                        });
+        
+                        document.querySelectorAll('.scene-item').forEach(item => {
+                            item.addEventListener('click', function() {
+                                const scene = this.getAttribute('data-scene');
+                                activateScene(scene);
+                            });
+                        });
+        
+                        window.addEventListener('beforeunload', saveState);         
+                        connectToMQTT();
+                    }).catch(error => {
+                        console.error('Failed to load initial state:', error);
+                        // 🦆 says ⮞ fallback
+                        loadSavedState();
+                        connectToMQTT();
+                    });
                 }
                 
                 function activateScene(sceneName) {
@@ -1730,8 +1821,7 @@
                         sendCommand(device, command);
                     });
                 }
-                
-                      
+                                   
                 initDashboard();
             });
         </script>
@@ -1781,6 +1871,8 @@ in {
       name = "rooms.json";
       text = builtins.toJSON config.house.rooms;
     };
+
+
   
   environment.etc."tv.json".source =
     pkgs.writeTextFile {

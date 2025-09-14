@@ -9,7 +9,8 @@
 } : let # yo follow 🦆 home ⬇⬇ 🦆 says diz way plz? quack quackz
 
   # 🦆 says ⮞ Directpry  for this configuration 
-  zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
+#  zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
+  zigduckDir = "/var/lib/zigduck";
 
   # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
@@ -184,19 +185,47 @@ EOF
       mkdir -p "$STATE_DIR" && mkdir -p "$TIMER_DIR"
       if [ ! -f "$STATE_FILE" ]; then
         echo "{}" > "$STATE_FILE"
-        chmod 600 "$STATE_FILE"  # Explicitly set permissions
+        chmod 600 "$STATE_FILE"
       fi   
+
       update_device_state() {
         local device="$1"
         local key="$2"
-        local value="$3"
+        local value="$3"  
         local tmpfile
-        tmpfile=$(mktemp -p "$STATE_DIR" tmp.XXXXXX)
-        chmod 600 "$tmpfile"
-        ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
-          '.[$dev][$key] = $val' "$STATE_FILE" > "$tmpfile" && mv "$tmpfile" "$STATE_FILE"
-      }
-
+        tmpfile=$(mktemp 2>/dev/null || echo "/tmp/tmp.XXXXXX")
+        tmpfile=$(mktemp 2>/dev/null || echo "$STATE_DIR/tmp.XXXXXX")
+  
+        if [ $? -ne 0 ]; then
+          tmpfile="$STATE_DIR/tmp.$$.$RANDOM"
+        fi
+  
+        touch "$tmpfile" 2>/dev/null || {
+          dt_error "Cannot create temp file: $tmpfile"
+          return 1
+        }  
+        chmod 600 "$tmpfile" 2>/dev/null  
+        dt_debug "Updating state: $device.$key = $value"
+  
+        if [ -f "$STATE_FILE" ]; then
+          ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
+            '.[$dev][$key] = $val' "$STATE_FILE" > "$tmpfile" 2>/dev/null
+        else
+          echo "{}" | ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
+            '.[$dev][$key] = $val' > "$tmpfile" 2>/dev/null
+        fi  
+        if [ $? -eq 0 ]; then
+          mv "$tmpfile" "$STATE_FILE" 2>/dev/null && \
+          chmod 644 "$STATE_FILE" 2>/dev/null
+          dt_debug "Successfully updated state for $device"
+        else
+          dt_error "jq failed to update state for $device.$key"
+          rm -f "$tmpfile" 2>/dev/null
+          return 1
+        fi
+      }      
+      
+      
       if [ ! -f "$LARMED_FILE" ]; then
         echo '{"larmed":false}' > "$LARMED_FILE"
       fi
@@ -272,6 +301,26 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
           # 🦆 says ⮞ trigger backup from MQTT
           if [ "$topic" = "zigbee2mqtt/backup/request" ]; then perform_zigbee_backup; fi
+
+
+          # 🦆 says ⮞ ENERGY CONSUMPTION & PRICE
+          if [ "$topic" = "zigbee2mqtt/tibber/price" ]; then
+              current_price=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.current_price')
+              if [ -n "$current_price" ]; then
+                  update_device_state "tibber" "current_price" "$current_price"
+                  dt_info "Energy price updated: $current_price SEK/kWh"
+              fi
+              continue
+          fi
+
+          if [ "$topic" = "zigbee2mqtt/tibber/usage" ]; then
+              monthly_usage=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.monthly_usage')
+              if [ -n "$monthly_usage" ]; then
+                  update_device_state "tibber" "monthly_usage" "$monthly_usage"
+                  dt_info "Energy usage updated: $monthly_usage kWh"
+              fi
+              continue
+          fi
 
           # 🦆 says ⮞ 🚨 alarm
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("security")' > /dev/null; then 
@@ -450,7 +499,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             ip=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.ip')
             if [ -n "$command" ]; then
               dt_info "TV command receieved! Command: $command . IP: $ip"
-              yo tv --typ "$command" --device "$ip"
+              yo tv --typ $command --device $ip
             fi
             continue
           fi
@@ -685,6 +734,32 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
       say_duck "$PAYLOAD"   
     '') 
   ];  
+
+  systemd.services.zigduck = {
+    serviceConfig = {
+      User = config.this.user.me.name;
+      Group = config.this.user.me.name;
+      StateDirectory = "zigduck";
+      StateDirectoryMode = "0755";
+    };
+    preStart = ''
+      if [ ! -f "${zigduckDir}/state.json" ]; then
+        echo "{}" > "${zigduckDir}/state.json"
+        chown ${config.this.user.me.name}:${config.this.user.me.name} "${zigduckDir}/state.json"
+        chmod 644 "${zigduckDir}/state.json"
+      fi
+    
+      mkdir -p "${zigduckDir}/timers"
+      chown ${config.this.user.me.name}:${config.this.user.me.name} "${zigduckDir}/timers"
+      chmod 755 "${zigduckDir}/timers"
+    '';
+  };
+
+  systemd.tmpfiles.rules = [
+    "d /var/lib/zigduck 0755 ${config.this.user.me.name} ${config.this.user.me.name} - -"
+    "d /var/lib/zigduck/timers 0755 ${config.this.user.me.name} ${config.this.user.me.name} - -"
+    "f /var/lib/zigduck/state.json 0644 ${config.this.user.me.name} ${config.this.user.me.name} - -"
+  ];
 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {

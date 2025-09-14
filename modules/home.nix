@@ -64,6 +64,7 @@ in {
     {
       system.activationScripts.simpleFiles = let
         files = config.file;
+
       in {
         text = concatStringsSep "\n" (mapAttrsToList (path: content:
           let

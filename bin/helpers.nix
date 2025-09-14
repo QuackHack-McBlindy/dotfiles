@@ -242,13 +242,11 @@ in
       waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
       temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature"
 
-
       battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery // empty') && dt_debug "battery: $battery"
       battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
       tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
       smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
-            
-    
+                
       device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
       dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
       dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
@@ -258,9 +256,11 @@ in
       should_update() {
         case "$device_name" in
           */set|*/availability)
+            dt_debug "Skipping update for device: $device_name (set/availability topic)"
             return 1
           ;;
           *)
+            dt_debug "Will update state for device: $device_name"
             return 0  
           ;;
         esac
@@ -280,7 +280,9 @@ in
         [ -n "$occupancy" ] && update_device_state "$device_name" "occupancy" "$occupancy"
         
         [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"        
-        [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"        
+        [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"       
+      else
+        dt_debug "Skipped state update for device: $device_name"
       fi
     }   
 

@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/qvaghlmgrgqrz3s1mbn2ma3dil11y1jj-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/ww1p4ixvkhq6j28vczvj6xgyg3lxsrv0-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1187,6 +1187,9 @@ $ yo deploy laptop
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI 🦆**
+The `yo` CLI is a framework designed to execute scripts defined in the `./bin` directory.  
+It provides a unified interface for script execution, and automatically updates documentation.  
+
 **Usage:** `yo <command> [arguments]`  
 
 ### **Usage Examples:**  
