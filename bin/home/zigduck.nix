@@ -72,8 +72,9 @@
       json = builtins.toJSON settings;
     in
       ''
-      mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/${device}/set" -m '${json}'
+      mqtt_pub -t "zigbee2mqtt/${device}/set" -m '${json}'
       '';
+      
   sceneCommands = lib.mapAttrs
     (sceneName: sceneDevices:
       lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
@@ -641,6 +642,10 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
     '')
     # 🦆 says ⮞ activate a scene yo
     (pkgs.writeScriptBin "scene" ''
+      ${cmdHelpers}
+      MQTT_BROKER="${mqttHostip}"
+      MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
+      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}")
       SCENE="$1"      
       # 🦆 says ⮞ no scene == random scene
       if [ -z "$SCENE" ]; then
