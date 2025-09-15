@@ -184,7 +184,7 @@ $ yo deploy --host laptop --flake /home/pungkula/dotfiles
 $ yo deploy laptop /home/pungkula/dotfiles
 
 # Scripts can also be executed with natural language text by typing:
-$ yo do "is laptop overheatiing"
+$ yo do "is laptop overheating"
 # Natural language voice commands are also supported, say:
 "yo bitch reboot the laptop"
 

@@ -32,7 +32,7 @@ in {
     aliases = ["el"];
     runEvery = "60";
     parameters = [
-      { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "price";  }         
+      { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "usage";  }         
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
       { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }      
       { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }           
@@ -168,6 +168,46 @@ EOF
         dt_debug "Elförbrukning hittills i $MONTH_NAME: $TOTAL_KWH kWh"
         echo "$TOTAL_KWH"
         mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
+        
+        QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
+          --arg q "{
+            viewer {
+              home(id: \"$HOME_ID\") {
+                currentSubscription {
+                 priceInfo {
+                    current {
+                      total
+                      energy
+                      tax
+                      startsAt
+                      currency
+                    }
+                  }
+                }
+              }
+            }
+          }" \
+          '{query: $q}')
+
+        RESPONSE=$(curl -s -X POST https://api.tibber.com/v1-beta/gql \
+          -H "Authorization: Bearer $TIBBER_TOKEN" \
+          -H "Content-Type: application/json" \
+          -d "$QUERY_JSON")
+
+        dt_debug "$RESPONSE"
+  
+        TOTAL_RAW=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.data.viewer.home.currentSubscription.priceInfo.current.total')
+        TOTAL=$(printf "%.2f" "$TOTAL_RAW")
+
+
+        TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
+        echo "$TIMESTAMP $TOTAL" >> "$SAVE_PATH"
+  
+
+        dt_debug "$TOTAL SEK / kWh"
+        echo "$TOTAL SEK / kWh"
+        mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": $TOTAL}"
+        if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi   
     '';
     voice = {

@@ -73,11 +73,14 @@ in {
     ];      
     code = ''
       ${cmdHelpers}
-      if [[ "$state" == "on" ]]; then
-        zig 'Roller Shade' on
-      else
-        zig 'Roller Shade' off
-      fi
+      case "$state" in
+        on|up|upp)
+          zig 'Roller Shade' on
+          ;;
+        off|down|ned|ner)
+          zig 'Roller Shade' off
+          ;;
+      esac
     '';
     voice = {
       sentences = [

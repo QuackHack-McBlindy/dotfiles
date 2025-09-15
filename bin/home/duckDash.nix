@@ -219,7 +219,22 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
-            
+            .page {
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .page-container {
+                overflow: hidden;
+            }
+
+            .status-cards {
+                padding-bottom: 80px;
+            }
+
+            .scene-grid {
+                padding-bottom: 80px;
+            }            
             /* 🦆 says ⮞ TV */
             .tv-controls-grid {
                 display: grid;

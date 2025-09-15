@@ -152,7 +152,7 @@ in { # 🦆 says ⮞ Voice Intents
       MQTT_BROKER="${mqttHostIp}"
       PWFILE="$passwordfile"
       MQTT_USER="$user"
-      MQTT_PASSWORD=$(<"$PWFILE")
+      MQTT_PASSWORD=$(cat "$PWFILE")
       touch "$STATE_DIR/voice-debug.log"        
       if [[ "$DEVICE" == "all_lights" ]]; then
         if [[ "$STATE" == "on" ]]; then
