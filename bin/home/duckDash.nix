@@ -234,8 +234,27 @@
 
             .scene-grid {
                 padding-bottom: 80px;
-            }            
+            }    
+            
             /* 🦆 says ⮞ TV */
+            .tv-control-btn.channel { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
+            .tv-control-btn.volume { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
+            .tv-control-btn.nav { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
+            .tv-control-btn.playback { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
+            .tv-control-btn.system { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); }
+            .tv-control-btn.power { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
+
+            .tv-control-btn[data-nav] {
+                font-size: 1.8rem;
+                width: 90px;
+                height: 90px;
+            }
+            .tv-controls-grid .tv-control-row:nth-child(2) {
+                margin-bottom: 20px;
+            }
+            .tv-controls-grid .tv-control-row:nth-child(5) {
+                margin-bottom: 20px;
+            }     
             .tv-controls-grid {
                 display: grid;
                 grid-template-columns: 1fr;
@@ -246,9 +265,10 @@
             .tv-control-row {
                 display: flex;
                 justify-content: center;
+                align-items: center;
                 gap: 15px;
             }
-            
+           
             .tv-control-btn {
                 padding: 15px 20px;
                 border: none;
@@ -490,7 +510,6 @@
                 </div>
                 
                 
-                
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 3 - TV
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
@@ -501,82 +520,82 @@
                             ${tvOptions}
                         </select>
                     </div>
-
+                
                     <div class="tv-controls-grid">
                         <!-- 🦆 says ⮞ ROW 1 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn" onclick="sendTVCommand('channel_up')">
+                            <button class="tv-control-btn channel" onclick="sendTVCommand('channel_up')">
                                 <i class="fas fa-arrow-up"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('up')">
+                            <button class="tv-control-btn volume" onclick="sendTVCommand('up')">
                                 <i class="fas fa-volume-up"></i>
                             </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 2 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn" onclick="sendTVCommand('channel_down')">
+                            <button class="tv-control-btn channel" onclick="sendTVCommand('channel_down')">
                                 <i class="fas fa-arrow-down"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('down')">
+                            <button class="tv-control-btn volume" onclick="sendTVCommand('down')">
                                 <i class="fas fa-volume-down"></i>
                             </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 3 -->
                         <div class="tv-control-row">
-                           <button class="tv-control-btn icon-only" onclick="sendTVCommand('menu')">
-                               <i class="mdi mdi-menu"></i>
-                           </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('nav_up')">
+                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('menu')">
+                                <i class="mdi mdi-menu"></i>
+                            </button>
+                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_up')">
                                 <i class="fas fa-arrow-up"></i>
                             </button>
-                            <button class="tv-control-btn icon-only" onclick="sendTVCommand('home')">
+                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('home')">
                                 <i class="mdi mdi-home"></i>
                             </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 4 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn" onclick="sendTVCommand('nav_left')">
+                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_left')">
                                 <i class="fas fa-arrow-left"></i>
                             </button>
-                            <button class="tv-control-btn ok" onclick="sendTVCommand('nav_select')">
+                            <button class="tv-control-btn ok nav" onclick="sendTVCommand('nav_select')">
                                 <i class="fas fa-dot-circle"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('nav_right')">
+                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_right')">
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 5 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn icon-only" onclick="sendTVCommand('back')">
+                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('back')">
                                 <i class="mdi mdi-arrow-left-circle"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('nav_down')">
+                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_down')">
                                 <i class="fas fa-arrow-down"></i>
                             </button>
-                            <button class="tv-control-btn icon-only" onclick="sendTVCommand('app_switcher')">
+                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('app_switcher')">
                                 <i class="mdi mdi-apps"></i>
                             </button>
-
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 6 -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn" onclick="sendTVCommand('previous')">
+                            <button class="tv-control-btn playback" onclick="sendTVCommand('previous')">
                                 <i class="fas fa-backward"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('play_pause')">
+                            <button class="tv-control-btn playback" onclick="sendTVCommand('play_pause')">
                                 <i class="fas fa-play"></i>
                             </button>
-                            <button class="tv-control-btn" onclick="sendTVCommand('next')">
+                            <button class="tv-control-btn playback" onclick="sendTVCommand('next')">
                                 <i class="fas fa-forward"></i>
                             </button>
                         </div>
                     </div>
                 </div>
+                
                 
             </div>
     

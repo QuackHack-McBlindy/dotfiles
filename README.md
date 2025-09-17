@@ -42,7 +42,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 - __Yubikey encrypted deployment system__ <br>
 - __Self Documenting__<br>
 
-_list would get long, very quickly_ <br>
+_List would get long, very quickly_ <br>
 _perhaps a more suitable question would be:_ <br>
 _"What makes this configuration common?_" <br>
 
@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ldxlnndkyhsn0k5jf92sr9d596wp3i7m-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/hr1glcinzdn198wfn7ifyp400q5h2f6i-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
