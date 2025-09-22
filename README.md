@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/hr1glcinzdn198wfn7ifyp400q5h2f6i-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/lil0v6g7g8ibisf6lx8cw41d3c6pswjl-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1268,7 +1268,9 @@ Set default values for your parameters to have them marked [optional]
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
+| [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
+| [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
 | [yo darkTime](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/darkTime.nix) [--location] [--locationPath] [--offset] |  | Configures darkTime - the window of time where motion is triggering lights based upon sunrise/sunset. | 📛 |
 | [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets. | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
@@ -1279,6 +1281,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo temperatures](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/temperatures.nix)  |  | Get all temperature values from sensors and return a average value. | ✅ |
 | [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--sound] |  | Set a timer | ✅ |
+| [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
 | [yo zigduck](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/zigduck.nix) [--user] [--pwfile] | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process | 📛 |
 | **🧩 Miscellaneous** | | | |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Tells a quacktastic joke | ✅ |

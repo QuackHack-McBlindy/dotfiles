@@ -18,10 +18,17 @@
       # 🦆 says ⮞ .. pointless if it haz no sentence data ..
       hasSentences = builtins.any (data: data ? sentences && data.sentences != []) intent.data;
     in # 🦆 says ⮞ .. so datz how we build da scriptz!
+#      builtins.hasAttr scriptName generatedIntents && hasSentences
+#  ) scriptNames; # 🦆 says ⮞ datz quackin' cool huh?!
       builtins.hasAttr scriptName generatedIntents && hasSentences
-  ) scriptNames; # 🦆 says ⮞ datz quackin' cool huh?!
+  ) (builtins.attrNames scriptsWithVoice);
 
-  scriptsWithVoice = lib.filterAttrs (_: script: script.voice != null) config.yo.scripts;
+#  scriptsWithVoice = lib.filterAttrs (_: script: script.voice != null) config.yo.scripts;
+  # 🦆 says ⮞ only scripts with voice enabled and non-null voice config
+  scriptsWithVoice = lib.filterAttrs (_: script: 
+    script.voice != null && (script.voice.enabled or true)
+  ) config.yo.scripts;
+  
   
   # 🦆 says ⮞ generate intents
   generatedIntents = lib.mapAttrs (name: script: {

@@ -474,6 +474,11 @@ EOF
       voice = mkOption {
         type = types.nullOr (types.submodule {
           options = {
+            enabled = lib.mkOption {
+              type = lib.types.bool;
+              default = true;
+              description = "Whether to generate voice intents for this script";
+            };
             priority = mkOption {
               type = types.ints.between 1 5;
               default = 3;

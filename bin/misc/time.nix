@@ -32,6 +32,7 @@ in {
       if_voice_say "Klockan är $TIME . Det är $DAY den $DATE ."  
     '';
     voice = {
+      enabled = true;
       priority = 2;
       sentences = [
         "(va|vad|vart) är klockan"
