@@ -153,7 +153,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/lil0v6g7g8ibisf6lx8cw41d3c6pswjl-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/7jkyxnqm84047iq43b5l9b2pzgf0s1fk-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1188,7 +1188,7 @@ $ yo deploy laptop
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI 🦆**
 The `yo` CLI is a framework designed to execute scripts defined in the `./bin` directory.  
-It provides a unified interface for script execution, and automatically updates documentation.  
+It provides a unified interface for script execution, centralizes all help commands, and automatically updates the documentation.  
 
 **Usage:** `yo <command> [arguments]`  
 
@@ -1284,6 +1284,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
 | [yo zigduck](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/zigduck.nix) [--user] [--pwfile] | zigb, hem | Home Automations at its best! Bash & Nix cool as dat. Runs on single process | 📛 |
 | **🧩 Miscellaneous** | | | |
+| [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Tells a quacktastic joke | ✅ |
 | [yo post](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/post.nix) [--postalCodeFile] [--postalCode] |  | Check for the next postal delivery day. (Sweden) | ✅ |
 | [yo qr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/qr.nix) --input [--icon] [--output] |  | Create fun randomized QR codes from input. | 📛 |
