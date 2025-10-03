@@ -190,7 +190,17 @@
     ln -sf /etc/rooms.json $WORKDIR/
     ln -sf /etc/tv.json $WORKDIR/
     ln -sf /var/lib/zigduck/state.json $WORKDIR/
-  
+    ln -sf /etc/epg.json $WORKDIR/    
+    # 🦆 says ⮞ add TV icons
+    mkdir -p $WORKDIR/tv-icons
+    ${lib.concatMapStrings (tvName: 
+        let tv = tvConfig.${tvName};
+        in lib.concatMapStrings (channelId: 
+            let channel = tv.channels.${channelId};
+            in "ln -sf ${channel.icon} $WORKDIR/tv-icons/${channelId}.png\n"
+        ) (lib.attrNames tv.channels)
+    ) (lib.attrNames tvConfig)}
+    
     ${pkgs.python3}/bin/python3 -m http.server "$PORT" --bind "$HOST" -d "$WORKDIR"
   '';
 
@@ -237,24 +247,108 @@
             }    
             
             /* 🦆 says ⮞ TV */
+            /* 🦆 says ⮞ TV Channel Display */
+            .tv-channel-display {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                border-radius: 12px;
+                padding: 15px;
+                margin: 15px auto;
+                max-width: 300px;
+                color: white;
+                text-align: center;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                min-height: 70px;
+            }
+            
+            .channel-info {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 15px;
+                height: 100%;
+            }
+            
+            .channel-icon {
+                width: 50px;
+                height: 50px;
+                border-radius: 10px;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                flex-shrink: 0;
+                border: 2px solid rgba(255, 255, 255, 0.4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                position: relative;
+            }
+            
+            .channel-number-fallback {
+                font-size: 1.1rem;
+                font-weight: bold;
+                color: white;
+                background: rgba(0, 0, 0, 0.3);
+                border-radius: 6px;
+                padding: 4px 8px;
+            }
+            
+            .program-info {
+                flex: 1;
+                text-align: left;
+                min-width: 0;
+            }
+            
+            .program-title {
+                font-size: 1rem;
+                font-weight: bold;
+                margin: 0 0 8px 0;
+                line-height: 1.2;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                cursor: pointer;
+            }
+            
+            .program-progress {
+                background: rgba(255, 255, 255, 0.2);
+                border-radius: 10px;
+                height: 6px;
+                overflow: hidden;
+            }
+            
+            .program-progress-bar {
+                height: 100%;
+                width: 0%;
+                background: linear-gradient(90deg, #4cd964, #2ecc71);
+                transition: width 0.3s ease;
+            }
+            
+            /* 🦆 says ⮞ Remove time display */
+            .program-time {
+                display: none !important;
+            }
+            
             .tv-control-btn.channel { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
             .tv-control-btn.volume { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
             .tv-control-btn.nav { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
             .tv-control-btn.playback { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
             .tv-control-btn.system { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); }
             .tv-control-btn.power { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-
+            
             .tv-control-btn[data-nav] {
                 font-size: 1.8rem;
                 width: 90px;
                 height: 90px;
             }
+            
             .tv-controls-grid .tv-control-row:nth-child(2) {
                 margin-bottom: 20px;
             }
+            
             .tv-controls-grid .tv-control-row:nth-child(5) {
                 margin-bottom: 20px;
-            }     
+            }
+            
             .tv-controls-grid {
                 display: grid;
                 grid-template-columns: 1fr;
@@ -268,7 +362,7 @@
                 align-items: center;
                 gap: 15px;
             }
-           
+            
             .tv-control-btn {
                 padding: 15px 20px;
                 border: none;
@@ -366,7 +460,19 @@
             .tv-btn.ok {
                 grid-column: 2;
             }
-            
+           
+            /* 🦆 says ⮞ TEMPORARY DEBUG - Remove after testing */
+            .channel-icon {
+                background-color: rgba(255, 0, 0, 0.3) !important; /* Red background to see the element */
+                border: 3px solid #00ff00 !important; /* Green border to see the bounds */
+            }
+
+            /* Force the icon to be visible */
+            #currentChannelIcon {
+                display: flex !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            }             
             
             .scene-item {
                 padding: 15px;
@@ -520,6 +626,22 @@
                             ${tvOptions}
                         </select>
                     </div>
+                    
+                    <!-- 🦆 says ⮞ TV channel display -->
+                    <div class="tv-channel-display" id="tvChannelDisplay" style="display: none;">
+                        <div class="channel-info">
+                            <div class="channel-icon" id="currentChannelIcon">
+                                <div class="channel-number-fallback" id="currentChannelNumberFallback">--</div>
+                            </div>
+                            <div class="program-info">
+                                <div class="program-title" id="currentProgramTitle">No program...</div>
+                                <div class="program-progress">
+                                    <div class="program-progress-bar" id="programProgressBar"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div
+
                 
                     <div class="tv-controls-grid">
                         <!-- 🦆 says ⮞ ROW 1 -->
@@ -649,9 +771,7 @@
                 const pageContainer = document.getElementById('pageContainer');
                 const navTabs = document.querySelectorAll('.nav-tab');
                 let currentPage = 0;
-                
-                
-                
+                              
                 // 🦆 says ⮞ helperz 4 renderMessage
                 function clamp(value, min, max) {
                     return Math.min(Math.max(value, min), max);
@@ -884,8 +1004,7 @@
 
                 // 🦆 says ⮞ TV control function
                 window.sendTVCommand = function(command) {
-                    console.log('🦆 TV command triggered:', command);
-                    
+                    console.log('🦆 TV command triggered:', command);       
                     const targetTV = document.getElementById('targetTV');
                     console.log('🦆 TV selector element:', targetTV);
                     
@@ -896,16 +1015,13 @@
                         console.warn('🦆 No TV selected, showing error notification');
                         showNotification('Please select a TV first', 'error');
                         return;
-                    }
-              
+                    }   
                     const payload = {
                         tvCommand: command,
                         ip: ip
-                    };
-                    
+                    };      
                     console.log('MQTT payload:', payload);
-                    console.log('MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');
-                
+                    console.log('MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');     
                     if (client && client.connected) {
                         console.log('Publishing to topic: zigbee2mqtt/tvCommand');
                         client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload), function(err) {
@@ -922,7 +1038,261 @@
                         showNotification('Not connected to MQTT', 'error');
                     }
                 };
-          
+
+                // 🦆 says ⮞ create device ID to icon mapping
+                let deviceIdToIcon = {};
+                fetch('/devices.json')
+                    .then(response => response.json())
+                    .then(allDevices => {
+                        Object.entries(allDevices).forEach(([deviceId, device]) => {
+                            if (device.icon) {
+                                deviceIdToIcon[deviceId] = device.icon;
+                            }
+                        });
+                        console.log('Device ID to icon mapping:', deviceIdToIcon);
+                    })
+                    .catch(error => {
+                        console.log('Could not load devices.json for icon mapping');
+                    });
+
+
+                // 🦆 says ⮞ load and display EPG data
+                function loadEPGData() {
+                    const tvPage = document.getElementById('pageTV');
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (!tvPage && !channelDisplay) {
+                        console.log('TV page elements not available, skipping EPG load');
+                        return;
+                    }
+                    fetch('/epg.json')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('EPG data not available');
+                            }
+                            return response.json();
+                        })
+                        .then(epgData => {
+                            window.epgData = epgData;
+                            console.log('EPG data loaded successfully');
+                            const currentTV = document.getElementById('targetTV');
+                            if (currentTV && currentTV.value) {
+                                updateTVWithEPG(currentTV.value);
+                            }
+                        })
+                        .catch(error => {
+                            console.log('EPG data not available:', error);
+                        });
+                }
+                
+                function updateChannelIcon(channelId) {
+                    console.log('🦆 updateChannelIcon called with channelId:', channelId);
+                    const iconElement = document.getElementById('currentChannelIcon');
+                    const fallbackElement = document.getElementById('currentChannelNumberFallback');
+                    if (iconElement && channelId) {
+                        const iconPath = `/tv-icons/''${channelId}.png`;
+                        console.log('🦆 Looking for channel icon at:', iconPath);
+                        iconElement.style.display = 'flex';
+                        iconElement.style.visibility = 'visible';
+                        iconElement.style.opacity = '1';
+                        iconElement.className = 'channel-icon';
+                        if (fallbackElement) {
+                            fallbackElement.textContent = channelId;
+                        }
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('🦆 Channel icon loaded successfully:', iconPath);
+                            iconElement.style.backgroundImage = `url(''${iconPath}')`;
+                            if (fallbackElement) {
+                                fallbackElement.style.display = 'none';
+                            }
+                        };
+                        img.onerror = function() {
+                            console.warn('🦆 Channel icon not found:', iconPath);
+                            iconElement.style.backgroundImage = 'none';
+                            iconElement.classList.add('no-icon');
+                            if (fallbackElement) {
+                                fallbackElement.style.display = 'flex';
+                            }
+                        };
+                        img.src = iconPath;
+                    } else if (iconElement) {
+                        console.log('🦆 No channelId provided, showing fallback');
+                        iconElement.style.backgroundImage = 'none';
+                        iconElement.classList.add('no-icon');
+                        if (fallbackElement) {
+                            fallbackElement.style.display = 'flex';
+                            fallbackElement.textContent = '--';
+                        }
+                    }
+                }
+           
+                // 🦆 says ⮞ Update TV display with EPG information
+                function updateTVWithEPG(deviceIp) {
+                    if (!window.epgData || !window.epgData.channels) return;
+                    const tvKey = `tv_''${deviceIp}`;
+                    const tvState = devices[tvKey];
+                    if (!tvState || !tvState.channel_id) return;
+                    const channelId = tvState.channel_id.toString();
+                    updateChannelIcon(channelId);
+                    const channel = window.epgData.channels.find(ch => ch.id === channelId);
+                    if (!channel || !channel.programs) return;																													
+                    const now = new Date();
+                    const currentProgram = findCurrentProgram(channel.programs, now);
+                    if (currentProgram) {
+                        updateChannelDisplayWithProgram(channel, currentProgram, now);
+                    }
+                }
+
+
+                // 🦆 says ⮞ Find the currently playing program
+                function findCurrentProgram(programs, currentTime) {
+                    return programs.find(program => {
+                        const startTime = parseEPGTime(program.start);
+                        const endTime = parseEPGTime(program.stop);
+                        return currentTime >= startTime && currentTime < endTime;
+                    });
+                }
+
+                // 🦆 says ⮞ Parse EPG timestamp
+                function parseEPGTime(epgTime) {
+                    // 🦆 says ⮞ Format: YYYYMMDDHHMMSS +0000
+                    const year = epgTime.substring(0, 4);
+                    const month = epgTime.substring(4, 6) - 1;
+                    const day = epgTime.substring(6, 8);
+                    const hour = epgTime.substring(8, 10);
+                    const minute = epgTime.substring(10, 12);
+                    const second = epgTime.substring(12, 14);
+                    return new Date(year, month, day, hour, minute, second);
+                }
+
+                // 🦆 says ⮞ Clean program title by removing channel names and HTML tags
+                function cleanProgramTitle(rawTitle) {
+                    if (!rawTitle) return 'No program...';
+                    let clean = rawTitle.replace(/<[^>]*>/g, "");
+                    const channelPatterns = [
+                        /^Kanal\s+\d+\s*[-–]?\s*/i, // "Kanal 3 - " or "Kanal 3"
+                        /^TV\d+\s*[-–]?\s*/i,       // "TV4 - " or "TV4"
+                        /^SVT\d*\s*[-–]?\s*/i,      // "SVT1 - " or "SVT"
+                        /^\d+\s*[-–]?\s*/           // "3 - " or "3"
+                    ];
+                    channelPatterns.forEach(pattern => {
+                        clean = clean.replace(pattern, "");
+                    });
+                    clean = clean.replace(/^\s*[-–]\s*/, "").trim();
+                    if (!clean) {
+                        return rawTitle.replace(/<[^>]*>/g, "").trim() || 'No program...';
+                    }
+                    return clean;
+                }
+
+                // 🦆 says ⮞ Toggle program description visibility
+                function toggleProgramDescription() {
+                    const descElement = document.getElementById('currentProgramDescription');
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (descElement && channelDisplay) {
+                        const isExpanded = descElement.classList.contains('expanded');
+                        if (isExpanded) {
+                            descElement.classList.remove('expanded');
+                            channelDisplay.classList.remove('expanded');
+                        } else {
+                            descElement.classList.add('expanded');
+                            channelDisplay.classList.add('expanded');
+                        }
+                    }
+                }
+
+                // 🦆 says ⮞ Update the display with program information
+                function updateChannelDisplayWithProgram(channel, program, currentTime) {
+                    const elements = {
+                        programTitle: document.getElementById('currentProgramTitle'),
+                        progressBar: document.getElementById('programProgressBar')
+                    };
+                    if (!elements.programTitle || !elements.progressBar) {
+                        console.log('Required TV display elements not found, skipping update');
+                        return;
+                    }
+                    const startTime = parseEPGTime(program.start);
+                    const endTime = parseEPGTime(program.stop);
+                    const totalDuration = endTime - startTime;
+                    const elapsed = currentTime - startTime;
+                    const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+                    const cleanTitle = cleanProgramTitle(program.title);
+                    elements.programTitle.textContent = cleanTitle;
+                    elements.progressBar.style.width = `''${progress}%`;
+                    if (progress < 25) {
+                        elements.progressBar.style.background = 'linear-gradient(90deg, #4cd964, #2ecc71)';
+                    } else if (progress < 75) {
+                        elements.progressBar.style.background = 'linear-gradient(90deg, #ffcc00, #ff9500)';
+                    } else {
+                        elements.progressBar.style.background = 'linear-gradient(90deg, #ff3b30, #e74c3c)';
+                    }
+                }
+
+                // 🦆 says ⮞ Update TV channel display
+                function updateTVChannelDisplay(deviceIp, channelData) {
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (!channelDisplay) return;
+
+                    const currentTV = document.getElementById('targetTV').value;
+                    if (currentTV === deviceIp) {
+                        channelDisplay.style.display = 'block';
+                        if (channelData.channel_id) {
+                            updateChannelIcon(channelData.channel_id.toString());
+                        }
+                        const programTitle = document.getElementById('currentProgramTitle');
+                        if (programTitle) {
+                            if (channelData.program_title) {
+                                programTitle.textContent = cleanProgramTitle(channelData.program_title);
+                                programTitle.style.cursor = 'pointer';
+                            } else {
+                                programTitle.textContent = 'No program...';
+                                programTitle.style.cursor = 'default';
+                            }
+                        }
+                    }
+                }
+
+                // 🦆 says ⮞ Format timestamp for display
+                function formatChannelTime(timestamp) {
+                    if (!timestamp) return '--';
+                    try {
+                        const date = new Date(timestamp);
+                        return date.toLocaleTimeString('sv-SE', { 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: false 
+                        });
+                    } catch (e) {
+                        return '--';
+                    }
+                }
+
+                // 🦆 says ⮞ Load initial TV channel state
+                function loadInitialTVState() {
+                    fetch('/state.json')
+                        .then(response => response.json())
+                        .then(state => {
+                            Object.entries(state).forEach(([key, data]) => {
+                                if (key.startsWith('tv_') && data.current_channel) {
+                                    const tvName = key.replace('tv_', "");
+                                    const tvConfig = ${builtins.toJSON config.house.tv};
+                                    const tvDevice = Object.values(tvConfig).find(tv => 
+                                        tv.room.toLowerCase().includes(tvName.toLowerCase())
+                                    );																			
+                                    if (tvDevice) {
+                                        updateTVChannelDisplay(tvDevice.ip, {
+                                           channel_id: data.current_channel,
+                                            channel_name: data.current_channel_name || `Channel ''${data.current_channel}`,
+                                            timestamp: data.last_update
+                                        });
+                                    }
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.log('No initial TV state available');
+                        });
+                }          
                 
                 /*🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ ZIGDUCK CONNECT 
@@ -975,6 +1345,24 @@
                             const topicParts = topic.split('/');
                             const deviceName = topicParts[1];
 
+                            // 🦆 says ⮞ Handle TV channel updates
+                            if (topic.startsWith('zigbee2mqtt/tv/') && topic.endsWith('/channel')) {
+                                try {
+                                    const data = JSON.parse(message.toString());
+                                    const deviceIp = topicParts[2]; // Extract IP from topic: zigbee2mqtt/tv/192.168.1.223/channel
+                                    console.log('TV channel update:', deviceIp, data);
+                                    updateTVChannelDisplay(deviceIp, data);
+                                    const tvKey = `tv_''${deviceIp}`;
+                                    devices[tvKey] = { ...devices[tvKey], ...data };
+                                    saveState();
+            
+                                } catch (e) {
+                                   console.error('Error parsing TV channel message:', e);
+                                }
+                                return;
+                            }
+
+
                             if (deviceName === 'tibber') {
                                 try {
                                     const data = JSON.parse(message.toString());
@@ -1017,17 +1405,13 @@
                             if (topicParts.length === 2) {
                                 try {
                                     const data = JSON.parse(message.toString());
-                                    devices[deviceName] = data;
-                                    
+                                    devices[deviceName] = data;    
                                     //🦆 says ⮞ auto-save when data arrives
-                                    saveState();
-                                    
-                                    updateDeviceSelector();
-                                    
+                                    saveState();     
+                                    updateDeviceSelector(); 
                                     if (selectedDevice === deviceName) {
                                         updateDeviceUI(data);
-                                    }
-                                    
+                                    }      
                                     updateStatusCards();
                                 } catch (e) {
                                     console.error('Error parsing message: ', e);
@@ -1123,15 +1507,12 @@
       
                 function updateDeviceIcon(deviceName) {
                     console.log('updateDeviceIcon called for:', deviceName);
-                    const icon = deviceIcons[deviceName] || "mdi:lightbulb";
-                    console.log('Raw icon value:', icon);
-    
+                    const icon = deviceIdToIcon[deviceName] || deviceIcons[deviceName] || "mdi:lightbulb";
+                    console.log('Resolved icon for', deviceName, ':', icon);
                     const iconName = icon.replace("mdi:", "");
                     console.log('Processed icon name:', iconName);
-    
                     const iconElement = document.getElementById('currentDeviceIcon');
                     console.log('Icon element found:', !!iconElement);
-    
                     if (iconElement) {
                         iconElement.className = 'mdi mdi-' + iconName;
                         console.log('Final icon classes:', iconElement.className);
@@ -1170,7 +1551,7 @@
                             } 
                         });
         
-                        // 🦆 says ⮞ set up media recorder
+                        // 🦆 says ⮞ media recorder
                         mediaRecorder = new MediaRecorder(stream);
                         audioChunks = [];
         
@@ -1729,12 +2110,58 @@
                     }
                 }
 
+
                 function initDashboard() {
                     // 🦆 says ⮞ load initial state from the server
                     loadInitialState().then(() => {
                         // 🦆 says ⮞ load state from localStorage
                         loadSavedState();
-        
+
+                        // Set up TV selector first
+                        document.getElementById('targetTV').addEventListener('change', function() {
+                            const selectedTV = this.value;
+                            const channelDisplay = document.getElementById('tvChannelDisplay');
+
+                            if (selectedTV && channelDisplay) {
+                                channelDisplay.style.display = 'block';
+                
+                                const tvKey = `tv_''${selectedTV}`;
+                                if (devices[tvKey] && devices[tvKey].channel_id) {
+                                    updateTVChannelDisplay(selectedTV, devices[tvKey]);
+                                } else {
+                                    const elements = {
+                                        channelNumber: document.getElementById('currentChannelNumber'),
+                                        programTitle: document.getElementById('currentProgramTitle'),
+                                        channelTime: document.getElementById('currentChannelTime')
+                                    };
+
+                                    if (elements.channelNumber) elements.channelNumber.textContent = '--';
+                                    if (elements.programTitle) elements.programTitle.textContent = 'No channel info';
+                                    if (elements.channelTime) elements.channelTime.textContent = '--:-- - --:--';
+                                }
+                
+                                if (window.epgData) {
+                                    updateTVWithEPG(selectedTV);
+                               }
+                           } else if (channelDisplay) {
+                                channelDisplay.style.display = 'none';
+                            }
+                        });
+
+                        // 🦆 says ⮞ set default TV if none selected and we have options
+                        const tvSelector = document.getElementById('targetTV');
+                        if (tvSelector && tvSelector.options.length > 1 && !tvSelector.value) {
+                            tvSelector.value = tvSelector.options[1].value;
+                            tvSelector.dispatchEvent(new Event('change'));
+                        }
+
+                       // 🦆 says ⮞ load EPG data after TV is set up
+                        setTimeout(loadEPGData, 500);
+
+                        // 🦆 says ⮞ load initial TV channel state
+                        loadInitialTVState();
+
+   
                         navTabs.forEach((tab) => {
                             tab.addEventListener('click', () => {
                                 const pageIndex = parseInt(tab.getAttribute('data-page'));
@@ -1905,8 +2332,6 @@ in {
       name = "rooms.json";
       text = builtins.toJSON config.house.rooms;
     };
-
-
   
   environment.etc."tv.json".source =
     pkgs.writeTextFile {

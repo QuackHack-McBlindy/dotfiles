@@ -7,28 +7,6 @@
   ...
 } : {  
   environment.systemPackages = [ pkgs.at ];
-  
-  yo.bitch = {
-    intents.reminder = {
-      data = [{
-        sentences = [
-          "påminn [mig] om [att] {reminder}"
-          "påminn [mig] om [att] {reminder} den {date}"
-        ];
-        lists = {
-          about.wildcard = true;
-          date.values = [
-            { "in" = "imorgon"; out = "tomorrow"; }
-            { "in" = "idag"; out = "today"; }
-            { "in" = "övermorgon"; out = "day after tomorrow"; }
-            { "in" = "om en timme"; out = "in 1 hour"; }
-            { "in" = "om 30 minuter"; out = "in 30 minutes"; }
-            { "in" = "klockan 15"; out = "15:00"; }
-          ];
-        };
-      }];
-    };
-  };
 
   yo.scripts.reminder = {
     description = "Reminder Assistant";
@@ -42,7 +20,6 @@
 #      { name = "date"; description = "When to remind"; optional = true; }
     ];
     code = ''
-      ${cmdHelpers}
       ${cmdHelpers}
   
       REMINDER_DIR="/home/pungkula/.reminders"
@@ -87,4 +64,22 @@
         list_reminders
       fi
     '';
+    voice = {
+      sentences = [
+        "påminn [mig] om [att] {reminder}"
+        "påminn [mig] om [att] {reminder} den {date}"
+      ];
+      lists = {
+        about.wildcard = true;
+        date.values = [
+          { "in" = "imorgon"; out = "tomorrow"; }
+          { "in" = "idag"; out = "today"; }
+          { "in" = "övermorgon"; out = "day after tomorrow"; }
+          { "in" = "om en timme"; out = "in 1 hour"; }
+          { "in" = "om 30 minuter"; out = "in 30 minutes"; }
+          { "in" = "klockan 15"; out = "15:00"; }
+        ];
+      };
+    };
+ 
   };}

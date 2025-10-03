@@ -1,5 +1,5 @@
-# dotfiles/bin/network/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # From Quack to Stack: A fiööy Declarative Zigbee and home automation system
+# dotfiles/bin/home/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # From Quack to Stack: A Declarative Zigbee and home automation system
   self, # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 
   lib, 
   config, # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
@@ -103,6 +103,9 @@
       ) ids;
     };
   }) byRoom;
+
+  # 🦆 says ⮞ gen json from `config.house.tv`  
+  tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
   # 🦆 says ⮞ dis creates device configuration for Z2M yo
   deviceConfig = lib.mapAttrs (id: dev: {
@@ -303,7 +306,43 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           # 🦆 says ⮞ trigger backup from MQTT
           if [ "$topic" = "zigbee2mqtt/backup/request" ]; then perform_zigbee_backup; fi
 
+          # 🦆 says ⮞ TV  DEVICES CHANNEL STATE 
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("tvChannel")' > /dev/null; then
+              channel=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tvChannel')
+              ip=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.ip // "192.168.1.223"')
+              if [ -n "$channel" ]; then
+                  dt_info "TV channel change requested! Channel: $channel . IP: $ip"
+                  device_name=$(${pkgs.jq}/bin/jq -r --arg ip "$ip" '
+                      to_entries[] | select(.value.ip == $ip) | .key
+                  ' "${tvDevicesJson}")
+                  if [ -n "$device_name" ] && [ "$device_name" != "null" ]; then
+                      dt_info "Changing channel on $device_name ($ip) to: $channel"
+                      yo tv --typ livetv --device "$ip" --search "$channel"
+                  else
+                      dt_warning "Unknown TV device IP: $ip, attempting channel change anyway"
+                      yo tv --typ livetv --device "$ip" --search "$channel"
+                  fi
+              fi
+              continue
+          fi
 
+          # 🦆 says ⮞ TV CHANNEL STATE UPDATES          
+          if [[ "$topic" == zigbee2mqtt/tv/*/channel ]]; then
+              device_ip=$(echo "$topic" | cut -d'/' -f3)
+              channel_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.channel_id')
+              channel_name=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.channel_name')
+              device_name=$(${pkgs.jq}/bin/jq -r --arg ip "$device_ip" '
+                  to_entries[] | select(.value.ip == $ip) | .key
+              ' "${tvDevicesJson}")
+              if [ -n "$device_name" ] && [ "$device_name" != "null" ]; then
+                  dt_info "📺 $device_name live tv channel: $channel_name"
+                  update_device_state "tv_$device_name" "current_channel" "$channel_id"
+                  update_device_state "tv_$device_name" "current_channel_name" "$channel_name"
+                  update_device_state "tv_$device_name" "last_update" "$(date -Iseconds)"
+              fi
+              continue
+          fi
+          
           # 🦆 says ⮞ ENERGY CONSUMPTION & PRICE
           if [ "$topic" = "zigbee2mqtt/tibber/price" ]; then
               current_price=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.current_price')

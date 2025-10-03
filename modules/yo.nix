@@ -32,6 +32,17 @@ let
     USER_TMP=$(mktemp)
     HOST_TMP=$(mktemp)
 
+    # 🦆 duck say ⮞ count scripts in bin
+    count_bin() {
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts --json | jq 'keys | length'
+    }
+
+    # 🦆 duck say ⮞ count scripts with sentences defined
+    count_voice() {
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config..yo.scripts --json \
+        | jq '[.[] | select(.voice? and .voice.sentences?)] | length'
+    }
+    
     # 🦆 duck say ⮞ nix > json > nix lol
     json2nix() {
       nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config."$1" --json | jq -r -f <(cat <<'JQ'

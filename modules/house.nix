@@ -55,6 +55,54 @@ in { # 🦆 says ⮞ Options for da house
               type = lib.types.str;
               description = "TV's static IP address";
             };
+
+            apps = lib.mkOption {
+              type = lib.types.attrsOf lib.types.str;
+              default = {};
+              description = "App package names and activities for this TV device";
+              example = {
+                telenor = "se.telenor.stream/.MainActivity";
+                tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+              };
+            };
+            
+            # 🦆 duck say ⮞ TV channel definitions
+            channels = lib.mkOption {
+              type = lib.types.attrsOf (lib.types.submodule {
+                options = {
+                  name = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Channel display name";
+                  };
+                  icon = lib.mkOption {
+                    type = types.nullOr types.path;
+                    description = "Optional file path for channel icon used for the generated TV-guide web frontend";
+                    default = null;
+                  };                  
+                  id = lib.mkOption {
+                    type = lib.types.nullOr lib.types.int;
+                    default = null;
+                    description = "Channel ID number, when set will send defined value as ADB channel command.";
+                  };
+                  cmd = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Sequence of ADB commands to launch channel. Seperated with && (Overrides ID)";
+                    default = "";
+                  };     
+                  stream_url = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Stream URL to send to device. (Overrides ID)";
+                    default = "";
+                  };
+                  scrape_url = lib.mkOption {
+                    type = lib.types.str;
+                    description = "Scrape URL for TV-Guide";
+                    default = "";
+                  };      
+                };
+              });
+              description = "TV channel options";
+            };
           };
         });
         default = {};

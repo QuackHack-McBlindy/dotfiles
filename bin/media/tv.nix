@@ -7,75 +7,279 @@
   cmdHelpers,
   ... 
 } : let # 🦆 says ⮞ yo    
+  # 🦆 says ⮞ gen json from `config.house.tv`  
+  channelsJson = pkgs.writeText "channels.json" (builtins.toJSON (
+    lib.mapAttrs (deviceName: deviceConfig: deviceConfig.channels) config.house.tv
+  ));  
+  tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
+
+  # 🦆 says ⮞ mqtt is used for tracking channel states on devices
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+
 in {   
   house.tv = {
-    shield = { enable = true; room = "livingroom"; ip = "192.168.1.223"; };
-    arris = { enable = true; room = "bedroom"; ip = "192.168.1.152"; };
-  };  
-  yo.bitch = { 
-    intents = {
-      tv = {  # 🦆 says ⮞ high priority for fast script executionz
-        priority = 1;
-        data = [{
-          sentences = [
-            # 🦆 says ⮞ devices control sentences
-            "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
-            "jag vill se {typ} {search} i {device}"    
-            "jag vill lyssna på {typ} i {device}"
-            "jag vill höra {typ} {search} i {device}"
-            "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten) i {device}"          
-            "tv {typ} i {device}"
-            # 🦆 says ⮞ default player
-            "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search}"
-            "jag vill se {typ} {search}"    
-            "jag vill lyssna på [mina] {typ}"
-            "jag vill höra [mina] {typ}"
-            "{typ} (volym|volymen|avsnitt|avsnittet|låt|låten|skiten)"       
-            "tv {typ}"
-            # 🦆 says ⮞ append to favorites playlist
-            "spara i {typ}"
-            "lägg till den här [låten] i {typ}"
-            # 🦆 says ⮞ find remote
-            "ring {typ}"
-            "hitta {typ}"            
-          ];    
-          lists = {
-            typ.values = [
-              { "in" = "[serie|serien|tvserien|tv-serien]"; out = "tv"; }
-              { "in" = "[pod|podd|podcost|poddan|podden|podcast]"; out = "podcast"; }
-              { "in" = "[slump|slumpa|random|musik|mix|shuffle]"; out = "jukebox"; }
-              { "in" = "[artist|artisten|band|bandet|grupp|gruppen]"; out = "music"; }
-              { "in" = "[låt|låten|sång|sången|biten]"; out = "song"; }
-              { "in" = "[film|filmen]"; out = "movie"; }
-              { "in" = "[ljudbok|ljudboken]"; out = "audiobook"; }
-              { "in" = "video"; out = "othervideo"; }
-              { "in" = "[musicvideo|musikvideo]"; out = "musicvideo"; }
-              { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "favorites"; }
-              { "in" = "[kanal|kanalen|kannal]"; out = "livetv"; }
-              { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }
-              { "in" = "[paus|pause|pausa|tyst|tysta|mute|stop]"; out = "pause"; }
-              { "in" = "[play|fortsätt|okej]"; out = "play"; }
-              { "in" = "[öj|höj|höjj|öka|hej]"; out = "up"; }
-              { "in" = "[sänk|sänkt|ner|ned]"; out = "down"; }
-              { "in" = "[näst|nästa|nästan|next|fram|framåt]"; out = "next"; }
-              { "in" = "[förr|förra|föregående|backa|bakåt]"; out = "previous"; }
-#              { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
-              { "in" = "[favorit|favoriter|bästa]"; out = "add"; }
-              { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }   
-              { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "call"; }   
-              { "in" = "[av|stäng av]"; out = "off"; }            
-              { "in" = "på"; out = "on"; }        
-            ];
-            search.wildcard = true;
-            device.values = [
-              { "in" = "[sovrum|sovrummet|bedroom]"; out = "192.168.1.152"; }
-              { "in" = "[vardagsrum|vardagsrummet|livingroom]"; out = "192.168.1.223"; }              
-            ];  
-          };
-        }];
+    shield = { 
+      enable = true;
+      room = "livingroom";
+      ip = "192.168.1.223";
+      apps = {
+        telenor = "se.telenor.stream/.MainActivity";
+        tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+      };  
+      channels = {     
+        "1" = {
+          name = "SVT1";
+          id = 1; # 🦆 says ⮞ adb channel ID
+          # 🦆 says ⮞ OR
+          # stream_url = "https://url.com/";
+          cmd = "open_telenor && wait 5 && start_channel_1";
+          # 🦆 says ⮞ automagi generated tv-guide web & EPG          
+          icon = ./../../modules/themes/icons/tv/1.png;
+          scrape_url = "https://tv-tabla.se/tabla/svt1/";          
+        };
+        "2" = {
+          id = 2; 
+          name = "SVT2";
+          cmd = "open_telenor && wait 5 && start_channel_2";
+          icon = ./../../modules/themes/icons/tv/2.png;          
+          scrape_url = "https://tv-tabla.se/tabla/svt2/";
+        };
+        "3" = {
+          id = 3;
+          name = "Kanal 3";
+          cmd = "open_telenor && wait 5 && start_channel_3";
+          icon = ./../../modules/themes/icons/tv/3.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv3/";
+        };
+        "4" = {
+          id = 4;
+          name = "TV4";
+          cmd = "open_telenor && wait 5 && start_channel_4";
+          icon = ./../../modules/themes/icons/tv/4.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv4/";
+        };
+        "5" = {
+          id = 5;
+          name = "Kanal 5";
+          cmd = "open_telenor && wait 5 && start_channel_5";
+          icon = ./../../modules/themes/icons/tv/5.png;
+          scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
+        };
+        "6" = {
+          id = 6;
+          name = "Kanal 6";
+          cmd = "open_telenor && wait 5 && start_channel_6";
+          icon = ./../../modules/themes/icons/tv/6.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv6/";
+        };
+        "7" = {
+          id = 7;
+          name = "Sjuan";
+          cmd = "open_telenor && wait 5 && start_channel_7";
+          icon = ./../../modules/themes/icons/tv/7.png;
+          scrape_url = "https://tv-tabla.se/tabla/sjuan/";
+        };
+        "8" = {
+          id = 8;
+          name = "TV8";
+          icon = ./../../modules/themes/icons/tv/8.png;          
+          scrape_url = "https://tv-tabla.se/tabla/tv8/";
+        };
+        "9" = {
+          id = 9;
+          name = "Kanal 9";
+          icon = ./../../modules/themes/icons/tv/9.png;          
+          scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
+        };
+        "10" = {
+          id = 10;
+          name = "Kanal 10";
+          icon = ./../../modules/themes/icons/tv/10.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv10/";
+        };
+        "11" = {
+          id = 11;
+          name = "Kanal 11";
+          icon = ./../../modules/themes/icons/tv/11.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv11/";
+        };
+        "12" = {
+          id = 12;
+          name = "Kanal 12";
+          icon = ./../../modules/themes/icons/tv/12.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv12/";
+        };
+        "13" = {
+          id = 13;
+          name = "TV4 Hockey";
+          icon = ./../../modules/themes/icons/tv/13.png;
+          cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
+          scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
+        };        
+        "14" = {
+          id = 14;
+          name = "TV4 Sport Live 1";
+          icon = ./../../modules/themes/icons/tv/14.png;
+          cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
+        };
+        "15" = {
+          id = 15;
+          name = "TV4 Sport Live 2";
+          icon = ./../../modules/themes/icons/tv/15.png;
+          cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";    
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
+        };
+        "16" = {
+          id = 16;
+          name = "TV4 Sport Live 3";
+          icon = ./../../modules/themes/icons/tv/16.png;
+          cmd = "open_tv4 && nav_down && nav_right && nav_right && nav_center";
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
+        };
+        "17" = {
+          id = 17;
+          name = "TV4 Sport Live 4";
+          icon = ./../../modules/themes/icons/tv/17.png;
+          cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
+        };       
       };
     };
-  };
+    arris = {
+      enable = true;
+      room = "bedroom";
+      ip = "192.168.1.152"; 
+      apps = {
+        telenor = "se.telenor.stream/.MainActivity   ";
+        tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+      };
+      channels = {     
+        "1" = {
+          id = 1;
+          name = "SVT1";
+          icon = ./../../modules/themes/icons/tv/1.png;
+          scrape_url = "https://tv-tabla.se/tabla/svt1/";
+        };
+        "2" = {
+          id = 2; 
+          name = "SVT2";
+          icon = ./../../modules/themes/icons/tv/2.png;
+          scrape_url = "https://tv-tabla.se/tabla/svt2/";
+        };
+        "3" = {
+          id = 3;
+          name = "Kanal 3";
+          icon = ./../../modules/themes/icons/tv/3.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv3/";
+        };
+        "4" = {
+          id = 4;
+          name = "TV4";
+          icon = ./../../modules/themes/icons/tv/4.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv4/";
+        };
+        "5" = {
+          id = 5;
+          name = "TV5";
+          icon = ./../../modules/themes/icons/tv/5.png;
+          scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
+        };
+        "6" = {
+          id = 6;
+          name = "Kanal 6";
+          icon = ./../../modules/themes/icons/tv/6.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv6/";
+        };
+        "7" = {
+          id = 7;
+          name = "Sjuan";
+          icon = ./../../modules/themes/icons/tv/7.png;
+          scrape_url = "https://tv-tabla.se/tabla/sjuan/";
+        };
+        "8" = {
+          id = 8;
+          name = "TV8";
+          icon = ./../../modules/themes/icons/tv/8.png;          
+          scrape_url = "https://tv-tabla.se/tabla/tv8/";
+        };
+        "9" = {
+          id = 9;
+          name = "Kanal 9";
+          icon = ./../../modules/themes/icons/tv/9.png;          
+          scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
+        };
+        "10" = {
+          id = 10;
+          name = "Kanal 10";
+          icon = ./../../modules/themes/icons/tv/10.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv10/";
+        };
+        "11" = {
+          id = 11;
+          name = "Kanal 11";
+          icon = ./../../modules/themes/icons/tv/11.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv11/";
+        };
+        "12" = {
+          id = 12;
+          name = "Kanal 12";
+          icon = ./../../modules/themes/icons/tv/12.png;
+          scrape_url = "https://tv-tabla.se/tabla/tv12/";
+        };
+        "13" = {
+          id = 13;
+          name = "TV4 Hockey";
+          icon = ./../../modules/themes/icons/tv/13.png;
+          cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";          
+          scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
+        };        
+        "14" = {
+          id = 14;
+          name = "TV4 Sport Live 1";
+          icon = ./../../modules/themes/icons/tv/14.png;
+          cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";     
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
+        };
+        "15" = {
+          id = 15;
+          name = "TV4 Sport Live 2";
+          icon = ./../../modules/themes/icons/tv/15.png;
+          cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
+        };
+        "16" = {
+          id = 16;
+          name = "TV4 Sport Live 3";
+          icon = ./../../modules/themes/icons/tv/16.png;
+          cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
+        };
+        "17" = {
+          id = 17;
+          name = "TV 4 Sport Live 4";
+          icon = ./../../modules/themes/icons/tv/17.png;
+          cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
+          scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
+        };       
+      };
+    };
+  };  
    
   yo.scripts.tv = {
     description = "Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. Fully conttrollable.";
@@ -99,10 +303,15 @@ in {
       { name = "webserver"; description = "File containing webserver URL that stores media"; default = config.sops.secrets.webserver.path; }     
       { name = "defaultPlaylist"; description = "Default playlist path"; default = "/Pool/playlist.m3u"; }
       { name = "favoritesPlaylist"; description = "File path for Favouyrites tagged entries"; default = "/Pool/favorites.m3u"; }      
-      { name = "max_items"; description = "Set a maximum number of items in playlist"; default = "200"; }         
+      { name = "max_items"; description = "Set a maximum number of items in playlist"; default = "200"; }       
+      { name = "mqttUser"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
+      { name = "mqttPWFile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ];
-    code = ''    
+    code = ''
       ${cmdHelpers}
+      MQTT_BROKER="${mqttHostip}" && dt_debug "$MQTT_BROKER"
+      MQTT_USER="$mqttUser" && dt_debug "$MQTT_USER"
+      MQTT_PASSWORD=$(cat "$mqttPWFile")
       media_type="$typ"
       media_search="$search"
       DEVICE="$device"
@@ -121,7 +330,10 @@ in {
       FAVORITES_PATH="$favoritesPlaylist"
       FAVORITES="$WEBSERVER/favorites.m3u"
       INTRO_URL="$WEBSERVER/intro.mp4"
-
+      # 🦆 says ⮞ load TV devices & channels
+      CHANNELS_JSON="${channelsJson}"
+      TV_DEVICES_JSON=${tvDevicesJson}
+  
       declare -A SEARCH_FOLDERS=(
           [tv]="$TVDIR"
           [podcast]="$PODCASTDIR"
@@ -133,6 +345,12 @@ in {
           [song]="$MUSICDIR"          
           [othervideo]="$VIDEOSDIR"
       )
+      debug_navigation_step() {
+         local step="$1"
+         dt_debug "Navigation step: $step"
+         local current_activity=$(get_current_activity)
+         dt_debug "Current activity after '$step': $current_activity"
+      }
 
       control_device() {
         local device_ip="$1"
@@ -156,18 +374,60 @@ in {
           [nav_menu]="KEYCODE_MENU"
           [nav_recents]="KEYCODE_APP_SWITCH"       
         )
-        if [[ "$action" == "find_remote" ]]; then
-          adb -s "$device_ip" shell am start -a android.intent.action.VIEW -n com.nvidia.remotelocator/.ShieldRemoteLocatorActivity
-          return
-        fi
-        local key_event="''${key_events[$action]}"
-        if [[ -z "$key_event" ]]; then
-          echo "Unknown action: $action"
-          echo "Available actions: ''${!key_events[@]} find_remote"
-          return 1
-        fi
 
-        adb -s "$device_ip" shell input keyevent "$key_event"
+        # 🦆 says ⮞ get current activity
+        get_current_activity() {
+          adb -s "$device_ip" shell "dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | grep -oP '[^/]+/[^ ]+' | head -1" 2>/dev/null || echo ""
+        }
+
+        # 🦆 says ⮞ dynamic app opener from Nix config
+        open_app() {
+          local app_key="$1"
+          local current_activity=$(get_current_activity)
+          local target_activity=$(get_device_app_activity "$device_ip" "$app_key")    
+          if [[ -z "$target_activity" ]]; then
+            dt_error "App '$app_key' not found in device configuration"
+            return 1
+          fi
+          # 🦆 says ⮞ check if already running
+          if [[ "$current_activity" == "$target_activity" ]]; then
+            dt_debug "App $app_key is already the current activity: $current_activity"
+            return 0
+          fi
+
+          dt_debug "Opening app $app_key: $target_activity (current: $current_activity)"
+          adb -s "$device_ip" shell am start -n "$target_activity"
+          return $?
+        }
+
+        # 🦆 says ⮞ get app activity from device config
+        get_device_app_activity() {
+          local device_ip="$1"
+          local app_key="$2"
+          ${pkgs.jq}/bin/jq -r --arg ip "$device_ip" --arg app "$app_key" '
+            .[] | select(.ip == $ip) | .apps[$app] // empty
+          ' "$TV_DEVICES_JSON"
+        }
+
+        case "$action" in
+          find_remote)
+            adb -s "$device_ip" shell am start -a android.intent.action.VIEW -n com.nvidia.remotelocator/.ShieldRemoteLocatorActivity
+            ;;
+          open_*)
+            # 🦆 says ⮞ dynamic app opening - extract app key from action (open_tv4 -> tv4)
+            local app_key="''${action#open_}"
+            open_app "$app_key"
+            ;;
+          *)
+            local key_event="''${key_events[$action]}"
+            if [[ -z "$key_event" ]]; then
+              echo "Unknown action: $action"
+              echo "Available actions: ''${!key_events[@]} find_remote open_*"
+              return 1
+            fi
+            adb -s "$device_ip" shell input keyevent "$key_event"
+            ;;
+        esac
       }
 
       generate_playlist() {
@@ -176,7 +436,6 @@ in {
           local base_dir="''${SEARCH_FOLDERS[$media_type]}"
           local folder_name="''${base_dir##*/}"
           local relative_path="''${dir#$base_dir/}"
-
           echo "#EXTM3U" > "$PLAYLIST_SAVE_PATH"
           echo "$INTRO_URL" >> "$PLAYLIST_SAVE_PATH"
     
@@ -247,9 +506,7 @@ in {
               fi
           fi
       }
-                
-
-  
+                  
       template_single_path() {
           local path="$1"
           local media_type="$2"
@@ -315,6 +572,7 @@ in {
               dt_error "Failed to start YouTube on device ''${device_ip}"
           fi          
       }
+      
       # 🦆 says ⮞ search 4 youtube video yo
       search_youtube() {
           local query="$1"
@@ -347,6 +605,208 @@ in {
           echo "$title"
           return 0
       }
+
+      # 🦆 says ⮞ get channel info for a specific device
+      get_channel_info() {
+          local device_ip="$1"
+          local channel_id="$2"
+          ${pkgs.jq}/bin/jq -r --arg ip "$device_ip" --arg id "$channel_id" '
+              .[] | select(.ip == $ip) | .channels[$id] // empty | 
+              {id: $id, name: .name, cmd: (.cmd // ""), stream_url: (.stream_url // "")}
+          ' "$TV_DEVICES_JSON"
+      }
+
+      # 🦆 says ⮞ get device channels 
+      get_device_channels() {
+        local device_ip="$1"
+        ${pkgs.jq}/bin/jq -r --arg ip "$device_ip" '
+          .[] | select(.ip == $ip) | .channels | keys[]?
+        ' "$TV_DEVICES_JSON"
+      }
+
+      # 🦆 says ⮞ play live TV
+      verify_channel_change() {
+          local device_ip="$1"
+          local expected_channel="$2"
+          local max_wait=15
+          local wait_time=0    
+          dt_debug "Verifying channel change to $expected_channel..." 
+          while (( wait_time < max_wait )); do
+              # 🦆 says ⮞ method 1 check current TV input state
+              local tv_state=$(adb -s "$device_ip" shell "dumpsys tv_input | grep -i 'current' 2>/dev/null" || true)
+              if [[ -n "$tv_state" ]]; then
+                  dt_debug "TV input state: $tv_state"
+              fi   
+              # 🦆 says ⮞ method 2 check media session for channel info
+              local media_info=$(adb -s "$device_ip" shell "dumpsys media_session | grep -i -A5 -B5 'channel\|title' 2>/dev/null" | head -20 || true)
+              if [[ -n "$media_info" ]] && echo "$media_info" | grep -q -i "channel.*$expected_channel\|$expected_channel"; then
+                  dt_debug "Channel change verified via media session"
+                  return 0
+              fi      
+              # 🦆 says ⮞ method 3 check for specific app activities
+              local current_app=$(adb -s "$device_ip" shell "dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' 2>/dev/null" || true)
+              if [[ -n "$current_app" ]] && echo "$current_app" | grep -q -i "telenor\|tv4\|live.tv"; then
+                  dt_debug "TV app is active: $current_app"
+              fi        
+              # 🦆 says ⮞ method 4 take screenshot and check for channel indicators
+              if (( wait_time > 5 )); then
+                  check_screenshot_for_channel "$device_ip" "$expected_channel" && return 0
+              fi   
+              sleep 2
+              ((wait_time+=2))
+          done   
+          dt_debug "Channel verification timeout, proceeding anyway"
+          return 0
+      }
+
+      check_screenshot_for_channel() {
+          local device_ip="$1"
+          local expected_channel="$2"
+          return 0
+          # 🦆 TODO ⮞ logic....
+      }   
+            
+      publish_channel_state() {
+          local device_ip="$1"
+          local channel_id="$2"
+          local channel_name="$3"    
+          local topic="zigbee2mqtt/tv/''${device_ip}/channel"
+          local payload="{\"channel_id\":\"$channel_id\",\"channel_name\":\"$channel_name\",\"timestamp\":\"$(date -Iseconds)\"}"
+          mqtt_pub -t "$topic" -m "$payload"
+          dt_debug "Published channel state: $channel_name ($channel_id) on $device_ip"
+      }
+  
+      # 🦆 says ⮞ play live TV    
+      start_channel() {
+          local device_ip="$1"
+          local channel_id="$2"
+          dt_debug "Using start_channel function for channel $channel_id on $device_ip"
+          # 🦆 says ⮞ ensure ADB connection
+          adb connect "$device_ip" >/dev/null 2>&1
+          sleep 0.5
+          # 🦆 says ⮞ clear any existing input first
+          adb -s "$device_ip" shell input keyevent KEYCODE_CLEAR
+          sleep 0.3   
+          # 🦆 says ⮞ type each digit separately with better timing
+          for (( i=0; i<''${#channel_id}; i++ )); do
+              digit="''${channel_id:$i:1}"
+              dt_debug "Inputting digit: $digit"
+              adb -s "$device_ip" shell "input text \"$digit\""
+              sleep 0.3  # 🦆 says ⮞ increased delay for reliability
+          done  
+          sleep 1.5    
+          # 🦆 says ⮞ send ENTER twice for redundancy
+          adb -s "$device_ip" shell "input keyevent KEYCODE_ENTER"
+          sleep 0.5
+          # adb -s "$device_ip" shell "input keyevent KEYCODE_ENTER"   
+          dt_debug "Channel $channel_id input completed"
+      }
+
+      play_livetv_channel() {
+          local device_ip="$1"
+          local channel_id="$2"
+          local channel_info=$(get_channel_info "$device_ip" "$channel_id")
+          local channel_name=$(echo "$channel_info" | jq -r '.name')
+          local channel_cmd=$(echo "$channel_info" | jq -r '.cmd')
+          local stream_url=$(echo "$channel_info" | jq -r '.stream_url')
+          dt_debug "Playing channel $channel_id: $channel_name on $device_ip"
+          dt_debug "Channel cmd: $channel_cmd, stream_url: $stream_url"
+          yo say "Spelar kanal $channel_id, $channel_name"
+          # 🦆 says ⮞ ensure device is on and connected
+          control_device "$device_ip" power_on
+          sleep 5
+          # 🦆 says ⮞ get current activity once at the start
+          get_current_activity() {
+              adb -s "$device_ip" shell "dumpsys window windows | grep -E 'mCurrentFocus|mFocusedApp' | grep -oP '[^/]+/[^ ]+' | head -1" 2>/dev/null || echo ""
+          }    
+          local current_activity=$(get_current_activity)
+          dt_debug "Current activity: $current_activity"
+          # 🦆 says ⮞ check if app is already active
+          is_app_active() {
+              local app_key="$1"
+              local target_activity=$(get_device_app_activity "$device_ip" "$app_key")
+              if [[ -n "$target_activity" && "$current_activity" == "$target_activity" ]]; then
+                  dt_debug "App $app_key is already active: $current_activity"
+                  return 0
+              fi
+              return 1
+          }
+
+          # 🦆 says ⮞ custom command sequence if defined
+          if [[ -n "$channel_cmd" && "$channel_cmd" != "null" ]]; then
+              dt_debug "Using custom channel command: $channel_cmd"
+              # 🦆 says ⮞ split command by && and execute each part
+              IFS='&&' read -ra commands <<< "$channel_cmd"
+              local skip_next_open=false        
+              for cmd in "''${commands[@]}"; do
+                  trimmed_cmd=$(echo "$cmd" | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
+                  if [[ -n "$trimmed_cmd" ]]; then
+                      # 🦆 says ⮞ check if we should skip this open command
+                      if [[ "$skip_next_open" == true && "$trimmed_cmd" =~ ^open_ ]]; then
+                          dt_debug "Skipping $trimmed_cmd - app already active"
+                          skip_next_open=false
+                          continue
+                      fi          
+                      # 🦆 says ⮞ if wait - plx be chillin' yo
+                      if [[ "$trimmed_cmd" =~ ^wait[[:space:]]+([0-9]+)$ ]]; then
+                          local wait_seconds="''${BASH_REMATCH[1]}"
+                          dt_debug "Waiting $wait_seconds seconds"
+                          sleep "$wait_seconds"     
+                      # 🦆 says ⮞ handle start_channel_X commands
+                      elif [[ "$trimmed_cmd" =~ ^start_channel_([0-9]+)$ ]]; then
+                          local target_channel="''${BASH_REMATCH[1]}"
+                          dt_debug "Starting channel $target_channel via start_channel function"    
+                          # 🦆 says ⮞ extra wait before channel input for app readiness
+                          sleep 3
+                          start_channel "$device_ip" "$target_channel"
+                          sleep 2       
+                      # 🦆 says ⮞ handle open_* commands with activity check
+                      elif [[ "$trimmed_cmd" =~ ^open_([a-zA-Z0-9_]+)$ ]]; then
+                          local app_key="''${BASH_REMATCH[1]}"
+                          if is_app_active "$app_key"; then
+                              dt_debug "App $app_key already active, skipping open command"
+                              skip_next_open=true
+                          else
+                              dt_debug "Executing: $trimmed_cmd"
+                              debug_navigation_step "$trimmed_cmd"
+                              control_device "$device_ip" "$trimmed_cmd"
+                              sleep 2
+                              current_activity=$(get_current_activity)
+                          fi
+                
+                      else
+                          # 🦆 says ⮞ use friendly command names dawg
+                          dt_debug "Executing: $trimmed_cmd"
+                          control_device "$device_ip" "$trimmed_cmd"
+                          sleep 2
+                          if [[ "$trimmed_cmd" =~ ^nav_ ]]; then
+                              current_activity=$(get_current_activity)
+                          fi
+                      fi
+                  fi
+              done
+    
+          # 🦆 says ⮞ if set, use stream URL
+          elif [[ -n "$stream_url" && "$stream_url" != "null" ]]; then
+              dt_debug "Using stream URL: $stream_url"
+              adb -s "$device_ip" shell "am start -a android.intent.action.VIEW -d \"$stream_url\""
+    
+          else
+              # 🦆 says ⮞ default channel behavior - input channel number
+              dt_debug "Using default channel behavior for $channel_id"
+              # 🦆 says ⮞ type each digit separately for better reliability
+              for (( i=0; i<''${#channel_id}; i++ )); do
+                  digit="''${channel_id:$i:1}"
+                  adb -s "$device_ip" shell "input text \"$digit\""
+                  sleep 0.2
+              done
+              sleep 1
+              adb -s "$device_ip" shell "input keyevent KEYCODE_ENTER"
+          fi
+    
+          # verify_channel_change "$device_ip" "$channel_id"
+          publish_channel_state "$device_ip" "$channel_id" "$channel_name"
+      }
           
       # 🦆 says ⮞ handle different media types
       matched_media=""
@@ -360,6 +820,7 @@ in {
             audiobook) search_dir="$AUDIOBOOKDIR" ;;
             musicvideo) search_dir="$MUSICVIDEODIR" ;;
             music) search_dir="$MUSICDIR" ;;
+            livetv) search_dir="$MUSICDIR" ;;            
           esac
           
           dt_debug "Searching in $search_dir for $media_search"
@@ -374,8 +835,7 @@ in {
           
           for item in "''${items[@]}"; do
               normalized_item=$(normalize_string "$item")
-              [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue
-              
+              [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
               tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
               lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
               combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
@@ -390,6 +850,7 @@ in {
           if (( best_score >= 30 )); then
               matched_media="$best_match"
               case "$media_type" in
+              livetv)   type_desc="Live TV channels" ;;
               tv)       type_desc="TV-serien" ;;
               movie)    type_desc="filmen" ;;
               music)    type_desc="musik artisten" ;;
@@ -512,10 +973,42 @@ in {
           fi
           exit 0
           ;; 
-        livetv) # 🦆 says ⮞ TODO handle live tv channels properly
-          matched_media="$media_type"
-          yo say "Aktiverar $media_type"
-          ;; 
+        livetv) 
+            device_channels=$(get_device_channels "$DEVICE")
+            channel_id=""
+    
+            if [[ -n "$media_search" ]]; then
+                if [[ "$media_search" =~ ^[0-9]+$ ]] && echo "$device_channels" | grep -q "$media_search"; then
+                    channel_id="$media_search"
+                else
+                    # 🦆 says ⮞ fuzzy search channel names available on this device
+                    normalized_search=$(normalize_string "$media_search")
+                    for id in $device_channels; do
+                        channel_info=$(get_channel_info "$DEVICE" "$id")
+                        channel_name=$(echo "$channel_info" | jq -r '.name')
+                        normalized_name=$(normalize_string "$channel_name") 
+                        if [[ "$normalized_name" == *"$normalized_search"* ]]; then
+                            channel_id="$id"
+                            break
+                        fi
+                    done
+                fi
+
+                if [ -n "$channel_id" ]; then
+                    play_livetv_channel "$DEVICE" "$channel_id"
+                    channel_info=$(get_channel_info "$DEVICE" "$channel_id")
+                    channel_name=$(echo "$channel_info" | jq -r '.name')
+                    # 🦆 says ⮞ show & tell what's playing on that channel
+                    yo tv-guide --channel "$channel_id"
+                else
+                    dt_error "Kanal hittades inte eller är inte tillgänglig på denna TV: $media_search"
+                    yo say "Kanalen $media_search kunde inte hittas på denna TV"
+                fi
+            else
+                # 🦆 says ⮞ if no channel specified, show TV guide
+                yo tv-guide
+            fi
+        ;; 
         nav_up) # 🦆 says ⮞ navigate up     
           dt_debug "Navigating up"
           control_device "$DEVICE" nav_up
@@ -587,14 +1080,13 @@ in {
           dt_debug "FULL_PATH is: $FULL_PATH"
           generate_playlist "$FULL_PATH" "$media_type"
           start_playlist "$DEVICE"
-      else
-          dt_error "Unknown media type: $media_type"
+
       fi
     '';
-    voice = {
-        priority = 1;
+    voice = { # 🦆 says ⮞ low priority = faser execution? wtf
+        priority = 1; # 🦆 says ⮞ 1 to 5
         sentences = [
-          # 🦆 says ⮞ devices control sentences
+          # 🦆 says ⮞ non default device control
           "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
           "jag vill se {typ} {search} i {device}"    
           "jag vill lyssna på {typ} i {device}"
@@ -614,9 +1106,10 @@ in {
           # 🦆 says ⮞ find remote
           "ring {typ}"
           "hitta {typ}"            
-        ];    
-        lists = {
-          typ.values = [
+        ]; # 🦆 says ⮞ lists are in word > out word
+        lists = { # swap 🦆 says ⮞ long list incomin' yo 
+          typ.values = [          
+          # 🦆 says ⮞ media 
             { "in" = "[serie|serien|tvserien|tv-serien]"; out = "tv"; }
             { "in" = "[pod|podd|podcost|poddan|podden|podcast]"; out = "podcast"; }
             { "in" = "[slump|slumpa|random|musik|mix|shuffle]"; out = "jukebox"; }
@@ -626,38 +1119,50 @@ in {
             { "in" = "[ljudbok|ljudboken]"; out = "audiobook"; }
             { "in" = "video"; out = "othervideo"; }
             { "in" = "[musicvideo|musikvideo]"; out = "musicvideo"; }
-            { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "favorites"; }
             { "in" = "[kanal|kanalen|kannal]"; out = "livetv"; }
-            { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }
+            { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }     
+            { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }               
+          # 🦆 says ⮞ heart currently playing            
+            { "in" = "[spellista|spellistan|spel lista|spel listan]"; out = "favorites"; }
+          # 🦆 says ⮞ playback            
             { "in" = "[paus|pause|pausa|tyst|tysta|mute|stop]"; out = "pause"; }
             { "in" = "[play|fortsätt|okej]"; out = "play"; }
             { "in" = "[öj|höj|höjj|öka|hej]"; out = "up"; }
             { "in" = "[sänk|sänkt|ner|ned]"; out = "down"; }
             { "in" = "[näst|nästa|nästan|next|fram|framåt]"; out = "next"; }
             { "in" = "[förr|förra|föregående|backa|bakåt]"; out = "previous"; }
+          # 🦆 says ⮞ add to playlist                        
             { "in" = "[spara|add|adda|addera|lägg till]"; out = "add"; }
             { "in" = "[favorit|favoriter|bästa]"; out = "add"; }
-            { "in" = "[news|nyhet|nyheter|nyheterna|senaste nytt]"; out = "news"; }   
-            { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "call"; }   
+          # 🦆 says ⮞ on/off           
             { "in" = "[av|stäng av]"; out = "off"; }            
-            { "in" = "på"; out = "on"; }        
-          ];
+            { "in" = "på"; out = "on"; }      
+          # 🦆 says ⮞ calls remote                        
+            { "in" = "[fjärren|fjärrkontroll|fjärrkontrollen]"; out = "call"; }               
+          ]; # 🦆 says ⮞ search can be anything            
           search.wildcard = true;
+          # 🦆 says ⮞ hardcoded device names
           device.values = [
             { "in" = "[sovrum|sovrummet|bedroom]"; out = "192.168.1.152"; }
             { "in" = "[vardagsrum|vardagsrummet|livingroom]"; out = "192.168.1.223"; }              
-          ];  
+          ]; # 🦆 says ⮞ or use device name from Nix config          
+          # device.values = let
+          #   devices = lib.attrValues config.house.tv;
+          # in map (device: {
+          #   "in" = "[${device.room}|${lib.head (lib.splitString "." device.ip)}]"; 
+          #   out = device.ip; 
+          # }) devices;
         };
     };
   };
     
   sops.secrets = {
-    webserver = { 
+    webserver = { # 🦆 says ⮞ https required
       sopsFile = ../../secrets/webserver.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440";
-    };
+    }; # 🦆 says ⮞ required for youtube
     youtube_api_key = { 
       sopsFile = ../../secrets/youtube.yaml;
       owner = config.this.user.me.name;
