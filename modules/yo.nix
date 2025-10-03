@@ -42,7 +42,11 @@ let
       nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config..yo.scripts --json \
         | jq '[.[] | select(.voice? and .voice.sentences?)] | length'
     }
-    
+
+    # 🦆 duck say ⮞ Get script counts
+    total_scripts=$(count_bin)
+    voice_scripts=$(count_voice)    
+
     # 🦆 duck say ⮞ nix > json > nix lol
     json2nix() {
       nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config."$1" --json | jq -r -f <(cat <<'JQ'
@@ -324,6 +328,10 @@ EOF
       | sed -e '1s/^{/{/' -e 's/;;/;/g' -e '/^$/d'
       echo '```'
     )    
+
+    STATS_BLOCK=$(
+      echo "- __$total_scripts in /bin"
+    )
      
     # 🦆 duck say ⮞ Update version badges
     sed -i -E \
@@ -342,11 +350,15 @@ EOF
         -v host="$HOST_BLOCK" \
         -v user="$USER_BLOCK" \
         -v theme="$THEME_BLOCK" \
+        -v stats="$STATS_BLOCK" \
         -v smart="$SMART_HOME_BLOCK" \
         '
       BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; in_smart=0; printed=0 }
+
       /<!-- YO_DOCS_START -->/ { in_docs=1; print; print docs; next }
       /<!-- YO_DOCS_END -->/ { in_docs=0; print; next }
+      /<!-- SCRIPT_STATS_START -->/ { in_stats=1; print; print stats; next }
+      /<!-- SCRIPT_STATS_END -->/ { in_stats=0; print; next }
       /<!-- HOST_START -->/ { in_host=1; print; print host; next }
       /<!-- HOST_END -->/ { in_host=0; print; next }
       /<!-- THEME_START -->/ { in_theme=1; print; print theme; next }
