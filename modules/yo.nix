@@ -330,8 +330,8 @@ EOF
     )    
 
     STATS_BLOCK=$(
-      echo "- __$total_scripts in /bin"
-    )
+      echo "- __$total_scripts qwacktastic scripts in /bin__ <br>"
+    ) 
      
     # 🦆 duck say ⮞ Update version badges
     sed -i -E \
@@ -353,7 +353,7 @@ EOF
         -v stats="$STATS_BLOCK" \
         -v smart="$SMART_HOME_BLOCK" \
         '
-      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; in_smart=0; printed=0 }
+      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; in_stats=0; in_smart=0; printed=0 }
 
       /<!-- YO_DOCS_START -->/ { in_docs=1; print; print docs; next }
       /<!-- YO_DOCS_END -->/ { in_docs=0; print; next }
@@ -371,7 +371,7 @@ EOF
       /<!-- TREE_END -->/ { in_tree=0; print; next }
       /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
       /<!-- FLAKE_END -->/ { in_flake=0; print; next }
-      !in_docs && !in_tree && !in_theme && !in_flake && !in_smart && !in_host && !in_user { print }
+      !in_docs && !in_tree && !in_theme && !in_flake && !in_smart && !in_stats && !in_host && !in_user { print }
       ' "$README_PATH" > "$tmpfile"  
 
     # 🦆 duck say ⮞ Diff check
