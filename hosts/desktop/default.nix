@@ -8,6 +8,19 @@
 } : { 
 
 
+    services.atd.enable = true; 
+    #services.atd.allowEveryone = true;
+  #  users.users.at = {
+  #    description = "at daemon user";
+  #    home = "/var/spool/cron/atjobs";
+    # createHome = true;
+   #   group = "at";
+      #uid = 25;
+    #  isSystemUser = true;
+    #};
+
+    #users.groups.at = {};
+    
     networking.firewall.allowedTCPPorts = [ 8111 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
@@ -15,7 +28,7 @@
         loader = {
             systemd-boot.enable = true;
             efi.canTouchEfiVariables = true;
-        };    
+        };   
         initrd = {
             availableKernelModules = [ "xhci_pci" "ahci" "nvme" "usbhid" "usb_storage" "sd_mod" ];
             kernelModules = [ ];

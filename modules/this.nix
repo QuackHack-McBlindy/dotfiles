@@ -37,7 +37,7 @@ in {
                         };
                         extraGroups = mkOption {
                             type = types.listOf types.str;
-                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
+                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "at" ]; 
                             description = "Extra groups for main user";
                         };
                         repo = mkOption {

@@ -103,11 +103,18 @@
     { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }
+    # 🦆 duck say ⮞ forums
+    { Title = "Hacker News"; URL = "https://news.ycombinator.com"; Placement = "toolbar"; }
+    { Title = "NixOS Discourse"; URL = "https://discourse.nixos.org"; Placement = "toolbar"; }
+    { Title = "Lobsters"; URL = "https://lobste.rs"; Placement = "toolbar"; }   
+    # 🦆 duck say ⮞ mail
     { Title = ""; URL = "https://account.proton.me/login"; Favicon = "https://proton.me/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.outlook.com"; Favicon = "https://outlook.live.com/owa/favicon.ico"; Placement = "toolbar"; }
+    # 🦆 duck say ⮞ other links    
     { Title = ""; URL = "https://www.github.com"; Favicon = "https://github.githubassets.com/favicons/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.pastebin.org"; Favicon = "https://pastebin.com/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; } 
+    # 🦆 duck say ⮞ servarr
     { Title = "Transmission"; URL = "http://${arrHostIP}:9091"; Favicon = "http://${arrHostIP}:9091/favicon.ico"; Placement = "toolbar"; }    
     { Title = "Radarr"; URL = "http://${arrHostIP}:7878"; Favicon = "http://${arrHostIP}:7878/favicon.ico"; Placement = "toolbar"; }
     { Title = "Sonarr"; URL = "http://${arrHostIP}:8989"; Favicon = "http://${arrHostIP}:8989/favicon.ico"; Placement = "toolbar"; }
