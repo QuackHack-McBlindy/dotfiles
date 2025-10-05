@@ -7,20 +7,6 @@
   ...
 } : { 
 
-
-    services.atd.enable = true; 
-    #services.atd.allowEveryone = true;
-  #  users.users.at = {
-  #    description = "at daemon user";
-  #    home = "/var/spool/cron/atjobs";
-    # createHome = true;
-   #   group = "at";
-      #uid = 25;
-    #  isSystemUser = true;
-    #};
-
-    #users.groups.at = {};
-    
     networking.firewall.allowedTCPPorts = [ 8111 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
@@ -91,7 +77,7 @@
                 hardware = [ "cpu/intel" "gpu/amd" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "adb" "backup" "cache" "keyd" "jelly" "duck-tv" ];
+                services = [ "ssh" "default" "adb" "backup" "cache" "keyd" "jelly" "duck-tv" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo

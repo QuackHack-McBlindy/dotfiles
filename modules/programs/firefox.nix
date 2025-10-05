@@ -290,6 +290,9 @@ in {
         "devtools.theme" = "dark";
         "mousewheel.min_line_scroll_amount" = 4;
         "privacy.purge_trackers.enabled" = true;
+        "privacy.resistFingerprinting" = true;
+        "privacy.trackingprotection.enabled" = true;
+        "privacy.trackingprotection.socialtracking.enabled" = true;
         "services.sync.prefs.sync.browser.uiCustomization.state" = true;
         "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
         "browser.download.dir" = "/home/${config.this.user.me.name}/Downloads";

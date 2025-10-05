@@ -330,7 +330,7 @@ EOF
     )    
 
     STATS_BLOCK=$(
-      echo "- __$total_scripts qwacktastic scripts in /bin__ <br>"
+      echo "- __$total_scripts qwacktastic scripts in /bin__"
     ) 
      
     # 🦆 duck say ⮞ Update version badges

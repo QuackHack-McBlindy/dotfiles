@@ -653,11 +653,25 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
             fi
           done
           total_boundary=''${#boundary_cases[@]}
-        }  
+        }
+        
+        for f in "$MATCHER_DIR"/*.sh; do
+            [[ -f "$f" ]] && source "$f"
+        done
+
+        passed_positive=0
+        total_positive=0
+        passed_negative=0
+        total_negative=0
+        passed_boundary=0
+        failures=()
+        
         test_positive_cases
-        test_negative_cases
+        test_negative_cases  
         test_boundary_cases
         
+
+  
         # 🦆 says ⮞ calculate
         total_tests=$((total_positive + total_negative + total_boundary))
         passed_tests=$((passed_positive + passed_negative + passed_boundary))

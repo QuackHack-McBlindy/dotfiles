@@ -20,13 +20,14 @@
           echo "Show - Displays a interactive calendar, use the arrow keys to move around and see your calendar events."
           echo "Add - Add a calendar event."
           echo "Remove - Removes a calendar event""
-          echo "List - Displays a simple list of all upcoming events within 7 days."
+          echo "Upcoming - Displays a simple list of all upcoming events within 7 days."
+          echo "List - All calendar entries shown in a list"
           echo "## ──────⋆⋅☆⋅⋆────── ##"
      
         '';
         parameters = [
           { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; }
-          { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = "/home/pungkula/calendar1.ics,/home/pungkula/calendar2.ics,https;//mydomain.org/calendar.ics"; }       
+          { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/dotfiles/home/allsvenskan.ics"; }       
         ];
         code = ''
           ${cmdHelpers}
@@ -34,6 +35,54 @@
           IFS=',' read -ra ICS_FILES <<< "$calenders"
           TEMP_DIR=$(mktemp -d)
           trap 'rm -rf "$TEMP_DIR"' EXIT
+
+          list_calendar_events() {
+            for file in "''${ICS_FILES[@]}"; do
+              [[ -f "$file" ]] && \
+              awk '
+                BEGIN {RS = "BEGIN:VEVENT"; FS = "\n"}
+                /DTSTART;VALUE=DATE/ {
+                  for(i = 1; i <= NF; i++) {
+                    if($i ~ /^DTSTART;VALUE=DATE/) {
+                      split($i, dt, ":")
+                      date = dt[2]
+                      formatted_date = substr(date,1,4) "-" substr(date,5,2) "-" substr(date,7,2)
+                    }
+                    if($i ~ /^SUMMARY/) {
+                      summary = substr($i, index($i, ":") + 1)
+                      printf "%-12s %s\n", formatted_date, summary
+                    }
+                  }
+                }' "$file"
+            done | sort
+          }
+
+          show_upcoming() {
+            local today=$(date +%Y%m%d)
+            local next_week=$(date -d "+7 days" +%Y%m%d)
+  
+            for file in "''${ICS_FILES[@]}"; do
+              [[ -f "$file" ]] && \
+              awk -v today="$today" -v next_week="$next_week" '
+                BEGIN {RS = "BEGIN:VEVENT"; FS = "\n"}
+                /DTSTART;VALUE=DATE/ {
+                  for(i = 1; i <= NF; i++) {
+                    if($i ~ /^DTSTART;VALUE=DATE/) {
+                      split($i, dt, ":")
+                      date = dt[2]
+                      if(date >= today && date <= next_week) {
+                        formatted_date = substr(date,1,4) "-" substr(date,5,2) "-" substr(date,7,2)
+                      }
+                    }
+                    if($i ~ /^SUMMARY/ && formatted_date != "") {
+                      summary = substr($i, index($i, ":") + 1)
+                      printf "%-12s %s\n", formatted_date, summary
+                    }
+                  }
+                  formatted_date = ""
+                }' "$file"
+            done | sort
+          }
           
           downloaded_files=()
           for i in "''${!ICS_FILES[@]}"; do
@@ -230,6 +279,32 @@
               echo "Event removed: $date_str - $desc"
             }
 
+
+
+
+
+            validate_date() {
+              local date="$1"
+              if ! date -d "$date" >/dev/null 2>&1; then
+                dt_error "Error: Invalid date format: $date. Use YYYY-MM-DD"
+                return 1
+              fi
+              return 0
+            }
+
+            validate_ics_file() {
+              local file="$1"
+              if [[ ! -f "$file" ]]; then
+                dt_error "Error: Calendar file not found: $file"
+                return 1
+              fi
+              if ! grep -q "BEGIN:VCALENDAR" "$file"; then
+                dt_error "Error: Not a valid ICS file: $file"
+                return 1
+              fi
+              return 0
+            }
+
             rebuild_ics() {
               for file in "''${ICS_FILES[@]}"; do
                 cp "$file" "$file.bak"
@@ -289,7 +364,10 @@
               show_calendar
               ;;
             list)
-              echo "TOOD Implement simple list of all events in upcoming 7 days"
+              list_calendar_events
+              ;;
+            upcoming)
+              show_upcoming
               ;;
             add)
               if [[ $# -lt 2 ]]; then
