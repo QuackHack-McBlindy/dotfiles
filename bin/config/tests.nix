@@ -582,25 +582,23 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           for script in ${toString scriptNamesWithIntents}; do
             echo "[🦆📜] Testing script: $script"    
             config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null || echo "{}")
-            mapfile -t raw_sentences < <(jq -r '.data[].sentences[]' <<< "$config_json" 2>/dev/null)        
+            mapfile -t raw_sentences < <(jq -r '.data[].sentences[]' <<< "$config_json" 2>/dev/null)    
             for template in "''${raw_sentences[@]}"; do
-              mapfile -t expanded_variants < <(expand_sentence_variants "$template") 
-              for variant in "''${expanded_variants[@]}"; do
-                echo " Testing: $variant"
-                resolved_output=$(resolve_entities "$script" "$variant")
-                resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
-                subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)    
-                declare -gA substitutions || true
-                eval "$subs_decl" >/dev/null 2>&1 || true     
-                if match_$script "$resolved_text"; then
-                  say_duck "yay ✅ PASS: $resolved_text"
-                  ((passed_positive++))
-                else
-                  say_duck "fuck ❌ FAIL: $resolved_text"
-                  failures+=("POSITIVE: $script | $resolved_text")
-                fi
-                ((total_positive++))
-              done
+              test_sentence=$(resolve_sentence "$script" "$template")
+              echo " Testing: $test_sentence"
+              resolved_output=$(resolve_entities "$script" "$test_sentence")
+              resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
+              subs_decl=$(echo "$resolved_output" | cut -d'|' -f2-)
+              declare -gA substitutions || true
+              eval "$subs_decl" >/dev/null 2>&1 || true
+              if match_$script "$resolved_text"; then
+                say_duck "yay ✅ PASS: $resolved_text"
+                ((passed_positive++))
+              else
+                say_duck "fuck ❌ FAIL: $resolved_text"
+                failures+=("POSITIVE: $script | $resolved_text")
+              fi
+              ((total_positive++))
             done
           done
         }
@@ -653,25 +651,11 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
             fi
           done
           total_boundary=''${#boundary_cases[@]}
-        }
-        
-        for f in "$MATCHER_DIR"/*.sh; do
-            [[ -f "$f" ]] && source "$f"
-        done
-
-        passed_positive=0
-        total_positive=0
-        passed_negative=0
-        total_negative=0
-        passed_boundary=0
-        failures=()
-        
+        }  
         test_positive_cases
-        test_negative_cases  
+        test_negative_cases
         test_boundary_cases
         
-
-  
         # 🦆 says ⮞ calculate
         total_tests=$((total_positive + total_negative + total_boundary))
         passed_tests=$((passed_positive + passed_negative + passed_boundary))

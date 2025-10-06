@@ -1,5 +1,5 @@
 # dotfiles/modules/networking/wg-server.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ A duckz dynamic approach to configuring a WireGuard™ server
+{ # 🦆 duck say ⮞ A duckz dynamic approach to configuring a WireGuard™ server declaratively
   config,
   lib,
   pkgs,
@@ -87,7 +87,7 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
     # 🦆 says ⮞ secret readin' before yo! 
     systemd.services.wireguard-wg0.after = [ "sops-nix.service" ];
 
-    # 🦆 says ⮞ systemd service dat generates fun random colored QR codez for mobile devicez yo
+    # 🦆 says ⮞ systemd service dat generates random colored quacky QR codez for mobile devicez yo
     systemd.services.generate-wg-qr = (let
       qrDependencies = with pkgs; [ qrencode imagemagick ];
       path = lib.makeBinPath ([ pkgs.coreutils pkgs.gnused ] ++ qrDependencies);
