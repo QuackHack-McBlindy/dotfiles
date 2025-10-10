@@ -1,8 +1,11 @@
 # dotfiles/bin/network/speed.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ self, config, pkgs, cmdHelpers, ... }:
-{  
-
-
+{ 
+  self,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : {  
   yo.scripts.speed = {
     description = "Test internet download speed";
     category = "🌐 Networking";
@@ -71,19 +74,14 @@
         }
       ' "$SPEED_FILE"
     '';
-  };
-  
-  yo.bitch = {    
-    intents = {
-      speed = {
-        data = [{
-          sentences = [
-            "nätverks test"
-            "network speedtest"
-          ];
-        }];
-      };
-    };    
-    
+    voice = {
+      enabled = true;
+      priority = 5;
+      sentences = [
+        "nätverks test"
+        "hur fort går internet"
+        "testa internet hastigheten"
+      ];
+    };
 
   };}

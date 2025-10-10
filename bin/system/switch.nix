@@ -41,26 +41,14 @@
             exit 1
           fi 
         '';
-      };
-    };
-    
-    
-    yo.bitch = { 
-      intents = {
-        switch = {
-          data = [{
-            sentences = [
-              "rebuild system"    
-              "bygg om systemet"
-            ];
-            lists = {
-             # mode.values = [
-                # Direct matches
-               # { "in" = "on"; out = "on"; }
-          #    ];
-            };
-          }];
+        voice = {
+          enabled = true;
+          priority = 5;
+          sentences = [
+            "bygg om systemet"
+          ];        
         };
       };
+        
       
     };}

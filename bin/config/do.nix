@@ -27,8 +27,7 @@
   # 🦆 says ⮞ only scripts with voice enabled and non-null voice config
   scriptsWithVoice = lib.filterAttrs (_: script: 
     script.voice != null && (script.voice.enabled or true)
-  ) config.yo.scripts;
-  
+  ) config.yo.scripts;  
   
   # 🦆 says ⮞ generate intents
   generatedIntents = lib.mapAttrs (name: script: {
@@ -324,30 +323,34 @@
     lib.concatMapStringsSep "\n" (m: "source ${m.value}") matchers
   );
 
-  # 🦆 says ⮞ helpFooter for yo.bitch script
+  # 🦆 says ⮞ helpFooter for yo. script
   helpFooterMd = let
     scriptBlocks = lib.concatMapStrings (scriptName:
-      let # 🦆 says ⮞ we just da intentz in da help yo
+      let 
         intent = generatedIntents.${scriptName} or null;
-        sentencesList = if intent != null then
-          lib.flatten (map (d: d.sentences or []) intent.data)
-        else
-          []; # 🦆 says ⮞ no sentence - no help
-        # 🦆 says ⮞ expand optional bracket syntax for da help view
-        expandedSentences = lib.flatten (map expandOptionalWords sentencesList);
-        sentencesMd = if expandedSentences == [] then
-          "- (no sentences defined)\n"
-        else # 🦆 says ⮞ letz put dem sentencez in markdown nao
-          lib.concatMapStrings (sentence: "- ${lib.escapeShellArg sentence}\n") expandedSentences;
+        # 🦆 says ⮞ quack plx no expanded variantz - too big for tiny duck
+        patterns = if intent != null then
+          lib.concatLists (map (d: d.sentences or []) intent.data)
+        else []; # 🦆 says ⮞ no sentence - no help
+        patternsMd = if patterns == [] then
+          "- (no patterns defined)\n"
+        else 
+          # 🦆 says ⮞ show da pattern representation yo
+          lib.concatMapStrings (pattern: "- `${pattern}`\n") patterns;
       in '' 
-        ## 🦆 ⮞ **yo ${scriptName}**
-        ${sentencesMd}
-      '' # 🦆 says ⮞ datz all yo sentencez yo
+        # 🦆 ⮞ **yo ${scriptName}**
+        ${patternsMd}
+      '' # 🦆 says ⮞ datz all yo patternz yo
     ) scriptNamesWithIntents;
-  in '' # 🦆 says ⮞ nailin' a title for da help command 
-    ## 🦆 ⮞ **Available Voice Commands**
-    Trigger with: **yo bitch!**
-    ${scriptBlocks}
+  in ''
+    # 🦆 ⮞ **Available Voice Patterns**
+    *Use brackets for optional words:* `[ ]` → words inside can appear or be skipped  
+    Example: `hello [can|be|omitted] world` → matches `hello world`, `hello can world`, etc.
+
+    *Use parentheses for required words:* `( )` → one word inside must be chosen  
+    Example: `(choose|pick) one of the words` → matches `choose one of the words` or `pick one of the words`
+
+    ${scriptBlocks} 
   ''; # 🦆 says ⮞ we cat diz later yo
 
   # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo iz diz cachin'? - no more nix evaluatin' lettin' jq takin' over
@@ -443,12 +446,13 @@
   
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
+# 🦆 says ⮞ add pattern count attributes to each script
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
       aliases = [ "d" ];
       category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
-      logLevel = "WARNING";
+      logLevel = "DEBUG";
       autoStart = false;
       parameters = [
         { name = "input"; description = "Text to parse into a yo command"; optional = false; }
@@ -456,7 +460,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       ]; 
       # 🦆 says ⮞ run yo bitch --help to display all defined voice commands
       helpFooter = ''
-        WIDTH=$(tput cols) # 🦆 duck say ⮞ Auto detect width
+        WIDTH=$(tput cols) # 🦆 duck say ⮞ auto detect width
         cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
 ${helpFooterMd}
 EOF

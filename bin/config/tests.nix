@@ -7,8 +7,7 @@
   sysHosts,
   cmdHelpers,
   ...
-} : let # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
-#  intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.generatedIntents";
+} : let
   # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
   scripts = config.yo.scripts; 
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
@@ -24,7 +23,6 @@
 
   scriptsWithVoice = lib.filterAttrs (_: script: script.voice != null) config.yo.scripts;
   
-  # Generate intents directly from script voice config
   generatedIntents = lib.mapAttrs (name: script: {
     priority = script.voice.priority or 3;
     data = [{
@@ -345,7 +343,7 @@
   ''; # 🦆 says ⮞ we cat diz later yo
 
   # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo iz diz cachin'? - no more nix evaluatin' lettin' jq takin' over
-  intentDataFile = pkgs.writeText "intent-entity-map4.json" # 🦆 says ⮞ change name to force rebuild of file
+  intentDataFile = pkgs.writeText "intent-entity-map6.json" # 🦆 says ⮞ change name to force rebuild of file
     (builtins.toJSON ( # 🦆 says ⮞ packin' all our knowledges into a JSON duck-pond for bash to swim in!
       lib.mapAttrs (_scriptName: intentList:
         let
@@ -438,12 +436,12 @@
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack      
-    # 🦆 says ⮞ automatic bitchin' sentencin' testin'
+    # 🦆 says ⮞ automatic doin' sentencin' testin'
     tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
       description = "Extensive automated sentence testing for the NLP"; 
       category = "⚙️ Configuration";
       autoStart = false;
-      logLevel = "DEBUG";
+      logLevel = "INFO";
       parameters = [{ name = "input"; description = "Text to test as a single  sentence test"; optional = true; }];       
       code = ''    
         set +u  
@@ -457,15 +455,20 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         total_negative=0
         passed_boundary=0
         failures=()     
+        
         resolve_sentence() {
           local script="$1"
           config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null)
           [ -z "$config_json" ] && config_json="{}"          
           local sentence="$2"    
+          dt_debug "Raw config for $script: $(echo "$config_json" | jq -c . 2>/dev/null || echo "invalid JSON")"
           local parameters # 🦆 says ⮞ first replace parameters to avoid conflictz wit regex processin' yo
           parameters=($(grep -oP '{\K[^}]+' <<< "$sentence"))          
           for param in "''${parameters[@]}"; do
-            is_wildcard=$(jq -r --arg param "$param" '.data[0].lists[$param].wildcard // "false"' <<< "$config_json" 2>/dev/null)
+            dt_debug "Processing parameter: $param"
+            list_exists=$(echo "$config_json" | jq -r --arg param "$param" '.lists | has($param)')
+            dt_debug "List $param exists: $list_exists"
+            is_wildcard=$(jq -r --arg param "$param" '.lists[$param].wildcard // "false"' <<< "$config_json" 2>/dev/null)
             local replacement=""
             if [[ "$is_wildcard" == "true" ]]; then
               # 🦆 says ⮞ use da context valuez
@@ -477,7 +480,9 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
                 replacement="test" # 🦆 says ⮞ generic test value
               fi
             else
-              mapfile -t outs < <(jq -r --arg param "$param" '.data[0].lists[$param].values[].out' <<< "$config_json" 2>/dev/null)
+              mapfile -t outs < <(jq -r --arg param "$param" '.lists[$param].values[].out' <<< "$config_json" 2>/dev/null)
+              dt_debug "Found ''${#outs[@]} values for $param: ''${outs[*]}"
+      
               if [[ ''${#outs[@]} -gt 0 ]]; then
                 replacement="''${outs[0]}"
               else
@@ -580,9 +585,19 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         ${lib.concatMapStrings (name: makePatternMatcher name) scriptNamesWithIntents}  
         test_positive_cases() {
           for script in ${toString scriptNamesWithIntents}; do
-            echo "[🦆📜] Testing script: $script"    
+            echo "[🦆📜] Testing script: $script"
+
+            dt_info "intent_base_path=$intent_base_path"
+            dt_info "nix eval path=$intent_base_path.$script"
+
             config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null || echo "{}")
-            mapfile -t raw_sentences < <(jq -r '.data[].sentences[]' <<< "$config_json" 2>/dev/null)    
+
+            dt_info "config_json=$(echo "$config_json" | jq length 2>/dev/null)"
+            dt_info "config_json keys=$(echo "$config_json" | jq 'keys' 2>/dev/null)"
+
+            mapfile -t raw_sentences < <(jq -r ".\"$script\".sentences[]?" "$intent_data_file" 2>/dev/null)
+
+            dt_debug "found ''${#raw_sentences[@]} sentences for $script"
             for template in "''${raw_sentences[@]}"; do
               test_sentence=$(resolve_sentence "$script" "$template")
               echo " Testing: $test_sentence"
@@ -663,11 +678,11 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         
         # 🦆 says ⮞ colorize based on percentage
         if [ "$percent" -ge 80 ]; then 
-            color="$GREEN" && duck_report="YO! ⭐ duck approoves! u reallzy knowz ur stuff! u makin' duckie happy"
+            color="$GREEN" && duck_report="⭐"
         elif [ "$percent" -ge 60 ]; then 
-            color="$YELLOW" && duck_report="not too bad! u ok buddy"
+            color="$YELLOW" && duck_report="🟢"
         else 
-            color="$RED" && duck_report="sad duck.... 😭 u should reallzy look over yo sentences and mayb i can stop cry =("
+            color="$RED" && duck_report="😭"
         fi
         
         # 🦆 says ⮞ display failed tests report

@@ -36,16 +36,25 @@ let
     count_bin() {
       nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts --json | jq 'keys | length'
     }
-
     # 🦆 duck say ⮞ count scripts with sentences defined
     count_voice() {
-      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config..yo.scripts --json \
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts --json \
         | jq '[.[] | select(.voice? and .voice.sentences?)] | length'
     }
+    # 🦆 duck say ⮞ count generated patterns
+    count_patterns() {
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.generatedPatterns
+    }
+    # 🦆 duck say ⮞ count generated patterns
+    count_phrases() {
+      nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.understandsPhrases
+    }    
 
     # 🦆 duck say ⮞ Get script counts
     total_scripts=$(count_bin)
     voice_scripts=$(count_voice)    
+    total_patterns=$(count_patterns)
+    total_phrases=$(count_phrases)
 
     # 🦆 duck say ⮞ nix > json > nix lol
     json2nix() {
@@ -330,7 +339,8 @@ EOF
     )    
 
     STATS_BLOCK=$(
-      echo "- __$total_scripts qwacktastic scripts in /bin__"
+      echo "- __$total_scripts qwacktastic scripts in /bin - $voice_scripts scripts have voice commands.__ <br>"
+      echo "- __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>"            
     ) 
      
     # 🦆 duck say ⮞ Update version badges
@@ -468,6 +478,18 @@ EOF
         type = types.listOf types.str;
         default = [];
         description = "Alternative command names for this script";
+      }; # 🦆 duck say ⮞ read-only option dat showz da number of generated regex patternz
+      voicePatterns = mkOption {
+        type = types.int;
+        internal = true;
+        readOnly = true;
+        description = "Number of regex patterns generated for this script's voice commands";      
+      }; # 🦆 duck say ⮞ phrase coverage for this script
+      voicePhrases = mkOption {
+        type = types.int;
+        internal = true;
+        readOnly = true;
+        description = "Theoretical number of unique spoken phrases this script can understand";   
       }; # 🦆 duck say ⮞ parameter options for the yo script we writin' 
       parameters = mkOption {
         type = types.listOf (types.submodule {
@@ -536,7 +558,7 @@ EOF
         });
         default = null;
         description = "Voice command configuration for this script";
-      };
+      }; # 🦆 duck say ⮞ read-only option dat showz if da script haz voice
       voiceReady = mkOption {
         type = types.bool;
         internal = true;
@@ -568,6 +590,9 @@ EOF
         script.voice.sentences != [] &&
         script.voice.sentences != null
       );
+      # 🦆 duck say ⮞ set script counterz
+      voicePatterns = mkDefault (countGeneratedPatterns script);
+      voicePhrases = mkDefault (countUnderstoodPhrases script);
     };
   });
   cfg = config.yo;
@@ -576,7 +601,14 @@ EOF
   yoScriptsPackage = pkgs.symlinkJoin {
     name = "yo-scripts"; # 🦆 duck say ⮞ map over yo scripts and gen dem shell scriptz wrapperz!!
     paths = mapAttrsToList (name: script:
-      let
+      let # 🦆 duck say ⮞ compile help sentences at build time
+        voiceSentencesHelp = if script.voice != null && script.voice.sentences != [] then
+          let
+            sentencesMarkdown = lib.concatMapStrings (sentence: "- \"${escapeMD sentence}\"\n") script.voice.sentences;
+          in
+            "## Voice Commands\n\n${sentencesMarkdown}"
+        else "";
+      
         # 🦆 duck say ⮞ generate a string for da CLI usage optional parameters [--like] diz yo
         param_usage = lib.concatMapStringsSep " " (param:
           if param.optional
@@ -584,6 +616,7 @@ EOF
           else "--${param.name}" # 🦆 duck say ⮞ otherz paramz shown az iz yo
         # 🦆 duck say ⮞ filter out da special flagz from standard usage 
         ) (lib.filter (p: !builtins.elem p.name ["!" "?"]) script.parameters);
+        
         # 🦆 duck say ⮞ diz iz where da magic'z at yo! trust da duck yo 
         scriptContent = ''
           #!${pkgs.runtimeShell}
@@ -592,6 +625,7 @@ EOF
           export LC_NUMERIC=C
           start=$(date +%s.%N)
 #          trap 'end=$(date +%s.%N); elapsed=$(echo "$end - $start" | bc); printf "[🦆⏱] Total time: %.3f seconds\n" "$elapsed"' EXIT
+          # 🦆 duck say ⮞ duckTrace log setup
           export DT_LOG_PATH="$HOME/.config/duckTrace/"
           mkdir -p "$DT_LOG_PATH"   
           export DT_LOG_FILE="${name}.log" # 🦆 duck say ⮞ duck tracin' be namin' da log file for da ran script
@@ -627,19 +661,26 @@ EOF
             case "$1" in
               --help|-h) # 🦆 duck say ⮞ if  u needz help call `--help` or `-h`
                 width=$(tput cols 2>/dev/null || echo 100) # 🦆 duck say ⮞ get terminal width for formatin' - fallin' back to 100
-                help_footer=$(${script.helpFooter}) # 🦆 duck say ⮞ dynamically generatez da helpFooter if ya defined it yo
+                help_footer=$(${script.helpFooter}) # 🦆 duck say ⮞ dynamically generatez da helpFooter if ya defined it yo   
+                # 🦆 duck say ⮞ script haz paramz?
+                usage_suffix=""
+                if [[ -n "${toString (script.parameters != [])}" ]]; then
+                  usage_suffix=" [OPTIONS]"
+                fi
+                
                 cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" - # 🦆 duck say ⮞ renderin' da cool & duckified CLI docz usin' Markdown & Glow yo 
-## 🚀🦆 ${escapeMD script.name} Command
-**Usage:** \`yo ${escapeMD script.name}\` ${lib.optionalString (script.parameters != []) "\\\n  ${param_usage}"}
-
+# 🚀🦆 yo ${escapeMD script.name}
+**Usage:** \`yo ${escapeMD script.name}''${usage_suffix}\`
 ${script.description}
 ${lib.optionalString (script.parameters != []) ''
-### Parameters
-${lib.concatStringsSep "\n" (map (param: ''
-- `--${escapeMD param.name}` ${lib.optionalString param.optional "(optional)"} ${lib.optionalString (param.default != null) "(default: ${escapeMD param.default})"}  
-  ${param.description}
+## Parameters
+${lib.concatStringsSep "\n\n" (map (param: ''
+**\`--${param.name}\`**  
+${param.description}  
+${lib.optionalString param.optional "*(optional)*"} ${lib.optionalString (param.default != null) "*(default: ${param.default})*"}
 '') script.parameters)}
 ''}
+${voiceSentencesHelp}
 
 $help_footer
 EOF
@@ -746,7 +787,6 @@ EOF
     "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
   else "";
 
-
   # 🦆 duck say ⮞ build scripts for da --help command
   terminalScriptsTableFile = pkgs.writeText "yo-helptext.md" terminalScriptsTable;
   # 🦆 duck say ⮞ markdown help text
@@ -802,7 +842,7 @@ EOF
     visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
     groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
     sortedCategories = lib.sort (a: b: 
-      # 🦆 duck say ⮞ system management goes first yo
+      # 🦆 duck wants ⮞ system management to be listed first yo
       if a == "🖥️ System Management" then true
       else if b == "🖥️ System Management" then false
       else a < b # 🦆 duck say ⮞ after dat everything else quack quack
@@ -882,6 +922,137 @@ EOF
 
   in concatStringsSep "\n" rows;
 
+  # 🦆 duck say ⮞ count GENERATED regex patterns (the ~800 count)
+  countGeneratedPatterns = script:
+    if script.voice == null then
+      0
+    else
+      let # 🦆 duck say ⮞ expand sentence variants with optional wordz
+        expandedSentences = lib.concatMap expandOptionalWords script.voice.sentences;
+      in
+        lib.length expandedSentences;
+  
+  # 🦆 duck say ⮞ count phrase coverage  
+  countUnderstoodPhrases = script:
+    if script.voice == null then
+      0
+    else
+      let # 🦆 duck say ⮞ expand sentence variants with optional wordz
+        expandedSentences = lib.concatMap expandOptionalWords script.voice.sentences;   
+        # 🦆 duck say ⮞ extract parameter names from sentences
+        extractParamNames = sentence:
+          let # 🦆 duck say ⮞ split by { to find parameters
+            parts = lib.splitString "{" sentence;
+            paramNames = lib.concatMap (part:
+              let
+                paramPart = lib.splitString "}" part;
+              in
+                if lib.length paramPart > 1 then
+                  [ (lib.elemAt paramPart 0) ]
+                else
+                  []
+            ) (lib.tail parts); # Skip the first part (before first {)
+          in
+            paramNames; 
+        # 🦆 duck say ⮞ count parameter combinations for each expanded sentence
+        countPhrasesForSentence = sentence:
+          let
+            paramNames = extractParamNames sentence;
+          in
+            if paramNames == [] then
+              1
+            else
+              let # 🦆 duck say ⮞ count possible values for each parameter
+                paramValueCounts = map (paramName:
+                  let
+                    list = script.voice.lists.${paramName} or null;
+                  in
+                    if list == null then 1
+                    else lib.length list.values
+                ) paramNames;           
+                # 🦆 duck say ⮞ multiply counts for all parameters
+                totalCombinations = lib.foldl (a: b: a * b) 1 paramValueCounts;
+              in
+                totalCombinations; 
+        # 🦆 duck say ⮞ sum phrases across all expanded sentences
+        totalPhrases = lib.foldl (total: sentence:
+          total + countPhrasesForSentence sentence
+        ) 0 expandedSentences;
+      in
+        totalPhrases;
+  
+  # 🦆 duck say ⮞ count generated patterns
+  countTotalGeneratedPatterns = scripts:
+    lib.foldl (total: script: 
+      total + countGeneratedPatterns script
+    ) 0 (lib.attrValues scripts);
+  
+  # 🦆 duck say ⮞ count phrases across all scriptz  
+  countTotalUnderstoodPhrases = scripts:
+    lib.foldl (total: script: 
+      total + countUnderstoodPhrases script
+    ) 0 (lib.attrValues scripts);
+  
+  # 🦆 duck say ⮞ quack! da duck take a list of listz and duck make all da possible combinationz
+  cartesianProductOfLists = lists:
+    # 🦆 duck say ⮞ if da listz iz empty .. 
+    if lists == [] then
+      [ [] ] # 🦆 duck say ⮞ .. i gib u empty listz of listz yo got it?
+    else # 🦆 duck say ⮞ ELSE WAT?!
+      let # 🦆 duck say ⮞ sorry.. i gib u first list here u go yo
+        head = builtins.head lists;
+        # 🦆 duck say ⮞ remaining listz for u here u go bro!
+        tail = builtins.tail lists;
+        # 🦆 duck say ⮞ calculate combinations for my tail - yo calc wher u at?!
+        tailProduct = cartesianProductOfLists tail;
+      in # 🦆 duck say ⮞ for everyy x in da listz ..
+        lib.concatMap (x:
+          # 🦆 duck say ⮞ .. letz combinez wit every tail combinationz ..  
+          map (y: [x] ++ y) tailProduct
+        ) head; # 🦆 duck say ⮞ dang! datz a DUCK COMBO alright!
+  
+  # 🦆 duck say ⮞ here i duckie help yo out! makin' yo life eazy sleazy' wen declarative sentence yo typin'    
+  expandOptionalWords = sentence: # 🦆 duck say ⮞ qucik & simple sentences we quacky & hacky expandin'
+    let # 🦆 duck say ⮞ CHOP CHOP! Rest in lil' Pieceez bigg sentence!!1     
+      tokens = lib.splitString " " sentence;      
+      # 🦆 duck say ⮞ definin' dem wordz in da (braces) taggin' dem' wordz az (ALTERNATIVES) lettin' u choose one of dem wen triggerin' 
+      isRequiredGroup = t: lib.hasPrefix "(" t && lib.hasSuffix ")" t;
+      # 🦆 duck say ⮞ puttin' sentence wordz in da [bracket] makin' em' [OPTIONAL] when bitchin' u don't have to be pickin' woooho 
+      isOptionalGroup = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;   
+      expandToken = token: # 🦆 duck say ⮞ dis gets all da real wordz out of one token (yo!)
+        if isRequiredGroup token then
+          let # 🦆 duck say ⮞ thnx 4 lettin' ducklin' be cleanin' - i'll be removin' dem "()" 
+            clean = lib.removePrefix "(" (lib.removeSuffix ")" token);
+            alternatives = lib.splitString "|" clean; # 🦆 duck say ⮞ use "|" to split (alternative|wordz) yo 
+          in  # 🦆 duck say ⮞ dat's dat 4 dem alternativez
+            alternatives
+        else if isOptionalGroup token then
+          let # 🦆 duck say ⮞ here we be goin' again - u dirty and i'll be cleanin' dem "[]"
+            clean = lib.removePrefix "[" (lib.removeSuffix "]" token);
+            alternatives = lib.splitString "|" clean; # 🦆 duck say ⮞ i'll be stealin' dat "|" from u 
+          in # 🦆 duck say ⮞ u know wat? optional means we include blank too!
+            alternatives ++ [ "" ]
+        else # 🦆 duck say ⮞ else i be returnin' raw token for yo
+          [ token ];      
+      # 🦆 duck say ⮞ now i gib u generatin' all dem combinationz yo
+      expanded = cartesianProductOfLists (map expandToken tokens);      
+      # 🦆 duck say ⮞ clean up if too much space, smush back into stringz for ya
+      trimmedVariants = map (tokenList:
+        let # 🦆 duck say ⮞ join with spaces then trim them suckers
+          raw = lib.concatStringsSep " " tokenList;
+          # 🦆 duck say ⮞ remove ALL extra spaces
+          cleaned = lib.replaceStrings ["  "] [" "] (lib.strings.trim raw);
+        in # 🦆 duck say ⮞ wow now they be shinin'
+          cleaned 
+      ) expanded; # 🦆 duck say ⮞ and they be multiplyyin'!      
+      # 🦆 duck say ⮞ throwin' out da empty and cursed ones yo
+      nonEmpty = lib.filter (s: s != "") trimmedVariants;
+      hasFixedText = v: builtins.match ".*[^\\{].*" v != null; # 🦆 duck say ⮞ no no no, no nullin'
+      validVariants = lib.filter hasFixedText nonEmpty;
+    in # 🦆 duck say ⮞ returnin' all unique variantz of da sentences – holy duck dat'z fresh 
+      lib.unique validVariants;
+  
+
 
 in { # 🦆 duck say ⮞ options options duck duck
   options = { # 🦆 duck say ⮞ 
@@ -895,53 +1066,27 @@ in { # 🦆 duck say ⮞ options options duck duck
         type = types.attrsOf scriptType;
         default = {};
         description = "Attribute set of scripts to be made available";
-      }; # 🦆 duck say ⮞ intent options
-      bitch = {
-        intents = mkOption {
-          type = types.attrsOf (types.submodule {
-            options = {
-              # 🦆 duck say ⮞ DUCK LOVE SPEEEd YO - PRIORITZE SCRIPTS REDUCE RUNTIME latency yo (1=high, 5=low)
-              priority = mkOption {
-                type = types.ints.between 1 5;
-                default = 3;
-                description = "Processing priority (1=highest, 5=lowest)";
-              };          
-              data = mkOption {
-                type = types.listOf (types.submodule {
-                  options.sentences = mkOption { # 🦆 duck say ⮞ intent sentences
-                    type = types.listOf types.str;
-                    default = [];
-                    description = "Sentence patterns for intent matching";
-                  }; # 🦆 duck say ⮞ entity lists definitiion
-                  options.lists = mkOption {
-                    type = types.attrsOf (types.submodule {
-                      options.wildcard = mkOption { # 🦆 duck say ⮞ wildcard matches everything
-                        type = types.bool;
-                        default = false;
-                        description = "Whether this list accepts free-form text";
-                      }; # 🦆 duck say ⮞ "in" values becomes ⮞ "out" values
-                      options.values = mkOption {
-                        type = types.listOf (types.submodule {
-                          options."in" = mkOption { type = types.str; };
-                          options.out = mkOption { type = types.str; };
-                        });
-                        default = [];
-                      };
-                    });
-                    default = {};
-                  };
-                });
-              };  
-            };
-          });
-          default = {};
-        };
+      }; # 🦆 duck say ⮞ generated regex patterns count
+      generatedPatterns = mkOption {
+        type = types.int;
+        readOnly = true;
+        description = "Number of regex patterns generated at build time";
+      }; # 🦆 duck say ⮞ count nlp phrases understood  
+      understandsPhrases = mkOption {
+        type = types.int;
+        readOnly = true;
+        description = "Theoretical number of unique spoken phrases the system can understand";
       };
     };
   };  
+  
   # 🦆 ⮞ CONFIG  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
   config = {  # 🦆 duck say ⮞ expose diz module and all yo.scripts as a package  
     yo.pkgs = yoScriptsPackage; # 🦆 duck say ⮞ reference as: ${config.pkgs.yo}/bin/yo-<name>
+    # 🦆 duck say ⮞ set global counterz
+    yo.generatedPatterns = countTotalGeneratedPatterns cfg.scripts;
+    yo.understandsPhrases = countTotalUnderstoodPhrases cfg.scripts;
+    
     assertions = let # 🦆 ⮞ safety first
       scripts = cfg.scripts;
       scriptNames = attrNames scripts;      
@@ -1033,7 +1178,7 @@ in { # 🦆 duck say ⮞ options options duck duck
           cat <<EOF | ${pkgs.glow}/bin/glow --width $width -
         ## ──────⋆⋅☆☆☆⋅⋆────── ##
         ## 🦆🚀 **yo CLI** 🦆🦆 
-        ## ──────⋆⋅☆☆☆⋅⋆────── ##
+        ## 🦆 duck say ⮞ quack! i help with scripts yo
         **Usage:** \`yo <command> [arguments]\`
         ## ──────⋆⋅☆☆☆⋅⋆────── ##
         ## 🦆✨ Available Commands
@@ -1044,7 +1189,7 @@ in { # 🦆 duck say ⮞ options options duck duck
         ## ──────⋆⋅☆☆☆⋅⋆────── ##
         ## 🦆❓ Detailed Help
         For specific command help: \`yo <command> --help\`
-        \`yo bitch --help\` will list all defined voice intents.
+        \`yo do --help\` will list all defined voice intents.
         \`yo zigduck --help\` will display a battery status report for your deevices.
         🦆🦆
         EOF

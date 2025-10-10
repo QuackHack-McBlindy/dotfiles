@@ -16,7 +16,7 @@ in { # 🦆 says ⮞ yo yo yo yo
     logLevel = "WARNING";
     parameters = [ # 🦆 says ⮞ server api configuration goez here yo
       { name = "text"; description = "Input text that should be spoken"; optional = false; }      
-      { name = "model"; description = "File name of the model"; default = "sv_SE-lisa-medium.onnx"; } 
+      { name = "model"; description = "File name of the model"; default = "sv_SE-lisa-medium.onnx"; } # 🦆 says ⮞ lisa sounds hot - bet she likez ducks
       { name = "modelDir"; description = "Path to the directory containing model"; default = "/home/" + config.this.user.me.name + "/.local/share/piper"; }
       { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
       { name = "host"; description = "Host to play the audio on"; default = "desktop"; }       
