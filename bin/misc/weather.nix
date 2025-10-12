@@ -244,8 +244,7 @@ in {
       # 🦆 says ⮞ check for specific condition
       check_condition() {
         local condition="$1"
-        local offset="$2"
-        
+        local offset="$2"     
         local day_data=$(jq --argjson offset "$offset" \
           '.weather[$offset] | {
             mintempC: .mintempC,
@@ -391,9 +390,9 @@ in {
           # 🌬️ Windy
           { "in" = "[blåsigt|vind|vindigt]"; out = "windy"; }
           # 🌡️ Heat / Warm
-          { "in" = "[varmt|hett|värme]"; out = "hot"; }
+          { "in" = "[varmt|hett|värme]"; out = "varmt"; }
           # ❄️ Cold
-          { "in" = "[kallt|kyla|frost]"; out = "cold"; } 
+          { "in" = "[kallt|kyla|frost]"; out = "kallt"; }
         ];  
       };
     };

@@ -466,9 +466,9 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           parameters=($(grep -oP '{\K[^}]+' <<< "$sentence"))          
           for param in "''${parameters[@]}"; do
             dt_debug "Processing parameter: $param"
-            list_exists=$(echo "$config_json" | jq -r --arg param "$param" '.lists | has($param)')
+            list_exists=$(echo "$config_json" | jq -r --arg param "$param" '.voice.lists | has($param)')
             dt_debug "List $param exists: $list_exists"
-            is_wildcard=$(jq -r --arg param "$param" '.lists[$param].wildcard // "false"' <<< "$config_json" 2>/dev/null)
+            is_wildcard=$(jq -r --arg param "$param" '.voice.lists[$param].wildcard // "false"' <<< "$config_json" 2>/dev/null)
             local replacement=""
             if [[ "$is_wildcard" == "true" ]]; then
               # 🦆 says ⮞ use da context valuez
@@ -480,7 +480,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
                 replacement="test" # 🦆 says ⮞ generic test value
               fi
             else
-              mapfile -t outs < <(jq -r --arg param "$param" '.lists[$param].values[].out' <<< "$config_json" 2>/dev/null)
+              mapfile -t outs < <(jq -r --arg param "$param" '.voice.lists[$param].values[].out' <<< "$config_json" 2>/dev/null)
               dt_debug "Found ''${#outs[@]} values for $param: ''${outs[*]}"
       
               if [[ ''${#outs[@]} -gt 0 ]]; then
@@ -586,14 +586,9 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         test_positive_cases() {
           for script in ${toString scriptNamesWithIntents}; do
             echo "[🦆📜] Testing script: $script"
-
-            dt_info "intent_base_path=$intent_base_path"
-            dt_info "nix eval path=$intent_base_path.$script"
-
+            dt_debug "intent_base_path=$intent_base_path" && dt_debug "nix eval path=$intent_base_path.$script"
             config_json=$(nix eval "$intent_base_path.$script" --json 2>/dev/null || echo "{}")
-
-            dt_info "config_json=$(echo "$config_json" | jq length 2>/dev/null)"
-            dt_info "config_json keys=$(echo "$config_json" | jq 'keys' 2>/dev/null)"
+            dt_debug "config_json=$(echo "$config_json" | jq length 2>/dev/null)" && dt_debug "config_json keys=$(echo "$config_json" | jq 'keys' 2>/dev/null)"
 
             mapfile -t raw_sentences < <(jq -r ".\"$script\".sentences[]?" "$intent_data_file" 2>/dev/null)
 

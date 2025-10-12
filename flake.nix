@@ -1,6 +1,6 @@
 # dotfiles/flake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 {
-    description = "❄️🦆 ⮞ QuackHack-McBLindy's big dot of flakyfiles with extra quackz.";
+    description = "❄️🦆 ⮞ QuackHack-McBLindy's NixOS flake";
     inputs = {
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";

@@ -1,5 +1,5 @@
 # dotfiles/modules/yo.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ custom CLI framework for executing scripts   
+{ # 🦆 duck say ⮞ CLI framework - centralized script handling
   config,
   lib,       
   pkgs,   
@@ -384,7 +384,7 @@ EOF
       !in_docs && !in_tree && !in_theme && !in_flake && !in_smart && !in_stats && !in_host && !in_user { print }
       ' "$README_PATH" > "$tmpfile"  
 
-    # 🦆 duck say ⮞ Diff check
+    # 🦆 duck say ⮞ diff check
     if ! cmp -s "$tmpfile" "$README_PATH"; then
       echo "🦆 duck say > Changes detected, updating README.md"
       if ! install -m 644 "$tmpfile" "$README_PATH"; then
@@ -415,11 +415,20 @@ EOF
   # 🦆 duck say ⮞ expoort param into shell script
   yoEnvGenVar = script: let
     withDefaults = builtins.filter (p: p.default != null) script.parameters;
-    exports = map (p: "export ${p.name}=${lib.escapeShellArg p.default}") withDefaults;
+    exports = map (p: 
+      let # 🦆 duck say ⮞ convert dem Nix types 2 shell strings
+        defaultValue = 
+          if p.type == "string" then lib.escapeShellArg (toString p.default)
+          else if p.type == "int" then toString p.default
+          else if p.type == "bool" then (if p.default then "true" else "false")
+          else if p.type == "path" then lib.escapeShellArg (toString p.default)
+          else lib.escapeShellArg (toString p.default);
+      in
+        "export ${p.name}=${defaultValue}"
+    ) withDefaults;
   in lib.concatStringsSep "\n" exports;
-#  scriptType = types.submodule ({ name, ... }: {
-  scriptType = types.submodule ({ name, configFinal, ... }: {  
 
+  scriptType = types.submodule ({ name, configFinal, ... }: {   
 # 🦆 ⮞ OPTIONS 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
     options = { # 🦆 duck say ⮞ a name cool'd be cool right?
       name = mkOption {
@@ -497,7 +506,12 @@ EOF
             name = mkOption { type = types.str; };
             description = mkOption { type = types.str; };
             default = mkOption {
-              type = types.nullOr types.str;
+              type = types.nullOr (types.oneOf [
+                types.str
+                types.int
+                types.bool
+                types.path
+              ]);
               default = null;
               description = "Default value if parameter is not provided";
             }; # 🦆 duck say ⮞ i likez diz option - highly useful
@@ -507,9 +521,9 @@ EOF
               description = "Whether this parameter can be omitted";
             }; # 🦆 duck say ⮞ diz makez da param sleazy eazy to validate yo 
             type = mkOption {
-              type = types.enum ["string" "int" "path"];
+              type = types.enum ["string" "int" "path" "bool"];
               default = "string";
-              description = "Type of parameter. Use path for filepath int for numbers and string (default) for all others";
+              description = "Type of parameter. Use path for filepath int for numbers, bool for true/false flags, and string (default) for all others";
             };
           };
         });
@@ -656,7 +670,7 @@ EOF
           VERBOSE=$VERBOSE
           DRY_RUN=$DRY_RUN
           
-          # 🦆 duck say ⮞ Parse all parameters
+          # 🦆 duck say ⮞ parse all parameters
           while [[ $# -gt 0 ]]; do
             case "$1" in
               --help|-h) # 🦆 duck say ⮞ if  u needz help call `--help` or `-h`
@@ -677,7 +691,13 @@ ${lib.optionalString (script.parameters != []) ''
 ${lib.concatStringsSep "\n\n" (map (param: ''
 **\`--${param.name}\`**  
 ${param.description}  
-${lib.optionalString param.optional "*(optional)*"} ${lib.optionalString (param.default != null) "*(default: ${param.default})*"}
+${lib.optionalString param.optional "*(optional)*"} ${lib.optionalString (param.default != null) (let
+  defaultText = 
+    if param.type == "bool" then 
+      (if param.default then "true" else "false")
+    else 
+      (toString param.default);
+in "*(default: ${defaultText})*")}
 '') script.parameters)}
 ''}
 ${voiceSentencesHelp}
@@ -687,14 +707,28 @@ EOF
                 exit 0
                 ;;
               --*) # 🦆 duck say ⮞ parse named paramz like: "--duck"
-                param_name=''${1##--} 
+                param_name=''${1##--}
                 # 🦆 duck say ⮞ let'z check if diz param existz in da scriptz defined parameterz
-                if [[ " ${concatMapStringsSep " " (p: p.name) script.parameters} " =~ " $param_name " ]]; then
-                  PARAMS["$param_name"]="$2" # 🦆 duck say ⮞ assignz da value
-                  shift 2
-                else # 🦆 duck say ⮞ unknown param? duck say fuck
-                  echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ $1\033[0m Unknown parameter: $1"
-                  exit 1
+                if [[ " ${concatMapStringsSep " " (p: 
+                      if p.type == "bool" then p.name else ""
+                    ) script.parameters} " =~ " $param_name " ]]; then
+                  # 🦆 duck say ⮞ boolean flag - presence means true, but also allow explicit true/false
+                  if [[ $# -gt 1 && ( "$2" == "true" || "$2" == "false" ) ]]; then
+                    PARAMS["$param_name"]="$2"
+                    shift 2
+                  else
+                    PARAMS["$param_name"]="true"
+                    shift 1
+                  fi
+                else
+                  # 🦆 duck say ⮞ regular param expects value
+                  if [[ " ${concatMapStringsSep " " (p: p.name) script.parameters} " =~ " $param_name " ]]; then
+                    PARAMS["$param_name"]="$2" # 🦆 duck say ⮞ assignz da value
+                    shift 2
+                  else # 🦆 duck say ⮞ unknown param? duck say fuck
+                    echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ $1\033[0m Unknown parameter: $1"
+                    exit 1
+                  fi
                 fi
                 ;;
               *) # 🦆 duck say ⮞ none of the above matchez? i guezz itz a positional param yo
@@ -742,16 +776,41 @@ EOF
                       exit 1
                     fi
                     ;;
+                  bool)
+                    if ! [[ "''${${param.name}}" =~ ^(true|false)$ ]]; then
+                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${param.name} must be true or false\033[0m" >&2
+                      exit 1
+                    fi
+                    ;;
                 esac
               fi
             ''
           ) script.parameters)}
 
-          # 🦆 duck say ⮞ apply defaultz for paramz if missin'
+          # 🦆 duck say ⮞ boolean defaults - false if not provided
+          ${concatStringsSep "\n" (map (param: 
+            optionalString (param.type == "bool" && param.default != null) ''
+              if [[ -z "''${${param.name}:-}" ]]; then
+                ${param.name}=${if param.default then "true" else "false"}
+              fi
+            '') script.parameters)}
+
+
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.default != null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
-                ${param.name}='${param.default}'
+                ${param.name}=${
+                  if param.type == "string" then 
+                    "'${lib.escapeShellArg (toString param.default)}'" 
+                  else if param.type == "int" then
+                    "${toString param.default}"
+                  else if param.type == "bool" then
+                    (if param.default then "true" else "false")
+                  else if param.type == "path" then
+                    "'${lib.escapeShellArg (toString param.default)}'"
+                  else
+                    "'${lib.escapeShellArg (toString param.default)}'"
+                }
               fi
             '') script.parameters)}
             
@@ -862,15 +921,13 @@ EOF
             # 🦆 duck say ⮞ format list of aliases
 #            aliasList = if script.aliases != [] then
 #              concatStringsSep ", " (map escapeMD script.aliases)
-#            else "";
-            
+#            else "";          
             # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
 #            paramHint = concatStringsSep " " (map (param:
 #              if param.optional || param.default != null
 #              then "[--${param.name}]"
 #              else "--${param.name}"
-#            ) script.parameters);
-            
+#            ) script.parameters);         
             # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
 #            syntax = 
 #              if githubBaseUrl != "" then
@@ -881,8 +938,7 @@ EOF
             # 🦆 duck say ⮞ write full md table row - command | aliases | description
 #            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
 #        ) scripts)
-#    ) sortedCategories;
-  
+#    ) sortedCategories;  
 #  in concatStringsSep "\n" rows;
   
     # 🦆 duck say ⮞ create table rows with category separatorz 
@@ -1052,8 +1108,6 @@ EOF
     in # 🦆 duck say ⮞ returnin' all unique variantz of da sentences – holy duck dat'z fresh 
       lib.unique validVariants;
   
-
-
 in { # 🦆 duck say ⮞ options options duck duck
   options = { # 🦆 duck say ⮞ 
     yo = {

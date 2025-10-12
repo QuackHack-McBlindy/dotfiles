@@ -210,7 +210,8 @@
                 after = lib.concatStrings (lib.tail split); # 🦆 says ⮞ anything after the param in this chunk
                 # 🦆 says ⮞ Wildcard mode! anything goes - duck catches ALL the worms! (.*)
                 isWildcard = data.lists.${param}.wildcard or false;
-                regexGroup = if isWildcard then "(.*)" else "\\b([^ ]+)\\b";       
+                # regexGroup = if isWildcard then "(.*)" else "\\b([^ ]+)\\b"; # 82%
+                regexGroup = if isWildcard then "(.*)" else "([^ ]+)";
                 # 🦆 says ⮞ ^ da regex that gon match actual input text
               in {
                 regex = regexGroup + lib.escapeRegex after;
