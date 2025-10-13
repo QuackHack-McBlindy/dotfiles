@@ -229,7 +229,6 @@ EOF
         fi
       }      
       
-      
       if [ ! -f "$LARMED_FILE" ]; then
         echo '{"larmed":false}' > "$LARMED_FILE"
       fi
@@ -247,7 +246,11 @@ EOF
           yo notify "🛡️ Security disarmed"
         fi
       }
-      
+      get_state() {
+        local device="$1"
+        local key="$2"
+        ${pkgs.jq}/bin/jq -r ".\"$device\".\"$key\" // empty" "$STATE_FILE"
+      }      
       get_larmed() {
         ${pkgs.jq}/bin/jq -r '.larmed' "$LARMED_FILE"
       }
@@ -415,8 +418,10 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             device_check            
             if [ "$occupancy" = "true" ]; then
               # 🦆 says ⮞ save for easy user localisation
-              echo "{\"last_active_room\": \$dev_room\}" > "$STATE_DIR/last_motion.json"
+              echo "{\"last_active_room\": \$dev_room\, \"timestamp\": \"$(date -Iseconds)\"}" > "$STATE_DIR/last_motion.json"
               dt_info "🕵️ Motion in $device_name $dev_room"
+              # 🦆 says ⮞ track last motion time 
+              update_device_state "apartment" "last_motion" "$(date +%s)"
               # 🦆 says ⮞ If current time is within motion > light timeframe - turn on lights
               if is_dark_time; then
                 room_lights_on "$room"
@@ -445,6 +450,20 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             device_check            
             if [ "$contact" = "false" ]; then
               dt_info "🚪 Door open in $dev_room ($device_name)"    
+              # 🦆 says ⮞ welcome me home
+              if [ "$dev_room" = "hallway" ]; then
+                current_time=$(date +%s)
+                last_motion=$(get_state "apartment" "last_motion")
+                if [ -n "$last_motion" ]; then
+                  time_diff=$((current_time - last_motion))
+                  # 🦆 says ⮞ if i've been gone for 2 hours
+                  if [ $time_diff -gt 7200 ]; then 
+                    dt_info "Welcoming you home! (no motion for 2 hours, door opened"
+                    yo say --text "Välkommen hem!" --host "desktop"
+                  fi
+                fi
+              fi
+              
               CURRENT_LARMED=$(get_larmed)
               if [ "$CURRENT_LARMED" = "true" ]; then
                 dt_critical "🚨 ALARM! Door open while armed!"
@@ -520,6 +539,46 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             if [ "$action" == "down_hold_release" ]; then dt_debug "$action"; fi
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
             if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "DARKNESS ON"; fi
+          fi
+          
+          # 🦆 says ⮞ 🛒 shopping list functionality
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("shopping_action")' > /dev/null; then
+            shopping_action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.shopping_action')
+            item=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.item // ""')  
+            SHOPPING_LIST_FILE="$STATE_DIR/shopping_list.txt"  
+            case "$shopping_action" in
+              "add")
+                if [ -n "$item" ]; then
+                  echo "$item" >> "$SHOPPING_LIST_FILE"
+                  dt_info "🛒 Added '$item' to shopping list"
+                  mqtt_pub -t "zigbee2mqtt/shopping_list/updated" -m "{\"action\": \"add\", \"item\": \"$item\"}"
+                  yo notify "🛒 Added: $item"
+                fi
+                ;;
+              "remove")
+                if [ -n "$item" ]; then
+                  grep -v -i -- "^$item\$" "$SHOPPING_LIST_FILE" > "$SHOPPING_LIST_FILE.tmp" && mv "$SHOPPING_LIST_FILE.tmp" "$SHOPPING_LIST_FILE"
+                  dt_info "🛒 Removed '$item' from shopping list"
+                  mqtt_pub -t "zigbee2mqtt/shopping_list/updated" -m "{\"action\": \"remove\", \"item\": \"$item\"}"
+                  yo notify "🛒 Removed: $item"
+                fi
+                ;;
+              "clear")
+                > "$SHOPPING_LIST_FILE"
+                dt_info "🛒 Cleared shopping list"
+                mqtt_pub -t "zigbee2mqtt/shopping_list/updated" -m "{\"action\": \"clear\"}"
+                yo notify "🛒 List cleared"
+                ;;
+              "view")
+                if [ -f "$SHOPPING_LIST_FILE" ] && [ -s "$SHOPPING_LIST_FILE" ]; then
+                  list_content=$(cat "$SHOPPING_LIST_FILE" | tr '\n' ',' | sed 's/,$//')
+                  mqtt_pub -t "zigbee2mqtt/shopping_list/current" -m "{\"items\": \"$list_content\"}"
+                else
+                  mqtt_pub -t "zigbee2mqtt/shopping_list/current" -m "{\"items\": \"\"}"
+                fi
+                ;;
+            esac
+            continue
           fi
           
           # 🦆 says ⮞ 🤖 yo do commands

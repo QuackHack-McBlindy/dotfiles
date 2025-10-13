@@ -13,7 +13,7 @@
     autoStart = false;
     parameters = [
       { name = "store_name"; description = "Name of store to search for (supports fuzzy matching)"; optional = false; }
-      { name = "location"; description = "Base location for search, example: City, Country"; default = config.sops.secrets."users/pungkula/homeCity".path; }
+      { name = "location"; description = "Filepath containing base location for search, example: City, Country"; default = config.sops.secrets."users/pungkula/homeCity".path; }
       { name = "radius"; description = "Search radius in meters"; default = "10000"; }
     ];
     logLevel = "INFO";

@@ -261,8 +261,12 @@ in { # 🦆 says ⮞ yo
     '';   
     voice = {
       sentences = [
+        # 🦆 says ⮞ program search sentences
         "vilken kanal (spelas|sänds) {search} på"  
+        
+        # 🦆 says ⮞ channel specific sentences
         "vad (sänds|visas) på [kanal] {channel} [just nu]"       
+        
       ];    
       lists = {
         channel.values = lib.flatten (map (device: 

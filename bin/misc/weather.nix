@@ -99,8 +99,9 @@ in {
         ["Clear"]="klart väder"
         ["Sunny"]="soligt"
         ["Partly Cloudy"]="delvis molnigt"
+        ["partly cloudy"]="delvis molnigt"        
         ["Patchy rain nearby"]="delvis regn i närheten"
-        ["Cloudy"]="molnigt"
+        ["cloudy"]="molnigt"
         ["Overcast"]="mulet"
         ["Light Rain"]="lätt regn"
         ["Light rain shower"]="lätt regnskur"
@@ -219,6 +220,7 @@ in {
         if (( $(echo "$precipMM > 0" | bc -l) )); then
           precip_text=", med $precipMM millimeter nederbörd"
         fi
+        dt_info "$display_name: $swedish_condition. Min $mintempC grader, max $maxtempC grader$precip_text."
         yo-say "$display_name: $swedish_condition. Min $mintempC grader, max $maxtempC grader$precip_text."
 
       }

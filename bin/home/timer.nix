@@ -26,32 +26,63 @@ in {
       { name = "minutes"; description = "Minutes to set the timer on"; default = "0";  }     
       { name = "seconds"; description = "Seconds to set the timer on"; default = "0"; }     
       { name = "hours"; description = "Hours to set the timer on"; default = "0"; }
-      { name = "sound"; description = "Soundfile to be played on finished timer"; default = "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav"; }
+      { name = "list"; type = "bool"; description = "Lists active timers"; default = false;  }      
+      { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
     code = ''
+      ${cmdHelpers}
+      SOUNDFILE="$sound"
+      HOURS="$hours"
+      MINUTES="$minutes"
+      SECONDS="$seconds"
+
+      LOGFILE_DIR="/tmp/yo-timers"
+      mkdir -p "$LOGFILE_DIR"
+
+      if [ "$list" = "true" ]; then
+        dt_info "Active timers:"
+        if ls "$LOGFILE_DIR"/*.pid >/dev/null 2>&1; then
+          for pidfile in "$LOGFILE_DIR"/*.pid; do
+           pid=$(basename "$pidfile" .pid)
+           if ps -p "$pid" >/dev/null 2>&1; then
+             end_time=$(awk '{print $2}' "$pidfile")
+              remaining=$((end_time - $(date +%s)))
+              if [ $remaining -gt 0 ]; then
+                echo "  • PID $pid — $(($remaining / 60))m $((remaining % 60))s left"
+                time_left="$(($remaining / 60)) minuter $((remaining % 60)) sekunder kvar"
+                dt_info "Timern har $time_left"
+                
+                yo say "Timern har $time_left"
+              fi
+            else
+              rm -f "$pidfile"
+            fi
+          done
+        else
+          echo "  (no active timers)"
+        fi
+        exit 0
+      fi
+
+      TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
+      DURATION=$TIMER_TOTAL
+      TIMER_MINUTES=$((DURATION / 60))
+      if_voice_say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
+
+      start_time=$(date +%s)
+      end_time=$((start_time + DURATION))
+
       (
-        ${cmdHelpers}
-        SOUNDFILE="$sound"
-        HOURS="$hours"
-        MINUTES="$minutes"
-        SECONDS="$seconds"
-      
-        TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
-        DURATION=$TIMER_TOTAL
-        TIMER_MINUTES=$((DURATION / 60)) 
-        if_voice_say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
-        start_time=$(date +%s)
-        end_time=$((start_time + DURATION))
-      
         while [ $(date +%s) -lt $end_time ]; do
           now=$(date +%s)
           remaining=$((end_time - now))
           echo -ne "Time remaining: ''${remaining}s\r"
           sleep 1
         done
-      
+
         echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
-      
+        rm -f "$LOGFILE_DIR/$$.pid"
+
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
@@ -62,8 +93,11 @@ in {
           done
         else
           echo "Sound file not found: $SOUNDFILE"
-        fi  
-      ) > /tmp/yo-timer.log 2>&1 & disown
+        fi
+      ) > /tmp/yo-timer.log 2>&1 &
+      pid=$!
+      echo "$pid $end_time" > "$LOGFILE_DIR/$pid.pid"
+      disown "$pid"
     '';
     voice = {
       priority = 5;
@@ -71,13 +105,19 @@ in {
         "(skapa|ställ|sätt|starta) [en] timer [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
         "(skapa|ställ|sätt|starta) [en] timer [på] {minutes} (minut|minuter) [och] {seconds} (sekund|sekunder)"
         "(skapa|ställ|sätt|starta) [en] timer [på] {minutes} (minut|minuter)"                     
-        "(skapa|ställ|sätt|starta) [en] timer [på] {seconds} sekunder"                     
+        "(skapa|ställ|sätt|starta) [en] timer [på] {seconds} sekunder"      
+        
+        "hur {list} är det kvar på timern"
+        "tid {list} på timern"
       ];        
       lists = {
+        list.values = [
+          { "in" = "[länge|kvar]"; out = "true"; }
+        ];
         seconds.values = builtins.concatLists (builtins.genList (
                 i: let n = i + 1; in [
-                  { "in" = toString n; out = toString n; }       # Digit string (e.g., "5")
-                  { "in" = swedishNumber n; out = toString n; }  # Swedish word (e.g., "fem")
+                  { "in" = toString n; out = toString n; }     
+                  { "in" = swedishNumber n; out = toString n; }
                 ]
               ) 60);
               minutes.values = builtins.concatLists (builtins.genList (

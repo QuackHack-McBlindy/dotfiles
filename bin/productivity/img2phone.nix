@@ -17,25 +17,50 @@ in {
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "image"; description = "URL to the image to send"; optional = false; }
+      { name = "image"; type = "path"; description = "File path to the image to send"; optional = false; }
     ];  
     code = ''
       ${cmdHelpers}     
-      IMAGE_URL="$image"
+      IMAGE_PATH="$image"
+      
       start_time=$(date +%s)
       duration=60
       stopfile="/tmp/img2phoneRunning"
       localip=$(ip route get 1.1.1.1 | awk '{print $7}')
       port=9876
-      stopurl="http://$localip:$port"
+      image_url="http://$localip:$port/image"
+      stopurl="http://$localip:$port/stop"
+      
       echo "1" > "$stopfile"
 
       trap 'rm -f "$stopfile"; kill $server_pid 2>/dev/null' EXIT
-
       (
-        ncat -l $port --sh-exec "echo -ne 'HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n\r\n<b>🖼️ Image viewed</b>'; rm -f '$stopfile'"
+        while true; do
+          ncat -l $port --sh-exec "
+            read -r line
+            if echo \"\$line\" | grep -q 'GET /image'; then
+              echo -ne 'HTTP/1.1 200 OK\r\n'
+              echo -ne 'Content-Type: image/jpeg\r\n'
+              echo -ne 'Connection: close\r\n'
+              echo -ne '\r\n'
+              cat '$IMAGE_PATH'
+            elif echo \"\$line\" | grep -q 'GET /stop'; then
+              echo -ne 'HTTP/1.1 200 OK\r\n'
+              echo -ne 'Content-Type: text/html\r\n'
+              echo -ne 'Connection: close\r\n'
+              echo -ne '\r\n'
+              echo '<b>🖼️ Image viewed - stopping notifications</b>'
+              rm -f '$stopfile'
+            else
+              echo -ne 'HTTP/1.1 404 Not Found\r\n'
+              echo -ne 'Content-Type: text/html\r\n'
+              echo -ne 'Connection: close\r\n'
+              echo -ne '\r\n'
+              echo '<b>Not found</b>'
+            fi
+          "
+        done
       ) &
-
       server_pid=$!
 
       while true; do
@@ -47,16 +72,15 @@ in {
         fi
         
         if [ ! -f "$stopfile" ]; then
-          sleep 30
-          dt_info "Image viewed, stopping..."
+          dt_info "Notification clicked, keeping image server running for 30 seconds..."
+          sleep 15
+          dt_info "Stopping image server..."
           break
         fi
 
-        yo notify --text "📷 Image" --url "$IMAGE_URL"
-
+        yo notify --title "📸 Image" --text "Tap to view image" --url "$image_url" --level "info"   
         sleep 10
       done
-
-      kill $server_pid
+      kill $server_pid 2>/dev/null
     '';
   };}

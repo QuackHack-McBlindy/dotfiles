@@ -213,11 +213,8 @@ $ yo do "is laptop overheating"
 "yo bitch reboot the laptop"
 
 # If the server is not running, it can be manually started with:
-$ yo transcription
+$ yo transcribe
 $ yo wake
-
-# Get list of all defined sentences for voice commands:
-$ yo do --help
 ```
 
 ### ✨ Available Commands

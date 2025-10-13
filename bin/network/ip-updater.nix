@@ -2,7 +2,7 @@
 { 
   self, 
   lib, 
-  config, # 🦆 says ⮞ 
+  config,
   pkgs,
   cmdHelpers,
   ... 

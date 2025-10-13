@@ -15,7 +15,7 @@ in {
        { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
        { name = "user"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
        { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
-       { name = "port"; description = "SSH port"; optional = true; default = "2222"; }
+       { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
        { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
      code = ''   

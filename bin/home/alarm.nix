@@ -26,50 +26,91 @@ in {
     parameters = [     
       { name = "hours"; description = "Clock to sewt the alarm for, HH 24 format"; }     
       { name = "minutes"; description = "Clock to sewt the alarm for, MM format"; }    
+      { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }          
       { name = "sound"; description = "Soundfile to be played on finished timer"; default = "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav"; }
     ];
     code = ''
-      (
-        ${cmdHelpers}
-        SOUNDFILE="$sound"  
-        HOUR24=$((10#$hours))
-        MINUTE=$((10#$minutes))
-        if_voice_say "Okej kompis, jag ställde din väckarklocka på $HOUR24 $MINUTE"
-        now=$(date +%s)
-        target=$(date -d "today $HOUR24:$MINUTE" +%s)
+      ${cmdHelpers}
+      SOUNDFILE="$sound"
+      LOGFILE_DIR="/tmp/yo-alarms"
+      mkdir -p "$LOGFILE_DIR"
 
-        if [ $target -le $now ]; then
-          target=$(date -d "tomorrow $HOUR24:$MINUTE" +%s)
+      if [ "$list" = "true" ]; then
+        dt_info "Aktiva alarm:"
+        if ls "$LOGFILE_DIR"/*.pid >/dev/null 2>&1; then
+          for pidfile in "$LOGFILE_DIR"/*.pid; do
+            pid=$(basename "$pidfile" .pid)
+            if ps -p "$pid" >/dev/null 2>&1; then
+              read _ target_time < "$pidfile"
+              remaining=$((target_time - $(date +%s)))
+              if [ $remaining -gt 0 ]; then
+                hours_left=$((remaining / 3600))
+                minutes_left=$(((remaining % 3600) / 60))
+                seconds_left=$((remaining % 60))
+                time_left="$(printf "%02d:%02d:%02d" $hours_left $minutes_left $seconds_left)"
+                dt_info "  • PID $pid — om $hours_left timmar, $minutes_left minuter och $seconds_left sekunder (runt $(date -d @$target_time +'%H:%M'))"
+                yo say "Alarmet ringer om $hours_left timmar och $minutes_left minuter"
+              fi
+            else
+              rm -f "$pidfile"
+            fi
+          done
+        else
+          echo "  (inga aktiva alarm)"
         fi
+        exit 0
+      fi
 
-       while [ $(date +%s) -lt $target ]; do
+      HOUR24=$((10#$hours))
+      MINUTE=$((10#$minutes))
+
+      now=$(date +%s)
+      target=$(date -d "today $HOUR24:$MINUTE" +%s)
+      if [ $target -le $now ]; then
+        target=$(date -d "tomorrow $HOUR24:$MINUTE" +%s)
+      fi
+
+      if_voice_say "Okej kompis, jag ställde din väckarklocka på $HOUR24:$MINUTE"
+
+      (
+        while [ $(date +%s) -lt $target ]; do
           remaining=$((target - $(date +%s)))
           echo -ne "Time until alarm: ''${remaining}s\r"
           sleep 1
         done
-      
-        echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
+
+        echo -e "\n\e[1;5;31m[ALARM RINGS]\e[0m"
+        rm -f "$LOGFILE_DIR/$$.pid"
 
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
           done
-        
           sleep 30
-        
-         for i in {1..8}; do
+          for i in {1..8}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
           done
+        else
+          echo "Sound file not found: $SOUNDFILE"
         fi
-      ) > /tmp/yo-timer.log 2>&1 & disown
+      ) > /tmp/yo-alarm.log 2>&1 &
+      pid=$!
+      echo "$pid $target" > "$LOGFILE_DIR/$pid.pid"
+      disown "$pid"
     '';
     voice = {
       priority = 5;
       sentences = [
         "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} {minutes}"   
         "väck mig [klocka|klockan] {hours} {minutes}"
+        
+        "när ska jag {list} [upp]"
+        "när {list} min väckarklocka"
       ];        
       lists = {
+        list.values = [
+          { "in" = "[stiga|vakna|ringer]"; out = "true"; }
+        ];
         hours.values = lib.genList (n: {
           "in" = toString (n + 1);
           out = toString (n + 1);

@@ -31,7 +31,7 @@ in {
     autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
-      { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.85"; }
+      { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.89"; }
       { name = "cooldown"; description = "Set minimum ooldown period between triggers"; default = "15"; }
       { name = "sound"; description = "Sound file to play on detection"; default = config.this.user.me.dotfilesDir + "/modules/themes/sounds/awake.wav"; }
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
@@ -139,8 +139,8 @@ in {
                         # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
                         dt_debug "Transcribed text: $TRANSCRIPTION"
                         export VOICE_MODE=1
-                        dt_info "yo bitch ⮞ $TRANSCRIPTION"
-                        yo-bitch --input "$TRANSCRIPTION"
+                        dt_info "yo do ⮞ $TRANSCRIPTION"
+                        yo-do --input "$TRANSCRIPTION"
                         unset VOICE_MODE
                         current_time=$(${pkgs.coreutils}/bin/date +%s)
                         LAST_TRIGGER_TIME="$current_time"

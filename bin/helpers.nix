@@ -447,7 +447,7 @@ in
       yo-say --text "$1"
     }
     if_voice_say() { 
-      if [ "$VOICE_MODE" = "1" ]; then yo-say "$1"; fi
+      if [ "$VOICE_MODE" = "1" ]; then yo-say "$1" --host "desktop"; fi
     }    
     confirm() {
       local question="$1"

@@ -66,8 +66,7 @@ in {
     voice = {
       priority = 3;
       sentences = [
-        "när kommer posten"
-        "när kommer [nästa] post (leverans|leveransen)"
+        "när kommer [nästa] (post|posten) [leverans|leveransen]"
         "vilken dag kommer posten"
       ];       
     };

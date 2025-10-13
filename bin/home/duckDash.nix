@@ -6,8 +6,7 @@
   pkgs,
   cmdHelpers,
   ...
-}: let
-  # 🦆 says ⮞ dis fetch what host has Mosquitto
+}: let # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
@@ -123,6 +122,26 @@
     ) tvNames;
   in builtins.trace "TV options: ${options}" options;
 
+  statusCards = ''
+    <div class="status-cards">
+      <div class="card unified-status-card" id="unifiedStatusCard">
+        <div class="card-header">
+          <div class="card-title" id="statusCardTitle">Status</div>
+          <i class="fas fa-info-circle" id="statusCardIcon" style="color: #2ecc71;"></i>
+        </div>
+        <div class="card-value" id="statusCardValue">--</div>
+        <div class="card-details" id="statusCardDetails">
+          <i class="fas fa-clock"></i>
+          <span id="statusCardTime">Waiting for data</span>
+        </div>
+      </div>
+    </div>
+  '';
+  
+
+
+
+
   # 🦆 says ⮞ get house.rooms
   roomIcons = lib.mapAttrs' (name: room: {
     name = name;
@@ -229,6 +248,28 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            .unified-status-card {
+              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+              color: white;
+              position: relative;
+              overflow: hidden;
+            }
+    
+            .unified-status-card::before {
+              content: "";
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              height: 4px;
+              background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
+            }
+    
+            .status-priority-critical { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important; }
+            .status-priority-high { background: linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%) !important; }
+            .status-priority-medium { background: linear-gradient(135deg, #feca57 0%, #ff9f43 100%) !important; }
+            .status-priority-low { background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%) !important; }
+            .status-priority-info { background: linear-gradient(135deg, #1dd1a1 0%, #10ac84 100%) !important; }
             .page {
                 overflow-y: auto;
                 -webkit-overflow-scrolling: touch;
@@ -236,6 +277,18 @@
 
             .page-container {
                 overflow: hidden;
+            }
+
+            .connection-status {
+                transition: all 0.5s ease;
+                opacity: 1;
+                transform: translateY(0);
+            }
+            
+            .connection-status.hidden {
+                opacity: 0;
+                transform: translateY(-20px);
+                pointer-events: none;
             }
 
             .status-cards {
@@ -524,6 +577,9 @@
                  🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageHome">
+                    ${statusCards}
+
+
                     <div class="status-cards">
                     <div class="status-cards">
                         <div class="card">
@@ -576,7 +632,7 @@
                         </div>
                     </div>
                     </div>
-                </div>  
+                </div>
                 
                 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
@@ -718,7 +774,10 @@
                     </div>
                 </div>
                 
-                
+                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ PAGES+ Pages 4+)
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
+
             </div>
     
     
@@ -726,7 +785,11 @@
              🦆 says ⮞ TABS
              🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
             <div class="nav-tabs">
-                <div class="nav-tab active" data-page="1">
+                <div class="nav-tab active" data-page="0">
+                    <i class="mdi mdi-home"></i>
+                    <span>Home</span>
+                </div>
+                <div class="nav-tab" data-page="1">
                     <i class="mdi mdi-cellphone"></i>
                     <span>Devices</span>
                 </div>
@@ -745,12 +808,32 @@
     
         <script>      
             document.addEventListener('DOMContentLoaded', function() {
+
                 // 🦆 says ⮞ mqtt
                 let client = null;
                 const brokerUrl = 'ws://${mqttHostip}:9001';
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
+        
+                // 🦆 says ⮞ auto-hide connection status
+                let connectionHideTimeout = null;
                 
+                function hideConnectionStatus() {
+                    if (statusElement.classList.contains('status-connected')) {
+                        connectionHideTimeout = setTimeout(() => {
+                            statusElement.classList.add('hidden');
+                        }, 10000); // 🦆 says ⮞ 10 seconds
+                    }
+                }
+                
+                function showConnectionStatus() {
+                    if (connectionHideTimeout) {
+                        clearTimeout(connectionHideTimeout);
+                        connectionHideTimeout = null;
+                    }
+                    statusElement.classList.remove('hidden');
+                }        
+        
                 // 🦆 says ⮞ device state
                 let devices = {};
                 let selectedDevice = null;
@@ -1267,7 +1350,7 @@
                     }
                 }
 
-                // 🦆 says ⮞ Load initial TV channel state
+                // 🦆 says ⮞ load initial TV channel state
                 function loadInitialTVState() {
                     fetch('/state.json')
                         .then(response => response.json())
@@ -1298,6 +1381,7 @@
                  🦆 says ⮞ ZIGDUCK CONNECT 
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆*/
                 function connectToMQTT() {
+                    showConnectionStatus();
                     statusElement.className = 'connection-status status-connecting';
                     statusElement.innerHTML = '<i class="fas fa-plug"></i><span>📛</span>';
                    
@@ -1319,8 +1403,14 @@
                         client = mqtt.connect(brokerUrl, options);
                         
                         client.on('connect', function() {
+                            showConnectionStatus();
                             statusElement.className = 'connection-status status-connected';
                             statusElement.innerHTML = '<i class="fas fa-plug"></i><span>🟢</span>';
+                            
+                            setupStatusSubscriptions();
+                            statusCard.updateCard();
+                            // 🦆 says ⮞ auto-hide after 10 seconds
+                            hideConnectionStatus();
                             
                             client.subscribe('zigbee2mqtt/#', function(err) {
                                 if (!err) {
@@ -1335,6 +1425,7 @@
                         });
                         
                         client.on('error', function(err) {
+                            showConnectionStatus(); // 🦆 says ⮞ show on error
                             statusElement.className = 'connection-status status-error';
                             statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>⚠️📛</span>';
                             console.error('Connection error: ', err);
@@ -1381,6 +1472,16 @@
                                 return;
                             }
     
+                            if (topic === 'house/shopping/list') {
+                              statusCard.handleShoppingList(message);
+                            } else if (topic === 'house/timers') {
+                              statusCard.handleTimers(message);
+                            } else if (topic === 'house/calendar/events') {
+                              statusCard.handleCalendar(message);
+                            } else if (topic === 'house/reminders') {
+                              statusCard.handleReminders(message);
+                            }
+    
                             if (topic.startsWith('zigbee2mqtt/tibber/')) {
                                 try {
                                     const data = JSON.parse(message.toString());
@@ -1420,6 +1521,7 @@
                         });
                         
                         client.on('close', function() {
+                            showConnectionStatus(); // 🦆 says ⮞ show on disconnect
                             statusElement.className = 'connection-status status-error';
                             statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>⚠️📛</span>';
                         });
@@ -1623,13 +1725,24 @@
                 initAudioRecording();
                 micButton.addEventListener('click', toggleRecording);
                 
-                function showPage(pageIndex) {
-                    currentPage = pageIndex;
-                    pageContainer.style.transform = `translateX(-''${pageIndex * 25}%)`;
 
-                    // 🦆 says ⮞ hide device selector on TV page
+                function showPage(pageIndex) {
+                    console.log('🦆 Switching to page:', pageIndex);
+                    currentPage = pageIndex;
+                    
+
+                    const pages = document.querySelectorAll('.page');
+                    pages.forEach((page, index) => {
+                        if (index === pageIndex) {
+                            page.style.display = 'block';
+                        } else {
+                            page.style.display = 'none';
+                        }
+                    });
+
+                    // 🦆 says ⮞ hide device selector on TV page and dynamic pages
                     const deviceSelector = document.getElementById('deviceSelect');
-                    if (pageIndex === 3) {
+                    if (pageIndex === 3 || pageIndex >= 4) {
                         deviceSelector.classList.add('hidden');
                     } else {
                         deviceSelector.classList.remove('hidden');
@@ -1646,6 +1759,7 @@
 
                     saveState();
                 }
+
 
                 function updateLinkquality(percent) {
                   const bars = document.querySelectorAll(".lq-bar");
@@ -2116,7 +2230,8 @@
                     loadInitialState().then(() => {
                         // 🦆 says ⮞ load state from localStorage
                         loadSavedState();
-
+                        statusCard.loadData();
+    
                         // Set up TV selector first
                         document.getElementById('targetTV').addEventListener('change', function() {
                             const selectedTV = this.value;
@@ -2185,7 +2300,7 @@
                             const swipeThreshold = 50;
 
                             if (Math.abs(diff) > swipeThreshold) {
-                                if (diff > 0 && currentPage < 3) {  // Changed from 2 to 3 for 4 pages
+                                if (diff > 0 && currentPage < 5) {
                                     // 🦆 says ⮞ swipe left
                                     showPage(currentPage + 1);
                                 } else if (diff < 0 && currentPage > 0) {
@@ -2282,7 +2397,342 @@
                         sendCommand(device, command);
                     });
                 }
-                                   
+                
+                // 🦆 says ⮞ Unified Status Card Manager
+                const statusCard = {
+                  data: {
+                    shopping: { updated: null, items: [], priority: 'medium' },
+                    timers: { active: [], priority: 'high' },
+                    calendar: { events: [], priority: 'medium' },
+                    reminders: { items: [], priority: 'critical' }
+                  },
+                  
+                  // 🦆 says ⮞ Live update intervals
+                  intervals: {},
+                  
+                  priorities: ['critical', 'high', 'medium', 'low', 'info'],
+                  
+                  // 🦆 says ⮞ Save status card data to localStorage
+                  saveData() {
+                    try {
+                      const statusData = JSON.stringify(this.data);
+                      localStorage.setItem('duckDashStatusCard', statusData);
+                      console.log('Status card data saved');
+                    } catch (e) {
+                      console.error('Error saving status card data:', e);
+                    }
+                  },
+                  
+                  // 🦆 says ⮞ Load status card data from localStorage
+                  loadData() {
+                    try {
+                      const savedData = localStorage.getItem('duckDashStatusCard');
+                      if (savedData) {
+                        this.data = JSON.parse(savedData);
+                        console.log('Status card data loaded:', this.data);
+                        
+                        // 🦆 says ⮞ Restart timer countdowns if any are active
+                        this.data.timers.active.forEach(timer => {
+                          if (timer.remaining > 0) {
+                            this.startTimerCountdown(timer.id);
+                          }
+                        });
+                        
+                        this.updateCard();
+                      }
+                    } catch (e) {
+                      console.error('Error loading status card data:', e);
+                    }
+                  },
+                  
+                  updateCard() {
+                    const card = document.getElementById('unifiedStatusCard');
+                    const title = document.getElementById('statusCardTitle');
+                    const value = document.getElementById('statusCardValue');
+                    const details = document.getElementById('statusCardDetails');
+                    const icon = document.getElementById('statusCardIcon');
+                    
+                    // 🦆 says ⮞ find highest priority content
+                    const content = this.getHighestPriorityContent();
+                    
+                    if (!content) {
+                      title.textContent = 'All Clear';
+                      value.textContent = 'No notifications';
+                      details.innerHTML = '<i class="fas fa-check-circle"></i><span>Everything is quiet</span>';
+                      icon.className = 'fas fa-check-circle';
+                      card.className = 'card unified-status-card status-priority-info';
+                      return;
+                    }
+                    
+                    // 🦆 says ⮞ Update card with content
+                    title.textContent = content.title;
+                    value.textContent = content.value;
+                    details.innerHTML = content.details;
+                    icon.className = content.icon;
+                    card.className = 'card unified-status-card status-priority-' + content.priority;
+                    
+                    // 🦆 says ⮞ Auto-save when card updates
+                    this.saveData();
+                  },
+                  
+                  getHighestPriorityContent() {
+                    // 🦆 says ⮞ Check reminders first (critical)
+                    if (this.data.reminders.items.length > 0) {
+                      const reminder = this.data.reminders.items[0];
+                      return {
+                        title: 'Reminder',
+                        value: reminder.text,
+                        details: '<i class="fas fa-bell"></i><span>Tap to dismiss</span>',
+                        icon: 'fas fa-bell',
+                        priority: 'critical'
+                      };
+                    }
+                    
+                    // 🦆 says ⮞ Check active timers (high) - with live countdown
+                    const activeTimer = this.data.timers.active.find(t => t.remaining > 0);
+                    if (activeTimer) {
+                      return {
+                        title: 'Timer',
+                        value: activeTimer.name || 'Active Timer',
+                        details: '<i class="fas fa-clock"></i><span>' + this.formatTimeRemaining(activeTimer.remaining) + '</span>',
+                        icon: 'fas fa-clock',
+                        priority: 'high'
+                      };
+                    }
+                    
+                    // 🦆 says ⮞ Check calendar events happening soon (medium)
+                    const upcomingEvent = this.getNextCalendarEvent();
+                    if (upcomingEvent) {
+                      return {
+                        title: 'Calendar',
+                        value: upcomingEvent.title,
+                        details: '<i class="fas fa-calendar"></i><span>' + this.formatEventTime(upcomingEvent) + '</span>',
+                        icon: 'fas fa-calendar',
+                        priority: 'medium'
+                      };
+                    }
+                    
+                    // 🦆 says ⮞ Check recent shopping list updates (low)
+                    if (this.isShoppingListRecent()) {
+                      const itemCount = this.data.shopping.items.length;
+                      return {
+                        title: 'Shopping',
+                        value: itemCount + ' item' + (itemCount !== 1 ? 's' : ""),
+                        details: '<i class="fas fa-cart-plus"></i><span>Updated recently</span>',
+                        icon: 'fas fa-shopping-cart',
+                        priority: 'low'
+                      };
+                    }
+                    
+                    return null;
+                  },
+                  
+                  // 🦆 says ⮞ Enhanced timer functions
+                  formatTimeRemaining(seconds) {
+                    if (seconds <= 0) return 'Finished!';
+                    
+                    const hours = Math.floor(seconds / 3600);
+                    const minutes = Math.floor((seconds % 3600) / 60);
+                    const secs = seconds % 60;
+                    
+                    if (hours > 0) {
+                      return `''${hours}h ''${minutes}m ''${secs}s`;
+                    } else if (minutes > 0) {
+                      return `''${minutes}m ''${secs}s`;
+                    } else {
+                      return `''${secs}s`;
+                    }
+                  },
+                  
+                  startTimerCountdown(timerId) {
+                    // 🦆 says ⮞ Clear existing interval for this timer
+                    if (this.intervals[timerId]) {
+                      clearInterval(this.intervals[timerId]);
+                    }
+                    
+                    this.intervals[timerId] = setInterval(() => {
+                      const timer = this.data.timers.active.find(t => t.id === timerId);
+                      if (!timer) {
+                        clearInterval(this.intervals[timerId]);
+                        return;
+                      }
+                      
+                      timer.remaining--;
+                      
+                      if (timer.remaining <= 0) {
+                        // 🦆 says ⮞ Timer finished!
+                        clearInterval(this.intervals[timerId]);
+                        timer.remaining = 0;
+                        showNotification(`Timer "''${timer.name}" finished!`, 'success');
+                        
+                        // 🦆 says ⮞ Play sound or flash notification
+                        this.playTimerFinishedSound();
+                      }
+                      
+                      // 🦆 says ⮞ Update the card display
+                      this.updateCard();
+                      this.saveData();
+                      
+                    }, 1000);
+                  },
+                  
+                  playTimerFinishedSound() {
+                    // 🦆 says ⮞ Simple beep sound for timer completion
+                    try {
+                      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                      const oscillator = audioContext.createOscillator();
+                      const gainNode = audioContext.createGain();
+                      
+                      oscillator.connect(gainNode);
+                      gainNode.connect(audioContext.destination);
+                      
+                      oscillator.frequency.value = 800;
+                      oscillator.type = 'sine';
+                      
+                      gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                      gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 1);
+                      
+                      oscillator.start(audioContext.currentTime);
+                      oscillator.stop(audioContext.currentTime + 1);
+                    } catch (e) {
+                      console.log('Audio context not supported, using fallback notification');
+                    }
+                  },
+                  
+                  formatEventTime(event) {
+                    const now = new Date();
+                    const eventTime = new Date(event.start);
+                    const diffHours = Math.floor((eventTime - now) / (1000 * 60 * 60));
+                    
+                    if (diffHours < 1) return 'Starting soon';
+                    if (diffHours < 24) return 'Today at ' + eventTime.toLocaleTimeString('sv-SE', {hour: '2-digit', minute: '2-digit'});
+                    return 'In ' + diffHours + ' hours';
+                  },
+                  
+                  getNextCalendarEvent() {
+                    const now = new Date();
+                    const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+                    
+                    return this.data.calendar.events.find(event => {
+                      const eventTime = new Date(event.start);
+                      return eventTime > now && eventTime < next24Hours;
+                    });
+                  },
+                  
+                  isShoppingListRecent() {
+                    if (!this.data.shopping.updated) return false;
+                    const updated = new Date(this.data.shopping.updated);
+                    const now = new Date();
+                    const diffHours = (now - updated) / (1000 * 60 * 60);
+                    return diffHours < 24; // 🦆 says ⮞ show if updated in last 24 hours
+                  },
+                  
+                  // 🦆 says ⮞ Add click handler to dismiss reminders
+                  dismissReminder() {
+                    if (this.data.reminders.items.length > 0) {
+                      this.data.reminders.items.shift(); // Remove the first reminder
+                      this.updateCard();
+                      showNotification('Reminder dismissed', 'success');
+                    }
+                  },
+                  
+                  // 🦆 says ⮞ Enhanced MQTT message handlers
+                  handleShoppingList(message) {
+                    try {
+                      const data = JSON.parse(message.toString());
+                      this.data.shopping = {
+                        updated: new Date().toISOString(),
+                        items: data.items || [],
+                        priority: 'medium'
+                      };
+                      this.updateCard();
+                    } catch (e) {
+                      console.error('Error parsing shopping list:', e);
+                    }
+                  },
+                  
+                  handleTimers(message) {
+                    try {
+                      const data = JSON.parse(message.toString());
+                      const newTimers = data.active_timers || data.timers || [];
+                      
+                      // 🦆 says ⮞ Generate unique IDs for new timers
+                      newTimers.forEach(timer => {
+                        if (!timer.id) {
+                          timer.id = 'timer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        }
+                        
+                        // 🦆 says ⮞ Start countdown for new timers
+                        if (timer.remaining > 0) {
+                          this.startTimerCountdown(timer.id);
+                        }
+                      });
+                      
+                      this.data.timers = {
+                        active: newTimers,
+                        priority: 'high'
+                      };
+                      this.updateCard();
+                    } catch (e) {
+                      console.error('Error parsing timers:', e);
+                    }
+                  },
+                  
+                  handleCalendar(message) {
+                    try {
+                      const data = JSON.parse(message.toString());
+                      this.data.calendar = {
+                        events: data.events || [],
+                        priority: 'medium'
+                      };
+                      this.updateCard();
+                    } catch (e) {
+                      console.error('Error parsing calendar:', e);
+                    }
+                  },
+                  
+                  handleReminders(message) {
+                    try {
+                      const data = JSON.parse(message.toString());
+                      this.data.reminders = {
+                        items: data.reminders || data.items || [],
+                        priority: 'critical'
+                      };
+                      this.updateCard();
+                    } catch (e) {
+                      console.error('Error parsing reminders:', e);
+                    }
+                  }
+                };
+                
+
+  
+                // 🦆 says ⮞ Add MQTT subscriptions for status sources
+                function setupStatusSubscriptions() {
+                  if (client && client.connected) {
+                    client.subscribe('house/shopping/list', function(err) {
+                      if (!err) console.log('Subscribed to shopping list');
+                    });
+        
+                    client.subscribe('house/timers', function(err) {
+                      if (!err) console.log('Subscribed to timers');
+                    });
+        
+                    client.subscribe('house/calendar/events', function(err) {
+                      if (!err) console.log('Subscribed to calendar');
+                    });
+        
+                    client.subscribe('house/reminders', function(err) {
+                      if (!err) console.log('Subscribed to reminders');
+                    });
+                  }
+                }
+  
+
+    
+
+  
+
                 initDashboard();
             });
         </script>

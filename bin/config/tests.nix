@@ -442,7 +442,10 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       category = "⚙️ Configuration";
       autoStart = false;
       logLevel = "INFO";
-      parameters = [{ name = "input"; description = "Text to test as a single  sentence test"; optional = true; }];       
+      parameters = [
+        { name = "input"; description = "Text to test as a single  sentence test"; optional = true; }
+        { name = "stats"; type = "bool"; description = "Flag to display voice commands information like generated regex patterns, generated phrases and ratio"; optional = true; }    
+      ];
       code = ''    
         set +u  
         ${cmdHelpers}
@@ -455,6 +458,38 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         total_negative=0
         passed_boundary=0
         failures=()     
+        
+        display_stats() {
+          nix eval --raw ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts --apply '
+            s:
+            let
+              scripts =
+                builtins.attrValues (builtins.mapAttrs (n: v: v // { name = n; }) s);
+              withRatios =
+                builtins.map
+                  (x:
+                    let
+                      patterns = x.voicePatterns or 0;
+                      phrases = x.voicePhrases or 0;
+                      ratio = if patterns == 0 then 0.0 else (phrases / patterns);
+                    in
+                      x // { inherit patterns phrases ratio; }
+                  )
+                  scripts;
+              sorted =
+                builtins.sort (a: b: b.ratio < a.ratio) withRatios;
+              formatNumber = n: toString (builtins.fromJSON (builtins.toJSON n));
+            in
+              builtins.concatStringsSep "\n"
+                (map (x:
+                  let
+                    p = toString x.patterns;
+                    ph = toString x.phrases;
+                    r = if x.patterns == 0 then "∞" else formatNumber x.ratio;
+                  in "''${x.name}: patterns=''${p}, phrases=''${ph}, ratio=''${r}"
+                ) sorted)
+          '
+        }
         
         resolve_sentence() {
           local script="$1"
@@ -502,6 +537,10 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           sentence=$(echo "$sentence" | tr -s ' ' | sed -e 's/^ //' -e 's/ $//')
           echo "$sentence"
         }
+        if [[ "$stats" == "true" ]]; then
+          display_stats
+          exit 1
+        fi
         if [[ -n "$input" ]]; then
             echo "[🦆📜] Testing single input: '$input'"
             FUZZY_THRESHOLD=15
@@ -700,6 +739,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         say_duck "TOTAL: $passed_tests/$total_tests (''${color}''${percent}%''${GRAY})"
         echo "''${RESET}" && echo -e "''${color}## ──────⋆⋅☆⋅⋆────── ##''${RESET}"
         say_duck "$duck_report"
+        dt_info "Test completed with results: $passed_tests/$total_tests ''${percent}%"
         exit 1
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
     };# 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    

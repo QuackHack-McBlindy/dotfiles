@@ -270,9 +270,7 @@ in { # 🦆 says ⮞ Voice Intents
       
         for light_id in "''${devices[@]}"; do
           local hex_code=""
-         
-        
-         
+               
           if [[ -n "$COLOR" ]]; then
             hex_code=$(color2hex "$COLOR") || {
               echo "$(date) - ❌ Unknown color: $COLOR" >> "$STATE_DIR/voice-debug.log"
@@ -305,7 +303,7 @@ in { # 🦆 says ⮞ Voice Intents
     voice = {
       priority = 1;
       sentences = [
-        # Multi taskerz
+        # 🦆 says ⮞ multi taskerz
         "{device} {state} och färg {color}"
         "{device} {state} och ljusstyrka {brightness} procent"
         "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
@@ -316,11 +314,11 @@ in { # 🦆 says ⮞ Voice Intents
         "{state} alla lampor"
         "stäng {state} {device}"
         "starta {state} {device}"
-        # Color Control
+        # 🦆 says ⮞ color control
         "(ändra|gör) färgen [på|i] {device} till {color}"
         "(ändra|gör) {device} {color}"
             
-        # Brightness Control
+        # 🦆 says ⮞ brightness control
         "justera {device} till {brightness} procent"
       ];        
       lists = {

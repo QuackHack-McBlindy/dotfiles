@@ -210,8 +210,8 @@
                 after = lib.concatStrings (lib.tail split); # 🦆 says ⮞ anything after the param in this chunk
                 # 🦆 says ⮞ Wildcard mode! anything goes - duck catches ALL the worms! (.*)
                 isWildcard = data.lists.${param}.wildcard or false;
-                # regexGroup = if isWildcard then "(.*)" else "\\b([^ ]+)\\b"; # 82%
-                regexGroup = if isWildcard then "(.*)" else "([^ ]+)";
+                regexGroup = if isWildcard then "(.*)" else "\\b([^ ]+)\\b"; # 82%
+                # regexGroup = if isWildcard then "(.*)" else "([^ ]+)";
                 # 🦆 says ⮞ ^ da regex that gon match actual input text
               in {
                 regex = regexGroup + lib.escapeRegex after;
@@ -324,36 +324,6 @@
     lib.concatMapStringsSep "\n" (m: "source ${m.value}") matchers
   );
 
-  # 🦆 says ⮞ helpFooter for yo. script
-  helpFooterMd = let
-    scriptBlocks = lib.concatMapStrings (scriptName:
-      let 
-        intent = generatedIntents.${scriptName} or null;
-        # 🦆 says ⮞ quack plx no expanded variantz - too big for tiny duck
-        patterns = if intent != null then
-          lib.concatLists (map (d: d.sentences or []) intent.data)
-        else []; # 🦆 says ⮞ no sentence - no help
-        patternsMd = if patterns == [] then
-          "- (no patterns defined)\n"
-        else 
-          # 🦆 says ⮞ show da pattern representation yo
-          lib.concatMapStrings (pattern: "- `${pattern}`\n") patterns;
-      in '' 
-        # 🦆 ⮞ **yo ${scriptName}**
-        ${patternsMd}
-      '' # 🦆 says ⮞ datz all yo patternz yo
-    ) scriptNamesWithIntents;
-  in ''
-    # 🦆 ⮞ **Available Voice Patterns**
-    *Use brackets for optional words:* `[ ]` → words inside can appear or be skipped  
-    Example: `hello [can|be|omitted] world` → matches `hello world`, `hello can world`, etc.
-
-    *Use parentheses for required words:* `( )` → one word inside must be chosen  
-    Example: `(choose|pick) one of the words` → matches `choose one of the words` or `pick one of the words`
-
-    ${scriptBlocks} 
-  ''; # 🦆 says ⮞ we cat diz later yo
-
   # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo iz diz cachin'? - no more nix evaluatin' lettin' jq takin' over
   intentDataFile = pkgs.writeText "intent-entity-map4.json" # 🦆 says ⮞ change name to force rebuild of file
     (builtins.toJSON ( # 🦆 says ⮞ packin' all our knowledges into a JSON duck-pond for bash to swim in!
@@ -453,28 +423,22 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
       aliases = [ "d" ];
       category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
-      logLevel = "DEBUG";
+      logLevel = "INFO";
       autoStart = false;
       parameters = [
         { name = "input"; description = "Text to parse into a yo command"; optional = false; }
-        { name = "fuzzyThreshold"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = "15"; }
+        { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }
       ]; 
-      # 🦆 says ⮞ run yo bitch --help to display all defined voice commands
-      helpFooter = ''
-        WIDTH=$(tput cols) # 🦆 duck say ⮞ auto detect width
-        cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
-${helpFooterMd}
-EOF
-      ''; # 🦆 says ⮞ ... there's moar..? YES! ALWAYS MOAR!
       code = ''
         set +u  
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
-        FUZZY_THRESHOLD="''${fuzzyThreshold:-15}"
+        FUZZY_THRESHOLD=$fuzzyThreshold
         intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez
-        YO_FUZZY_INDEX="${fuzzyIndexFile}" # For fuzzy nutty duckz
+        YO_FUZZY_INDEX="${fuzzyIndexFile}" # for fuzzy nutty duckz
         text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         match_result_flag=$(mktemp)
         trap 'rm -f "$match_result_flag"' EXIT
+        echo "waiting" > "$match_result_flag"
         debug_attempted_matches=()
         substitution_applied=false   
         declare -A script_substitutions_data
@@ -514,7 +478,8 @@ EOF
         # 🦆 says ⮞ subz and entities lists handler yo
         resolve_entities() {
           local script="$1"
-          local text="$2"
+      
+      local text="$2"
           local replacements
           local pattern out
           declare -A substitutions
@@ -655,20 +620,27 @@ EOF
               # kill -9 $$  # 🦆 says ⮞ kill the entire script process
               return 0
             fi         
-          done 
+          done
+          # 🦆 says ⮞ tell fuzzy no exact match found
+          dt_info "Exact: No exact match found"
+          echo "exact_finished" > "$match_result_flag"
         }        
 
         ${lib.concatMapStrings (name: makeFuzzyPatternMatcher name) scriptNamesWithIntents}  
         # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON                
         fuzzy_match_handler() {
-          resolved_output=$(resolve_entities "dummy" "$text") # We'll resolve properly after matching
+          resolved_output=$(resolve_entities "dummy" "$text") # 🦆 says ⮞ We'll resolve 4real after matchin'
           resolved_text=$(echo "$resolved_output" | cut -d'|' -f1)
           fuzzy_result=$(find_best_fuzzy_match "$resolved_text")
           [[ -z "$fuzzy_result" ]] && return 1
 
           IFS='|' read -r combined match_score <<< "$fuzzy_result"
           IFS=':' read -r matched_script matched_sentence <<< "$combined"
-          dt_debug "Best fuzzy script: $matched_script" >&2
+          if (( match_score < FUZZY_THRESHOLD )); then
+            dt_debug "Fuzzy match score $match_score below threshold $FUZZY_THRESHOLD, skipping."
+            return 1
+          fi
+          dt_info "Best fuzzy script: $matched_script (score: $match_score%)"
 
           # 🦆 says ⮞ resolve entities agein, diz time for matched script yo
           resolved_output=$(resolve_entities "$matched_script" "$text")
@@ -677,7 +649,7 @@ EOF
           declare -gA substitutions || true
           eval "$subs_decl" >/dev/null 2>&1 || true
 
-          # if (( best_score >= $FUZZY_THHRESHOLD )); then
+          #if (( best_score >= $FUZZY_THRESHOLD )); then
           # 🦆 says ⮞ we hab a match quacky quacky diz sure iz hacky!
           if match_fuzzy_$matched_script "$resolved_text" "$matched_sentence"; then
             if [[ "$(declare -p substitutions 2>/dev/null)" =~ "declare -A" ]]; then
@@ -693,15 +665,18 @@ EOF
             done
             # 🦆 says ⮞ wait for exact match to finish
             # while kill -0 "$pid1" 2>/dev/null; do
-            while [[ ! -f "$match_result_flag" || $(cat "$match_result_flag") != "exact_finished" ]]; do
+            dt_info "Fuzzy handler: Waiting for exact match to finish..."
+            while [[ $(cat "$match_result_flag") == "waiting" ]]; do
+              dt_debug "Fuzzy: Still waiting for exact match flag... (loop)"
               sleep 0.05
             done
-            # 🦆 says ⮞ checkz if exact match succeeded yo  
+            dt_debug "Fuzzy: Exact match flag found"
+            # 🦆 says ⮞ check if exact match already won
             if [[ $(cat "$match_result_flag") == "exact" ]]; then 
-              dt_debug "Exact match already handled execution. Fuzzy exiting."             
+              dt_info "Exact match already handled execution. Fuzzy exiting."             
               exit 0
-            fi
-                   
+            fi    
+            dt_debug "Fuzzy: Proceeding with fuzzy execution..."
             # 🦆 says ⮞ final product - hope u like say duck!
             paramz="''${args[@]}" && echo
             echo "   ┌─(yo-$matched_script)"
@@ -735,6 +710,10 @@ EOF
         pid1=$!
         fuzzy_match_handler
 #        pid1=$!
+        # 🦆 says ⮞ if this is reached - we have NO MATCH
+        if [[ $(cat "$match_result_flag") == "exact_finished" ]]; then
+          say_no_match
+        fi
         exit
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
     }; # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
