@@ -70,9 +70,12 @@ RESPONSE
           fi ;;
         "/shopping"|"/shopping-list"|"/api/shopping" )
           if output=$(yo shop-list --list 2>/dev/null); then
-            send_response "200 OK" "$output"
-          else
-            send_response "500 Internal Server Error" '{"error":"Failed to fetch shopping list"}'
+            if [[ -n "$output" ]]; then
+              json_items=$(printf '%s\n' "$output" | jq -R -s 'split("\n")[:-1]')
+              send_response "200 OK" "{\"items\":$json_items}"
+            else
+              send_response "500 Internal Server Error" '{"error":"Failed to fetch shopping list"}'
+            fi  
           fi ;;
         "/health" )
           send_response "200 OK" '{"status":"healthy","service":"yo-api","timestamp":"'"$(date -Iseconds)"'"}' ;;

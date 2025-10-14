@@ -1209,7 +1209,7 @@
                     }
                 }
            
-                // 🦆 says ⮞ Update TV display with EPG information
+                // 🦆 says ⮞ update TV display with EPG information
                 function updateTVWithEPG(deviceIp) {
                     if (!window.epgData || !window.epgData.channels) return;
                     const tvKey = `tv_''${deviceIp}`;
@@ -1311,7 +1311,7 @@
                     }
                 }
 
-                // 🦆 says ⮞ Update TV channel display
+                // 🦆 says ⮞ update TV channel display
                 function updateTVChannelDisplay(deviceIp, channelData) {
                     const channelDisplay = document.getElementById('tvChannelDisplay');
                     if (!channelDisplay) return;
@@ -1335,7 +1335,7 @@
                     }
                 }
 
-                // 🦆 says ⮞ Format timestamp for display
+                // 🦆 says ⮞ format timestamp
                 function formatChannelTime(timestamp) {
                     if (!timestamp) return '--';
                     try {
@@ -1436,7 +1436,7 @@
                             const topicParts = topic.split('/');
                             const deviceName = topicParts[1];
 
-                            // 🦆 says ⮞ Handle TV channel updates
+                            // 🦆 says ⮞ handle TV channel updates
                             if (topic.startsWith('zigbee2mqtt/tv/') && topic.endsWith('/channel')) {
                                 try {
                                     const data = JSON.parse(message.toString());
@@ -1471,16 +1471,6 @@
                                 }
                                 return;
                             }
-    
-                            // if (topic === 'house/shopping/list') {
-                            //  statusCard.handleShoppingList(message);
-                            // } else if (topic === 'house/timers') {
-                            //  statusCard.handleTimers(message);
-                            // } else if (topic === 'house/calendar/events') {
-                            //  statusCard.handleCalendar(message);
-                            // } else if (topic === 'house/reminders') {
-                            //  statusCard.handleReminders(message);
-                            // }
     
                             if (topic.startsWith('zigbee2mqtt/tibber/')) {
                                 try {
@@ -2398,7 +2388,7 @@
                     });
                 }
 
-                const API_BASE = `http://localhost:9815`;
+                const API_BASE = `http://''${window.location.hostname}:9815`;
                 
                 const apiService = {
                   async fetchTimers() {
@@ -2558,26 +2548,34 @@
                   },
 
                   handleTimersData(data) {
+                    console.log('🦆 Timers data received:', data);
                     const timers = data.active_timers || data.timers || data.data || [];
+                    console.log('🦆 Processed timers:', timers);
 
-                    timers.forEach(timer => {
-                      if (!timer.id) {
-                        timer.id = 'timer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                      }
+                    const processedTimers = timers.map(timer => ({
+                      id: timer.id,
+                      name: `Timer ''${timer.id}`,
+                      remaining: (timer.hours_left * 3600) + (timer.minutes_left * 60) + timer.seconds_left,
+                      target: timer.target
+                    }));
+  
+                    console.log('🦆 Processed timers for countdown:', processedTimers);
 
+                    processedTimers.forEach(timer => {
                       if (timer.remaining > 0) {
                         this.startTimerCountdown(timer.id);
                       }
                     });
 
                     this.data.timers = {
-                      active: timers,
+                      active: processedTimers,
                       priority: 'high'
                     };
                     this.updateCard();
                   },
 
                   handleShoppingData(data) {
+                    console.log('🦆 Shopping data received:', data);
                     const items = data.items || data.data || [];
                     this.data.shopping = {
                       updated: new Date().toISOString(),
@@ -2597,6 +2595,7 @@
                   },    
                 
                   updateCard() {
+                    console.log('🦆 Updating status card with data:', this.data);
                     const card = document.getElementById('unifiedStatusCard');
                     const title = document.getElementById('statusCardTitle');
                     const value = document.getElementById('statusCardValue');
@@ -2615,19 +2614,20 @@
                       return;
                     }
                     
-                    // 🦆 says ⮞ Update card with content
+                    // 🦆 says ⮞ update card
                     title.textContent = content.title;
                     value.textContent = content.value;
                     details.innerHTML = content.details;
                     icon.className = content.icon;
                     card.className = 'card unified-status-card status-priority-' + content.priority;
                     
-                    // 🦆 says ⮞ Auto-save when card updates
+                    // 🦆 says ⮞ auto-save when card updates
                     this.saveData();
                   },
                   
                   getHighestPriorityContent() {
-                    // 🦆 says ⮞ Check reminders first (critical)
+                    console.log('🦆 Finding highest priority content from:', this.data);
+                    // 🦆 says ⮞ check reminders first (critical)
                     if (this.data.reminders.items.length > 0) {
                       const reminder = this.data.reminders.items[0];
                       return {
@@ -2639,7 +2639,7 @@
                       };
                     }
                     
-                    // 🦆 says ⮞ Check active timers (high) - with live countdown
+                    // 🦆 says ⮞ active timers (high)
                     const activeTimer = this.data.timers.active.find(t => t.remaining > 0);
                     if (activeTimer) {
                       return {

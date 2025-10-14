@@ -48,7 +48,7 @@ in {
       
       if [ "$list" = "true" ]; then
         cat "$LIST_FILE"
-        exit 1
+        exit 0
       fi
       
       case "$operation" in
