@@ -139,9 +139,6 @@
   '';
   
 
-
-
-
   # 🦆 says ⮞ get house.rooms
   roomIcons = lib.mapAttrs' (name: room: {
     name = name;
@@ -248,11 +245,103 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            .status-card-action-menu {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                z-index: 1000;
+                position: fixed;
+                animation: slideUp 0.2s ease;
+            }
+            
+            @keyframes slideUp {
+                from { opacity: 0; transform: translateY(20px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .action-menu-header {
+                text-align: center;
+                margin-bottom: 15px;
+                padding-bottom: 15px;
+                border-bottom: 1px solid #e2e8f0;
+            }
+            
+            .action-menu-header h3 {
+                margin: 0 0 5px 0;
+                color: #2d3748;
+            }
+            
+            .action-menu-header p {
+                margin: 0;
+                color: #718096;
+                font-size: 0.9rem;
+            }
+            
+            .action-buttons {
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .action-btn {
+                padding: 12px 15px;
+                border: none;
+                border-radius: 8px;
+                font-size: 1rem;
+                cursor: pointer;
+                transition: all 0.2s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                justify-content: center;
+            }
+            
+            .read-btn {
+                background: linear-gradient(135deg, #48bb78, #38a169);
+                color: white;
+            }
+            
+            .hide-btn {
+                background: linear-gradient(135deg, #f56565, #e53e3e);
+                color: white;
+            }
+            
+            .cancel-btn {
+                background: #e2e8f0;
+                color: #4a5568;
+            }
+            
+            .action-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            }
+            
+            .action-menu-backdrop {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                z-index: 999;
+            }
+            
             .unified-status-card {
-              background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-              color: white;
-              position: relative;
-              overflow: hidden;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin-bottom: 0 !important;
+                color: white;
+                position: relative;
+                overflow: hidden;
+            }
+    
+            .device-selector-container {
+                transition: all 0.3s ease;
+                margin: 10px 20px;
+            }
+
+            .device-selector-container.hidden {
+              display: none;
             }
     
             .unified-status-card::before {
@@ -292,7 +381,8 @@
             }
 
             .status-cards {
-                padding-bottom: 80px;
+                gap: 5px;
+                padding-bottom: 10px;
             }
 
             .scene-grid {
@@ -562,9 +652,12 @@
                 <button id="micButton" class="mic-btn">🎙️</button>
             </header>
     
-            <select id="deviceSelect" class="device-selector">
-            <option value="">🦆 says > pick a device </option>
-            </select>
+            
+            <div id="deviceSelectorContainer" class="device-selector-container hidden">
+                <select id="deviceSelect" class="device-selector">
+                    <option value="">🦆 says > pick a device </option>
+                </select>
+            </div>
     
             <div class="connection-status status-connecting" id="connectionStatus">
                 <i class="fas fa-plug"></i>
@@ -578,8 +671,7 @@
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageHome">
                     ${statusCards}
-
-
+                    
                     <div class="status-cards">
                     <div class="status-cards">
                         <div class="card">
@@ -1715,11 +1807,11 @@
                 initAudioRecording();
                 micButton.addEventListener('click', toggleRecording);
                 
-
+                
+               /////// 2nd 
                 function showPage(pageIndex) {
                     console.log('🦆 Switching to page:', pageIndex);
                     currentPage = pageIndex;
-                    
 
                     const pages = document.querySelectorAll('.page');
                     pages.forEach((page, index) => {
@@ -1730,13 +1822,13 @@
                         }
                     });
 
-                    // 🦆 says ⮞ hide device selector on TV page and dynamic pages
-                    const deviceSelector = document.getElementById('deviceSelect');
-                    if (pageIndex === 3 || pageIndex >= 4) {
-                        deviceSelector.classList.add('hidden');
+                    // 🦆 says ⮞ show device selector only on device page
+                    const deviceSelectorContainer = document.getElementById('deviceSelectorContainer');
+                    if (pageIndex === 1) {
+                        deviceSelectorContainer.classList.remove('hidden');
                     } else {
-                        deviceSelector.classList.remove('hidden');
-                    }
+                        deviceSelectorContainer.classList.add('hidden');
+                  }
 
                     navTabs.forEach((tab) => {
                         const tabPageIndex = parseInt(tab.getAttribute('data-page'));
@@ -1749,6 +1841,41 @@
 
                     saveState();
                 }
+
+                ////////////// original
+                //function showPage(pageIndex) {
+                //    console.log('🦆 Switching to page:', pageIndex);
+                //    currentPage = pageIndex;
+                    
+
+                 //   const pages = document.querySelectorAll('.page');
+                 //   pages.forEach((page, index) => {
+                  //      if (index === pageIndex) {
+                 //           page.style.display = 'block';
+                 //       } else {
+                 //           page.style.display = 'none';
+                 //       }
+                  //  });
+
+                    // 🦆 says ⮞ hide device selector on TV page and dynamic pages
+                 //   const deviceSelector = document.getElementById('deviceSelect');
+                //    if (pageIndex === 3 || pageIndex >= 4) {
+               //         deviceSelector.classList.add('hidden');
+               //     } else {
+                //        deviceSelector.classList.remove('hidden');
+                //    }
+
+                //    navTabs.forEach((tab) => {
+                //        const tabPageIndex = parseInt(tab.getAttribute('data-page'));
+                //        if (tabPageIndex === pageIndex) {
+                //            tab.classList.add('active');
+                //        } else {
+                //            tab.classList.remove('active');
+                //        }
+                //    });
+
+                //    saveState();
+                //}
 
 
                 function updateLinkquality(percent) {
@@ -2881,6 +3008,146 @@
   
 
                 initDashboard();
+
+                
+                // 🦆 says ⮞ long-press status card
+                let longPressTimer;
+                let isLongPressing = false;
+                
+                const unifiedStatusCard = document.getElementById('unifiedStatusCard');
+                
+                // 🦆 says ⮞ touch events for mobile
+                unifiedStatusCard.addEventListener('touchstart', startLongPress);
+                unifiedStatusCard.addEventListener('touchend', endLongPress);
+                unifiedStatusCard.addEventListener('touchmove', endLongPress);
+                
+                // 🦆 says ⮞ mouse events for desktop
+                unifiedStatusCard.addEventListener('mousedown', startLongPress);
+                unifiedStatusCard.addEventListener('mouseup', endLongPress);
+                unifiedStatusCard.addEventListener('mouseleave', endLongPress);
+                
+                function startLongPress(e) {
+                    isLongPressing = true;
+                    longPressTimer = setTimeout(() => {
+                        if (isLongPressing) {
+                            showStatusCardActions(e);
+                        }
+                    }, 1000); // 🦆 says ⮞ 1 sec press
+                }
+                
+                function endLongPress() {
+                    isLongPressing = false;
+                    clearTimeout(longPressTimer);
+                }
+                
+                function showStatusCardActions(e) {
+                    // 🦆 says ⮞ remove existing action menu
+                    const existingMenu = document.getElementById('statusCardActionMenu');
+                    if (existingMenu) {
+                        existingMenu.remove();
+                    }
+                
+                    // 🦆 says ⮞ create action menu
+                    const actionMenu = document.createElement('div');
+                    actionMenu.id = 'statusCardActionMenu';
+                    actionMenu.className = 'status-card-action-menu';
+                    
+                    // 🦆 says ⮞ get current status card content
+                    const title = document.getElementById('statusCardTitle').textContent;
+                    const value = document.getElementById('statusCardValue').textContent;
+                    
+                    actionMenu.innerHTML = `
+                        <div class="action-menu-header">
+                            <h3>''${title}</h3>
+                            <p>''${value}</p>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="action-btn read-btn" onclick="readStatusAloud()">
+                                <i class="fas fa-volume-up"></i>
+                                Read Aloud
+                            </button>
+                            <button class="action-btn hide-btn" onclick="hideStatusNotification()">
+                                <i class="fas fa-eye-slash"></i>
+                                Hide Notification
+                            </button>
+                            <button class="action-btn cancel-btn" onclick="closeActionMenu()">
+                                <i class="fas fa-times"></i>
+                                Cancel
+                            </button>
+                        </div>
+                    `;
+                
+                    // 🦆 says ⮞ position near the status card
+                    const cardRect = unifiedStatusCard.getBoundingClientRect();
+                    actionMenu.style.position = 'fixed';
+                    actionMenu.style.top = `''${cardRect.top + window.scrollY}px`;
+                    actionMenu.style.left = `''${cardRect.left + window.scrollX}px`;
+                    actionMenu.style.width = `''${cardRect.width}px`;
+                
+                    document.body.appendChild(actionMenu);
+                    
+                    // 🦆 says ⮞ backdrop
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'action-menu-backdrop';
+                    backdrop.onclick = closeActionMenu;
+                    document.body.appendChild(backdrop);
+                }
+                
+                function closeActionMenu() {
+                    const menu = document.getElementById('statusCardActionMenu');
+                    const backdrop = document.querySelector('.action-menu-backdrop');
+                    if (menu) menu.remove();
+                    if (backdrop) backdrop.remove();
+                }
+                
+                function readStatusAloud() {
+                    const title = document.getElementById('statusCardTitle').textContent;
+                    const value = document.getElementById('statusCardValue').textContent;
+                    const details = document.getElementById('statusCardDetails').textContent;
+                    
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.text = `''${title}. ''${value}. ''${details}`;
+                    speech.rate = 0.9;
+                    speech.pitch = 1;
+                    
+                    window.speechSynthesis.speak(speech);
+                    showNotification('Reading status aloud', 'success');
+                    closeActionMenu();
+                }
+                
+                function hideStatusNotification() {
+                    // 🦆 says ⮞ clear the current highest priority notification
+                    statusCard.dismissCurrentNotification();
+                    showNotification('Notification hidden', 'success');
+                    closeActionMenu();
+                }
+                
+                // 🦆 says ⮞ add this method to the statusCard object:
+                statusCard.dismissCurrentNotification = function() {
+                    const content = this.getHighestPriorityContent();
+                    if (!content) return;
+                    
+                    // 🦆 says ⮞ dismiss based on priority type
+                    if (content.priority === 'critical') {
+                        // 🦆 says ⮞ remove first reminder
+                        if (this.data.reminders.items.length > 0) {
+                            this.data.reminders.items.shift();
+                        }
+                    } else if (content.priority === 'high') {
+                        // 🦆 says ⮞ clear active timers
+                        this.data.timers.active = [];
+                        // 🦆 says ⮞ clear any timer intervals
+                        Object.values(this.intervals).forEach(interval => clearInterval(interval));
+                        this.intervals = {};
+                    } else if (content.priority === 'medium') {
+                        // 🦆 says ⮞ mark shopping list as not recent
+                        this.data.shopping.updated = new Date(0).toISOString();
+                    }
+                    
+                    this.updateCard();
+                    this.saveData();
+                };                
+                
             });
         </script>
     </body>
