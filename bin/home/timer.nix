@@ -40,26 +40,34 @@ in {
       mkdir -p "$LOGFILE_DIR"
 
       if [ "$list" = "true" ]; then
-        dt_info "Active timers:"
+        timers=()
+        counter=1
+
         if ls "$LOGFILE_DIR"/*.pid >/dev/null 2>&1; then
           for pidfile in "$LOGFILE_DIR"/*.pid; do
-           pid=$(basename "$pidfile" .pid)
-           if ps -p "$pid" >/dev/null 2>&1; then
-             end_time=$(awk '{print $2}' "$pidfile")
+            pid=$(basename "$pidfile" .pid)
+            if ps -p "$pid" >/dev/null 2>&1; then
+              end_time=$(awk '{print $2}' "$pidfile")
               remaining=$((end_time - $(date +%s)))
               if [ $remaining -gt 0 ]; then
-                echo "  • PID $pid — $(($remaining / 60))m $((remaining % 60))s left"
-                time_left="$(($remaining / 60)) minuter $((remaining % 60)) sekunder kvar"
-                dt_info "Timern har $time_left"
-                
-                yo say "Timern har $time_left"
+                hours_left=$((remaining / 3600))
+                minutes_left=$(((remaining % 3600) / 60))
+                seconds_left=$((remaining % 60))
+                finish_time=$(date -d @$end_time +'%H:%M:%S')
+                timers+=("{\"id\":$pid,\"counter\":$counter,\"target\":\"$finish_time\",\"hours_left\":$hours_left,\"minutes_left\":$minutes_left,\"seconds_left\":$seconds_left}")
+                if_voice_say "Timer $counter . Ringer klockan $finish_time . om $hours_left timmar, $minutes_left minuter och $seconds_left sekunder" --blocking true --silence "0.6"
+                counter=$((counter + 1))
               fi
             else
               rm -f "$pidfile"
             fi
           done
+        fi
+
+        if [ ''${#timers[@]} -eq 0 ]; then
+          echo '{"timers":[]}'
         else
-          echo "  (no active timers)"
+          printf '{"timers":[%s]}\n' "$(IFS=,; echo "''${timers[*]}")"
         fi
         exit 0
       fi

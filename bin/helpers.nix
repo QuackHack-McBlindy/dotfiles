@@ -432,7 +432,7 @@ in
       local responses=(
         "Kompis du pratar japanska jag fattar ingenting"
         "Det låter som att du har en köttee bulle i käften. Ät klart middagen och försök sedan igen."
-        "eeyyy bruscch öppna käften innan du pratar ja fattar nada ju"
+        "eeyyy bruscchan öppna käften innan du pratar ja fattar nada ju"
         "men håll käften cp!"
         "noll koll . Golf boll."
         "Ursäkta?"
@@ -447,7 +447,7 @@ in
       yo-say --text "$1"
     }
     if_voice_say() { 
-      if [ "$VOICE_MODE" = "1" ]; then yo-say "$1" --host "desktop"; fi
+      if [ "$VOICE_MODE" = "1" ]; then yo-say "$@"; fi
     }    
     confirm() {
       local question="$1"

@@ -20,7 +20,7 @@ in { # 🦆 says ⮞ yo yo yo yo
       { name = "modelDir"; description = "Path to the directory containing model"; default = "/home/" + config.this.user.me.name + "/.local/share/piper"; }
       { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
       { name = "host"; description = "Host to play the audio on"; default = "desktop"; }       
-      { name = "blocking"; description = "Wait for TTS playback to finish"; default = "false"; }
+      { name = "blocking"; type = "bool"; description = "Wait for TTS playback to finish"; default = false; }
       { name = "file"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }
       { name = "caf"; description = "Path to output .caf file"; default = ""; }
     ];

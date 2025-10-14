@@ -27,16 +27,17 @@ in {
       { name = "hours"; description = "Clock to sewt the alarm for, HH 24 format"; }     
       { name = "minutes"; description = "Clock to sewt the alarm for, MM format"; }    
       { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }          
-      { name = "sound"; description = "Soundfile to be played on finished timer"; default = "/home/pungkula/dotfiles/modules/themes/sounds/finished.wav"; }
+      { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
     code = ''
       ${cmdHelpers}
       SOUNDFILE="$sound"
       LOGFILE_DIR="/tmp/yo-alarms"
       mkdir -p "$LOGFILE_DIR"
-
+  
       if [ "$list" = "true" ]; then
-        dt_info "Aktiva alarm:"
+        alarms=()
+        counter=1
         if ls "$LOGFILE_DIR"/*.pid >/dev/null 2>&1; then
           for pidfile in "$LOGFILE_DIR"/*.pid; do
             pid=$(basename "$pidfile" .pid)
@@ -47,19 +48,25 @@ in {
                 hours_left=$((remaining / 3600))
                 minutes_left=$(((remaining % 3600) / 60))
                 seconds_left=$((remaining % 60))
-                time_left="$(printf "%02d:%02d:%02d" $hours_left $minutes_left $seconds_left)"
-                dt_info "  • PID $pid — om $hours_left timmar, $minutes_left minuter och $seconds_left sekunder (runt $(date -d @$target_time +'%H:%M'))"
-                yo say "Alarmet ringer om $hours_left timmar och $minutes_left minuter"
+                rounded_time=$(date -d @$target_time +'%H:%M')
+                alarms+=("{\"id\":$pid,\"counter\":$counter,\"target\":\"$rounded_time\",\"hours_left\":$hours_left,\"minutes_left\":$minutes_left,\"seconds_left\":$seconds_left}")
+                if_voice_say "Väckarklocka $counter . Klockan $rounded_time . Ringer om $hours_left timmar och $minutes_left minuter" --blocking true --silence "0.6"
+                counter=$((counter + 1))
               fi
             else
               rm -f "$pidfile"
             fi
           done
+        fi
+
+        if [ ''${#alarms[@]} -eq 0 ]; then
+          echo '{"alarms":[]}'
         else
-          echo "  (inga aktiva alarm)"
+          printf '{"alarms":[%s]}\n' "$(IFS=,; echo "''${alarms[*]}")"
         fi
         exit 0
       fi
+
 
       HOUR24=$((10#$hours))
       MINUTE=$((10#$minutes))

@@ -1472,15 +1472,15 @@
                                 return;
                             }
     
-                            if (topic === 'house/shopping/list') {
-                              statusCard.handleShoppingList(message);
-                            } else if (topic === 'house/timers') {
-                              statusCard.handleTimers(message);
-                            } else if (topic === 'house/calendar/events') {
-                              statusCard.handleCalendar(message);
-                            } else if (topic === 'house/reminders') {
-                              statusCard.handleReminders(message);
-                            }
+                            // if (topic === 'house/shopping/list') {
+                            //  statusCard.handleShoppingList(message);
+                            // } else if (topic === 'house/timers') {
+                            //  statusCard.handleTimers(message);
+                            // } else if (topic === 'house/calendar/events') {
+                            //  statusCard.handleCalendar(message);
+                            // } else if (topic === 'house/reminders') {
+                            //  statusCard.handleReminders(message);
+                            // }
     
                             if (topic.startsWith('zigbee2mqtt/tibber/')) {
                                 try {
@@ -2230,9 +2230,9 @@
                     loadInitialState().then(() => {
                         // 🦆 says ⮞ load state from localStorage
                         loadSavedState();
-                        statusCard.loadData();
-    
-                        // Set up TV selector first
+                        statusCard.refreshAllFromAPI();
+                        startAPIAutoRefresh();
+        
                         document.getElementById('targetTV').addEventListener('change', function() {
                             const selectedTV = this.value;
                             const channelDisplay = document.getElementById('tvChannelDisplay');
@@ -2397,7 +2397,84 @@
                         sendCommand(device, command);
                     });
                 }
+
+                const API_BASE = `http://localhost:9815`;
                 
+                const apiService = {
+                  async fetchTimers() {
+                    try {
+                      const response = await fetch(`''${API_BASE}/timers`);
+                      return await response.json();
+                    } catch (error) {
+                      console.error('Failed to fetch timers:', error);
+                      return { error: 'Failed to fetch timers' };
+                    }
+                  },
+                
+                  async fetchAlarms() {
+                    try {
+                      const response = await fetch(`''${API_BASE}/alarms`);
+                      return await response.json();
+                    } catch (error) {
+                      console.error('Failed to fetch alarms:', error);
+                      return { error: 'Failed to fetch alarms' };
+                    }
+                  },
+                
+                  async fetchShoppingList() {
+                    try {
+                      const response = await fetch(`''${API_BASE}/shopping`);
+                      return await response.json();
+                    } catch (error) {
+                      console.error('Failed to fetch shopping list:', error);
+                      return { error: 'Failed to fetch shopping list' };
+                    }
+                  },
+                
+                  async checkHealth() {
+                    try {
+                      const response = await fetch(`''${API_BASE}/health`);
+                      return await response.json();
+                    } catch (error) {
+                      console.error('API health check failed:', error);
+                      return { error: 'API unavailable' };
+                    }
+                  }
+                };
+                   
+                   
+                                   
+                // 🦆 says ⮞ Auto-refresh API data
+                let apiRefreshIntervals = [];
+                
+                function startAPIAutoRefresh() {
+                    stopAPIAutoRefresh();
+                    
+                    apiRefreshIntervals.push(setInterval(() => {
+                        statusCard.refreshTimersFromAPI();
+                    }, 5000));
+                    
+                    apiRefreshIntervals.push(setInterval(() => {
+                        statusCard.refreshShoppingFromAPI();
+                    }, 30000));
+                    
+
+                    apiRefreshIntervals.push(setInterval(() => {
+                        apiService.checkHealth().then(health => {
+                            if (!health.error) {
+                                console.log('API health:', health);
+                            }
+                        });
+                    }, 60000));
+                }
+                
+                function stopAPIAutoRefresh() {
+                    apiRefreshIntervals.forEach(interval => clearInterval(interval));
+                    apiRefreshIntervals = [];
+                }
+              
+
+
                 // 🦆 says ⮞ Unified Status Card Manager
                 const statusCard = {
                   data: {
@@ -2422,7 +2499,8 @@
                       console.error('Error saving status card data:', e);
                     }
                   },
-                  
+       
+       
                   // 🦆 says ⮞ Load status card data from localStorage
                   loadData() {
                     try {
@@ -2444,7 +2522,80 @@
                       console.error('Error loading status card data:', e);
                     }
                   },
-                  
+                
+                  // 🦆 says ⮞ API refresh methods
+                  async refreshTimersFromAPI() {
+                    try {
+                      const timerData = await apiService.fetchTimers();
+                      if (!timerData.error) {
+                        this.handleTimersData(timerData);
+                      }
+                    } catch (error) {
+                      console.error('API timer refresh failed:', error);
+                    }
+                  },
+
+                  async refreshShoppingFromAPI() {
+                    try {
+                      const shoppingData = await apiService.fetchShoppingList();
+                      if (!shoppingData.error) {
+                        this.handleShoppingData(shoppingData);
+                      }
+                    } catch (error) {
+                      console.error('API shopping refresh failed:', error);
+                    }
+                  },
+
+                  async refreshAlarmsFromAPI() {
+                    try {
+                      const alarmData = await apiService.fetchAlarms();
+                      if (!alarmData.error) {
+                        this.handleAlarmsData(alarmData);
+                      }
+                    } catch (error) {
+                      console.error('API alarm refresh failed:', error);
+                    }
+                  },
+
+                  handleTimersData(data) {
+                    const timers = data.active_timers || data.timers || data.data || [];
+
+                    timers.forEach(timer => {
+                      if (!timer.id) {
+                        timer.id = 'timer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                      }
+
+                      if (timer.remaining > 0) {
+                        this.startTimerCountdown(timer.id);
+                      }
+                    });
+
+                    this.data.timers = {
+                      active: timers,
+                      priority: 'high'
+                    };
+                    this.updateCard();
+                  },
+
+                  handleShoppingData(data) {
+                    const items = data.items || data.data || [];
+                    this.data.shopping = {
+                      updated: new Date().toISOString(),
+                      items: items,
+                      priority: 'medium'
+                    };
+                    this.updateCard();
+                  },
+
+                  handleAlarmsData(data) {
+                    const alarms = data.alarms || data.data || [];
+                    this.data.alarms = {
+                      active: alarms,
+                      priority: 'high'
+                    };
+                    this.updateCard();
+                  },    
+                
                   updateCard() {
                     const card = document.getElementById('unifiedStatusCard');
                     const title = document.getElementById('statusCardTitle');
@@ -2527,7 +2678,15 @@
                     return null;
                   },
                   
-                  // 🦆 says ⮞ Enhanced timer functions
+                  
+                  async refreshAllData() {
+                    await this.refreshTimersFromAPI();
+                    await this.refreshShoppingFromAPI();
+                    await this.refreshAlarmsFromAPI();
+                  },
+                  
+                  
+                  // 🦆 says ⮞ timer functions
                   formatTimeRemaining(seconds) {
                     if (seconds <= 0) return 'Finished!';
                     
@@ -2577,7 +2736,7 @@
                   },
                   
                   playTimerFinishedSound() {
-                    // 🦆 says ⮞ Simple beep sound for timer completion
+                    // 🦆 says ⮞ beep sound for timer completion
                     try {
                       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                       const oscillator = audioContext.createOscillator();
@@ -2636,8 +2795,8 @@
                     }
                   },
                   
-                  // 🦆 says ⮞ Enhanced MQTT message handlers
-                  handleShoppingList(message) {
+                  // 🦆 says ⮞ MQTT message handlers
+                  handleShoppingListMQTT(message) {
                     try {
                       const data = JSON.parse(message.toString());
                       this.data.shopping = {
@@ -2651,7 +2810,7 @@
                     }
                   },
                   
-                  handleTimers(message) {
+                  handleTimersMQTT(message) {
                     try {
                       const data = JSON.parse(message.toString());
                       const newTimers = data.active_timers || data.timers || [];
@@ -2678,7 +2837,7 @@
                     }
                   },
                   
-                  handleCalendar(message) {
+                  handleCalendarMQTT(message) {
                     try {
                       const data = JSON.parse(message.toString());
                       this.data.calendar = {
@@ -2691,7 +2850,7 @@
                     }
                   },
                   
-                  handleReminders(message) {
+                  handleRemindersMQTT(message) {
                     try {
                       const data = JSON.parse(message.toString());
                       this.data.reminders = {
@@ -2705,30 +2864,18 @@
                   }
                 };
                 
-
-  
-                // 🦆 says ⮞ Add MQTT subscriptions for status sources
+                
+                
                 function setupStatusSubscriptions() {
-                  if (client && client.connected) {
-                    client.subscribe('house/shopping/list', function(err) {
-                      if (!err) console.log('Subscribed to shopping list');
-                    });
-        
-                    client.subscribe('house/timers', function(err) {
-                      if (!err) console.log('Subscribed to timers');
-                    });
-        
-                    client.subscribe('house/calendar/events', function(err) {
-                      if (!err) console.log('Subscribed to calendar');
-                    });
-        
-                    client.subscribe('house/reminders', function(err) {
-                      if (!err) console.log('Subscribed to reminders');
-                    });
-                  }
+                    statusCard.refreshAllData();
                 }
-  
 
+  
+                statusCard.refreshAllFromAPI = function() {
+                  this.refreshTimersFromAPI();
+                  this.refreshAlarmsFromAPI();
+                  this.refreshShoppingFromAPI();
+                };
     
 
   
