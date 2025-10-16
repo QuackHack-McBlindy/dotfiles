@@ -1,6 +1,6 @@
 # dotfiles/bin/network/speed.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
-  self,
+{  # 🐢🦆 SCREAMS ⮞ SPEEEEEEEEEEEEEED🐢🐢🐢🐢🐢 
+  self, # 🦆 say ⮞ test network speed
   config,
   pkgs,
   cmdHelpers,

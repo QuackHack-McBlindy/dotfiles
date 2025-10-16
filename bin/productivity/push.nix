@@ -1,6 +1,11 @@
 # dotfiles/bin/productivity/push.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ self, config, pkgs, cmdHelpers, ... }:
-{
+{ 
+  self,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : {
   yo = {
     scripts = {
       push = {

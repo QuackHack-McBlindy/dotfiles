@@ -9,7 +9,7 @@
 } : let   
 in { # 🦆 says ⮞  
   yo.scripts.health = {
-    description = "Check system health status across your machines";
+    description = "Check system health status across your machines. Returns JSON structured responses.";
     category = "🧹 Maintenance";
     aliases = [ "hc" ];
     parameters = [

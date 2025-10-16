@@ -1,0 +1,201 @@
+<!-- dotfiles/home/Public/www/index.html ⮞ https://github.com/quackhack-mcblindy/dotfiles -->
+{ <!-- 🦆 says ⮞ 200 fallin' ducks with love -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 🦆 says ⮞ QuackHack-McBLindy -->
+    <title>🦆🧑‍🦯</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f8ff;
+        }
+
+        .emoji {
+            position: absolute;
+            top: -50px;
+            font-size: 2rem;
+            animation: fall linear infinite;
+        }
+
+        .duck {
+            font-size: 3rem; /* Ducks original size */
+        }
+
+        .heart {
+            font-size: 2rem;
+            transition: transform 0.3s ease; /* 🦆 says ⮞ smooth transitionz */
+        }
+
+        .heart:hover {
+            transform: scale(2); /* 🦆 says ⮞ hearts pop */
+            opacity: 0; /* 🦆 says ⮞  heartz bye-bye after poppin' */
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh);
+            }
+        }
+
+        #beginButton {
+            position: absolute;
+            font-size: 2rem;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 2s forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes flyAway {
+            to {
+                transform: translate(var(--x), var(--y)) scale(1.5) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -60%) scale(1.1); }
+        }
+
+        #bigDuck {
+            display: none;
+            position: absolute;
+            font-size: 20rem; /* /* 🦆 says ⮞ huge duck */
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            animation: appear 3s forwards 2s, bounce 1s infinite; /* 🦆 says ⮞  duck bounces while talking */
+        }
+
+        @keyframes appear {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        #dialogue {
+            display: none;
+            position: absolute;
+            top: 80%;
+            font-size: 3rem;
+            text-align: center;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="beginButton">quack</div>
+    <!-- 🦆 says ⮞ this section shows the big duck -->
+    <div id="bigDuck">🦆</div>
+    <div id="dialogue"></div>
+
+    <script>
+        const emojis = ['🦆', '🦆', '🦆', '🦆', '❤️']; // 🦆 says ⮞ duck, duck, duck, duck, heart
+
+        // 🦆 says ⮞  200 fallin' wat i said above 
+        for (let i = 0; i < 200; i++) {
+            let emoji = document.createElement('div');
+            emoji.classList.add('emoji');
+
+            // 🦆 says ⮞ randomly pick either a duck or heart emoji
+            let emojiType = emojis[Math.floor(Math.random() * emojis.length)];
+            emoji.innerText = emojiType;
+
+            // 🦆 says ⮞ class it yo
+            if (emojiType === '🦆') {
+                emoji.classList.add('duck');
+            } else {
+                emoji.classList.add('heart');
+            }
+
+            document.body.appendChild(emoji);
+
+            let size = Math.random() * 1.5 + 0.5;
+            emoji.style.left = Math.random() * 100 + 'vw';
+            emoji.style.animationDuration = Math.random() * 3 + 5 + 's'; // 🦆 says ⮞ fallin' speed cool
+            emoji.style.animationDelay = Math.random() * 5 + 's'; // 🦆 says ⮞ staggered fallin'
+        }
+
+        document.getElementById('beginButton').addEventListener('click', function() {
+            let emojis = document.querySelectorAll('.emoji');
+            emojis.forEach(emoji => {
+                let randomX = (Math.random() - 0.5) * 2000;
+                let randomY = (Math.random() - 0.5) * 2000;
+                emoji.style.setProperty('--x', `${randomX}px`);
+                emoji.style.setProperty('--y', `${randomY}px`);
+                
+                emoji.style.animation = 'flyAway 1.5s forwards';
+            });
+            this.style.display = 'none';
+
+            // 🦆 says ⮞ show the big duck after the explosion
+            setTimeout(() => {
+                document.getElementById('bigDuck').style.display = 'block';
+                showDialogue();
+            }, 2500); // 🦆 says ⮞ delay for 2.5 seconds after explosion
+        });
+
+        // 🦆 says ⮞ typin' dialogue
+        function showDialogue() {
+            const dialogueElement = document.getElementById('dialogue');
+            const dialogue = [
+                "I am a Duck.",
+                "I enjoy being a Duck.",
+                "What are you?",
+                "Quack Quack!"
+            ];
+
+            dialogueElement.style.display = 'block';
+            let index = 0;
+            
+            function typeLine() {
+                if (index < dialogue.length) {
+                    let text = dialogue[index];
+                    let charIndex = 0;
+                    let typingInterval = setInterval(() => {
+                        dialogueElement.innerText += text[charIndex];
+                        charIndex++;
+                        if (charIndex === text.length) {
+                            clearInterval(typingInterval);
+                            index++;
+                            setTimeout(() => {
+                                dialogueElement.innerText = "";
+                                typeLine();
+                            }, 1500);
+                        }
+                    }, 250);
+                }
+            }
+
+            typeLine();
+        }
+    </script>
+
+</body>
+</html>

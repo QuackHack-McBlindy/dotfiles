@@ -44,6 +44,20 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         ${pkgs.alsa-utils}/bin/arecord -f "$FORMAT" -r "$SAMPLE_RATE" -c "$CHANNELS" -d "$SECONDS_RECORDING" -t raw "$AUDIO_FILE" > /dev/null 2>&1
         trap "rm -f $AUDIO_FILE" EXIT
 
+        # 🦆 says ⮞ measure loudness in dB
+        DB_LEVEL="$(${pkgs.sox}/bin/sox "$NORMALIZED_FILE" -n stat 2>&1 | ${pkgs.gawk}/bin/awk '/RMS.*dB/ {print $4}')"
+        LOG_FILE="/home/pungkula/mic.log"
+        touch $LOG_FILE
+
+        # 🦆 says ⮞ check if over X dB, then do Y
+        THRESHOLD_DB="-10"
+        if (( $(echo "$DB_LEVEL > $THRESHOLD_DB" | ${pkgs.bc}/bin/bc -l) )); then
+          echo "[LOUDNESS: ''${DB_LEVEL} dB > $THRESHOLD_DB]" >> "$LOG_FILE"
+          # ${pkgs.sox}/bin/sox "$NORMALIZED_FILE" "$NORMALIZED_FILE" gain -3
+        else
+          echo "[LOUDNESS: ''${DB_LEVEL} dB ≤ $THRESHOLD_DB] Proceeding normally" >> "$LOG_FILE"
+        fi
+
         # 🦆 says ⮞ auto-adjust microphone volume
         WAV_FILE="$(${pkgs.coreutils}/bin/mktemp --suffix=.wav)"
         ${pkgs.sox}/bin/sox -t raw -r "$SAMPLE_RATE" -e signed -b 16 -c "$CHANNELS" "$AUDIO_FILE" "$WAV_FILE" 2>/dev/null

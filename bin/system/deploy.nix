@@ -1,6 +1,11 @@
 # dotfiles/bin/system/deploy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ self, config, pkgs, cmdHelpers, ... }:
-let
+{ # 🦆 duck say ⮞ yubikey encrypted deployment yystem - built by ducks for ducks
+  self,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : let
   sysHosts = builtins.attrNames self.nixosConfigurations;
   vmHosts = builtins.filter (host:
     self.nixosConfigurations.${host}.self.config.system.build ? vm

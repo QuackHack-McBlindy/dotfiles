@@ -56,6 +56,21 @@ in {
       REDIS_PASSWORD=$(cat $redis_pwFile)
       dt_debug "Redis host: $REDIS_HOST, Password file: $redis_pwFile"
 
+      # 🦆 says ⮞ measure loudness in dB
+      DB_LEVEL="$(${pkgs.sox}/bin/sox "$NORMALIZED_FILE" -n stat 2>&1 | ${pkgs.gawk}/bin/awk '/RMS.*dB/ {print $4}')"
+      LOG_FILE="/home/pungkula/mic.log"
+      touch $LOG_FILE
+      check_db() {
+        # 🦆 says ⮞ check if over X dB, then do Y
+        THRESHOLD_DB="-10"
+        if (( $(echo "$DB_LEVEL > $THRESHOLD_DB" | ${pkgs.bc}/bin/bc -l) )); then
+          echo "[LOUDNESS: ''${DB_LEVEL} dB > $THRESHOLD_DB]" >> "$LOG_FILE"
+          # ${pkgs.sox}/bin/sox "$NORMALIZED_FILE" "$NORMALIZED_FILE" gain -3
+        else
+          echo "[LOUDNESS: ''${DB_LEVEL} dB ≤ $THRESHOLD_DB] Proceeding normally" >> "$LOG_FILE"
+        fi
+      }
+
       acquire_lock() {
         local result
         result=$(${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" -a "$REDIS_PASSWORD" SET "$LOCK_KEY" "$LOCK_VALUE" NX EX "$LOCK_TIMEOUT")
@@ -139,6 +154,7 @@ in {
                         # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
                         dt_debug "Transcribed text: $TRANSCRIPTION"
                         export VOICE_MODE=1
+                        check_db
                         dt_info "yo do ⮞ $TRANSCRIPTION"
                         yo-do --input "$TRANSCRIPTION"
                         unset VOICE_MODE

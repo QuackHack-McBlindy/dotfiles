@@ -1,6 +1,11 @@
 # dotfiles/bin/system/block.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ self, config, pkgs, cmdHelpers, ... }:
-{
+{  # 🦆 says ⮞ block annoying urlz with dns
+  self,
+  config,
+  pkgs,
+  cmdHelpers,
+  ...
+} : {
   yo.scripts = {
     block = {
       description = "Block URLs using DNS";
@@ -18,6 +23,7 @@
         dt_info "Added: $block_entry to ''$blocklist"
       '';
     };
+    
   };}  
   
   

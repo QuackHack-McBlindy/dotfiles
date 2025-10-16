@@ -31,6 +31,7 @@
           if "''${cmd[@]}"; then
             if $DRY_RUN; then
               say_duck " ⚠️ Rebuild Test completed! - No system generation created!"
+              play_win
             else
               say_duck " ✅ Created new system generation!"
               play_win

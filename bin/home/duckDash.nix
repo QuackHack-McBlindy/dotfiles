@@ -2601,7 +2601,7 @@
                     reminders: { items: [], priority: 'critical' }
                   },
                   
-                  // 🦆 says ⮞ Live update intervals
+                  // 🦆 says ⮞ live update intervals
                   intervals: {},
                   
                   priorities: ['critical', 'high', 'medium', 'low', 'info'],
@@ -2616,9 +2616,8 @@
                       console.error('Error saving status card data:', e);
                     }
                   },
-       
-       
-                  // 🦆 says ⮞ Load status card data from localStorage
+              
+                  // 🦆 says ⮞ load status card data from localStorage
                   loadData() {
                     try {
                       const savedData = localStorage.getItem('duckDashStatusCard');
@@ -2626,7 +2625,7 @@
                         this.data = JSON.parse(savedData);
                         console.log('Status card data loaded:', this.data);
                         
-                        // 🦆 says ⮞ Restart timer countdowns if any are active
+                        // 🦆 says ⮞ restart timer countdowns if any are active
                         this.data.timers.active.forEach(timer => {
                           if (timer.remaining > 0) {
                             this.startTimerCountdown(timer.id);
@@ -2831,7 +2830,7 @@
                   },
                   
                   startTimerCountdown(timerId) {
-                    // 🦆 says ⮞ Clear existing interval for this timer
+                    // 🦆 says ⮞ clear existing interval for this timer
                     if (this.intervals[timerId]) {
                       clearInterval(this.intervals[timerId]);
                     }
@@ -2846,12 +2845,12 @@
                       timer.remaining--;
                       
                       if (timer.remaining <= 0) {
-                        // 🦆 says ⮞ Timer finished!
+                        // 🦆 says ⮞ timer finished!
                         clearInterval(this.intervals[timerId]);
                         timer.remaining = 0;
                         showNotification(`Timer "''${timer.name}" finished!`, 'success');
                         
-                        // 🦆 says ⮞ Play sound or flash notification
+                        // 🦆 says ⮞ play sound or flash notification
                         this.playTimerFinishedSound();
                       }
                       
@@ -3064,11 +3063,11 @@
                         <div class="action-buttons">
                             <button class="action-btn read-btn" onclick="readStatusAloud()">
                                 <i class="fas fa-volume-up"></i>
-                                Read Aloud
+                                Read
                             </button>
                             <button class="action-btn hide-btn" onclick="hideStatusNotification()">
                                 <i class="fas fa-eye-slash"></i>
-                                Hide Notification
+                                Hide
                             </button>
                             <button class="action-btn cancel-btn" onclick="closeActionMenu()">
                                 <i class="fas fa-times"></i>

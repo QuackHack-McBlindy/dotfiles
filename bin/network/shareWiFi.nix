@@ -1,5 +1,5 @@
 # dotfiles/bin/productivity/shareWiFi.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ creates a QR code of guest WiFi and push to iPhone
+{ # 🦆 says ⮞ Generate QR and send to iphone for guests to scan
   self,
   lib,
   config,
@@ -32,7 +32,9 @@ in {
     voice = {
       sentences = [
         "dela [gäst] (wifi|internet)"
+        "internet delning"
         "dela internet för gäster"
+        "dela internet"
       ];
     };
   };
@@ -50,4 +52,5 @@ in {
       group = config.this.user.me.name;
       mode = "0440";
     };
+    
   };}

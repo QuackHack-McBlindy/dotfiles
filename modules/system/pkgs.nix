@@ -11,7 +11,7 @@
         environment.systemPackages = lib.mkMerge [
             (lib.mkIf (config.networking.hostName == "desktop") [ 
                 pkgs.nix-prefetch-github 
-                pkgs.ollama
+                pkgs.ollama-rocm
                 pkgs.jellyfin-web
                 pkgs.jellycli
                 pkgs.kanata
