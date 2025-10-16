@@ -1,6 +1,12 @@
 # dotfiles/bin/maintenance/clean.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ config, self, pkgs, sysHosts, cmdHelpers, ... }:
-{ # 🦆 says ⮞ system cleanup
+{ # 🦆 says ⮞ garbage collection 
+  config,
+  self,
+  pkgs,
+  sysHosts,
+  cmdHelpers,
+  ...
+} : { 
     yo.scripts.clean = {
         description = "Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune";
         category = "🧹 Maintenance";
@@ -96,21 +102,22 @@
                     fi
                 fi
             done
+            
             run_cmd echo "Process completed."
-            # Run docker system df to display current Docker disk usage
+
             run_cmd echo -e "\nCurrent Docker disk usage:"
             run_cmd docker system df
-            # Prompt user if they want to prune the build cache
+
             run_cmd read -rp "Do you want to prune the Docker build cache? This will free up build cache layers (Y/N): " prune_choice
-            # If the user chooses 'Y' or 'y', run docker builder prune -a -f
-            if [[ "$prune_choice" =~ ^[Yy]$ ]]; then
-                run_cmd echo "Pruning Docker build cache..."
-                run_cmd docker builder prune -a -f
-                run_cmd echo "Build cache pruned."
-            fi
+
+            run_cmd docker builder prune -a -f
+            run_cmd echo "Build cache pruned."
+
             # Run docker system df again to show the new disk usage
+            
             run_cmd echo -e "\nUpdated Docker disk usage after pruning:"
             run_cmd docker system df
+            
             # Display free space and percentage in /home with color coding
             run_cmd df -h ~ | awk 'NR==2 {
                 free_space=$4;
@@ -127,4 +134,5 @@
                 printf "Free space: %s, Used: %s%s%s\n", free_space, color, $5, reset;
             }'
         '';
+        
     };}  

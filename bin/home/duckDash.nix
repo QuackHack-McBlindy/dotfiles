@@ -1509,6 +1509,11 @@
                                     showNotification('Subscribed to all devices', 'success');
                                 }
                             });
+                            client.subscribe('zigbee2mqtt/reminders', function(err) {
+                                if (!err) {
+                                    showNotification('Subscribed to reminders', 'success');
+                                }
+                            });                            
                             client.subscribe('zigbee2mqtt/tibber/#', function(err) {
                                 if (!err) {
                                     showNotification('Subscribed to energy data', 'success');
@@ -1527,6 +1532,17 @@
                         client.on('message', function(topic, message) {
                             const topicParts = topic.split('/');
                             const deviceName = topicParts[1];
+
+                            // 🦆 says ⮞ handle reminders
+                            if (topic === 'zigbee2mqtt/reminders') {
+                                try {
+                                    const data = JSON.parse(message.toString());
+                                    statusCard.handleRemindersMQTT(message);
+                                } catch (e) {
+                                    console.error('Error parsing reminder message:', e);
+                                }
+                                return;
+                            }
 
                             // 🦆 says ⮞ handle TV channel updates
                             if (topic.startsWith('zigbee2mqtt/tv/') && topic.endsWith('/channel')) {

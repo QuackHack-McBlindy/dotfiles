@@ -1,5 +1,5 @@
 # dotfiles/bin/misc/shop-list.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{ # 🦆 says ⮞ shopping list management
   self,
   lib,
   config,
@@ -27,8 +27,7 @@
 
 in {
   yo.scripts.shop-list = {
-    description = "Shopping list management";
-    
+    description = "Shopping list management";    
     category = "🧩 Miscellaneous";
     parameters = [
       { name = "operation"; description = "Possible operation modes: add, remove or clear"; default = "add"; }

@@ -1,5 +1,5 @@
 # dotfiles/bin/network/api.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{ # 🦆 says ⮞ simple bash api to hold timers, shopping list and stuff like dat
   self,
   config,
   pkgs,
@@ -77,18 +77,29 @@ RESPONSE
               send_response "500 Internal Server Error" '{"error":"Failed to fetch shopping list"}'
             fi  
           fi ;;
+        "/reminders"|"/remmind"|"/api/reminders" )
+          if output=$(yo reminder --list 2>/dev/null); then
+            if [[ -n "$output" ]]; then
+              json_items=$(printf '%s\n' "$output" | jq -R -s 'split("\n")[:-1]')
+              send_response "200 OK" "{\"items\":$json_items}"
+            else
+              send_response "500 Internal Server Error" '{"error":"Failed to fetch reminders"}'
+            fi  
+          fi ;;
         "/health" )
           send_response "200 OK" '{"status":"healthy","service":"yo-api","timestamp":"'"$(date -Iseconds)"'"}' ;;
         * )
           send_response "404 Not Found" '{"error":"Endpoint not found","path":"'"$path"'"}' ;;
       esac
     }
-
     handle_request
-  '';      
-in {  
+  '';  
+  
+in { 
   networking.firewall.allowedTCPPorts = [9815];
+  # 🦆 says ⮞ fancy cat'z...
   environment.systemPackages = [ pkgs.socat pkgs.netcat ];
+  # 🦆 says ⮞  da script yo
   yo.scripts.api = {
     description = "Simple API for collecting system data";
     category = "🌐 Networking";

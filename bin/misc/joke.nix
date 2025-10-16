@@ -1,5 +1,5 @@
 # dotfiles/bin/misc/joke.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Tells bad jokes
+{ # 🦆 says ⮞ Tell's bad jokes lol?
   self,
   lib,
   config,
@@ -9,7 +9,7 @@
 } : let
 in {  
   yo.scripts.joke = {
-    description = "Tells a quacktastic joke";
+    description = "Duck says s funny joke.";
     category = "🧩 Miscellaneous";
     autoStart = false;
     logLevel = "INFO";
@@ -35,11 +35,13 @@ in {
     };
   };
   
+  # 🦆 says ⮞ i like dirty jokes!
   sops.secrets = {
-    jokes = { # 🦆 says ⮞ i like dirty jokes!
+    jokes = { # 🦆 says ⮞ hide dem
       sopsFile = ./../../secrets/jokes.yaml; 
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
-      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+      mode = "0440"; # 🦆 says ⮞ read-only for owner and group
+    
     };
   };}  
