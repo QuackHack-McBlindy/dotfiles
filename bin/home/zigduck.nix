@@ -640,7 +640,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
   services.mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     enable = true;
     listeners = [
-      {
+      { # 🦆 says ⮞ mqtt:// @ 1883
         acl = [ "pattern readwrite #" ];
         port = 1883;
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
@@ -649,7 +649,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
       }
-      
+      # 🦆 says ⮞ ws:// @ 9001
       {
         acl = [ "pattern readwrite #" ];
         port = 9001;
@@ -658,6 +658,16 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
       }
+      # 🦆 says ⮞ wss:// @ 9002
+      {
+        acl = [ "pattern readwrite #" ];
+        port = 9002;
+        settings.protocol = "websockets";
+        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
+        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
+        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
+        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
+      }      
     ];
 
   };

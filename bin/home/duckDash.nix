@@ -903,7 +903,7 @@
 
                 // 🦆 says ⮞ mqtt
                 let client = null;
-                const brokerUrl = 'ws://${mqttHostip}:9001';
+                const brokerUrl = 'wss://${mqttHostip}:9002';
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
         
@@ -3054,7 +3054,80 @@
                     isLongPressing = false;
                     clearTimeout(longPressTimer);
                 }
-                
+
+                window.readStatusAloud = function() {
+                    console.log('🦆 Reading status aloud');
+                    const title = document.getElementById('statusCardTitle').textContent;
+                    const value = document.getElementById('statusCardValue').textContent;
+                    const details = document.getElementById('statusCardDetails').textContent;
+                    // 🦆 says ⮞ shut up if speakiong
+                    window.speechSynthesis.cancel();
+                    const speech = new SpeechSynthesisUtterance();
+                    speech.text = `''${title}. ''${value}. ''${details}`;
+                    speech.rate = 0.9;
+                    speech.pitch = 1;
+                    speech.volume = 0.8;
+                    // 🦆 says ⮞ get voices
+                    const voices = window.speechSynthesis.getVoices();
+                    if (voices.length > 0) {
+                        // 🦆 says ⮞ i like ladies
+                        const femaleVoice = voices.find(voice => 
+                            voice.name.includes('Female') || voice.name.includes('woman') || voice.name.includes('Samantha')
+                        );
+                        if (femaleVoice) {
+                            speech.voice = femaleVoice;
+                        }
+                    }
+                    window.speechSynthesis.speak(speech);
+                    showNotification('Reading status aloud', 'success');
+                    closeActionMenu();
+                };
+
+                window.hideStatusNotification = function() {
+                    console.log('🦆 Hiding status notification');
+                    let cardManager = window.statusCard || statusCard;    
+                    if (cardManager && typeof cardManager.dismissCurrentNotification === 'function') {
+                        console.log('🦆 Calling dismissCurrentNotification');
+                        cardManager.dismissCurrentNotification();
+                        showNotification('Notification dismissed', 'success');
+                    } else {
+                        console.error('🦆 statusCard.dismissCurrentNotification not found', {
+                            windowStatusCard: !!window.statusCard,
+                            localStatusCard: !!statusCard,
+                            hasDismissMethod: cardManager ? typeof cardManager.dismissCurrentNotification : 'no cardManager'
+                        });
+                        showNotification('Cannot dismiss notification - function not found', 'error');
+                    }
+                    closeActionMenu();
+                };
+
+                window.closeActionMenu = function() {
+                    console.log('🦆 Closing action menu');
+                    const menu = document.getElementById('statusCardActionMenu');
+                    const backdrop = document.querySelector('.action-menu-backdrop');
+    
+                    if (menu) {
+                        // 🦆 says ⮞ remove escape handler
+                        if (menu._escapeHandler) {
+                            document.removeEventListener('keydown', menu._escapeHandler);
+                        }
+                        menu.remove();
+                        console.log('🦆 Menu removed');
+                    }
+                    if (backdrop) {
+                        backdrop.remove();
+                        console.log('🦆 Backdrop removed');
+                    }
+    
+                    // 🦆 says ⮞ reset da long press state
+                    isLongPressing = false;
+                    if (longPressTimer) {
+                        clearTimeout(longPressTimer);
+                        longPressTimer = null;
+                    }
+                };
+
+
                 function showStatusCardActions(e) {
                     // 🦆 says ⮞ remove existing action menu
                     const existingMenu = document.getElementById('statusCardActionMenu');
@@ -3107,46 +3180,21 @@
                     backdrop.onclick = closeActionMenu;
                     document.body.appendChild(backdrop);
                 }
-                
-                function closeActionMenu() {
-                    const menu = document.getElementById('statusCardActionMenu');
-                    const backdrop = document.querySelector('.action-menu-backdrop');
-                    if (menu) menu.remove();
-                    if (backdrop) backdrop.remove();
-                }
-                
-                function readStatusAloud() {
-                    const title = document.getElementById('statusCardTitle').textContent;
-                    const value = document.getElementById('statusCardValue').textContent;
-                    const details = document.getElementById('statusCardDetails').textContent;
-                    
-                    const speech = new SpeechSynthesisUtterance();
-                    speech.text = `''${title}. ''${value}. ''${details}`;
-                    speech.rate = 0.9;
-                    speech.pitch = 1;
-                    
-                    window.speechSynthesis.speak(speech);
-                    showNotification('Reading status aloud', 'success');
-                    closeActionMenu();
-                }
-                
-                function hideStatusNotification() {
-                    // 🦆 says ⮞ clear the current highest priority notification
-                    statusCard.dismissCurrentNotification();
-                    showNotification('Notification hidden', 'success');
-                    closeActionMenu();
-                }
-                
-                // 🦆 says ⮞ add this method to the statusCard object:
+                               
                 statusCard.dismissCurrentNotification = function() {
+                    console.log('🦆 Dismissing current notification');
                     const content = this.getHighestPriorityContent();
-                    if (!content) return;
-                    
+                    if (!content) {
+                        console.log('🦆 No content to dismiss');
+                        return;
+                    }  
+                    console.log('🦆 Dismissing content with priority:', content.priority);    
                     // 🦆 says ⮞ dismiss based on priority type
                     if (content.priority === 'critical') {
                         // 🦆 says ⮞ remove first reminder
                         if (this.data.reminders.items.length > 0) {
                             this.data.reminders.items.shift();
+                            console.log('🦆 Dismissed reminder');
                         }
                     } else if (content.priority === 'high') {
                         // 🦆 says ⮞ clear active timers
@@ -3154,14 +3202,21 @@
                         // 🦆 says ⮞ clear any timer intervals
                         Object.values(this.intervals).forEach(interval => clearInterval(interval));
                         this.intervals = {};
+                        console.log('🦆 Dismissed timers');
                     } else if (content.priority === 'medium') {
                         // 🦆 says ⮞ mark shopping list as not recent
                         this.data.shopping.updated = new Date(0).toISOString();
-                    }
-                    
+                        console.log('🦆 Dismissed shopping list');
+                    } else if (content.priority === 'low') {
+                        // 🦆 says ⮞ handle low priority items
+                        console.log('🦆 Dismissed low priority item');
+                    } 
                     this.updateCard();
                     this.saveData();
-                };                
+                    console.log('🦆 Notification dismissed successfully');
+                };
+                // 🦆 says ⮞ make it global
+                window.statusCard = statusCard;           
                 
             });
         </script>

@@ -1,5 +1,5 @@
 # dotfiles/bin/home/alarm.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ taking care of wakeup.  
+{ # 🦆 says ⮞ alarms - takin' care of wakeup - forcefully getting me out of bed 
   self,
   lib,
   config,
@@ -18,6 +18,25 @@
   ];
   # 🦆 says ⮞ get dat number yo
   swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
+  
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+
 in {   
    yo.scripts.alarm = {
     description = "Set an alarm for a specified time";
@@ -32,6 +51,7 @@ in {
     code = ''
       ${cmdHelpers}
       SOUNDFILE="$sound"
+      mqttHost="${mqttHost}"
       LOGFILE_DIR="/tmp/yo-alarms"
       mkdir -p "$LOGFILE_DIR"
   
@@ -77,7 +97,13 @@ in {
         target=$(date -d "tomorrow $HOUR24:$MINUTE" +%s)
       fi
 
+      if [ "$(hostname)" != "$mqttHost" ]; then
+        dt_info "Set alarm for $HOUR24:$MINUTE on $mqttHost ..."
+        ssh $mqttHost "yo alarm --hours $hours --minutes $minutes"
+      fi  
+
       if_voice_say "Okej kompis, jag ställde din väckarklocka på $HOUR24:$MINUTE"
+      dt_info "Set alarm for $HOUR24:$MINUTE"
 
       (
         while [ $(date +%s) -lt $target ]; do
@@ -89,6 +115,8 @@ in {
         echo -e "\n\e[1;5;31m[ALARM RINGS]\e[0m"
         rm -f "$LOGFILE_DIR/$$.pid"
 
+        yo notify "Dags att vakna!!"
+
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
@@ -96,6 +124,7 @@ in {
           sleep 30
           for i in {1..8}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
+            yo notify "UPP UR SÄNGEN!!!!"
           done
         else
           echo "Sound file not found: $SOUNDFILE"

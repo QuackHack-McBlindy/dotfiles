@@ -1,5 +1,5 @@
 # dotfiles/bin/home/timer.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Handles timers.  
+{ # 🦆 says ⮞ timer management - ised when cooking or whatever  
   self,
   lib,
   config,
@@ -18,6 +18,25 @@
   ];
   # 🦆 says ⮞ get dat number yo
   swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
+  
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+    
 in {  
   yo.scripts.timer = {
     description = "Set a timer";
@@ -35,6 +54,7 @@ in {
       HOURS="$hours"
       MINUTES="$minutes"
       SECONDS="$seconds"
+      mqttHost="${mqttHost}"
 
       LOGFILE_DIR="/tmp/yo-timers"
       mkdir -p "$LOGFILE_DIR"
@@ -71,11 +91,18 @@ in {
         fi
         exit 0
       fi
+      
 
       TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
       DURATION=$TIMER_TOTAL
       TIMER_MINUTES=$((DURATION / 60))
+      dt_info "Setting timer on $TIMER_MINUTES minutes ..."
       if_voice_say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
+      
+      if [ "$(hostname)" != "$mqttHost" ]; then
+        dt_info "Setting timer on $TIMER_MINUTES minutes on $mqttHost ..."
+        ssh $mqttHost "yo timer --minutes $TIMER_MINUTES"
+      fi
 
       start_time=$(date +%s)
       end_time=$((start_time + DURATION))
@@ -91,6 +118,8 @@ in {
         echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
         rm -f "$LOGFILE_DIR/$$.pid"
 
+        yo notify "TIMER RINGER!!"
+
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
@@ -98,9 +127,10 @@ in {
           sleep 15
           for i in {1..8}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
+            yo notify "TIMER RINGER!!"
           done
         else
-          echo "Sound file not found: $SOUNDFILE"
+          dt_warning "Sound file not found: $SOUNDFILE"
         fi
       ) > /tmp/yo-timer.log 2>&1 &
       pid=$!
