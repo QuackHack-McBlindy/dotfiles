@@ -6,7 +6,8 @@
   pkgs,
   cmdHelpers,
   ...
-}: let # 🦆 says ⮞ dis fetch what host has Mosquitto
+}: let 
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
@@ -903,7 +904,7 @@
 
                 // 🦆 says ⮞ mqtt
                 let client = null;
-                const brokerUrl = 'wss://${mqttHostip}:9002';
+                const brokerUrl = 'wss://${mqttHostip}:9001';
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
         
@@ -2532,6 +2533,7 @@
                 }
 
                 const API_BASE = `http://''${window.location.hostname}:9815`;
+
                 
                 const apiService = {
                   async fetchTimers() {

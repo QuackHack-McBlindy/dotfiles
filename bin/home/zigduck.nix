@@ -657,17 +657,8 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
         users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
         settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
-      }
-      # 🦆 says ⮞ wss:// @ 9002
-      {
-        acl = [ "pattern readwrite #" ];
-        port = 9002;
-        settings.protocol = "websockets";
-        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
-        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
-        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
-      }      
+        #settings.require_certificate = false; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
+      } 
     ];
 
   };
