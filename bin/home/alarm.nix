@@ -43,8 +43,8 @@ in {
     category = "🛖 Home Automation";  
     aliases = [ "wakeup" ];
     parameters = [     
-      { name = "hours"; description = "Clock to sewt the alarm for, HH 24 format"; }     
-      { name = "minutes"; description = "Clock to sewt the alarm for, MM format"; }    
+      { name = "hours"; type = "int"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; }     
+      { name = "minutes"; type = "int"; description = "Clock to sewt the alarm for, MM format"; optional = false; }
       { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }          
       { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
@@ -137,8 +137,8 @@ in {
     voice = {
       priority = 5;
       sentences = [
-        "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} {minutes}"   
-        "väck mig [klocka|klockan] {hours} {minutes}"
+        "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"   
+        "väck mig [klocka|klockan] {hours} [och] {minutes}"
         
         "när ska jag {list} [upp]"
         "när {list} min väckarklocka"

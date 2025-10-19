@@ -904,7 +904,8 @@
 
                 // 🦆 says ⮞ mqtt
                 let client = null;
-                const brokerUrl = 'wss://${mqttHostip}:9001';
+                
+                const brokerUrl = 'ws://${mqttHostip}:9001';              
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
         
@@ -2533,8 +2534,7 @@
                 }
 
                 const API_BASE = `http://''${window.location.hostname}:9815`;
-
-                
+                             
                 const apiService = {
                   async fetchTimers() {
                     try {

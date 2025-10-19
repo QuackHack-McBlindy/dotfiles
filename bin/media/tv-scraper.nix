@@ -32,7 +32,7 @@
   # 🦆 says ⮞ gen json from `config.house.tv`  
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
-  # 🦆 says ⮞ py scrapin'
+  # 🦆 says ⮞ bleh... got 2 advanced 4 bash - lazy py scrapin' .... quack quack
   pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ]); 
   scraper = pkgs.writeScript "tv-scraper.py" ''
     #!${pyEnv}/bin/python
@@ -289,27 +289,22 @@
 in {
   environment = {
     systemPackages = [ pkgs.xmlstarlet ];
+    # 🦆 says ⮞ share the json epg for duckDash
     etc."epg.json".source = 
       "/home/${config.this.user.me.name}/epg.json";  
-  };
-
-  # 🦆 says ⮞ most tv guides change day around 5ish
-  house.timeAutomations.tv-scraper-daily = {
-    time = "05:00";
-    days = [ "*" ];
-    action = "yo tv-scraper";
   };
   
   yo.scripts.tv-scraper = {
     description = "Scrapes web for tv-listing data. Builds EPG and generates HTML.";
     aliases = [ "tvs" ];
     category = "🎧 Media Management";
-    autoStart = false;    
+    autoStart = false;  
+    runAt = [ "05:00" ]; # 🦆 says ⮞ most tv guides change day around 5ish
     logLevel = "INFO";
     parameters = [
       { name = "epgFilePath"; description = "Path to storage of the xml EPG file"; optional = false; default = "/home/" + config.this.user.me.name + "/tvepg.xml"; }
       { name = "jsonFilePath"; description = "Optional option to write as JSON file in addation to the EPG"; optional = true; default = "/home/" + config.this.user.me.name + "/epg.json"; }
-       { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
+      { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
     ];
     code = ''
       ${cmdHelpers}
@@ -427,5 +422,7 @@ in {
       } > "$HTML_OUT"
 
       dt_info "HTML TV-Guide generated: $HTML_OUT"
+      echo "HTML TV-Guide generated: $HTML_OUT"
     '';
+    
   };}

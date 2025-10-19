@@ -29,6 +29,7 @@ in {
       DAY=$(date "+%A")
       DATE=$(date "+%d %B")
       say_duck "Klockan är $TIME . Det är $DAY dem $DATE ."
+      echo "$TIME"
       if_voice_say "Klockan är $TIME . Det är $DAY den $DATE ."  
     '';
     voice = {

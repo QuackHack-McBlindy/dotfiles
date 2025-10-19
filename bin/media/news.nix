@@ -1,5 +1,5 @@
 # dotfiles/bin/media/news.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{
+{ # 🦆 says ⮞ latest news from SR
   self,
   lib,
   config,
@@ -9,14 +9,20 @@
 } : let
 in {  
   yo.scripts.news = {
-    description = "API caller and playlist manager for latest Swedish news";
+    description = "API caller and playlist manager for latest Swedish news from SR.";
     category = "🎧 Media Management";
     autoStart = false;
     logLevel = "INFO";
     parameters = [  
-      { name = "apis"; description = "Comma seperated list of API's to fetch data form."; default = "http://api.sr.se/api/v2/news/episodes?format=json,http://api.sr.se/api/v2/podfiles?programid=178&format=json,http://api.sr.se/api/v2/podfiles?programid=5524&format=json,http://api.sr.se/api/v2/podfiles?programid=5413&format=json"; }
-      { name = "clean"; description = "Clean playedFile"; optional = true; }
-      { name = "playedFile"; description = "Path to location where to write played news metadata"; default = "/home/" + config.this.user.me.name + "/played_news"; } 
+      { name = "apis"; description = "Comma seperated list of API's to fetch data form."; default = builtins.concatStringsSep "," [
+        "http://api.sr.se/api/v2/news/episodes?format=json"           # 🦆 says ⮞ Ekot
+        "http://api.sr.se/api/v2/podfiles?programid=178&format=json"  # 🦆 says ⮞ Ekonomiekot
+        "http://api.sr.se/api/v2/podfiles?programid=4916&format=json" # 🦆 says ⮞ Radiosporten
+        "http://api.sr.se/api/v2/podfiles?programid=478&format=json"  # 🦆 says ⮞ P4 Västerbotten
+        "http://api.sr.se/api/v2/podfiles?programid=3992&format=json" # 🦆 says ⮞ Radio Västerbotten
+      ]; }
+      { name = "clear"; type = "bool"; description = "Clears the playedFile before playing"; optional = true; }
+      { name = "playedFile"; type = "path"; description = "Path to location where to write played news metadata"; default = "/home/" + config.this.user.me.name + "/played_news"; } 
     ];
     code = ''
       ${cmdHelpers}     
@@ -26,7 +32,9 @@ in {
       PLAYED_NEWS_FILE="$playedFile"
       MAX_PLAYED_NEWS_ENTRIES=350
       PLAYLIST_FILE="/tmp/news_playlist.m3u"
-      if [ -n "$clean" ]; then
+      
+      # 🦆 says ⮞ --clear cleans played news file 
+      if [ -n "$clear" ]; then
         rm -rf "$playedFile"
       fi
       
@@ -83,6 +91,8 @@ in {
       priority = 2;
       sentences = [
         "(senast|senaste) (myt|nyt|nytt)"
+        
       ];  
     };
+    
   };}  

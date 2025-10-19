@@ -25,7 +25,7 @@ in {
     category = "🌍 Localization";
     aliases = [ "weat" ];
     parameters = [
-      { name = "location"; description = "Location to check (City, Country)"; optional = true; }
+      { name = "location"; description = "Location to check (City, Country). Not required if using locationPath"; optional = true; }
       { name = "day"; description = "Search weather for a specified day"; optional = true; }
       { name = "condition"; description = "Check for a specific weather condition"; optional = true; }   
       { name = "locationPath"; description = "File path contianing location to check (City, Country)"; default = config.sops.secrets."users/pungkula/homeCityCountry".path; }      

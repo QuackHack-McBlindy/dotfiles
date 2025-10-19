@@ -7,7 +7,24 @@
   cmdHelpers,
   ...
 } : let
+
+
 in {
+
+  services.ollama = lib.mkIf (lib.elem "gpu/amd" config.this.host.modules.hardware) {
+    enable = true;
+    package = pkgs.ollama-rocm;
+    host = "127.0.0.1";
+    port = 11434;
+    environmentVariables = {};
+    home = "/var/lib/ollama";
+    loadModels = [ "llama3.1:8b" "codellama:7b" "deepseek-r1:32b" ];
+    acceleration = "rocm";
+    openFirewall = true;
+  };
+
+
+
   yo.scripts.chat = {
     description = "No fwendz? Let's chat yo!";
     category = "🧩 Miscellaneous";
@@ -37,9 +54,9 @@ in {
       fi
       
       dt_debug "Received response: $response"
-      
+      echo "$response"
       # 🦆 says ⮞ say it yo
-      yo say --text "$response"
+      yo say --text "$response" 
     
     '';
     voice = {

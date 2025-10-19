@@ -263,6 +263,15 @@ EOF
         say_duck "Triggering Zigbee coordinator backup: $BACKUP_ID"
 state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
       }
+      current_time() {
+        date +%s
+      }
+      last_motion() {
+        get_state "apartment" "last_motion"
+      }
+      time_diff() {
+        current_time - last_motion
+      }
       # 🦆 says ⮞ handle backup response function
       handle_backup_response() {
         local line="$1"
@@ -447,22 +456,21 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           
           # 🦆 says ⮞ 🚪 door and window sensor yo 
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
-            device_check            
+            device_check
+            dt_info "🚪 Door open in $dev_room ($device_name)" 
             if [ "$contact" = "false" ]; then
-              dt_info "🚪 Door open in $dev_room ($device_name)"    
-              # 🦆 says ⮞ welcome me home
-              if [ "$dev_room" = "hallway" ]; then
-                current_time=$(date +%s)
-                last_motion=$(get_state "apartment" "last_motion")
-                if [ -n "$last_motion" ]; then
-                  time_diff=$((current_time - last_motion))
-                  # 🦆 says ⮞ if i've been gone for 2 hours
-                  if [ $time_diff -gt 7200 ]; then 
-                    dt_info "Welcoming you home! (no motion for 2 hours, door opened"
-                    yo say --text "Välkommen hem!" --host "desktop"
-                  fi
-                fi
+              dt_info "🚪 Door open in $dev_room ($device_name)"
+              dt_info "TIME: $current_time"
+              dt_info "LAST MOTION: $last_motion"
+              dt_info "TIME DIFF: $time_diff"
+              # 🦆 says ⮞ if i've been gone for 2 hours
+              if [ $time_diff -gt 7200 ]; then 
+                dt_info "Welcoming you home! (no motion for 2 hours, door opened"
+                yo say --text "Välkommen hem!" --host "desktop"
+              else
+                dt_info "🛑🛑🛑 NOT WELCOMING: 🛑🛑🛑 only $((time_diff/60)) minutes since last motion"
               fi
+              
               
               CURRENT_LARMED=$(get_larmed)
               if [ "$CURRENT_LARMED" = "true" ]; then

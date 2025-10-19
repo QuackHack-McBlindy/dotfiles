@@ -5,13 +5,43 @@
   pkgs,   
   ...
 } : with lib;
-let 
-  # 🦆 says ⮞ for README version badge yo
+let # 🦆 says ⮞ for README version badge yo
   nixosVersion = let
     raw = builtins.readFile /etc/os-release;
     versionMatch = builtins.match ".*VERSION_ID=([0-9\\.]+).*" raw;
   in builtins.replaceStrings [ "." ] [ "%2E" ] (builtins.elemAt versionMatch 0);
+
+  # 🦆 duck say ⮞ validate time format - HH:MM (24h)
+  isValidTime = timeStr:
+    let
+      matches = builtins.match "([0-9]{1,2}):([0-9]{2})" timeStr;
+    in
+      if matches != null then
+        let
+          hourStr = builtins.elemAt matches 0;
+          minuteStr = builtins.elemAt matches 1;
+          # 🦆 duck say ⮞ remove leading zeros for JSON parsin'
+          cleanNumber = str:
+            if builtins.substring 0 1 str == "0" && builtins.stringLength str > 1
+            then builtins.substring 1 (builtins.stringLength str) str
+            else str;
+          hour = builtins.fromJSON (cleanNumber hourStr);
+          minute = builtins.fromJSON (cleanNumber minuteStr);
+        in
+          hour >= 0 && hour <= 23 && minute >= 0 && minute <= 59
+      else false;
   
+  # 🦆 duck say ⮞ validate list of timez
+  validateTimes = times:
+    if times == null then null
+    else
+      let
+        invalidTimes = lib.filter (time: !isValidTime time) times;
+      in
+        if invalidTimes != [] then
+          throw "🦆 duck say ⮞ fuck ❌ Invalid time format in runAt: ${lib.concatStringsSep ", " invalidTimes}. Use HH:MM (24-hour format)"
+        else times;
+
   # 🦆 duck say ⮞ quacky hacky helper 2 escape md special charizardz yo
   escapeMD = str: let
     replacements = [
@@ -475,6 +505,12 @@ EOF
         type = types.nullOr types.str;
         default = null;
         description = "Run this script periodically every X minutes";
+      }; # 🦆 duck say ⮞ run at specific time
+      runAt = mkOption {
+        type = types.nullOr (types.listOf (types.strMatching "[0-9]{1,2}:[0-9]{2}"));
+        default = null;
+        description = "Run this script at specific times daily (format: [HH:MM, ...], 24-hour)";
+        apply = validateTimes;
       }; # 🦆 duck say ⮞ code to be executed when calling tda script yo      
       code = mkOption {
         type = types.lines;
@@ -632,6 +668,7 @@ EOF
         scriptContent = ''
           #!${pkgs.runtimeShell}
 #          set -euo pipefail # 🦆 duck say ⮞ strict error handlin' yo - will exit on errorz
+          set -o noglob  # 🦆 duck say ⮞ disable wildcard expansion for ? and ! flags
           ${yoEnvGenVar script} # 🦆 duck say ⮞ inject da env quack quack.... quack
           export LC_NUMERIC=C
           start=$(date +%s.%N)
@@ -657,7 +694,7 @@ EOF
           done  
           VERBOSE=$VERBOSE
           export VERBOSE DRY_RUN
-     
+          
           # 🦆 duck say ⮞ reset arguments without special flags
           set -- "''${FILTERED_ARGS[@]}"
 
@@ -666,6 +703,10 @@ EOF
           POSITIONAL=()
           VERBOSE=$VERBOSE
           DRY_RUN=$DRY_RUN
+          # 🦆 duck say ⮞ if ? flag used - sets scripts logLevel to DEBUG
+          if [ "$VERBOSE" -ge 1 ]; then
+            DT_LOG_LEVEL="DEBUG"
+          fi
           
           # 🦆 duck say ⮞ parse all parameters
           while [[ $# -gt 0 ]]; do
@@ -763,19 +804,19 @@ EOF
                 case "${param.type}" in
                   int)
                     if ! [[ "''${${param.name}}" =~ ^[0-9]+$ ]]; then
-                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${param.name} must be integer\033[0m" >&2
+                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} --${param.name} must be integer\033[0m" >&2
                       exit 1
                     fi
                     ;;
                   path)
                     if ! [ -e "''${${param.name}}" ]; then
-                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ Path not found: ''${${param.name}}\033[0m" >&2
+                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Path not found: ''${${param.name}}\033[0m" >&2
                       exit 1
                     fi
                     ;;
                   bool)
                     if ! [[ "''${${param.name}}" =~ ^(true|false)$ ]]; then
-                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${param.name} must be true or false\033[0m" >&2
+                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Parameter ${param.name} must be true or false\033[0m" >&2
                       exit 1
                     fi
                     ;;
@@ -815,7 +856,7 @@ EOF
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional && param.default == null) ''
               if [[ -z "''${${param.name}:-}" ]]; then
-                echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ Missing required parameter: ${param.name}\033[0m" >&2
+                echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Missing required parameter: ${param.name}\033[0m" >&2
                 exit 1
               fi
             ''}
@@ -837,11 +878,12 @@ EOF
     ) cfg.scripts; # 🦆 duck say ⮞ apply da logic to da yo scriptz
   }; 
 
-  githubBaseUrl = let
+  # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
+  githubBaseUrl = let # 🦆 duck say ⮞ pattern match to extract username and repo name
     matches = builtins.match ".*github.com[:/]([^/]+)/([^/\\.]+).*" config.this.user.me.repo;
-  in if matches != null then
+  in if matches != null then # 🦆 duck say ⮞ if match - construct
     "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
-  else "";
+  else ""; # 🦆 duck say ⮞ no match? empty string
 
   # 🦆 duck say ⮞ build scripts for da --help command
   terminalScriptsTableFile = pkgs.writeText "yo-helptext.md" terminalScriptsTable;
@@ -884,7 +926,6 @@ EOF
             "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
         ) scripts)
     ) sortedCategories2;
-
   in concatStringsSep "\n" rows;
 
   # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
@@ -903,40 +944,6 @@ EOF
       else if b == "🖥️ System Management" then false
       else a < b # 🦆 duck say ⮞ after dat everything else quack quack
     ) (lib.attrNames groupedScripts);
-  
-    # 🦆 duck say ⮞ create table rows with category separatorz 
-#    rows = lib.concatMap (category:
-#      let  # 🦆 duck say ⮞ sort from A to Ö  
-#        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
-#      in
-#        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-#          "| **${escapeMD category}** | | |"
-#        ] 
-#        ++ # 🦆 duck say ⮞ each yo script goes into a table row
-#        (map (script:
-#          let 
-            # 🦆 duck say ⮞ format list of aliases
-#            aliasList = if script.aliases != [] then
-#              concatStringsSep ", " (map escapeMD script.aliases)
-#            else "";          
-            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
-#            paramHint = concatStringsSep " " (map (param:
-#              if param.optional || param.default != null
-#              then "[--${param.name}]"
-#              else "--${param.name}"
-#            ) script.parameters);         
-            # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
-#            syntax = 
-#              if githubBaseUrl != "" then
-#                "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
-#              else
-#                "yo ${escapeMD script.name} ${paramHint}";
-#          in 
-            # 🦆 duck say ⮞ write full md table row - command | aliases | description
-#            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
-#        ) scripts)
-#    ) sortedCategories;  
-#  in concatStringsSep "\n" rows;
   
     # 🦆 duck say ⮞ create table rows with category separatorz 
     rows = lib.concatMap (category:
@@ -1104,9 +1111,17 @@ EOF
       validVariants = lib.filter hasFixedText nonEmpty;
     in # 🦆 duck say ⮞ returnin' all unique variantz of da sentences – holy duck dat'z fresh 
       lib.unique validVariants;
+
+  # 🦆 duck say ⮞ generatez safe systemd timer namez
+  makeTimerName = scriptName: timeStr:
+    let
+      safeTime = replaceStrings [":"] ["-"] timeStr;
+    in
+      "yo-${scriptName}-at-${safeTime}";
+
   
 in { # 🦆 duck say ⮞ options options duck duck
-  options = { # 🦆 duck say ⮞ 
+  options = { # 🦆 duck say ⮞ quack 
     yo = {
       pkgs = mkOption {
         type = types.package;
@@ -1131,16 +1146,32 @@ in { # 🦆 duck say ⮞ options options duck duck
     };
   };  
   
-  # 🦆 ⮞ CONFIG  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆#    
+  # 🦆 ⮞ CONFIG  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
   config = {  # 🦆 duck say ⮞ expose diz module and all yo.scripts as a package  
     yo.pkgs = yoScriptsPackage; # 🦆 duck say ⮞ reference as: ${config.pkgs.yo}/bin/yo-<name>
     # 🦆 duck say ⮞ set global counterz
     yo.generatedPatterns = countTotalGeneratedPatterns cfg.scripts;
     yo.understandsPhrases = countTotalUnderstoodPhrases cfg.scripts;
-    
+
+    # 🦆 ⮞  SAFETY ASSERTIONS  ⮜ 🦆
     assertions = let # 🦆 ⮞ safety first
       scripts = cfg.scripts;
-      scriptNames = attrNames scripts;      
+      scriptNames = attrNames scripts;    
+      
+      # 🦆 duck say ⮞ runAt scripts need default values on required paramz
+      runAtErrors = lib.mapAttrsToList (name: script:
+        if script.runAt != null then
+          let
+            missingParams = lib.filter (p: !p.optional && p.default == null) script.parameters;
+          in
+            if missingParams != [] then
+              "🦆 duck say ⮞ fuck ❌ Cannot schedule '${name}' at ${script.runAt} - missing defaults for: " +
+              lib.concatMapStringsSep ", " (p: p.name) missingParams
+            else null
+        else null
+      ) scripts;
+      actualRunAtErrors = lib.filter (e: e != null) runAtErrors;
+            
       # 🦆 duck say ⮞ quackin' flappin' mappin' aliasez ⮞ script dat belong to it 
       aliasMap = lib.foldl' (acc: script:
         lib.foldl' (acc': alias:
@@ -1199,6 +1230,16 @@ in { # 🦆 duck say ⮞ options options duck duck
       { # 🦆 duck say ⮞ autoStart scriptz must be fully configured of course!
         assertion = actualAutoStartErrors == [];
         message = "Auto-start errors:\n" + lib.concatStringsSep "\n" actualAutoStartErrors;
+      }  
+      { # 🦆 duck say ⮞ runAt script fully configured?
+        assertion = actualRunAtErrors == [];
+        message = "runAt scheduling errors:\n" + lib.concatStringsSep "\n" actualRunAtErrors;
+      }      
+      { # 🦆 duck say ⮞ runEvery OR runAt NOT BOTH
+        assertion = lib.all (script: 
+          !(script.runEvery != null && script.runAt != null)
+        ) (lib.attrValues scripts);
+        message = "🦆 duck say ⮞ fuck ❌ Script cannot have both runEvery and runAt set";
       }
     ];
     # 🦆 duck say ⮞ TODO replace with: system.activationScripts.update-readme.text = "${updateReadme}/bin/update-readme";
@@ -1220,7 +1261,8 @@ in { # 🦆 duck say ⮞ options options duck duck
       pkgs.glow # 🦆 duck say ⮞ For markdown renderin' in da terminal
       updateReadme # 🦆 duck say ⮞ to update da readme of course ya non duck
       (pkgs.writeShellScriptBin "yo" ''
-        #!${pkgs.runtimeShell}
+        #y!${pkgs.runtimeShell}
+        set -o noglob # 🦆 duck say ⮞ help command data (
         script_dir="${yoScriptsPackage}/bin" 
         # 🦆 duck say ⮞ help command data (yo --help
         show_help() {
@@ -1308,7 +1350,39 @@ in { # 🦆 duck say ⮞ options options duck duck
       (lib.mapAttrs' (name: script:
         lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {
           enable = true;
-          description = "Periodic execution of yo script ${name}";
+          description = "Periodic execution of yo.${name}";
+          serviceConfig = {
+            Type = "oneshot";
+            User = config.this.user.me.name;
+            Group = config.this.user.me.name;
+            Environment = [                        
+              "HOME=/home/${config.this.user.me.name}"
+              "PATH=/run/current-system/sw/bin:/bin:/usr/bin:${pkgs.binutils-unwrapped}/bin:${pkgs.coreutils}/bin"
+            ];  
+            ExecStart = let
+              args = lib.concatMapStringsSep " " (param:
+                "--${param.name} ${lib.escapeShellArg param.default}"
+              ) (lib.filter (p: p.default != null) script.parameters);
+            in "${yoScriptsPackage}/bin/yo-${name} ${args}";
+          };
+        })
+      ) cfg.scripts)
+      
+      # 🦆 duck say ⮞ if `runAt` is set: one service that can be triggered by multiple timerz
+      (lib.mapAttrs' (name: script:
+        lib.nameValuePair "yo-${name}-scheduled" (mkIf (script.runAt != null) {
+          enable = true;
+          description = let
+            # 🦆 duck say ⮞ create human-readable time list
+            timesFormatted = if script.runAt != null then
+              lib.concatStringsSep ", " script.runAt
+            else "";
+            # 🦆 duck say ⮞ include script description if available
+            baseDesc = if script.description != "" then
+              "${script.description} (scheduled at ${timesFormatted})"
+            else
+              "Scheduled execution of yo.${name} at ${timesFormatted}";
+          in baseDesc;
           serviceConfig = {
             Type = "oneshot";
             User = config.this.user.me.name;
@@ -1326,19 +1400,40 @@ in { # 🦆 duck say ⮞ options options duck duck
         })
       ) cfg.scripts)
     ];
+
+    # 🦆 duck say ⮞ systemd timer configuration
+    systemd.timers = lib.mkMerge [
     
-    # 🦆 duck say ⮞ systemd timer configuration if `runEvery` is configured for a script 
-    systemd.timers = lib.mapAttrs' (name: script:
-      lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {
-        enable = true;
-        wantedBy = ["timers.target"];
-        timerConfig = {
-          OnCalendar = "*-*-* *:0/${script.runEvery}";
-          Unit = "yo-${name}-periodic.service";
-          Persistent = true;
-        };
-      })
-    ) cfg.scripts;    
-  };} # 🦆 duck say ⮞ 2 long script 4 jokez.. nao bai bai yo
+      # 🦆 duck say ⮞ if `runEvery` is configured 
+      (lib.mapAttrs' (name: script:
+        lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {
+          enable = true;
+          wantedBy = ["timers.target"];
+          timerConfig = {
+            OnCalendar = "*-*-* *:0/${script.runEvery}";
+            Unit = "yo-${name}-periodic.service";
+            Persistent = true;
+          };
+        })
+      ) cfg.scripts)
+      
+      # 🦆 duck say ⮞ if `runAt` is configured: one timer per scheduled time
+      (lib.foldl' lib.recursiveUpdate {} (lib.mapAttrsToList (name: script:
+        if script.runAt != null then
+          lib.listToAttrs (lib.map (timeStr:
+            lib.nameValuePair (makeTimerName name timeStr) {
+              enable = true;
+              wantedBy = ["timers.target"];
+              timerConfig = {
+                OnCalendar = "*-*-* ${timeStr}:00";
+                Unit = "yo-${name}-scheduled.service";
+                Persistent = true;
+              };
+            }
+            ) script.runAt)
+        else {}
+      ) cfg.scripts))
+    ];
+  };} # 🦆 duck say ⮞ 2 long module 4 jokez.. bai bai yo
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤

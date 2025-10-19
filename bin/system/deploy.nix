@@ -16,16 +16,16 @@ in {
      description = "Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation.";
      category = "🖥️ System Management";
      parameters = [
-       { name = "host"; description = "Host machine to build and activate"; optional = false; }
-       { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
-       { name = "user"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
-       { name = "repo"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
+       { name = "host"; type = "string"; description = "Host machine to build and activate"; optional = false; }
+       { name = "flake"; type = "path"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
+       { name = "user"; type = "string"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
+       { name = "repo"; type = "string"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
        { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
-       { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
+       # { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
      code = ''   
        ${cmdHelpers}
-       
+       # 🦆 duck say ⮞ validate host exist 
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
          say_duck "fuck ❌ Unknown host: $host" >&2
          echo "Available hosts: ${toString sysHosts}" >&2
@@ -41,6 +41,7 @@ in {
          fail "❌ Cannot connect to $host via SSH."
        fi
        
+       # 🦆 duck say ⮞ safety first 
        convert_git_to_https() {
          local repo_url="$1"
          if [[ "$repo_url" =~ ^https?:// ]]; then
@@ -56,7 +57,6 @@ in {
        }
 
        bootstrap_mode=false
-#       result=$(ssh -p "$port" "$user@$host" "[ -d '$flake/.git' ] && echo true || echo false")
        result=$(ssh -T -p "$port" "$user@$host" "bash --noprofile --norc -c '[ -d \"$flake/.git\" ] && echo true || echo false'")
        if [ "$result" = "true" ]; then
          run_cmd echo "✅ Dotfiles repo exists on $host"
@@ -128,8 +128,6 @@ in {
          cmd+=( --build-host "$user@$host" )
        fi      
       
-#       "''${cmd[@]}"
-
        if "''${cmd[@]}"; then
          if $DRY_RUN; then
            say_duck " ⚠️ Test deployment completed - No system generation saved!"
@@ -162,4 +160,5 @@ in {
        fi     
      '';
     };
+    
   };}

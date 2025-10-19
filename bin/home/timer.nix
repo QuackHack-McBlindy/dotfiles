@@ -42,9 +42,9 @@ in {
     description = "Set a timer";
     category = "🛖 Home Automation";
     parameters = [  
-      { name = "minutes"; description = "Minutes to set the timer on"; default = "0";  }     
-      { name = "seconds"; description = "Seconds to set the timer on"; default = "0"; }     
-      { name = "hours"; description = "Hours to set the timer on"; default = "0"; }
+      { name = "minutes"; type = "int"; description = "Minutes to set the timer on"; default = "0";  }     
+      { name = "seconds"; type = "int"; description = "Seconds to set the timer on"; default = "0"; }     
+      { name = "hours"; type = "int"; description = "Hours to set the timer on"; default = "0"; }
       { name = "list"; type = "bool"; description = "Lists active timers"; default = false;  }      
       { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
