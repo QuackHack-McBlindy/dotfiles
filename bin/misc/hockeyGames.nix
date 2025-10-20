@@ -567,14 +567,5 @@ in {
         ];
       };
     };
-  };
-  
-  yo.scripts.date = {
-    description = "date";
-    category = "🧩 Miscellaneous";
-    logLevel = "INFO";
-    code = ''
-      ${pkgs.coreutils}/bin/date --help
-    '';
-    
+
   };}
