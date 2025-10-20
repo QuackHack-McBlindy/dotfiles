@@ -530,8 +530,8 @@
       dt_debug "Fuzzy matching team: $input_team"
       # 🦆 says ⮞ first try exact match with voice aliases
       case "$input_team" in
-        *[Ll]öven*|*[Bb]jörklöven*) echo "IF Björklöven"; return 0 ;;
-        *[Mm]odo*) echo "MoDo Hockey"; return 0 ;;
+        *[Ll]öven*|*[Bb]jörklöven*|*bjorkloven*) echo "IF Björklöven"; return 0 ;;
+        *[Mm]odo*) echo "MoDo Hockey"; return 0 ;;  # Map "modo" back to "MoDo Hockey"
         *[Kk]arlskoga*|*[Bb]IK*) echo "BIK Karlskoga"; return 0 ;;
         *[Nn]ybro*|*[Vv]ikings*) echo "Nybro Vikings IF"; return 0 ;;
         *[Kk]almar*) echo "Kalmar HC"; return 0 ;;
@@ -539,10 +539,10 @@
         *[Aa]lmtuna*) echo "Almtuna IS"; return 0 ;;
         *[Aa]IK*) echo "AIK"; return 0 ;;
         *[Mm]ora*) echo "Mora IK"; return 0 ;;
-        *[Ss]ödertälje*) echo "Södertälje SK"; return 0 ;;
-        *[Öö]stersund*) echo "Östersunds IK"; return 0 ;;
+        *[Ss]ödertälje*|*sodertalje*) echo "Södertälje SK"; return 0 ;;
+        *[Öö]stersund*|*ostersund*) echo "Östersunds IK"; return 0 ;;
         *[Tt]roja*|*[Ll]jungby*) echo "IF Troja-Ljungby"; return 0 ;;
-        *[Vv]ästerås*) echo "Västerås IK"; return 0 ;;
+        *[Vv]ästerås*|*vasteras*) echo "Västerås IK"; return 0 ;;
         *[Vv]immerby*) echo "Vimmerby HC"; return 0 ;;
       esac 
       # 🦆 says ⮞ get all teams from table
@@ -847,6 +847,7 @@ in {
       fi
     '';
     voice = {
+      enabled = true;															
       priority = 2;
       sentences = [
         # 🦆 says ⮞ no parameters
@@ -859,23 +860,29 @@ in {
         # 🦆 says ⮞ stat specific sentences
         "hur (bra|dåliga) är {team} i {stat}"
         "vad har {team} för {stat}"
+        "analysera {team} {stat}"
       ];
       lists = {
+        mode.values = [
+          { "in" = "[förra|senaste]"; out = "recent"; }   
+          { "in" = "[nästa|kommande]"; out = "upcoming"; }   
+          { "in" = "[tabellen]"; out = "table"; }   
+        ];  
         team.values = [
-          { "in" = "[björklöven|björklövens|löven|vi]"; out = "IF Björklöven"; }   
-          { "in" = "[modo|modos]"; out = "MoDo Hockey"; }
-          { "in" = "[karlskoga|bik|bofors]"; out = "BIK Karlskoga"; }
-          { "in" = "[nybro|nybros|vikings]"; out = "Nybro Vikings IF"; }
-          { "in" = "[kalmar|kalmars]"; out = "Kalmar HC"; }
-          { "in" = "[oskarshamn]"; out = "IK Oskarshamn"; }
-          { "in" = "[almtuna]"; out = "Almtuna IS"; }
-          { "in" = "[aik|aiks]"; out = "AIK"; }
-          { "in" = "[mora]"; out = "Mora IK"; }
-          { "in" = "[södertälje]"; out = "Södertälje SK"; }
-          { "in" = "[östersund]"; out = "Östersunds IK"; }
-          { "in" = "[troja]"; out = "IF Troja-Ljungby"; }
-          { "in" = "[västerås]"; out = "Västerås IK"; }
-          { "in" = "[vimmerby]"; out = "Vimmerby HC"; }
+          { "in" = "[björklöven|björklövens|löven|vi]"; out = "björklöven"; }   
+          { "in" = "[modo|modos]"; out = "modo"; }  # CHANGED from "MoDo Hockey" to "modo"
+          { "in" = "[karlskoga|bik|bofors]"; out = "karlskoga"; }
+          { "in" = "[nybro|nybros|vikings]"; out = "nybro"; }
+          { "in" = "[kalmar|kalmars]"; out = "kalmar"; }
+          { "in" = "[oskarshamn]"; out = "oskarshamn"; }
+          { "in" = "[almtuna]"; out = "almtuna"; }
+          { "in" = "[aik|aiks]"; out = "aik"; }
+          { "in" = "[mora]"; out = "mora"; }
+          { "in" = "[södertälje|sodertalje]"; out = "södertälje"; }
+          { "in" = "[östersund|ostersund]"; out = "östersund"; }
+          { "in" = "[troja]"; out = "troja"; }
+          { "in" = "[västerås|vasteras]"; out = "västerås"; }
+          { "in" = "[vimmerby]"; out = "vimmerby"; }
         ];
         stat.values = [
           { "in" = "[power|powerplay|pp]"; out = "powerplay"; }   

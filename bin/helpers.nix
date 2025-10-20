@@ -284,7 +284,7 @@ in
       else
         dt_debug "Skipped state update for device: $device_name"
       fi
-    }   
+    }
 
     # 🦆 says ⮞ turn on specified room
     room_lights_on() { 

@@ -415,9 +415,9 @@
   # 🦆 says ⮞ generate optimized processing order
   processingOrder = map (r: r.name) scriptRecordsWithIntents;
 
-  # 🦆 says ⮞ Conflict detection - make sure no two scripts fight over da same sentence!  
+  # 🦆 says ⮞ conflict detection - no bad voice intentz quack!  
   assertionCheckForConflictingSentences = let
-    # 🦆 says ⮞ collect all expanded sentences with their script origins
+    # 🦆 says ⮞ collect all expanded sentences with their script originz
     allExpandedSentences = lib.flatten (lib.mapAttrsToList (scriptName: intent:
       lib.concatMap (data:
         lib.concatMap (sentence:
@@ -425,42 +425,111 @@
             inherit scriptName;
             sentence = expanded;
             original = sentence;
+            # 🦆 says ⮞ extract parameter positionz & count da fixed words
+            hasWildcardAtEnd = lib.hasSuffix " {search}" (lib.toLower expanded) || 
+                              lib.hasSuffix " {param}" (lib.toLower expanded) ||
+                              (lib.hasInfix " {" expanded && 
+                               !(lib.hasInfix "} " expanded)); # 🦆 says ⮞ wildcard at end if no } followed by space
+            fixedWordCount = let
+              words = lib.splitString " " expanded;
+              nonParamWords = lib.filter (word: 
+                !(lib.hasPrefix "{" word) && !(lib.hasSuffix "}" word)
+              ) words;
+            in lib.length nonParamWords;
           }) (expandOptionalWords sentence)
         ) data.sentences
       ) intent.data
-    ) generatedIntents);  
-    # 🦆 says ⮞ group by sentence to find duplicates
+    ) generatedIntents);
+    # 🦆 says ⮞ check for prefix conflictz
+    checkPrefixConflicts = sentences:
+      let
+        sortedSentences = lib.sort (a: b: 
+          lib.stringLength a.sentence < lib.stringLength b.sentence
+        ) sentences;
+        conflicts = lib.foldl (acc: shorterItem:
+          let
+            shorter = shorterItem.sentence;
+            shorterScript = shorterItem.scriptName;
+            shorterHasWildcard = shorterItem.hasWildcardAtEnd;
+          in
+            acc ++ (lib.foldl (innerAcc: longerItem:
+              let
+                longer = longerItem.sentence;
+                longerScript = longerItem.scriptName;
+              in
+                if shorterScript != longerScript then
+                  if lib.hasPrefix (shorter + " ") longer && shorterHasWildcard then
+                    innerAcc ++ [{
+                      type = "PREFIX_CONFLICT";
+                      shorter = shorter;
+                      longer = longer;
+                      scripts = [shorterScript longerScript];
+                      reason = "Shorter pattern '${shorter}' (ends with wildcard) is a prefix of '${longer}'";
+                    }]
+                  else
+                    innerAcc
+                else
+                  innerAcc
+            ) [] sortedSentences)
+        ) [] sortedSentences;
+      in
+        conflicts;
+    # 🦆 says ⮞ find prefix conflictz!
     sentencesByText = lib.groupBy (item: item.sentence) allExpandedSentences;
-    conflicts = lib.filterAttrs (sentence: items:
+    exactConflicts = lib.filterAttrs (sentence: items:
       let 
         uniqueScripts = lib.unique (map (item: item.scriptName) items);
       in 
         lib.length uniqueScripts > 1
-    ) sentencesByText;  
-    hasConflicts = conflicts != {};    
+    ) sentencesByText; 
+    # 🦆 says ⮞ find duplicatez!
+    exactConflictList = lib.mapAttrsToList (sentence: items:
+      let
+        scripts = lib.unique (map (item: item.scriptName) items);
+      in { # 🦆  says ⮞ format exact conflictz dawg
+        type = "EXACT_CONFLICT";
+        sentence = sentence;
+        scripts = scripts;
+        reason = "Exact pattern match in scripts: ${lib.concatStringsSep ", " scripts}";
+      }
+    ) exactConflicts;   
+    # 🦆  says ⮞ find prefix conflictz
+    prefixConflicts = checkPrefixConflicts allExpandedSentences;    
+    # 🦆  says ⮞ letz put dem conflictz together okay?
+    allConflicts = exactConflictList ++ prefixConflicts;
+    hasConflicts = allConflicts != [];    
+    # 🦆  says ⮞ find da prefix conflictz  
   in {
     assertion = !hasConflicts;
     message = 
       if hasConflicts then
         let
-          conflictMsgs = lib.mapAttrsToList (sentence: items:
-            let
-              scripts = lib.unique (map (item: item.scriptName) items);
-              originals = lib.unique (map (item: item.original) items);
-            in
+          conflictMsgs = map (conflict:
+            if conflict.type == "EXACT_CONFLICT" then
               ''
-              CONFLICT: Sentence pattern "${sentence}" 
-                In scripts: ${lib.concatStringsSep ", " scripts}
+              🦆 says ⮞ CONFLICT! 
+                Pattern "${conflict.sentence}"
+                In scripts: ${lib.concatStringsSep ", " conflict.scripts}
               ''
-          ) conflicts;
+            else if conflict.type == "PREFIX_CONFLICT" then
+              ''
+              🦆 says ⮞ CONFLICT!
+                Shorter: "${conflict.shorter}" (ends with wildcard)
+                Longer:  "${conflict.longer}"
+                Scripts: ${lib.concatStringsSep ", " conflict.scripts}
+                Reason:  ${conflict.reason}
+              ''
+            else
+              ""
+          ) allConflicts;
         in
           "Sentence conflicts detected in voice definition:\n\n" +
           lib.concatStringsSep "\n" conflictMsgs +
-          "\n\n🦆 says ⮞ Fix these conflicts before rebuilding!"
+          "\n\n🦆 says ⮞ fix da conflicts before rebuildin' yo!"
       else
-        "No sentence conflicts found - quacktastic!";
+        "No sentence conflicts found.";
   };
-  
+
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 

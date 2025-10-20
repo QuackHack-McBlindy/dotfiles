@@ -391,15 +391,11 @@
         '';
         voice = {
           sentences = [
-            "påminn mig om [att] {item}" 
-            "kan du påminna mig om [att] {item}"
-            "vad händer [i dag|imorgon|nästa vecka]"
-            "lägg till {item} [i kalendern]"
-            "lista kalenderhändelser"
-            "ta bort påminnelse {id}"
+            "vad händer [på] [dag] [idag]"
+            "vad har jag [i] kalendern [idag]"
+            "visa [min] kalender [för] [idag]"
+            "kalender [händelser] [idag]"
           ];
-          lists.item.wildcard = true;
-          lists.id.wildcard = true;
         };  
       };
     };

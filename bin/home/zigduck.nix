@@ -623,9 +623,8 @@ EOF
         settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
-      }
-      # 🦆 says ⮞ ws:// @ 9001
-      {
+      }   
+      { # 🦆 says ⮞ ws:// @ 9001
         acl = [ "pattern readwrite #" ];
         port = 9001;
         settings.protocol = "websockets";

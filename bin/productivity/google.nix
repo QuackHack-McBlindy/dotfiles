@@ -139,8 +139,8 @@ in {
         '';
         voice = {
           sentences = [
-            "(google|googla|sök) [efter|på|om] {search}"
-            
+            "sök [efter|på|om] {search} på google"
+            "(google|googl) [efter|på|om] {search}"
           ];
           lists.search.wildcard = true;
         };

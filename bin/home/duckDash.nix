@@ -207,7 +207,9 @@
     ln -sf /etc/rooms.json $WORKDIR/
     ln -sf /etc/tv.json $WORKDIR/
     ln -sf /var/lib/zigduck/state.json $WORKDIR/
-    ln -sf /etc/static/epg.json $WORKDIR/    
+    ln -sf /etc/static/epg.json $WORKDIR/   
+    ln -sf /etc/static/tv.html $WORKDIR/   
+
     # 🦆 says ⮞ add TV icons
     mkdir -p $WORKDIR/tv-icons
     ${lib.concatMapStrings (tvName: 

@@ -26,11 +26,11 @@ in {
     voice = {
       priority = 2;
       sentences = [
-        "få höra ett [rolig|roligt] skämt"
-        "säg ett skämt"
-        "berätta ett [rolig|roligt] skämt"
+        "få höra [ett] [roligt] skämt"
+        "berätta [ett] [roligt] skämt" 
+        "säg [ett] [roligt] skämt"
+        "få mig [att] skratta"
         "gör mig glad"
-        "få mig [att] (skratt|skratta)"
       ];      
     };
   };
