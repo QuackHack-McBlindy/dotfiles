@@ -1,4 +1,4 @@
-# dotfiles/bin/misc/hockey-games.nix
+# dotfiles/bin/misc/hockeyGames.nix
 { 
   self,
   lib,
@@ -7,7 +7,6 @@
   cmdHelpers,
   ... 
 }: let
-
   # 🦆 says ⮞ game analyzer yo
   analyzeGame = ''
     analyze_game() {
@@ -19,7 +18,60 @@
       local date=$(echo "$game_data" | jq -r '.date')
       local home_status=$(echo "$game_data" | jq -r '.home_status')
       local away_status=$(echo "$game_data" | jq -r '.away_status')
-      local venue=$(echo "$game_data" | jq -r '.venue')
+      local venue=$(echo "$game_data" | jq -r '.venue')   
+      # 🦆 says ⮞ parse date into Swedish format with weekday
+      local year=$(echo "$date" | cut -d'-' -f1)
+      local month=$(echo "$date" | cut -d'-' -f2)
+      local day=$(echo "$date" | cut -d'-' -f3)
+      day=$((10#$day)) # 🦆 says ⮞ remove leading zero
+   
+      # 🦆 says ⮞ get weekday in Swedish
+      local weekday=""
+      if command -v date >/dev/null 2>&1; then
+        weekday=$(LANG=C ${pkgs.coreutils}/bin/date -d "$date" "+%A" 2>/dev/null || echo "")
+      fi
+      
+      # 🦆 says ⮞ convert to Swedish
+      case $weekday in
+        "Monday"|"monday") weekday="Måndag" ;;
+        "Tuesday"|"tuesday") weekday="Tisdag" ;;
+        "Wednesday"|"wednesday") weekday="Onsdag" ;;
+        "Thursday"|"thursday") weekday="Torsdag" ;;
+        "Friday"|"friday") weekday="Fredag" ;;
+        "Saturday"|"saturday") weekday="Lördag" ;;
+        "Sunday"|"sunday") weekday="Söndag" ;;
+        # 🦆 says ⮞ also handle Swedish lowercase
+        "måndag") weekday="Måndag" ;;
+        "tisdag") weekday="Tisdag" ;;
+        "onsdag") weekday="Onsdag" ;;
+        "torsdag") weekday="Torsdag" ;;
+        "fredag") weekday="Fredag" ;;
+        "lördag") weekday="Lördag" ;;
+        "söndag") weekday="Söndag" ;;
+        *) 
+          weekday=""
+          dt_info "No matching weekday found for: '$weekday'"
+          ;;
+      esac     
+      # 🦆 says ⮞ convert day to text
+      local day_text=$(number_to_text "$day")      
+      # 🦆 says ⮞ get month name
+      local month_name=""
+      case $month in
+        "01") month_name="Januari" ;;
+        "02") month_name="Februari" ;;
+        "03") month_name="Mars" ;;
+        "04") month_name="April" ;;
+        "05") month_name="Maj" ;;
+        "06") month_name="Juni" ;;
+        "07") month_name="Juli" ;;
+        "08") month_name="Augusti" ;;
+        "09") month_name="September" ;;
+        "10") month_name="Oktober" ;;
+        "11") month_name="November" ;;
+        "12") month_name="December" ;;
+        *) month_name="$month" ;;
+      esac
       
       # 🦆 says ⮞ parse score
       if [[ "$result" =~ ([0-9]+)-([0-9]+) ]]; then
@@ -41,19 +93,28 @@
         winner="$away_team"
       fi
       
-      # 🦆 says ⮞ generate analysis
+      # 🦆 says ⮞ generate analysis with weekday
       local analysis=""
       local score_diff=$((home_score - away_score))
       local abs_diff=$((score_diff > 0 ? score_diff : -score_diff)) 
-      analysis="I $venue spelade $home_team mot $away_team. "
+      
+      # 🦆 says ⮞ start with weekday and date
+      if [ -n "$weekday" ]; then
+        analysis="På $weekday den $day_text $month_name "
+      else
+        analysis="Den $day_text $month_name "
+      fi
+      
+      analysis+="spelade $home_team mot $away_team i $venue. "
       analysis+="Matchen slutade $home_text-$away_text "     
+      
       if [ "$overtime" = "OT" ]; then
         analysis+="efter övertid. "
       elif [ "$overtime" = "SO" ]; then
         analysis+="efter straffläggning. "
       else
         analysis+="i ordinarie tid. "
-      fi     
+      fi           
       analysis+="$winner tog hem segern. "  
       
       # 🦆 says ⮞ game type analysis
@@ -64,17 +125,150 @@
       elif [ $abs_diff -eq 2 ] || [ $abs_diff -eq 3 ]; then
         analysis+="Det var en bra match med spännande strid."
       fi     
+      
       # 🦆 says ⮞ overtime drama for close games
       if [ "$overtime" = "OT" ] && [ $abs_diff -eq 1 ]; then
         analysis+=" En riktig dramamatch som avgjordes i övertid!"
       elif [ "$overtime" = "SO" ]; then
         analysis+=" Efter straffar fick $winner äran av den tuffa matchen."
-      fi
-      
+      fi     
       echo "$analysis"
     }
   '';
+  
 
+  # 🦆 says ⮞ upcoming game analyzer with TTS
+  analyzeUpcomingGame = ''
+    analyze_upcoming_game() {
+      local game_data="$1"
+      local team_filter="$2"    
+      local home_team=$(echo "$game_data" | jq -r '.home_team')
+      local away_team=$(echo "$game_data" | jq -r '.away_team')
+      local date=$(echo "$game_data" | jq -r '.date')
+      dt_info "DATE: $date"
+      local venue=$(echo "$game_data" | jq -r '.venue')  
+      
+      # 🦆 says ⮞ parse date into Swedish format with weekday
+      local year=$(echo "$date" | cut -d'-' -f1)
+      local month=$(echo "$date" | cut -d'-' -f2)
+      local day=$(echo "$date" | cut -d'-' -f3)
+      day=$((10#$day)) # 🦆 says ⮞ remove leading zero
+      
+      # 🦆 says ⮞ get weekday
+      local weekday=""
+      # 🦆 says ⮞ date
+      if command -v date >/dev/null 2>&1; then
+        weekday=$(${pkgs.coreutils}/bin/date -d "$date" "+%A" 2>/dev/null || echo "")
+        dt_info "WEEKDAY: $weekday"
+      fi
+      
+      # 🦆 says ⮞ if date command failed, try using a fallback calculation
+      if [ -z "$weekday" ]; then
+        # 🦆 says ⮞ fallback: Zeller's congruence approximation
+        local y=$((10#$year)) m=$((10#$month)) d=$((10#$day))
+        # 🦆 says ⮞ Adjust for Zeller's congruence
+        if [ $m -lt 3 ]; then
+          m=$((m + 12))
+          y=$((y - 1))
+        fi
+        local k=$((y % 100))
+        local j=$((y / 100))
+        local h=$((d + (13*(m+1))/5 + k + (k/4) + (j/4) - 2*j))
+        local weekday_num=$(( ((h % 7) + 7) % 7 ))   # 🦆 says ⮞ ensure positive modulo
+        
+        case $weekday_num in
+          1) weekday="Monday" ;;
+          2) weekday="Tuesday" ;;
+          3) weekday="Wednesday" ;;
+          4) weekday="Thursday" ;;
+          5) weekday="Friday" ;;
+          6) weekday="Saturday" ;;
+          0) weekday="Sunday" ;;
+          *) weekday="" ;;
+        esac
+      fi
+      
+      # 🦆 says ⮞ convert to Swedish
+      case $weekday in
+        "Monday"|"monday") weekday="Måndag" ;;
+        "Tuesday"|"tuesday") weekday="Tisdag" ;;
+        "Wednesday"|"wednesday") weekday="Onsdag" ;;
+        "Thursday"|"thursday") weekday="Torsdag" ;;
+        "Friday"|"friday") weekday="Fredag" ;;
+        "Saturday"|"saturday") weekday="Lördag" ;;
+        "Sunday"|"sunday") weekday="Söndag" ;;
+        # 🦆 says ⮞ also handle Swedish lowercase
+        "måndag") weekday="Måndag" ;;
+        "tisdag") weekday="Tisdag" ;;
+        "onsdag") weekday="Onsdag" ;;
+        "torsdag") weekday="Torsdag" ;;
+        "fredag") weekday="Fredag" ;;
+        "lördag") weekday="Lördag" ;;
+        "söndag") weekday="Söndag" ;;
+        *) 
+          weekday=""
+          dt_info "No matching weekday found for: '$weekday'"
+          ;;
+      esac 
+      
+      # 🦆 says ⮞ convert day to text
+      local day_text=$(number_to_text "$day")  
+      
+      # 🦆 says ⮞ get month name
+      local month_name=""
+      case $month in
+        "01") month_name="Januari" ;;
+        "02") month_name="Februari" ;;
+        "03") month_name="Mars" ;;
+        "04") month_name="April" ;;
+        "05") month_name="Maj" ;;
+        "06") month_name="Juni" ;;
+        "07") month_name="Juli" ;;
+        "08") month_name="Augusti" ;;
+        "09") month_name="September" ;;
+        "10") month_name="Oktober" ;;
+        "11") month_name="November" ;;
+        "12") month_name="December" ;;
+        *) month_name="$month" ;;
+      esac    
+      
+      # 🦆 says ⮞ determine if our team is home or away
+      local our_team=""
+      local opponent=""
+      local location=""
+      
+      if [ "$home_team" = "$team_filter" ]; then
+        our_team="$home_team"
+        opponent="$away_team"
+        location="hemma"
+      else
+        our_team="$away_team"
+        opponent="$home_team"
+        location="borta"
+      fi
+      
+      # 🦆 says ⮞ generate natural Swedish speech
+      local analysis=""
+      if [ -n "$weekday" ]; then
+        analysis="På $weekday den $day_text $month_name "
+      else
+        analysis="Den $day_text $month_name "
+      fi     
+      
+      analysis+="spelar $our_team $location match mot $opponent"
+      
+      # 🦆 says ⮞ add venue info if available
+      if [ -n "$venue" ] && [ "$venue" != "null" ]; then
+        analysis+=" i $venue"
+      fi   
+      
+      analysis+="."    
+      echo "$analysis"
+    }
+  '';
+  
+
+  
   # 🦆 says ⮞ format date to Swedish style
   formatSwedishDate = ''
     format_swedish_date() {
@@ -113,13 +307,25 @@
         return 1
       fi   
       local games_count=$(jq length "$games_file")
-      dt_debug "Anal yzing $games_count games..."
+      dt_debug "Analyzing $games_count games..."
       local games_json=$(cat "$games_file")     
+      
+      # 🦆 says ⮞ filter by team if specified
+      if [ -n "$team_filter" ]; then
+        games_json=$(echo "$games_json" | jq --arg team "$team_filter" '
+          [.[] | select(
+            (.home_team | ascii_downcase | contains($team | ascii_downcase)) or
+            (.away_team | ascii_downcase | contains($team | ascii_downcase))
+          )]')
+        games_count=$(echo "$games_json" | jq length)
+        dt_debug "Filtered to $games_count games for team: $team_filter"
+      fi
+         
       if [ "$games_count" -eq 0 ]; then
         echo "Inga matcher hittades för den valda perioden."
         return 0
       fi
-           
+               
       # 🦆 says ⮞ sort 'em up or down or anyway u like it🦆don't judge 
       local dates=$(echo "$games_json" | jq -r '.[].date' | sort -u)
        
@@ -130,7 +336,7 @@
         # 🦆 says ⮞ head
         echo "🗓️  $swedish_date:"
         echo "----------------------------"
-        # 🦆 says ⮞ can games come out play
+        # 🦆 says ⮞ filter games for this date AND team
         echo "$games_json" | jq -r --arg date "$date" '
           [.[] | select(.date == $date)] | .[] | 
           "  \(.home_team) - \(.away_team)"
@@ -146,10 +352,17 @@
           echo "💬 $analysis"
           echo ""
         done
+      elif [ "$type" = "upcoming" ] && [ -n "$team_filter" ]; then
+        # 🦆 says ⮞ analyze upcoming games with TTS
+        echo "$games_json" | jq -c '.[]' | while IFS= read -r game_data; do
+          local analysis=$(analyze_upcoming_game "$game_data" "$team_filter")
+          echo "🔮 $analysis"
+          echo ""
+        done
       fi
     }
   '';
-
+  
   # 🦆 says ⮞ convert numbers to text for better TTS
   numberToText = ''
     number_to_text() {
@@ -189,11 +402,11 @@ in {
     autoStart = false;    
     logLevel = "INFO";
     parameters = [
-      { name = "type"; description = "Game type: recent or upcoming"; optional = true; default = "upcoming"; }
-      { name = "days"; description = "Number of past days to show"; optional = true; default = "1"; }
-      { name = "team"; description = "Filter games for specific team"; optional = true; }
-      { name = "dataDir"; description = "Directory path to save data in."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
-      { name = "debug"; description = "Enable debug mode for API calls"; optional = true; default = "false"; }
+      { name = "type"; type = "string"; description = "Game type: recent or upcoming"; optional = true; default = "upcoming"; }
+      { name = "days"; type = "int"; description = "Number of past days to show"; optional = true; default = 2; }
+      { name = "team"; type = "string"; description = "Filter games for specific team"; optional = true; }
+      { name = "dataDir"; type = "path"; description = "Directory path to save data in."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
+      { name = "debug"; type = "bool"; description = "Enable debug mode for API calls"; optional = true; default = false; }
     ];
     code = ''
       ${cmdHelpers}
@@ -201,6 +414,7 @@ in {
       ${formatSwedishDate}
       ${analyzeGame}
       ${analyzeRecentGames}
+      ${analyzeUpcomingGame} 
       
       fetch_games() {
         local url="https://www.hockeyallsvenskan.se/api/sports-v2/game-schedule?seasonUuid=xs4m9qupsi&seriesUuid=qQ9-594cW8OWD&gameTypeUuid=qQ9-af37Ti40B&gamePlace=all&played=all"   
@@ -252,9 +466,9 @@ in {
         # 🦆 says ⮞ get date YYYY-MM-DD format
         local cutoff_date=""
         if [ "$type" = "recent" ]; then
-          cutoff_date=$(date -d "$days days ago" +%Y-%m-%d)
+          cutoff_date=$(${pkgs.coreutils}/bin/date -d "$days days ago" +%Y-%m-%d)
         else
-          cutoff_date=$(date -d "$days days" +%Y-%m-%d)
+          cutoff_date=$(${pkgs.coreutils}/bin/date -d "$days days" +%Y-%m-%d)
         fi
         
         dt_debug "Filtering games from: $cutoff_date"
@@ -291,10 +505,20 @@ in {
       # 🦆 says ⮞ analyze and display
       analysis_output=$(analyze_recent_games "$games_file" "$team")
       echo "$analysis_output"
-      
-      # 🦆 says ⮞ TTS yo for recent games yo with
+  
+      # 🦆 says ⮞ TTS for both recent AND upcoming games
       if [ "$type" = "recent" ]; then
         tts_text=$(echo "$analysis_output" | grep "💬" | sed 's/.*💬 //')       
+        if [ -n "$tts_text" ]; then
+          echo "$tts_text" | while IFS= read -r line; do
+            if [ -n "$line" ]; then
+              yo say "$line" --blocking "true"
+              sleep 1
+            fi
+          done
+        fi
+      elif [ "$type" = "upcoming" ] && [ -n "$team" ]; then
+        tts_text=$(echo "$analysis_output" | grep "🔮" | sed 's/.*🔮 //')       
         if [ -n "$tts_text" ]; then
           echo "$tts_text" | while IFS= read -r line; do
             if [ -n "$line" ]; then
@@ -307,39 +531,50 @@ in {
     '';
     # 🦆 says ⮞ vwe'll wanna quack diz with voice yo 
     voice = {
+      priority =  2;
       sentences = [
+        # 🦆 says ⮞ game results patterns
+        "(vad|hur) (hände|gick) (det|matchen) (för|med) {team} (senast|igår)"
+        "(berätta|visa) (om|) {team} (senaste|sista) match"
+        "(vilka|vad) (hände|resultat) (i|) hockyn (igår|senast)"
         "senaste hockymatcherna"
-        "vad hände i hockyn igår" 
-        "visa senaste matcherna i hockeyallsvenskan"
-        "hur gick det för {team} senast"
-        "berätta om {team} senaste match"
-        "vilka matcher spelades senaste {days} dagarna"
-        "hockey resultat"
         "allsvenskan matcher"
+        # 🦆 says ⮞ type based        
+        "när (är|spelar) {team} [sin] {type} match"
+        "hur har {team} spelat [den] {type} [tiden]"
+        "hur (var|spelade) {team} {type} matchen"       
       ];
       lists = {
-        team.values = [
-          { "in" = "[björklöven|löven]"; out = "Björklöven"; }
-          { "in" = "[modo]"; out = "MoDo"; }
-          { "in" = "[karlskoga|bik]"; out = "Karlskoga"; }
-          { "in" = "[nybro|vikings]"; out = "Nybro"; }
-          { "in" = "[kalmar]"; out = "Kalmar"; }
-          { "in" = "[oskarshamn]"; out = "Oskarshamn"; }
-          { "in" = "[almtuna]"; out = "Almtuna"; }
-          { "in" = "[aik]"; out = "AIK"; }
-          { "in" = "[mora]"; out = "Mora"; }
-          { "in" = "[södertälje]"; out = "Södertälje"; }
-          { "in" = "[östersund]"; out = "Östersund"; }
-          { "in" = "[troja]"; out = "Troja"; }
-          { "in" = "[västerås]"; out = "Västerås"; }
-          { "in" = "[vimmerby]"; out = "Vimmerby"; }
+        type.values = [
+          { "in" = "[kommande|nästa]"; out = "upcoming"; }
+          { "in" = "[senaste|förra]"; out = "recent"; }         
         ];
-        days.values = [
-          { "in" = "[igår|en]"; out = "1"; }
-          { "in" = "[senaste två|två]"; out = "2"; }
-          { "in" = "[senaste tre|tre]"; out = "3"; }
-          { "in" = "[senaste veckan|sju]"; out = "7"; }
+        team.values = [
+          { "in" = "[björklöven|björklövens|löven|vi]"; out = "IF Björklöven"; }   
+          { "in" = "[modo|modos]"; out = "MoDo Hockey"; }
+          { "in" = "[karlskoga|bik|bofors]"; out = "BIK Karlskoga"; }
+          { "in" = "[nybro|nybros|vikings]"; out = "Nybro Vikings IF"; }
+          { "in" = "[kalmar|kalmars]"; out = "Kalmar HC"; }
+          { "in" = "[oskarshamn]"; out = "IK Oskarshamn"; }
+          { "in" = "[almtuna]"; out = "Almtuna IS"; }
+          { "in" = "[aik|aiks]"; out = "AIK"; }
+          { "in" = "[mora]"; out = "Mora IK"; }
+          { "in" = "[södertälje]"; out = "Södertälje SK"; }
+          { "in" = "[östersund]"; out = "Östersunds IK"; }
+          { "in" = "[troja]"; out = "IF Troja-Ljungby"; }
+          { "in" = "[västerås]"; out = "Västerås IK"; }
+          { "in" = "[vimmerby]"; out = "Vimmerby HC"; }
         ];
       };
     };
+  };
+  
+  yo.scripts.date = {
+    description = "date";
+    category = "🧩 Miscellaneous";
+    logLevel = "INFO";
+    code = ''
+      ${pkgs.coreutils}/bin/date --help
+    '';
+    
   };}

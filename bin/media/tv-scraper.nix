@@ -291,7 +291,7 @@ in {
     systemPackages = [ pkgs.xmlstarlet ];
     # 🦆 says ⮞ share the json epg for duckDash
     etc."epg.json".source = 
-      "/home/${config.this.user.me.name}/epg.json";  
+      "/home/pungkula/epg.json";  
   };
   
   yo.scripts.tv-scraper = {

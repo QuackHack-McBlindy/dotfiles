@@ -207,7 +207,7 @@
     ln -sf /etc/rooms.json $WORKDIR/
     ln -sf /etc/tv.json $WORKDIR/
     ln -sf /var/lib/zigduck/state.json $WORKDIR/
-    ln -sf /etc/epg.json $WORKDIR/    
+    ln -sf /etc/static/epg.json $WORKDIR/    
     # 🦆 says ⮞ add TV icons
     mkdir -p $WORKDIR/tv-icons
     ${lib.concatMapStrings (tvName: 
@@ -403,7 +403,7 @@
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
                 min-height: 70px;
             }
-            
+
             .channel-info {
                 display: flex;
                 align-items: center;
@@ -411,22 +411,24 @@
                 gap: 15px;
                 height: 100%;
             }
-            
+
             .channel-icon {
-                width: 50px;
-                height: 50px;
+                width: 50px !important;
+                height: 50px !important;
                 border-radius: 10px;
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
+                background-size: cover !important;
+                background-position: center !important;
+                background-repeat: no-repeat !important;
                 flex-shrink: 0;
                 border: 2px solid rgba(255, 255, 255, 0.4);
-                display: flex;
+                display: flex !important;
                 align-items: center;
                 justify-content: center;
                 position: relative;
+                min-width: 50px;
+                min-height: 50px;
             }
-            
+
             .channel-number-fallback {
                 font-size: 1.1rem;
                 font-weight: bold;
@@ -435,7 +437,7 @@
                 border-radius: 6px;
                 padding: 4px 8px;
             }
-            
+ 
             .program-info {
                 flex: 1;
                 text-align: left;
@@ -1251,6 +1253,7 @@
                         .then(epgData => {
                             window.epgData = epgData;
                             console.log('EPG data loaded successfully');
+                            console.log('EPG data structure:', epgData);
                             const currentTV = document.getElementById('targetTV');
                             if (currentTV && currentTV.value) {
                                 updateTVWithEPG(currentTV.value);
@@ -1265,6 +1268,12 @@
                     console.log('🦆 updateChannelIcon called with channelId:', channelId);
                     const iconElement = document.getElementById('currentChannelIcon');
                     const fallbackElement = document.getElementById('currentChannelNumberFallback');
+    
+                    if (!iconElement) {
+                        console.error('❌ Channel icon element not found!');
+                        return;
+                    }
+    
                     if (iconElement && channelId) {
                         const iconPath = `/tv-icons/''${channelId}.png`;
                         console.log('🦆 Looking for channel icon at:', iconPath);
@@ -1272,21 +1281,37 @@
                         iconElement.style.visibility = 'visible';
                         iconElement.style.opacity = '1';
                         iconElement.className = 'channel-icon';
+                        iconElement.style.backgroundSize = 'cover';
+                        iconElement.style.backgroundPosition = 'center';
+                        iconElement.style.backgroundRepeat = 'no-repeat';
+        
+                        iconElement.style.backgroundColor = "";
+                        iconElement.style.border = '2px solid rgba(255, 255, 255, 0.4)';
+        
                         if (fallbackElement) {
                             fallbackElement.textContent = channelId;
+                            fallbackElement.style.display = 'none'; // Hide fallback initially
                         }
+        
                         const img = new Image();
                         img.onload = function() {
                             console.log('🦆 Channel icon loaded successfully:', iconPath);
+                            console.log('Setting background image to:', iconPath);
                             iconElement.style.backgroundImage = `url(''${iconPath}')`;
+                            iconElement.style.display = 'none';
+                            iconElement.offsetHeight;
+                            iconElement.style.display = 'flex';
+            
                             if (fallbackElement) {
                                 fallbackElement.style.display = 'none';
                             }
+            
+                            console.log('Final backgroundImage:', iconElement.style.backgroundImage);
                         };
                         img.onerror = function() {
                             console.warn('🦆 Channel icon not found:', iconPath);
                             iconElement.style.backgroundImage = 'none';
-                            iconElement.classList.add('no-icon');
+                            iconElement.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
                             if (fallbackElement) {
                                 fallbackElement.style.display = 'flex';
                             }
@@ -1295,7 +1320,7 @@
                     } else if (iconElement) {
                         console.log('🦆 No channelId provided, showing fallback');
                         iconElement.style.backgroundImage = 'none';
-                        iconElement.classList.add('no-icon');
+                        iconElement.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
                         if (fallbackElement) {
                             fallbackElement.style.display = 'flex';
                             fallbackElement.textContent = '--';
@@ -1306,17 +1331,39 @@
                 // 🦆 says ⮞ update TV display with EPG information
                 function updateTVWithEPG(deviceIp) {
                     if (!window.epgData || !window.epgData.channels) return;
-                    const tvKey = `tv_''${deviceIp}`;
+                    const tvConfig = ${builtins.toJSON config.house.tv};
+                    const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+                        config.ip === deviceIp
+                    );   
+                    if (!tvDevice) {
+                        console.log('No TV config found for IP:', deviceIp);
+                        return;
+                    }    
+                    const tvName = tvDevice[0];
+                    const tvKey = `tv_''${tvName}`;
                     const tvState = devices[tvKey];
-                    if (!tvState || !tvState.channel_id) return;
-                    const channelId = tvState.channel_id.toString();
+                    if (!tvState || !tvState.current_channel) {
+                        console.log('No TV state found for:', tvKey, tvState);
+                        return;
+                    }  
+                    const channelId = tvState.current_channel.toString();
+                    console.log('🦆 Found TV channel:', channelId, 'for device:', deviceIp, 'name:', tvName);   
                     updateChannelIcon(channelId);
-                    const channel = window.epgData.channels.find(ch => ch.id === channelId);
-                    if (!channel || !channel.programs) return;																													
+                    const channel = window.epgData.channels.find(ch => ch.id === channelId);  
+                    if (!channel || !channel.programs) {
+                        console.log('No EPG data for channel:', channelId);
+                        return;
+                    }   
                     const now = new Date();
                     const currentProgram = findCurrentProgram(channel.programs, now);
                     if (currentProgram) {
                         updateChannelDisplayWithProgram(channel, currentProgram, now);
+                    } else {
+                        console.log('No current program found for channel:', channelId);
+                        const programTitle = document.getElementById('currentProgramTitle');
+                        if (programTitle) {
+                            programTitle.textContent = tvState.current_channel_name || 'No program data';
+                        }
                     }
                 }
 
@@ -1384,18 +1431,31 @@
                         programTitle: document.getElementById('currentProgramTitle'),
                         progressBar: document.getElementById('programProgressBar')
                     };
+    
                     if (!elements.programTitle || !elements.progressBar) {
                         console.log('Required TV display elements not found, skipping update');
                         return;
                     }
+    
                     const startTime = parseEPGTime(program.start);
                     const endTime = parseEPGTime(program.stop);
+                    const currentUTC = new Date(currentTime.toISOString());
+    
                     const totalDuration = endTime - startTime;
-                    const elapsed = currentTime - startTime;
+                    const elapsed = currentUTC - startTime;
                     const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+    
+                    console.log('Program progress:', {
+                        start: startTime,
+                        end: endTime,
+                        current: currentUTC,
+                        progress: progress + '%'
+                    });
+    
                     const cleanTitle = cleanProgramTitle(program.title);
                     elements.programTitle.textContent = cleanTitle;
                     elements.progressBar.style.width = `''${progress}%`;
+    
                     if (progress < 25) {
                         elements.progressBar.style.background = 'linear-gradient(90deg, #4cd964, #2ecc71)';
                     } else if (progress < 75) {
@@ -1550,15 +1610,23 @@
                             if (topic.startsWith('zigbee2mqtt/tv/') && topic.endsWith('/channel')) {
                                 try {
                                     const data = JSON.parse(message.toString());
-                                    const deviceIp = topicParts[2]; // Extract IP from topic: zigbee2mqtt/tv/192.168.1.223/channel
+                                    const deviceIp = topicParts[2];
                                     console.log('TV channel update:', deviceIp, data);
-                                    updateTVChannelDisplay(deviceIp, data);
-                                    const tvKey = `tv_''${deviceIp}`;
-                                    devices[tvKey] = { ...devices[tvKey], ...data };
-                                    saveState();
-            
+                                    const tvConfig = ${builtins.toJSON config.house.tv};
+                                    const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+                                        config.ip === deviceIp
+                                    );
+        
+                                    if (tvDevice) {
+                                        const tvName = tvDevice[0];
+                                        const tvKey = `tv_''${tvName}`;
+                                        devices[tvKey] = { ...devices[tvKey], ...data };
+                                        console.log('Updated TV state for:', tvKey, devices[tvKey]);
+                                        updateTVChannelDisplay(deviceIp, data);
+                                        saveState();
+                                    }
                                 } catch (e) {
-                                   console.error('Error parsing TV channel message:', e);
+                                    console.error('Error parsing TV channel message:', e);
                                 }
                                 return;
                             }
@@ -2371,29 +2439,29 @@
                         document.getElementById('targetTV').addEventListener('change', function() {
                             const selectedTV = this.value;
                             const channelDisplay = document.getElementById('tvChannelDisplay');
-
                             if (selectedTV && channelDisplay) {
                                 channelDisplay.style.display = 'block';
-                
-                                const tvKey = `tv_''${selectedTV}`;
-                                if (devices[tvKey] && devices[tvKey].channel_id) {
-                                    updateTVChannelDisplay(selectedTV, devices[tvKey]);
-                                } else {
-                                    const elements = {
-                                        channelNumber: document.getElementById('currentChannelNumber'),
-                                        programTitle: document.getElementById('currentProgramTitle'),
-                                        channelTime: document.getElementById('currentChannelTime')
-                                    };
-
-                                    if (elements.channelNumber) elements.channelNumber.textContent = '--';
-                                    if (elements.programTitle) elements.programTitle.textContent = 'No channel info';
-                                    if (elements.channelTime) elements.channelTime.textContent = '--:-- - --:--';
+                                const tvConfig = ${builtins.toJSON config.house.tv};
+                                const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+                                    config.ip === selectedTV
+                                );       
+                                if (tvDevice) {
+                                    const tvName = tvDevice[0];
+                                    const tvKey = `tv_''${tvName}`;
+                                    const tvState = devices[tvKey];   
+                                    if (tvState) {
+                                        updateTVChannelDisplay(selectedTV, tvState);
+                                    } else {
+                                        console.log('No TV state found for:', tvKey);
+                                        const programTitle = document.getElementById('currentProgramTitle');
+                                        if (programTitle) programTitle.textContent = 'No channel info';
+                                        updateChannelIcon(null);
+                                    }
                                 }
-                
                                 if (window.epgData) {
                                     updateTVWithEPG(selectedTV);
-                               }
-                           } else if (channelDisplay) {
+                                }
+                            } else if (channelDisplay) {
                                 channelDisplay.style.display = 'none';
                             }
                         });

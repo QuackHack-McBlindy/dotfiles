@@ -414,10 +414,55 @@
       ) (map makeRecord scriptNamesWithIntents);
   # 🦆 says ⮞ generate optimized processing order
   processingOrder = map (r: r.name) scriptRecordsWithIntents;
+
+  # 🦆 says ⮞ Conflict detection - make sure no two scripts fight over da same sentence!  
+  assertionCheckForConflictingSentences = let
+    # 🦆 says ⮞ collect all expanded sentences with their script origins
+    allExpandedSentences = lib.flatten (lib.mapAttrsToList (scriptName: intent:
+      lib.concatMap (data:
+        lib.concatMap (sentence:
+          map (expanded: {
+            inherit scriptName;
+            sentence = expanded;
+            original = sentence;
+          }) (expandOptionalWords sentence)
+        ) data.sentences
+      ) intent.data
+    ) generatedIntents);  
+    # 🦆 says ⮞ group by sentence to find duplicates
+    sentencesByText = lib.groupBy (item: item.sentence) allExpandedSentences;
+    conflicts = lib.filterAttrs (sentence: items:
+      let 
+        uniqueScripts = lib.unique (map (item: item.scriptName) items);
+      in 
+        lib.length uniqueScripts > 1
+    ) sentencesByText;  
+    hasConflicts = conflicts != {};    
+  in {
+    assertion = !hasConflicts;
+    message = 
+      if hasConflicts then
+        let
+          conflictMsgs = lib.mapAttrsToList (sentence: items:
+            let
+              scripts = lib.unique (map (item: item.scriptName) items);
+              originals = lib.unique (map (item: item.original) items);
+            in
+              ''
+              CONFLICT: Sentence pattern "${sentence}" 
+                In scripts: ${lib.concatStringsSep ", " scripts}
+              ''
+          ) conflicts;
+        in
+          "Sentence conflicts detected in voice definition:\n\n" +
+          lib.concatStringsSep "\n" conflictMsgs +
+          "\n\n🦆 says ⮞ Fix these conflicts before rebuilding!"
+      else
+        "No sentence conflicts found - quacktastic!";
+  };
   
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
-# 🦆 says ⮞ add pattern count attributes to each script
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
@@ -716,6 +761,13 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         fi
         exit
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
-    }; # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
-  };}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
+    }; 
+  };
+  # 🦆 says ⮞ SAFETY FIRST! 
+  assertions = [ 
+    {
+      assertion = assertionCheckForConflictingSentences.assertion;
+      message = assertionCheckForConflictingSentences.message;
+    } # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
+  ];}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
 # 🦆 says ⮞ QuackHack-McBLindy out!  

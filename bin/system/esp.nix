@@ -344,12 +344,13 @@ house.zigbee.devices = {
   };
 
   # 🦆 says ⮞ auto updates comin' flyin'
-  house.timeAutomations = {
-    otaUpdates = {
-      time = "02:00";
-      days = [ "Mon" "Fri" ];
-      action = ''
-        echo "Updating over the air"
+  yo.scripts = { 
+    espOTA = { # 🦆 says ⮞ quackin' flashin' helpin' scriptin' - yo 
+      description = "Updates ESP32 devices over the air.";
+      category = "🖥️ System Management";
+      logLevel = "INFO";
+      code = ''
+        dt_info "Updating over the air"
         yo-esp --ota
       '';
     };

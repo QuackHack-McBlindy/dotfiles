@@ -30,7 +30,7 @@ in {
     description = "Fetches home electricity price data";
     category = "🛖 Home Automation";
     aliases = ["el"];
-    runEvery = "50";
+    runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
     parameters = [
       { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "usage";  }         
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
@@ -215,6 +215,7 @@ EOF
       sentences = [
         "vad kostar strömmen"
         "hur mycket kostar strömmen"
+        "vad är elpriset just nu"
       ];         
     };
   };

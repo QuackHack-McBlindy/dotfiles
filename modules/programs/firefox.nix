@@ -355,13 +355,25 @@ in {
         "datareporting.policy.dataSubmissionEnabled" = false;
         "breakpad.reportURL" = "";
         "browser.tabs.crashReporting.sendReport" = false;
+        "browser.tabs.allowTabDetach" = false; # 🦆 duck say ⮞  annoying
+        "browser.tabs.hoverPreview.enabled" = false;
         "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
+        "clipboard.autocopy" = true;
+        "content.cors.disable" = false;
+        "devtools.browserconsole.enableNetworkMonitoring" = true;
+        "devtools.browserconsole.filter.css" = true;
+        "devtools.cache.disabled" = true; # 🦆 duck say ⮞ seriously stupid default
+        "devtools.debugger.auto-pretty-print" = true;
+        "network.websocket.allowInsecureFromHTTPS" = false;
+        "security.mixed_content.block_active_content" = true;
         "browser.formfill.enable" = false;
         "extensions.formautofill.addresses.enabled" = false;
         "extensions.formautofill.available" = "off";
         "extensions.formautofill.creditCards.available" = false;
         "extensions.formautofill.creditCards.enabled" = false;
-        "extensions.formautofill.heuristics.enabled" = false;         
+        "extensions.formautofill.heuristics.enabled" = false;   
+        "zoom.maxPercent" = 400;
+        "zoom.minPercent" = 40;
       };
 
 # 🦆 duck say ⮞ POLICIES ====================#

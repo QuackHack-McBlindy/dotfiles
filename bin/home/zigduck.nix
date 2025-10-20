@@ -7,23 +7,10 @@
   cmdHelpers, # 🦆 with MQTT dreams and zigbee schemes.
   ... 
 } : let # yo follow 🦆 home ⬇⬇ 🦆 says diz way plz? quack quackz
-
   # 🦆 says ⮞ Directpry  for this configuration 
-#  zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
   zigduckDir = "/var/lib/zigduck";
-
   # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
-
-  # 🦆 says ⮞ ⏰ Automations based upon time
-  house.timeAutomations = {
-    good_morning = {
-      time = "07:00";
-      days = [ "Mon" "Tue" "Wed" "Thu" "Fri" ];
-      action = "echo 'Turning on morning lights...'";
-    };
-  };  
-
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
   mqttHost = lib.findSingle (host:
@@ -79,7 +66,7 @@
     (sceneName: sceneDevices:
       lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
     ) scenes;  
-    
+
   # 🦆 says ⮞ Filter devices by rooms
   byRoom = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
@@ -139,7 +126,7 @@ in { # 🦆 says ⮞ finally here, quack!
     description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
-    aliases = [ "zigb" "hem" ]; # 🦆 says ⮞ and not laughing at me
+    aliases = [ "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
     helpFooter = '' 
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
@@ -254,30 +241,20 @@ EOF
       get_larmed() {
         ${pkgs.jq}/bin/jq -r '.larmed' "$LARMED_FILE"
       }
-
   
       # 🦆 says ⮞ zigbee coordinator backup function
       perform_zigbee_backup() {
-        BACKUP_ID="zigbee_backup_$(date +%Y%m%d_%H%M%S)"
+        BACKUP_ID="zigbee_backup_$(${pkgs.coreutils}/bin/date +%Y%m%d_%H%M%S)"
         BACKUP_TMP_FILE="$(mktemp)"
         say_duck "Triggering Zigbee coordinator backup: $BACKUP_ID"
-state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
-      }
-      current_time() {
-        date +%s
-      }
-      last_motion() {
-        get_state "apartment" "last_motion"
-      }
-      time_diff() {
-        current_time - last_motion
+        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \"$BACKUP_ID\"}"
       }
       # 🦆 says ⮞ handle backup response function
       handle_backup_response() {
         local line="$1"
         local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')        
         if [ "$backup_id" != "$BACKUP_ID" ]; then
-          dt_debug "ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
+          dt_info "ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
           return
         fi      
         local status=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.status')
@@ -299,7 +276,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
         # 🦆 says ⮞ reset states
         BACKUP_ID=""
         BACKUP_TMP_FILE=""
-      }
+      }  
       # 🦆 says ⮞ main loop - ducks can't listen but mosquitto's can apparently    
       start_listening() {
         echo "$ZIGBEE_DEVICES" | ${pkgs.jq}/bin/jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
@@ -350,7 +327,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
                   dt_info "📺 $device_name live tv channel: $channel_name"
                   update_device_state "tv_$device_name" "current_channel" "$channel_id"
                   update_device_state "tv_$device_name" "current_channel_name" "$channel_name"
-                  update_device_state "tv_$device_name" "last_update" "$(date -Iseconds)"
+                  update_device_state "tv_$device_name" "last_update" "$(${pkgs.coreutils}/bin/date -Iseconds)"
               fi
               continue
           fi
@@ -427,10 +404,10 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
             device_check            
             if [ "$occupancy" = "true" ]; then
               # 🦆 says ⮞ save for easy user localisation
-              echo "{\"last_active_room\": \$dev_room\, \"timestamp\": \"$(date -Iseconds)\"}" > "$STATE_DIR/last_motion.json"
+              echo "{\"last_active_room\": \$dev_room\, \"timestamp\": \"$(${pkgs.coreutils}/bin/date -Iseconds)\"}" > "$STATE_DIR/last_motion.json"
               dt_info "🕵️ Motion in $device_name $dev_room"
               # 🦆 says ⮞ track last motion time 
-              update_device_state "apartment" "last_motion" "$(date +%s)"
+              update_device_state "apartment" "last_motion" "$(${pkgs.coreutils}/bin/date +%s)"
               # 🦆 says ⮞ If current time is within motion > light timeframe - turn on lights
               if is_dark_time; then
                 room_lights_on "$room"
@@ -457,28 +434,18 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
           # 🦆 says ⮞ 🚪 door and window sensor yo 
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
             device_check
-            dt_info "🚪 Door open in $dev_room ($device_name)" 
-            if [ "$contact" = "false" ]; then
-              dt_info "🚪 Door open in $dev_room ($device_name)"
-              dt_info "TIME: $current_time"
-              dt_info "LAST MOTION: $last_motion"
-              dt_info "TIME DIFF: $time_diff"
-              # 🦆 says ⮞ if i've been gone for 2 hours
-              if [ $time_diff -gt 7200 ]; then 
-                dt_info "Welcoming you home! (no motion for 2 hours, door opened"
-                yo say --text "Välkommen hem!" --host "desktop"
-              else
-                dt_info "🛑🛑🛑 NOT WELCOMING: 🛑🛑🛑 only $((time_diff/60)) minutes since last motion"
-              fi
-              
-              
-              CURRENT_LARMED=$(get_larmed)
-              if [ "$CURRENT_LARMED" = "true" ]; then
-                dt_critical "🚨 ALARM! Door open while armed!"
-                yo notify "🚨 ALARM! Door open in $dev_room!"
-                sleep 15
-                yo notify "🚨 ALARM! Door open in $dev_room!"
-              fi       
+            dt_info "🚪 Door open in $dev_room ($device_name)"
+            current_time=$(${pkgs.coreutils}/bin/date +%s)
+            last_motion=$(get_state "apartment" "last_motion")
+            time_diff=$((current_time - last_motion))
+            dt_debug "TIME: $current_time | LAST MOTION: $last_motion | TIME DIFF: $time_diff"
+            # 🦆 says ⮞ diz iz a fun one - if i've been gone for >2 hours
+            if [ $time_diff -gt 7200 ]; then 
+              dt_info "Welcoming you home! (no motion for 2 hours, door opened"
+              # 🦆 says ⮞ then greet me welcome home - so i can say "quack? thanx yo!"
+              yo say --text "Välkommen hem!" --host "desktop"
+            else
+              dt_info "🛑 NOT WELCOMING:🛑 only $((time_diff/60)) minutes since last motion"
             fi
           fi       
 
@@ -695,7 +662,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { 
-          enabled = true;
+          enabled = false;
           host = "0.0.0.0";   
           port = 8099; 
         };
@@ -745,6 +712,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
     pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
     # 🦆 says ⮞ scene fireworks  
     (pkgs.writeScriptBin "scene-roll" ''
+      ${cmdHelpers}
       ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
     '')
     # 🦆 says ⮞ activate a scene yo
@@ -799,7 +767,7 @@ state.json        mqtt_pub -t "zigbee2mqtt/bridge/request/backup" -m "{\"id\": \
       MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file 
       # 🦆 says ⮞ Zigbee coordinator backup
       if [[ "$DEVICE" == "backup" ]]; then
-        mqtt_pub -t "zigbee2mqtt/backup/request"
+        mqtt_pub -t "zigbee2mqtt/backup/request" -m '{"action":"backup"}'
         say_duck "Zigbee coordinator backup requested! - processing on server..."
         exit 0
       fi         

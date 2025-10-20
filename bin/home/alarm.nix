@@ -116,6 +116,12 @@ in {
         rm -f "$LOGFILE_DIR/$$.pid"
 
         yo notify "Dags att vakna!!"
+        # 🦆 says ⮞ TODO waiting for required tech parts
+        # yo bed --state up && sleep 10
+        # yo bed --state down && sleep 10        
+        # yo bed --state up && sleep 10
+        # yo bed --state down && sleep 10
+        # yo bed --state up && sleep 10
 
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do

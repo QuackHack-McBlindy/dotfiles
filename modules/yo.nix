@@ -1402,8 +1402,7 @@ in { # 🦆 duck say ⮞ options options duck duck
     ];
 
     # 🦆 duck say ⮞ systemd timer configuration
-    systemd.timers = lib.mkMerge [
-    
+    systemd.timers = lib.mkMerge [  
       # 🦆 duck say ⮞ if `runEvery` is configured 
       (lib.mapAttrs' (name: script:
         lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {

@@ -730,8 +730,10 @@ in {
               bp_data=$(get_team_boxplay "$api_team")
               
               # 🦆 says ⮞ extract percentage and stats directly from displayed data
-              bp_perc_line=$(echo "$bp_data" | grep "Penalty Kill Efficiency:")
-              bp_perc=$(echo "$bp_perc_line" | awk '{print $4}' | sed 's/%//')  # CHANGED from $5 to $4
+              # bp_perc_line=$(echo "$bp_data" | grep "Penalty Kill Efficiency:")
+              # bp_perc=$(echo "$bp_perc_line" | awk '{print $4}' | sed 's/%//')  # CHANGED from $5 to $4
+              bp_perc_line=$(echo "$bp_data" | grep "Boxplay Efficiency:")
+              bp_perc=$(echo "$bp_perc_line" | awk '{print $3}' | sed 's/%//')
               
               # 🦆 says ⮞ extract other boxplay stats for richer analysis
               ppga_line=$(echo "$bp_data" | grep "Power Play Goals Against:")
@@ -803,6 +805,19 @@ in {
                   dt_debug "Extracted BP_Perc: $bp_perc"
               fi
           
+          #
+          else
+              # 🦆 says ⮞ GENERAL TEAM ANALYSIS
+              dt_debug "Doing general team analysis for: $team"
+              team_analysis=$(analyze_team "$team" "$table_file")
+        
+              if [ $? -eq 0 ]; then
+                  dt_info "🏒🦆duckPUCK🏒🦆 TEAM ANALYS:"
+                  echo "$team_analysis"
+                  yo say "$team_analysis" --silence "0.8"
+              else
+                  dt_error "Failed to analyze team $team"
+              fi
           fi
         else
           dt_error "No table data found for analysis"
@@ -832,25 +847,29 @@ in {
       fi
     '';
     voice = {
+      priority = 2;
       sentences = [
+        # 🦆 says ⮞ no parameters
         "hockey tabellen"
+        # 🦆 says ⮞ team specific sentences
         "vad ligger {team} i tabbelen"
         "visa {team} statistik"
-        "vad har {team} för {stat}"
-        "hur är {team} {stat}"
         "analysera {team}"
         "hur går det för {team}"
+        # 🦆 says ⮞ stat specific sentences
+        "hur (bra|dåliga) är {team} i {stat}"
+        "vad har {team} för {stat}"
       ];
       lists = {
         team.values = [
-          { "in" = "[björklöven|löven|vi]"; out = "IF Björklöven"; }   
-          { "in" = "[modo]"; out = "MoDo Hockey"; }
-          { "in" = "[karlskoga|bik]"; out = "BIK Karlskoga"; }
-          { "in" =		 "[nybro|vikings]"; out = "Nybro Vikings IF"; }
-          { "in" = "[kalmar]"; out = "Kalmar HC"; }
+          { "in" = "[björklöven|björklövens|löven|vi]"; out = "IF Björklöven"; }   
+          { "in" = "[modo|modos]"; out = "MoDo Hockey"; }
+          { "in" = "[karlskoga|bik|bofors]"; out = "BIK Karlskoga"; }
+          { "in" = "[nybro|nybros|vikings]"; out = "Nybro Vikings IF"; }
+          { "in" = "[kalmar|kalmars]"; out = "Kalmar HC"; }
           { "in" = "[oskarshamn]"; out = "IK Oskarshamn"; }
           { "in" = "[almtuna]"; out = "Almtuna IS"; }
-          { "in" = "[aik]"; out = "AIK"; }
+          { "in" = "[aik|aiks]"; out = "AIK"; }
           { "in" = "[mora]"; out = "Mora IK"; }
           { "in" = "[södertälje]"; out = "Södertälje SK"; }
           { "in" = "[östersund]"; out = "Östersunds IK"; }
