@@ -443,7 +443,7 @@ EOF
             if [ $time_diff -gt 7200 ]; then 
               dt_info "Welcoming you home! (no motion for 2 hours, door opened"
               # 🦆 says ⮞ then greet me welcome home - so i can say "quack? thanx yo!"
-              yo say --text "Välkommen hem!" --host "desktop"
+              sleep 5 && yo say --text "Välkommen hem!" --host "desktop"
             else
               dt_info "🛑 NOT WELCOMING:🛑 only $((time_diff/60)) minutes since last motion"
             fi
@@ -754,7 +754,7 @@ EOF
       )
       available_devices=(
         ${toString deviceList}
-      )      
+      )    
       DEVICE="$1" # 🦆 says ⮞ device to control      
       STATE="''${2:-}" # 🦆 says ⮞ state change        
       BRIGHTNESS="''${3:-100}"
