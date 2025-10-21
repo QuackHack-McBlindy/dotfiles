@@ -81,11 +81,14 @@ in {
       ${cfg.group} = {};
     };
 
-    # 🦆 duck say ⮞ create the public directory
+    # 🦆 duck say ⮞ create directories
     systemd.tmpfiles.rules = [
       "d ${cfg.root} 0755 ${cfg.user} ${cfg.group} - -"
       "d ${cfg.publicPath} 0755 ${cfg.user} ${cfg.group} - -"
       "L+ ${cfg.root}/public 0755 ${cfg.user} ${cfg.group} - ${cfg.publicPath}"
+    ] ++ lib.optionals caddyHost [
+      # 🦆 duck say ⮞ create caddy template dir
+      "d ${caddyTemplateDir} 0755 ${caddyUser} ${caddyUser} - -"
     ];
 
     # 🦆 duck say ⮞ open firewall port?
@@ -95,24 +98,32 @@ in {
 
     # 🦆 duck say ⮞ create index.html
     system.activationScripts.file-server = ''
-      if [ ! -f "${cfg.root}/index.html" ]; then
+      # 🦆 duck say ⮞ if caddy iz enabled - setup file-server 4 caddy yo
+      if [[ "${caddyServer}" == "true" ]]; then
+        # 🦆 duck say ⮞ caddy mode - serve the html as template
+        echo "Setting up file-server for Caddy..."
+        mkdir -p "${cfg.root}"
+        mkdir -p "${caddyTemplateDir}"
+        
+        # 🦆 duck say ⮞ copy template 2 template dir
+        cp "${index}" "${caddyTemplateDir}/browse.html"
+        chown ${caddyUser}:${caddyUser} "${caddyTemplateDir}/browse.html"
+        chmod 644 "${caddyTemplateDir}/browse.html"
+        
+        # 🦆 duck say ⮞ permissionz
+        chown -R ${caddyUser}:${caddyUser} "${cfg.root}" || true
+        chmod -R 755 "${cfg.root}"
+        
+        # 🦆 duck say ⮞ remove existing index.html
+        rm -f "${cfg.root}/index.html"
+      else
+        # 🦆 duck say ⮞ python mode - create index.html
+        echo "Setting up standalone file-server..."
         mkdir -p "${cfg.root}"
         cat "${index}" > "${cfg.root}/index.html"
         chown ${cfg.user}:${cfg.group} "${cfg.root}/index.html"
         chmod 644 "${cfg.root}/index.html"
-      fi 
-
-      # 🦆 duck say ⮞ if caddy iz enabled - setup file-server 4 caddy yo
-      if [[ "${caddyServer}" == "true" ]]; then
-        mkdir -p "${caddyTemplateDir}"
-        cp "${index}" "${caddyTemplateDir}/browse.html"
-        chown -R ${caddyUser}:${caddyGroup} "${caddyTemplateDir}"
-        chmod -R 644 "${caddyTemplateDir}"
-
-        # 🦆 duck say ⮞ give permissions 4 caddy
-        chown -R ${caddyUser}:${caddyGroup} "${cfg.root}"
-        chmod -R 755 "${cfg.root}"
-      fi
+      fi  
     '';
     
     # 🦆 duck say ⮞ python http.server
