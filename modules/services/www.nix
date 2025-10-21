@@ -118,9 +118,9 @@ in {
         rm -f "${cfg.root}/index.html"
 
         # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
-        if [ ! -L "${cfg.root}/public" ] && [ ! -e "${cfg.root}/public" ]; then
+        if [ ! -L "${cfg.root}" ] && [ ! -e "${cfg.root}" ]; then
           ln -sfn "${cfg.publicPath}" "${cfg.root}/public"
-          echo "Created public symlink: ${cfg.root}/public -> ${cfg.publicPath}"
+          echo "Created public symlink: ${cfg.root}/public ⮞ ${cfg.publicPath}"
         fi
       else
         # 🦆 duck say ⮞ python mode - create index.html
@@ -131,9 +131,9 @@ in {
         chmod 644 "${cfg.root}/index.html"
         
         # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
-        if [ ! -L "${cfg.root}/public" ] && [ ! -e "${cfg.root}/public" ]; then
+        if [ ! -L "${cfg.root}" ] && [ ! -e "${cfg.root}" ]; then
           ln -sfn "${cfg.publicPath}" "${cfg.root}/public"
-          echo "Created public symlink: ${cfg.root}/public -> ${cfg.publicPath}"
+          echo "Created public symlink: ${cfg.root}/public ⮞ ${cfg.publicPath}"
         fi
       fi  
       
