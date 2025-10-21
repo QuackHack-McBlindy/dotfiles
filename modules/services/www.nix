@@ -11,6 +11,18 @@ let
   index = config.this.user.me.dotfilesDir + "/modules/services/file-server/browse.html";
   # 🦆 says ⮞ directory to share - default's to `~/Public`
   publicPath = "/home/" + config.this.user.me.name + "/Public";
+  
+  # 🦆 says ⮞ detect caddy
+  caddyHost = lib.elem "caddy" config.this.host.modules.networking;
+  caddyUser = if caddyHost then config.systemd.services.caddy.serviceConfig.User or "caddy" else "nobody";
+  caddyHome = if caddyHost && config.users.users ? ${caddyUser}
+               then config.users.users.${caddyUser}.home
+               else "/var/lib/caddy";
+  caddyGroup = if caddyHost then caddyUser else "nogroup";
+  caddyTemplateDir = caddyHome + "/templates";
+
+  caddyServer = if caddyHost then "true" else "false";
+
 in {
   options.services.file-server = {
     user = mkOption {
@@ -88,6 +100,18 @@ in {
         cat "${index}" > "${cfg.root}/index.html"
         chown ${cfg.user}:${cfg.group} "${cfg.root}/index.html"
         chmod 644 "${cfg.root}/index.html"
+      fi 
+
+      # 🦆 duck say ⮞ if caddy iz enabled - setup file-server 4 caddy yo
+      if [[ "${caddyServer}" == "true" ]]; then
+        mkdir -p "${caddyTemplateDir}"
+        cp "${index}" "${caddyTemplateDir}/browse.html"
+        chown -R ${caddyUser}:${caddyGroup} "${caddyTemplateDir}"
+        chmod -R 644 "${caddyTemplateDir}"
+
+        # 🦆 duck say ⮞ give permissions 4 caddy
+        chown -R ${caddyUser}:${caddyGroup} "${cfg.root}"
+        chmod -R 755 "${cfg.root}"
       fi
     '';
     
