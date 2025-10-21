@@ -27,7 +27,7 @@ in {
 
     root = mkOption {
       type = types.path;
-      default = "/var/www/file-server";
+      default = "/var/lib/www/file-server";
       description = "File server root directory.";
     };
 
@@ -73,7 +73,7 @@ in {
     systemd.tmpfiles.rules = [
       "d ${cfg.root} 0755 ${cfg.user} ${cfg.group} - -"
       "d ${cfg.publicPath} 0755 ${cfg.user} ${cfg.group} - -"
-      "L+ ${cfg.root}/share 0755 ${cfg.user} ${cfg.group} - ${cfg.publicPath}"
+      "L+ ${cfg.root}/public 0755 ${cfg.user} ${cfg.group} - ${cfg.publicPath}"
     ];
 
     # 🦆 duck say ⮞ open firewall port?
@@ -83,11 +83,11 @@ in {
 
     # 🦆 duck say ⮞ create index.html
     system.activationScripts.file-server = ''
-      if [ ! -f "${cfg.publicPath}/index.html" ]; then
-        mkdir -p "${cfg.publicPath}"
+      if [ ! -f "${cfg.root}/index.html" ]; then
+        mkdir -p "${cfg.root}"
         cat "${index}" > "${cfg.root}/index.html"
-        chown -R ${cfg.user}:${cfg.group} "${cfg.publicPath}"
-        chmod -R 755 "${cfg.publicPath}"
+        chown ${cfg.user}:${cfg.group} "${cfg.root}/index.html"
+        chmod 644 "${cfg.root}/index.html"
       fi
     '';
     
