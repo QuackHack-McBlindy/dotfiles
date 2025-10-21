@@ -13,6 +13,7 @@
     "/mnt/disks/media5"
   ];
 in {
+
     boot = {
         loader = {
             grub.enable = true;
@@ -74,7 +75,7 @@ in {
         };    
     };                
 
-    networking.firewall.allowedTCPPorts = [ 2049 ];
+    networking.firewall.allowedTCPPorts = [ 2049 443 ];
     networking.firewall.allowedUDPPorts = [ 2049 ]; 
     services.nfs.server = {
         enable = true;
