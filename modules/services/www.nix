@@ -116,6 +116,12 @@ in {
         
         # 🦆 duck say ⮞ remove existing index.html
         rm -f "${cfg.root}/index.html"
+
+        # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
+        if [ ! -L "${cfg.root}/public" ] && [ ! -e "${cfg.root}/public" ]; then
+          ln -sfn "${cfg.publicPath}" "${cfg.root}/public"
+          echo "Created public symlink: ${cfg.root}/public -> ${cfg.publicPath}"
+        fi
       else
         # 🦆 duck say ⮞ python mode - create index.html
         echo "Setting up standalone file-server..."
@@ -123,7 +129,20 @@ in {
         cat "${index}" > "${cfg.root}/index.html"
         chown ${cfg.user}:${cfg.group} "${cfg.root}/index.html"
         chmod 644 "${cfg.root}/index.html"
+        
+        # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
+        if [ ! -L "${cfg.root}/public" ] && [ ! -e "${cfg.root}/public" ]; then
+          ln -sfn "${cfg.publicPath}" "${cfg.root}/public"
+          echo "Created public symlink: ${cfg.root}/public -> ${cfg.publicPath}"
+        fi
       fi  
+      
+      # 🦆 duck say ⮞ double McVerify
+      if [ -L "${cfg.root}/public" ]; then
+        echo "Public symlink verified: ${cfg.root}/public ⮞ $(readlink "${cfg.root}/public")"
+      else
+        echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m fuck ❌ Public symlink missing: ${cfg.root}/public\e[0m"
+      fi
     '';
     
     # 🦆 duck say ⮞ python http.server
