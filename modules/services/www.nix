@@ -118,10 +118,36 @@ in {
         rm -f "${cfg.root}/index.html"
 
         # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
-        if [ ! -L "${cfg.root}" ] && [ ! -e "${cfg.root}" ]; then
-          ln -sfn "${cfg.publicPath}" "${cfg.root}/public"
-          echo "Created public symlink: ${cfg.root}/public ⮞ ${cfg.publicPath}"
+        echo "Copying Public files to file-server directory..."
+        mkdir -p "${cfg.root}/public"
+    
+        # Copy files only if they don't already exist in destination
+        if [ -d "${cfg.publicPath}" ]; then
+          # Use rsync to copy only new files (preserves directory structure)
+          ${pkgs.rsync}/bin/rsync -av --ignore-existing "${cfg.publicPath}/" "${cfg.root}/public/" || echo "rsync failed, trying cp..."
+      
+          # Fallback to cp if rsync fails
+          if [ ! "$(ls -A "${cfg.root}/public")" ]; then
+            cp -r "${cfg.publicPath}"/* "${cfg.root}/public/" 2>/dev/null || true
+          fi
+      
+          echo "Public files copied to: ${cfg.root}/public"
+        else
+          echo "Warning: Public path ${cfg.publicPath} does not exist"
         fi
+    
+        # Ensure proper ownership of copied files
+        chown -R ${caddyUser}:${caddyUser} "${cfg.root}/public" || true
+        chmod -R 644 "${cfg.root}/public" || true
+        find "${cfg.root}/public" -type d -exec chmod 755 {} \; || true
+
+        # 🦆 duck say ⮞ copy README.md for instant display
+        if [ -f "${cfg.root}/public/README.md" ]; then
+          cp "${cfg.root}/public/README.md" "${cfg.root}/README.md" 2>/dev/null || true
+          chown ${caddyUser}:${caddyUser} "${cfg.root}/README.md" 2>/dev/null || true
+          chmod 644 "${cfg.root}/README.md" 2>/dev/null || true
+        fi
+
       else
         # 🦆 duck say ⮞ python mode - create index.html
         echo "Setting up standalone file-server..."
@@ -130,18 +156,35 @@ in {
         chown ${cfg.user}:${cfg.group} "${cfg.root}/index.html"
         chmod 644 "${cfg.root}/index.html"
         
-        # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
-        if [ ! -L "${cfg.root}" ] && [ ! -e "${cfg.root}" ]; then
-          ln -sfn "${cfg.publicPath}" "${cfg.root}/public"
-          echo "Created public symlink: ${cfg.root}/public ⮞ ${cfg.publicPath}"
+        # 🦆 duck say ⮞ mkSure publiivPath iz copied yo
+        echo "Copying Public files to file-server directory..."
+        mkdir -p "${cfg.root}/public"
+    
+        if [ -d "${cfg.publicPath}" ]; then
+          ${pkgs.rsync}/bin/rsync -av --ignore-existing "${cfg.publicPath}/" "${cfg.root}/public/" || echo "rsync failed, trying cp..."
+          if [ ! "$(ls -A "${cfg.root}/public")" ]; then
+            cp -r "${cfg.publicPath}"/* "${cfg.root}/public/" 2>/dev/null || true
+          fi
+          echo "Public files copied to: ${cfg.root}/public"
+        fi
+    
+        chown -R ${cfg.user}:${cfg.group} "${cfg.root}/public" || true
+        chmod -R 644 "${cfg.root}/public" || true
+        find "${cfg.root}/public" -type d -exec chmod 755 {} \; || true
+
+        # 🦆 duck say ⮞ copy README.md for instant display
+        if [ -f "${cfg.root}/public/README.md" ]; then
+          cp "${cfg.root}/public/README.md" "${cfg.root}/README.md" 2>/dev/null || true
+          chown ${caddyUser}:${caddyUser} "${cfg.root}/README.md" 2>/dev/null || true
+          chmod 644 "${cfg.root}/README.md" 2>/dev/null || true
         fi
       fi  
-      
-      # 🦆 duck say ⮞ double McVerify
-      if [ -L "${cfg.root}/public" ]; then
-        echo "Public symlink verified: ${cfg.root}/public ⮞ $(readlink "${cfg.root}/public")"
+  
+      # 🦆 duck say ⮞ verify public directory
+      if [ -d "${cfg.root}/public" ] && [ "$(ls -A "${cfg.root}/public")" ]; then
+        echo "Public directory verified with $(find "${cfg.root}/public" -type f | wc -l) files"
       else
-        echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m fuck ❌ Public symlink missing: ${cfg.root}/public\e[0m"
+        echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m fuck ❌ Public directory empty/missing: ${cfg.root}/public\e[0m"
       fi
     '';
     
