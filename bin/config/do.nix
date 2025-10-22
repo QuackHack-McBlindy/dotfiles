@@ -415,6 +415,57 @@
   # 🦆 says ⮞ generate optimized processing order
   processingOrder = map (r: r.name) scriptRecordsWithIntents;
 
+  # 🦆 duck say ⮞ quacky hacky helper 2 escape md special charizardz yo
+  escapeMD = str: let
+    replacements = [
+      [ "\\" "\\\\" ]
+      [ "*" "\\*" ]
+      [ "`" "\\`" ]
+      [ "_" "\\_" ]
+      [ "[" "\\[" ]
+      [ "]" "\\]" ]
+    ];
+  in
+    lib.foldl (acc: r: lib.replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
+
+  # 🦆 says ⮞ category based heöåFppter yp 
+  voiceSentencesHelpFile = pkgs.writeText "voice-sentences-help.md" (
+    let
+      scriptsWithVoice = lib.filterAttrs (_: script: 
+        script.voice != null && script.voice.sentences != [] && (script.voice.enabled or true)
+      ) config.yo.scripts;     
+      # 🦆 says ⮞ group by category
+      groupedScripts = lib.groupBy (script: script.category or "🧩 Miscellaneous") 
+        (lib.attrValues scriptsWithVoice);      
+      # 🦆 says ⮞ generate category sections
+      categorySections = lib.mapAttrsToList (category: scripts:
+        let
+          scriptLines = map (script:
+            let
+              sentenceLines = lib.concatMapStrings (sentence: "    - \"${escapeMD sentence}\"\n") 
+                script.voice.sentences;
+            in
+              "  **${escapeMD script.name}**:\n${sentenceLines}"
+          ) (lib.sort (a: b: a.name < b.name) scripts);
+        in
+          "# ${category}\n\n${lib.concatStringsSep "\n" scriptLines}"
+      ) groupedScripts;      
+      # 🦆 says ⮞ statistics
+      totalScripts = lib.length (lib.attrNames config.yo.scripts);
+      voiceScripts = lib.length (lib.attrNames scriptsWithVoice);
+      totalPatterns = config.yo.generatedPatterns;
+      totalPhrases = config.yo.understandsPhrases;      
+      stats = ''  
+# ──────⋆⋅☆⋅⋆────── #
+# Stats  
+- **Scripts with voice**: ${toString voiceScripts} / ${toString totalScripts}
+- **Generated patterns**: ${toString totalPatterns}
+- **Understandable phrases**: ${toString totalPhrases}
+      '';      
+    in
+      "# 🦆 Voice Commands Reference\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
+  );
+ 
   # 🦆 says ⮞ conflict detection - no bad voice intentz quack!  
   assertionCheckForConflictingSentences = let
     # 🦆 says ⮞ collect all expanded sentences with their script originz
@@ -543,6 +594,9 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         { name = "input"; description = "Text to parse into a yo command"; optional = false; }
         { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }
       ]; 
+      helpFooter = ''
+        cat ${voiceSentencesHelpFile}
+      '';
       code = ''
         set +u  
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
