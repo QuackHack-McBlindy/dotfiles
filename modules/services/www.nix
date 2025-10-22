@@ -188,7 +188,7 @@ in {
       fi
     '';
     
-    # 🦆 duck say ⮞ python http.server
+    # 🦆 duck say ⮞ python http.server (if not usin' caddy)
     systemd.services.file-server = {
       description = "Python file-server";
       after = [ "network.target" ];

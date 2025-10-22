@@ -37,7 +37,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 
 <!-- SCRIPT_STATS_START -->
 - __73 qwacktastic scripts in /bin - 37 scripts have voice commands.__ <br>
-- __1072 dynamically generated regex patterns - makes 91213490 phrases available as commands.__ <br>
+- __1077 dynamically generated regex patterns - makes 91213700 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
 - __Natural Language support with complete voice pipeline__ <br>
@@ -156,7 +156,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1033,7 +1033,7 @@ Android TV devices at `config.house.tv`.
     channels = {
       1 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/1.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/1.png";
         id = 1;
         name = "SVT1";
         scrape_url = "https://tv-tabla.se/tabla/svt1/";
@@ -1041,7 +1041,7 @@ Android TV devices at `config.house.tv`.
       };
       10 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/10.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/10.png";
         id = 10;
         name = "Kanal 10";
         scrape_url = "https://tv-tabla.se/tabla/tv10/";
@@ -1049,7 +1049,7 @@ Android TV devices at `config.house.tv`.
       };
       11 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/11.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/11.png";
         id = 11;
         name = "Kanal 11";
         scrape_url = "https://tv-tabla.se/tabla/tv11/";
@@ -1057,7 +1057,7 @@ Android TV devices at `config.house.tv`.
       };
       12 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/12.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/12.png";
         id = 12;
         name = "Kanal 12";
         scrape_url = "https://tv-tabla.se/tabla/tv12/";
@@ -1065,7 +1065,7 @@ Android TV devices at `config.house.tv`.
       };
       13 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/13.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/13.png";
         id = 13;
         name = "TV4 Hockey";
         scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
@@ -1073,7 +1073,7 @@ Android TV devices at `config.house.tv`.
       };
       14 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/14.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/14.png";
         id = 14;
         name = "TV4 Sport Live 1";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
@@ -1081,7 +1081,7 @@ Android TV devices at `config.house.tv`.
       };
       15 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/15.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/15.png";
         id = 15;
         name = "TV4 Sport Live 2";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
@@ -1089,7 +1089,7 @@ Android TV devices at `config.house.tv`.
       };
       16 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/16.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/16.png";
         id = 16;
         name = "TV4 Sport Live 3";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
@@ -1097,7 +1097,7 @@ Android TV devices at `config.house.tv`.
       };
       17 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/17.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/17.png";
         id = 17;
         name = "TV 4 Sport Live 4";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
@@ -1105,7 +1105,7 @@ Android TV devices at `config.house.tv`.
       };
       2 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/2.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/2.png";
         id = 2;
         name = "SVT2";
         scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1113,7 +1113,7 @@ Android TV devices at `config.house.tv`.
       };
       3 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/3.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/3.png";
         id = 3;
         name = "Kanal 3";
         scrape_url = "https://tv-tabla.se/tabla/tv3/";
@@ -1121,7 +1121,7 @@ Android TV devices at `config.house.tv`.
       };
       4 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/4.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/4.png";
         id = 4;
         name = "TV4";
         scrape_url = "https://tv-tabla.se/tabla/tv4/";
@@ -1129,7 +1129,7 @@ Android TV devices at `config.house.tv`.
       };
       5 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/5.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/5.png";
         id = 5;
         name = "TV5";
         scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
@@ -1137,7 +1137,7 @@ Android TV devices at `config.house.tv`.
       };
       6 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/6.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/6.png";
         id = 6;
         name = "Kanal 6";
         scrape_url = "https://tv-tabla.se/tabla/tv6/";
@@ -1145,7 +1145,7 @@ Android TV devices at `config.house.tv`.
       };
       7 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/7.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/7.png";
         id = 7;
         name = "Sjuan";
         scrape_url = "https://tv-tabla.se/tabla/sjuan/";
@@ -1153,7 +1153,7 @@ Android TV devices at `config.house.tv`.
       };
       8 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/8.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/8.png";
         id = 8;
         name = "TV8";
         scrape_url = "https://tv-tabla.se/tabla/tv8/";
@@ -1161,7 +1161,7 @@ Android TV devices at `config.house.tv`.
       };
       9 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/9.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/9.png";
         id = 9;
         name = "Kanal 9";
         scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
@@ -1180,7 +1180,7 @@ Android TV devices at `config.house.tv`.
     channels = {
       1 = {
         cmd = "open_telenor && wait 5 && start_channel_1";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/1.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/1.png";
         id = 1;
         name = "SVT1";
         scrape_url = "https://tv-tabla.se/tabla/svt1/";
@@ -1188,7 +1188,7 @@ Android TV devices at `config.house.tv`.
       };
       10 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/10.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/10.png";
         id = 10;
         name = "Kanal 10";
         scrape_url = "https://tv-tabla.se/tabla/tv10/";
@@ -1196,7 +1196,7 @@ Android TV devices at `config.house.tv`.
       };
       11 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/11.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/11.png";
         id = 11;
         name = "Kanal 11";
         scrape_url = "https://tv-tabla.se/tabla/tv11/";
@@ -1204,7 +1204,7 @@ Android TV devices at `config.house.tv`.
       };
       12 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/12.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/12.png";
         id = 12;
         name = "Kanal 12";
         scrape_url = "https://tv-tabla.se/tabla/tv12/";
@@ -1212,7 +1212,7 @@ Android TV devices at `config.house.tv`.
       };
       13 = {
         cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/13.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/13.png";
         id = 13;
         name = "TV4 Hockey";
         scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
@@ -1220,7 +1220,7 @@ Android TV devices at `config.house.tv`.
       };
       14 = {
         cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/14.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/14.png";
         id = 14;
         name = "TV4 Sport Live 1";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
@@ -1228,7 +1228,7 @@ Android TV devices at `config.house.tv`.
       };
       15 = {
         cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/15.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/15.png";
         id = 15;
         name = "TV4 Sport Live 2";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
@@ -1236,7 +1236,7 @@ Android TV devices at `config.house.tv`.
       };
       16 = {
         cmd = "open_tv4 && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/16.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/16.png";
         id = 16;
         name = "TV4 Sport Live 3";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
@@ -1244,7 +1244,7 @@ Android TV devices at `config.house.tv`.
       };
       17 = {
         cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/17.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/17.png";
         id = 17;
         name = "TV4 Sport Live 4";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
@@ -1252,7 +1252,7 @@ Android TV devices at `config.house.tv`.
       };
       2 = {
         cmd = "open_telenor && wait 5 && start_channel_2";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/2.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/2.png";
         id = 2;
         name = "SVT2";
         scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1260,7 +1260,7 @@ Android TV devices at `config.house.tv`.
       };
       3 = {
         cmd = "open_telenor && wait 5 && start_channel_3";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/3.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/3.png";
         id = 3;
         name = "Kanal 3";
         scrape_url = "https://tv-tabla.se/tabla/tv3/";
@@ -1268,7 +1268,7 @@ Android TV devices at `config.house.tv`.
       };
       4 = {
         cmd = "open_telenor && wait 5 && start_channel_4";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/4.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/4.png";
         id = 4;
         name = "TV4";
         scrape_url = "https://tv-tabla.se/tabla/tv4/";
@@ -1276,7 +1276,7 @@ Android TV devices at `config.house.tv`.
       };
       5 = {
         cmd = "open_telenor && wait 5 && start_channel_5";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/5.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/5.png";
         id = 5;
         name = "Kanal 5";
         scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
@@ -1284,7 +1284,7 @@ Android TV devices at `config.house.tv`.
       };
       6 = {
         cmd = "open_telenor && wait 5 && start_channel_6";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/6.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/6.png";
         id = 6;
         name = "Kanal 6";
         scrape_url = "https://tv-tabla.se/tabla/tv6/";
@@ -1292,7 +1292,7 @@ Android TV devices at `config.house.tv`.
       };
       7 = {
         cmd = "open_telenor && wait 5 && start_channel_7";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/7.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/7.png";
         id = 7;
         name = "Sjuan";
         scrape_url = "https://tv-tabla.se/tabla/sjuan/";
@@ -1300,7 +1300,7 @@ Android TV devices at `config.house.tv`.
       };
       8 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/8.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/8.png";
         id = 8;
         name = "TV8";
         scrape_url = "https://tv-tabla.se/tabla/tv8/";
@@ -1308,7 +1308,7 @@ Android TV devices at `config.house.tv`.
       };
       9 = {
         cmd = "";
-        icon = "/nix/store/sx25wmb7fzx8gxhbzljm004zslixi25m-source/modules/themes/icons/tv/9.png";
+        icon = "/nix/store/nixlidwjp4l5v9swz2crhm34n7486wz1-source/modules/themes/icons/tv/9.png";
         id = 9;
         name = "Kanal 9";
         scrape_url = "https://tv-tabla.se/tabla/kanal_9/";

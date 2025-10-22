@@ -68,8 +68,8 @@
         # 🦆 duck say ⮞ define diz machine
         host = {
             system = "x86_64-linux";
-            hostname = "desktop";
-            interface = [ "enp119s0" ];
+            hostname = "desktop"; 
+            interface = [ "enp119s0" ]; # 🦆 duck say ⮞ don't forget your card yo
             ip = "192.168.1.111";
             wgip = "10.0.0.2";
             # 🦆 duck say ⮞ modulez

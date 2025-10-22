@@ -858,8 +858,8 @@ in {
         "analysera {team}"
         "hur går det för {team}"
         # 🦆 says ⮞ stat specific sentences
-        "hur (bra|dåliga) är {team} i {stat}"
-        "vad har {team} för {stat}"
+        "hur (bra|dåliga) är {team} [i] {stat}"
+        "vad har {team} (för|i) {stat} (statistik|stats)"
         "analysera {team} {stat}"
       ];
       lists = {
