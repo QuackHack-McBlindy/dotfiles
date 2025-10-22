@@ -55,9 +55,15 @@ in {
 
       update_duckdns "$duckdns1domains" "$duckdns1Token" "$ip_var"
       update_duckdns "$duckdns2domains" "$duckdns2Token" "$ip_var"
-      update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"
-      
-    '';
+      update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"  
+    '';    
+    voice = {
+      priority = 5;
+      sentences = [
+        "uppdatera duckdns"
+        "uppdatera [mitt] [duck]dns ip"
+      ];
+    };
   };  
   sops.secrets = {
     duckdnsEnv-x = {

@@ -32,9 +32,9 @@ in {
     voice = {
       sentences = [
         "dela [gäst] (wifi|internet)"
-        "internet delning"
-        "dela internet för gäster"
-        "dela internet"
+        "(internet|wifi) delning"
+        "dela [mitt] (internet|wifi) för gäster"
+        "dela [mitt] (internet|wifi)"
       ];
     };
   };

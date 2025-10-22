@@ -311,6 +311,7 @@ in {
       sentences = [ 
         "hur mycket batteri har {device} [kvar]"
         "batteri nivå [på] {device}"
+        "vad är (batteri|batteronivån) [nivån] [på] {device}"
         "(berätta|säg) hur mycket batteri {device} [har] [kvar]"
       ];
       lists = {

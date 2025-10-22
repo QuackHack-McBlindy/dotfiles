@@ -456,7 +456,7 @@
       totalPatterns = config.yo.generatedPatterns;
       totalPhrases = config.yo.understandsPhrases;      
       stats = ''  
-# ──────⋆⋅☆⋅⋆────── #
+# ----────----──⋆⋅☆☆☆⋅⋆─────----─ #
 # Stats  
 - **Scripts with voice**: ${toString voiceScripts} / ${toString totalScripts}
 - **Generated patterns**: ${toString totalPatterns}
@@ -808,7 +808,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
             dt_debug "Fuzzy match score $match_score below threshold $FUZZY_THRESHOLD, skipping."
             return 1
           fi
-          dt_info "Best fuzzy script: $matched_script (score: $match_score%)"
+          dt_debug "Best fuzzy script: $matched_script (score: $match_score%)"
 
           # 🦆 says ⮞ resolve entities agein, diz time for matched script yo
           resolved_output=$(resolve_entities "$matched_script" "$text")
@@ -833,7 +833,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
             done
             # 🦆 says ⮞ wait for exact match to finish
             # while kill -0 "$pid1" 2>/dev/null; do
-            dt_info "Fuzzy handler: Waiting for exact match to finish..."
+            dt_debug "Fuzzy handler: Waiting for exact match to finish..."
             while [[ $(cat "$match_result_flag") == "waiting" ]]; do
               dt_debug "Fuzzy: Still waiting for exact match flag... (loop)"
               sleep 0.05
@@ -841,7 +841,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
             dt_debug "Fuzzy: Exact match flag found"
             # 🦆 says ⮞ check if exact match already won
             if [[ $(cat "$match_result_flag") == "exact" ]]; then 
-              dt_info "Exact match already handled execution. Fuzzy exiting."             
+              dt_debug "Exact match already handled execution. Fuzzy exiting."             
               exit 0
             fi    
             dt_debug "Fuzzy: Proceeding with fuzzy execution..."

@@ -32,7 +32,7 @@
           echo "## ──────⋆⋅☆⋅⋆────── ##" 
         '';
         parameters = [
-          { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; }
+          { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; default = "view"; }
           { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/dotfiles/home/allsvenskan.ics"; }       
         ];
         code = ''
@@ -510,6 +510,9 @@
         '';
         voice = {
           sentences = [
+            "vad har jag planerat [idag|imorgon]"
+            "visa min kalender för {day}"
+            "har jag något inbokat [idag|imorgon]"
             "vad händer [på] [dag] [idag]"
             "vad har jag [i] kalendern [idag]"
             "visa [min] kalender [för] [idag]"

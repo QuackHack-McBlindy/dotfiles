@@ -27,6 +27,21 @@
           ssh "$host" 'sudo reboot -f'
           sleep 1
           wait_for_host $host
-        '';
+        '';    
+        voice = {
+          priority = 5;
+          sentences = [
+            "starta om {host} [dator|datorn]"
+            "starta om {host} [server|servern]"          
+          ];
+          lists = {
+            host.values = [
+              { "in" = "[desktop|vatten]"; out = "desktop"; }
+              { "in" = "[homie|hem|hemserver]"; out = "homie"; }  
+              { "in" = "[nasty|nas|nasen]"; out = "nasty"; }
+              { "in" = "[laptop|laptoppen]"; out = "laptop"; }            
+            ];
+          };
+        };  
       };
     };}  

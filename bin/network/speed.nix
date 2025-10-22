@@ -75,7 +75,6 @@
       ' "$SPEED_FILE"
     '';
     voice = {
-      enabled = true;
       priority = 5;
       sentences = [
         "nätverks test"

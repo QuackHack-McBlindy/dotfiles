@@ -1117,7 +1117,7 @@ in {
             { "in" = "[låt|låten|sång|sången|biten]"; out = "song"; }
             { "in" = "[film|filmen]"; out = "movie"; }
             { "in" = "[ljudbok|ljudboken]"; out = "audiobook"; }
-            { "in" = "video"; out = "othervideo"; }
+            { "in" = "[video|videon]"; out = "othervideo"; }
             { "in" = "[musicvideo|musikvideo]"; out = "musicvideo"; }
             { "in" = "[kanal|kanalen|kannal]"; out = "livetv"; }
             { "in" = "[youtube|you-tube|you|yt|yotub|yotube|yotub|tuben|juden]"; out = "youtube"; }     
@@ -1169,4 +1169,5 @@ in {
       group = config.this.user.me.name;
       mode = "0440";
     };
+    
   };}

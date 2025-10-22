@@ -42,6 +42,8 @@ in {
         voice = {
           sentences = [
             "vad har {search} för adress"
+            "ta reda på {search} adress"
+            "(säg|berätta|hämta) {search} adress"
             "sök efter {search} på hitta"
           ];
           lists.search.wildcard = true;

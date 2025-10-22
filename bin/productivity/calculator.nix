@@ -10,7 +10,7 @@
         helpFooter = ''
           ${cmdHelpers}
           echo "## ──────⋆⋅☆⋅⋆────── ##"
-          echo "## 🧠 Usage Examples:"        
+          echo "# Examples:"        
           echo '`yo calc "15 + 39 * 7"`'
           echo '`yo calc "5 x 2 / 3"`'    
           echo '`yo calc "19÷2*3"`'
@@ -138,7 +138,7 @@
           if ! echo "$math" | grep -Eq "$allowed"; then
             # 🦆 duck say ⮞ find invalid characters by removing allowed ones
             invalid_chars=$(echo "$math" | sed "s/[$allowed_chars]//g" | fold -w1 | sort | uniq | tr -d '\n')
-            say_duck "fuck ⛔ Invalid characters in math expression: ''${RESET}[''${RED}$invalid_chars''${RESET}]"
+            say_duck "fuck ❌ Invalid characters in math expression: ''${RESET}[''${RED}$invalid_chars''${RESET}]"
             exit 1
           fi
         
