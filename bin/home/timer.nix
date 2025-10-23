@@ -140,13 +140,14 @@ in {
     voice = {
       priority = 5;
       sentences = [
-        "(skapa|ställ|sätt|starta) [en] timer [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
-        "(skapa|ställ|sätt|starta) [en] timer [på] {minutes} (minut|minuter) [och] {seconds} (sekund|sekunder)"
-        "(skapa|ställ|sätt|starta) [en] timer [på] {minutes} (minut|minuter)"                     
-        "(skapa|ställ|sätt|starta) [en] timer [på] {seconds} sekunder"      
+        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
+        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter) [och] {seconds} (sekund|sekunder)"
+        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter)"                     
+        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {seconds} sekunder"      
         
-        "hur {list} är det kvar på timern"
-        "tid {list} på timern"
+        "hur {list} är det kvar på (time|timer|timern)"
+        "tid {list} på (time|timer|timern)"
+        "när {list} (time|timer|timern)"
       ];        
       lists = {
         list.values = [

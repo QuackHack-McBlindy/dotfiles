@@ -428,43 +428,7 @@
   in
     lib.foldl (acc: r: lib.replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
 
-  # 🦆 says ⮞ category based heöåFppter yp 
-  voiceSentencesHelpFile = pkgs.writeText "voice-sentences-help.md" (
-    let
-      scriptsWithVoice = lib.filterAttrs (_: script: 
-        script.voice != null && script.voice.sentences != [] && (script.voice.enabled or true)
-      ) config.yo.scripts;     
-      # 🦆 says ⮞ group by category
-      groupedScripts = lib.groupBy (script: script.category or "🧩 Miscellaneous") 
-        (lib.attrValues scriptsWithVoice);      
-      # 🦆 says ⮞ generate category sections
-      categorySections = lib.mapAttrsToList (category: scripts:
-        let
-          scriptLines = map (script:
-            let
-              sentenceLines = lib.concatMapStrings (sentence: "    - \"${escapeMD sentence}\"\n") 
-                script.voice.sentences;
-            in
-              "  **${escapeMD script.name}**:\n${sentenceLines}"
-          ) (lib.sort (a: b: a.name < b.name) scripts);
-        in
-          "# ${category}\n\n${lib.concatStringsSep "\n" scriptLines}"
-      ) groupedScripts;      
-      # 🦆 says ⮞ statistics
-      totalScripts = lib.length (lib.attrNames config.yo.scripts);
-      voiceScripts = lib.length (lib.attrNames scriptsWithVoice);
-      totalPatterns = config.yo.generatedPatterns;
-      totalPhrases = config.yo.understandsPhrases;      
-      stats = ''  
-# ----────----──⋆⋅☆☆☆⋅⋆─────----─ #
-# Stats  
-- **Scripts with voice**: ${toString voiceScripts} / ${toString totalScripts}
-- **Generated patterns**: ${toString totalPatterns}
-- **Understandable phrases**: ${toString totalPhrases}
-      '';      
-    in
-      "# 🦆 Voice Commands Reference\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
-  );
+
  
   # 🦆 says ⮞ conflict detection - no bad voice intentz quack!  
   assertionCheckForConflictingSentences = let
@@ -581,6 +545,87 @@
         "No sentence conflicts found.";
   };
 
+  # 🦆 says ⮞ category based helper with actual names instead of {param}
+  voiceSentencesHelpFile = pkgs.writeText "voice-sentences-help.md" (
+    let
+      scriptsWithVoice = lib.filterAttrs (_: script: 
+        script.voice != null && script.voice.sentences != [] && (script.voice.enabled or true)
+      ) config.yo.scripts;
+      
+      # 🦆 says ⮞ replace {param} with actual values from voice lists
+      replaceParamsWithValues = sentence: voiceData:
+        let
+          # 🦆 says ⮞ find all {param} placeholders in the sentence
+          paramMatches = builtins.match ".*(\\{([^}]+)\\}).*" sentence;
+          processToken = token:
+            if lib.hasPrefix "{" token && lib.hasSuffix "}" token then
+              let
+                paramName = lib.removePrefix "{" (lib.removeSuffix "}" token);
+                listData = voiceData.lists.${paramName} or null;
+              in
+                if listData != null then
+                  if listData.wildcard or false then
+                    "ANYTHING"
+                  else
+                    let
+                      # 🦆 says ⮞ get all possible input values
+                      values = map (v: v."in") listData.values;
+                      # 🦆 says ⮞ expand any optional patterns like [foo|bar]
+                      expandedValues = lib.concatMap expandListInputVariants values;
+                      # 🦆 says ⮞ take first few examples for display
+                      examples = lib.take 3 (lib.unique expandedValues);
+                    in
+                      if examples == [] then "ANYTHING"
+                      else "(" + lib.concatStringsSep "|" examples + 
+                           (if lib.length examples < lib.length expandedValues then "|...)" else ")")
+                else
+                  "ANYTHING" # 🦆 says ⮞ fallback if param not found
+            else
+              token;
+          
+          # 🦆 says ⮞ split sentence and process each token
+          tokens = lib.splitString " " sentence;
+          processedTokens = map processToken tokens;
+        in
+          lib.concatStringsSep " " processedTokens;
+      
+      # 🦆 says ⮞ group by category
+      groupedScripts = lib.groupBy (script: script.category or "🧩 Miscellaneous") 
+        (lib.attrValues scriptsWithVoice);
+      
+      # 🦆 says ⮞ generate category sections with param replacement
+      categorySections = lib.mapAttrsToList (category: scripts:
+        let
+          scriptLines = map (script:
+            let
+              # 🦆 says ⮞ replace params in each sentence
+              sentenceLines = lib.concatMapStrings (sentence: 
+                let processedSentence = replaceParamsWithValues sentence script.voice;
+                in "    - \"${escapeMD processedSentence}\"\n"
+              ) script.voice.sentences;
+            in
+              "  **${escapeMD script.name}**:\n${sentenceLines}"
+          ) (lib.sort (a: b: a.name < b.name) scripts);
+        in
+          "# ${category}\n\n${lib.concatStringsSep "\n" scriptLines}"
+      ) groupedScripts;
+      
+      # 🦆 says ⮞ statistics
+      totalScripts = lib.length (lib.attrNames config.yo.scripts);
+      voiceScripts = lib.length (lib.attrNames scriptsWithVoice);
+      totalPatterns = config.yo.generatedPatterns;
+      totalPhrases = config.yo.understandsPhrases;    
+      stats = ''  
+  # ----────----──⋆⋅☆☆☆⋅⋆─────----─ #
+  # Stats  
+  - **Scripts with voice**: ${toString voiceScripts} / ${toString totalScripts}
+  - **Generated patterns**: ${toString totalPatterns}
+  - **Understandable phrases**: ${toString totalPhrases}
+      '';
+    in
+      "# 🦆 Voice Commands Reference\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
+  );
+  
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
@@ -688,7 +733,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           done # 🦆 says ⮞ calc da % yo
           local total=$(( ''${#tri1[@]} + ''${#tri2[@]} ))
           (( total == 0 )) && echo 0 && return
-          echo $(( 100 * 2 * matches / total ))  # 0-100 scale
+          echo $(( 100 * 2 * matches / total ))  # 🦆 says ⮞ 0-100 scale
         }       
         levenshtein_similarity() {
           local a="$1" b="$2"

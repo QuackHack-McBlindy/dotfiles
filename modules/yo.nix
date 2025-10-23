@@ -55,6 +55,30 @@ let # 🦆 says ⮞ for README version badge yo
   in
     lib.foldl (acc: r: replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
 
+  # 🦆 says ⮞ we be doin' sorta da same wit dem listz
+  expandListInputVariants = value: 
+    let # 🦆 says ⮞ first we choppy choppy - break up da list into word tokenz
+      tokens = lib.splitString " " value;
+      # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
+      isOptional = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
+      # 🦆 says ⮞ now ducklin' expandz each token — either real or optional wit options
+      expandToken = token:
+        if isOptional token then
+          let # 🦆 says ⮞ time 2 clean dat square junk up 4 yo bro
+            clean = lib.removePrefix "[" (lib.removeSuffix "]" token);
+             # 🦆 says ⮞ u know da drill - splittin' on da "|" to find alt optionalz
+            alternatives = lib.splitString "|" clean;
+          in
+            alternatives
+        else # 🦆 says ⮞ not optional? just be givin' back da token as iz
+          [ token ];
+      expanded = cartesianProductOfLists (map expandToken tokens);
+      variants = map (tokenList:
+        lib.replaceStrings [ "  " ] [ " " ] (lib.concatStringsSep " " tokenList)
+      ) expanded;  # 🦆 says ⮞ only da fresh unique non-emptiez stayin’ in da pond
+    in lib.unique (lib.filter (s: s != "") variants);
+
+
   # 🦆 duck say ⮞ manual readme is so 1999 duckie
   updateReadme = pkgs.writeShellScriptBin "update-readme" ''
     README_PATH="${config.this.user.me.dotfilesDir}/README.md"
@@ -648,15 +672,59 @@ EOF
   yoScriptsPackage = pkgs.symlinkJoin {
     name = "yo-scripts"; # 🦆 duck say ⮞ map over yo scripts and gen dem shell scriptz wrapperz!!
     paths = mapAttrsToList (name: script:
-      let # 🦆 duck say ⮞ compile help sentences at build time
+      let # 🦆 duck say ⮞ compile help sentences at build time      
+        # 🦆 duck say ⮞ compile help sentences at build time
         voiceSentencesHelp = if script.voice != null && script.voice.sentences != [] then
           let
             patterns = countGeneratedPatterns script;
             phrases = countUnderstoodPhrases script;
-            sentencesMarkdown = lib.concatMapStrings (sentence: "- \"${escapeMD sentence}\"\n") script.voice.sentences;
+            # 🦆 duck say ⮞ copy the parameter replacement logic from voiceSentencesHelpFile
+            replaceParamsWithValues = sentence: voiceData:
+              let
+                processToken = token:
+                  if lib.hasPrefix "{" token && lib.hasSuffix "}" token then
+                    let
+                      paramName = lib.removePrefix "{" (lib.removeSuffix "}" token);
+                      listData = voiceData.lists.${paramName} or null;
+                    in
+                      if listData != null then
+                        if listData.wildcard or false then
+                          "ANYTHING"
+                        else
+                          let
+                            # 🦆 duck say ⮞ get all possible input values
+                            values = map (v: v."in") listData.values;
+                            # 🦆 duck say ⮞ expand any optional patterns like [foo|bar]
+                            expandedValues = lib.concatMap expandListInputVariants values;
+                            # 🦆 duck say ⮞ take first few examples for display
+                            examples = lib.take 3 (lib.unique expandedValues);
+                          in
+                            if examples == [] then "ANYTHING"
+                            else "(" + lib.concatStringsSep "|" examples + 
+                                 (if lib.length examples < lib.length expandedValues then "|...)" else ")")
+                      else
+                        "ANYTHING" # 🦆 duck say ⮞ fallback if param not found
+                  else
+                    token;
+                
+                # 🦆 duck say ⮞ split sentence and process each token
+                tokens = lib.splitString " " sentence;
+                processedTokens = map processToken tokens;
+              in
+                lib.concatStringsSep " " processedTokens;
+            
+            # 🦆 duck say ⮞ replace params in each sentence for the help display
+            processedSentences = map (sentence: 
+              replaceParamsWithValues sentence script.voice
+            ) script.voice.sentences;
+            
+            sentencesMarkdown = lib.concatMapStrings (sentence: 
+              "- \"${escapeMD sentence}\"\n"
+            ) processedSentences;
           in
             "## Voice Commands\n\nPatterns: ${toString patterns}  \nPhrases: ${toString phrases}  \n\n${sentencesMarkdown}"
-        else "";  
+        else "";
+       
       
         # 🦆 duck say ⮞ generate a string for da CLI usage optional parameters [--like] diz yo
         param_usage = lib.concatMapStringsSep " " (param:
