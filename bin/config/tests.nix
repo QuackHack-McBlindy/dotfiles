@@ -430,7 +430,7 @@
         # 🦆 says ⮞ third sort: alphabetical for determinism
         || (a.priority == b.priority && a.hasComplexPatterns == b.hasComplexPatterns && a.name < b.name)
       ) (map makeRecord scriptNamesWithIntents);
-  # 🦆 says ⮞ generate optimized processing order
+  # 🦆 says ⮞ generate optimized processing order - check pattern, phrases, ratio and priority
   processingOrder = map (r: r.name) scriptRecordsWithIntents;
   
 # 🦆 says ⮞ expose da magic! dis builds our NLP
@@ -446,6 +446,45 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         { name = "input"; description = "Text to test as a single  sentence test"; optional = true; }
         { name = "stats"; type = "bool"; description = "Flag to display voice commands information like generated regex patterns, generated phrases and ratio"; optional = true; }    
       ];
+      helpFooter = ''
+        nix eval --raw /home/pungkula/dotfiles#nixosConfigurations.desktop.config.yo.scripts --apply '
+          s:
+          let
+            scripts = builtins.attrValues (builtins.mapAttrs (n: v: v // { name = n; }) s);
+            categorize = builtins.map (x:
+              let
+                patterns = x.voicePatterns or 0;
+                phrases = x.voicePhrases or 0;
+                ratio = if patterns == 0 then 0 else builtins.floor (phrases / patterns);
+                status =
+                  if patterns == 0 then "EMPTY"
+                  else if phrases == 0 || (patterns > 0 && phrases / patterns < 0.5) then "NEEDS PHRASES"
+                  else if ratio > 50 then "HIGH RATIO"
+                  else "OK";
+                priorityStr = toString (x.voice.priority or "-");
+              in
+                { name = x.name; status = status; phrases = phrases; patterns = patterns; ratio = ratio; priority = priorityStr; }
+            ) scripts;
+     
+            attention = builtins.filter (x: x.name == "house" && x.status == "HIGH RATIO") categorize;
+            needsPhrases = builtins.filter (x: x.status == "NEEDS PHRASES") categorize;
+            sortedNeeds = builtins.sort (a: b: a.phrases <= b.phrases) needsPhrases;
+        
+            formatAttention = builtins.map (x:
+              "# Attention!\n⚠️\nThe \"" + x.name + "\" script has a very high phrase-to-pattern ratio (" + toString x.ratio + ") with " + toString x.patterns + " patterns, priority " + x.priority + ". Double-check the voice configuration!"
+            ) attention;
+        
+            formatNeeds = builtins.map (x:
+              "- " + x.name + ": only " + toString x.phrases + " phrases across " + toString x.patterns + " patterns."
+            ) sortedNeeds;
+          in
+            builtins.concatStringsSep "\n\n" (formatAttention ++ ["Scripts needing more phrases:"] ++ formatNeeds)
+        '
+        echo && echo
+        echo "The key to remember when configuring a scripts voice definition is that a high pattern value decreases pattern matching performance in terms of speed, while increasing accuracy."
+        echo "Recommended approach if you need a high pattern value is to counter decreased speed with a low priority value (5)."
+        echo "This will make the scripts pattern matching go last, meaning an increased amount of patterns less important as long as an exact match is found."         
+      '';
       code = ''    
         set +u  
         ${cmdHelpers}

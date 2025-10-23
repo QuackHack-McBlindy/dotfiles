@@ -852,21 +852,59 @@ in {
       sentences = [
         # 🦆 says ⮞ no parameters
         "hockey tabellen"
+        "visa hockeytabellen"
+        "hur ser tabellen ut"
+        "visa allsvenska tabellen"
+        "hur ligger lagen till"
+        "vad är ställningen i tabellen"
+    
         # 🦆 says ⮞ team specific sentences
-        "vad ligger {team} i tabbelen"
+        "vad ligger {team} i tabellen"
         "visa {team} statistik"
-        "analysera {team}"
+        "var ligger {team} i tabellen"
+        "vilken plats har {team}"
         "hur går det för {team}"
+        "hur ligger {team} till"
+        "är {team} på slutspelsplats"
+        "är {team} på kvalplats"
+        "hur många poäng har {team}"
+        "visa {team}s statistik"
+        "visa statistik för {team}"
+        "hur ser {team}s statistik ut"
+        "vad har {team} för statistik"
+        "ge mig {team}s siffror"
+        "hur går det för {team} den {mode} tiden"
+        "analysera {team}"
+        "ge en analys av {team}"
+        "analysera [laget] {team}"
+        "analysera {team}s {mode} matcher"
+        "hur presterade {team} i {mode} matchen"
+        "vilka trender har {team}"
+            
         # 🦆 says ⮞ stat specific sentences
-        "hur (bra|dåliga) är {team} [i] {stat}"
         "vad har {team} (för|i) {stat} (statistik|stats)"
         "analysera {team} {stat}"
+        "hur (bra|dåliga|effektiva) är {team} [i] {stat}"
+        "hur presterar {team} [i] {stat}"
+        "hur ser {team}s {stat} ut"
+        "visa {team}s {stat}"
+        "analysera {team}s {stat}"
+        "ge en analys av {team}s {stat}"        
+           
+        # 🦆 says ⮞ schedule / recent / upcoming
+        "visa {mode} matcher"
+        "vilka matcher spelas {mode}"
+        "visa matcher [för] {mode}"
+        "när spelar {team} {mode} gång"
+        "vilka möter {team} {mode}"
+        "vilka matcher har {team} {mode}"
+        "när är {team}s {mode} match"
       ];
       lists = {
         mode.values = [
-          { "in" = "[förra|senaste]"; out = "recent"; }   
-          { "in" = "[nästa|kommande]"; out = "upcoming"; }   
-          { "in" = "[tabellen]"; out = "table"; }   
+          { "in" = "[förra|senaste|igår]"; out = "recent"; }   
+          { "in" = "[idag|nästa|kommande|imorgon]"; out = "upcoming"; }   
+          { "in" = "[tabellen|ställningen|poängställning]"; out = "table"; }
         ];  
         team.values = [
           { "in" = "[björklöven|björklövens|löven|vi]"; out = "björklöven"; }   
@@ -885,9 +923,8 @@ in {
           { "in" = "[vimmerby]"; out = "vimmerby"; }
         ];
         stat.values = [
-          { "in" = "[power|powerplay|pp]"; out = "powerplay"; }   
-          { "in" = "[box|boxplay|bp|box play]"; out = "boxplay"; }
-          { "in" = "[analys|analysera|hur går det]"; out = "analyze"; }                    
+          { "in" = "[power|powerplay|pp|överläge|numerärt överläge]"; out = "powerplay"; }   
+          { "in" = "[box|boxplay|bp|box play|undertal|numerärt underläge]"; out = "boxplay"; }       
         ];  
       };  
     };

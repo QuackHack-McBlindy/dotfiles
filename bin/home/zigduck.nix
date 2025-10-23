@@ -401,7 +401,8 @@ EOF
           
           # 🦆 says ⮞ 🕵️ quick quack motion detect
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
-            device_check            
+            device_check   
+            dt_info "🕵️ Occupancy update for $device_name: $occupancy (prev: $(get_state "$device_name" "occupancy"))"  
             if [ "$occupancy" = "true" ]; then
               # 🦆 says ⮞ save for easy user localisation
               echo "{\"last_active_room\": \$dev_room\, \"timestamp\": \"$(${pkgs.coreutils}/bin/date -Iseconds)\"}" > "$STATE_DIR/last_motion.json"
@@ -416,7 +417,8 @@ EOF
                 dt_debug "❌ Daytime - no lights activated by motion."
               fi
             else
-              dt_debug "🛑 No more motion in $device_name $dev_room"            
+              dt_debug "🛑 No more motion in $device_name $dev_room"    
+              update_device_state "$device_name" "occupancy" "false"
             fi
           fi
 

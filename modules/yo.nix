@@ -651,10 +651,12 @@ EOF
       let # 🦆 duck say ⮞ compile help sentences at build time
         voiceSentencesHelp = if script.voice != null && script.voice.sentences != [] then
           let
+            patterns = countGeneratedPatterns script;
+            phrases = countUnderstoodPhrases script;
             sentencesMarkdown = lib.concatMapStrings (sentence: "- \"${escapeMD sentence}\"\n") script.voice.sentences;
           in
-            "## Voice Commands\n\n${sentencesMarkdown}"
-        else "";
+            "## Voice Commands\n\nPatterns: ${toString patterns}  \nPhrases: ${toString phrases}  \n\n${sentencesMarkdown}"
+        else "";  
       
         # 🦆 duck say ⮞ generate a string for da CLI usage optional parameters [--like] diz yo
         param_usage = lib.concatMapStringsSep " " (param:
