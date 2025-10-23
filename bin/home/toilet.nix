@@ -74,9 +74,11 @@ in {
       zig 'ToiletArm' off      
     '';
     voice = {
-      enabled = false;
+      enabled = true;
       sentences = [
-        "spola (toa|toan|toaletten)" 
+        "färdig[!] torka[!]"      
+        "spola [toa|toan|toaletten]" 
+        "spola"
       ];
     };
     

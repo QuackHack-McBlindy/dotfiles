@@ -139,4 +139,22 @@ in { # 🦆 says ⮞
       fi
 
     '';    
+    voice = {
+      enabled = true;
+      priority = 5;
+      sentences = [
+        "sök [i] {service}[s] [log|loggar|loggen] efter fel"
+        "sök error"
+        "ducktrace {service}"
+        "kolla [log|loggen|loggar|loggarna)]"
+      ];
+      lists = {
+        host.values = [
+          { "in" = "[desktop|datorn]"; out = "desktop"; }
+          { "in" = "nas"; out = "nasty"; }
+          { "in" = "laptop"; out = "laptop"; }
+          { "in" = "homie"; out = "homie"; }
+        ];
+      };   
+    };  
   };}

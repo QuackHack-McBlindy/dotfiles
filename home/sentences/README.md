@@ -1,5 +1,119 @@
 🦆🏠  HOME via  via 🐍 v3.12.10 
-23:41:47 ❯ yo do -h
+01:01:16 ❯ yo -h
+
+  ## ──────⋆⋅☆☆☆⋅⋆──────                                                                                                            
+                                                                                                                                    
+  ## 🦆🚀 yo CLI 🦆🦆                                                                                                               
+                                                                                                                                    
+  ## 🦆 duck say ⮞ quack! i help with scripts yo                                                                                    
+                                                                                                                                    
+  Usage:  yo <command> [arguments]                                                                                                  
+                                                                                                                                    
+  ## ──────⋆⋅☆☆☆⋅⋆──────                                                                                                            
+                                                                                                                                    
+  ## 🦆✨ Available Commands                                                                                                        
+                                                                                                                                    
+  Parameters inside brackets are [optional]                                                                                         
+                                                                                                                                    
+  Command Syntax               │Aliases    │Description                                                                             
+  ─────────────────────────────┼───────────┼────────────────────────────────────────────────────────────────────────────────────────
+  🖥️ System Management         │           │                                                                                        
+   yo deploy --host [--flake] …│           │Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, ac…
+   yo dev [--devShell]         │           │Start development enviorment                                                            
+   yo duckTrace [--file]       │log        │View duckTrace logs quick and quack, unified logging system                             
+   yo esp [--device] [--serial…│           │Declarative firmware deployment tool for ESP32 boards with built-in version control.    
+   yo espOTA                   │           │Updates ESP32 devices over the air.                                                     
+   yo reboot [--host]          │restart    │Force reboot and wait for host                                                          
+   yo rollback --host [--flake…│           │Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+con…
+   yo services --operation --s…│           │Systemd service handler.                                                                
+   yo switch [--flake] [--!]   │rb         │Rebuild and switch Nix OS system configuration                                          
+  ⚙️ Configuration             │           │                                                                                        
+   yo do --input [--fuzzyThres…│d          │Natural language to Shell script translator with dynamic regex matching and automatic p…
+   yo espaudio                 │           │                                                                                        
+   yo mic [--port] [--host] [-…│           │Trigger microphone recording sent to transcription.                                     
+   yo say --text [--model] [--…│           │Text to speech with built in language detection and automatic model downloading         
+   yo tests [--input] [--stats…│           │Extensive automated sentence testing for the NLP                                        
+   yo train --phrase           │           │Trains the NLP module. Correct misclassified commands and update NLP patterns           
+   yo transcribe [--port] [--m…│           │Transcription server-side service. Sit and waits for audio that get transcribed and ret…
+   yo wake [--threshold] [--co…│           │Run Wake word detection for audio recording and transcription                           
+  ⚡ Productivity              │           │                                                                                        
+   yo calculator --expression  │calc       │Calculate math expressions                                                              
+   yo calendar [--operation] […│kal        │Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or ma…
+   yo clip2phone --copy        │           │Send clipboard to an iPhone, for quick copy paste                                       
+   yo fzf                      │f          │Interactive fzf search for file content with quick edit & jump to line                  
+   yo google --search [--apiKe…│g          │Perform web search on google                                                            
+   yo hitta --search           │           │Locate a persons address with help of Hitta.se                                          
+   yo img2phone --image        │           │Send images to an iPhone                                                                
+   yo pull [--flake]           │           │Pull the latest changes from your dotfiles repo. Resets tracked files to origin/main bu…
+   yo push [--flake] [--repo] …│ps         │Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generat…
+   yo scp --host [--path] [--u…│           │Move files between hosts interactively                                                  
+  🌍 Localization              │           │                                                                                        
+   yo stores --store_name [--l…│store, shop│Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results …
+   yo travel [--arrival] [--de…│           │Public transportation helper. Fetches current bus and train schedules. (Sweden)         
+   yo weather [--location] [--…│weat       │Weather Assistant. Ask anything weather related (3 day forecast)                        
+  🌐 Networking                │           │                                                                                        
+   yo api [--host] [--port]    │           │Simple API for collecting system data                                                   
+   yo block --url [--blocklist…│ad         │Block URLs using DNS                                                                    
+   yo ip-updater [--token1] [-…│           │DDNS updater                                                                            
+   yo notify [--text] [--title…│           │Send custom push to iOS devices                                                         
+   yo notify-me [--address] [-…│           │Notification server for iOS devices                                                     
+   yo shareWiFi [--ssidFile] […│           │creates a QR code of guest WiFi and push image to iPhone                                
+   yo speed                    │st         │Test internet download speed                                                            
+  🎧 Media Management          │           │                                                                                        
+   yo news [--apis] [--clear] …│           │API caller and playlist manager for latest Swedish news from SR.                        
+   yo transcode [--directory]  │trans      │Transcode media files                                                                   
+   yo tv [--typ] [--search] [-…│remote     │Android TV Controller. Fuzzy search all media types and creates playlist and serves ove…
+   yo tv-guide [--search] [--c…│tvg        │TV-guide assistant..                                                                    
+   yo tv-scraper [--epgFilePat…│tvs        │Scrapes web for tv-listing data. Builds EPG and generates HTML.                         
+  🔐 Security & Encryption     │           │                                                                                        
+   yo sops --input [--operatio…│e          │Encrypts a file with sops-nix                                                           
+   yo yubi --operation --input │yk         │Encrypts and decrypts files using a Yubikey and AGE                                     
+  🛖 Home Automation           │           │                                                                                        
+   yo alarm --hours --minutes …│wakeup     │Set an alarm for a specified time                                                       
+   yo battery [--device]       │           │Fetch battery level for specified device.                                               
+   yo bed [--part] [--state]   │           │Bed controller                                                                          
+   yo blinds [--state]         │           │Turn blinds up/down                                                                     
+   yo chair [--part] [--state] │           │Chair controller                                                                        
+   yo duckDash [--host] [--por…│dash       │Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart…
+   yo findPhone                │           │Helper for locating Phone                                                               
+   yo house [--device] [--stat…│           │Control lights and other home automatioon devices                                       
+   yo kitchenFan [--state]     │           │Turns kitchen fan on/off                                                                
+   yo leaving                  │           │Run when leaving house to set away state                                                
+   yo returned                 │           │Run when returned home to set home state                                                
+   yo state [--device]         │           │Fetches the state of the specified device.                                              
+   yo temperatures             │           │Get all temperature values from sensors and return a average value.                     
+   yo tibber [--mode] [--homeI…│el         │Fetches home electricity price data                                                     
+   yo timer [--minutes] [--sec…│           │Set a timer                                                                             
+   yo toilet                   │           │Flush the toilet                                                                        
+   yo zigduck [--user] [--pwfi…│hem        │Home Automations at its best! Bash & Nix cool as dat. Runs on single process            
+  🧩 Miscellaneous             │           │                                                                                        
+   yo chat --text              │           │No fwendz? Let's chat yo!                                                               
+   yo duckPUCK [--mode] [--tea…│puck       │duckPUCK is your personal hockey assistant - Expert commentary and analyzer specialized…
+   yo hockeyGames [--type] [--…│hag        │Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural languag…
+   yo invokeai --prompt [--hos…│genimg     │AI generated images powered by InvokeAI                                                 
+   yo joke [--jokeFile]        │           │Duck says s funny joke.                                                                 
+   yo post [--postalCodeFile] …│           │Check for the next postal delivery day. (Sweden)                                        
+   yo qr --input [--icon] [--o…│           │Create fun randomized QR codes from input.                                              
+   yo reminder [--about] [--li…│remind     │Reminder Assistant                                                                      
+   yo shop-list [--operation] …│           │Shopping list management                                                                
+   yo suno --prompt [--genre]  │mg         │AI generated lyrics and music files powered by Suno                                     
+   yo time                     │           │Tells time, day and date                                                                
+  🧹 Maintenance               │           │                                                                                        
+   yo clean                    │gc         │Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp f…
+   yo health [--host]          │hc         │Check system health status across your machines. Returns JSON structured responses.     
+                                                                                                                                    
+  ## ──────⋆⋅☆☆☆⋅⋆──────                                                                                                            
+                                                                                                                                    
+  ## 🦆❓ Detailed Help                                                                                                             
+                                                                                                                                    
+  For specific command help:  yo <command> --help                                                                                   
+   yo do --help  will list all defined voice intents.                                                                               
+   yo zigduck --help  will display a battery status report for your deevices.                                                       
+  🦆🦆                                                                                                                              
+
+
+🦆🏠  HOME via  via 🐍 v3.12.10 
+00:58:43 ❯ yo do -h
 
    🚀🦆 yo do                                                                     
                                                                                   
@@ -17,6 +131,16 @@
   (optional) (default: 15)                                                        
                                                                                   
    🦆 Voice Commands Reference                                                    
+                                                                                  
+   ⚙️ Configuration                                                               
+                                                                                  
+  say:                                                                            
+  - "imitera mig ANYTHING"                                                        
+                                                                                  
+  tests:                                                                          
+  - "testa mina meningar"                                                         
+  - "kör röst test[et|erna]"                                                      
+  - "testa röst[ styrningen]"                                                     
                                                                                   
    ⚡ Productivity                                                                
                                                                                   
@@ -137,6 +261,12 @@
                                                                                   
    🖥️ System Management                                                           
                                                                                   
+  duckTrace:                                                                      
+  - "sök [i] {service}[s] [log|loggar|loggen] efter fel"                          
+  - "sök error"                                                                   
+  - "ducktrace ANYTHING"                                                          
+  - "kolla [log|loggen|loggar|loggarna)]"                                         
+                                                                                  
   reboot:                                                                         
   - "starta om (desktop|vatten|homie|...) [dator|datorn]"                         
   - "starta om (desktop|vatten|homie|...) [server|servern]"                       
@@ -163,9 +293,20 @@
   - "(berätta|säg) hur mycket batteri (vägg|väggen|[ikea 5 dimmer|ikea5dimmer|ikea
   5 dimmeren]|...) [har] [kvar]"                                                  
                                                                                   
+  bed:                                                                            
+  - "(huvud|huvudet|skallen|sänghuvud) (upp|uppe|up|...)"                         
+  - "(fot|fötter|sängfot) (upp|uppe|up|...)"                                      
+  - "säng[en] (huvud|huvudet|skallen|...) (upp|uppe|up|...)"                      
+                                                                                  
   blinds:                                                                         
   - "(persienner|persiennerna) (upp|uppe|ned|...)"                                
   - "(blind|blinds) (upp|uppe|ned|...)"                                           
+                                                                                  
+  chair:                                                                          
+  - "stol[en ](rygg) (upp|uppe|up|...)"                                           
+  - "stol[en] (ben|fötter) (upp|uppe|up|...)"                                     
+  - "stol[en] (rygg|back|ben|...) (upp|uppe|up|...)"                              
+  - "stol[en] (upp|uppe|up|...)"                                                  
                                                                                   
   findPhone:                                                                      
   - "hitta [min] telefon"                                                         
@@ -228,6 +369,11 @@
   - "hur (länge|kvar) är det kvar på (time|timer|timern)"                         
   - "tid (länge|kvar) på (time|timer|timern)"                                     
   - "när (länge|kvar) (time|timer|timern)"                                        
+                                                                                  
+  toilet:                                                                         
+  - "färdig[!] torka[!]"                                                          
+  - "spola [toa|toan|toaletten]"                                                  
+  - "spola"                                                                       
                                                                                   
    🧩 Miscellaneous                                                               
                                                                                   
@@ -350,16 +496,18 @@
    🧹 Maintenance                                                                 
                                                                                   
   health:                                                                         
-  - "kolla hälsan på (local|main|nas|...)"                                        
-  - "hur mår (local|main|nas|...)"                                                
-  - "visa status för (local|main|nas|...)"                                        
+  - "kolla hälsan på (desktop|datorn|nas|...)"                                    
+  - "hur mår (desktop|datorn|nas|...)"                                            
+  - "mår (desktop|datorn|nas|...) okej"                                           
+  - "visa status för (desktop|datorn|nas|...)"                                    
                                                                                   
    ----────----──⋆⋅☆☆☆⋅⋆─────----─                                                
                                                                                   
    Stats                                                                          
                                                                                   
   • Scripts with voice: 41 / 74                                                   
-  • Generated patterns: 1785                                                      
-  • Understandable phrases: 271859967                                             
+  • Generated patterns: 1810                                                      
+  • Understandable phrases: 271859990                                             
+
 
 

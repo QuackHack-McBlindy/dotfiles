@@ -781,6 +781,14 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         dt_info "Test completed with results: $passed_tests/$total_tests ''${percent}%"
         exit 1
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
-    };# 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
-  };}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
-# 🦆 says ⮞ QuackHack-McBLindy out!  
+      voice = {
+        enabled = true;
+        priority = 5;
+        sentences = [
+          "testa mina meningar"
+          "kör röst test[et|erna]"
+          "testa röst[ styrningen]"
+        ];     
+      }; # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.
+    };  # 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
+  };} # 🦆 says ⮞ QuackHack-McBLindy out!  

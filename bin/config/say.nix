@@ -76,5 +76,16 @@ in { # 🦆 says ⮞ yo yo yo yo
           --host "$HOST"
       fi  
     ''; # 🦆 says ⮞ quack quack quack   
+    voice = {
+      enabled = true;
+      priority = 5;
+      sentences = [
+        "imitera mig {text}"
+      ];
+      lists = {
+        text.wildcard = true;
+      };  
+    };
+
   };} # 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  

@@ -98,16 +98,16 @@ in {
       esac
     '';
     voice = {
-      enabled = false;
+      enabled = true;
       sentences = [
-        "(huvud|sänghuvud) {state}"
+        "(huvud|huvudet|skallen|sänghuvud) {state}"
         "(fot|fötter|sängfot) {state}"
-        "säng {part} {state}"
+        "säng[en] {part} {state}"
       ];
       lists = {
         part.values = [
-          { "in" = "[huvud|head]"; out = "head"; }
-          { "in" = "[fot|fötter|feet]"; out = "feet"; }
+          { "in" = "[huvud|huvudet|skallen|sänghuvud|head]"; out = "head"; }
+          { "in" = "[fot|fötter|fötterna|feet]"; out = "feet"; }
         ];
         state.values = [
           { "in" = "[upp|uppe|up]"; out = "up"; }             

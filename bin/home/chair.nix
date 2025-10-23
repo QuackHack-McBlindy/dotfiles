@@ -110,12 +110,12 @@ in {
       esac
     '';
     voice = {
-      enabled = false;
+      enabled = true;
       sentences = [
-        "(rygg) {state}"
-        "(ben|fötter) {state}"
-        "stol {part} {state}"
-        "stol {state}"
+        "stol[en ](rygg) {state}"
+        "stol[en] (ben|fötter) {state}"
+        "stol[en] {part} {state}"
+        "stol[en] {state}"
       ];
       lists = {
         part.values = [

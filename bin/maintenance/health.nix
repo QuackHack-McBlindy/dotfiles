@@ -29,16 +29,15 @@ in { # 🦆 says ⮞
       sentences = [
         "kolla hälsan på {host}"
         "hur mår {host}"
+        "mår {host} okej"
         "visa status för {host}"
       ];
       lists = {
         host.values = [
-          { "in" = "local"; out = config.this.host.hostname; }
-          { "in" = "main"; out = "desktop"; }
+          { "in" = "[desktop|datorn]"; out = "desktop"; }
           { "in" = "nas"; out = "nasty"; }
           { "in" = "laptop"; out = "laptop"; }
           { "in" = "homie"; out = "homie"; }
-          { "in" = "desktop"; out = "desktop"; }
         ];
       };   
     };  
