@@ -8,6 +8,7 @@
   cmdHelpers,
   ...
 } : let
+  cfg = config.yo;
   # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
   scripts = config.yo.scripts; 
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
@@ -623,13 +624,87 @@
   - **Understandable phrases**: ${toString totalPhrases}
       '';
     in
-      "# 🦆 Voice Commands\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
+      "# 🦆 Voice Commands\nOne-of required words are marked (say|one)\nOptional words are marked [no|have|to]\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
   );
 
+  # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
+  githubBaseUrl = let # 🦆 duck say ⮞ pattern match to extract username and repo name
+    matches = builtins.match ".*github.com[:/]([^/]+)/([^/\\.]+).*" config.this.user.me.repo;
+  in if matches != null then # 🦆 duck say ⮞ if match - construct
+    "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
+  else ""; # 🦆 duck say ⮞ no match? empty string
 
+
+ # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
+  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
+  # 🦆 duck say ⮞ markdown help text
+  helpText = let 
+    # 🦆 duck say ⮞ URL escape helper for GitHub links
+    escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
+  
+    # 🦆 duck say ⮞ categorize scripts - ONLY VOICE READY SCRIPTS
+    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme && script.voiceReady) cfg.scripts;
+    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
+    sortedCategories = lib.sort (a: b: 
+      # 🦆 duck wants ⮞ system management to be listed first yo
+      if a == "🖥️ System Management" then true
+      else if b == "🖥️ System Management" then false
+      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
+    ) (lib.attrNames groupedScripts);
+  
+    # 🦆 duck say ⮞ create table rows with category separatorz 
+    rows = lib.concatMap (category:
+      let # 🦆 duck say ⮞ sort from A to Ö  
+        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
+      in
+        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
+          "| **${escapeMD category}** | | |"
+        ] 
+        # 🦆 duck say ⮞ each yo script goes into a table row
+        ++ (map (script:
+          let  # 🦆 duck say ⮞ format list of aliases
+            aliasList = if script.aliases != [] then
+              lib.concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
+            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
+            paramHint = lib.concatStringsSep " " (map (param:
+              if param.optional || param.default != null
+              then "[--${param.name}]"
+              else "--${param.name}"
+            ) script.parameters);
+            # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
+            syntax = 
+              if githubBaseUrl != "" then
+                "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
+              else
+                "yo ${escapeMD script.name} ${paramHint}";
+          in 
+            # 🦆 duck say ⮞ only voice ready scripts shown (all of them now)
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+        ) scripts)
+    ) sortedCategories;
+  
+  in lib.concatStringsSep "\n" rows;
+
+  hej = builtins.readFile voiceSentencesHelpFile;
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
-  file."sentences/2README.md" = builtins.readFile voiceSentencesHelpFile;
+  file."sentences/README.md" = ''
+    ## 🦆✨ COMMANDS! yo  
+    
+    🦆🏠  HOME via  via 🐍 v3.12.10 
+    11:37:13 ❯ yo -h
+    Optional parameters marked [optional]
+    | Command Syntax               | Description                |
+    |------------------------------|----------------------------|
+    ${helpText}
+
+    ## 🦆🚀 SENTENCES! qwack    
+    🦆🏠  HOME via  via 🐍 v3.12.10 
+    11:38:13 ❯ yo do -h
+    ${hej}
+  '';
+
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
