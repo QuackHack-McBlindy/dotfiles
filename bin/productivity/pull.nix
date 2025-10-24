@@ -24,12 +24,6 @@ in {
       code = ''
           ${cmdHelpers}
           
-          if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
-            say_duck "fuck ❌ Invalid host: $host"
-            echo "Available hosts: ${toString sysHosts}" >&2
-            exit 1
-          fi
-          
           DOTFILES_DIR=''$flake
  
           cd "$DOTFILES_DIR"
