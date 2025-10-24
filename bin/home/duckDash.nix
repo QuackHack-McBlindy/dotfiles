@@ -259,8 +259,8 @@
             .qwackify-grid {
                 width: 100%;
                 height: 100%;
-                max-width: 1920px; /* optional – keeps content centered on ultra-wide screens */
-                max-height: 1080px; /* optional – keeps it neat */
+                max-width: 1920px;
+                max-height: 1080px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
