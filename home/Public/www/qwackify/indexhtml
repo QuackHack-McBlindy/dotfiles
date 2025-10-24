@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Player Controls</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .controls {
+            display: flex;
+            justify-content: center;
+            transition: transform 0.5s ease, opacity 0.5s ease;
+        }
+        .control-slide-hidden {
+            transform: translateX(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+        .control-slide-visible {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        .state_button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Default Controls -->
+    <div id="defaultControls" class="controls control-slide-visible">
+        <button id="shuffle" class="state_button" onclick="toggleSingleButton('shuffle')">
+            <span class="material-icons">shuffle</span>
+        </button>
+        <button id="prevButton" class="state_button">
+            <span class="material-icons">skip_previous</span>
+        </button>
+        <button id="playPauseButton" class="state_button">
+            <span class="material-icons">play_circle_filled</span>
+        </button>
+        <button id="nextButton" class="state_button">
+            <span class="material-icons">skip_next</span>
+        </button>
+        <button id="repeat" class="state_button" onclick="toggleSingleButton('repeat')">
+            <span class="material-icons">repeat</span>
+        </button>
+    </div>
+
+    <!-- Spotify Controls -->
+    <div id="spotifyControls" class="controls control-slide-hidden">
+        <button id="spotifyShuffle" class="state_button">
+            <span class="material-icons">shuffle</span>
+        </button>
+        <button id="spotifyPlayPause" class="state_button">
+            <span class="material-icons">play_circle_filled</span>
+        </button>
+    </div>
+
+    <!-- YouTube Controls -->
+    <div id="youtubeControls" class="controls control-slide-hidden">
+        <button id="youtubePrev" class="state_button">
+            <span class="material-icons">skip_previous</span>
+        </button>
+        <button id="youtubePlayPause" class="state_button">
+            <span class="material-icons">play_circle_filled</span>
+        </button>
+    </div>
+
+    <!-- Toggle Buttons for Switching -->
+    <div style="display: flex; justify-content: center; margin-top: 20px;">
+        <button id="youtubeButton" onclick="toggleButton('youtubeButton')">YouTube</button>
+        <button id="spotifyButton" onclick="toggleButton('spotifyButton')">Spotify</button>
+    </div>
+
+    <script>
+        function toggleButton(buttonId) {
+            const youtubeButton = document.getElementById('youtubeButton');
+            const spotifyButton = document.getElementById('spotifyButton');
+            const defaultControls = document.getElementById('defaultControls');
+            const spotifyControls = document.getElementById('spotifyControls');
+            const youtubeControls = document.getElementById('youtubeControls');
+
+            // Hide all controls by adding 'control-slide-hidden' class
+            defaultControls.classList.add('control-slide-hidden');
+            spotifyControls.classList.add('control-slide-hidden');
+            youtubeControls.classList.add('control-slide-hidden');
+
+            // Remove 'control-slide-visible' class from all controls
+            defaultControls.classList.remove('control-slide-visible');
+            spotifyControls.classList.remove('control-slide-visible');
+            youtubeControls.classList.remove('control-slide-visible');
+
+            // Toggle active button and show relevant controls
+            if (buttonId === 'spotifyButton' && !spotifyButton.classList.contains('active')) {
+                spotifyButton.classList.add('active');
+                youtubeButton.classList.remove('active');
+                spotifyControls.classList.add('control-slide-visible');
+                spotifyControls.classList.remove('control-slide-hidden');
+            } else if (buttonId === 'youtubeButton' && !youtubeButton.classList.contains('active')) {
+                youtubeButton.classList.add('active');
+                spotifyButton.classList.remove('active');
+                youtubeControls.classList.add('control-slide-visible');
+                youtubeControls.classList.remove('control-slide-hidden');
+            } else {
+                youtubeButton.classList.remove('active');
+                spotifyButton.classList.remove('active');
+                defaultControls.classList.add('control-slide-visible');
+                defaultControls.classList.remove('control-slide-hidden');
+            }
+        }
+
+        function toggleSingleButton(buttonId) {
+            const button = document.getElementById(buttonId);
+            button.classList.toggle('active');
+        }
+    </script>
+</body>
+</html>

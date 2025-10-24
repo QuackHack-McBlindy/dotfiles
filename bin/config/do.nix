@@ -617,17 +617,19 @@
       totalPhrases = config.yo.understandsPhrases;    
       stats = ''  
   # ----────----──⋆⋅☆☆☆⋅⋆─────----─ #
-  # Stats  
-  - **Scripts with voice**: ${toString voiceScripts} / ${toString totalScripts}
+  # Total:  
+  - **Scripts with voice enabled**: ${toString voiceScripts} / ${toString totalScripts}
   - **Generated patterns**: ${toString totalPatterns}
   - **Understandable phrases**: ${toString totalPhrases}
       '';
     in
-      "# 🦆 Voice Commands Reference\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
+      "# 🦆 Voice Commands\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
   );
-  
+
+
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
+  file."sentences/2README.md" = builtins.readFile voiceSentencesHelpFile;
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";

@@ -248,6 +248,13 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            .nav-icon {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+                margin-right: 8px;
+                vertical-align: middle;
+            }
             .status-card-action-menu {
                 background: white;
                 border-radius: 12px;
@@ -872,8 +879,19 @@
                 </div>
                 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
-                 🦆 says ⮞ PAGES+ Pages 4+)
+                 🦆 says ⮞ PAGE 4 - 🦆☁️)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
+                <div class="page" id="pageFiles">
+                  <iframe src="https://pungkula.duckdns.org" style="width: 500%; height: 100%; border: none; border-radius: 10px;"></iframe>
+                </div>
+
+                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                 🦆 says ⮞ PAGE 5 - 🦆🎵 Qwackify 🎵🦆 )
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
+                <div class="page" id="pageQwackify">
+                  <iframe src="https://pungkula.duckdns.org/www/qwackify" style="width: 100%; height: 100%; border: none; border-radius: 10px;"></iframe>
+                </div>
+
 
             </div>
     
@@ -887,16 +905,24 @@
                     <span>Home</span>
                 </div>
                 <div class="nav-tab" data-page="1">
-                    <i class="mdi mdi-cellphone"></i>
+                    <i class="mdi mdi-lightbulb"></i>
                     <span>Devices</span>
                 </div>
                 <div class="nav-tab" data-page="2">
-                    <i class="mdi mdi-lightbulb"></i>
+                    <i class="mdi:palette"></i>
                     <span>Scenes</span>
                 </div>
                 <div class="nav-tab" data-page="3">
                     <i class="mdi mdi-television"></i>
                     <span>TV</span>
+                </div>
+                <div class="nav-tab" data-page="4">
+                  <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" alt="Qwackify" class="nav-icon">
+                  <span>Files</span>
+                </div>
+                <div class="nav-tab" data-page="5">
+                  <img src="https://pungkula.duckdns.org/public/icons/qwackify.png" alt="Qwackify" class="nav-icon">
+                  <span>Qwackify</span>
                 </div>
             </div>
         </div>
@@ -3344,4 +3370,5 @@ in {
       name = "tv.json";
       text = builtins.toJSON config.house.tv;
     };
+    
   }

@@ -6,15 +6,22 @@
   pkgs,
   cmdHelpers,
   ... 
-} : let   
-in { # 🦆 says ⮞  
+} : let # 🦆 says ⮞ get hosts 
+  sysHosts = builtins.attrNames self.nixosConfigurations;
+  vmHosts = builtins.filter (host:
+    self.nixosConfigurations.${host}.self.config.system.build ? vm
+  ) sysHosts;  
+in {   
   yo.scripts.duckTrace = {
     description = "View duckTrace logs quick and quack, unified logging system";
     aliases = [ "log" ];    
     category = "🖥️ System Management";
 #    helpFooter = '' # 🦆 says ⮞ display log file in markdown with Glow
 #    '';
-    parameters = [ { name = "file"; description = "Logfile/service name to view, if not provided a list of all logs will be shown"; optional = true; } ];
+    parameters = [ 
+      { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; }
+    ]; 
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
       LOGFILE="$file"
@@ -23,6 +30,13 @@ in { # 🦆 says ⮞
       export GUM_CHOOSE_CURSOR="🦆 ➤ "  
       export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
       export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
+
+      if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
+        say_duck "fuck ❌ Invalid host: $host"
+        echo "Available hosts: ${toString sysHosts}" >&2
+        dt_error "Invalid host: $host"
+        exit 1
+      fi
 
       get_service_name() {
         local log_base
@@ -143,10 +157,12 @@ in { # 🦆 says ⮞
       enabled = true;
       priority = 5;
       sentences = [
+        "sök [i] {service}[s] [log|loggar|loggen] efter fel på {host}"      
         "sök [i] {service}[s] [log|loggar|loggen] efter fel"
-        "sök error"
+        "sök [efter] error på {host}"        
+        "sök [efter] error"
         "ducktrace {service}"
-        "kolla [log|loggen|loggar|loggarna)]"
+        "kolla [i] [log|loggen|loggar|loggarna)]"
       ];
       lists = {
         host.values = [
