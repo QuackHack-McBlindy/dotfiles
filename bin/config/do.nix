@@ -635,15 +635,15 @@
   else ""; # 🦆 duck say ⮞ no match? empty string
 
 
- # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
+  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
   helpText = let 
     # 🦆 duck say ⮞ URL escape helper for GitHub links
     escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
   
-    # 🦆 duck say ⮞ categorize scripts - ONLY VOICE READY SCRIPTS
-    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme && script.voiceReady) cfg.scripts;
+    # 🦆 duck say ⮞ categorize scripts
+    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
     groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
     sortedCategories = lib.sort (a: b: 
       # 🦆 duck wants ⮞ system management to be listed first yo
@@ -658,7 +658,7 @@
         scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
       in
         [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-          "| **${escapeMD category}** | | |"
+          "| **${escapeMD category}** | | | |"
         ] 
         # 🦆 duck say ⮞ each yo script goes into a table row
         ++ (map (script:
@@ -678,30 +678,22 @@
                 "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
               else
                 "yo ${escapeMD script.name} ${paramHint}";
+              
+            # 🦆 duck say ⮞ add voice ready indicator
+            voiceIndicator = if script.voiceReady then "✅" else "📛";
           in 
-            # 🦆 duck say ⮞ only voice ready scripts shown (all of them now)
-            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
+            # 🦆 duck say ⮞ voice indicator to the row
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} | ${voiceIndicator} |"
         ) scripts)
     ) sortedCategories;
-  
-  in lib.concatStringsSep "\n" rows;
 
-  hej = builtins.readFile voiceSentencesHelpFile;
+  in lib.concatStringsSep "\n" rows;
+ 
+
+  
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
-  file."sentences/README.md" = ''
-    ## 🦆✨ yo command list
-    Optional parameters marked [optional]
-    | Command Syntax               | Description                |
-    |------------------------------|----------------------------|
-    ${helpText}
-
-    ## 🦆🚀 SENTENCES! yo    
-    🦆🏠  HOME via  via 🐍 v3.12.10 
-    11:38:13 ❯ yo do -h
-    ${hej}
-  '';
-
+#  file."sentences/README.md" = escapeMD (builtins.readFile "${helpTextFile}");
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do = { # 🦆 says ⮞ wat ='( 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
@@ -714,7 +706,15 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }
       ]; 
       helpFooter = ''
-        cat ${voiceSentencesHelpFile}
+        
+        echo "🦆🏠  HOME via  via 🐍 v3.12.10" 
+        echo "04:22:56 ❯ yo -h"
+        cat ${voiceSentencesHelpFile} 
+        echo ""
+        echo "🦆🏠  HOME via  via 🐍 v3.12.10" 
+        echo "04:21:56 ❯ yo do -h"
+
+        cat "${helpTextFile}"
       '';
       code = ''
         set +u  
