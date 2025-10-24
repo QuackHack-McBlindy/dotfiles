@@ -624,7 +624,7 @@
   - **Understandable phrases**: ${toString totalPhrases}
       '';
     in
-      "# 🦆 Voice Commands\nOne-of required words are marked (say|one)\nOptional words are marked [no|have|to]\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
+      "# 🦆 Voice Commands\nÅ\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
   );
 
   # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
@@ -680,7 +680,7 @@
                 "yo ${escapeMD script.name} ${paramHint}";
           in 
             # 🦆 duck say ⮞ only voice ready scripts shown (all of them now)
-            "| ${syntax} |\n${escapeMD script.description} |\n"
+            "| ${syntax} | ${aliasList} | ${escapeMD script.description} |"
         ) scripts)
     ) sortedCategories;
   
@@ -690,17 +690,13 @@
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   file."sentences/README.md" = ''
-    ## 🦆✨ COMMANDS! yo  
-    
-    🦆🏠  HOME via  via 🐍 v3.12.10 
-    11:37:13 ❯ yo -h
+    ## 🦆✨ yo command list
     Optional parameters marked [optional]
-    | Command Syntax               |                |
-    |----------------------------------------------------------|
-    Description 
+    | Command Syntax               | Description                |
+    |------------------------------|----------------------------|
     ${helpText}
 
-    ## 🦆🚀 SENTENCES! qwack    
+    ## 🦆🚀 SENTENCES! yo    
     🦆🏠  HOME via  via 🐍 v3.12.10 
     11:38:13 ❯ yo do -h
     ${hej}
