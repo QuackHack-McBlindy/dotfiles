@@ -248,7 +248,35 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            #pageCloud, #pageQwackify {
+                padding: 0;
+                height: 100%;
+            }
+            
+            .qwackify-grid, .cloud-grid {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--light);
+            }
+            
+            .qwackify-grid iframe, .cloud-grid iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 0;
+                display: block;
+            }
+            
 
+            .fullpage-iframe {
+                width: 100%;
+                height: 100%;
+                transform-origin: top left;
+            }
+            
             #pagesContainer {
                 display: flex;
                 flex-direction: column;
@@ -401,6 +429,7 @@
 
             .page-container {
                 overflow: hidden;
+                height: calc(100vh - 140px);
             }
 
             .connection-status {
@@ -903,22 +932,25 @@
                     </div>
                 </div>
                 
+                
+                
+                
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 4 - 🦆☁️)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageCloud">
-                  <div class="qwackify-grid" id="cloudContainer">
-                    <iframe src="https://pungkula.duckdns.org" style="width: 100%; height: 100%; border: none; border-radius: 10px;"></iframe>
-                  </div>
+                    <div class="cloud-grid">
+                        <iframe src="https://pungkula.duckdns.org" class="fullpage-iframe"></iframe>
+                    </div>
                 </div>
 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 5 - 🦆🎵 Qwackify 🎵🦆 )
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageQwackify">
-                  <div class="qwackify-grid" id="qwackifyContainer">
-                    <iframe src="https://pungkula.duckdns.org/public/www/qwackify" style="width: 100%; height: 100%; border: none; border-radius: 10px;"></iframe>
-                  </div>
+                    <div class="qwackify-grid">
+                        <iframe src="https://pungkula.duckdns.org/public/www/qwackify" class="fullpage-iframe"></iframe>
+                    </div>
                 </div>
                 
 
@@ -1953,27 +1985,34 @@
                 
                 
                /////// 2nd 
+            
                 function showPage(pageIndex) {
                     console.log('🦆 Switching to page:', pageIndex);
                     currentPage = pageIndex;
-
+                
                     const pages = document.querySelectorAll('.page');
                     pages.forEach((page, index) => {
                         if (index === pageIndex) {
                             page.style.display = 'block';
+                            // Force reflow for iframe pages
+                            if (index === 4 || index === 5) {
+                                setTimeout(() => {
+                                    page.style.transform = 'scale(1)';
+                                }, 50);
+                            }
                         } else {
                             page.style.display = 'none';
                         }
                     });
-
-                    // 🦆 says ⮞ show device selector only on device page
+                
+                    // Show device selector only on device page
                     const deviceSelectorContainer = document.getElementById('deviceSelectorContainer');
                     if (pageIndex === 1) {
                         deviceSelectorContainer.classList.remove('hidden');
                     } else {
                         deviceSelectorContainer.classList.add('hidden');
-                  }
-
+                    }
+                
                     navTabs.forEach((tab) => {
                         const tabPageIndex = parseInt(tab.getAttribute('data-page'));
                         if (tabPageIndex === pageIndex) {
@@ -1982,9 +2021,10 @@
                             tab.classList.remove('active');
                         }
                     });
-
+                
                     saveState();
                 }
+            
 
                 ////////////// original
                 //function showPage(pageIndex) {
@@ -2570,6 +2610,57 @@
                                 }
                             }
                         });
+                        
+                        // 🦆 says ⮞ vertical swipe 4 da device page
+                        function handleDevicePageVerticalSwipe(diffY) {
+                            if (Math.abs(diffY) > verticalSwipeThreshold) {
+                                const selector = document.getElementById('deviceSelect');
+                                const options = Array.from(selector.options).filter(opt => opt.value);
+                                
+                                if (options.length > 0) {
+                                    const currentIndex = options.findIndex(opt => opt.value === selectedDevice);
+                                    let newIndex;
+                                    
+                                    if (diffY > 0) {
+                                        // 🦆 says ⮞ swipe down - next device
+                                        newIndex = (currentIndex + 1) % options.length;
+                                    } else {
+                                        // 🦆 says ⮞ swipe up - previous device
+                                        newIndex = (currentIndex - 1 + options.length) % options.length;
+                                    }
+                                    
+                                    if (newIndex >= 0 && newIndex < options.length) {
+                                        selector.value = options[newIndex].value;
+                                        selector.dispatchEvent(new Event('change'));
+                                        showNotification(`Switched to ''${options[newIndex].textContent}`, 'success');
+                                    }
+                                }
+                            }
+                        }
+                        
+ 
+                        pageContainer.addEventListener('touchend', (e) => {
+                            const diffY = startY - e.changedTouches[0].clientY;
+                            
+                            if (currentPage === 1 && Math.abs(diffY) > Math.abs(startX - currentX)) {
+                                handleDevicePageVerticalSwipe(diffY);
+                                return;
+                            }
+                            
+                            if (!isSwiping) return;
+                            
+                            const diff = startX - currentX;
+                            
+                            if (Math.abs(diff) > swipeThreshold) {
+                                if (diff > 0 && currentPage < 5) {
+                                    showPage(currentPage + 1);
+                                } else if (diff < 0 && currentPage > 0) {
+                                    showPage(currentPage - 1);
+                                }
+                            }
+                            isSwiping = false;
+                        });
+                   
 
                         document.querySelector('.logo').addEventListener('click', () => {
                             showPage(0);
