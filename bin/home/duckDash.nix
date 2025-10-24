@@ -881,16 +881,21 @@
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 4 - 🦆☁️)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
-                <div class="page" id="pageFiles">
-                  <iframe src="https://pungkula.duckdns.org" style="width: 500%; height: 100%; border: none; border-radius: 10px;"></iframe>
+                <div class="page" id="pageCloud">
+                  <div class="qwackify-grid" id="cloudContainer">
+                    <iframe src="https://pungkula.duckdns.org" style="width: 100%; height: 100%; border: none; border-radius: 10px;"></iframe>
+                  </div>
                 </div>
 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 5 - 🦆🎵 Qwackify 🎵🦆 )
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageQwackify">
-                  <iframe src="https://pungkula.duckdns.org/www/qwackify" style="width: 100%; height: 100%; border: none; border-radius: 10px;"></iframe>
+                  <div class="qwackify-grid" id="qwackifyContainer">
+                    <iframe src="https://pungkula.duckdns.org/public/www/qwackify" style="width: 100%; height: 100%; border: none; border-radius: 10px;"></iframe>
+                  </div>
                 </div>
+                
 
 
             </div>
@@ -909,7 +914,7 @@
                     <span>Devices</span>
                 </div>
                 <div class="nav-tab" data-page="2">
-                    <i class="mdi:palette"></i>
+                    <i class="mdi:palette-outline"></i>
                     <span>Scenes</span>
                 </div>
                 <div class="nav-tab" data-page="3">
@@ -918,7 +923,7 @@
                 </div>
                 <div class="nav-tab" data-page="4">
                   <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" alt="Qwackify" class="nav-icon">
-                  <span>Files</span>
+                  <span>Cloud</span>
                 </div>
                 <div class="nav-tab" data-page="5">
                   <img src="https://pungkula.duckdns.org/public/icons/qwackify.png" alt="Qwackify" class="nav-icon">
