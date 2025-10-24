@@ -3,7 +3,8 @@
   
   # 🦆✨ **COMMANDS! yo**                                                                                                        
                                                                                                                                     
-  Parameters inside brackets are [optional]                                                                                                                                                                                                                         
+  Parameters inside brackets are [optional]                                                                                                                                                             
+```                                                             
   Command Syntax                │Aliases    │Description                                                                            
   ──────────────────────────────┼───────────┼───────────────────────────────────────────────────────────────────────────────────────
   🖥️ System Management          │           │                                                                                       
@@ -91,7 +92,7 @@
   🧹 Maintenance                │           │                                                                                       
    yo clean                     │gc         │Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp …
    yo health [--host]           │hc         │Check system health status across your machines. Returns JSON structured responses.    
-       
+```         
    
   # 🦆🚀 **SENTENCES! quack**       
   🦆🏠  HOME via  via 🐍 v3.12.10 
