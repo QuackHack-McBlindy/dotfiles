@@ -248,6 +248,31 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+
+            #pagesContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .qwackify-grid {
+                width: 100%;
+                height: 100%;
+                max-width: 1920px; /* optional – keeps content centered on ultra-wide screens */
+                max-height: 1080px; /* optional – keeps it neat */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .qwackify-grid iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 10px;
+                display: block;
+            }
             .nav-icon {
                 width: 24px;
                 height: 24px;
