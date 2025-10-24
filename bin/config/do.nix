@@ -556,6 +556,8 @@
       # 🦆 says ⮞ replace {param} with actual values from voice lists
       replaceParamsWithValues = sentence: voiceData:
         let
+          # 🦆 says ⮞ find all {param} placeholders in the sentence
+          paramMatches = builtins.match ".*(\\{([^}]+)\\}).*" sentence;
           processToken = token:
             if lib.hasPrefix "{" token && lib.hasSuffix "}" token then
               let
@@ -595,7 +597,7 @@
       # 🦆 says ⮞ generate category sections with param replacement
       categorySections = lib.mapAttrsToList (category: scripts:
         let
-          scriptLines = lib.concatMapStrings (script:
+          scriptLines = map (script:
             let
               # 🦆 says ⮞ replace params in each sentence
               sentenceLines = lib.concatMapStrings (sentence: 
@@ -603,10 +605,10 @@
                 in "    - \"${escapeMD processedSentence}\"\n"
               ) script.voice.sentences;
             in
-              "  **yo ${escapeMD script.name}**:\n🦆 say ⮞${sentenceLines}\n"
+              "  **${escapeMD script.name}**:\n${sentenceLines}"
           ) (lib.sort (a: b: a.name < b.name) scripts);
         in
-          "# ${category}\n\n${scriptLines}"
+          "# ${category}\n\n${lib.concatStringsSep "\n" scriptLines}"
       ) groupedScripts;
       
       # 🦆 says ⮞ statistics
@@ -624,8 +626,6 @@
     in
       "# 🦆 Voice Commands\nOne-of required words are marked (say|one)\nOptional words are marked [no|have|to]\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
   );
-  
-
 
   # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
   githubBaseUrl = let # 🦆 duck say ⮞ pattern match to extract username and repo name
@@ -636,7 +636,6 @@
 
 
  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
-  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
   helpText = let 
@@ -659,11 +658,14 @@
         scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
       in
         [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-          "| **${escapeMD category}** | |"
+          "| **${escapeMD category}** | | |"
         ] 
         # 🦆 duck say ⮞ each yo script goes into a table row
         ++ (map (script:
-          let  
+          let  # 🦆 duck say ⮞ format list of aliases
+            aliasList = if script.aliases != [] then
+              lib.concatStringsSep ", " (map escapeMD script.aliases)
+            else "";
             # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
             paramHint = lib.concatStringsSep " " (map (param:
               if param.optional || param.default != null
@@ -677,158 +679,14 @@
               else
                 "yo ${escapeMD script.name} ${paramHint}";
           in 
-            # 🦆 duck say ⮞ only voice ready scripts shown - Command Syntax | Description
-            "| ${syntax} | ${escapeMD script.description} |"
+            # 🦆 duck say ⮞ only voice ready scripts shown (all of them now)
+            "| ${syntax} |\n${escapeMD script.description} |\n"
         ) scripts)
     ) sortedCategories;
   
   in lib.concatStringsSep "\n" rows;
-  
 
   hej = builtins.readFile voiceSentencesHelpFile;
-  
-  
-  # 🦆 duck say ⮞ create complete documentation file in one call
-  completeDocsFile = pkgs.writeText "yo-complete-docs.md" (
-    let
-      # 🦆 duck say ⮞ URL escape helper for GitHub links
-      escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
-  
-      # 🦆 duck say ⮞ categorize scripts - ONLY VOICE READY SCRIPTS
-      visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme && script.voiceReady) cfg.scripts;
-      groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
-      sortedCategories = lib.sort (a: b: 
-        # 🦆 duck wants ⮞ system management to be listed first yo
-        if a == "🖥️ System Management" then true
-        else if b == "🖥️ System Management" then false
-        else a < b # 🦆 duck say ⮞ after dat everything else quack quack
-      ) (lib.attrNames groupedScripts);
-  
-      # 🦆 duck say ⮞ create command table rows
-      commandRows = lib.concatMap (category:
-        let # 🦆 duck say ⮞ sort from A to Ö  
-          scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
-        in
-          [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-            "| **${escapeMD category}** | |"
-          ] 
-          # 🦆 duck say ⮞ each yo script goes into a table row
-          ++ (map (script:
-            let  
-              # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
-              paramHint = lib.concatStringsSep " " (map (param:
-                if param.optional || param.default != null
-                then "[--${param.name}]"
-                else "--${param.name}"
-              ) script.parameters);
-              # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
-              syntax = 
-                if githubBaseUrl != "" then
-                  "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
-                else
-                  "yo ${escapeMD script.name} ${paramHint}";
-            in 
-              "| ${syntax} | ${escapeMD script.description} |"
-          ) scripts)
-      ) sortedCategories;
-  
-      # 🦆 duck say ⮞ voice commands section
-      scriptsWithVoice = lib.filterAttrs (_: script: 
-        script.voice != null && script.voice.sentences != [] && (script.voice.enabled or true)
-      ) config.yo.scripts;
-      
-      # 🦆 duck say ⮞ replace {param} with actual values from voice lists
-      replaceParamsWithValues = sentence: voiceData:
-        let
-          processToken = token:
-            if lib.hasPrefix "{" token && lib.hasSuffix "}" token then
-              let
-                paramName = lib.removePrefix "{" (lib.removeSuffix "}" token);
-                listData = voiceData.lists.${paramName} or null;
-              in
-                if listData != null then
-                  if listData.wildcard or false then
-                    "ANYTHING"
-                  else
-                    let
-                      # 🦆 duck say ⮞ get all possible input values
-                      values = map (v: v."in") listData.values;
-                      # 🦆 duck say ⮞ expand any optional patterns like [foo|bar]
-                      expandedValues = lib.concatMap expandListInputVariants values;
-                      # 🦆 duck say ⮞ take first few examples for display
-                      examples = lib.take 3 (lib.unique expandedValues);
-                    in
-                      if examples == [] then "ANYTHING"
-                      else "(" + lib.concatStringsSep "|" examples + 
-                           (if lib.length examples < lib.length expandedValues then "|...)" else ")")
-                else
-                  "ANYTHING" # 🦆 duck say ⮞ fallback if param not found
-            else
-              token;
-          
-          # 🦆 duck say ⮞ split sentence and process each token
-          tokens = lib.splitString " " sentence;
-          processedTokens = map processToken tokens;
-        in
-          lib.concatStringsSep " " processedTokens;
-      
-      # 🦆 duck say ⮞ group by category
-      voiceGroupedScripts = lib.groupBy (script: script.category or "🧩 Miscellaneous") 
-        (lib.attrValues scriptsWithVoice);
-      
-      # 🦆 duck say ⮞ generate voice command sections
-      voiceSections = lib.mapAttrsToList (category: scripts:
-        let
-          scriptLines = lib.concatMapStrings (script:
-            let
-              # 🦆 duck say ⮞ replace params in each sentence
-              sentenceLines = lib.concatMapStrings (sentence: 
-                let processedSentence = replaceParamsWithValues sentence script.voice;
-                in "\n- \"${escapeMD processedSentence}\"\n"
-              ) script.voice.sentences;
-            in
-              "🦆 say ⮞\n    **${escapeMD script.name}**\n    ${sentenceLines}\n"
-          ) (lib.sort (a: b: a.name < b.name) scripts);
-        in
-          "## ${category}\n\n${scriptLines}"
-      ) voiceGroupedScripts;
-  
-      # 🦆 duck say ⮞ statistics
-      totalScripts = lib.length (lib.attrNames config.yo.scripts);
-      voiceScripts = lib.length (lib.attrNames scriptsWithVoice);
-      totalPatterns = config.yo.generatedPatterns;
-      totalPhrases = config.yo.understandsPhrases;
-  
-    in
-      ''
-      # 🦆✨ COMMANDS! yo  
-  
-      🦆🏠  HOME via  via 🐍 v3.12.10 
-      11:37:13 ❯ yo -h
-      Optional parameters marked [optional]
-      # 🦆✨ COMMANDS! yo
-      Optional parameters are marked [optional]
-      | Command Syntax | Description |
-      |----------------|-------------|
-      ${lib.concatStringsSep "\n" commandRows}
-  
-      # 🦆🚀 SENTENCES! qwack    
-      🦆🏠  HOME via  via 🐍 v3.12.10 
-      11:38:13 ❯ yo do -h
-      # 🦆 Voice Commands
-      One-of required words are marked (say|one)
-      Optional words are marked [no|have|to]
-  
-      ${lib.concatStringsSep "\n" voiceSections}
-  
-      # ----────----──⋆⋅☆☆☆⋅⋆─────----─ #
-      # Total:  
-      - **Scripts with voice enabled**: ${toString voiceScripts} / ${toString totalScripts}
-      - **Generated patterns**: ${toString totalPatterns}
-      - **Understandable phrases**: ${toString totalPhrases}
-      ''
-  );
-  
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   file."sentences/README.md" = ''
@@ -837,13 +695,11 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
     🦆🏠  HOME via  via 🐍 v3.12.10 
     11:37:13 ❯ yo -h
     Optional parameters marked [optional]
-    # 🦆✨ COMMANDS! yo
-    Optional parameters are marked [optional]
-    | Command Syntax | Description |
-    |----------------|-------------|
+    | Command Syntax               |                |
+    |----------------------------------------------------------|
+    Description 
     ${helpText}
-     
-     
+
     ## 🦆🚀 SENTENCES! qwack    
     🦆🏠  HOME via  via 🐍 v3.12.10 
     11:38:13 ❯ yo do -h
