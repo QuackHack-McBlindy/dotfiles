@@ -1,0 +1,88 @@
+/* Playlist container */
+.playlist-container {
+    max-height: 0.1px;
+    overflow: hidden;
+    background-color: rgba(34, 34, 34, 0.9);
+    border-radius: 5px;
+    transition: max-height 2s ease, padding 2s ease, box-shadow 2s ease, transform 0.4s ease-in-out;
+    margin-top: 10px;
+    width: 100%;
+    padding: 0;
+    box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.playlist-container.open {
+    max-height: 200px;
+    padding: 5px 0; /* Reduced padding when opened */
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.5),
+                0 0 30px rgba(0, 191, 255, 0.4),
+                0 0 40px rgba(50, 255, 50, 0.4);
+    transform: scale(1.02);
+}
+
+/* Playlist items: tighter spacing */
+.playlist-items {
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: rgba(50, 50, 50, 0.8);
+    border-radius: 10px;
+    padding: 2px; /* Reduced padding for the whole playlist */
+    box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+}
+
+/* Each playlist item: smaller and tighter */
+.playlist-item {
+    padding: 1px 3px;  /* Very tight padding */
+    margin-bottom: 2px;  /* Reduced margin */
+    font-size: 10px;  /* Smaller font size */
+    color: #fff;
+    background-color: rgba(80, 80, 80, 0.6);
+    border-radius: 2px;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.3); /* Smaller shadow */
+}
+
+/* Hover effect on playlist items */
+.playlist-item:hover {
+    background-color: rgba(255, 105, 180, 0.6);
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.6),
+                0 0 10px rgba(0, 191, 255, 0.4),
+                0 0 12px rgba(50, 255, 50, 0.4);
+}
+
+/* Hover effect on playlist items */
+.playlist-item.playing {
+    background-color: rgba(255, 105, 180, 0.6) !important;
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.6) !important,
+                0 0 10px rgba(0, 191, 255, 0.4) !important,
+                0 0 12px rgba(50, 255, 50, 0.4) !important;
+}
+
+
+
+/* Playlist scrollbar customization */
+.playlist-items::-webkit-scrollbar {
+    width: 6px; /* Thinner scrollbar */
+}
+
+.playlist-items::-webkit-scrollbar-track {
+    background: rgba(80, 80, 80, 0.5);
+    border-radius: 8px;
+}
+
+.playlist-items::-webkit-scrollbar-thumb {
+    background: rgba(255, 105, 180, 0.7);
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(255, 105, 180, 0.5);
+}
+
+.playlist-items::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 105, 180, 1);
+}
+
+/* Fine-tuned smooth sliding and scaling effect for the playlist */
+.playlist-container.open {
+    transition: max-height 2s ease, padding 2s ease, box-shadow 2s ease, transform 0.4s ease-in-out;
+}
+

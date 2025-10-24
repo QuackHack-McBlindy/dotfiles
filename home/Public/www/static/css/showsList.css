@@ -1,0 +1,22 @@
+#showsList {
+    position: absolute;
+    top: calc(27% - 30px); /* Match position above the remote list */
+    right: calc(25%); /* Match position near the right side */
+    opacity: 0;
+    overflow: hidden;
+    transform: translateX(200%); /* Start off the screen to the right */
+    max-height: 0; /* Start with height 0 */
+    transition: transform 0.5s ease, opacity 0.5s ease, max-height 0.5s ease;
+    transform-origin: left bottom; /* Expand from the bottom left */
+    text-align: left;
+}
+
+/* Visible state (slid out) */
+#showsList.visible {
+    transform: translateX(0); /* Slide from the right into view */
+    opacity: 1;
+    max-height: 200px; /* Maximum height for the shows list */
+    overflow-y: auto; /* Enable vertical scrolling */
+    text-align: left;
+}
+

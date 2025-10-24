@@ -5,17 +5,33 @@
   pkgs,
   cmdHelpers,
   ...
-} : {
+} : let
+
+  sysHosts = builtins.attrNames self.nixosConfigurations;
+  vmHosts = builtins.filter (host:
+    self.nixosConfigurations.${host}.self.config.system.build ? vm
+  ) sysHosts;  
+
+in {
   yo.scripts = {
     pull = {
       description = "Pull the latest changes from your dotfiles repo. Resets tracked files to origin/main but keeps local extras.";
       category = "⚡ Productivity";
       parameters = [ 
         { name = "flake"; description = "Path to the directory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
+        { name = "host"; description = "Specify host to pull on. Omitting will pull on local machine"; optional = true; }         
       ];
       code = ''
           ${cmdHelpers}
+          
+          if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
+            say_duck "fuck ❌ Invalid host: $host"
+            echo "Available hosts: ${toString sysHosts}" >&2
+            exit 1
+          fi
+          
           DOTFILES_DIR=''$flake
+ 
           cd "$DOTFILES_DIR"
           # git checkout -- .
           # checkout_status=$?
@@ -58,7 +74,23 @@
           #    echo -e "\033[1;31mAn error occurred while pulling the latest changes.\033[0m"
           #  fi
           #fi
-      '';
+      '';      
+      voice = { # 🦆 says ⮞ low priority = faser execution? wtf
+        enabled = true;
+        priority = 5; # 🦆 says ⮞ 1 to 5
+        sentences = [
+          "(pull|pulla) [på] {host}"
+          "(pull|pulla)"          
+        ]; # 🦆 says ⮞ lists are in word > out word
+        lists = {
+          host.values = [          
+            { "in" = "[desktop]"; out = "desktop"; }
+            { "in" = "[nasty]"; out = "nasty"; }
+            { "in" = "[laptop]"; out = "laptop"; }     
+            { "in" = "[homie]"; out = "homie"; }     
+          ]; # 🦆 says ⮞ search can be anything            
+        };
+      };
     };  
     
   };}  

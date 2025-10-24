@@ -1,0 +1,419 @@
+
+
+       @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@300;700&family=Poppins:wght@300;700&display=swap');
+
+        /* Container for the form and the help text */
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        /* Styling the form on the left */
+        .form-container {
+            width: 60%;
+        }
+        /* Help text container on the right */
+        .help-container {
+            width: 35%;
+            height: 50%;
+            border: 1px solid red;
+            padding: 10px;
+            background-color: black;
+            color: white;
+        }
+        .help-container h3 {
+            margin-top: 0;
+        }
+        #main-container {
+            display: flex;
+            flex-grow: 1;  /* Allow main container to grow vertically */
+            overflow: hidden;  /* Hide overflow for smoother layout */
+        }
+
+/* Sidebar */
+        #sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            box-sizing: border-box;
+            height: 100%;
+            overflow-y: auto;  /* Scroll the sidebar if it overflows vertically */
+        }
+
+        #sidebar h3 {
+            margin-top: 0;
+            font-size: 1.5rem;
+        }
+
+        #sidebar ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1;  /* Ensure the list takes up the rest of the space */
+        }
+
+        #sidebar ul li {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #34495e;
+            cursor: pointer;
+            border-radius: 5px;
+            position: relative;
+        }
+
+        #sidebar ul li:hover {
+            background-color: #1abc9c;
+        }
+
+        #sidebar ul li .options {
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        #sidebar ul li:hover .options {
+            display: block;
+        }
+
+        #sidebar button {
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            background-color: #e74c3c;
+            color: white;
+            order: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #sidebar button:hover {
+            background-color: #c0392b;
+        }
+
+
+
+        #input-container {
+            display: flex;
+            margin-top: 10px;
+        }
+
+        #input-container input[type="text"] {
+            flex-grow: 1;
+            padding: 10px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+
+        #input-container button {
+            padding: 10px 20px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #input-container button:hover {
+            background-color: #27ae60;
+        }        
+
+        /* END OF CHAT */
+        /* END OF CHAT */
+        /* END OF CHAT */
+
+        /* The Copy button remains on the left (default behavior) */
+        #copy-button {
+            float: left;
+        }
+
+        /* The Close button is positioned absolutely to the right */
+        #close-button {
+            position: absolute;
+            right: 10px;
+            top: 10px; /* Adjust this if you want to move the button vertically */
+        }
+
+        .popup {
+            display: none;
+            position: fixed;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            padding: 20px;
+            background-color: black;
+            border: 2px solid red;
+            color: white;
+            z-index: 1000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+            border-radius: 10px;
+        }
+
+        .popup-overlay {
+            display: none;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 999;
+        }
+
+        button {
+            padding: 0.3rem 1rem; /* Reduced padding */
+            border: none;
+            background: #e94560;
+            color: black;
+            border-radius: 20px; /* Smaller border radius */
+            cursor: pointer;
+            font-size: 0.875rem; /* Reduced font size */
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0px 3px 10px rgba(233, 69, 96, 0.5); /* Reduced shadow size */
+        }
+
+        button:hover {
+            background: #ff2e63;
+            transform: scale(1.05);
+            box-shadow: 0px 5px 20px rgba(233, 69, 96, 0.8);
+        }
+
+        
+        .btn-save {
+            padding: 0.75rem 2rem;
+            border: none;
+            background: #e94560;
+            color: #fff;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0px 5px 15px rgba(233, 69, 96, 0.5);
+        }
+
+        .btn-save:hover {
+            background: #ff2e63;
+            transform: scale(1.05);
+            box-shadow: 0px 5px 20px rgba(233, 69, 96, 0.8);
+        }
+        
+        /* Base link style */
+        a {
+            color: #007BFF; /* Default link color */
+            text-decoration: none; /* Remove underline */
+            transition: color 0.3s ease, border-bottom 0.3s ease; /* Smooth color transition */
+            border-bottom: 2px solid transparent; /* Hidden border for animation */
+        }
+
+        /* Hover effect */
+        a:hover {
+            color: #e94560; /* New color on hover */
+            border-bottom: 2px solid #e94560; /* Underline animation on hover */
+        }
+   
+        /* Optional: Visited link color */
+      /*  a:visited { */
+      /*      color: #6610f2;  */   /* Example color for visited links */
+      /*  } */
+
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        form {
+            background: #16213e;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+            border: 2px solid #e94560;
+        }
+        h2 {
+            color: #e94560;
+            font-family: 'Comic Neue', cursive;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 0.5rem;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            color: #e0e0e0;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e94560;
+            border-radius: 10px;
+            font-size: 1rem;
+            background-color: #0f3460;
+            color: #e0e0e0;
+            transition: 0.3s ease-in-out;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #e94560;
+            outline: none;
+            box-shadow: 0 0 8px rgba(233, 69, 96, 0.8);
+        }
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group button {
+            padding: 0.75rem 2rem;
+            border: none;
+            background: #e94560;
+            color: #fff;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.25rem;
+            transition: background 0.3s ease, transform 0.3s ease;
+            box-shadow: 0px 5px 15px rgba(233, 69, 96, 0.5);
+        }
+        .form-group button:hover {
+            background: #ff2e63;
+            transform: scale(1.05);
+            box-shadow: 0px 5px 20px rgba(233, 69, 96, 0.8);
+        }
+        .reset-button {
+            background: #c0392b;
+            box-shadow: 0px 5px 15px rgba(192, 57, 43, 0.5);
+            margin-left: auto;
+        }
+        .reset-button:hover {
+            background: #e74c3c;
+            transform: scale(1.05);
+            box-shadow: 0px 5px 20px rgba(231, 76, 60, 0.8);
+        }
+
+        /* Tabs */
+        .tabs {
+            margin-bottom: 20px;
+        }
+        .tabs ul {
+            display: flex;
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            border-bottom: 2px solid #e94560;
+        }
+
+        .tabs ul li a {
+            display: block;
+            padding: 10px 15px;
+            background-color: #0f3460;
+            color: #e0e0e0;
+            text-decoration: none;
+            border-radius: 10px 10px 0 0;
+            border: 2px solid #0f3460;
+            border-bottom: none;
+            transition: background 0.3s ease;
+        }
+
+        .tabs ul li a:hover,
+        .tabs ul li a.active {
+            box-shadow: 0px -2px 15px 5px #e94560; /* Add a slight negative vertical offset */
+            outline: 1px solid #e94560; /* Add a solid outline for extra emphasis */
+            outline-offset: -2px; /* Position the outline closer to the element */         
+            color: #fff; /* Optional: change text color for better contrast */
+            z-index: 1; /* Ensure the tab is above others */
+        }
+
+
+        .tabs ul li a.active::before {
+            content: "🦆 ";
+            filter: hue-rotate(180deg) brightness(1.2);
+        }
+ 
+ 
+ 
+        .tabs ul li a[href="#"] {
+            position: relative;
+            display: inline-block;
+            text-decoration: none;
+            color: inherit;
+        }
+        .tabs ul li a[href="#"]::before {
+            content: "⛔ ";
+            display: inline-block;
+            opacity: 0; /* Initially hide the emoji */
+            transform: translateX(-10px); /* Move it left slightly */
+            transition: opacity 0.3s ease, transform 0.3s ease; /* Transition for appearing and moving */
+        }
+
+        .tabs ul li a[href="#"]:hover::before {
+            opacity: 1; /* Show the emoji on hover */
+            transform: translateX(0); /* Move it to its original position */
+       /*     filter: hue-rotate(180deg) brightness(1.2);  */    /* Apply the filter on hover */
+        }
+
+        .tabs ul li a[href="#"].active::before {
+            opacity: 1; /* Show the emoji for the active link */
+            transform: translateX(0); /* Ensure it's in the original position */
+          /*  filter: hue-rotate(180deg) brightness(1.2);  */   /* Apply the filter for the active link */
+        } 
+
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Switch */
+        .switch input {
+            display: none;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 25px;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 21px;
+            width: 21px;
+            left: 2px;
+            bottom: 2px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #e94560;
+        }
+        input:checked + .slider:before {
+            transform: translateX(24px);
+        }
+    </style>

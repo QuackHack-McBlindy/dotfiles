@@ -1,0 +1,194 @@
+/* General styling */
+body {
+    padding: 0;
+    min-height: 100vh;
+    max-width: 100vw;
+    background-color: none;
+    color: white;
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    position: relative;
+}
+
+/* Spectrum canvas behind content */
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+}
+
+/* Player styling */
+.player-container {
+    text-align: center;
+    background-color: #222;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 20px rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 2;
+}
+
+/* Album cover */
+.album-cover {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.album-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Controls */
+.controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 20px;
+}
+
+.controls button {
+    background: none;
+    border: none;
+    font-size: 36px;
+    color: #888;
+    cursor: pointer;
+}
+
+.controls button:hover {
+    color: #ff7bac;
+}
+
+.controls .play {
+    font-size: 48px;
+    color: #ff7bac;
+}
+
+/* Progress bar */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #eee;
+    border-radius: 5px;
+    margin: 20px 0;
+    position: relative;
+}
+
+.progress-bar div {
+    height: 100%;
+    width: 0%;
+    background: #ff7bac;
+    border-radius: 5px;
+}
+
+/* Time display */
+.time {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #888;
+}
+
+/* Playlist container */
+.playlist-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 2s ease, padding 2s ease;
+    margin-top: 10px;
+    width: 100%;
+}
+
+.playlist-container.open {
+    max-height: 100px;
+    padding: 10px 0;
+}
+
+.playlist-items {
+    max-height: 100px;
+    overflow-y: auto;
+    background-color: #333;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.playlist-item {
+    padding: 5px;
+    color: white;
+    border-bottom: 1px solid #444;
+    cursor: pointer;
+}
+
+.playlist-item:hover {
+    background-color: #444;
+}
+
+/* Remote Control Container */
+#remote-control-container {
+    display: none;
+    position: absolute;
+    width: 0;
+    height: 20px;
+    background-color: rgba(34, 34, 34, 0.8);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: width 2s ease, height 2s ease;
+    bottom: 50px;
+    left: 50%;
+}
+
+#remote-control-container.open {
+    display: block;
+    width: 200px; /* First expands horizontally */
+}
+
+#remote-control-container.expanded {
+    height: 240px; /* Then expands vertically */
+}
+
+/* Hidden elements */
+.hidden {
+    display: none;
+}
+
+/* Glitch effect and hue animation */
+#glitchbox {
+    animation: glitch 3s linear infinite;
+}
+
+@keyframes glitch {
+    0% { filter: none; }
+    1% { filter: url(#f1); }
+    5% { filter: none; }
+    7% { filter: url(#f1); }
+    8% { filter: none; }
+    10% { filter: url(#f1); }
+    13% { filter: none; }
+    100% { filter: none; }
+}
+
+#huebox {
+    animation: hueshift 10s ease-in-out infinite;
+}
+
+@keyframes hueshift {
+    0%, 50% { filter: hue-rotate(0deg); }
+    60% { filter: hue-rotate(360deg); }
+    70% { filter: hue-rotate(0deg); }
+    80% { filter: hue-rotate(360deg); }
+    90% { filter: hue-rotate(0deg); }
+    100% { filter: hue-rotate(360deg); }
+}

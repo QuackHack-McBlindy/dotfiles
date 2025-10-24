@@ -1,0 +1,6 @@
+.program-bar {
+    height: 5px; /* Adjust height as needed */
+    background-color: #4caf50; /* Green color for the progress */
+    border-radius: 2px; /* Rounded edges */
+    transition: width 0.3s ease; /* Smooth width transition */
+}

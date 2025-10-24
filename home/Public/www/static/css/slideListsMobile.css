@@ -1,0 +1,195 @@
+@media (max-width: 769px) { /* screens under 768 width */
+    #castButton {
+        font-size: 20px; /* Adjusted for smaller screens */
+        color: grey;
+    }
+
+    .podcast-items {
+        text-align: right;
+    }
+    .podcast-item {
+        text-align: right;
+    }
+    .podcast-item:visible {
+        text-align: right;
+    }
+    #podcastList {
+        text-align: right;
+    }
+
+    #castButton.on {
+        color: green;
+    }
+
+    #castButton.off {
+        color: red;
+    }
+
+    /* Device List (initial state) */
+    #deviceList {
+        position: absolute;
+   /*     top: calc(60% - 30px);  /* Adjusted for mobile */
+   /*     right: calc(10%); */      /* Adjusted for mobile */
+        opacity: 0;
+        overflow: hidden;
+        transform: translateX(-200%);
+        max-height: 0;
+        transition: transform 0.5s ease, opacity 0.5s ease, max-height 0.5s ease;
+        transform-origin: left bottom;
+        width: 250px;            /* Smaller width for mobile */
+    }
+
+    /* Hover effects and interactions for device items */
+    .device-item {
+        padding: 6px;
+        cursor: pointer;
+        color: white;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    .device-item:hover {
+        background-color: rgba(255, 105, 180, 0.6);
+        box-shadow: 0 0 10px rgba(255, 105, 180, 0.6),
+                    0 0 15px rgba(0, 191, 255, 0.4),
+                    0 0 20px rgba(50, 255, 50, 0.4);
+    }
+
+    .device-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Hidden Podcast List (initial state) */
+    #podcastList {
+        position: absolute;
+   /*     top: calc(30% - 30px);
+        left: calc(10%); */
+        opacity: 0;
+        overflow: hidden;
+        transform: translateX(200%);
+        max-height: 0;
+        transition: transform 0.5s ease, opacity 0.5s ease, max-height 0.5s ease;
+        transform-origin: left bottom;
+        text-align: right;
+    }
+
+    /* TV List (initial state) */
+    #tvList {
+        position: absolute;
+   /*     top: calc(25% - 30px);
+        right: calc(10%); */
+        opacity: 0;
+        overflow: hidden;
+        transform: translateX(-200%);
+    }
+
+    /* Music List (initial state) */
+    #musicList {
+        position: absolute;
+   /*     top: calc(15% - 30px);
+        right: calc(10%); */
+        overflow: hidden;
+        transform: translateX(-200%);
+    }
+
+    /* Movie List (initial state) */
+    #movieList {
+        position: absolute;
+   /*     top: calc(22% - 30px);
+        right: calc(10%); */
+        text-align: left;
+    }
+
+    /* Visible state for the movie list */
+    #movieList.visible, #musicList.visible {
+        text-align: left;
+    }
+
+    /* Each movie-item, music-item, device-item, tv-item appears with rising effect */
+    .movie-item, .music-item, .device-item, .tv-item {   
+        text-align: left;
+    }
+
+    /* Show individual items progressively */
+    .musicList.visible, .movieList.visible, .tvList.visible, .deviceList.visible {
+        text-align: left;
+    }
+
+    .podcastList.visible {
+        text-align: right;
+    }
+
+    /* Grouped visibility styles for all lists: Music, Movie, TV, Podcast, Device */
+    #musicList, #movieList, #tvList, #podcastList, #deviceList {
+        opacity: 0;
+        overflow: hidden;
+        transform: translateX(200%);
+        max-height: 0;
+        transition: transform 0.5s ease, opacity 0.5s ease, max-height 0.5s ease;
+        transform-origin: left bottom;
+        width: 250px;
+    }
+
+    /* Visible state for all lists */
+    #musicList.visible, #movieList.visible, #tvList.visible, #podcastList.visible, #deviceList.visible {
+        transform: translateX(0);
+        opacity: 1;
+        max-height: 300px; /* Adjusted for mobile */
+        overflow-y: auto;
+    }
+
+    /* Item-specific animation for all lists */
+    .music-item, .movie-item, .tv-item, .podcast-item, .device-item {
+        color: white;
+        opacity: 0;
+        transform: translateY(-10px);
+        transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+
+    /* Show individual items progressively for all lists */
+    .music-item.visible, .movie-item.visible, .tv-item.visible, .podcast-item.visible, .device-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    /* Scrollable areas for all lists */
+    .music-items, .movie-items, .tv-items, .podcast-items, .device-items {
+        max-height: 300px; /* Reduced height for mobile */
+        overflow-y: auto;
+        background-color: rgba(50, 50, 50, 0.8);
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+    }
+
+    /* Hover effect for items in all lists */
+    .music-item:hover, .movie-item:hover, .tv-item:hover, .podcast-item:hover, .device-item:hover {
+        background-color: rgba(255, 105, 180, 0.6);
+        box-shadow: 0 0 10px rgba(255, 105, 180, 0.6),
+                    0 0 15px rgba(0, 191, 255, 0.4),
+                    0 0 20px rgba(50, 255, 50, 0.4);
+    }
+
+    /* Playlist container open state */
+    .playlist-container.open {
+        max-height: 300px; /* Adjusted height */
+        padding: 8px 0;
+        box-shadow: 0 0 20px rgba(255, 105, 180, 0.5), 
+                    0 0 30px rgba(0, 191, 255, 0.4),   
+                    0 0 40px rgba(50, 255, 50, 0.4);
+        transform: scale(1.02);
+    }
+
+    /* Default cast button style */
+    .cast-icon {
+        color: black;
+    }
+
+    /* When cast mode is active */
+    .cast-icon.active {
+        color: green;
+        content: 'cast_connected';
+    }
+}

@@ -1,0 +1,140 @@
+.search-container {
+    /* Center alignment for text */
+    text-align: left;
+    
+    /* Dark background with transparency (RGBA allows for opacity control) */
+    background-color: rgba(34, 34, 34, 0.8); /* 80% opacity */
+    
+    /* Padding inside the box */
+    padding: 20px;
+
+    /* Rounded corners for smooth edges */
+    border-radius: 20px; /* Slightly larger for softer edges */
+
+    /* Box shadow with a glow effect */
+    box-shadow: 0 0 20px rgba(255, 105, 180, 0.6), /* Pink glow */
+                0 0 40px rgba(0, 191, 255, 0.6),   /* Blue glow */
+                0 0 60px rgba(50, 255, 50, 0.5);   /* Green glow */
+    
+    /* Position and stacking order */
+    position: relative;
+    z-index: 2;
+    
+    /* Fixed width and height to prevent resizing */
+    width: 350px; /* You can adjust this as needed */
+    height: 40px; /* Adjust height as needed */
+
+    /* Hide overflow content */
+    overflow: hidden;
+
+    /* Add a glowing border */
+    border: 2px solid rgba(255, 255, 255, 0.3); /* A faint white border */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5); /* Additional outer glow */
+
+    /* Optional background gradient for more depth */
+    background-image: linear-gradient(135deg, rgba(0, 0, 0, 0.3) 0%, rgba(34, 34, 34, 0.8) 100%);
+    
+    /* Smooth transitions for any state changes */
+    transition: all 0.3s ease-in-out;
+}
+
+/* Hover effect to make the player more interactive */
+.search-container:hover {
+    /* Increase the glow on hover */
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.8),  /* Stronger pink */
+                0 0 50px rgba(0, 191, 255, 0.8),   /* Stronger blue */
+                0 0 70px rgba(50, 255, 50, 0.7);   /* Stronger green */
+    
+    /* Slight scale effect for interaction */
+    transform: scale(1.08); /* Slightly larger on hover */
+}
+
+/* Inner content styling to ensure it fits nicely within the player */
+.search-container .inner-content {
+    padding: 10px;
+    height: calc(100% - 40px); /* Adjust content height relative to container */
+    overflow-y: auto; /* Allows scrolling if content exceeds container */
+    color: #fff; /* Ensure text is readable */
+}
+
+
+
+
+#search-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+
+
+
+#search-input {
+    width: 250px;
+    padding: 8px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 16px;
+    outline: none;
+    transition: background-color 0.3s, border-color 0.3s;
+
+
+}
+
+#search-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#search-input:hover {
+    /* Increase the glow on hover */
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.8),  /* Stronger pink */
+                0 0 50px rgba(0, 191, 255, 0.8),   /* Stronger blue */
+                0 0 70px rgba(50, 255, 50, 0.7);   /* Stronger green */
+    
+    /* Slight scale effect for interaction */
+    transform: scale(1.08); /* Slightly larger on hover */
+}
+
+#search-input:focus {
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+#search-button {
+    margin-left: 10px;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    background-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+
+
+#search-button:hover {
+    /* Increase the glow on hover */
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.8),  /* Stronger pink */
+                0 0 50px rgba(0, 191, 255, 0.8),   /* Stronger blue */
+                0 0 70px rgba(50, 255, 50, 0.7);   /* Stronger green */
+    
+    /* Slight scale effect for interaction */
+    transform: scale(1.08); /* Slightly larger on hover */
+    background-color: rgba(255, 255, 255, 0.3);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+
+.search-input:hover {
+    /* Increase the glow on hover */
+    box-shadow: 0 0 30px rgba(255, 105, 180, 0.8),  /* Stronger pink */
+                0 0 50px rgba(0, 191, 255, 0.8),   /* Stronger blue */
+                0 0 70px rgba(50, 255, 50, 0.7);   /* Stronger green */
+    
+    /* Slight scale effect for interaction */
+    transform: scale(1.09); /* Slightly larger on hover */
+}

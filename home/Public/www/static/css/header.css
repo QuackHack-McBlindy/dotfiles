@@ -1,0 +1,192 @@
+header {
+    height: 160px;
+    width: 100%; /* Ensure the header takes the full width of the screen */
+    max-width: 100%; /* Prevent any max-width restrictions */
+    box-sizing: border-box; /* Include padding and border in the element's total width */
+    padding: 0.3rem; /* Reduce padding to decrease height */
+    background-color: #0f3460; /* Ensure the background color spans the full width */
+    font-size: 28px; /* Decrease font size to further reduce height */
+    color: #e94560; /* Text color */
+    text-align: center; /* Center-align text */
+    font-family: 'Comic Neue', cursive; /* Set the font */
+    border-bottom: 3px solid #e94560; /* Add a border at the bottom */
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.5); /* Add a shadow effect */
+    display: flex; /* Enable flexbox layout */
+    align-items: center; /* Center items vertically */
+    justify-content: space-between; /* Distribute space between child elements */
+    position: fixed; /* Make the header stay at the top of the page */
+    top: 0; /* Position it at the top */
+    z-index: 1000; /* Ensure it stays on top of other content */
+}
+
+.header-icons-git {
+    display: flex;
+    gap: 11px; /* Corrected unit */ 
+    flex-direction: column; 
+    position: absolute;
+    right: 15px;        
+}
+.header-icons-git img {
+    width: 50px;
+    filter: invert(50%); /* Invert colors */
+    animation: moveUpDown 10s ease-in-out infinite; /* Basic animation */
+    transition: transform 0.4s ease-in-out, filter 2s ease-in-out;
+}
+.header-icons-git img:nth-child(1) {
+    animation-duration: 9s; /* Different speeds */
+}
+.header-icons-git img:nth-child(2) {
+    animation-duration: 4s;
+}
+.header-icons-git img:nth-child(3) {
+    animation-duration: 8s;
+}
+.header-icons-git img:hover {
+    filter: hue-rotate(130deg) brightness(2.2);
+    animation: bounce 0.9s ease-in-out forwards;
+}
+
+.header-icons {
+    display: flex;
+    gap: 11px; /* Corrected unit */ 
+    flex-direction: row; 
+    position: absolute;
+    right: 65px;        
+}
+.header-icons img {
+    width: 50px;
+    filter: invert(50%); /* Invert colors */
+    animation: moveUpDown 10s ease-in-out infinite; /* Basic animation */
+    transition: transform 0.4s ease-in-out, filter 2s ease-in-out;
+}
+.header-icons img:nth-child(1) {
+    animation-duration: 9s; /* Different speeds */
+}
+.header-icons img:nth-child(2) {
+    animation-duration: 4s;
+}
+.header-icons img:nth-child(3) {
+    animation-duration: 8s;
+}
+
+@keyframes moveUpDown {
+    0%, 100% {
+        transform: translateY(10px); /* Corrected */
+    }
+    50% {
+        transform: translateY(-20px);
+    }
+}
+
+header h1 {
+    text-shadow: 
+        0 0 5px #e94560, 
+        0 0 10px #e94560, 
+        0 0 15px #ff2e63;
+    animation: pulse 2s infinite, colorChange 3s infinite;
+    transition: transform 0.4s ease-in-out;
+}
+
+header h1:hover {
+    transform: scale(1.05);
+    text-shadow: 
+        0 0 20px #ff2e63, 
+        0 0 30px #ff2e63;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        text-shadow: 
+            0 0 5px #e94560, 
+            0 0 10px #e94560, 
+            0 0 15px #ff2e63;
+    }
+    50% {
+        text-shadow: 
+            0 0 10px #ff2e63, 
+            0 0 20px #ff2e63, 
+            0 0 30px #ff2e63;
+    }
+}
+
+@keyframes colorChange {
+    0%, 100% {
+        color: #e94560;
+    }
+    50% {
+        color: #ff2e63;
+    }
+}
+
+.duck-emojii {
+    animation: bounce 1.6s ease-in-out infinite; 
+    display: inline-block; 
+}
+.duck-emojii:hover {
+    filter: hue-rotate(130deg) brightness(2.2);
+}
+
+.duck-emoji {
+    animation: bounce 2s ease-in-out infinite; /* Slower bounce with an infinite loop */
+    display: inline-block; /* Ensures proper behavior if the emoji is inline */
+}
+.duck-emoji:hover {
+    filter: hue-rotate(130deg) brightness(2.2);
+}
+
+
+.llama-emoji {
+   /* animation: grow 2s ease-in-out infinite; /* Slower bounce with an infinite loop      */
+    display: inline-block; /* Ensures proper behavior if the emoji is inline */
+}
+.llama-emoji:hover {
+    animation: grow 4.5s ease-in-out infinite;
+    filter: hue-rotate(130deg) brightness(2.2);
+}
+
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    20% {
+        transform: translateY(-20px);
+    }
+    40% {
+        transform: translateY(10px);
+    }
+    60% {
+        transform: translateY(-10px);
+    }
+    80% {
+        transform: translateY(5px);
+    }
+}
+
+@keyframes grow {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(5.1); /* Slowly grows */
+    }
+    70% {
+        transform: scale(6.1); /* Pops inward */
+    }
+    80% {
+        transform: scale(6.8) translateX(-1px); /* Pops outward */
+    }    
+    90% {
+        transform: scale(0); /* Pops outward */
+    }
+    100% {
+        transform: scale(0); /* Returns to normal size */
+    }
+}
+
+
+
+.header-icons img:hover {
+    filter: hue-rotate(130deg) brightness(2.2);
+    animation: bounce 0.9s ease-in-out forwards;
+}
