@@ -251,7 +251,333 @@
         <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/nuclear.min.css">
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/nuke.css">
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/style.css">
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/styles.css">
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/pyscript.css">
+        <script src="https://pungkula.duckdns.org/public/js/cactus.js"></script>
+        <script defer src="https://pungkula.duckdns.org/public/js/pyscript.js"></script>
+    
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/playerContainer.css">
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/searchContainer.css"> 
+        <!-- playlist -->
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/playlistContainer.css">
+       <!-- <script defar src="https://pungkula.duckdns.org/public/js/playlistButton.js"></script> -->
+        <!-- videosplit -->
+      <!--  <script defer src="https://pungkula.duckdns.org/public/js/videoSplit.js"></script> -->
+      <!--  <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/videoSplit.css">   --> 
+        <!-- options -->
+        <script defer src="https://pungkula.duckdns.org/public/js/optionsButton.js"></script>
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/optionsList.css">
+    
+        <script defer src="https://pungkula.duckdns.org/public/js/slideButtons.js"></script>
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/slideLists.css">
+
+        <script defer src="https://pungkula.duckdns.org/public/js/remoteButton.js"></script>
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/channelList.css">  
+  
+        <script defer src="https://pungkula.duckdns.org/public/js/trashButton.js"></script>
+        <script defer src="https://pungkula.duckdns.org/public/js/newsButton.js"></script>
+  
+        <script defer src="https://pungkula.duckdns.org/public/js/keyBindings.js"></script>
+        <script defer src="https://pungkula.duckdns.org/public/js/playplaylistButton.js"></script>
+        <script defer src="https://pungkula.duckdns.org/public/js/receiverButtons.js"></script>
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/receiverButtons.css"> 
+ 
+        <script defer src="https://pungkula.duckdns.org/public/static/js/volumeSlider.js"></script> 
+        <script defer src="https://pungkula.duckdns.org/public/static/js/controls.js"></script>
+        <script defer src="https://pungkula.duckdns.org/public/js/adbButtons.js"></script>
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/remoteButton.css"> 
+ 
+        <!--  <script defer src="https://pungkula.duckdns.org/public/js/videoSplit.js"></script> -->
+        <link rel="stylesheet" href="https://pungkula.duckdns.org/public/css/videoSplit.css">
         <style>
+            /* General styling */
+            body {
+                padding: 0;
+              /*  min-height: 100vh;*/
+              /*  max-width: 100vw; */
+
+ 
+    
+    
+                background-color: none;
+                color: white;
+                font-family: Arial, sans-serif;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+                position: relative;
+            }
+    
+            /* Spectrum canvas behind content */
+            canvas {
+                position: absolute;
+                top: 0;
+                left: 0;
+                z-index: -1;
+                width: 100%;
+                height: 100%;
+            }
+    
+            /* Player styling */
+            .player-container {
+                text-align: center;
+                background-color: #222;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0px 4px 20px rgba(255, 255, 255, 0.1);
+                position: relative;
+                z-index: 2;
+            }
+    
+            /* Album cover */
+            .album-cover {
+                position: relative;
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                overflow: hidden;
+                margin: 0 auto;
+                z-index: 3;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            }
+    
+            .album-cover img {
+                z-index: 3;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+            }
+    
+            /* Controls */
+            .controls {
+                transition: transform 0.5s ease, opacity 0.5s ease;
+                display: none;
+                justify-content: center;
+                align-items: center;
+                margin-top: 0px;
+                gap: 10px; /* Added gap to make space between the buttons */
+            } 
+    
+            .controls.active {
+                display: block; /* Show the active control set */
+                transform: translateY(0); /* Reset position for active set */
+            }
+    
+    
+            .controls button {
+                font-family: 'Material Icons';
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                background: none;
+                border: none;
+                font-size: 36px;
+                color: #888;
+                cursor: pointer;
+            }
+    
+            nediaPlayer {
+                position: relative;
+                z-index: 999;
+            }
+            video {
+                position: relative;
+                z-index: 999;
+            }
+    
+            .controls button:hover {
+                color: #ff7bac;
+            }
+            .controls button:focus {
+                outline: none; /* Removes the outline on focus */
+            }
+    
+            .controls .play {
+                font-size: 48px;
+                color: #ff7bac;
+            }
+    
+    
+            /* playlist_controsl = shuffle, playlist, chromecast */
+            .icon-row {
+                display: flex;
+                justify-content: flex-start; /* Align icons to the left */
+                align-items: center; /* Vertically center the icons */
+                gap: 20px; /* Adds space between the icons, adjust as needed */
+                padding: 0px; /* Optional: adds some padding around the icons */
+            }
+    
+            .icon-row button {
+                background: none;
+                border: none;
+                font-size: 36px; /* Icon size */
+                color: #888;
+                cursor: pointer;
+            }
+    
+            .icon-row button:hover {
+                color: #ff7bac; /* Optional hover effect */
+            }
+    
+    
+    
+            /* Progress bar */
+            .progress-bar {
+                width: 100%;
+                height: 4px;
+                background: #eee;
+                border-radius: 5px;
+                margin: 20px 0;
+                position: relative;
+            }
+    
+            .progress-bar div {
+                height: 100%;
+                width: 0%;
+                background: #ff7bac;
+                border-radius: 5px;
+            }
+    
+            /* Time display */
+            .time {
+                display: flex;
+                justify-content: space-between;
+                font-size: 12px;
+                color: #888;
+            }
+    
+            /* Updated hidden class */
+            .hidden {
+                pointer-events: none;
+                opacity: 0;
+                transform: translateX(100%);
+            }
+            
+            .control-slide-hidden {
+                transform: translateX(-100%);
+                opacity: 0;
+                pointer-events: none;
+            }
+            .control-slide-visible {
+                transform: translateX(0);
+                opacity: 1;
+            }
+    
+    
+            
+    
+            /* Hidden List (initial state) */
+            /* Initial hidden state */
+            #itemList {
+                position: absolute;
+                top: calc(65% - 30px); /* Adjust as needed */
+                left: calc(20%); /* Adjust based on your layout */
+                width: 250px; /* Set full width from the start */
+                max-height: 0; /* Start with height 0 */
+                overflow: hidden;
+                opacity: 0; 
+                transform-origin: top; /* Expand from the top */
+                transition: opacity 0.3s ease, max-height 0.5s ease; /* Control height transition */
+            }
+            
+            /* Visible state - expand downward */
+            #itemList.visible {
+                max-height: 300px; /* Final height when fully expanded */
+                opacity: 1;
+                overflow-y: auto;
+            }
+    
+            /* Each list item appears on rising */
+            @keyframes riseExpand {
+                0% {
+                    transform: scaleY(0); /* Start from no height */
+                    opacity: 0;
+                }
+                100% {
+                    transform: scaleY(1); /* Expand to full height */
+                    opacity: 1;
+                }
+            }
+    
+            /* Hidden list items initially */
+            .list-item {
+                color: pink;
+                opacity: 0;
+                transform: translateY(-10px); /* Position slightly above */
+                transition: opacity 0.5s ease, transform 0.5s ease;
+                text-align: right;
+            }
+    
+            /* Show individual list items progressively */
+            .list-item.visible {
+                color: pink;
+                opacity: 1;
+                transform: translateY(0); /* Bring the item into place */
+                animation: riseExpand 1.5s ease-in-out; /* Apply rising animation */
+            }
+            
+            
+            /* Glitch effect and hue animation */
+            #glitchbox {
+                animation: glitch 3s linear infinite;
+            }
+    
+            @keyframes glitch {
+                0% { filter: none; }
+                1% { filter: url(#f1); }
+                5% { filter: none; }
+                7% { filter: url(#f1); }
+                8% { filter: none; }
+                10% { filter: url(#f1); }
+                13% { filter: none; }
+                100% { filter: none; }
+            }
+    
+            
+            .list-item {
+                margin: 2px;
+                font-size: 10px;
+                padding: 2px;
+                height: 35px;
+                display: inline-block; 
+            }
+            .list-item img {
+                
+            }
+            .list-item span {
+                display: block;
+                text-align: left;
+                margin-top: 0px;
+            }
+            
+            
+            .list-item img { 
+                width: 30px;
+                height: auto;
+                margin-right: 0px;
+                filter: invert(100%); /* Inverts colors of the images */
+            }
+    
+    
+            #huebox {
+                animation: hueshift 10s ease-in-out infinite;
+            }
+    
+            @keyframes hueshift {
+                0%, 50% { filter: hue-rotate(0deg); }
+                60% { filter: hue-rotate(360deg); }
+                70% { filter: hue-rotate(0deg); }
+                80% { filter: hue-rotate(360deg); }
+                90% { filter: hue-rotate(0deg); }
+                100% { filter: hue-rotate(360deg); }
+            }
+                   
+ 
             #pageCloud, #pageQwackify {
                 padding: 0;
                 height: 100%;
