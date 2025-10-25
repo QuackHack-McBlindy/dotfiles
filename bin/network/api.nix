@@ -5,7 +5,7 @@
   pkgs,
   cmdHelpers,
   ...
-} : let
+}: let
   handlerScript = ''
     #!/usr/bin/env bash
     DEBUG="${DEBUG:-false}"
@@ -55,7 +55,51 @@ RESPONSE
 
       case "$path" in
         "/" )
-          send_response "200 OK" '{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/health"]}' ;;
+          if [[ "$method" == "POST" ]]; then
+            # Handle file actions for VLC
+            if [[ -n "$body" ]]; then
+              action=$(echo "$body" | ${pkgs.jq}/bin/jq -r '.action // empty')
+              file_path=$(echo "$body" | ${pkgs.jq}/bin/jq -r '.path // empty')
+              
+              if [[ -z "$action" || -z "$file_path" ]]; then
+                send_response "400 Bad Request" '{"error":"Missing action or path"}'
+                return
+              fi
+
+              case "$action" in
+                "add"|"add_folder")
+                  log "Adding to VLC: $file_path"
+                  # Convert URL path to filesystem path if needed
+                  # Remove any URL encoding and extract the relative path
+                  decoded_path=$(printf '%b' "''${file_path//%/\\x}")
+                  # If it's a full URL, extract the path component
+                  if [[ "$decoded_path" == http* ]]; then
+                    decoded_path=$(echo "$decoded_path" | ${pkgs.python3}/bin/python3 -c "from urllib.parse import urlparse; import sys; print(urlparse(sys.stdin.read()).path)")
+                  fi
+                  
+                  # Execute VLC command
+                  if yo vlc --add "$decoded_path" 2>/dev/null; then
+                    send_response "200 OK" "{\"status\":\"success\",\"message\":\"Added to VLC: $decoded_path\",\"action\":\"$action\"}"
+                  else
+                    send_response "500 Internal Server Error" "{\"error\":\"Failed to add to VLC: $decoded_path\"}"
+                  fi
+                  ;;
+                "remove")
+                  log "Remove action received for: $file_path"
+                  # You can implement remove logic here if needed
+                  send_response "200 OK" '{"status":"success","message":"Remove action acknowledged"}'
+                  ;;
+                *)
+                  send_response "400 Bad Request" "{\"error\":\"Unknown action: $action\"}"
+                  ;;
+              esac
+            else
+              send_response "400 Bad Request" '{"error":"Empty request body"}'
+            fi
+          else
+            send_response "200 OK" '{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/health"],"file_actions":["add","add_folder","remove"]}'
+          fi
+          ;;
         "/timers"|"/api/timers" )
           if output=$(yo timer --list 2>/dev/null); then
             send_response "200 OK" "$output"
@@ -97,11 +141,17 @@ RESPONSE
   
 in { 
   networking.firewall.allowedTCPPorts = [9815];
-  # 🦆 says ⮞ fancy cat'z...
-  environment.systemPackages = [ pkgs.socat pkgs.netcat ];
-  # 🦆 says ⮞  da script yo
+  
+  # Add required packages for JSON parsing and URL decoding
+  environment.systemPackages = [ 
+    pkgs.socat 
+    pkgs.netcat
+    pkgs.jq
+    pkgs.python3  # for URL parsing
+  ];
+  
   yo.scripts.api = {
-    description = "Simple API for collecting system data";
+    description = "Simple API for collecting system data and VLC file actions";
     category = "🌐 Networking";
     autoStart = builtins.elem config.this.host.hostname [ "homie" ];
     parameters = [
@@ -121,10 +171,15 @@ in {
 
       echo "Starting yo API server on $HOST:$PORT" >&2
       echo "Endpoints:" >&2
-      echo "  GET /timers     - List timers" >&2
-      echo "  GET /alarms     - List alarms" >&2
-      echo "  GET /shopping   - List shopping items" >&2
-      echo "  GET /health     - Health check" >&2
+      echo "  POST /           - Add files/folders to VLC" >&2
+      echo "  GET  /timers     - List timers" >&2
+      echo "  GET  /alarms     - List alarms" >&2
+      echo "  GET  /shopping   - List shopping items" >&2
+      echo "  GET  /health     - Health check" >&2
+      echo "File Actions:" >&2
+      echo "  add        - Add file to VLC playlist" >&2
+      echo "  add_folder - Add folder to VLC playlist" >&2
+      echo "  remove     - Remove from playlist" >&2
       echo "Press Ctrl+C to stop" >&2
 
       TMP_HANDLER=$(mktemp)
@@ -136,5 +191,5 @@ EOF
 
       trap 'rm -f "$TMP_HANDLER"' EXIT
     '';
-    
-  };}
+  };
+}
