@@ -31,13 +31,6 @@ in {
       export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
       export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
 
-      if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
-        say_duck "fuck ❌ Invalid host: $host"
-        echo "Available hosts: ${toString sysHosts}" >&2
-        dt_error "Invalid host: $host"
-        exit 1
-      fi
-
       get_service_name() {
         local log_base
         log_base=$(basename "$LOGFILE" .log)
