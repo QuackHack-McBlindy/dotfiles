@@ -252,6 +252,21 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            body {
+                background: #000000 !important;
+            }
+
+            .container {
+                background: #000000 !important;
+            }
+
+            .page {
+                background: #000000 !important;
+            }
+            .card {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+            }
             #pageCloud, #pageQwackify {
                 padding: 0;
                 height: 100%;
