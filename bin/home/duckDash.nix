@@ -252,6 +252,123 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
         <style>
+            
+            
+            /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
+            header {
+                background: #000000 !important;
+                border-bottom: 1px solid #333333 !important;
+            }
+            
+            .nav-tabs {
+                background: #000000 !important;
+                border-top: 1px solid #333333 !important;
+            }
+            
+            /* 🦆 says ⮞ MAKE HEADER TEXT WHITE */
+            header .logo,
+            header .dash-text,
+            header .search-bar,
+            header .search-bar input {
+                color: #ffffff !important;
+            }
+            
+            /* 🦆 says ⮞ MAKE TABS WHITE */
+            .nav-tab {
+                color: #ffffff !important;
+            }
+            
+            .nav-tab.active {
+                background: #2b6cb0 !important;
+                color: #ffffff !important;
+            }
+            
+            /* 🦆 says ⮞ SEARCH BAR DARK STYLING */
+            .search-bar {
+                background: #1a1a1a !important;
+                border: 1px solid #333333 !important;
+            }
+            
+            .search-bar input {
+                background: transparent !important;
+                color: #ffffff !important;
+            }
+            
+            .search-bar input::placeholder {
+                color: #888888 !important;
+            }
+            
+            /* 🦆 says ⮞ DEVICE SELECTOR DARK STYLING */
+            .device-selector-container {
+                background: #000000 !important;
+            }
+            
+            .device-selector {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+                border: 1px solid #333333 !important;
+            }
+            
+            /* 🦆 says ⮞ MIC BUTTON DARK STYLING */
+            .mic-btn {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+                border: 1px solid #333333 !important;
+            }
+            
+            /* 🦆 says ⮞ CONNECTION STATUS DARK STYLING */
+            .connection-status {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+                border: 1px solid #333333 !important;
+            }
+            
+            /* 🦆 says ⮞ DEVICE CONTROLS DARK STYLING */
+            .device-controls {
+                background: #000000 !important;
+                color: #ffffff !important;
+            }
+            
+            .device-header {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+            }
+            
+            .device-panel {
+                background: #000000 !important;
+                color: #ffffff !important;
+            }
+            
+            /* 🦆 says ⮞ SCENES PAGE DARK STYLING */
+            #pageScenes h2 {
+                color: #ffffff !important;
+            }
+            
+            /* 🦆 says ⮞ TV PAGE DARK STYLING */
+            .tv-selector {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+                border: 1px solid #333333 !important;
+            }
+            
+            .tv-selector option {
+                background: #1a1a1a !important;
+                color: #ffffff !important;
+            }
+            
+            /* 🦆 says ⮞ MAKE ALL TEXT WHITE */
+            body, .container, .page, header, .nav-tabs {
+                color: #ffffff !important;
+            }
+            
+            /* 🦆 says ⮞ FIX SPECIFIC TEXT ELEMENTS */
+            .card-title, .card-value, .card-details,
+            .device-info h2, .device-info p,
+            #currentDeviceName, #currentDeviceStatus {
+                color: #ffffff !important;
+            }
+            
+     
             body {
                 background: #000000 !important;
             }
