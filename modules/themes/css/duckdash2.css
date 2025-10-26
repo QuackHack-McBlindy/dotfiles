@@ -1384,3 +1384,253 @@ input:checked + .slider-round:before {
     justify-content: center;
     width: 100%;
 }
+
+
+/* 🦆 says ⮞ MAKE DEVICE PAGE HUGE */
+#pageDevices {
+    font-size: 24px !important; /* Base font size */
+}
+
+#pageDevices .device {
+    padding: 30px 20px !important;
+    margin: 15px 0 !important;
+    border-radius: 20px !important;
+}
+
+#pageDevices .device-header {
+    padding: 25px !important;
+    font-size: 28px !important;
+    min-height: 80px !important;
+}
+
+#pageDevices .control-label {
+    font-size: 26px !important;
+    font-weight: 600 !important;
+}
+
+#pageDevices .toggle {
+    transform: scale(2) !important; /* Make toggle switch twice as big */
+    margin-left: 20px !important;
+}
+
+#pageDevices .toggle .slider {
+    width: 80px !important;
+    height: 40px !important;
+}
+
+#pageDevices .toggle .slider:before {
+    height: 32px !important;
+    width: 32px !important;
+    left: 4px !important;
+    bottom: 4px !important;
+}
+
+#pageDevices .device-controls {
+    padding: 25px !important;
+    font-size: 22px !important;
+}
+
+#pageDevices .control-row {
+    margin: 25px 0 !important;
+    padding: 15px !important;
+}
+
+#pageDevices .control-row label {
+    font-size: 24px !important;
+    font-weight: 600 !important;
+    margin-bottom: 15px !important;
+    display: block !important;
+}
+
+#pageDevices .brightness-slider,
+#pageDevices .rgb-slider {
+    height: 40px !important;
+    margin: 20px 0 !important;
+}
+
+#pageDevices input[type="range"] {
+    height: 40px !important;
+}
+
+#pageDevices input[type="color"] {
+    width: 80px !important;
+    height: 80px !important;
+    border-radius: 15px !important;
+    border: 3px solid #fff !important;
+}
+
+#pageDevices .room-section h4 {
+    font-size: 28px !important;
+    padding: 20px 15px !important;
+    margin: 20px 0 !important;
+}
+
+#pageDevices .room-toggle {
+    font-size: 24px !important;
+    margin-right: 15px !important;
+}
+
+/* 🦆 says ⮞ MAKE CURRENT DEVICE DISPLAY HUGE */
+#pageDevices .device-controls#deviceControls {
+    padding: 30px !important;
+}
+
+#pageDevices #currentDeviceName {
+    font-size: 32px !important;
+    font-weight: bold !important;
+    margin-bottom: 15px !important;
+}
+
+#pageDevices #currentDeviceStatus {
+    font-size: 24px !important;
+}
+
+#pageDevices .device-icon {
+    font-size: 36px !important;
+    margin-right: 20px !important;
+}
+
+#pageDevices .linkquality-mini {
+    font-size: 20px !important;
+}
+
+#pageDevices .lq-bars {
+    gap: 4px !important;
+}
+
+#pageDevices .lq-bar-mini {
+    width: 12px !important;
+    height: 24px !important;
+}
+
+/* 🦆 says ⮞ MAKE JSON CONTROLS BIGGER */
+#pageDevices .panel-title {
+    font-size: 28px !important;
+    padding: 20px !important;
+}
+
+#pageDevices .section {
+    font-size: 26px !important;
+    padding: 20px 0 10px 0 !important;
+    margin-top: 20px !important;
+}
+
+#pageDevices .row {
+    padding: 20px !important;
+    font-size: 22px !important;
+}
+
+#pageDevices .row.special {
+    padding: 25px !important;
+}
+
+#pageDevices .state-display {
+    font-size: 26px !important;
+}
+
+#pageDevices .state-text {
+    font-size: 24px !important;
+    margin-left: 20px !important;
+}
+
+#pageDevices .switch {
+    transform: scale(1.8) !important;
+    margin-right: 30px !important;
+}
+
+#pageDevices .slider-round {
+    width: 60px !important;
+    height: 34px !important;
+}
+
+#pageDevices .slider-round:before {
+    height: 26px !important;
+    width: 26px !important;
+}
+
+#pageDevices .brightness-value,
+#pageDevices .temperature-value {
+    font-size: 28px !important;
+    font-weight: bold !important;
+}
+
+#pageDevices .slider-row {
+    margin: 25px 0 !important;
+}
+
+#pageDevices .brightness-slider {
+    height: 35px !important;
+}
+
+#pageDevices .color-preset {
+    width: 50px !important;
+    height: 50px !important;
+    border-radius: 12px !important;
+    margin: 8px !important;
+}
+
+#pageDevices .color-picker-btn {
+    font-size: 20px !important;
+    padding: 15px 20px !important;
+    border-radius: 12px !important;
+}
+
+#pageDevices .key {
+    font-size: 22px !important;
+    font-weight: 600 !important;
+}
+
+#pageDevices .val-number,
+#pageDevices .val-string,
+#pageDevices .val-boolean {
+    font-size: 20px !important;
+    padding: 8px 12px !important;
+}
+
+/* 🦆 says ⮞ MAKE BATTERY BIGGER */
+#pageDevices .battery-container {
+    height: 50px !important;
+    padding: 10px 20px !important;
+}
+
+#pageDevices .battery-text {
+    font-size: 22px !important;
+}
+
+/* 🦆 says ⮞ MAKE TEMPERATURE DISPLAY BIGGER */
+#pageDevices .temperature-container {
+    padding: 20px !important;
+}
+
+#pageDevices .temperature-value {
+    font-size: 32px !important;
+    padding: 15px !important;
+}
+
+/* 🦆 says ⮞ MAKE COVER BUTTONS BIGGER */
+#pageDevices .cover-btn {
+    font-size: 20px !important;
+    padding: 15px 20px !important;
+    margin: 0 10px !important;
+    border-radius: 12px !important;
+}
+
+#pageDevices .position-value {
+    font-size: 28px !important;
+    font-weight: bold !important;
+    margin: 15px 0 !important;
+}
+
+/* 🦆 says ⮞ MAKE OCCUPANCY STATUS BIGGER */
+#pageDevices .occupancy-status {
+    font-size: 24px !important;
+    padding: 20px !important;
+    border-radius: 15px !important;
+}
+
+/* 🦆 says ⮞ MAKE CONTACT STATUS BIGGER */
+#pageDevices .contact-status {
+    font-size: 24px !important;
+    padding: 20px !important;
+    border-radius: 15px !important;
+}
