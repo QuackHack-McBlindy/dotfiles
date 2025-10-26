@@ -1080,16 +1080,6 @@
                     </div>
                 </div>
 
-                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
-                 🦆 says ⮞ PAGE 5 - 🦆🎵 Qwackify 🎵🦆 )
-                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
-                <div class="page" id="pageQwackify">
-                    <div class="qwackify-grid">
-                        <iframe src="https://pungkula.duckdns.org/public/www/qwackify" class="fullpage-iframe"></iframe>
-                    </div>
-                </div>
-                
-
 
             </div>
     
@@ -1105,16 +1095,13 @@
                     <i class="mdi mdi-lightbulb"></i>
                 </div>
                 <div class="nav-tab" data-page="2">
-                    <i class="mdi:palette-outline"></i>
+                    <i class="mdi-palette-outline"></i>
                 </div>
                 <div class="nav-tab" data-page="3">
-                    <i class="mdi mdi-television"></i>
+                    <img src="https://pungkula.duckdns.org/public/icons/remote.png" class="nav-icon">
                 </div>
                 <div class="nav-tab" data-page="4">
-                  <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
-                </div>
-                <div class="nav-tab" data-page="5">
-                  <img src="https://pungkula.duckdns.org/public/icons/qwackify.png" class="nav-icon">
+                    <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
                 </div>
             </div>
         </div>

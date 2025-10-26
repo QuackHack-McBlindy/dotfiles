@@ -641,7 +641,7 @@ EOF
   # 🦆 says ⮞ open firewall 4 Z2MQTT & Mosquitto on the server host
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { allowedTCPPorts = [ 1883 8099 9001 ]; };
 
-  # 🦆 says ⮞ Create device symlink for declarative serial port mapping
+  # 🦆 says ⮞ create device symlink for declarative serial port mapping
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
   
   # 🦆 says ⮞ Z2MQTT configurations
@@ -841,6 +841,9 @@ EOF
     "d /var/lib/zigduck/timers 0755 ${config.this.user.me.name} ${config.this.user.me.name} - -"
     "f /var/lib/zigduck/state.json 0644 ${config.this.user.me.name} ${config.this.user.me.name} - -"
   ];
+
+
+
 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {

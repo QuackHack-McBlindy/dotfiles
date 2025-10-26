@@ -44,11 +44,13 @@ in {
       { name = "remove"; type = "bool"; description = "Boolean, true removes file path from playlist"; optional = true; }
       { name = "list"; type = "bool"; description = "List all current items in the playlist"; optional = true; }
       { name = "shuffle"; type = "bool"; description = "Shuffle the playlist"; optional = true; }      
-      { name = "playlist"; type = "path"; description = "Path to the playlist file"; default = /home/pungkula/playlist.m3u; optional = false; }
+      { name = "playlist"; type = "string"; description = "Path to the playlist file"; default = "/home/pungkula/playlist.m3u"; optional = false; }
     ];
     code = ''
       ${cmdHelpers}
       dt_debug "Add: $add     Add Folder: $addDir"
+    
+      touch $playlist
       
       # 🦆 says ⮞ --list? return json playlist      
       if [ "$list" = "true" ]; then
@@ -75,9 +77,9 @@ in {
       # 🦆 says ⮞ --remove? remove specified path
       if [ "$remove" = "true" ] && [ -n "$add" ]; then
         dt_debug "Removing: $add"
-        # Resolve path for comparison
+
         target_path=$(realpath -s "$add" 2>/dev/null || echo "$add")
-        # Create temp file without the specified path
+
         temp_file=$(mktemp -p "$(dirname "$playlist")")
         grep -vF "$target_path" "$playlist" > "$temp_file"
         mv "$temp_file" "$playlist"
@@ -91,7 +93,7 @@ in {
           dt_error "File '$add' does not exist"
           exit 1
         fi
-        # Use realpath but fallback to original path
+
         real_path=$(realpath -s "$add" 2>/dev/null || echo "$add")
         dt_debug "Adding file: $real_path"
         echo "$real_path" >> "$playlist"
@@ -107,7 +109,6 @@ in {
         real_dir=$(realpath -s "$addDir" 2>/dev/null || echo "$addDir")
         dt_debug "Adding directory: $real_dir"
         
-        # Find all media files (common audio/video formats)
         while IFS= read -r -d "" file; do
           file_path=$(realpath -s "$file" 2>/dev/null || echo "$file")
           echo "$file_path" >> "$playlist"
@@ -130,7 +131,6 @@ in {
       # 🦆 says ⮞ --shuffle? shuffle the playlist
       if [ "$shuffle" = "true" ]; then
         dt_debug "Shuffling playlist"
-        # Read non-empty, non-comment lines
         if [ ! -s "$playlist" ]; then
           dt_warn "Playlist is empty, nothing to shuffle"
           exit 0
@@ -139,14 +139,12 @@ in {
         playlist_content=$(grep -vE '^\s*#' "$playlist" | grep -vE '^\s*$')
         
         if [ -n "$playlist_content" ]; then
-          # Shuffle using shuf if available, otherwise use sort -R
           if command -v shuf >/dev/null 2>&1; then
             shuffled_content=$(echo "$playlist_content" | shuf)
           else
             shuffled_content=$(echo "$playlist_content" | sort -R)
           fi
           
-          # Write back to playlist
           temp_file=$(mktemp -p "$(dirname "$playlist")")
           echo "$shuffled_content" > "$temp_file"
           mv "$temp_file" "$playlist"
