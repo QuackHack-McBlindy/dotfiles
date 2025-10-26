@@ -1093,23 +1093,29 @@ function hideAudioPlayer() {
 
 // New functions for button actions
 function addToPlaylist(filePath, isFolder = false) {
-	const action = isFolder ? 'add_folder' : 'add';
-	
-	fetch('/api', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			action: action,
-			path: filePath
-		})
-	}).then(response => {
-		showToast(isFolder ? '✓ Folder added to playlist' : '✓ Added to playlist');
-	}).catch(error => {
-		console.error('API call failed:', error);
-		showToast('✗ Failed to add to playlist');
-	});
+    const action = isFolder ? 'add_folder' : 'add';
+    
+    // Use the correct API endpoint path
+    fetch('/api/playlist', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            action: action,
+            path: filePath
+        })
+    }).then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    }).then(data => {
+        showToast(data.message || '✓ Added to playlist');
+    }).catch(error => {
+        console.error('API call failed:', error);
+        showToast('✗ Failed to add to playlist');
+    });
 }
 
 function shareFile(filePath) {
