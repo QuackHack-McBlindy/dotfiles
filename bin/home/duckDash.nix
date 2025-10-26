@@ -438,8 +438,8 @@
                 display: block;
             }
             .nav-icon {
-                width: 24px;
-                height: 24px;
+                width: 36px;
+                height: 36px;
                 object-fit: contain;
                 margin-right: 8px;
                 vertical-align: middle;
@@ -1100,27 +1100,21 @@
             <div class="nav-tabs">
                 <div class="nav-tab active" data-page="0">
                     <i class="mdi mdi-home"></i>
-                    <span>Home</span>
                 </div>
                 <div class="nav-tab" data-page="1">
                     <i class="mdi mdi-lightbulb"></i>
-                    <span>Devices</span>
                 </div>
                 <div class="nav-tab" data-page="2">
                     <i class="mdi:palette-outline"></i>
-                    <span>Scenes</span>
                 </div>
                 <div class="nav-tab" data-page="3">
                     <i class="mdi mdi-television"></i>
-                    <span>TV</span>
                 </div>
                 <div class="nav-tab" data-page="4">
-                  <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" alt="Qwackify" class="nav-icon">
-                  <span>Cloud</span>
+                  <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
                 </div>
                 <div class="nav-tab" data-page="5">
-                  <img src="https://pungkula.duckdns.org/public/icons/qwackify.png" alt="Qwackify" class="nav-icon">
-                  <span>Qwackify</span>
+                  <img src="https://pungkula.duckdns.org/public/icons/qwackify.png" class="nav-icon">
                 </div>
             </div>
         </div>

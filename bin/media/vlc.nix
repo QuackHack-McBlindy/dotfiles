@@ -40,12 +40,13 @@ in {
     logLevel = "INFO";
     parameters = [
       { name = "add"; type = "path"; description = "Append file path to playlist"; optional = true; }
-      { name = "add_folder"; type = "path"; description = "Append directory path to playlist"; }      
-      { name = "remove"; type = "path"; description = "Remove file path from playlist"; }      
+      { name = "addDir"; type = "path"; description = "Append directory path to playlist"; }
+      { name = "remove"; type = "bool"; description = "Boolean, true removes file path from playlist"; optional = true; }
 
     ];
     code = ''
       ${cmdHelpers}
+      dt_info "Add: $add     Add Folder: $addDir"
 
     '';
   };
