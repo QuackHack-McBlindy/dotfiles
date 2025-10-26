@@ -251,41 +251,9 @@
         <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
-        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/nuclear.min.css">
-        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/nuke.css">
-        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/pyscript.css">
-        <script src="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/js/cactus.js"></script>
-        <script defer src="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/js/pyscript.js"></script>
- 
+
         <style>
-            /* Glitch effect and hue animation */
-            #glitchbox {
-                animation: glitch 3s linear infinite;
-            }
-
-            @keyframes glitch {
-                0% { filter: none; }
-                1% { filter: url(#f1); }
-                5% { filter: none; }
-                7% { filter: url(#f1); }
-                8% { filter: none; }
-                10% { filter: url(#f1); }
-                13% { filter: none; }
-                100% { filter: none; }
-            }
-
-            #huebox {
-                animation: hueshift 10s ease-in-out infinite;
-            }
-
-            @keyframes hueshift {
-                0%, 50% { filter: hue-rotate(0deg); }
-                60% { filter: hue-rotate(360deg); }
-                70% { filter: hue-rotate(0deg); }
-                80% { filter: hue-rotate(360deg); }
-                90% { filter: hue-rotate(0deg); }
-                100% { filter: hue-rotate(360deg); }
-            }            
+            
             
             /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
             header {
