@@ -251,6 +251,14 @@
         <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
+        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/nuclear.min.css">
+        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/nuke.css">
+        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/style.css">
+        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/styles.css">
+        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/pyscript.css">
+        <script src="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/js/cactus.js"></script>
+        <script defer src="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/js/pyscript.js"></script>
+ 
         <style>
             
             
