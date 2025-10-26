@@ -85,7 +85,7 @@ in {
     systemd.tmpfiles.rules = [
       "d ${cfg.root} 0755 ${cfg.user} ${cfg.group} - -"
       "d ${cfg.publicPath} 0755 ${cfg.user} ${cfg.group} - -"
-      "L+ ${cfg.root}/public 0755 ${cfg.user} ${cfg.group} - ${cfg.publicPath}"
+      "d ${cfg.root}/public  0755 ${cfg.user} ${cfg.group} - ${cfg.publicPath}"
     ] ++ lib.optionals caddyHost [
       # 🦆 duck say ⮞ create caddy template dir
       "d ${caddyTemplateDir} 0755 ${caddyUser} ${caddyUser} - -"
@@ -117,16 +117,14 @@ in {
         # 🦆 duck say ⮞ remove existing index.html
         rm -f "${cfg.root}/index.html"
 
-        # 🦆 duck say ⮞ mkSure publiivPath symlinkz yo
+        # 🦆 duck say ⮞ mkSure publicPath symlinkz yo
         echo "Copying Public files to file-server directory..."
         mkdir -p "${cfg.root}/public"
     
-        # Copy files only if they don't already exist in destination
+        # 🦆 duck say ⮞ copy files only if they don't already exist
         if [ -d "${cfg.publicPath}" ]; then
-          # Use rsync to copy only new files (preserves directory structure)
           ${pkgs.rsync}/bin/rsync -av --ignore-existing "${cfg.publicPath}/" "${cfg.root}/public/" || echo "rsync failed, trying cp..."
       
-          # Fallback to cp if rsync fails
           if [ ! "$(ls -A "${cfg.root}/public")" ]; then
             cp -r "${cfg.publicPath}"/* "${cfg.root}/public/" 2>/dev/null || true
           fi
@@ -136,7 +134,6 @@ in {
           echo "Warning: Public path ${cfg.publicPath} does not exist"
         fi
     
-        # Ensure proper ownership of copied files
         chown -R ${caddyUser}:${caddyUser} "${cfg.root}/public" || true
         chmod -R 644 "${cfg.root}/public" || true
         find "${cfg.root}/public" -type d -exec chmod 755 {} \; || true

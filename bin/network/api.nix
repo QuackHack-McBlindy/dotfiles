@@ -132,6 +132,12 @@
         else
           send_response "500 Internal Server Error" '{"error":"Failed to fetch reminders"}'
         fi ;;
+      "/playlist"|"/api/playlist" )
+        if output=$(yo vlc --list 2>/dev/null); then
+          send_response "200 OK" "$output"
+        else
+          send_response "500 Internal Server Error" '{"error":"Failed to fetch playlist"}'
+        fi ;;
       "/health" )
         send_response "200 OK" "{\"status\":\"healthy\",\"service\":\"yo-api\",\"timestamp\":\"$(date -Iseconds)\"}" ;;
       * )

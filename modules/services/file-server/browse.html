@@ -261,6 +261,33 @@ main {
 	color: #9a9a9a;
 }
 
+.playlist-btn {
+	background: #4CAF50;
+	color: white;
+	border: none;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 14px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	transition: background-color 0.2s;
+}
+
+.playlist-btn:hover {
+	background: #45a049;
+}
+
+.playlist-btn:disabled {
+	background: #cccccc;
+	cursor: not-allowed;
+}
+
+.playlist-btn.loading {
+	background: #ff9800;
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;
@@ -719,6 +746,14 @@ video::cue {
 	#popup1 .popup .max {
 		color: #e1e0e0;
 	}
+
+	.playlist-btn {
+		background: #2e7d32;
+	}
+
+	.playlist-btn:hover {
+		background: #1b5e20;
+	}
 }
 
 </style>
@@ -733,6 +768,13 @@ const REGEX_TYPE_IMAGE = /\.(gif|jpe?g|a?png|tiff?|bmp|webp|ico|wmf|avif|svg)$/i
 const REGEX_TYPE_CODE = /\.(asp|txt|memo|kt|go|ics|rst?|rb|dart|php|js|tsx?|py|cue|ipynb|z?sh|xml|plist|bat|css|json|java|c|cpp|h|m|hpp|conf|ini|pl|yaml|yml|groovy|swift|properties|gradle|srt|sql|lua|m3u8|log?)$/i;
 const REGEX_TYPE_MARKDOWN = /\.(md)$/i;
 const REGEX_TYPE_CAN_PREVIEW = /\.(mp4|m4v|avi|mov|mpg|mpeg|ogv|ogm|opus|mkv|md|html?|gif|jpe?g|a?png|tiff?|bmp|webp|ico|wmf|avif|svg|asp|txt|memo|kt|go|ics|rst?|rb|dart|php|js|tsx?|py|cue|ipynb|z?sh|xml|plist|bat|css|json|java|c|cpp|h|m|hpp|conf|ini|pl|yaml|yml|groovy|swift|properties|gradle|srt|sql|lua|m3u8?)$/i;
+
+// API configuration
+const API_BASE_URL = 'http://localhost:9815';
+const API_ENDPOINTS = {
+    ADD_FOLDER: '/add_folder',
+    ADD_FILE: '/add'
+};
 
 function findNextPrevLink(link, regex, isBackwards) {
 	if (!link) {
@@ -999,6 +1041,174 @@ function hideAudioPlayer() {
 	}
 }
 
+// Playlist API functions
+async function addToPlaylist(path, isFolder = true) {
+    const endpoint = isFolder ? API_ENDPOINTS.ADD_FOLDER : API_ENDPOINTS.ADD_FILE;
+    const url = `${API_BASE_URL}${endpoint}?path=${encodeURIComponent(path)}`;
+    
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (response.ok && data.status === 'ok') {
+            showNotification(`Successfully added to playlist: ${path}`, 'success');
+            return true;
+        } else {
+            showNotification(`Failed to add to playlist: ${data.error || 'Unknown error'}`, 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error adding to playlist:', error);
+        showNotification('Error connecting to playlist API', 'error');
+        return false;
+    }
+}
+
+function showNotification(message, type = 'info') {
+    // Remove existing notification
+    const existingNotification = document.getElementById('playlist-notification');
+    if (existingNotification) {
+        existingNotification.remove();
+    }
+    
+    // Create new notification
+    const notification = document.createElement('div');
+    notification.id = 'playlist-notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        border-radius: 4px;
+        color: white;
+        font-weight: 500;
+        z-index: 10000;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        transition: opacity 0.3s ease;
+        max-width: 400px;
+        ${type === 'success' ? 'background: #4CAF50;' : ''}
+        ${type === 'error' ? 'background: #f44336;' : ''}
+        ${type === 'info' ? 'background: #2196F3;' : ''}
+    `;
+    
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 300);
+    }, 5000);
+}
+
+function addCurrentFolderToPlaylist() {
+    const currentPath = window.location.pathname;
+    const button = document.getElementById('playlist-btn');
+    
+    // Save original text and set loading state
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span>Adding...</span>';
+    button.disabled = true;
+    button.classList.add('loading');
+    
+    addToPlaylist(currentPath, true).finally(() => {
+        // Restore button state after 1 second
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+            button.classList.remove('loading');
+        }, 1000);
+    });
+}
+
+function addFileToPlaylist(filePath) {
+    return addToPlaylist(filePath, false);
+}
+
+// Add playlist button to directory rows in list view
+function addPlaylistButtons() {
+    // Add to directory rows in list view
+    document.querySelectorAll('tr.file').forEach(row => {
+        const link = row.querySelector('a');
+        if (link) {
+            const href = link.getAttribute('href');
+            // Check if this is a directory (ends with / or has no extension typical of files)
+            if (href.endsWith('/') && !href.includes('.')) {
+                const actionsCell = row.querySelector('td:last-child');
+                if (actionsCell) {
+                    // Check if button already exists
+                    if (!actionsCell.querySelector('.playlist-btn')) {
+                        const button = document.createElement('button');
+                        button.className = 'playlist-btn';
+                        button.innerHTML = '+';
+                        button.title = 'Add folder to playlist';
+                        button.style.cssText = 'padding: 4px 8px; font-size: 12px; margin-left: 8px;';
+                        
+                        button.onclick = (e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            
+                            const originalText = button.innerHTML;
+                            button.innerHTML = '...';
+                            button.disabled = true;
+                            
+                            addToPlaylist(href, true).finally(() => {
+                                setTimeout(() => {
+                                    button.innerHTML = originalText;
+                                    button.disabled = false;
+                                }, 1000);
+                            });
+                        };
+                        
+                        actionsCell.appendChild(button);
+                    }
+                }
+            }
+        }
+    });
+    
+    // Add to directory entries in grid view
+    document.querySelectorAll('.grid .entry').forEach(entry => {
+        const link = entry.querySelector('a');
+        if (link) {
+            const href = link.getAttribute('href');
+            // Check if this is a directory
+            if (href.endsWith('/') && !href.includes('.')) {
+                // Check if button already exists
+                if (!entry.querySelector('.playlist-btn')) {
+                    const button = document.createElement('button');
+                    button.className = 'playlist-btn';
+                    button.innerHTML = '+ Playlist';
+                    button.title = 'Add folder to playlist';
+                    button.style.cssText = 'margin-top: 8px; padding: 4px 8px; font-size: 12px;';
+                    
+                    button.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const originalText = button.innerHTML;
+                        button.innerHTML = 'Adding...';
+                        button.disabled = true;
+                        
+                        addToPlaylist(href, true).finally(() => {
+                            setTimeout(() => {
+                                button.innerHTML = originalText;
+                                button.disabled = false;
+                            }, 1000);
+                        });
+                    };
+                    
+                    entry.appendChild(button);
+                }
+            }
+        }
+    });
+}
+
 function onLinkClicked(link, evt) {
 	var href = link.getAttribute("href");
 
@@ -1138,6 +1348,13 @@ document.onclick = onDocumentClickHandler;
 						</span>
 						{{- end}}
 					</div>
+					<button id="playlist-btn" class="playlist-btn" onclick="addCurrentFolderToPlaylist()" title="Add current folder to VLC playlist">
+						<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<line x1="12" y1="5" x2="12" y2="19"></line>
+							<line x1="5" y1="12" x2="19" y2="12"></line>
+						</svg>
+						+ Playlist
+					</button>
 					<a href="javascript:queryParam('layout', '')" id="layout-list" class='layout{{if eq $.Layout "list" ""}}current{{end}}'>
 						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-list" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
 							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -1286,7 +1503,7 @@ document.onclick = onDocumentClickHandler;
 							</a>
 							{{- end}}
 						</th>
-						<th class="hideable"></th>
+						<th class="hideable">Actions</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -1387,6 +1604,8 @@ document.onclick = onDocumentClickHandler;
 					}
 				});
 
+				// Add playlist buttons to directories
+				addPlaylistButtons();
 			}
 
 			function filter() {
@@ -1450,4 +1669,3 @@ document.onclick = onDocumentClickHandler;
 		</div>
 	</body>
 </html>
-

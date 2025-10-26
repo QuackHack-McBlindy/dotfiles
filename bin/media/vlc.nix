@@ -40,13 +40,38 @@ in {
     logLevel = "INFO";
     parameters = [
       { name = "add"; type = "path"; description = "Append file path to playlist"; optional = true; }
-      { name = "addDir"; type = "path"; description = "Append directory path to playlist"; }
+      { name = "addDir"; type = "path"; description = "Append directory path to playlist"; optional = true; }
       { name = "remove"; type = "bool"; description = "Boolean, true removes file path from playlist"; optional = true; }
-
+      { name = "list"; type = "bool"; description = "List all current items in the playlist"; optional = true; }
+      { name = "playlist"; type = "path"; description = "Path to the playlist file"; default = /home/pungkula/playlist.m3u; optional = false; }
     ];
     code = ''
       ${cmdHelpers}
-      dt_info "Add: $add     Add Folder: $addDir"
+      dt_debug "Add: $add     Add Folder: $addDir"
+      
+      # 🦆 says ⮞ --list? return json playlist      
+      if [ "$list" = "true" ]; then
+        # 🦆 says ⮞ read lines and filter em'
+        playlist_items=$(grep -vE '^\s*#' "$playlist" | grep -vE '^\s*$')
+        echo "{"
+        echo '  "playlist": ['
+        first=true
+        while IFS= read -r line; do
+          if [ "$first" = true ]; then
+            first=false
+          else
+            echo ","
+          fi
+          # 🦆 says ⮞ escape quotes
+          esc_line=$(printf '%s' "$line" | sed 's/"/\\"/g')
+          echo "    \"$esc_line\""
+        done <<< "$playlist_items"
+        echo "  ]"
+        echo "}"
+        exit 0
+      fi
+
+
 
     '';
   };
