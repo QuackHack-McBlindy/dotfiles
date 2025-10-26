@@ -848,7 +848,7 @@ in {
     '';
     voice = {
       enabled = true;															
-      priority = 2;
+      priority = 4;
       sentences = [
         # 🦆 says ⮞ no parameters
         "hockey tabellen"

@@ -364,7 +364,7 @@ in { # 🦆 says ⮞ voice intents
       fi
     '';
     voice = {
-      priority = 3;
+      priority = 2;
       sentences = [
         # 🦆 says ⮞ using default --departure
         "mår går tåget till {arrival}"

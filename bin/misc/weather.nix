@@ -342,6 +342,8 @@ in {
       fi
     '';
     voice = {
+      enabled = true;
+      priority = 2;
       sentences = [ 
         # 🦆 says ⮞ 3 day weather cast
         "hur är vädret"
