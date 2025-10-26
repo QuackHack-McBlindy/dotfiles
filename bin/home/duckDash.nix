@@ -258,22 +258,22 @@
         <script defer src="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/js/pyscript.js"></script>
  
         <style>
-            /* 🦆 says ⮞ ACTIVATE GLITCH EFFECT */
+            /* Glitch effect and hue animation */
             #glitchbox {
                 animation: glitch 3s linear infinite;
-                position: relative;
             }
 
             @keyframes glitch {
-                0% { transform: translate(0); }
-                20% { transform: translate(-2px, 2px); }
-                40% { transform: translate(-2px, -2px); }
-                60% { transform: translate(2px, 2px); }
-                80% { transform: translate(2px, -2px); }
-                100% { transform: translate(0); }
+                0% { filter: none; }
+                1% { filter: url(#f1); }
+                5% { filter: none; }
+                7% { filter: url(#f1); }
+                8% { filter: none; }
+                10% { filter: url(#f1); }
+                13% { filter: none; }
+                100% { filter: none; }
             }
 
-            /* 🦆 says ⮞ ACTIVATE HUE SHIFT */
             #huebox {
                 animation: hueshift 10s ease-in-out infinite;
             }
@@ -285,36 +285,7 @@
                 80% { filter: hue-rotate(360deg); }
                 90% { filter: hue-rotate(0deg); }
                 100% { filter: hue-rotate(360deg); }
-            }
-
-            /* 🦆 says ⮞ ACTIVATE NUCLEAR/CACTUS EFFECTS */
-            .container {
-                position: relative;
-                overflow: hidden;
-            }
-
-            /* 🦆 says ⮞ nuclear particles background */
-            .container::before {
-                content: "";
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background-image: 
-                    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
-                    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-                    radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
-                background-size: 200px 200px, 300px 300px, 250px 250px;
-                animation: float 20s infinite linear;
-                pointer-events: none;
-                z-index: -1;
-            }
-
-            @keyframes float {
-                0% { transform: translate(0, 0) rotate(0deg); }
-                100% { transform: translate(100px, 100px) rotate(360deg); }
-            }        
+            }            
             
             /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
             header {
@@ -900,31 +871,14 @@
         </style>
     </head>
     <body>
-    
-      <!-- 🦆 says ⮞ GLITCHY quack -->
-      <svg height="0">
-        <filter id="f1">
-          <feturbulence type="fractalNoise" baseFrequency="0 0.15" numOctaves="1" result="warp"></feturbulence>
-          <fedisplacementmap xChannelSelector="R" yChannelSelector="G" scale="30" in="SourceGraphic" in2="warp"></fedisplacementmap>
-          <fecolormatrix type="matrix" result="red_" values="4 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0"></fecolormatrix>
-          <feoffset in="red_" dx="2" dy="0" result="red"></feoffset>
-          <fecolormatrix type="matrix" in="SourceGraphic" result="blue_" values="0 0 0 0 0 0 3 0 0 0 0 0 10 0 0 0 0 1 0"></fecolormatrix>
-          <feoffset in="blue_" dx="-3" dy="0" result="blue"></feoffset>
-          <feblend mode="screen" in="red" in2="blue"></feblend>
-        </filter>
-      </svg>    
-    
         <div class="container">
             <header>
-              <div class="logo" onclick="showPage(0)" style="cursor: pointer;">
-                <div id="huebox">
-                  <div id="glitchbox">
-                    <i class="fas fa-home"></i>
-                    <h1 class="floating-duck">🦆</h1>
-                    <span class="dash-text">'Dash!</span>
-                  </div>
+                 <div class="logo" onclick="showPage(0)" style="cursor: pointer;">
+                  <i class="fas fa-home"></i>
+                  <h1 class="floating-duck">🦆</h1>
+                  <span class="dash-text">'Dash!</span>
                 </div>
-          
+                
                 <div class="search-bar">
                   <i class="fas fa-search"></i>
                   <input type="text" placeholder="🦆 quack quack, may I assist?" id="searchInput">
