@@ -74,6 +74,83 @@
     case "$path_no_query" in
       "/" )
         send_response "200 OK" '{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/health","/add","/add_folder"]}' ;;
+        
+      "/browsev2"|"/api/browsev2" )
+        path_arg="$(get_path_arg "$query")"
+        MEDIA_ROOT="/Pool"
+        full_path="$MEDIA_ROOT/$path_arg"
+        real_full_path=$(realpath "$full_path" 2>/dev/null)
+        real_media_root=$(realpath "$MEDIA_ROOT")
+        if [[ -z "$real_full_path" || ! "$real_full_path" =~ ^$real_media_root ]]; then
+          send_response "403 Forbidden" '{"error":"Access forbidden"}'
+          exit 0
+        fi
+    
+        if [[ ! -d "$real_full_path" ]]; then
+          send_response "404 Not Found" "{\"error\":\"Directory not found: $path_arg\"}"
+          exit 0
+        fi
+    
+        directories=()
+        files=()
+    
+        while IFS= read -r item; do
+          if [[ -n "$item" ]]; then
+            item_name=$(basename "$item")
+            if [[ -d "$item" ]]; then
+              directories+=("$item_name")
+            else
+              files+=("$item_name")
+            fi
+          fi
+        done < <(find "$real_full_path" -maxdepth 1 -mindepth 1 2>/dev/null | sort)
+    
+        dirs_json=$(printf '%s\n' "''${directories[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
+        files_json=$(printf '%s\n' "''${files[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
+    
+        send_response "200 OK" "{\"path\":\"$path_arg\",\"full_path\":\"$real_full_path\",\"directories\":$dirs_json,\"files\":$files_json}"
+        ;;
+      "/browse"|"/api/browse" )
+        path_arg="$(get_path_arg "$query")"
+    
+        if [[ -z "$path_arg" ]]; then
+          path_arg=""
+        fi
+    
+        MEDIA_ROOT="/Pool"
+        full_path="$MEDIA_ROOT/$path_arg"
+    
+        # 🦆 says ⮞ SAFETY FIRST
+        if [[ ! "$full_path" =~ ^$MEDIA_ROOT ]]; then
+          send_response "403 Forbidden" '{"error":"Access forbidden"}'
+          exit 0
+        fi
+    
+        if [[ ! -d "$full_path" ]]; then
+          send_response "404 Not Found" "{\"error\":\"Directory not found: $path_arg\"}"
+          exit 0
+        fi
+    
+        # 🦆 says ⮞ list directories and files
+        directories=()
+        files=()
+    
+        while IFS= read -r item; do
+          if [[ -n "$item" ]]; then
+            item_path="$full_path/$item"
+            if [[ -d "$item_path" ]]; then
+              directories+=("$item")
+            else
+              files+=("$item")
+            fi
+          fi
+        done < <(ls -1 "$full_path" 2>/dev/null)
+    
+        # 🦆 says ⮞ json ist da bomb yo
+        dirs_json=$(printf '%s\n' "''${directories[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
+        files_json=$(printf '%s\n' "''${files[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
+    
+        send_response "200 OK" "{\"path\":\"$path_arg\",\"directories\":$dirs_json,\"files\":$files_json}" ;;     
       "/add"|"/api/add" )
         path_arg="$(get_path_arg "$query")"
         if [[ -z "$path_arg" ]]; then

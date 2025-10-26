@@ -47,10 +47,10 @@ videoElement.addEventListener('canplay', () => {
         videoElement.pause();
 
         // Show the video and start animation
-        videoElement.style.visibility = 'visible';
         playerContainer.classList.add('player-split');
         console.log("Started player-split animation");
-
+        videoElement.style.visibility = 'visible';
+        
         isVideoPlaying = true;
 
         // Listen for the animation end event
