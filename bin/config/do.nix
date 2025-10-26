@@ -634,63 +634,7 @@
     "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
   else ""; # 🦆 duck say ⮞ no match? empty string
 
-
-  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
-  helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
-  # 🦆 duck say ⮞ markdown help text
-  helpText = let 
-    # 🦆 duck say ⮞ URL escape helper for GitHub links
-    escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
-  
-    # 🦆 duck say ⮞ categorize scripts
-    visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
-    groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
-    sortedCategories = lib.sort (a: b: 
-      # 🦆 duck wants ⮞ system management to be listed first yo
-      if a == "🖥️ System Management" then true
-      else if b == "🖥️ System Management" then false
-      else a < b # 🦆 duck say ⮞ after dat everything else quack quack
-    ) (lib.attrNames groupedScripts);
-  
-    # 🦆 duck say ⮞ create table rows with category separatorz 
-    rows = lib.concatMap (category:
-      let # 🦆 duck say ⮞ sort from A to Ö  
-        scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
-      in
-        [ # 🦆 duck say ⮞ add **BOLD** header table row for category
-          "| **${escapeMD category}** | | | |"
-        ] 
-        # 🦆 duck say ⮞ each yo script goes into a table row
-        ++ (map (script:
-          let  # 🦆 duck say ⮞ format list of aliases
-            aliasList = if script.aliases != [] then
-              lib.concatStringsSep ", " (map escapeMD script.aliases)
-            else "";
-            # 🦆 duck say ⮞ generate CLI parameter hints, with [] for optional/defaulted
-            paramHint = lib.concatStringsSep " " (map (param:
-              if param.optional || param.default != null
-              then "[--${param.name}]"
-              else "--${param.name}"
-            ) script.parameters);
-            # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
-            syntax = 
-              if githubBaseUrl != "" then
-                "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
-              else
-                "yo ${escapeMD script.name} ${paramHint}";
-              
-            # 🦆 duck say ⮞ add voice ready indicator
-            voiceIndicator = if script.voiceReady then "✅" else "📛";
-          in 
-            # 🦆 duck say ⮞ voice indicator to the row
-            "| ${syntax} | ${aliasList} | ${escapeMD script.description} | ${voiceIndicator} |"
-        ) scripts)
-    ) sortedCategories;
-
-  in lib.concatStringsSep "\n" rows;
  
-
-  
 # 🦆 says ⮞ expose da magic! dis builds our NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
 #  file."sentences/README.md" = escapeMD (builtins.readFile "${helpTextFile}");
@@ -706,15 +650,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }
       ]; 
       helpFooter = ''
-        
-        echo "🦆🏠  HOME via  via 🐍 v3.12.10" 
-        echo "04:22:56 ❯ yo -h"
         cat ${voiceSentencesHelpFile} 
-        echo ""
-        echo "🦆🏠  HOME via  via 🐍 v3.12.10" 
-        echo "04:21:56 ❯ yo do -h"
-
-        cat "${helpTextFile}"
       '';
       code = ''
         set +u  
