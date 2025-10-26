@@ -1095,7 +1095,7 @@ function hideAudioPlayer() {
 function addToPlaylist(filePath, isFolder = false) {
 	const action = isFolder ? 'add_folder' : 'add';
 	
-	fetch('http://192.168.1.211:9815', {
+	fetch('/api', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
