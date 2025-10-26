@@ -1069,9 +1069,7 @@
                     </div>
                 </div>
                 
-                
-                
-                
+                     
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 4 - 🦆☁️)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
@@ -1096,10 +1094,10 @@
                     <i class="mdi mdi-lightbulb"></i>
                 </div>
                 <div class="nav-tab" data-page="2">
-                    <i class="mdi-palette-outline"></i>
+                    <i class="mdi mdi-palette"></i>
                 </div>
                 <div class="nav-tab" data-page="3">
-                    <img src="https://pungkula.duckdns.org/public/icons/remote.png" class="nav-icon">
+                    <i class="mdi mdi-remote"></i>
                 </div>
                 <div class="nav-tab" data-page="4">
                     <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
