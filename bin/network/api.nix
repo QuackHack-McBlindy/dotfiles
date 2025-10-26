@@ -8,7 +8,7 @@
 } : let
   handlerScript = ''
     #!/usr/bin/env bash
-    source {cmdHelpers}
+
     log(){ dt_debug "[API] $*"; }
     
     urldecode() {
