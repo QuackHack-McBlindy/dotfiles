@@ -390,7 +390,54 @@
                 height: 100%;
             }
             
+            .qwackify-grid, .cloud-grid {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: var(--light);
+            }
+            
+            .qwackify-grid iframe, .cloud-grid iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 0;
+                display: block;
+            }
+            
 
+            .fullpage-iframe {
+                width: 100%;
+                height: 100%;
+                transform-origin: top left;
+            }
+            
+            #pagesContainer {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .qwackify-grid {
+                width: 100%;
+                height: 100%;
+                max-width: 1920px;
+                max-height: 1080px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .qwackify-grid iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 10px;
+                display: block;
+            }
             .nav-icon {
                 width: 36px;
                 height: 36px;
@@ -544,6 +591,7 @@
             }    
             
             /* 🦆 says ⮞ TV */
+            /* 🦆 says ⮞ TV Channel Display */
             .tv-channel-display {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 border-radius: 12px;
@@ -759,7 +807,13 @@
                 grid-column: 2;
             }
            
+            /* 🦆 says ⮞ TEMPORARY DEBUG - Remove after testing */
+            .channel-icon {
+                background-color: rgba(255, 0, 0, 0.3) !important; /* Red background to see the element */
+                border: 3px solid #00ff00 !important; /* Green border to see the bounds */
+            }
 
+            /* Force the icon to be visible */
             #currentChannelIcon {
                 display: flex !important;
                 visibility: visible !important;

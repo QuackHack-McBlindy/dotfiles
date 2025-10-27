@@ -1384,34 +1384,3 @@ input:checked + .slider-round:before {
     justify-content: center;
     width: 100%;
 }
-
-
-
-#pageCloud, #pageQwackify {
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    height: 100%;
-}
-
-
-
-.qwackify-grid iframe, .cloud-grid iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-    border-radius: 0;
-}
-
-.fullpage-iframe {
-    width: 100%;
-    height: 100%;
-}
-
-
-#pageCloud {
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    margin: 0;
-}
