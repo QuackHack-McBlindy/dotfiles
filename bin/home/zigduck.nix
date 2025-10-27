@@ -179,124 +179,7 @@ EOF
         chmod 600 "$STATE_FILE"
       fi   
 
-  
-      # 🦆 says ⮞ resets timer set for motion triggering lights off
-      reset_room_timer() { 
-        local room="$1"
-        local timer_file="''$TIMER_DIR/''${room// /_}"
-        if [ -f "$timer_file" ]; then
-          kill $(cat "$timer_file") 2>/dev/null
-          rm -f "$timer_file"
-        fi  
-        ( # 🦆 says ⮞ Time til' lights turn off after motion trigger activation
-          sleep 900 # 🦆 says ⮞ in seconds
-          room_lights_off "$room"
-          rm -f "$timer_file"
-        ) & 
-        echo $! > "$timer_file"
-        dt_debug "Reset 5m timer for $room (PID: $!)"
-      }
-      # 🦆 says ⮞ Time window of day that allow motion triggering lights on
-      is_dark_time() {
-        # source /home/${config.this.user.me.name}/.config/zigduck/dark-time.conf
-        source /etc/dark-time.conf
-        local now_hour now_min now total_now
-        IFS=: read -r now_hour now_min <<< "$(date +%H:%M)"
-        total_now=$((10#$now_hour * 60 + 10#$now_min))
-        IFS=: read -r start_hour start_min <<< "$DARK_TIME_START"
-        local start_total=$((10#$start_hour * 60 + 10#$start_min))
-        IFS=: read -r end_hour end_min <<< "$DARK_TIME_END"
-        local end_total=$((10#$end_hour * 60 + 10#$end_min))
-        if (( start_total <= end_total )); then
-          (( total_now >= start_total && total_now < end_total ))
-        else
-          (( total_now >= start_total || total_now < end_total ))
-        fi
-      }
-      mqtt_pub() { # 🦆 says ⮞ publish Mosquitto
-        ${pkgs.mosquitto}/bin/mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
-      }
-      mqtt_sub() { # 🦆 says ⮞ subscribe Mosquitto
-        ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
-      }
-      # 🦆 says ⮞ device parser for zigduck
-      device_check() { 
-        linkquality=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.linkquality // empty') && dt_debug "linkquality: $linkquality"
-        last_seen=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.last_seen // empty') && dt_debug "last_seen: $last_seen"
-        occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy // empty') && dt_debug "occupancy: $occupancy"
-        action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action // empty') && dt_debug "action: $action"
-        contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.contact // empty') && dt_debug "contact: $contact"
-        position=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.position // empty') && dt_debug "position: $position"
-        state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.state // empty') && dt_debug "state: $state"
-        brightness=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.brightness // empty') && dt_debug "brightness: $brightness"
-        color=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.color // empty') && dt_debug "color: $color"
-        water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak // empty') && dt_debug "water_leak: $water_leak"
-        waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
-        temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature"
-  
-        battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery // empty') && dt_debug "battery: $battery"
-        battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
-        tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
-        smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
-                  
-        device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
-        dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
-        dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
-        dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
-        room="''${dev_room//\"/}"
-        
-        should_update() {
-          case "$device_name" in
-            */set|*/availability)
-              dt_debug "Skipping update for device: $device_name (set/availability topic)"
-              return 1
-            ;;
-            *)
-              dt_debug "Will update state for device: $device_name"
-              return 0  
-            ;;
-          esac
-        }
-  
-        if should_update; then
-          [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
-          [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
-          [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
-          [ -n "$brightness" ] && update_device_state "$device_name" "brightness" "$brightness"
-          [ -n "$color" ] && update_device_state "$device_name" "color" "$color"        
-          [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
-          [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
-          [ -n "$tamper" ] && update_device_state "$device_name" "tamper" "$tamper"
-          [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
-          [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"
-          [ -n "$occupancy" ] && update_device_state "$device_name" "occupancy" "$occupancy"
-          
-          [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"        
-          [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"       
-        else
-          dt_debug "Skipped state update for device: $device_name"
-        fi
-      }
-  
-      # 🦆 says ⮞ turn on specified room
-      room_lights_on() { 
-        local clean_room=$(echo "$1" | sed 's/"//g')
-        ${pkgs.jq}/bin/jq -r --arg room "$clean_room" \
-          'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
-          $STATE_DIR/zigbee_devices.json |
-          while read -r light_id; do
-            mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"ON"}'
-          done      
-      }
-      # 🦆 says ⮞ turn off specified room
-      room_lights_off() { 
-        local clean_room=$(echo "$1" | sed 's/"//g')
-        ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
-          while read -r light_id; do
-            mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
-          done    
-      }
-  
+
       update_device_state() {
         local device="$1"
         local key="$2"
@@ -402,6 +285,12 @@ EOF
           > $STATE_DIR/zigbee_devices_by_friendly_name.json
         # 🦆 says ⮞ last echo
         echo "🦆🏡 Welcome Home" 
+        
+        # 🦆 says ⮞ performance tracking
+        declare -A processing_times
+        declare -A message_counts
+        local total_messages=0
+        local slow_threshold=100 # 🦆 says ⮞ ms        
         
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
@@ -513,7 +402,7 @@ EOF
             if [ "$smoke" = "true" ]; then
               yo notify "❤️‍🔥❤️‍🔥❤️‍🔥 FIRE !!! ❤️‍🔥❤️‍🔥❤️‍🔥"
               echo "❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥"
-              dt_critical "❤️‍🔥❤️‍🔥 SMOKE! in $device_name $dev_room"
+              dt_critical "❤️‍🔥❤️‍🔥 SMOKE! in in $device_name $dev_room"
             fi
           fi
           
@@ -554,28 +443,24 @@ EOF
           # 🦆 says ⮞ 🚪 door and window sensor yo 
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
             device_check
-            update_device_state "$device_name" "contact" "$contact"
-            if [ "$contact" = "true" ]; then
-              dt_info "🚪 Door open in $dev_room ($device_name)"
-              current_time=$(${pkgs.coreutils}/bin/date +%s)
-              last_motion=$(get_state "apartment" "last_motion")
-              time_diff=$((current_time - last_motion))
-              dt_debug "TIME: $current_time | LAST MOTION: $last_motion | TIME DIFF: $time_diff"
-              # 🦆 says ⮞ diz iz a fun one - if i've been gone for >2 hours
-              if [ $time_diff -gt 7200 ]; then 
-                dt_info "Welcoming you home! (no motion for 2 hours, door opened"
-                # 🦆 says ⮞ then greet me welcome home - so i can say "quack? thanx yo!"
-                sleep 5 && yo say --text "Välkommen hem!" --host "desktop"
-              else
-                dt_info "🛑 NOT WELCOMING:🛑 only $((time_diff/60)) minutes since last motion"
-              fi
-            fi       
-          fi
+            dt_info "🚪 Door open in $dev_room ($device_name)"
+            current_time=$(${pkgs.coreutils}/bin/date +%s)
+            last_motion=$(get_state "apartment" "last_motion")
+            time_diff=$((current_time - last_motion))
+            dt_debug "TIME: $current_time | LAST MOTION: $last_motion | TIME DIFF: $time_diff"
+            # 🦆 says ⮞ diz iz a fun one - if i've been gone for >2 hours
+            if [ $time_diff -gt 7200 ]; then 
+              dt_info "Welcoming you home! (no motion for 2 hours, door opened"
+              # 🦆 says ⮞ then greet me welcome home - so i can say "quack? thanx yo!"
+              sleep 5 && yo say --text "Välkommen hem!" --host "desktop"
+            else
+              dt_info "🛑 NOT WELCOMING:🛑 only $((time_diff/60)) minutes since last motion"
+            fi
+          fi       
 
           # 🦆 says ⮞ 🪟 BLIND & shaderz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("position")' > /dev/null; then
             device_check
-            update_device_state "$device_name" "position" "$position"
             if [ "$dev_type" = "blind" ]; then 
               if [ "$position" = "0" ]; then
                 dt_info "🪟 Rolled DOWN $device_name in $dev_room"
@@ -588,8 +473,7 @@ EOF
 
           # 🦆 says ⮞ 🔌 power plugz & energy meterz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("state")' > /dev/null; then
-            device_check
-            update_device_state "$device_name" "state" "$state"
+            device_check     
             if [[ "$dev_type" == "plug" || "$dev_type" == "power" || "$dev_type" == "outlet" ]]; then
               if [ "$state" = "ON" ]; then      
                 dt_info "🔌 $device_name Turned ON in $dev_room"
@@ -599,7 +483,7 @@ EOF
               fi  
             else  
 
-            # 🦆 says ⮞ 💡 state change (debug)      
+          # 🦆 says ⮞ 💡 state change (debug)      
               if [ "$state" = "OFF" ]; then
                 dt_debug "💡 $device_name Turned OFF in $dev_room"
               fi  
@@ -691,7 +575,6 @@ EOF
             continue
           fi
 
-
           # 🦆 says ⮞ 📺 yo TV commands
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("tvCommand")' > /dev/null; then
             command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tvCommand')
@@ -703,6 +586,29 @@ EOF
             continue
           fi
           
+          local end_time=$(date +%s%N)
+          local duration=$(( (end_time - start_time) / 1000000 ))
+        
+          # 🦆 says ⮞ update MA for this topic type
+          local current_avg=''${processing_times["$topic"]:-0}
+          processing_times["$topic"]=$(( (current_avg + duration) / 2 ))
+          message_counts["$topic"]=$(( ''${message_counts["$topic"]:-0} + 1 ))
+        
+          # 🦆 says ⮞ slow? log it
+          if [ $duration -gt $slow_threshold ]; then
+            dt_warning "Slow processing: $topic took ''${duration}ms"
+          fi
+        
+          # 🦆 says ⮞ log performance every 100 messages
+          if [ $((total_messages % 100)) -eq 0 ]; then
+            dt_info "Performance stats - Total messages: $total_messages"
+            for topic_type in "''${!processing_times[@]}"; do
+              local avg_time=''${processing_times["$topic_type"]}
+              local count=''${message_counts["$topic_type"]}
+              dt_debug "  $topic_type: avg ''${avg_time}ms, count $count"
+            done
+          fi
+             
         done
       }
             
