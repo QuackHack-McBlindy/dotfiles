@@ -5,7 +5,7 @@
   lib,
   pkgs,
   ...  
-  } : let
+} : let
   # 🦆 says ⮞ dis fetch what host has Docker services configued
   sysHosts = lib.attrNames self.nixosConfigurations; 
   arrHost = lib.findSingle (host:

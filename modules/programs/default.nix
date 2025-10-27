@@ -1,4 +1,5 @@
-{ 
+# dotfiles/modules/programs/firefox.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ default programs
   config,
   lib,
   pkgs,
@@ -6,9 +7,10 @@
 } : let
   cfg = config.this.host.modules.programs;
 in {
-  # Enabled by exposing "default" in this.host.modules.programs
+  # 🦆 duck say ⮞ enabled by exposing "default" in this.host.modules.programs
   config = lib.mkIf (lib.elem "default" cfg) {
     programs.bash = {
+      enableCompletion = true;
 
       shellAliases = {
         d = "cd ${config.this.user.me.dotfilesDir}";
@@ -26,7 +28,7 @@ in {
         year = "(date +%Y)";
         week = "date +%V";
         month = "(date +%m)";
-        date = "(date +%d)";
+        #date = "(date +%d)";
         day_of_week = "(date +%A)";
         clr = "clear";
         clean = "nix-collect-garbage";
@@ -39,12 +41,12 @@ in {
       };
 
       interactiveShellInit = ''
-        # Source custom shell scripts
+        # 🦆 duck say ⮞ source shell scripts
         source /home/${config.this.user.me.name}/.shell/functions.sh
         source /home/${config.this.user.me.name}/.shell/aliases.sh
         source /home/${config.this.user.me.name}/.gumrc
 
-        # Interactive shell setup
+        # 🦆 duck say ⮞ interactive shell setup
         eval "$(/run/current-system/sw/bin/starship init bash --print-full-init)"
         eval "$(direnv hook bash)"
         source ${pkgs.nix-index}/etc/profile.d/command-not-found.sh
@@ -63,6 +65,7 @@ in {
         bind '"\e[A":history-search-backward'
         bind '"\e[B":history-search-forward'
 
+        # 🦆 duck say ⮞ i like duckz and catz are ok too
         echo "🦆🦆🦆🦆🦆🦆🦆"
         echo "😻😻😻😻😻😻😻"
         echo "🦆🦆🦆🦆🦆🦆🦆"

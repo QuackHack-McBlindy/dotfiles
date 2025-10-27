@@ -1407,6 +1407,11 @@ input:checked + .slider-round:before {
     height: 100%;
 }
 
+.page {
+    width: 90%;
+    height: 90%;
+}
+
 
 #pageCloud {
     width: 100%;
