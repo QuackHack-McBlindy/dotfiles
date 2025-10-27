@@ -391,16 +391,6 @@
             }
             
 
-            
-            .qwackify-grid iframe, .cloud-grid iframe {
-                width: 100%;
-                height: 100%;
-                border: none;
-                border-radius: 0;
-                display: block;
-            }
-            
-
             .nav-icon {
                 width: 36px;
                 height: 36px;
