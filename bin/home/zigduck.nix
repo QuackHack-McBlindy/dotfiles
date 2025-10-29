@@ -121,11 +121,737 @@
     )
   );# 🦆 says ⮞ yaaaaaaaaaaaaaaay
 
+  # 🦆 needz 4 rust  
+  devices-json = pkgs.writeText "devices.json" deviceMeta;
+  # 🦆 says ⮞ RUSTY SMART HOME qwack qwack     
+  zigduck-rs = pkgs.writeText "zigduck-rs" ''    
+    use rumqttc::{MqttOptions, Client, QoS, Event, Incoming};
+    use serde_json::{Value, json};
+    use std::collections::HashMap;
+    use std::fs;
+    use std::path::Path;
+    use std::time::{Duration, SystemTime, UNIX_EPOCH};
+    use std::process::Command;
+    use serde::{Deserialize, Serialize};
+    use chrono::{Local, Timelike};
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct Device {
+        room: String,
+        #[serde(rename = "type")]
+        device_type: String,
+        id: String,
+        endpoint: u32,
+    }
+    
+    #[derive(Debug, Clone)]
+    struct ZigduckState {
+        mqtt_broker: String,
+        mqtt_user: String,
+        mqtt_password: String,
+        state_dir: String,
+        state_file: String,
+        larmed_file: String,
+        devices: HashMap<String, Device>,
+        processing_times: HashMap<String, u128>,
+        message_counts: HashMap<String, u64>,
+        total_messages: u64,
+        debug: bool,
+    }
+    
+    impl ZigduckState {
+        fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String, state_dir: String, devices_file: String, debug: bool) -> Self {
+            let state_file = format!("{}/state.json", state_dir);
+            let larmed_file = format!("{}/security_state.json", state_dir);
+            // 🦆 says ⮞ duck needz dirz create dirz thnx
+            fs::create_dir_all(&state_dir).unwrap();   
+            // 🦆 says ⮞ init state file yes
+            if !Path::new(&state_file).exists() {
+                fs::write(&state_file, "{}").unwrap();
+            }
+            // 🦆 says ⮞ init sec state
+            if !Path::new(&larmed_file).exists() {
+                fs::write(&larmed_file, r#"{"larmed":false}"#).unwrap();
+            }  
+            // 🦆 says ⮞ read devices file
+            let devices_json = fs::read_to_string(devices_file)
+                .unwrap_or_else(|_| "{}".to_string());  
+            // 🦆 says ⮞ parse da json map of devicez yo
+            let raw_devices: HashMap<String, Value> = serde_json::from_str(&devices_json)
+                .unwrap_or_else(|_| {
+                    eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Failed to parse devices JSON, using empty devices map");
+                    HashMap::new()
+                });
+            
+            // 🦆 says ⮞ convert 2 device struct
+            let mut devices = HashMap::new();
+            for (friendly_name, device_value) in raw_devices {
+                if let Ok(device) = serde_json::from_value::<Device>(device_value.clone()) {
+                    devices.insert(friendly_name, device);
+                } else {
+                    eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Failed to parse device: {}", friendly_name);
+                }
+            }
+            
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} devices", devices.len());
+            
+            Self {
+                mqtt_broker,
+                mqtt_user,
+                mqtt_password,
+                state_dir,
+                state_file,
+                larmed_file,
+                devices,
+                processing_times: HashMap::new(),
+                message_counts: HashMap::new(),
+                total_messages: 0,
+                debug,
+            }
+        }
+    
+        // 🦆 says ⮞ duckTrace - quack loggin' be bitchin' (yu log)
+        fn quack_debug(&self, msg: &str) {
+            if self.debug {
+                let log_msg = format!("[🦆📜] ⁉️DEBUG⁉️ ⮞ {}", msg);
+                eprintln!("{}", log_msg);
+                // 🦆 says ⮞ debug mode? write 2 duckTrace (yo log)      
+                if let Ok(log_path) = std::env::var("DT_LOG_FILE_PATH") {
+                    let _ = std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open(&log_path)
+                        .and_then(|mut file| {
+                            use std::io::Write;
+                            writeln!(file, "{}", log_msg)
+                        });
+                }
+            }
+        }
+    
+        fn quack_info(&self, msg: &str) {
+            let log_msg = format!("[🦆📜] ✅INFO✅ ⮞ {}", msg);
+            eprintln!("{}", log_msg);
+            // 🦆 says ⮞ always write info 2 duckTrace (yo log)
+            if let Ok(log_path) = std::env::var("DT_LOG_FILE_PATH") {
+                let _ = std::fs::OpenOptions::new()
+                    .create(true)
+                    .append(true)
+                    .open(&log_path)
+                    .and_then(|mut file| {
+                        use std::io::Write;
+                        writeln!(file, "{}", log_msg)
+                    });
+            }
+        }
+        // 🦆 says ⮞ updatez da state json file yo    
+        fn update_device_state(&self, device: &str, key: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let state_content = fs::read_to_string(&self.state_file)?;
+            let mut state: Value = serde_json::from_str(&state_content).unwrap_or_else(|_| json!({}));    
+            if !state[device].is_object() {
+                state[device] = json!({});
+            }
+            state[device][key] = Value::String(value.to_string());
+            let tmp_file = format!("{}/tmp_state.json", self.state_dir);
+            fs::write(&tmp_file, state.to_string())?;
+            fs::rename(&tmp_file, &self.state_file)?; 
+            self.quack_debug(&format!("Updated state: {}.{} = {}", device, key, value));
+            Ok(())
+        }
+        // 🦆 says ⮞ GET DEVICE STATE     
+        fn get_state(&self, device: &str, key: &str) -> Option<String> {
+            let state_content = fs::read_to_string(&self.state_file).ok()?;
+            let state: Value = serde_json::from_str(&state_content).ok()?;
+            state[device][key].as_str().map(|s| s.to_string())
+        }
+        // 🦆 says ⮞ SET SECURITY STATE    
+        fn set_larmed(&self, armed: bool) -> Result<(), Box<dyn std::error::Error>> {
+            let state = json!({ "larmed": armed });
+            fs::write(&self.larmed_file, state.to_string())?; 
+            self.mqtt_publish("zigbee2mqtt/security/state", &state.to_string())?;
+            if armed {
+                self.quack_info("🛡️ Security system ARMED");
+                self.run_yo_command(&["notify", "🛡️ Security armed"])?;
+            } else {
+                self.quack_info("🛡️ Security system DISARMED");
+                self.run_yo_command(&["notify", "🛡️ Security disarmed"])?;
+            }       
+            Ok(())
+        }
+        // 🦆 says ⮞ GET SECURITY STATE    
+        fn get_larmed(&self) -> bool {
+            let content = fs::read_to_string(&self.larmed_file).unwrap_or_else(|_| r#"{"larmed":false}"#.to_string());
+            let state: Value = serde_json::from_str(&content).unwrap_or_else(|_| json!({"larmed": false}));
+            state["larmed"].as_bool().unwrap_or(false)
+        }
+        // 🦆 says ⮞ MQTT PUBLISH    
+        fn mqtt_publish(&self, topic: &str, message: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let output = Command::new("mosquitto_pub")
+                .arg("-h")
+                .arg(&self.mqtt_broker)
+                .arg("-u")
+                .arg(&self.mqtt_user)
+                .arg("-P")
+                .arg(&self.mqtt_password)
+                .arg("-t")
+                .arg(topic)
+                .arg("-m")
+                .arg(message)
+                .output()?;
+            if !output.status.success() {
+                return Err(format!("MQTT publish failed: {}", String::from_utf8_lossy(&output.stderr)).into());
+            }   
+            Ok(())
+        }
+        // 🦆 says ⮞ EXECUTE yo COMMANDS yo!    
+        fn run_yo_command(&self, args: &[&str]) -> Result<(), Box<dyn std::error::Error>> {
+            let output = Command::new("yo")
+                .args(args)
+                .output()?;    
+            if !output.status.success() {
+                self.quack_debug(&format!("yo command failed: {}", String::from_utf8_lossy(&output.stderr)));
+            }      
+            Ok(())
+        }
+        // 🦆 says ⮞ TURN ON ROOM LIGHTS qwack    
+        fn room_lights_on(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            for (device_id, device) in &self.devices {
+                if device.room == room && device.device_type == "light" {
+                    let message = json!({ "state": "ON" });
+                    let topic = format!("zigbee2mqtt/{}/set", device_id);
+                    self.mqtt_publish(&topic, &message.to_string())?;
+                }
+            }
+            Ok(())
+        }
+        // 🦆 says ⮞ TURN OFF ROOM LIGHTS    
+        fn room_lights_off(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            for (device_id, device) in &self.devices {
+                if device.room == room && device.device_type == "light" {
+                    let message = json!({ "state": "OFF" });
+                    let topic = format!("zigbee2mqtt/{}/set", device_id);
+                    self.mqtt_publish(&topic, &message.to_string())?;
+                }
+            }
+            Ok(())
+        }
+        
+        // 🦆 says ⮞ check if dark (static time configured)    
+        fn is_dark_time(&self) -> bool {
+            let now = Local::now();
+            let hour = now.hour();
+      // after🦆18:00⮞before⮜06:00🦆 
+            hour >= ${config.house.zigbee.darkTime.after} || hour <= ${config.house.zigbee.darkTime.before}   
+        }
+    
+        fn update_performance_stats(&mut self, topic: &str, duration: u128) {
+            let current_avg = self.processing_times.get(topic).copied().unwrap_or(0);
+            self.processing_times.insert(topic.to_string(), (current_avg + duration) / 2);
+            *self.message_counts.entry(topic.to_string()).or_insert(0) += 1;
+            self.total_messages += 1;
+            if duration > 100 {
+                self.quack_debug(&format!("Slow processing: {} took {}ms", topic, duration));
+            }
+    
+            if self.total_messages % 100 == 0 {
+                self.quack_info(&format!("Performance stats - Total messages: {}", self.total_messages));
+                for (topic_type, avg_time) in &self.processing_times {
+                    let count = self.message_counts.get(topic_type).unwrap_or(&0);
+                    self.quack_debug(&format!("{}: avg {}ms, count {}", topic_type, avg_time, count));
+                }
+            }
+        }
+    
+        // 🦆 says ⮞
+        fn control_all_lights(&self, state: &str, brightness: Option<u8>) -> Result<(), Box<dyn std::error::Error>> {
+            for (device_id, device) in &self.devices {
+                if device.device_type == "light" {
+                    let mut message = serde_json::Map::new();
+                    message.insert("state".to_string(), Value::String(state.to_string())); 
+                    if let Some(brightness) = brightness {
+                        message.insert("brightness".to_string(), Value::Number(brightness.into()));
+                    }       
+                    let topic = format!("zigbee2mqtt/{}/set", device_id);
+                    self.mqtt_publish(&topic, &Value::Object(message).to_string())?;
+                }
+            }
+    
+            let action = if state == "ON" { "ON" } else { "OFF" };
+            self.quack_info(&format!("💡 All lights turned {}", action));
+            Ok(())
+        }    
+    
+        // 🦆 says ⮞ PROCESS MQTT MESSAGES    
+        async fn process_message(&mut self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
+            // 🦆 says ⮞ start timer 4 exec time messurementz    
+            let start_time = std::time::Instant::now();
+            // 🦆 says ⮞ skip large payloads
+            if payload.len() > 10000 {
+                self.quack_debug(&format!("Skipping large payload on topic: {} (size: {})", topic, payload.len()));
+                return Ok(());
+            }
+            // 🦆 says ⮞ debug log raw payloadz yo    
+            self.quack_debug(&format!("TOPIC: {}", topic));
+            self.quack_debug(&format!("PAYLOAD: {}", payload));
+            let data: Value = match serde_json::from_str(payload) {
+                Ok(parsed) => parsed,
+                Err(_) => {
+                    self.quack_debug(&format!("Invalid JSON payload: {}", payload));
+                    return Ok(());
+                }
+            };
+
+   // 🦆 says ⮞ TV CHANNEL    
+            if data.get("tvChannel").is_some() {
+                if let Some(channel) = data["tvChannel"].as_str() {
+                    let ip = data["ip"].as_str().unwrap_or("192.168.1.223");
+                    self.quack_info(&format!("TV channel change requested! Channel: {}. IP: {}", channel, ip));
+                    self.run_yo_command(&["tv", "--typ", "livetv", "--device", ip, "--search", channel])?;
+                }
+                return Ok(());
+            }
+            if topic.starts_with("zigbee2mqtt/tv/") && topic.ends_with("/channel") {
+                if let Some(device_ip) = topic.split('/').nth(2) {
+                    if let (Some(channel_id), Some(channel_name)) = (
+                        data["channel_id"].as_str(),
+                        data["channel_name"].as_str()
+                    ) {
+                        let device_key = format!("tv_{}", device_ip);
+                        self.update_device_state(&device_key, "current_channel", channel_id)?;
+                        self.update_device_state(&device_key, "current_channel_name", channel_name)?; 
+                        let timestamp = Local::now().to_rfc3339();
+                        self.update_device_state(&device_key, "last_update", &timestamp)?;
+                        self.quack_info(&format!("📺 {} live tv channel: {}", device_ip, channel_name));
+                    }
+                }
+                return Ok(());
+            }
+    
+   // 🦆 says ⮞ ENERGY USAGE    
+            if topic == "zigbee2mqtt/tibber/price" {
+                if let Some(price) = data["current_price"].as_str() {
+                    self.update_device_state("tibber", "current_price", price)?;
+                    self.quack_info(&format!("Energy price updated: {} SEK/kWh", price));
+                }
+                return Ok(());
+            }
+            if topic == "zigbee2mqtt/tibber/usage" {
+                if let Some(usage) = data["monthly_usage"].as_str() {
+                    self.update_device_state("tibber", "monthly_usage", usage)?;
+                    self.quack_info(&format!("Energy usage updated: {} kWh", usage));
+                }
+                return Ok(());
+            }
+    
+    // 🦆 says ⮞ SECURITY
+            if data.get("security").is_some() && self.get_larmed() {
+                self.quack_info("Larmed apartment");
+                self.run_yo_command(&["notify", "Larm på"])?;
+            }
+    
+            let device_name = topic.strip_prefix("zigbee2mqtt/").unwrap_or(topic);
+            if let Some(device) = self.devices.get(device_name) {
+                let room = &device.room;
+
+    // 🦆 says ⮞ 🔋 BATTERY            
+                if let Some(battery) = data["battery"].as_str() {
+                    let prev_battery = self.get_state(device_name, "battery");
+                    // 🦆 says ⮞ no fun here but update state file atleast
+                    self.update_device_state(device_name, "battery", battery)?;
+                    if prev_battery.as_deref() != Some(battery) && prev_battery.is_some() {
+                        self.quack_info(&format!("🔋 Battery update for {}: {}% > {}%", device_name, prev_battery.unwrap(), battery));
+                    }
+                }
+    
+   // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS
+                if let Some(temperature) = data["temperature"].as_str() {
+                    let prev_temp = self.get_state(device_name, "temperature");
+                    self.update_device_state(device_name, "temperature", temperature)?;
+                    
+                    if prev_temp.as_deref() != Some(temperature) && prev_temp.is_some() {
+                        self.quack_info(&format!("🌡️ Temperature update for {}: {}°C > {}°C", device_name, prev_temp.unwrap(), temperature));
+                    }
+                }
+
+    // 🦆 says ⮞ left da home?    
+                if payload == "\"LEFT\"" {
+                    // 🦆 says ⮞ turn on security
+                    self.set_larmed(true)?;
+                } else if payload == "\"RETURN\"" {
+                    // 🦆 says ⮞ home again? turn off security
+                    self.set_larmed(false)?;
+                }
+
+    // 🦆 says ⮞ ❤️‍🔥 FIRE / SMOKE DETECTOR    
+                if let Some(smoke) = data["smoke"].as_bool() {
+                    if smoke {
+                        self.run_yo_command(&["notify", "❤️‍🔥❤️‍🔥❤️‍🔥 FIRE !!! ❤️‍🔥❤️‍🔥❤️‍🔥"])?;
+                        self.quack_info(&format!("❤️‍🔥❤️‍🔥 SMOKE! in {} {}", device_name, room));
+                    }
+                }
+    
+    // 🦆 says ⮞ 🕵️ MOTION SENSORS
+                if let Some(occupancy) = data["occupancy"].as_bool() {
+                    if occupancy {
+                        let motion_data = json!({
+                            "last_active_room": room,
+                            "timestamp": Local::now().to_rfc3339()
+                        }); // 🦆 says ⮞ save it, usefulö laterz?
+                        fs::write(format!("{}/last_motion.json", self.state_dir), motion_data.to_string())?;
+                        self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
+                        // 🦆 says ⮞ & update state file yo
+                        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+                        self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
+                        
+                        if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool 
+                            self.room_lights_on(room)?;
+                        } else { // 🦆 says ⮞ daytime? lightz no thnx
+                            self.quack_debug("❌ Daytime - no lights activated by motion.");
+                        }
+                    } else { // 🦆 says ⮞ no more movementz update state file yo
+                        self.quack_debug(&format!("🛑 No more motion in {} {}", device_name, room));
+                        self.update_device_state(device_name, "occupancy", "false")?;
+                    }
+                }
+    
+    // 🦆 says ⮞ 💧 WATER SENSORS
+                if data["water_leak"].as_bool() == Some(true) || data["waterleak"].as_bool() == Some(true) {
+                    self.quack_info(&format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name));
+                    self.run_yo_command(&["notify", &format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name)])?;
+                    
+                    tokio::time::sleep(Duration::from_secs(15)).await;
+                    self.run_yo_command(&["notify", &format!("WATER LEAK DETECTED in {} on {}", room, device_name)])?;
+                }
+    
+    // 🦆 says ⮞ DOOR / WINDOW SENSOR
+                if let Some(contact) = data["contact"].as_bool() {
+                    if contact {
+                        self.quack_info(&format!("🚪 Door open in {} ({})", room, device_name));
+                        // 🦆 says ⮞ check time & where last motion iz
+                        let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+                        let last_motion_str = self.get_state("apartment", "last_motion").unwrap_or_else(|| "0".to_string());
+                        let last_motion: u64 = last_motion_str.parse().unwrap_or(0);
+                        let time_diff = current_time.saturating_sub(last_motion); 
+                        self.quack_debug(&format!("TIME: {} | LAST MOTION: {} | TIME DIFF: {}", current_time, last_motion, time_diff));
+                        
+                        if time_diff > 7200 { // 🦆 says ⮞ secondz
+                            self.quack_info("Welcoming you home! (no motion for 2 hours, door opened)");
+                            tokio::time::sleep(Duration::from_secs(5)).await;
+                            self.run_yo_command(&["say", "--text", "Välkommen hem idiot!", "--host", "desktop"])?; // 🦆 says ⮞ ='(
+                        } else { 
+                            self.quack_info(&format!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60));
+                        }
+                    }
+                }
+    
+    // 🦆 says ⮞ BLINDz - diz iz where i got my name from? quack
+                if let Some(position) = data["position"].as_str() {
+                    if device.device_type == "blind" {
+                        if position == "0" {
+                            self.quack_info(&format!("🪟 Rolled DOWN {} in {}", device_name, room));
+                        } else if position == "100" {
+                            self.quack_info(&format!("🪟 Rolled UP {} in {}", device_name, room));
+                        }
+                    }
+                }
+                
+    // 🦆 says ⮞ STATE
+                if let Some(state) = data["state"].as_str() {
+                    match device.device_type.as_str() { // 🦆 says ⮞ outletz/energy meters etc
+                        "plug" | "power" | "outlet" => {
+                            if state == "ON" {
+                                self.quack_info(&format!("🔌 {} Turned ON in {}", device_name, room));
+                            } else if state == "OFF" {
+                                self.quack_info(&format!("🔌 {} Turned OFF in {}", device_name, room));
+                            }
+                        }
+                        _ => { // 🦆 says ⮞ if itz not outlets prob lights huh
+                            if state == "OFF" {
+                                self.quack_debug(&format!("💡 {} Turned OFF in {}", device_name, room));
+                            } else if state == "ON" {
+                                self.quack_debug(&format!("💡 {} Turned ON in {}", device_name, room));
+                            }
+                        }
+                    }
+                }
+    
+    // 🦆 says ⮞ DIMMER SWITCH
+                if let Some(action) = data["action"].as_str() {
+                    match action { // 🦆 says ⮞ on button - turns on room lights yo
+                        "on_press_release" => {
+                            self.quack_info(&format!("💡 Turning on lights in {}", room));
+                            self.room_lights_on(room)?;
+                            if room == "kitchen" {
+                                self.mqtt_publish("zigbee2mqtt/Fläkt/set", r#"{"state":"ON"}"#)?;
+                            }
+                        }
+                        "on_hold_release" => { // 🦆 says ⮞ on hold button - turns on all lights
+                            self.control_all_lights("ON", Some(255))?;
+                            self.quack_info("✅💡 MAX LIGHTS ON");
+                        }
+                        "up_press_release" => { // 🦆 says ⮞ dim + button - increase brightness in room
+                            for (light_id, light_device) in &self.devices {
+                                if light_device.room == *room && light_device.device_type == "light" {
+                                    self.quack_info(&format!("🔺 Increasing brightness on {} in {}", light_id, room));
+                                    let message = json!({
+                                        "brightness_step": 50,
+                                        "transition": 3.5
+                                    });
+                                    let topic = format!("zigbee2mqtt/{}/set", light_id);
+                                    self.mqtt_publish(&topic, &message.to_string())?;
+                                }
+                            }
+                        }
+                        "down_press_release" => { // 🦆 says ⮞ dim - button - decrease brightness in room
+                            for (light_id, light_device) in &self.devices {
+                                if light_device.room == *room && light_device.device_type == "light" {
+                                    self.quack_info(&format!("🔻 Decreasing {} in {}", light_id, room));
+                                    let message = json!({
+                                        "brightness_step": -50,
+                                        "transition": 3.5
+                                    });
+                                    let topic = format!("zigbee2mqtt/{}/set", light_id);
+                                    self.mqtt_publish(&topic, &message.to_string())?;
+                                }
+                            }
+                        }
+                        "off_press_release" => { // 🦆 says ⮞ off button - turns off room lights plx
+                            self.quack_info(&format!("💡 Turning off lights in {}", room));
+                            self.room_lights_off(room)?;
+                        }
+                        "off_hold_release" => { // 🦆 says ⮞ off hold button - turns off all lights!
+                            self.control_all_lights("OFF", None)?;
+                            self.quack_info("DARKNESS ON");
+                        }
+                        _ => { // 🦆 says ⮞ else debug print button action
+                            self.quack_debug(&format!("{}", action));
+                        }
+                    }
+                }
+    
+     // 🦆 says ⮞ 🛒 SHOPPING LIST
+                if let Some(shopping_action) = data["shopping_action"].as_str() {
+                    let shopping_list_file = format!("{}/shopping_list.txt", self.state_dir);   
+                    match shopping_action {
+                        "add" => {
+                            if let Some(item) = data["item"].as_str() {
+                                fs::write(&shopping_list_file, format!("{}\n", item))?;
+                                self.quack_info(&format!("🛒 Added '{}' to shopping list", item));
+                                let message = json!({
+                                    "action": "add",
+                                    "item": item
+                                });
+                                self.mqtt_publish("zigbee2mqtt/shopping_list/updated", &message.to_string())?;
+                                self.run_yo_command(&["notify", &format!("🛒 Added: {}", item)])?;
+                            }
+                        }
+                        "remove" => {
+                            if let Some(item) = data["item"].as_str() {
+                                self.quack_info(&format!("🛒 Removed '{}' from shopping list", item));
+                            }
+                        }
+                        "clear" => {
+                            fs::write(&shopping_list_file, "")?;
+                            self.quack_info("🛒 Cleared shopping list");
+                            self.mqtt_publish("zigbee2mqtt/shopping_list/updated", r#"{"action":"clear"}"#)?;
+                            self.run_yo_command(&["notify", "🛒 List cleared"])?;
+                        }
+                        "view" => {}
+                        _ => {}
+                    }
+                    return Ok(());
+                }
+    
+    // 🦆 says ⮞ NLP COMMAND
+                if let Some(command) = data["command"].as_str() {
+                    self.quack_info(&format!("yo do execution requested from web interface: yo do {}", command));
+                    let _ = Command::new("yo")
+                        .arg("do")
+                        .arg(command)
+                        .spawn();
+                    return Ok(());
+                }
+    
+    // 🦆 says ⮞ TV COMMAND
+                if let Some(tv_command) = data["tvCommand"].as_str() {
+                    if let Some(ip) = data["ip"].as_str() {
+                        self.quack_info(&format!("TV command received! Command: {}. IP: {}", tv_command, ip));
+                        self.run_yo_command(&["tv", "--typ", tv_command, "--device", ip])?;
+                    }
+                    return Ok(());
+                }
+            }
+    
+            let duration = start_time.elapsed().as_millis();
+            self.update_performance_stats(topic, duration); 
+            Ok(())
+        }
+    
+        async fn start_listening(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_info("🚀 Starting zigduck automation system");
+            self.quack_info("📡 Listening to all Zigbee events...");
+    
+            let mut mqttoptions = MqttOptions::new("zigduck-rs", &self.mqtt_broker, 1883);
+            mqttoptions.set_credentials(&self.mqtt_user, &self.mqtt_password);
+            mqttoptions.set_keep_alive(Duration::from_secs(5));
+            // 🦆 says ⮞ max packet size if larger payloads
+            mqttoptions.set_max_packet_size(256 * 1024, 256 * 1024); // 🦆 says ⮞ 256KB
+    
+            let (mut client, mut connection) = Client::new(mqttoptions, 10);
+            client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce)?;
+    
+            self.quack_info(&format!("Connected to MQTT broker: {}", &self.mqtt_broker));
+            self.quack_info("🦆🏡 Welcome Home");
+            // 🦆 says ⮞ main event loop with reconnect yo 
+            loop {
+                match connection.eventloop.poll().await {
+                    Ok(event) => {
+                        if let Event::Incoming(Incoming::Publish(publish)) = event {
+                            let topic = publish.topic;
+                            let payload = String::from_utf8_lossy(&publish.payload);
+                            
+                            if let Err(e) = self.process_message(&topic, &payload).await {
+                                self.quack_debug(&format!("Failed to process message: {}", e));
+                            }
+                        }
+                    }
+                    Err(e) => {
+                        self.quack_debug(&format!("Connection error: {}", e));
+                        self.quack_info("Attempting to reconnect in 5 seconds...");
+                        tokio::time::sleep(Duration::from_secs(5)).await;
+                        
+                        // 🦆 says ⮞ recreate connection
+                        let mut mqttoptions = MqttOptions::new("zigduck-rs", &self.mqtt_broker, 1883);
+                        mqttoptions.set_credentials(&self.mqtt_user, &self.mqtt_password);
+                        mqttoptions.set_keep_alive(Duration::from_secs(5));
+                        mqttoptions.set_max_packet_size(256 * 1024, 256 * 1024);
+                       
+                        let (new_client, new_connection) = Client::new(mqttoptions, 10);
+                        client = new_client;
+                        connection = new_connection;
+                        
+                        match client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce) {
+                            Ok(_) => self.quack_info("Successfully reconnected and subscribed"),
+                            Err(e) => self.quack_debug(&format!("Failed to subscribe after reconnect: {}", e)),
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    fn main() -> Result<(), Box<dyn std::error::Error>> {
+        // 🦆 says ⮞ get configuration from env var or cmd
+        let mqtt_broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "192.168.1.211".to_string());
+        let mqtt_user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
+        let mqtt_password = std::env::var("MQTT_PASSWORD")
+            .or_else(|_| std::fs::read_to_string("/run/secrets/mosquitto"))
+            .unwrap_or_else(|_| "".to_string());
+        let state_dir = std::env::var("STATE_DIR").unwrap_or_else(|_| "/var/lib/zigduck".to_string());
+        let debug = std::env::var("DEBUG").is_ok();
+        
+        // 🦆 says ⮞ read devices from env var
+        let devices_file = std::env::var("ZIGBEE_DEVICES_FILE")
+            .unwrap_or_else(|_| "devices.json".to_string());
+    
+        eprintln!("[🦆📜] ✅INFO✅ ⮞ MQTT Broker: {}", mqtt_broker);
+        eprintln!("[🦆📜] ✅INFO✅ ⮞ State Directory: {}", state_dir);
+        eprintln!("[🦆📜] ✅INFO✅ ⮞ Devices file: {}", devices_file);
+        if debug {
+            eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Debug mode enabled");
+        }
+    
+        let mut state = ZigduckState::new(
+            mqtt_broker,
+            mqtt_user,
+            mqtt_password,
+            state_dir,
+            devices_file,
+            debug,
+        );
+    
+        // 🦆 says ⮞ simple runtime
+        let rt = tokio::runtime::Runtime::new()?;
+        rt.block_on(async {
+            state.start_listening().await
+        })
+    }
+    
+  '';
+
+  zigduck-toml = pkgs.writeText "zigduck.toml" ''    
+    [package]
+    name = "zigduck-rs"
+    version = "0.1.0"
+    edition = "2024"
+
+    [dependencies]
+    tokio = { version = "1.0", features = ["full"] }
+    rumqttc = "0.21.0"
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+    chrono = { version = "0.4", features = ["serde"] }
+  '';
+  
 in { # 🦆 says ⮞ finally here, quack! 
-  yo.scripts.zigduck = { # 🦆 says ⮞ dis is where my home at
-    description = "Home Automations at its best! Bash & Nix cool as dat. Runs on single process";
+  yo.scripts.zigduck-rs = {
+    description = "Home automation system written in Rust";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
+    logLevel = "INFO";
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
+    parameters = [ # 🦆 says ⮞ set your mosquitto user & password
+      { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/zigduck-rs"; optional = false; } 
+      { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
+      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
+    ];
+    code = ''
+      ${cmdHelpers}
+      MQTT_BROKER="${mqttHostip}"
+      #MQTT_BROKER="localhost"
+      dt_info "MQTT_BROKER: $MQTT_BROKER" 
+      MQTT_USER="$user"
+      MQTT_PASSWORD=$(cat "$pwfile")
+      STATE_DIR="${zigduckDir}"
+
+
+      # 🦆 says ⮞ create the Rust projectz directory and move into it
+      mkdir -p "$dir"
+      cd "$dir"
+      mkdir -p src
+      # 🦆 says ⮞ create the source filez yo 
+      cat ${zigduck-rs} > src/main.rs
+      cat ${zigduck-toml} > Cargo.toml
+      
+      # 🦆 says ⮞ check build bool
+      if [ "$build" = true ]; then
+        dt_debug "Deleting any possible old versions of the binary"
+        rm -f target/release/zigduck-rs
+        ${pkgs.cargo}/bin/cargo generate-lockfile      
+        ${pkgs.cargo}/bin/cargo build --release
+        dt_info "Build complete!"
+      fi # 🦆 says ⮞ if no binary exist - compile it yo
+      if [ ! -f "target/release/zigduck-rs" ]; then
+        ${pkgs.cargo}/bin/cargo generate-lockfile     
+        ${pkgs.cargo}/bin/cargo build --release
+        dt_info "Build complete!"
+      fi
+
+      # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
+      if [ "$VERBOSE" -ge 1 ]; then
+        DEBUG=1 ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+      fi  
+      # 🦆 says ⮞ else run debugless yo
+      ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+      
+            
+    '';
+  };
+
+
+  yo.scripts.zigduck = { # 🦆 says ⮞ dis is where my home at
+    description = "Home automation system written in Bash";
+    category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
+    #autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     aliases = [ "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
     helpFooter = '' 
@@ -737,6 +1463,7 @@ EOF
       }; 
 
   environment.systemPackages = [
+    pkgs.clang
     # 🦆 says ⮞ Dependencies 
     pkgs.mosquitto
     pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
@@ -909,7 +1636,7 @@ EOF
         }
       ' "$CFGFILE" > "$TMPFILE"      
       mv "$TMPFILE" "$CFGFILE"
-    ''; # 🦆 says ⮞ thnx fo quackin' along! 💫⭐
+    ''; # 🦆 says ⮞ thnx fo quackin' along!
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤

@@ -234,11 +234,20 @@ in { # 🦆 says ⮞ Options for da house
                 default = "18:00";
                 description = "Start time of dark time range (in HH:MM)";
               };
-
               end = lib.mkOption {
                 type = lib.types.str;
                 default = "08:30";
                 description = "End time of dark time range (in HH:MM)";
+              };
+              after = lib.mkOption {
+                type = lib.types.str;
+                default = "18";
+                description = "Start time of dark time range (HH)";
+              };
+              before = lib.mkOption {
+                type = lib.types.str;
+                default = "6";
+                description = "End time of dark time range (HH format)";
               };
             };
           };

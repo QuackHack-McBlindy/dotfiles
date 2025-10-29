@@ -213,6 +213,7 @@
     ln -sf /var/lib/zigduck/state.json $WORKDIR/
     ln -sf /etc/static/epg.json $WORKDIR/   
     ln -sf /etc/static/tv.html $WORKDIR/   
+    ln -sf /etc/static/favicon.ico $WORKDIR/   
 
     # 🦆 says ⮞ add TV icons
     mkdir -p $WORKDIR/tv-icons
@@ -3607,5 +3608,7 @@ in {
       name = "tv.json";
       text = builtins.toJSON config.house.tv;
     };
+
+  environment.etc."favicon.ico".source = ./../../modules/themes/icons/favicons/duck.ico;
     
   }

@@ -381,7 +381,25 @@
       ) data.sentences # 🦆 says ⮞ waddlin' through all yo' sentencez
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
   ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom  
+
+  # 🦆 says ⮞ 4 rust version of da nlp 
+  fuzzyFlatIndex = lib.flatten (lib.mapAttrsToList (scriptName: intent:
+    lib.concatMap (data:
+      lib.concatMap (sentence:
+        map (expanded: {
+          script = scriptName;
+          sentence = expanded;
+          signature = let
+            words = lib.splitString " " (lib.toLower expanded);
+            sorted = lib.sort (a: b: a < b) words;
+          in builtins.concatStringsSep "|" sorted;
+        }) (expandOptionalWords sentence)
+      ) data.sentences
+    ) intent.data
+  ) generatedIntents);
+
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
+  fuzzyIndexFlatFile = pkgs.writeText "fuzzy-rust-index.json" (builtins.toJSON fuzzyFlatIndex);  
   matcherDir = pkgs.linkFarm "yo-matchers" (
     map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
   ); # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
@@ -428,8 +446,6 @@
     ];
   in
     lib.foldl (acc: r: lib.replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
-
-
  
   # 🦆 says ⮞ conflict detection - no bad voice intentz quack!  
   assertionCheckForConflictingSentences = let
@@ -634,14 +650,678 @@
     "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
   else ""; # 🦆 duck say ⮞ no match? empty string
 
+  # 🦆 duck say ⮞ u like speed too? Rusty Speed inc
+  do-rs = pkgs.writeText "do.rs" ''
+    // 🦆 SCREAMS ⮞ 70x FASTER!!🚀
+    use std::collections::HashMap;
+    use std::env;
+    use std::fs;
+    use std::process::{Command, exit};
+    use regex::Regex;
+    use serde::{Deserialize, Serialize};
+    use std::time::Instant;
+    
+    // 🦆 says ⮞ config structs wit da duck wisdom
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ScriptConfig {
+        description: String,
+        aliases: Vec<String>,
+        category: String,
+        log_level: String,
+        auto_start: bool,
+        parameters: Vec<Parameter>,
+        help_footer: String,
+        code: String,
+        voice: Option<VoiceConfig>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct Parameter {
+        name: String,
+        description: String,
+        optional: bool,
+        param_type: Option<String>,
+        default: Option<String>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct VoiceConfig {
+        enabled: bool,
+        priority: i32,
+        sentences: Vec<String>,
+        lists: HashMap<String, ListConfig>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ListConfig {
+        wildcard: bool,
+        values: Vec<ListValue>,
+    }
+
+    // 🦆 says ⮞ Enhanced entity resolution structures
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct EntityValue {
+        r#in: String,  // 🦆 says ⮞ "in" is a keyword, so we use raw identifier
+        out: String,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)] 
+    struct EntityList {
+        wildcard: Option<bool>,
+        values: Vec<EntityValue>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct VoiceData {
+        sentences: Vec<String>,
+        lists: HashMap<String, EntityList>,
+    }
+  
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ScriptIntentData {
+        substitutions: Vec<Substitution>,
+        sentences: Vec<String>,
+        // 🦆 says ⮞ voice data for entity resolution
+        voice_data: Option<HashMap<String, VoiceData>>,
+    }  
+  
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ListValue {
+        r#in: String,
+        out: String,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct IntentData {
+        substitutions: Vec<Substitution>,
+        sentences: Vec<String>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct Substitution {
+        pattern: String,
+        value: String,
+    }
  
-# 🦆 says ⮞ expose da magic! dis builds our NLP
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct FuzzyIndexEntry {
+        script: String,
+        sentence: String,
+        signature: String,
+    }
+    
+    // 🦆 says ⮞ script priority for da optimized processing yo
+    #[derive(Debug, Clone)]
+    struct ScriptPriority {
+        name: String,
+        priority: i32,
+        has_complex_patterns: bool,
+    }
+    
+    // 🦆 says ⮞ MATCH RESULT wit da duck power!
+    #[derive(Debug)]
+    struct MatchResult {
+        script_name: String,
+        args: Vec<String>,
+        matched_sentence: String,
+        processing_time: std::time::Duration,
+    }
+    
+    struct YoDo {
+        scripts: HashMap<String, ScriptConfig>,
+        intent_data: HashMap<String, IntentData>,
+        fuzzy_index: Vec<FuzzyIndexEntry>,
+        processing_order: Vec<ScriptPriority>,
+        fuzzy_threshold: i32,
+        debug: bool,
+    }
+    
+    impl YoDo {
+        fn new() -> Self {
+            Self {
+                scripts: HashMap::new(),
+                intent_data: HashMap::new(),
+                fuzzy_index: Vec::new(),
+                processing_order: Vec::new(),
+                fuzzy_threshold: 15,
+                debug: env::var("DEBUG").is_ok() || env::var("DT_DEBUG").is_ok(),
+            }
+        }
+      
+        // 🦆 says ⮞ QUACK LOADER - load all the duck data!
+        fn load_intent_data(&mut self, intent_data_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let data = fs::read_to_string(intent_data_path)?;
+            self.intent_data = serde_json::from_str(&data)?;
+            self.quack_debug(&format!("🦆 Loaded intent data for {} scripts", self.intent_data.len()));
+            Ok(())
+        }
+    
+        fn load_fuzzy_index(&mut self, fuzzy_index_path: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let data = fs::read_to_string(fuzzy_index_path)?;
+            self.fuzzy_index = serde_json::from_str(&data)?;
+            self.quack_debug(&format!("🦆 Loaded {} fuzzy index entries", self.fuzzy_index.len()));
+            Ok(())
+        }
+    
+        // 🦆 says ⮞ DUCK DEBUGGER - quack while you work!
+        fn quack_debug(&self, msg: &str) {
+            if self.debug {
+                eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ {}", msg);
+            }
+        }
+    
+        fn quack_info(&self, msg: &str) {
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ {}", msg);
+        }
+    
+        // 🦆 says ⮞ OPTIONAL WORD EXPANDER - make all the combinations!
+        fn expand_optional_words(&self, sentence: &str) -> Vec<String> {
+            let tokens: Vec<&str> = sentence.split_whitespace().collect();
+            let mut variants = Vec::new();
+            
+            // 🦆 says ⮞ recursive combination generator
+            fn generate_combinations(tokens: &[&str], current: Vec<String>, index: usize, result: &mut Vec<String>) {
+                if index >= tokens.len() {
+                    let sentence = current.join(" ").trim().to_string();
+                    if !sentence.is_empty() {
+                        result.push(sentence);
+                    }
+                    return;
+                }
+    
+                let token = tokens[index];
+                let mut alternatives = Vec::new();
+    
+                // 🦆 says ⮞ handle (required|alternatives)
+                if token.starts_with('(') && token.ends_with(')') {
+                    let clean = &token[1..token.len()-1];
+                    alternatives.extend(clean.split('|').map(|s| s.to_string()));
+                } 
+                // 🦆 says ⮞ handle [optional|words]
+                else if token.starts_with('[') && token.ends_with(']') {
+                    let clean = &token[1..token.len()-1];
+                    alternatives.extend(clean.split('|').map(|s| s.to_string()));
+                    alternatives.push("".to_string()); // 🦆 says ⮞ empty for optional
+                } 
+                // 🦆 says ⮞ regular token
+                else {
+                    alternatives.push(token.to_string());
+                }
+    
+                for alt in alternatives {
+                    let mut new_current = current.clone();
+                    if !alt.is_empty() {
+                        new_current.push(alt);
+                    }
+                    generate_combinations(tokens, new_current, index + 1, result);
+                }
+            }
+    
+            generate_combinations(&tokens, Vec::new(), 0, &mut variants);
+            
+            // 🦆 says ⮞ YO! clean up da mezz and filter
+            variants.iter()
+                .map(|v| v.replace("  ", " ").trim().to_string())
+                .filter(|v| !v.is_empty())
+                .collect()
+        }
+    
+        // 🦆 says ⮞ ENTITY RESOLVER - duck translation matrix!
+        fn resolve_entity(&self, script_name: &str, param_name: &str, param_value: &str) -> String {
+            if let Some(intent) = self.intent_data.get(script_name) {
+                let normalized_input = param_value.to_lowercase();
+                
+                for sub in &intent.substitutions {
+                    let pattern = sub.pattern.to_lowercase();
+                    
+                    // 🦆 says ⮞ exact match
+                    if pattern == normalized_input {
+                        self.quack_debug(&format!("      Exact entity match: {} → {}", param_value, sub.value));
+                        return sub.value.clone();
+                    }
+                    
+                    // 🦆 says ⮞ parenthesized content match
+                    if pattern.starts_with('(') && pattern.ends_with(')') {
+                        let content = &pattern[1..pattern.len()-1]; // 🦆 says ⮞ remove parentheses
+                        if content == normalized_input {
+                            self.quack_debug(&format!("      Parenthesized entity match: {} → {}", param_value, sub.value));
+                            return sub.value.clone();
+                        }
+                    }
+                    
+                    // 🦆 says ⮞ handle alternatives in parentheses
+                    if pattern.starts_with('(') && pattern.ends_with(')') && pattern.contains('|') {
+                        let content = &pattern[1..pattern.len()-1];
+                        let alternatives: Vec<&str> = content.split('|').collect();
+                        for alternative in alternatives {
+                            if alternative.trim() == normalized_input {
+                                self.quack_debug(&format!("      Parenthesized alternative match: {} → {}", param_value, sub.value));
+                                return sub.value.clone();
+                            }
+                        }
+                    }
+                }
+                
+                // 🦆 says ⮞ Debug: show what we tried to match against
+                self.quack_debug(&format!("      No entity match found for '{}' in {} substitutions", 
+                    param_value, intent.substitutions.len()));
+            }
+            
+            param_value.to_string()
+        }
+      
+        // 🦆 says ⮞ DYNAMIC REGEX BUILDER - quacky pattern magic!
+        fn build_pattern_matcher(&self, _script_name: &str, sentence: &str) -> Option<(Regex, Vec<String>)> {
+            let start_time = Instant::now();
+            self.quack_debug(&format!("    Building pattern matcher for: '{}'", sentence));
+    
+            let mut regex_parts = Vec::new();
+            let mut param_names = Vec::new();
+            let mut current = sentence.to_string();
+    
+            // 🦆 says ⮞ extract parameters and build regex
+            while let Some(start) = current.find('{') {
+                if let Some(end) = current.find('}') {
+                    let before_param = &current[..start];
+                    let param = &current[start+1..end];
+                    let after_param = &current[end+1..];
+    
+                    // 🦆 says ⮞ handle text before parameter
+                    if !before_param.is_empty() {
+                        let escaped = regex::escape(before_param);
+                        regex_parts.push(escaped);
+                    }
+    
+                    param_names.push(param.to_string());
+                    
+                    // 🦆 says ⮞ handle WILDCARD vs SPECIFIC paramz
+                    let regex_group = if param == "search" || param == "param" {
+                        // 🦆 says ⮞ wildcard - match anything!
+                        self.quack_debug(&format!("      Wildcard parameter: {}", param));
+                        "(.*)".to_string()
+                    } else {
+                        // 🦆 says ⮞ specific parameter - match word boundaries
+                        self.quack_debug(&format!("      Specific parameter: {}", param));
+                        r"(\b[^ ]+\b)".to_string()
+                    };
+    
+                    regex_parts.push(regex_group);
+                    current = after_param.to_string();
+                } else {
+                    break;
+                }
+            }
+    
+            // 🦆 says ⮞ handle remaining text
+            if !current.is_empty() {
+                regex_parts.push(regex::escape(&current));
+            }
+    
+            let regex_pattern = format!("^{}$", regex_parts.join(""));
+            
+            let build_time = start_time.elapsed();
+            self.quack_debug(&format!("      Final regex: {}", regex_pattern));
+            self.quack_debug(&format!("      Parameter names: {:?}", param_names));
+            self.quack_debug(&format!("      Regex build time: {:?}", build_time));
+    
+            match Regex::new(&regex_pattern) {
+                Ok(re) => {
+                    self.quack_debug("      Regex compiled successfully");
+                    Some((re, param_names))
+                },
+                Err(e) => {
+                    self.quack_debug(&format!("🦆 says ⮞ fuck ❌ Regex compilation failed: {}", e));
+                    None
+                },
+            }
+        }
+    
+        // 🦆 says ⮞ PRIORITY PROCESSING SYSTEM - smart script ordering!
+        fn calculate_processing_order(&mut self) {
+            let mut script_priorities = Vec::new();
+    
+            for (script_name, intent) in &self.intent_data {
+                // 🦆 says ⮞ calculate priority (default medium)
+                let priority = 3; // 🦆 says ⮞ TODO: from voice config
+                
+                // 🦆 says ⮞ detect complex patterns
+                let has_complex_patterns = intent.sentences.iter().any(|s| {
+                    s.contains('{') || s.contains('[') || s.contains('(')
+                });
+    
+                script_priorities.push(ScriptPriority {
+                    name: script_name.clone(),
+                    priority,
+                    has_complex_patterns,
+                });
+            }
+    
+            // 🦆 says ⮞ Nix stylez priority:
+            // 🦆 says ⮞ 1: lower priority number first (higher priority)
+            // 🦆 says ⮞ 2: simple patterns before complex ones  
+            // 🦆 says ⮞ 3: alphabetical for determinism
+            script_priorities.sort_by(|a, b| {
+                a.priority.cmp(&b.priority)
+                    .then(a.has_complex_patterns.cmp(&b.has_complex_patterns))
+                    .then(a.name.cmp(&b.name))
+            });
+    
+            self.processing_order = script_priorities;
+            self.quack_debug(&format!("Processing order: {:?}", 
+                self.processing_order.iter().map(|s| &s.name).collect::<Vec<_>>()));
+        }
+    
+        // 🦆 says ⮞ SUBSTITUTION ENGINE!
+        fn apply_real_time_substitutions(&self, script_name: &str, text: &str) -> (String, HashMap<String, String>) {
+            let mut resolved_text = text.to_lowercase();
+            let mut substitutions = HashMap::new();
+    
+            if let Some(intent) = self.intent_data.get(script_name) {
+                for sub in &intent.substitutions {
+                    // 🦆 says ⮞ word boundary substitution
+                    let pattern = format!(r"\b{}\b", regex::escape(&sub.pattern));
+                    if let Ok(re) = Regex::new(&pattern) {
+                        if let Some(original_match) = re.find(&resolved_text) {
+                            let original = original_match.as_str().to_string();
+                            resolved_text = re.replace_all(&resolved_text, &sub.value).to_string();
+                            substitutions.insert(original.clone(), sub.value.clone());
+                            self.quack_debug(&format!("      Real-time sub: {} → {}", original, sub.value));
+                        }
+                    }
+                }
+            }
+    
+            (resolved_text, substitutions)
+        }
+    
+        // 🦆 says ⮞ EXACT MATCHING!        
+        fn exact_match(&self, text: &str) -> Option<MatchResult> {
+            let global_start = Instant::now();
+            let text = text.to_lowercase();
+            
+            self.quack_debug(&format!("Starting EXACT match for: '{}'", text));
+        
+            for (script_index, script_priority) in self.processing_order.iter().enumerate() {
+                let script_name = &script_priority.name;
+                
+                self.quack_debug(&format!("Trying script [{}/{}]: {}", 
+                    script_index + 1, self.processing_order.len(), script_name));
+        
+                // 🦆 says ⮞ go real-time substitutions i choose u!
+                let (resolved_text, substitutions) = self.apply_real_time_substitutions(script_name, &text);
+                self.quack_debug(&format!("After substitutions: '{}'", resolved_text));
+        
+                if let Some(intent) = self.intent_data.get(script_name) {
+                    for sentence in &intent.sentences {
+                        let expanded_variants = self.expand_optional_words(sentence);
+                        
+                        for variant in expanded_variants {
+                            if let Some((regex, param_names)) = self.build_pattern_matcher(script_name, &variant) {
+                                if let Some(captures) = regex.captures(&resolved_text) {
+                                    let mut args = Vec::new();      
+                                    // 🦆 says ⮞ process da param
+                                    for i in 1..captures.len() {
+                                        if let Some(matched) = captures.get(i) {
+                                            let param_index = i - 1;
+                                            let param_name = if param_index < param_names.len() {
+                                                &param_names[param_index]
+                                            } else {
+                                                "param"
+                                            };
+                        
+                                            let mut param_value = matched.as_str().to_string();     
+                                            // 🦆 says ⮞ go entity resolution i choose u!
+                                            self.quack_debug(&format!("Before entity resolution: --{} {}", param_name, param_value));
+                                            
+                                            let entity_resolved = self.resolve_entity(script_name, param_name, &param_value);
+                                            if entity_resolved != param_value {
+                                                self.quack_debug(&format!("      Entity resolution: --{} {} → {}", 
+                                                    param_name, param_value, entity_resolved));
+                                                param_value = entity_resolved;
+                                            }
+                                            
+                                            if let Some(sub) = substitutions.get(&param_value) {
+                                                self.quack_debug(&format!("      Substitution: {} → {}", param_value, sub));
+                                                param_value = sub.clone();
+                                            }
+                                            
+                                            self.quack_debug(&format!("      Final argument: --{} {}", param_name, param_value));
+                                            args.push(format!("--{}", param_name));
+                                            args.push(param_value);
+                                        }
+                                    }
+                                    
+                                    return Some(MatchResult {
+                                        script_name: script_name.clone(),
+                                        args,
+                                        matched_sentence: variant,
+                                        processing_time: global_start.elapsed(),
+                                    });
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            None
+        }
+                 
+        // 🦆 says ⮞ fallback yo! FUZZY MATCHIN' 2 teh moon!
+        fn levenshtein_distance(&self, a: &str, b: &str) -> usize {
+            let a_chars: Vec<char> = a.chars().collect();
+            let b_chars: Vec<char> = b.chars().collect();
+            let a_len = a_chars.len();
+            let b_len = b_chars.len();
+    
+            if a_len == 0 { return b_len; }
+            if b_len == 0 { return a_len; }
+    
+            let mut matrix = vec![vec![0; b_len + 1]; a_len + 1];
+    
+            for i in 0..=a_len { matrix[i][0] = i; }
+            for j in 0..=b_len { matrix[0][j] = j; }
+    
+            for i in 1..=a_len {
+                for j in 1..=b_len {
+                    let cost = if a_chars[i-1] == b_chars[j-1] { 0 } else { 1 };
+                    matrix[i][j] = (matrix[i-1][j] + 1)
+                        .min(matrix[i][j-1] + 1)
+                        .min(matrix[i-1][j-1] + cost);
+                }
+            }
+            matrix[a_len][b_len]
+        }
+    
+        fn find_best_fuzzy_match(&self, text: &str) -> Option<(String, String, i32)> {
+            let normalized_input = text.to_lowercase();
+            let mut best_score = 0;
+            let mut best_match = None;
+    
+            self.quack_debug(&format!("Fuzzy matching against {} entries", self.fuzzy_index.len()));
+    
+            for entry in &self.fuzzy_index {
+                let normalized_sentence = entry.sentence.to_lowercase();            
+                let distance = self.levenshtein_distance(&normalized_input, &normalized_sentence);
+                let max_len = normalized_input.len().max(normalized_sentence.len());
+        
+                if max_len == 0 { continue; }      
+                let score = 100 - (distance * 100 / max_len) as i32;
+        
+                self.quack_debug(&format!("  '{}' vs '{}' -> {}%", normalized_input, normalized_sentence, score));
+        
+                if score >= self.fuzzy_threshold {
+                    if score > best_score {
+                        best_score = score;
+                        best_match = Some((entry.script.clone(), entry.sentence.clone(), score));
+                        self.quack_debug(&format!("  🦆 NEW BEST: {}%", score));
+                    }
+                }
+            }
+            best_match
+        }
+    
+        fn fuzzy_match(&self, text: &str) -> Option<MatchResult> {
+            self.quack_debug(&format!("Starting FUZZY match for: '{}'", text));
+            
+            if let Some((script_name, sentence, score)) = self.find_best_fuzzy_match(text) {
+                self.quack_info(&format!("Fuzzy match: {} (score: {}%)", script_name, score)); 
+                // 🦆 says ⮞ TODO parameter extraction for fuzzy matches
+                let input_words: Vec<&str> = text.split_whitespace().collect();
+                let sentence_words: Vec<&str> = sentence.split_whitespace().collect();     
+                let mut args = Vec::new();
+                let mut param_index = 0;  
+                // 🦆 says ⮞ extract parameter names from sentence
+                let mut param_names = Vec::new();
+                let mut current = sentence.clone();
+                while let Some(start) = current.find('{') {
+                    if let Some(end) = current.find('}') {
+                        let param = &current[start+1..end];
+                        param_names.push(param.to_string());
+                        current = current[end+1..].to_string();
+                    } else { break; }
+                }
+                
+                for (i, word) in sentence_words.iter().enumerate() {
+                    if word.starts_with('{') && word.ends_with('}') {
+                        if i < input_words.len() && param_index < param_names.len() {
+                            let param_name = &param_names[param_index];
+                            let param_value = input_words[i];
+                            
+                            // 🦆 says ⮞ go entity resolution i choose u!
+                            let resolved_value = self.resolve_entity(&script_name, param_name, param_value);
+                            
+                            args.push(format!("--{}", param_name));
+                            args.push(resolved_value);
+                            param_index += 1;
+                            
+                            self.quack_debug(&format!("      Fuzzy argument: --{} {}", param_name, param_value));
+                        }
+                    }
+                }
+                
+                Some(MatchResult {
+                    script_name,
+                    args,
+                    matched_sentence: sentence,
+                    processing_time: std::time::Duration::default(),
+                })
+            } else {
+                self.quack_debug("No fuzzy match found");
+                None
+            }
+        }
+    
+        // 🦆 says ⮞ YO waz qwackin' yo?!
+        // 🦆 says ⮞ here comez da executta 
+        fn execute_script(&self, result: &MatchResult) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_info(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
+            // 🦆 says ⮞ execution tree
+            println!("   ┌─(yo-{})", result.script_name);
+            println!("   │🦆 Match: {}", result.matched_sentence);
+            
+            if result.args.is_empty() {
+                println!("   └─🦆 says ⮞ no parameters yo");
+            } else {
+                for chunk in result.args.chunks(2) {
+                    if chunk.len() == 2 {
+                        println!("   └─⮞ {} {}", chunk[0], chunk[1]);
+                    }
+                }
+            }      
+            if result.processing_time.as_millis() > 0 {
+                println!("   └─⏰ do took {:?}", result.processing_time);
+            }
+            
+            // 🦆 says ⮞ EXECUTION
+            let status = Command::new(format!("yo-{}", result.script_name))
+                .args(&result.args)
+                .status()?;          
+            if !status.success() {
+                eprintln!("🦆 says ⮞ fuck ❌ Script execution failed with status: {}", status);
+            }     
+            Ok(())
+        }
+        fn say_no_match(&self) {
+            eprintln!("🦆 says ⮞ fuck ❌ No matching command found!");
+            eprintln!("yo do --help to see available commands");
+        }
+    
+        // 🦆 says ⮞ go MAIN RUNNER i choose u! - quack 2 da attack!
+        pub fn run(&mut self, input: &str, fuzzy_threshold: i32) -> Result<(), Box<dyn std::error::Error>> {
+            self.fuzzy_threshold = fuzzy_threshold;
+            self.calculate_processing_order();
+            // 🦆 says ⮞ exact matchin'
+            if let Some(match_result) = self.exact_match(input) {
+                self.quack_info(&format!("Exact match found: {}", match_result.script_name));
+                self.execute_script(&match_result)?;
+                return Ok(());
+            }
+    
+            // 🦆 says ⮞ fallback yo go fuzzy matchin' i choose u!
+            if let Some(match_result) = self.fuzzy_match(input) {
+                self.quack_info(&format!("Fuzzy match found: {}", match_result.script_name));
+                self.execute_script(&match_result)?;
+                return Ok(());
+            }
+            self.say_no_match();
+            Ok(())
+        }
+    }
+    
+    fn main() -> Result<(), Box<dyn std::error::Error>> {
+        let args: Vec<String> = env::args().collect(); 
+        if args.len() < 2 {
+            eprintln!("Usage: {} <input> [fuzzy_threshold]", args[0]);
+            eprintln!("Example: {} 'set an alarm for 7 and 30' 20", args[0]);
+            exit(1);
+        }       
+        let input = &args[1];
+        let fuzzy_threshold = if args.len() > 2 {
+            args[2].parse().unwrap_or(15)
+        } else {
+            15
+        };
+    
+        let mut yo_do = YoDo::new();
+        
+        // 🦆 says ⮞ load da environment data
+        if let Ok(intent_data_path) = env::var("YO_INTENT_DATA") {
+            yo_do.load_intent_data(&intent_data_path)?;
+        } else {
+            eprintln!("🦆 says ⮞ fuck ❌ YO_INTENT_DATA environment variable not set");
+            eprintln!("Available YO_* vars:");
+            for (key, _) in env::vars().filter(|(k, _)| k.starts_with("YO_")) {
+                eprintln!("   {}", key);
+            }
+            return Ok(());
+        }
+        
+        if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
+            println!("Loading fuzzy index from: {}", fuzzy_index_path);
+            yo_do.load_fuzzy_index(&fuzzy_index_path)?;
+        }
+        yo_do.run(input, fuzzy_threshold)
+    }
+  '';
+
+  cargoToml = pkgs.writeText "Cargo.toml" ''    
+    [package]
+    name = "yo_do"
+    version = "0.1.1"
+    edition = "2021"
+
+    [dependencies]
+    regex = "1.0"
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+  '';
+ 
+# 🦆 says ⮞ expose da magic! dis builds da NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
-#  file."sentences/README.md" = escapeMD (builtins.readFile "${helpTextFile}");
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
-    do = { # 🦆 says ⮞ wat ='( 
-      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion";
-      aliases = [ "d" ];
+    do-bash = { # 🦆 says ⮞ wat? BASH?! quack - just bcause duck can! crazy huh?! 
+      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. (Bash version)";
       category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       logLevel = "INFO";
       autoStart = false;
@@ -939,10 +1619,64 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         fi
         exit
       ''; # 🦆 says ⮞ thnx for quackin' along til da end!
-    }; 
+    };
+
+    # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
+    do = {
+      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Super fast!)";
+      category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
+      aliases = [ "d" ];
+      autoStart = false;
+      logLevel = "INFO";
+      helpFooter = ''
+        cat ${voiceSentencesHelpFile} 
+      '';
+      parameters = [ # 🦆 says ⮞ set your mosquitto user & password
+        { name = "input"; description = "Text to translate"; optional = false; } 
+        { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 50; }
+        { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/do-rs"; optional = false; } 
+        { name = "build"; type = "bool"; description = "Flag for building the Rust binary"; optional = true; default = false; }            
+      ];
+      code = ''
+        set +u  
+        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
+        FUZZY_THRESHOLD=$fuzzyThreshold
+        YO_FUZZY_INDEX="${fuzzyIndexFlatFile}"
+        text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
+        INTENT_FILE="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez    
+        # 🦆 says ⮞ create the Rust projectz directory and move into it
+        mkdir -p "$dir"
+        cd "$dir"
+        mkdir -p src
+        # 🦆 says ⮞ create the source filez yo 
+        cat ${do-rs} > src/main.rs
+        cat ${cargoToml} > Cargo.toml     
+        # 🦆 says ⮞ check build bool
+        if [ "$build" = true ]; then
+          dt_debug "Deleting any possible old versions of the binary"
+          rm -f target/release/yo_do
+          ${pkgs.cargo}/bin/cargo generate-lockfile     
+          ${pkgs.cargo}/bin/cargo build --release  
+          dt_info "Build complete!"
+        fi # 🦆 says ⮞ if no binary exist - compile it yo
+        if [ ! -f "target/release/yo_do" ]; then
+          ${pkgs.cargo}/bin/cargo generate-lockfile     
+          ${pkgs.cargo}/bin/cargo build --release
+          dt_info "Build complete!"
+        fi
+  
+        # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
+        if [ "$VERBOSE" -ge 1 ]; then
+          DEBUG=1 YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
+        fi  
+        # 🦆 says ⮞ else run debugless yo
+        YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
+      '';
+    };
+  
   };
   # 🦆 says ⮞ SAFETY FIRST! 
-  assertions = [ 
+  assertions = [
     {
       assertion = assertionCheckForConflictingSentences.assertion;
       message = assertionCheckForConflictingSentences.message;

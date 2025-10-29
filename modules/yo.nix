@@ -273,8 +273,8 @@ $ yo wake
 
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
-| Command Syntax               | Aliases    | Description | VoiceReady |
-|------------------------------|------------|-------------|--|
+| Command Syntax               | Description | VoiceReady |
+|------------------------------|-------------------------|--|
 ${helpText}
 ### ❓ Detailed Help
 For specific command help: 
