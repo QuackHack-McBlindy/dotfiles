@@ -264,6 +264,48 @@
             let state: Value = serde_json::from_str(&state_content).ok()?;
             state[device][key].as_str().map(|s| s.to_string())
         }
+        
+        // 🦆 says ⮞ room timer - turns off lights after nix configured seconds of no motion
+        fn reset_room_timer(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let timer_dir = format!("{}/timers", self.state_dir);
+            let sanitized_room = room.replace(" ", "_");
+            let timer_file = format!("{}/{}", timer_dir, sanitized_room);
+            // 🦆 says ⮞ just2make sure yo
+            std::fs::create_dir_all(&timer_dir)?;
+
+            // 🦆 says ⮞ kill timer if there is any
+            if let Ok(content) = std::fs::read_to_string(&timer_file) {
+                if let Ok(pid) = content.trim().parse::<i32>() {
+                    let _ = std::process::Command::new("kill")
+                        .arg(pid.to_string())
+                        .output();
+                }
+                let _ = std::fs::remove_file(&timer_file);
+            }
+
+            // 🦆 says ⮞ spawn timer
+            let room_clone = room.to_string();
+            let timer_file_clone = timer_file.clone();
+            let state_clone = std::sync::Arc::new(self.clone());
+        
+            tokio::spawn(async move {
+                // 🦆 says ⮞ Sleep for X sec (nix config.house.zigbee.darkTime.duration)
+                tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;       
+                // 🦆 says ⮞ room lights off
+                if let Err(e) = state_clone.room_lights_off(&room_clone) {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to turn off lights for {}: {}", room_clone, e);
+                }           
+                // 🦆 says ⮞ clean up
+                let _ = std::fs::remove_file(&timer_file_clone);        
+                eprintln!("[🦆📜] ✅INFO✅ ⮞ Lights turned off in {}", room_clone);
+            });
+            // 🦆 says ⮞ write thread id 4 trackin' 
+            let pseudo_pid = std::process::id();
+            std::fs::write(&timer_file, pseudo_pid.to_string())?;
+            self.quack_debug(&format!("Reset 15m timer for {} (File: {})", room, timer_file));
+            Ok(())
+        }
+        
         // 🦆 says ⮞ SET SECURITY STATE    
         fn set_larmed(&self, armed: bool) -> Result<(), Box<dyn std::error::Error>> {
             let state = json!({ "larmed": armed });
@@ -503,8 +545,9 @@
                         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
                         self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
                         
-                        if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool 
+                        if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool & timer to power off again 
                             self.room_lights_on(room)?;
+                            self.reset_room_timer(room)?;
                         } else { // 🦆 says ⮞ daytime? lightz no thnx
                             self.quack_debug("❌ Daytime - no lights activated by motion.");
                         }
@@ -747,9 +790,11 @@
         let mqtt_password = std::env::var("MQTT_PASSWORD")
             .or_else(|_| std::fs::read_to_string("/run/secrets/mosquitto"))
             .unwrap_or_else(|_| "".to_string());
-        let state_dir = std::env::var("STATE_DIR").unwrap_or_else(|_| "/var/lib/zigduck".to_string());
         let debug = std::env::var("DEBUG").is_ok();
-        
+        // 🦆 says ⮞ create state & timer dirz
+        let state_dir = std::env::var("STATE_DIR").unwrap_or_else(|_| "/var/lib/zigduck".to_string());
+        let timer_dir = format!("{}/timers", state_dir);
+        std::fs::create_dir_all(&timer_dir)?;         
         // 🦆 says ⮞ read devices from env var
         let devices_file = std::env::var("ZIGBEE_DEVICES_FILE")
             .unwrap_or_else(|_| "devices.json".to_string());

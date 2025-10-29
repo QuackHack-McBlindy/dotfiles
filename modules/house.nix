@@ -228,7 +228,7 @@ in { # 🦆 says ⮞ Options for da house
             
         zigbee.darkTime = lib.mkOption {
           type = lib.types.submodule {
-            options = {
+            options = { # 🦆 duck say ⮞ used with Zigduck Bash
               start = lib.mkOption {
                 type = lib.types.str;
                 default = "18:00";
@@ -238,7 +238,7 @@ in { # 🦆 says ⮞ Options for da house
                 type = lib.types.str;
                 default = "08:30";
                 description = "End time of dark time range (in HH:MM)";
-              };
+              }; # 🦆 duck say ⮞ used in Zigduck Rust
               after = lib.mkOption {
                 type = lib.types.str;
                 default = "18";
@@ -248,7 +248,12 @@ in { # 🦆 says ⮞ Options for da house
                 type = lib.types.str;
                 default = "6";
                 description = "End time of dark time range (HH format)";
-              };
+              }; 
+              duration = lib.mkOption {
+                type = lib.types.str;
+                default = "900"; # 🦆 duck say ⮞ 15 minutes
+                description = "Number of seconds to wait before turning the lights off after motion is detected in dark time";
+              };              
             };
           };
           default = {};
