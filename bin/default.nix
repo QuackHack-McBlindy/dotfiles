@@ -35,7 +35,7 @@ in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
         inherit self config lib cmdHelpers pkgs sysHosts;
     }) (
-        importModulesRecursive ./config ++   # 🦆 duck say ⮞ ++
+        importModulesRecursive ./voice ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++

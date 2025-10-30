@@ -188,7 +188,7 @@ in { # 🦆 says ⮞ Options for da house
               example = "mdi:cancel";
             };
             batteryType = mkOption {
-              type = types.nullOr (types.enum ["CR2032" "CR2450" "AAA" "AA"]);
+              type = types.nullOr (types.enum ["CR2032" "CR2450" "CR1" "AAA" "AA"]);
               default = null;
               description = "Optional type of battery the device uses, if applicable.";
               example = "CR2032";

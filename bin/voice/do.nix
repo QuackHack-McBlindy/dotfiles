@@ -1322,7 +1322,8 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do-bash = { # 🦆 says ⮞ wat? BASH?! quack - just bcause duck can! crazy huh?! 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. (Bash version)";
-      category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
+      #category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
+      category = "🗣️ Voice";
       logLevel = "INFO";
       autoStart = false;
       parameters = [
@@ -1624,7 +1625,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
     # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
     do = {
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Super fast!)";
-      category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
+      category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
       aliases = [ "d" ];
       autoStart = false;
       logLevel = "INFO";

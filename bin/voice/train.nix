@@ -14,7 +14,7 @@ in {
   yo.scripts = {
     train = {
       description = "Trains the NLP module. Correct misclassified commands and update NLP patterns";
-      category = "⚙️ Configuration";
+      category = "🗣️ Voice";
       logLevel = "DEBUG";
       parameters = [
         { name = "phrase"; description = "Word or sentence you want to train"; optional = false; }

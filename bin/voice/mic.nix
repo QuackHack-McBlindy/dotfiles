@@ -24,7 +24,7 @@
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {
       description = "Trigger microphone recording sent to transcription.";
-      category = "⚙️ Configuration";
+      category = "🗣️ Voice";
       logLevel = "CRITICAL";
       parameters = [ # 🦆 says ⮞ some paramz to know where to pass audio
         { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit 

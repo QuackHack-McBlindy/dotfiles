@@ -172,7 +172,9 @@ house.zigbee.devices = {
     "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; };
     "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; };
     # 🦆 says ⮞ BEDROOM
-    "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = "mdi:toggle-switch"; endpoint = 1; batteryType = "CR2450"; }; 
+    "0xa4c13832742c96f7" = { friendly_name = "Robot Arm 1"; room = "bedroom"; type = "pusher"; icon = "mdi:toggle-switch"; endpoint = 1; batteryType = "CR1"; }; 
+    "0xa4c138387966b58d" = { friendly_name = "Robot Arm 2"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = "mdi:toggle-switch"; batteryType = "CR1"; };
+    "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = "mdi:toggle-switch"; endpoint = 1; batteryType = "CR2450"; };    
     "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; supports_color = true; };
     "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; supports_color = true; };
     "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = "mdi:lightbulb"; endpoint = 11; supports_color = true; };

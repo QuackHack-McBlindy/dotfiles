@@ -27,7 +27,7 @@
 in { 
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
-    category = "⚙️ Configuration"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
+    category = "🗣️ Voice"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!

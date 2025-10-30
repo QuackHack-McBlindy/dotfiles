@@ -37,7 +37,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 
 <!-- SCRIPT_STATS_START -->
 - __78 qwacktastic scripts in /bin - 46 scripts have voice commands.__ <br>
-- __1840 dynamically generated regex patterns - makes 271860062 phrases available as commands.__ <br>
+- __1852 dynamically generated regex patterns - makes 271860134 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
 - __Natural Language support with complete voice pipeline__ <br>
@@ -156,7 +156,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -480,6 +480,24 @@ Zigbee devices at `config.house.zigbee.devices`.
     room = "other";
     supports_color = false;
     type = "outlet";
+  };
+  0xa4c13832742c96f7 = {
+    batteryType = "CR1";
+    endpoint = 1;
+    friendly_name = "Robot Arm 1";
+    icon = "mdi:toggle-switch";
+    room = "bedroom";
+    supports_color = false;
+    type = "pusher";
+  };
+  0xa4c138387966b58d = {
+    batteryType = "CR1";
+    endpoint = 11;
+    friendly_name = "Robot Arm 2";
+    icon = "mdi:toggle-switch";
+    room = "bedroom";
+    supports_color = false;
+    type = "pusher";
   };
   0xa4c13873044cb7ea = {
     batteryType = null;
@@ -1033,7 +1051,7 @@ Android TV devices at `config.house.tv`.
     channels = {
       1 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/1.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/1.png";
         id = 1;
         name = "SVT1";
         scrape_url = "https://tv-tabla.se/tabla/svt1/";
@@ -1041,7 +1059,7 @@ Android TV devices at `config.house.tv`.
       };
       10 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/10.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/10.png";
         id = 10;
         name = "Kanal 10";
         scrape_url = "https://tv-tabla.se/tabla/tv10/";
@@ -1049,7 +1067,7 @@ Android TV devices at `config.house.tv`.
       };
       11 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/11.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/11.png";
         id = 11;
         name = "Kanal 11";
         scrape_url = "https://tv-tabla.se/tabla/tv11/";
@@ -1057,7 +1075,7 @@ Android TV devices at `config.house.tv`.
       };
       12 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/12.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/12.png";
         id = 12;
         name = "Kanal 12";
         scrape_url = "https://tv-tabla.se/tabla/tv12/";
@@ -1065,7 +1083,7 @@ Android TV devices at `config.house.tv`.
       };
       13 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/13.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/13.png";
         id = 13;
         name = "TV4 Hockey";
         scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
@@ -1073,7 +1091,7 @@ Android TV devices at `config.house.tv`.
       };
       14 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/14.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/14.png";
         id = 14;
         name = "TV4 Sport Live 1";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
@@ -1081,7 +1099,7 @@ Android TV devices at `config.house.tv`.
       };
       15 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/15.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/15.png";
         id = 15;
         name = "TV4 Sport Live 2";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
@@ -1089,7 +1107,7 @@ Android TV devices at `config.house.tv`.
       };
       16 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/16.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/16.png";
         id = 16;
         name = "TV4 Sport Live 3";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
@@ -1097,7 +1115,7 @@ Android TV devices at `config.house.tv`.
       };
       17 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/17.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/17.png";
         id = 17;
         name = "TV 4 Sport Live 4";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
@@ -1105,7 +1123,7 @@ Android TV devices at `config.house.tv`.
       };
       2 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/2.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/2.png";
         id = 2;
         name = "SVT2";
         scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1113,7 +1131,7 @@ Android TV devices at `config.house.tv`.
       };
       3 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/3.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/3.png";
         id = 3;
         name = "Kanal 3";
         scrape_url = "https://tv-tabla.se/tabla/tv3/";
@@ -1121,7 +1139,7 @@ Android TV devices at `config.house.tv`.
       };
       4 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/4.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/4.png";
         id = 4;
         name = "TV4";
         scrape_url = "https://tv-tabla.se/tabla/tv4/";
@@ -1129,7 +1147,7 @@ Android TV devices at `config.house.tv`.
       };
       5 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/5.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/5.png";
         id = 5;
         name = "TV5";
         scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
@@ -1137,7 +1155,7 @@ Android TV devices at `config.house.tv`.
       };
       6 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/6.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/6.png";
         id = 6;
         name = "Kanal 6";
         scrape_url = "https://tv-tabla.se/tabla/tv6/";
@@ -1145,7 +1163,7 @@ Android TV devices at `config.house.tv`.
       };
       7 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/7.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/7.png";
         id = 7;
         name = "Sjuan";
         scrape_url = "https://tv-tabla.se/tabla/sjuan/";
@@ -1153,7 +1171,7 @@ Android TV devices at `config.house.tv`.
       };
       8 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/8.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/8.png";
         id = 8;
         name = "TV8";
         scrape_url = "https://tv-tabla.se/tabla/tv8/";
@@ -1161,7 +1179,7 @@ Android TV devices at `config.house.tv`.
       };
       9 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/9.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/9.png";
         id = 9;
         name = "Kanal 9";
         scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
@@ -1180,7 +1198,7 @@ Android TV devices at `config.house.tv`.
     channels = {
       1 = {
         cmd = "open_telenor && wait 5 && start_channel_1";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/1.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/1.png";
         id = 1;
         name = "SVT1";
         scrape_url = "https://tv-tabla.se/tabla/svt1/";
@@ -1188,7 +1206,7 @@ Android TV devices at `config.house.tv`.
       };
       10 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/10.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/10.png";
         id = 10;
         name = "Kanal 10";
         scrape_url = "https://tv-tabla.se/tabla/tv10/";
@@ -1196,7 +1214,7 @@ Android TV devices at `config.house.tv`.
       };
       11 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/11.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/11.png";
         id = 11;
         name = "Kanal 11";
         scrape_url = "https://tv-tabla.se/tabla/tv11/";
@@ -1204,7 +1222,7 @@ Android TV devices at `config.house.tv`.
       };
       12 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/12.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/12.png";
         id = 12;
         name = "Kanal 12";
         scrape_url = "https://tv-tabla.se/tabla/tv12/";
@@ -1212,7 +1230,7 @@ Android TV devices at `config.house.tv`.
       };
       13 = {
         cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/13.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/13.png";
         id = 13;
         name = "TV4 Hockey";
         scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
@@ -1220,7 +1238,7 @@ Android TV devices at `config.house.tv`.
       };
       14 = {
         cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/14.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/14.png";
         id = 14;
         name = "TV4 Sport Live 1";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
@@ -1228,7 +1246,7 @@ Android TV devices at `config.house.tv`.
       };
       15 = {
         cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/15.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/15.png";
         id = 15;
         name = "TV4 Sport Live 2";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
@@ -1236,7 +1254,7 @@ Android TV devices at `config.house.tv`.
       };
       16 = {
         cmd = "open_tv4 && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/16.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/16.png";
         id = 16;
         name = "TV4 Sport Live 3";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
@@ -1244,7 +1262,7 @@ Android TV devices at `config.house.tv`.
       };
       17 = {
         cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/17.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/17.png";
         id = 17;
         name = "TV4 Sport Live 4";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
@@ -1252,7 +1270,7 @@ Android TV devices at `config.house.tv`.
       };
       2 = {
         cmd = "open_telenor && wait 5 && start_channel_2";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/2.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/2.png";
         id = 2;
         name = "SVT2";
         scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1260,7 +1278,7 @@ Android TV devices at `config.house.tv`.
       };
       3 = {
         cmd = "open_telenor && wait 5 && start_channel_3";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/3.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/3.png";
         id = 3;
         name = "Kanal 3";
         scrape_url = "https://tv-tabla.se/tabla/tv3/";
@@ -1268,7 +1286,7 @@ Android TV devices at `config.house.tv`.
       };
       4 = {
         cmd = "open_telenor && wait 5 && start_channel_4";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/4.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/4.png";
         id = 4;
         name = "TV4";
         scrape_url = "https://tv-tabla.se/tabla/tv4/";
@@ -1276,7 +1294,7 @@ Android TV devices at `config.house.tv`.
       };
       5 = {
         cmd = "open_telenor && wait 5 && start_channel_5";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/5.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/5.png";
         id = 5;
         name = "Kanal 5";
         scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
@@ -1284,7 +1302,7 @@ Android TV devices at `config.house.tv`.
       };
       6 = {
         cmd = "open_telenor && wait 5 && start_channel_6";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/6.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/6.png";
         id = 6;
         name = "Kanal 6";
         scrape_url = "https://tv-tabla.se/tabla/tv6/";
@@ -1292,7 +1310,7 @@ Android TV devices at `config.house.tv`.
       };
       7 = {
         cmd = "open_telenor && wait 5 && start_channel_7";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/7.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/7.png";
         id = 7;
         name = "Sjuan";
         scrape_url = "https://tv-tabla.se/tabla/sjuan/";
@@ -1300,7 +1318,7 @@ Android TV devices at `config.house.tv`.
       };
       8 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/8.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/8.png";
         id = 8;
         name = "TV8";
         scrape_url = "https://tv-tabla.se/tabla/tv8/";
@@ -1308,7 +1326,7 @@ Android TV devices at `config.house.tv`.
       };
       9 = {
         cmd = "";
-        icon = "/nix/store/rv9siavyrjps9i3ri8lk8rgj1l03s4rw-source/modules/themes/icons/tv/9.png";
+        icon = "/nix/store/yr07rdcc43rzg4ihmwkq3nix7y2w21wk-source/modules/themes/icons/tv/9.png";
         id = 9;
         name = "Kanal 9";
         scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
@@ -1515,15 +1533,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration | ✅ |
 | **⚙️ Configuration** | | | |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/do.nix) --input [--fuzzyThreshold] [--dir] [--build] | d | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Super fast!) | 📛 |
-| [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/do-bash.nix) --input [--fuzzyThreshold] |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. (Bash version) | 📛 |
-| [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/espaudio.nix)  |  |  | 📛 |
-| [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/mic.nix) [--port] [--host] [--seconds] |  | Trigger microphone recording sent to transcription. | 📛 |
-| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
-| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
-| [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
-| [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
-| [yo wake](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/config/wake.nix) [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle] |  | Run Wake word detection for audio recording and transcription | 📛 |
+| [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/espaudio.nix)  |  |  | 📛 |
 | **⚡ Productivity** | | | |
 | [yo calculator](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calculator.nix) --expression | calc | Calculate math expressions | ✅ |
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
@@ -1558,6 +1568,15 @@ Set default values for your parameters to have them marked [optional]
 | **🔐 Security & Encryption** | | | |
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
+| **🗣️ Voice** | | | |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) --input [--fuzzyThreshold] [--dir] [--build] | d | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Super fast!) | 📛 |
+| [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzyThreshold] |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. (Bash version) | 📛 |
+| [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | Trigger microphone recording sent to transcription. | 📛 |
+| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
+| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
+| [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
+| [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
+| [yo wake](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/wake.nix) [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle] |  | Run Wake word detection for audio recording and transcription | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo battery](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/battery.nix) [--device] |  | Fetch battery level for specified device. | ✅ |
@@ -1566,7 +1585,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
 | [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets. | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] |  | Control lights and other home automatioon devices | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--user] [--passwordfile] [--flake] [--pair] |  | Control lights and other home automatioon devices | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |

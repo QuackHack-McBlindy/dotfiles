@@ -439,7 +439,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
     # 🦆 says ⮞ automatic doin' sentencin' testin'
     tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
       description = "Extensive automated sentence testing for the NLP"; 
-      category = "⚙️ Configuration";
+      category = "🗣️ Voice";
       autoStart = false;
       logLevel = "INFO";
       parameters = [

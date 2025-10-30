@@ -640,7 +640,7 @@ EOF
     config = let # 🦆 duck say ⮞ map categories to bin directories
       categoryDirMap = {
         "🎧 Media Management" = "bin/media";
-        "⚙️ Configuration" = "bin/config";
+        "🗣️ Voice" = "bin/voice";
         "🛖 Home Automation" = "bin/home";
         "🧹 Maintenance" = "bin/maintenance";
         "🧩 Miscellaneous" = "bin/misc";

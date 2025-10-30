@@ -134,6 +134,7 @@ in { # 🦆 says ⮞ Voice Intents
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
       { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }    
+      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairring and start searching for new devices"; default = false; }          
     ];
     code = ''
       ${cmdHelpers}
@@ -154,6 +155,80 @@ in { # 🦆 says ⮞ Voice Intents
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$PWFILE")
       touch "$STATE_DIR/voice-debug.log"        
+      if [[ "$pair" == "true" ]]; then
+        echo "🦆 Activating Zigbee2MQTT pairing mode for 120 seconds..."
+        mqtt_pub -t "zigbee2mqtt/bridge/request/permit_join" -m '{"value": true, "time": 120}'    
+        dt_info "📡 Searching for new Zigbee devices... Put your device in pairing mode now!"
+        dt_info "⏰ Pairing mode! 120 sec... (Ctrl+C to stop early)"
+        cleanup() {
+          dt_debug "Disabling pairing mode..."
+          mqtt_pub -t "zigbee2mqtt/bridge/request/permit_join" -m '{"value": false}'
+          exit 0
+        }
+        trap cleanup INT TERM EXIT
+        ${pkgs.mosquitto}/bin/mosquitto_sub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" \
+        -t "zigbee2mqtt/bridge/event" -t "zigbee2mqtt/bridge/log" | while IFS= read -r line; do
+        
+        dt_debug "Received: $line"
+                   
+        if echo "$line" | jq -e '.type == "device_joined"' > /dev/null 2>&1; then
+          device_data=$(echo "$line" | jq -r '.data')
+          friendly_name=$(echo "$device_data" | jq -r '.friendly_name')
+          ieee_address=$(echo "$device_data" | jq -r '.ieee_address')
+          echo "✅ New device joined: $friendly_name ($ieee_address)"
+        fi
+                
+        if echo "$line" | jq -e '.type == "device_interview"' > /dev/null; then
+          interview_data=$(echo "$line" | jq -r '.data')
+          status=$(echo "$interview_data" | jq -r '.status')
+          ieee_address=$(echo "$interview_data" | jq -r '.ieee_address')
+                    
+          if [[ "$status" == "successful" ]]; then
+            model=$(echo "$interview_data" | jq -r '.definition.model // "unknown"')
+            vendor=$(echo "$interview_data" | jq -r '.definition.vendor // "unknown"')
+            description=$(echo "$interview_data" | jq -r '.definition.description // "unknown"')      
+            dt_info "🎉 Device interview successful!"
+            dt_info "Model: $model"
+            dt_info "Vendor: $vendor" 
+            dt_info "Description: $description"
+            dt_info "IEEE: $ieee_address"
+                        
+            cat << EOF
+🦆 says ⮞ To add this device to your Nix configuration, add to `house.zigbee.devices`:
+
+''${ieee_address} = {
+  friendly_name = "$friendly_name";
+  room = "unknown"; # ⮜ 🦆 says ⮞ Set the room name
+  type = "unknown"; # ⮜ 🦆 says ⮞ Set device type (light, dimmer, sensor, motion, outlet, remote, pusher, blind)
+  endpoint = 11;     # ⮜ 🦆 says ⮞ Set endpoint if needed
+  icon = "mdi:toggle-switch"; # ⮜ 🦆 says ⮞ Set icon for frontend
+  batteryType = "CR2450"; }; # ⮜ 🦆 says ⮞ Optional option if device has a battery. (AAA, CR1, CR2032, CR2450) 
+};
+
+EOF
+            elif [[ "$status" == "failed" ]]; then
+              dt_warning "❌ Device interview failed for $ieee_address"
+            fi
+          fi
+        
+          if echo "$line" | jq -e '.message != null' > /dev/null 2>&1; then
+            message=$(echo "$line" | jq -r '.message')
+            level=$(echo "$line" | jq -r '.level // "info"')
+            
+            if [[ "$level" == "info" ]]; then
+              dt_info "Bridge: $message"
+            elif [[ "$level" == "warning" ]]; then
+              dt_warning "Bridge: $message"
+            elif [[ "$level" == "error" ]]; then
+              dt_error "Bridge: $message"
+            else
+              dt_debug "Bridge: $message"
+            fi
+          fi
+        done
+    
+        cleanup
+      fi
       if [[ "$DEVICE" == "all_lights" ]]; then
         if [[ "$STATE" == "on" ]]; then
           scene max
@@ -317,7 +392,8 @@ in { # 🦆 says ⮞ Voice Intents
         # 🦆 says ⮞ color control
         "(ändra|gör) färgen [på|i] {device} till {color}"
         "(ändra|gör) {device} {color}"
-            
+        # 🦆 says ⮞ pairing mode
+        "{pair} [ny|nya] [zigbee] (enhet|enheter)"
         # 🦆 says ⮞ brightness control
         "justera {device} till {brightness} procent"
       ];        
@@ -392,6 +468,9 @@ in { # 🦆 says ⮞ Voice Intents
           { "in" = "[guld|guldfärgad]"; out = "gold"; }
           { "in" = "[silver|silverfärgad]"; out = "silver"; }
           { "in" = "[slumpmässig|random|valfri färg]"; out = "random"; }
+        ];
+        pair.values = [
+          { "in" = "[para|paras]"; out = "true"; }
         ];
       };
     };
