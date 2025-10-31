@@ -26,6 +26,43 @@
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "Accept-Language": "en-US,en;q=0.5",
     }
+    def fetch_powerplay_data():
+        url = "https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/teams_powerplay?count=25&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=result"
+        html = fetch(url)
+        if not html:
+            logger.error("Failed to fetch powerplay data")
+            return {}
+    
+        try:
+            data = json.loads(html)
+            powerplay_dict = {}
+            for team_data in data[0]['stats']:
+                team_name = team_data['info']['siteDisplayName']
+                efficiency = team_data.get('PPPerc', '?')
+                powerplay_dict[team_name] = efficiency
+            return powerplay_dict
+        except Exception as e:
+            logger.error(f"Failed to parse powerplay data: {e}")
+            return {}
+
+    def fetch_boxplay_data():
+        url = "https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=result"
+        html = fetch(url)
+        if not html:
+            logger.error("Failed to fetch boxplay data")
+            return {}    
+        try:
+            data = json.loads(html)
+            boxplay_dict = {}
+            for team_data in data[0]['stats']:
+                team_name = team_data['info']['siteDisplayName']
+                efficiency = team_data.get('PKPerc', '?')
+                boxplay_dict[team_name] = efficiency
+            return boxplay_dict
+        except Exception as e:
+            logger.error(f"Failed to parse boxplay data: {e}")
+            return {}
+
     def fetch(url):
         logger.info(f"Fetching {url}")
         try:
@@ -98,6 +135,31 @@
         logger.info("🏒 Starting hockey scraper...")     
         logger.info("Scraping league table...")
         table_data = scrape_table()
+        logger.info("Fetching special teams statistics...")
+        powerplay_data = fetch_powerplay_data()
+        boxplay_data = fetch_boxplay_data()
+        team_name_mapping = {
+            "IF Björklöven": "Björklöven",
+            "MoDo Hockey": "MoDo", 
+            "BIK Karlskoga": "Karlskoga",
+            "Nybro Vikings IF": "Nybro",
+            "Kalmar HC": "Kalmar",
+            "IK Oskarshamn": "Oskarshamn",
+            "Almtuna IS": "Almtuna",
+            "AIK": "AIK",
+            "Mora IK": "Mora",
+            "Södertälje SK": "Södertälje",
+            "Östersunds IK": "Östersund",
+            "IF Troja-Ljungby": "Troja-Ljungby",
+            "Västerås IK": "Västerås",
+            "Vimmerby HC": "Vimmerby"
+        }
+    
+        for team in table_data:
+            api_team_name = team_name_mapping.get(team['team'], team['team'])
+            team['powerplay'] = powerplay_data.get(api_team_name, '?')
+            team['boxplay'] = boxplay_data.get(api_team_name, '?')
+    
         if table_data:
             try:
                 with open(table_path, 'w') as f:
@@ -172,14 +234,14 @@
             -H "Accept: application/json; charset=utf-8" \
             -H "User-Agent: HockeyNews/1.0" \
             "https://hockeyallsvenskan.se/api/articles/site-news/list?page=0&pagesize=10&orderByDate=desc")
-        
+      
         if [ $? -ne 0 ]; then
             dt_error "Failed to fetch news"
             return 1
         fi
-    
+  
         if command -v jq >/dev/null 2>&1; then
-            echo "$response" | jq -r '.data.articleItems[] | "\(.publishDate[0:10]) | \(.header)"' 2>/dev/null
+            echo "$response" | jq -r '.data.articleItems[] | "\(.header)"' 2>/dev/null | head -5
         else
             dt_error "Failed to get news."
             return 1
@@ -600,6 +662,95 @@ in {
       ${get_boxplay}
       ${get_powerplay}
       
+      # 🦆 says ⮞ analyze best/worst special teams
+      analyze_special_teams() {
+          local query_type="$1"  # "best-powerplay", "worst-powerplay", "best-boxplay", "worst-boxplay"
+          local table_file="$2"
+          
+          if [ ! -f "$table_file" ]; then
+              dt_error "Table file not found: $table_file"
+              return 1
+          fi
+      
+          case "$query_type" in
+              "best-powerplay")
+                  local best_team=$(jq -r '[
+                      .[] | select(.powerplay != "?" and .powerplay != null) 
+                      | {team: .team, efficiency: (.powerplay | sub("%"; "") | tonumber)}
+                  ] | sort_by(.efficiency) | reverse | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
+                  
+                  if [ -n "$best_team" ] && [ "$best_team" != "null" ]; then
+                      IFS='|' read -r team efficiency <<< "$best_team"
+                      echo "$team har ligans bästa powerplay med $efficiency% i effektivitet."
+                  else
+                      echo "Kunde inte hitta data om powerplay."
+                  fi
+                  ;;
+                  
+              "worst-powerplay")
+                  local worst_team=$(jq -r '[
+                      .[] | select(.powerplay != "?" and .powerplay != null) 
+                      | {team: .team, efficiency: (.powerplay | sub("%"; "") | tonumber)}
+                  ] | sort_by(.efficiency) | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
+                  
+                  if [ -n "$worst_team" ] && [ "$worst_team" != "null" ]; then
+                      IFS='|' read -r team efficiency <<< "$worst_team"
+                      echo "$team har ligans sämsta powerplay med bara $efficiency% i effektivitet."
+                  else
+                      echo "Kunde inte hitta data om powerplay."
+                  fi
+                  ;;
+                  
+              "best-boxplay")
+                  local best_team=$(jq -r '[
+                      .[] | select(.boxplay != "?" and .boxplay != null) 
+                      | {team: .team, efficiency: (.boxplay | sub("%"; "") | tonumber)}
+                  ] | sort_by(.efficiency) | reverse | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
+                  
+                  if [ -n "$best_team" ] && [ "$best_team" != "null" ]; then
+                      IFS='|' read -r team efficiency <<< "$best_team"
+                      echo "$team har ligans bästa boxplay med $efficiency% i effektivitet."
+                  else
+                      echo "Kunde inte hitta data om boxplay."
+                  fi
+                  ;;
+                  
+              "worst-boxplay")
+                  local worst_team=$(jq -r '[
+                      .[] | select(.boxplay != "?" and .boxplay != null) 
+                      | {team: .team, efficiency: (.boxplay | sub("%"; "") | tonumber)}
+                  ] | sort_by(.efficiency) | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
+                  
+                  if [ -n "$worst_team" ] && [ "$worst_team" != "null" ]; then
+                      IFS='|' read -r team efficiency <<< "$worst_team"
+                      echo "$team har ligans sämsta boxplay med bara $efficiency% i effektivitet."
+                  else
+                      echo "Kunde inte hitta data om boxplay."
+                  fi
+                  ;;
+          esac
+      }
+      
+      # 🦆 says ⮞ display table with special teams
+      display_table_with_special_teams() {
+          local table_file="$1"
+          
+          if [ ! -f "$table_file" ]; then
+              dt_error "Table file not found"
+              return 1
+          fi
+      
+          markdown_table=$(
+              echo "# 🏆 HOCKEYALLSVENSKAN 25/26 - SPECIAL TEAMS" 
+              echo "| Pos | Lag | M | V | X | F | ÖV | ÖF | + | - | +/- | P | PP% | BP% |"
+              echo "|-----|-----|---|---|---|---|----|----|----|----|-----|---|-----|-----|"
+              
+              jq -r '.[] | "| \(.position) | \(.team) | \(.games_played) | \(.wins) | \(.ties) | \(.losses) | \(.overtime_wins) | \(.overtime_losses) | \(.goals_for) | \(.goals_against) | \(.goal_difference) | \(.points) | \(.powerplay) | \(.boxplay) |"' "$table_file"
+          )
+          
+          echo "$markdown_table" | ${pkgs.glow}/bin/glow -
+      }
+          
       # 🦆 says ⮞ team name mapping between table and API
       map_team_to_api() {
         local team="$1"
@@ -622,6 +773,8 @@ in {
         esac
       }
       
+ 
+  
       dt_info "🏒🦆duckPUCK🏒🦆 hockey scraper i choose you!"    
       ${scraper} --dataDir "$dataDir"
       status=$?     
@@ -630,11 +783,24 @@ in {
         exit $status
       fi    
       dt_debug "Scraping done, files updated in $dataDir"      
-      table_file="$dataDir/table.json"      
-     
+      table_file="$dataDir/table.json"     
+      
+      # 🦆 says ⮞ handle best/worst special teams queries
+      if [ -n "$mode" ] && [ -n "$stat" ] && { [ "$mode" = "best" ] || [ "$mode" = "worst" ]; }; then
+          if [ -f "$table_file" ]; then
+              query_type="$mode-$stat"
+              analysis=$(analyze_special_teams "$query_type" "$table_file")
+              echo "$analysis"
+              yo say "$analysis" --silence "0.8"
+          else
+              dt_error "No table data found for special teams analysis"
+          fi
+          exit 0
+      fi
+           
       # 🦆 says ⮞ handle team analysis
       if [ -n "$team" ]; then
-
+      
         if [ -f "$table_file" ]; then
           # 🦆 says ⮞ fuzzy match team name
           matched_team=$(fuzzy_match_team "$team" "$table_file")
@@ -648,6 +814,7 @@ in {
           # 🦆 says ⮞ map team name for API calls
           api_team=$(map_team_to_api "$team")
           dt_debug "API team name: $api_team (from: $team)"     
+          
           # 🦆 says ⮞ handle special teams with analysis
           if [ "$stat" = "powerplay" ]; then
               dt_debug "Stat: $stat & Team: $api_team"  
@@ -730,8 +897,6 @@ in {
               bp_data=$(get_team_boxplay "$api_team")
               
               # 🦆 says ⮞ extract percentage and stats directly from displayed data
-              # bp_perc_line=$(echo "$bp_data" | grep "Penalty Kill Efficiency:")
-              # bp_perc=$(echo "$bp_perc_line" | awk '{print $4}' | sed 's/%//')  # CHANGED from $5 to $4
               bp_perc_line=$(echo "$bp_data" | grep "Boxplay Efficiency:")
               bp_perc=$(echo "$bp_perc_line" | awk '{print $3}' | sed 's/%//')
               
@@ -742,8 +907,8 @@ in {
               shg_line=$(echo "$bp_data" | grep "Short-handed Goals:")
               shg=$(echo "$shg_line" | awk '{print $3}')
               
-              ppopp_line=$(echo "$bp_data" | grep "Penalty Kill Opportunities:")
-              ppopp=$(echo "$ppopp_line" | awk '{print $4}')
+              ppopp_line=$(echo "$bp_data" | grep "Boxplay Opportunities:")
+              ppopp=$(echo "$ppopp_line" | awk '{print $3}')
               
               # 🦆 says ⮞ analyziz dat bp go!
               echo "$bp_data"
@@ -805,7 +970,6 @@ in {
                   dt_debug "Extracted BP_Perc: $bp_perc"
               fi
           
-          #
           else
               # 🦆 says ⮞ GENERAL TEAM ANALYSIS
               dt_debug "Doing general team analysis for: $team"
@@ -827,24 +991,23 @@ in {
         if [ -f "$table_file" ]; then
           team_count=$(jq length "$table_file" 2>/dev/null || echo "0")
           dt_debug "Found $team_count teams in table"        
-          # 🦆 says ⮞ create markdown table
-          markdown_table=$(
-            echo "# 🏆 HOCKEYALLSVENSKAN 25/26" 
-            echo "| Pos | Lag | M | V | X | F | ÖV | ÖF | + | - | +/- | P |"
-            echo "|-----|-----|---|---|---|---|----|----|----|----|-----|---|"          
-            jq -r '.[] | "| \(.position) | \(.team) | \(.games_played) | \(.wins) | \(.ties) | \(.losses) | \(.overtime_wins) | \(.overtime_losses) | \(.goals_for) | \(.goals_against) | \(.goal_difference) | \(.points) |"' "$table_file"
-          )
           
           # 🦆 says ⮞ display HA news
-          hockey_news && echo ""
-          # 🦆 says ⮞ display da fancy scoreboard table 
-          echo "$markdown_table" | ${pkgs.glow}/bin/glow -
+          echo "  🗞️ NYHETER"     
+          hockey_news | head -5 && echo ""
+          
+          # 🦆 says ⮞ display table with special teams
+          display_table_with_special_teams "$table_file"
+          
           # 🦆 says ⮞ display todays/tomorrows games
           echo "" && yo hag
         else
           dt_error "No table data found at $table_file"
         fi
       fi
+      
+  
+
     '';
     voice = {
       enabled = true;															
@@ -890,6 +1053,10 @@ in {
         "visa {team}s {stat}"
         "analysera {team}s {stat}"
         "ge en analys av {team}s {stat}"        
+
+        # 🦆 says ⮞ best/worse teams queries
+        "vem har [ligan|ligans] {mode} {stat}"
+        "vilket lag har [ligan|ligans] {mode} {stat}"
            
         # 🦆 says ⮞ schedule / recent / upcoming
         "visa {mode} matcher"
@@ -905,6 +1072,8 @@ in {
           { "in" = "[förra|senaste|igår]"; out = "recent"; }   
           { "in" = "[idag|nästa|kommande|imorgon]"; out = "upcoming"; }   
           { "in" = "[tabellen|ställningen|poängställning]"; out = "table"; }
+          { "in" = "[bäst|bästa|best]"; out = "best"; }
+          { "in" = "[sämst|sämsta|kassast]"; out = "worst"; }
         ];  
         team.values = [
           { "in" = "[björklöven|björklövens|löven|vi]"; out = "björklöven"; }   

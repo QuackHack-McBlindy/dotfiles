@@ -392,11 +392,11 @@
             *self.message_counts.entry(topic.to_string()).or_insert(0) += 1;
             self.total_messages += 1;
             if duration > 100 {
-                self.quack_debug(&format!("Slow processing: {} took {}ms", topic, duration));
+                self.quack_debug(&format!("[🦆📶] - Slow processing: {} took {}ms", topic, duration));
             }
     
             if self.total_messages % 100 == 0 {
-                self.quack_info(&format!("Performance stats - Total messages: {}", self.total_messages));
+                self.quack_info(&format!("[🦆📶] - Total messages: {}", self.total_messages));
                 for (topic_type, avg_time) in &self.processing_times {
                     let count = self.message_counts.get(topic_type).unwrap_or(&0);
                     self.quack_debug(&format!("{}: avg {}ms, count {}", topic_type, avg_time, count));
@@ -1372,7 +1372,7 @@ EOF
         
           # 🦆 says ⮞ log performance every 100 messages
           if [ $((total_messages % 100)) -eq 0 ]; then
-            dt_info "Performance stats - Total messages: $total_messages"
+            dt_info "[🦆📶] - Total messages: $total_messages"
             for topic_type in "''${!processing_times[@]}"; do
               local avg_time=''${processing_times["$topic_type"]}
               local count=''${message_counts["$topic_type"]}

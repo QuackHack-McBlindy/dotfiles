@@ -20,10 +20,14 @@ in {
 #    '';
     parameters = [ 
       { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; }
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
+      { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
+      { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
     ]; 
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
+      DT_MONITOR_HOSTS="desktop,laptop,homie,nasty";
+      DT_MONITOR_PORT="9999";
       LOGFILE="$file"
       unset BOLD ITALIC UNDERLINE    
       PAGER=''${PAGER:-less -R}
@@ -110,6 +114,33 @@ in {
         done
       }
 
+      check_errors_across_hosts() {
+        local hosts=(${lib.concatStringsSep " " sysHosts})
+        for host in "''${hosts[@]}"; do
+          dt_check_error_state "$host"
+        done
+      }
+
+      continuous_monitor() {
+        ${pkgs.gum}/bin/gum format --theme=yellow "# Starting Continuous Error Monitoring"
+        ${pkgs.gum}/bin/gum format "Press Ctrl+C to stop monitoring"
+    
+        while true; do
+          clear
+          dt_monitor_hosts
+          sleep 30
+        done
+      }
+
+      if [[ "''${errors:-false}" == "true" ]]; then
+        check_errors_across_hosts
+        exit 0
+      fi
+
+      if [[ "''${monitor:-false}" == "true" ]]; then
+        continuous_monitor
+        exit 0
+      fi
 
       if [[ -z "$LOGFILE" ]]; then
         cd "$DT_LOG_PATH" || exit 1
@@ -156,6 +187,10 @@ in {
         "sök [efter] error"
         "ducktrace {service}"
         "kolla [i] [log|loggen|loggar|loggarna)]"
+        "kolla [efter] fel [på|hos] {host}"
+        "är {host} felfri"
+        "visa alla fel"
+        "check [for] error[s] [on] {host}"
       ];
       lists = {
         host.values = [
@@ -166,4 +201,5 @@ in {
         ];
       };   
     };  
+    
   };}

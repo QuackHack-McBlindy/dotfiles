@@ -334,7 +334,8 @@
         local swedish_date=$(format_swedish_date "$date")
         
         # 🦆 says ⮞ head
-        echo "🗓️  $swedish_date:"
+        BOLD=1
+        ${pkgs.gum}/bin/gum format "# 🗓️  $swedish_date:"
         echo "----------------------------"
         # 🦆 says ⮞ filter games for this date AND team
         echo "$games_json" | jq -r --arg date "$date" '
