@@ -162,39 +162,61 @@
     impl ZigduckState {
         fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String, state_dir: String, devices_file: String, debug: bool) -> Self {
             let state_file = format!("{}/state.json", state_dir);
-            let larmed_file = format!("{}/security_state.json", state_dir);
+            let larmed_file = format!("{}/security_state.json", state_dir);      
             // 🦆 says ⮞ duck needz dirz create dirz thnx
-            fs::create_dir_all(&state_dir).unwrap();   
+            std::fs::create_dir_all(&state_dir).unwrap_or_else(|e| {
+                eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to create state directory {}: {}", state_dir, e);
+                std::process::exit(1);
+            });   
+        
             // 🦆 says ⮞ init state file yes
-            if !Path::new(&state_file).exists() {
-                fs::write(&state_file, "{}").unwrap();
-            }
-            // 🦆 says ⮞ init sec state
-            if !Path::new(&larmed_file).exists() {
-                fs::write(&larmed_file, r#"{"larmed":false}"#).unwrap();
-            }  
-            // 🦆 says ⮞ read devices file
-            let devices_json = fs::read_to_string(devices_file)
-                .unwrap_or_else(|_| "{}".to_string());  
-            // 🦆 says ⮞ parse da json map of devicez yo
-            let raw_devices: HashMap<String, Value> = serde_json::from_str(&devices_json)
-                .unwrap_or_else(|_| {
-                    eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Failed to parse devices JSON, using empty devices map");
-                    HashMap::new()
+            if !std::path::Path::new(&state_file).exists() {
+                std::fs::write(&state_file, "{}").unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to create state file {}: {}", state_file, e);
+                    std::process::exit(1);
                 });
-            
-            // 🦆 says ⮞ convert 2 device struct
-            let mut devices = HashMap::new();
-            for (friendly_name, device_value) in raw_devices {
-                if let Ok(device) = serde_json::from_value::<Device>(device_value.clone()) {
-                    devices.insert(friendly_name, device);
-                } else {
-                    eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Failed to parse device: {}", friendly_name);
+            }
+        
+            // 🦆 says ⮞ init sec state
+            if !std::path::Path::new(&larmed_file).exists() {
+                std::fs::write(&larmed_file, r#"{"larmed":false}"#).unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to create security state file {}: {}", larmed_file, e);
+                    std::process::exit(1);
+                });
+            }  
+        
+            // 🦆 says ⮞ read devices file
+            let devices_json = std::fs::read_to_string(&devices_file)
+                .unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read devices file {}: {}", devices_file, e);
+                    "{}".to_string()
+                });  
+        
+            // 🦆 says ⮞ parse da json map of devicez yo
+            let raw_devices: std::collections::HashMap<String, serde_json::Value> = serde_json::from_str(&devices_json)
+                .unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to parse devices JSON from {}: {}", devices_file, e);
+                    std::collections::HashMap::new()
+                });
+        
+                // 🦆 says ⮞ convert 2 device struct
+                let mut devices = std::collections::HashMap::new();
+                for (friendly_name, device_value) in raw_devices {
+                    match serde_json::from_value::<Device>(device_value.clone()) {
+                    Ok(device) => {
+                        devices.insert(friendly_name, device);
+                    }
+                    Err(e) => {
+                        eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Failed to parse device {}: {}", friendly_name, e);
+                    }
                 }
             }
-            
-            eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} devices", devices.len());
-            
+        
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} devices from {}", devices.len(), devices_file);
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ State directory: {}", state_dir);
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ State file: {}", state_file);
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ Security file: {}", larmed_file);
+        
             Self {
                 mqtt_broker,
                 mqtt_user,
@@ -203,12 +225,13 @@
                 state_file,
                 larmed_file,
                 devices,
-                processing_times: HashMap::new(),
-                message_counts: HashMap::new(),
+                processing_times: std::collections::HashMap::new(),
+                message_counts: std::collections::HashMap::new(),
                 total_messages: 0,
                 debug,
             }
         }
+
     
         // 🦆 says ⮞ duckTrace - quack loggin' be bitchin' (yu log)
         fn quack_debug(&self, msg: &str) {
@@ -269,43 +292,64 @@
         fn reset_room_timer(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             let timer_dir = format!("{}/timers", self.state_dir);
             let sanitized_room = room.replace(" ", "_");
-            let timer_file = format!("{}/{}", timer_dir, sanitized_room);
+            let timer_file = format!("{}/{}", timer_dir, sanitized_room);    
             // 🦆 says ⮞ just2make sure yo
             std::fs::create_dir_all(&timer_dir)?;
-
+            
+            self.quack_info(&format!("⏰ Starting room timer for {} ({} seconds)", 
+                room, ${config.house.zigbee.darkTime.duration}));
+        
             // 🦆 says ⮞ kill timer if there is any
             if let Ok(content) = std::fs::read_to_string(&timer_file) {
                 if let Ok(pid) = content.trim().parse::<i32>() {
+                    self.quack_info(&format!("⏰ Resetting existing timer for {}", room));
                     let _ = std::process::Command::new("kill")
                         .arg(pid.to_string())
                         .output();
                 }
                 let _ = std::fs::remove_file(&timer_file);
             }
-
+        
             // 🦆 says ⮞ spawn timer
             let room_clone = room.to_string();
             let timer_file_clone = timer_file.clone();
             let state_clone = std::sync::Arc::new(self.clone());
+            
+            self.quack_info(&format!("⏰ Room timer initiated for {} - lights will turn off in {} seconds", 
+                room, ${config.house.zigbee.darkTime.duration}));
         
             tokio::spawn(async move {
                 // 🦆 says ⮞ Sleep for X sec (nix config.house.zigbee.darkTime.duration)
-                tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;       
+                state_clone.quack_debug(&format!("⏰ Room timer sleeping for {} seconds for {}", 
+                    ${config.house.zigbee.darkTime.duration}, room_clone));
+                
+                tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;
+                
+                state_clone.quack_info(&format!("⏰ Room timer expired for {}, turning off lights", room_clone));
+                
                 // 🦆 says ⮞ room lights off
                 if let Err(e) = state_clone.room_lights_off(&room_clone) {
-                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to turn off lights for {}: {}", room_clone, e);
-                }           
+                    state_clone.quack_info(&format!("❌ERROR❌ ⮞ Failed to turn off lights for {}: {}", room_clone, e));
+                } else {
+                    state_clone.quack_info(&format!("💡 Successfully turned off lights in {}", room_clone));
+                }
+                
                 // 🦆 says ⮞ clean up
-                let _ = std::fs::remove_file(&timer_file_clone);        
-                eprintln!("[🦆📜] ✅INFO✅ ⮞ Lights turned off in {}", room_clone);
+                let _ = std::fs::remove_file(&timer_file_clone);
+                state_clone.quack_info(&format!("⏰ Room timer completed and cleaned up for {}", room_clone));
             });
+            
             // 🦆 says ⮞ write thread id 4 trackin' 
             let pseudo_pid = std::process::id();
             std::fs::write(&timer_file, pseudo_pid.to_string())?;
-            self.quack_debug(&format!("Reset 15m timer for {} (File: {})", room, timer_file));
+            
+            self.quack_debug(&format!("Reset {} second timer for {} (File: {})", 
+                ${config.house.zigbee.darkTime.duration}, room, timer_file));
+            
+            self.quack_info(&format!("⏰ Room timer successfully set for {}", room));
             Ok(())
         }
-        
+      
         // 🦆 says ⮞ SET SECURITY STATE    
         fn set_larmed(&self, armed: bool) -> Result<(), Box<dyn std::error::Error>> {
             let state = json!({ "larmed": armed });
@@ -791,10 +835,12 @@
             .or_else(|_| std::fs::read_to_string("/run/secrets/mosquitto"))
             .unwrap_or_else(|_| "".to_string());
         let debug = std::env::var("DEBUG").is_ok();
-        // 🦆 says ⮞ create state & timer dirz
-        let state_dir = std::env::var("STATE_DIR").unwrap_or_else(|_| "/var/lib/zigduck".to_string());
+        
+        // 🦆 says ⮞ static state directory path
+        let state_dir = "/var/lib/zigduck".to_string();
         let timer_dir = format!("{}/timers", state_dir);
-        std::fs::create_dir_all(&timer_dir)?;         
+        std::fs::create_dir_all(&timer_dir)?;
+        
         // 🦆 says ⮞ read devices from env var
         let devices_file = std::env::var("ZIGBEE_DEVICES_FILE")
             .unwrap_or_else(|_| "devices.json".to_string());
@@ -814,7 +860,7 @@
             devices_file,
             debug,
         );
-    
+        
         // 🦆 says ⮞ simple runtime
         let rt = tokio::runtime::Runtime::new()?;
         rt.block_on(async {
@@ -856,8 +902,6 @@ in { # 🦆 says ⮞ finally here, quack!
       dt_info "MQTT_BROKER: $MQTT_BROKER" 
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")
-      STATE_DIR="${zigduckDir}"
-
 
       # 🦆 says ⮞ create the Rust projectz directory and move into it
       mkdir -p "$dir"
@@ -1617,7 +1661,7 @@ EOF
     '') 
   ];  
 
-  systemd.services.zigduck = {
+  systemd.services.zigduck-rs = {
     serviceConfig = {
       User = config.this.user.me.name;
       Group = config.this.user.me.name;

@@ -402,7 +402,7 @@ in {
           # ☁️ Cloudy / Overcast
           { "in" = "[molnigt|mulet|övermulet]"; out = "cloudy"; }
           # 🌧️ Rain / Showers
-          { "in" = "[regn|regma|regnar|skurar|duschregn]"; out = "rain"; }
+          { "in" = "[regn|regna|regnar|skurar|duschregn]"; out = "rain"; }
           # 🌨️ Snow Showers
           { "in" = "[snöblandat regn|snöblask|blötsnö]"; out = "sleet"; }
           # ❄️ Snow
