@@ -69,6 +69,9 @@ in {
         ["389"]="🌨️"  ["392"]="🌧️"  ["395"]="❄️"
       )
 
+      kmh_to_ms() {
+        awk "BEGIN { printf \"%.6f\n\", $1 / 3.6 }"
+      }
       # 🦆 says ⮞ map condition > weather codes
       declare -A CONDITION_CODES=(
         ["sunny"]="113"
@@ -289,13 +292,14 @@ in {
                 fi
                 ;;
             windy)
+                local ms_speed=$(kmh_to_ms "$wind_speed")
                 if (( wind_speed > 20 )); then
-                    dt_info "Ja, det blir $swedish_condition $display_name ($wind_speed km/h)."
-                    tts "Ja, det blir $swedish_condition $display_name med $wind_speed kilometer per timme."
+                    dt_info "Ja, det blir $swedish_condition $display_name ($wind_speed km/h ≈ ''${ms_speed} m/s)."
+                    tts "Ja, det blir $swedish_condition $display_name. Vinden ligger runt $wind_speed kilometer per timme, alltså cirka ''${ms_speed} meter per sekund."
                     return 0
                 else
-                    dt_info "Nej, det blir inte $swedish_condition $display_name ($wind_speed km/h)."
-                    tts "Nej, det blir inte $swedish_condition $display_name. Vinden är bara $wind_speed kilometer per timme."
+                    dt_info "Nej, det blir inte särskilt $swedish_condition $display_name ($wind_speed km/h ≈ ''${ms_speed} m/s)."
+                    tts "Nej, det blir inte särskilt $swedish_condition $display_name. Bara $wind_speed kilometer per timme, alltså ''${ms_speed} meter per sekund."
                     return 1
                 fi
                 ;;
@@ -318,6 +322,22 @@ in {
                 else
                     dt_info "Nej, det blir inte $swedish_condition $display_name ($mintempC°C)."
                     tts "Nej, det blir inte $swedish_condition $display_name. Minst $mintempC grader."
+                    return 1
+                fi
+                ;;
+            rain)
+                if (( $(echo "$precipMM > 0" | bc -l) )); then
+                    if (( $(echo "$precipMM < 2" | bc -l) )); then
+                        dt_info "Ja, men bara lite regn $display_name. Beräknad nederbörd ''${precipMM} mm."
+                        tts "Ja, men bara lite. Beräknad nederbörd ''${precipMM} millimeter."
+                    else
+                        dt_info "Ja, det blir regn $display_name (''${precipMM} mm)."
+                        tts "Ja, det blir regn $display_name, beräknad nederbörd ''${precipMM} millimeter."
+                    fi
+                    return 0
+                else
+                    dt_info "Nej, inget regn $display_name."
+                    tts "Nej, inget regn $display_name."
                     return 1
                 fi
                 ;;
@@ -354,7 +374,7 @@ in {
         "vad blir det för väder [på] {day}"
         # 🦆 says ⮞ check condition
         "hur {condition} (är|blir) det på {day}"
-        "blir det {condition} [på] {day}"
+        "(kommer|blir) det [att] {condition} [på] {day}"
         "hur {condition} är det"
         "kommer det att {condition} [på] {day}" 
       ];
@@ -382,7 +402,7 @@ in {
           # ☁️ Cloudy / Overcast
           { "in" = "[molnigt|mulet|övermulet]"; out = "cloudy"; }
           # 🌧️ Rain / Showers
-          { "in" = "[regn|regnar|skurar|duschregn]"; out = "rain"; }
+          { "in" = "[regn|regma|regnar|skurar|duschregn]"; out = "rain"; }
           # 🌨️ Snow Showers
           { "in" = "[snöblandat regn|snöblask|blötsnö]"; out = "sleet"; }
           # ❄️ Snow
@@ -392,9 +412,9 @@ in {
                                                   # 🌫️ Fog / Mist (not emoji-mapped but common)
           { "in" = "[dimma|dis|töcken]"; out = "fog"; }
           # 🌬️ Windy
-          { "in" = "[blåsigt|vind|vindigt]"; out = "windy"; }
+          { "in" = "[blås|blåsa|blåsigt|vind|vindigt]"; out = "windy"; }
           # 🌡️ Heat / Warm
-          { "in" = "[varmt|hett|värme]"; out = "varmt"; }
+          { "in" = "[varm|varmt|hett|värme]"; out = "varmt"; }
           # ❄️ Cold
           { "in" = "[kallt|kyla|frost]"; out = "kallt"; }
         ];  
