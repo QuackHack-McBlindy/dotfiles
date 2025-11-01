@@ -582,7 +582,7 @@
                         let motion_data = json!({
                             "last_active_room": room,
                             "timestamp": Local::now().to_rfc3339()
-                        }); // 🦆 says ⮞ save it, usefulö laterz?
+                        }); // 🦆 says ⮞ save it, useful laterz?
                         fs::write(format!("{}/last_motion.json", self.state_dir), motion_data.to_string())?;
                         self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
                         // 🦆 says ⮞ & update state file yo
@@ -634,6 +634,20 @@
     // 🦆 says ⮞ BLINDz - diz iz where i got my name from? quack
                 if let Some(position) = data["position"].as_str() {
                     if device.device_type == "blind" {
+                        // 🦆 says ⮞ update position in state file
+                        self.update_device_state(device_name, "position", position)?;
+                        // 🦆 says ⮞ & save human-readable state
+                        let position_num = position.parse::<u8>().unwrap_or(0);
+                        let state = match position_num {
+                            0 => "DOWN",
+                            100 => "UP",
+                            _ => "PARTIAL"
+                        };
+                        self.update_device_state(device_name, "state", state)?;
+                        // 🦆 says ⮞ save last updated timestamp
+                        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+                        self.update_device_state(device_name, "last_updated", &timestamp.to_string())?;
+        
                         if position == "0" {
                             self.quack_info(&format!("🪟 Rolled DOWN {} in {}", device_name, room));
                         } else if position == "100" {
@@ -644,19 +658,44 @@
                 
     // 🦆 says ⮞ STATE
                 if let Some(state) = data["state"].as_str() {
+                    self.update_device_state(device_name, "state", state)?;
+    
                     match device.device_type.as_str() { // 🦆 says ⮞ outletz/energy meters etc
                         "plug" | "power" | "outlet" => {
                             if state == "ON" {
+                                // 🦆 says ⮞ track when it was turned on
+                                let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+                                self.update_device_state(device_name, "last_turned_on", &timestamp.to_string())?;
                                 self.quack_info(&format!("🔌 {} Turned ON in {}", device_name, room));
                             } else if state == "OFF" {
+                                // 🦆 says ⮞ track when it was turned off
+                                let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+                                self.update_device_state(device_name, "last_turned_off", &timestamp.to_string())?;                            
                                 self.quack_info(&format!("🔌 {} Turned OFF in {}", device_name, room));
                             }
                         }
-                        _ => { // 🦆 says ⮞ if itz not outlets prob lights huh
-                            if state == "OFF" {
-                                self.quack_debug(&format!("💡 {} Turned OFF in {}", device_name, room));
-                            } else if state == "ON" {
+                        "light" => {
+                            if state == "ON" {
                                 self.quack_debug(&format!("💡 {} Turned ON in {}", device_name, room));
+                                // 🦆 says ⮞ track brightness if there is
+                                if let Some(brightness) = data["brightness"].as_u64() {
+                                    self.update_device_state(device_name, "brightness", &brightness.to_string())?;
+                                }
+                                // 🦆 says ⮞ track color if any
+                                if let Some(color) = data["color"].as_object() {
+                                    if let Some(hex) = color.get("hex").and_then(|v| v.as_str()) {
+                                        self.update_device_state(device_name, "color", hex)?;
+                                    }
+                                }
+                            } else if state == "OFF" {
+                                self.quack_debug(&format!("💡 {} Turned OFF in {}", device_name, room));
+                            }
+                        }
+                        _ => { // 🦆 says ⮞ handle other device types that have state
+                            if state == "ON" {
+                                self.quack_debug(&format!("⚡ {} Turned ON in {}", device_name, room));
+                            } else if state == "OFF" {
+                                self.quack_debug(&format!("⚡ {} Turned OFF in {}", device_name, room));
                             }
                         }
                     }
@@ -1661,7 +1700,7 @@ EOF
     '') 
   ];  
 
-  systemd.services.zigduck-rs = {
+  systemd.services.zigduck = {
     serviceConfig = {
       User = config.this.user.me.name;
       Group = config.this.user.me.name;
