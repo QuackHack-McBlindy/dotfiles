@@ -177,7 +177,7 @@ in { # 🦆 says ⮞ Options for da house
               example = "kitchen";
             };
             type = lib.mkOption { 
-              type = lib.types.str;
+              type = lib.types.enum [ "light" "dimmer" "sensor" "motion" "outlet" "remote" "pusher" "blind" ];
               description = "The type of device (e.g., light, dimmer, motion, etc).";
               example = "light";
             };

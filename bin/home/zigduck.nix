@@ -287,7 +287,81 @@
             let state: Value = serde_json::from_str(&state_content).ok()?;
             state[device][key].as_str().map(|s| s.to_string())
         }
-        
+      
+        // 🦆 says ⮞ DEVICE CHECK - centralized state updates
+        fn update_device_state_from_data(&self, device_name: &str, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
+            // 🦆 says ⮞ linkquality
+            if let Some(linkquality) = data["linkquality"].as_u64() {
+                self.update_device_state(device_name, "linkquality", &linkquality.to_string())?;
+            }
+            // 🦆 says ⮞ last_seen
+            if let Some(last_seen) = data["last_seen"].as_str() {
+                self.update_device_state(device_name, "last_seen", last_seen)?;
+            }
+            // 🦆 says ⮞ occupancy 
+            if let Some(occupancy) = data["occupancy"].as_bool() {
+                self.update_device_state(device_name, "occupancy", &occupancy.to_string())?;
+            }
+            // 🦆 says ⮞ action 
+            if let Some(action) = data["action"].as_str() {
+                self.update_device_state(device_name, "action", action)?;
+            }
+            // 🦆 says ⮞ contact 
+            if let Some(contact) = data["contact"].as_bool() {
+                self.update_device_state(device_name, "contact", &contact.to_string())?;
+            }
+            // 🦆 says ⮞ position 
+            if let Some(position) = data["position"].as_u64() {
+                self.update_device_state(device_name, "position", &position.to_string())?;
+            }
+            // 🦆 says ⮞ state 
+            if let Some(state) = data["state"].as_str() {
+                self.update_device_state(device_name, "state", state)?;
+            }
+            // 🦆 says ⮞ brightness 
+            if let Some(brightness) = data["brightness"].as_u64() {
+                self.update_device_state(device_name, "brightness", &brightness.to_string())?;
+            }
+            // 🦆 says ⮞ color 
+            if let Some(color) = data["color"].as_object() {
+                if let Ok(color_json) = serde_json::to_string(color) {
+                    self.update_device_state(device_name, "color", &color_json)?;
+                }
+            }
+            // 🦆 says ⮞ water_leak 
+            if let Some(water_leak) = data["water_leak"].as_bool() {
+                self.update_device_state(device_name, "water_leak", &water_leak.to_string())?;
+            }
+            if let Some(waterleak) = data["waterleak"].as_bool() {
+                self.update_device_state(device_name, "waterleak", &waterleak.to_string())?;
+            }
+            // 🦆 says ⮞ temperature 
+            if let Some(temperature) = data["temperature"].as_f64() {
+                self.update_device_state(device_name, "temperature", &temperature.to_string())?;
+            }
+            // 🦆 says ⮞ battery 
+            if let Some(battery) = data["battery"].as_u64() {
+                self.update_device_state(device_name, "battery", &battery.to_string())?;
+            }
+            if let Some(battery_state) = data["battery_state"].as_str() {
+                self.update_device_state(device_name, "battery_state", battery_state)?;
+            }
+            // 🦆 says ⮞ tamper 
+            if let Some(tamper) = data["tamper"].as_bool() {
+                self.update_device_state(device_name, "tamper", &tamper.to_string())?;
+            }
+            // 🦆 says ⮞ smoke 
+            if let Some(smoke) = data["smoke"].as_bool() {
+                self.update_device_state(device_name, "smoke", &smoke.to_string())?;
+            }
+            
+            // 🦆 says ⮞ Update last_seen timestamp for every message
+            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+            self.update_device_state(device_name, "last_updated", &timestamp.to_string())?;
+            
+            Ok(())
+        }
+     
         // 🦆 says ⮞ room timer - turns off lights after nix configured seconds of no motion
         fn reset_room_timer(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             let timer_dir = format!("{}/timers", self.state_dir);
@@ -536,28 +610,30 @@
             }
     
             let device_name = topic.strip_prefix("zigbee2mqtt/").unwrap_or(topic);
+            // 🦆 says ⮞ CENTRALIZED STATE UPDATES - like Bash version
+            if let Err(e) = self.update_device_state_from_data(device_name, &data) {
+                self.quack_info(&format!("Failed to update device state: {}", e));
+            }  
+            // 🦆 says ⮞ Now do the specific logic with logging
             if let Some(device) = self.devices.get(device_name) {
                 let room = &device.room;
 
-    // 🦆 says ⮞ 🔋 BATTERY            
-                if let Some(battery) = data["battery"].as_str() {
+                // 🦆 says ⮞ 🔋 BATTERY - just log changes (state already updated)
+                if let Some(battery) = data["battery"].as_u64() {
                     let prev_battery = self.get_state(device_name, "battery");
-                    // 🦆 says ⮞ no fun here but update state file atleast
-                    self.update_device_state(device_name, "battery", battery)?;
-                    if prev_battery.as_deref() != Some(battery) && prev_battery.is_some() {
+                    if prev_battery.as_deref() != Some(&battery.to_string()) && prev_battery.is_some() {
                         self.quack_info(&format!("🔋 Battery update for {}: {}% > {}%", device_name, prev_battery.unwrap(), battery));
                     }
                 }
-    
-   // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS
-                if let Some(temperature) = data["temperature"].as_str() {
+
+                // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS - just log changes (state already updated)
+                if let Some(temperature) = data["temperature"].as_f64() {
                     let prev_temp = self.get_state(device_name, "temperature");
-                    self.update_device_state(device_name, "temperature", temperature)?;
-                    
-                    if prev_temp.as_deref() != Some(temperature) && prev_temp.is_some() {
+                    if prev_temp.as_deref() != Some(&temperature.to_string()) && prev_temp.is_some() {
                         self.quack_info(&format!("🌡️ Temperature update for {}: {}°C > {}°C", device_name, prev_temp.unwrap(), temperature));
                     }
                 }
+
 
     // 🦆 says ⮞ left da home?    
                 if payload == "\"LEFT\"" {
@@ -587,7 +663,7 @@
                         self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
                         // 🦆 says ⮞ & update state file yo
                         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-                        self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
+                        //self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
                         
                         if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool & timer to power off again 
                             self.room_lights_on(room)?;
@@ -597,7 +673,7 @@
                         }
                     } else { // 🦆 says ⮞ no more movementz update state file yo
                         self.quack_debug(&format!("🛑 No more motion in {} {}", device_name, room));
-                        self.update_device_state(device_name, "occupancy", "false")?;
+                        //self.update_device_state(device_name, "occupancy", "false")?;
                     }
                 }
     
@@ -1095,6 +1171,64 @@ EOF
       }      
       get_larmed() {
         ${pkgs.jq}/bin/jq -r '.larmed' "$LARMED_FILE"
+      }
+      # 🦆 says ⮞ device parser for zigduck
+      device_check() { 
+        linkquality=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.linkquality // empty') && dt_debug "linkquality: $linkquality"
+        last_seen=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.last_seen // empty') && dt_debug "last_seen: $last_seen"
+        occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy // empty') && dt_debug "occupancy: $occupancy"
+        action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.action // empty') && dt_debug "action: $action"
+        contact=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.contact // empty') && dt_debug "contact: $contact"
+        position=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.position // empty') && dt_debug "position: $position"
+        state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.state // empty') && dt_debug "state: $state"
+        brightness=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.brightness // empty') && dt_debug "brightness: $brightness"
+        color=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.color // empty') && dt_debug "color: $color"
+        water_leak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.water_leak // empty') && dt_debug "water_leak: $water_leak"
+        waterleak=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.waterleak // empty') && dt_debug "waterleak: $waterleak"
+        temperature=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.temperature // empty') && dt_debug "temperature: $temperature"
+
+        battery=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery // empty') && dt_debug "battery: $battery"
+        battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
+        tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
+        smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
+                
+        device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
+        dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
+        dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
+        dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
+        room="''${dev_room//\"/}"
+      
+        should_update() {
+          case "$device_name" in
+            */set|*/availability)
+              dt_debug "Skipping update for device: $device_name (set/availability topic)"
+              return 1
+            ;;
+            *)
+              dt_debug "Will update state for device: $device_name"
+              return 0  
+            ;;
+          esac
+        }
+
+        if should_update; then
+          [ -n "$battery" ] && update_device_state "$device_name" "battery" "$battery"
+          [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
+          [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
+          [ -n "$brightness" ] && update_device_state "$device_name" "brightness" "$brightness"
+          [ -n "$color" ] && update_device_state "$device_name" "color" "$color"        
+          [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
+          [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
+          [ -n "$tamper" ] && update_device_state "$device_name" "tamper" "$tamper"
+          [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
+          [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"
+          [ -n "$occupancy" ] && update_device_state "$device_name" "occupancy" "$occupancy"
+         
+          [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"        
+          [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"       
+        else
+          dt_debug "Skipped state update for device: $device_name"
+        fi
       }
   
       # 🦆 says ⮞ zigbee coordinator backup function
