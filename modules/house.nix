@@ -15,6 +15,56 @@
     };
   }; 
 
+  # 🦆 says ⮞ 
+  automationActionType = types.oneOf [
+    (types.str) # Simple shell command
+    (types.submodule {
+      options = {
+        type = mkOption {
+          type = types.enum ["mqtt" "shell" "scene"];
+          default = "shell";
+          description = "Type of automation action";
+        };
+        command = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "The shell command to execute (for shell type)";
+        };
+        topic = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "MQTT topic (for mqtt type)";
+        };
+        message = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "MQTT message (for mqtt type)";
+        };
+        scene = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "Scene name (for scene type)";
+        };
+      };
+    })
+  ];
+
+  # 🦆 says ⮞ Dimmer action configuration
+  dimmerActionType = types.submodule {
+    options = {
+      enable = mkEnableOption "Enable this dimmer action";
+      description = mkOption {
+        type = types.str;
+        description = "Human-readable description of this action";
+      };
+      extra_actions = mkOption {
+        type = types.listOf automationActionType;
+        default = [];
+        description = "Additional actions to perform when this dimmer action triggers";
+      };
+    };
+  };
+
   # 🦆 duck say ⮞ supported boards
   supportedBoards = {
     esp32s3box = {
@@ -229,6 +279,9 @@ in { # 🦆 says ⮞ Options for da house
         zigbee.darkTime = lib.mkOption {
           type = lib.types.submodule {
             options = { # 🦆 duck say ⮞ used with Zigduck Bash
+              enable = mkEnableOption "Enable dark time automations" // {
+                default = true;
+              };              
               start = lib.mkOption {
                 type = lib.types.str;
                 default = "18:00";
@@ -259,16 +312,152 @@ in { # 🦆 says ⮞ Options for da house
           default = {};
           description = "Time range when it's considered dark (HH:MM format)";
         };
-        
-    };
-  
+    
+        # 🦆 says ⮞ Modular automations configuration
+        zigbee.automations = mkOption {
+          type = types.submodule {
+            options = {
+              # 🦆 says ⮞ Dimmer switch actions
+              dimmer_actions = mkOption {
+                type = types.attrsOf dimmerActionType;
+                default = {};
+                description = "Configuration for dimmer switch actions";
+                example = {
+                  on_press_release = {
+                    enable = true;
+                    description = "Turn on room lights";
+                    extra_actions = [
+                      "echo 'Room lights turned on'"
+                      {
+                        type = "mqtt";
+                        topic = "zigbee2mqtt/Fläkt/set";
+                        message = ''{"state":"ON"}'';
+                      }
+                    ];
+                  };
+                };
+              };
+
+              # 🦆 says ⮞ Room-specific automations
+              room_actions = mkOption {
+                type = types.attrsOf (types.attrsOf (types.listOf automationActionType));
+                default = {};
+                description = "Room-specific automation actions";
+                example = {
+                  kitchen = {
+                    motion_detected = [
+                      "echo 'Motion in kitchen'"
+                      {
+                        type = "mqtt";
+                        topic = "zigbee2mqtt/Fläkt/set";
+                        message = ''{"state":"ON"}'';
+                      }
+                    ];
+                    lights_turned_on = [
+                      "echo 'Kitchen lights activated'"
+                    ];
+                  };
+                };
+              };
+
+              # 🦆 says ⮞ Global automations
+              global_actions = mkOption {
+                type = types.attrsOf (types.listOf automationActionType);
+                default = {};
+                description = "Global automation actions not tied to specific rooms";
+                example = {
+                  all_lights_on = [
+                    "echo 'All lights turned on'"
+                    {
+                      type = "scene";
+                      scene = "max";
+                    }
+                  ];
+                  security_armed = [
+                    "echo 'Security system armed'"
+                    {
+                      type = "mqtt";
+                      topic = "zigbee2mqtt/security/state";
+                      message = ''{"armed":true}'';
+                    }
+                  ];
+                };
+              };
+            };
+          };
+          default = {};
+          description = "Modular automation configurations";
+        };
+      };
+   
+
     # 🔧 🦆 says ⮞  User Configuration
     config = lib.mkMerge [
       {
         environment.etc."dark-time.conf".text = ''
+          DARK_TIME_ENABLED="${if config.house.zigbee.darkTime.enable then "1" else "0"}"
           DARK_TIME_START="${config.house.zigbee.darkTime.start}"
           DARK_TIME_END="${config.house.zigbee.darkTime.end}"
         '';    
+      }
+
+      {
+        # 🦆 says ⮞ Default dimmer actions (matching current behavior)
+        house.zigbee.automations.dimmer_actions = {
+          on_press_release = {
+            enable = true;
+            description = "Turns on all light devices in the dimmer device's room";
+            extra_actions = [
+              {
+                type = "mqtt";
+                topic = "zigbee2mqtt/Fläkt/set";
+                message = ''{"state":"ON"}'';
+              }
+              {
+                type = "shell";
+                command = ''
+                  echo "hello room lights"
+                '';
+              }
+              
+            ];
+          };
+          on_hold_release = {
+            enable = true;
+            description = "Turns on every light device configured.";
+            extra_actions = [];
+          };
+          up_press_release = {
+            enable = true;
+            description = "Increase the brightness in the room";
+            extra_actions = [];
+          };
+          down_press_release = {
+            enable = true;
+            description = "Decrease brightness in room";
+            extra_actions = [];
+          };
+          off_press_release = {
+            enable = true;
+            description = "Turn off room lights";
+            extra_actions = [
+              {
+                type = "mqtt";
+                topic = "zigbee2mqtt/Fläkt/set";
+                message = ''{"state":"OFF"}'';
+              }
+            ];
+          };
+          off_hold_release = {
+            enable = true;
+            description = "Turn off all lights";
+            extra_actions = [];
+          };
+        };
+  
+        # 🦆 says ⮞ Default room-specific actions
+        #house.zigbee.automations.room_actions = {
+
       }
 
       {  # 🎨 Scenes  🦆 says ⮞ user defined scenes

@@ -121,6 +121,13 @@
     )
   );# 🦆 says ⮞ yaaaaaaaaaaaaaaay
 
+  # 🦆 says ⮞ Generate automations configuration
+  automationsJSON = builtins.toJSON config.house.zigbee.automations;
+  automationsFile = pkgs.writeText "automations.json" automationsJSON;
+
+  # 🦆 says ⮞ Dark time enabled flag
+  darkTimeEnabled = if config.house.zigbee.darkTime.enable then "1" else "0";
+
   # 🦆 needz 4 rust  
   devices-json = pkgs.writeText "devices.json" deviceMeta;
   # 🦆 says ⮞ RUSTY SMART HOME qwack qwack     
@@ -154,14 +161,49 @@
         state_file: String,
         larmed_file: String,
         devices: HashMap<String, Device>,
+        automations: AutomationConfig,  // 🦆 NEW!
+        dark_time_enabled: bool,        // 🦆 NEW!
         processing_times: HashMap<String, u128>,
         message_counts: HashMap<String, u64>,
         total_messages: u64,
         debug: bool,
+        
+    }
+
+    // 🦆 says ⮞ automation types
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct AutomationConfig {
+        dimmer_actions: HashMap<String, DimmerAction>,
+        room_actions: HashMap<String, HashMap<String, Vec<AutomationAction>>>,
+        global_actions: HashMap<String, Vec<AutomationAction>>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct DimmerAction {
+        enable: bool,
+        description: String,
+        extra_actions: Vec<AutomationAction>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    #[serde(untagged)]
+    enum AutomationAction {
+        Simple(String),
+        Structured(StructuredAction),
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct StructuredAction {
+        #[serde(rename = "type")]
+        action_type: String,
+        command: Option<String>,
+        topic: Option<String>,
+        message: Option<String>,
+        scene: Option<String>,
     }
     
     impl ZigduckState {
-        fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String, state_dir: String, devices_file: String, debug: bool) -> Self {
+        fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String, state_dir: String, devices_file: String, automations_file: String, dark_time_enabled: bool, debug: bool) -> Self {
             let state_file = format!("{}/state.json", state_dir);
             let larmed_file = format!("{}/security_state.json", state_dir);      
             // 🦆 says ⮞ duck needz dirz create dirz thnx
@@ -218,19 +260,47 @@
             eprintln!("[🦆📜] ✅INFO✅ ⮞ State file: {}", state_file);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ Security file: {}", larmed_file);
         
-            Self {
-                mqtt_broker,
-                mqtt_user,
-                mqtt_password,
-                state_dir,
-                state_file,
-                larmed_file,
-                devices,
-                processing_times: std::collections::HashMap::new(),
-                message_counts: std::collections::HashMap::new(),
-                total_messages: 0,
-                debug,
+            // 🦆 says ⮞ Load automations configuration
+            let automations_json = std::fs::read_to_string(&automations_file)
+                .unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read automations file {}: {}", automations_file, e);
+                    "{\"dimmer_actions\":{},\"room_actions\":{},\"global_actions\":{}}".to_string()
+                });
+        
+            let automations: AutomationConfig = serde_json::from_str(&automations_json)
+                .unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to parse automations JSON: {}", e);
+                    AutomationConfig {
+                        dimmer_actions: HashMap::new(),
+                        room_actions: HashMap::new(),
+                        global_actions: HashMap::new(),
+                    }
+                });
+        
+                Self {
+                    mqtt_broker,
+                    mqtt_user,
+                    mqtt_password,
+                    state_dir,
+                    state_file,
+                    larmed_file,
+                    devices,
+                    automations,
+                    dark_time_enabled,
+                    processing_times: HashMap::new(),
+                    message_counts: HashMap::new(),
+                    total_messages: 0,
+                    debug,
+                }
             }
+         
+
+        fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
+            // 🦆 says ⮞ This would send MQTT commands to set the scene
+            // For now, we'll just log it
+            self.quack_debug(&format!("Scene '{}' would be activated here", scene_name));
+            Ok(())
         }
     
         // 🦆 says ⮞ duckTrace - quack loggin' be bitchin' (yu log)
@@ -267,7 +337,74 @@
                     });
             }
         }
-    
+
+        
+        fn execute_automations(&self, automation_type: &str, trigger: &str, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            // 🦆 says ⮞ Load automations from config (you'll need to pass this to Rust)
+            // This would come from your Nix configuration as JSON
+            
+            match automation_type {
+                "dimmer" => {
+                    if let Some(actions) = self.automations.dimmer_actions.get(trigger) {
+                        if actions.enable {
+                            // Execute extra actions
+                            for action in &actions.extra_actions {
+                                self.execute_automation_action(action, device_name, room)?;
+                            }
+                        }
+                    }
+                }
+                "motion" => {
+                    if let Some(actions) = self.automations.room_actions.get(room) {
+                        if let Some(motion_actions) = actions.get("motion_detected") {
+                            for action in motion_actions {
+                                self.execute_automation_action(action, device_name, room)?;
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            }
+            Ok(())
+        }
+        
+        fn execute_automation_action(&self, action: &AutomationAction, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            match action {
+                AutomationAction::Simple(cmd) => {
+                    // Execute shell command
+                    let _ = std::process::Command::new("sh")
+                        .arg("-c")
+                        .arg(cmd)
+                        .output();
+                }
+                AutomationAction::Structured(action_config) => {
+                    match action_config.action_type.as_str() {
+                        "mqtt" => {
+                            if let (Some(topic), Some(message)) = (&action_config.topic, &action_config.message) {
+                                self.mqtt_publish(topic, message)?;
+                            }
+                        }
+                        "shell" => {
+                            if let Some(cmd) = &action_config.command {
+                                let _ = std::process::Command::new("sh")
+                                    .arg("-c")
+                                    .arg(cmd)
+                                    .output();
+                            }
+                        }
+                        "scene" => {
+                            if let Some(scene_name) = &action_config.scene {
+                                // Activate scene
+                                self.activate_scene(scene_name)?;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            Ok(())
+        }
+            
         // 🦆 says ⮞ updatez da state json file yo    
         fn update_device_state(&self, device: &str, key: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
             let state_content = fs::read_to_string(&self.state_file)?;
@@ -411,7 +548,7 @@
                 
                 tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;
                 
-                state_clone.quack_info(&format!("⏰ Room timer expired for {}, turning off lights", room_clone));
+                state_clone.quack_debug(&format!("⏰ Room timer expired for {}, turning off lights", room_clone));
                 
                 // 🦆 says ⮞ room lights off
                 if let Err(e) = state_clone.room_lights_off(&room_clone) {
@@ -422,7 +559,7 @@
                 
                 // 🦆 says ⮞ clean up
                 let _ = std::fs::remove_file(&timer_file_clone);
-                state_clone.quack_info(&format!("⏰ Room timer completed and cleaned up for {}", room_clone));
+                state_clone.quack_debug(&format!("⏰ Room timer completed and cleaned up for {}", room_clone));
             });
             
             // 🦆 says ⮞ write thread id 4 trackin' 
@@ -432,7 +569,7 @@
             self.quack_debug(&format!("Reset {} second timer for {} (File: {})", 
                 ${config.house.zigbee.darkTime.duration}, room, timer_file));
             
-            self.quack_info(&format!("⏰ Room timer successfully set for {}", room));
+            self.quack_debug(&format!("⏰ Room timer successfully set for {}", room));
             Ok(())
         }
       
@@ -516,6 +653,9 @@
         
         // 🦆 says ⮞ check if dark (static time configured)    
         fn is_dark_time(&self) -> bool {
+            if !self.dark_time_enabled {
+                return true; // 🦆 says ⮞If dark time disabled, always consider it "dark" for automations
+            }
             let now = Local::now();
             let hour = now.hour();
             // after🦆18:00⮞before⮜06:00🦆 
@@ -528,11 +668,11 @@
             *self.message_counts.entry(topic.to_string()).or_insert(0) += 1;
             self.total_messages += 1;
             if duration > 100 {
-                self.quack_debug(&format!("[🦆📶] - Slow processing: {} took {}ms", topic, duration));
+                self.quack_info(&format!("[🦆📶] - Slow processing: {} took {}ms", topic, duration));
             }
     
             if self.total_messages % 100 == 0 {
-                self.quack_info(&format!("[🦆📶] - Total messages: {}", self.total_messages));
+                self.quack_debug(&format!("[🦆📶] - Total messages: {}", self.total_messages));
                 for (topic_type, avg_time) in &self.processing_times {
                     let count = self.message_counts.get(topic_type).unwrap_or(&0);
                     self.quack_debug(&format!("{}: avg {}ms, count {}", topic_type, avg_time, count));
@@ -553,7 +693,6 @@
                     self.mqtt_publish(&topic, &Value::Object(message).to_string())?;
                 }
             }
-    
             let action = if state == "ON" { "ON" } else { "OFF" };
             self.quack_info(&format!("💡 All lights turned {}", action));
             Ok(())
@@ -622,6 +761,18 @@
                 }
                 return Ok(());
             }
+
+            // 🦆 says ⮞ 🧠 NLP COMMAND - handle commands from dashboard
+            if topic == "zigbee2mqtt/command" {
+                if let Some(command) = data["command"].as_str() {
+                    self.quack_info(&format!("🧠 NLP Command received from dashboard: {}", command));
+                    let _ = Command::new("yo")
+                        .arg("do")
+                        .arg(command)
+                        .spawn();
+                }
+                return Ok(());
+            }
     
             // 🦆 says ⮞ SECURITY
             if data.get("security").is_some() && self.get_larmed() {
@@ -639,8 +790,7 @@
             // 🦆 says ⮞ Now do the specific logic with logging
             if let Some(device) = self.devices.get(device_name) {
                 let room = &device.room;
-    
-                // 🦆 says ⮞ 🔋 BATTERY - just log changes (state already updated)
+                // 🦆 says ⮞ 🔋 BATTERY
                 if let Some(battery) = data["battery"].as_u64() {
                     let prev_battery = self.get_state(device_name, "battery");
                     if prev_battery.as_deref() != Some(&battery.to_string()) && prev_battery.is_some() {
@@ -648,7 +798,7 @@
                     }
                 }
     
-                // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS - just log changes (state already updated)
+                // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS
                 if let Some(temperature) = data["temperature"].as_f64() {
                     let prev_temp = self.get_state(device_name, "temperature");
                     if prev_temp.as_deref() != Some(&temperature.to_string()) && prev_temp.is_some() {
@@ -681,7 +831,7 @@
                             "timestamp": Local::now().to_rfc3339()
                         }); // 🦆 says ⮞ save it, useful laterz?
                         fs::write(format!("{}/last_motion.json", self.state_dir), motion_data.to_string())?;
-                        self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
+                        self.quack_debug(&format!("🕵️ Motion in {} {}", device_name, room));
                         // 🦆 says ⮞ & update state file yo
                         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
                         self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
@@ -701,8 +851,7 @@
                 // 🦆 says ⮞ 💧 WATER SENSORS
                 if data["water_leak"].as_bool() == Some(true) || data["waterleak"].as_bool() == Some(true) {
                     self.quack_info(&format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name));
-                    self.run_yo_command(&["notify", &format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name)])?;
-                    
+                    self.run_yo_command(&["notify", &format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name)])?;     
                     tokio::time::sleep(Duration::from_secs(15)).await;
                     self.run_yo_command(&["notify", &format!("WATER LEAK DETECTED in {} on {}", room, device_name)])?;
                 }
@@ -731,7 +880,6 @@
                 // 🦆 says ⮞ BLINDz - diz iz where i got my name from? quack
                 if let Some(position) = data["position"].as_u64() {
                     if device.device_type == "blind" {
-                        // State already updated by centralized function, just log
                         if position == 0 {
                             self.quack_info(&format!("🪟 Rolled DOWN {} in {}", device_name, room));
                         } else if position == 100 {
@@ -742,10 +890,10 @@
                     }
                 }
                 
-                // 🦆 says ⮞ STATE - just log changes (state already updated)
+                // 🦆 says ⮞ STATE
                 if let Some(state) = data["state"].as_str() {
                     match device.device_type.as_str() { // 🦆 says ⮞ outletz/energy meters etc
-                        "plug" | "power" | "outlet" => {
+                        "outlet" => {
                             if state == "ON" {
                                 self.quack_info(&format!("🔌 {} Turned ON in {}", device_name, room));
                             } else if state == "OFF" {
@@ -769,21 +917,21 @@
                     }
                 }
     
-                // 🦆 says ⮞ DIMMER SWITCH
+                // 🦆 says ⮞ 🎚 DIMMER SWITCH
                 if let Some(action) = data["action"].as_str() {
                     match action { // 🦆 says ⮞ on button - turns on room lights yo
                         "on_press_release" => {
                             self.quack_info(&format!("💡 Turning on lights in {}", room));
                             self.room_lights_on(room)?;
-                            if room == "kitchen" {
-                                self.mqtt_publish("zigbee2mqtt/Fläkt/set", r#"{"state":"ON"}"#)?;
-                            }
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
                         }
                         "on_hold_release" => { // 🦆 says ⮞ on hold button - turns on all lights
                             self.control_all_lights("ON", Some(255))?;
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
                             self.quack_info("✅💡 MAX LIGHTS ON");
                         }
                         "up_press_release" => { // 🦆 says ⮞ dim + button - increase brightness in room
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
                             for (light_id, light_device) in &self.devices {
                                 if light_device.room == *room && light_device.device_type == "light" {
                                     self.quack_info(&format!("🔺 Increasing brightness on {} in {}", light_id, room));
@@ -797,6 +945,7 @@
                             }
                         }
                         "down_press_release" => { // 🦆 says ⮞ dim - button - decrease brightness in room
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
                             for (light_id, light_device) in &self.devices {
                                 if light_device.room == *room && light_device.device_type == "light" {
                                     self.quack_info(&format!("🔻 Decreasing {} in {}", light_id, room));
@@ -812,10 +961,12 @@
                         "off_press_release" => { // 🦆 says ⮞ off button - turns off room lights plx
                             self.quack_info(&format!("💡 Turning off lights in {}", room));
                             self.room_lights_off(room)?;
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
                         }
                         "off_hold_release" => { // 🦆 says ⮞ off hold button - turns off all lights!
                             self.control_all_lights("OFF", None)?;
-                            self.quack_info("DARKNESS ON");
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
+                            self.quack_info("🦆⮞ DARKNESS ON");
                         }
                         _ => { // 🦆 says ⮞ else debug print button action
                             self.quack_debug(&format!("{}", action));
@@ -947,7 +1098,14 @@
         let state_dir = "/var/lib/zigduck".to_string();
         let timer_dir = format!("{}/timers", state_dir);
         std::fs::create_dir_all(&timer_dir)?;
-        
+
+        // 🦆 says ⮞ Get automations config and dark time setting
+        let automations_file = std::env::var("AUTOMATIONS_FILE")
+            .unwrap_or_else(|_| "automations.json".to_string());
+        let dark_time_enabled = std::env::var("DARK_TIME_ENABLED")
+            .map(|s| s == "1")
+            .unwrap_or(true); // Default to true for backward compatibility
+                
         // 🦆 says ⮞ read devices from env var
         let devices_file = std::env::var("ZIGBEE_DEVICES_FILE")
             .unwrap_or_else(|_| "devices.json".to_string());
@@ -965,6 +1123,8 @@
             mqtt_password,
             state_dir,
             devices_file,
+            automations_file,
+            dark_time_enabled,
             debug,
         );
         
@@ -973,10 +1133,10 @@
         rt.block_on(async {
             state.start_listening().await
         })
-    }
-  
+    }  
   '';
 
+  # 🦆 says ⮞ cargo.toml
   zigduck-toml = pkgs.writeText "zigduck.toml" ''    
     [package]
     name = "zigduck-rs"
@@ -1034,21 +1194,20 @@ in { # 🦆 says ⮞ finally here, quack!
 
       # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
       if [ "$VERBOSE" -ge 1 ]; then
-        DEBUG=1 ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+        DEBUG=1 ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
       fi  
       # 🦆 says ⮞ else run debugless yo
-      ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
-      
-            
+      ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+                  
     '';
   };
 
-
+  # 🦆 says ⮞ zigduck bash the original og yo
   yo.scripts.zigduck = { # 🦆 says ⮞ dis is where my home at
     description = "Home automation system written in Bash";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     #autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
-    aliases = [ "hem" ]; # 🦆 says ⮞ and not laughing at me
+    #aliases = [ "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
     helpFooter = '' 
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!

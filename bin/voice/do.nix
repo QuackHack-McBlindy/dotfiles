@@ -698,10 +698,10 @@
         values: Vec<ListValue>,
     }
 
-    // 🦆 says ⮞ Enhanced entity resolution structures
+    // 🦆 says ⮞ entity resolution
     #[derive(Debug, Clone, Serialize, Deserialize)]
     struct EntityValue {
-        r#in: String,  // 🦆 says ⮞ "in" is a keyword, so we use raw identifier
+        r#in: String,  // 🦆 says ⮞ "in" is a keyword so we use raw identifier
         out: String,
     }
 
@@ -944,7 +944,6 @@
                         self.quack_debug(&format!("      Specific parameter: {}", param));
                         r"(\b[^ ]+\b)".to_string()
                     };
-    
                     regex_parts.push(regex_group);
                     current = after_param.to_string();
                 } else {
@@ -962,8 +961,7 @@
             let build_time = start_time.elapsed();
             self.quack_debug(&format!("      Final regex: {}", regex_pattern));
             self.quack_debug(&format!("      Parameter names: {:?}", param_names));
-            self.quack_debug(&format!("      Regex build time: {:?}", build_time));
-    
+            self.quack_debug(&format!("      Regex build time: {:?}", build_time));  
             match Regex::new(&regex_pattern) {
                 Ok(re) => {
                     self.quack_debug("      Regex compiled successfully");
@@ -976,14 +974,12 @@
             }
         }
     
-        // 🦆 says ⮞ PRIORITY PROCESSING SYSTEM - smart script ordering!
+        // 🦆 says ⮞ PRIORITY PROCESSIN' SYSTEM
         fn calculate_processing_order(&mut self) {
             let mut script_priorities = Vec::new();
-    
             for (script_name, intent) in &self.intent_data {
                 // 🦆 says ⮞ calculate priority (default medium)
-                let priority = 3; // 🦆 says ⮞ TODO: from voice config
-                
+                let priority = 3; // 🦆 says ⮞ TODO: from voice config 
                 // 🦆 says ⮞ detect complex patterns
                 let has_complex_patterns = intent.sentences.iter().any(|s| {
                     s.contains('{') || s.contains('[') || s.contains('(')
@@ -1011,7 +1007,7 @@
                 self.processing_order.iter().map(|s| &s.name).collect::<Vec<_>>()));
         }
     
-        // 🦆 says ⮞ SUBSTITUTION ENGINE!
+        // 🦆 says ⮞ SUBSTITUTION ENGINE
         fn apply_real_time_substitutions(&self, script_name: &str, text: &str) -> (String, HashMap<String, String>) {
             let mut resolved_text = text.to_lowercase();
             let mut substitutions = HashMap::new();
@@ -1030,27 +1026,22 @@
                     }
                 }
             }
-    
             (resolved_text, substitutions)
         }
     
-        // 🦆 says ⮞ EXACT MATCHING!        
+        // 🦆 says ⮞ EXACT MATCHIN'        
         fn exact_match(&self, text: &str) -> Option<MatchResult> {
             let global_start = Instant::now();
-            let text = text.to_lowercase();
-            
+            let text = text.to_lowercase();     
             self.quack_debug(&format!("Starting EXACT match for: '{}'", text));
         
             for (script_index, script_priority) in self.processing_order.iter().enumerate() {
-                let script_name = &script_priority.name;
-                
+                let script_name = &script_priority.name; 
                 self.quack_debug(&format!("Trying script [{}/{}]: {}", 
                     script_index + 1, self.processing_order.len(), script_name));
-        
                 // 🦆 says ⮞ go real-time substitutions i choose u!
                 let (resolved_text, substitutions) = self.apply_real_time_substitutions(script_name, &text);
                 self.quack_debug(&format!("After substitutions: '{}'", resolved_text));
-        
                 if let Some(intent) = self.intent_data.get(script_name) {
                     for sentence in &intent.sentences {
                         let expanded_variants = self.expand_optional_words(sentence);
@@ -1137,7 +1128,6 @@
             let normalized_input = text.to_lowercase();
             let mut best_score = 0;
             let mut best_match = None;
-    
             self.quack_debug(&format!("Fuzzy matching against {} entries", self.fuzzy_index.len()));
     
             for entry in &self.fuzzy_index {
@@ -1322,8 +1312,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do-bash = { # 🦆 says ⮞ wat? BASH?! quack - just bcause duck can! crazy huh?! 
       description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. (Bash version)";
-      #category = "⚙️ Configuration"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
-      category = "🗣️ Voice";
+      category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       logLevel = "INFO";
       autoStart = false;
       parameters = [

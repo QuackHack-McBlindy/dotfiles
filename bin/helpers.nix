@@ -197,12 +197,12 @@ in
         rm -f "$timer_file"
       fi  
       ( # 🦆 says ⮞ Time til' lights turn off after motion trigger activation
-        sleep 900 # 🦆 says ⮞ in seconds
+        sleep ${config.house.zigbee.darkTime.duration} # 🦆 says ⮞ in seconds
         room_lights_off "$room"
         rm -f "$timer_file"
       ) & 
       echo $! > "$timer_file"
-      dt_debug "Reset 5m timer for $room (PID: $!)"
+      dt_debug "Reset timer for $room (PID: $!)"
     }
     # 🦆 says ⮞ Time window of day that allow motion triggering lights on
     is_dark_time() {
