@@ -402,7 +402,7 @@ in { # 🦆 says ⮞ Options for da house
       }
 
       {
-        # 🦆 says ⮞ Default dimmer actions (matching current behavior)
+        # 🦆 says ⮞ Default dimmer actions
         house.zigbee.automations.dimmer_actions = {
           on_press_release = {
             enable = true;
@@ -416,10 +416,9 @@ in { # 🦆 says ⮞ Options for da house
               {
                 type = "shell";
                 command = ''
-                  echo "hello room lights"
+                  ssh desktop yo joke 
                 '';
-              }
-              
+              }      
             ];
           };
           on_hold_release = {
@@ -450,7 +449,7 @@ in { # 🦆 says ⮞ Options for da house
           };
           off_hold_release = {
             enable = true;
-            description = "Turn off all lights";
+            description = "Turn off all configured light devices";
             extra_actions = [];
           };
         };

@@ -100,7 +100,7 @@ in { # 🦆 says ⮞ Voice Intents
 
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
       DEVICE_KEY=$(echo "$device" | tr '[:upper:]' '[:lower:]')
-      FRIENDLY_NAME="${device_map[$DEVICE_KEY]:-$device}"
+      FRIENDLY_NAME="''${device_map[$DEVICE_KEY]:-$device}"
 
       if [ -z "$FRIENDLY_NAME" ]; then
         echo "❌ Unknown device: $device"

@@ -1194,11 +1194,22 @@ in { # 🦆 says ⮞ finally here, quack!
 
       # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
       if [ "$VERBOSE" -ge 1 ]; then
-        DEBUG=1 ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+        while true; do
+          # 🦆 says ⮞ keep me alive plx
+          DEBUG=1 ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+          EXIT_CODE=$?
+          dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
+          sleep 3
+       done
       fi  
-      # 🦆 says ⮞ else run debugless yo
-      ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
-                  
+      # 🦆 says ⮞ keep me alive plx
+      while true; do
+        # 🦆 says ⮞ else run debugless yo
+        ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+        EXIT_CODE=$?
+        dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
+        sleep 3
+      done         
     '';
   };
 
