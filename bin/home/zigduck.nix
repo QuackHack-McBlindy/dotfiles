@@ -125,6 +125,7 @@
   devices-json = pkgs.writeText "devices.json" deviceMeta;
   # 🦆 says ⮞ RUSTY SMART HOME qwack qwack     
   zigduck-rs = pkgs.writeText "zigduck-rs" ''    
+    
     use rumqttc::{MqttOptions, Client, QoS, Event, Incoming};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -231,7 +232,6 @@
                 debug,
             }
         }
-
     
         // 🦆 says ⮞ duckTrace - quack loggin' be bitchin' (yu log)
         fn quack_debug(&self, msg: &str) {
@@ -267,6 +267,7 @@
                     });
             }
         }
+    
         // 🦆 says ⮞ updatez da state json file yo    
         fn update_device_state(&self, device: &str, key: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
             let state_content = fs::read_to_string(&self.state_file)?;
@@ -281,76 +282,87 @@
             self.quack_debug(&format!("Updated state: {}.{} = {}", device, key, value));
             Ok(())
         }
+    
         // 🦆 says ⮞ GET DEVICE STATE     
         fn get_state(&self, device: &str, key: &str) -> Option<String> {
             let state_content = fs::read_to_string(&self.state_file).ok()?;
             let state: Value = serde_json::from_str(&state_content).ok()?;
             state[device][key].as_str().map(|s| s.to_string())
         }
-      
-        // 🦆 says ⮞ DEVICE CHECK - centralized state updates
+    
+        // 🦆 says ⮞ CENTRALIZED STATE UPDATES - like Bash version
         fn update_device_state_from_data(&self, device_name: &str, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
-            // 🦆 says ⮞ linkquality
+            // 🦆 says ⮞ Skip set/availability topics like Bash version
+            if device_name.ends_with("/set") || device_name.ends_with("/availability") {
+                self.quack_debug(&format!("Skipping state update for {} (set/availability topic)", device_name));
+                return Ok(());
+            }
+    
+            self.quack_debug(&format!("Updating ALL state fields for: {}", device_name));
+    
+            // 🦆 says ⮞ Extract ALL fields like the Bash version
             if let Some(linkquality) = data["linkquality"].as_u64() {
                 self.update_device_state(device_name, "linkquality", &linkquality.to_string())?;
             }
-            // 🦆 says ⮞ last_seen
+            
             if let Some(last_seen) = data["last_seen"].as_str() {
                 self.update_device_state(device_name, "last_seen", last_seen)?;
             }
-            // 🦆 says ⮞ occupancy 
+            
             if let Some(occupancy) = data["occupancy"].as_bool() {
                 self.update_device_state(device_name, "occupancy", &occupancy.to_string())?;
             }
-            // 🦆 says ⮞ action 
+            
             if let Some(action) = data["action"].as_str() {
                 self.update_device_state(device_name, "action", action)?;
             }
-            // 🦆 says ⮞ contact 
+            
             if let Some(contact) = data["contact"].as_bool() {
                 self.update_device_state(device_name, "contact", &contact.to_string())?;
             }
-            // 🦆 says ⮞ position 
+            
             if let Some(position) = data["position"].as_u64() {
                 self.update_device_state(device_name, "position", &position.to_string())?;
             }
-            // 🦆 says ⮞ state 
+            
             if let Some(state) = data["state"].as_str() {
                 self.update_device_state(device_name, "state", state)?;
             }
-            // 🦆 says ⮞ brightness 
+            
             if let Some(brightness) = data["brightness"].as_u64() {
                 self.update_device_state(device_name, "brightness", &brightness.to_string())?;
             }
-            // 🦆 says ⮞ color 
+            
             if let Some(color) = data["color"].as_object() {
                 if let Ok(color_json) = serde_json::to_string(color) {
                     self.update_device_state(device_name, "color", &color_json)?;
                 }
             }
-            // 🦆 says ⮞ water_leak 
+            
             if let Some(water_leak) = data["water_leak"].as_bool() {
                 self.update_device_state(device_name, "water_leak", &water_leak.to_string())?;
             }
+            
             if let Some(waterleak) = data["waterleak"].as_bool() {
                 self.update_device_state(device_name, "waterleak", &waterleak.to_string())?;
             }
-            // 🦆 says ⮞ temperature 
+            
             if let Some(temperature) = data["temperature"].as_f64() {
                 self.update_device_state(device_name, "temperature", &temperature.to_string())?;
             }
-            // 🦆 says ⮞ battery 
+            
             if let Some(battery) = data["battery"].as_u64() {
                 self.update_device_state(device_name, "battery", &battery.to_string())?;
             }
+            
             if let Some(battery_state) = data["battery_state"].as_str() {
                 self.update_device_state(device_name, "battery_state", battery_state)?;
             }
-            // 🦆 says ⮞ tamper 
+            
             if let Some(tamper) = data["tamper"].as_bool() {
                 self.update_device_state(device_name, "tamper", &tamper.to_string())?;
             }
-            // 🦆 says ⮞ smoke 
+            
             if let Some(smoke) = data["smoke"].as_bool() {
                 self.update_device_state(device_name, "smoke", &smoke.to_string())?;
             }
@@ -361,7 +373,7 @@
             
             Ok(())
         }
-     
+        
         // 🦆 says ⮞ room timer - turns off lights after nix configured seconds of no motion
         fn reset_room_timer(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             let timer_dir = format!("{}/timers", self.state_dir);
@@ -438,12 +450,14 @@
             }       
             Ok(())
         }
+    
         // 🦆 says ⮞ GET SECURITY STATE    
         fn get_larmed(&self) -> bool {
             let content = fs::read_to_string(&self.larmed_file).unwrap_or_else(|_| r#"{"larmed":false}"#.to_string());
             let state: Value = serde_json::from_str(&content).unwrap_or_else(|_| json!({"larmed": false}));
             state["larmed"].as_bool().unwrap_or(false)
         }
+    
         // 🦆 says ⮞ MQTT PUBLISH    
         fn mqtt_publish(&self, topic: &str, message: &str) -> Result<(), Box<dyn std::error::Error>> {
             let output = Command::new("mosquitto_pub")
@@ -463,6 +477,7 @@
             }   
             Ok(())
         }
+    
         // 🦆 says ⮞ EXECUTE yo COMMANDS yo!    
         fn run_yo_command(&self, args: &[&str]) -> Result<(), Box<dyn std::error::Error>> {
             let output = Command::new("yo")
@@ -473,6 +488,7 @@
             }      
             Ok(())
         }
+    
         // 🦆 says ⮞ TURN ON ROOM LIGHTS qwack    
         fn room_lights_on(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             for (device_id, device) in &self.devices {
@@ -484,6 +500,7 @@
             }
             Ok(())
         }
+    
         // 🦆 says ⮞ TURN OFF ROOM LIGHTS    
         fn room_lights_off(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             for (device_id, device) in &self.devices {
@@ -500,7 +517,7 @@
         fn is_dark_time(&self) -> bool {
             let now = Local::now();
             let hour = now.hour();
-      // after🦆18:00⮞before⮜06:00🦆 
+            // after🦆18:00⮞before⮜06:00🦆 
             hour >= ${config.house.zigbee.darkTime.after} || hour <= ${config.house.zigbee.darkTime.before}   
         }
     
@@ -560,8 +577,8 @@
                     return Ok(());
                 }
             };
-
-   // 🦆 says ⮞ TV CHANNEL    
+    
+            // 🦆 says ⮞ TV CHANNEL    
             if data.get("tvChannel").is_some() {
                 if let Some(channel) = data["tvChannel"].as_str() {
                     let ip = data["ip"].as_str().unwrap_or("192.168.1.223");
@@ -570,6 +587,7 @@
                 }
                 return Ok(());
             }
+    
             if topic.starts_with("zigbee2mqtt/tv/") && topic.ends_with("/channel") {
                 if let Some(device_ip) = topic.split('/').nth(2) {
                     if let (Some(channel_id), Some(channel_name)) = (
@@ -587,7 +605,7 @@
                 return Ok(());
             }
     
-   // 🦆 says ⮞ ENERGY USAGE    
+            // 🦆 says ⮞ ENERGY USAGE    
             if topic == "zigbee2mqtt/tibber/price" {
                 if let Some(price) = data["current_price"].as_str() {
                     self.update_device_state("tibber", "current_price", price)?;
@@ -595,6 +613,7 @@
                 }
                 return Ok(());
             }
+    
             if topic == "zigbee2mqtt/tibber/usage" {
                 if let Some(usage) = data["monthly_usage"].as_str() {
                     self.update_device_state("tibber", "monthly_usage", usage)?;
@@ -603,21 +622,23 @@
                 return Ok(());
             }
     
-    // 🦆 says ⮞ SECURITY
+            // 🦆 says ⮞ SECURITY
             if data.get("security").is_some() && self.get_larmed() {
                 self.quack_info("Larmed apartment");
                 self.run_yo_command(&["notify", "Larm på"])?;
             }
     
             let device_name = topic.strip_prefix("zigbee2mqtt/").unwrap_or(topic);
+    
             // 🦆 says ⮞ CENTRALIZED STATE UPDATES - like Bash version
             if let Err(e) = self.update_device_state_from_data(device_name, &data) {
-                self.quack_info(&format!("Failed to update device state: {}", e));
-            }  
+                self.quack_debug(&format!("Failed to update device state: {}", e));
+            }
+    
             // 🦆 says ⮞ Now do the specific logic with logging
             if let Some(device) = self.devices.get(device_name) {
                 let room = &device.room;
-
+    
                 // 🦆 says ⮞ 🔋 BATTERY - just log changes (state already updated)
                 if let Some(battery) = data["battery"].as_u64() {
                     let prev_battery = self.get_state(device_name, "battery");
@@ -625,7 +646,7 @@
                         self.quack_info(&format!("🔋 Battery update for {}: {}% > {}%", device_name, prev_battery.unwrap(), battery));
                     }
                 }
-
+    
                 // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS - just log changes (state already updated)
                 if let Some(temperature) = data["temperature"].as_f64() {
                     let prev_temp = self.get_state(device_name, "temperature");
@@ -633,9 +654,8 @@
                         self.quack_info(&format!("🌡️ Temperature update for {}: {}°C > {}°C", device_name, prev_temp.unwrap(), temperature));
                     }
                 }
-
-
-    // 🦆 says ⮞ left da home?    
+    
+                // 🦆 says ⮞ left da home?    
                 if payload == "\"LEFT\"" {
                     // 🦆 says ⮞ turn on security
                     self.set_larmed(true)?;
@@ -643,8 +663,8 @@
                     // 🦆 says ⮞ home again? turn off security
                     self.set_larmed(false)?;
                 }
-
-    // 🦆 says ⮞ ❤️‍🔥 FIRE / SMOKE DETECTOR    
+    
+                // 🦆 says ⮞ ❤️‍🔥 FIRE / SMOKE DETECTOR    
                 if let Some(smoke) = data["smoke"].as_bool() {
                     if smoke {
                         self.run_yo_command(&["notify", "❤️‍🔥❤️‍🔥❤️‍🔥 FIRE !!! ❤️‍🔥❤️‍🔥❤️‍🔥"])?;
@@ -652,7 +672,7 @@
                     }
                 }
     
-    // 🦆 says ⮞ 🕵️ MOTION SENSORS
+                // 🦆 says ⮞ 🕵️ MOTION SENSORS
                 if let Some(occupancy) = data["occupancy"].as_bool() {
                     if occupancy {
                         let motion_data = json!({
@@ -663,7 +683,7 @@
                         self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
                         // 🦆 says ⮞ & update state file yo
                         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-                        //self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
+                        self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
                         
                         if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool & timer to power off again 
                             self.room_lights_on(room)?;
@@ -673,11 +693,11 @@
                         }
                     } else { // 🦆 says ⮞ no more movementz update state file yo
                         self.quack_debug(&format!("🛑 No more motion in {} {}", device_name, room));
-                        //self.update_device_state(device_name, "occupancy", "false")?;
+                        // State already updated by centralized function
                     }
                 }
     
-    // 🦆 says ⮞ 💧 WATER SENSORS
+                // 🦆 says ⮞ 💧 WATER SENSORS
                 if data["water_leak"].as_bool() == Some(true) || data["waterleak"].as_bool() == Some(true) {
                     self.quack_info(&format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name));
                     self.run_yo_command(&["notify", &format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name)])?;
@@ -686,7 +706,7 @@
                     self.run_yo_command(&["notify", &format!("WATER LEAK DETECTED in {} on {}", room, device_name)])?;
                 }
     
-    // 🦆 says ⮞ DOOR / WINDOW SENSOR
+                // 🦆 says ⮞ DOOR / WINDOW SENSOR
                 if let Some(contact) = data["contact"].as_bool() {
                     if contact {
                         self.quack_info(&format!("🚪 Door open in {} ({})", room, device_name));
@@ -707,62 +727,33 @@
                     }
                 }
     
-    // 🦆 says ⮞ BLINDz - diz iz where i got my name from? quack
-                if let Some(position) = data["position"].as_str() {
+                // 🦆 says ⮞ BLINDz - diz iz where i got my name from? quack
+                if let Some(position) = data["position"].as_u64() {
                     if device.device_type == "blind" {
-                        // 🦆 says ⮞ update position in state file
-                        self.update_device_state(device_name, "position", position)?;
-                        // 🦆 says ⮞ & save human-readable state
-                        let position_num = position.parse::<u8>().unwrap_or(0);
-                        let state = match position_num {
-                            0 => "DOWN",
-                            100 => "UP",
-                            _ => "PARTIAL"
-                        };
-                        self.update_device_state(device_name, "state", state)?;
-                        // 🦆 says ⮞ save last updated timestamp
-                        let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-                        self.update_device_state(device_name, "last_updated", &timestamp.to_string())?;
-        
-                        if position == "0" {
+                        // State already updated by centralized function, just log
+                        if position == 0 {
                             self.quack_info(&format!("🪟 Rolled DOWN {} in {}", device_name, room));
-                        } else if position == "100" {
+                        } else if position == 100 {
                             self.quack_info(&format!("🪟 Rolled UP {} in {}", device_name, room));
+                        } else {
+                            self.quack_debug(&format!("🪟 {} positioned at {}% in {}", device_name, position, room));
                         }
                     }
                 }
                 
-    // 🦆 says ⮞ STATE
+                // 🦆 says ⮞ STATE - just log changes (state already updated)
                 if let Some(state) = data["state"].as_str() {
-                    self.update_device_state(device_name, "state", state)?;
-    
                     match device.device_type.as_str() { // 🦆 says ⮞ outletz/energy meters etc
                         "plug" | "power" | "outlet" => {
                             if state == "ON" {
-                                // 🦆 says ⮞ track when it was turned on
-                                let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-                                self.update_device_state(device_name, "last_turned_on", &timestamp.to_string())?;
                                 self.quack_info(&format!("🔌 {} Turned ON in {}", device_name, room));
                             } else if state == "OFF" {
-                                // 🦆 says ⮞ track when it was turned off
-                                let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-                                self.update_device_state(device_name, "last_turned_off", &timestamp.to_string())?;                            
                                 self.quack_info(&format!("🔌 {} Turned OFF in {}", device_name, room));
                             }
                         }
                         "light" => {
                             if state == "ON" {
                                 self.quack_debug(&format!("💡 {} Turned ON in {}", device_name, room));
-                                // 🦆 says ⮞ track brightness if there is
-                                if let Some(brightness) = data["brightness"].as_u64() {
-                                    self.update_device_state(device_name, "brightness", &brightness.to_string())?;
-                                }
-                                // 🦆 says ⮞ track color if any
-                                if let Some(color) = data["color"].as_object() {
-                                    if let Some(hex) = color.get("hex").and_then(|v| v.as_str()) {
-                                        self.update_device_state(device_name, "color", hex)?;
-                                    }
-                                }
                             } else if state == "OFF" {
                                 self.quack_debug(&format!("💡 {} Turned OFF in {}", device_name, room));
                             }
@@ -777,7 +768,7 @@
                     }
                 }
     
-    // 🦆 says ⮞ DIMMER SWITCH
+                // 🦆 says ⮞ DIMMER SWITCH
                 if let Some(action) = data["action"].as_str() {
                     match action { // 🦆 says ⮞ on button - turns on room lights yo
                         "on_press_release" => {
@@ -831,7 +822,7 @@
                     }
                 }
     
-     // 🦆 says ⮞ 🛒 SHOPPING LIST
+                // 🦆 says ⮞ 🛒 SHOPPING LIST
                 if let Some(shopping_action) = data["shopping_action"].as_str() {
                     let shopping_list_file = format!("{}/shopping_list.txt", self.state_dir);   
                     match shopping_action {
@@ -864,7 +855,7 @@
                     return Ok(());
                 }
     
-    // 🦆 says ⮞ NLP COMMAND
+                // 🦆 says ⮞ NLP COMMAND
                 if let Some(command) = data["command"].as_str() {
                     self.quack_info(&format!("yo do execution requested from web interface: yo do {}", command));
                     let _ = Command::new("yo")
@@ -874,7 +865,7 @@
                     return Ok(());
                 }
     
-    // 🦆 says ⮞ TV COMMAND
+                // 🦆 says ⮞ TV COMMAND
                 if let Some(tv_command) = data["tvCommand"].as_str() {
                     if let Some(ip) = data["ip"].as_str() {
                         self.quack_info(&format!("TV command received! Command: {}. IP: {}", tv_command, ip));
@@ -982,7 +973,7 @@
             state.start_listening().await
         })
     }
-    
+  
   '';
 
   zigduck-toml = pkgs.writeText "zigduck.toml" ''    
