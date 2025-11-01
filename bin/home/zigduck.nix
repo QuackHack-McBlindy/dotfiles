@@ -373,7 +373,7 @@
             
             Ok(())
         }
-        
+                
         // 🦆 says ⮞ room timer - turns off lights after nix configured seconds of no motion
         fn reset_room_timer(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             let timer_dir = format!("{}/timers", self.state_dir);
@@ -435,6 +435,7 @@
             self.quack_info(&format!("⏰ Room timer successfully set for {}", room));
             Ok(())
         }
+      
       
         // 🦆 says ⮞ SET SECURITY STATE    
         fn set_larmed(&self, armed: bool) -> Result<(), Box<dyn std::error::Error>> {
