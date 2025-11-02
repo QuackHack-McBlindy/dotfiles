@@ -402,7 +402,8 @@ EOF
           if [ "$topic" = "zigbee2mqtt/tibber/price" ]; then
               current_price=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.current_price')
               if [ -n "$current_price" ]; then
-                  update_device_state "tibber" "current_price" "$current_price"
+  
+                update_device_state "tibber" "current_price" "$current_price"
                   dt_info "Energy price updated: $current_price SEK/kWh"
               fi
               continue
@@ -700,100 +701,6 @@ EOF
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
   };
-  # 🦆 says ⮞ Mosquitto configuration
-  # 🦆 says ⮞ we only need server configuration on one host - so set zigduck at config.this.host.module services in your host config
-  services.mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-    enable = true;
-    listeners = [
-      { # 🦆 says ⮞ mqtt:// @ 1883
-        acl = [ "pattern readwrite #" ];
-        port = 1883;
-        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
-        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
-#        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
-#        settings.use_identity_as_username = true;
-      }   
-      { # 🦆 says ⮞ ws:// @ 9001
-        acl = [ "pattern readwrite #" ];
-        port = 9001;
-        settings.protocol = "websockets";
-        omitPasswordAuth = false; # 🦆 says ⮞ safety first!
-        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
-        settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
-        #settings.require_certificate = false; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
-      } 
-    ];
-
-  };
-  # 🦆 says ⮞ open firewall 4 Z2MQTT & Mosquitto on the server host
-  networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { allowedTCPPorts = [ 1883 8099 9001 ]; };
-
-  # 🦆 says ⮞ create device symlink for declarative serial port mapping
-  services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
-  
-  # 🦆 says ⮞ Z2MQTT configurations
-  services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ once again - dis is server configuration
-    enable = true;
-    dataDir = "/var/lib/zigbee";
-    settings = {
-        experimental.output = "json";
-        homeassistant = false; # 🦆 says ⮞ no thnx....
-        mqtt = {
-          server = "mqtt://localhost:1883";
-          user = "mqtt";
-          password =  config.sops.secrets.mosquitto.path; # 🦆 says ⮞ no support for passwordFile?! sneaky duckiie use dis as placeholder lol
-          base_topic = "zigbee2mqtt";
-        };
-        # 🦆 says ⮞ physical port mapping
-        serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
-         port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
-         disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
-        };
-        frontend = { 
-          enabled = false;
-          host = "0.0.0.0";   
-          port = 8099; 
-        };
-        advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
-          export_state = true;
-          export_state_path = "${zigduckDir}/zigbee_devices.json";
-          homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
-          legacy_api = false;
-          legacy_availability_payload = false;
-          log_syslog = { # 🦆 says ⮞ log settings
-            app_name = "Zigbee2MQTT";
-            eol = "/n";
-            host = "localhost";
-            localhost = "localhost";
-            path = "/dev/log";
-            pid = "process.pid"; # 🦆 says ⮞ process id
-            port = 123;
-            protocol = "tcp4";# 🦆 says ⮞ TCP4pcplife
-            type = "5424";
-          };
-          transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
-          channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
-          last_seen = "ISO_8601_local";
-          # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo - letz handle dat down below
-            # network_key = [ "..." ]
-            pan_id = 60410;
-          };
-          device_options = { legacy = false; };
-          availability = true;
-          permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
-          devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
-          groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
-            all_lights = { # 🦆 says ⮞ + create a group containing all light devices
-              friendly_name = "all";
-              devices = lib.concatMap (id: 
-                let dev = zigbeeDevices.${id};
-                in if dev.type == "light" then ["${id}/${toString dev.endpoint}"] else []
-              ) (lib.attrNames zigbeeDevices);
-            };
-          };
-        };
-      }; 
 
   environment.systemPackages = [
     pkgs.clang
