@@ -133,8 +133,9 @@ in { # 🦆 says ⮞ Voice Intents
       { name = "scene"; description = "Activate a predefined scene"; optional = true; }                
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
-      { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }    
-      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairring and start searching for new devices"; default = false; }          
+      { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }
+      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairring and start searching for new devices"; default = false; }
+      { name = "cheapMode"; type = "bool"; description = "Energy saving mode. Turns off the lights again after X seconds."; default = false; }
     ];
     code = ''
       ${cmdHelpers}
@@ -154,7 +155,14 @@ in { # 🦆 says ⮞ Voice Intents
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$PWFILE")
+      ROOM="$device"
       touch "$STATE_DIR/voice-debug.log"        
+      if [[ "$cheapMode" == "true" ]]; then
+        reset_room_timer "$ROOM"
+        dt_info "Restarting room timer for $ROOM" 
+        exit 0
+      fi
+      
       if [[ "$pair" == "true" ]]; then
         echo "🦆 Activating Zigbee2MQTT pairing mode for 120 seconds..."
         mqtt_pub -t "zigbee2mqtt/bridge/request/permit_join" -m '{"value": true, "time": 120}'    

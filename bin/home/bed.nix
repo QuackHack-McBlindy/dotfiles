@@ -78,10 +78,10 @@ in {
         head|huvud)
           case "$state" in
             on|up|upp)
-              zig 'Bed Head' on
+              yo house --device 'Robot Arm 3'
               ;;
             off|down|ned|ner)
-              zig 'Bed Head' off
+              yo house --device 'Robot Arm 4' --state on
               ;;
           esac
           ;;
@@ -102,7 +102,7 @@ in {
       sentences = [
         "(huvud|huvudet|skallen|sänghuvud) {state}"
         "(fot|fötter|sängfot) {state}"
-        "säng[en] {part} {state}"
+        "säng[en|ens] {part} {state}"
       ];
       lists = {
         part.values = [

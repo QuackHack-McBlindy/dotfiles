@@ -71,13 +71,13 @@ in { # 🦆 says ⮞ Voice Intents
     autoStart = false;
     logLevel = "DEBUG";
     parameters = [   
-      { name = "device"; description = "Device to control"; optional = true; }
-      { name = "mode"; description = "Working mode. Click, switch or program"; default = "on"; }     
+      { name = "device"; description = "Device to control"; optional = false; }
+      { name = "mode"; description = "Working mode. Click, switch or program"; default = "switch"; }     
       { name = "state"; type = "string"; description = "On/off state of the switch"; default = "ON"; }           
       { name = "delay"; type = "int"; description = "Sustain time"; default = 5; } 
-      { name = "reverse"; description = "Reverse"; optional = true; type = "bool"; }    
-      { name = "lower"; type = "int"; description = "Down movement limit"; }    
-      { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; }          
+      { name = "reverse"; description = "Reverse"; optional = true; type = "bool"; default = false; }    
+      { name = "lower"; type = "int"; description = "Down movement limit"; default = 100; }
+      { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; default = 100; }          
       { name = "touch"; type = "bool";  description = "Touch control"; default = false; }                
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
@@ -101,7 +101,7 @@ in { # 🦆 says ⮞ Voice Intents
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
       DEVICE_KEY=$(echo "$device" | tr '[:upper:]' '[:lower:]')
       FRIENDLY_NAME="''${device_map[$DEVICE_KEY]:-$device}"
-
+      dt_info "friendly name: $FRIENDLY_NAME"
       if [ -z "$FRIENDLY_NAME" ]; then
         echo "❌ Unknown device: $device"
         exit 1
@@ -110,17 +110,25 @@ in { # 🦆 says ⮞ Voice Intents
       PAYLOAD=$(jq -n \
         --arg mode "$mode" \
         --arg state "$state" \
-        --argjson delay $delay \
-        --arg reverse "$reverse" \
-        --argjson lower $lower \
-        --argjson upper $upper \
-        --arg touch "$touch" \
-        '{mode:$mode, state:$state, delay:$delay, reverse:$reverse, lower:$lower, upper:$upper, touch:$touch}')
+        --argjson delay "$delay" \
+        --argjson reverse "$reverse" \
+        --argjson lower "$lower" \
+        --argjson upper "$upper" \
+        --argjson touch "$touch" \
+        '{mode:$mode,state:$state,delay:$delay,reverse:$reverse,lower:$lower,upper:$upper,touch:$touch}')
 
+
+      # PAYLOAD="{\"mode\":\"$mode\",\"state\":\"$state\",\"delay\":$delay,\"reverse\":$reverse,\"lower\":$lower,\"upper\":$upper,\"touch\":$touch}"
+      dt_info "PAYLOAD: $PAYLOAD"
+      validate_json "$PAYLOAD"
       echo "Sending command to $FRIENDLY_NAME via $MQTT_BROKER"
       echo "$PAYLOAD"
 
-      mqtt_pub -t "zigbee2mqtt/$FRIENDLY_NAME/set" -m "$PAYLOAD"   
+      if ! mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "zigbee2mqtt/$FRIENDLY_NAME/set" -m "$PAYLOAD"; then
+        echo "❌ Failed to send MQTT command"
+        exit 1
+      fi
+
     ''; 
     
   };}

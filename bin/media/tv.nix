@@ -968,6 +968,7 @@ in {
             video_title=$(echo "$video_info" | tail -1)
             dt_info "Playing YouTube video: $video_title"
             play_youtube_video "$DEVICE" "$video_url"
+            say "Spelar YouTube videon $video_title"
           else
             dt_error "YouTube search failed"
           fi
