@@ -1184,8 +1184,7 @@
                         }
                     }
                 }
-            }
-            
+            }          
             None
         }
                  
@@ -1299,8 +1298,7 @@
             self.quack_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
             // 🦆 says ⮞ execution tree
             println!("   ┌─(yo-{})", result.script_name);
-            println!("   │🦆 qwack!? {}", result.matched_sentence);
-            
+            println!("   │🦆 qwack!? {}", result.matched_sentence);       
             if result.args.is_empty() {
                 println!("   └─🦆 says ⮞ no parameters yo");
             } else {
@@ -1311,7 +1309,7 @@
                 }
             }      
             println!("   └─⏰ do took {:?}", result.processing_time);
-            
+ 
             // 🦆 says ⮞ EXECUTION
             let status = Command::new(format!("yo-{}", result.script_name))
                 .args(&result.args)
@@ -1352,7 +1350,7 @@
             let total_start = Instant::now(); 
             self.fuzzy_threshold = fuzzy_threshold;
             self.calculate_processing_order();
-            // 🦆 says ⮞ Collect fuzzy candidates for logging
+            // 🦆 says ⮞ collect fuzzy candidates for logging
             let fuzzy_candidates: Vec<(String, String, i32)> = self.fuzzy_index.iter()
                 .filter_map(|entry| {
                     let normalized_input = input.to_lowercase();
