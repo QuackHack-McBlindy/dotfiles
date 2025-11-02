@@ -36,7 +36,7 @@ Home Manager - No duckng way. I just auto symlink ./home to /home <br>
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __79 qwacktastic scripts in /bin - 46 scripts have voice commands.__ <br>
+- __80 qwacktastic scripts in /bin - 46 scripts have voice commands.__ <br>
 - __1876 dynamically generated regex patterns - makes 271861295 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
@@ -156,7 +156,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1069,7 +1069,7 @@ Android TV devices at `config.house.tv`.
     channels = {
       1 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/1.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/1.png";
         id = 1;
         name = "SVT1";
         scrape_url = "https://tv-tabla.se/tabla/svt1/";
@@ -1077,7 +1077,7 @@ Android TV devices at `config.house.tv`.
       };
       10 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/10.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/10.png";
         id = 10;
         name = "Kanal 10";
         scrape_url = "https://tv-tabla.se/tabla/tv10/";
@@ -1085,7 +1085,7 @@ Android TV devices at `config.house.tv`.
       };
       11 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/11.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/11.png";
         id = 11;
         name = "Kanal 11";
         scrape_url = "https://tv-tabla.se/tabla/tv11/";
@@ -1093,7 +1093,7 @@ Android TV devices at `config.house.tv`.
       };
       12 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/12.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/12.png";
         id = 12;
         name = "Kanal 12";
         scrape_url = "https://tv-tabla.se/tabla/tv12/";
@@ -1101,7 +1101,7 @@ Android TV devices at `config.house.tv`.
       };
       13 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/13.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/13.png";
         id = 13;
         name = "TV4 Hockey";
         scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
@@ -1109,7 +1109,7 @@ Android TV devices at `config.house.tv`.
       };
       14 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/14.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/14.png";
         id = 14;
         name = "TV4 Sport Live 1";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
@@ -1117,7 +1117,7 @@ Android TV devices at `config.house.tv`.
       };
       15 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/15.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/15.png";
         id = 15;
         name = "TV4 Sport Live 2";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
@@ -1125,7 +1125,7 @@ Android TV devices at `config.house.tv`.
       };
       16 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/16.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/16.png";
         id = 16;
         name = "TV4 Sport Live 3";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
@@ -1133,7 +1133,7 @@ Android TV devices at `config.house.tv`.
       };
       17 = {
         cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/17.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/17.png";
         id = 17;
         name = "TV 4 Sport Live 4";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
@@ -1141,7 +1141,7 @@ Android TV devices at `config.house.tv`.
       };
       2 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/2.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/2.png";
         id = 2;
         name = "SVT2";
         scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1149,7 +1149,7 @@ Android TV devices at `config.house.tv`.
       };
       3 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/3.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/3.png";
         id = 3;
         name = "Kanal 3";
         scrape_url = "https://tv-tabla.se/tabla/tv3/";
@@ -1157,7 +1157,7 @@ Android TV devices at `config.house.tv`.
       };
       4 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/4.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/4.png";
         id = 4;
         name = "TV4";
         scrape_url = "https://tv-tabla.se/tabla/tv4/";
@@ -1165,7 +1165,7 @@ Android TV devices at `config.house.tv`.
       };
       5 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/5.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/5.png";
         id = 5;
         name = "TV5";
         scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
@@ -1173,7 +1173,7 @@ Android TV devices at `config.house.tv`.
       };
       6 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/6.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/6.png";
         id = 6;
         name = "Kanal 6";
         scrape_url = "https://tv-tabla.se/tabla/tv6/";
@@ -1181,7 +1181,7 @@ Android TV devices at `config.house.tv`.
       };
       7 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/7.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/7.png";
         id = 7;
         name = "Sjuan";
         scrape_url = "https://tv-tabla.se/tabla/sjuan/";
@@ -1189,7 +1189,7 @@ Android TV devices at `config.house.tv`.
       };
       8 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/8.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/8.png";
         id = 8;
         name = "TV8";
         scrape_url = "https://tv-tabla.se/tabla/tv8/";
@@ -1197,7 +1197,7 @@ Android TV devices at `config.house.tv`.
       };
       9 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/9.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/9.png";
         id = 9;
         name = "Kanal 9";
         scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
@@ -1216,7 +1216,7 @@ Android TV devices at `config.house.tv`.
     channels = {
       1 = {
         cmd = "open_telenor && wait 5 && start_channel_1";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/1.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/1.png";
         id = 1;
         name = "SVT1";
         scrape_url = "https://tv-tabla.se/tabla/svt1/";
@@ -1224,7 +1224,7 @@ Android TV devices at `config.house.tv`.
       };
       10 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/10.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/10.png";
         id = 10;
         name = "Kanal 10";
         scrape_url = "https://tv-tabla.se/tabla/tv10/";
@@ -1232,7 +1232,7 @@ Android TV devices at `config.house.tv`.
       };
       11 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/11.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/11.png";
         id = 11;
         name = "Kanal 11";
         scrape_url = "https://tv-tabla.se/tabla/tv11/";
@@ -1240,7 +1240,7 @@ Android TV devices at `config.house.tv`.
       };
       12 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/12.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/12.png";
         id = 12;
         name = "Kanal 12";
         scrape_url = "https://tv-tabla.se/tabla/tv12/";
@@ -1248,7 +1248,7 @@ Android TV devices at `config.house.tv`.
       };
       13 = {
         cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/13.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/13.png";
         id = 13;
         name = "TV4 Hockey";
         scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
@@ -1256,7 +1256,7 @@ Android TV devices at `config.house.tv`.
       };
       14 = {
         cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/14.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/14.png";
         id = 14;
         name = "TV4 Sport Live 1";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
@@ -1264,7 +1264,7 @@ Android TV devices at `config.house.tv`.
       };
       15 = {
         cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/15.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/15.png";
         id = 15;
         name = "TV4 Sport Live 2";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
@@ -1272,7 +1272,7 @@ Android TV devices at `config.house.tv`.
       };
       16 = {
         cmd = "open_tv4 && nav_down && nav_right && nav_right && nav_center";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/16.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/16.png";
         id = 16;
         name = "TV4 Sport Live 3";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
@@ -1280,7 +1280,7 @@ Android TV devices at `config.house.tv`.
       };
       17 = {
         cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/17.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/17.png";
         id = 17;
         name = "TV4 Sport Live 4";
         scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
@@ -1288,7 +1288,7 @@ Android TV devices at `config.house.tv`.
       };
       2 = {
         cmd = "open_telenor && wait 5 && start_channel_2";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/2.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/2.png";
         id = 2;
         name = "SVT2";
         scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1296,7 +1296,7 @@ Android TV devices at `config.house.tv`.
       };
       3 = {
         cmd = "open_telenor && wait 5 && start_channel_3";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/3.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/3.png";
         id = 3;
         name = "Kanal 3";
         scrape_url = "https://tv-tabla.se/tabla/tv3/";
@@ -1304,7 +1304,7 @@ Android TV devices at `config.house.tv`.
       };
       4 = {
         cmd = "open_telenor && wait 5 && start_channel_4";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/4.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/4.png";
         id = 4;
         name = "TV4";
         scrape_url = "https://tv-tabla.se/tabla/tv4/";
@@ -1312,7 +1312,7 @@ Android TV devices at `config.house.tv`.
       };
       5 = {
         cmd = "open_telenor && wait 5 && start_channel_5";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/5.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/5.png";
         id = 5;
         name = "Kanal 5";
         scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
@@ -1320,7 +1320,7 @@ Android TV devices at `config.house.tv`.
       };
       6 = {
         cmd = "open_telenor && wait 5 && start_channel_6";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/6.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/6.png";
         id = 6;
         name = "Kanal 6";
         scrape_url = "https://tv-tabla.se/tabla/tv6/";
@@ -1328,7 +1328,7 @@ Android TV devices at `config.house.tv`.
       };
       7 = {
         cmd = "open_telenor && wait 5 && start_channel_7";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/7.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/7.png";
         id = 7;
         name = "Sjuan";
         scrape_url = "https://tv-tabla.se/tabla/sjuan/";
@@ -1336,7 +1336,7 @@ Android TV devices at `config.house.tv`.
       };
       8 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/8.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/8.png";
         id = 8;
         name = "TV8";
         scrape_url = "https://tv-tabla.se/tabla/tv8/";
@@ -1344,7 +1344,7 @@ Android TV devices at `config.house.tv`.
       };
       9 = {
         cmd = "";
-        icon = "/nix/store/6cpihhnj16yfjia7pck0rfm847nlbhkz-source/modules/themes/icons/tv/9.png";
+        icon = "/nix/store/9ywvcv448a4ama7d6ky42ndpyx0504g4-source/modules/themes/icons/tv/9.png";
         id = 9;
         name = "Kanal 9";
         scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
@@ -1365,7 +1365,8 @@ Android TV devices at `config.house.tv`.
 
 
 <details><summary><strong>
-And you'll get a dashboard for your devices generated and found at http://localhost:13337  
+And you'll get a dashboard for your devices generated and found at http://localhost:13337 <br>
+[Watch demo](./home/duckdash.mov)
 </strong></summary>
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="25%">
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%">
@@ -1543,7 +1544,6 @@ Set default values for your parameters to have them marked [optional]
 | **🖥️ System Management** | | | |
 | [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | 📛 |
 | [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] |  | Start development enviorment | 📛 |
-| [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/duckTrace.nix) [--script] [--host] [--errors] [--monitor] | log | View duckTrace logs quick and quack, unified logging system | ✅ |
 | [yo esp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/esp.nix) [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP] |  | Declarative firmware deployment tool for ESP32 boards with built-in version control. | 📛 |
 | [yo espOTA](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/espOTA.nix)  |  | Updates ESP32 devices over the air. | 📛 |
 | [yo reboot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) [--host] | restart | Force reboot and wait for host | ✅ |
@@ -1587,10 +1587,11 @@ Set default values for your parameters to have them marked [optional]
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) --input [--fuzzyThreshold] [--dir] [--build] | d | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Super fast!) | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) --input [--fuzzy] [--dir] [--build] | d | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Faster) | 📛 |
 | [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzyThreshold] |  | Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. (Bash version) | 📛 |
 | [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | Trigger microphone recording sent to transcription. | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
+| [yo stats](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/stats.nix) [--show] [--tail] [--reset] | stat | [🦆📶] duckStats - Statistical & metrics for the NLP (yo-do) module | 📛 |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
 | [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
 | [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
@@ -1629,6 +1630,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day and date | ✅ |
 | **🧹 Maintenance** | | | |
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |
+| [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/duckTrace.nix) [--script] [--host] [--errors] [--monitor] | log | View duckTrace logs quick and quack, unified logging system | ✅ |
 | [yo health](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/health.nix) [--host] | hc | Check system health status across your machines. Returns JSON structured responses. | ✅ |
 ### ❓ Detailed Help
 For specific command help: 

@@ -1,7 +1,8 @@
 # dotfiles/modules/yo.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ CLI framework - centralized script handling
+  self, 
   config,
-  lib,       
+  lib,
   pkgs,   
   ...
 } : with lib;
@@ -10,6 +11,13 @@ let # 🦆 says ⮞ for README version badge yo
     raw = builtins.readFile /etc/os-release;
     versionMatch = builtins.match ".*VERSION_ID=([0-9\\.]+).*" raw;
   in builtins.replaceStrings [ "." ] [ "%2E" ] (builtins.elemAt versionMatch 0);
+
+  sysHosts = builtins.attrNames self.nixosConfigurations;
+  vmHosts = builtins.filter (host:
+    self.nixosConfigurations.${host}.self.config.system.build ? vm
+  ) sysHosts;  
+  # 🦆 duck say ⮞ comma sep list of your hosts
+  sysHostsComma = builtins.concatStringsSep "," sysHosts;
 
   # 🦆 duck say ⮞ validate time format - HH:MM (24h)
   isValidTime = timeStr:
@@ -581,6 +589,11 @@ EOF
               type = types.enum ["string" "int" "path" "bool"];
               default = "string";
               description = "Type of parameter. Use path for filepath int for numbers, bool for true/false flags, and string (default) for all others";
+            }; # 🦆 duck say ⮞ value option for allowed values (string type only)
+            value = mkOption {
+              type = types.nullOr (types.listOf types.str);
+              default = null;
+              description = "Allowed values for this parameter (only applicable for string type)";
             };
           };
         });
@@ -749,7 +762,9 @@ EOF
           export DT_LOG_FILE="${name}.log" # 🦆 duck say ⮞ duck tracin' be namin' da log file for da ran script
           touch "$DT_LOG_PATH/$DT_LOG_FILE"
           export DT_LOG_LEVEL="${script.logLevel}" # 🦆 duck say ⮞ da tracin' duck back to fetch da log level yo
-
+          DT_MONITOR_HOSTS="${sysHostsComma}";
+          DT_MONITOR_PORT="9999";
+      
           # 🦆 duck say ⮞ PHASE 1: preprocess special flagz woop woop
           VERBOSE=0
           DRY_RUN=false
@@ -894,6 +909,29 @@ EOF
               fi
             ''
           ) script.parameters)}
+
+
+          # 🦆 duck say ⮞ value validation - explicit allowed list yo
+          ${concatStringsSep "\n" (map (param: 
+            optionalString (param.value != null && param.type == "string") ''
+              if [ -n "''${${param.name}:-}" ]; then
+                # 🦆 duck say ⮞ check if value is in allowed list
+                allowed_values=(${lib.concatMapStringsSep " " (v: "'${lib.escapeShellArg v}'") param.value})
+                value_found=false
+                for allowed in "''${allowed_values[@]}"; do
+                  if [[ "''${${param.name}}" == "$allowed" ]]; then
+                    value_found=true
+                    break
+                  fi
+                done
+                if [[ "$value_found" == "false" ]]; then
+                  echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} --${param.name} must be one of: ${lib.concatStringsSep ", " param.value}\033[0m" >&2
+                  exit 1
+                fi
+              fi
+            ''
+          ) script.parameters)}
+
 
           # 🦆 duck say ⮞ boolean defaults - false if not provided
           ${concatStringsSep "\n" (map (param: 
@@ -1286,6 +1324,14 @@ in { # 🦆 duck say ⮞ options options duck duck
       ) scripts;      
       # 🦆 duck say ⮞ clean out dem' nullz! no nullz in ma ASSertionthz! ... quack
       actualAutoStartErrors = lib.filter (e: e != null) autoStartErrors;   
+      # 🦆 duck say ⮞ Validate da shit out of 'value' option quack! only allowed wit string type yo!
+      valueTypeErrors = lib.concatMap (script:
+        lib.concatMap (param:
+          if param.value != null && param.type != "string" then
+            [ "🦆 duck say ⮞ fuck ❌ Parameter '${param.name}' in script '${script.name}' has 'value' defined but type is '${param.type}' (only 'string' type allowed)" ]
+          else []
+        ) script.parameters
+      ) (lib.attrValues scripts);
     in [
       { # 🦆 duck say ⮞ assert no alias name cpmflict with script name 
         assertion = scriptNameConflicts == {};
@@ -1310,6 +1356,10 @@ in { # 🦆 duck say ⮞ options options duck duck
           !(script.runEvery != null && script.runAt != null)
         ) (lib.attrValues scripts);
         message = "🦆 duck say ⮞ fuck ❌ Script cannot have both runEvery and runAt set";
+      }
+      { # 🦆 duck say ⮞ value option only 4 strings i said!
+        assertion = valueTypeErrors == [];
+        message = "Value type errors:\n" + lib.concatStringsSep "\n" valueTypeErrors;
       }
     ];
     # 🦆 duck say ⮞ TODO replace with: system.activationScripts.update-readme.text = "${updateReadme}/bin/update-readme";

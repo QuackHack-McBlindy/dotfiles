@@ -15,12 +15,13 @@ in {
   yo.scripts.duckTrace = {
     description = "View duckTrace logs quick and quack, unified logging system";
     aliases = [ "log" ];    
-    category = "🖥️ System Management";
+    category = "🧹 Maintenance";
 #    helpFooter = '' # 🦆 says ⮞ display log file in markdown with Glow
 #    '';
     parameters = [ 
       { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
+      #{ name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; value = [ "desktop" "homie" "laptop" "nasty" ]; }       
       { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
       { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
     ]; 
@@ -34,7 +35,64 @@ in {
       export GUM_CHOOSE_CURSOR="🦆 ➤ "  
       export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
       export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
-
+      
+      announce_error() {
+        local file="$DT_LOG_PATH/error_state"
+        [[ ! -f "$file" ]] && { echo "Filen $file finns inte."; return 1; }
+        local ERROR_STATE LEVEL MESSAGE TIMESTAMP HOSTNAME LAST_UPDATE
+        while IFS='=' read -r key value; do
+          case "$key" in
+            ERROR_STATE) ERROR_STATE="$value" ;;
+            LEVEL) LEVEL="$value" ;;
+            MESSAGE) MESSAGE="$value" ;;
+            TIMESTAMP) TIMESTAMP="$value" ;;
+            HOSTNAME) HOSTNAME="$value" ;;
+            LAST_UPDATE) LAST_UPDATE="$value" ;;
+          esac
+        done < "$file"
+      
+        # 🦆 says ⮞  convert time to secondz
+        local last_epoch
+        last_epoch=$(date -d "$LAST_UPDATE" +%s 2>/dev/null)
+        local now_epoch
+        now_epoch=$(date +%s)
+        local diff=$(( now_epoch - last_epoch ))
+        # 🦆 says ⮞ time diff 
+        local days=$(( diff / 86400 ))
+        local hours=$(( (diff % 86400) / 3600 ))
+        local minutes=$(( (diff % 3600) / 60 ))
+        local seconds=$(( diff % 60 ))
+      
+        local elapsed_text=""
+        if (( days > 0 )); then
+          elapsed_text="''${days} dagar, ''${hours} timmar"
+        elif (( hours > 0 )); then
+          elapsed_text="''${hours} timmar, ''${minutes} minuter"
+        elif (( minutes > 0 )); then
+          elapsed_text="''${minutes} minuter, ''${seconds} sekunder"
+        else
+          elapsed_text="''${seconds} sekunder"
+        fi
+      
+        # 🦆 says ⮞ calc severity
+        local severity
+        if (( diff < 300 )); then
+          severity="kritisk"
+        elif (( diff < 1800 )); then
+          severity="hög"
+        else
+          severity="måttlig"
+        fi
+      
+        local text="Varning — ett ''${LEVEL,,} inträffade på värddatorn ''${HOSTNAME}. \
+      Vid tidpunkten ''${TIMESTAMP} uppstod felet: ''${MESSAGE}. \
+      Det har gått ''${elapsed_text} sedan händelsen. \
+      Allvarlighetsgraden bedöms som ''${severity}."
+        # 🦆 says ⮞ say it!
+        echo "$text"
+        say "$text"
+      }
+            
       get_service_name() {
         local log_base
         log_base=$(basename "$LOGFILE" .log)
@@ -176,6 +234,143 @@ in {
         menu
       fi
 
+      dt_check_error_state() {
+        local host="$1"
+        local error_state_file="$HOME/.config/duckTrace/error_state"  
+        if [[ "$host" == "$(hostname)" ]]; then
+          # 🦆 says ⮞ local host
+          if [[ -f "$error_state_file" ]]; then
+            source "$error_state_file"
+            if [[ "$ERROR_STATE" == "1" ]]; then
+              echo "❌ $host: $MESSAGE (at $TIMESTAMP)"
+              return 1
+            else
+              echo "✅ $host: No errors"
+              return 0
+            fi
+          else
+            echo "✅ $host: No error state file found (clean)"
+            return 0
+          fi
+        else
+          # 🦆 says ⮞ remote host - use SSH
+          local result
+          if result=$(ssh "$host" "[[ -f '$error_state_file' ]] && source '$error_state_file' && echo \"ERROR_STATE=''$ERROR_STATE' MESSAGE=''$MESSAGE' TIMESTAMP=''$TIMESTAMP'\"" 2>/dev/null); then
+            if [[ "$result" == *"ERROR_STATE='1'"* ]]; then
+              local message=$(echo "$result" | grep -o "MESSAGE='[^']*'" | sed "s/MESSAGE='//" | sed "s/'//")
+              local timestamp=$(echo "$result" | grep -o "TIMESTAMP='[^']*'" | sed "s/TIMESTAMP='//" | sed "s/'//")
+              echo "❌ $host: $message (at $timestamp)"
+              return 1
+            else
+              echo "✅ $host: No errors"
+              return 0
+            fi
+          else
+            echo "❓ $host: Unable to check (SSH failed or no error state)"
+            return 2
+          fi
+        fi
+      }
+
+      # 🦆 says ⮞ monitor all hosts for errors
+      dt_monitor_hosts() {
+        local hosts=("desktop" "laptop" "homie" "nasty")
+        local any_errors=0
+        
+        echo "🦆 Checking error states across hosts..."
+        echo "────────────────────────────────────"
+        
+        for host in "''${hosts[@]}"; do
+          if ! dt_check_error_state "$host"; then
+            any_errors=1
+          fi
+        done
+        
+        echo "────────────────────────────────────"
+        if [[ $any_errors -eq 0 ]]; then
+          echo "✅ All hosts are error-free!"
+        else
+          echo "❌ Some hosts have errors. Check above for details."
+        fi
+        
+        return $any_errors
+      }
+
+      # 🦆 says ⮞ search for errors in specific service logs on a host
+      search_errors_in_service() {
+        local service="$1"
+        local host="$2"
+        local log_pattern="*error*"
+        
+        if [[ "$host" == "$(hostname)" ]]; then
+          # 🦆 says ⮞ local search
+          local log_files=($(find "$DT_LOG_PATH" -name "*$service*" -type f))
+          if [[ ''${#log_files[@]} -eq 0 ]]; then
+            dt_error "No log files found for service: $service"
+            return 1
+          fi
+          
+          for log_file in "''${log_files[@]}"; do
+            echo "🔍 Searching $log_file for errors..."
+            grep -i -E "error|fail|critical" "$log_file" | head -20
+          done
+        else
+          echo "🔍 Searching $service logs on $host..."
+          ssh "$host" "find '$DT_LOG_PATH' -name '*$service*' -type f -exec grep -i -E 'error|fail|critical' {} + | head -20"
+        fi
+      }
+
+
+      check_errors_across_hosts() {
+        local host_filter="$1"
+        if [[ -n "$host_filter" ]]; then
+          dt_check_error_state "$host_filter"
+        else
+          dt_monitor_hosts
+        fi
+      }
+
+      continuous_monitor() {
+        ${pkgs.gum}/bin/gum format --theme=yellow "# Starting Continuous Error Monitoring"
+        ${pkgs.gum}/bin/gum format "Press Ctrl+C to stop monitoring"
+    
+        while true; do
+          clear
+          dt_monitor_hosts
+          sleep 30
+        done
+      }
+
+      # 🦆 says ⮞ handle voice commands for error search
+      if [[ -n "$script" && -n "$host" ]]; then
+        # 🦆 says ⮞ voice command: "sök i {service} log efter fel på {host}"
+        search_errors_in_service "$script" "$host"
+        exit 0
+      fi
+
+      if [[ -n "$script" && -z "$host" ]]; then
+        # 🦆 says ⮞ voice command: "sök i {service} log efter fel"
+        search_errors_in_service "$script" "$(hostname)"
+        exit 0
+      fi
+
+      if [[ -z "$script" && -n "$host" ]]; then
+        # 🦆 says ⮞ voice command: "sök efter error på {host}"
+        dt_check_error_state "$host"
+        exit 0
+      fi
+
+      if [[ "''${errors:-false}" == "true" ]]; then
+        check_errors_across_hosts "''${host:-}"
+        exit 0
+      fi
+
+      if [[ "''${monitor:-false}" == "true" ]]; then
+        continuous_monitor
+        exit 0
+      fi
+
+
     '';    
     voice = {
       enabled = true;
@@ -193,6 +388,7 @@ in {
         "check [for] error[s] [on] {host}"
       ];
       lists = {
+        host.wildcard = true;
         host.values = [
           { "in" = "[desktop|datorn]"; out = "desktop"; }
           { "in" = "nas"; out = "nasty"; }

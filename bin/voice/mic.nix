@@ -23,7 +23,7 @@
     "0.0.0.0";
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {
-      description = "Trigger microphone recording sent to transcription.";
+      description = "[🦆🎙️] Trigger microphone recording sent to transcription.";
       category = "🗣️ Voice";
       logLevel = "CRITICAL";
       parameters = [ # 🦆 says ⮞ some paramz to know where to pass audio

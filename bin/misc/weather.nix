@@ -248,37 +248,39 @@ in {
 
       # 🦆 says ⮞ check for specific condition
       check_condition() {
-        local condition="$1"
-        local offset="$2"     
-        local day_data=$(jq --argjson offset "$offset" \
-          '.weather[$offset] | {
-            mintempC: .mintempC,
-            maxtempC: .maxtempC,
-            noonWeather: (.hourly[] | select(.time=="1200") | {
-              weatherCode,
-              weatherDesc: .weatherDesc[0].value,
-              windspeedKmph,
-              humidity,
-              precipMM
-            })
-          }' "$weather_file")
-        
-        local weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
-        local condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc' | tr '[:upper:]' '[:lower:]')
-        local wind_speed=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
-        local mintempC=$(echo "$day_data" | jq -r '.mintempC')
-        local maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
-        
-        case $offset in
-            0) display_name="idag" ;;
-            1) display_name="imorgon" ;;
-            2) display_name="i övermorgon" ;;
-            *) display_name="$(get_day_name $offset)" ;;
-        esac
-        
-        local swedish_condition="''${CONDITION_SWEDISH[$condition]}"
-        
-        case "$condition" in
+          local condition="$1"
+          local offset="$2"     
+          local day_data=$(jq --argjson offset "$offset" \
+            '.weather[$offset] | {
+              mintempC: .mintempC,
+              maxtempC: .maxtempC,
+              noonWeather: (.hourly[] | select(.time=="1200") | {
+                weatherCode,
+                weatherDesc: .weatherDesc[0].value,
+                windspeedKmph,
+                humidity,
+                precipMM,
+                chanceofrain,
+                FeelsLikeC
+              })
+            }' "$weather_file")
+          
+          local weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
+          local condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc' | tr '[:upper:]' '[:lower:]')
+          local wind_speed=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
+          local mintempC=$(echo "$day_data" | jq -r '.mintempC')
+          local maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
+          local precipMM=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
+          local chance_of_rain=$(echo "$day_data" | jq -r '.noonWeather.chanceofrain')
+          
+          case $offset in
+              0) display_name="idag" ;;
+              1) display_name="imorgon" ;;
+              2) display_name="i övermorgon" ;;
+              *) display_name="$(get_day_name $offset)" ;;
+          esac  
+          local swedish_condition="''${CONDITION_SWEDISH[$condition]}"      
+          case "$condition" in
             sunny|partly\ cloudy|cloudy|rain|sleet|snow|thunderstorm|fog)
                 local codes="''${CONDITION_CODES[$condition]}"
                 if [[ " $codes " =~ " $weather_code " ]]; then
@@ -304,13 +306,17 @@ in {
                 fi
                 ;;
             hot)
-                if (( maxtempC > 25 )); then
-                    dt_info "Ja, det blir $swedish_condition $display_name ($maxtempC°C)."
-                    tts "Ja, det blir $swedish_condition $display_name med upp till $maxtempC grader."
+                if (( maxtempC > 28 )); then
+                    dt_info "Ja, mycket varmt $display_name! Hetterekord på $maxtempC°C."
+                    tts "Ja, mycket varmt $display_name! Hetterekord på $maxtempC grader."
+                    return 0
+                elif (( maxtempC > 25 )); then
+                    dt_info "Ja, varmt $display_name med $maxtempC°C."
+                    tts "Ja, varmt $display_name med $maxtempC grader."
                     return 0
                 else
-                    dt_info "Nej, det blir inte $swedish_condition $display_name ($maxtempC°C)."
-                    tts "Nej, det blir inte $swedish_condition $display_name. Maximalt $maxtempC grader."
+                    dt_info "Nej, inte särskilt varmt $display_name. Bara $maxtempC°C."
+                    tts "Nej, inte särskilt varmt. Bara $maxtempC grader."
                     return 1
                 fi
                 ;;
@@ -327,20 +333,24 @@ in {
                 ;;
             rain)
                 if (( $(echo "$precipMM > 0" | bc -l) )); then
-                    if (( $(echo "$precipMM < 2" | bc -l) )); then
-                        dt_info "Ja, men bara lite regn $display_name. Beräknad nederbörd ''${precipMM} mm."
-                        tts "Ja, men bara lite. Beräknad nederbörd ''${precipMM} millimeter."
+                    if (( $(echo "$precipMM < 1" | bc -l) )); then
+                        dt_info "Ja, men bara lite regn $display_name. $precipMM mm nederbörd ($chance_of_rain% risk)."
+                        tts "Ja, men bara lite. $precipMM millimeter nederbörd med $chance_of_rain procents risk."
+                    elif (( $(echo "$precipMM < 5" | bc -l) )); then
+                        dt_info "Ja, regn $display_name. $precipMM mm nederbörd ($chance_of_rain% risk)."
+                        tts "Ja, det blir regn. $precipMM millimeter nederbörd med $chance_of_rain procents risk."
                     else
-                        dt_info "Ja, det blir regn $display_name (''${precipMM} mm)."
-                        tts "Ja, det blir regn $display_name, beräknad nederbörd ''${precipMM} millimeter."
+                        dt_info "Ja, kraftigt regn $display_name! $precipMM mm nederbörd ($chance_of_rain% risk)."
+                        tts "Ja, kraftigt regn! $precipMM millimeter nederbörd med $chance_of_rain procents risk."
                     fi
                     return 0
                 else
-                    dt_info "Nej, inget regn $display_name."
+                    dt_info "Nej, inget regn $display_name. ($chance_of_rain% risk)"
                     tts "Nej, inget regn $display_name."
                     return 1
                 fi
                 ;;
+        
             *)
                 dt_info "Okänd väderförhållande: $condition"
                 return 1

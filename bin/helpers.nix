@@ -63,8 +63,37 @@ in
       # 🦆 says ⮞ format output
       local output="''${color}''${BOLD}''${blink_code}[🦆📜] [''${timestamp}] ''${symbol}''${level}''${symbol} ⮞ ''${message}''${RESET}"
       echo -e "$output" 
+      if [[ "$level" == "error" ]]; then
+        echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m fuck ❌ ''${message}\e[0m}"
+      fi
       # 🦆 says ⮞ append to log file
       echo "[''${timestamp}] ''${level} - ''${message}" >> "''${DT_LOG_PATH%/}/''${DT_LOG_FILE}"
+    }
+    # 🦆 says ⮞ error state file
+    create_error_state() {
+      local message="$1"
+      local level="$2"
+      local error_state_file="''${DT_LOG_PATH%/}/error_state"
+      local timestamp=$(date +"%H:%M:%S")
+      local last_update=$(date -Iseconds)
+      local hostname=$(hostname)
+      mkdir -p "$(dirname "$error_state_file")"     
+      cat > "$error_state_file" << EOF
+ERROR_STATE=1
+LEVEL=$level
+MESSAGE=$message
+TIMESTAMP=$timestamp
+HOSTNAME=$hostname
+LAST_UPDATE=$last_update
+EOF
+    }
+
+    # 🦆 says ⮞ clear error state file
+    clear_error_state() {
+      local error_state_file="''${DT_LOG_PATH%/}/error_state"
+      if [[ -f "$error_state_file" ]]; then
+        rm "$error_state_file"
+      fi
     }
     # 🦆 says ⮞ log levels (in order of most critical)
     dt_debug() {
@@ -83,9 +112,16 @@ in
     }
     dt_error() {
       _dt_log "ERROR" "❌" "$RED" "$1" true >&2
+      create_error_state "$1" "ERROR"
     }
     dt_critical() {
       _dt_log "CRITICAL" "🚨" "$RED" "$1" true >&2
+      create_error_state "$1" "CRITICAL"
+    }
+    # 🦆 says ⮞ Success function that clears error state
+    dt_success() {
+      _dt_log "SUCCESS" "✅" "$GREEN" "$1" >&2
+      clear_error_state
     }
     # 🦆 says ⮞ END OF DUCK TRACE ='( 
     parse_flags() { # 🦆 says ⮞ quite self explained  

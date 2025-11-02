@@ -1,5 +1,5 @@
 # dotfiles/bin/config/do.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Quack Powered natural language processing engine written in Nix & Bash - translates text to Shell commands
+{ # 🦆 says ⮞ Quack Powered natural language processing engine written in Nix & Rust - translates text to Shell commands
   self,
   lib,
   config,
@@ -9,6 +9,11 @@
   ...
 } : let
   cfg = config.yo;
+  # 🦆 says ⮞ Statistical logging for failed commands
+  statsDir = "/home/${config.this.user.me.name}/.local/share/yo/stats";
+  failedCommandsLog = "${statsDir}/failed_commands.log";
+  commandStatsDB = "${statsDir}/command_stats.json";
+  
   # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
   scripts = config.yo.scripts; 
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
@@ -23,6 +28,7 @@
 #  ) scriptNames; # 🦆 says ⮞ datz quackin' cool huh?!
       builtins.hasAttr scriptName generatedIntents && hasSentences
   ) (builtins.attrNames scriptsWithVoice);
+
 
 #  scriptsWithVoice = lib.filterAttrs (_: script: script.voice != null) config.yo.scripts;
   # 🦆 says ⮞ only scripts with voice enabled and non-null voice config
@@ -787,7 +793,92 @@
                 debug: env::var("DEBUG").is_ok() || env::var("DT_DEBUG").is_ok(),
             }
         }
-      
+
+        // 🦆 says ⮞ Log failed command with full context
+        fn log_failed_command(&self, input: &str, fuzzy_candidates: &[(String, String, i32)]) -> Result<(), Box<dyn std::error::Error>> {
+            let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+            let _ = std::fs::create_dir_all(&stats_dir);
+            
+            let log_file = format!("{}/failed_commands.log", stats_dir);
+            let stats_file = format!("{}/command_stats.json", stats_dir);
+            
+            // 🦆 says ⮞ Log to plain text file with timestamp
+            let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
+            let log_entry = format!("[{}] FAILED: '{}'\n", timestamp, input);
+            
+            if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(&log_file) {
+                use std::io::Write;
+                let _ = file.write_all(log_entry.as_bytes());
+            }
+            
+            // 🦆 says ⮞ update stats
+            let mut stats: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&stats_file) {
+                serde_json::from_str(&content).unwrap_or_else(|_| {
+                    serde_json::json!({
+                        "failed_commands": {},
+                        "successful_commands": {},
+                        "fuzzy_matches": {}
+                    })
+                })
+            } else {
+                serde_json::json!({
+                    "failed_commands": {},
+                    "successful_commands": {}, 
+                    "fuzzy_matches": {}
+                })
+            };
+            
+            // 🦆 says ⮞ increment failed command count
+            if let Some(failed_commands) = stats.get_mut("failed_commands").and_then(|v| v.as_object_mut()) {
+                let count = failed_commands.get(input).and_then(|v| v.as_u64()).unwrap_or(0);
+                failed_commands.insert(input.to_string(), serde_json::Value::from(count + 1));
+            }
+            
+            // 🦆 says ⮞ write back updated stats
+            if let Ok(content) = serde_json::to_string_pretty(&stats) {
+                let _ = std::fs::write(&stats_file, content);
+            }
+            
+            // 🦆 says ⮞ log fuzzy matchin' candidates for analysis
+            if !fuzzy_candidates.is_empty() {
+                self.quack_debug(&format!("Fuzzy candidates for '{}':", input));
+                for (script, sentence, score) in fuzzy_candidates {
+                    self.quack_debug(&format!("  {}%: {} -> {}", score, sentence, script));
+                }
+            }        
+            Ok(())
+        }
+        
+        // 🦆 says ⮞ log successful command execution
+        fn log_successful_command(&self, script_name: &str, args: &[String], processing_time: std::time::Duration) -> Result<(), Box<dyn std::error::Error>> {
+            let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+            let stats_file = format!("{}/command_stats.json", stats_dir);  
+            let mut stats: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&stats_file) {
+                serde_json::from_str(&content).unwrap_or_else(|_| {
+                    serde_json::json!({
+                        "failed_commands": {},
+                        "successful_commands": {},
+                        "fuzzy_matches": {}
+                    })
+                })
+            } else {
+                serde_json::json!({
+                    "failed_commands": {},
+                    "successful_commands": {},
+                    "fuzzy_matches": {}
+                })
+            }; 
+            if let Some(successful_commands) = stats.get_mut("successful_commands").and_then(|v| v.as_object_mut()) {
+                let count = successful_commands.get(script_name).and_then(|v| v.as_u64()).unwrap_or(0);
+                successful_commands.insert(script_name.to_string(), serde_json::Value::from(count + 1));
+            }
+            
+            if let Ok(content) = serde_json::to_string_pretty(&stats) {
+                let _ = std::fs::write(&stats_file, content);
+            }     
+            Ok(())
+        }
+   
         // 🦆 says ⮞ QUACK LOADER - load all the duck data!
         fn load_intent_data(&mut self, intent_data_path: &str) -> Result<(), Box<dyn std::error::Error>> {
             let data = fs::read_to_string(intent_data_path)?;
@@ -1208,7 +1299,7 @@
             self.quack_info(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
             // 🦆 says ⮞ execution tree
             println!("   ┌─(yo-{})", result.script_name);
-            println!("   │🦆 Match: {}", result.matched_sentence);
+            println!("   │🦆 qwack! {}", result.matched_sentence);
             
             if result.args.is_empty() {
                 println!("   └─🦆 says ⮞ no parameters yo");
@@ -1241,9 +1332,27 @@
         pub fn run(&mut self, input: &str, fuzzy_threshold: i32) -> Result<(), Box<dyn std::error::Error>> {
             self.fuzzy_threshold = fuzzy_threshold;
             self.calculate_processing_order();
+            // 🦆 says ⮞ Collect fuzzy candidates for logging
+            let fuzzy_candidates: Vec<(String, String, i32)> = self.fuzzy_index.iter()
+                .filter_map(|entry| {
+                    let normalized_input = input.to_lowercase();
+                    let normalized_sentence = entry.sentence.to_lowercase();
+                    let distance = self.levenshtein_distance(&normalized_input, &normalized_sentence);
+                    let max_len = normalized_input.len().max(normalized_sentence.len());
+                    if max_len == 0 { return None; }
+                    let score = 100 - (distance * 100 / max_len) as i32;
+                    if score >= 10 { // Lower threshold for candidate collection
+                        Some((entry.script.clone(), entry.sentence.clone(), score))
+                    } else {
+                        None
+                    }
+                })
+                .collect();
+                
             // 🦆 says ⮞ exact matchin'
             if let Some(match_result) = self.exact_match(input) {
                 self.quack_info(&format!("Exact match found: {}", match_result.script_name));
+                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, match_result.processing_time);
                 self.execute_script(&match_result)?;
                 return Ok(());
             }
@@ -1251,10 +1360,33 @@
             // 🦆 says ⮞ fallback yo go fuzzy matchin' i choose u!
             if let Some(match_result) = self.fuzzy_match(input) {
                 self.quack_info(&format!("Fuzzy match found: {}", match_result.script_name));
+                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, match_result.processing_time); 
                 self.execute_script(&match_result)?;
                 return Ok(());
             }
             self.say_no_match();
+            // 🦆 says ⮞ Log failed command with analysis data
+            self.quack_info("No match found, logging statistics...");
+            let _ = self.log_failed_command(input, &fuzzy_candidates);
+            
+            eprintln!("🦆 says ⮞ fuck ❌ No matching command found!");
+            eprintln!("   Input: '{}'", input);
+            
+            if !fuzzy_candidates.is_empty() {
+                eprintln!("   Close matches (increase --fuzzyThreshold if needed):");
+                let top_candidates: Vec<_> = fuzzy_candidates.iter()
+                    .filter(|(_, _, score)| *score >= 50) // Only show decent candidates
+                    .collect();
+                
+                for (script, sentence, score) in top_candidates.iter().take(5) {
+                    eprintln!("     {}%: '{}' -> yo {}", score, sentence, script);
+                }
+            }
+            
+            eprintln!("   View failed command stats: yo stats failed");
+            eprintln!("   Live monitor: yo stats tail");
+            
+            std::process::exit(1);
             Ok(())
         }
     }
@@ -1305,6 +1437,7 @@
     regex = "1.0"
     serde = { version = "1.0", features = ["derive"] }
     serde_json = "1.0"
+    chrono = { version = "0.4", features = ["serde", "clock"] }
   '';
  
 # 🦆 says ⮞ expose da magic! dis builds da NLP
@@ -1312,7 +1445,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
     do = {
-      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Super fast!)";
+      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Faster)";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
       aliases = [ "d" ];
       autoStart = false;
@@ -1322,17 +1455,23 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { name = "input"; description = "Text to translate"; optional = false; } 
-        { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 50; }
+        { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 30; }
         { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/do-rs"; optional = false; } 
         { name = "build"; type = "bool"; description = "Flag for building the Rust binary"; optional = true; default = false; }            
       ];
       code = ''
         set +u  
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
-        FUZZY_THRESHOLD=$fuzzyThreshold
+        FUZZY_THRESHOLD=$fuzzy
         YO_FUZZY_INDEX="${fuzzyIndexFlatFile}"
         text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
         INTENT_FILE="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez    
+        # 🦆 says ⮞ create da stats dirz etc
+        mkdir -p "${statsDir}"
+        touch "${failedCommandsLog}"
+        if [ ! -f "${commandStatsDB}" ]; then
+          echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}' > "${commandStatsDB}"
+        fi
         # 🦆 says ⮞ create the Rust projectz directory and move into it
         mkdir -p "$dir"
         cd "$dir"
@@ -1346,14 +1485,18 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           rm -f target/release/yo_do
           ${pkgs.cargo}/bin/cargo generate-lockfile     
           ${pkgs.cargo}/bin/cargo build --release  
-          dt_info "Build complete!"
+          dt_debug "Build complete!"
         fi # 🦆 says ⮞ if no binary exist - compile it yo
         if [ ! -f "target/release/yo_do" ]; then
           ${pkgs.cargo}/bin/cargo generate-lockfile     
           ${pkgs.cargo}/bin/cargo build --release
-          dt_info "Build complete!"
+          dt_debug "Build complete!"
         fi
-  
+        
+        # 🦆 says ⮞ input to duckput
+        dt_info "[🦆🧠] Processing: '$input'  hmmm ..."
+        
+        
         # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
         if [ "$VERBOSE" -ge 1 ]; then
           DEBUG=1 YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
@@ -1362,7 +1505,152 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
       '';
     };
-  
+    
+    # 🦆 says ⮞ STATS LOG FAILED COMNMANDS
+    stats = {
+      description = "[🦆📶] duckStats - Statistical & metrics for the NLP (yo-do) module";
+      category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
+      aliases = [ "stat" ];
+      autoStart = false;
+      logLevel = "INFO";
+      helpFooter = ''
+        cat ${voiceSentencesHelpFile} 
+      '';
+      parameters = [ # 🦆 says ⮞ set your mosquitto user & password
+        { 
+          name = "show";
+          type = "string";
+          description = "What stat to analyze";
+          default = "summary";
+          value = [ "failed" "successful" "summary" "fuzzy" ];
+        }      
+        { name = "tail"; type = "bool"; description = "Live tail of failed commands"; default = false; }
+        { name = "reset"; type = "bool"; description = "Warning! Will reset all stats!"; default = false; }
+      ];
+
+      code = ''
+        set +u  
+        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
+
+        show_help() {
+          cat << EOF
+🦆 Yo Command Statistics Analyzer
+    
+Usage: yo stats <command>
+    
+Commands:
+  failed      - Show most frequently failed commands
+  successful  - Show most used successful commands  
+  fuzzy       - Show fuzzy match statistics
+  summary     - Show overall statistics
+  reset       - Reset all statistics
+  tail        - Live tail of failed commands
+EOF
+        }
+    
+        load_stats() {
+          if [ -f "${commandStatsDB}" ]; then
+            cat "${commandStatsDB}"
+          else
+            echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}'
+          fi
+        }
+    
+        save_stats() {
+          local stats="$1"
+          echo "$stats" > "${commandStatsDB}"
+        }
+    
+        increment_stat() {
+          local category="$1"
+          local key="$2"
+          local stats=$(load_stats)      
+          local current_count=$(echo "$stats" | jq -r ".''${category}.\"$key\" // 0")
+          local new_count=$((current_count + 1))
+      
+          stats=$(echo "$stats" | jq ".''${category}.\"$key\" = $new_count")
+          save_stats "$stats"
+        }
+    
+        show_failed() {
+          local stats=$(load_stats)
+          echo "🦆 Most Frequently Failed Commands:"
+          echo "$stats" | jq -r '.failed_commands | to_entries | sort_by(-.value) | .[] | "\(.key): \(.value) failures"' | head -20
+        }
+    
+        show_successful() {
+          local stats=$(load_stats)
+          echo "🦆 Most Used Successful Commands:"
+          echo "$stats" | jq -r '.successful_commands | to_entries | sort_by(-.value) | .[] | "\(.key): \(.value) successes"' | head -20
+        }
+    
+        show_fuzzy() {
+          local stats=$(load_stats)
+          echo "🦆 Fuzzy Match Statistics:"
+          echo "$stats" | jq -r '.fuzzy_matches | to_entries | sort_by(-.value) | .[] | "\(.key): \(.value) fuzzy matches"' | head -20
+        }
+    
+        show_summary() {
+          local stats=$(load_stats)
+          local total_failed=$(echo "$stats" | jq '.failed_commands | length')
+          local total_success=$(echo "$stats" | jq '.successful_commands | length')
+          local total_fuzzy=$(echo "$stats" | jq '.fuzzy_matches | length')      
+          local failed_count=$(echo "$stats" | jq '[.failed_commands[]] | add // 0')
+          local success_count=$(echo "$stats" | jq '[.successful_commands[]] | add // 0')
+          local fuzzy_count=$(echo "$stats" | jq '[.fuzzy_matches[]] | add // 0')
+      
+          cat << EOF
+🦆 Command Statistics Summary:
+    
+Total Unique Failed Commands: $total_failed
+Total Failed Attempts: $failed_count
+    
+Total Unique Successful Commands: $total_success  
+Total Successful Executions: $success_count
+    
+Total Unique Fuzzy Matches: $total_fuzzy
+Total Fuzzy Match Uses: $fuzzy_count
+    
+Success Rate: $(if [ $((success_count + failed_count)) -gt 0 ]; then echo "scale=2; $success_count * 100 / ($success_count + $failed_count)" | bc; else echo "0"; fi)%
+EOF
+        }
+    
+        reset_stats() {
+          echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}' > "${commandStatsDB}"
+          echo "🦆 Statistics reset!"
+        }
+    
+        tail_failed() {
+          tail -f "${failedCommandsLog}"
+        }
+
+        if [[ "$reset" == "true" ]]; then
+          reset_stats
+        fi
+        if [[ "$tail" == "true" ]]; then
+          tail_failed
+        fi
+        if [[ "$show" == "failed" ]]; then
+          show_failed
+        fi
+        if [[ "$show" == "successful" ]]; then
+          show_successful
+        fi
+        if [[ "$show" == "summary" ]]; then
+          show_summary
+        fi
+    
+        case "''${1:-}" in
+          failed) show_failed ;;
+          successful) show_successful ;;
+          fuzzy) show_fuzzy ;;
+          summary) show_summary ;;
+          reset) reset_stats ;;
+          tail) tail_failed ;;
+          *) show_help ;;
+        esac
+      '';
+    };  
   };
   # 🦆 says ⮞ SAFETY FIRST! 
   assertions = [
