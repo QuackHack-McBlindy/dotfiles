@@ -794,7 +794,7 @@
             }
         }
 
-        // 🦆 says ⮞ Log failed command with full context
+        // 🦆 says ⮞ never fail but log failz anywayz
         fn log_failed_command(&self, input: &str, fuzzy_candidates: &[(String, String, i32)]) -> Result<(), Box<dyn std::error::Error>> {
             let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
             let _ = std::fs::create_dir_all(&stats_dir);
@@ -802,7 +802,7 @@
             let log_file = format!("{}/failed_commands.log", stats_dir);
             let stats_file = format!("{}/command_stats.json", stats_dir);
             
-            // 🦆 says ⮞ Log to plain text file with timestamp
+            // 🦆 says ⮞ log to text file
             let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
             let log_entry = format!("[{}] FAILED: '{}'\n", timestamp, input);
             
