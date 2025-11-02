@@ -660,13 +660,14 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       autoStart = false;
       parameters = [
         { name = "input"; description = "Text to parse into a yo command"; optional = false; }
-        { name = "fuzzyThreshold"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }
+        { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }
       ]; 
       helpFooter = ''
         cat ${voiceSentencesHelpFile} 
       '';
       code = ''
         set +u  
+        start_time=$(${pkgs.coreutils}/bin/date +%s%3N)  # 🦆 says ⮞ start timing 
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
         FUZZY_THRESHOLD=$fuzzyThreshold
         intent_data_file="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez
@@ -862,7 +863,25 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           echo "exact_finished" > "$match_result_flag"
         }        
 
-        ${lib.concatMapStrings (name: makeFuzzyPatternMatcher name) scriptNamesWithIntents}  
+        no_match() {
+          local end_time=$(date +%s%3N)
+          local elapsed_ms=$((end_time - start_time))
+          local elapsed_sec=$((elapsed_ms / 1000))
+          local elapsed_ms_remainder=$((elapsed_ms % 1000))
+          if (( elapsed_sec > 0 )); then
+            echo "   ┌─(yo-do)"
+            echo "   │🦆 qwack?! $text"
+            echo "   │🦆 says ⮞ fuck ❌ no match!"
+            echo "   └─⏰ do took ''${elapsed_sec}.''${elapsed_ms_remainder} s"
+          else
+            echo "   ┌─(yo-do)"
+            echo "   │🦆 qwack!? $text" 
+            echo "   │🦆 says ⮞ fuck ❌ no match!"
+            echo "   └─⏰ do took ''${elapsed_ms}ms"
+          fi
+        }
+
+        # ${lib.concatMapStrings (name: makeFuzzyPatternMatcher name) scriptNamesWithIntents}  
         # 🦆 SCREAMS ⮞ FUZZY WOOOO TO THE MOON                
         fuzzy_match_handler() {
           resolved_output=$(resolve_entities "dummy" "$text") # 🦆 says ⮞ We'll resolve 4real after matchin'
@@ -947,7 +966,10 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         fuzzy_match_handler
 #        pid1=$!
         # 🦆 says ⮞ if this is reached - we have NO MATCH
-        if [[ $(cat "$match_result_flag") == "exact_finished" ]]; then
+        no_match
+        say_no_match
+        	if [[ $(cat "$match_result_flag") == "exact_finished" ]]; then
+          no_match
           say_no_match
         fi
         exit

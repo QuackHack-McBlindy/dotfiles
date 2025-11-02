@@ -1053,7 +1053,7 @@
             client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce)?;
     
             self.quack_info(&format!("Connected to MQTT broker: {}", &self.mqtt_broker));
-            self.quack_info("🦆🏡 Welcome Home");
+            self.quack_info("[🦆🏡] ⮞ Welcome Home");
             // 🦆 says ⮞ main event loop with reconnect yo 
             loop {
                 match connection.eventloop.poll().await {
@@ -1160,7 +1160,7 @@
   
 in { # 🦆 says ⮞ finally here, quack! 
   yo.scripts.zigduck-rs = {
-    description = "Home automation system written in Rust";
+    description = "[🦆🏡] yo zigduck-rs - Home automation system written in Rust";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     logLevel = "INFO";
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!

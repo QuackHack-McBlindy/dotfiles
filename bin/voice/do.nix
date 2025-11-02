@@ -1296,10 +1296,10 @@
         // 🦆 says ⮞ YO waz qwackin' yo?!
         // 🦆 says ⮞ here comez da executta 
         fn execute_script(&self, result: &MatchResult) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
+            self.quack_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
             // 🦆 says ⮞ execution tree
             println!("   ┌─(yo-{})", result.script_name);
-            println!("   │🦆 qwack! {}", result.matched_sentence);
+            println!("   │🦆 qwack!? {}", result.matched_sentence);
             
             if result.args.is_empty() {
                 println!("   └─🦆 says ⮞ no parameters yo");
@@ -1310,9 +1310,7 @@
                     }
                 }
             }      
-            if result.processing_time.as_millis() > 0 {
-                println!("   └─⏰ do took {:?}", result.processing_time);
-            }
+            println!("   └─⏰ do took {:?}", result.processing_time);
             
             // 🦆 says ⮞ EXECUTION
             let status = Command::new(format!("yo-{}", result.script_name))
@@ -1323,13 +1321,35 @@
             }     
             Ok(())
         }
-        fn say_no_match(&self) {
-            eprintln!("🦆 says ⮞ fuck ❌ No matching command found!");
-            eprintln!("yo do --help to see available commands");
+        // 🦆 says ⮞ TTS
+        fn say(&self, text: &str) {
+            let _ = std::process::Command::new("yo-say")
+                .arg(text)
+                .status();
         }
-    
+
+        // 🦆 duck say ⮞ very mature sentences incomin' yo!
+        fn say_no_match(&self) {
+            let responses = vec![
+                "Kompis du pratar japanska jag fattar ingenting",
+                "Det låter som att du har en köttee bulle i käften. Ät klart middagen och försök sedan igen.",
+                "eeyyy bruscchan öppna käften innan du pratar ja fattar nada ju", 
+                "men håll käften cp!",
+                "noll koll . Golf boll.",
+                "Ursäkta?",
+            ];
+
+            // 🦆 duck say ⮞ pick a random and text to speech dat shit yo
+            use rand::seq::SliceRandom;
+            use rand::thread_rng;
+            let mut rng = thread_rng();
+            if let Some(response) = responses.choose(&mut rng) {
+                self.say(response);
+           }
+        }
         // 🦆 says ⮞ go MAIN RUNNER i choose u! - quack 2 da attack!
         pub fn run(&mut self, input: &str, fuzzy_threshold: i32) -> Result<(), Box<dyn std::error::Error>> {
+            let total_start = Instant::now(); 
             self.fuzzy_threshold = fuzzy_threshold;
             self.calculate_processing_order();
             // 🦆 says ⮞ Collect fuzzy candidates for logging
@@ -1341,51 +1361,73 @@
                     let max_len = normalized_input.len().max(normalized_sentence.len());
                     if max_len == 0 { return None; }
                     let score = 100 - (distance * 100 / max_len) as i32;
-                    if score >= 10 { // Lower threshold for candidate collection
+                    if score >= 10 {  // 🦆 says ⮞ lower threshold for candidate collection
                         Some((entry.script.clone(), entry.sentence.clone(), score))
                     } else {
                         None
                     }
                 })
-                .collect();
-                
+                .collect();           
             // 🦆 says ⮞ exact matchin'
             if let Some(match_result) = self.exact_match(input) {
-                self.quack_info(&format!("Exact match found: {}", match_result.script_name));
-                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, match_result.processing_time);
-                self.execute_script(&match_result)?;
+                let total_elapsed = total_start.elapsed();
+                self.quack_debug(&format!("Exact match found: {}", match_result.script_name));
+                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, total_elapsed);    
+                let final_result = MatchResult {
+                    script_name: match_result.script_name,
+                    args: match_result.args,
+                    matched_sentence: match_result.matched_sentence,
+                    processing_time: total_elapsed, // Use total time instead of just matching time
+                };    
+                self.execute_script(&final_result)?;
                 return Ok(());
             }
     
             // 🦆 says ⮞ fallback yo go fuzzy matchin' i choose u!
             if let Some(match_result) = self.fuzzy_match(input) {
+                let total_elapsed = total_start.elapsed();
                 self.quack_info(&format!("Fuzzy match found: {}", match_result.script_name));
-                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, match_result.processing_time); 
-                self.execute_script(&match_result)?;
+                let final_result = MatchResult {
+                    script_name: match_result.script_name,
+                    args: match_result.args,
+                    matched_sentence: match_result.matched_sentence,
+                    processing_time: total_elapsed,
+                };    
+                let _ = self.log_successful_command(&final_result.script_name, &final_result.args, final_result.processing_time); 
+                self.execute_script(&final_result)?;
                 return Ok(());
             }
-            self.say_no_match();
-            // 🦆 says ⮞ Log failed command with analysis data
-            self.quack_info("No match found, logging statistics...");
-            let _ = self.log_failed_command(input, &fuzzy_candidates);
-            
-            eprintln!("🦆 says ⮞ fuck ❌ No matching command found!");
-            eprintln!("   Input: '{}'", input);
-            
+            // 🦆 says ⮞ NO MATCH FOUND - SHOW TOTAL TIME AND QUACK!
+            let total_elapsed = total_start.elapsed();
+            println!("   ┌─(yo-do)");
+            println!("   │🦆 qwack! {}", input);
+            println!("   │🦆 says ⮞ fuck ❌ no match!");
+
             if !fuzzy_candidates.is_empty() {
-                eprintln!("   Close matches (increase --fuzzyThreshold if needed):");
                 let top_candidates: Vec<_> = fuzzy_candidates.iter()
-                    .filter(|(_, _, score)| *score >= 50) // Only show decent candidates
+                    .filter(|(_, _, score)| *score >= 50)
+                    .take(3) // 🦆 says ⮞ limit to top 3
                     .collect();
-                
+    
+                for (script, sentence, score) in top_candidates {
+                    println!("   │   {}%: '{}' -> yo {}", score, sentence, script);
+                }
+            }
+            println!("   └─⏰ do took {:?}", total_elapsed);
+            // 🦆 says ⮞ TTS
+            self.say_no_match();
+            // 🦆 says ⮞ log failed command with analysis data
+            self.quack_debug("No match found, logging statistics...");
+            let _ = self.log_failed_command(input, &fuzzy_candidates);
+           
+            if !fuzzy_candidates.is_empty() {
+                let top_candidates: Vec<_> = fuzzy_candidates.iter()
+                    .filter(|(_, _, score)| *score >= 50) // 🦆 says ⮞ only show decent candidates
+                    .collect();
                 for (script, sentence, score) in top_candidates.iter().take(5) {
                     eprintln!("     {}%: '{}' -> yo {}", score, sentence, script);
                 }
             }
-            
-            eprintln!("   View failed command stats: yo stats failed");
-            eprintln!("   Live monitor: yo stats tail");
-            
             std::process::exit(1);
             Ok(())
         }
@@ -1404,7 +1446,6 @@
         } else {
             15
         };
-    
         let mut yo_do = YoDo::new();
         
         // 🦆 says ⮞ load da environment data
@@ -1417,8 +1458,7 @@
                 eprintln!("   {}", key);
             }
             return Ok(());
-        }
-        
+        }    
         if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
             println!("Loading fuzzy index from: {}", fuzzy_index_path);
             yo_do.load_fuzzy_index(&fuzzy_index_path)?;
@@ -1438,6 +1478,7 @@
     serde = { version = "1.0", features = ["derive"] }
     serde_json = "1.0"
     chrono = { version = "0.4", features = ["serde", "clock"] }
+    rand = "0.8"
   '';
  
 # 🦆 says ⮞ expose da magic! dis builds da NLP
@@ -1445,7 +1486,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
     do = {
-      description = "Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion. Written in Rust (Faster)";
+      description = "[🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Rust (faster)";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
       aliases = [ "d" ];
       autoStart = false;
@@ -1514,7 +1555,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
-        cat ${voiceSentencesHelpFile} 
+        [🦆📶]  
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { 
@@ -1534,10 +1575,11 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
 
         show_help() {
           cat << EOF
-🦆 Yo Command Statistics Analyzer
+[🦆📶] Yo Command Statistics Analyzer
     
 Usage: yo stats <command>
-    
+
+[🦆📶]     
 Commands:
   failed      - Show most frequently failed commands
   successful  - Show most used successful commands  
@@ -1600,16 +1642,16 @@ EOF
           local fuzzy_count=$(echo "$stats" | jq '[.fuzzy_matches[]] | add // 0')
       
           cat << EOF
-🦆 Command Statistics Summary:
+[🦆📶] Command Statistics Summary:
     
-Total Unique Failed Commands: $total_failed
-Total Failed Attempts: $failed_count
+[🦆📶] Total Unique Failed Commands: $total_failed
+[🦆📶] Total Failed Attempts: $failed_count
     
-Total Unique Successful Commands: $total_success  
-Total Successful Executions: $success_count
+[🦆📶] Total Unique Successful Commands: $total_success  
+[🦆📶] Total Successful Executions: $success_count
     
-Total Unique Fuzzy Matches: $total_fuzzy
-Total Fuzzy Match Uses: $fuzzy_count
+[🦆📶] Total Unique Fuzzy Matches: $total_fuzzy
+[🦆📶] Total Fuzzy Match Uses: $fuzzy_count
     
 Success Rate: $(if [ $((success_count + failed_count)) -gt 0 ]; then echo "scale=2; $success_count * 100 / ($success_count + $failed_count)" | bc; else echo "0"; fi)%
 EOF
@@ -1617,7 +1659,7 @@ EOF
     
         reset_stats() {
           echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}' > "${commandStatsDB}"
-          echo "🦆 Statistics reset!"
+          echo "[🦆📶]  Statistics reset!"
         }
     
         tail_failed() {

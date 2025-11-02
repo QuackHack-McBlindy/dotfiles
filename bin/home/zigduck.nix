@@ -124,7 +124,7 @@
 in {
   # 🦆 says ⮞ zigduck bash the original og yo
   yo.scripts.zigduck = { # 🦆 says ⮞ dis is where my home at
-    description = "Home automation system written in Bash";
+    description = "[🦆🏡] yo zigduck - Home automation system written in Bash";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     #autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     #aliases = [ "hem" ]; # 🦆 says ⮞ and not laughing at me
@@ -179,7 +179,6 @@ EOF
         echo "{}" > "$STATE_FILE"
         chmod 600 "$STATE_FILE"
       fi   
-
 
       update_device_state() {
         local device="$1"
@@ -343,7 +342,7 @@ EOF
         ${pkgs.jq}/bin/jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
           > $STATE_DIR/zigbee_devices_by_friendly_name.json
         # 🦆 says ⮞ last echo
-        echo "🦆🏡 Welcome Home" 
+        echo "[🦆🏡] ⮞ Welcome Home" 
         
         # 🦆 says ⮞ performance tracking
         declare -A processing_times

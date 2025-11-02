@@ -130,7 +130,8 @@ in { # 🦆 says ⮞ Voice Intents
       { name = "brightness"; description = "Brightness value of the device or group"; optional = true; type = "int"; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
-      { name = "scene"; description = "Activate a predefined scene"; optional = true; }                
+      { name = "scene"; description = "Activate a predefined scene"; optional = true; }     
+      { name = "room"; description = "Room to target"; optional = true; }        
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
       { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }
@@ -387,7 +388,7 @@ EOF
       priority = 1;
       sentences = [
         # 🦆 says ⮞ multi taskerz
-        "{device} {state} och färg {color}"
+        "{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
         "{device} {state} och ljusstyrka {brightness} procent"
         "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
         "(tänd|tänk|släck|starta|stäng) {device}"
@@ -480,6 +481,10 @@ EOF
         pair.values = [
           { "in" = "[para|paras]"; out = "true"; }
         ];
+        room.values = [
+          { "in" = "[kök|köket|kitchen]"; out = "kitchen"; }
+          { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
+        ];        
       };
     };
     
