@@ -9,7 +9,7 @@
 } : let
   # 🦆 says ⮞ sweeedish number words 1-60
   swedishNumbers = [
-    "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
+    "noll" "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
     "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton" "tjugo"
     "tjugoett" "tjugotvå" "tjugotre" "tjugofyra" "tjugofem" "tjugosex" "tjugosju" "tjugoåtta" "tjugonio" "trettio"
     "trettioett" "trettiotvå" "trettiotre" "trettiofyra" "trettiofem" "trettiosex" "trettiosju" "trettioåtta" "trettionio" "fyrtio"
@@ -36,6 +36,7 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+
 
 in {   
    yo.scripts.alarm = {
@@ -143,7 +144,8 @@ in {
     voice = {
       priority = 5;
       sentences = [
-        "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"   
+        "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"
+        
         "väck mig [klocka|klockan] {hours} [och] {minutes}"
         
         "när ska jag {list} [upp]"
@@ -153,14 +155,28 @@ in {
         list.values = [
           { "in" = "[stiga|vakna|ringer]"; out = "true"; }
         ];
-        hours.values = lib.genList (n: {
-          "in" = toString (n + 1);
-          out = toString (n + 1);
-        }) 24;  
-        minutes.values = lib.genList (n: {
-          "in" = toString n;
-          out = toString n;
-        }) 60;
+
+        #hours.values = lib.genList (n: {
+        #  "in" = toString (n + 1);
+        #  out = toString (n + 1);
+        #}) 24;  
+        #minutes.values = lib.genList (n: {
+        #  "in" = toString n;
+        #  out = toString n;
+        #}) 60;
+        
+        hours.values = builtins.concatLists (builtins.genList (
+          i: let n = i + 1; in [
+            { "in" = toString n; out = toString n; }
+            { "in" = swedishNumber n; out = toString n; }
+          ]
+        ) 24);   
+        minutes.values = builtins.concatLists (builtins.genList (
+          i: let n = i + 1; in [
+            { "in" = toString n; out = toString n; }
+            { "in" = swedishNumber n; out = toString n; }
+          ]
+        ) 60);
       };
     };
     

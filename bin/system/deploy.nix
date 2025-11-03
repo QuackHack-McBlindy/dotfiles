@@ -21,10 +21,10 @@ in {
        { name = "user"; type = "string"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
        { name = "repo"; type = "string"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
        { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
-       # { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
      code = ''   
        ${cmdHelpers}
+       
        # 🦆 duck say ⮞ validate host exist 
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
          say_duck "fuck ❌ Unknown host: $host" >&2
@@ -32,13 +32,14 @@ in {
          exit 1
        fi
        
+       # 🦆 duck say ⮞ warn that it's a test deployment
        if $DRY_RUN; then
          echo "❗ Test run: reboot will revert activation"
        fi
        
        # 🦆 duck say ⮞ validate host connectivity
        if ! ssh -p "$port" -o ConnectTimeout=5 "$user@$host" true; then
-         fail "❌ Cannot connect to $host via SSH."
+         dt_error "❌ Cannot connect to $host via SSH."
        fi
        
        # 🦆 duck say ⮞ safety first 
@@ -59,15 +60,15 @@ in {
        bootstrap_mode=false
        result=$(ssh -T -p "$port" "$user@$host" "bash --noprofile --norc -c '[ -d \"$flake/.git\" ] && echo true || echo false'")
        if [ "$result" = "true" ]; then
-         run_cmd echo "✅ Dotfiles repo exists on $host"
+         echo "✅ Dotfiles repo exists on $host"
        else
          # 🦆 duck say ⮞ otherwise clone it to $flake parameter
          bootstrap_mode=true
-         run_cmd echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"
+         echo "🚀 Bootstrap: Cloning dotfiles repo to ''$flake on ''$host"
          https_repo=$(convert_git_to_https "$repo")
-         run_cmd ssh -p "$port" "$user"@"$host" "git clone '$https_repo' '$flake'" || fail "❌ Clone failed"
-         run_cmd echo "Please decrypt $host AGE key, Enter PIN and touch your Yubikey"
-         run_cmd echo ""
+         ssh -p "$port" "$user"@"$host" "git clone '$https_repo' '$flake'" || fail "❌ Clone failed"
+         echo "Please decrypt $host AGE key, Enter PIN and touch your Yubikey"
+         echo ""
          key_path=$(nix eval --raw "$flake#nixosConfigurations.$host.config.sops.age.keyFile")
          key_dir=$(dirname "$key_path")
          echo "🔐 Setting up age key at: $key_path"
@@ -80,14 +81,11 @@ in {
     
              ssh -tt -p "$port" "$user@$host" "sudo mkdir -p '$key_dir' && sudo chown '$user' '$key_dir'" || fail "❌ Directory setup failed"
 
-#             tmp_remote_path="/home/$user/age.key.tmp"
- #            scp -P "$port" "$tmpkey" "$user@$host:$tmp_remote_path" || fail "❌ Copy key failed"
-
              tmp_remote_path="$key_path.tmp"
     
              ssh -p "$port" "$user@$host" "cat > '$tmp_remote_path'" < "$tmpkey" || fail "❌ Copy key failed"
 
-             ssh -tt -p "$port" "$user@$host" "sudo mv '$tmp_remote_path' '$key_path' && sudo chmod 600 '$key_path' && sudo chown root:root '$key_path'" || fail "❌ Key setup failed"
+             ssh -tt -p "$port" "$user@$host" "sudo mv '$tmp_remote_path' '$key_path' && sudo chmod 600 '$key_path' && sudo chown root:root '$key_path'" || dt_error "❌ Key setup failed"
     
              
              rm -f "$tmpkey"
@@ -131,6 +129,7 @@ in {
        if "''${cmd[@]}"; then
          if $DRY_RUN; then
            say_duck " ⚠️ Test deployment completed - No system generation saved!"
+           play_win
          else
            say_duck " ✅ Created new system generation!"
            play_win
@@ -138,6 +137,7 @@ in {
        else
          say_duck "fuck ❌ System rebuild failed!"
          play_fail
+         dt_error "❌ System rebuild failed!"
          exit 1
        fi 
             
