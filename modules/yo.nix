@@ -1090,6 +1090,7 @@ EOF
 
   in concatStringsSep "\n" rows;
 
+
   # 🦆 duck say ⮞ count GENERATED regex patterns (the ~800 count)
   countGeneratedPatterns = script:
     if script.voice == null then
