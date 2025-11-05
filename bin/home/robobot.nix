@@ -72,19 +72,19 @@ in { # 🦆 says ⮞ Voice Intents
     logLevel = "DEBUG";
     parameters = [   
       { name = "device"; description = "Device to control"; optional = false; }
-      { name = "mode"; description = "Working mode. Click, switch or program"; default = "switch"; }     
+      { name = "mode"; description = "Working mode."; default = "click"; values = [ "click" "switch" "program" ]; }     
       { name = "state"; type = "string"; description = "On/off state of the switch"; default = "ON"; }           
-      { name = "delay"; type = "int"; description = "Sustain time"; default = 5; } 
+      { name = "delay"; type = "int"; description = "Sustain time"; default = 3; } 
       { name = "reverse"; description = "Reverse"; optional = true; type = "bool"; default = false; }    
       { name = "lower"; type = "int"; description = "Down movement limit"; default = 100; }
-      { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; default = 100; }          
+      { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; default = 50; }          
       { name = "touch"; type = "bool";  description = "Touch control"; default = false; }                
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
     ];
     code = ''
       ${cmdHelpers}
- #     set -euo pipefail
+
       # 🦆 says ⮞ create case insensitive map of device friendly_name
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
       available_devices=( ${toString deviceList} )      
@@ -117,8 +117,6 @@ in { # 🦆 says ⮞ Voice Intents
         --argjson touch "$touch" \
         '{mode:$mode,state:$state,delay:$delay,reverse:$reverse,lower:$lower,upper:$upper,touch:$touch}')
 
-
-      # PAYLOAD="{\"mode\":\"$mode\",\"state\":\"$state\",\"delay\":$delay,\"reverse\":$reverse,\"lower\":$lower,\"upper\":$upper,\"touch\":$touch}"
       dt_info "PAYLOAD: $PAYLOAD"
       validate_json "$PAYLOAD"
       echo "Sending command to $FRIENDLY_NAME via $MQTT_BROKER"

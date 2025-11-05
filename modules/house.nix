@@ -17,7 +17,7 @@
 
   # 🦆 says ⮞ 
   automationActionType = types.oneOf [
-    (types.str) # Simple shell command
+    (types.str)
     (types.submodule {
       options = {
         type = mkOption {
@@ -49,13 +49,13 @@
     })
   ];
 
-  # 🦆 says ⮞ Dimmer action configuration
+  # 🦆 says ⮞ dimmer action configuration
   dimmerActionType = types.submodule {
     options = {
       enable = mkEnableOption "Enable this dimmer action";
       description = mkOption {
         type = types.str;
-        description = "Human-readable description of this action";
+        description = "Description of this action";
       };
       extra_actions = mkOption {
         type = types.listOf automationActionType;
@@ -228,7 +228,7 @@ in { # 🦆 says ⮞ Options for da house
             };
             type = lib.mkOption { 
               type = lib.types.enum [ "light" "dimmer" "sensor" "motion" "outlet" "remote" "pusher" "blind" ];
-              description = "The type of device (e.g., light, dimmer, motion, etc).";
+              description = "The type of device (e.g., light, dimmer, sensor, motion, outlet, remote, pusher, blind).";
               example = "light";
             };
             icon = lib.mkOption { 
@@ -294,12 +294,12 @@ in { # 🦆 says ⮞ Options for da house
               }; # 🦆 duck say ⮞ used in Zigduck Rust
               after = lib.mkOption {
                 type = lib.types.str;
-                default = "18";
+                default = "16";
                 description = "Start time of dark time range (HH)";
               };
               before = lib.mkOption {
                 type = lib.types.str;
-                default = "6";
+                default = "9";
                 description = "End time of dark time range (HH format)";
               }; 
               duration = lib.mkOption {
@@ -313,7 +313,7 @@ in { # 🦆 says ⮞ Options for da house
           description = "Time range when it's considered dark (HH:MM format)";
         };
     
-        # 🦆 says ⮞ Modular automations configuration
+        # 🦆 says ⮞ automations configuration
         zigbee.automations = mkOption {
           type = types.submodule {
             options = {
@@ -327,7 +327,6 @@ in { # 🦆 says ⮞ Options for da house
                     enable = true;
                     description = "Turn on room lights";
                     extra_actions = [
-                      "echo 'Room lights turned on'"
                       {
                         type = "mqtt";
                         topic = "zigbee2mqtt/Fläkt/set";

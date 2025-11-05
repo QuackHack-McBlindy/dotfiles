@@ -84,7 +84,7 @@ in {
                   idx=$((choice-1))
                   if [ $idx -lt ''${#results[@]} ]; then
                     link=$(echo "''${results[$idx]}" | jq -r '.link')
-                    w3m -dump "$link"
+                    ${pkgs.w3m}/bin/w3m -dump "$link"
                   else
                     say_duck "fuck ❌"
                   fi

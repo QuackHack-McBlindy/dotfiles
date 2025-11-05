@@ -590,7 +590,7 @@ EOF
               default = "string";
               description = "Type of parameter. Use path for filepath int for numbers, bool for true/false flags, and string (default) for all others";
             }; # 🦆 duck say ⮞ value option for allowed values (string type only)
-            value = mkOption {
+            values = mkOption {
               type = types.nullOr (types.listOf types.str);
               default = null;
               description = "Allowed values for this parameter (only applicable for string type)";
@@ -911,12 +911,12 @@ EOF
           ) script.parameters)}
 
 
-          # 🦆 duck say ⮞ value validation - explicit allowed list yo
+          # 🦆 duck say ⮞ values validation - explicit allowed list yo
           ${concatStringsSep "\n" (map (param: 
-            optionalString (param.value != null && param.type == "string") ''
+            optionalString (param.values != null && param.type == "string") ''
               if [ -n "''${${param.name}:-}" ]; then
                 # 🦆 duck say ⮞ check if value is in allowed list
-                allowed_values=(${lib.concatMapStringsSep " " (v: "'${lib.escapeShellArg v}'") param.value})
+                allowed_values=(${lib.concatMapStringsSep " " (v: "'${lib.escapeShellArg v}'") param.values})
                 value_found=false
                 for allowed in "''${allowed_values[@]}"; do
                   if [[ "''${${param.name}}" == "$allowed" ]]; then
@@ -925,7 +925,7 @@ EOF
                   fi
                 done
                 if [[ "$value_found" == "false" ]]; then
-                  echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} --${param.name} must be one of: ${lib.concatStringsSep ", " param.value}\033[0m" >&2
+                  echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} --${param.name} must be one of: ${lib.concatStringsSep ", " param.values}\033[0m" >&2
                   exit 1
                 fi
               fi
@@ -1328,7 +1328,7 @@ in { # 🦆 duck say ⮞ options options duck duck
       # 🦆 duck say ⮞ Validate da shit out of 'value' option quack! only allowed wit string type yo!
       valueTypeErrors = lib.concatMap (script:
         lib.concatMap (param:
-          if param.value != null && param.type != "string" then
+          if param.values != null && param.type != "string" then
             [ "🦆 duck say ⮞ fuck ❌ Parameter '${param.name}' in script '${script.name}' has 'value' defined but type is '${param.type}' (only 'string' type allowed)" ]
           else []
         ) script.parameters

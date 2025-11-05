@@ -1561,7 +1561,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           type = "string";
           description = "What stat to analyze";
           default = "summary";
-          value = [ "failed" "successful" "summary" "fuzzy" ];
+          values = [ "failed" "successful" "summary" "fuzzy" ];
         }      
         { name = "tail"; type = "bool"; description = "Live tail of failed commands"; default = false; }
         { name = "reset"; type = "bool"; description = "Warning! Will reset all stats!"; default = false; }

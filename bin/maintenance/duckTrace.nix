@@ -21,7 +21,7 @@ in {
     parameters = [ 
       { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
       #{ name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; value = [ "desktop" "homie" "laptop" "nasty" ]; }       
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }       
       { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
       { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
     ]; 

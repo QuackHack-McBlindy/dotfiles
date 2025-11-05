@@ -162,7 +162,6 @@
         voice = {
           sentences = [
             "(beräkna|beräknar|räkna|räknar) [ut] {expression}"
-            "(beräkna|beräknar|räkna|räknar) ut {expression}"
             "lös ekvationen {expression}"
           ];
           lists = {

@@ -238,11 +238,11 @@ EOF
     
         cleanup
       fi
-      if [[ "$DEVICE" == "all_lights" ]]; then
-        if [[ "$STATE" == "on" ]]; then
+      if [[ "$DEVICE" == "ALL_LIGHTS" ]]; then
+        if [[ "$STATE" == "ON" ]]; then
           scene max
           if_voice_say "Jag maxade alla lampor brorsan."
-        elif [[ "$STATE" == "off" ]]; then
+        elif [[ "$STATE" == "OFF" ]]; then
           scene dark
           if_voice_say "Nu blev det mörkt!"
         else
