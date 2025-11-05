@@ -807,8 +807,8 @@ EOF
                 
                 cat <<EOF | ${pkgs.glow}/bin/glow --width "$width" - # 🦆 duck say ⮞ renderin' da cool & duckified CLI docz usin' Markdown & Glow yo 
 # 🚀🦆 yo ${escapeMD script.name}
-**Usage:** \`yo ${escapeMD script.name}''${usage_suffix}\`
 ${script.description}
+**Usage:** \`yo ${escapeMD script.name}''${usage_suffix}\`
 ${lib.optionalString (script.parameters != []) ''
 ## Parameters
 ${lib.concatStringsSep "\n\n" (map (param: ''
@@ -821,6 +821,8 @@ ${lib.optionalString param.optional "*(optional)*"} ${lib.optionalString (param.
     else 
       (toString param.default);
 in "*(default: ${defaultText})*")}
+${lib.optionalString (param.values != null && param.type == "string") 
+  "*(allowed: ${lib.concatStringsSep ", " param.values})*"}
 '') script.parameters)}
 ''}
 ${voiceSentencesHelp}

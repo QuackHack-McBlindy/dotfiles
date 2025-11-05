@@ -649,11 +649,47 @@ in {
     autoStart = false;    
     logLevel = "DEBUG";
     parameters = [
-      { name = "mode"; description = "What to display: 'recent', 'table', or 'upcoming'"; optional = false; default = "table"; }
+      { 
+        name = "mode";
+        description = "What to display: 'recent', 'table', or 'upcoming'"; 
+        optional = false; 
+        values = [
+          "recent"   
+          "upcoming"   
+          "table"
+          "best"
+          "worst"
+        ];
+        default = "table";
+      }
       { name = "team"; description = "Team specific search with TTS"; optional = true; }
-      { name = "stat"; description = "Search for specific stats. Available values: powerplay, boxplay "; optional = true; }
+      { 
+        name = "stat";
+        description = "Search for specific stats.";
+        type = "string";
+        optional = true;
+        values = [
+          "powerplay"
+          "boxplay"
+          "shorthanded_goals"
+          "goalkeeper"
+          "save_percentage"
+          "penalty"
+          "tallest"
+          "shortest"
+          "heaviest"
+          "lightest"              
+          "goals"
+          "assists"
+          "oldest"
+          "youngest"
+          "shorthanded"
+          "icetime"
+          "points"         
+        ];       
+      }
       { name = "count"; description = "Optional number to fetch stats for"; optional = true; type = "int"; default = 3; }      
-      { name = "dataDir"; description = "Directory path to save data in."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
+      { name = "dataDir"; description = "Directory path to save data ."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
     ];
     code = ''
       ${cmdHelpers}
