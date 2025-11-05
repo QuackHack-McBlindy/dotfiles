@@ -1,5 +1,5 @@
 # dotfiles/modules/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{ # 🦆 duck say ⮞ module importer
   config,
   lib,
   pkgs,
@@ -20,7 +20,7 @@
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);      
 in { 
-    imports = [ ./security.nix ./this.nix ./house.nix ./yo.nix ] ++
+    imports = [ ./security.nix ./this.nix ./house.nix ./myHouse.nix ./yo.nix ] ++
         # 🦆 duck say ⮞ dynamically load and evaluate all modules in these directories on each host
         (importModulesRecursive ./hardware) ++
         (importModulesRecursive ./system) ++

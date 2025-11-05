@@ -50,6 +50,12 @@ EOF
     '';
     code = ''
       ${cmdHelpers}
+
+      MQTT_BROKER="${mqttHostip}"
+      MQTT_USER="$user"
+      MQTT_PASSWORD=$(cat "$pwfile")
+      SAVE_PATH="$filePath"
+
             
       format_change() {
         local change=$1
@@ -81,8 +87,13 @@ EOF
 
       echo "$(date '+%Y-%m-%d %H:%M') $BTC_PRICE $BTC_24H $BTC_7D_FORMATTED" >> "$filePath"
 
-      echo "₿ $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
-      yo say "Bitcoin kostar $BTC_PRICE dollar, $BTC_24H_VOICE_DIR $BTC_24H_FORMATTED idag och $BTC_7D_VOICE_DIR $BTC_7D_FORMATTED den senaste veckan"
+      # 🦆 says ⮞ publish to MQTT like XMR does
+      mqtt_pub -t "zigbee2mqtt/crypto/btc/price" -m "{\"current_price\": $BTC_PRICE, \"24h_change\": $BTC_24H, \"7d_change\": $BTC_7D}"
+
+      echo "Bitcoin $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
+      dt_info "₿ $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
+      
+      if_voice_say "Bitcoin kostar $BTC_PRICE dollar, $BTC_24H_VOICE_DIR $BTC_24H_FORMATTED idag och $BTC_7D_VOICE_DIR $BTC_7D_FORMATTED den senaste veckan"
     '';
     voice = {
       enabled = true;
