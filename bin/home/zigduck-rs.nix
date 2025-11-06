@@ -131,8 +131,7 @@
   # 🦆 needz 4 rust  
   devices-json = pkgs.writeText "devices.json" deviceMeta;
   # 🦆 says ⮞ RUSTY SMART HOME qwack qwack     
-  zigduck-rs = pkgs.writeText "zigduck-rs" ''    
-    
+  zigduck-rs = pkgs.writeText "zigduck-rs" ''        
     use rumqttc::{MqttOptions, Client, QoS, Event, Incoming};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -294,19 +293,18 @@
                 }
             }
          
-
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
             self.quack_debug(&format!("Scene '{}' would be activated here", scene_name));
             Ok(())
         }
     
-        // 🦆 says ⮞ duckTrace - quack loggin' be bitchin' (yu log)
+        // 🦆 says ⮞ duckTrace - quack loggin' be bitchin'
         fn quack_debug(&self, msg: &str) {
             if self.debug {
                 let log_msg = format!("[🦆📜] ⁉️DEBUG⁉️ ⮞ {}", msg);
                 eprintln!("{}", log_msg);
-                // 🦆 says ⮞ debug mode? write 2 duckTrace (yo log)      
+                // 🦆 says ⮞ debug mode? write 2 duckTrace 
                 if let Ok(log_path) = std::env::var("DT_LOG_FILE_PATH") {
                     let _ = std::fs::OpenOptions::new()
                         .create(true)
@@ -335,7 +333,6 @@
                     });
             }
         }
-
         
         fn execute_automations(&self, automation_type: &str, trigger: &str, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             // 🦆 says ⮞ load automations from Nix config        
@@ -355,6 +352,29 @@
                             for action in motion_actions {
                                 self.execute_automation_action(action, device_name, room)?;
                             }
+                        }
+                    }
+                }
+                "contact" => {
+                    if let Some(actions) = self.automations.room_actions.get(room) {
+                        if let Some(contact_actions) = actions.get(trigger) {
+                            for action in contact_actions {
+                                self.execute_automation_action(action, device_name, room)?;
+                            }
+                        }
+                    }
+                }
+                "water_leak" => {
+                    if let Some(actions) = self.automations.global_actions.get(trigger) {
+                        for action in actions {
+                            self.execute_automation_action(action, device_name, room)?;
+                        }
+                    }
+                }
+                "smoke" => {
+                    if let Some(actions) = self.automations.global_actions.get(trigger) {
+                        for action in actions {
+                            self.execute_automation_action(action, device_name, room)?;
                         }
                     }
                 }
@@ -421,153 +441,74 @@
             state[device][key].as_str().map(|s| s.to_string())
         }
     
-        // 🦆 says ⮞ CENTRALIZED STATE UPDATES
+        // 🦆 says ⮞ STATE UPDATES
         fn update_device_state_from_data(&self, device_name: &str, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
-            // 🦆 says ⮞ Skip set/availability topics
+            // 🦆 says ⮞ skip set/availability topics
             if device_name.ends_with("/set") || device_name.ends_with("/availability") {
                 self.quack_debug(&format!("Skipping state update for {} (set/availability topic)", device_name));
                 return Ok(());
             }
     
-            self.quack_debug(&format!("Updating ALL state fields for: {}", device_name));
+            self.quack_debug(&format!("Updating all state fields for: {}", device_name));
     
             // 🦆 says ⮞ extract ALL fields
             if let Some(linkquality) = data["linkquality"].as_u64() {
                 self.update_device_state(device_name, "linkquality", &linkquality.to_string())?;
             }
-            
             if let Some(last_seen) = data["last_seen"].as_str() {
                 self.update_device_state(device_name, "last_seen", last_seen)?;
-            }
-            
+            }   
             if let Some(occupancy) = data["occupancy"].as_bool() {
                 self.update_device_state(device_name, "occupancy", &occupancy.to_string())?;
-            }
-            
+            }   
             if let Some(action) = data["action"].as_str() {
                 self.update_device_state(device_name, "action", action)?;
-            }
-            
+            }       
             if let Some(contact) = data["contact"].as_bool() {
                 self.update_device_state(device_name, "contact", &contact.to_string())?;
-            }
-            
+            }        
             if let Some(position) = data["position"].as_u64() {
                 self.update_device_state(device_name, "position", &position.to_string())?;
-            }
-            
+            }       
             if let Some(state) = data["state"].as_str() {
                 self.update_device_state(device_name, "state", state)?;
-            }
-            
+            }  
             if let Some(brightness) = data["brightness"].as_u64() {
                 self.update_device_state(device_name, "brightness", &brightness.to_string())?;
             }
-            
             if let Some(color) = data["color"].as_object() {
                 if let Ok(color_json) = serde_json::to_string(color) {
                     self.update_device_state(device_name, "color", &color_json)?;
                 }
             }
-            
             if let Some(water_leak) = data["water_leak"].as_bool() {
                 self.update_device_state(device_name, "water_leak", &water_leak.to_string())?;
             }
-            
             if let Some(waterleak) = data["waterleak"].as_bool() {
                 self.update_device_state(device_name, "waterleak", &waterleak.to_string())?;
-            }
-            
+            }  
             if let Some(temperature) = data["temperature"].as_f64() {
                 self.update_device_state(device_name, "temperature", &temperature.to_string())?;
             }
-            
             if let Some(battery) = data["battery"].as_u64() {
                 self.update_device_state(device_name, "battery", &battery.to_string())?;
-            }
-            
+            }      
             if let Some(battery_state) = data["battery_state"].as_str() {
                 self.update_device_state(device_name, "battery_state", battery_state)?;
-            }
-            
+            }   
             if let Some(tamper) = data["tamper"].as_bool() {
                 self.update_device_state(device_name, "tamper", &tamper.to_string())?;
-            }
-            
+            }            
             if let Some(smoke) = data["smoke"].as_bool() {
                 self.update_device_state(device_name, "smoke", &smoke.to_string())?;
-            }
-            
-            // 🦆 says ⮞ Update last_seen timestamp for every message
+            }      
+            // 🦆 says ⮞ update last_seen
             let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
             self.update_device_state(device_name, "last_updated", &timestamp.to_string())?;
             
             Ok(())
         }
-                
-        // 🦆 says ⮞ room timer - turns off lights after nix configured seconds of no motion
-        fn reset_room_timer(&self, room: &str) -> Result<(), Box<dyn std::error::Error>> {
-            let timer_dir = format!("{}/timers", self.state_dir);
-            let sanitized_room = room.replace(" ", "_");
-            let timer_file = format!("{}/{}", timer_dir, sanitized_room);    
-            // 🦆 says ⮞ just2make sure yo
-            std::fs::create_dir_all(&timer_dir)?;
-            
-            self.quack_info(&format!("⏰ Starting room timer for {} ({} seconds)", 
-                room, ${config.house.zigbee.darkTime.duration}));
-        
-            // 🦆 says ⮞ kill timer if there is any
-            if let Ok(content) = std::fs::read_to_string(&timer_file) {
-                if let Ok(pid) = content.trim().parse::<i32>() {
-                    self.quack_info(&format!("⏰ Resetting existing timer for {}", room));
-                    let _ = std::process::Command::new("kill")
-                        .arg(pid.to_string())
-                        .output();
-                }
-                let _ = std::fs::remove_file(&timer_file);
-            }
-        
-            // 🦆 says ⮞ spawn timer
-            let room_clone = room.to_string();
-            let timer_file_clone = timer_file.clone();
-            let state_clone = std::sync::Arc::new(self.clone());
-            
-            self.quack_info(&format!("⏰ Room timer initiated for {} - lights will turn off in {} seconds", 
-                room, ${config.house.zigbee.darkTime.duration}));
-        
-            tokio::spawn(async move {
-                // 🦆 says ⮞ Sleep for X sec (nix config.house.zigbee.darkTime.duration)
-                state_clone.quack_debug(&format!("⏰ Room timer sleeping for {} seconds for {}", 
-                    ${config.house.zigbee.darkTime.duration}, room_clone));
-                
-                tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;
-                
-                state_clone.quack_debug(&format!("⏰ Room timer expired for {}, turning off lights", room_clone));
-                
-                // 🦆 says ⮞ room lights off
-                if let Err(e) = state_clone.room_lights_off(&room_clone) {
-                    state_clone.quack_info(&format!("❌ERROR❌ ⮞ Failed to turn off lights for {}: {}", room_clone, e));
-                } else {
-                    state_clone.quack_info(&format!("💡 Successfully turned off lights in {}", room_clone));
-                }
-                
-                // 🦆 says ⮞ clean up
-                let _ = std::fs::remove_file(&timer_file_clone);
-                state_clone.quack_debug(&format!("⏰ Room timer completed and cleaned up for {}", room_clone));
-            });
-            
-            // 🦆 says ⮞ write thread id 4 trackin' 
-            let pseudo_pid = std::process::id();
-            std::fs::write(&timer_file, pseudo_pid.to_string())?;
-            
-            self.quack_debug(&format!("Reset {} second timer for {} (File: {})", 
-                ${config.house.zigbee.darkTime.duration}, room, timer_file));
-            
-            self.quack_debug(&format!("⏰ Room timer successfully set for {}", room));
-            Ok(())
-        }
-      
-      
+                      
         // 🦆 says ⮞ SET SECURITY STATE    
         fn set_larmed(&self, armed: bool) -> Result<(), Box<dyn std::error::Error>> {
             let state = json!({ "larmed": armed });
@@ -652,7 +593,7 @@
             }
             let now = Local::now();
             let hour = now.hour();
-            // after🦆18:00⮞before⮜06:00🦆 
+            // after🦆16:00⮞before⮜09:00🦆 
             hour >= ${config.house.zigbee.darkTime.after} || hour <= ${config.house.zigbee.darkTime.before}   
         }
     
@@ -673,8 +614,25 @@
                 }
             }
         }
+
+        // 🦆 says ⮞ track motion-triggered lights
+        fn set_motion_triggered(&self, room: &str, triggered: bool) -> Result<(), Box<dyn std::error::Error>> {
+            let motion_file = format!("{}/motion_triggered.json", self.state_dir);
+            let content = fs::read_to_string(&motion_file).unwrap_or_else(|_| "{}".to_string());
+            let mut motion_state: Value = serde_json::from_str(&content).unwrap_or_else(|_| json!({}));    
+            motion_state[room] = Value::Bool(triggered);
+            fs::write(&motion_file, motion_state.to_string())?;
+            Ok(())
+        }
+
+        fn is_motion_triggered(&self, room: &str) -> bool {
+            let motion_file = format!("{}/motion_triggered.json", self.state_dir);
+            let content = fs::read_to_string(&motion_file).unwrap_or_else(|_| "{}".to_string());
+            let motion_state: Value = serde_json::from_str(&content).unwrap_or_else(|_| json!({}));
+            motion_state[room].as_bool().unwrap_or(false)
+        }
     
-        // 🦆 says ⮞
+        // 🦆 says ⮞ ALL LIGHTS CONTROLLER
         fn control_all_lights(&self, state: &str, brightness: Option<u8>) -> Result<(), Box<dyn std::error::Error>> {
             for (device_id, device) in &self.devices {
                 if device.device_type == "light" {
@@ -768,10 +726,14 @@
                 return Ok(());
             }
     
-            // 🦆 says ⮞ SECURITY
-            if data.get("security").is_some() && self.get_larmed() {
-                self.quack_info("Larmed apartment");
-                self.run_yo_command(&["notify", "Larm på"])?;
+            if payload == "\"LEFT\"" {
+                // 🦆 says ⮞ turn on security
+                self.set_larmed(true)?;
+                return Ok(());
+            } else if payload == "\"RETURN\"" {
+                // 🦆 says ⮞ home again? turn off security
+                self.set_larmed(false)?;
+                return Ok(());
             }
     
             let device_name = topic.strip_prefix("zigbee2mqtt/").unwrap_or(topic);
@@ -781,7 +743,6 @@
                 self.quack_debug(&format!("Failed to update device state: {}", e));
             }
     
-
             if let Some(device) = self.devices.get(device_name) {
                 let room = &device.room;
                 // 🦆 says ⮞ 🔋 BATTERY
@@ -812,7 +773,7 @@
                 // 🦆 says ⮞ ❤️‍🔥 FIRE / SMOKE DETECTOR    
                 if let Some(smoke) = data["smoke"].as_bool() {
                     if smoke {
-                        self.run_yo_command(&["notify", "❤️‍🔥❤️‍🔥❤️‍🔥 FIRE !!! ❤️‍🔥❤️‍🔥❤️‍🔥"])?;
+                        self.execute_automations("smoke", "smoke_detected", device_name, room)?;
                         self.quack_info(&format!("❤️‍🔥❤️‍🔥 SMOKE! in {} {}", device_name, room));
                     }
                 }
@@ -833,28 +794,29 @@
                         self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
                         
                         if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool & timer to power off again 
+                            self.set_motion_triggered(room, true)?; 
                             self.room_lights_on(room)?;
-                            // self.reset_room_timer(room)?;
-                            // 🦆 says ⮞ TODO FIX: above terminates itselfsend shell command instead of reset_room_timer
-                            //let output = std::process::Command::new("yo")
-                            //    .arg("house")
-                            //    .arg("--device")
-                            //    .arg(room)
-                            //    .arg("--cheapMode")
-                            //    .output()?;
-            
-                            //if output.status.success() {
-                            //    self.quack_debug(&format!("✅ Room timer set via shell command for {}", room));
-                            //} else {
-                            //    self.quack_debug(&format!("❌ Shell command failed for {}: {}", room, 
-                            //        String::from_utf8_lossy(&output.stderr)));
-                            //}
                         } else { // 🦆 says ⮞ daytime? lightz no thnx
                             self.quack_debug("❌ Daytime - no lights activated by motion.");
                         }
                     } else { // 🦆 says ⮞ no more movementz update state file yo
                         self.quack_debug(&format!("🛑 No more motion in {} {}", device_name, room));
                         self.execute_automations("motion", "motion_not_detected", device_name, room)?;
+                        // 🦆 says ⮞ motion stopped - check if we should turn off lights
+                        if self.is_motion_triggered(room) {
+                            self.quack_debug(&format!("⏰ Motion stopped in {}, will turn off lights in 900s", room));
+                            let room_clone = room.to_string();
+                            let state_clone = std::sync::Arc::new(self.clone());        
+                            tokio::spawn(async move {
+                                tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;            
+                                // 🦆 says ⮞ still no motion?
+                                if state_clone.is_motion_triggered(&room_clone) {
+                                    state_clone.quack_debug(&format!("💡 Turning off motion-triggered lights in {}", room_clone));
+                                    let _ = state_clone.room_lights_off(&room_clone);
+                                    let _ = state_clone.set_motion_triggered(&room_clone, false);
+                                }
+                            });
+                        }
                     }
                 }
     
@@ -862,9 +824,6 @@
                 if data["water_leak"].as_bool() == Some(true) || data["waterleak"].as_bool() == Some(true) {
                     self.quack_info(&format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name));
                     self.execute_automations("water_leak", "leak_detected", device_name, room)?;
-                    self.run_yo_command(&["notify", &format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name)])?;     
-                    tokio::time::sleep(Duration::from_secs(15)).await;
-                    self.run_yo_command(&["notify", &format!("WATER LEAK DETECTED in {} on {}", room, device_name)])?;
                 }
 
                 // 🦆 says ⮞ DOOR / WINDOW SENSOR
@@ -884,7 +843,7 @@
                             tokio::time::sleep(Duration::from_secs(5)).await;
                             self.run_yo_command(&["say", "--text", "Välkommen hem idiot!", "--host", "desktop"])?; // 🦆 says ⮞ ='(
                         } else { 
-                            self.quack_info(&format!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60));
+                            self.quack_debug(&format!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60));
                         }
                     } else { // 🦆 says ⮞ door closed  
                         self.execute_automations("contact", "door_closed", device_name, room)?;
@@ -958,6 +917,10 @@
                                 }
                             }
                         }
+                        "up_hold_release" => {
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
+                            self.quack_debug(&format!("Up hold release in {}", room));
+                        }                        
                         "down_press_release" => { // 🦆 says ⮞ dim - button - decrease brightness in room
                             self.execute_automations("dimmer", &action, &device_name, &room)?;
                             for (light_id, light_device) in &self.devices {
@@ -971,6 +934,10 @@
                                     self.mqtt_publish(&topic, &message.to_string())?;
                                 }
                             }
+                        }
+                        "down_hold_release" => {
+                            self.execute_automations("dimmer", &action, &device_name, &room)?;
+                            self.quack_debug(&format!("Down hold release in {}", room));
                         }
                         "off_press_release" => { // 🦆 says ⮞ off button - turns off room lights plx
                             self.quack_info(&format!("💡 Turning off lights in {}", room));
@@ -1047,7 +1014,7 @@
         }
     
         async fn start_listening(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info("🚀 Starting zigduck automation system");
+            self.quack_info("🚀 Starting ZigDuck automation system");
             self.quack_info("📡 Listening to all Zigbee events...");
     
             let mut mqttoptions = MqttOptions::new("zigduck-rs", &self.mqtt_broker, 1883);
@@ -1100,7 +1067,7 @@
     }
     
     fn main() -> Result<(), Box<dyn std::error::Error>> {
-        // 🦆 says ⮞ get configuration from env var or cmd
+        // 🦆 says ⮞ get configuration from env var
         let mqtt_broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "192.168.1.211".to_string());
         let mqtt_user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
         let mqtt_password = std::env::var("MQTT_PASSWORD")
@@ -1118,7 +1085,7 @@
             .unwrap_or_else(|_| "automations.json".to_string());
         let dark_time_enabled = std::env::var("DARK_TIME_ENABLED")
             .map(|s| s == "1")
-            .unwrap_or(true); // Default to true for backward compatibility
+            .unwrap_or(true);
                 
         // 🦆 says ⮞ read devices from env var
         let devices_file = std::env::var("ZIGBEE_DEVICES_FILE")
@@ -1167,7 +1134,7 @@
   
 in { # 🦆 says ⮞ finally here, quack! 
   yo.scripts.zigduck-rs = {
-    description = "[🦆🏡] yo zigduck-rs - Home automation system written in Rust";
+    description = "[🦆🏡] ZigDuck - Home automation system written in Rust";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     logLevel = "INFO";
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
@@ -1354,7 +1321,7 @@ EOF
             pan_id = 60410;
           };
           device_options = { legacy = false; };
-          availability = true;
+          availability = false;
           permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
           devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
           groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
@@ -1409,7 +1376,7 @@ EOF
         ;;
       esac
     '')     
-    # 🦆 says ⮞ activate a scene yo
+    # 🦆 says ⮞ helper function 4 controlling zingle device
     (pkgs.writeScriptBin "zig" ''
       ${cmdHelpers}
       set -euo pipefail
@@ -1504,9 +1471,6 @@ EOF
     "d /var/lib/zigduck/timers 0755 ${config.this.user.me.name} ${config.this.user.me.name} - -"
     "f /var/lib/zigduck/state.json 0644 ${config.this.user.me.name} ${config.this.user.me.name} - -"
   ];
-
-
-
 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {

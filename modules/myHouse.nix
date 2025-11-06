@@ -5,95 +5,124 @@
   pkgs,
   ...
 } : let
-
-in {
+  # 🦆 duck say ⮞ icon map
+  icons = {
+    light = {
+      ceiling      = "mdi:ceiling-light";
+      strip        = "mdi:light-strip";
+      spotlight    = "mdi:spotlight";
+      bulb         = "mdi:lightbulb";
+      bulb_color   = "mdi:lightbulb-multiple";
+      desk         = "mdi:desk-lamp";
+      floor        = "mdi:floor-lamp";
+      wall         = "mdi:wall-sconce-round";
+      chandelier   = "mdi:chandelier";
+      pendant      = "mdi:vanity-light";
+      nightlight   = "mdi:lightbulb-night";
+      strip_rgb    = "mdi:led-strip-variant";
+      reading      = "mdi:book-open-variant";
+      candle       = "mdi:candle";
+      ambient      = "mdi:weather-night";
+    };
+    sensor = {
+      motion       = "mdi:motion-sensor";
+      smoke        = "mdi:smoke-detector";
+      water        = "mdi:water";
+      contact      = "mdi:door";
+      temperature  = "mdi:thermometer";
+      humidity     = "mdi:water-percent";
+    };
+    remote         = "mdi:remote";
+    outlet         = "mdi:power-socket-eu";
+    dimmer         = "mdi:toggle-switch";
+    pusher         = "mdi:gesture-tap-button";
+    blinds         = "mdi:blinds";
+  };
+in { # 🦆 duck say ⮞ qwack
   house = {
     rooms = {
       bedroom.icon = "mdi:bedroom";
       hallway.icon = "mdi:hallway";
-      kitchen.icon = "mdi:sofa";
-      livingroom.icon = "mdi:toilet";
+      kitchen.icon = "mdi:food-fork-drink";
+      livingroom.icon = "mdi:sofa";
       wc.icon = "mdi:toilet";
       other.icon = "mdi:misc";
     };  
-  
-  
-# 🐝🦆 ⮞ ZIGBEE ⮜ 🦆🐝
+   
+# 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
       # 🦆 says ⮞ when motion triggers lights
-      darkTime = { 
+      darkTime = {
+        enable = true;
         after = "16";
-        before = "9"; # 🦆 says ⮞ between 16:00 - 09.00
+        before = "9";
         duration = "900";
-      }; # 🦆 says ⮞ off again after 15 minutes
-# 💡🦆 ⮞ DEVICES ⮜ 🦆💡
+      };
+  # 🦆 ⮞ DEVICES ⮜      
       devices = { 
         # 🦆 says ⮞ Kitchen   
         "0x0017880103ca6e95" = { # 🦆 says ⮞ 64bit IEEE adress (this is the unique device ID)  
           friendly_name = "Dimmer Switch Kök"; # 🦆 says ⮞ simple human readable friendly name
           room = "kitchen"; # 🦆 says ⮞ bind to group
           type = "dimmer"; # 🦆 says ⮞ set a custom device type
-          icon = "mdi:toggle-switch";
+          icon = icons.dimmer;
           endpoint = 1; # 🦆 says ⮞ endpoint to call the device on
           batteryType = "CR2450"; # 🦆 says ⮞ optional yo
         }; 
-        "0x0017880102f0848a" = { # 🦆 says ⮞ inb4 long annoying list  
-          friendly_name = "Spotlight kök 1"; # 🦆 says > oh crap
-          room = "kitchen"; # 🦆 says ⮞ scroll
-          type = "light"; # 🦆 says ⮞ scroll sad duck, scroll ='(
-          icon = "mdi:spotlight";
-          endpoint = 11; # 🦆 says ⮞ i'll tell u when to stop ='(
+        "0x0017880102f0848a" = { 
+          friendly_name = "Spotlight kök 1";
+          room = "kitchen";
+          type = "light";
+          icon = icons.light.spotlight;
+          endpoint = 11;
         };
-        "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; icon = "mdi:spotlight"; endpoint = 11; };
-        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = "mdi:light-strip"; endpoint = 11; supports_color = true; };
-        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = "mdi:light-strip"; endpoint = 11; supports_color = true; };
-        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = "mdi:light-strip"; endpoint = 11; };
-        "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = "mdi:motion-sensor"; endpoint = 1; batteryType = "CR2032"; }; 
-        "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = "mdi:smoke-detector"; endpoint = 1; };
-        "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = "mdi:power-socket-eu"; endpoint = 1; };    
+        "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; icon = icons.light.spotlight; endpoint = 11; };
+        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; };
+        "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; }; 
+        "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1; };
+        "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
         # 🦆 says ⮞ LIVING ROOM
-        "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = "mdi:toggle-switch"; endpoint = 1; batteryType = "CR2450"; };
-        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 1; supports_color = true; };   
-        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 1; supports_color = true; };  
-        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 1; supports_color = true; };                  
-        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 1; supports_color = true; };  
-        "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = "mdi:blinds"; endpoint = 1; };
-        "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; icon = "mdi:spotlight"; endpoint = 11; supports_color = true; };
-        "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; icon = "mdi:spotlight"; endpoint = 11; supports_color = true; };
-        "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; icon = "mdi:water"; endpoint = 1; };
+        "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
+        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };   
+        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
+        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };                  
+        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
+        "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };
+        "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
+        "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
+        "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; icon = icons.sensor.water; endpoint = 1; };
         # 🦆 says ⮞ HALLWAY
-        "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = "mdi:motion-sensor"; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
-        "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; room = "hallway"; type = "sensor"; icon = "mdi:door"; endpoint = 1; };
-        "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; };
-        "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; icon = "mdi:lightbulb"; endpoint = 1; };
+        "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
+        "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1; };
+        "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11; };
+        "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; icon = icons.light.wall; endpoint = 1; };
         # 🦆 says ⮞ WC
-        "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; };
-        "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; };
+        "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; endpoint = 11; };
+        "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = icons.light.ceiling; endpoint = 11; };
         # 🦆 says ⮞ BEDROOM  
-        "0xa4c13832742c96f7" = { friendly_name = "Robot Arm 1"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = "mdi:toggle-switch"; batteryType = "CR02"; };
-        "0xa4c138387966b58d" = { friendly_name = "Robot Arm 2"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = "mdi:toggle-switch"; batteryType = "CR02"; };
-        "0xa4c1380c0a35052e" = { friendly_name = "Robot Arm 3"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = "mdi:toggle-switch"; batteryType = "CR02"; };
-        "0xa4c1381e74b6d2e6" = { friendly_name = "Robot Arm 4"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = "mdi:toggle-switch"; batteryType = "CR02"; };
-        "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = "mdi:toggle-switch"; endpoint = 1; batteryType = "CR2450"; }; 
-        "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; supports_color = true; };
-        "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = "mdi:ceiling-light"; endpoint = 11; supports_color = true; };
-        "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = "mdi:lightbulb"; endpoint = 11; supports_color = true; };
-        "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = "mdi:light-strip"; endpoint = 11; supports_color = true; };
-        "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = "mdi:motion-sensor"; endpoint = 1; batteryType = "CR2032"; };
-        "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = "mdi:light-strip"; endpoint = 11; supports_color = true; }; # 🦆 says ⮞ THATS TOO FAST!!
-        "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = "mdi:lightbulb"; endpoint = 11; supports_color = true; }; # 🦆 says ⮞ SLOW DOWN DUCKIE!!
-    
+        "0xa4c13832742c96f7" = { friendly_name = "Robot Arm 1"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
+        "0xa4c138387966b58d" = { friendly_name = "Robot Arm 2"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
+        "0xa4c1380c0a35052e" = { friendly_name = "Robot Arm 3"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
+        "0xa4c1381e74b6d2e6" = { friendly_name = "Robot Arm 4"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
+        "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; }; 
+        "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
+        "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
+        "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = icons.light.bulb; endpoint = 11; supports_color = true; };
+        "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
+        "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = icons.light.desk; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
-        "0xa4c1382553627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = "mdi:power-socket-eu"; endpoint = 1; };
-        "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; icon = "mdi:power-socket-eu"; endpoint = 1; };
-        "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = "mdi:remote"; endpoint = 1; };
-        "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; icon = "mdi:remote"; endpoint = 1; batteryType = "CR2032"; };
-        "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = "mdi:remote"; endpoint = 1; batteryType = "CR2032"; };
-      }; # 🦆 says ⮞ that's way too many devices huh
-      # 🦆 says ⮞ that's actually not too bad when they on single line each
+        "0xa4c1382553627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
+        "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
+        "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; };
+        "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
+        "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
+      };
       
-      
-# 🎨🦆 ⮞ SCENES ⮜ 🦆🎨
+  # 🦆 ⮞ SCENES ⮜
         scenes = {
             # 🦆 says ⮞ Scene name
             "Duck Scene" = {
@@ -206,36 +235,47 @@ in {
             };    
         };       
 
-# 🔁🦆 ⮞ AUTOMATIONS ⮜ 🦆🔁
-        automations = {
-          # 🦆 says ⮞ default actions already implemented - room lights will turn on upon motion (if darkTime)
-          room_actions = { # 🦆 says ⮞ turns off room lights if triggered by motion after config.house.zigbee.darkTime.duration seconds
-            "hallway" = { 
-              "motion_detected" = [
+  # 🦆 ⮞ AUTOMATIONS ⮜
+        automations = {        
+          room_actions = {
+            hallway = { 
+              door_opened = [];
+              door_closed = [];
+            };  
+            bedroom = { 
+              # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion (if darkTime)
+              motion_detected = [
                 {
-                  type = "shell"; 
-                  command = "yo house --device hallway --cheapMode true &";
-                }
+                  type = "scene";
+                  scene = "Chill Scene";
+                }           
+              ];
+              motion_not_detected = [
+                {
+                  type = "mqtt";
+                  topic = "zigbee2mqtt/Sänggavel/set";
+                  message = ''{"state":"OFF", "brightness": 80}'';
+                }              
               ];
             };
-            "kitchen" = {
-              "motion_detected" = [
-                {
-                  type = "shell"; 
-                  command = "yo house --device kitchen --cheapMode true &";
-                }
-              ];
-            };
-            "bedroom" = {
-              "motion_detected" = [
-                {
-                  type = "shell"; 
-                  command = "yo house --device bedroom --cheapMode true &";
-                }
-              ];
-            };
-          };  
-          # 🦆 says ⮞ default actions already implemented -these are extra
+          };
+          
+          global_actions = {
+            leak_detected = [
+              {
+                type = "shell";
+                command = "yo notify '🚨 WATER LEAK DETECTED!'";
+              }
+            ];
+            smoke_detected = [
+              {
+                type = "shell";
+                command = "yo notify '🔥 SMOKE DETECTED!'";
+              }
+            ];
+          };
+
+          # 🦆 says ⮞ default actions already configured -these are extra
           dimmer_actions = {
             on_press_release = {
               enable = true;
@@ -253,19 +293,37 @@ in {
               description = "Turns on every light device configured.";
               extra_actions = [];
             };
+            
             up_press_release = {
               enable = true;
               description = "Increase the brightness in the room";
               extra_actions = [];
             };
+            up_hold_release = {
+              enable = true;
+              description = "No default action";
+              extra_actions = [];
+            };            
+
             down_press_release = {
               enable = true;
               description = "Decrease brightness in room";
               extra_actions = [];
             };
+            down_hold_release = {
+              enable = true;
+              description = "No default action";
+              extra_actions = [];
+            };
+
             off_press_release = {
               enable = true;
-              description = "Turn off room lights";
+              description = "Turn off all lights in the room";
+              extra_actions = [];
+            };
+            off_hold_release = {
+              enable = true;
+              description = "Turn off all configured light devices";
               extra_actions = [
                 {
                   type = "mqtt";
@@ -274,16 +332,11 @@ in {
                 }
               ];
             };
-            off_hold_release = {
-              enable = true;
-              description = "Turn off all configured light devices";
-              extra_actions = [];
-            };
           }; 
         };
       };  
   
-# 📺🦆 ⮞ TV ⮜ 🦆📺
+  # 🦆 ⮞ TV ⮜
     tv = {
       # 🦆 says ⮞ Livingroom
       shield = {

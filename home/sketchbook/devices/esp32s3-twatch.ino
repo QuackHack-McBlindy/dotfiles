@@ -303,7 +303,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
 <div class="room-section">
   <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('kitchen')">
     <span class="room-toggle">▼</span>
-    mdi:sofa Kitchen
+    mdi:food-fork-drink Kitchen
   </h4>
   <div class="room-content" id="room-content-kitchen" style="display: none;">
     <div class="device" data-id="0x0017880102f0848a">
@@ -428,7 +428,7 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
 <div class="room-section">
   <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('livingroom')">
     <span class="room-toggle">▼</span>
-    mdi:toilet Livingroom
+    mdi:sofa Livingroom
   </h4>
   <div class="room-content" id="room-content-livingroom" style="display: none;">
     <div class="device" data-id="0x0017880102de8570">

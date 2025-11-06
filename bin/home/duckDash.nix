@@ -51,10 +51,6 @@
   sceneData = builtins.toJSON zigbeeScenes;
   iconData = builtins.toJSON zigbeeDevicesIcon;
 
-
- 
- 
-
   # 🦆 says ⮞ generate  scene gradients css
   sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
