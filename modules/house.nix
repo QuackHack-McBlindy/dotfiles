@@ -76,7 +76,87 @@
       sketch = "esp32s3-twatch.ino";
     };
   };
-  
+
+  getAllFriendlyNames = 
+    let devices = config.house.zigbee.devices or {};
+    in lib.mapAttrsToList (_: device: device.friendly_name) devices;
+
+  friendlyNamesSet = 
+    let names = getAllFriendlyNames;
+    in builtins.listToAttrs (map (name: { inherit name; value = true; }) names);
+
+  deviceExistsByFriendlyName = deviceName:
+    builtins.hasAttr deviceName friendlyNamesSet;
+
+  roomExists = roomName:
+    builtins.hasAttr roomName (config.house.rooms or {});
+
+  isValidHexColor = color: 
+    let cleanColor = lib.removePrefix "#" color;
+    in lib.strings.match "[0-9A-Fa-f]{6}" cleanColor != null;
+
+  isValidBrightness = brightness: 
+    brightness >= 0 && brightness <= 255;
+
+  isValidState = state: 
+    builtins.elem state ["ON" "OFF"];
+
+  validateScene = sceneName: sceneDevices:
+    let
+      availableNames = getAllFriendlyNames;
+    in
+    lib.flatten (lib.mapAttrsToList (deviceName: settings:
+      [
+        {
+          assertion = deviceExistsByFriendlyName deviceName;
+          message = "🦆 duck say ⮞ fuck ❌ Scene '${sceneName}' references non-existent device '${deviceName}'. Available: ${lib.concatStringsSep ", " (lib.take 10 availableNames)}${if lib.length availableNames > 10 then "..." else ""}";
+        }
+        {
+          assertion = settings ? state -> isValidState settings.state;
+          message = "🦆 duck say ⮞ fuck ❌ Scene '${sceneName}' device '${deviceName}' has invalid state '${settings.state}' (must be ON or OFF)";
+        }
+        {
+          assertion = settings ? brightness -> isValidBrightness settings.brightness;
+          message = "🦆 duck say ⮞ fuck ❌ Scene '${sceneName}' device '${deviceName}' has invalid brightness ${toString settings.brightness} (must be 0-255)";
+        }
+        {
+          assertion = settings ? color -> settings.color ? hex -> isValidHexColor settings.color.hex;
+          message = "🦆 duck say ⮞ fuck ❌ Scene '${sceneName}' device '${deviceName}' has invalid color hex '${settings.color.hex}'";
+        }
+      ]
+    ) sceneDevices);
+
+  validateDevice = deviceId: device:
+    [
+      {
+        assertion = roomExists device.room;
+        message = "🦆 duck say ⮞ fuck ❌ Device '${device.friendly_name}' (${deviceId}) assigned to non-existent room '${device.room}'";
+      }
+      {
+        assertion = isValidState "ON";
+        message = "🦆 duck say ⮞ fuck ❌ Device '${device.friendly_name}' state validation failed";
+      }
+    ];
+
+  # 🦆 duck say ⮞ validation collector
+  sceneValidations = lib.flatten (
+    lib.mapAttrsToList validateScene (config.house.zigbee.scenes or {})
+  );
+
+  deviceValidations = lib.flatten (
+    lib.mapAttrsToList validateDevice (config.house.zigbee.devices or {})
+  );
+
+  # 🦆 says ⮞ duplicate friendly names
+  duplicateFriendlyNameValidation = 
+    let
+      friendlyNames = getAllFriendlyNames;
+      uniqueNames = lib.unique friendlyNames;
+    in
+    [{
+      assertion = lib.length friendlyNames == lib.length uniqueNames;
+      message = "🦆 duck say ⮞ fuck ❌ Duplicate friendly names found: ${toString (lib.subtractLists uniqueNames friendlyNames)}";
+    }];
 
 in { # 🦆 says ⮞ Options for da house
     options.house = {
@@ -390,11 +470,14 @@ in { # 🦆 says ⮞ Options for da house
           description = "Modular automation configurations";
         };
       };
+
    
 
     # 🔧 🦆 says ⮞  User Configuration
     config = lib.mkMerge [
-
+      {
+        assertions = sceneValidations ++ deviceValidations ++ duplicateFriendlyNameValidation;
+      }
       {
         environment.etc."dark-time.conf".text = ''
           DARK_TIME_ENABLED="${if config.house.zigbee.darkTime.enable then "1" else "0"}"
