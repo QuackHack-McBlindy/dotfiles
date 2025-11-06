@@ -23,8 +23,9 @@ in {
       # 🦆 says ⮞ when motion triggers lights
       darkTime = { 
         after = "16";
-        before = "9";
-      }; # 🦆 says ⮞ between 16:00 - 09.00      
+        before = "9"; # 🦆 says ⮞ between 16:00 - 09.00
+        duration = "900";
+      }; # 🦆 says ⮞ off again after 15 minutes
 # 💡🦆 ⮞ DEVICES ⮜ 🦆💡
       devices = { 
         # 🦆 says ⮞ Kitchen   
@@ -208,8 +209,8 @@ in {
 # 🔁🦆 ⮞ AUTOMATIONS ⮜ 🦆🔁
         automations = {
           # 🦆 says ⮞ default actions already implemented - room lights will turn on upon motion (if darkTime)
-          room_actions = {
-            "hallway" = {
+          room_actions = { # 🦆 says ⮞ turns off room lights if triggered by motion after config.house.zigbee.darkTime.duration seconds
+            "hallway" = { 
               "motion_detected" = [
                 {
                   type = "shell"; 

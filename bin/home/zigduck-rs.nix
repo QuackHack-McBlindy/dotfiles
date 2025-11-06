@@ -843,12 +843,12 @@
                             //    .arg("--cheapMode")
                             //    .output()?;
             
-                            if output.status.success() {
-                                self.quack_debug(&format!("✅ Room timer set via shell command for {}", room));
-                            } else {
-                                self.quack_debug(&format!("❌ Shell command failed for {}: {}", room, 
-                                    String::from_utf8_lossy(&output.stderr)));
-                            }
+                            //if output.status.success() {
+                            //    self.quack_debug(&format!("✅ Room timer set via shell command for {}", room));
+                            //} else {
+                            //    self.quack_debug(&format!("❌ Shell command failed for {}: {}", room, 
+                            //        String::from_utf8_lossy(&output.stderr)));
+                            //}
                         } else { // 🦆 says ⮞ daytime? lightz no thnx
                             self.quack_debug("❌ Daytime - no lights activated by motion.");
                         }
