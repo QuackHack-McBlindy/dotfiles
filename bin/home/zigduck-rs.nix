@@ -836,12 +836,12 @@
                             self.room_lights_on(room)?;
                             // self.reset_room_timer(room)?;
                             // 🦆 says ⮞ TODO FIX: above terminates itselfsend shell command instead of reset_room_timer
-                            let output = std::process::Command::new("yo")
-                                .arg("house")
-                                .arg("--device")
-                                .arg(room)
-                                .arg("--cheapMode")
-                                .output()?;
+                            //let output = std::process::Command::new("yo")
+                            //    .arg("house")
+                            //    .arg("--device")
+                            //    .arg(room)
+                            //    .arg("--cheapMode")
+                            //    .output()?;
             
                             if output.status.success() {
                                 self.quack_debug(&format!("✅ Room timer set via shell command for {}", room));

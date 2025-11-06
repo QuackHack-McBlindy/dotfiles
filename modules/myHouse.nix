@@ -207,8 +207,33 @@ in {
 
 # 🔁🦆 ⮞ AUTOMATIONS ⮜ 🦆🔁
         automations = {
-          # 🦆 says ⮞ default actions already implemented -these are extra
-          room_actions = { };
+          # 🦆 says ⮞ default actions already implemented - room lights will turn on upon motion (if darkTime)
+          room_actions = {
+            "hallway" = {
+              "motion_detected" = [
+                {
+                  type = "shell"; 
+                  command = "yo house --device hallway --cheapMode true &";
+                }
+              ];
+            };
+            "kitchen" = {
+              "motion_detected" = [
+                {
+                  type = "shell"; 
+                  command = "yo house --device kitchen --cheapMode true &";
+                }
+              ];
+            };
+            "bedroom" = {
+              "motion_detected" = [
+                {
+                  type = "shell"; 
+                  command = "yo house --device bedroom --cheapMode true &";
+                }
+              ];
+            };
+          };  
           # 🦆 says ⮞ default actions already implemented -these are extra
           dimmer_actions = {
             on_press_release = {
@@ -219,13 +244,7 @@ in {
                   type = "mqtt";
                   topic = "zigbee2mqtt/Fläkt/set";
                   message = ''{"state":"ON"}'';
-                }
-                #{
-                #  type = "shell";
-                #  command = ''
-                #    ssh desktop yo joke 
-                #  '';
-                #}      
+                }   
               ];
             };
             on_hold_release = {
