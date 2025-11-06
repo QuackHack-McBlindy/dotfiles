@@ -735,10 +735,21 @@
                 self.set_larmed(false)?;
                 return Ok(());
             }
+            
+            // 🦆 says ⮞ TV COMMAND
+            if topic == "zigbee2mqtt/tvCommand" {
+                if let Some(tv_command) = data["tvCommand"].as_str() {
+                    if let Some(ip) = data["ip"].as_str() {
+                        self.quack_info(&format!("TV command received! Command: {}. IP: {}", tv_command, ip));
+                        self.run_yo_command(&["tv", "--typ", tv_command, "--device", ip])?;
+                    }
+                }
+                return Ok(());
+            }
     
             let device_name = topic.strip_prefix("zigbee2mqtt/").unwrap_or(topic);
     
-            // 🦆 says ⮞ CENTRALIZED STATE UPDATES
+            // 🦆 says ⮞ STATE UPDATES
             if let Err(e) = self.update_device_state_from_data(device_name, &data) {
                 self.quack_debug(&format!("Failed to update device state: {}", e));
             }
@@ -998,14 +1009,6 @@
                     return Ok(());
                 }
     
-                // 🦆 says ⮞ TV COMMAND
-                if let Some(tv_command) = data["tvCommand"].as_str() {
-                    if let Some(ip) = data["ip"].as_str() {
-                        self.quack_info(&format!("TV command received! Command: {}. IP: {}", tv_command, ip));
-                        self.run_yo_command(&["tv", "--typ", tv_command, "--device", ip])?;
-                    }
-                    return Ok(());
-                }
             }
     
             let duration = start_time.elapsed().as_millis();
