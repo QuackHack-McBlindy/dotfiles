@@ -421,9 +421,9 @@
             state[device][key].as_str().map(|s| s.to_string())
         }
     
-        // 🦆 says ⮞ CENTRALIZED STATE UPDATES - like Bash version
+        // 🦆 says ⮞ CENTRALIZED STATE UPDATES
         fn update_device_state_from_data(&self, device_name: &str, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
-            // 🦆 says ⮞ Skip set/availability topics like Bash version
+            // 🦆 says ⮞ Skip set/availability topics
             if device_name.ends_with("/set") || device_name.ends_with("/availability") {
                 self.quack_debug(&format!("Skipping state update for {} (set/availability topic)", device_name));
                 return Ok(());
@@ -431,7 +431,7 @@
     
             self.quack_debug(&format!("Updating ALL state fields for: {}", device_name));
     
-            // 🦆 says ⮞ Extract ALL fields like the Bash version
+            // 🦆 says ⮞ extract ALL fields
             if let Some(linkquality) = data["linkquality"].as_u64() {
                 self.update_device_state(device_name, "linkquality", &linkquality.to_string())?;
             }
@@ -776,12 +776,12 @@
     
             let device_name = topic.strip_prefix("zigbee2mqtt/").unwrap_or(topic);
     
-            // 🦆 says ⮞ CENTRALIZED STATE UPDATES - like Bash version
+            // 🦆 says ⮞ CENTRALIZED STATE UPDATES
             if let Err(e) = self.update_device_state_from_data(device_name, &data) {
                 self.quack_debug(&format!("Failed to update device state: {}", e));
             }
     
-            // 🦆 says ⮞ Now do the specific logic with logging
+
             if let Some(device) = self.devices.get(device_name) {
                 let room = &device.room;
                 // 🦆 says ⮞ 🔋 BATTERY
@@ -826,6 +826,8 @@
                         }); // 🦆 says ⮞ save it, useful laterz?
                         fs::write(format!("{}/last_motion.json", self.state_dir), motion_data.to_string())?;
                         self.quack_debug(&format!("🕵️ Motion in {} {}", device_name, room));
+                        
+                        self.execute_automations("motion", "motion_detected", device_name, room)?;
                         // 🦆 says ⮞ & update state file yo
                         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
                         self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
@@ -852,21 +854,24 @@
                         }
                     } else { // 🦆 says ⮞ no more movementz update state file yo
                         self.quack_debug(&format!("🛑 No more motion in {} {}", device_name, room));
+                        self.execute_automations("motion", "motion_not_detected", device_name, room)?;
                     }
                 }
     
                 // 🦆 says ⮞ 💧 WATER SENSORS
                 if data["water_leak"].as_bool() == Some(true) || data["waterleak"].as_bool() == Some(true) {
                     self.quack_info(&format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name));
+                    self.execute_automations("water_leak", "leak_detected", device_name, room)?;
                     self.run_yo_command(&["notify", &format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name)])?;     
                     tokio::time::sleep(Duration::from_secs(15)).await;
                     self.run_yo_command(&["notify", &format!("WATER LEAK DETECTED in {} on {}", room, device_name)])?;
                 }
-    
+
                 // 🦆 says ⮞ DOOR / WINDOW SENSOR
                 if let Some(contact) = data["contact"].as_bool() {
-                    if contact {
+                    if !contact {
                         self.quack_info(&format!("🚪 Door open in {} ({})", room, device_name));
+                        self.execute_automations("contact", "door_opened", device_name, room)?;
                         // 🦆 says ⮞ check time & where last motion iz
                         let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
                         let last_motion_str = self.get_state("apartment", "last_motion").unwrap_or_else(|| "0".to_string());
@@ -881,6 +886,8 @@
                         } else { 
                             self.quack_info(&format!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60));
                         }
+                    } else { // 🦆 says ⮞ door closed  
+                        self.execute_automations("contact", "door_closed", device_name, room)?;
                     }
                 }
     
