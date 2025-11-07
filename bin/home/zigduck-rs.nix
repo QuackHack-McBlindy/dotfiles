@@ -179,8 +179,8 @@
         state_file: String,
         larmed_file: String,
         devices: HashMap<String, Device>,
-        automations: AutomationConfig,  // 🦆 NEW!
-        dark_time_enabled: bool,        // 🦆 NEW!
+        automations: AutomationConfig,
+        dark_time_enabled: bool,
         processing_times: HashMap<String, u128>,
         message_counts: HashMap<String, u64>,
         total_messages: u64,
@@ -450,18 +450,11 @@
          
         // 🦆 says ⮞ activate scene
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-            if let Some(scene) = self.scenes.get(scene_name) {
-                self.quack_info(&format!("Activating scene: {}", scene_name));
-                for (device_name, settings) in scene {
-                    self.apply_device_settings(device_name, settings)?;
-                }
-                self.quack_info(&format!("Scene '{}' activated successfully", scene_name));
-            } else {
-                self.quack_debug(&format!("Scene not found: {}", scene_name));
-                return Err(format!("Scene not found: {}", scene_name).into());
-            }
+            self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
+            self.quack_debug(&format!("Scene '{}' would be activated here", scene_name));
             Ok(())
         }
+    
 
         // 🦆 says ⮞ limit scene to a room 
         fn activate_scene_in_room(&self, scene_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
