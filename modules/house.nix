@@ -62,6 +62,11 @@
         default = [];
         description = "Additional actions to perform when this dimmer action triggers";
       };
+      override_actions = mkOption {  # 🦆 NEW
+        type = types.listOf automationActionType;
+        default = [];
+        description = "If defined, replaces default behavior with these actions";
+      };
     };
   };
 
@@ -345,6 +350,7 @@ in { # 🦆 says ⮞ Options for da house
               friendly_name = "Kitchen Dimmer";
               room = "kitchen";
               type = "dimmer";
+              icon = "mdi-toggle-switch";
               endpoint = 1;
               batteryType = "CR3032";
               supports_color = false;
@@ -399,26 +405,109 @@ in { # 🦆 says ⮞ Options for da house
         zigbee.automations = mkOption {
           type = types.submodule {
             options = {
-              # 🦆 says ⮞ Dimmer switch actions
+              # 🦆 says ⮞ Per-room dimmer switch actions
               dimmer_actions = mkOption {
-                type = types.attrsOf dimmerActionType;
+                type = types.attrsOf (types.submodule {
+                  options = {
+                    on_press_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for on button press and release";
+                    };
+                    on_hold_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for on button hold and release";
+                    };
+                    off_press_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for off button press and release";
+                    };
+                    off_hold_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for off button hold and release";
+                    };
+                    up_press_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for up button press and release";
+                    };
+                    up_hold_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for up button hold and release";
+                    };
+                    down_press_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for down button press and release";
+                    };
+                    down_hold_release = mkOption {
+                      type = types.nullOr dimmerActionType;
+                      default = null;
+                      description = "Action for down button hold and release";
+                    };
+                  };
+                });
                 default = {};
-                description = "Configuration for dimmer switch actions";
+                description = "Per-room configuration for dimmer switch actions";
                 example = {
-                  on_press_release = {
-                    enable = true;
-                    description = "Turn on room lights";
-                    extra_actions = [
-                      {
-                        type = "mqtt";
-                        topic = "zigbee2mqtt/Fläkt/set";
-                        message = ''{"state":"ON"}'';
-                      }
-                    ];
+                  kitchen = {
+                    on_press_release = {
+                      enable = true;
+                      description = "Turn on kitchen lights and fan";
+                      extra_actions = [
+                        {
+                          type = "mqtt";
+                          topic = "zigbee2mqtt/Fläkt/set";
+                          message = ''{"state":"ON"}'';
+                        }
+                      ];
+                    };
+                    off_press_release = {
+                      enable = true;
+                      description = "Turn off kitchen lights only";
+                    };
+                  };
+                  _default = {
+                    on_press_release = {
+                      enable = true;
+                      description = "Default: turn on room lights";
+                    };
+                    on_hold_release = {
+                      enable = true;
+                      description = "Default: turn on all lights at maximum brightness";
+                    };
+                    up_press_release = {
+                      enable = true;
+                      description = "Default: dim up room lights";
+                    };
+                    up_hold_release = {
+                      enable = true;
+                      description = "Default: no default actions";
+                    };
+                    down_press_release = {
+                      enable = true;
+                      description = "Default: dim down room lights";
+                    };
+                    down_hold_release = {
+                      enable = true;
+                      description = "Default: no default actions";
+                    };   
+                    off_press_release = {
+                      enable = true;
+                      description = "Default: turn off room lights";
+                    };                      
+                    off_hold_release = {
+                      enable = true;
+                      description = "Default: turn off all lights";
+                    };                    
                   };
                 };
               };
-
+        
               # 🦆 says ⮞ Room-specific automations
               room_actions = mkOption {
                 type = types.attrsOf (types.attrsOf (types.listOf automationActionType));
@@ -470,8 +559,7 @@ in { # 🦆 says ⮞ Options for da house
           description = "Modular automation configurations";
         };
       };
-
-   
+  
 
     # 🔧 🦆 says ⮞  User Configuration
     config = lib.mkMerge [
@@ -485,7 +573,5 @@ in { # 🦆 says ⮞ Options for da house
           DARK_TIME_END="${config.house.zigbee.darkTime.end}"
         '';    
       }
-
-
         
     ];}

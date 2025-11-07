@@ -172,9 +172,23 @@
     // 🦆 says ⮞ automation types
     #[derive(Debug, Clone, Serialize, Deserialize)]
     struct AutomationConfig {
-        dimmer_actions: HashMap<String, DimmerAction>,
+        // dimmer_actions: HashMap<String, DimmerAction>,
+        dimmer_actions: HashMap<String, RoomDimmerActions>,
         room_actions: HashMap<String, HashMap<String, Vec<AutomationAction>>>,
         global_actions: HashMap<String, Vec<AutomationAction>>,
+    }
+
+    // 🦆 says ⮞ room specific dimmer actions
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct RoomDimmerActions {
+        on_press_release: Option<DimmerAction>,
+        on_hold_release: Option<DimmerAction>,
+        off_press_release: Option<DimmerAction>,
+        off_hold_release: Option<DimmerAction>,
+        up_press_release: Option<DimmerAction>,
+        up_hold_release: Option<DimmerAction>,
+        down_press_release: Option<DimmerAction>,
+        down_hold_release: Option<DimmerAction>,
     }
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -182,6 +196,8 @@
         enable: bool,
         description: String,
         extra_actions: Vec<AutomationAction>,
+        #[serde(default)]
+        override_actions: Vec<AutomationAction>,
     }
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -202,6 +218,112 @@
     }
     
     impl ZigduckState {
+        // 🦆 says ⮞ handle room specific dimmer actions
+        fn handle_room_dimmer_action<F>(
+            &self, 
+            action: &str, 
+            device_name: &str, 
+            room: &str,
+            default_action: F
+        ) -> Result<(), Box<dyn std::error::Error>> 
+        where
+            F: FnOnce(&str) -> Result<(), Box<dyn std::error::Error>>,
+        {
+            let mut executed = false;
+            let mut default_action = Some(default_action); // 🦆 NEW: Wrap in Option to control ownership
+            
+            // 🦆 says ⮞ load room specific config
+            if let Some(room_actions) = self.automations.dimmer_actions.get(room) {
+                let dimmer_action = match action {
+                    "on_press_release" => &room_actions.on_press_release,
+                    "on_hold_release" => &room_actions.on_hold_release,
+                    "off_press_release" => &room_actions.off_press_release,
+                    "off_hold_release" => &room_actions.off_hold_release,
+                    "up_press_release" => &room_actions.up_press_release,
+                    "up_hold_release" => &room_actions.up_hold_release,
+                    "down_press_release" => &room_actions.down_press_release,
+                    "down_hold_release" => &room_actions.down_hold_release,
+                    _ => &None,
+                };
+                
+                if let Some(config) = dimmer_action {
+                    if config.enable {
+                        if !config.override_actions.is_empty() {
+                            // 🦆 says ⮞ run only the override actions
+                            self.quack_debug(&format!("Running override actions for {} in {}", action, room));
+                            for override_action in &config.override_actions {
+                                self.execute_automation_action(override_action, device_name, room)?;
+                            }
+                            executed = true;
+                        } else {
+                            // 🦆 says ⮞ if no overrides - default + extra actions
+                            self.quack_debug(&format!("Running default + extra actions for {} in {}", action, room));
+                            if let Some(action_fn) = default_action.take() {
+                                action_fn(room)?;
+                            }
+                            for extra_action in &config.extra_actions {
+                                self.execute_automation_action(extra_action, device_name, room)?;
+                            }
+                            executed = true;
+                        }
+                    } else {
+                        // 🦆 says ⮞ if none of the above - actions disabled 
+                        self.quack_debug(&format!("Actions disabled for {} in {}", action, room));
+                        executed = true;
+                    }
+                }
+            }
+            
+            // 🦆 says ⮞ check default configuration
+            if !executed {
+                if let Some(default_actions) = self.automations.dimmer_actions.get("_default") {
+                    let dimmer_action = match action {
+                        "on_press_release" => &default_actions.on_press_release,
+                        "on_hold_release" => &default_actions.on_hold_release,
+                        "off_press_release" => &default_actions.off_press_release,
+                        "off_hold_release" => &default_actions.off_hold_release,
+                        "up_press_release" => &default_actions.up_press_release,
+                        "up_hold_release" => &default_actions.up_hold_release,
+                        "down_press_release" => &default_actions.down_press_release,
+                        "down_hold_release" => &default_actions.down_hold_release,
+                        _ => &None,
+                    };
+                    
+                    if let Some(config) = dimmer_action {
+                        if config.enable {
+                            if !config.override_actions.is_empty() {
+                                self.quack_debug(&format!("Running default override actions for {}", action));
+                                for override_action in &config.override_actions {
+                                    self.execute_automation_action(override_action, device_name, room)?;
+                                }
+                                executed = true;
+                            } else {
+                                self.quack_debug(&format!("Running default actions for {}", action));
+                                if let Some(action_fn) = default_action.take() {
+                                    action_fn(room)?;
+                                }
+                                for extra_action in &config.extra_actions {
+                                    self.execute_automation_action(extra_action, device_name, room)?;
+                                }
+                                executed = true;
+                            }
+                        }
+                    }
+                }
+            }
+            
+            // 🦆 says ⮞ no configuration - run default action
+            if !executed {
+                self.quack_debug(&format!("🏃 Running fallback default for {} in {}", action, room));
+                if let Some(action_fn) = default_action.take() {
+                    action_fn(room)?;
+                }
+            }
+            
+            Ok(())
+        }
+     
+    
         fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String, state_dir: String, devices_file: String, automations_file: String, dark_time_enabled: bool, debug: bool) -> Self {
             let state_file = format!("{}/state.json", state_dir);
             let larmed_file = format!("{}/security_state.json", state_dir);      
@@ -334,21 +456,13 @@
             }
         }
         
+       // 🦆 FIXED: Remove the old execute_automations for dimmer that was causing errors
         fn execute_automations(&self, automation_type: &str, trigger: &str, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             // 🦆 says ⮞ load automations from Nix config        
             match automation_type {
-                "dimmer" => {
-                    if let Some(actions) = self.automations.dimmer_actions.get(trigger) {
-                        if actions.enable {
-                            for action in &actions.extra_actions {
-                                self.execute_automation_action(action, device_name, room)?;
-                            }
-                        }
-                    }
-                }
                 "motion" => {
                     if let Some(actions) = self.automations.room_actions.get(room) {
-                        if let Some(motion_actions) = actions.get("motion_detected") {
+                        if let Some(motion_actions) = actions.get(trigger) {
                             for action in motion_actions {
                                 self.execute_automation_action(action, device_name, room)?;
                             }
@@ -383,7 +497,9 @@
             Ok(())
         }
         
+        // 🦆 FIXED: Use the parameters to avoid warnings
         fn execute_automation_action(&self, action: &AutomationAction, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
             match action {
                 AutomationAction::Simple(cmd) => {
                     // 🦆 says ⮞ execute shell command
@@ -418,6 +534,7 @@
             }
             Ok(())
         }
+ 
             
         // 🦆 says ⮞ updatez da state json file yo    
         fn update_device_state(&self, device: &str, key: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -820,7 +937,7 @@
                             let state_clone = std::sync::Arc::new(self.clone());        
                             tokio::spawn(async move {
                                 tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;            
-                                // 🦆 says ⮞ still no motion?
+                                // 🦆 says ⮞ still no motion? lightz off 
                                 if state_clone.is_motion_triggered(&room_clone) {
                                     state_clone.quack_debug(&format!("💡 Turning off motion-triggered lights in {}", room_clone));
                                     let _ = state_clone.room_lights_off(&room_clone);
@@ -903,69 +1020,78 @@
     
                 // 🦆 says ⮞ 🎚 DIMMER SWITCH
                 if let Some(action) = data["action"].as_str() {
-                    match action { // 🦆 says ⮞ on button - turns on room lights yo
+                    match action {
                         "on_press_release" => {
-                            self.quack_info(&format!("💡 Turning on lights in {}", room));
-                            self.room_lights_on(room)?;
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
+                            self.handle_room_dimmer_action(action, device_name, room, |room| {
+                                self.quack_info(&format!("💡 Turning on lights in {}", room));
+                                self.room_lights_on(room)
+                            })?;
                         }
-                        "on_hold_release" => { // 🦆 says ⮞ on hold button - turns on all lights
-                            self.control_all_lights("ON", Some(255))?;
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                            self.quack_info("✅💡 MAX LIGHTS ON");
+                        "on_hold_release" => {
+                            self.handle_room_dimmer_action(action, device_name, room, |_| {
+                                self.control_all_lights("ON", Some(255))?;
+                                self.quack_info("✅💡 MAX LIGHTS ON");
+                                Ok(())
+                            })?;
                         }
-                        "up_press_release" => { // 🦆 says ⮞ dim + button - increase brightness in room
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                            for (light_id, light_device) in &self.devices {
-                                if light_device.room == *room && light_device.device_type == "light" {
-                                    self.quack_info(&format!("🔺 Increasing brightness on {} in {}", light_id, room));
-                                    let message = json!({
-                                        "brightness_step": 50,
-                                        "transition": 3.5
-                                    });
-                                    let topic = format!("zigbee2mqtt/{}/set", light_id);
-                                    self.mqtt_publish(&topic, &message.to_string())?;
+                        "off_press_release" => {
+                            self.handle_room_dimmer_action(action, device_name, room, |room| {
+                                self.quack_info(&format!("💡 Turning off lights in {}", room));
+                                self.room_lights_off(room)
+                            })?;
+                        }
+                        "off_hold_release" => {
+                            self.handle_room_dimmer_action(action, device_name, room, |_| {
+                                self.control_all_lights("OFF", None)?;
+                                self.quack_info("🦆 DARKNESS ON");
+                                Ok(())
+                            })?;
+                        }
+                        "up_press_release" => {
+                            self.handle_room_dimmer_action(action, device_name, room, |room| {
+                                for (light_id, light_device) in &self.devices {
+                                    if light_device.room == room && light_device.device_type == "light" {
+                                        self.quack_info(&format!("🔺 Increasing brightness on {} in {}", light_id, room));
+                                        let message = json!({
+                                            "brightness_step": 50,
+                                            "transition": 3.5
+                                        });
+                                        let topic = format!("zigbee2mqtt/{}/set", light_id);
+                                        self.mqtt_publish(&topic, &message.to_string())?;
+                                    }
                                 }
-                            }
+                                Ok(())
+                            })?;
                         }
-                        "up_hold_release" => {
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                            self.quack_debug(&format!("Up hold release in {}", room));
-                        }                        
-                        "down_press_release" => { // 🦆 says ⮞ dim - button - decrease brightness in room
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                            for (light_id, light_device) in &self.devices {
-                                if light_device.room == *room && light_device.device_type == "light" {
-                                    self.quack_info(&format!("🔻 Decreasing {} in {}", light_id, room));
-                                    let message = json!({
-                                        "brightness_step": -50,
-                                        "transition": 3.5
-                                    });
-                                    let topic = format!("zigbee2mqtt/{}/set", light_id);
-                                    self.mqtt_publish(&topic, &message.to_string())?;
+                        "down_press_release" => {
+                            self.handle_room_dimmer_action(action, device_name, room, |room| {
+                                for (light_id, light_device) in &self.devices {
+                                    if light_device.room == room && light_device.device_type == "light" {
+                                        self.quack_info(&format!("🔻 Decreasing {} in {}", light_id, room));
+                                        let message = json!({
+                                            "brightness_step": -50,
+                                            "transition": 3.5
+                                        });
+                                        let topic = format!("zigbee2mqtt/{}/set", light_id);
+                                        self.mqtt_publish(&topic, &message.to_string())?;
+                                    }
                                 }
-                            }
+                                Ok(())
+                            })?;
                         }
-                        "down_hold_release" => {
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                            self.quack_debug(&format!("Down hold release in {}", room));
+                        "up_hold_release" | "down_hold_release" => {
+                            // 🦆 says ⮞ up/down_hold_release have no default actions
+                            self.handle_room_dimmer_action(action, device_name, room, |_| {
+                                self.quack_debug(&format!("{} in {}", action, room));
+                                Ok(())
+                            })?;
                         }
-                        "off_press_release" => { // 🦆 says ⮞ off button - turns off room lights plx
-                            self.quack_info(&format!("💡 Turning off lights in {}", room));
-                            self.room_lights_off(room)?;
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                        }
-                        "off_hold_release" => { // 🦆 says ⮞ off hold button - turns off all lights!
-                            self.control_all_lights("OFF", None)?;
-                            self.execute_automations("dimmer", &action, &device_name, &room)?;
-                            self.quack_info("🦆⮞ DARKNESS ON");
-                        }
-                        _ => { // 🦆 says ⮞ else debug print button action
-                            self.quack_debug(&format!("{}", action));
+                        _ => {
+                            self.quack_debug(&format!("Unhandled dimmer action: {}", action));
                         }
                     }
                 }
-    
+                   
                 // 🦆 says ⮞ 🛒 SHOPPING LIST
                 if let Some(shopping_action) = data["shopping_action"].as_str() {
                     let shopping_list_file = format!("{}/shopping_list.txt", self.state_dir);   
@@ -1137,7 +1263,7 @@
   
 in { # 🦆 says ⮞ finally here, quack! 
   yo.scripts.zigduck-rs = {
-    description = "[🦆🏡] ZigDuck - Home automation system written in Rust";
+    description = "[🦆🏡] ZigDuck - Home automation system! Devices, scenes, automations -- EVERYTHING is defined using Nix options from the module 'house.nix'. (Written in Rust)";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     logLevel = "INFO";
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!

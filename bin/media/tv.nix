@@ -40,7 +40,7 @@ in {
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; }
+      { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; values = [ "on" "off" "up" "down" "next" "prev" "call" "favorites" "add" "tv" "movie" "livetv" "podcast" "news" "music" "song" "musicvideo" "jukebox" "othervideo" "youtube" "nav_up" "nav_down" "nav_left" "nav_right" "nav_select" "nav_menu" "nav_back" "channel_up" "channel_down" ]; }
       { name = "search"; type = "string"; description = "Media to search"; optional = true; }
       { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }      
       { name = "shuffle"; type = "bool"; description = "Shuffle Toggle, true or false"; default = true; }   
@@ -115,6 +115,8 @@ in {
           [previous]="KEYCODE_MEDIA_PREVIOUS"
           [volume_up]="KEYCODE_VOLUME_UP"
           [volume_down]="KEYCODE_VOLUME_DOWN"
+          [channel_up]="KEYCODE_CHANNEL_UP"
+          [channel_down]="KEYCODE_CHANNEL_DOWN"
           # 🦆 says ⮞ navigation
           [nav_up]="KEYCODE_DPAD_UP"
           [nav_down]="KEYCODE_DPAD_DOWN"
@@ -417,7 +419,19 @@ in {
           return 0
           # 🦆 TODO ⮞ logic....
       }   
-            
+
+      get_current_channel() {
+          local device_ip="$1"
+          channel=$(ssh ${mqttHost} cat /var/lib/zigduck/state.json | jq -r ".\"tv_$device_ip\".current_channel // empty")
+          echo "$channel"
+      }
+
+      get_channel_name() {
+          local device_ip="$1"
+          local channel_id="$2"
+          get_channel_info "$device_ip" "$channel_id" | jq -r '.name // empty'
+      }
+    
       publish_channel_state() {
           local device_ip="$1"
           local channel_id="$2"
@@ -426,6 +440,61 @@ in {
           local payload="{\"channel_id\":\"$channel_id\",\"channel_name\":\"$channel_name\",\"timestamp\":\"$(date -Iseconds)\"}"
           mqtt_pub -t "$topic" -m "$payload"
           dt_debug "Published channel state: $channel_name ($channel_id) on $device_ip"
+      }
+
+      # 🦆 says ⮞ smart channel navigation with state tracking
+      smart_channel_navigate() {
+          local device_ip="$1"
+          local direction="$2" 
+          # 🦆 says ⮞ step 1
+          local current_channel=$(get_current_channel "$device_ip")
+          local current_channel_name=$(get_channel_name "$device_ip" "$current_channel")    
+          dt_debug "Current channel: $current_channel ($current_channel_name)"   
+          if [[ -z "$current_channel" ]]; then
+              dt_error "Could not determine current channel, using simple channel_$direction"
+              control_device "$device_ip" "channel_$direction"
+              return 0
+          fi    
+          # 🦆 says ⮞ step 2
+          control_device "$device_ip" "channel_$direction"
+          sleep 2 
+          # 🦆 says ⮞ step 3
+          local channel_list=$(get_device_channels "$device_ip" | sort -n)
+          local channels=()
+          while IFS= read -r channel; do
+              [[ -n "$channel" ]] && channels+=("$channel")
+          done <<< "$channel_list"
+          if [[ ''${#channels[@]} -eq 0 ]]; then
+              dt_error "No channels available for device $device_ip"
+              return 0
+          fi
+          # 🦆 says ⮞ find current channel index
+          local current_index=-1
+          for i in "''${!channels[@]}"; do
+              if [[ "''${channels[$i]}" == "$current_channel" ]]; then
+                  current_index=$i
+                  break
+              fi
+          done    
+          if [[ $current_index -eq -1 ]]; then
+              dt_debug "Current channel $current_channel not in channel list, using first channel"
+              current_index=0
+          fi    
+          # 🦆 says ⮞ calculate new channel index
+          local new_index
+          if [[ "$direction" == "up" ]]; then
+              new_index=$(( (current_index + 1) % ''${#channels[@]} ))
+          else
+              new_index=$(( (current_index - 1 + ''${#channels[@]}) % ''${#channels[@]} ))
+          fi   
+          local new_channel="''${channels[$new_index]}"
+          local new_channel_info=$(get_channel_info "$device_ip" "$new_channel")
+          local new_channel_name=$(echo "$new_channel_info" | jq -r '.name')  
+          dt_debug "Channel $direction: $current_channel -> $new_channel ($new_channel_name)"  
+          # 🦆 says ⮞ step 4
+          publish_channel_state "$device_ip" "$new_channel" "$new_channel_name"
+          # 🦆 says ⮞ announce the new channel
+          yo say "Kanal $new_channel, $new_channel_name"
       }
   
       # 🦆 says ⮞ play live TV    
@@ -706,7 +775,17 @@ in {
           dt_debug "Volume up.."
           control_device "$DEVICE" volume_up && control_device "$DEVICE" volume_up
           exit 0
-          ;;         
+          ;;
+        channel_up) # 🦆 says ⮞ channel up     
+          dt_debug "Smart channel up.."
+          smart_channel_navigate "$DEVICE" "up"
+          exit 0
+          ;;     
+        channel_down) # 🦆 says ⮞ channel down 
+          dt_debug "Smart channel down.."
+          smart_channel_navigate "$DEVICE" "down"
+          exit 0
+          ;; 
         news) # 🦆 says ⮞ newz, handled externally by yo news  
           dt_debug "Playing news"
           yo-news

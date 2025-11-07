@@ -54,7 +54,7 @@ in { # 🦆 duck say ⮞ qwack
       # 🦆 says ⮞ when motion triggers lights
       darkTime = {
         enable = true;
-        after = "16";
+        after = "14";
         before = "9";
         duration = "900";
       };
@@ -123,7 +123,7 @@ in { # 🦆 duck say ⮞ qwack
       };
       
   # 🦆 ⮞ SCENES ⮜
-        scenes = {
+      scenes = {
             # 🦆 says ⮞ Scene name
             "Duck Scene" = {
                 # 🦆 says ⮞ Device friendly_name
@@ -277,65 +277,87 @@ in { # 🦆 duck say ⮞ qwack
 
           # 🦆 says ⮞ default actions already configured -these are extra
           dimmer_actions = {
-            on_press_release = {
-              enable = true;
-              description = "Turns on all light devices in the dimmer device's room";
-              extra_actions = [
-                {
-                  type = "mqtt";
-                  topic = "zigbee2mqtt/Fläkt/set";
-                  message = ''{"state":"ON"}'';
-                }   
-              ];
-            };
-            on_hold_release = {
-              enable = true;
-              description = "Turns on every light device configured.";
-              extra_actions = [];
+            kitchen = {
+              on_press_release = {
+                enable = true;
+                description = "Turns on all light devices in the dimmer device's room";
+                extra_actions = [
+                  {
+                    type = "mqtt";
+                    topic = "zigbee2mqtt/Fläkt/set";
+                    message = ''{"state":"ON"}'';
+                  }   
+                ];
+              };
+              on_hold_release = {
+                enable = true;
+                description = "Turns on every light device configured.";
+                extra_actions = [];
+              };
+            
+              up_press_release = {
+                enable = true;
+                description = "Increase the brightness in the room";
+                extra_actions = [];
+              };
+              up_hold_release = {
+                enable = true;
+                description = "No default action";
+                extra_actions = [];
+              };            
+
+              down_press_release = {
+                enable = true;
+                description = "Decrease brightness in room";
+                extra_actions = [];
+              };
+              down_hold_release = {
+                enable = true;
+                description = "No default action";
+                extra_actions = [];
+              };
+
+              off_press_release = {
+                enable = true;
+                description = "Turn off all lights in the room";
+                extra_actions = [];
+              };
+              off_hold_release = {
+                enable = true;
+                description = "Turn off all configured light devices";
+                extra_actions = [];
+                override_actions = [
+                  {
+                    type = "mqtt";
+                    topic = "zigbee2mqtt/Fläkt/set";
+                    message = ''{"state":"OFF"}'';
+                  }
+                  {
+                    type = "scene";
+                    scene = "dark";
+                  }
+                ];
+              };
             };
             
-            up_press_release = {
-              enable = true;
-              description = "Increase the brightness in the room";
-              extra_actions = [];
+            bedroom = {
+              off_hold_release = {
+                enable = true;
+                description = "Turn off all configured light devices";
+                extra_actions = [];
+                override_actions = [
+                  {
+                    type = "scene";
+                    scene = "dark";
+                  }
+                ];
+              };
             };
-            up_hold_release = {
-              enable = true;
-              description = "No default action";
-              extra_actions = [];
-            };            
-
-            down_press_release = {
-              enable = true;
-              description = "Decrease brightness in room";
-              extra_actions = [];
-            };
-            down_hold_release = {
-              enable = true;
-              description = "No default action";
-              extra_actions = [];
-            };
-
-            off_press_release = {
-              enable = true;
-              description = "Turn off all lights in the room";
-              extra_actions = [];
-            };
-            off_hold_release = {
-              enable = true;
-              description = "Turn off all configured light devices";
-              extra_actions = [
-                {
-                  type = "mqtt";
-                  topic = "zigbee2mqtt/Fläkt/set";
-                  message = ''{"state":"OFF"}'';
-                }
-              ];
-            };
-          }; 
-        };
-      };  
-  
+                        
+          };
+        };  
+    };
+    
   # 🦆 ⮞ TV ⮜
     tv = {
       # 🦆 says ⮞ Livingroom

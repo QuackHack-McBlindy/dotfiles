@@ -1321,7 +1321,6 @@
                         };
         
                         localStorage.setItem('duckDashState', JSON.stringify(state));
-                        showNotification('State saved to localStorage', 'success');
                     } catch (e) {
                         console.error('Error saving state:', e);
                         showNotification('Error saving data', 'error');
@@ -1571,7 +1570,7 @@
                 }
 
 
-                // 🦆 says ⮞ Find the currently playing program
+                // 🦆 says ⮞ find the currently playing program
                 function findCurrentProgram(programs, currentTime) {
                     return programs.find(program => {
                         const startTime = parseEPGTime(program.start);
@@ -2009,9 +2008,8 @@
                         }
                     });
                 }
-                
-                
-                // 🦆 says ⮞ Audio recording functions
+                       
+                // 🦆 says ⮞ audio recording functions
                 async function initAudioRecording() {
                     try {
                         const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -2097,8 +2095,6 @@
                 micButton.addEventListener('click', toggleRecording);
                 
                 
-               /////// 2nd 
-            
                 function showPage(pageIndex) {
                     console.log('🦆 Switching to page:', pageIndex);
                     currentPage = pageIndex;
@@ -2107,7 +2103,6 @@
                     pages.forEach((page, index) => {
                         if (index === pageIndex) {
                             page.style.display = 'block';
-                            // Force reflow for iframe pages
                             if (index === 4 || index === 5) {
                                 setTimeout(() => {
                                     page.style.transform = 'scale(1)';
@@ -2118,7 +2113,6 @@
                         }
                     });
                 
-                    // Show device selector only on device page
                     const deviceSelectorContainer = document.getElementById('deviceSelectorContainer');
                     if (pageIndex === 1) {
                         deviceSelectorContainer.classList.remove('hidden');
@@ -2133,48 +2127,10 @@
                         } else {
                             tab.classList.remove('active');
                         }
-                    });
-                
+                    });      
                     saveState();
                 }
             
-
-                ////////////// original
-                //function showPage(pageIndex) {
-                //    console.log('🦆 Switching to page:', pageIndex);
-                //    currentPage = pageIndex;
-                    
-
-                 //   const pages = document.querySelectorAll('.page');
-                 //   pages.forEach((page, index) => {
-                  //      if (index === pageIndex) {
-                 //           page.style.display = 'block';
-                 //       } else {
-                 //           page.style.display = 'none';
-                 //       }
-                  //  });
-
-                    // 🦆 says ⮞ hide device selector on TV page and dynamic pages
-                 //   const deviceSelector = document.getElementById('deviceSelect');
-                //    if (pageIndex === 3 || pageIndex >= 4) {
-               //         deviceSelector.classList.add('hidden');
-               //     } else {
-                //        deviceSelector.classList.remove('hidden');
-                //    }
-
-                //    navTabs.forEach((tab) => {
-                //        const tabPageIndex = parseInt(tab.getAttribute('data-page'));
-                //        if (tabPageIndex === pageIndex) {
-                //            tab.classList.add('active');
-                //        } else {
-                //            tab.classList.remove('active');
-                //        }
-                //    });
-
-                //    saveState();
-                //}
-
-
                 function updateLinkquality(percent) {
                   const bars = document.querySelectorAll(".lq-bar");
                   const activeBars = Math.round((percent / 100) * bars.length);
@@ -2215,10 +2171,8 @@
                             background: var(--primary);
                         }
                     `;
-    
                     document.head.appendChild(style);
                 }
-
 
                 function updatePosition(value) {
                     const position = clamp(parseInt(value), 0, 100);
@@ -2623,7 +2577,6 @@
                                     devices.tibber.monthly_usage.toFixed(1) + ' kWh (month)';
                             }
                         }
-
                         updateDeviceSelector();
                         updateStatusCards();
 
@@ -2690,7 +2643,6 @@
                         // 🦆 says ⮞ load initial TV channel state
                         loadInitialTVState();
 
-   
                         navTabs.forEach((tab) => {
                             tab.addEventListener('click', () => {
                                 const pageIndex = parseInt(tab.getAttribute('data-page'));
@@ -2923,7 +2875,6 @@
                         statusCard.refreshShoppingFromAPI();
                     }, 30000));
                     
-
                     apiRefreshIntervals.push(setInterval(() => {
                         apiService.checkHealth().then(health => {
                             if (!health.error) {
@@ -2940,7 +2891,7 @@
               
 
 
-                // 🦆 says ⮞ Unified Status Card Manager
+                // 🦆 says ⮞ unified status card manager
                 const statusCard = {
                   data: {
                     shopping: { updated: null, items: [], priority: 'medium' },
@@ -3260,7 +3211,7 @@
                     return diffHours < 24; // 🦆 says ⮞ show if updated in last 24 hours
                   },
                   
-                  // 🦆 says ⮞ Add click handler to dismiss reminders
+                  // 🦆 says ⮞ click handler to dismiss reminders
                   dismissReminder() {
                     if (this.data.reminders.items.length > 0) {
                       this.data.reminders.items.shift(); // Remove the first reminder
@@ -3351,11 +3302,7 @@
                   this.refreshShoppingFromAPI();
                 };
     
-
-  
-
                 initDashboard();
-
                 
                 // 🦆 says ⮞ long-press status card
                 let longPressTimer;
@@ -3459,7 +3406,6 @@
                     }
                 };
 
-
                 function showStatusCardActions(e) {
                     // 🦆 says ⮞ remove existing action menu
                     const existingMenu = document.getElementById('statusCardActionMenu');
@@ -3557,9 +3503,10 @@
   '';
 
 in {
+
   yo.scripts = { 
     duckDash = {
-      description = "Mobile-first dashboard, unified frontend for zigbee devices, tv remotes and other smart home gadgets.";
+      description = "Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard)";
       aliases = [ "dash" ];
       category = "🛖 Home Automation";  
       autoStart = config.this.host.hostname == "homie";
