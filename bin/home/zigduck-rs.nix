@@ -52,7 +52,9 @@
 
   # 🎨 Scenes  🦆 YELLS ⮞ SCENES!!!!!!!!!!!!!!!11
   scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!   
-
+  # 🦆 says ⮞ Generate scenes configuration
+  scenesJson = builtins.toJSON scenes;
+  scenesFile = pkgs.writeText "scenes.json" scenesJson;
   # 🦆 says ⮞ Generate scene commands    
   makeCommand = device: settings:
     let
@@ -136,7 +138,7 @@
     use serde_json::{Value, json};
     use std::collections::HashMap;
     use std::fs;
-    use std::path::Path;
+    // use std::path::Path;
     use std::time::{Duration, SystemTime, UNIX_EPOCH};
     use std::process::Command;
     use serde::{Deserialize, Serialize};
@@ -150,6 +152,23 @@
         id: String,
         endpoint: u32,
     }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct SceneDeviceSettings {
+        state: Option<String>,
+        brightness: Option<u8>,
+        color: Option<SceneColor>,
+        color_temp: Option<u16>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct SceneColor {
+        hex: Option<String>,
+    }
+
+    type Scene = HashMap<String, SceneDeviceSettings>;
+    type ScenesConfig = HashMap<String, Scene>;
+
     
     #[derive(Debug, Clone)]
     struct ZigduckState {
@@ -166,7 +185,7 @@
         message_counts: HashMap<String, u64>,
         total_messages: u64,
         debug: bool,
-        
+        scenes: ScenesConfig,
     }
 
     // 🦆 says ⮞ automation types
@@ -318,12 +337,10 @@
                 if let Some(action_fn) = default_action.take() {
                     action_fn(room)?;
                 }
-            }
-            
+            }   
             Ok(())
         }
-     
-    
+      
         fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String, state_dir: String, devices_file: String, automations_file: String, dark_time_enabled: bool, debug: bool) -> Self {
             let state_file = format!("{}/state.json", state_dir);
             let larmed_file = format!("{}/security_state.json", state_dir);      
@@ -375,12 +392,27 @@
                     }
                 }
             }
-        
+
+            let scenes_file = std::env::var("SCENES_FILE")
+                .unwrap_or_else(|_| "scenes.json".to_string());
+            let scenes_json = std::fs::read_to_string(&scenes_file)
+                .unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read scenes file {}: {}", scenes_file, e);
+                    "{}".to_string()
+                });
+
+            let scenes: ScenesConfig = serde_json::from_str(&scenes_json)
+                .unwrap_or_else(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to parse scenes JSON: {}", e);
+                    HashMap::new()
+                });
+
             eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} devices from {}", devices.len(), devices_file);
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} scenes from {}", scenes.len(), scenes_file);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ State directory: {}", state_dir);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ State file: {}", state_file);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ Security file: {}", larmed_file);
-        
+       
             // 🦆 says ⮞ Load automations configuration
             let automations_json = std::fs::read_to_string(&automations_file)
                 .unwrap_or_else(|e| {
@@ -397,7 +429,7 @@
                         global_actions: HashMap::new(),
                     }
                 });
-        
+            
                 Self {
                     mqtt_broker,
                     mqtt_user,
@@ -406,6 +438,7 @@
                     state_file,
                     larmed_file,
                     devices,
+                    scenes,
                     automations,
                     dark_time_enabled,
                     processing_times: HashMap::new(),
@@ -415,10 +448,85 @@
                 }
             }
          
+        // 🦆 says ⮞ activate scene
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
-            self.quack_debug(&format!("Scene '{}' would be activated here", scene_name));
+            if let Some(scene) = self.scenes.get(scene_name) {
+                self.quack_info(&format!("Activating scene: {}", scene_name));
+                for (device_name, settings) in scene {
+                    self.apply_device_settings(device_name, settings)?;
+                }
+                self.quack_info(&format!("Scene '{}' activated successfully", scene_name));
+            } else {
+                self.quack_debug(&format!("Scene not found: {}", scene_name));
+                return Err(format!("Scene not found: {}", scene_name).into());
+            }
             Ok(())
+        }
+
+        // 🦆 says ⮞ limit scene to a room 
+        fn activate_scene_in_room(&self, scene_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+            if let Some(scene) = self.scenes.get(scene_name) {
+                self.quack_info(&format!("🎭 Activating scene '{}' in room: {}", scene_name, room));
+            
+                let mut devices_in_room = 0;
+                for (device_name, settings) in scene {
+                    if let Some(device) = self.devices.get(device_name) {
+                        if device.room == room {
+                            self.apply_device_settings(device_name, settings)?;
+                            devices_in_room += 1;
+                        }
+                    }
+                }
+            
+                if devices_in_room == 0 {
+                    self.quack_debug(&format!("No devices from scene '{}' found in room: {}", scene_name, room));
+                } else {
+                    self.quack_info(&format!("Scene '{}' activated in room {} ({} devices)", scene_name, room, devices_in_room));
+                }
+            } else {
+                self.quack_debug(&format!("Scene not found: {}", scene_name));
+                return Err(format!("Scene not found: {}", scene_name).into());
+            }
+            Ok(())
+        }
+
+        // 🦆 says ⮞ helper 4 applying
+        fn apply_device_settings(&self, device_name: &str, settings: &SceneDeviceSettings) -> Result<(), Box<dyn std::error::Error>> {
+            let mut message = serde_json::Map::new();   
+            // 🦆 says ⮞ state
+            if let Some(state) = &settings.state {
+                message.insert("state".to_string(), Value::String(state.to_string()));
+            } // 🦆 says ⮞ brightness
+            if let Some(brightness) = settings.brightness {
+                message.insert("brightness".to_string(), Value::Number(brightness.into()));
+            } // 🦆 says ⮞ color
+            if let Some(color) = &settings.color {
+                if let Some(hex) = &color.hex {
+                    let color_map = serde_json::Map::from_iter(vec![
+                        ("hex".to_string(), Value::String(hex.to_string()))
+                    ]);
+                    message.insert("color".to_string(), Value::Object(color_map));
+                }
+            } // 🦆 says ⮞ color temp
+            if let Some(temp) = settings.color_temp {
+                message.insert("color_temp".to_string(), Value::Number(temp.into()));
+            } // 🦆 says ⮞ only send message if we have settings to apply
+            if !message.is_empty() {
+                let topic = format!("zigbee2mqtt/{}/set", device_name);
+                self.mqtt_publish(&topic, &Value::Object(message).to_string())?;
+                self.quack_debug(&format!("Applied settings to device: {}", device_name));
+            }       
+            Ok(())
+        } // 🦆 says ⮞ list scenes
+        fn list_scenes(&self) -> Vec<String> {
+            self.scenes.keys().cloned().collect()
+        } // 🦆 says ⮞ get scene info
+        fn get_scene_info(&self, scene_name: &str) -> Option<String> {
+            self.scenes.get(scene_name).map(|scene| {
+                let device_count = scene.len();
+                let devices: Vec<&str> = scene.keys().map(|s| s.as_str()).collect();
+                format!("Scene '{}': {} devices - {:?}", scene_name, device_count, devices)
+            })
         }
     
         // 🦆 says ⮞ duckTrace - quack loggin' be bitchin'
@@ -456,7 +564,6 @@
             }
         }
         
-       // 🦆 FIXED: Remove the old execute_automations for dimmer that was causing errors
         fn execute_automations(&self, automation_type: &str, trigger: &str, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             // 🦆 says ⮞ load automations from Nix config        
             match automation_type {
@@ -497,7 +604,7 @@
             Ok(())
         }
         
-        // 🦆 FIXED: Use the parameters to avoid warnings
+
         fn execute_automation_action(&self, action: &AutomationAction, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
             match action {
@@ -1301,10 +1408,15 @@ EOF
     code = ''
       ${cmdHelpers}
       MQTT_BROKER="${mqttHostip}"
-      #MQTT_BROKER="localhost"
       dt_info "MQTT_BROKER: $MQTT_BROKER" 
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")
+
+      SCENES_FILE="${scenesFile}"
+      ZIGBEE_DEVICES='${deviceMeta}'
+      ZIGBEE_DEVICES_FILE="${devices-json}"
+      AUTOMATIONS_FILE="${automationsFile}"
+      DARK_TIME_ENABLED="${darkTimeEnabled}"
 
       # 🦆 says ⮞ create the Rust projectz directory and move into it
       mkdir -p "$dir"
