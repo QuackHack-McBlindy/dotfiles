@@ -21,6 +21,7 @@ in {
        { name = "user"; type = "string"; description = "SSH username"; optional = true; default = config.this.user.me.name; }
        { name = "repo"; type = "string"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
        { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
+       { name = "test"; type = "bool"; description = "Test deployment, does NOT save system generation, no git push, reboot to revert"; default = false; }
      ];
      code = ''   
        ${cmdHelpers}
@@ -32,6 +33,9 @@ in {
          exit 1
        fi
        
+       if [ "$test" = "true" ]; then
+         DRY_RUN=1
+       fi
        # 🦆 duck say ⮞ warn that it's a test deployment
        if $DRY_RUN; then
          echo "❗ Test run: reboot will revert activation"
@@ -159,6 +163,37 @@ in {
          yo push --flake "$flake" --repo "$repo" --host "$host" --generation "$GEN_NUM"
        fi     
      '';
+     voice = {
+       enabled = true;
+       priority = 5;
+       fuzzy.enable = false;
+       sentences = [ 
+         "{test} [att] (driftsätt|deploy) {host}"
+         "(driftsätt|deploy) {host}"
+         
+         "(driftsätt|deploy) {host} med (användare|user) {user} [och] [port] {port}"
+         "{test} [att] (driftsätt|deploy) {host} med (användare|user) {user} [och] [port] {port}" 
+       ];
+       lists = {
+         host.values = [
+           { "in" = "[desktop|vatten]"; out = "desktop"; }
+           { "in" = "[homie|hem|hemserver]"; out = "homie"; }  
+           { "in" = "[nasty|nas|nasen]"; out = "nasty"; }
+           { "in" = "[laptop|laptoppen]"; out = "laptop"; }            
+         ];
+         user.values = [
+           { "in" = "[pungkula]"; out = "pungkula"; }
+           { "in" = "[annan]"; out = "random"; }        
+         ];
+         port.values = [
+           { "in" = "[pungkula]"; out = "pungkula"; }
+           { "in" = "[annan]"; out = "random"; }        
+         ];
+         test.values = [
+           { "in" = "[test|testa|testar]"; out = "--test true"; }        
+         ];
+       };
+     };
     };
     
   };}

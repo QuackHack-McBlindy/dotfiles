@@ -29,7 +29,9 @@
           wait_for_host $host
         '';    
         voice = {
+          enabled = true;
           priority = 5;
+          fuzzy.enable = false;
           sentences = [
             "starta om {host} [dator|datorn]"
             "starta om {host} [server|servern]"          

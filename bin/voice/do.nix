@@ -34,7 +34,8 @@
   # 🦆 says ⮞ only scripts with voice enabled and non-null voice config
   scriptsWithVoice = lib.filterAttrs (_: script: 
     script.voice != null && (script.voice.enabled or true)
-  ) config.yo.scripts;  
+  ) config.yo.scripts;
+
   
   # 🦆 says ⮞ generate intents
   generatedIntents = lib.mapAttrs (name: script: {
@@ -43,6 +44,27 @@
       inherit (script.voice) sentences lists;
     }];
   }) scriptsWithVoice;
+
+  fuzzyFlatIndex = lib.flatten (lib.mapAttrsToList (scriptName: intent:
+    lib.concatMap (data:
+      lib.concatMap (sentence:
+        map (expanded: {
+          script = scriptName;
+          sentence = expanded;
+          signature = let
+            words = lib.splitString " " (lib.toLower expanded);
+            sorted = lib.sort (a: b: a < b) words;
+          in builtins.concatStringsSep "|" sorted;
+        }) (expandOptionalWords sentence)
+      ) data.sentences
+    ) intent.data
+  ) (lib.mapAttrs (name: script: {
+    priority = script.voice.priority or 3;
+    data = [{
+      inherit (script.voice) sentences lists;
+    }];
+  }) scriptsWithFuzzy));
+###################
 
   # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
   intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts";
@@ -398,21 +420,12 @@
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
   ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom  
 
-  # 🦆 says ⮞ 4 rust version of da nlp 
-  fuzzyFlatIndex = lib.flatten (lib.mapAttrsToList (scriptName: intent:
-    lib.concatMap (data:
-      lib.concatMap (sentence:
-        map (expanded: {
-          script = scriptName;
-          sentence = expanded;
-          signature = let
-            words = lib.splitString " " (lib.toLower expanded);
-            sorted = lib.sort (a: b: a < b) words;
-          in builtins.concatStringsSep "|" sorted;
-        }) (expandOptionalWords sentence)
-      ) data.sentences
-    ) intent.data
-  ) generatedIntents);
+  # 🦆 says ⮞ fuzzy index only for allowed yo scriptz dat allow dem fuzzy matchin' yo
+  scriptsWithFuzzy = lib.filterAttrs (_: script: 
+    script.voice != null && 
+    (script.voice.enabled or true) &&
+    (script.voice.fuzzy.enable or true)  # 🦆 Must explicitly allow fuzzy
+  ) config.yo.scripts;
 
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
   fuzzyIndexFlatFile = pkgs.writeText "fuzzy-rust-index.json" (builtins.toJSON fuzzyFlatIndex);  
@@ -789,8 +802,6 @@
         fuzzy_index: Vec<FuzzyIndexEntry>,
         processing_order: Vec<ScriptPriority>,
         fuzzy_threshold: i32,
-        context: ContextData, // 🦆 NEW: Loaded context
-        confirmed_patterns: HashMap<String, u32>, 
         debug: bool,        
     }
     
@@ -861,127 +872,7 @@
             Ok(())
         }
 
-        // 🦆 NEW: Load context from memory system
-        fn load_context(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-            let memory_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
-            let context_file = format!("{}/current_context.json", memory_dir);
-            
-            if let Ok(content) = std::fs::read_to_string(&context_file) {
-                self.context = serde_json::from_str(&content)?;
-                self.quack_debug(&format!("Loaded context: {:?}", self.context));
-            }
-            
-            // 🦆 Load confirmed patterns for confidence scoring
-            let history_file = format!("{}/command_history.json", memory_dir);
-            if let Ok(content) = std::fs::read_to_string(&history_file) {
-                let history: serde_json::Value = serde_json::from_str(&content)?;
-                if let Some(confirmed) = history.get("confirmed_matches").and_then(|c| c.as_object()) {
-                    for (key, count) in confirmed {
-                        self.confirmed_patterns.insert(key.clone(), count.as_u64().unwrap_or(0) as u32);
-                    }
-                }
-            }
-            
-            Ok(())
-        }
-        
-        // 🦆 NEW: Context-aware matching - boost patterns that match current context
-        fn apply_context_boost(&self, script_name: &str, sentence: &str) -> bool {
-            // 🦆 If last action was "update", boost patterns containing "rebuild" or "deploy"
-            if self.context.last_action == "update" {
-                if sentence.contains("rebuild") || sentence.contains("deploy") {
-                    self.quack_debug(&format!("Context boost: {} (follows update)", sentence));
-                    return true;
-                }
-            }
-            
-            // 🦆 If servers are active, boost patterns mentioning them
-            for server in &self.context.active_servers {
-                if sentence.contains(&server.to_lowercase()) {
-                    self.quack_debug(&format!("Context boost: {} (mentions active server {})", sentence, server));
-                    return true;
-                }
-            }
-            
-            // 🦆 Boost patterns that have been manually confirmed
-            let pattern_key = format!("{}:{}", script_name, sentence);
-            if let Some(confidence) = self.confirmed_patterns.get(&pattern_key) {
-                if *confidence > 0 {
-                    self.quack_debug(&format!("Confidence boost: {} ({} confirmations)", sentence, confidence));
-                    return true;
-                }
-            }
-            
-            false
-        }
-        
-        // 🦆 NEW: Update context after successful execution
-        fn update_context(&self, script_name: &str, args: &[String], matched_sentence: &str) -> Result<(), Box<dyn std::error::Error>> {
-            let memory_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
-            let context_file = format!("{}/current_context.json", memory_dir);
-            
-            let mut context = self.context.clone();
-            context.last_action = script_name.to_string();
-            
-            // 🦆 Detect server mentions in arguments
-            for arg in args {
-                if arg.contains("dads") {
-                    context.active_servers = vec!["dads_media_server".to_string()];
-                }
-                if arg.contains("moms") { 
-                    context.active_servers = vec!["moms_media_server".to_string()];
-                }
-            }
-            
-            // 🦆 Update environment based on action type
-            if script_name == "deploy" {
-                context.environment = "deployment".to_string();
-            } else if script_name == "update" || script_name == "rebuild" {
-                context.environment = "maintenance".to_string();
-            }
-            
-            // 🦆 Save updated context
-            let context_json = serde_json::to_string_pretty(&context)?;
-            std::fs::write(&context_file, context_json)?;
-            
-            // 🦆 Record in command history
-            let history_file = format!("{}/command_history.json", memory_dir);
-            let mut history: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&history_file) {
-                serde_json::from_str(&content).unwrap_or_else(|_| {
-                    serde_json::json!({
-                        "recent_commands": [],
-                        "confirmed_matches": {}
-                    })
-                })
-            } else {
-                serde_json::json!({
-                    "recent_commands": [],
-                    "confirmed_matches": {}
-                })
-            };
-            
-            let new_command = serde_json::json!({
-                "script": script_name,
-                "args": args,
-                "matched_sentence": matched_sentence,
-                "timestamp": chrono::Local::now().to_rfc3339(),
-                "confirmed": false
-            });
-            
-            // 🦆 Keep last 10 commands
-            if let Some(recent_commands) = history.get_mut("recent_commands").and_then(|c| c.as_array_mut()) {
-                recent_commands.insert(0, new_command);
-                if recent_commands.len() > 10 {
-                    recent_commands.truncate(10);
-                }
-            }
-            
-            std::fs::write(&history_file, serde_json::to_string_pretty(&history)?)?;
-            
-            Ok(())
-        }
-        
-            
+    
         // 🦆 says ⮞ log successful command execution
         fn log_successful_command(&self, script_name: &str, args: &[String], processing_time: std::time::Duration) -> Result<(), Box<dyn std::error::Error>> {
             let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
@@ -1374,10 +1265,20 @@
             best_match
         }
     
+        // 🦆 says ⮞ fuzzy permission check
+        fn is_fuzzy_allowed(&self, script_name: &str) -> bool {
+            self.fuzzy_index.iter().any(|entry| entry.script == script_name)
+        }    
+    
         fn fuzzy_match(&self, text: &str) -> Option<MatchResult> {
             self.quack_debug(&format!("Starting FUZZY match for: '{}'", text));
-            
+
             if let Some((script_name, sentence, score)) = self.find_best_fuzzy_match(text) {
+                // 🦆 say 🛑 STOP 🛑 fuzzy iz allowed?
+                if !self.is_fuzzy_allowed(&script_name) {
+                    self.quack_debug(&format!("Fuzzy matching disabled for script: {}", script_name));
+                    return None;
+                }
                 self.quack_info(&format!("Fuzzy match: {} (score: {}%)", script_name, score)); 
                 // 🦆 says ⮞ TODO parameter extraction for fuzzy matches
                 let input_words: Vec<&str> = text.split_whitespace().collect();
@@ -1425,6 +1326,8 @@
             }
         }
     
+    
+    
         // 🦆 says ⮞ YO waz qwackin' yo?!
         // 🦆 says ⮞ here comez da executta 
         fn execute_script(&self, result: &MatchResult) -> Result<(), Box<dyn std::error::Error>> {
@@ -1462,12 +1365,7 @@
         // 🦆 duck say ⮞ very mature sentences incomin' yo!
         fn say_no_match(&self) {
             let responses = vec![
-                "Kompis du pratar japanska jag fattar ingenting",
-                "Det låter som att du har en köttee bulle i käften. Ät klart middagen och försök sedan igen.",
-                "eeyyy bruscchan öppna käften innan du pratar ja fattar nada ju", 
-                "men håll käften cp!",
-                "noll koll . Golf boll.",
-                "Ursäkta?",
+                ${lib.concatMapStringsSep ",\n                " (phrase: builtins.toJSON phrase) config.yo.sorryPhrases}
             ];
 
             // 🦆 duck say ⮞ pick a random and text to speech dat shit yo
@@ -1485,19 +1383,30 @@
             self.fuzzy_threshold = fuzzy_threshold;
             self.calculate_processing_order();
             
-            // 🦆 says ⮞ SPLIT LOGIC: Check if input contains "samt"
-            let parts: Vec<&str> = if input.to_lowercase().contains("samt") {
-                // 🦆 says ⮞ Split on "samt" and trim each part
-                input.split("samt")
-                    .map(|part| part.trim())
-                    .filter(|part| !part.is_empty())
-                    .collect()
-            } else {
-                // 🦆 says ⮞ No "samt" found, process as single input
-                vec![input]
+            // 🦆 says ⮞ MULTIPLE COMMANDS - input has any `config.yo.SplitWords` 
+            let parts: Vec<&str> = {
+                let split_words = [${lib.concatMapStringsSep ", " (word: "\"" + word + "\"") config.yo.SplitWords}];
+                let mut found = false;
+                for word in &split_words {
+                    if input.to_lowercase().contains(word) {
+                        found = true;
+                        break;
+                    }
+                }
+                if found {
+                    // 🦆 says ⮞ Split on any of the defined SplitWords and trim each part
+                    let pattern = regex::Regex::new(&split_words.join("|")).unwrap();
+                    pattern.split(input)
+                        .map(|part| part.trim())
+                        .filter(|part| !part.is_empty())
+                        .collect()
+                } else {
+                    // 🦆 says ⮞ no SplitWords found - run as single command
+                    vec![input]
+                }
             };
             
-            // 🦆 says ⮞ If we have multiple parts, process each one
+            // 🦆 says ⮞ 2>partz? process dem all 
             if parts.len() > 1 {
                 self.quack_debug(&format!("Found {} parts to process: {:?}", parts.len(), parts));
                 let mut all_successful = true;
@@ -1506,7 +1415,7 @@
                 for (index, part) in parts.iter().enumerate() {
                     self.quack_info(&format!("Processing part {}/{}: '{}'", index + 1, parts.len(), part));
                     
-                    // 🦆 says ⮞ Process each part individually
+                    // 🦆 says ⮞ process each part individually 🦆 say ⮞ dat iz eazier 2 say in swe qwack
                     match self.process_single_input(part, total_start) {
                         Ok(_) => {
                             processed_count += 1;
@@ -1514,8 +1423,8 @@
                         }
                         Err(e) => {
                             all_successful = false;
-                            self.quack_debug(&format!("❌ Failed to process part {}: {}", index + 1, e));
-                            // 🦆 says ⮞ Continue with other parts even if one fails
+                            self.quack_debug(&format!("🦆 says ⮞ fuck ❌ Failed to process part {}: {}", index + 1, e));
+                            // 🦆 says ⮞ keep going anyway plz
                         }
                     }
                     // 🦆 says ⮞ yo do small delay
