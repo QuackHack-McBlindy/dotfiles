@@ -64,6 +64,16 @@
           # 🦆 says ⮞ .. letz combinez wit every tail combinationz ..  
           map (y: [x] ++ y) tailProduct
         ) head; # 🦆 says ⮞ dang! datz a DUCK COMBO alright!  
+# 🦆 EXAMPLE ⮞ cartesianProductOfLists [ ["a" "b"] ["1" "2"] ["x" "y"] ]
+# 🦆 BOOOOOM ⮟ 
+#  [ ["a" "1" "x"]
+#    ["a" "1" "y"] 
+#    ["a" "2" "x"]
+#    ["a" "2" "y"]
+#    ["b" "1" "x"]
+#    ["b" "1" "y"]
+#    ["b" "2" "x"]
+#    ["b" "2" "y"] ]
          
   # 🦆 says ⮞ here i duckie help yo out! makin' yo life eazy sleazy' wen declarative sentence yo typin'    
   expandOptionalWords = sentence: # 🦆 says ⮞ qucik & simple sentences we quacky & hacky expandin'
@@ -779,7 +789,9 @@
         fuzzy_index: Vec<FuzzyIndexEntry>,
         processing_order: Vec<ScriptPriority>,
         fuzzy_threshold: i32,
-        debug: bool,
+        context: ContextData, // 🦆 NEW: Loaded context
+        confirmed_patterns: HashMap<String, u32>, 
+        debug: bool,        
     }
     
     impl YoDo {
@@ -848,7 +860,128 @@
             }        
             Ok(())
         }
+
+        // 🦆 NEW: Load context from memory system
+        fn load_context(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+            let memory_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+            let context_file = format!("{}/current_context.json", memory_dir);
+            
+            if let Ok(content) = std::fs::read_to_string(&context_file) {
+                self.context = serde_json::from_str(&content)?;
+                self.quack_debug(&format!("Loaded context: {:?}", self.context));
+            }
+            
+            // 🦆 Load confirmed patterns for confidence scoring
+            let history_file = format!("{}/command_history.json", memory_dir);
+            if let Ok(content) = std::fs::read_to_string(&history_file) {
+                let history: serde_json::Value = serde_json::from_str(&content)?;
+                if let Some(confirmed) = history.get("confirmed_matches").and_then(|c| c.as_object()) {
+                    for (key, count) in confirmed {
+                        self.confirmed_patterns.insert(key.clone(), count.as_u64().unwrap_or(0) as u32);
+                    }
+                }
+            }
+            
+            Ok(())
+        }
         
+        // 🦆 NEW: Context-aware matching - boost patterns that match current context
+        fn apply_context_boost(&self, script_name: &str, sentence: &str) -> bool {
+            // 🦆 If last action was "update", boost patterns containing "rebuild" or "deploy"
+            if self.context.last_action == "update" {
+                if sentence.contains("rebuild") || sentence.contains("deploy") {
+                    self.quack_debug(&format!("Context boost: {} (follows update)", sentence));
+                    return true;
+                }
+            }
+            
+            // 🦆 If servers are active, boost patterns mentioning them
+            for server in &self.context.active_servers {
+                if sentence.contains(&server.to_lowercase()) {
+                    self.quack_debug(&format!("Context boost: {} (mentions active server {})", sentence, server));
+                    return true;
+                }
+            }
+            
+            // 🦆 Boost patterns that have been manually confirmed
+            let pattern_key = format!("{}:{}", script_name, sentence);
+            if let Some(confidence) = self.confirmed_patterns.get(&pattern_key) {
+                if *confidence > 0 {
+                    self.quack_debug(&format!("Confidence boost: {} ({} confirmations)", sentence, confidence));
+                    return true;
+                }
+            }
+            
+            false
+        }
+        
+        // 🦆 NEW: Update context after successful execution
+        fn update_context(&self, script_name: &str, args: &[String], matched_sentence: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let memory_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+            let context_file = format!("{}/current_context.json", memory_dir);
+            
+            let mut context = self.context.clone();
+            context.last_action = script_name.to_string();
+            
+            // 🦆 Detect server mentions in arguments
+            for arg in args {
+                if arg.contains("dads") {
+                    context.active_servers = vec!["dads_media_server".to_string()];
+                }
+                if arg.contains("moms") { 
+                    context.active_servers = vec!["moms_media_server".to_string()];
+                }
+            }
+            
+            // 🦆 Update environment based on action type
+            if script_name == "deploy" {
+                context.environment = "deployment".to_string();
+            } else if script_name == "update" || script_name == "rebuild" {
+                context.environment = "maintenance".to_string();
+            }
+            
+            // 🦆 Save updated context
+            let context_json = serde_json::to_string_pretty(&context)?;
+            std::fs::write(&context_file, context_json)?;
+            
+            // 🦆 Record in command history
+            let history_file = format!("{}/command_history.json", memory_dir);
+            let mut history: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&history_file) {
+                serde_json::from_str(&content).unwrap_or_else(|_| {
+                    serde_json::json!({
+                        "recent_commands": [],
+                        "confirmed_matches": {}
+                    })
+                })
+            } else {
+                serde_json::json!({
+                    "recent_commands": [],
+                    "confirmed_matches": {}
+                })
+            };
+            
+            let new_command = serde_json::json!({
+                "script": script_name,
+                "args": args,
+                "matched_sentence": matched_sentence,
+                "timestamp": chrono::Local::now().to_rfc3339(),
+                "confirmed": false
+            });
+            
+            // 🦆 Keep last 10 commands
+            if let Some(recent_commands) = history.get_mut("recent_commands").and_then(|c| c.as_array_mut()) {
+                recent_commands.insert(0, new_command);
+                if recent_commands.len() > 10 {
+                    recent_commands.truncate(10);
+                }
+            }
+            
+            std::fs::write(&history_file, serde_json::to_string_pretty(&history)?)?;
+            
+            Ok(())
+        }
+        
+            
         // 🦆 says ⮞ log successful command execution
         fn log_successful_command(&self, script_name: &str, args: &[String], processing_time: std::time::Duration) -> Result<(), Box<dyn std::error::Error>> {
             let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
@@ -1345,11 +1478,68 @@
                 self.say(response);
            }
         }
+        
         // 🦆 says ⮞ go MAIN RUNNER i choose u! - quack 2 da attack!
         pub fn run(&mut self, input: &str, fuzzy_threshold: i32) -> Result<(), Box<dyn std::error::Error>> {
             let total_start = Instant::now(); 
             self.fuzzy_threshold = fuzzy_threshold;
             self.calculate_processing_order();
+            
+            // 🦆 says ⮞ SPLIT LOGIC: Check if input contains "samt"
+            let parts: Vec<&str> = if input.to_lowercase().contains("samt") {
+                // 🦆 says ⮞ Split on "samt" and trim each part
+                input.split("samt")
+                    .map(|part| part.trim())
+                    .filter(|part| !part.is_empty())
+                    .collect()
+            } else {
+                // 🦆 says ⮞ No "samt" found, process as single input
+                vec![input]
+            };
+            
+            // 🦆 says ⮞ If we have multiple parts, process each one
+            if parts.len() > 1 {
+                self.quack_debug(&format!("Found {} parts to process: {:?}", parts.len(), parts));
+                let mut all_successful = true;
+                let mut processed_count = 0;
+                
+                for (index, part) in parts.iter().enumerate() {
+                    self.quack_info(&format!("Processing part {}/{}: '{}'", index + 1, parts.len(), part));
+                    
+                    // 🦆 says ⮞ Process each part individually
+                    match self.process_single_input(part, total_start) {
+                        Ok(_) => {
+                            processed_count += 1;
+                            self.quack_debug(&format!("Successfully processed part {}/{}", index + 1, parts.len()));
+                        }
+                        Err(e) => {
+                            all_successful = false;
+                            self.quack_debug(&format!("❌ Failed to process part {}: {}", index + 1, e));
+                            // 🦆 says ⮞ Continue with other parts even if one fails
+                        }
+                    }
+                    // 🦆 says ⮞ yo do small delay
+                    if index < parts.len() - 1 {
+                        std::thread::sleep(std::time::Duration::from_millis(100));
+                    }
+                }
+                if processed_count > 0 {
+                    self.quack_debug(&format!("Successfully processed {}/{} parts", processed_count, parts.len()));
+                    return Ok(());
+                } else {
+                    self.quack_info("🦆 says ⮞ fuck ❌ All parts failed to process");
+                    std::process::exit(1);
+                }
+            } else {
+                // 🦆 says ⮞ input processing
+                self.process_single_input(parts[0], total_start)
+            }
+        }
+        
+        // 🦆 says ⮞ process command
+        fn process_single_input(&self, input: &str, total_start: Instant) -> Result<(), Box<dyn std::error::Error>> {
+            let part_start = Instant::now();
+            
             // 🦆 says ⮞ collect fuzzy candidates for logging
             let fuzzy_candidates: Vec<(String, String, i32)> = self.fuzzy_index.iter()
                 .filter_map(|entry| {
@@ -1359,83 +1549,75 @@
                     let max_len = normalized_input.len().max(normalized_sentence.len());
                     if max_len == 0 { return None; }
                     let score = 100 - (distance * 100 / max_len) as i32;
-                    if score >= 10 {  // 🦆 says ⮞ lower threshold for candidate collection
+                    if score >= 10 {
                         Some((entry.script.clone(), entry.sentence.clone(), score))
                     } else {
                         None
                     }
                 })
-                .collect();           
+                .collect();
+                   
             // 🦆 says ⮞ exact matchin'
             if let Some(match_result) = self.exact_match(input) {
-                let total_elapsed = total_start.elapsed();
+                let part_elapsed = part_start.elapsed();
                 self.quack_debug(&format!("Exact match found: {}", match_result.script_name));
-                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, total_elapsed);    
+                let _ = self.log_successful_command(&match_result.script_name, &match_result.args, part_elapsed);    
                 let final_result = MatchResult {
                     script_name: match_result.script_name,
                     args: match_result.args,
                     matched_sentence: match_result.matched_sentence,
-                    processing_time: total_elapsed, // Use total time instead of just matching time
+                    processing_time: part_elapsed,
                 };    
                 self.execute_script(&final_result)?;
                 return Ok(());
             }
-    
+        
             // 🦆 says ⮞ fallback yo go fuzzy matchin' i choose u!
             if let Some(match_result) = self.fuzzy_match(input) {
-                let total_elapsed = total_start.elapsed();
+                let part_elapsed = part_start.elapsed();
                 self.quack_info(&format!("Fuzzy match found: {}", match_result.script_name));
                 let final_result = MatchResult {
                     script_name: match_result.script_name,
                     args: match_result.args,
                     matched_sentence: match_result.matched_sentence,
-                    processing_time: total_elapsed,
+                    processing_time: part_elapsed,
                 };    
                 let _ = self.log_successful_command(&final_result.script_name, &final_result.args, final_result.processing_time); 
                 self.execute_script(&final_result)?;
                 return Ok(());
             }
-            // 🦆 says ⮞ NO MATCH FOUND - SHOW TOTAL TIME AND QUACK!
-            let total_elapsed = total_start.elapsed();
+            
+            // 🦆 says ⮞ NO MATCH
+            let part_elapsed = part_start.elapsed();
             println!("   ┌─(yo-do)");
             println!("   │🦆 qwack! {}", input);
             println!("   │🦆 says ⮞ fuck ❌ no match!");
-
+        
             if !fuzzy_candidates.is_empty() {
                 let top_candidates: Vec<_> = fuzzy_candidates.iter()
                     .filter(|(_, _, score)| *score >= 50)
-                    .take(3) // 🦆 says ⮞ limit to top 3
+                    .take(3)
                     .collect();
-    
+        
                 for (script, sentence, score) in top_candidates {
                     println!("   │   {}%: '{}' -> yo {}", score, sentence, script);
                 }
             }
-            println!("   └─⏰ do took {:?}", total_elapsed);
-            // 🦆 says ⮞ TTS
+            println!("   └─⏰ do took {:?}", part_elapsed);
+            
+            // 🦆 says ⮞ speak no match
             self.say_no_match();
+            
             // 🦆 says ⮞ log failed command with analysis data
-            self.quack_debug("No match found, logging statistics...");
+            self.quack_debug("No match found for part, logging statistics...");
             let _ = self.log_failed_command(input, &fuzzy_candidates);
-           
-            if !fuzzy_candidates.is_empty() {
-                let top_candidates: Vec<_> = fuzzy_candidates.iter()
-                    .filter(|(_, _, score)| *score >= 50) // 🦆 says ⮞ only show decent candidates
-                    .collect();
-                for (script, sentence, score) in top_candidates.iter().take(5) {
-                    eprintln!("     {}%: '{}' -> yo {}", score, sentence, script);
-                }
-            }
-            std::process::exit(1);
-            Ok(())
+            Err("No match found for this part".into())
         }
+        
     }
-    
     fn main() -> Result<(), Box<dyn std::error::Error>> {
         let args: Vec<String> = env::args().collect(); 
         if args.len() < 2 {
-            eprintln!("Usage: {} <input> [fuzzy_threshold]", args[0]);
-            eprintln!("Example: {} 'set an alarm for 7 and 30' 20", args[0]);
             exit(1);
         }       
         let input = &args[1];
@@ -1458,7 +1640,7 @@
             return Ok(());
         }    
         if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
-            println!("Loading fuzzy index from: {}", fuzzy_index_path);
+            // println!("Loading fuzzy index from: {}", fuzzy_index_path);
             yo_do.load_fuzzy_index(&fuzzy_index_path)?;
         }
         yo_do.run(input, fuzzy_threshold)
@@ -1484,12 +1666,13 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
     do = {
-      description = "[🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Rust (faster)";
+      description = "Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
-      aliases = [ "d" ];
+      aliases = [ "brain" ];
       autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
+        echo "[🦆🧠]"
         cat ${voiceSentencesHelpFile} 
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
@@ -1546,14 +1729,23 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
     };
     
     # 🦆 says ⮞ STATS LOG FAILED COMNMANDS
-    stats = {
-      description = "[🦆📶] duckStats - Statistical & metrics for the NLP (yo-do) module";
+    memory = {
+      description = "Memory is stats and metrics that acts as contexual awareness for the Brain (NLP)";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
-      aliases = [ "stat" ];
+      aliases = [ "stats" ];
       autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
-        [🦆📶]  
+        echo "[🦆📶] yo memory"
+
+        echo "[🦆📶]"    
+        echo "Commands:"
+        echo "  failed      - Show most frequently failed commands"
+        echo "  successful  - Show most used successful commands"
+        echo "  fuzzy       - Show fuzzy match statistics"
+        echo "  summary     - Show overall statistics"
+        echo "  reset       - Reset all statistics"
+        echo "  tail        - Live tail of failed commands"
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { 
@@ -1571,23 +1763,6 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         set +u  
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
 
-        show_help() {
-          cat << EOF
-[🦆📶] Yo Command Statistics Analyzer
-    
-Usage: yo stats <command>
-
-[🦆📶]     
-Commands:
-  failed      - Show most frequently failed commands
-  successful  - Show most used successful commands  
-  fuzzy       - Show fuzzy match statistics
-  summary     - Show overall statistics
-  reset       - Reset all statistics
-  tail        - Live tail of failed commands
-EOF
-        }
-    
         load_stats() {
           if [ -f "${commandStatsDB}" ]; then
             cat "${commandStatsDB}"
@@ -1663,7 +1838,9 @@ EOF
         tail_failed() {
           tail -f "${failedCommandsLog}"
         }
-
+        if [[ "$good" == "true" ]]; then
+          confirm_last_command
+        fi
         if [[ "$reset" == "true" ]]; then
           reset_stats
         fi

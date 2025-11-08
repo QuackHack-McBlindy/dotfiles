@@ -8,45 +8,45 @@
   # 🦆 duck say ⮞ icon map
   icons = {
     light = {
-      ceiling      = "mdi:ceiling-light";
-      strip        = "mdi:light-strip";
-      spotlight    = "mdi:spotlight";
-      bulb         = "mdi:lightbulb";
-      bulb_color   = "mdi:lightbulb-multiple";
-      desk         = "mdi:desk-lamp";
-      floor        = "mdi:floor-lamp";
-      wall         = "mdi:wall-sconce-round";
-      chandelier   = "mdi:chandelier";
-      pendant      = "mdi:vanity-light";
-      nightlight   = "mdi:lightbulb-night";
-      strip_rgb    = "mdi:led-strip-variant";
-      reading      = "mdi:book-open-variant";
-      candle       = "mdi:candle";
-      ambient      = "mdi:weather-night";
+      ceiling         = "mdi:ceiling-light";
+      strip           = "mdi:light-strip";
+      spotlight       = "mdi:spotlight";
+      bulb            = "mdi:lightbulb";
+      bulb_color      = "mdi:lightbulb-multiple";
+      desk            = "mdi:desk-lamp";
+      floor           = "mdi:floor-lamp";
+      wall            = "mdi:wall-sconce-round";
+      chandelier      = "mdi:chandelier";
+      pendant         = "mdi:vanity-light";
+      nightlight      = "mdi:lightbulb-night";
+      strip_rgb       = "mdi:led-strip-variant";
+      reading         = "mdi:book-open-variant";
+      candle          = "mdi:candle";
+      ambient         = "mdi:weather-night";
     };
     sensor = {
-      motion       = "mdi:motion-sensor";
-      smoke        = "mdi:smoke-detector";
-      water        = "mdi:water";
-      contact      = "mdi:door";
-      temperature  = "mdi:thermometer";
-      humidity     = "mdi:water-percent";
+      motion          = "mdi:motion-sensor";
+      smoke           = "mdi:smoke-detector";
+      water           = "mdi:water";
+      contact         = "mdi:door";
+      temperature     = "mdi:thermometer";
+      humidity        = "mdi:water-percent";
     };
-    remote         = "mdi:remote";
-    outlet         = "mdi:power-socket-eu";
-    dimmer         = "mdi:toggle-switch";
-    pusher         = "mdi:gesture-tap-button";
-    blinds         = "mdi:blinds";
+    remote            = "mdi:remote";
+    outlet            = "mdi:power-socket-eu";
+    dimmer            = "mdi:toggle-switch";
+    pusher            = "mdi:gesture-tap-button";
+    blinds            = "mdi:blinds";
   };
 in { # 🦆 duck say ⮞ qwack
   house = {
     rooms = {
-      bedroom.icon = "mdi:bedroom";
-      hallway.icon = "mdi:hallway";
-      kitchen.icon = "mdi:food-fork-drink";
+      bedroom.icon    = "mdi:bedroom";
+      hallway.icon    = "mdi:hallway";
+      kitchen.icon    = "mdi:food-fork-drink";
       livingroom.icon = "mdi:sofa";
-      wc.icon = "mdi:toilet";
-      other.icon = "mdi:misc";
+      wc.icon         = "mdi:toilet";
+      other.icon      = "mdi:misc";
     };  
    
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
@@ -352,8 +352,7 @@ in { # 🦆 duck say ⮞ qwack
                   }
                 ];
               };
-            };
-                        
+            };              
           };
         };  
     };

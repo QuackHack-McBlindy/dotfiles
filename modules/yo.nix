@@ -156,38 +156,11 @@ JQ
     TVS_BLOCK=$(json2nix house.tv)
 
     SMART_HOME_BLOCK=$(
-      echo "<details><summary><strong>"
-      echo "Zigbee devices at \`config.house.zigbee.devices\`."
-      echo "</strong></summary>"
-      echo "<!-- ZIGBEE_DEVICES_START -->"
       echo '```nix'
-      echo "$ZIGBEE_DEVICES_BLOCK"
+      cat "${config.this.user.me.dotfilesDir}/modules/myHouse.nix"
       echo '```'
-      echo "<!-- ZIGBEE_DEVICES_END -->"
-      echo "</details>"
-  
-      echo "<br>"
-      echo "<details><summary><strong>"
-      echo "Zigbee scenes at \`config.house.zigbee.scenes\`."
-      echo "</strong></summary>"
-      echo "<!-- ZIGBEE_SCENES_START -->"
-      echo '```nix'
-      echo "$ZIGBEE_SCENES_BLOCK"
-      echo '```'
-      echo "<!-- ZIGBEE_SCENES_END -->"
-      echo "</details>"
-
-      echo "<br>"
-      echo "<details><summary><strong>"
-      echo "Android TV devices at \`config.house.tv\`."
-      echo "</strong></summary>"
-      echo "<!-- TVS_START -->"
-      echo '```nix'
-      echo "$TVS_BLOCK"
-      echo '```'
-      echo "<!-- TVS_END -->"
-      echo "</details>"      
     )
+
 
     # 🦆 duck say ⮞ Extract versions
     nixos_version=$(nixos-version | cut -d. -f1-2)
@@ -1243,6 +1216,27 @@ in { # 🦆 duck say ⮞ options options duck duck
         type = types.attrsOf scriptType;
         default = {};
         description = "Attribute set of scripts to be made available";
+      };
+      sorryPhrases = mkOption {
+        type = types.listOf types.str;
+        default = [ "sorry?" "Can you repeat that?" "Sorry, I did not understand that" ];
+        description = "List of phrases to be randomly picked for text-to-speect when no match is found during pattern matching.";
+      };
+      SplitWords = mkOption {
+        type = types.listOf types.str;
+        default = [ "samt" ];
+        example = [ "and" "also" ];
+        description = "List of words that is used for command chaining.";
+      };            
+      wakeWord = mkOption {
+        type = types.nullOr types.path;
+        default = null; #./themes/wakewords/oh_bitch.tflite;
+        apply = p:
+          if p == null || lib.hasSuffix ".tflite" (toString p)
+          then p
+          else throw "yo.voice.wakeWord must be null or a .tflite file";
+        example = "/etc/yo/wake_word_model.tflite";
+        description = "Optional path to the .tflite wake word model file.";
       }; # 🦆 duck say ⮞ generated regex patterns count
       generatedPatterns = mkOption {
         type = types.int;
