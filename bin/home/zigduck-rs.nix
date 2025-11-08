@@ -418,7 +418,7 @@
         // 🦆 says ⮞ TODO
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
-            self.quack_debug(&format!("Scene '{}' would be activated here", scene_name));
+            self.run_yo_command(&["house", "scene", "--", scene_name])
             Ok(())
         }   
    
