@@ -156,7 +156,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/31fsvhd2yjdw3sx6bq0sl750qafxvw17-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/d3pwdmi039n3v23hzdgx8rq1r4cfn16j-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -165,7 +165,7 @@ Define any optional theme configuration at `config.this.theme`.
 
 
 <details><summary><strong>
-Home Automation system - devices, scenes, automations and everything related options configured `config.house`.
+Define Zigbee-devices, scenes, automations, tv's, channels, etc at `config.house`.
 </strong></summary>
 
 <!-- SMARTHOME_START -->
@@ -977,7 +977,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo reboot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) [--host] | restart | Force reboot and wait for host | ✅ |
 | [yo rollback](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) --host [--flake] [--user] |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. | 📛 |
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
-| [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration | ✅ |
+| [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration. ('!' to test) | ✅ |
 | **⚙️ Configuration** | | | |
 | [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/espaudio.nix)  |  |  | 📛 |
 | **⚡ Productivity** | | | |
@@ -1026,7 +1026,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo cancel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/cancel.nix) [--input] |  | Cancel coammands microphone recording sent to transcription. | ✅ |
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) --input [--fuzzy] [--dir] [--build] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution | 📛 |
 | [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzy] |  | [🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?) | 📛 |
-| [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the Brain (NLP) | 📛 |
+| [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
 | [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | [🦆🎙️] Trigger microphone recording sent to transcription. | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
 | [yo sleep](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/sleep.nix) --time |  | Waits for specified time (seconds). Useful in command chains. | ✅ |

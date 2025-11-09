@@ -207,6 +207,15 @@ EOF
     play_fail() {
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
     }
+    play_fail2() {
+      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail2.wav" >/dev/null 2>&1
+    }
+    play_fail3() {
+      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail3.mp3" >/dev/null 2>&1
+    }
+    play_relax() {
+      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/relax.mp3" >/dev/null 2>&1
+    }    
     # 🦆 duck say ⮞ validate json input before process
     is_valid_json() {
       echo "$1" | ${pkgs.jq}/bin/jq -e . >/dev/null 2>&1
