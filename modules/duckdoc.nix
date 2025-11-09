@@ -179,6 +179,7 @@ JQ
     bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
     gnome_version=$(gnome-shell --version | awk '{print $3}')
     python_version=$(python3 --version | awk '{print $2}')  
+    rustc_version=$(rustc --version | awk '{print $2}')
 
     # 🦆 duck say ⮞ Construct badge URLs
     nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
@@ -187,6 +188,7 @@ JQ
     bash_badge="https://img.shields.io/badge/bash-''${bash_version}-red?style=flat-square\\&logo=gnubash\\&logoColor=white"
     gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
     python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
+    rust_badge="https://img.shields.io/badge/Rust-''${rustc_version}-orange?style=flat-square\\&logo=rust\\&logoColor=white"
   
     # 🦆 duck say ⮞ Contact badges
     matrix_url="${config.this.user.me.matrix}"
@@ -393,6 +395,7 @@ EOF
       -e "s|https://img.shields.io/badge/bash-[^)]*|$bash_badge|g" \
       -e "s|https://img.shields.io/badge/GNOME-[^)]*|$gnome_badge|g" \
       -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
+      -e "s|https://img.shields.io/badge/Rust-[^)]*|$rust_badge|g" \
       "$README_PATH"
      
     awk -v docs="$DOCS_CONTENT" \
