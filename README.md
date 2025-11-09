@@ -36,7 +36,7 @@ Home Manager - No duckng way. I just auto symlink ./home to /home <br>
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __91 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __93 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
 - __2292 dynamically generated regex patterns - makes 274058982 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
@@ -156,7 +156,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/d3pwdmi039n3v23hzdgx8rq1r4cfn16j-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/k09nrpf8aici7bcgj03pr2fbng0m14wc-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -978,8 +978,6 @@ Set default values for your parameters to have them marked [optional]
 | [yo rollback](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) --host [--flake] [--user] |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. | 📛 |
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration. ('!' to test) | ✅ |
-| **⚙️ Configuration** | | | |
-| [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/espaudio.nix)  |  |  | 📛 |
 | **⚡ Productivity** | | | |
 | [yo calculator](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calculator.nix) --expression | calc | Calculate math expressions | ✅ |
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
@@ -1024,16 +1022,19 @@ Set default values for your parameters to have them marked [optional]
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
 | [yo cancel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/cancel.nix) [--input] |  | Cancel coammands microphone recording sent to transcription. | ✅ |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) --input [--fuzzy] [--dir] [--build] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--dir] [--build] [--realtime] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution | 📛 |
 | [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzy] |  | [🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?) | 📛 |
+| [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/espaudio.nix)  |  | WIP! ESP32 audio development | 📛 |
 | [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
 | [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | [🦆🎙️] Trigger microphone recording sent to transcription. | 📛 |
+| [yo mic-stream](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic-stream.nix) [--chunk] [--silence] [--silenceLevel] |  | Stream microphone audio to WS chunk transcription | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
 | [yo sleep](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/sleep.nix) --time |  | Waits for specified time (seconds). Useful in command chains. | ✅ |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
 | [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
 | [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
-| [yo wake](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/wake.nix) [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle] |  | Run Wake word detection for audio recording and transcription | 📛 |
+| [yo transcription-ws](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcription-ws.nix)  |  | WebSocket server for real-time transcription streaming to NLP | 📛 |
+| [yo wake](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/wake.nix) [--threshold] [--cooldown] [--sound] [--remoteSound] [--stream] [--redisHost] [--redis_pwFIle] |  | Run Wake word detection for audio recording and transcription | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo battery](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/battery.nix) [--device] |  | Fetch battery level for specified device. | ✅ |

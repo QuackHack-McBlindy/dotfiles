@@ -5,6 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
+  PyDuckTrace,
   ... 
 } : let
   transcriptionAutoStart = config.yo.scripts.transcribe.autoStart or false;
@@ -12,6 +13,7 @@
   environment.systemPackages = [ pkgs.alsa-utils pkgs.whisper-cpp ];  
   pyEnv = pkgs.python3.withPackages (ps: [
     ps.fastapi
+    ps.pyaudio
     ps.uvicorn
     ps.faster-whisper
     ps.numpy
@@ -21,42 +23,7 @@
     ps.noisereduce
   ]); # 🦆 TODO ⮞ merge 
   # test with: arecord -f S16_LE -r 16000 -d 10 -c 1 -t raw | curl -X POST -H "Content-Type: application/octet-stream" --data-binary @- http://192.168.1.111:8111/upload_audio
-  espserver = pkgs.writeScript "whisperd-server.py" ''
-    #!${pyEnv}/bin/python      
-    from flask import Flask, request
-    import subprocess
-    import numpy as np
-    import tempfile
-    import soundfile as sf
-    import logging
-    from faster_whisper import WhisperModel
-    import noisereduce as nr
-    app = Flask(__name__)
-    logging.basicConfig(level=logging.INFO)
-    logger = logging.getLogger("espserver")
-    model = WhisperModel("base", device="cpu")
-    @app.route('/upload_audio', methods=['POST'])
-    def upload_audio():
-        audio_data = request.data
-        if not audio_data:
-            return 'No audio data received', 400
-        try:
-            audio_np = np.frombuffer(audio_data, dtype=np.int16)
-            audio_np = nr.reduce_noise(y=audio_np, sr=16000)
-            with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
-                sf.write(tmp.name, audio_np, 16000)
-                segments, _ = model.transcribe(tmp.name, vad_filter=False, language="sv")
-                transcription = " ".join(segment.text for segment in segments)
-            logger.info(f"[transcription] {transcription}")
-            subprocess.Popen(["yo-bitch", 'transcription'])
-            print(transcription, flush=True)
-            return {'transcription': transcription}, 200
-        except Exception as e:
-            logger.error(f"Failed to transcribe audio: {str(e)}")
-            return 'Transcription failed', 500
-    if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=8111)
-  '';
+  
   # 🦆 says ⮞ creates TLS/SSL API endpoint fpr receivin' dat audio dat needz transcription - yo
   server = pkgs.writeScript "whisperd-server.py" ''
     #!${pyEnv}/bin/python
@@ -173,6 +140,7 @@
             logger.error(f"Transcription failed: {str(e)}")
             return ""
 
+
     def process_completed_session(client_ip: str, chunks: list):
         logger.info(f"Processing completed session for {client_ip}")
         try:
@@ -276,10 +244,12 @@
     uvicorn.run(app, host="0.0.0.0", port=args.port, log_level="debug", **ssl_params)
   '';
 in { # 🦆 says ⮞ yo yo yo yo  
+
   yo.scripts.transcribe = {
     description = "Transcription server-side service. Sit and waits for audio that get transcribed and returned.";
     category = "🗣️ Voice"; 
-    autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
+    autoStart = false;
+    #autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    helpFooter = '' # 🦆 says ⮞ TODO some useful & fun helpFooter yo
 #    '';
     logLevel = "INFO";
@@ -344,7 +314,7 @@ in { # 🦆 says ⮞ yo yo yo yo
   };
 
   # 🦆 says ⮞ firewall rulez
-  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 25451 6379 8111 ]; };
+  networking.firewall = lib.mkIf transcriptionAutoStart { allowedTCPPorts = [ 8765 25451 6379 8111 ]; };
 
   # 🦆 says ⮞ used for wake word locking yo
   services.redis = lib.mkIf transcriptionAutoStart {
@@ -361,15 +331,6 @@ in { # 🦆 says ⮞ yo yo yo yo
       group = config.this.user.me.name;
       mode = "0440";
     };    
-  };
-  yo.scripts.espaudio = {
-    category = "⚙️ Configuration"; 
-    logLevel = "DEBUG";
-    autoStart = true;
-    code = ''
-      ${cmdHelpers}    
-      ${espserver}
-      dt_info "Started ESPAudio sucessfully"
-    '';
+
   };}# 🦆 says ⮞ duckie duck duck
 # 🦆 says ⮞ QuackHack-McBLindy out - peace!  

@@ -1,11 +1,12 @@
-# dotfiles/bin/config/microphone.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/config/mic.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Records audio from microphone input and sends to yo transcription.
   config, 
   lib,
   self,
-  pkgs,       # 🦆 says ⮞ create a noise profile
-  cmdHelpers, # 1. arecord -d 5 -f S16_LE -r 16000 -c 1 noise.wav
-  ...         # 2. sox noise.wav -n noiseprof noise.prof
+  pkgs,        # 🦆 says ⮞ create a noise profile
+  cmdHelpers,  # 1. arecord -d 5 -f S16_LE -r 16000 -c 1 noise.wav
+  PyDuckTrace, # 2. sox noise.wav -n noiseprof noise.prof
+  ...         
 } : let 
   # 🦆 says ⮞ auto correct list yo 
   autocorrect = import ./../autoCorrect.nix;
@@ -21,6 +22,9 @@
     self.nixosConfigurations.${transcriptionHost}.config.this.host.ip
   else
     "0.0.0.0";
+
+
+
 in { # 🦆 says ⮞ here goez da yo script - yo!
   yo.scripts.mic = {
       description = "[🦆🎙️] Trigger microphone recording sent to transcription.";
@@ -111,4 +115,5 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         # 🦆 says ⮞ aaaand... deliver! .. yo!
         ${pkgs.coreutils}/bin/echo "$CLEANED_TEXT"
       '';    
-  };} # 🦆 says ⮞ QuackHack-McBLindy - out yo!  
+  
+  };}# 🦆 says ⮞ QuackHack-McBLindy - out yo!  

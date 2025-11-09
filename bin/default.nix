@@ -31,9 +31,14 @@
   cmdHelpers = import ./helpers.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
   };
+
+# 🦆 duck say ⮞ we be duckTracin' even when on da python
+  PyDuckTrace = import ./PyDuckTrace.nix {
+    inherit config lib pkgs self sysHosts sysDevShells;
+  };  
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
-        inherit self config lib cmdHelpers pkgs sysHosts;
+        inherit self config lib cmdHelpers PyDuckTrace pkgs sysHosts;
     }) (
         importModulesRecursive ./voice ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++

@@ -64,7 +64,6 @@
       inherit (script.voice) sentences lists;
     }];
   }) scriptsWithFuzzy));
-###################
 
   # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
   intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts";
@@ -681,7 +680,7 @@
 
   # 🦆 duck say ⮞ u like speed too? Rusty Speed inc
   do-rs = pkgs.writeText "do.rs" ''
-    // 🦆 SCREAMS ⮞ 70x FASTER!!🚀
+    // 🦆 SCREAMS ⮞ 500x++ FASTER!!🚀
     use std::collections::HashMap;
     use std::env;
     use std::fs;
@@ -689,6 +688,68 @@
     use regex::Regex;
     use serde::{Deserialize, Serialize};
     use std::time::Instant;
+
+
+    use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
+    use futures_util::{SinkExt, StreamExt};
+    use serde_json::Value;
+    use std::sync::Arc;
+    use tokio::sync::Mutex;
+
+    struct TranscriptionClient {
+        ws: Option<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, Message>>,
+        nlp_processor: Arc<YoDo>,
+    }
+
+    impl TranscriptionClient {
+        async fn new(nlp_processor: Arc<YoDo>) -> Result<Self, Box<dyn std::error::Error>> {
+            let (ws_stream, _) = connect_async("ws://localhost:8765").await?;
+            let (ws, mut read) = ws_stream.split();
+            
+            let client = TranscriptionClient {
+                ws: Some(ws),
+                nlp_processor: nlp_processor.clone(),
+            };
+            
+            // 🦆 says ⮞ start message processing
+            tokio::spawn(async move {
+                while let Some(message) = read.next().await {
+                    if let Ok(Message::Text(text)) = message {
+                        if let Ok(data) = serde_json::from_str::<Value>(&text) {
+                            if data["type"] == "transcription" {
+                                if let Some(transcription) = data["text"].as_str() {
+                                    if !transcription.trim().is_empty() {
+                                        // 🦆 says ⮞ process with NLP
+                                        let _ = nlp_processor.process_transcription(transcription).await;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            Ok(client)
+        }
+        
+        async fn send_audio_chunk(&mut self, chunk: &[u8], is_final: bool) -> Result<(), Box<dyn std::error::Error>> {
+            if let Some(ws) = &mut self.ws {
+                let message = serde_json::json!({
+                    "type": "audio_chunk",
+                    "chunk": chunk,
+                    "is_final": is_final,
+                    "timestamp": chrono::Utc::now().timestamp_millis(),
+                    "reduce_noise": true
+                });
+                
+                ws.send(Message::Text(message.to_string())).await?;
+            }
+            Ok(())
+        }
+    }
+
+
+
     
     // 🦆 says ⮞ config structs wit da duck wisdom
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -795,7 +856,8 @@
         matched_sentence: String,
         processing_time: std::time::Duration,
     }
-    
+
+    #[derive(Clone)]     
     struct YoDo {
         scripts: HashMap<String, ScriptConfig>,
         intent_data: HashMap<String, IntentData>,
@@ -804,7 +866,8 @@
         fuzzy_threshold: i32,
         debug: bool,        
     }
-    
+
+ 
     impl YoDo {
         fn new() -> Self {
             Self {
@@ -815,6 +878,31 @@
                 fuzzy_threshold: 15,
                 debug: env::var("DEBUG").is_ok() || env::var("DT_DEBUG").is_ok(),
             }
+        }
+
+        async fn process_transcription(&self, text: &str) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_info(&format!("Real-time transcription: {}", text));
+            
+            // 🦆 says ⮞ Process with existing NLP logic
+            if let Some(match_result) = self.exact_match(text) {
+                self.execute_script(&match_result)?;
+            } else if let Some(match_result) = self.fuzzy_match(text) {
+                self.execute_script(&match_result)?;
+            } else {
+                self.quack_debug(&format!("No command found for: {}", text));
+            }
+            
+            Ok(())
+        }
+        
+        // 🦆 says ⮞ Real-time mode
+        pub async fn run_realtime(&mut self) -> Result<(), Box<dyn std::error::Error>> {
+            let client = TranscriptionClient::new(Arc::new(self.clone())).await?;
+            self.quack_info("🦆 Real-time NLP mode activated - listening for transcriptions...");
+            
+            // 🦆 says ⮞ Keep alive
+            tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
+            Ok(())
         }
 
         // 🦆 says ⮞ never fail but log failz anywayz
@@ -1526,40 +1614,60 @@
     }
     fn main() -> Result<(), Box<dyn std::error::Error>> {
         let args: Vec<String> = env::args().collect(); 
-        if args.len() < 2 {
-            exit(1);
-        }       
-        let input = &args[1];
-        let fuzzy_threshold = if args.len() > 2 {
-            args[2].parse().unwrap_or(15)
-        } else {
-            15
-        };
-        let mut yo_do = YoDo::new();
-        
-        // 🦆 says ⮞ load da environment data
-        if let Ok(intent_data_path) = env::var("YO_INTENT_DATA") {
-            yo_do.load_intent_data(&intent_data_path)?;
-        } else {
-            eprintln!("🦆 says ⮞ fuck ❌ YO_INTENT_DATA environment variable not set");
-            eprintln!("Available YO_* vars:");
-            for (key, _) in env::vars().filter(|(k, _)| k.starts_with("YO_")) {
-                eprintln!("   {}", key);
-            }
-            return Ok(());
-        }    
-        if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
-            // println!("Loading fuzzy index from: {}", fuzzy_index_path);
-            yo_do.load_fuzzy_index(&fuzzy_index_path)?;
-        }
-        yo_do.run(input, fuzzy_threshold)
-    }
-  '';
 
+        // 🦆 says ⮞ Handle real-time mode
+        if args.len() > 1 && args[1] == "--realtime" {
+            let mut yo_do = YoDo::new();
+        
+            // 🦆 says ⮞ load da environment data
+            if let Ok(intent_data_path) = env::var("YO_INTENT_DATA") {
+                yo_do.load_intent_data(&intent_data_path)?;
+            } else {
+                eprintln!("🦆 says ⮞ fuck ❌ YO_INTENT_DATA environment variable not set");
+                return Ok(());
+            }    
+            if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
+                yo_do.load_fuzzy_index(&fuzzy_index_path)?;
+            }
+        
+            // 🦆 says ⮞ Run real-time mode
+            tokio::runtime::Runtime::new()?.block_on(yo_do.run_realtime())?;
+            Ok(())
+        } else {
+            // 🦆 says ⮞ Original command mode
+            if args.len() < 2 {
+                exit(1);
+            }       
+            let input = &args[1];
+            let fuzzy_threshold = if args.len() > 2 {
+                args[2].parse().unwrap_or(15)
+            } else {
+                15
+            };
+            let mut yo_do = YoDo::new();
+        
+            if let Ok(intent_data_path) = env::var("YO_INTENT_DATA") {
+                yo_do.load_intent_data(&intent_data_path)?;
+            } else {
+                eprintln!("🦆 says ⮞ fuck ❌ YO_INTENT_DATA environment variable not set");
+                eprintln!("Available YO_* vars:");
+                for (key, _) in env::vars().filter(|(k, _)| k.starts_with("YO_")) {
+                    eprintln!("   {}", key);
+                }
+                return Ok(());
+            }    
+            if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
+                yo_do.load_fuzzy_index(&fuzzy_index_path)?;
+            }
+            yo_do.run(input, fuzzy_threshold)
+        }
+    }    
+  '';
+   
   cargoToml = pkgs.writeText "Cargo.toml" ''    
     [package]
     name = "yo_do"
-    version = "0.1.1"
+    version = "0.2.0"
     edition = "2021"
 
     [dependencies]
@@ -1568,7 +1676,11 @@
     serde_json = "1.0"
     chrono = { version = "0.4", features = ["serde", "clock"] }
     rand = "0.8"
+    tokio = { version = "1.0", features = ["full"] }
+    tokio-tungstenite = "0.20"
+    futures-util = "0.3"
   '';
+
  
 # 🦆 says ⮞ expose da magic! dis builds da NLP
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
@@ -1585,10 +1697,11 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         cat ${voiceSentencesHelpFile} 
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
-        { name = "input"; description = "Text to translate"; optional = false; } 
+        { name = "input"; description = "Text to translate"; optional = true; } 
         { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 30; }
         { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/do-rs"; optional = false; } 
         { name = "build"; type = "bool"; description = "Flag for building the Rust binary"; optional = true; default = false; }            
+        { name = "realtime"; type = "bool"; description = "Run in real-time mode for voice assistant"; optional = true; default = false; } 
       ];
       code = ''
         set +u  
@@ -1623,17 +1736,20 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           ${pkgs.cargo}/bin/cargo build --release
           dt_debug "Build complete!"
         fi
-        
-        # 🦆 says ⮞ input to duckput
-        dt_info "[🦆🧠] Processing: '$input'  hmmm ..."
-        
-        
-        # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
-        if [ "$VERBOSE" -ge 1 ]; then
-          DEBUG=1 YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
-        fi  
-        # 🦆 says ⮞ else run debugless yo
-        YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
+
+        # 🦆 says ⮞ REAL-TIME MODE
+        if [ "$realtime" = "true" ]; then
+          dt_info "[🦆🧠] Starting real-time NLP mode..."
+          YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do --realtime
+        else
+          dt_info "[🦆🧠] Processing: '$input'  hmmm ..."    
+          # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
+          if [ "$VERBOSE" -ge 1 ]; then
+            DEBUG=1 YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
+          else
+            YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
+          fi
+        fi
       '';
     };
     
