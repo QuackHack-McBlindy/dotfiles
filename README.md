@@ -7,8 +7,8 @@
 ![GNOME](https://img.shields.io/badge/GNOME-48.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.86.0-orange?style=flat-square&logo=rust&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
-![](https://img.shields.io/badge/Rust-1.86.0-orange?style=flat-square&logo=rust&logoColor=white)
 <!-- VERSIONS_END -->
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
@@ -25,6 +25,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 
 __Here lives home machines configurations,__  
+__and my home automation system, fully reproducible,__  
 __crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
 __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
@@ -158,7 +159,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/narz37y8asjwk1rdh4j94pvwac9l6441-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/d4qzm1v46fpzha6z3kwan1kafa3psaqz-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
