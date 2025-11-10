@@ -228,7 +228,7 @@ in {
     code = ''
       ${cmdHelpers}
       CHUNK_SIZE=$chunk
-      SILENCE=$silence
+      SILENCE_DURATION=$silence
       SILENCE_LEVEL=$silenceLevel
       
       # 🦆 says ⮞ pass args to python script yo

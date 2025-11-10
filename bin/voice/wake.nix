@@ -37,9 +37,9 @@ in {
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
           then "true"
           else "false"; }
-      { name = "stream"; type = "bool"; description = "Set to true if you want to stream chunks for transcription"; default = false; }          
+      { name = "stream"; type = "bool"; description = "Set to true if you want to stream chunks for transcription"; default = true; }
       { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHostIP; }
-      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }      
+      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}
@@ -146,16 +146,18 @@ in {
                       play_wav
                       
                       # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
-                      if [ "$REMOTE_SOUND" = "false" ]; then
+                      if [ "$stream" = "false" ]; then   
                         TRANSCRIPTION=$(yo-mic)
                       else
-                        TRANSCRIPTION=$(yo-mic-stream)
+                        export VOICE_MODE=1
+                        # 🦆 says ⮞ start stream and bye bye                        
+                        yo-mic-stream
                         exit 1
                       fi  
                       # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
                       if [[ -z "$TRANSCRIPTION" ]]; then
                         dt_debug "Empty transcription"      
-                      else # 🦆 says ⮞ ELSE WAT?!
+                      else # 🦆 thug ⮞ ELSE WAT?!
                         # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
                         dt_debug "Transcribed text: $TRANSCRIPTION"
                         export VOICE_MODE=1

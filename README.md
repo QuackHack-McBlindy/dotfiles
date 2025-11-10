@@ -25,7 +25,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 
 __Here lives home machines configurations,__  
-__and my home automation system, fully reproducible,__  
+__and my home automations, fully reproducible,__  
 __crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
 __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
@@ -36,11 +36,11 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 Nix Declarative configuration style, custom modules evaluated dynamically for each host. <br>
 Home Manager - No duckng way. I just auto symlink ./home to /home <br>
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br>
-Not only that - my voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
+Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __93 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
-- __2292 dynamically generated regex patterns - makes 274058982 phrases available as commands.__ <br>
+- __94 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
+- __2298 dynamically generated regex patterns - makes 274058988 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
 - __Natural Language support with complete voice pipeline__ <br>
@@ -159,7 +159,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/j6j4ykjby79rli562gjmnn5a3qq5xphm-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/wapivj3kjfszxq3185w6c37p2f431iac-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1028,6 +1028,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--dir] [--build] [--realtime] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution | 📛 |
 | [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzy] |  | [🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?) | 📛 |
 | [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/espaudio.nix)  |  | WIP! ESP32 audio development | 📛 |
+| [yo kill-mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/kill-mic.nix)  |  | Kill mic-stream by port with voice | ✅ |
 | [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
 | [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | [🦆🎙️] Trigger microphone recording sent to transcription. | 📛 |
 | [yo mic-stream](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic-stream.nix) [--chunk] [--silence] [--silenceLevel] |  | Stream microphone audio to WS chunk transcription | 📛 |
