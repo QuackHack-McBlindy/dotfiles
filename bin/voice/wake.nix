@@ -37,7 +37,7 @@ in {
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
           then "true"
           else "false"; }
-      { name = "stream"; type = "bool"; description = "Set to true if you want to stream chunks for transcription"; default = true; }
+      { name = "stream"; type = "bool"; description = "Set to true if you want to stream chunks for transcription"; default = false; }
       { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHostIP; }
       { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }
     ]; # 🦆 says ⮞ here we gooooo yo!

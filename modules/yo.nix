@@ -844,7 +844,7 @@ in { # 🦆 duck say ⮞ options options duck duck
       };            
       wakeWord = mkOption {
         type = types.nullOr types.path;
-        default = null; #./themes/wakewords/oh_bitch.tflite;
+        default = null;
         apply = p:
           if p == null || lib.hasSuffix ".tflite" (toString p)
           then p

@@ -48,9 +48,15 @@ in { # 🦆 duck say ⮞ qwack
       wc.icon         = "mdi:toilet";
       other.icon      = "mdi:misc";
     };  
-   
+  
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
+      coordinator = {
+        vendorId =  "10c4";
+        productId = "ea60";
+        symlink = "zigbee";
+      };
+    
       # 🦆 says ⮞ when motion triggers lights
       darkTime = {
         enable = true;
@@ -236,7 +242,15 @@ in { # 🦆 duck say ⮞ qwack
         };       
 
   # 🦆 ⮞ AUTOMATIONS ⮜
-        automations = {        
+        automations = {  
+          greeting = {
+            enable = true;
+            awayDuration = "7200";
+            greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
+            delay = "10";
+            sayOnHost = "desktop";
+          };
+          
           room_actions = {
             hallway = { 
               door_opened = [];
@@ -608,5 +622,5 @@ in { # 🦆 duck say ⮞ qwack
         };
       };
     };
-    
+
   };}

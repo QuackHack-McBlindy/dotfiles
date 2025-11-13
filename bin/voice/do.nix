@@ -441,6 +441,7 @@
     let # 🦆 says ⮞ calculate priority
       calculatePriority = scriptName:
         generatedIntents.${scriptName}.priority or 3; # Default medium
+
       # 🦆 says ⮞ create script records metadata
       makeRecord = scriptName: rec {
         name = scriptName;
@@ -749,7 +750,36 @@
     }
 
 
+    // 🦆 says ⮞ memory
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct MemoryContext {
+        last_action: String,
+        active_servers: Vec<String>,
+        environment: String,
+        user_preferences: HashMap<String, String>,
+    }
+ 
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct CommandHistory {
+        recent_commands: Vec<RecentCommand>,
+        confirmed_matches: HashMap<String, u32>,
+    }
 
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct RecentCommand {
+        script: String,
+        args: String,
+        matched_sentence: String,
+        match_type: String,
+        timestamp: String,
+        confirmed: bool,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct MemoryData {
+        context: MemoryContext,
+        history: CommandHistory,
+    }
     
     // 🦆 says ⮞ config structs wit da duck wisdom
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -864,12 +894,30 @@
         fuzzy_index: Vec<FuzzyIndexEntry>,
         processing_order: Vec<ScriptPriority>,
         fuzzy_threshold: i32,
-        debug: bool,        
+        debug: bool,
+        memory_data: MemoryData,        
     }
 
  
     impl YoDo {
         fn new() -> Self {
+            // 🦆 says ⮞ Load memory data
+            let memory_data = Self::load_memory_data().unwrap_or_else(|_| {
+                // 🦆 says ⮞ Default memory if loading fails
+                MemoryData {
+                    context: MemoryContext {
+                        last_action: "".to_string(),
+                        active_servers: Vec::new(),
+                        environment: "default".to_string(),
+                        user_preferences: HashMap::new(),
+                    },
+                    history: CommandHistory {
+                        recent_commands: Vec::new(),
+                        confirmed_matches: HashMap::new(),
+                    },
+                }
+            });
+        
             Self {
                 scripts: HashMap::new(),
                 intent_data: HashMap::new(),
@@ -877,7 +925,46 @@
                 processing_order: Vec::new(),
                 fuzzy_threshold: 15,
                 debug: env::var("DEBUG").is_ok() || env::var("DT_DEBUG").is_ok(),
+                memory_data,
             }
+        }
+
+        // 🦆 says ⮞ memory loader (from files)
+        fn load_memory_data() -> Result<MemoryData, Box<dyn std::error::Error>> {
+            let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+        
+            // 🦆 says ⮞ load da context
+            let context_path = format!("{}/current_context.json", stats_dir);
+            let context: MemoryContext = if let Ok(file) = std::fs::File::open(&context_path) {
+                serde_json::from_reader(file).unwrap_or_else(|_| MemoryContext {
+                    last_action: "".to_string(),
+                    active_servers: Vec::new(),
+                    environment: "default".to_string(),
+                    user_preferences: HashMap::new(),
+                })
+            } else {
+                MemoryContext {
+                    last_action: "".to_string(),
+                    active_servers: Vec::new(),
+                    environment: "default".to_string(),
+                    user_preferences: HashMap::new(),
+                }
+            };
+        
+            // 🦆 says ⮞ load da command history
+            let history_path = format!("{}/command_history.json", stats_dir);
+            let history: CommandHistory = if let Ok(file) = std::fs::File::open(&history_path) {
+                serde_json::from_reader(file).unwrap_or_else(|_| CommandHistory {
+                    recent_commands: Vec::new(),
+                    confirmed_matches: HashMap::new(),
+                })
+            } else {
+                CommandHistory {
+                    recent_commands: Vec::new(),
+                    confirmed_matches: HashMap::new(),
+                }
+            }; 
+            Ok(MemoryData { context, history })
         }
 
         async fn process_transcription(&self, text: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -1177,37 +1264,68 @@
             }
         }
     
-        // 🦆 says ⮞ PRIORITY PROCESSIN' SYSTEM
+        // 🦆 says ⮞ MEMORIZATION PRIORITY PROCESSIN' SYSTEM 
         fn calculate_processing_order(&mut self) {
-            let mut script_priorities = Vec::new();
+            let mut script_priorities = Vec::new();    
             for (script_name, intent) in &self.intent_data {
-                // 🦆 says ⮞ calculate priority (default medium)
-                let priority = 3; // 🦆 says ⮞ TODO: from voice config 
-                // 🦆 says ⮞ detect complex patterns
+                // 🦆 says ⮞ start wit base priority from voice config
+                let base_priority = 3; // 🦆 says ⮞ TODO: from voice config
+                // 🦆be⮞debuggin'
+                self.quack_debug(&format!("Memory context: last_action={}, recent_commands={}", 
+                    self.memory_data.context.last_action, 
+                    self.memory_data.history.recent_commands.len()));
+        
+                // 🦆 says ⮞ memorization booztz adjust da priority based on usage
+                let mut adjusted_priority = base_priority;      
+                // 🦆 says ⮞ booztz for recent usage scriptz
+                let recent_usage = self.memory_data.history.recent_commands
+                    .iter()
+                    .filter(|cmd| cmd.script == *script_name)
+                    .count();
+                adjusted_priority -= recent_usage as i32; // 🦆 says ⮞ more usage = higher priority qwack (lower number)
+                // 🦆 says ⮞ booztz 4 context match (if dis script was last action)
+                if self.memory_data.context.last_action == *script_name {
+                    adjusted_priority -= 2; // Big boost for context continuity
+self.quack_debug(&format!("  Context boost applied for {} (last action)", script_name));
+                }        
+                // 🦆says⮞ b(.)(.)bs for confirmed patterns
+                let confirmation_key = format!("{}:", script_name);
+                let confirmation_count = self.memory_data.history.confirmed_matches
+                    .keys()
+                    .filter(|k| k.starts_with(&confirmation_key))
+                    .count();
+                adjusted_priority -= confirmation_count as i32;
+                if confirmation_count > 0 {
+                    self.quack_debug(&format!("  Confirmation boost: {} patterns confirmed", confirmation_count));
+                }
+                // 🦆says⮞priority? don't u dare go below da zero
+                adjusted_priority = adjusted_priority.max(0);  
+                // 🦆says⮞bootz complex patterns
                 let has_complex_patterns = intent.sentences.iter().any(|s| {
                     s.contains('{') || s.contains('[') || s.contains('(')
                 });
-    
+
                 script_priorities.push(ScriptPriority {
                     name: script_name.clone(),
-                    priority,
+                    priority: adjusted_priority,
                     has_complex_patterns,
                 });
+        
+                self.quack_info(&format!("MEMORY ADJUSTMENT: {}: base={} → adjusted={} (uses={}, confirms={}, context={})", 
+                    script_name, base_priority, adjusted_priority, recent_usage, confirmation_count,
+                    if self.memory_data.context.last_action == *script_name { "YES" } else { "NO" }));
             }
-    
-            // 🦆 says ⮞ Nix stylez priority:
-            // 🦆 says ⮞ 1: lower priority number first (higher priority)
-            // 🦆 says ⮞ 2: simple patterns before complex ones  
-            // 🦆 says ⮞ 3: alphabetical for determinism
+
+            // 🦆 says ⮞ Nix stylez priority with memory boosts
             script_priorities.sort_by(|a, b| {
                 a.priority.cmp(&b.priority)
                     .then(a.has_complex_patterns.cmp(&b.has_complex_patterns))
                     .then(a.name.cmp(&b.name))
             });
-    
+
             self.processing_order = script_priorities;
-            self.quack_debug(&format!("Processing order: {:?}", 
-                self.processing_order.iter().map(|s| &s.name).collect::<Vec<_>>()));
+            self.quack_debug(&format!("Final processing order with memory: {:?}", 
+                self.processing_order.iter().map(|s| format!("{}[{}]", s.name, s.priority)).collect::<Vec<_>>()));
         }
     
         // 🦆 says ⮞ SUBSTITUTION ENGINE
@@ -1414,13 +1532,59 @@
             }
         }
     
+        // 🦆 says ⮞ UPDATE CONTEXT AFTER COMMAND EXECUTION
+        fn update_memory_context(&self, script_name: &str, args: &[String]) -> Result<(), Box<dyn std::error::Error>> {
+            let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+            let context_path = format!("{}/current_context.json", stats_dir);
+            let mut context = self.memory_data.context.clone();
+            // 🦆says ⮞update da last action
+            context.last_action = script_name.to_string();
     
+            // 🦆 says⮞detect and update active servers from args
+            let mut active_servers = Vec::new();
+            for arg in args { // 🦆TODO⮞real argz
+                if arg.contains("dads") || arg == "--server" && args.iter().any(|a| a == "dads") {
+                    active_servers.push("dads_media_server".to_string());
+                }
+                if arg.contains("moms") || arg == "--server" && args.iter().any(|a| a == "moms") {
+                    active_servers.push("moms_media_server".to_string());
+                }
+            }
+            if !active_servers.is_empty() {
+                context.active_servers = active_servers;
+            }
+            // 🦆says⮞update da environment (not var) based on script
+            if script_name == "deploy" { // 🦆TODO⮞moar enviormentz yo
+                context.environment = "deployment".to_string();
+            } else {
+                context.environment = "default".to_string();
+            }
+    
+            // 🦆says⮞save da updated context
+            let context_json = serde_json::to_string_pretty(&context)?;
+            std::fs::write(&context_path, context_json)?;    
+            self.quack_debug(&format!("Updated memory context: last_action={}, environment={}", 
+                context.last_action, context.environment));    
+            Ok(())
+        }    
     
         // 🦆 says ⮞ YO waz qwackin' yo?!
         // 🦆 says ⮞ here comez da executta 
         fn execute_script(&self, result: &MatchResult) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
-            // 🦆 says ⮞ execution tree
+            
+            // 🦆 says ⮞ update yo memory
+            eprintln!("🦆MEMORY:SCRIPT:{}", result.script_name);
+            eprintln!("🦆MEMORY:ARGS:{}", result.args.join(" "));
+            eprintln!("🦆MEMORY:SENTENCE:{}", result.matched_sentence);
+            eprintln!("🦆MEMORY:TYPE:exact");
+
+            // 🦆 says ⮞ UPDATE MEMORY CONTEXT
+            if let Err(e) = self.update_memory_context(&result.script_name, &result.args) {
+                self.quack_debug(&format!("Failed to update memory context: {}", e));
+            }
+                   
+            // 🦆 says ⮞ execution duck tree climber
             println!("   ┌─(yo-{})", result.script_name);
             println!("   │🦆 qwack!? {}", result.matched_sentence);       
             if result.args.is_empty() {
@@ -1469,6 +1633,15 @@
         pub fn run(&mut self, input: &str, fuzzy_threshold: i32) -> Result<(), Box<dyn std::error::Error>> {
             let total_start = Instant::now(); 
             self.fuzzy_threshold = fuzzy_threshold;
+
+            // 🦆say⮞reload-memory! (duck wish dis easy irl....)
+            if let Ok(memory_data) = Self::load_memory_data() {
+                self.memory_data = memory_data;
+                self.quack_debug("🦆 Memory data reloaded for context-aware processing");
+            } else {
+                self.quack_debug("🦆 Using default memory data");
+            }
+
             self.calculate_processing_order();
             
             // 🦆 says ⮞ MULTIPLE COMMANDS - input has any `config.yo.SplitWords` 
@@ -1708,21 +1881,25 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
         ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
         FUZZY_THRESHOLD=$fuzzy
         YO_FUZZY_INDEX="${fuzzyIndexFlatFile}"
-        text="$input" # 🦆 says ⮞ for once - i'm lettin' u doin' da talkin'
-        INTENT_FILE="${intentDataFile}" # 🦆 says ⮞ cache dat JSON wisdom, duck hates slowridez    
+        text="$input"
+        INTENT_FILE="${intentDataFile}"
+        
         # 🦆 says ⮞ create da stats dirz etc
         mkdir -p "${statsDir}"
         touch "${failedCommandsLog}"
         if [ ! -f "${commandStatsDB}" ]; then
           echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}' > "${commandStatsDB}"
         fi
+        
         # 🦆 says ⮞ create the Rust projectz directory and move into it
         mkdir -p "$dir"
         cd "$dir"
         mkdir -p src
+        
         # 🦆 says ⮞ create the source filez yo 
         cat ${do-rs} > src/main.rs
         cat ${cargoToml} > Cargo.toml     
+        
         # 🦆 says ⮞ check build bool
         if [ "$build" = true ]; then
           dt_debug "Deleting any possible old versions of the binary"
@@ -1730,25 +1907,60 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
           ${pkgs.cargo}/bin/cargo generate-lockfile     
           ${pkgs.cargo}/bin/cargo build --release  
           dt_debug "Build complete!"
-        fi # 🦆 says ⮞ if no binary exist - compile it yo
+        fi
+        
+        # 🦆 says ⮞ if no binary exist - compile it yo
         if [ ! -f "target/release/yo_do" ]; then
           ${pkgs.cargo}/bin/cargo generate-lockfile     
           ${pkgs.cargo}/bin/cargo build --release
           dt_debug "Build complete!"
         fi
 
-        # 🦆 says ⮞ REAL-TIME MODE
+        # 🦆 says ⮞ websocket streaming chunks (testing)
         if [ "$realtime" = "true" ]; then
           dt_info "[🦆🧠] Starting real-time NLP mode..."
           YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do --realtime
+          exit 0
+        fi
+
+        dt_info "[🦆🧠] '$input'"
+        
+        # 🦆 says ⮞ capture Rust output
+        TEMP_OUTPUT=$(mktemp)
+        
+        # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
+        if [ "$VERBOSE" -ge 1 ]; then
+          DEBUG=1 YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD 2>&1 | tee "$TEMP_OUTPUT"
         else
-          dt_info "[🦆🧠] Processing: '$input'  hmmm ..."    
-          # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
-          if [ "$VERBOSE" -ge 1 ]; then
-            DEBUG=1 YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
-          else
-            YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD
+          YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" ./target/release/yo_do "$input" $FUZZY_THRESHOLD 2>&1 | tee "$TEMP_OUTPUT"
+        fi
+
+        # 🦆 says ⮞ parse da memory data no subshell plx
+        SCRIPT_NAME=""
+        ARGS=""
+        SENTENCE=""
+        MATCH_TYPE=""
+
+        # 🦆 says ⮞ Read from temp file no avoid subshell
+        while IFS= read -r line; do
+          if echo "$line" | grep -q "🦆MEMORY:SCRIPT:"; then
+            SCRIPT_NAME=$(echo "$line" | sed 's/.*🦆MEMORY:SCRIPT://')
+          elif echo "$line" | grep -q "🦆MEMORY:ARGS:"; then
+            ARGS=$(echo "$line" | sed 's/.*🦆MEMORY:ARGS://')
+          elif echo "$line" | grep -q "🦆MEMORY:SENTENCE:"; then
+            SENTENCE=$(echo "$line" | sed 's/.*🦆MEMORY:SENTENCE://')
+          elif echo "$line" | grep -q "🦆MEMORY:TYPE:"; then
+            MATCH_TYPE=$(echo "$line" | sed 's/.*🦆MEMORY:TYPE://')
           fi
+        done < "$TEMP_OUTPUT"
+
+        rm -f "$TEMP_OUTPUT"
+        # 🦆 says⮞record 2 memory if successful matchin'
+        if [ -n "$SCRIPT_NAME" ] && [ -n "$SENTENCE" ]; then
+          dt_debug "Recording to memory: $SCRIPT_NAME|$ARGS|$SENTENCE|$MATCH_TYPE"
+          yo memory --record "$SCRIPT_NAME|$ARGS|$SENTENCE|$MATCH_TYPE"
+        else
+          dt_debug "No successful match to record to memory"
         fi
       '';
     };

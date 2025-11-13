@@ -9,6 +9,9 @@
 ![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.86.0-orange?style=flat-square&logo=rust&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
+![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-squarehttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogo=eclipsemosquittohttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogoColor=white)
+![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-squarehttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogo=zigbee2mqtthttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogoColor=white)
+![ADB](https://img.shields.io/badge/ADB-35.0.1-android-tools-green?style=flat-squarehttps://img.shields.io/badge/ADB-35.0.1--android--tools-green?style=flat-square&logo=android&logoColor=whitelogo=androidhttps://img.shields.io/badge/ADB-35.0.1--android--tools-green?style=flat-square&logo=android&logoColor=whitelogoColor=white)
 <!-- VERSIONS_END -->
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
@@ -25,7 +28,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 
 __Here lives home machines configurations,__  
-__and my home automations, fully reproducible,__  
+__and home automations, fully reproducible,__  
 __crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
 __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
@@ -33,8 +36,8 @@ __easiy expanded and used to deploy, doc, and duck around__ 🦆✨
 
 ## **What makes this configuration unique?** 
 
-Nix Declarative configuration style, custom modules evaluated dynamically for each host. <br>
-Home Manager - No duckng way. I just auto symlink ./home to /home <br>
+Nix declarative configuration style, custom modules evaluated dynamically for each host. <br>
+Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br>
 Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
@@ -159,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/wapivj3kjfszxq3185w6c37p2f431iac-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/56p2gwfxgh6bdk7d6sfyid36v1i9sm71-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -223,9 +226,15 @@ in { # 🦆 duck say ⮞ qwack
       wc.icon         = "mdi:toilet";
       other.icon      = "mdi:misc";
     };  
-   
+  
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
+      coordinator = {
+        vendorId =  "10c4";
+        productId = "ea60";
+        symlink = "zigbee";
+      };
+    
       # 🦆 says ⮞ when motion triggers lights
       darkTime = {
         enable = true;
@@ -411,7 +420,15 @@ in { # 🦆 duck say ⮞ qwack
         };       
 
   # 🦆 ⮞ AUTOMATIONS ⮜
-        automations = {        
+        automations = {  
+          greeting = {
+            enable = true;
+            awayDuration = "7200";
+            greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
+            delay = "10";
+            sayOnHost = "desktop";
+          };
+          
           room_actions = {
             hallway = { 
               door_opened = [];
@@ -783,7 +800,7 @@ in { # 🦆 duck say ⮞ qwack
         };
       };
     };
-    
+
   };}
 ```
 <!-- SMARTHOME_END -->
@@ -1029,7 +1046,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzy] |  | [🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?) | 📛 |
 | [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/espaudio.nix)  |  | WIP! ESP32 audio development | 📛 |
 | [yo kill-mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/kill-mic.nix)  |  | Kill mic-stream by port with voice | ✅ |
-| [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
+| [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--record] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
 | [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | [🦆🎙️] Trigger microphone recording sent to transcription. | 📛 |
 | [yo mic-stream](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic-stream.nix) [--chunk] [--silence] [--silenceLevel] |  | Stream microphone audio to WS chunk transcription | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |

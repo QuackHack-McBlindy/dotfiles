@@ -13,10 +13,11 @@
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+#  mqttHost = lib.findSingle (host:
+#      let cfg = self.nixosConfigurations.${host}.config;
+#      in cfg.services.mosquitto.enable or false
+#    ) null null sysHosts;    
+  mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -709,6 +710,9 @@ EOF
     # 🦆 says ⮞ scene fireworks  
     (pkgs.writeScriptBin "scene-roll" ''
       ${cmdHelpers}
+      MQTT_BROKER="${mqttHostip}"
+      MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
+      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}")
       ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
     '')
     # 🦆 says ⮞ activate a scene yo

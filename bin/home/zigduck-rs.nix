@@ -13,10 +13,11 @@
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+#  mqttHost = lib.findSingle (host:
+#      let cfg = self.nixosConfigurations.${host}.config;
+#      in cfg.services.mosquitto.enable or false
+#    ) null null sysHosts;    
+  mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -28,7 +29,7 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-   
+
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
   
@@ -151,6 +152,46 @@
         endpoint: u32,
     }
 
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct Condition {
+        #[serde(rename = "type")]
+        condition_type: String,
+        room: Option<String>,
+        value: Option<bool>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    #[serde(untagged)]
+    enum ScheduleConfig {
+        Cron(String),
+        TimeRange {
+            start: Option<String>,
+            end: Option<String>,
+            days: Vec<String>,
+        },
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct TimeBasedAutomation {
+        enable: bool,
+        description: String,
+        schedule: ScheduleConfig,
+        conditions: Vec<Condition>,
+        actions: Vec<AutomationAction>,
+    }
+
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct PresenceBasedAutomation {
+        enable: bool,
+        description: String,
+        motion_sensors: Vec<String>,
+        no_motion_duration: u64,
+        conditions: Vec<Condition>,
+        actions: Vec<AutomationAction>,
+        motion_restored_actions: Vec<AutomationAction>,
+    }
+
     #[derive(Debug, Clone)]
     struct ZigduckState {
         mqtt_broker: String,
@@ -160,8 +201,9 @@
         state_file: String,
         larmed_file: String,
         devices: HashMap<String, Device>,
-        automations: AutomationConfig,  // 🦆 NEW!
-        dark_time_enabled: bool,        // 🦆 NEW!
+        automations: AutomationConfig,
+        dark_time_enabled: bool,
+        motion_tracker: MotionTracker,
         processing_times: HashMap<String, u128>,
         message_counts: HashMap<String, u64>,
         total_messages: u64,
@@ -175,6 +217,8 @@
         dimmer_actions: HashMap<String, RoomDimmerActions>,
         room_actions: HashMap<String, HashMap<String, Vec<AutomationAction>>>,
         global_actions: HashMap<String, Vec<AutomationAction>>,
+        time_based: HashMap<String, TimeBasedAutomation>,
+        presence_based: HashMap<String, PresenceBasedAutomation>,
     }
 
     // 🦆 says ⮞ room specific dimmer actions
@@ -216,7 +260,67 @@
         scene: Option<String>,
     }
     
+    #[derive(Debug, Clone)]
+    struct MotionTracker {
+        last_motion: HashMap<String, SystemTime>,
+    }
+
+    
     impl ZigduckState {
+        async fn check_conditions(&self, conditions: &[Condition]) -> bool {
+            for condition in conditions {
+                if !self.check_condition(condition).await {
+                    return false;
+                }
+            }
+            true
+        }
+
+        async fn check_condition(&self, condition: &Condition) -> bool {
+            match condition.condition_type.as_str() {
+                "dark_time" => self.is_dark_time(),
+                "someone_home" => {
+                    // 🦆 TODO: Implement someone_home logic
+                    true // Placeholder
+                }
+                "room_occupied" => {
+                    // 🦆 TODO: Implement room_occupied logic  
+                    true // Placeholder
+                }
+                "lights_on" => {
+                    // 🦆 TODO: Implement lights_on logic
+                    true // Placeholder
+                }
+                _ => false,
+            }
+        }
+
+        async fn check_presence_automations(&self) {
+            for (name, automation) in &self.automations.presence_based {
+                if !automation.enable { continue; }
+                let all_no_motion = automation.motion_sensors.iter().all(|sensor| {
+                    if let Some(last_motion) = self.motion_tracker.last_motion.get(sensor) {
+                        let duration = SystemTime::now().duration_since(*last_motion).unwrap();
+                        duration.as_secs() >= automation.no_motion_duration
+                    } else {
+                        false
+                    }
+                });
+        
+                if all_no_motion && self.check_conditions(&automation.conditions).await {
+                    for action in &automation.actions {
+                        if let Err(e) = self.execute_automation_action(action, "presence_based", "global") {
+                            self.quack_debug(&format!("Error executing presence automation: {}", e));
+                        }
+                    }
+                }
+            }
+        }
+    
+        fn update_motion_tracker(&mut self, sensor_name: &str) {
+            self.motion_tracker.last_motion.insert(sensor_name.to_string(), SystemTime::now());
+        }
+
         // 🦆 says ⮞ handle room specific dimmer actions
         fn handle_room_dimmer_action<F>(
             &self, 
@@ -394,10 +498,15 @@
                         dimmer_actions: HashMap::new(),
                         room_actions: HashMap::new(),
                         global_actions: HashMap::new(),
+                        time_based: HashMap::new(),
+                        presence_based: HashMap::new(),
                     }
                 });
         
-        
+                let motion_tracker = MotionTracker {
+                    last_motion: HashMap::new(),
+                }; 
+                
                 Self {
                     mqtt_broker,
                     mqtt_user,
@@ -411,6 +520,7 @@
                     processing_times: HashMap::new(),
                     message_counts: HashMap::new(),
                     total_messages: 0,
+                    motion_tracker,
                     debug,
                 }
             }
@@ -418,7 +528,7 @@
         // 🦆 says ⮞ TODO
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
-            self.run_yo_command(&["house", "scene", "--", scene_name])
+            self.run_yo_command(&["house", "scene", "--", scene_name])?;
             Ok(())
         }   
    
@@ -964,10 +1074,10 @@
                         let time_diff = current_time.saturating_sub(last_motion); 
                         self.quack_debug(&format!("TIME: {} | LAST MOTION: {} | TIME DIFF: {}", current_time, last_motion, time_diff));
                         
-                        if time_diff > 7200 { // 🦆 says ⮞ secondz
+                        if time_diff > ${config.house.zigbee.automations.greeting.awayDuration} { // 🦆 says ⮞ secondz
                             self.quack_info("Welcoming you home! (no motion for 2 hours, door opened)");
-                            tokio::time::sleep(Duration::from_secs(5)).await;
-                            self.run_yo_command(&["say", "--text", "Välkommen hem idiot!", "--host", "desktop"])?; // 🦆 says ⮞ ='(
+                            tokio::time::sleep(Duration::from_secs(${config.house.zigbee.automations.greeting.delay})).await;
+                            self.run_yo_command(&["say", "--text", "${config.house.zigbee.automations.greeting.greeting}", "--host", "${config.house.zigbee.automations.greeting.sayOnHost}"])?; // 🦆 says ⮞ ='(
                         } else { 
                             self.quack_debug(&format!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60));
                         }
@@ -1392,8 +1502,8 @@ EOF
         #settings.require_certificate = false; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
       } 
     ];
-
   };
+  
   # 🦆 says ⮞ open firewall 4 Z2MQTT & Mosquitto on the server host
   networking.firewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { allowedTCPPorts = [ 1883 8099 9001 ]; };
 
@@ -1424,6 +1534,7 @@ EOF
           port = 8099; 
         };
         advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
+          network_key_file = config.sops.secrets.z2m_network_key.path;
           export_state = true;
           export_state_path = "${zigduckDir}/zigbee_devices.json";
           homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
@@ -1603,7 +1714,8 @@ EOF
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
     wantedBy = [ "multi-user.target" ];
     after = [ "sops-nix.service" "network.target" ];
-    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
+    environment.ZIGBEE2MQTT_DATA = config.services.zigbee2mqtt.dataDir;
+    # environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack

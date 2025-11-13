@@ -126,7 +126,7 @@ in { # 🦆 says ⮞ Voice Intents
     '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
-      { name = "state"; description = "State of the device or group"; default = "on"; } 
+      { name = "state"; type = "string"; description = "State of the device or group"; default = "ON"; values = [ "ON" "OFF" ]; } 
       { name = "brightness"; description = "Brightness value of the device or group"; optional = true; type = "int"; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
@@ -425,7 +425,7 @@ EOF
           { "in" = "[sovrum|sovrummet]"; out = "bedroom"; }
           { "in" = "[hall|hallen]"; out = "hallway"; }
           { "in" = "[toa|toan|toalett|toaletten|wc]"; out = "wc"; }
-          { "in" = "[all|alla|allt]"; out = "ALL_LIGHTS"; }    
+          { "in" = "[all|alla|allt|dom]"; out = "ALL_LIGHTS"; }    
         ];
 
 # 🦆 says ⮞ automatically add all zigbee devices  

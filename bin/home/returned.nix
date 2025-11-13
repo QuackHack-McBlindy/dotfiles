@@ -9,10 +9,11 @@
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+  mqttHost = "homie";
+#  mqttHost = lib.findSingle (host:
+#      let cfg = self.nixosConfigurations.${host}.config;
+#      in cfg.services.mosquitto.enable or false
+#    ) null null sysHosts;    
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let

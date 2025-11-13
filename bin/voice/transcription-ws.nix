@@ -128,7 +128,7 @@ in {
   yo.scripts.transcription-ws = {
     description = "WebSocket server for real-time transcription streaming to NLP";
     category = "🗣️ Voice";
-    autoStart = true;
+    autoStart = false;
     logLevel = "DEBUG";
 
     code = ''

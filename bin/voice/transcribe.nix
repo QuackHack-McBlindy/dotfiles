@@ -248,7 +248,7 @@ in { # 🦆 says ⮞ yo yo yo yo
   yo.scripts.transcribe = {
     description = "Transcription server-side service. Sit and waits for audio that get transcribed and returned.";
     category = "🗣️ Voice"; 
-    autoStart = false;
+    autoStart = true;
     #autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    helpFooter = '' # 🦆 says ⮞ TODO some useful & fun helpFooter yo
 #    '';

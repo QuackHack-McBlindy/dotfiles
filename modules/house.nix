@@ -4,8 +4,17 @@
   lib,
   pkgs,
   ...
-} : let # imports = [ ./myHouse.nix ];
+} : let
   inherit (lib) types mkOption mkEnableOption mkMerge;  
+
+  getAllMotionSensors = 
+    let devices = config.house.zigbee.devices or {};
+    in lib.filterAttrs (_: device: device.type == "motion") devices;
+
+  getMotionSensorNames = 
+    let motionSensors = getAllMotionSensors;
+    in lib.mapAttrsToList (_: device: device.friendly_name) motionSensors;
+
   roomType = types.submodule {
     options = {
       icon = mkOption {
@@ -143,6 +152,16 @@
       }
     ];
 
+  validateMotionSensors = automationName: sensors:
+    let
+      availableSensors = getMotionSensorNames;
+      invalidSensors = lib.filter (sensor: !lib.elem sensor availableSensors) sensors;
+    in
+      lib.optional (invalidSensors != []) {
+        assertion = false;
+        message = "🦆 duck say ⮞ fuck ❌ Automation '${automationName}' references non-existent motion sensors: ${toString invalidSensors}. Available: ${toString availableSensors}";
+      };
+
   # 🦆 duck say ⮞ validation collector
   sceneValidations = lib.flatten (
     lib.mapAttrsToList validateScene (config.house.zigbee.scenes or {})
@@ -151,6 +170,13 @@
   deviceValidations = lib.flatten (
     lib.mapAttrsToList validateDevice (config.house.zigbee.devices or {})
   );
+
+  motionSensorValidations = lib.flatten (
+    lib.mapAttrsToList (name: automation: 
+      validateMotionSensors name (automation.motion_sensors or [])
+    ) (config.house.zigbee.automations.presence_based or {})
+  );
+
 
   # 🦆 says ⮞ duplicate friendly names
   duplicateFriendlyNameValidation = 
@@ -299,6 +325,29 @@ in { # 🦆 says ⮞ Options for da house
         description = "Configuration for ESP devices";
       };
 
+
+      zigbee.coordinator = mkOption {
+        type = types.nullOr (types.submodule {
+          options = {
+            vendorId = mkOption {
+              type = types.str;
+              description = "USB vendor ID (hex format)";
+            };
+            productId = mkOption {
+              type = types.str;
+              description = "USB product ID (hex format)";
+            };
+            symlink = mkOption {
+              type = types.str;
+              description = "Symlink name to create in /dev";
+            };
+          };
+        });
+        default = {};
+        description = "Serial port device mapping by USB IDs";
+      };
+
+
       # 🦆 duck say ⮞ lights don't help blind ducks but guests might like
       zigbee.devices = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
@@ -404,7 +453,205 @@ in { # 🦆 says ⮞ Options for da house
         # 🦆 says ⮞ automations configuration
         zigbee.automations = mkOption {
           type = types.submodule {
-            options = {
+            options = {            
+              # 🦆 says ⮞ time based automations
+              time_based = mkOption {
+                type = types.attrsOf (types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable this time-based automation";
+                    description = mkOption {
+                      type = types.str;
+                      description = "Description of what this automation does";
+                    };
+                    schedule = mkOption {
+                      type = types.oneOf [
+                        (types.str)
+                        (types.submodule {
+                          options = {
+                            cron = mkOption {
+                              type = types.str;
+                              description = "Cron expression (0 7 * * *)";
+                            };
+                            start = mkOption {
+                              type = types.nullOr types.str;
+                              default = null;
+                              description = "Start time (HH:MM)";
+                            };
+                            end = mkOption {
+                              type = types.nullOr types.str;
+                              default = null;
+                              description = "End time (HH:MM)";
+                            };
+                            days = mkOption {
+                              type = types.listOf (types.enum ["mon" "tue" "wed" "thu" "fri" "sat" "sun"]);
+                              default = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
+                              description = "Days of week to run";
+                            };
+                          };
+                        })
+                      ];
+                      description = "Schedule configuration";
+                    };
+                    conditions = mkOption {
+                      type = types.listOf (types.submodule {
+                        options = {
+                          type = mkOption {
+                            type = types.enum ["dark_time" "someone_home" "room_occupied"];
+                            description = "Condition type";
+                          };
+                          room = mkOption {
+                            type = types.nullOr types.str;
+                            default = null;
+                            description = "Room for room-specific conditions";
+                          };
+                          value = mkOption {
+                            type = types.nullOr types.bool;
+                            default = null;
+                            description = "Expected condition value";
+                          };
+                        };
+                      });
+                      default = [];
+                      description = "Conditions that must be met";
+                    };
+                    actions = mkOption {
+                      type = types.listOf automationActionType;
+                      default = [];
+                      description = "Actions to perform";
+                    };
+                  };
+                });
+                default = {};
+                description = "Time-based automations";
+                example = {
+                  morning_wakeup = {
+                    enable = true;
+                    description = "Gentle morning lights";
+                    schedule = {
+                      start = "06:30";
+                      end = "07:00";
+                      days = ["mon" "tue" "wed" "thu" "fri"];
+                    };
+                    conditions = [
+                      { type = "someone_home"; value = true; }
+                    ];
+                    actions = [
+                      {
+                        type = "scene";
+                        scene = "morning";
+                      }
+                      "echo 'Good morning!'"
+                    ];
+                  };
+                  bedtime = {
+                    enable = true;
+                    description = "Prepare for bed";
+                    schedule = "0 22 * * *";
+                    actions = [
+                      {
+                        type = "scene";
+                        scene = "night";
+                      }
+                    ];
+                  };
+                };
+              };
+        
+              # 🦆 says ⮞ presence based automations
+              presence_based = mkOption {
+                type = types.attrsOf (types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable this presence-based automation";
+                    description = mkOption {
+                      type = types.str;
+                      description = "Description of what this automation does";
+                    };
+                    motion_sensors = mkOption {
+                      type = types.listOf types.str;
+                      description = "List of motion sensor friendly names to monitor";
+                      example = ["Hallway Motion" "Living Room Motion"];
+                    };
+                    no_motion_duration = mkOption {
+                      type = types.int;
+                      default = 300;
+                      description = "Seconds without motion before triggering";
+                    };
+        
+                    conditions = mkOption {
+                      type = types.listOf (types.submodule {
+                        options = {
+                          type = mkOption {
+                            type = types.enum ["dark_time" "room_occupied" "lights_on"];
+                            description = "Condition type";
+                          };
+                          room = mkOption {
+                            type = types.nullOr types.str;
+                            default = null;
+                            description = "Room for room-specific conditions";
+                          };
+                          value = mkOption {
+                            type = types.nullOr types.bool;
+                            default = null;
+                            description = "Expected condition value";
+                          };
+                        };
+                      });
+                      default = [];
+                      description = "Conditions that must be met";
+                    };
+                    actions = mkOption {
+                      type = types.listOf automationActionType;
+                      default = [];
+                      description = "Actions to perform when no motion is detected";
+                    };
+                    motion_restored_actions = mkOption {
+                      type = types.listOf automationActionType;
+                      default = [];
+                      description = "Actions to perform when motion is detected again";
+                    };
+                  };
+                });
+                default = {};
+                description = "Presence/motion-based automations";
+              };
+  
+              # 🦆 says ⮞ Welcome Home Automation
+              greeting = mkOption {
+                type = types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable greeting automation";
+                    greeting = mkOption {
+                      type = types.str;
+                      default = "Welcome home, good to see you again sir!";
+                      description = "Greeting message to say";
+                    };
+                    awayDuration = mkOption {
+                      type = types.str;
+                      default = "7200";
+                      description = "Time in seconds to be concidered away from home (default 7200)";
+                    };                    
+                    delay = mkOption {
+                      type = types.str;
+                      default = "10";
+                      description = "Delay in seconds before triggering greeting";
+                    };
+                    sayOnHost = mkOption {
+                      type = types.str;
+                      default = "";
+                      example = "HostWithSpeakers";
+                      description = "Specify on which host the greeting should be played onDelay in seconds before triggering greeting";
+                    };
+                    action = mkOption {
+                      type = automationActionType;
+                      default = "echo 'Welcome home!'";
+                      description = "Action to perform for greeting";
+                    };
+                  };
+                };
+                default = {};
+                description = "Greeting automation configuration";
+              };
+            
               # 🦆 says ⮞ Per-room dimmer switch actions
               dimmer_actions = mkOption {
                 type = types.attrsOf (types.submodule {
@@ -564,7 +811,8 @@ in { # 🦆 says ⮞ Options for da house
     # 🔧 🦆 says ⮞  User Configuration
     config = lib.mkMerge [
       {
-        assertions = sceneValidations ++ deviceValidations ++ duplicateFriendlyNameValidation;
+        assertions = sceneValidations ++ deviceValidations ++ 
+                     duplicateFriendlyNameValidation ++ motionSensorValidations;
       }
       {
         environment.etc."dark-time.conf".text = ''
@@ -573,5 +821,15 @@ in { # 🦆 says ⮞ Options for da house
           DARK_TIME_END="${config.house.zigbee.darkTime.end}"
         '';    
       }
+     
+      {
+        services.udev.extraRules = let
+          port = config.house.zigbee.coordinator;
+        in
+          ''
+            SUBSYSTEM=="tty", ATTRS{idVendor}=="${port.vendorId}", ATTRS{idProduct}=="${port.productId}", SYMLINK+="${port.symlink}"
+          '';
+      }
+
         
-    ];}
+    ];}  

@@ -39,8 +39,14 @@ in {
           type = "string";
           description = "What stat to analyze";
           default = "summary";
-          values = [ "failed" "successful" "summary" "fuzzy" ];
+          values = [ "failed" "successful" "recent" "summary" "fuzzy" "context" "chain" ];
         }  
+        { 
+          name = "record"; 
+          type = "string"; 
+          description = "Internal: record a command execution"; 
+          default = ""; 
+        }
         { name = "good"; type = "bool"; description = "Tell the brain it did a good job. Confirming the last command was a proper match"; default = false; }   
         { name = "tail"; type = "bool"; description = "Live tail of failed commands"; default = false; }
         { name = "reset"; type = "bool"; description = "Warning! Will reset all stats!"; default = false; }
@@ -147,31 +153,47 @@ in {
           # 🦆 says ⮞ update context
           update_context "$script_name" "$args" "$matched_sentence"
         }
+
+        show_context() {
+          local context=$(load_context)
+          echo "🦆 Current Context:"
+          echo "  Last Action: $(echo "$context" | jq -r '.last_action')"
+          echo "  Active Servers: $(echo "$context" | jq -r '.active_servers | join(", ")')"
+          echo "  Environment: $(echo "$context" | jq -r '.environment')"
+          echo "  User Preferences: $(echo "$context" | jq -r '.user_preferences | length') keys" 
+          # 🦆 says ⮞ recent command chain context
+          local history=$(load_command_history)
+          echo ""
+          echo "🦆 Recent Command Chain:"
+          echo "$history" | jq -r '.recent_commands[0:3] | .[] | "  \(.script): \(.matched_sentence) (\(.match_type))"'
+        }
         
         # 🦆 says ⮞ update contextual awareness
         update_context() {
           local script_name="$1"
           local args="$2" 
           local sentence="$3"
-          
+  
           local context=$(load_context)
-          
+  
           # 🦆 says ⮞ upd last action
           context=$(echo "$context" | jq --arg action "$script_name" '.last_action = $action')
-          
+  
           # 🦆 says ⮞ detect and update active servers
           if echo "$args" | grep -q "dads"; then
             context=$(echo "$context" | jq '.active_servers = ["dads_media_server"]')
-          fi
-          if echo "$args" | grep -q "moms"; then
+          elif echo "$args" | grep -q "moms"; then
             context=$(echo "$context" | jq '.active_servers = ["moms_media_server"]') 
+          else
+            context=$(echo "$context" | jq '.active_servers = []')
           fi
-          
-          # 🦆 says ⮞ detect environment changes
+  
           if [[ "$script_name" == "deploy" ]]; then
             context=$(echo "$context" | jq '.environment = "deployment"')
+          else
+            context=$(echo "$context" | jq '.environment = "default"')  # ← THIS LINE FIXES IT
           fi
-          
+  
           save_context "$context"
         }
         
@@ -337,6 +359,13 @@ in {
           reset_memory
           exit 0
         fi
+
+        if [[ -n "$record" ]]; then
+            IFS='|' read -r script_name args sentence match_type <<< "$record"
+            record_command "$script_name" "$args" "$sentence" "$match_type"
+            echo "🦆 Recorded: $script_name - $sentence"
+            exit 0
+        fi
         
         if [[ "$forget" == "true" ]]; then
           forget_recent
@@ -354,7 +383,8 @@ in {
           summary) show_enhanced_summary ;;
           fuzzy) show_fuzzy ;;
           recent) show_recent ;;
-          context|chain) show_chains ;;
+          context) show_context ;;
+          chain) show_chains ;;
           *) show_enhanced_summary ;;
         esac
       '';
