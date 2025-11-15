@@ -175,7 +175,7 @@
     struct TimeBasedAutomation {
         enable: bool,
         description: String,
-        schedule: ScheduleConfig,
+        schedule: TimeRangeSchedule,
         conditions: Vec<Condition>,
         actions: Vec<AutomationAction>,
     }
@@ -190,6 +190,13 @@
         conditions: Vec<Condition>,
         actions: Vec<AutomationAction>,
         motion_restored_actions: Vec<AutomationAction>,
+    }
+
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct TimeRangeSchedule {
+        start: Option<String>,
+        end: Option<String>,
+        days: Vec<String>,
     }
 
     #[derive(Debug, Clone)]
@@ -210,16 +217,17 @@
         debug: bool,
     }
 
+
     // 🦆 says ⮞ automation types
     #[derive(Debug, Clone, Serialize, Deserialize)]
-    struct AutomationConfig {
-        // dimmer_actions: HashMap<String, DimmerAction>,
+        struct AutomationConfig {
         dimmer_actions: HashMap<String, RoomDimmerActions>,
         room_actions: HashMap<String, HashMap<String, Vec<AutomationAction>>>,
         global_actions: HashMap<String, Vec<AutomationAction>>,
-        time_based: HashMap<String, TimeBasedAutomation>,
+        time_based: HashMap<String, TimeBasedAutomation>,  // 🦆 CHANGED: Now uses TimeBasedAutomation directly
         presence_based: HashMap<String, PresenceBasedAutomation>,
     }
+
 
     // 🦆 says ⮞ room specific dimmer actions
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -267,6 +275,72 @@
 
     
     impl ZigduckState {
+        async fn start_periodic_checks(&self) {
+            let state = self.clone();
+            tokio::spawn(async move {
+                let mut interval = tokio::time::interval(Duration::from_secs(60)); // Check every minute
+                loop {
+                    interval.tick().await;
+                    state.check_presence_automations().await;
+                    state.check_time_based_automations().await; // Add this too
+                }
+            });
+        }
+
+
+        async fn check_time_based_automations(&self) {
+            for (name, automation) in &self.automations.time_based {
+                if !automation.enable { continue; }         
+                let schedule_matches = self.check_time_range(
+                    &automation.schedule.start, 
+                    &automation.schedule.end, 
+                    &automation.schedule.days
+                ).await;
+            
+                if schedule_matches && self.check_conditions(&automation.conditions).await {
+                    for action in &automation.actions {
+                        if let Err(e) = self.execute_automation_action(action, "time_based", "global") {
+                            self.quack_debug(&format!("Error executing time-based automation: {}", e));
+                        }
+                    }
+                }
+            }
+        }
+
+        async fn check_time_range(&self, start: &Option<String>, end: &Option<String>, days: &[String]) -> bool {
+            let now = Local::now();    
+            let current_day = now.format("%a").to_string().to_lowercase();
+            if !days.iter().any(|day| day == &current_day) {
+                return false;
+            }
+        
+            if let (Some(start_str), Some(end_str)) = (start, end) {
+                if let (Ok(start_time), Ok(end_time)) = (
+                    chrono::NaiveTime::parse_from_str(start_str, "%H:%M"),
+                    chrono::NaiveTime::parse_from_str(end_str, "%H:%M")
+                ) {
+                    let current_time = now.time();
+                    return current_time >= start_time && current_time <= end_time;
+                }
+            }
+        
+            if let Some(start_str) = start {
+                if let Ok(start_time) = chrono::NaiveTime::parse_from_str(start_str, "%H:%M") {
+                    if now.time() < start_time {
+                        return false;
+                    }
+                }
+            }
+        
+            if let Some(end_str) = end {
+                if let Ok(end_time) = chrono::NaiveTime::parse_from_str(end_str, "%H:%M") {
+                    if now.time() > end_time {
+                        return false;
+                    }
+                }
+            }     
+            true
+        }
         async fn check_conditions(&self, conditions: &[Condition]) -> bool {
             for condition in conditions {
                 if !self.check_condition(condition).await {
@@ -280,17 +354,24 @@
             match condition.condition_type.as_str() {
                 "dark_time" => self.is_dark_time(),
                 "someone_home" => {
-                    // 🦆 TODO: Implement someone_home logic
-                    true // Placeholder
+                    if let Some(expected_value) = condition.value {
+                        self.is_someone_home() == expected_value
+                    } else {
+                        // 🦆 says ⮞ default true when someone home
+                        self.is_someone_home()
+                    }
                 }
                 "room_occupied" => {
-                    // 🦆 TODO: Implement room_occupied logic  
-                    true // Placeholder
+                    if let Some(room) = &condition.room {
+                        self.is_motion_triggered(room) || self.has_recent_motion_in_room(room)
+                    } else {
+                        false
+                    }
                 }
-                "lights_on" => {
-                    // 🦆 TODO: Implement lights_on logic
-                    true // Placeholder
-                }
+                //"lights_on" => {
+                //    // 🦆 TODO: Implement lights_on logic
+                //    true // Placeholder
+                //}
                 _ => false,
             }
         }
@@ -484,7 +565,7 @@
             eprintln!("[🦆📜] ✅INFO✅ ⮞ State file: {}", state_file);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ Security file: {}", larmed_file);
        
-            // 🦆 says ⮞ Load automations configuration
+            // 🦆 says ⮞ load automations configuration
             let automations_json = std::fs::read_to_string(&automations_file)
                 .unwrap_or_else(|e| {
                     eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read automations file {}: {}", automations_file, e);
@@ -506,7 +587,9 @@
                 let motion_tracker = MotionTracker {
                     last_motion: HashMap::new(),
                 }; 
-                
+
+
+                       
                 Self {
                     mqtt_broker,
                     mqtt_user,
@@ -521,14 +604,17 @@
                     message_counts: HashMap::new(),
                     total_messages: 0,
                     motion_tracker,
+                   // room_occupancy,
+                   // presence_state,
+                   // last_presence_update,
                     debug,
                 }
             }
    
         // 🦆 says ⮞ TODO
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info(&format!("🎭 Activating scene: {}", scene_name));
-            self.run_yo_command(&["house", "scene", "--", scene_name])?;
+            self.quack_info(&format!("Activating scene: {}", scene_name));
+            self.run_yo_command(&["house", "--scene", scene_name])?;
             Ok(())
         }   
    
@@ -643,7 +729,18 @@
             }
             Ok(())
         }
-             
+    
+
+    
+        // 🦆 says ⮞ check if someone is home
+        fn is_someone_home(&self) -> bool {
+            let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+            let last_motion_str = self.get_state("apartment", "last_motion").unwrap_or_else(|| "0".to_string());
+            let last_motion: u64 = last_motion_str.parse().unwrap_or(0);
+            let time_diff = current_time.saturating_sub(last_motion);
+            time_diff <= ${config.house.zigbee.automations.greeting.awayDuration}
+        }
+               
         // 🦆 says ⮞ updatez da state json file yo    
         fn update_device_state(&self, device: &str, key: &str, value: &str) -> Result<(), Box<dyn std::error::Error>> {
             let state_content = fs::read_to_string(&self.state_file)?;
@@ -874,6 +971,24 @@
             self.quack_info(&format!("💡 All lights turned {}", action));
             Ok(())
         }    
+
+        // 🦆 says ⮞ check if has been any motion in a room
+        fn has_recent_motion_in_room(&self, room: &str) -> bool {
+            let motion_timeout = Duration::from_secs(300); // 5 minutes
+
+            for (sensor_name, last_motion) in &self.motion_tracker.last_motion {
+                if let Some(device) = self.devices.get(sensor_name) {
+                    if device.room == room {
+                        if let Ok(elapsed) = SystemTime::now().duration_since(*last_motion) {
+                            if elapsed < motion_timeout {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            false
+        }
     
         // 🦆 says ⮞ PROCESS MQTT MESSAGES    
         async fn process_message(&mut self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
@@ -1051,7 +1166,7 @@
                                     let _ = state_clone.room_lights_off(&room_clone);
                                     let _ = state_clone.set_motion_triggered(&room_clone, false);
                                 }
-                            });
+                            });                     
                         }
                     }
                 }
@@ -1253,7 +1368,7 @@
         async fn start_listening(&mut self) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_info("🚀 Starting ZigDuck automation system");
             self.quack_info("📡 Listening to all Zigbee events...");
-    
+            self.start_periodic_checks().await;
             let mut mqttoptions = MqttOptions::new("zigduck-rs", &self.mqtt_broker, 1883);
             mqttoptions.set_credentials(&self.mqtt_user, &self.mqtt_password);
             mqttoptions.set_keep_alive(Duration::from_secs(5));
@@ -1366,8 +1481,17 @@
     rumqttc = "0.21.0"
     serde = { version = "1.0", features = ["derive"] }
     serde_json = "1.0"
+    
     chrono = { version = "0.4", features = ["serde"] }
   '';
+
+  #environment.variables."MQTT_BROKER" = mqttHostip;
+  #environment.variables."MQTT_USER" = config.house.zigbee.mosquitto.username;
+  #environment.variables."pwfile" = config.house.zigbee.mosquitto.passwordFile;
+  environment.variables."ZIGBEE_DEVICES" = deviceMeta;
+  environment.variables."ZIGBEE_DEVICES_FILE" = devices-json;
+  environment.variables."AUTOMATIONS_FILE" = automationsFile;
+  environment.variables."DARK_TIME_ENABLED" = darkTimeEnabled;
   
 in { # 🦆 says ⮞ finally here, quack! 
   yo.scripts.zigduck-rs = {
@@ -1519,13 +1643,13 @@ EOF
         homeassistant = false; # 🦆 says ⮞ no thnx....
         mqtt = {
           server = "mqtt://localhost:1883";
-          user = "mqtt";
-          password =  config.sops.secrets.mosquitto.path; # 🦆 says ⮞ no support for passwordFile?! sneaky duckiie use dis as placeholder lol
+          user = config.house.zigbee.mosquitto.username;
+          password = config.sops.secrets.mosquitto.path; # 🦆 says ⮞ no support for passwordFile?! sneaky duckiie use dis as placeholder lol
           base_topic = "zigbee2mqtt";
         };
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
-         port = "/dev/zigbee"; # 🦆 says ⮞ all hosts, same serial port yo!
+         port = "/dev/" + config.house.zigbee.coordinator.symlink; # 🦆 says ⮞ all hosts, same serial port yo!
          disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { 
@@ -1715,7 +1839,6 @@ EOF
     wantedBy = [ "multi-user.target" ];
     after = [ "sops-nix.service" "network.target" ];
     environment.ZIGBEE2MQTT_DATA = config.services.zigbee2mqtt.dataDir;
-    # environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
     preStart = '' 
       mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack

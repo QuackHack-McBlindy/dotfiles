@@ -189,6 +189,24 @@
       message = "🦆 duck say ⮞ fuck ❌ Duplicate friendly names found: ${toString (lib.subtractLists uniqueNames friendlyNames)}";
     }];
 
+  isMqttEnabled = config.house.zigbee.mosquitto != null && 
+                  (config.house.zigbee.mosquitto.username != null || 
+                   config.house.zigbee.mosquitto.passwordFile != null);
+
+  # 🦆 says ⮞ Add validation for MQTT configuration
+  mqttValidations = [
+    {
+      assertion = config.house.zigbee.mosquitto != null -> 
+        (config.house.zigbee.mosquitto.username != null) == (config.house.zigbee.mosquitto.passwordFile != null);
+      message = "🦆 duck say ⮞ fuck ❌ MQTT authentication requires both username and passwordFile to be set together";
+    }
+    {
+      assertion = config.house.zigbee.mosquitto != null && config.house.zigbee.mosquitto.ssl.enable -> 
+        (config.house.zigbee.mosquitto.ssl.clientCertFile != null) == (config.house.zigbee.mosquitto.ssl.clientKeyFile != null);
+      message = "🦆 duck say ⮞ fuck ❌ MQTT SSL client authentication requires both clientCertFile and clientKeyFile";
+    }
+  ];
+
 in { # 🦆 says ⮞ Options for da house
     options.house = {
       # 🦆 duck say ⮞ set house rooms
@@ -325,7 +343,42 @@ in { # 🦆 says ⮞ Options for da house
         description = "Configuration for ESP devices";
       };
 
-
+      zigbee.mosquitto = mkOption {
+        type = types.nullOr (types.submodule {
+          options = {
+            username = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "MQTT username for authentication";
+            };  
+            passwordFile = mkOption {
+              type = types.nullOr types.path;
+              default = null;
+              description = "Path to file containing MQTT password";
+            };
+            # 🦆 says ⮞ SSL/TLS options for secure MQTT connections
+            ssl = {
+              enable = mkEnableOption "Enable SSL/TLS for MQTT connection";    
+              caCertFile = mkOption {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Path to CA certificate file";
+              };    
+              clientCertFile = mkOption {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Path to client certificate file";
+              };    
+              clientKeyFile = mkOption {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Path to client private key file";
+              };
+            };
+          };
+        });
+      };
+      
       zigbee.coordinator = mkOption {
         type = types.nullOr (types.submodule {
           options = {
@@ -468,10 +521,6 @@ in { # 🦆 says ⮞ Options for da house
                         (types.str)
                         (types.submodule {
                           options = {
-                            cron = mkOption {
-                              type = types.str;
-                              description = "Cron expression (0 7 * * *)";
-                            };
                             start = mkOption {
                               type = types.nullOr types.str;
                               default = null;
@@ -812,7 +861,8 @@ in { # 🦆 says ⮞ Options for da house
     config = lib.mkMerge [
       {
         assertions = sceneValidations ++ deviceValidations ++ 
-                     duplicateFriendlyNameValidation ++ motionSensorValidations;
+                     duplicateFriendlyNameValidation ++ motionSensorValidations ++
+                     mqttValidations;
       }
       {
         environment.etc."dark-time.conf".text = ''

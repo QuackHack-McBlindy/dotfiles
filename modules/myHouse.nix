@@ -51,6 +51,11 @@ in { # 🦆 duck say ⮞ qwack
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
+      mosquitto = {
+        username = "mqtt";
+        passwordFile = config.sops.secrets.mosquitto.path;
+      };  
+        
       coordinator = {
         vendorId =  "10c4";
         productId = "ea60";
@@ -249,6 +254,27 @@ in { # 🦆 duck say ⮞ qwack
             greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
             delay = "10";
             sayOnHost = "desktop";
+          };
+
+          time_based = {
+            qwack = { # 🦆 duck say ⮞ pick a name
+              enable = true;
+              description = "Gradual wake-up with news and coffee";
+              schedule = { # 🦆 duck say ⮞ when to run
+                start = "16:10";
+                end = "07:00";
+                days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"]; # 🦆 duck say ⮞ and what days
+              };
+              conditions = [ # 🦆 duck say ⮞ only run when someone is home qwack
+               { type = "someone_home"; value = true; }
+              ]; 
+              actions = [
+                {
+                  type = "shell";
+                  scene = "ssh desktop say 'qwack qwack'";
+                }
+              ];
+            };
           };
           
           room_actions = {

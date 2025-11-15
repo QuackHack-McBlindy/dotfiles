@@ -126,7 +126,7 @@ in { # 🦆 says ⮞ Voice Intents
     '';
     parameters = [   
       { name = "device"; description = "Device to control"; optional = true; }
-      { name = "state"; type = "string"; description = "State of the device or group"; default = "ON"; values = [ "ON" "OFF" ]; } 
+      { name = "state"; type = "string"; description = "State of the device or group"; } 
       { name = "brightness"; description = "Brightness value of the device or group"; optional = true; type = "int"; }    
       { name = "color"; description = "Color to set on the device"; optional = true; }    
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
@@ -161,6 +161,10 @@ in { # 🦆 says ⮞ Voice Intents
       if [[ "$cheapMode" == "true" ]]; then
         reset_room_timer "$ROOM"
         dt_info "Restarting room timer for $ROOM" 
+        exit 0
+      fi
+      if [[ -n "$SCENE" && -z "$DEVICE" ]]; then
+        scene "$SCENE"
         exit 0
       fi
       

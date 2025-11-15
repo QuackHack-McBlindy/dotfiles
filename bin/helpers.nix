@@ -251,6 +251,19 @@ EOF
       dt_debug "Reset timer for $room (PID: $!)"
     }
     # 🦆 says ⮞ Time window of day that allow motion triggering lights on
+    room_detect() {    
+      ssh homie 'cat /var/lib/zigduck/state.json /var/lib/zigduck/zigbee_devices.json' | jq -s -r '
+        .[0] as $state |
+        .[1] as $devices |
+        $state |
+        to_entries |
+        map(select(.value.occupancy != null)) |
+        max_by(.value.last_updated|tonumber) |
+        .key |
+        $devices[.].room
+      '
+    }
+    # 🦆 says ⮞ Time window of day that allow motion triggering lights on
     is_dark_time() {
       # source /home/${config.this.user.me.name}/.config/zigduck/dark-time.conf
       source /etc/dark-time.conf

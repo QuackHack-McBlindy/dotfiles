@@ -9,9 +9,9 @@
 ![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.86.0-orange?style=flat-square&logo=rust&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
-![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-squarehttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogo=eclipsemosquittohttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogoColor=white)
-![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-squarehttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogo=zigbee2mqtthttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogoColor=white)
-![ADB](https://img.shields.io/badge/ADB-35.0.1-android-tools-green?style=flat-squarehttps://img.shields.io/badge/ADB-35.0.1--android--tools-green?style=flat-square&logo=android&logoColor=whitelogo=androidhttps://img.shields.io/badge/ADB-35.0.1--android--tools-green?style=flat-square&logo=android&logoColor=whitelogoColor=white)
+![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-squarehttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-squarehttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogo=eclipsemosquittohttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogoColor=whitelogo=eclipsemosquittohttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-squarehttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogo=eclipsemosquittohttps://img.shields.io/badge/Mosquitto-2.0.21-blue?style=flat-square&logo=eclipsemosquitto&logoColor=whitelogoColor=whitelogoColor=white)
+![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-squarehttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-squarehttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogo=zigbee2mqtthttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogoColor=whitelogo=zigbee2mqtthttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-squarehttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogo=zigbee2mqtthttps://img.shields.io/badge/Zigbee2MQTT-1.42.0-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=whitelogoColor=whitelogoColor=white)
+
 <!-- VERSIONS_END -->
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)<div align="right"><sub>
@@ -42,7 +42,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __94 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
+- __95 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
 - __2298 dynamically generated regex patterns - makes 274058988 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/56p2gwfxgh6bdk7d6sfyid36v1i9sm71-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/825c7y6ih4w9h8a1axgk6fx8v9v3598y-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -229,6 +229,11 @@ in { # 🦆 duck say ⮞ qwack
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
+      mosquitto = {
+        username = "mqtt";
+        passwordFile = config.sops.secrets.mosquitto.path;
+      };  
+        
       coordinator = {
         vendorId =  "10c4";
         productId = "ea60";
@@ -427,6 +432,27 @@ in { # 🦆 duck say ⮞ qwack
             greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
             delay = "10";
             sayOnHost = "desktop";
+          };
+
+          time_based = {
+            qwack = { # 🦆 duck say ⮞ pick a name
+              enable = true;
+              description = "Gradual wake-up with news and coffee";
+              schedule = { # 🦆 duck say ⮞ when to run
+                start = "16:10";
+                end = "07:00";
+                days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"]; # 🦆 duck say ⮞ and what days
+              };
+              conditions = [ # 🦆 duck say ⮞ only run when someone is home qwack
+               { type = "someone_home"; value = true; }
+              ]; 
+              actions = [
+                {
+                  type = "shell";
+                  scene = "ssh desktop say 'qwack qwack'";
+                }
+              ];
+            };
           };
           
           room_actions = {
@@ -1052,6 +1078,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
 | [yo sleep](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/sleep.nix) --time |  | Waits for specified time (seconds). Useful in command chains. | ✅ |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
+| [yo tests-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests-rs.nix) [--input] [--stats] [--fuzzy] [--dir] [--build] [--realtime] |  | Extensive automated sentence testing for the NLP () | 📛 |
 | [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
 | [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
 | [yo transcription-ws](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcription-ws.nix)  |  | WebSocket server for real-time transcription streaming to NLP | 📛 |
