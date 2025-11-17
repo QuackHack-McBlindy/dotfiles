@@ -1,0 +1,53 @@
+#!/bin/bash
+
+
+set -x
+
+
+ip_var=$(dig +short myip.opendns.com @resolver1.opendns.com)
+
+
+echo "IP Address: $ip_var"
+
+
+duckdns1Token=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-gh-quackhack.yaml | grep 'TOKEN=' | sed 's/TOKEN=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+duckdns1domains=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-gh-quackhack.yaml | grep 'SUBDOMAINS=' | sed 's/SUBDOMAINS=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+
+# Debug: Show the extracted values for duckdns1
+echo "duckdns1Token: '$duckdns1Token'"
+echo "duckdns1domains: '$duckdns1domains'"
+
+duckdns2Token=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-gh-pungkula.yaml | grep 'TOKEN=' | sed 's/TOKEN=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+duckdns2domains=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-gh-pungkula.yaml | grep 'SUBDOMAINS=' | sed 's/SUBDOMAINS=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+
+
+echo "duckdns2Token: '$duckdns2Token'"
+echo "duckdns2domains: '$duckdns2domains'"
+
+duckdns3Token=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-x.yaml | grep 'TOKEN=' | sed 's/TOKEN=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+duckdns3domains=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-x.yaml | grep 'SUBDOMAINS=' | sed 's/SUBDOMAINS=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
+
+
+echo "duckdns3Token: '$duckdns3Token'"
+echo "duckdns3domains: '$duckdns3domains'"
+
+
+update_duckdns() {
+    local domains=$1
+    local token=$2
+    local ip=$3
+
+    IFS=',' read -ra SUBDOMAINS <<< "$domains"
+    for subdomain in "${SUBDOMAINS[@]}"; do
+        echo "Updating DuckDNS for subdomain: $subdomain"
+        curl -k -o ~/duckdns.log "https://www.duckdns.org/update?domains=$subdomain&token=$token&ip=$ip"
+    done
+}
+
+
+update_duckdns "$duckdns1domains" "$duckdns1Token" "$ip_var"
+update_duckdns "$duckdns2domains" "$duckdns2Token" "$ip_var"
+update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"
+
+
+set +x

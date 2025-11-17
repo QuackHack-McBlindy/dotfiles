@@ -119,72 +119,28 @@ in { # 🦆 duck say ⮞ qwack
         };
 
         # 🦆 says ⮞ default actions already configured -these are extra
-        dimmer_actions = {
-          kitchen = {
-            on_press_release = {
-              enable = true;
-              description = "Turns on all light devices in the dimmer device's room";
-              extra_actions = [
-                {
-                  type = "mqtt";
-                  topic = "zigbee2mqtt/Fläkt/set";
-                  message = ''{"state":"ON"}'';
-                }   
-              ];
-            };
+        dimmer_actions = {          
+          bedroom = {
             on_hold_release = {
               enable = true;
-              description = "Turns on every light device configured.";
+              description = "Turn off all configured light devices";
               extra_actions = [];
-            };
-            
-            up_press_release = {
-              enable = true;
-              description = "Increase the brightness in the room";
-              extra_actions = [];
-            };
-            up_hold_release = {
-              enable = true;
-              description = "No default action";
-              extra_actions = [];
-            };            
-
-            down_press_release = {
-              enable = true;
-              description = "Decrease brightness in room";
-              extra_actions = [];
-            };
-            down_hold_release = {
-              enable = true;
-              description = "No default action";
-              extra_actions = [];
+              override_actions = [];
             };
 
-            off_press_release = {
-              enable = true;
-              description = "Turn off all lights in the room";
-              extra_actions = [];
-            };
             off_hold_release = {
               enable = true;
               description = "Turn off all configured light devices";
               extra_actions = [];
               override_actions = [
                 {
-                  type = "shell";
-                  scene = "yo house --scene dark";
+                  type = "scene";
+                  command = "dark";
                 }
               ];
             };
-          };
             
-          bedroom = {
-            off_hold_release = {
-              enable = true;
-              description = "Turn off all configured light devices";
-              extra_actions = [];
-              override_actions = [];
-            };
+            
           };              
         };
       };  

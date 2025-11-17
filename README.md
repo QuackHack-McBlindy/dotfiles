@@ -33,9 +33,7 @@ __crafted as a tiny Nix flake__
 __Glued together by a Nix-flavoured command line utility,__  
 __easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
 
-<br>
-[]
-<br>
+
 
 ## **What makes this configuration unique?** 
 
@@ -46,7 +44,7 @@ Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __96 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
-- __2312 dynamically generated regex patterns - makes 274058999 phrases available as commands.__ <br>
+- __2316 dynamically generated regex patterns - makes 274059017 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Smart Home Nix style__ <br>
 - __Natural Language support with complete voice pipeline__ <br>
@@ -165,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/djj7gx8im4aa7c4mm3cpl7w8bp59add9-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/vp25ppzhv2jf8rzkznbxzj6s5y6y133k-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -300,72 +298,28 @@ in { # 🦆 duck say ⮞ qwack
         };
 
         # 🦆 says ⮞ default actions already configured -these are extra
-        dimmer_actions = {
-          kitchen = {
-            on_press_release = {
-              enable = true;
-              description = "Turns on all light devices in the dimmer device's room";
-              extra_actions = [
-                {
-                  type = "mqtt";
-                  topic = "zigbee2mqtt/Fläkt/set";
-                  message = ''{"state":"ON"}'';
-                }   
-              ];
-            };
+        dimmer_actions = {          
+          bedroom = {
             on_hold_release = {
               enable = true;
-              description = "Turns on every light device configured.";
+              description = "Turn off all configured light devices";
               extra_actions = [];
-            };
-            
-            up_press_release = {
-              enable = true;
-              description = "Increase the brightness in the room";
-              extra_actions = [];
-            };
-            up_hold_release = {
-              enable = true;
-              description = "No default action";
-              extra_actions = [];
-            };            
-
-            down_press_release = {
-              enable = true;
-              description = "Decrease brightness in room";
-              extra_actions = [];
-            };
-            down_hold_release = {
-              enable = true;
-              description = "No default action";
-              extra_actions = [];
+              override_actions = [];
             };
 
-            off_press_release = {
-              enable = true;
-              description = "Turn off all lights in the room";
-              extra_actions = [];
-            };
             off_hold_release = {
               enable = true;
               description = "Turn off all configured light devices";
               extra_actions = [];
               override_actions = [
                 {
-                  type = "shell";
-                  scene = "yo house --scene dark";
+                  type = "scene";
+                  command = "dark";
                 }
               ];
             };
-          };
             
-          bedroom = {
-            off_hold_release = {
-              enable = true;
-              description = "Turn off all configured light devices";
-              extra_actions = [];
-              override_actions = [];
-            };
+            
           };              
         };
       };  

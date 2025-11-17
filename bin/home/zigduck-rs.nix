@@ -1726,8 +1726,12 @@ EOF
     (pkgs.writeScriptBin "scene" ''
       ${cmdHelpers}
       MQTT_BROKER="${mqttHostip}"
-      MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
-      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}")
+      if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
+        MQTT_BROKER="localhost"
+      fi
+      #MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
+      MQTT_USER="${config.house.zigbee.mosquitto.username}"
+      MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
       SCENE="$1"      
       # 🦆 says ⮞ no scene == random scene
       if [ -z "$SCENE" ]; then
@@ -1770,8 +1774,12 @@ EOF
       TEMP="''${5:-}"
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}"
-      MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
-      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file 
+      if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
+        MQTT_BROKER="localhost"
+      fi
+      #MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
+      MQTT_USER="${config.house.zigbee.mosquitto.username}"
+      MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
       # 🦆 says ⮞ Zigbee coordinator backup
       if [[ "$DEVICE" == "backup" ]]; then
         mqtt_pub -t "zigbee2mqtt/backup/request" -m '{"action":"backup"}'

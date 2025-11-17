@@ -518,7 +518,6 @@ in { # 🦆 says ⮞ Options for da house
                     };
                     schedule = mkOption {
                       type = types.oneOf [
-                        (types.str)
                         (types.submodule {
                           options = {
                             start = mkOption {
