@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Usage: ./fancy.sh "YourText"
+
+upper_src=( {A..Z} )
+upper_dst=(
+  𝑨 𝑩 𝑪 𝑫 𝑬 𝑭 𝑮 𝑯 𝑰 𝑫 𝑲 𝑳 𝑴 𝑵 𝑶 𝑷 𝑸 𝑹 𝑺 𝑻 𝑼 𝑽 𝑾 𝑿 𝒀 𝒁
+)
+
+lower_src=( {a..z} )
+lower_dst=(
+  𝒂 𝒃 𝒄 𝒅 𝒆 𝒇 𝒈 𝒉 𝒊 𝒋 𝒌 𝒍 𝒎 𝒏 𝒐 𝒑 𝒒 𝒓 𝒔 𝒕 𝒖 𝒗 𝒘 𝒙 𝒚 𝒛
+)
+
+declare -A map
+
+for i in "${!upper_src[@]}"; do
+  map["${upper_src[$i]}"]="${upper_dst[$i]}"
+done
+
+for i in "${!lower_src[@]}"; do
+  map["${lower_src[$i]}"]="${lower_dst[$i]}"
+done
+
+input="$1"
+out=""
+
+for ((i=0; i<${#input}; i++)); do
+  ch="${input:$i:1}"
+  if [[ ${map[$ch]} ]]; then
+    out+="${map[$ch]}"
+  else
+    out+="$ch"
+  fi
+done
+
+printf '%s\n' "$out"

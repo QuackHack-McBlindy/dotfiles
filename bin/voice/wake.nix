@@ -37,9 +37,8 @@ in {
       { name = "remoteSound"; description = "Host to play the awake sound on"; default = if lib.elem config.this.host.hostname [ "nasty" "homie" ]
           then "true"
           else "false"; }
-      { name = "stream"; type = "bool"; description = "Set to true if you want to stream chunks for transcription"; default = false; }
       { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHostIP; }
-      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }
+      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }      
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}
@@ -56,7 +55,6 @@ in {
       LOCK_VALUE="$HOSTNAME:$$"
       REDIS_PASSWORD=$(cat $redis_pwFile)
       dt_debug "Redis host: $REDIS_HOST, Password file: $redis_pwFile"
-      STREAM=$stream
 
       # 🦆 says ⮞ measure loudness in dB
       DB_LEVEL="$(${pkgs.sox}/bin/sox "$NORMALIZED_FILE" -n stat 2>&1 | ${pkgs.gawk}/bin/awk '/RMS.*dB/ {print $4}')"
@@ -146,18 +144,13 @@ in {
                       play_wav
                       
                       # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
-                      if [ "$stream" = "false" ]; then   
-                        TRANSCRIPTION=$(yo-mic)
-                      else
-                        export VOICE_MODE=1
-                        # 🦆 says ⮞ start stream and bye bye                        
-                        yo-mic-stream
-                        exit 1
-                      fi  
+                      TRANSCRIPTION=$(yo-mic)
+                    
                       # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
                       if [[ -z "$TRANSCRIPTION" ]]; then
-                        dt_debug "Empty transcription"      
-                      else # 🦆 thug ⮞ ELSE WAT?!
+                        dt_debug "Empty transcription"
+                        
+                      else # 🦆 says ⮞ ELSE WAT?!
                         # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
                         dt_debug "Transcribed text: $TRANSCRIPTION"
                         export VOICE_MODE=1

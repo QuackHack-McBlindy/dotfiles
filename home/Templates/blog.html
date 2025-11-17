@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Blog about declarative home automation, smart home systems, and avoiding vendor lock-in with Nix-based solutions">
+    <title>🦆🧑‍🦯'blog</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+    <div class="navbar">
+        <div class="navbar-content">
+            <a href="https://github.com/QuackHack-McBlindy" title="GitHub">
+                <img src="../img/github_teal.png" alt="GitHub" class="github-icon" style="height: 32px;" onmouseover="this.src='../img/github_magenta.png';" onmouseout="this.src='../img/github_teal.png';"> </img>
+            </a>
+            <img src="../img/logo.png" height="48" width="48" >
+            <div class="navbar-title">
+                <span>🦆</span>🧑‍🦯 <a href="https://quackhack-mcblindy.github.io/blog/">QuackHack-McBlindy blog</a>
+            </div>
+            <button id="duckToggle" class="toggle-btn">
+                <span class="duck-icon">🦆</span>
+                Hide duck commentary
+            </button>
+        </div>
+    </div>
+    
+
+    <div class="toc-container">
+        <details class="toc-details">
+            <summary class="toc-header">
+                <span class="toc-duck">🦆</span>
+                <h3>Navigation</h3>
+                <span class="toc-man">🧑‍🦯</span>
+                <span class="toc-toggle">⮟</span>
+            </summary>
+            <nav class="toc-nav">
+                <a href="../yo/index.html" class="toc-item">
+                    <span class="toc-icon">🫀</span>
+                    Yo - Define & Unify
+                </a>
+                <a href="../do/index.html" class="toc-item">
+                    <span class="toc-icon">🧠</span>
+                    Do - Listen, Process, Act & Learn
+                </a>
+                <a href="index.html" class="toc-item current">
+                    <span class="toc-icon">🏠</span>
+                    House - Declarative Home Automation
+                    <span class="current-marker">🦆</span>
+                </a>
+                <a href="../docs/index.html" class="toc-item">
+                    <span class="toc-icon">📚</span>
+                    Documentation - Automating the README
+                </a>
+                <a href="../misc/index.html" class="toc-item">
+                    <span class="toc-icon">🧩</span>
+                    Miscellaneous
+                </a>
+            </nav>
+            <div class="toc-footer">
+                <span class="toc-quack">🦆 says ⮞ qwack qwack, plx pick!</span>
+            </div>
+        </details>
+    </div>
+    
+  
+    <div class="content">
+        <header class="category-title">
+            <h1>Defining Your Home</h1>
+            <p class="subtitle">The module I am configuring today is: <a href="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/house.nix">modules/house.nix</a><br></p>
+        </header>
+
+        
+        <div class="duck-comment">
+            <p># 🦆 says ⮞ I use 20x magnification when I code and debug. I use emoji to simplify logs for myself. If you can't handle my code style you can disable most of it on this website by toggling the button in the navbar. Shall duck continue? </p>
+        </div>
+        
+        <p>
+            Main content goes here. Add paragraphs, sections, code examples, and duck comments.
+        </p>
+        
+        <h2 class="section-title">First Section</h2>
+        
+        <p>
+            Section content goes here.
+        </p>
+        
+        <div class="duck-comment">
+            <p># 🦆 says ⮞ Your duck commentary here!</p>
+        </div>
+        
+        <p>
+            More content...
+        </p>
+        
+        <div class="callout">
+            <p>
+                Important callout content goes here.
+            </p>
+        </div>
+        
+        <h2 class="section-title">Code Examples</h2>
+        
+        <p>
+            When adding code examples, use the following structure:
+        </p>
+        
+        <div class="code-block-container">
+            <div class="code-header">
+                <div class="code-lang">Language Name</div>
+            </div>
+            <div class="code-block">
+                <pre><span class="duck-version">
+<span class="comment"># 🦆 says ⮞ duck-version code goes here</span>
+<span class="keyword">function</span> <span class="function">example</span>() {
+    <span class="keyword">echo</span> <span class="string">"Hello World"</span>
+}
+</span><span class="clean-version hidden">
+function example() {
+    echo "Hello World"
+}
+</span></pre>
+            </div>
+        </div>
+        
+        <div class="duck-comment">
+            <p># 🦆 says ⮞ Code explanation here</p>
+        </div>
+        
+        <h2 class="section-title">Key Features</h2>
+        
+        <div class="key-features">
+            <div class="feature-card">
+                <h3>Feature One</h3>
+                <p>Description of feature one.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>Feature Two</h3>
+                <p>Description of feature two.</p>
+            </div>
+            
+            <div class="feature-card">
+                <h3>Feature Three</h3>
+                <p>Description of feature three.</p>
+            </div>
+        </div>
+        
+        <p>
+            Cconclusion goes here.
+            
+            <div class="duck-comment">
+                <p># 🦆 says ⮞ Final duck thought</p>
+            </div>
+            
+            Final thoughts...
+            
+            <a href="https://github.com/your-repo" class="source-link">
+              View source code on GitHub
+            </a><br>
+
+            <section id="comments">
+              <h2>Comments on this blog post</h2>
+              <script 
+                src="https://utteranc.es/client.js"
+                repo="QuackHack-McBlindy/blog"
+                issue-term="pathname"
+                theme="github-light"
+                crossorigin="anonymous"
+                async>
+              </script>
+            </section>
+        </p>
+    </div>
+
+
+
+    </div>
+    
+    <footer>
+        <p>All thoughts are my own and should not be considered advice of any kind. More likely the opposite.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const tocDetails = document.querySelector('.toc-details');
+            const tocHeader = document.querySelector('.toc-header');
+            tocHeader.addEventListener('click', function() {
+                const isOpening = !tocDetails.open;
+        
+                if (isOpening) {
+                    tocDetails.style.maxHeight = tocDetails.scrollHeight + 'px';
+                } else {
+                    tocDetails.style.maxHeight = '60px'; // Approximate header height
+                }
+            });
+    
+            tocDetails.addEventListener('toggle', function() {
+                if (tocDetails.open) {
+                    tocDetails.style.maxHeight = tocDetails.scrollHeight + 'px';
+                } else {
+                    setTimeout(() => {
+                        tocDetails.style.maxHeight = null;
+                    }, 300);
+                }
+            });
+        });
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            const duckToggle = document.getElementById('duckToggle');
+            let ducksHidden = false;
+            
+            function toggleCodeDucks() {
+                ducksHidden = !ducksHidden;
+                
+                const duckComments = document.querySelectorAll('.duck-comment');
+                
+                duckComments.forEach(comment => {
+                    comment.style.display = ducksHidden ? 'none' : 'block';
+                });
+                
+                duckToggle.innerHTML = ducksHidden ? 
+                    '<span class="duck-icon">🦆</span> Show 🦆 commentary' : 
+                    '<span class="duck-icon">🦆</span> Hide 🦆 commentary';
+                    
+                const duckIcon = duckToggle.querySelector('.duck-icon');
+                duckIcon.style.transform = 'scale(1.2)';
+                setTimeout(() => {
+                    duckIcon.style.transform = 'scale(1)';
+                }, 300);
+            }
+            
+            duckToggle.addEventListener('click', toggleCodeDucks);
+        });
+        
+        // Scroll animation for images
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollImages = document.querySelectorAll('.scroll-image');
+    
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('scrolled');
+                    }
+                });
+            }, {
+                threshold: 0.1
+            });
+    
+            scrollImages.forEach(image => {
+                observer.observe(image);
+            });
+        });
+    </script>
+</body>
+</html>

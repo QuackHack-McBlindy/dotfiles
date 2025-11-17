@@ -221,7 +221,7 @@ in {
     category = "🗣️ Voice";
     logLevel = "INFO";
     parameters = [
-        { name = "chunk"; type = "int"; description = "Chunk size for the audio"; default = 1024; }
+        { name = "chunk"; type = "int"; description = "Chunk size for the audio"; default = 2048; }
         { name = "silence"; type = "int"; description = "How many seconds of silence before final chunk is sent"; default = 2; }
         { name = "silenceLevel"; type = "int"; description = "Threashhold level for it to be conciidered silence (default 500)"; default = 500; }  
     ];

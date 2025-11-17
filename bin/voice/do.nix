@@ -1417,6 +1417,8 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             }          
             None
         }
+
+
                  
         // 🦆 says ⮞ fallback yo! FUZZY MATCHIN' 2 teh moon!
         fn levenshtein_distance(&self, a: &str, b: &str) -> usize {
@@ -1871,7 +1873,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { name = "input"; description = "Text to translate"; optional = true; } 
-        { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 30; }
+        { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 60; }
         { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/do-rs"; optional = false; } 
         { name = "build"; type = "bool"; description = "Flag for building the Rust binary"; optional = true; default = false; }            
         { name = "realtime"; type = "bool"; description = "Run in real-time mode for voice assistant"; optional = true; default = false; } 

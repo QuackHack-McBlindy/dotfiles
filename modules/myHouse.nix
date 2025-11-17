@@ -69,6 +69,128 @@ in { # 🦆 duck say ⮞ qwack
         before = "9";
         duration = "900";
       };
+      
+  # 🦆 ⮞ AUTOMATIONS ⮜
+      automations = {  
+        greeting = {
+          enable = true;
+          awayDuration = "7200";
+          greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
+          delay = "10";
+          sayOnHost = "desktop";
+        };
+          
+        room_actions = {
+          hallway = { 
+            door_opened = [];
+            door_closed = [];
+          };  
+          bedroom = { 
+            # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion (if darkTime)
+            motion_detected = [
+              {
+                type = "scene";
+                scene = "Chill Scene";
+              }           
+            ];
+            motion_not_detected = [
+              {
+                type = "mqtt";
+                topic = "zigbee2mqtt/Sänggavel/set";
+                message = ''{"state":"OFF", "brightness": 80}'';
+              }              
+            ];
+          };
+        };
+          
+        global_actions = {
+          leak_detected = [
+            {
+              type = "shell";
+              command = "yo notify '🚨 WATER LEAK DETECTED!'";
+            }
+          ];
+          smoke_detected = [
+            {
+              type = "shell";
+              command = "yo notify '🔥 SMOKE DETECTED!'";
+            }
+          ];
+        };
+
+        # 🦆 says ⮞ default actions already configured -these are extra
+        dimmer_actions = {
+          kitchen = {
+            on_press_release = {
+              enable = true;
+              description = "Turns on all light devices in the dimmer device's room";
+              extra_actions = [
+                {
+                  type = "mqtt";
+                  topic = "zigbee2mqtt/Fläkt/set";
+                  message = ''{"state":"ON"}'';
+                }   
+              ];
+            };
+            on_hold_release = {
+              enable = true;
+              description = "Turns on every light device configured.";
+              extra_actions = [];
+            };
+            
+            up_press_release = {
+              enable = true;
+              description = "Increase the brightness in the room";
+              extra_actions = [];
+            };
+            up_hold_release = {
+              enable = true;
+              description = "No default action";
+              extra_actions = [];
+            };            
+
+            down_press_release = {
+              enable = true;
+              description = "Decrease brightness in room";
+              extra_actions = [];
+            };
+            down_hold_release = {
+              enable = true;
+              description = "No default action";
+              extra_actions = [];
+            };
+
+            off_press_release = {
+              enable = true;
+              description = "Turn off all lights in the room";
+              extra_actions = [];
+            };
+            off_hold_release = {
+              enable = true;
+              description = "Turn off all configured light devices";
+              extra_actions = [];
+              override_actions = [
+                {
+                  type = "shell";
+                  scene = "yo house --scene dark";
+                }
+              ];
+            };
+          };
+            
+          bedroom = {
+            off_hold_release = {
+              enable = true;
+              description = "Turn off all configured light devices";
+              extra_actions = [];
+              override_actions = [];
+            };
+          };              
+        };
+      };  
+
+
+
   # 🦆 ⮞ DEVICES ⮜      
       devices = { 
         # 🦆 says ⮞ Kitchen   
@@ -135,269 +257,119 @@ in { # 🦆 duck say ⮞ qwack
       
   # 🦆 ⮞ SCENES ⮜
       scenes = {
-            # 🦆 says ⮞ Scene name
-            "Duck Scene" = {
-                # 🦆 says ⮞ Device friendly_name
-                "PC" = { # 🦆 says ⮞ Device state
-                    state = "ON";
-                    brightness = 200;
-                    color = { hex = "#00FF00"; };
-                };
-            };
-            # 🦆 says ⮞ Scene 2    
-            "Chill Scene" = {
-                "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };               # 🦆 says ⮞ Blue Violet
-                "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };           # 🦆 says ⮞ Turquoise
-                "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };             # 🦆 says ⮞ Hot Pink
-                "Spotlight kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#FFD700"; }; }; # 🦆 says ⮞ Gold
-                "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#FF8C00"; }; }; # 🦆 says ⮞ Dark Orange
-                "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00CED1"; }; };   # 🦆 says ⮞ Dark Turquoise
-                "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # 🦆 says ⮞ Dark Orchid
-                "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };            # 🦆 says ⮞ Light Pink
-                "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
-                "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-                "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-                "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-                "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-            }; 
-            "Green D" = {
-                "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Spotlight kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-                "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-                "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-                "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-                "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-            };  
-            "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
-                "Bloom" = { state = "OFF"; transition = 10; };
-                "Dörr" = { state = "OFF"; transition = 10; };
-                "Golvet" = { state = "OFF"; transition = 10; };
-                "Kök Bänk Slinga" = { state = "OFF"; transition = 10; };
-                "PC" = { state = "OFF"; transition = 10; };
-                "Rustning" = { state = "OFF"; transition = 10; };
-                "Spotlight Kök 2" = { state = "OFF"; transition = 10; };
-                "Spotlight kök 1" = { state = "OFF"; transition = 10; };
-                "Sänggavel" = { state = "OFF"; transition = 10; };
-                "Sänglampa" = { state = "OFF"; transition = 10; };
-                "Tak Hall" = { state = "OFF"; transition = 10; };
-                "Taket Sovrum 1" = { state = "OFF"; transition = 10; };
-                "Taket Sovrum 2" = { state = "OFF"; transition = 10; };
-                "Uppe" = { state = "OFF"; transition = 10; };
-                "Vägg" = { state = "OFF"; transition = 10; };
-                "WC 1" = { state = "OFF"; transition = 10; };
-                "WC 2" = { state = "OFF"; transition = 10; };
-                "Takkrona 1" = { state = "OFF"; transition = 10; };   
-                "Takkrona 2" = { state = "OFF"; transition = 10; };
-                "Takkrona 3" = { state = "OFF"; transition = 10; };   
-                "Takkrona 4" = { state = "OFF"; transition = 10; };   
-            };  
-            "dark-fast" = { # 🦆 says ⮞ eat darkness... NAO!  
-                "Bloom" = { state = "OFF"; };
-                "Dörr" = { state = "OFF"; };
-                "Golvet" = { state = "OFF"; };
-                "Kök Bänk Slinga" = { state = "OFF"; };
-                "PC" = { state = "OFF"; };
-                "Rustning" = { state = "OFF"; };
-                "Spotlight Kök 2" = { state = "OFF"; };
-                "Spotlight kök 1" = { state = "OFF"; };
-                "Sänggavel" = { state = "OFF"; };
-                "Sänglampa" = { state = "OFF"; };
-                "Tak Hall" = { state = "OFF"; };
-                "Taket Sovrum 1" = { state = "OFF"; };
-                "Taket Sovrum 2" = { state = "OFF"; };
-                "Uppe" = { state = "OFF"; };
-                "Vägg" = { state = "OFF"; };
-                "WC 1" = { state = "OFF"; };
-                "WC 2" = { state = "OFF"; };
-                "Takkrona 1" = { state = "OFF"; };   
-                "Takkrona 2" = { state = "OFF"; };
-                "Takkrona 3" = { state = "OFF"; };   
-                "Takkrona 4" = { state = "OFF"; };   
-            };  
-            "max" = { # 🦆 says ⮞ let there be light
-                "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Dörr" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Golvet" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Kök Bänk Slinga" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "PC" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Rustning" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Spotlight Kök 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Spotlight kök 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Sänggavel" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Sänglampa" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Tak Hall" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Taket Sovrum 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Taket Sovrum 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Uppe" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Vägg" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "WC 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "WC 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Takkrona 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
-                "Takkrona 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-                "Takkrona 3" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
-                "Takkrona 4" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-            };    
-        };       
-
-  # 🦆 ⮞ AUTOMATIONS ⮜
-        automations = {  
-          greeting = {
-            enable = true;
-            awayDuration = "7200";
-            greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
-            delay = "10";
-            sayOnHost = "desktop";
+          # 🦆 says ⮞ Scene name
+          "Duck Scene" = {
+              # 🦆 says ⮞ Device friendly_name
+              "PC" = { # 🦆 says ⮞ Device state
+                  state = "ON";
+                  brightness = 200;
+                  color = { hex = "#00FF00"; };
+              };
           };
-
-          time_based = {
-            qwack = { # 🦆 duck say ⮞ pick a name
-              enable = true;
-              description = "Gradual wake-up with news and coffee";
-              schedule = { # 🦆 duck say ⮞ when to run
-                start = "16:10";
-                end = "07:00";
-                days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"]; # 🦆 duck say ⮞ and what days
-              };
-              conditions = [ # 🦆 duck say ⮞ only run when someone is home qwack
-               { type = "someone_home"; value = true; }
-              ]; 
-              actions = [
-                {
-                  type = "shell";
-                  scene = "ssh desktop say 'qwack qwack'";
-                }
-              ];
-            };
-          };
-          
-          room_actions = {
-            hallway = { 
-              door_opened = [];
-              door_closed = [];
-            };  
-            bedroom = { 
-              # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion (if darkTime)
-              motion_detected = [
-                {
-                  type = "scene";
-                  scene = "Chill Scene";
-                }           
-              ];
-              motion_not_detected = [
-                {
-                  type = "mqtt";
-                  topic = "zigbee2mqtt/Sänggavel/set";
-                  message = ''{"state":"OFF", "brightness": 80}'';
-                }              
-              ];
-            };
-          };
-          
-          global_actions = {
-            leak_detected = [
-              {
-                type = "shell";
-                command = "yo notify '🚨 WATER LEAK DETECTED!'";
-              }
-            ];
-            smoke_detected = [
-              {
-                type = "shell";
-                command = "yo notify '🔥 SMOKE DETECTED!'";
-              }
-            ];
-          };
-
-          # 🦆 says ⮞ default actions already configured -these are extra
-          dimmer_actions = {
-            kitchen = {
-              on_press_release = {
-                enable = true;
-                description = "Turns on all light devices in the dimmer device's room";
-                extra_actions = [
-                  {
-                    type = "mqtt";
-                    topic = "zigbee2mqtt/Fläkt/set";
-                    message = ''{"state":"ON"}'';
-                  }   
-                ];
-              };
-              on_hold_release = {
-                enable = true;
-                description = "Turns on every light device configured.";
-                extra_actions = [];
-              };
-            
-              up_press_release = {
-                enable = true;
-                description = "Increase the brightness in the room";
-                extra_actions = [];
-              };
-              up_hold_release = {
-                enable = true;
-                description = "No default action";
-                extra_actions = [];
-              };            
-
-              down_press_release = {
-                enable = true;
-                description = "Decrease brightness in room";
-                extra_actions = [];
-              };
-              down_hold_release = {
-                enable = true;
-                description = "No default action";
-                extra_actions = [];
-              };
-
-              off_press_release = {
-                enable = true;
-                description = "Turn off all lights in the room";
-                extra_actions = [];
-              };
-              off_hold_release = {
-                enable = true;
-                description = "Turn off all configured light devices";
-                extra_actions = [];
-                override_actions = [
-                  {
-                    type = "mqtt";
-                    topic = "zigbee2mqtt/Fläkt/set";
-                    message = ''{"state":"OFF"}'';
-                  }
-                  {
-                    type = "scene";
-                    scene = "dark";
-                  }
-                ];
-              };
-            };
-            
-            bedroom = {
-              off_hold_release = {
-                enable = true;
-                description = "Turn off all configured light devices";
-                extra_actions = [];
-                override_actions = [
-                  {
-                    type = "scene";
-                    scene = "dark";
-                  }
-                ];
-              };
-            };              
-          };
-        };  
+          # 🦆 says ⮞ Scene 2    
+          "Chill Scene" = {
+              "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };               # 🦆 says ⮞ Blue Violet
+              "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };           # 🦆 says ⮞ Turquoise
+              "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };             # 🦆 says ⮞ Hot Pink
+              "Spotlight kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#FFD700"; }; }; # 🦆 says ⮞ Gold
+              "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#FF8C00"; }; }; # 🦆 says ⮞ Dark Orange
+              "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00CED1"; }; };   # 🦆 says ⮞ Dark Turquoise
+              "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # 🦆 says ⮞ Dark Orchid
+              "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };            # 🦆 says ⮞ Light Pink
+              "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
+              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+          }; 
+          "Green D" = {
+              "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Spotlight kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Spotlight Kök 2" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Taket Sovrum 1" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
+              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+          };  
+          "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
+              "Bloom" = { state = "OFF"; transition = 10; };
+              "Dörr" = { state = "OFF"; transition = 10; };
+              "Golvet" = { state = "OFF"; transition = 10; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 10; };
+              "PC" = { state = "OFF"; transition = 10; };
+              "Rustning" = { state = "OFF"; transition = 10; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 10; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 10; };
+              "Sänggavel" = { state = "OFF"; transition = 10; };
+              "Sänglampa" = { state = "OFF"; transition = 10; };
+              "Tak Hall" = { state = "OFF"; transition = 10; };
+              "Taket Sovrum 1" = { state = "OFF"; transition = 10; };
+              "Taket Sovrum 2" = { state = "OFF"; transition = 10; };
+              "Uppe" = { state = "OFF"; transition = 10; };
+              "Vägg" = { state = "OFF"; transition = 10; };
+              "WC 1" = { state = "OFF"; transition = 10; };
+              "WC 2" = { state = "OFF"; transition = 10; };
+              "Takkrona 1" = { state = "OFF"; transition = 10; };   
+              "Takkrona 2" = { state = "OFF"; transition = 10; };
+              "Takkrona 3" = { state = "OFF"; transition = 10; };   
+              "Takkrona 4" = { state = "OFF"; transition = 10; };   
+          };  
+          "dark-fast" = { # 🦆 says ⮞ eat darkness... NAO!  
+              "Bloom" = { state = "OFF"; };
+              "Dörr" = { state = "OFF"; };
+              "Golvet" = { state = "OFF"; };
+              "Kök Bänk Slinga" = { state = "OFF"; };
+              "PC" = { state = "OFF"; };
+              "Rustning" = { state = "OFF"; };
+              "Spotlight Kök 2" = { state = "OFF"; };
+              "Spotlight kök 1" = { state = "OFF"; };
+              "Sänggavel" = { state = "OFF"; };
+              "Sänglampa" = { state = "OFF"; };
+              "Tak Hall" = { state = "OFF"; };
+              "Taket Sovrum 1" = { state = "OFF"; };
+              "Taket Sovrum 2" = { state = "OFF"; };
+              "Uppe" = { state = "OFF"; };
+              "Vägg" = { state = "OFF"; };
+              "WC 1" = { state = "OFF"; };
+              "WC 2" = { state = "OFF"; };
+              "Takkrona 1" = { state = "OFF"; };   
+              "Takkrona 2" = { state = "OFF"; };
+              "Takkrona 3" = { state = "OFF"; };   
+              "Takkrona 4" = { state = "OFF"; };   
+          };  
+          "max" = { # 🦆 says ⮞ let there be light
+              "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Dörr" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Kök Bänk Slinga" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "PC" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Rustning" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Spotlight Kök 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Spotlight kök 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Sänggavel" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Sänglampa" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Tak Hall" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Taket Sovrum 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Taket Sovrum 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Uppe" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Vägg" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "WC 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "WC 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Takkrona 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
+              "Takkrona 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Takkrona 3" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
+              "Takkrona 4" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+          };    
+      };       
     };
     
-  # 🦆 ⮞ TV ⮜
+    # 🦆 ⮞ TV ⮜
     tv = {
       # 🦆 says ⮞ Livingroom
       shield = {

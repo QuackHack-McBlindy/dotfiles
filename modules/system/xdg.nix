@@ -1,5 +1,5 @@
-# dotfiles/modules/system/xdg.nix
-{ 
+# dotfiles/modules/system/xdg.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says⮞ xdg configuration
   config,
   pkgs,
   lib,
@@ -19,7 +19,7 @@
         
         xdg.mime.enable = true;
   
-        # Added Associations 
+        # 🦆 says⮞ Added Associations 
         xdg.mime.addedAssociations = {
             "text/plain" = "org.gnome.TextEditor.desktop";
             "x-scheme-handler/http" = "firefox-esr.desktop";
@@ -46,7 +46,7 @@
   
         xdg.mime.removedAssociations = { };
   
-        # Default Applications
+        # 🦆 says⮞ Default Applications
         xdg.mime.defaultApplications = {
             "x-scheme-handler/terminal" = "ghostty.desktop"; 
             "application/illustrator" = "org.gnome.Evince.desktop";

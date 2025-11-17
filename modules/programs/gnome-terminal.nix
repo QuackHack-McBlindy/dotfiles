@@ -1,4 +1,5 @@
-{ 
+# dotfiles/modules/programs/gnome-terminal.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ gnome-terminal configuration
   config,
   lib,
   pkgs,
@@ -44,4 +45,5 @@
         ];
       };
     };
+    
   };}

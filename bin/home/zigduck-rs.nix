@@ -613,10 +613,24 @@
    
         // 🦆 says ⮞ TODO
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info(&format!("Activating scene: {}", scene_name));
-            self.run_yo_command(&["house", "--scene", scene_name])?;
+            let output = Command::new("yo")
+                .arg("house")
+                .arg("--scene")
+                .arg(scene_name)
+                .output()?;
+    
+            if !output.status.success() {
+                let error_msg = format!(
+                    "Failed to activate scene '{}': {}",
+                    scene_name,
+                    String::from_utf8_lossy(&output.stderr)
+                );
+                self.quack_info(&error_msg);
+                return Err(error_msg.into());
+            }
+            self.quack_info(&format!("Activated scene: {}", scene_name));
             Ok(())
-        }   
+        }
    
         // 🦆 says ⮞ duckTrace - quack loggin' be bitchin'
         fn quack_debug(&self, msg: &str) {
@@ -1533,7 +1547,7 @@ EOF
     code = ''
       ${cmdHelpers}
       MQTT_BROKER="${mqttHostip}"
-      #MQTT_BROKER="localhost"
+
       dt_info "MQTT_BROKER: $MQTT_BROKER" 
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")

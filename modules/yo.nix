@@ -620,7 +620,7 @@ EOF
           '') script.aliases}
         ''
     ) cfg.scripts; # 🦆 duck say ⮞ apply da logic to da yo scriptz
-  }; 
+  };
 
   # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
   githubBaseUrl = let # 🦆 duck say ⮞ pattern match to extract username and repo name

@@ -26,11 +26,8 @@ in {
     voice = {
       priority = 2;
       sentences = [
-        "få höra [ett] [roligt] skämt"
-        "berätta [ett] [roligt] skämt" 
-        "säg [ett] [roligt] skämt"
-        "få mig [att] skratta"
-        "gör mig glad"
+        "[få] (berätta|höra|säg) [ett] [roligt] skämt"
+        "(gör|få) mig [att] (skratta|glad)"
       ];      
     };
   };

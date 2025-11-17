@@ -1,6 +1,0 @@
-language: "sv"
-intents:
-  helphome:
-    data:
-      - sentences:
-          - "(bus|buss|busse|buse|bussen)"

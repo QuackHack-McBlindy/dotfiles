@@ -1,5 +1,5 @@
 # dotfiles/modules/services/ssh.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ 
+{ # 🦆 duck say ⮞ SSH
   config,
   lib,
   pkgs,

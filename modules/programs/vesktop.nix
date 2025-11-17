@@ -1,5 +1,5 @@
-# modules/programs/vesktop.nix
-{ 
+# dotfiles/modules/programs/vesktop.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ vesktop configuration
   config,
   lib,
   pkgs,
@@ -19,7 +19,7 @@ in {
         ExecStart = let
           script = pkgs.writeShellScriptBin "vesktop-init" ''
             mkdir -p "${vesktopThemeDir}"
-            # Create globalTheme.css
+            # 🦆says⮞ create globalTheme.css
             cat > "${vesktopThemeDir}/globalTheme.css" <<EOF
             ${themeCSS}
             EOF
@@ -32,5 +32,4 @@ in {
       pkgs.vesktop  
     ];
 
-  };
-}
+  };}

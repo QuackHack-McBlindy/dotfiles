@@ -1,5 +1,5 @@
-# dotfiles/modules/system/gnome.nix
-{ 
+# dotfiles/modules/system/gnome.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says⮞ Gnome configuration
     config,
     lib,
     pkgs,
@@ -128,7 +128,8 @@ in {
             programs.dconf.profiles.user.databases = [{
               settings = {
                 "org/gnome/desktop/a11y/applications" = {
-                  screen-magnifier-enabled = lib.gvariant.mkBoolean true;
+                  # 🦆 says⮞ THANKZ!
+                  screen-magnifier-enabled = lib.gvariant.mkBoolean true; 
                   screen-reader-enabled = lib.gvariant.mkBoolean false;
                 };
 
@@ -317,7 +318,6 @@ in {
                     (lib.gvariant.mkDouble 0.561)
                   ];
 
-                  # Apply the same pattern to all palette entries
                   palette1 = [
                     (lib.gvariant.mkUint32 20)
                     (lib.gvariant.mkUint32 31)
@@ -406,7 +406,6 @@ in {
           programs.dconf.profiles.user.databases = [
             {
               settings = {
-                # MUST list ALL custom keybinding paths here
                 "org/gnome/settings-daemon/plugins/media-keys" = {
                   custom-keybindings = [
                     "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1/"
@@ -424,11 +423,10 @@ in {
                   keyboard-brightness-down = ["<Primary>KP_Subtract"];
                 };
         
-                # Fixed terminal command with absolute paths
                 "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
                   name = "terminal";
                   command = "bash -c 'if ! pgrep gnome-terminal-server >/dev/null; then gnome-terminal; else gnome-terminal --tab; fi'";
-                  binding = "section"; # Verify key symbol with xev
+                  binding = "section";
                 };
         
                 "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
@@ -443,7 +441,6 @@ in {
                   binding = "<Primary><Shift>d";
                 };
         
-                # Rest of your existing configuration remains unchanged
                 "org/gnome/terminal/legacy/keybindings" = {
                   copy = ["<Primary>c"];
                   paste = ["<Primary>v"];

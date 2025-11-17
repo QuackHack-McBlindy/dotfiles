@@ -62,6 +62,10 @@
     )
     logger = logging.getLogger("whisperd")
     
+    # 🦆 import duckTrace loggin'
+    import sys
+    ${PyDuckTrace}
+    
     # 🦆 says ⮞ audio configuration
     SAMPLE_RATE = 16000
     SAMPLE_WIDTH = 2
@@ -248,7 +252,7 @@ in { # 🦆 says ⮞ yo yo yo yo
   yo.scripts.transcribe = {
     description = "Transcription server-side service. Sit and waits for audio that get transcribed and returned.";
     category = "🗣️ Voice"; 
-    autoStart = true;
+    autoStart = false;
     #autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    helpFooter = '' # 🦆 says ⮞ TODO some useful & fun helpFooter yo
 #    '';
