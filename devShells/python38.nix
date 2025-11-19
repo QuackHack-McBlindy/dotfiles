@@ -1,5 +1,5 @@
-# dotfiles/devShells/python.nix
-{ 
+# dotfiles/devShells/python38.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ 4 da python 3.8 development
   pkgs,
   system,
   inputs,
@@ -22,7 +22,6 @@
 #    ps.openwakeword
   ];
 
-  # 👇 Use Python 3.10 (since 3.8 isn't available in your Nixpkgs)
   myPython = pkgs.python310.withPackages pythonPackages;
   actualPythonPkgs = pythonPackages pkgs.python310.pkgs;
 
@@ -39,6 +38,7 @@
 in {
   buildInputs = myBuildInputs;
 
+  # 🦆 says ⮞ display dependencies when entering shell
   shellHook = ''
     echo "Running on ${system}"
     echo ""

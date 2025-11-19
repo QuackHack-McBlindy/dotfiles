@@ -1,9 +1,10 @@
-{ 
+# dotfiles/devShells/rust.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ 4 da rust development
   pkgs,
   system,
   inputs,
   self
-} : let
+} : let # 🦆says⮞ list dependencies
   myBuildInputs = with pkgs; [
     git
     nixpkgs-fmt
@@ -18,6 +19,7 @@
 in {
   buildInputs = myBuildInputs;
 
+  # 🦆 says ⮞ display dependencies when entering shell
   shellHook = ''
     echo "Running on ${system}"
     echo ""

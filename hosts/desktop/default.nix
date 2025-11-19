@@ -7,7 +7,7 @@
   ...
 } : { 
 
-    networking.firewall.allowedTCPPorts = [ 8111 7777 ];
+    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   

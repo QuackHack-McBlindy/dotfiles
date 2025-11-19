@@ -1,11 +1,53 @@
 # dotfiles/modules/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ here we define options that help us control our house yo 
+  self,
   config,
   lib,
   pkgs,
   ...
 } : let
   inherit (lib) types mkOption mkEnableOption mkMerge;  
+
+  cmdHelpers = ''
+    say_duck() { # 🦆 duck say ⮞ diis need explaination? 
+      echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
+    }  
+    mqtt_pub() { # 🦆 says ⮞ publish Mosquitto
+      ${pkgs.mosquitto}/bin/mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
+    }
+    color2hex() { # 🦆 duck say ⮞ outputs random hex within color range from plain text color names
+      local color="$1"
+      declare -A color_ranges=(
+        ["red"]="255,0,0:165,0,0"
+        ["green"]="0,255,0:0,100,0"
+        ["blue"]="0,0,255:0,0,165"
+        ["yellow"]="255,255,0:200,200,0"
+        ["orange"]="255,165,0:205,100,0"
+        ["purple"]="128,0,128:80,0,80"
+        ["pink"]="255,192,203:220,150,160"
+        ["white"]="255,255,255:240,240,240"
+        ["black"]="10,10,10:0,0,0"
+        ["gray"]="160,160,160:80,80,80"
+        ["brown"]="165,42,42:120,30,30"
+        ["cyan"]="0,255,255:0,200,200"
+        ["magenta"]="255,0,255:180,0,180"
+      )
+      local r g b
+      if [[ -z "$color" || "$color" == "random" || -z "''${color_ranges[$color]}" ]]; then
+        r=$(( RANDOM % 256 ))
+        g=$(( RANDOM % 256 ))
+        b=$(( RANDOM % 256 ))
+      else
+        IFS=':' read -r min_range max_range <<< "''${color_ranges[$color]}"
+        IFS=',' read -r min_r min_g min_b <<< "$min_range"
+        IFS=',' read -r max_r max_g max_b <<< "$max_range"
+        r=$(( min_r + RANDOM % (max_r - min_r + 1) ))
+        g=$(( min_g + RANDOM % (max_g - min_g + 1) ))
+        b=$(( min_b + RANDOM % (max_b - min_b + 1) ))
+      fi
+      printf "%02x%02x%02x\n" "$r" "$g" "$b"
+    }
+  '';
 
   getAllMotionSensors = 
     let devices = config.house.zigbee.devices or {};
@@ -206,6 +248,116 @@
       message = "🦆 duck say ⮞ fuck ❌ MQTT SSL client authentication requires both clientCertFile and clientKeyFile";
     }
   ];
+
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
+
+  # 🦆 says ⮞ define Zigbee devices here yo 
+  zigbeeDevices = config.house.zigbee.devices;
+  
+  # 🦆 says ⮞ case-insensitive device matching
+  normalizedDeviceMap = lib.mapAttrs' (id: device:
+    lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
+  ) zigbeeDevices;
+
+  # 🦆 says ⮞ device validation list
+  deviceList = builtins.attrNames normalizedDeviceMap;
+
+  # 🦆 says ⮞ scene simplifier? or not
+  sceneLight = {state, brightness ? 200, hex ? null, temp ? null}:
+    let
+      colorValue = if hex != null then { inherit hex; } else null;
+    in
+    {
+      inherit state brightness;
+    } // (if colorValue != null then { color = colorValue; } else {})
+      // (if temp != null then { color_temp = temp; } else {});
+
+  # 🎨 Scenes  🦆 YELLS ⮞ SCENES!!!!!!!!!!!!!!!11
+  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!   
+
+  # 🦆 says ⮞ Generate scene commands    
+  makeCommand = device: settings:
+    let
+      json = builtins.toJSON settings;
+    in
+      ''
+      mqtt_pub -t "zigbee2mqtt/${device}/set" -m '${json}'
+      '';
+      
+  sceneCommands = lib.mapAttrs
+    (sceneName: sceneDevices:
+      lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
+    ) scenes;  
+
+  # 🦆 says ⮞ Filter devices by rooms
+  byRoom = lib.foldlAttrs (acc: id: dev:
+    lib.recursiveUpdate acc {
+      ${dev.room} = (acc.${dev.room} or []) ++ [ id ];
+    }) {} zigbeeDevices;
+
+  # 🦆 says ⮞ Filter by device type
+  byType = lib.foldlAttrs (acc: id: dev:
+    lib.recursiveUpdate acc {
+      ${dev.type} = (acc.${dev.type} or []) ++ [ id ];
+    }) {} zigbeeDevices;
+
+  # 🦆 says ⮞ dis creates group configuration for Z2M yo
+  groupConfig = lib.mapAttrs' (room: ids: {
+    name = room;
+    value = {
+      friendly_name = room;
+      devices = map (id: 
+        let dev = zigbeeDevices.${id};
+        in "${id}/${toString dev.endpoint}"
+      ) ids;
+    };
+  }) byRoom;
+
+  # 🦆 says ⮞ gen json from `config.house.tv`  
+  tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
+
+  # 🦆 says ⮞ dis creates device configuration for Z2M yo
+  deviceConfig = lib.mapAttrs (id: dev: {
+    friendly_name = dev.friendly_name;
+  }) zigbeeDevices;
+
+  # 🦆 says ⮞ IEEE not very human readable - lets fix dat yo
+  ieeeToFriendly = lib.mapAttrs (ieee: dev: dev.friendly_name) zigbeeDevices;
+  mappingJSON = builtins.toJSON ieeeToFriendly;
+  mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
+
+  # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
+  deviceMeta = builtins.toJSON (
+    lib.listToAttrs (
+      lib.filter (attr: attr.name != null) (
+        lib.mapAttrsToList (_: dev: {
+          name = dev.friendly_name;
+          value = {
+            room = dev.room;
+            type = dev.type;
+            id = dev.friendly_name;
+            endpoint = dev.endpoint;
+          };
+        }) zigbeeDevices
+      )
+    )
+  );# 🦆 says ⮞ yaaaaaaaaaaaaaaay
+
 
 in { # 🦆 says ⮞ Options for da house
     options.house = {
@@ -870,6 +1022,126 @@ in { # 🦆 says ⮞ Options for da house
           DARK_TIME_END="${config.house.zigbee.darkTime.end}"
         '';    
       }
+        
+      {
+        environment.systemPackages = [
+          pkgs.clang
+          # 🦆 says ⮞ Dependencies 
+          pkgs.mosquitto
+          pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
+          # 🦆 says ⮞ scene fireworks  
+          (pkgs.writeScriptBin "scene-roll" ''
+            ${cmdHelpers}
+            ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
+          '')
+          # 🦆 says ⮞ activate a scene yo
+          (pkgs.writeScriptBin "scene" ''
+            ${cmdHelpers}
+            MQTT_BROKER="${mqttHostip}"
+            if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
+              MQTT_BROKER="localhost"
+            fi
+            MQTT_USER="${config.house.zigbee.mosquitto.username}"
+            MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
+            SCENE="$1"      
+            # 🦆 says ⮞ no scene == random scene
+            if [ -z "$SCENE" ]; then
+              SCENE=$(shuf -n 1 -e ${lib.concatStringsSep " " (lib.map (name: "\"${name}\"") (lib.attrNames sceneCommands))})
+            fi      
+            case "$SCENE" in
+            ${
+              lib.concatStringsSep "\n" (
+                lib.mapAttrsToList (sceneName: cmds:
+                  let
+                    commandLines = lib.concatStringsSep "\n    " (
+                      lib.mapAttrsToList (_: cmd: cmd) cmds
+                    );
+                  in
+                    "\"${sceneName}\")\n    ${commandLines}\n    ;;"
+                ) sceneCommands
+              )
+            }
+            *)
+              say_duck "fuck ❌"
+              exit 1
+              ;;
+            esac
+          '')     
+          # 🦆 says ⮞ helper function 4 controlling zingle device
+          (pkgs.writeScriptBin "zig" ''
+            ${cmdHelpers}
+            set -euo pipefail
+            # 🦆 says ⮞ create case insensitive map of device friendly_name
+            declare -A device_map=(
+              ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)}
+            )
+            available_devices=(
+              ${toString deviceList}
+            )    
+            DEVICE="$1" # 🦆 says ⮞ device to control      
+            STATE="''${2:-}" # 🦆 says ⮞ state change        
+            BRIGHTNESS="''${3:-100}"
+            COLOR="''${4:-}"
+            TEMP="''${5:-}"
+            ZIGBEE_DEVICES='${deviceMeta}'
+            MQTT_BROKER="${mqttHostip}"
+            if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
+              MQTT_BROKER="localhost"
+            fi
+            #MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
+            MQTT_USER="${config.house.zigbee.mosquitto.username}"
+            MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
+            # 🦆 says ⮞ Zigbee coordinator backup
+            if [[ "$DEVICE" == "backup" ]]; then
+              mqtt_pub -t "zigbee2mqtt/backup/request" -m '{"action":"backup"}'
+              say_duck "Zigbee coordinator backup requested! - processing on server..."
+              exit 0
+            fi         
+            # 🦆 says ⮞ validate device
+            input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
+            exact_name=''${device_map["$input_lower"]}
+            if [[ -z "$exact_name" ]]; then
+              say_duck "fuck ❌ device not found: $DEVICE" >&2
+              say_duck "Available devices: ${toString (builtins.attrNames zigbeeDevices)}" >&2
+              exit 1
+            fi
+            # 🦆 says ⮞ if COLOR da lamp prob want hex yo
+            if [[ -n "$COLOR" ]]; then
+              COLOR=$(color2hex "$COLOR") || {
+                say_duck "fuck ❌ Invalid color: $COLOR" >&2
+                exit 1
+              }
+            fi
+            # 🦆 says ⮞ turn off the device
+            if [[ "$STATE" == "off" ]]; then
+              mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
+              say_duck " turned off $DEVICE"
+              exit 0
+            fi    
+            # 🦆 says ⮞ turn down the device brightness
+            if [[ "$STATE" == "down" ]]; then
+              say_duck "🔻 Decreasing $light_id in $clean_room"
+              mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":-50,"transition":3.5}'
+              exit 0
+            fi      
+            # 🦆 says ⮞ turn up the device brightness
+            if [[ "$STATE" == "up" ]]; then
+              say_duck "🔺 Increasing brightness on $light_id in $clean_room"
+              mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":50,"transition":3.5}'
+              exit 0
+            fi      
+            # 🦆 says ⮞ construct payload
+            PAYLOAD="{\"state\":\"ON\""
+            [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"
+            [[ -n "$COLOR" ]] && PAYLOAD+=", \"color\":{\"hex\":\"$COLOR\"}"
+            PAYLOAD+="}"
+            # 🦆 says ⮞ publish payload
+            mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
+            say_duck "$PAYLOAD"   
+          '') 
+        ];        
+      }
+       
      
       {
         services.udev.extraRules = let
@@ -881,4 +1153,4 @@ in { # 🦆 says ⮞ Options for da house
       }
 
         
-    ];}  
+    ];}

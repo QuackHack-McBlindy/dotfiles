@@ -1,5 +1,5 @@
-# dotfiles/devShells/python.nix
-{ 
+# dotfiles/devShells/python312.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ 4 da python312 development
   pkgs,
   system,
   inputs,
@@ -40,6 +40,7 @@
 in {
   buildInputs = myBuildInputs;
 
+  # 🦆 says ⮞ display dependencies when entering shell
   shellHook = ''
     echo "Running on ${system}"
     echo ""

@@ -13,11 +13,10 @@
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-#  mqttHost = lib.findSingle (host:
-#      let cfg = self.nixosConfigurations.${host}.config;
-#      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
-  mqttHost = "homie";
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -28,7 +27,7 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
 
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
@@ -133,6 +132,7 @@
   devices-json = pkgs.writeText "devices.json" deviceMeta;
   # 🦆 says ⮞ RUSTY SMART HOME qwack qwack     
   zigduck-rs = pkgs.writeText "zigduck-rs" ''        
+    
     use rumqttc::{MqttOptions, Client, QoS, Event, Incoming};
     use serde_json::{Value, json};
     use std::collections::HashMap;
@@ -142,7 +142,65 @@
     use std::process::Command;
     use serde::{Deserialize, Serialize};
     use chrono::{Local, Timelike};
+    use warp::Filter;
+    use std::sync::Arc;
+    use parking_lot::RwLock;
+    use futures::FutureExt;
     
+    // 🦆 API Response Structures
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ApiResponse {
+        success: bool,
+        message: String,
+        data: Option<Value>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct DeviceControlRequest {
+        state: Option<String>,
+        brightness: Option<u8>,
+        color: Option<ColorRequest>,
+        transition: Option<f64>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct ColorRequest {
+        hex: Option<String>,
+        temp: Option<u16>,
+        x: Option<f32>,
+        y: Option<f32>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct SceneRequest {
+        scene: String,
+        transition: Option<f64>,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct SystemStatus {
+        uptime: u64,
+        total_messages: u64,
+        connected_devices: usize,
+        mqtt_connected: bool,
+        performance_stats: HashMap<String, u128>,
+        dark_time_enabled: bool,
+        security_armed: bool,
+    }
+    
+    // 🦆 Shared State for API
+    #[derive(Clone)]
+    struct ApiState {
+        zigduck: Arc<RwLock<ZigduckState>>,
+    }
+    
+    impl ApiState {
+        fn new(zigduck: Arc<RwLock<ZigduckState>>) -> Self {
+            Self { zigduck }
+        }
+    }
+    
+
     #[derive(Debug, Clone, Serialize, Deserialize)]
     struct Device {
         room: String,
@@ -215,6 +273,7 @@
         message_counts: HashMap<String, u64>,
         total_messages: u64,
         debug: bool,
+        start_time: SystemTime,
     }
 
 
@@ -273,8 +332,360 @@
         last_motion: HashMap<String, SystemTime>,
     }
 
+    // 🦆 API Implementation
+    impl ApiState {
+        async fn get_devices(&self) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            let mut devices_with_state = HashMap::new();
+            
+            for (device_id, device) in &state.devices {
+                let device_state = state.get_device_state(device_id);
+                devices_with_state.insert(device_id.clone(), json!({
+                    "info": device,
+                    "state": device_state
+                }));
+            }
+            
+            Ok(warp::reply::json(&ApiResponse {
+                success: true,
+                message: "Devices retrieved".to_string(),
+                data: Some(json!(devices_with_state)),
+            }))
+        }
+    
+        async fn control_device(&self, device_id: String, control: DeviceControlRequest) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            
+            if !state.devices.contains_key(&device_id) {
+                return Ok(warp::reply::json(&ApiResponse {
+                    success: false,
+                    message: format!("Device '{}' not found", device_id),
+                    data: None,
+                }));
+            }
+    
+            let mut message = serde_json::Map::new();
+            
+            if let Some(state_cmd) = &control.state {
+                message.insert("state".to_string(), Value::String(state_cmd.to_string()));
+            }
+            
+            if let Some(brightness) = control.brightness {
+                message.insert("brightness".to_string(), Value::Number(brightness.into()));
+            }
+            
+            if let Some(transition) = control.transition {
+                message.insert("transition".to_string(), Value::Number(serde_json::Number::from_f64(transition).unwrap()));
+            }
+            
+            if let Some(color) = control.color {
+                if let Some(hex) = color.hex {
+                    message.insert("color".to_string(), json!({ "hex": hex }));
+                } else if let Some(temp) = color.temp {
+                    message.insert("color_temp".to_string(), Value::Number(temp.into()));
+                } else if color.x.is_some() && color.y.is_some() {
+                    message.insert("color".to_string(), json!({
+                        "x": color.x.unwrap(),
+                        "y": color.y.unwrap()
+                    }));
+                }
+            }
+    
+            let topic = format!("zigbee2mqtt/{}/set", device_id);
+            
+            match state.mqtt_publish(&topic, &Value::Object(message).to_string()) {
+                Ok(_) => Ok(warp::reply::json(&ApiResponse {
+                    success: true,
+                    message: format!("Device '{}' controlled successfully", device_id),
+                    data: None,
+                })),
+                Err(e) => Ok(warp::reply::json(&ApiResponse {
+                    success: false,
+                    message: format!("Failed to control device: {}", e),
+                    data: None,
+                })),
+            }
+        }
+    
+        async fn activate_scene(&self, scene_name: String) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            
+            match state.activate_scene(&scene_name) {
+                Ok(_) => Ok(warp::reply::json(&ApiResponse {
+                    success: true,
+                    message: format!("Scene '{}' activated", scene_name),
+                    data: None,
+                })),
+                Err(e) => Ok(warp::reply::json(&ApiResponse {
+                    success: false,
+                    message: format!("Failed to activate scene: {}", e),
+                    data: None,
+                })),
+            }
+        }
+    
+        async fn get_system_status(&self) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            let uptime = SystemTime::now().duration_since(state.start_time)
+                .unwrap_or(Duration::from_secs(0))
+                .as_secs();
+    
+            let status = SystemStatus {
+                uptime,
+                total_messages: state.total_messages,
+                connected_devices: state.devices.len(),
+                mqtt_connected: true, // We'd need to track connection state
+                performance_stats: state.processing_times.clone(),
+                dark_time_enabled: state.dark_time_enabled,
+                security_armed: state.get_larmed(),
+            };
+    
+            Ok(warp::reply::json(&ApiResponse {
+                success: true,
+                message: "System status".to_string(),
+                data: Some(json!(status)),
+            }))
+        }
+    
+        async fn get_device_state(&self, device_id: String) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            
+            if !state.devices.contains_key(&device_id) {
+                return Ok(warp::reply::json(&ApiResponse {
+                    success: false,
+                    message: format!("Device '{}' not found", device_id),
+                    data: None,
+                }));
+            }
+    
+            let device_state = state.get_device_state(&device_id);
+            
+            Ok(warp::reply::json(&ApiResponse {
+                success: true,
+                message: "Device state retrieved".to_string(),
+                data: Some(json!(device_state)),
+            }))
+        }
+    
+        async fn control_room_lights(&self, room: String, control: DeviceControlRequest) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            
+            let room_devices: Vec<String> = state.devices.iter()
+                .filter(|(_, device)| device.room == room && device.device_type == "light")
+                .map(|(id, _)| id.clone())
+                .collect();
+    
+            if room_devices.is_empty() {
+                return Ok(warp::reply::json(&ApiResponse {
+                    success: false,
+                    message: format!("No lights found in room '{}'", room),
+                    data: None,
+                }));
+            }
+    
+            let mut results = HashMap::new();
+            
+            for device_id in room_devices {
+                let mut message = serde_json::Map::new();
+                
+                if let Some(state_cmd) = &control.state {
+                    message.insert("state".to_string(), Value::String(state_cmd.to_string()));
+                }
+                
+                if let Some(brightness) = control.brightness {
+                    message.insert("brightness".to_string(), Value::Number(brightness.into()));
+                }
+                
+                if let Some(transition) = control.transition {
+                    message.insert("transition".to_string(), Value::Number(serde_json::Number::from_f64(transition).unwrap()));
+                }
+    
+                let topic = format!("zigbee2mqtt/{}/set", device_id);
+                
+                match state.mqtt_publish(&topic, &Value::Object(message).to_string()) {
+                    Ok(_) => { results.insert(device_id.clone(), "success"); },
+                    Err(_) => { results.insert(device_id.clone(), "failed"); },
+                }
+            }
+    
+            Ok(warp::reply::json(&ApiResponse {
+                success: true,
+                message: format!("Room '{}' lights controlled", room),
+                data: Some(json!(results)),
+            }))
+        }
+    
+        async fn security_control(&self, armed: bool) -> Result<impl warp::Reply, warp::Rejection> {
+            let state = self.zigduck.read();
+            
+            match state.set_larmed(armed) {
+                Ok(_) => Ok(warp::reply::json(&ApiResponse {
+                    success: true,
+                    message: if armed { "Security system armed" } else { "Security system disarmed" }.to_string(),
+                    data: None,
+                })),
+                Err(e) => Ok(warp::reply::json(&ApiResponse {
+                    success: false,
+                    message: format!("Failed to control security: {}", e),
+                    data: None,
+                })),
+            }
+        }
+    }
+    
+    // 🦆 API Server Startup
+    
+    // 🦆 API Server Startup - FIXED FOR RUST 2024
+    async fn start_api_server(api_state: Arc<ApiState>) -> Result<(), Box<dyn std::error::Error>> {
+        let state_filter = warp::any().map(move || api_state.clone());
+        
+        // CORS configuration
+        let cors = warp::cors()
+            .allow_any_origin()
+            .allow_headers(vec!["content-type", "authorization"])
+            .allow_methods(vec!["GET", "POST", "PUT", "DELETE"]);
+    
+        // 🦆 FIXED: Use explicit type annotations and move properly
+        let devices = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "devices")
+                .and(warp::get())
+                .and(state_filter)
+                .and_then(move |state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        state.get_devices().await
+                    }
+                })
+        };
+    
+        let device_control = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "devices" / String)
+                .and(warp::post())
+                .and(warp::body::json())
+                .and(state_filter)
+                .and_then(move |device_id: String, control: DeviceControlRequest, state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        state.control_device(device_id, control).await
+                    }
+                })
+        };
+    
+        let device_state = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "devices" / String / "state")
+                .and(warp::get())
+                .and(state_filter)
+                .and_then(move |device_id: String, state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        state.get_device_state(device_id).await
+                    }
+                })
+        };
+    
+        let scenes = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "scenes" / String)
+                .and(warp::post())
+                .and(state_filter)
+                .and_then(move |scene_name: String, state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        state.activate_scene(scene_name).await
+                    }
+                })
+        };
+    
+        let status = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "status")
+                .and(warp::get())
+                .and(state_filter)
+                .and_then(move |state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        state.get_system_status().await
+                    }
+                })
+        };
+    
+        let room_control = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "rooms" / String / "lights")
+                .and(warp::post())
+                .and(warp::body::json())
+                .and(state_filter)
+                .and_then(move |room: String, control: DeviceControlRequest, state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        state.control_room_lights(room, control).await
+                    }
+                })
+        };
+    
+        let security = {
+            let state_filter = state_filter.clone();
+            warp::path!("api" / "security")
+                .and(warp::post())
+                .and(warp::body::json())
+                .and(state_filter)
+                .and_then(move |body: Value, state: Arc<ApiState>| {
+                    let state = state.clone();
+                    async move {
+                        let armed = body["armed"].as_bool().unwrap_or(false);
+                        state.security_control(armed).await
+                    }
+                })
+        };
+    
+        let routes = devices
+            .or(device_control)
+            .or(device_state)
+            .or(scenes)
+            .or(status)
+            .or(room_control)
+            .or(security)
+            .with(cors)
+            .with(warp::log("zigduck_api"));
+    
+        let api_port = std::env::var("API_PORT")
+            .unwrap_or_else(|_| "3030".to_string())
+            .parse::<u16>()
+            .unwrap_or(3030);
+    
+        println!("[🦆🌐] API Server starting on port {}", api_port);
+        warp::serve(routes).run(([0, 0, 0, 0], api_port)).await;
+        
+        Ok(())
+    }
+    
+
+    
+
+    
+
     
     impl ZigduckState {
+        fn get_device_state(&self, device_id: &str) -> Value {
+            let state_content = fs::read_to_string(&self.state_file).unwrap_or_else(|_| "{}".to_string());
+            let state: Value = serde_json::from_str(&state_content).unwrap_or_else(|_| json!({}));
+        
+            let device_info = if let Some(device) = self.devices.get(device_id) {
+                json!(device)
+            } else {
+                json!(null)
+            };
+
+            json!({
+                "device_info": device_info,
+                "state": state.get(device_id).unwrap_or(&json!(null)),
+                "last_updated": state[device_id]["last_updated"].as_str().unwrap_or("unknown")
+            })
+        }
+        
         async fn start_periodic_checks(&self) {
             let state = self.clone();
             tokio::spawn(async move {
@@ -607,6 +1018,7 @@
                    // room_occupancy,
                    // presence_state,
                    // last_presence_update,
+                    start_time: SystemTime::now(),
                     debug,
                 }
             }
@@ -1475,12 +1887,41 @@
             debug,
         );
         
-        // 🦆 says ⮞ simple runtime
+        let zigduck_arc = Arc::new(RwLock::new(state));
+        let api_state = Arc::new(ApiState::new(zigduck_arc.clone()));
+
+        // Start both servers
         let rt = tokio::runtime::Runtime::new()?;
+    
         rt.block_on(async {
-            state.start_listening().await
-        })
-    }  
+            
+            let mqtt_future = {
+                let zigduck_arc = zigduck_arc.clone();
+                async move {
+                    let mut state = zigduck_arc.write();
+                    if let Err(e) = state.start_listening().await {
+                        eprintln!("[🦆❌] MQTT listener error: {}", e);
+                    }
+                }
+            };
+            
+
+
+            let api_future = start_api_server(api_state).map(|result| {
+                if let Err(e) = result {
+                    eprintln!("[🦆❌] API server error: {}", e);
+                }
+            });
+
+            // Run both servers concurrently
+            tokio::select! {
+                _ = mqtt_future => eprintln!("[🦆] MQTT listener stopped"),
+                _ = api_future => eprintln!("[🦆] API server stopped"),
+            }
+        });
+
+        Ok(())
+    }
   '';
 
   # 🦆 says ⮞ cargo.toml
@@ -1488,15 +1929,17 @@
     [package]
     name = "zigduck-rs"
     version = "0.1.0"
-    edition = "2024"
+    edition = "2021"
 
     [dependencies]
     tokio = { version = "1.0", features = ["full"] }
     rumqttc = "0.21.0"
     serde = { version = "1.0", features = ["derive"] }
-    serde_json = "1.0"
-    
+    serde_json = "1.0"    
     chrono = { version = "0.4", features = ["serde"] }
+    warp = "0.3"
+    futures = "0.3"
+    parking_lot = "0.12"    
   '';
 
   #environment.variables."MQTT_BROKER" = mqttHostip;
@@ -1625,7 +2068,7 @@ EOF
         acl = [ "pattern readwrite #" ];
         port = 1883;
         omitPasswordAuth = false; # 🦆 says ⮞ safety first!
-        users.mqtt.passwordFile = config.sops.secrets.mosquitto.path;
+        users.mqtt.passwordFile = config.house.zigbee.mosquitto.passwordFile;
         settings.allow_anonymous = false; # 🦆 says ⮞ never forget, never forgive right?
 #        settings.require_certificate = true; # 🦆 says ⮞ T to the L to the S spells wat? DUCK! 
 #        settings.use_identity_as_username = true;
@@ -1672,7 +2115,6 @@ EOF
           port = 8099; 
         };
         advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
-          network_key_file = config.sops.secrets.z2m_network_key.path;
           export_state = true;
           export_state_path = "${zigduckDir}/zigbee_devices.json";
           homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
@@ -1717,117 +2159,6 @@ EOF
     # 🦆 says ⮞ Dependencies 
     pkgs.mosquitto
     pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
-    # 🦆 says ⮞ scene fireworks  
-    (pkgs.writeScriptBin "scene-roll" ''
-      ${cmdHelpers}
-      ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
-    '')
-    # 🦆 says ⮞ activate a scene yo
-    (pkgs.writeScriptBin "scene" ''
-      ${cmdHelpers}
-      MQTT_BROKER="${mqttHostip}"
-      if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
-        MQTT_BROKER="localhost"
-      fi
-      #MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
-      MQTT_USER="${config.house.zigbee.mosquitto.username}"
-      MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
-      SCENE="$1"      
-      # 🦆 says ⮞ no scene == random scene
-      if [ -z "$SCENE" ]; then
-        SCENE=$(shuf -n 1 -e ${lib.concatStringsSep " " (lib.map (name: "\"${name}\"") (lib.attrNames sceneCommands))})
-      fi      
-      case "$SCENE" in
-      ${
-        lib.concatStringsSep "\n" (
-          lib.mapAttrsToList (sceneName: cmds:
-            let
-              commandLines = lib.concatStringsSep "\n    " (
-                lib.mapAttrsToList (_: cmd: cmd) cmds
-              );
-            in
-              "\"${sceneName}\")\n    ${commandLines}\n    ;;"
-          ) sceneCommands
-        )
-      }
-      *)
-        say_duck "fuck ❌"
-        exit 1
-        ;;
-      esac
-    '')     
-    # 🦆 says ⮞ helper function 4 controlling zingle device
-    (pkgs.writeScriptBin "zig" ''
-      ${cmdHelpers}
-      set -euo pipefail
-      # 🦆 says ⮞ create case insensitive map of device friendly_name
-      declare -A device_map=(
-        ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)}
-      )
-      available_devices=(
-        ${toString deviceList}
-      )    
-      DEVICE="$1" # 🦆 says ⮞ device to control      
-      STATE="''${2:-}" # 🦆 says ⮞ state change        
-      BRIGHTNESS="''${3:-100}"
-      COLOR="''${4:-}"
-      TEMP="''${5:-}"
-      ZIGBEE_DEVICES='${deviceMeta}'
-      MQTT_BROKER="${mqttHostip}"
-      if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
-        MQTT_BROKER="localhost"
-      fi
-      #MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
-      MQTT_USER="${config.house.zigbee.mosquitto.username}"
-      MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
-      # 🦆 says ⮞ Zigbee coordinator backup
-      if [[ "$DEVICE" == "backup" ]]; then
-        mqtt_pub -t "zigbee2mqtt/backup/request" -m '{"action":"backup"}'
-        say_duck "Zigbee coordinator backup requested! - processing on server..."
-        exit 0
-      fi         
-      # 🦆 says ⮞ validate device
-      input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
-      exact_name=''${device_map["$input_lower"]}
-      if [[ -z "$exact_name" ]]; then
-        say_duck "fuck ❌ device not found: $DEVICE" >&2
-        say_duck "Available devices: ${toString (builtins.attrNames zigbeeDevices)}" >&2
-        exit 1
-      fi
-      # 🦆 says ⮞ if COLOR da lamp prob want hex yo
-      if [[ -n "$COLOR" ]]; then
-        COLOR=$(color2hex "$COLOR") || {
-          say_duck "fuck ❌ Invalid color: $COLOR" >&2
-          exit 1
-        }
-      fi
-      # 🦆 says ⮞ turn off the device
-      if [[ "$STATE" == "off" ]]; then
-        mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
-        say_duck " turned off $DEVICE"
-        exit 0
-      fi    
-      # 🦆 says ⮞ turn down the device brightness
-      if [[ "$STATE" == "down" ]]; then
-        say_duck "🔻 Decreasing $light_id in $clean_room"
-        mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":-50,"transition":3.5}'
-        exit 0
-      fi      
-      # 🦆 says ⮞ turn up the device brightness
-      if [[ "$STATE" == "up" ]]; then
-        say_duck "🔺 Increasing brightness on $light_id in $clean_room"
-        mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":50,"transition":3.5}'
-        exit 0
-      fi      
-      # 🦆 says ⮞ construct payload
-      PAYLOAD="{\"state\":\"ON\""
-      [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"
-      [[ -n "$COLOR" ]] && PAYLOAD+=", \"color\":{\"hex\":\"$COLOR\"}"
-      PAYLOAD+="}"
-      # 🦆 says ⮞ publish payload
-      mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
-      say_duck "$PAYLOAD"   
-    '') 
   ];  
 
   systemd.services.zigduck-rs = {
