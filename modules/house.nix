@@ -235,6 +235,28 @@
                   (config.house.zigbee.mosquitto.username != null || 
                    config.house.zigbee.mosquitto.passwordFile != null);
 
+  # 🦆 says ⮞ validate MQTT triggered automations
+  validateMqttTriggered = automationName: automation:
+    let
+      availableTopics = [
+        "zigbee2mqtt/+/action"
+        "zigbee2mqtt/+/click"
+        "zigbee2mqtt/+/occupancy"
+        "zigbee2mqtt/+/contact"
+        "zigbee2mqtt/+/brightness"
+        "house/+/command"
+        "automation/+/trigger"
+      ];
+    in
+      [{
+        assertion = automation.topic != "";
+        message = "🦆 duck say ⮞ fuck ❌ MQTT automation '${automationName}' has empty topic";
+      }];
+
+  mqttTriggeredValidations = lib.flatten (
+    lib.mapAttrsToList validateMqttTriggered (config.house.zigbee.automations.mqtt_triggered or {})
+  );
+
   # 🦆 says ⮞ Add validation for MQTT configuration
   mqttValidations = [
     {
@@ -530,6 +552,13 @@ in { # 🦆 says ⮞ Options for da house
           };
         });
       };
+
+      zigbee = {
+        networkKeyFile = mkOption {
+          type = types.path;
+          description = "Path to the Zigbee network key file.";
+        };
+      };
       
       zigbee.coordinator = mkOption {
         type = types.nullOr (types.submodule {
@@ -658,7 +687,89 @@ in { # 🦆 says ⮞ Options for da house
         # 🦆 says ⮞ automations configuration
         zigbee.automations = mkOption {
           type = types.submodule {
-            options = {            
+            options = {        
+           
+              # 🦆 says ⮞ MQTT triggered automations
+              mqtt_triggered = mkOption {
+                type = types.attrsOf (types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable this MQTT-triggered automation";
+                    description = mkOption {
+                      type = types.str;
+                      description = "Description of what this automation does";
+                    };
+                    topic = mkOption {
+                      type = types.str;
+                      description = "MQTT topic to subscribe to";
+                      example = "zigbee2mqtt/button/action";
+                    };
+                    message = mkOption {
+                      type = types.nullOr types.str;
+                      default = null;
+                      description = "Specific message value to match (if any)";
+                      example = "single";
+                    };
+                    conditions = mkOption {
+                      type = types.listOf (types.submodule {
+                        options = {
+                          type = mkOption {
+                            type = types.enum ["dark_time" "someone_home" "room_occupied"];
+                            description = "Condition type";
+                          };
+                          room = mkOption {
+                            type = types.nullOr types.str;
+                            default = null;
+                            description = "Room for room-specific conditions";
+                          };
+                          value = mkOption {
+                            type = types.nullOr types.bool;
+                            default = null;
+                            description = "Expected condition value";
+                          };
+                        };
+                      });
+                      default = [];
+                      description = "Conditions that must be met";
+                    };
+                    actions = mkOption {
+                      type = types.listOf automationActionType;
+                      default = [];
+                      description = "Actions to perform when MQTT message is received";
+                    };
+                  };
+                });
+                default = {};
+                description = "MQTT-triggered automations";
+                example = {
+                  button_single_press = {
+                    enable = true;
+                    description = "Toggle living room lights on button single press";
+                    topic = "zigbee2mqtt/living_room_button/action";
+                    message = "single";
+                    actions = [
+                      {
+                        type = "mqtt";
+                        topic = "zigbee2mqtt/living_room_lights/set";
+                        message = ''{"state":"TOGGLE"}'';
+                      }
+                    ];
+                  };
+                  motion_alert = {
+                    enable = true;
+                    description = "Send notification on motion detected";
+                    topic = "zigbee2mqtt/outdoor_motion/occupancy";
+                    message = "true";
+                    actions = [
+                      "echo 'Motion detected outside!' | wall"
+                      {
+                        type = "shell";
+                        command = "${pkgs.libnotify}/bin/notify-send 'Security' 'Motion detected outside'";
+                      }
+                    ];
+                  };
+                };
+              };
+                       
               # 🦆 says ⮞ time based automations
               time_based = mkOption {
                 type = types.attrsOf (types.submodule {
@@ -1013,7 +1124,7 @@ in { # 🦆 says ⮞ Options for da house
       {
         assertions = sceneValidations ++ deviceValidations ++ 
                      duplicateFriendlyNameValidation ++ motionSensorValidations ++
-                     mqttValidations;
+                     mqttValidations ++ mqttTriggeredValidations;
       }
       {
         environment.etc."dark-time.conf".text = ''

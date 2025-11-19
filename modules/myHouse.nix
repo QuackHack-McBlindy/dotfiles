@@ -51,7 +51,7 @@ in { # 🦆 duck say ⮞ qwack
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
-      #networkKeyFile = config.sops.secrets.z2m_network_key.path;
+      networkKeyFile = config.sops.secrets.z2m_network_key.path;
       
       mosquitto = {
         username = "mqtt";
