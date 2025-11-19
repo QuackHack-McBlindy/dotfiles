@@ -303,7 +303,7 @@
                     if self.check_conditions(&automation.conditions).await {
                         self.quack_info(&format!("Triggering MQTT automation: {}", automation.description));
                         for action in &automation.actions {
-                            if let Err(e) = self.execute_automation_action(action, "mqtt_triggered", "global") {
+                            if let Err(e) = self.execute_automation_action_mqtt(action, "mqtt_triggered", "global", topic, payload) {
                                 self.quack_debug(&format!("Error executing MQTT automation action: {}", e));
                             }
                         }
@@ -622,7 +622,6 @@
                     last_motion: HashMap::new(),
                 }; 
 
-
                        
                 Self {
                     mqtt_broker,
@@ -740,16 +739,41 @@
             }
             Ok(())
         }
-        
-        fn execute_automation_action(&self, action: &AutomationAction, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
+
+
+        fn execute_automation_action_mqtt(&self, action: &AutomationAction, device_name: &str, room: &str, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {     
             self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
+    
+            // 🦆 says ⮞ set MQTT environment variables for shell actions
+            std::env::set_var("AUTOMATION_DEVICE", device_name);
+            std::env::set_var("AUTOMATION_ROOM", room);
+            std::env::set_var("MQTT_TOPIC", topic);
+            std::env::set_var("MQTT_PAYLOAD", payload);
+            std::env::set_var("MQTT_DEVICE", device_name);
+            std::env::set_var("MQTT_ROOM", room);
+    
+            if let Ok(data) = serde_json::from_str::<serde_json::Value>(payload) {
+                if let Some(action_val) = data.get("action").and_then(|v| v.as_str()) {
+                    std::env::set_var("MQTT_ACTION", action_val);
+                }
+                if let Some(state_val) = data.get("state").and_then(|v| v.as_str()) {
+                    std::env::set_var("MQTT_STATE", state_val);
+                }
+            }
+    
             match action {
                 AutomationAction::Simple(cmd) => {
-                    // 🦆 says ⮞ execute shell command
-                    let _ = std::process::Command::new("sh")
+                    // 🦆 says ⮞ execute shell command with environment
+                    let output = std::process::Command::new("sh")
                         .arg("-c")
                         .arg(cmd)
-                        .output();
+                        .env("AUTOMATION_DEVICE", device_name)
+                        .env("AUTOMATION_ROOM", room)
+                        .output()?;
+            
+                    if !output.status.success() {
+                        self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                    }
                 }
                 AutomationAction::Structured(action_config) => {
                     match action_config.action_type.as_str() {
@@ -760,10 +784,70 @@
                         }
                         "shell" => {
                             if let Some(cmd) = &action_config.command {
-                                let _ = std::process::Command::new("sh")
+                                let output = std::process::Command::new("sh")
                                     .arg("-c")
                                     .arg(cmd)
-                                    .output();
+                                    .env("AUTOMATION_DEVICE", device_name)
+                                    .env("AUTOMATION_ROOM", room)
+                                    .output()?;
+                        
+                                if !output.status.success() {
+                                    self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                                }
+                            }
+                        }
+                        "scene" => {
+                            if let Some(scene_name) = &action_config.scene {
+                                self.activate_scene(scene_name)?;
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            Ok(())
+        } 
+ 
+        fn execute_automation_action(&self, action: &AutomationAction, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {        
+            self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
+    
+            // 🦆 says ⮞ set MQTT environment variables for shell actions
+            std::env::set_var("AUTOMATION_DEVICE", device_name);
+            std::env::set_var("AUTOMATION_ROOM", room);
+       
+            match action {
+                AutomationAction::Simple(cmd) => {
+                    // 🦆 says ⮞ execute shell command with environment
+                    let output = std::process::Command::new("sh")
+                        .arg("-c")
+                        .arg(cmd)
+                        .env("AUTOMATION_DEVICE", device_name)
+                        .env("AUTOMATION_ROOM", room)
+                        .output()?;
+            
+                    if !output.status.success() {
+                        self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                    }
+                }
+                AutomationAction::Structured(action_config) => {
+                    match action_config.action_type.as_str() {
+                        "mqtt" => {
+                            if let (Some(topic), Some(message)) = (&action_config.topic, &action_config.message) {
+                                self.mqtt_publish(topic, message)?;
+                            }
+                        }
+                        "shell" => {
+                            if let Some(cmd) = &action_config.command {
+                                let output = std::process::Command::new("sh")
+                                    .arg("-c")
+                                    .arg(cmd)
+                                    .env("AUTOMATION_DEVICE", device_name)
+                                    .env("AUTOMATION_ROOM", room)
+                                    .output()?;
+                        
+                                if !output.status.success() {
+                                    self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                                }
                             }
                         }
                         "scene" => {
