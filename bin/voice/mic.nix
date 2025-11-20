@@ -1,6 +1,6 @@
 # dotfiles/bin/config/mic.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Records audio from microphone input and sends to yo transcription.
-  config, 
+  config,
   lib,
   self,
   pkgs,        # 🦆 says ⮞ create a noise profile
@@ -34,6 +34,7 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit 
         { name = "host"; description = "Host ip that has transcription"; default = transcriptionHostIP; }
         { name = "seconds"; description = "How many seconds to record before sending for transcription"; default = "5"; }
+
       ];  
       code = ''
         ${cmdHelpers}

@@ -42,11 +42,10 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __97 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
-- __2316 dynamically generated regex patterns - makes 274059017 phrases available as commands.__ <br>
-- __Smart Home Nix Style - Managing 41 devices & 6 scenes.__ <br>
-<!-- SCRIPT_STATS_END -->
+- __98 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
+- __2401 dynamically generated regex patterns - makes 415405633 phrases available as commands.__ <br>
 - __Smart Home Nix Style - Managing 2 TV's, 41 devices & 6 scenes.__ <br>
+<!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
@@ -163,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fawccjyvclhr2pdwjvg01pb6lz2xnk1v-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/p27g9m4qxhkwwvlz297jmafkj7lqs3yj-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1047,6 +1046,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
 | [yo state](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/state.nix) [--device] |  | Fetches the state of the specified device. | ✅ |
 | [yo temperatures](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/temperatures.nix)  |  | Get all temperature values from sensors and return a average value. | ✅ |
+| [yo testing](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/testing.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--user] [--passwordfile] [--flake] [--pair] [--cheapMode] |  | DuckBee Control lights and other home automatioon devices | ✅ |
 | [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |

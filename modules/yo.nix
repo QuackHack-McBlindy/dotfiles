@@ -702,10 +702,10 @@ EOF
                   [ (lib.elemAt paramPart 0) ]
                 else
                   []
-            ) (lib.tail parts); # Skip the first part (before first {)
+            ) (lib.tail parts); # 🦆 says ⮞ skip the first part (before first {)
           in
             paramNames; 
-        # 🦆 duck say ⮞ count parameter combinations for each expanded sentence
+        # 🦆 says ⮞ count parameter combinations for each expanded sentence
         countPhrasesForSentence = sentence:
           let
             paramNames = extractParamNames sentence;

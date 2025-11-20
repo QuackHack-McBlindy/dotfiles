@@ -62,9 +62,10 @@
     )
     logger = logging.getLogger("whisperd")
     
-    # 🦆 import duckTrace loggin'
+    # 🦆 import & setup da duckTrace loggin'
     import sys
-    ${PyDuckTrace}
+    ${PyDuckTrace}    
+    setup_ducktrace_logging("tv-scraper.log", "INFO")
     
     # 🦆 says ⮞ audio configuration
     SAMPLE_RATE = 16000
@@ -84,7 +85,7 @@
     transcription_executor = concurrent.futures.ThreadPoolExecutor(max_workers=4)
     
     # 🦆 says ⮞ Initialize model
-    logger.info(f"Loading Whisper model: {args.model} on {args.device}")
+    dt_info(f"Loading Whisper model: {args.model} on {args.device}")
     model = WhisperModel(
         args.model,
         device=args.device,
@@ -99,10 +100,10 @@
             daemon=True
         )
         cleaner_thread.start()
-        logger.info("Started session cleanup thread")    
+        dt_info("Started session cleanup thread")    
         yield
         transcription_executor.shutdown(wait=False)
-        logger.info("Server shutdown complete")
+        dt_info("Server shutdown complete")
 
 
     app = FastAPI(lifespan=lifespan)
@@ -118,7 +119,7 @@
     def transcribe_audio(audio_data: np.ndarray, reduce_noise: bool = True) -> str:
         try:
             if reduce_noise:
-                logger.debug("Applying noise reduction")
+                dt_debug("Applying noise reduction")
                 audio_data = nr.reduce_noise(
                     y=audio_data, 
                     sr=SAMPLE_RATE,
@@ -128,7 +129,7 @@
             with tempfile.NamedTemporaryFile(suffix=".wav") as tmp:
                 sf.write(tmp.name, audio_data, SAMPLE_RATE)  
                 with model_lock:
-                    logger.debug("Starting transcription")
+                    dt_debug("Starting transcription")
                     segments, _ = model.transcribe(
                         tmp.name,
                         language=args.language,
@@ -138,7 +139,7 @@
                         without_timestamps=True
                     )
                     transcription = " ".join(segment.text for segment in segments)
-                    logger.info(f"Transcription complete: {transcription[:50]}...")
+                    dt_info(f"Transcription complete: {transcription[:50]}...")
                     return transcription
         except Exception as e:
             logger.error(f"Transcription failed: {str(e)}")
@@ -146,7 +147,7 @@
 
 
     def process_completed_session(client_ip: str, chunks: list):
-        logger.info(f"Processing completed session for {client_ip}")
+        dt_info(f"Processing completed session for {client_ip}")
         try:
             raw_audio = b"".join(chunks)
             audio_data = np.frombuffer(raw_audio, dtype=np.int16)
@@ -156,7 +157,7 @@
                 True
             )
             transcription = future.result()  
-            logger.info(f"Transcription for {client_ip}: {transcription}")          
+            dt_info(f"Transcription for {client_ip}: {transcription}")          
         except Exception as e:
             logger.error(f"Session processing failed for {client_ip}: {str(e)}")
 
@@ -171,7 +172,7 @@
                         continue
                     
                     if session['recording']:
-                        logger.info(f"Session completed for {ip}")
+                        dt_info(f"Session completed for {ip}")
                         threading.Thread(
                             target=process_completed_session,
                             args=(ip, session['chunks']),
@@ -180,7 +181,7 @@
                         session['recording'] = False
                         session['chunks'] = []
                     else:
-                        logger.warning(f"Clearing expired chunks for {ip}")
+                        dt_warning(f"Clearing expired chunks for {ip}")
                         session['chunks'] = []   
                     if not session['recording'] and not session['chunks']:
                         expired_ips.append(ip)   
@@ -198,11 +199,11 @@
         with sessions_lock:
             session = sessions[client_ip]
             if not session['recording']:
-                logger.info(f"New recording session started for {client_ip}")
+                dt_info(f"New recording session started for {client_ip}")
                 session['recording'] = True
             session['chunks'].append(audio_data)
             session['last_received'] = time.time() 
-        logger.debug(f"Received {len(audio_data)} bytes from {client_ip}")
+        dt_debug(f"Received {len(audio_data)} bytes from {client_ip}")
         return {"status": "received", "bytes": len(audio_data)}
 
     @app.get("/play")
@@ -247,13 +248,12 @@
         ssl_params = {"ssl_certfile": args.cert, "ssl_keyfile": args.key}
     uvicorn.run(app, host="0.0.0.0", port=args.port, log_level="debug", **ssl_params)
   '';
+  
 in { # 🦆 says ⮞ yo yo yo yo  
-
   yo.scripts.transcribe = {
     description = "Transcription server-side service. Sit and waits for audio that get transcribed and returned.";
     category = "🗣️ Voice"; 
-    autoStart = false;
-    #autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
+    autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    helpFooter = '' # 🦆 says ⮞ TODO some useful & fun helpFooter yo
 #    '';
     logLevel = "INFO";
