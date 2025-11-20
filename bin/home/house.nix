@@ -421,17 +421,72 @@ EOF
           out = toString (i + 1);
         }) 100;
         device.values = let
-          reservedNames = [ "hall" "kök" "sovrum" "toa" "wc" "vardagsrum" "kitchen" "switch" ];
+          reservedNames = [ "hall" "kitchen" "bedroom" "bathroom" "wc" "livingroom" "kitchen" "switch" "all" "every" ];
           sanitize = str:
-            lib.replaceStrings [ "/" ] [ "" ] str;
+            lib.replaceStrings [ "/" " " ] [ "" "_" ] str;
+    
+          # 🦆 says ⮞ natural Swedish patterns
+          swedishPatterns = base: baseRaw: [
+            # 🦆 says ⮞ base name
+            base
+      
+            # 🦆 says ⮞ definite form (the X)
+            "${baseRaw}n"           # 🦆says⮞ en-words
+            "${baseRaw}t"           # 🦆says⮞ ett-words  
+            "${baseRaw}en"
+            "${baseRaw}et"
+      
+            # 🦆says⮞ plural forms
+            "${baseRaw}ar"
+            "${baseRaw}or"
+            "${baseRaw}er"
+            "${baseRaw}na"          # 🦆says⮞ plural definite
+            "${baseRaw}orna"
+            "${baseRaw}erna"
+      
+            # 🦆says⮞ common Swedish light/lamp patterns
+            "${baseRaw}lampan"
+            "${baseRaw}lampor"
+            "${baseRaw}lamporna"
+            "${baseRaw}ljus"
+            "${baseRaw}lamp"
+          ];
+    
         in [
-          { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
+          { "in" = "[vardagsrum|vardagsrummet|stora rummet|förrum]"; out = "livingroom"; }
           { "in" = "[kök|köket]"; out = "kitchen"; }
-          { "in" = "[sovrum|sovrummet]"; out = "bedroom"; }
-          { "in" = "[hall|hallen]"; out = "hallway"; }
-          { "in" = "[toa|toan|toalett|toaletten|wc]"; out = "wc"; }
-          { "in" = "[all|alla|allt|dom]"; out = "ALL_LIGHTS"; }    
-        ];
+          { "in" = "[sovrum|sovrummet|sängkammaren|sovrummet]"; out = "bedroom"; }
+          { "in" = "[badrum|badrummet|toaletten|wc]"; out = "bathroom"; }
+          { "in" = "[hall|hallen|korridor|korridoren]"; out = "hallway"; }
+          { "in" = "[alla|allting|allt|alla lampor|varje lampa]"; out = "ALL_LIGHTS"; }    
+        ] ++
+        (lib.filter (x: x != null) (
+          lib.mapAttrsToList (_: device:
+           let
+              baseRaw = lib.toLower device.friendly_name;
+              base = sanitize baseRaw;
+              baseWords = lib.splitString " " base;
+              isAmbiguous = lib.any (word: lib.elem word reservedNames) baseWords;
+        
+              # 🦆says⮞ gen Swedish variations
+              swedishVariations = lib.unique (swedishPatterns base baseRaw);
+        
+              # 🦆says⮞ English as fallback
+              englishVariants = [ "${base}s" "${base} light" ];
+        
+              variations = lib.unique (
+                [
+                  base
+                  (sanitize (lib.replaceStrings [ " " ] [ "" ] base))
+                  (lib.replaceStrings [ "_" ] [ " " ] base)
+                ] ++ swedishVariations ++ englishVariants
+              );
+            in if isAmbiguous then null else {
+              "in" = "[" + lib.concatStringsSep "|" variations + "]";
+              out = device.friendly_name;
+            }
+          ) zigbeeDevices
+        ));
 
 # 🦆 says ⮞ automatically add all zigbee devices  
 #            ] ++
@@ -483,12 +538,20 @@ EOF
           { "in" = "[silver|silverfärgad]"; out = "silver"; }
           { "in" = "[slumpmässig|random|valfri färg]"; out = "random"; }
         ];
+        temperature.values = builtins.genList (i: {
+           "in" = toString i;
+            out = toString i;
+        }) 500;
         pair.values = [
           { "in" = "[para|paras]"; out = "true"; }
         ];
         room.values = [
           { "in" = "[kök|köket|kitchen]"; out = "kitchen"; }
           { "in" = "[vardagsrum|vardagsrummet]"; out = "livingroom"; }
+          { "in" = "[sovrum|sovrummet|bedroom]"; out = "bedroom"; }
+          { "in" = "[badrum|badrummet|wc|toilet]"; out = "wc"; }
+          { "in" = "[hall|hallen|hallway]"; out = "hallway"; }
+                                        
         ];        
       };
     };

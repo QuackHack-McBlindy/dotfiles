@@ -145,8 +145,8 @@ in {
       ];      
       lists = {
         state.values = [
-          { "in" = "[tänd|tända|tänk|start|starta|på|tönd|tömd]"; out = "ON"; }             
-          { "in" = "[släck|släcka|slick|av|stäng|stäng av]"; out = "OFF"; } 
+          { "in" = "[on]"; out = "ON"; }             
+          { "in" = "[off|turn off]"; out = "OFF"; } 
         ];
         brightness.values = builtins.genList (i: {
           "in" = toString (i + 1);
