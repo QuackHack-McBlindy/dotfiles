@@ -745,19 +745,19 @@
             self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
     
             // 🦆 says ⮞ set MQTT environment variables for shell actions
-            std::env::set_var("AUTOMATION_DEVICE", device_name);
-            std::env::set_var("AUTOMATION_ROOM", room);
-            std::env::set_var("MQTT_TOPIC", topic);
-            std::env::set_var("MQTT_PAYLOAD", payload);
-            std::env::set_var("MQTT_DEVICE", device_name);
-            std::env::set_var("MQTT_ROOM", room);
+            unsafe { std::env::set_var("AUTOMATION_DEVICE", device_name); }
+            unsafe { std::env::set_var("AUTOMATION_ROOM", room); }
+            unsafe { std::env::set_var("MQTT_TOPIC", topic); }
+            unsafe { std::env::set_var("MQTT_PAYLOAD", payload); }
+            unsafe { std::env::set_var("MQTT_DEVICE", device_name); }
+            unsafe { std::env::set_var("MQTT_ROOM", room); }
     
             if let Ok(data) = serde_json::from_str::<serde_json::Value>(payload) {
                 if let Some(action_val) = data.get("action").and_then(|v| v.as_str()) {
-                    std::env::set_var("MQTT_ACTION", action_val);
+                    unsafe { std::env::set_var("MQTT_ACTION", action_val); }
                 }
                 if let Some(state_val) = data.get("state").and_then(|v| v.as_str()) {
-                    std::env::set_var("MQTT_STATE", state_val);
+                    unsafe { std::env::set_var("MQTT_STATE", state_val); }
                 }
             }
     
@@ -812,8 +812,8 @@
             self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
     
             // 🦆 says ⮞ set MQTT environment variables for shell actions
-            std::env::set_var("AUTOMATION_DEVICE", device_name);
-            std::env::set_var("AUTOMATION_ROOM", room);
+            unsafe { std::env::set_var("AUTOMATION_DEVICE", device_name); }
+            unsafe { std::env::set_var("AUTOMATION_ROOM", room); }
        
             match action {
                 AutomationAction::Simple(cmd) => {

@@ -124,7 +124,7 @@ in {
         category = "⚡ Productivity";
         logLevel = "INFO";
         parameters = [
-          { name = "readmePath"; type = "path"; description = "What to search for"; optional = false; default = config.this.user.me.dotfilesDir + "/README.md"; }
+          { name = "readmePath"; type = "path"; description = "What to search for"; optional = false; default = config.this.user.me.dotfilesDir + "/README2.md"; }
         ];        
         code = ''
           ${cmdHelpers}

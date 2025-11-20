@@ -1,11 +1,10 @@
 # dotfiles/modules/myHouse.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ my house - qwack 
-  config,
+{ # 🦆 says ⮞ my house - qwack 
+  config, # 🦆 says ⮞ more info ⮞ https://quackhack-mcblindy.github.io/blog/house/index.html
   lib,
   pkgs,
   ...
-} : let
-  # 🦆 duck say ⮞ icon map
+} : let # 🦆 duck say ⮞ icon map
   icons = {
     light = {
       ceiling         = "mdi:ceiling-light";
@@ -40,6 +39,7 @@
   };
 in { # 🦆 duck say ⮞ qwack
   house = {
+    # 🦆 says ⮞ rooms with icons
     rooms = {
       bedroom.icon    = "mdi:bedroom";
       hallway.icon    = "mdi:hallway";
@@ -51,17 +51,20 @@ in { # 🦆 duck say ⮞ qwack
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
+      # 🦆 says ⮞ encrypted zigbee network key
       networkKeyFile = config.sops.secrets.z2m_network_key.path;
       
+      # 🦆 says ⮞ mosquitto authentication
       mosquitto = {
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
       };
-        
+      
+      # 🦆says⮞ coordinator configuration
       coordinator = {
         vendorId =  "10c4";
         productId = "ea60";
-        symlink = "zigbee";
+        symlink = "zigbee"; # 🦆 says ⮞ diz symlinkz da serial port to /dev/zigbee
       };
     
       # 🦆 says ⮞ when motion triggers lights
@@ -73,7 +76,9 @@ in { # 🦆 duck say ⮞ qwack
       };
       
   # 🦆 ⮞ AUTOMATIONS ⮜
+  # 🦆 says ⮞ there are 6 different automation types
       automations = {  
+        # 🦆 says ⮞ + a greeting automation
         greeting = {
           enable = true;
           awayDuration = "7200";
@@ -81,7 +86,11 @@ in { # 🦆 duck say ⮞ qwack
           delay = "10";
           sayOnHost = "desktop";
         };
-          
+        
+        # 🦆 says ⮞ 1. mqtt triggered automations
+        mqtt_triggered = {};
+        
+        # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = { 
             door_opened = [];
@@ -105,6 +114,7 @@ in { # 🦆 duck say ⮞ qwack
           };
         };
           
+        # 🦆 says ⮞ 3. global actions automations  
         global_actions = {
           leak_detected = [
             {
@@ -120,7 +130,7 @@ in { # 🦆 duck say ⮞ qwack
           ];
         };
 
-        # 🦆 says ⮞ default actions already configured -these are extra
+        # 🦆 says ⮞ 4. dimmer actions automations
         dimmer_actions = {          
           bedroom = {
             on_hold_release = {
@@ -140,11 +150,16 @@ in { # 🦆 duck say ⮞ qwack
                   command = "dark";
                 }
               ];
-            };
-            
-            
+            };   
           };              
         };
+        
+        # 🦆 says ⮞ 5. time based automations
+        time_based = {};
+        
+        # 🦆 says ⮞ 6. presence based automations
+        presence_based = {};
+        
       };  
 
 
@@ -328,6 +343,7 @@ in { # 🦆 duck say ⮞ qwack
     };
     
     # 🦆 ⮞ TV ⮜
+    # 🦆says⮞ configure TV devices with: room, ip, apps & channel information
     tv = {
       # 🦆 says ⮞ Livingroom
       shield = {

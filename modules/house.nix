@@ -517,6 +517,13 @@ in { # 🦆 says ⮞ Options for da house
         description = "Configuration for ESP devices";
       };
 
+      zigbee = {
+        networkKeyFile = mkOption {
+          type = types.path;
+          description = "Path to the Zigbee network key file.";
+        };
+      };
+
       zigbee.mosquitto = mkOption {
         type = types.nullOr (types.submodule {
           options = {
@@ -553,12 +560,6 @@ in { # 🦆 says ⮞ Options for da house
         });
       };
 
-      zigbee = {
-        networkKeyFile = mkOption {
-          type = types.path;
-          description = "Path to the Zigbee network key file.";
-        };
-      };
       
       zigbee.coordinator = mkOption {
         type = types.nullOr (types.submodule {
