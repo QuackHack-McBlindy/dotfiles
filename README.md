@@ -45,7 +45,6 @@ Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 - __97 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
 - __2316 dynamically generated regex patterns - makes 274059017 phrases available as commands.__ <br>
 <!-- SCRIPT_STATS_END -->
-- __Smart Home Nix style__ <br>
 - __Natural Language support with complete voice pipeline__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
@@ -162,7 +161,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/7c6zpsa2yqx2cmiwn59zxyp9m916zi9l-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/s42kmac55yfndclsxm87rrdz2fblsqlx-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->

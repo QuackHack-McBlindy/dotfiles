@@ -104,6 +104,12 @@ let
     USER_TMP=$(mktemp)
     HOST_TMP=$(mktemp)
 
+    DEVICES_JSON=$(${pkgs.nix}/bin/nix eval --json ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.house.zigbee.devices)
+    SCENES_JSON=$(${pkgs.nix}/bin/nix eval --json ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.house.zigbee.scenes)
+    # 🦆 duck say ⮞ count da zigbee devices & scenes
+    TOTAL_DEVICES=$(echo "$DEVICES_JSON" | jq 'length') 
+    TOTAL_SCENES=$(echo "$SCENES_JSON" | jq 'length')
+
     # 🦆 duck say ⮞ count scripts in bin
     count_bin() {
       nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts --json | jq 'keys | length'
@@ -389,7 +395,8 @@ EOF
 
     STATS_BLOCK=$(
       echo "- __$total_scripts qwacktastic scripts in /bin - $voice_scripts scripts have voice commands.__ <br>"
-      echo "- __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>"            
+      echo "- __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>"
+      echo "- __Smart Home Nix Style - Managing $TOTAL_DEVICES devices & $TOTAL_SCENES scenes.__ <br>"      
     ) 
      
     # 🦆 duck say ⮞ Update version badges
