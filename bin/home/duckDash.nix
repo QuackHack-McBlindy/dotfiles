@@ -9,11 +9,10 @@
 }: let 
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = "homie";
-#  mqttHost = lib.findSingle (host:
-#      let cfg = self.nixosConfigurations.${host}.config;
-##      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -1954,8 +1953,12 @@
                 }
                 
                 function updateStatusCards() {
-                    const deviceCount = Object.keys(devices).length - 1; // Subtract bridge
-                    document.getElementById('connectedDevicesCount').textContent = deviceCount;
+                    const zigbeeDevices = Object.keys(devices).filter(device => 
+                        !device.includes('tibber') && 
+                        !device.startsWith('tv_') && 
+                        device !== 'bridge'
+                    );
+                    const deviceCount = zigbeeDevices.length;
                     document.getElementById('devicesStatus').textContent = deviceCount > 0 ? 'Devices online' : 'No devices';
                     
                     // 🦆 says ⮞ find temp

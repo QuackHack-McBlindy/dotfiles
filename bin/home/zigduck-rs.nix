@@ -285,6 +285,34 @@
     }
    
     impl ZigduckState {
+        // 🦆 says ⮞ handle Tibber data
+        fn handle_tibber_data(&self, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
+            let mut tibber_state = self.get_full_device_state("tibber")
+                .unwrap_or_else(|| json!({}));
+    
+            if let Some(price) = data["current_price"].as_f64() {
+                tibber_state["current_price"] = Value::Number(serde_json::Number::from_f64(price).unwrap());
+            } else if let Some(price) = data["current_price"].as_str() {
+                if let Ok(price_num) = price.parse::<f64>() {
+                    tibber_state["current_price"] = Value::Number(serde_json::Number::from_f64(price_num).unwrap());
+                }
+            }
+    
+            if let Some(usage) = data["monthly_usage"].as_f64() {
+                tibber_state["monthly_usage"] = Value::Number(serde_json::Number::from_f64(usage).unwrap());
+            } else if let Some(usage) = data["monthly_usage"].as_str() {
+                if let Ok(usage_num) = usage.parse::<f64>() {
+                    tibber_state["monthly_usage"] = Value::Number(serde_json::Number::from_f64(usage_num).unwrap());
+                }
+            }
+    
+            // 🦆 says ⮞ timestamp for freshness trackin'
+            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+            tibber_state["last_updated"] = Value::Number(timestamp.into());
+            self.update_full_device_state("tibber", &tibber_state)?;
+            Ok(())
+        }
+    
         // 🦆 says ⮞ handle MQTT triggered automations
         async fn check_mqtt_triggered_automations(&self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
             for (name, automation) in &self.automations.mqtt_triggered {
@@ -1175,18 +1203,19 @@
             }
     
             // 🦆 says ⮞ ENERGY USAGE    
-            if topic == "zigbee2mqtt/tibber/price" {
-                if let Some(price) = data["current_price"].as_str() {
-                    self.update_device_state("tibber", "current_price", price)?;
-                    self.quack_info(&format!("Energy price updated: {} SEK/kWh", price));
+            if topic == "zigbee2mqtt/tibber/price" || topic == "zigbee2mqtt/tibber/usage" {
+                if let Err(e) = self.handle_tibber_data(&data) {
+                    self.quack_debug(&format!("Failed to handle Tibber data: {}", e));
                 }
-                return Ok(());
-            }
     
-            if topic == "zigbee2mqtt/tibber/usage" {
-                if let Some(usage) = data["monthly_usage"].as_str() {
-                    self.update_device_state("tibber", "monthly_usage", usage)?;
-                    self.quack_info(&format!("Energy usage updated: {} kWh", usage));
+                if topic == "zigbee2mqtt/tibber/price" {
+                    if let Some(price) = data["current_price"].as_f64() {
+                        self.quack_info(&format!("Energy price updated: {} SEK/kWh", price));
+                    }
+                } else if topic == "zigbee2mqtt/tibber/usage" {
+                    if let Some(usage) = data["monthly_usage"].as_f64() {
+                        self.quack_info(&format!("Energy usage updated: {} kWh", usage));
+                    }
                 }
                 return Ok(());
             }
