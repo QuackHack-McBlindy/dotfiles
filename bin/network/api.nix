@@ -191,6 +191,33 @@
         }
     }
 
+    fn handle_health_check() -> String {
+        match Command::new("health").output() {
+            Ok(output) if output.status.success() => {
+                let health_output = String::from_utf8_lossy(&output.stdout);
+                // 🦆 says ⮞ health script already returns JSON, so we can use it directly
+                health_output.to_string()
+            }
+            Ok(output) => {
+                let error_msg = String::from_utf8_lossy(&output.stderr);
+                // 🦆 says ⮞ fallback if health command fails
+                let timestamp = chrono::Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
+                format!(
+                    r#"{{"status":"degraded","service":"yo-api","timestamp":"{}","error":"Health check failed: {}"}}"#,
+                    timestamp, error_msg
+                )
+            }
+            Err(e) => {
+                // 🦆 says ⮞ fallback if health command not found
+                let timestamp = chrono::Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
+                format!(
+                    r#"{{"status":"degraded","service":"yo-api","timestamp":"{}","error":"Health command failed: {}"}}"#,
+                    timestamp, e
+                )
+            }
+        }
+    }
+
     fn handle_request(mut stream: TcpStream) {
         let mut reader = BufReader::new(&stream);
         let mut request_line = String::new();
@@ -318,8 +345,8 @@
                 }
             }
             "/health" => {
-                let timestamp = chrono::Local::now().format("%Y-%m-%dT%H:%M:%S%z").to_string();
-                send_response(&mut stream, "200 OK", &format!(r#"{{"status":"healthy","service":"yo-api","timestamp":"{}"}}"#, timestamp), None);
+                let response = handle_health_check();
+                send_response(&mut stream, "200 OK", &response, None);
             }
             _ => {
                 send_response(&mut stream, "404 Not Found", &format!(r#"{{"error":"Endpoint not found","path":"{}"}}"#, raw_path), None);
@@ -379,223 +406,6 @@
     chrono = { version = "0.4", features = ["serde"] }
   ''; 
 
-
-  handlerScript = ''
-    #!/usr/bin/env bash
-
-    log(){ dt_debug "[API] $*"; }
-    
-    urldecode() {
-      local encoded="$1"
-      printf '%b' "''${encoded//%/\\x}"
-    }
-    
-    send_response() {
-      local status="$1"
-      local body="$2"
-      local content_type="''${3:-application/json}"
-      local length
-      length=$(printf "%s" "$body" | wc -c)
-    
-      printf "HTTP/1.1 %s\r\n" "$status"
-      printf "Content-Type: %s\r\n" "$content_type"
-      printf "Access-Control-Allow-Origin: *\r\n"
-      printf "Content-Length: %s\r\n" "$length"
-      printf "\r\n"
-      printf "%s" "$body"
-    }
-    
-    # 🦆 says ⮞ read request line empty? exit
-    if ! IFS= read -r request_line; then
-      log "No data on stdin; exiting"
-      exit 0
-    fi
-    log "Request: $request_line"
-    
-    method=$(printf "%s" "$request_line" | awk "{print \$1}")
-    raw_path=$(printf "%s" "$request_line" | awk "{print \$2}")
-    
-    content_length=0
-    while IFS= read -r header; do
-      [[ -z "$header" || "$header" = $'\r' ]] && break
-      if [[ "$header" =~ ^[Cc]ontent-[Ll]ength:[[:space:]]*([0-9]+) ]]; then
-        content_length="''${BASH_REMATCH[1]}"
-      fi
-    done
-    
-    body=""
-    if [[ -n "$content_length" && "$content_length" -gt 0 ]]; then
-      read -r -n "$content_length" body
-      log "Body: $body"
-    fi
-    
-    # 🦆 says ⮞ strip query
-    path_no_query="''${raw_path%%\?*}"
-    query="''${raw_path#*\?}"
-    
-    get_path_arg() {
-      local q="$1"
-      local val
-      # 🦆 says ⮞ drop everything before 'path=' and stop at '&'
-      val="''${q#*path=}"
-      val="''${val%%&*}"
-      val="''${val//+/ }"
-      urldecode "$val"
-    }
-
-
-    
-    case "$path_no_query" in
-      "/" )
-        send_response "200 OK" '{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/health","/add","/add_folder"]}' ;;
-        
-      "/browsev2"|"/api/browsev2" )
-        path_arg="$(get_path_arg "$query")"
-        MEDIA_ROOT="/Pool"
-        full_path="$MEDIA_ROOT/$path_arg"
-        real_full_path=$(realpath "$full_path" 2>/dev/null)
-        real_media_root=$(realpath "$MEDIA_ROOT")
-        if [[ -z "$real_full_path" || ! "$real_full_path" =~ ^$real_media_root ]]; then
-          send_response "403 Forbidden" '{"error":"Access forbidden"}'
-          exit 0
-        fi
-    
-        if [[ ! -d "$real_full_path" ]]; then
-          send_response "404 Not Found" "{\"error\":\"Directory not found: $path_arg\"}"
-          exit 0
-        fi
-    
-        directories=()
-        files=()
-    
-        while IFS= read -r item; do
-          if [[ -n "$item" ]]; then
-            item_name=$(basename "$item")
-            if [[ -d "$item" ]]; then
-              directories+=("$item_name")
-            else
-              files+=("$item_name")
-            fi
-          fi
-        done < <(find "$real_full_path" -maxdepth 1 -mindepth 1 2>/dev/null | sort)
-    
-        dirs_json=$(printf '%s\n' "''${directories[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
-        files_json=$(printf '%s\n' "''${files[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
-    
-        send_response "200 OK" "{\"path\":\"$path_arg\",\"full_path\":\"$real_full_path\",\"directories\":$dirs_json,\"files\":$files_json}"
-        ;;
-      "/browse"|"/api/browse" )
-        path_arg="$(get_path_arg "$query")"
-    
-        if [[ -z "$path_arg" ]]; then
-          path_arg=""
-        fi
-    
-        MEDIA_ROOT="/Pool"
-        full_path="$MEDIA_ROOT/$path_arg"
-    
-        # 🦆 says ⮞ SAFETY FIRST
-        if [[ ! "$full_path" =~ ^$MEDIA_ROOT ]]; then
-          send_response "403 Forbidden" '{"error":"Access forbidden"}'
-          exit 0
-        fi
-    
-        if [[ ! -d "$full_path" ]]; then
-          send_response "404 Not Found" "{\"error\":\"Directory not found: $path_arg\"}"
-          exit 0
-        fi
-    
-        # 🦆 says ⮞ list directories and files
-        directories=()
-        files=()
-    
-        while IFS= read -r item; do
-          if [[ -n "$item" ]]; then
-            item_path="$full_path/$item"
-            if [[ -d "$item_path" ]]; then
-              directories+=("$item")
-            else
-              files+=("$item")
-            fi
-          fi
-        done < <(ls -1 "$full_path" 2>/dev/null)
-    
-        # 🦆 says ⮞ json ist da bomb yo
-        dirs_json=$(printf '%s\n' "''${directories[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
-        files_json=$(printf '%s\n' "''${files[@]}" | jq -R -s 'split("\n") | map(select(. != ""))')
-    
-        send_response "200 OK" "{\"path\":\"$path_arg\",\"directories\":$dirs_json,\"files\":$files_json}" ;;     
-      "/add"|"/api/add" )
-        path_arg="$(get_path_arg "$query")"
-        if [[ -z "$path_arg" ]]; then
-          send_response "400 Bad Request" '{"error":"Missing path parameter"}'
-          exit 0
-        fi
-        log "Adding file: $path_arg"
-        if yo vlc --add "$path_arg" >/dev/null 2>&1; then
-          send_response "200 OK" "{\"status\":\"ok\",\"action\":\"add\",\"path\":\"$path_arg\"}"
-        else
-          send_response "500 Internal Server Error" "{\"error\":\"Failed to add file\",\"path\":\"$path_arg\"}"
-        fi ;;
-      "/add_folder"|"/api/add_folder" )
-        path_arg="$(get_path_arg "$query")"
-        if [[ -z "$path_arg" ]]; then
-          send_response "400 Bad Request" '{"error":"Missing path parameter"}'
-          exit 0
-        fi
-        log "Adding folder: $path_arg"
-        if yo vlc --addDir "$path_arg" >/dev/null 2>&1; then
-          send_response "200 OK" "{\"status\":\"ok\",\"action\":\"add_folder\",\"path\":\"$path_arg\"}"
-        else
-          send_response "500 Internal Server Error" "{\"error\":\"Failed to add folder\",\"path\":\"$path_arg\"}"
-        fi ;;
-      "/timers"|"/api/timers" )
-        if output=$(yo timer --list 2>/dev/null); then
-          send_response "200 OK" "$output"
-        else
-          send_response "500 Internal Server Error" '{"error":"Failed to fetch timers"}'
-        fi ;;
-      "/alarms"|"/api/alarms" )
-        if output=$(yo alarm --list 2>/dev/null); then
-          send_response "200 OK" "$output"
-        else
-          send_response "500 Internal Server Error" '{"error":"Failed to fetch alarms"}'
-        fi ;;
-      "/shopping"|"/shopping-list"|"/api/shopping" )
-        if output=$(yo shop-list --list 2>/dev/null); then
-          if [[ -n "$output" ]]; then
-            json_items=$(printf '%s\n' "$output" | jq -R -s 'split("\n")[:-1]')
-            send_response "200 OK" "{\"items\":$json_items}"
-          else
-            send_response "500 Internal Server Error" '{"error":"Failed to fetch shopping list"}'
-          fi
-        else
-          send_response "500 Internal Server Error" '{"error":"Failed to fetch shopping list"}'
-        fi ;;
-      "/reminders"|"/remmind"|"/api/reminders" )
-        if output=$(yo reminder --list 2>/dev/null); then
-          if [[ -n "$output" ]]; then
-            json_items=$(printf '%s\n' "$output" | jq -R -s 'split("\n")[:-1]')
-            send_response "200 OK" "{\"items\":$json_items}"
-          else
-            send_response "500 Internal Server Error" '{"error":"Failed to fetch reminders"}'
-          fi
-        else
-          send_response "500 Internal Server Error" '{"error":"Failed to fetch reminders"}'
-        fi ;;
-      "/playlist"|"/api/playlist" )
-        if output=$(yo vlc --list 2>/dev/null); then
-          send_response "200 OK" "$output"
-        else
-          send_response "500 Internal Server Error" '{"error":"Failed to fetch playlist"}'
-        fi ;;
-      "/health" )
-        send_response "200 OK" "{\"status\":\"healthy\",\"service\":\"yo-api\",\"timestamp\":\"$(date -Iseconds)\"}" ;;
-      * )
-        send_response "404 Not Found" "{\"error\":\"Endpoint not found\",\"path\":\"$raw_path\"}" ;;
-    esac
-    '
-  '';  
   
 in { 
   networking.firewall.allowedTCPPorts = [9815];

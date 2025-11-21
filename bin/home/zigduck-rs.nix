@@ -285,34 +285,6 @@
     }
    
     impl ZigduckState {
-        // 🦆 says ⮞ handle Tibber data
-        fn handle_tibber_data(&self, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
-            let mut tibber_state = self.get_full_device_state("tibber")
-                .unwrap_or_else(|| json!({}));
-    
-            if let Some(price) = data["current_price"].as_f64() {
-                tibber_state["current_price"] = Value::Number(serde_json::Number::from_f64(price).unwrap());
-            } else if let Some(price) = data["current_price"].as_str() {
-                if let Ok(price_num) = price.parse::<f64>() {
-                    tibber_state["current_price"] = Value::Number(serde_json::Number::from_f64(price_num).unwrap());
-                }
-            }
-    
-            if let Some(usage) = data["monthly_usage"].as_f64() {
-                tibber_state["monthly_usage"] = Value::Number(serde_json::Number::from_f64(usage).unwrap());
-            } else if let Some(usage) = data["monthly_usage"].as_str() {
-                if let Ok(usage_num) = usage.parse::<f64>() {
-                    tibber_state["monthly_usage"] = Value::Number(serde_json::Number::from_f64(usage_num).unwrap());
-                }
-            }
-    
-            // 🦆 says ⮞ timestamp for freshness trackin'
-            let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-            tibber_state["last_updated"] = Value::Number(timestamp.into());
-            self.update_full_device_state("tibber", &tibber_state)?;
-            Ok(())
-        }
-    
         // 🦆 says ⮞ handle MQTT triggered automations
         async fn check_mqtt_triggered_automations(&self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
             for (name, automation) in &self.automations.mqtt_triggered {
@@ -1203,22 +1175,64 @@
             }
     
             // 🦆 says ⮞ ENERGY USAGE    
-            if topic == "zigbee2mqtt/tibber/price" || topic == "zigbee2mqtt/tibber/usage" {
-                if let Err(e) = self.handle_tibber_data(&data) {
-                    self.quack_debug(&format!("Failed to handle Tibber data: {}", e));
-                }
+            //if topic == "zigbee2mqtt/tibber/price" {
+            //    if let Some(price) = data["current_price"].as_str() {
+            //        self.update_device_state("tibber", "current_price", price)?;
+            //        self.quack_info(&format!("Energy price updated: {} SEK/kWh", price));
+            //    }
+            //    return Ok(());
+            //}
     
-                if topic == "zigbee2mqtt/tibber/price" {
-                    if let Some(price) = data["current_price"].as_f64() {
-                        self.quack_info(&format!("Energy price updated: {} SEK/kWh", price));
-                    }
-                } else if topic == "zigbee2mqtt/tibber/usage" {
-                    if let Some(usage) = data["monthly_usage"].as_f64() {
-                        self.quack_info(&format!("Energy usage updated: {} kWh", usage));
-                    }
-                }
-                return Ok(());
-            }
+            //if topic == "zigbee2mqtt/tibber/usage" {
+            //    if let Some(usage) = data["monthly_usage"].as_str() {
+            //        self.update_device_state("tibber", "monthly_usage", usage)?;
+            //        self.quack_info(&format!("Energy usage updated: {} kWh", usage));
+            //    }
+            //    return Ok(());
+            //}
+            
+            // 🦆 says ⮞ CRYPTO PRICE UPDATES
+            //if topic == "zigbee2mqtt/crypto/btc/price" {
+            //    if let Some(price) = data["current_price"].as_f64() {
+            //        self.update_device_state("btc", "current_price", &price.to_string())?;
+            //        self.quack_info(&format!("₿ Bitcoin price updated: {}", price));
+            //    }
+            //    if let Some(change_24h) = data["24h_change"].as_f64() {
+            //        self.update_device_state("btc", "change_24h", &change_24h.to_string())?;
+            //    } else if let Some(change_24h) = data["24h_change"].as_str() {
+            //        self.update_device_state("btc", "change_24h", change_24h)?;
+            //    }
+            //    if let Some(change_7d) = data["7d_change"].as_f64() {
+            //        self.update_device_state("btc", "change_7d", &change_7d.to_string())?;
+            //    } else if let Some(change_7d) = data["7d_change"].as_str() {
+           //         self.update_device_state("btc", "change_7d", change_7d)?;
+            //    }
+    
+            //    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+             //   self.update_device_state("btc", "last_updated", &timestamp.to_string())?;
+          //      return Ok(());
+           // }
+
+           // if topic == "zigbee2mqtt/crypto/xmr/price" {
+           //     if let Some(price) = data["current_price"].as_f64() {
+           //         self.update_device_state("xmr", "current_price", &price.to_string())?;
+          //          self.quack_info(&format!("Monero price updated: {}", price));
+          //      }
+          //      if let Some(change_24h) = data["24h_change"].as_f64() {
+         //           self.update_device_state("xmr", "change_24h", &change_24h.to_string())?;
+        //        } else if let Some(change_24h) = data["24h_change"].as_str() {
+         //           self.update_device_state("xmr", "change_24h", change_24h)?;
+        //        }
+       //         if let Some(change_7d) = data["7d_change"].as_f64() {
+        //            self.update_device_state("xmr", "change_7d", &change_7d.to_string())?;
+       //        } else if let Some(change_7d) = data["7d_change"].as_str() {
+      //             self.update_device_state("xmr", "change_7d", change_7d)?;
+       //         }
+    
+       //         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
+      //          self.update_device_state("xmr", "last_updated", &timestamp.to_string())?;
+      //          return Ok(());
+     //       }
 
             // 🦆 says ⮞ 🧠 NLP COMMAND - handle commands from dashboard
             if topic == "zigbee2mqtt/command" {
@@ -1705,26 +1719,22 @@ EOF
       MQTT_PASSWORD=$(cat "$pwfile")
 
       # 🦆 says ⮞ create the Rust projectz directory and move into it
-      mkdir -p "$dir"
-      cd "$dir"
-      mkdir -p src
+      #mkdir -p "$dir"
+      #cd "$dir"
+      #mkdir -p src
       # 🦆 says ⮞ create the source filez yo 
-      cat ${zigduck-rs} > src/main.rs
-      cat ${zigduck-toml} > Cargo.toml
+      #cat ${zigduck-rs} > src/main.rs
+      #cat ${zigduck-toml} > Cargo.toml
       
-      # 🦆 says ⮞ check build bool
-      if [ "$build" = true ]; then
-        dt_debug "Deleting any possible old versions of the binary"
-        rm -f target/release/zigduck-rs
-        ${pkgs.cargo}/bin/cargo generate-lockfile      
-        ${pkgs.cargo}/bin/cargo build --release
-        dt_info "Build complete!"
-      fi # 🦆 says ⮞ if no binary exist - compile it yo
-      if [ ! -f "target/release/zigduck-rs" ]; then
-        ${pkgs.cargo}/bin/cargo generate-lockfile     
-        ${pkgs.cargo}/bin/cargo build --release
-        dt_info "Build complete!"
-      fi
+      tmp=$(mktemp -d)
+      trap "rm -rf '$tmp'" EXIT
+      mkdir -p "$tmp/src"
+      cat ${zigduck-rs}   > "$tmp/src/main.rs"
+      cat ${zigduck-toml} > "$tmp/Cargo.toml"
+      cd "$tmp"
+      ${pkgs.cargo}/bin/cargo generate-lockfile
+      ${pkgs.cargo}/bin/cargo build --release      
+      
 
       # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
       if [ "$VERBOSE" -ge 1 ]; then

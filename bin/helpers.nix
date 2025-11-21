@@ -208,13 +208,13 @@ EOF
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
     }
     play_fail2() {
-      aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail2.wav" >/dev/null 2>&1
+      mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail2.mp3" >/dev/null 2>&1
     }
     play_fail3() {
-      mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail3.mp3"
+      mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail3.mp3" >/dev/null 2>&1
     }
     play_relax() {
-      mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/relax.mp3"
+      mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/relax.mp3" >/dev/null 2>&1
     }
 
     # 🦆 duck say ⮞ validate json input before process

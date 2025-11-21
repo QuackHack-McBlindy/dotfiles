@@ -36,6 +36,82 @@
   else
     "0.0.0.0"; 
 
+  # 🦆 says ⮞ generate html for status cards
+  statusCardsHtml = lib.concatStrings (lib.mapAttrsToList (name: card: 
+    if card.enable then ''
+      <div class="card" data-card="${name}">
+        <div class="card-header">
+          <div class="card-title">${card.title}</div>
+          <i class="${card.icon}" style="color: ${card.color};"></i>
+        </div>
+        <div class="card-value" id="status-${name}-value">${card.defaultValue}</div>
+        <div class="card-details">
+          <i class="fas fa-info-circle"></i>
+          <span id="status-${name}-details">${card.defaultDetails}</span>
+        </div>
+      </div>
+    '' else ""
+  ) config.house.dashboard.statusCards);
+
+  # 🦆 says ⮞ generate js update functions
+  statusCardsJs = let
+    cardUpdates = lib.mapAttrsToList (name: card: 
+      if card.enable then ''
+        // 🦆says⮞ update function for ${name}
+        function update${lib.toUpper (lib.substring 0 1 name)}${lib.substring 1 (lib.stringLength name) name}Card() {
+          console.log('🦆 Fetching ${name} data from /${builtins.baseNameOf card.filePath}');
+          fetch('/${builtins.baseNameOf card.filePath}')
+            .then(response => {
+              console.log('🦆 ${name} response status:', response.status);
+              if (!response.ok) throw new Error('HTTP ' + response.status);
+              return response.json();
+            })
+            .then(data => {
+              console.log('🦆 ${name} data received:', data);
+              const value = data.${card.jsonField};
+              console.log('🦆 ${name} field ${card.jsonField} value:', value);
+              const formattedValue = "${card.format}".replace(/\{value\}/g, value);
+              console.log('🦆 ${name} formatted value:', formattedValue);
+              updateCardValue("${name}", formattedValue);
+              ${if card.details != "" then ''updateCardDetails("${name}", "${card.details}");'' else ""}
+            })
+            .catch(error => {
+              console.error('🦆 Error fetching ${name} data:', error);
+              updateCardValue("${name}", "${card.defaultValue}");
+              updateCardDetails("${name}", "${card.defaultDetails}");
+            });
+        }
+      '' else ""
+    ) config.house.dashboard.statusCards;
+  in lib.concatStrings cardUpdates;
+
+  # 🦆 says ⮞ generate the main update function
+  updateAllCardsJs = let
+    functionCalls = lib.mapAttrsToList (name: card: 
+      if card.enable then 
+        "update${lib.toUpper (lib.substring 0 1 name)}${lib.substring 1 (lib.stringLength name) name}Card();"
+      else ""
+    ) config.house.dashboard.statusCards;
+  in ''
+    function updateAllStatusCards() {
+      ${lib.concatStringsSep "\n      " functionCalls}
+    }
+  '';
+
+  # 🦆 says ⮞ auto-refresh file-based cards
+  fileRefreshJs = ''
+    setInterval(() => {
+      updateAllStatusCards();
+    }, 30000); // 🦆says⮞30 secs
+  
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(() => {
+        updateAllStatusCards();
+      }, 1000);
+    });
+  '';
+
+
   # 🦆 says ⮞ get house.zigbee.devices
   zigbeeDevices = config.house.zigbee.devices;
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
@@ -210,6 +286,12 @@
     ln -sf /etc/static/epg.json $WORKDIR/   
     ln -sf /etc/static/tv.html $WORKDIR/   
     ln -sf /etc/static/favicon.ico $WORKDIR/   
+
+    # 🦆 says ⮞ symlink all status card JSON files
+    ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: card: 
+      if card.enable then "ln -sf ${card.filePath} $WORKDIR/${builtins.baseNameOf card.filePath};" else ""
+    ) config.house.dashboard.statusCards)}
+  
 
     # 🦆 says ⮞ add TV icons
     mkdir -p $WORKDIR/tv-icons
@@ -870,22 +952,12 @@
                  🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageHome">
-                    ${statusCards}
+                    ${if config.house.dashboard.betaCard.enable then statusCards else ""}
                     
                     <div class="status-cards">
                     <div class="status-cards">
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Connected Devices</div>
-                                <i class="fas fa-network-wired" style="color: #2ecc71;"></i>
-                            </div>
-                            <div class="card-value" id="connectedDevicesCount">0</div>
-                            <div class="card-details">
-                                <i class="fas fa-check-circle"></i>
-                                <span id="devicesStatus">Waiting for data</span>
-                            </div>
-                        </div>
-                        
+                        ${statusCardsHtml}
+                       
                         <div class="card">
                             <div class="card-header">
                                 <div class="card-title">Temperature</div>
@@ -898,30 +970,7 @@
                             </div>
                         </div>
                         
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Energy</div>
-                                <i class="fas fa-bolt" style="color: #f39c12;"></i>
-                            </div>
-                            <div class="card-value" id="energyPrice">--.- SEK/kWh</div>
-                            <div class="card-value" id="energyUsage">--.- kWh (month)</div>
-                            <div class="card-details">
-                                <i class="fas fa-clock"></i>
-                                <span>Current price & monthly usage</span>
-                            </div>
-                        </div>
                         
-                        <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Security</div>
-                                <i class="fas fa-shield-alt" style="color: #4a6fa5;"></i>
-                            </div>
-                            <div class="card-value" id="securityStatus">--</div>
-                            <div class="card-details">
-                                <i class="fas fa-lock"></i>
-                                <span id="securityDetail">Waiting for data</span>
-                            </div>
-                        </div>
                     </div>
                     </div>
                 </div>
@@ -1069,12 +1118,12 @@
                      
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 4 - 🦆☁️)
-                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
+                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                 <div class="page" id="pageCloud">
                     <div class="cloud-grid">
                         <iframe src="https://pungkula.duckdns.org" class="fullpage-iframe"></iframe>
                     </div>
-                </div>
+                </div> -->
 
 
             </div>
@@ -1095,16 +1144,45 @@
                 </div>
                 <div class="nav-tab" data-page="3">
                     <i class="mdi mdi-remote"></i>
-                </div>
+                </div> <!--
                 <div class="nav-tab" data-page="4">
                     <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
-                </div>
+                </div> -->
             </div>
         </div>
     
         <div class="notification hidden" id="notification"></div>
     
-        <script>      
+        <script>   
+            ${statusCardsJs}
+            ${updateAllCardsJs}
+            ${fileRefreshJs}
+
+            function updateCardValue(cardId, value) {
+                console.log('🦆 updateCardValue called with:', cardId, value);
+                const element = document.getElementById("status-"+cardId+"-value");
+                console.log('🦆 updateCardValue element found:', element);
+                if (element) {
+                    console.log('🦆 updateCardValue updating element from:', element.textContent, 'to:', value);
+                    element.textContent = value;
+                } else {
+                    console.error('🦆 updateCardValue element not found for id:', "status-"+cardId+"-value");
+                }
+            }
+
+            function updateCardDetails(cardId, details) {
+                console.log('🦆 updateCardDetails called with:', cardId, details);
+                const element = document.getElementById("status-"+cardId+"-details");
+                console.log('🦆 updateCardDetails element found:', element);
+                if (element) {
+                    element.textContent = details;
+                }
+            }
+        
+            function onMQTTDataUpdate() {
+                updateAllStatusCards();
+            }
+            
             document.addEventListener('DOMContentLoaded', function() {
 
                 // 🦆 says ⮞ mqtt
@@ -1833,7 +1911,6 @@
                                 return;
                             }
 
-
                             if (deviceName === 'tibber') {
                                 try {
                                     const data = JSON.parse(message.toString());
@@ -1877,17 +1954,18 @@
                                 try {
                                     const data = JSON.parse(message.toString());
                                     devices[deviceName] = data;    
-                                    //🦆 says ⮞ auto-save when data arrives
                                     saveState();     
                                     updateDeviceSelector(); 
                                     if (selectedDevice === deviceName) {
                                         updateDeviceUI(data);
                                     }      
                                     updateStatusCards();
+                                    onMQTTDataUpdate();   
                                 } catch (e) {
                                     console.error('Error parsing message: ', e);
                                 }
                             }
+
                         });
                         
                         client.on('close', function() {
@@ -1914,29 +1992,43 @@
                 
                 function updateDeviceSelector() {
                     const selector = document.getElementById('deviceSelect');
-                    const currentValue = selector.value;
-                    
-                    // 🦆 says ⮞ clear
+                    const currentValue = selector.value;    
                     while (selector.options.length > 1) {
                         selector.remove(1);
                     }
-                    
+    
                     Object.keys(devices).forEach(device => {
-                        if (device !== 'bridge') {
+                        // 🦆 says ⮞ filter out system/bridge/availability entries
+                        const excludedPatterns = [
+                            'bridge',
+                            'bridge/',
+                            '../availability',
+                            'tibber',
+                            /^0x/,
+                        ];
+        
+                        const shouldExclude = excludedPatterns.some(pattern => {
+                            if (typeof pattern === 'string') {
+                                return device.includes(pattern);
+                            } else if (pattern instanceof RegExp) {
+                                return pattern.test(device);
+                            }
+                            return false;
+                        });
+        
+                        if (!shouldExclude) {
                             const option = document.createElement('option');
                             option.value = device;
                             option.textContent = device;
                             selector.appendChild(option);
                         }
                     });
-                    
-                    // 🦆 says ⮞ restore?
+    
                     if (devices[currentValue]) {
                         selector.value = currentValue;
                     }
                 }
-
-               
+              
                 function updateDeviceUI(data) {
                     console.log('Updating device UI for:', selectedDevice);
                     console.log('Device data:', data);
@@ -1953,33 +2045,28 @@
                 }
                 
                 function updateStatusCards() {
-                    const zigbeeDevices = Object.keys(devices).filter(device => 
-                        !device.includes('tibber') && 
-                        !device.startsWith('tv_') && 
-                        device !== 'bridge'
-                    );
-                    const deviceCount = zigbeeDevices.length;
-                    document.getElementById('devicesStatus').textContent = deviceCount > 0 ? 'Devices online' : 'No devices';
-                    
-                    // 🦆 says ⮞ find temp
+                    // 🦆 says ⮞ Only update the temperature card if it exists
                     let temperature = '--.-';
                     let tempLocation = 'No sensor';
-                    
+
                     for (const [device, data] of Object.entries(devices)) {
                         if (data.temperature !== undefined) {
                             temperature = data.temperature;
                             tempLocation = device;
                             break;
                         }
+                    }    
+                    // 🦆 says ⮞ update temperature elements if they exist
+                    const temperatureValueElement = document.getElementById('temperatureValue');
+                    if (temperatureValueElement) {
+                        temperatureValueElement.textContent = `''${temperature}°C`;
                     }
-                    
-                    document.getElementById('temperatureValue').textContent = `''${temperature}°C`;
-                    document.getElementById('temperatureLocation').textContent = tempLocation;
-                    
-                    document.getElementById('securityStatus').textContent = 'Active';
-                    document.getElementById('securityDetail').textContent = 'All secured';
+                    const temperatureLocationElement = document.getElementById('temperatureLocation');
+                    if (temperatureLocationElement) {
+                        temperatureLocationElement.textContent = tempLocation;
+                    }
                 }
-      
+
       
                 function updateDeviceIcon(deviceName) {
                     console.log('updateDeviceIcon called for:', deviceName);

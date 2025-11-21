@@ -9,11 +9,10 @@
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-#  mqttHost = lib.findSingle (host:
-#      let cfg = self.nixosConfigurations.${host}.config;
-#      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
-  mqttHost = "homie";
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -169,7 +168,8 @@ EOF
 
         dt_debug "Elförbrukning hittills i $MONTH_NAME: $TOTAL_KWH kWh"
         echo "$TOTAL_KWH"
-        mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
+        #mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
+        mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": \"$TOTAL_KWH\"}"
         
         QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
           --arg q "{
@@ -208,7 +208,8 @@ EOF
 
         dt_debug "$TOTAL SEK / kWh"
         echo "$TOTAL SEK / kWh"
-        mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": $TOTAL}"
+        mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": \"$TOTAL\"}"
+
         if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi   
     '';

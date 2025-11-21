@@ -9,11 +9,10 @@
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = "desktop";
-#  mqttHost = lib.findSingle (host:
-#      let cfg = self.nixosConfigurations.${host}.config;
-#      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -88,8 +87,8 @@ EOF
 
       echo "$(date '+%Y-%m-%d %H:%M') $BTC_PRICE $BTC_24H $BTC_7D_FORMATTED" >> "$filePath"
 
-      # 🦆 says ⮞ publish to MQTT like XMR does
-      mqtt_pub -t "zigbee2mqtt/crypto/btc/price" -m "{\"current_price\": $BTC_PRICE, \"24h_change\": $BTC_24H, \"7d_change\": $BTC_7D}"
+      # 🦆 says ⮞ publish to MQTT
+      mqtt_pub -t "zigbee2mqtt/crypto/btc/price" -m "{\"current_price\": \"$BTC_PRICE\", \"24h_change\": \"$BTC_24H\", \"7d_change\": \"$BTC_7D\"}"
 
       echo "Bitcoin $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
       dt_info "₿ $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"

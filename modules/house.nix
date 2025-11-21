@@ -380,9 +380,52 @@
     )
   );# 🦆 says ⮞ yaaaaaaaaaaaaaaay
 
+  # 🦆 says ⮞ for da dashboard
+  statusCardType = with lib.types; submodule {
+    options = {
+      enable = mkEnableOption "this status card";
+      title = mkOption { type = str; };
+      icon = mkOption { type = str; };
+      color = mkOption { type = str; default = "#2ecc71"; };
+      # 🦆 says ⮞ for custom cards
+      source = mkOption {
+        type = enum [ "file" ];
+        default = "file";
+      };      
+      # 🦆 says ⮞ file source options
+      filePath = mkOption { 
+        type = str; 
+        default = ""; 
+        description = "Path to JSON file for file source";
+      };    
+      jsonField = mkOption { 
+        type = str; 
+        default = ""; 
+        description = "JSON field to extract from file";
+      };
+      # 🦆 says ⮞ display configuration
+      format = mkOption { type = str; default = "{value}"; };
+      details = mkOption { type = str; default = ""; };
+      defaultValue = mkOption { type = str; default = "--"; };
+      defaultDetails = mkOption { type = str; default = "Waiting for data"; };
+    };
+  };
 
 in { # 🦆 says ⮞ Options for da house
-    options.house = {
+    options.house = {    
+      # 🦆 says ⮞ dashboard configuraiton
+      dashboard = {
+        betaCard = {
+          enable = (mkEnableOption "the beta card") // { default = false; };
+        };
+        
+        statusCards = lib.mkOption {
+          type = lib.types.attrsOf statusCardType;
+          default = {};
+          description = "Configurable status cards for the dashboard";
+        };
+      };
+      
       # 🦆 duck say ⮞ set house rooms
       rooms = mkOption {
         type = types.attrsOf roomType;
@@ -617,9 +660,15 @@ in { # 🦆 says ⮞ Options for da house
             supports_color = mkOption {
               type = types.bool;
               default = false;
-              description = "Whether the device supports setting color.";
+              description = "Whether the light device supports setting color.";
               example = true;
             };
+            supports_temperature = mkOption {
+              type = types.bool;
+              default = false;
+              description = "Whether the light device supports setting temperature.";
+              example = true;
+            };            
             endpoint = lib.mkOption { 
               type = lib.types.int;
               description = "The Zigbee endpoint to control this device.";

@@ -294,7 +294,15 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103eafdd6">
     </div>
    
-    
+    <div class="control-row">
+  <label>Color:</label>
+  <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103eafdd6" oninput="updateRGBColor(this)">
+</div>        
+
+<div class="control-row">
+  <input type="color" class="color-picker" data-device="0x0017880103eafdd6" value="#ffffff">
+</div>
+
   </div>
 </div>
 

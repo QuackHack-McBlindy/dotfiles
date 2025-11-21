@@ -39,7 +39,7 @@
   };
 in { # 🦆 duck say ⮞ qwack
   house = {
-    # 🦆 says ⮞ rooms with icons
+    # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom.icon    = "mdi:bedroom";
       hallway.icon    = "mdi:hallway";
@@ -48,6 +48,55 @@ in { # 🦆 duck say ⮞ qwack
       wc.icon         = "mdi:toilet";
       other.icon      = "mdi:misc";
     };  
+
+    # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
+    dashboard = {
+      statusCards = {
+        xmr = {
+          enable = true;
+          title = "XMR";
+          icon = "fab fa-monero";
+          color = "#ff6600";
+          filePath = "/var/lib/zigduck/xmr.json";
+          jsonField = "current_price";
+          format = "\${value}";
+          details = "Live price";
+        };
+
+        btc = {
+          enable = true;
+          title = "BTC";
+          icon = "fab fa-bitcoin";
+          color = "#ff6600";
+          filePath = "/var/lib/zigduck/btc.json";
+          jsonField = "current_price";
+          format = "\${value}";
+          details = "Live price";
+        };
+
+        energy_usage = {
+          enable = true;
+          title = "Energy";
+          icon = "fas fa-bolt";
+          color = "#4caf50";
+          filePath = "/var/lib/zigduck/energy_usage.json";
+          jsonField = "monthly_usage";
+          format = "{value} kWh";
+          details = "Monthly Usage";
+        };
+
+        energy_price = {
+          enable = true;
+          title = "Energy";
+          icon = "fas fa-dollar";
+          color = "#2196f3";
+          filePath = "/var/lib/zigduck/energy_price.json";
+          jsonField = "current_price";
+          format = "{value} SEK/kWh";
+          details = "Current price";
+        };
+      };
+    };
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
     zigbee = {
@@ -76,8 +125,8 @@ in { # 🦆 duck say ⮞ qwack
       };
       
   # 🦆 ⮞ AUTOMATIONS ⮜
-  # 🦆 says ⮞ there are 6 different automation types
       automations = {  
+      # 🦆 says ⮞ there are 6 different automation types
         # 🦆 says ⮞ + a greeting automation
         greeting = {
           enable = true;
@@ -88,7 +137,68 @@ in { # 🦆 duck say ⮞ qwack
         };
         
         # 🦆 says ⮞ 1. mqtt triggered automations
-        mqtt_triggered = {};
+        mqtt_triggered = {
+          xmr = {
+            enable = true;
+            description = "Writes XMR data to file for dashboard";
+            topic = "zigbee2mqtt/crypto/xmr/price";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  touch /var/lib/zigduck/xmr.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/xmr.json
+                '';
+              }
+            ];
+          };
+          
+          btc = {
+            enable = true;
+            description = "Writes BTC data to file for dashboard";
+            topic = "zigbee2mqtt/crypto/btc/price";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  touch /var/lib/zigduck/btc.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
+                '';
+              }
+            ];
+          };
+
+          energy_price = {
+            enable = true;
+            description = "Writes tibber data to file for dashboard";
+            topic = "zigbee2mqtt/tibber/price";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  touch /var/lib/zigduck/energy_price.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy_price.json
+                '';
+              }
+            ];
+          };          
+
+          energy_usage = {
+            enable = true;
+            description = "Writes tibber data to file for dashboard";
+            topic = "zigbee2mqtt/tibber/usage";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  touch /var/lib/zigduck/energy_usage.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy_usage.json
+                '';
+              }
+            ];
+          }; 
+                    
+        };
         
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
@@ -163,7 +273,6 @@ in { # 🦆 duck say ⮞ qwack
       };  
 
 
-
   # 🦆 ⮞ DEVICES ⮜      
       devices = { 
         # 🦆 says ⮞ Kitchen   
@@ -202,11 +311,11 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ HALLWAY
         "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
         "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1; };
-        "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11; };
-        "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; icon = icons.light.wall; endpoint = 1; };
+        "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; icon = icons.light.ceiling; supports_color = true; endpoint = 11; };
+        "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; icon = icons.light.wall; supports_temperature = true; endpoint = 1; };
         # 🦆 says ⮞ WC
-        "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; endpoint = 11; };
-        "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = icons.light.ceiling; endpoint = 11; };
+        "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
+        "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
         # 🦆 says ⮞ BEDROOM  
         "0xa4c13832742c96f7" = { friendly_name = "Robot Arm 1"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
         "0xa4c138387966b58d" = { friendly_name = "Robot Arm 2"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
