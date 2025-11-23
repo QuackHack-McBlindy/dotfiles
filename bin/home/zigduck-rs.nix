@@ -209,7 +209,7 @@
         days: Vec<String>,
     }
 
-    #[derive(Debug, Clone)]
+    #[derive(Debug)]
     struct ZigduckState {
         mqtt_broker: String,
         mqtt_user: String,
@@ -221,12 +221,34 @@
         automations: AutomationConfig,
         dark_time_enabled: bool,
         motion_tracker: MotionTracker,
+        motion_timers: HashMap<String, tokio::task::JoinHandle<()>>,
         processing_times: HashMap<String, u128>,
         message_counts: HashMap<String, u64>,
         total_messages: u64,
         debug: bool,
     }
 
+    impl Clone for ZigduckState {
+        fn clone(&self) -> Self {
+            Self {
+                mqtt_broker: self.mqtt_broker.clone(),
+                mqtt_user: self.mqtt_user.clone(),
+                mqtt_password: self.mqtt_password.clone(),
+                state_dir: self.state_dir.clone(),
+                state_file: self.state_file.clone(),
+                larmed_file: self.larmed_file.clone(),
+                devices: self.devices.clone(),
+                automations: self.automations.clone(),
+                dark_time_enabled: self.dark_time_enabled,
+                motion_tracker: self.motion_tracker.clone(),
+                motion_timers: HashMap::new(),
+                processing_times: self.processing_times.clone(),
+                message_counts: self.message_counts.clone(),
+                total_messages: self.total_messages,
+                debug: self.debug,
+            }
+        }
+    }
 
     // 🦆 says ⮞ automation types
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -637,9 +659,7 @@
                     message_counts: HashMap::new(),
                     total_messages: 0,
                     motion_tracker,
-                   // room_occupancy,
-                   // presence_state,
-                   // last_presence_update,
+                    motion_timers: HashMap::new(),
                     debug,
                 }
             }
@@ -1174,66 +1194,6 @@
                 return Ok(());
             }
     
-            // 🦆 says ⮞ ENERGY USAGE    
-            //if topic == "zigbee2mqtt/tibber/price" {
-            //    if let Some(price) = data["current_price"].as_str() {
-            //        self.update_device_state("tibber", "current_price", price)?;
-            //        self.quack_info(&format!("Energy price updated: {} SEK/kWh", price));
-            //    }
-            //    return Ok(());
-            //}
-    
-            //if topic == "zigbee2mqtt/tibber/usage" {
-            //    if let Some(usage) = data["monthly_usage"].as_str() {
-            //        self.update_device_state("tibber", "monthly_usage", usage)?;
-            //        self.quack_info(&format!("Energy usage updated: {} kWh", usage));
-            //    }
-            //    return Ok(());
-            //}
-            
-            // 🦆 says ⮞ CRYPTO PRICE UPDATES
-            //if topic == "zigbee2mqtt/crypto/btc/price" {
-            //    if let Some(price) = data["current_price"].as_f64() {
-            //        self.update_device_state("btc", "current_price", &price.to_string())?;
-            //        self.quack_info(&format!("₿ Bitcoin price updated: {}", price));
-            //    }
-            //    if let Some(change_24h) = data["24h_change"].as_f64() {
-            //        self.update_device_state("btc", "change_24h", &change_24h.to_string())?;
-            //    } else if let Some(change_24h) = data["24h_change"].as_str() {
-            //        self.update_device_state("btc", "change_24h", change_24h)?;
-            //    }
-            //    if let Some(change_7d) = data["7d_change"].as_f64() {
-            //        self.update_device_state("btc", "change_7d", &change_7d.to_string())?;
-            //    } else if let Some(change_7d) = data["7d_change"].as_str() {
-           //         self.update_device_state("btc", "change_7d", change_7d)?;
-            //    }
-    
-            //    let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-             //   self.update_device_state("btc", "last_updated", &timestamp.to_string())?;
-          //      return Ok(());
-           // }
-
-           // if topic == "zigbee2mqtt/crypto/xmr/price" {
-           //     if let Some(price) = data["current_price"].as_f64() {
-           //         self.update_device_state("xmr", "current_price", &price.to_string())?;
-          //          self.quack_info(&format!("Monero price updated: {}", price));
-          //      }
-          //      if let Some(change_24h) = data["24h_change"].as_f64() {
-         //           self.update_device_state("xmr", "change_24h", &change_24h.to_string())?;
-        //        } else if let Some(change_24h) = data["24h_change"].as_str() {
-         //           self.update_device_state("xmr", "change_24h", change_24h)?;
-        //        }
-       //         if let Some(change_7d) = data["7d_change"].as_f64() {
-        //            self.update_device_state("xmr", "change_7d", &change_7d.to_string())?;
-       //        } else if let Some(change_7d) = data["7d_change"].as_str() {
-      //             self.update_device_state("xmr", "change_7d", change_7d)?;
-       //         }
-    
-       //         let timestamp = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
-      //          self.update_device_state("xmr", "last_updated", &timestamp.to_string())?;
-      //          return Ok(());
-     //       }
-
             // 🦆 says ⮞ 🧠 NLP COMMAND - handle commands from dashboard
             if topic == "zigbee2mqtt/command" {
                 if let Some(command) = data["command"].as_str() {
@@ -1325,6 +1285,11 @@
                         self.update_device_state("apartment", "last_motion", &timestamp.to_string())?;
                         
                         if self.is_dark_time() { // 🦆 says ⮞ motion & iz dark? turn room lightsz on cool & timer to power off again 
+                            // 🦆 says ⮞ cancel existing timer for this room
+                            if let Some(existing_timer) = self.motion_timers.remove(room) {
+                                existing_timer.abort();
+                                self.quack_debug(&format!("⏰ Cancelled existing timer for {}", room));
+                            }
                             self.set_motion_triggered(room, true)?; 
                             self.room_lights_on(room)?;
                         } else { // 🦆 says ⮞ daytime? lightz no thnx
@@ -1335,10 +1300,10 @@
                         self.execute_automations("motion", "motion_not_detected", device_name, room)?;
                         // 🦆 says ⮞ motion stopped - check if we should turn off lights
                         if self.is_motion_triggered(room) {
-                            self.quack_debug(&format!("⏰ Motion stopped in {}, will turn off lights in 900s", room));
+                            self.quack_debug(&format!("⏰ Motion stopped in {}, will turn off lights in ${config.house.zigbee.darkTime.duration}s", room));
                             let room_clone = room.to_string();
                             let state_clone = std::sync::Arc::new(self.clone());        
-                            tokio::spawn(async move {
+                            let timer_handle = tokio::spawn(async move {
                                 tokio::time::sleep(Duration::from_secs(${config.house.zigbee.darkTime.duration})).await;            
                                 // 🦆 says ⮞ still no motion? lightz off 
                                 if state_clone.is_motion_triggered(&room_clone) {
@@ -1346,7 +1311,8 @@
                                     let _ = state_clone.room_lights_off(&room_clone);
                                     let _ = state_clone.set_motion_triggered(&room_clone, false);
                                 }
-                            });                     
+                            });
+                            self.motion_timers.insert(room.to_string(), timer_handle);
                         }
                     }
                 }

@@ -273,6 +273,191 @@
     </div>
   '';
 
+
+  roomControlsHtml = ''
+    <div class="room-controls-section">
+      <h3>Rooms</h3>
+      <div class="room-controls-grid">
+        ${lib.concatMapStrings (room: 
+          let 
+            icon = lib.removePrefix "mdi:" (roomIcons.${room} or "mdi:home");
+            roomLights = devicesByRoom.${room} or [];
+            hasLights = roomLights != [];
+          in
+            if hasLights then ''
+              <div class="room-control-card" data-room="${room}">
+                <div class="room-control-header">
+                  <i class="mdi mdi-${icon}"></i>
+                  <span class="room-name">${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}</span>
+                </div>
+                <div class="room-control-body">
+                  <label class="ios-toggle">
+                    <input type="checkbox" class="room-toggle" onchange="toggleRoom('${room}', this.checked)">
+                    <span class="ios-toggle-slider"></span>
+                  </label>
+                  <input type="range" min="0" max="254" value="254" class="room-brightness-slider" oninput="setRoomBrightness('${room}', this.value)">
+                </div>
+              </div>
+            '' else ""
+        ) sortedRooms}
+      </div>
+    </div>
+  '';
+
+  roomControlCSS = ''
+    .room-controls-section {
+      margin-top: 20px;
+      padding: 0 20px;
+    }
+    
+    .room-controls-section h3 {
+      color: #ffffff;
+      margin-bottom: 20px;
+      font-size: 2.2rem;
+      text-align: center;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .room-controls-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    
+    .room-control-card {
+      background: #1a1a1a;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border: 1px solid #333333;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .room-control-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+    
+    .room-control-header {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    
+    .room-control-header .mdi {
+      font-size: 2.5rem;
+      color: #2b6cb0;
+    }
+    
+    .room-control-body {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    
+    /* 🦆 says ⮞ iOS-style toggle switch */
+    .ios-toggle {
+      position: relative;
+      display: inline-block;
+      width: 60px;
+      height: 34px;
+      flex-shrink: 0;
+    }
+    
+    .ios-toggle input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+    
+    .ios-toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #cccccc;
+      transition: .4s;
+      border-radius: 34px;
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .ios-toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 26px;
+      width: 26px;
+      left: 4px;
+      bottom: 4px;
+      background-color: white;
+      transition: .4s;
+      border-radius: 50%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    input:checked + .ios-toggle-slider {
+      background-color: #4CD964; /* 🦆 says ⮞ iOS green */
+    }
+    
+    input:checked + .ios-toggle-slider:before {
+      transform: translateX(26px);
+    }
+    
+    /* 🦆 says ⮞ state with slight scale effect */
+    .ios-toggle input:active + .ios-toggle-slider:before {
+      transform: translateX(13px) scale(0.9);
+    }
+    
+    input:checked:active + .ios-toggle-slider:before {
+      transform: translateX(13px) scale(0.9);
+    }
+    
+    .room-control-body .room-brightness-slider {
+      flex: 1;
+      height: 8px;
+      border-radius: 4px;
+      background: #333333;
+      outline: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+    
+    .room-control-body .room-brightness-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #2b6cb0;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .room-control-body .room-brightness-slider::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #2b6cb0;
+      cursor: pointer;
+      border: 2px solid #ffffff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+    
+    .room-name {
+      font-size: 2.0rem;
+      font-weight: 800;
+    }
+  '';
+  
+
   httpServer = pkgs.writeShellScriptBin "serve-dashboard" ''
     HOST=''${1:-0.0.0.0}
     PORT=''${2:-13337}
@@ -333,7 +518,7 @@
 
         <style>
             
-            
+            ${roomControlCSS}
             /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
             header {
                 background: #000000 !important;
@@ -973,6 +1158,7 @@
                         
                     </div>
                     </div>
+                    ${roomControlsHtml}
                 </div>
                 
                 
@@ -1158,6 +1344,83 @@
             ${updateAllCardsJs}
             ${fileRefreshJs}
 
+            window.syncRoomToggles = function() {
+              if (!window.roomDevices || !window.devices) return;
+  
+              Object.entries(window.roomDevices).forEach(([roomName, deviceIds]) => {
+                // 🦆 says ⮞ check if any device in the room is ON
+                const anyDeviceOn = deviceIds.some(deviceId => {
+                  const device = window.devices[deviceId];
+                  return device && device.state === 'ON';
+                });
+    
+                // 🦆 says ⮞ find the toggle for this room
+                const toggle = document.querySelector(`.room-control-card[data-room="''${roomName}"] .room-toggle`);
+                if (toggle) {
+                  toggle.checked = anyDeviceOn;
+                }
+              });
+            };
+
+            window.toggleRoom = function(roomName, state) {
+              console.log('🦆 Toggle room:', roomName, state);
+              const devices = window.roomDevices ? window.roomDevices[roomName] : [];
+              if (!devices || devices.length === 0) {
+                console.error('No devices found for room:', roomName);
+                showNotification('No devices found in ' + roomName, 'error');
+                return;
+              }
+
+              const command = { state: state ? 'ON' : 'OFF' };
+              console.log('Sending command to devices:', devices, command);
+  
+              devices.forEach(device => {
+                if (window.sendCommand) {
+                  window.sendCommand(device, command);
+                } else {
+                  console.error('sendCommand not available');
+                }
+              });
+  
+              showNotification(`''${state ? 'Turning on' : 'Turning off'} ''${roomName}`, 'success');
+            };
+
+            // 🦆 says ⮞ debounced brightness control to reduce spam
+            window.setRoomBrightness = (function() {
+              let timeoutId = null;
+              const DEBOUNCE_DELAY = 500; // 🦆 says ⮞ wait 500ms after slider stops
+  
+              return function(roomName, brightness) {
+                console.log('🦆 Set room brightness:', roomName, brightness);
+                const devices = window.roomDevices ? window.roomDevices[roomName] : [];
+                if (!devices || devices.length === 0) {
+                  console.error('No devices found for room:', roomName);
+                  return;
+                }
+
+                // 🦆 says ⮞ clear previous timeout
+                if (timeoutId) {
+                  clearTimeout(timeoutId);
+                }
+
+                // 🦆 says ⮞ set new timeout
+                timeoutId = setTimeout(() => {
+                  const command = { brightness: parseInt(brightness) };
+                  console.log('🦆 Sending brightness to devices:', devices, command);
+      
+                  devices.forEach(device => {
+                    if (window.sendCommand) {
+                      window.sendCommand(device, command);
+                    } else {
+                      console.error('sendCommand not available');
+                    }
+                  });
+      
+                }, DEBOUNCE_DELAY);
+              };
+            })();
+
+
             function updateCardValue(cardId, value) {
                 console.log('🦆 updateCardValue called with:', cardId, value);
                 const element = document.getElementById("status-"+cardId+"-value");
@@ -1262,6 +1525,19 @@
                     // 🦆 says ⮞ white default
                     return { r: 255, g: 255, b: 255, w: 0, hex: '#ffffff' };
                 }
+
+
+                // 🦆 says ⮞ create room to devices mapping
+                window.roomDevices = {};
+                ${lib.concatMapStrings (room: 
+                  let roomLights = devicesByRoom.${room} or [];
+                  in if roomLights != [] then
+                    "window.roomDevices['${room}'] = " + builtins.toJSON (map (d: d.id) roomLights) + ";"
+                  else ""
+                ) sortedRooms}
+
+                console.log('🦆 Room devices mapping:', window.roomDevices);
+
          
                 function updateBattery(percent) {
                   const fill = document.querySelector(".battery-fill");
@@ -1961,6 +2237,10 @@
                                     }      
                                     updateStatusCards();
                                     onMQTTDataUpdate();   
+                                    
+                                    if (window.syncRoomToggles) {
+                                        window.syncRoomToggles();
+                                    }
                                 } catch (e) {
                                     console.error('Error parsing message: ', e);
                                 }
@@ -2099,7 +2379,8 @@
                         }
                     });
                 }
-                       
+                window.sendCommand = sendCommand;
+                
                 // 🦆 says ⮞ audio recording functions
                 async function initAudioRecording() {
                     try {
@@ -2670,6 +2951,10 @@
                         }
                         updateDeviceSelector();
                         updateStatusCards();
+
+                        if (window.syncRoomToggles) {
+                            window.syncRoomToggles();
+                        }
 
                         if (selectedDevice && devices[selectedDevice]) {
                             updateDeviceUI(devices[selectedDevice]);

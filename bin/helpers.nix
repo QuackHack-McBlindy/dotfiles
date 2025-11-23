@@ -203,16 +203,19 @@ EOF
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
     }
   
-    # 🦆 duck say ⮞ plays failing sound
+    # 🦆 duck say ⮞ failed rebuilds . duck say fuck
     play_fail() {
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
     }
+    # 🦆 says⮞ keep failing - duck gets mad
     play_fail2() {
       mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail2.mp3" >/dev/null 2>&1
     }
+    # 🦆 says⮞ fail, fail, fail  - duck get insane 
     play_fail3() {
       mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail3.mp3" >/dev/null 2>&1
     }
+    # 🦆 says⮞  sucess after many fails - duck sings happy
     play_relax() {
       mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/relax.mp3" >/dev/null 2>&1
     }

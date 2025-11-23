@@ -15,11 +15,10 @@
 
   # 🦆 says ⮞ mqtt is used for tracking channel states on devices
   sysHosts = lib.attrNames self.nixosConfigurations; 
-#  mqttHost = lib.findSingle (host:
-#      let cfg = self.nixosConfigurations.${host}.config;
-#      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
-  mqttHost = "homie";
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -32,6 +31,40 @@
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
 
+  # 🦆 says ⮞ used for season entity lists
+  nums = [
+    [ "1"  "ett" ]
+    [ "2"  "två" ]
+    [ "3"  "tre" ]
+    [ "4"  "fyra" ]
+    [ "5"  "fem" ]
+    [ "6"  "sex" ]
+    [ "7"  "sju" ]
+    [ "8"  "åtta" ]
+    [ "9"  "nio" ]
+    [ "10" "tio" ]
+    [ "11" "elva" ]
+    [ "12" "tolv" ]
+    [ "13" "tretton" ]
+    [ "14" "fjorton" ]
+    [ "15" "femton" ]
+    [ "16" "sexton" ]
+    [ "17" "sjutton" ]
+    [ "18" "arton" ]
+    [ "19" "nitton" ]
+    [ "20" "tjugo" ]
+    [ "21" "tjugoett" ]
+    [ "22" "tjugotvå" ]
+    [ "23" "tjugotre" ]
+    [ "24" "tjugofyra" ]
+    [ "25" "tjugofem" ]
+    [ "26" "tjugosex" ]
+    [ "27" "tjugosju" ]
+    [ "28" "tjugoåtta" ]
+    [ "29" "tjugonio" ]
+    [ "30" "trettio" ]
+  ];
+
 in {   
    
   yo.scripts.tv = {
@@ -43,8 +76,9 @@ in {
     parameters = [
       { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; values = [ "on" "off" "up" "down" "next" "prev" "call" "favorites" "add" "tv" "movie" "livetv" "podcast" "news" "music" "song" "musicvideo" "jukebox" "othervideo" "youtube" "nav_up" "nav_down" "nav_left" "nav_right" "nav_select" "nav_menu" "nav_back" "channel_up" "channel_down" ]; }
       { name = "search"; type = "string"; description = "Media to search"; optional = true; }
-      { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }      
-      { name = "shuffle"; type = "bool"; description = "Shuffle Toggle, true or false"; default = true; }   
+      { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }
+      { name = "season"; type = "string"; description = "Specific season to play"; optional = true; }
+      { name = "shuffle"; type = "bool"; description = "Shuffle Toggle, true or false"; default = true; }
       { name = "tvshowsDir"; type = "path"; description = "TV shows directory"; default = "/Pool/TV"; }
       { name = "moviesDir"; type = "path"; description = "Movies directory"; default = "/Pool/Movies"; }
       { name = "musicDir"; type = "path"; description = "Music directory"; default = "/Pool/Music"; }
@@ -633,10 +667,110 @@ in {
       # 🦆 says ⮞ handle different media types
       matched_media=""
       case "$media_type" in
+              
+        tv)
+            search_dir="$TVDIR"
+            if [[ -n "$season" ]]; then
+                # 🦆 says ⮞ season provided - turn off shuffle
+                SHUFFLE="false"
+                dt_debug "Season specified: $season - shuffle disabled"
+                
+                # 🦆 says ⮞ search for season folders within the show
+                items=()
+                while IFS= read -r -d $'\0' item; do
+                    items+=("$(basename "$item")")
+                done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
+                
+                best_score=0
+                best_match=""
+                normalized_search=$(normalize_string "$media_search")
+                
+                for item in "''${items[@]}"; do
+                    normalized_item=$(normalize_string "$item")
+                    [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
+                    tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+                    lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+                    combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+                    
+                    if (( combined_score > best_score )); then
+                        best_score=$combined_score
+                        best_match="$item"
+                    fi
+                done
+                
+                if (( best_score >= 30 )); then
+                    matched_media="$best_match"
+                    # 🦆 says ⮞ now search for season within the matched show
+                    season_patterns=(
+                        "Season $season"
+                        "Season $(printf "%02d" "$season")"
+                        "S$(printf "%02d" "$season")"
+                        "s$(printf "%02d" "$season")"
+                    )
+                    
+                    season_path=""
+                    for pattern in "''${season_patterns[@]}"; do
+                        candidate="$search_dir/$matched_media/$pattern"
+                        if [[ -d "$candidate" ]]; then
+                            season_path="$candidate"
+                            dt_debug "Found season folder: $season_path"
+                            break
+                        fi
+                    done
+                    
+                    if [[ -n "$season_path" ]]; then
+                        FULL_PATH="$season_path"
+                        yo say "Spelar säsong $season av $matched_media"
+                        generate_playlist "$FULL_PATH" "$media_type"
+                        start_playlist "$DEVICE"
+                    else
+                        dt_error "Season $season not found for $matched_media"
+                        yo say "Kunde inte hitta säsong $season för $matched_media"
+                        exit 1
+                    fi
+                else
+                    dt_error "No TV show found matching: $media_search"
+                    exit 1
+                fi
+            else
+                # 🦆 says ⮞ existing behavior when no season specified
+                items=()
+                while IFS= read -r -d $'\0' item; do
+                    items+=("$(basename "$item")")
+                done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
+                
+                best_score=0
+                best_match=""
+                normalized_search=$(normalize_string "$media_search")
+                
+                for item in "''${items[@]}"; do
+                    normalized_item=$(normalize_string "$item")
+                    [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
+                    tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+                    lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+                    combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+                    
+                    if (( combined_score > best_score )); then
+                        best_score=$combined_score
+                        best_match="$item"
+                    fi
+                done
+                
+                if (( best_score >= 30 )); then
+                    matched_media="$best_match"
+                    FULL_PATH="$search_dir/$matched_media"
+                    yo say "Spelar TV-serien $matched_media"
+                else
+                    dt_error "No TV show found matching: $media_search"
+                    exit 1
+                fi
+            fi
+            ;;
+             
         # 🦆 says ⮞ directory based searchez
-        tv|podcast|movie|audiobook|musicvideo|music)
+        podcast|movie|audiobook|musicvideo|music)
           case "$media_type" in
-            tv)        search_dir="$TVDIR" ;;
+            #tv)        search_dir="$TVDIR" ;;
             podcast)   search_dir="$PODCASTDIR" ;;
             movie)     search_dir="$MOVIEDIR" ;;
             audiobook) search_dir="$AUDIOBOOKDIR" ;;
@@ -906,19 +1040,25 @@ in {
       dt_debug "Matched media: $matched_media"
       dt_debug "Media type: $media_type" 
 
-      if [[ -n "''${SEARCH_FOLDERS[$media_type]}" ]]; then
+      # 🦆 says ⮞ unless season specified - create da playlist 
+      if [[ -z "$season" ]] && [[ -n "''${SEARCH_FOLDERS[$media_type]}" ]]; then
           BASE_PATH="''${SEARCH_FOLDERS[$media_type]}"
           dt_debug "BASEL_PATH is: $BASE_PATH"
           FULL_PATH="$BASE_PATH/$matched_media"
           dt_debug "FULL_PATH is: $FULL_PATH"
           generate_playlist "$FULL_PATH" "$media_type"
           start_playlist "$DEVICE"
-
       fi
+      
     '';
     voice = { # 🦆 says ⮞ low priority = faser execution? wtf
         priority = 1; # 🦆 says ⮞ 1 to 5
         sentences = [
+          # 🦆 says ⮞ season specific search
+          "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} (säsong|season) {season} i {device}"
+          "jag vill se {typ} {search} (säsong|season) {season} i {device}" 
+          "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} (säsong|season) {season}"
+          "jag vill se {typ} {search} (säsong|season) {season}"       
           # 🦆 says ⮞ non default device control
           "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} i {device}"
           "jag vill se {typ} {search} i {device}"    
@@ -985,6 +1125,10 @@ in {
           #   "in" = "[${device.room}|${lib.head (lib.splitString "." device.ip)}]"; 
           #   out = device.ip; 
           # }) devices;
+          season.values = map (pair: {
+            "in" = builtins.concatStringsSep "|" pair;
+            out  = builtins.head pair;
+          }) nums;
         };
     };
   };

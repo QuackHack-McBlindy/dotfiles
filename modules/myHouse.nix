@@ -41,8 +41,8 @@ in { # 🦆 duck say ⮞ qwack
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
-      bedroom.icon    = "mdi:bedroom";
-      hallway.icon    = "mdi:hallway";
+      bedroom.icon    = "mdi:bed";
+      hallway.icon    = "mdi:door";
       kitchen.icon    = "mdi:food-fork-drink";
       livingroom.icon = "mdi:sofa";
       wc.icon         = "mdi:toilet";
