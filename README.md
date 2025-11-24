@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/bih4pwvpckvxhylf3v8r2nswil4ixwr4-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/ylp72gc5rfrb5df604wl1faqsda6nas8-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -180,6 +180,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels, etc at `config.house
 { # 🦆 says ⮞ my house - qwack 
   config, # 🦆 says ⮞ more info ⮞ https://quackhack-mcblindy.github.io/blog/house/index.html
   lib,
+  self,
   pkgs,
   ...
 } : let # 🦆 duck say ⮞ icon map
@@ -215,6 +216,23 @@ Define Zigbee-devices, scenes, automations, tv's, channels, etc at `config.house
     pusher            = "mdi:gesture-tap-button";
     blinds            = "mdi:blinds";
   };
+  
+  health = lib.mapAttrs (hostName: _: {
+    enable = true;
+    description = "Health Check: ${hostName}";
+    topic = "zigbee2mqtt/health/${hostName}";
+    actions = [
+      {
+         type = "shell";
+         command = ''
+           mkdir -p /var/lib/zigduck/health
+           touch /var/lib/zigduck/health/${hostName}.json
+           echo "$MQTT_PAYLOAD" > /var/lib/zigduck/health/${hostName}.json
+        '';
+       }
+     ];
+  }) self.nixosConfigurations;
+  
 in { # 🦆 duck say ⮞ qwack
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
@@ -359,25 +377,10 @@ in { # 🦆 duck say ⮞ qwack
             ];
           };          
 
-          health = {
-            enable = true;
-            description = "Health Check: desktop";
-            topic = "zigbee2mqtt/health/desktop";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  mkdir -p /var/lib/zigduck/health
-                  touch /var/lib/zigduck/health/desktop.json
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
-                '';
-              }
-            ];
-          };
+        } // health; 
 
+       # }; 
 
-                    
-        };
         
         # 🦆 says ⮞ 2. room action automations
         room_actions = {

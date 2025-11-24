@@ -2,6 +2,7 @@
 { # 🦆 says ⮞ my house - qwack 
   config, # 🦆 says ⮞ more info ⮞ https://quackhack-mcblindy.github.io/blog/house/index.html
   lib,
+  self,
   pkgs,
   ...
 } : let # 🦆 duck say ⮞ icon map
@@ -37,6 +38,23 @@
     pusher            = "mdi:gesture-tap-button";
     blinds            = "mdi:blinds";
   };
+  
+  health = lib.mapAttrs (hostName: _: {
+    enable = true;
+    description = "Health Check: ${hostName}";
+    topic = "zigbee2mqtt/health/${hostName}";
+    actions = [
+      {
+         type = "shell";
+         command = ''
+           mkdir -p /var/lib/zigduck/health
+           touch /var/lib/zigduck/health/${hostName}.json
+           echo "$MQTT_PAYLOAD" > /var/lib/zigduck/health/${hostName}.json
+        '';
+       }
+     ];
+  }) self.nixosConfigurations;
+  
 in { # 🦆 duck say ⮞ qwack
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
@@ -181,25 +199,10 @@ in { # 🦆 duck say ⮞ qwack
             ];
           };          
 
-          health = {
-            enable = true;
-            description = "Health Check: desktop";
-            topic = "zigbee2mqtt/health/desktop";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  mkdir -p /var/lib/zigduck/health
-                  touch /var/lib/zigduck/health/desktop.json
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
-                '';
-              }
-            ];
-          };
+        } // health; 
 
+       # }; 
 
-                    
-        };
         
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
