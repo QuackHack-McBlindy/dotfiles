@@ -181,6 +181,23 @@ in { # 🦆 duck say ⮞ qwack
             ];
           };          
 
+          health = {
+            enable = true;
+            description = "Health Check: desktop";
+            topic = "zigbee2mqtt/health/desktop";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  mkdir -p /var/lib/zigduck/health
+                  touch /var/lib/zigduck/health/desktop.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
+                '';
+              }
+            ];
+          };
+
+
                     
         };
         

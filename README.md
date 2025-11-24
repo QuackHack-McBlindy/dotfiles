@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/aglb59mh594mviyg8bc0shaq3rx14wqw-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/bih4pwvpckvxhylf3v8r2nswil4ixwr4-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -358,6 +358,23 @@ in { # 🦆 duck say ⮞ qwack
               }
             ];
           };          
+
+          health = {
+            enable = true;
+            description = "Health Check: desktop";
+            topic = "zigbee2mqtt/health/desktop";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  mkdir -p /var/lib/zigduck/health
+                  touch /var/lib/zigduck/health/desktop.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
+                '';
+              }
+            ];
+          };
+
 
                     
         };
