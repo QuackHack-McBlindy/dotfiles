@@ -1,4 +1,4 @@
-# dotfiles/bin/config/do.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/voice/do.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ Quack Powered natural language processing engine written in Nix & Rust - translates text to Shell commands
   self,
   lib,

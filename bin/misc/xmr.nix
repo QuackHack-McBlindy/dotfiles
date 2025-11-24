@@ -88,7 +88,10 @@ EOF
       TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
       echo "$TIMESTAMP $XMR_PRICE $XMR_24H $XMR_7D_FORMATTED" >> "$SAVE_PATH"
 
-      mqtt_pub -t "zigbee2mqtt/crypto/xmr/price" -m "{\"current_price\": $XMR_PRICE, \"24h_change\": $XMR_24H, \"7d_change\": $XMR_7D}"
+      #mqtt_pub -t "zigbee2mqtt/crypto/xmr/price" -m "{\"current_price\": $XMR_PRICE, \"24h_change\": $XMR_24H, \"7d_change\": $XMR_7D}"
+      FORMATTED_24H=$(printf "%.1f" "$XMR_24H")
+      FORMATTED_7D=$(printf "%.1f" "$XMR_7D")
+      mqtt_pub -t "zigbee2mqtt/crypto/xmr/price" -m "{\"current_price\": $XMR_PRICE, \"24h_change\": $FORMATTED_24H, \"7d_change\": $FORMATTED_7D}"
 
       echo "Monero: $XMR_PRICE$  24h: $XMR_24H_FORMATTED  (7d: $XMR_7D_FORMATTED)"
       dt_info "Monero: $XMR_PRICE$  24h: $XMR_24H_FORMATTED  (7d: $XMR_7D_FORMATTED)"

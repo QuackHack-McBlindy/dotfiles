@@ -1,5 +1,5 @@
 # dotfiles/bin/security/yknix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞
+{ # 🦆 say ⮞ YubiKey encrypted secrets
   self,
   config,
   pkgs,
@@ -13,30 +13,29 @@ in {
         category = "🔐 Security & Encryption";
         aliases = [ "yk" ];
         parameters = [
-          { name = "operation"; description = "Operation to perform (encrypt|decrypt)"; optional = false; type = "string"; }
-          { name = "input"; description = "Input file to process"; optional = false; type = "path"; }
+          { 
+            name = "operation";
+            description = "Operation to perform";
+            optional = false;
+            type = "string";
+            values = [ "encrypt" "decrypt" ];
+          }
+          { 
+            name = "input";
+            description = "Input file to process";
+            optional = false;
+            type = "path";
+          }
         ];
         code = ''
           ${cmdHelpers}
-
-          if [[ "$operation" != "encrypt" && "$operation" != "decrypt" ]]; then
-            echo -e "\033[1;31m❌ Invalid operation: $operation\033[0m"
-            echo "Valid operations: encrypt, decrypt"
-            exit 1
-          fi
-
-          # Safety checks
-          if [[ ! -f "$input" ]]; then
-            echo -e "\033[1;31m❌ Input file not found: $input\033[0m"
-            exit 1
-          fi
 
           temp_file="$(mktemp)"
 
           case "$operation" in
             encrypt)
 
-              run_cmd echo -e "\033[1;34m🔒 Encrypting $input in-place\033[0m"
+              echo -e "\033[1;34m🔒 Encrypting $input in-place\033[0m"
               mv "$input" "$temp_file"
         
               if rage -r "age1yubikey1q0ek47e26sg9eej2xlvxj308fgw8h8ajgx6ucagjzlm9tzgxtckdw35eg0m" \
@@ -51,18 +50,17 @@ in {
               ;;
 
             decrypt)
-#              run_cmd echo -e "\033[1;34m🔓 Decrypting $input temporarily for output\033[0m"
               identity_tmp="/tmp/yubikey-identity.txt"
               decrypted_tmp="$(mktemp)"
             
-              # Get identity from Yubikey
+              # 🦆 say ⮞ get identity from Yubikey
               age-plugin-yubikey --identity --slot 1 > "$identity_tmp" 2>/dev/null
             
               if rage -d -i "$identity_tmp" -o "$decrypted_tmp" "$input"; then
-                # Output the decrypted content
+                # 🦆 say ⮞ output the decrypted content
                 cat "$decrypted_tmp"
             
-                # Re-encrypt it back in place
+                # 🦆 say ⮞ re-encrypt it back in place
                 if rage -r "age1yubikey1q0ek47e26sg9eej2xlvxj308fgw8h8ajgx6ucagjzlm9tzgxtckdw35eg0m" \
                      -o "$input" "$decrypted_tmp"; then
                   :
@@ -76,11 +74,11 @@ in {
                 exit 1
               fi
             
-              # Clean up
+              # 🦆 say ⮞ clean up
               rm -f "$identity_tmp" "$decrypted_tmp"
               ;;
           esac
         '';
       };
+      
     };}
-

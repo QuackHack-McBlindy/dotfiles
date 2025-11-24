@@ -398,16 +398,37 @@
         default = ""; 
         description = "Path to JSON file for file source";
       };    
+      # 🦆 says ⮞ MAIN value configuration
       jsonField = mkOption { 
         type = str; 
         default = ""; 
-        description = "JSON field to extract from file";
-      };
+        description = "JSON field to extract from file for main value";
+      };    
+      detailsJsonField = mkOption { 
+        type = nullOr str; 
+        default = null;
+        description = "JSON field to extract from file for details (optional)";
+      };   
       # 🦆 says ⮞ display configuration
-      format = mkOption { type = str; default = "{value}"; };
-      details = mkOption { type = str; default = ""; };
+      format = mkOption { 
+        type = str; 
+        default = "{value}"; 
+        description = "Format string for main value. Use {value} placeholder";
+      };   
+      detailsFormat = mkOption { 
+        type = str; 
+        default = "{value}"; 
+        description = "Format string for details value. Use {value} placeholder";
+      };    
+      # 🦆 says ⮞ fallback values
       defaultValue = mkOption { type = str; default = "--"; };
-      defaultDetails = mkOption { type = str; default = "Waiting for data"; };
+      defaultDetails = mkOption { type = str; default = "Waiting for data"; };   
+      # 🦆 says ⮞ legacy support - will be used if detailsJsonField is null
+      details = mkOption { 
+        type = str; 
+        default = ""; 
+        description = "Static details text (used if detailsJsonField is not set)";
+      };
     };
   };
 

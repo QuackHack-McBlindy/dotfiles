@@ -88,7 +88,10 @@ EOF
       echo "$(date '+%Y-%m-%d %H:%M') $BTC_PRICE $BTC_24H $BTC_7D_FORMATTED" >> "$filePath"
 
       # 🦆 says ⮞ publish to MQTT
-      mqtt_pub -t "zigbee2mqtt/crypto/btc/price" -m "{\"current_price\": \"$BTC_PRICE\", \"24h_change\": \"$BTC_24H\", \"7d_change\": \"$BTC_7D\"}"
+      #mqtt_pub -t "zigbee2mqtt/crypto/btc/price" -m "{\"current_price\": \"$BTC_PRICE\", \"24h_change\": \"$BTC_24H\", \"7d_change\": \"$BTC_7D\"}"
+      FORMATTED_24H=$(printf "%.1f" "$BTC_24H")
+      FORMATTED_7D=$(printf "%.1f" "$BTC_7D")
+      mqtt_pub -t "zigbee2mqtt/crypto/btc/price" -m "{\"current_price\": \"$BTC_PRICE\", \"24h_change\": \"$FORMATTED_24H\", \"7d_change\": \"$FORMATTED_7D\"}"
 
       echo "Bitcoin $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
       dt_info "₿ $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"

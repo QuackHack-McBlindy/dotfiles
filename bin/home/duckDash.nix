@@ -54,6 +54,7 @@
   ) config.house.dashboard.statusCards);
 
   # 🦆 says ⮞ generate js update functions
+  # 🦆 says ⮞ generate js update functions
   statusCardsJs = let
     cardUpdates = lib.mapAttrsToList (name: card: 
       if card.enable then ''
@@ -73,7 +74,21 @@
               const formattedValue = "${card.format}".replace(/\{value\}/g, value);
               console.log('🦆 ${name} formatted value:', formattedValue);
               updateCardValue("${name}", formattedValue);
-              ${if card.details != "" then ''updateCardDetails("${name}", "${card.details}");'' else ""}
+              
+              // 🦆 says ⮞ Handle details field
+              ${if card.detailsJsonField != null then ''
+                const detailsValue = data['${card.detailsJsonField}'];
+                if (detailsValue !== undefined && detailsValue !== null) {
+                  const formattedDetails = "${card.detailsFormat}".replace(/\{value\}/g, detailsValue);
+                  updateCardDetails("${name}", formattedDetails);
+                } else {
+                  updateCardDetails("${name}", "${card.defaultDetails}");
+                }
+              '' else if card.details != "" then ''
+                updateCardDetails("${name}", "${card.details}");
+              '' else ''
+                updateCardDetails("${name}", "${card.defaultDetails}");
+              ''}
             })
             .catch(error => {
               console.error('🦆 Error fetching ${name} data:', error);
@@ -84,7 +99,7 @@
       '' else ""
     ) config.house.dashboard.statusCards;
   in lib.concatStrings cardUpdates;
-
+  
   # 🦆 says ⮞ generate the main update function
   updateAllCardsJs = let
     functionCalls = lib.mapAttrsToList (name: card: 

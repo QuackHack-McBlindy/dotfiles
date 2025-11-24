@@ -60,7 +60,8 @@ in { # 🦆 duck say ⮞ qwack
           filePath = "/var/lib/zigduck/xmr.json";
           jsonField = "current_price";
           format = "\${value}";
-          details = "Live price";
+          detailsJsonField = "24h_change";
+          detailsFormat = "24h: {value}%";
         };
 
         btc = {
@@ -71,30 +72,22 @@ in { # 🦆 duck say ⮞ qwack
           filePath = "/var/lib/zigduck/btc.json";
           jsonField = "current_price";
           format = "\${value}";
-          details = "Live price";
+          detailsJsonField = "24h_change";
+          detailsFormat = "24h: {value}%";
         };
 
-        energy_usage = {
+        energy = {
           enable = true;
           title = "Energy";
           icon = "fas fa-bolt";
           color = "#4caf50";
-          filePath = "/var/lib/zigduck/energy_usage.json";
-          jsonField = "monthly_usage";
-          format = "{value} kWh";
-          details = "Monthly Usage";
+          filePath = "/var/lib/zigduck/energy.json";          
+          jsonField = "current_price";
+          format = "{value} SEK/kWh";          
+          detailsJsonField = "monthly_usage";
+          detailsFormat = "Usage: {value} kWh";
         };
 
-        energy_price = {
-          enable = true;
-          title = "Energy";
-          icon = "fas fa-dollar";
-          color = "#2196f3";
-          filePath = "/var/lib/zigduck/energy_price.json";
-          jsonField = "current_price";
-          format = "{value} SEK/kWh";
-          details = "Current price";
-        };
       };
     };
   
@@ -168,35 +161,26 @@ in { # 🦆 duck say ⮞ qwack
             ];
           };
 
-          energy_price = {
+          energy = {
             enable = true;
             description = "Writes tibber data to file for dashboard";
-            topic = "zigbee2mqtt/tibber/price";
+            topic = "zigbee2mqtt/tibber/energy";
             actions = [
               {
                 type = "shell";
                 command = ''
-                  touch /var/lib/zigduck/energy_price.json
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy_price.json
+                  touch /var/lib/zigduck/energy.json
+                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy.json
+                  current_price=$(echo "$MQTT_PAYLOAD" | jq -r '.current_price' | sed 's/\"//g')
+                  # 🦆says⮞ notify if high energy price
+                  if [ $(echo "$current_price > 2.0" | bc -l) -eq 1 ]; then
+                    yo notify "⚡ High energy price: $current_price SEK/kWh"
+                  fi
                 '';
               }
             ];
           };          
 
-          energy_usage = {
-            enable = true;
-            description = "Writes tibber data to file for dashboard";
-            topic = "zigbee2mqtt/tibber/usage";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  touch /var/lib/zigduck/energy_usage.json
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy_usage.json
-                '';
-              }
-            ];
-          }; 
                     
         };
         

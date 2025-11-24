@@ -38,7 +38,8 @@ in {
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440";
-    };    
+    };  
+    
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤

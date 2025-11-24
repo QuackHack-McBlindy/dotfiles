@@ -770,7 +770,6 @@ in {
         # 🦆 says ⮞ directory based searchez
         podcast|movie|audiobook|musicvideo|music)
           case "$media_type" in
-            #tv)        search_dir="$TVDIR" ;;
             podcast)   search_dir="$PODCASTDIR" ;;
             movie)     search_dir="$MOVIEDIR" ;;
             audiobook) search_dir="$AUDIOBOOKDIR" ;;
