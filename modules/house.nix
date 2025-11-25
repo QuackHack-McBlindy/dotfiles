@@ -436,6 +436,31 @@ in { # 🦆 says ⮞ Options for da house
     options.house = {    
       # 🦆 says ⮞ dashboard configuraiton
       dashboard = {
+        pages = lib.mkOption {
+          type = lib.types.attrsOf (lib.types.submodule {
+            options = {
+              icon = lib.mkOption {
+                type = lib.types.str;
+                description = "Icon for the tab (FontAwesome class, MDI class, or image URL)";
+                default = "fas fa-question";
+              };
+              code = lib.mkOption {
+                type = lib.types.str;
+                description = "HTML and JavaScript code for the page";
+                default = "";
+              };
+              title = lib.mkOption {
+                type = lib.types.str;
+                description = "Title for the page (optional)";
+                default = "";
+              };
+            };
+          });
+          default = {};
+          description = "Custom pages for the dashboard";
+        };
+
+      
         betaCard = {
           enable = (mkEnableOption "the beta card") // { default = false; };
         };

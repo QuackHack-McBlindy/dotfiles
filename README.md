@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/ylp72gc5rfrb5df604wl1faqsda6nas8-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9bs6m3aaw6lkpyqyfsp09pay7hayab2w-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -285,6 +285,17 @@ in { # 🦆 duck say ⮞ qwack
         };
 
       };
+      
+      pages = {
+        "4" = {
+          icon = "fas fa-cloud-sun";
+          title = "Weather";
+          code = ''
+            hejsan
+          '';
+        };
+      };
+      
     };
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
@@ -1181,7 +1192,7 @@ Set default values for your parameters to have them marked [optional]
 | **🧹 Maintenance** | | | |
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |
 | [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/duckTrace.nix) [--script] [--host] [--errors] [--monitor] | log | View duckTrace logs quick and quack, unified logging system | ✅ |
-| [yo health](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/health.nix) [--host] | hc | Check system health status across your machines. Returns JSON structured responses. | ✅ |
+| [yo health](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/health.nix)  | hc | Check system health status across your machines. Returns JSON structured responses. | ✅ |
 ### ❓ Detailed Help
 For specific command help: 
 `yo <command> --help`

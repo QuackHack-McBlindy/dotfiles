@@ -54,7 +54,6 @@
   ) config.house.dashboard.statusCards);
 
   # 🦆 says ⮞ generate js update functions
-  # 🦆 says ⮞ generate js update functions
   statusCardsJs = let
     cardUpdates = lib.mapAttrsToList (name: card: 
       if card.enable then ''
@@ -113,7 +112,44 @@
     }
   '';
 
-  # 🦆 says ⮞ auto-refresh file-based cards
+  
+  # 🦆 says ⮞ generate custom pages HTML
+  customPagesHtml = let
+    pages = config.house.dashboard.pages;
+  in if pages == {} then "" else lib.concatStrings (lib.mapAttrsToList (id: page: 
+    ''<div class="page" id="pageCustom${id}" data-page="${id}">${page.code}</div>''
+  ) pages);
+
+  # 🦆 says ⮞ generate custom tabs HTML  
+  customTabsHtml = let
+    pages = config.house.dashboard.pages;
+  in if pages == {} then "" else lib.concatStrings (lib.mapAttrsToList (id: page: 
+    let
+      iconHtml = if lib.hasPrefix "http" page.icon then
+        ''<img src="${page.icon}" class="nav-icon">''
+      else if lib.hasPrefix "mdi:" page.icon then
+        ''<i class="mdi mdi-${lib.removePrefix "mdi:" page.icon}"></i>''
+      else
+        ''<i class="${page.icon}"></i>'';
+    in
+      ''<div class="nav-tab" data-page="${id}">${iconHtml}</div>''
+  ) pages);
+
+  # 🦆 says ⮞ generate custom pages js
+  customPagesJs = let
+    pages = config.house.dashboard.pages;
+  in if pages == {} then "" else lib.concatStrings (lib.mapAttrsToList (id: page: 
+    ''
+      // 🦆 says ⮞ Page ${id} initialization
+      function initPage${id}() {
+        console.log('🦆 Initializing custom page ${id}');
+        ${page.code}
+      }
+    ''
+  ) pages);  
+
+
+  # 🦆 says ⮞ auto-refresh file cards
   fileRefreshJs = ''
     setInterval(() => {
       updateAllStatusCards();
@@ -1151,7 +1187,7 @@
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 0 HOME (STATUS CARDS)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
-                <div class="page" id="pageHome">
+                <div class="page" id="pageHome" data-page="0">
                     ${if config.house.dashboard.betaCard.enable then statusCards else ""}
                     
                     <div class="status-cards">
@@ -1180,7 +1216,7 @@
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 1 DEVICES
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->                
-                <div class="page" id="pageDevices">                    
+                <div class="page" id="pageDevices" data-page="1">                    
                     <div class="device-controls" id="deviceControls">
                         <div class="device-header">
                             <div class="device-icon">
@@ -1206,7 +1242,7 @@
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 2 - SCENES
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
-                <div class="page" id="pageScenes">
+                <div class="page" id="pageScenes" data-page="2">
                     <h2>Scenes</h2>
                     <div class="scene-grid" id="scenesContainer">
                       ${sceneGridHtml}
@@ -1217,7 +1253,7 @@
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                  🦆 says ⮞ PAGE 3 - TV
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
-                <div class="page" id="pageTV">
+                <div class="page" id="pageTV" data-page="3">
                     <div class="tv-selector-container">
                         <select id="targetTV" class="tv-selector">
                             <option value="">🦆 says > pick a TV</option>
@@ -1321,10 +1357,14 @@
                  🦆 says ⮞ PAGE 4 - 🦆☁️)
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                 <div class="page" id="pageCloud">
-                    <div class="cloud-grid">
-                        <iframe src="https://pungkula.duckdns.org" class="fullpage-iframe"></iframe>
-                    </div>
+
                 </div> -->
+                
+    
+               <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+               🦆 says ⮞ CUSTOM PAGES
+               🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
+               ${customPagesHtml}
 
 
             </div>
@@ -1349,6 +1389,7 @@
                 <div class="nav-tab" data-page="4">
                     <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
                 </div> -->
+                ${customTabsHtml}
             </div>
         </div>
     
@@ -2420,7 +2461,7 @@
                         };
         
                         mediaRecorder.onstop = async () => {
-                            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                           const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                            await sendAudioToServer(audioBlob);
                            audioChunks = [];
                         };
@@ -2480,43 +2521,63 @@
                 
                 initAudioRecording();
                 micButton.addEventListener('click', toggleRecording);
-                
-                
-                function showPage(pageIndex) {
-                    console.log('🦆 Switching to page:', pageIndex);
-                    currentPage = pageIndex;
+                              
+                function showPage(pageId) {
+                    console.log('🦆 Switching to page:', pageId, typeof pageId);
+                    currentPage = pageId;
                 
                     const pages = document.querySelectorAll('.page');
-                    pages.forEach((page, index) => {
-                        if (index === pageIndex) {
-                            page.style.display = 'block';
-                            if (index === 4 || index === 5) {
-                                setTimeout(() => {
-                                    page.style.transform = 'scale(1)';
-                                }, 50);
-                            }
-                        } else {
-                            page.style.display = 'none';
-                        }
+                    pages.forEach((page) => {
+                        page.style.display = 'none';
                     });
                 
                     const deviceSelectorContainer = document.getElementById('deviceSelectorContainer');
-                    if (pageIndex === 1) {
+                    if (String(pageId) === "1") {
                         deviceSelectorContainer.classList.remove('hidden');
                     } else {
                         deviceSelectorContainer.classList.add('hidden');
                     }
                 
                     navTabs.forEach((tab) => {
-                        const tabPageIndex = parseInt(tab.getAttribute('data-page'));
-                        if (tabPageIndex === pageIndex) {
+                        const tabPageIndex = tab.getAttribute('data-page');
+                        if (tabPageIndex === String(pageId)) {
                             tab.classList.add('active');
                         } else {
                             tab.classList.remove('active');
                         }
-                    });      
+                    });
+                
+                    const pageElement = document.querySelector(`.page[data-page="''${pageId}"]`);
+                    console.log('🦆 Looking for page with data-page="' + pageId + '"', pageElement);
+                    
+                    if (pageElement) {
+                        pageElement.style.display = 'block';
+                        console.log('🦆 Page found and displayed');
+                        
+                        const pageNum = parseInt(pageId);
+                        if (pageNum >= 4) {
+                            const initFunction = window['initPage' + pageId];
+                            console.log('🦆 Custom page init function:', initFunction);
+                            if (initFunction && typeof initFunction === 'function') {
+                                console.log('🦆 Calling custom page init function');
+                                initFunction();
+                            }
+                        }
+                    } else {
+                        console.error('🦆 Page element not found for data-page="' + pageId + '"');
+                        // 🦆 fallback
+                        const fallbackPage = document.querySelector('.page[data-page="0"]');
+                        if (fallbackPage) {
+                            fallbackPage.style.display = 'block';
+                            console.log('🦆 Fallback to page 0');
+                        }
+                    }
+                
                     saveState();
                 }
+          
+                ${customPagesJs}
+
             
                 function updateLinkquality(percent) {
                   const bars = document.querySelectorAll(".lq-bar");

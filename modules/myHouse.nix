@@ -107,6 +107,17 @@ in { # 🦆 duck say ⮞ qwack
         };
 
       };
+      
+      pages = {
+        "4" = {
+          icon = "fas fa-cloud-sun";
+          title = "Weather";
+          code = ''
+            hejsan
+          '';
+        };
+      };
+      
     };
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
