@@ -209,7 +209,7 @@ in { # 🦆 duck say ⮞ qwack
                 
                 card.innerHTML = `
                   <div class="health-card-header">
-                    <div class="health-hostname">''${data.hostname}</div>
+                    <div class="health-hostname"><strong>''${data.hostname}</strong></div><br>
                     <div class="health-uptime">''${data.uptime}</div>
                   </div>
                   <div class="health-status">
@@ -222,7 +222,7 @@ in { # 🦆 duck say ⮞ qwack
                       <span class="health-value ''${getMemoryStatusClass(data.memory_usage)}">''${data.memory_usage}%</span>
                     </div>
                     <div class="health-item">
-                      <span class="health-label">CPU Temp:</span>
+                      <span class="health-label"><strong>CPU 🌡️:</strong></span>
                       <span class="health-value ''${getTempStatusClass(data.cpu_temperature)}">''${data.cpu_temperature}</span>
                     </div>
                     ''${createDiskUsageHTML(data.disk_usage)}
@@ -272,7 +272,7 @@ in { # 🦆 duck say ⮞ qwack
                 if (!diskTemp) return "";
                 return Object.entries(diskTemp).map(([device, temp]) => `
                   <div class="health-item">
-                    <span class="health-label">Disk Temp (''${device}):</span>
+                    <span class="health-label"><strong>Disk 🌡️</strong>(''${device}):</span>
                     <span class="health-value ''${getTempStatusClass(temp)}">''${temp}</span>
                   </div>
                 `).join("");

@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/f0l0h3h1nvpf3pqpq7qkx5g433678h4k-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/x1jhw7ya0ryq12b42bqigm2r1xw7qd2i-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -387,7 +387,7 @@ in { # 🦆 duck say ⮞ qwack
                 
                 card.innerHTML = `
                   <div class="health-card-header">
-                    <div class="health-hostname">''${data.hostname}</div>
+                    <div class="health-hostname"><strong>''${data.hostname}</strong></div><br>
                     <div class="health-uptime">''${data.uptime}</div>
                   </div>
                   <div class="health-status">
@@ -400,7 +400,7 @@ in { # 🦆 duck say ⮞ qwack
                       <span class="health-value ''${getMemoryStatusClass(data.memory_usage)}">''${data.memory_usage}%</span>
                     </div>
                     <div class="health-item">
-                      <span class="health-label">CPU Temp:</span>
+                      <span class="health-label"><strong>CPU 🌡️:</strong></span>
                       <span class="health-value ''${getTempStatusClass(data.cpu_temperature)}">''${data.cpu_temperature}</span>
                     </div>
                     ''${createDiskUsageHTML(data.disk_usage)}
@@ -450,7 +450,7 @@ in { # 🦆 duck say ⮞ qwack
                 if (!diskTemp) return "";
                 return Object.entries(diskTemp).map(([device, temp]) => `
                   <div class="health-item">
-                    <span class="health-label">Disk Temp (''${device}):</span>
+                    <span class="health-label"><strong>Disk 🌡️</strong>(''${device}):</span>
                     <span class="health-value ''${getTempStatusClass(temp)}">''${temp}</span>
                   </div>
                 `).join("");
@@ -1152,7 +1152,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=4f748928229bdee898e14659eaae56cbff8b5f49
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
