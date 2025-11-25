@@ -114,25 +114,52 @@ in { # 🦆 duck say ⮞ qwack
           title = "health";
           files = { health = "/var/lib/zigduck/health"; };
           css = ''
+
+            .health-page .container,
+            .health-page .content,
+            .health-page > div {
+              width: 100% !important;
+              max-width: 100% !important;
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+
+            .page[data-page] {
+              width: 100% !important;
+              max-width: 100% !important;
+            }
+
+            .health-page {
+              max-width: 1200px;
+              margin: 0 auto;
+              padding: 20px;
+            }
+            
             .health-grid {
               display: grid;
-              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
               gap: 15px;
-              padding: 20px;
-            }    
+              justify-items: center;
+            }
+            
             .health-card {
               background: var(--card-bg);
               border-radius: 12px;
               padding: 20px;
               box-shadow: var(--card-shadow);
+              width: 100%;
+              max-width: 350px;
             }     
             .health-card-header {
               display: flex;
-              justify-content: between;
+              justify-content: space-between;
               align-items: center;
               margin-bottom: 15px;
               border-bottom: 1px solid var(--border-color);
               padding-bottom: 10px;
+              flex-direction: column;
+              text-align: center;
+              gap: 10px;
             }
             .health-hostname {
               font-size: 1.2rem;
@@ -157,13 +184,29 @@ in { # 🦆 duck say ⮞ qwack
             } 
             .status-good { color: #2ecc71; }
             .status-warning { color: #f39c12; }
-            .status-critical { color: #e74c3c; }               
+            .status-critical { color: #e74c3c; }
+            
+            /* 🦆 says ⮞ Responsive design */
+            @media (max-width: 768px) {
+              .health-page {
+                padding: 10px;
+              }
+              
+              .health-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+              }
+              
+              .health-card {
+                max-width: 100%;
+              }
+            }           
           '';
           code = ''
-            <div class="health-page">
-              <h2>Machines Health</h2>
-              <div id="healthContainer" class="health-grid"></div>
-            </div>
+
+            <h1 style="text-align:center;">Machines Health</h1>
+            <div id="healthContainer" class="health-grid"></div>
+
 
             <script>
               async function loadHealthData() {
@@ -209,16 +252,16 @@ in { # 🦆 duck say ⮞ qwack
                 
                 card.innerHTML = `
                   <div class="health-card-header">
-                    <div class="health-hostname"><strong>''${data.hostname}</strong></div><br>
+                    <div class="health-hostname"><strong><h1>''${data.hostname}</h1></strong></div><br>
                     <div class="health-uptime">''${data.uptime}</div>
                   </div>
                   <div class="health-status">
                     <div class="health-item">
-                      <span class="health-label">CPU:</span>
+                      <span class="health-label"><strong>CPU:</strong></span>
                       <span class="health-value ''${getCPUStatusClass(data.cpu_usage)}">''${data.cpu_usage}%</span>
                     </div>
                     <div class="health-item">
-                      <span class="health-label">Memory:</span>
+                      <span class="health-label"><strong>Memory:</strong></span>
                       <span class="health-value ''${getMemoryStatusClass(data.memory_usage)}">''${data.memory_usage}%</span>
                     </div>
                     <div class="health-item">
@@ -262,7 +305,7 @@ in { # 🦆 duck say ⮞ qwack
                 if (!diskUsage) return "";
                 return Object.entries(diskUsage).map(([device, usage]) => `
                   <div class="health-item">
-                    <span class="health-label">Disk (''${device}):</span>
+                    <span class="health-label"><strong>Disk</strong> (''${device}):</span>
                     <span class="health-value ''${getDiskStatusClass(usage)}">''${usage}</span>
                   </div>
                 `).join("");
@@ -386,12 +429,8 @@ in { # 🦆 duck say ⮞ qwack
                 '';
               }
             ];
-          };          
-
+          };
         } // health; 
-
-       # }; 
-
         
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
