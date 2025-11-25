@@ -36,6 +36,20 @@
   else
     "0.0.0.0"; 
 
+  pageFilesAndCss = let
+    pages = config.house.dashboard.pages;
+  in lib.concatStrings (lib.mapAttrsToList (pageId: page: 
+    let
+      fileLinks = lib.mapAttrsToList (fileName: filePath: 
+        "ln -sf ${filePath} $WORKDIR/${fileName};"
+      ) page.files;
+      
+      cssFile = if page.css != "" then "echo '${page.css}' > $WORKDIR/page-${pageId}.css;" else "";
+    in
+      lib.concatStringsSep "\n" (fileLinks ++ [cssFile])
+  ) pages);
+
+
   # 🦆 says ⮞ generate html for status cards
   statusCardsHtml = lib.concatStrings (lib.mapAttrsToList (name: card: 
     if card.enable then ''
@@ -113,13 +127,6 @@
   '';
 
   
-  # 🦆 says ⮞ generate custom pages HTML
-  customPagesHtml = let
-    pages = config.house.dashboard.pages;
-  in if pages == {} then "" else lib.concatStrings (lib.mapAttrsToList (id: page: 
-    ''<div class="page" id="pageCustom${id}" data-page="${id}">${page.code}</div>''
-  ) pages);
-
   # 🦆 says ⮞ generate custom tabs HTML  
   customTabsHtml = let
     pages = config.house.dashboard.pages;
@@ -136,18 +143,7 @@
   ) pages);
 
   # 🦆 says ⮞ generate custom pages js
-  customPagesJs = let
-    pages = config.house.dashboard.pages;
-  in if pages == {} then "" else lib.concatStrings (lib.mapAttrsToList (id: page: 
-    ''
-      // 🦆 says ⮞ Page ${id} initialization
-      function initPage${id}() {
-        console.log('🦆 Initializing custom page ${id}');
-        ${page.code}
-      }
-    ''
-  ) pages);  
-
+  customPagesJs = "";
 
   # 🦆 says ⮞ auto-refresh file cards
   fileRefreshJs = ''
@@ -161,7 +157,6 @@
       }, 1000);
     });
   '';
-
 
   # 🦆 says ⮞ get house.zigbee.devices
   zigbeeDevices = config.house.zigbee.devices;
@@ -518,7 +513,7 @@
     ln -sf /etc/devices.json $WORKDIR/
     ln -sf /etc/rooms.json $WORKDIR/
     ln -sf /etc/tv.json $WORKDIR/
-    ln -sf /var/lib/zigduck/state.json $WORKDIR/
+    ln -sf /var/lib/zigduck/state.json $WORKDIR/  
     ln -sf /etc/static/epg.json $WORKDIR/   
     ln -sf /etc/static/tv.html $WORKDIR/   
     ln -sf /etc/static/favicon.ico $WORKDIR/   
@@ -527,7 +522,8 @@
     ${lib.concatStringsSep "\n" (lib.mapAttrsToList (name: card: 
       if card.enable then "ln -sf ${card.filePath} $WORKDIR/${builtins.baseNameOf card.filePath};" else ""
     ) config.house.dashboard.statusCards)}
-  
+
+    ${pageFilesAndCss}
 
     # 🦆 says ⮞ add TV icons
     mkdir -p $WORKDIR/tv-icons
@@ -542,6 +538,17 @@
     ${pkgs.python3}/bin/python3 -m http.server "$PORT" --bind "$HOST" -d "$WORKDIR"
   '';
 
+  customPagesHtml = let
+    pages = config.house.dashboard.pages;
+  in if pages == {} then "" else lib.concatStrings (lib.mapAttrsToList (id: page: 
+    let
+      cssLink = if page.css != "" then ''<link rel="stylesheet" href="/page-${id}.css">'' else "";
+    in
+      ''<div class="page" id="pageCustom${id}" data-page="${id}">
+          ${cssLink}
+          ${page.code}
+        </div>''
+  ) pages);
 
   roomList = lib.concatMapStrings (room: let
     icon = lib.removePrefix "mdi:" roomIcons.${room};
@@ -568,7 +575,7 @@
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
 
         <style>
-            
+    
             ${roomControlCSS}
             /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
             header {

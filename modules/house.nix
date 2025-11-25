@@ -454,6 +454,16 @@ in { # 🦆 says ⮞ Options for da house
                 description = "Title for the page (optional)";
                 default = "";
               };
+              files = lib.mkOption {
+                type = lib.types.attrsOf (lib.types.oneOf [lib.types.path lib.types.str]);
+                default = {};
+                description = "Files to be symlinked to the http server for this page";
+              };
+              css = lib.mkOption {
+                type = lib.types.str;
+                default = "";
+                description = "Additional CSS for this page";
+              };              
             };
           });
           default = {};

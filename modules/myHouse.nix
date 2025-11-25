@@ -110,14 +110,192 @@ in { # 🦆 duck say ⮞ qwack
       
       pages = {
         "4" = {
-          icon = "fas fa-cloud-sun";
-          title = "Weather";
+          icon = "fas fa-notes-medical";
+          title = "health";
+          files = { health = "/var/lib/zigduck/health"; };
+          css = ''
+            .health-grid {
+              display: grid;
+              grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+              gap: 15px;
+              padding: 20px;
+            }    
+            .health-card {
+              background: var(--card-bg);
+              border-radius: 12px;
+              padding: 20px;
+              box-shadow: var(--card-shadow);
+            }     
+            .health-card-header {
+              display: flex;
+              justify-content: between;
+              align-items: center;
+              margin-bottom: 15px;
+              border-bottom: 1px solid var(--border-color);
+              padding-bottom: 10px;
+            }
+            .health-hostname {
+              font-size: 1.2rem;
+              font-weight: bold;
+              color: var(--primary);
+            }     
+            .health-status {
+              display: grid;
+              gap: 8px;
+            }    
+            .health-item {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+            }   
+            .health-label {
+              color: var(--gray);
+              font-size: 0.9rem;
+            }        
+            .health-value {
+              font-weight: 600;
+            } 
+            .status-good { color: #2ecc71; }
+            .status-warning { color: #f39c12; }
+            .status-critical { color: #e74c3c; }               
+          '';
           code = ''
-            hejsan
+            <div class="health-page">
+              <h2>Machines Health</h2>
+              <div id="healthContainer" class="health-grid"></div>
+            </div>
+
+            <script>
+              async function loadHealthData() {
+                try {
+                  const response = await fetch('/health/');
+                  const text = await response.text();
+                  
+                  const parser = new DOMParser();
+                  const htmlDoc = parser.parseFromString(text, 'text/html');
+                  const links = Array.from(htmlDoc.querySelectorAll('a'));
+                  const jsonFiles = links
+                    .map(link => link.href)
+                    .filter(href => href.endsWith('.json'))
+                    .map(href => href.split('/').pop());
+                  
+                  console.log('Found health files:', jsonFiles);
+                  
+                  const container = document.getElementById('healthContainer');
+                  container.innerHTML = "";
+                  
+                  for (const file of jsonFiles) {
+                    try {
+                      const healthResponse = await fetch('/health/' + file);
+                      const healthData = await healthResponse.json();
+                      createHealthCard(healthData, container);
+                    } catch (error) {
+                      console.error('Error loading health file:', file, error);
+                    }
+                  }
+                  
+                } catch (error) {
+                  console.error('Error loading health directory:', error);
+                  document.getElementById('healthContainer').innerHTML = 
+                    '<div class="error">Unable to load health data</div>';
+                }
+              }
+              
+              function createHealthCard(data, container) {
+                const card = document.createElement('div');
+                card.className = 'health-card';
+                
+                const status = calculateOverallStatus(data);
+                
+                card.innerHTML = `
+                  <div class="health-card-header">
+                    <div class="health-hostname">''${data.hostname}</div>
+                    <div class="health-uptime">''${data.uptime}</div>
+                  </div>
+                  <div class="health-status">
+                    <div class="health-item">
+                      <span class="health-label">CPU:</span>
+                      <span class="health-value ''${getCPUStatusClass(data.cpu_usage)}">''${data.cpu_usage}%</span>
+                    </div>
+                    <div class="health-item">
+                      <span class="health-label">Memory:</span>
+                      <span class="health-value ''${getMemoryStatusClass(data.memory_usage)}">''${data.memory_usage}%</span>
+                    </div>
+                    <div class="health-item">
+                      <span class="health-label">CPU Temp:</span>
+                      <span class="health-value ''${getTempStatusClass(data.cpu_temperature)}">''${data.cpu_temperature}</span>
+                    </div>
+                    ''${createDiskUsageHTML(data.disk_usage)}
+                    ''${createDiskTempHTML(data.disk_temperature)}
+                  </div>
+                `;
+                
+                container.appendChild(card);
+              }
+              
+              function calculateOverallStatus(data) {
+                if (data.cpu_usage > 90 || data.memory_usage > 90) return 'critical';
+                if (data.cpu_usage > 80 || data.memory_usage > 80) return 'warning';
+                return 'good';
+              }
+              
+              function getCPUStatusClass(usage) {
+                if (usage > 80) return 'status-critical';
+                if (usage > 60) return 'status-warning';
+                return 'status-good';
+              }
+              
+              function getMemoryStatusClass(usage) {
+                if (usage > 90) return 'status-critical';
+                if (usage > 75) return 'status-warning';
+                return 'status-good';
+              }
+              
+              function getTempStatusClass(temp) {
+                const tempValue = parseFloat(temp);
+                if (tempValue > 70) return 'status-critical';
+                if (tempValue > 60) return 'status-warning';
+                return 'status-good';
+              }
+              
+              function createDiskUsageHTML(diskUsage) {
+                if (!diskUsage) return "";
+                return Object.entries(diskUsage).map(([device, usage]) => `
+                  <div class="health-item">
+                    <span class="health-label">Disk (''${device}):</span>
+                    <span class="health-value ''${getDiskStatusClass(usage)}">''${usage}</span>
+                  </div>
+                `).join("");
+              }
+              
+              function createDiskTempHTML(diskTemp) {
+                if (!diskTemp) return "";
+                return Object.entries(diskTemp).map(([device, temp]) => `
+                  <div class="health-item">
+                    <span class="health-label">Disk Temp (''${device}):</span>
+                    <span class="health-value ''${getTempStatusClass(temp)}">''${temp}</span>
+                  </div>
+                `).join("");
+              }
+              
+              function getDiskStatusClass(usage) {
+                const usageValue = parseFloat(usage);
+                if (usageValue > 90) return 'status-critical';
+                if (usageValue > 80) return 'status-warning';
+                return 'status-good';
+              }
+              
+              document.addEventListener('DOMContentLoaded', function() {
+                if (document.getElementById('healthContainer')) {
+                  loadHealthData();
+                  setInterval(loadHealthData, 30000);
+                }
+              });
+            </script>                
           '';
         };
+    
       };
-      
     };
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
