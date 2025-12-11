@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/0sp15yraffx1bsqhq5qw2zjsvl4l5g4y-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/pvxskz6vfy9lkf8dy9q6fyiz428dmp1b-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -281,7 +281,7 @@ in { # 🦆 duck say ⮞ qwack
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
     dashboard = {
        # 🦆 says ⮞  safety firzt!
-      passwordFile = config.sops.secrets.mosquitto.path;
+      passwordFile = config.sops.secrets.api.path;
       
       # 🦆 says ⮞  home page information cards
       statusCards = {
@@ -1566,17 +1566,17 @@ in { # 🦆 duck say ⮞ qwack
         };
       };
     };
-#  };
+  };
 
-  #sops = {  
-    #secrets =  {
-    #  api = {
-    #    sopsFile = ./../secrets/api.yaml;
-    #    owner = config.this.user.me.name;
-    #    group = config.this.user.me.name;
-    #    mode = "0440"; # Read-only for owner and group
-    #  };  
-  #  };
+  sops = {  
+    secrets =  {
+      api = {
+        sopsFile = ./../secrets/api.yaml;
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440"; # Read-only for owner and group
+      };  
+    };
     
   };}
 

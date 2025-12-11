@@ -102,7 +102,7 @@ in { # 🦆 duck say ⮞ qwack
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
     dashboard = {
        # 🦆 says ⮞  safety firzt!
-      passwordFile = config.sops.secrets.mosquitto.path;
+      passwordFile = config.sops.secrets.api.path;
       
       # 🦆 says ⮞  home page information cards
       statusCards = {
@@ -1384,17 +1384,17 @@ in { # 🦆 duck say ⮞ qwack
         };
       };
     };
-#  };
+  };
 
-  #sops = {  
-    #secrets =  {
-    #  api = {
-    #    sopsFile = ./../secrets/api.yaml;
-    #    owner = config.this.user.me.name;
-    #    group = config.this.user.me.name;
-    #    mode = "0440"; # Read-only for owner and group
-    #  };  
-  #  };
+  sops = {  
+    secrets =  {
+      api = {
+        sopsFile = ./../secrets/api.yaml;
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440"; # Read-only for owner and group
+      };  
+    };
     
   };}
 
