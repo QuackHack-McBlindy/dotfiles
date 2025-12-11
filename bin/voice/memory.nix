@@ -39,7 +39,7 @@ in {
           type = "string";
           description = "What stat to analyze";
           default = "summary";
-          values = [ "failed" "successful" "recent" "summary" "fuzzy" "context" "chain" ];
+          values = [ "failed" "successful" "recent" "summary" "fuzzy" "context" "chain" "sentences" ];
         }  
         { 
           name = "record"; 
@@ -121,37 +121,54 @@ in {
         record_command() {
           local script_name="$1"
           local args="$2"
-          local matched_sentence="$3"
-          local match_type="$4"  # exact|fuzzy
+               
           local timestamp=$(date -Iseconds)
-          
+  
+          # 🦆 says ⮞ Use the ACTUAL sentence for tracking, not the pattern
+          local sentence_to_track="''${actual_sentence:-$pattern}"
+  
           local history=$(load_command_history)
           local recent_commands=$(echo "$history" | jq -r '.recent_commands')
-          
-          # 🦆 says ⮞ Add new command to history (keep last 10)
+  
+          # 🦆 says ⮞ Add new command to history with BOTH pattern and actual sentence
           local new_command=$(jq -n \
-            --arg script "$script_name" \
+        
             --arg args "$args" \
-            --arg sentence "$matched_sentence" \
-            --arg match_type "$match_type" \
+            --arg pattern "$pattern" \
+            --arg actual_sentence "$sentence_to_track" \
+        
             --arg timestamp "$timestamp" \
             '{
               script: $script,
               args: $args,
-              matched_sentence: $sentence, 
+              pattern: $pattern,
+              actual_sentence: $actual_sentence,
               match_type: $match_type,
               timestamp: $timestamp,
               confirmed: false
             }')
-          
+  
           history=$(echo "$history" | jq \
             --argjson new_command "$new_command" \
             '.recent_commands = [$new_command] + .recent_commands | .recent_commands = .recent_commands[0:10]')
-          
+  
           save_command_history "$history"
-          
-          # 🦆 says ⮞ update context
-          update_context "$script_name" "$args" "$matched_sentence"
+  
+          # 🦆 says ⮞ track sentence usage
+          local stats=$(load_stats)
+  
+          local current_count=$(echo "$stats" | jq -r ".sentence_usage.\"$sentence_to_track\" // 0")
+          stats=$(echo "$stats" | jq ".sentence_usage.\"$sentence_to_track\" = $((current_count + 1))")
+  
+          local mapping_key="$sentence_to_track→$script_name"
+          local mapping_count=$(echo "$stats" | jq -r ".sentence_mappings.\"$mapping_key\" // 0")
+          stats=$(echo "$stats" | jq ".sentence_mappings.\"$mapping_key\" = $((mapping_count + 1))")
+  
+          save_stats "$stats"
+  
+          update_context "$script_name" "$args" "$sentence_to_track"
+  
+          echo "🦆 Recorded: $script_name - $sentence_to_track"
         }
 
         show_context() {
@@ -249,6 +266,18 @@ in {
             "  Environment: \(.environment)"
           '
         }
+
+        show_sentence_usage() {
+          local stats=$(load_stats)
+  
+          echo "🦆 Most Used Natural Language Phrases:"
+          echo "$stats" | jq -r '.sentence_usage | to_entries | sort_by(-.value) | .[0:15] | .[] | "\(.key): \(.value) times"'
+  
+          echo ""
+          echo "🦆 Most Successful Natural Language → Command Mappings:"
+          echo "$stats" | jq -r '.sentence_mappings | to_entries | sort_by(-.value) | .[0:10] | .[] | "\(.key): \(.value) uses"'
+        }
+
         
         # 🦆 says ⮞ show command chains (multi-part commands)
         show_chains() {
@@ -321,7 +350,7 @@ in {
           if [ -f "${commandStatsDB}" ]; then
             cat "${commandStatsDB}"
           else
-            echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}'
+            echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}, "sentence_usage": {}, "sentence_mappings": {}}'
           fi
         }
         
@@ -343,7 +372,7 @@ in {
         }
         
         reset_memory() {
-          echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}' > "${commandStatsDB}"
+          echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}, "sentence_usage": {}, "sentence_mappings": {}}' > "${commandStatsDB}"
           echo '{"recent_commands": [], "confirmed_matches": {}}' > "$COMMAND_HISTORY_FILE"
           echo '{"last_action": "", "active_servers": [], "environment": "default"}' > "$CONTEXT_FILE"
           echo "[🦆📶] All memory and statistics reset!"
@@ -362,7 +391,7 @@ in {
 
         if [[ -n "$record" ]]; then
             IFS='|' read -r script_name args sentence match_type <<< "$record"
-            record_command "$script_name" "$args" "$sentence" "$match_type"
+            record_command "$script_name" "$args" "$sentence" "$match_type" "$original_natural_language" "$original_natural_language"
             echo "🦆 Recorded: $script_name - $sentence"
             exit 0
         fi
@@ -383,6 +412,7 @@ in {
           summary) show_enhanced_summary ;;
           fuzzy) show_fuzzy ;;
           recent) show_recent ;;
+          sentences) show_sentence_usage ;;
           context) show_context ;;
           chain) show_chains ;;
           *) show_enhanced_summary ;;

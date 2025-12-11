@@ -67,7 +67,7 @@
       json = builtins.toJSON settings;
     in
       ''
-      mqtt_pub -t "zigbee2mqtt/${device}/set" -m '${json}'
+      yo mqtt_pub --topic "zigbee2mqtt/${device}/set" --message '${json}'
       '';
       
   sceneCommands = lib.mapAttrs

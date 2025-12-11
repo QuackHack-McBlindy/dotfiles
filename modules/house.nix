@@ -286,7 +286,7 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
+  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
 
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
@@ -318,7 +318,7 @@
       json = builtins.toJSON settings;
     in
       ''
-      mqtt_pub -t "zigbee2mqtt/${device}/set" -m '${json}'
+      yo mqtt_pub --topic "zigbee2mqtt/${device}/set" .-message '${json}'
       '';
       
   sceneCommands = lib.mapAttrs
@@ -436,6 +436,12 @@ in { # 🦆 says ⮞ Options for da house
     options.house = {    
       # 🦆 says ⮞ dashboard configuraiton
       dashboard = {
+        passwordFile = lib.mkOption {
+          type = lib.types.path;
+          description = "Passwordfile for the dashboard API";
+          default = "";
+        };         
+      
         pages = lib.mkOption {
           type = lib.types.attrsOf (lib.types.submodule {
             options = {

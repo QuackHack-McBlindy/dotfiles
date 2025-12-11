@@ -19,10 +19,11 @@ in { # 🦆 says ⮞ yo yo yo yo
       { name = "model"; description = "File name of the model"; default = "sv_SE-lisa-medium.onnx"; } # 🦆 says ⮞ lisa sounds hot - bet she likez ducks
       { name = "modelDir"; description = "Path to the directory containing model"; default = "/home/" + config.this.user.me.name + "/.local/share/piper"; }
       { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
-      { name = "host"; description = "Host to play the audio on"; default = "desktop"; }       
+      { name = "host"; description = "Host to play the audio on"; default = "homie"; }       
       { name = "blocking"; type = "bool"; description = "Wait for TTS playback to finish"; default = false; }
       { name = "file"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }
       { name = "caf"; description = "Path to output .caf file"; default = ""; }
+      { name = "web"; type = "bool"; description = "Generate for web and output HTTP URL"; default = true; }
     ];
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
@@ -35,12 +36,47 @@ in { # 🦆 says ⮞ yo yo yo yo
       SENTENCE_SILENCE="$silence" 
       CURRENT_HOST=$(hostname)
       CAF_OUTPUT="$caf"
+      WEB="$web"
 
+      # 🦆 says ⮞ Web mode - always run on mqttHost
+      if [ "$WEB" = "true" ]; then
+        FIXED_WAV="/var/lib/zigduck/tts/tts.wav"
+        
+        if [ "$CURRENT_HOST" = "homie" ]; then
+          mkdir -p "/var/lib/zigduck/tts"
+          echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$FIXED_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
+        else
+          # 🦆 says ⮞ SSH into homie to generate TTS
+          ARGS="--text \"$INPUT\""
+          ARGS="$ARGS --model \"$MODEL\""
+          ARGS="$ARGS --modelDir \"$MODEL_DIR\""
+          ARGS="$ARGS --silence \"$SENTENCE_SILENCE\""
+          ARGS="$ARGS --host \"$HOST\""
+          ARGS="$ARGS --web true"
+          
+          if [ "$BLOCKING" = "true" ]; then
+            ARGS="$ARGS --blocking true"
+          fi
+          
+          if [ -n "$CAF_OUTPUT" ]; then
+            ARGS="$ARGS --caf \"$CAF_OUTPUT\""
+          fi
+          
+          SSH_CMD="yo say $ARGS"
+          
+          ${pkgs.openssh}/bin/ssh homie "$SSH_CMD"
+        fi
+        exit 0
+      fi
+
+      # 🦆 says ⮞ Non-web mode
       if [ -z "$HOST" ] || [ "$HOST" = "$CURRENT_HOST" ]; then
+        # 🦆 says ⮞ Local execution
         if [ ! -f "$MODEL_PATH" ]; then
           dt_error "Model not found: $MODEL_PATH"
           exit 1
         fi
+        
         if [ "$BLOCKING" = "true" ]; then
           TMP_WAV=$(mktemp --suffix=.wav)
           trap 'rm -f "$TMP_WAV"' EXIT
@@ -51,30 +87,41 @@ in { # 🦆 says ⮞ yo yo yo yo
           else
             ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
           fi
-
-##          ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
         else
           (
             TMP_WAV=$(mktemp --suffix=.wav)
             trap 'rm -f "$TMP_WAV"' EXIT
             echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
-#            ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
+            
             if [ -n "$CAF_OUTPUT" ]; then
               ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i "$TMP_WAV" "$CAF_OUTPUT"
             else
               ${pkgs.alsa-utils}/bin/aplay "$TMP_WAV" >/dev/null 2>&1
             fi
           ) &
-        fi  
+        fi
       else
-                   
-        ${pkgs.openssh}/bin/ssh "$HOST" yo say \
-          --text "$(printf '%q' "$INPUT")" \
-          --model "$(printf '%q' "$MODEL")" \
-          --modelDir "$(printf '%q' "$MODEL_DIR")" \
-          --silence "$(printf '%q' "$SENTENCE_SILENCE")" \
-          --host "$HOST"
-      fi  
+        # 🦆 says ⮞ Remote execution (non-web mode)
+        ARGS="--text \"$INPUT\""
+        ARGS="$ARGS --model \"$MODEL\""
+        ARGS="$ARGS --modelDir \"$MODEL_DIR\""
+        ARGS="$ARGS --silence \"$SENTENCE_SILENCE\""
+        ARGS="$ARGS --host \"$HOST\""
+        ARGS="$ARGS --web false"
+        
+        if [ "$BLOCKING" = "true" ]; then
+          ARGS="$ARGS --blocking true"
+        fi
+        
+        if [ -n "$CAF_OUTPUT" ]; then
+          ARGS="$ARGS --caf \"$CAF_OUTPUT\""
+        fi
+        
+        SSH_CMD="yo say $ARGS"
+
+        ${pkgs.openssh}/bin/ssh "$HOST" "$SSH_CMD"
+      fi
+
     ''; # 🦆 says ⮞ quack quack quack   
     voice = {
       enabled = true;

@@ -1516,15 +1516,17 @@ in {
           
           # 🦆 says ⮞ display HA news
           echo "" && echo ""
+          echo "MARKDOWN"
           BOLD=1
-          ${pkgs.gum}/bin/gum format "# 🗞️ NYHETER"     
+          ${pkgs.gum}/bin/gum format "🗞️ **NYHETER**"     
           hockey_news | head -5 && echo "----------------------------" && echo ""
           
           # 🦆 says ⮞ display table with special teams
           display_table_with_special_teams "$table_file"
-          
+
           # 🦆 says ⮞ display todays/tomorrows games
           echo "" && yo hag
+          echo "MARKDOWN_END"
         else
           dt_error "No table data found at $table_file"
         fi
@@ -1593,7 +1595,7 @@ in {
         "{count} har {mode} {stat}"
         "visa topp {count} i {stat}"
         "{count} är {stat} i (serie|serien|liga|ligan)"
-        
+        "duckpuck!"
         # 🦆 says ⮞ team shorthanded goals sentences
         "vilket lag har {mode} {stat}"
         "vem har {mode} {stat} i ligan"

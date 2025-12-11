@@ -39,14 +39,7 @@
   pageFilesAndCss = let
     pages = config.house.dashboard.pages;
   in lib.concatStrings (lib.mapAttrsToList (pageId: page: 
-    let
-      fileLinks = lib.mapAttrsToList (fileName: filePath: 
-        "ln -sf ${filePath} $WORKDIR/${fileName};"
-      ) page.files;
-      
-      cssFile = if page.css != "" then "echo '${page.css}' > $WORKDIR/page-${pageId}.css;" else "";
-    in
-      lib.concatStringsSep "\n" (fileLinks ++ [cssFile])
+    if page.css != "" then "echo '${page.css}' > $WORKDIR/page-${pageId}.css;" else ""
   ) pages);
 
 
@@ -507,8 +500,11 @@
   httpServer = pkgs.writeShellScriptBin "serve-dashboard" ''
     HOST=''${1:-0.0.0.0}
     PORT=''${2:-13337}
-  
+    CERT=''${3:-}
+    KEY=''${4:-}
     WORKDIR=$(mktemp -d)
+          
+    ln -sf /etc/login.html $WORKDIR/  
     ln -sf /etc/index.html $WORKDIR/
     ln -sf /etc/devices.json $WORKDIR/
     ln -sf /etc/rooms.json $WORKDIR/
@@ -523,6 +519,17 @@
       if card.enable then "ln -sf ${card.filePath} $WORKDIR/${builtins.baseNameOf card.filePath};" else ""
     ) config.house.dashboard.statusCards)}
 
+    # 🦆 Process page files from dashboard configuration
+    ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: page:
+      lib.mapAttrsToList (name: source: 
+        if lib.isString source then
+          "ln -sf ${source} $WORKDIR/${name}"
+        else
+          "ln -sf ${toString source} $WORKDIR/${name}"
+      ) (page.files or {})
+    ) config.house.dashboard.pages))}
+
+    # 🦆 CSS files only
     ${pageFilesAndCss}
 
     # 🦆 says ⮞ add TV icons
@@ -534,8 +541,97 @@
             in "ln -sf ${channel.icon} $WORKDIR/tv-icons/${channelId}.png\n"
         ) (lib.attrNames tv.channels)
     ) (lib.attrNames tvConfig)}
+  
+
+    cat > $WORKDIR/simple_server.py << 'EOF'
+import http.server
+import socketserver
+import os
+import urllib.parse
+import json
+import hashlib
+import sys
+import time
+from pathlib import Path
+
+password_file = "${config.house.dashboard.passwordFile}"
+with open(password_file, "r") as f:
+    PASSWORD = f.read().strip()
+
+sessions = {}
+
+class SimpleAuthHandler(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        self.directory = os.getcwd()
+        super().__init__(*args, directory=self.directory, **kwargs)
     
-    ${pkgs.python3}/bin/python3 -m http.server "$PORT" --bind "$HOST" -d "$WORKDIR"
+    def do_GET(self):
+        auth_cookie = self.headers.get('Cookie', "")
+        is_authenticated = False        
+        for cookie in auth_cookie.split(';'):
+            cookie = cookie.strip()
+            if cookie.startswith('auth_token='):
+                token = cookie.split('auth_token=')[1]
+                if token in sessions:
+                    is_authenticated = True
+        
+        if self.path in ['/login', '/login.html', '/submit']:
+            return super().do_GET()
+        
+        if not is_authenticated:
+            self.send_response(302)
+            self.send_header('Location', '/login.html')
+            self.end_headers()
+            return
+        
+        return super().do_GET()
+    
+    def do_POST(self):
+        if self.path == '/submit':
+            content_length = int(self.headers['Content-Length'])
+            post_data = self.rfile.read(content_length).decode('utf-8')
+            parsed_data = urllib.parse.parse_qs(post_data)
+            password = parsed_data.get('password', [""])[0]
+            
+            if password == PASSWORD:
+                import uuid
+                token = str(uuid.uuid4())
+                sessions[token] = time.time()
+                
+                self.send_response(302)
+                self.send_header('Location', '/')
+                self.send_header('Set-Cookie', f'auth_token={token}; Path=/; HttpOnly; SameSite=Lax')
+                self.send_header('Set-Cookie', f'api_password={PASSWORD}; Path=/; SameSite=Lax')   
+                self.end_headers()
+                print("Login successful!")
+            else:
+                self.send_response(401)
+                self.send_header('Content-type', 'text/html')
+                self.end_headers()
+                self.wfile.write(b'<html><body>Access denied. <a href="/login.html">Try again</a></body></html>')
+                print("Login failed!")
+        else:
+            self.send_response(404)
+            self.end_headers()
+    
+    def log_message(self, format, *args):
+        pass
+
+if __name__ == '__main__':
+    os.chdir(os.path.dirname(__file__))    
+    port = int(os.environ.get('PORT', 13337))    
+    httpd = socketserver.TCPServer(("", port), SimpleAuthHandler)    
+    try:
+        httpd.serve_forever()
+    except KeyboardInterrupt:
+        httpd.shutdown()
+EOF
+
+    export PORT=$PORT
+    cd $WORKDIR
+    
+    echo "🦆 Starting dashboard server on http://$HOST:$PORT"
+    ${pkgs.python3}/bin/python3 simple_server.py
   '';
 
   customPagesHtml = let
@@ -559,6 +655,295 @@
     </li>
   '') (lib.attrNames config.house.rooms);
   
+  
+  login = ''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-family: monospace;
+      background: black;
+      position: relative;
+    }
+    
+    .emoji {
+      position: absolute;
+      top: -50px;
+      font-size: 2rem;
+      animation: fall linear infinite;
+    }
+    
+    .duck { font-size: 3rem; }
+    
+    .heart {
+      font-size: 2rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .heart:hover {
+      transform: scale(2);
+      opacity: 0;
+    }
+    
+    @keyframes fall {
+      to { transform: translateY(100vh); }
+    }
+    
+    #beginButton {
+      font-size: 2rem;
+      padding: 12px 40px;
+      background: linear-gradient(45deg, #00ff00, #00ccff, #ff00ff);
+      background-size: 300% 300%;
+      color: black;
+      border: 2px solid #00FF00;
+      border-radius: 12px;
+      cursor: pointer;
+      z-index: 300;
+      animation: gradientAnimation 3s ease infinite, fadeIn 2s forwards;
+      box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 60px #00ff00;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    #beginButton:hover {
+      transform: scale(1.2) rotate(-5deg);
+      box-shadow: 0 0 40px #00ff00, 0 0 80px #00ff00, 0 0 120px #00ff00;
+    }
+    
+    @keyframes gradientAnimation {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    
+    
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+    
+    @keyframes flyAway {
+      to {
+        transform: translate(var(--x), var(--y)) scale(1.5) rotate(720deg);
+        opacity: 0;
+      }
+    }
+    
+    #matrixScreen {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: black;
+      color: #00ff00;
+      font-size: 2rem;
+      padding: 2rem;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+    
+    #matrixScreen.show {
+      display: block;
+      opacity: 1;
+    }
+    
+    .cursor {
+      animation: blink 1s infinite;
+    }
+    
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+    
+    #loginPage {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: black;
+      color: #00FF00;
+      font-family: "Courier New", monospace;
+      justify-content: center;
+      align-items: center;
+      opacity: 0;
+      transition: opacity 2s ease;
+    }
+    
+    #loginPage.show {
+      display: flex;
+      opacity: 1;
+    }
+    
+    .login-container {
+      border: 2px solid #00FF00;
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+    }
+    
+    .login-container h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .login-container input {
+      background-color: black;
+      border: 2px solid #00FF00;
+      color: #00FF00;
+      padding: 10px;
+      width: 80%;
+      margin: 10px;
+      font-size: 16px;
+      text-align: center;
+    }
+    
+    .login-container input[type="submit"] {
+      cursor: pointer;
+      background-color: #00FF00;
+      color: black;
+      border: none;
+      transition: all 0.3s ease;
+    }
+    
+    .login-container input[type="submit"]:hover {
+      background-color: #00CC00;
+    }
+    
+    .message {
+      font-size: 14px;
+      margin-top: 20px;
+      color: #FF4500;
+    }
+    
+    .message a {
+      color: #00FF00;
+      text-decoration: none;
+    }
+    </style>
+    </head>
+    
+    <body>
+    
+    <button id="beginButton">Login!</button>
+    
+    <div id="matrixScreen">
+      <div id="matrixText"></div>
+    </div>
+    
+    <div id="loginPage">
+      <div class="login-container">
+        <h1>Enter the System</h1>
+        <form action="/submit" method="POST">
+          <input type="password" name="password" placeholder="Password" required>
+          <input type="submit" value="Log In">
+        </form>
+        <div class="message">
+          <p>Warning: Unauthorized access will be logged and <strong>punished</strong> accordingly!</p>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+    const emojis = ['🦆','🦆','🦆','🦆','❤️'];
+    
+    
+    for (let i = 0; i < 200; i++) {
+      const e = document.createElement('div');
+      e.classList.add('emoji');
+    
+      const type = emojis[Math.floor(Math.random() * emojis.length)];
+      e.innerText = type;
+    
+      if (type === '🦆') e.classList.add('duck');
+      else e.classList.add('heart');
+    
+      e.style.left = Math.random() * 100 + 'vw';
+      e.style.animationDuration = Math.random() * 3 + 5 + 's';
+      e.style.animationDelay = Math.random() * 5 + 's';
+    
+      document.body.appendChild(e);
+    }
+    
+    document.getElementById('beginButton').addEventListener('click', function () {
+      const emojis = document.querySelectorAll('.emoji');
+    
+      emojis.forEach(e => {
+        const x = (Math.random() - 0.5) * 2000;
+        const y = (Math.random() - 0.5) * 2000;
+        e.style.setProperty('--x', `''${x}px`);
+        e.style.setProperty('--y', `''${y}px`);
+        e.style.animation = 'flyAway 1.5s forwards';
+      });
+    
+      this.style.display = 'none';
+    
+      setTimeout(() => {
+        const matrix = document.getElementById('matrixScreen');
+        matrix.classList.add('show');
+        startMatrix();
+      }, 1500);
+    });
+    
+    function startMatrix() {
+      const matrixText = document.getElementById('matrixText');
+    
+      const lines = [
+        '> initializing security protocol...',
+        '> establishing encrypted channel...',
+        '> enter authentication...',
+      ];
+    
+      let i = 0;
+      let j = 0;
+    
+      function type() {
+        if (i >= lines.length) {
+          setTimeout(fadeToLogin, 1500);
+          return;
+        }
+    
+        matrixText.innerHTML += lines[i][j] + '<span class="cursor">█</span>';
+        j++;
+        if (j === lines[i].length) {
+          matrixText.innerHTML += '<br>';
+          i++;
+          j = 0;
+        }
+        setTimeout(type, 30);
+      }
+    
+      type();
+    }
+    
+    function fadeToLogin() {
+      const matrix = document.getElementById('matrixScreen');
+      const login = document.getElementById('loginPage');
+      matrix.style.opacity = 0;
+      setTimeout(() => {
+        matrix.style.display = 'none';
+        login.style.display = 'flex';
+    
+        setTimeout(() => {
+          login.classList.add('show');
+        }, 50);
+    
+      }, 2000);
+    }
+    </script>
+    
+    </body>
+    </html>
+      
+  '';
+
+    
   indexHtml = ''    
     <!DOCTYPE html>
     <html lang="en">
@@ -574,8 +959,28 @@
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
 
-        <style>
-    
+        <style> 
+            .container {
+                width: 100% !important;
+          
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+  
+            .page {
+                width: 100% !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                box-sizing: border-box !important;
+            }
+  
+            .page-container {
+                width: 100% !important;
+                max-width: none !important;
+            }
+  
+
             ${roomControlCSS}
             /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
             header {
@@ -1135,7 +1540,6 @@
                 border: 3px solid #00ff00 !important; /* Green border to see the bounds */
             }
 
-            /* Force the icon to be visible */
             #currentChannelIcon {
                 display: flex !important;
                 visibility: visible !important;
@@ -1167,14 +1571,12 @@
                   <i class="fas fa-home"></i>
                   <h1 class="floating-duck">🦆</h1>
                   <span class="dash-text">'Dash!</span>
+                  <button id="micButton" class="mic-btn">🎙️</button>
                 </div>
                 
-                <div class="search-bar">
-                  <i class="fas fa-search"></i>
-                  <input type="text" placeholder="🦆 quack quack, may I assist?" id="searchInput">
-                </div>
+ 
     
-                <button id="micButton" class="mic-btn">🎙️</button>
+            
             </header>
     
             
@@ -1230,7 +1632,7 @@
                                 <i id="currentDeviceIcon" class="mdi"></i>
                             </div>
                             <div class="device-info">
-                                <h2 id="currentDeviceName">Select a device</h2>
+                                <h1 id="currentDeviceName">Select a device</h1>
                                 <p id="currentDeviceStatus">Or swipe around!</p>
                             </div>
                             <div class="linkquality-mini">
@@ -1402,7 +1804,7 @@
     
         <div class="notification hidden" id="notification"></div>
     
-        <script>   
+        <script>
             ${statusCardsJs}
             ${updateAllCardsJs}
             ${fileRefreshJs}
@@ -2221,6 +2623,50 @@
                                     statusCard.handleRemindersMQTT(message);
                                 } catch (e) {
                                     console.error('Error parsing reminder message:', e);
+                                }
+                                return;
+                            }
+
+                            if (topic === 'zigbee2mqtt/tts') {
+                                try {
+                                    const ttsData = JSON.parse(message.toString());
+                                    console.log('🦆 TTS message received:', ttsData);
+        
+                                    window.speechSynthesis.cancel();
+        
+                                    const speech = new SpeechSynthesisUtterance();
+                                    speech.text = ttsData.text;
+                                    speech.rate = ttsData.rate || 1.0;
+                                    speech.pitch = ttsData.pitch || 1.0;
+                                    speech.volume = ttsData.volume || 0.8;
+        
+                                    if (ttsData.voice) {
+                                        const voices = window.speechSynthesis.getVoices();
+                                        const selectedVoice = voices.find(voice => 
+                                            voice.name.toLowerCase().includes(ttsData.voice.toLowerCase())
+                                        );
+                                        if (selectedVoice) {
+                                            speech.voice = selectedVoice;
+                                        }
+                                    }
+        
+                                    speech.onstart = () => {
+                                        showNotification('🔊 ' + ttsData.text, 'info');
+                                    };
+        
+                                    speech.onend = () => {
+                                        console.log('🦆 TTS finished');
+                                    };
+        
+                                    speech.onerror = (event) => {
+                                        console.error('🦆 TTS error:', event);
+                                        showNotification('TTS error: ' + event.error, 'error');
+                                    };
+        
+                                    window.speechSynthesis.speak(speech);
+        
+                                } catch (e) {
+                                    console.error('Error parsing TTS message:', e);
                                 }
                                 return;
                             }
@@ -3979,9 +4425,10 @@ in {
         ${cmdHelpers}
         HOST=$host
         PORT=$port
-        
-        dt_info "Starting 🦆'Dash server on http://${mqttHostip}:$PORT"
-        ${httpServer}/bin/serve-dashboard "$HOST" "$PORT" 
+        CERT=$cert
+        KEY=$key
+        dt_info "Starting 🦆'Dash server on port $PORT"
+        ${httpServer}/bin/serve-dashboard "$HOST" "$PORT"
       '';
     };  
   };
@@ -3990,6 +4437,11 @@ in {
   
   environment.etc."index.html" = {
     text = indexHtml;
+    mode = "0644";
+  };
+
+  environment.etc."login.html" = {
+    text = login;
     mode = "0644";
   };
 

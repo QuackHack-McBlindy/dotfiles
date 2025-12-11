@@ -42,8 +42,8 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __97 qwacktastic scripts in /bin - 58 scripts have voice commands.__ <br>
-- __2440 dynamically generated regex patterns - makes 294355045 phrases available as commands.__ <br>
+- __99 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
+- __2443 dynamically generated regex patterns - makes 294355047 phrases available as commands.__ <br>
 - __Smart Home Nix Style - Managing 2 TV's, 41 devices & 6 scenes.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fy9zcsirdc47lyshwmfk1flpc4mgrxvw-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/0sp15yraffx1bsqhq5qw2zjsvl4l5g4y-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -183,7 +183,40 @@ Define Zigbee-devices, scenes, automations, tv's, channels, etc at `config.house
   self,
   pkgs,
   ...
-} : let # 🦆 duck say ⮞ icon map
+} : let # 🦆 say ⮞ load dash pages css files
+  strip = text:
+    builtins.replaceStrings [ "/*" "*/" ] [ "" "" ] text;
+
+  css = {
+    health   = builtins.readFile ./themes/css/health.css;
+    chat     = builtins.readFile ./themes/css/chat.css;
+    qwackify =  builtins.readFile ./themes/css/qwackify.css;
+  };
+
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  sysHosts = lib.attrNames self.nixosConfigurations; 
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "
+" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})"; 
+  mqttBroker =
+    if mqttHostip == config.this.host.ip
+    then "localhost"
+    else mqttHostip;
+
+  # 🦆 duck say ⮞ icon map
   icons = {
     light = {
       ceiling         = "mdi:ceiling-light";
@@ -247,7 +280,12 @@ in { # 🦆 duck say ⮞ qwack
 
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
     dashboard = {
+       # 🦆 says ⮞  safety firzt!
+      passwordFile = config.sops.secrets.mosquitto.path;
+      
+      # 🦆 says ⮞  home page information cards
       statusCards = {
+        # 🦆 says ⮞ Monero USD price ticker
         xmr = {
           enable = true;
           title = "XMR";
@@ -260,6 +298,7 @@ in { # 🦆 duck say ⮞ qwack
           detailsFormat = "24h: {value}%";
         };
 
+        # 🦆 says ⮞ Bitcoin USD price ticker
         btc = {
           enable = true;
           title = "BTC";
@@ -272,6 +311,7 @@ in { # 🦆 duck say ⮞ qwack
           detailsFormat = "24h: {value}%";
         };
 
+        # 🦆 says ⮞ kWh/price and energy usage ticker
         energy = {
           enable = true;
           title = "Energy";
@@ -285,106 +325,20 @@ in { # 🦆 duck say ⮞ qwack
         };
 
       };
-      
-      pages = {
+
+
+    # 🦆 says ⮞ DASHBOARD PAGES (tabs)      
+      pages = {        
+      # 🦆 says ⮞ system-wide health monitoring page
         "4" = {
           icon = "fas fa-notes-medical";
           title = "health";
+          # 🦆 says ⮞ symlink directory to webserver
           files = { health = "/var/lib/zigduck/health"; };
-          css = ''
-
-            .health-page .container,
-            .health-page .content,
-            .health-page > div {
-              width: 100% !important;
-              max-width: 100% !important;
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-
-            .page[data-page] {
-              width: 100% !important;
-              max-width: 100% !important;
-            }
-
-            .health-page {
-              max-width: 1200px;
-              margin: 0 auto;
-              padding: 20px;
-            }
-            
-            .health-grid {
-              display: grid;
-              grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-              gap: 15px;
-              justify-items: center;
-            }
-            
-            .health-card {
-              background: var(--card-bg);
-              border-radius: 12px;
-              padding: 20px;
-              box-shadow: var(--card-shadow);
-              width: 100%;
-              max-width: 350px;
-            }     
-            .health-card-header {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              margin-bottom: 15px;
-              border-bottom: 1px solid var(--border-color);
-              padding-bottom: 10px;
-              flex-direction: column;
-              text-align: center;
-              gap: 10px;
-            }
-            .health-hostname {
-              font-size: 1.2rem;
-              font-weight: bold;
-              color: var(--primary);
-            }     
-            .health-status {
-              display: grid;
-              gap: 8px;
-            }    
-            .health-item {
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-            }   
-            .health-label {
-              color: var(--gray);
-              font-size: 0.9rem;
-            }        
-            .health-value {
-              font-weight: 600;
-            } 
-            .status-good { color: #2ecc71; }
-            .status-warning { color: #f39c12; }
-            .status-critical { color: #e74c3c; }
-            
-            /* 🦆 says ⮞ Responsive design */
-            @media (max-width: 768px) {
-              .health-page {
-                padding: 10px;
-              }
-              
-              .health-grid {
-                grid-template-columns: 1fr;
-                gap: 10px;
-              }
-              
-              .health-card {
-                max-width: 100%;
-              }
-            }           
-          '';
+          css = css.health;
           code = ''
-
             <h1 style="text-align:center;">Machines Health</h1>
             <div id="healthContainer" class="health-grid"></div>
-
 
             <script>
               async function loadHealthData() {
@@ -515,7 +469,506 @@ in { # 🦆 duck say ⮞ qwack
             </script>                
           '';
         };
+        
+
+      # 🦆 says ⮞ duckGPT - better than regularGPT - less thinkin' more doin'
+        "5" = {
+          icon = "fas fa-comments";
+          title = "chat";
+          css = css.chat;
+          # 🦆 says ⮞ symlink TTS audio to frontend webserver
+          files = { tts = "/var/lib/zigduck/tts"; };
+          code = ''
+            <div id="chat-container">
+                <div id="chat">
+                    <div class="chat-bubble suggestion-bubble">
+                        Visa inköpslistan
+                    </div>
+                    <div class="chat-bubble suggestion-bubble">
+                        Visa påminnelser
+                    </div>
+                    <div class="chat-bubble suggestion-bubble">
+                        Visa alarm
+                    </div>
+                    <div class="chat-bubble suggestion-bubble">
+                        När går tåget till Hörnefors Resecentrum från Umeå Central ? 
+                    </div>
+                    <div class="chat-bubble suggestion-bubble">
+                       Släck alla lampor
+                    </div>                 
+                    <div class="chat-bubble suggestion-bubble">
+                       Jag vill höra nyheterna
+                    </div>
+                    <div class="chat-bubble ai-bubble">
+                        🦆Quack quack! 🦆 I'm a 🦆 here to help! Qwack to me yo!
+                    </div>
+                </div>
+                <div id="input-container">
+                    <button id="attachment-button" title="Attach file">📎</button>                
+                    <input type="text" id="prompt" placeholder="Qwack something ... ">
+                    <input type="file" id="file-input" style="display: none;" multiple>
+                    <button id="send-button">🦆⮞</button>
+                </div>
+                <div id="file-preview" style="display: none;"></div>
+            </div>
+            
+            <script>
+                function fixViewportHeight() {
+                    const vh = window.innerHeight * 0.01;
+                    document.documentElement.style.setProperty('--vh', `''${vh}px`);
+                    const inputContainer = document.getElementById('input-container');
+                    const chat = document.getElementById('chat');
+                    if (inputContainer && chat) {
+                        const inputHeight = inputContainer.offsetHeight;
+                        chat.style.paddingBottom = `''${inputHeight + 20}px`;
+                    }
+                }
+
+                window.addEventListener('load', fixViewportHeight);
+                window.addEventListener('resize', fixViewportHeight);
+                window.addEventListener('orientationchange', fixViewportHeight);
+          
+                const AUDIO_CONFIG = {
+                    enabled: true,
+                    volume: 0.8
+                };
+
+                const API_CONFIG = {
+                  host: '${mqttHostip}',
+                  port: '9815',
+                  baseUrl: 'http://${mqttHostip}:9815'
+                };       
+       
+                function getAuthToken() {
+                  function getCookie(name) {
+                    const value = `; ''${document.cookie}`;
+                    const parts = value.split(`; ''${name}=`);
+                    if (parts.length === 2) return parts.pop().split(';').shift();
     
+                    const cookies = document.cookie.split(';').map(c => c.trim());
+                    for (const cookie of cookies) {
+                      if (cookie.startsWith(name + '=')) {
+                        return cookie.substring(name.length + 1);
+                      }
+                    }
+                    return null;
+                  }
+  
+                  const cookiePassword = getCookie('api_password');
+                  if (cookiePassword) return cookiePassword;
+  
+                  return localStorage.getItem('mqttPassword') || 
+                         localStorage.getItem('dashboardPassword') || 
+                         "";
+                }
+
+             
+                function showNotification(message, type) {
+                    let notification = document.getElementById('chat-notification');
+                    if (!notification) {
+                        notification = document.createElement('div');
+                        notification.id = 'chat-notification';
+                        notification.style.cssText = `
+                            position: fixed;
+                            top: 20px;
+                            right: 20px;
+                            background: ''${type === 'error' ? '#ff4444' : type === 'success' ? '#4CAF50' : '#2196F3'};
+                            color: white;
+                            padding: 12px 20px;
+                            border-radius: 8px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            z-index: 10000;
+                            font-family: monospace;
+                            font-size: 14px;
+                            opacity: 0;
+                            transform: translateY(-20px);
+                            transition: all 0.3s ease;
+                        `;
+                        document.body.appendChild(notification);
+                    }
+    
+                    notification.textContent = message;
+                    notification.style.background = type === 'error' ? '#ff4444' : type === 'success' ? '#4CAF50' : '#2196F3';
+    
+                    notification.style.opacity = '1';
+                    notification.style.transform = 'translateY(0)';
+    
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transform = 'translateY(-20px)';
+                    }, 3000);
+                }
+                      
+                let isFirstMessage = true;
+                let apiConnected = false;
+                let selectedFiles = [];
+                
+                const connectionStatus = document.createElement('div');
+                connectionStatus.id = 'chat-connection-status';
+                connectionStatus.className = 'connection-status disconnected';
+                connectionStatus.innerHTML = '<i class="fas fa-plug"></i><span>API: Disconnected</span>';
+                document.getElementById('chat-container').insertBefore(connectionStatus, document.getElementById('chat'));
+                
+                function setupFileUpload() {
+                    const attachmentButton = document.getElementById('attachment-button');
+                    const fileInput = document.getElementById('file-input');
+                    const filePreview = document.getElementById('file-preview');
+                    
+                    attachmentButton.addEventListener('click', () => {
+                        fileInput.click();
+                    });
+                    
+                    fileInput.addEventListener('change', (event) => {
+                        selectedFiles = Array.from(event.target.files);
+                        updateFilePreview();
+                    });
+                }
+
+                function hasMarkdownTable(text) {
+                    const lines = text.split('
+');
+                    let pipeCount = 0;
+                    for (const line of lines) {
+                        if (line.trim().startsWith('|') && line.includes('|') && line.split('|').length > 2) {
+                            pipeCount++;
+                        }
+                    }             
+                }
+
+                function convertMarkdownTableToHTML(text) {
+                    const lines = text.split('
+').filter(line => 
+                        line.trim().startsWith('|') && line.trim().endsWith('|')
+                    );
+    
+                    if (lines.length < 2) return text;
+    
+                    const tableData = lines.map(line => 
+                        line.split('|')
+                            .slice(1, -1)
+                            .map(cell => cell.trim())
+                    );
+    
+                    const isSecondRowSeparator = tableData[1] && tableData[1].every(cell => 
+                        /^:?-+:?$/.test(cell)
+                    );
+    
+                    const headers = isSecondRowSeparator ? tableData[0] : [];
+                    const dataRows = isSecondRowSeparator ? tableData.slice(2) : tableData;
+    
+                    let html = '<div class="markdown-table-container"><table class="markdown-table">';
+                    if (headers.length > 0) {
+                        html += '<thead><tr>';
+                        headers.forEach(header => {
+                            html += `<th>''${header}</th>`;
+                        });
+                        html += '</tr></thead>';
+                    }
+    
+                    html += '<tbody>';
+                    dataRows.forEach(row => {
+                        if (row.length === headers.length || headers.length === 0) {
+                            row.forEach(cell => {
+                                const tag = headers.length === 0 && row === dataRows[0] ? 'th' : 'td';
+                                html += `<''${tag}>''${cell}</''${tag}>`;
+                            });
+                            html += '</tr>';
+                        }
+                    });
+                    html += '</tbody></table></div>';
+    
+                    return html;
+                }
+                                         
+                function updateFilePreview() {
+                    const filePreview = document.getElementById('file-preview');              
+                    if (selectedFiles.length === 0) {
+                        filePreview.style.display = 'none';
+                        filePreview.innerHTML = "";
+                        return;
+                    }
+                    
+                    filePreview.style.display = 'block';
+                    filePreview.innerHTML = '<strong>Attached files:</strong><br>';           
+                    selectedFiles.forEach((file, index) => {
+                        const fileElement = document.createElement('div');
+                        fileElement.className = 'file-preview-item';
+                        fileElement.innerHTML = `
+                            📄 ''${file.name} (''${formatFileSize(file.size)})
+                            <button onclick="removeFile(''${index})" class="remove-file-btn">❌</button>
+                        `;
+                        filePreview.appendChild(fileElement);
+                    });
+                }
+                
+                function removeFile(index) {
+                    selectedFiles.splice(index, 1);
+                    updateFilePreview();          
+                    document.getElementById('file-input').value = "";
+                }
+                
+                function formatFileSize(bytes) {
+                    if (bytes === 0) return '0 Bytes';
+                    const k = 1024;
+                    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+                    const i = Math.floor(Math.log(bytes) / Math.log(k));
+                    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+                }
+                
+                async function uploadFiles() {
+                    if (selectedFiles.length === 0) return true;    
+                    showTypingIndicator();
+                    try {
+                        const password = getAuthToken();        
+                        for (const file of selectedFiles) {
+                            const formData = new FormData();
+                            formData.append('file', file);
+                            const response = await fetch(API_CONFIG.baseUrl + '/upload?password=' + encodeURIComponent(password), {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (!response.ok) {
+                                const errorText = await response.text();
+                                throw new Error(`Upload failed: ''${response.status} - ''${errorText}`);
+                            }
+            
+                            const result = await response.json();
+                            addAIMessage(`🦆 say ⮞ Quack safe backed up: ''${file.name} (''${formatFileSize(file.size)})`);
+                        }
+                        selectedFiles = [];
+                        updateFilePreview();
+                        document.getElementById('file-input').value = "";
+                        return true;
+                    } catch (error) {
+                        console.error('File upload failed:', error);
+                        addErrorMessage(`❌ File upload failed: ''${error.message}`);
+                        return false;
+                    }
+                }
+                
+                function extractOutputFromResponse(responseText) {
+                    try {
+                        const data = JSON.parse(responseText);
+                        if (data.output) {
+                            return data.output;
+                        }
+                    } catch (e) {
+                        console.log('JSON parse failed, trying regex');
+                    }         
+                    const outputMatch = responseText.match(/"output":"([sS]*?)"(?=,|})/);
+                    if (outputMatch && outputMatch[1]) {
+                        return outputMatch[1];
+                    }
+                    
+                    return responseText;
+                }
+                
+                function cleanAPIResponse(output) {
+                    if (!output) return "Command executed!";         
+                    let cleaned = output.replace(/[[0-9;]*m/g, "");
+                    cleaned = cleaned.replace(/\n/g, '
+');         
+                    return cleaned;
+                }
+                
+                async function checkAPIHealth() {
+                    try {
+                        const response = await fetch(API_CONFIG.baseUrl + '/health');
+                        if (response.ok) {
+                            const data = await response.json();
+                            updateConnectionStatus(true, 'API: Connected');
+                            apiConnected = true;
+                            return true;
+                        }
+                    } catch (error) {
+                        console.log('API health check failed:', error);
+                    }
+                    updateConnectionStatus(false, 'API: Disconnected');
+                    apiConnected = false;
+                    return false;
+                }
+                
+                function updateConnectionStatus(connected, message) {
+                    const statusElement = document.getElementById('chat-connection-status');
+                    if (statusElement) {
+                        if (connected) {
+                            statusElement.innerHTML = '<i class="fas fa-plug"></i><span>' + message + '</span>';
+                            statusElement.className = 'connection-status connected';
+                        } else {
+                            statusElement.innerHTML = '<i class="fas fa-plug"></i><span>' + message + '</span>';
+                            statusElement.className = 'connection-status disconnected';
+                        }
+                    }
+                }
+                
+                function addAIMessage(content, options = {}) {
+                    const chatContainer = document.getElementById('chat');
+                    const typingIndicator = document.querySelector('.typing-indicator');
+                    if (typingIndicator) {
+                        chatContainer.removeChild(typingIndicator);
+                    }
+
+                    const aiBubble = document.createElement('div');
+                    aiBubble.className = 'chat-bubble ai-bubble';
+                    aiBubble.innerHTML = content;
+                    chatContainer.appendChild(aiBubble);
+
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+                    // 🦆 play TTS audio file
+                    const playTTSAudio = () => {
+                        const cacheBuster = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                        const audio = new Audio('/tts/tts.wav?' + cacheBuster);
+                        audio.volume = AUDIO_CONFIG.enabled ? AUDIO_CONFIG.volume : 0;        
+                        audio.play().catch(error => {
+                            console.warn('Audio playback failed:', error);
+                        });
+                    };
+                    setTimeout(playTTSAudio, 500);    
+                }
+          
+                function addErrorMessage(text) {
+                    const chatContainer = document.getElementById('chat');
+                    const typingIndicator = document.querySelector('.typing-indicator');
+                    if (typingIndicator) {
+                        chatContainer.removeChild(typingIndicator);
+                    }
+        
+                    const errorBubble = document.createElement('div');
+                    errorBubble.className = 'chat-bubble error-bubble';
+                    errorBubble.textContent = text;
+                    chatContainer.appendChild(errorBubble);                
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+                
+                function showTypingIndicator() {
+                    const chatContainer = document.getElementById('chat');
+                    const existingIndicator = document.querySelector('.typing-indicator');
+                    if (existingIndicator) {
+                        chatContainer.removeChild(existingIndicator);
+                    }
+                
+                    const typingIndicator = document.createElement('div');
+                    typingIndicator.className = 'typing-indicator';
+                    typingIndicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
+                    chatContainer.appendChild(typingIndicator);
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                }
+                
+                async function sendCommandToAPI(command) {
+                    if (!apiConnected) {
+                        addErrorMessage("❌ Not connected to API. Check if the API server is running.");
+                        return false;
+                    }
+                
+                    const uploadSuccess = await uploadFiles();
+                    if (!uploadSuccess) {
+                        return false;
+                    }
+                
+                    showTypingIndicator(); 
+                    try {
+                        const lowerCommand = command.toLowerCase();                    
+                        if (lowerCommand.startsWith('do ')) {
+                            const naturalLanguageCommand = command.substring(3);
+                            return await sendNaturalLanguageCommand(naturalLanguageCommand);
+                        } else if (lowerCommand.includes('shopping') || lowerCommand.includes('shopping list')) {
+                            return await fetchShoppingList();
+                        } else if (lowerCommand.includes('reminder') || lowerCommand.includes('remind')) {
+                            return await fetchReminders();
+                        } else if (lowerCommand.includes('timer')) {
+                            return await fetchTimers();
+                        } else if (lowerCommand.includes('alarm')) {
+                            return await fetchAlarms();
+                        } else if (lowerCommand.includes('location') || lowerCommand.includes('where am i')) {
+                            return await fetchLocation();
+                        } else {
+                            return await sendNaturalLanguageCommand(command);
+                        }
+                    } catch (error) {
+                        console.error('API call failed:', error);
+                        addErrorMessage("❌ Failed to send command to API. Please check the connection.");
+                        return false;
+                    }
+                }
+                
+                async function sendNaturalLanguageCommand(command) {  // Remove ttsOptions parameter
+                  try {
+                    const password = getAuthToken();
+                    const response = await fetch(API_CONFIG.baseUrl + '/do?cmd=' + encodeURIComponent(command) + '&password=' + encodeURIComponent(password));
+
+                    if (response.ok) {
+                      let responseText = await response.text();
+                      const rawOutput = extractOutputFromResponse(responseText);
+                      const cleanOutput = cleanAPIResponse(rawOutput);
+
+                      addAIMessage(cleanOutput);  // ✅ Simplified - just pass the content
+                      return true;
+                    } else {
+                      addErrorMessage('❌ API Error: ' + response.status + ' - ' + response.statusText);
+                      return false;
+                    }
+                  } catch (error) {
+                    console.error('Yo DO command failed:', error);
+                    addAIMessage("Command sent to API! (Check API logs for details)");
+                    return true;
+                  }
+                }
+
+
+                function sendMessage() {
+                    const promptInput = document.getElementById('prompt');
+                    const prompt = promptInput.value.trim();
+                    const chatContainer = document.getElementById('chat');
+                
+                    if (prompt === "" && selectedFiles.length === 0) return;
+                
+                    if (prompt !== "") {
+                        const userBubble = document.createElement('div');
+                        userBubble.className = 'chat-bubble user-bubble';
+                        userBubble.textContent = prompt;
+                        chatContainer.appendChild(userBubble);
+                    }             
+                    promptInput.value = "";               
+                    chatContainer.scrollTop = chatContainer.scrollHeight;          
+                    sendCommandToAPI(prompt);         
+                    isFirstMessage = false;
+                }
+                
+                function sendSuggestion(element) {
+                    const text = element.textContent;
+                    document.getElementById('prompt').value = text;
+                    sendMessage();
+                }
+                
+                function checkEnter(event) {
+                    if (event.key === 'Enter') {
+                        sendMessage();
+                    }
+                }
+                
+                setupFileUpload();
+                checkAPIHealth();     
+                document.getElementById('prompt').addEventListener('keydown', checkEnter);
+                document.getElementById('send-button').addEventListener('click', sendMessage);        
+                document.querySelectorAll('.suggestion-bubble').forEach(bubble => {
+                    bubble.addEventListener('click', function() {
+                        sendSuggestion(this);
+                    });
+                });            
+                setTimeout(() => {
+                    if (isFirstMessage) {
+                        addAIMessage("duckpuck![🏒🦆] !");
+                    }
+                }, 2000);
+                
+                setInterval(checkAPIHealth, 30000);
+            </script>
+            
+          '';
+        };
+      
       };
     };
   
@@ -1113,8 +1566,20 @@ in { # 🦆 duck say ⮞ qwack
         };
       };
     };
+#  };
 
+  #sops = {  
+    #secrets =  {
+    #  api = {
+    #    sopsFile = ./../secrets/api.yaml;
+    #    owner = config.this.user.me.name;
+    #    group = config.this.user.me.name;
+    #    mode = "0440"; # Read-only for owner and group
+    #  };  
+  #  };
+    
   };}
+
 ```
 <!-- SMARTHOME_END -->
 
@@ -1191,7 +1656,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=8901ec868ee3dbd16c532980f68227a20cbc63b7
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -1364,7 +1829,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--record] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
 | [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | [🦆🎙️] Trigger microphone recording sent to transcription. | 📛 |
 | [yo mic-stream](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic-stream.nix) [--chunk] [--silence] [--silenceLevel] |  | Stream microphone audio to WS chunk transcription | 📛 |
-| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
+| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] [--web] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
 | [yo sleep](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/sleep.nix) --time |  | Waits for specified time (seconds). Useful in command chains. | ✅ |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
 | [yo tests-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests-rs.nix) [--input] [--stats] [--fuzzy] [--dir] [--build] [--realtime] |  | Extensive automated sentence testing for the NLP () | 📛 |
@@ -1378,11 +1843,13 @@ Set default values for your parameters to have them marked [optional]
 | [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
+| [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard) | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--user] [--passwordfile] [--flake] [--pair] [--cheapMode] |  | Control lights and other home automatioon devices | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
+| [yo mqtt_pub](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt_pub.nix) --topic --message |  | Mosquitto publisher | 📛 |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
 | [yo state](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/state.nix) [--device] |  | Fetches the state of the specified device. | ✅ |
