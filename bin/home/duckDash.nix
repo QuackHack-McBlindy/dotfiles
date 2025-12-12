@@ -254,7 +254,6 @@
     </div>
   '';
   
-
   # 🦆 says ⮞ get house.rooms
   roomIcons = lib.mapAttrs' (name: room: {
     name = name;
@@ -264,54 +263,6 @@
   devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) lightDevices;
   devicesByRoom = lib.groupBy (device: device.room) devicesWithId;
   sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
-  # 🦆 says ⮞ generate html for frontend zigbee control features 
-  roomSections = lib.concatMapStrings (room: ''
-    <div class="room-section">
-      <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('${room}')">
-        <span class="room-toggle">▼</span>
-        ${roomIcons.${room} or "💡"} ${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}
-      </h4>
-      <div class="room-content" id="room-content-${room}" style="display: none;">
-        ${lib.concatMapStrings (device: deviceEntry device) devicesByRoom.${room}}
-      </div>
-    </div>
-  '') sortedRooms;
-
-  deviceEntry = device: let
-    icon = device.icon or "mdi:lightbulb";
-    iconName = lib.removePrefix "mdi:" icon;
-  in ''
-    <div class="device" data-id="${device.id}">
-      <div class="device-header" onclick="toggleDeviceControls('${device.id}')">
-        <div class="control-label">
-          <i class="mdi mdi-${iconName}"></i> ${lib.escapeXML device.friendly_name}
-        </div>
-        <label class="toggle">
-          <input type="checkbox" onchange="toggleDevice('${device.id}', this.checked)">
-          <span class="slider"></span>
-        </label>
-      </div>
-  
-      <div class="device-controls" id="controls-${device.id}" style="display:none">
-        <div class="control-row">
-          <label>Brightness:</label>
-          <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="${device.id}">
-        </div>
-   
-        ${lib.optionalString (device.supports_color or false) ''        
-          <div class="control-row">
-            <label>Color:</label>
-            <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="${device.id}" oninput="updateRGBColor(this)">
-          </div>        
-    
-          <div class="control-row">
-            <input type="color" class="color-picker" data-device="${device.id}" value="#ffffff">
-          </div>
-        ''}
-      </div>
-    </div>
-  '';
-
 
   roomControlsHtml = ''
     <div class="room-controls-section">
@@ -503,7 +454,7 @@
     CERT=''${3:-}
     KEY=''${4:-}
     WORKDIR=$(mktemp -d)
-          
+
     ln -sf /etc/login.html $WORKDIR/  
     ln -sf /etc/index.html $WORKDIR/
     ln -sf /etc/devices.json $WORKDIR/
@@ -646,16 +597,8 @@ EOF
         </div>''
   ) pages);
 
-  roomList = lib.concatMapStrings (room: let
-    icon = lib.removePrefix "mdi:" roomIcons.${room};
-  in ''
-    <li class="room-item">
-      <i class="mdi mdi-${icon}"></i>
-      <span class="label">${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}</span>
-    </li>
-  '') (lib.attrNames config.house.rooms);
-  
-  
+
+  # 🦆 says ⮞ LOGIN/AUTHENTICATION PAGE  
   login = ''
     <!DOCTYPE html>
     <html lang="en">
@@ -852,12 +795,10 @@ EOF
     
     <script>
     const emojis = ['🦆','🦆','🦆','🦆','❤️'];
-    
-    
+        
     for (let i = 0; i < 200; i++) {
       const e = document.createElement('div');
-      e.classList.add('emoji');
-    
+      e.classList.add('emoji');    
       const type = emojis[Math.floor(Math.random() * emojis.length)];
       e.innerText = type;
     
@@ -866,14 +807,12 @@ EOF
     
       e.style.left = Math.random() * 100 + 'vw';
       e.style.animationDuration = Math.random() * 3 + 5 + 's';
-      e.style.animationDelay = Math.random() * 5 + 's';
-    
+      e.style.animationDelay = Math.random() * 5 + 's';    
       document.body.appendChild(e);
     }
     
     document.getElementById('beginButton').addEventListener('click', function () {
-      const emojis = document.querySelectorAll('.emoji');
-    
+      const emojis = document.querySelectorAll('.emoji');    
       emojis.forEach(e => {
         const x = (Math.random() - 0.5) * 2000;
         const y = (Math.random() - 0.5) * 2000;
@@ -892,11 +831,8 @@ EOF
     });
     
     function startMatrix() {
-      const matrixText = document.getElementById('matrixText');
-    
+      const matrixText = document.getElementById('matrixText');    
       const lines = [
-        '> initializing security protocol...',
-        '> establishing encrypted channel...',
         '> enter authentication...',
       ];
     
@@ -917,8 +853,7 @@ EOF
           j = 0;
         }
         setTimeout(type, 30);
-      }
-    
+      }    
       type();
     }
     
@@ -936,14 +871,12 @@ EOF
     
       }, 2000);
     }
-    </script>
-    
+    </script>    
     </body>
-    </html>
-      
+    </html>      
   '';
 
-    
+  # 🦆 says ⮞ MAIN DASHBOARD INDEX.HTML    
   indexHtml = ''    
     <!DOCTYPE html>
     <html lang="en">
@@ -961,8 +894,7 @@ EOF
 
         <style> 
             .container {
-                width: 100% !important;
-          
+                width: 100% !important;          
                 margin: 0 !important;
                 padding: 0 !important;
             }
@@ -980,7 +912,6 @@ EOF
                 max-width: none !important;
             }
   
-
             ${roomControlCSS}
             /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
             header {
@@ -993,7 +924,6 @@ EOF
                 border-top: 1px solid #333333 !important;
             }
             
-            /* 🦆 says ⮞ MAKE HEADER TEXT WHITE */
             header .logo,
             header .dash-text,
             header .search-bar,

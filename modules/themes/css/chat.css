@@ -647,3 +647,149 @@ body {
     }
 }
 
+
+pre {
+  font-family: 'Fira Code', 'DejaVu Sans Mono', 'Cascadia Code', monospace;
+  white-space: pre;
+  overflow-x: auto;
+  margin: 0;
+  padding: 15px;
+  background: #1e1e1e;
+  color: #f0f0f0;
+  border-radius: 10px;
+  border: 1px solid #333;
+  font-size: 13px;
+  line-height: 1.4;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+pre .header {
+  color: #4CAF50;
+  font-weight: bold;
+}
+
+.error-bubble {
+  background: linear-gradient(135deg, #ff4444, #cc0000);
+  color: white;
+  border-left: 5px solid #ff8800;
+}
+
+.error-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+
+.error-icon {
+  font-size: 20px;
+  margin-right: 10px;
+}
+
+.error-title {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.error-input {
+  background: rgba(0,0,0,0.2);
+  padding: 8px;
+  border-radius: 5px;
+  margin: 10px 0;
+  font-family: monospace;
+}
+
+.close-match {
+  background: rgba(255,255,255,0.1);
+  padding: 8px;
+  margin: 5px 0;
+  border-radius: 5px;
+  border-left: 3px solid #4CAF50;
+}
+
+.match-percentage {
+  color: #FFD700;
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.match-pattern {
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: monospace;
+  margin: 0 5px;
+}
+
+.match-command {
+  color: #88CCFF;
+}
+
+.error-suggestions {
+  margin-top: 15px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(255,255,255,0.3);
+}
+
+.error-suggestions ul {
+  margin: 5px 0 0 20px;
+  padding: 0;
+}
+
+.error-suggestions li {
+  margin: 3px 0;
+}
+
+.chat-bubble ul, .chat-bubble ol {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.chat-bubble li {
+  margin: 5px 0;
+}
+
+.error-special-bubble {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    border: 3px solid #ff8800;
+    border-left: 8px solid #ff0000;
+    font-size: 1.4em;
+    font-weight: bold;
+    text-align: center;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 6px 12px rgba(255, 0, 0, 0.3);
+}
+
+.error-special-icon {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.error-special-text {
+    font-size: 1.2em;
+    letter-spacing: 1px;
+}
+
+.suggestion-header-bubble {
+    background: #2196F3;
+    color: white;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.suggestion-match-bubble {
+    background: rgba(33, 150, 243, 0.1);
+    border-left: 5px solid #2196F3;
+    margin: 5px 0;
+    padding: 10px;
+    transition: all 0.3s;
+}
+
+.suggestion-match-bubble:hover {
+    background: rgba(33, 150, 243, 0.2);
+    transform: translateX(5px);
+}

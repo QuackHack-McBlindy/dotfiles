@@ -43,7 +43,7 @@ Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __99 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
-- __2443 dynamically generated regex patterns - makes 294355047 phrases available as commands.__ <br>
+- __2468 dynamically generated regex patterns - makes 294355072 phrases available as commands.__ <br>
 - __Smart Home Nix Style - Managing 2 TV's, 41 devices & 6 scenes.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
@@ -162,7 +162,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/pvxskz6vfy9lkf8dy9q6fyiz428dmp1b-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/qcs3a316l9d3j940bwp7f8pnvkcbl7z5-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -343,36 +343,23 @@ in { # 🦆 duck say ⮞ qwack
             <script>
               async function loadHealthData() {
                 try {
-                  const response = await fetch('/health/');
-                  const text = await response.text();
-                  
-                  const parser = new DOMParser();
-                  const htmlDoc = parser.parseFromString(text, 'text/html');
-                  const links = Array.from(htmlDoc.querySelectorAll('a'));
-                  const jsonFiles = links
-                    .map(link => link.href)
-                    .filter(href => href.endsWith('.json'))
-                    .map(href => href.split('/').pop());
-                  
-                  console.log('Found health files:', jsonFiles);
-                  
+                  const response = await fetch('http://${mqttHostip}:9815/health/all');
+                  if (!response.ok) throw new Error('HTTP ' + response.status);
+    
+                  const healthData = await response.json();
+                  console.log('🦆 Health data from API:', healthData);
+    
                   const container = document.getElementById('healthContainer');
                   container.innerHTML = "";
-                  
-                  for (const file of jsonFiles) {
-                    try {
-                      const healthResponse = await fetch('/health/' + file);
-                      const healthData = await healthResponse.json();
-                      createHealthCard(healthData, container);
-                    } catch (error) {
-                      console.error('Error loading health file:', file, error);
-                    }
-                  }
-                  
+    
+                  Object.entries(healthData).forEach(([hostname, data]) => {
+                    createHealthCard(data, container);
+                  });
+    
                 } catch (error) {
-                  console.error('Error loading health directory:', error);
+                  console.error('🦆 Error loading health data:', error);
                   document.getElementById('healthContainer').innerHTML = 
-                    '<div class="error">Unable to load health data</div>';
+                    '<div class="error">Failed to fetch data: ' + error.message + '</div>';
                 }
               }
               
@@ -479,8 +466,11 @@ in { # 🦆 duck say ⮞ qwack
           # 🦆 says ⮞ symlink TTS audio to frontend webserver
           files = { tts = "/var/lib/zigduck/tts"; };
           code = ''
-            <div id="chat-container">
+            <div id="chat-container">            
                 <div id="chat">
+                    <div class="chat-bubble ai-bubble">
+                        🦆Quack quack! 🦆 I'm a 🦆 here to help! Qwack to me yo!
+                    </div>
                     <div class="chat-bubble suggestion-bubble">
                         Visa inköpslistan
                     </div>
@@ -499,9 +489,7 @@ in { # 🦆 duck say ⮞ qwack
                     <div class="chat-bubble suggestion-bubble">
                        Jag vill höra nyheterna
                     </div>
-                    <div class="chat-bubble ai-bubble">
-                        🦆Quack quack! 🦆 I'm a 🦆 here to help! Qwack to me yo!
-                    </div>
+
                 </div>
                 <div id="input-container">
                     <button id="attachment-button" title="Attach file">📎</button>                
@@ -534,9 +522,9 @@ in { # 🦆 duck say ⮞ qwack
                 };
 
                 const API_CONFIG = {
-                  host: '${mqttHostip}',
+                  host: '192.168.1.211',
                   port: '9815',
-                  baseUrl: 'http://${mqttHostip}:9815'
+                  baseUrl: 'http://192.168.1.211:9815'
                 };       
        
                 function getAuthToken() {
@@ -801,7 +789,45 @@ in { # 🦆 duck say ⮞ qwack
                         }
                     }
                 }
-                
+
+                function enhanceContent(content) {
+                    // 🦆 says ⮞ cleanup on ile 3!!
+                    const cleaned = content
+                        .split('
+')
+                        .filter(line => !line.includes('Loading fuzzy index from:'))
+                        .join('
+');
+
+                    const noAnsi = cleaned.replace(/[[0-9;]*m/g, "");
+                    const isTerminalOutput = noAnsi.includes('│') || noAnsi.includes('┌') || 
+                                             noAnsi.includes('─') || noAnsi.includes('└');
+
+                    if (isTerminalOutput) {
+                        return {
+                            type: 'terminal',
+                            content: noAnsi
+                        };
+                    } else {
+                        // 🦆 says ⮞ text - convert markdown headers to html
+                        let html = noAnsi
+                            .replace(/# 🏆(.*)/g, '<h3 style="color: #FFD700; margin: 15px 0 8px 0; font-size: 1.3em; font-weight: bold;">🏆$1</h3>')
+                            .replace(/# 🗞️(.*)/g, '<h3 style="color: #4CAF50; margin: 15px 0 8px 0; font-size: 1.3em; font-weight: bold;">🗞️$1</h3>')
+                            .replace(/### (.*)/g, '<h5 style="color: #2196F3; margin: 12px 0 6px 0; font-weight: bold;">$1</h5>')
+                            .replace(/## (.*)/g, '<h4 style="color: #FF9800; margin: 14px 0 7px 0; font-weight: bold;">$1</h4>')
+                            .replace(/# (.*)/g, '<h3 style="color: #4CAF50; margin: 16px 0 8px 0; font-size: 1.3em; font-weight: bold;">$1</h3>')
+                            .replace(/
+/g, '<br>');        
+                        return {
+                            type: 'html',
+                            content: html
+                        };
+                    }
+                }
+
+
+
+
                 function addAIMessage(content, options = {}) {
                     const chatContainer = document.getElementById('chat');
                     const typingIndicator = document.querySelector('.typing-indicator');
@@ -809,11 +835,35 @@ in { # 🦆 duck say ⮞ qwack
                         chatContainer.removeChild(typingIndicator);
                     }
 
+                    // 🦆 says ⮞ pretty chat bubble up                  
+                    const enhanced = enhanceContent(content);
                     const aiBubble = document.createElement('div');
                     aiBubble.className = 'chat-bubble ai-bubble';
-                    aiBubble.innerHTML = content;
-                    chatContainer.appendChild(aiBubble);
+    
+                    if (enhanced.type === 'terminal') {
+                        const pre = document.createElement('pre');
+                        pre.style.cssText = `
+                            font-family: 'Fira Code', 'DejaVu Sans Mono', monospace;
+                            white-space: pre;
+                            overflow-x: auto;
+                            margin: 0;
+                            padding: 15px;
+                            background: #1e1e1e;
+                            color: #f0f0f0;
+                            border-radius: 10px;
+                            border: 1px solid #333;
+                            font-size: 13px;
+                            line-height: 1.4;
+                            max-height: 400px;
+                            overflow-y: auto;
+                        `;
+                        pre.textContent = enhanced.content;
+                        aiBubble.appendChild(pre);
+                    } else {
+                        aiBubble.innerHTML = enhanced.content;
+                    }
 
+                    chatContainer.appendChild(aiBubble);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
 
                     // 🦆 play TTS audio file
@@ -825,21 +875,115 @@ in { # 🦆 duck say ⮞ qwack
                             console.warn('Audio playback failed:', error);
                         });
                     };
-                    setTimeout(playTTSAudio, 500);    
+                    setTimeout(playTTSAudio, 500);
                 }
-          
+
+                // 🦆 says ⮞ FUCK!
                 function addErrorMessage(text) {
                     const chatContainer = document.getElementById('chat');
                     const typingIndicator = document.querySelector('.typing-indicator');
                     if (typingIndicator) {
                         chatContainer.removeChild(typingIndicator);
                     }
-        
+
+                    const cleanedText = text
+                        .split('
+')
+                        .filter(line => !line.includes('Loading fuzzy index from:'))
+                        .join('
+');
+
                     const errorBubble = document.createElement('div');
-                    errorBubble.className = 'chat-bubble error-bubble';
-                    errorBubble.textContent = text;
-                    chatContainer.appendChild(errorBubble);                
+                    errorBubble.className = 'chat-bubble error-special-bubble';
+    
+                    // 🦆 says ⮞ extraction
+                    const errorMatch = cleanedText.match(/🦆 says ⮞ fuck ❌[^
+]*/);
+                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'Error!';
+    
+                    errorBubble.innerHTML = `
+                        <div class="error-special-text">''${errorMessage}</div>
+                    `;
+    
+                    chatContainer.appendChild(errorBubble);
+    
+                    const matches = [];
+                    const lines = cleanedText.split('
+');
+                    lines.forEach(line => {
+                        const match = line.match(/(d+)%:s*'([^']+)'s*->s*(.*)/);
+                        if (match) {
+                            const [, percentage, pattern, command] = match;
+                            matches.push({ percentage, pattern, command });
+                        }
+                    });
+    
+                    if (matches.length > 0) {
+                        const suggestionBubble = document.createElement('div');
+                        suggestionBubble.className = 'chat-bubble suggestion-header-bubble';
+                        suggestionBubble.innerHTML = `
+                            <div class="suggestion-header">Did you mean?</div>
+                        `;
+                        chatContainer.appendChild(suggestionBubble);
+        
+                        matches.forEach(match => {
+                            const matchBubble = document.createElement('div');
+                            matchBubble.className = 'chat-bubble suggestion-match-bubble';
+                            matchBubble.innerHTML = `
+                                <div class="match-percentage">''${match.percentage}% match</div>
+                                <div class="match-pattern">''${match.pattern}</div>
+                                <div class="match-command">→ ''${match.command}</div>
+                            `;
+
+                            matchBubble.style.cursor = 'pointer';
+                            matchBubble.addEventListener('click', () => {
+                                document.getElementById('prompt').value = match.pattern.replace(/{[^}]+}/g, '...');
+                                sendMessage();
+                            });
+                            chatContainer.appendChild(matchBubble);
+                        });
+                    }
+    
                     chatContainer.scrollTop = chatContainer.scrollHeight;
+    
+                    // 🦆 says ⮞ FUCK.wav
+                    const playFailAudio = () => {
+                        const cacheBuster = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+                        const audio = new Audio('/tts/fail.wav?' + cacheBuster);
+                        audio.volume = AUDIO_CONFIG.enabled ? AUDIO_CONFIG.volume : 0.8;
+                        audio.play().catch(error => {
+                            console.warn('Fail audio playback failed:', error);
+                        });
+                    };
+                    setTimeout(playFailAudio, 300);
+                }
+
+                function formatCommandError(errorText) {
+                  const lines = errorText.split('
+');
+                  let html = "";
+  
+                  lines.forEach(line => {
+                    if (line.includes('Input:')) {
+                      html += `<div class="error-input"><strong>Your input:</strong> ''${line.replace('Input: ', "")}</div>`;
+                    } else if (line.includes('%:')) {
+                      const match = line.match(/(d+)%:s*'([^']+)'s*->s*(.*)/);
+                      if (match) {
+                        const [, percentage, pattern, command] = match;
+                        html += `
+                          <div class="close-match">
+                            <span class="match-percentage">''${percentage}% match:</span>
+                            <code class="match-pattern">''${pattern}</code>
+                            <span class="match-command">→ ''${command}</span>
+                          </div>
+                        `;
+                      }
+                    } else if (!line.includes('Loading fuzzy index')) {
+                      html += line + '<br>';
+                    }
+                  });
+  
+                  return html;
                 }
                 
                 function showTypingIndicator() {
@@ -893,7 +1037,7 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
                 
-                async function sendNaturalLanguageCommand(command) {  // Remove ttsOptions parameter
+                async function sendNaturalLanguageCommand(command) {
                   try {
                     const password = getAuthToken();
                     const response = await fetch(API_CONFIG.baseUrl + '/do?cmd=' + encodeURIComponent(command) + '&password=' + encodeURIComponent(password));
@@ -902,8 +1046,14 @@ in { # 🦆 duck say ⮞ qwack
                       let responseText = await response.text();
                       const rawOutput = extractOutputFromResponse(responseText);
                       const cleanOutput = cleanAPIResponse(rawOutput);
-
-                      addAIMessage(cleanOutput);  // ✅ Simplified - just pass the content
+      
+                      const isError = cleanOutput.match(/(🦆 says ⮞ fuck ❌|🦆 duck say ⮞ fuck ❌|No matching command found|System rebuild failed)/);
+      
+                      if (isError) {
+                        addErrorMessage(cleanOutput);
+                      } else {
+                        addAIMessage(cleanOutput);
+                      }
                       return true;
                     } else {
                       addErrorMessage('❌ API Error: ' + response.status + ' - ' + response.statusText);
@@ -915,7 +1065,6 @@ in { # 🦆 duck say ⮞ qwack
                     return true;
                   }
                 }
-
 
                 function sendMessage() {
                     const promptInput = document.getElementById('prompt');
@@ -1579,7 +1728,6 @@ in { # 🦆 duck say ⮞ qwack
     };
     
   };}
-
 ```
 <!-- SMARTHOME_END -->
 

@@ -266,7 +266,12 @@ in { # 🦆 says ⮞ yo
         
         # 🦆 says ⮞ channel specific sentences
         "vad (sänds|visas|spelas|går) på [kanal] {channel} [just nu]"       
-        
+
+        # 🦆 says ⮞ show all currently airing programs        
+        "(tv-guide|tvguide|tv guide)"       
+        "visa [mig] [tv] (tv-tablå|tv-tablån|tv-guide|tv-guiden|tv tablån|guide|guiden|tablån)"
+        # KASS "(va|vad|vilka) program (sänd|sänds|visa|visas) [just] [nu]"
+        "vad (visa|visas|går|sänds|spelas) på tv [just] [nu]"
       ];    
       lists = {
         channel.values = lib.flatten (map (device: 

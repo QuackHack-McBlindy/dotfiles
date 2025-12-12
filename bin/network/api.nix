@@ -1199,4 +1199,3 @@ in {
     YO_API_PASSWORD_FILE = config.house.dashboard.passwordFile;
 
   };}
-

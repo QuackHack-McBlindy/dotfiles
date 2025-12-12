@@ -1516,9 +1516,8 @@ in {
           
           # 🦆 says ⮞ display HA news
           echo "" && echo ""
-          echo "MARKDOWN"
           BOLD=1
-          ${pkgs.gum}/bin/gum format "🗞️ **NYHETER**"     
+          ${pkgs.gum}/bin/gum format "# 🗞️ **NYHETER**"     
           hockey_news | head -5 && echo "----------------------------" && echo ""
           
           # 🦆 says ⮞ display table with special teams
@@ -1526,12 +1525,10 @@ in {
 
           # 🦆 says ⮞ display todays/tomorrows games
           echo "" && yo hag
-          echo "MARKDOWN_END"
         else
           dt_error "No table data found at $table_file"
         fi
-      fi
-      
+      fi     
     '';
     voice = {
       enabled = true;															
