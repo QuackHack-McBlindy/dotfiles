@@ -47,6 +47,7 @@ Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 - __Smart Home Nix Style - Managing 2 TV's, 41 devices & 6 scenes.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
+- __duckGPT Frontend Chatbot - Better than regularGPT, less thinking more doing__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
 - __Self Documenting__<br>
@@ -162,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/qcs3a316l9d3j940bwp7f8pnvkcbl7z5-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/whkhz02zs4qszz0gml6hmx6hxl0dp38a-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -590,7 +591,8 @@ in { # 🦆 duck say ⮞ qwack
                 let isFirstMessage = true;
                 let apiConnected = false;
                 let selectedFiles = [];
-                
+                let lastTtsCheck = 0;
+
                 const connectionStatus = document.createElement('div');
                 connectionStatus.id = 'chat-connection-status';
                 connectionStatus.className = 'connection-status disconnected';
@@ -825,9 +827,6 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
 
-
-
-
                 function addAIMessage(content, options = {}) {
                     const chatContainer = document.getElementById('chat');
                     const typingIndicator = document.querySelector('.typing-indicator');
@@ -839,7 +838,7 @@ in { # 🦆 duck say ⮞ qwack
                     const enhanced = enhanceContent(content);
                     const aiBubble = document.createElement('div');
                     aiBubble.className = 'chat-bubble ai-bubble';
-    
+
                     if (enhanced.type === 'terminal') {
                         const pre = document.createElement('pre');
                         pre.style.cssText = `
@@ -867,15 +866,33 @@ in { # 🦆 duck say ⮞ qwack
                     chatContainer.scrollTop = chatContainer.scrollHeight;
 
                     // 🦆 play TTS audio file
-                    const playTTSAudio = () => {
-                        const cacheBuster = Date.now() + '-' + Math.random().toString(36).substr(2, 9);
-                        const audio = new Audio('/tts/tts.wav?' + cacheBuster);
-                        audio.volume = AUDIO_CONFIG.enabled ? AUDIO_CONFIG.volume : 0;        
-                        audio.play().catch(error => {
-                            console.warn('Audio playback failed:', error);
-                        });
+                    const playTTSAudio = async () => {
+                        try {
+                            const response = await fetch('/tts/tts.wav', { method: 'HEAD' });
+                            if (!response.ok) return;
+                            const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
+                            const now = Date.now();
+            
+                            const lastCheck = window.lastTtsCheck || 0;
+            
+                            if (lastModified > lastCheck && (now - lastModified) < 30000) {
+                                const cacheBuster = Date.now();
+                                const audio = new Audio(`/tts/tts.wav?cb=''${cacheBuster}`);
+                                audio.volume = AUDIO_CONFIG.enabled ? AUDIO_CONFIG.volume : 0;
+                
+                                audio.play().catch(error => {
+                                    console.warn('Audio playback failed:', error);
+                                });
+                
+                                window.lastTtsCheck = lastModified;
+                            }
+                        } catch (error) {
+                            console.warn('TTS check failed:', error);
+                        }
                     };
-                    setTimeout(playTTSAudio, 500);
+                    setTimeout(() => {
+                        playTTSAudio().catch(console.error);
+                    }, 500);
                 }
 
                 // 🦆 says ⮞ FUCK!
@@ -902,7 +919,7 @@ in { # 🦆 duck say ⮞ qwack
                     const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'Error!';
     
                     errorBubble.innerHTML = `
-                        <div class="error-special-text">''${errorMessage}</div>
+                        <div class="error-special-text">🦆says⮞''${errorMessage}</div>
                     `;
     
                     chatContainer.appendChild(errorBubble);
