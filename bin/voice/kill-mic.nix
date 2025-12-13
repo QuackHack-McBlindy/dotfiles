@@ -5,7 +5,7 @@
   self,
   pkgs,
   cmdHelpers, 
-  PyDuckTrace, 
+  PythonDuckTrace, 
   ...         
 } : let 
 in {

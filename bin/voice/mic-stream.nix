@@ -5,7 +5,7 @@
   self,
   pkgs,
   cmdHelpers,
-  PyDuckTrace, 
+  PythonDuckTrace, 
   ...         
 } : let 
   # 🦆 says ⮞ auto correct list yo 
@@ -48,7 +48,7 @@
     
     # 🦆 import duckTrace loggin'
     import sys
-    ${PyDuckTrace}
+    ${PythonDuckTrace}
     # 🦆 setup loggin'     
     setup_ducktrace_logging("mic-stream.log", "INFO")
 

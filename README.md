@@ -163,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/62lya6azix74qssksh3wwl7cr4zz1p43-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/jprjbwk4c9f769ws6qhdxpd1s02jl0vi-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1067,6 +1067,7 @@ in { # 🦆 duck say ⮞ qwack
                       const isError = cleanOutput.match(/(🦆 says ⮞ fuck ❌|🦆 duck say ⮞ fuck ❌|No matching command found|System rebuild failed)/);
       
                       if (isError) {
+                        addAIMessage(cleanOutput);
                         addErrorMessage(cleanOutput);
                       } else {
                         addAIMessage(cleanOutput);
@@ -1742,6 +1743,12 @@ in { # 🦆 duck say ⮞ qwack
         group = config.this.user.me.name;
         mode = "0440"; # Read-only for owner and group
       };  
+#      z2m_network_key = {
+#        sopsFile = ./../secrets/z2m_network_key.yaml;
+#        owner = config.this.user.me.name;
+#        group = config.this.user.me.name;
+#        mode = "0440"; # Read-only for owner and group
+#      };        
     };
     
   };}

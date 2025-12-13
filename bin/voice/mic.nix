@@ -5,7 +5,7 @@
   self,
   pkgs,        # 🦆 says ⮞ create a noise profile
   cmdHelpers,  # 1. arecord -d 5 -f S16_LE -r 16000 -c 1 noise.wav
-  PyDuckTrace, # 2. sox noise.wav -n noiseprof noise.prof
+  PythonDuckTrace, # 2. sox noise.wav -n noiseprof noise.prof
   ...         
 } : let 
   # 🦆 says ⮞ auto correct list yo 

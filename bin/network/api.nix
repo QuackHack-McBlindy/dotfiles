@@ -24,8 +24,7 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-  
-  
+    
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
   

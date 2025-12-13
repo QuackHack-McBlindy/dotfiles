@@ -31,14 +31,17 @@
   cmdHelpers = import ./helpers.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
   };
-
-# 🦆 duck say ⮞ we be duckTracin' even when on da python
-  PyDuckTrace = import ./PyDuckTrace.nix {
+  
+  # 🦆BEtracin'⮞RUST'logggin'DUCK'pleasin'
+  RustDuckTrace = import ./DuckTrace/rust.nix {
+    inherit config lib pkgs self sysHosts sysDevShells;
+  }; # 🦆 duck say ⮞ we be duckTracin' even when on da zzznake
+  PythonDuckTrace = import ./DuckTrace/python.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
   };  
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
-        inherit self config lib cmdHelpers PyDuckTrace pkgs sysHosts;
+        inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace pkgs sysHosts;
     }) (
         importModulesRecursive ./voice ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++

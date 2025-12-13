@@ -5,7 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
-  PyDuckTrace,
+  PythonDuckTrace,
   ... 
 } : let
   transcriptionAutoStart = config.yo.scripts.transcribe.autoStart or false;
@@ -34,7 +34,7 @@
    
     # 🦆 import duckTrace loggin'
     import sys
-    ${PyDuckTrace}
+    ${PythonDuckTrace}
     
     setup_ducktrace_logging("transcription-ws.log", "INFO")
 

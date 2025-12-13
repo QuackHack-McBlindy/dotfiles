@@ -5,7 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
-  PyDuckTrace,
+  PythonDuckTrace,
   ... 
 } : let
   transcriptionAutoStart = config.yo.scripts.transcribe.autoStart or false;
@@ -64,7 +64,7 @@
     
     # 🦆 import & setup da duckTrace loggin'
     import sys
-    ${PyDuckTrace}    
+    ${PythonDuckTrace}    
     setup_ducktrace_logging("tv-scraper.log", "INFO")
     
     # 🦆 says ⮞ audio configuration

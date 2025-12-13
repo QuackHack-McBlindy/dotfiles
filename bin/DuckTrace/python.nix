@@ -1,10 +1,9 @@
-# dotfiles/bin/PyDuckTrace.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/DuckTrace/python.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ Python version of da DT
     self,
     config,
     lib,
     pkgs,
-
     ...
 } : let
   pyEnv = pkgs.python3.withPackages (ps: [
