@@ -99,48 +99,12 @@ in {
         target=$(date -d "tomorrow $HOUR24:$MINUTE" +%s)
       fi
 
-      if [ "$(hostname)" != "$mqttHost" ]; then
-        dt_info "Set alarm for $HOUR24:$MINUTE on $mqttHost ..."
-        ssh $mqttHost "yo alarm --hours $hours --minutes $minutes"
-      fi  
 
-      if_voice_say "Okej kompis, jag ställde din väckarklocka på $HOUR24:$MINUTE"
+      say "Okej kompis, jag ställde din väckarklocka på $HOUR24:$MINUTE"
       dt_info "Set alarm for $HOUR24:$MINUTE"
+      echo "Set alarm for $HOUR24:$MINUTE"
+      yo mqtt_pub --topic "zigbee2mqtt/alarm/set" --message "{\"hours\":$hours,\"minutes\":$minutes,\"sound\":$SOUNDFILE}"
 
-      (
-        while [ $(date +%s) -lt $target ]; do
-          remaining=$((target - $(date +%s)))
-          echo -ne "Time until alarm: ''${remaining}s\r"
-          sleep 1
-        done
-
-        echo -e "\n\e[1;5;31m[ALARM RINGS]\e[0m"
-        rm -f "$LOGFILE_DIR/$$.pid"
-
-        yo notify "Dags att vakna!!"
-        # 🦆 says ⮞ TODO waiting for required tech parts
-        # yo bed --state up && sleep 10
-        # yo bed --state down && sleep 10        
-        # yo bed --state up && sleep 10
-        # yo bed --state down && sleep 10
-        # yo bed --state up && sleep 10
-
-        if [ -f "$SOUNDFILE" ]; then
-          for i in {1..10}; do
-            aplay "$SOUNDFILE" >/dev/null 2>&1
-          done
-          sleep 30
-          for i in {1..8}; do
-            aplay "$SOUNDFILE" >/dev/null 2>&1
-            yo notify "UPP UR SÄNGEN!!!!"
-          done
-        else
-          echo "Sound file not found: $SOUNDFILE"
-        fi
-      ) > /tmp/yo-alarm.log 2>&1 &
-      pid=$!
-      echo "$pid $target" > "$LOGFILE_DIR/$pid.pid"
-      disown "$pid"
     '';
     voice = {
       priority = 5;

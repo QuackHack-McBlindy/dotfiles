@@ -98,7 +98,7 @@ in {
       DURATION=$TIMER_TOTAL
       TIMER_MINUTES=$((DURATION / 60))
       dt_info "Setting timer on $TIMER_MINUTES minutes ..."
-      if_voice_say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
+      say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
       
       if [ "$(hostname)" != "$mqttHost" ]; then
         dt_info "Setting timer on $TIMER_MINUTES minutes on $mqttHost ..."

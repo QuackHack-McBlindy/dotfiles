@@ -867,16 +867,17 @@ in { # 🦆 duck say ⮞ qwack
                   try {
                     const password = getAuthToken();
                     const response = await fetch(API_CONFIG.baseUrl + '/do?cmd=' + encodeURIComponent(command) + '&password=' + encodeURIComponent(password));
-
+                    console.error(response); 
                     if (response.ok) {
                       let responseText = await response.text();
+                      console.error(responseText); 
                       const rawOutput = extractOutputFromResponse(responseText);
+                      console.error(rawOutput);
                       const cleanOutput = cleanAPIResponse(rawOutput);
+                      console.error(cleanOutput);
+                      const isError = cleanOutput.match(/(No matching command found|System rebuild failed)/);
       
-                      const isError = cleanOutput.match(/(🦆 says ⮞ fuck ❌|🦆 duck say ⮞ fuck ❌|No matching command found|System rebuild failed)/);
-      
-                      if (isError) {
-                        addAIMessage(cleanOutput);
+                      if (isError) {   
                         addErrorMessage(cleanOutput);
                       } else {
                         addAIMessage(cleanOutput);
@@ -986,7 +987,7 @@ in { # 🦆 duck say ⮞ qwack
           sayOnHost = "desktop";
         };
         
-        # 🦆 says ⮞ 1. mqtt triggered automations
+        # 🦆 says ⮞ 1. MQTT triggered automations
         mqtt_triggered = {
           xmr = {
             enable = true;
@@ -1002,7 +1003,7 @@ in { # 🦆 duck say ⮞ qwack
               }
             ];
           };
-          
+        
           btc = {
             enable = true;
             description = "Writes BTC data to file for dashboard";
@@ -1013,6 +1014,54 @@ in { # 🦆 duck say ⮞ qwack
                 command = ''
                   touch /var/lib/zigduck/btc.json
                   echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
+                '';
+              }
+            ];
+          };
+
+
+          alarms = {
+            enable = true;
+            description = "Sets an alarm";
+            topic = "zigbee2mqtt/alarm/set";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  SOUNDHOST="desktop"
+                  hours=$(echo "$MQTT_PAYLOAD" | jq -r '.hours')
+                  minutes=$(echo "$MQTT_PAYLOAD" | jq -r '.minutes')
+                  sound=$(echo "$MQTT_PAYLOAD" | jq -r '.sound // ""')
+          
+                  LOGFILE_DIR="/var/lib/zigduck/alarms"
+                  mkdir -p "$LOGFILE_DIR"
+          
+                  now=$(date +%s)
+                  target=$(date -d "today $hours:$minutes" +%s)
+                  if [ $target -le $now ]; then
+                    target=$(date -d "tomorrow $hours:$minutes" +%s)
+                  fi       
+                  (
+                    while [ $(date +%s) -lt $target ]; do
+                      remaining=$((target - $(date +%s)))
+                      echo -ne "Time until alarm: ''${remaining}s\r"
+                      sleep 1
+                    done
+                    echo -e "\n\e[1;5;31m[ALARM RINGS]\e[0m"
+                    rm -rf "$LOGFILE_DIR/$$.pid"
+                    if [ -f "$sound" ]; then
+                      for i in {1..10}; do
+                        ssh $SOUNDHOST aplay "$sound" >/dev/null 2>&1
+                      done
+                      sleep 30
+                      for i in {1..8}; do
+                        ssh $SOUNDHOST aplay "$sound" >/dev/null 2>&1
+                      done
+                    fi
+                  ) > /var/lib/zigduck/alarms/yo-alarm.log 2>&1 &
+                  pid=$!
+                  echo "$pid $target" > "$LOGFILE_DIR/$pid.pid"
+                  disown "$pid"
                 '';
               }
             ];
@@ -1036,7 +1085,7 @@ in { # 🦆 duck say ⮞ qwack
                 '';
               }
             ];
-          };
+          }; # health checks
         } // health; 
         
         # 🦆 says ⮞ 2. room action automations
@@ -1551,13 +1600,7 @@ in { # 🦆 duck say ⮞ qwack
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0440"; # Read-only for owner and group
-      };  
-#      z2m_network_key = {
-#        sopsFile = ./../secrets/z2m_network_key.yaml;
-#        owner = config.this.user.me.name;
-#        group = config.this.user.me.name;
-#        mode = "0440"; # Read-only for owner and group
-#      };        
+      };
     };
     
   };}

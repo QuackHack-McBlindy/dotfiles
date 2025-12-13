@@ -364,8 +364,8 @@ in {
         "devtools.browserconsole.filter.css" = true;
         "devtools.cache.disabled" = true; # 🦆 duck say ⮞ seriously stupid default
         "devtools.debugger.auto-pretty-print" = true;
-        "network.websocket.allowInsecureFromHTTPS" = false;
-        "security.mixed_content.block_active_content" = true;
+        "network.websocket.allowInsecureFromHTTPS" = false; # 🦆say⮞can be useful for quick testing
+        "security.mixed_content.block_active_content" = true; # 🦆say⮞can be useful for quick testing
         "browser.formfill.enable" = false;
         "extensions.formautofill.addresses.enabled" = false;
         "extensions.formautofill.available" = "off";

@@ -503,6 +503,7 @@ import json
 import hashlib
 import sys
 import time
+import ssl
 from pathlib import Path
 
 password_file = "${config.house.dashboard.passwordFile}"
@@ -564,14 +565,38 @@ class SimpleAuthHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
-    
+
     def log_message(self, format, *args):
         pass
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(__file__))    
-    port = int(os.environ.get('PORT', 13337))    
-    httpd = socketserver.TCPServer(("", port), SimpleAuthHandler)    
+    port = int(os.environ.get('PORT', 13337))
+    
+    # 🦆 says ⮞ Get SSL certificate paths from environment
+    cert_file = os.environ.get('CERT_FILE', "")
+    key_file = os.environ.get('KEY_FILE', "")
+    
+    httpd = socketserver.TCPServer(("", port), SimpleAuthHandler)
+    
+    # 🦆 says ⮞ Set up SSL if certificates are provided
+    ssl_context = None
+    if cert_file and key_file and os.path.exists(cert_file) and os.path.exists(key_file):
+        try:
+            ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+            ssl_context.load_cert_chain(cert_file, key_file)
+            
+            # 🦆 says ⮞ Wrap the socket with SSL
+            httpd.socket = ssl_context.wrap_socket(httpd.socket, server_side=True)
+            print(f"🦆 HTTPS server started on https://0.0.0.0:{port}")
+            
+        except Exception as e:
+            print(f"🦆 SSL setup failed: {e}, falling back to HTTP")
+            print(f"🦆 HTTP server started on http://0.0.0.0:{port}")
+    else:
+        print(f"🦆 No SSL certificates found, starting HTTP server on http://0.0.0.0:{port}")
+        print(f"🦆 Cert file: {cert_file}, Key file: {key_file}")
+    
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
@@ -579,7 +604,16 @@ if __name__ == '__main__':
 EOF
 
     export PORT=$PORT
+    export CERT_FILE="$CERT"
+    export KEY_FILE="$KEY"
     cd $WORKDIR
+    
+    if [ -n "$CERT" ] && [ -n "$KEY" ]; then
+        echo "🦆 Starting SECURE dashboard server on https://$HOST:$PORT"
+    else
+        echo "🦆 Starting INSECURE dashboard server on http://$HOST:$PORT"
+        echo "🦆 Warning: No SSL certificates provided, audio streaming may not work on mobile!"
+    fi
     
     echo "🦆 Starting dashboard server on http://$HOST:$PORT"
     ${pkgs.python3}/bin/python3 simple_server.py
@@ -1933,7 +1967,6 @@ EOF
 
                 console.log('🦆 Room devices mapping:', window.roomDevices);
 
-         
                 function updateBattery(percent) {
                   const fill = document.querySelector(".battery-fill");
                   const text = document.querySelector(".battery-text");
@@ -4348,15 +4381,15 @@ in {
       parameters = [   
         { name = "host"; description = "IP address of the host (127.0.0.1 / 0.0.0.0"; default = "0.0.0.0"; }      
         { name = "port"; description = "Port to run the frontend service on"; default = "13337"; }
-        { name = "cert"; description = "Path to SSL certificate to run the sever on"; default = "/home/pungkula/.config/whisper/whisper/cert.pem"; } 
-        { name = "key"; description = "Path to key file to run the sever on"; default = "/home/pungkula/.config/whisper/whisper/key.pem"; } 
+        { name = "cert"; description = "Path to SSL certificate to run the sever on"; default = "/home/pungkula/.ssl/cert.pem"; } 
+        { name = "key"; description = "Path to key file to run the sever on"; default = "/home/pungkula/.ssl/key.pem"; } 
       ];
       code = ''
         ${cmdHelpers}
         HOST=$host
         PORT=$port
-        CERT=$cert
-        KEY=$key
+        CERT_FILE="$cert"
+        KEY_FILE="$key"
         dt_info "Starting 🦆'Dash server on port $PORT"
         ${httpServer}/bin/serve-dashboard "$HOST" "$PORT"
       '';

@@ -362,9 +362,9 @@
     lib.concatMapStringsSep "\n" (m: "source ${m.value}") matchers
   );
 
-  # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo iz diz cachin'? - no more nix evaluatin' lettin' jq takin' over
-  intentDataFile = pkgs.writeText "intent-entity-map4.json" # 🦆 says ⮞ change name to force rebuild of file
-    (builtins.toJSON ( # 🦆 says ⮞ packin' all our knowledges into a JSON duck-pond for bash to swim in!
+  # 🦆 says ⮞ oh duck... dis is where speed goes steroids yo iz diz cachin'?
+  intentDataFile = pkgs.writeText "intent-entity-map4.json"
+    (builtins.toJSON (
       lib.mapAttrs (_scriptName: intentList:
         let
           allData = lib.flatten (map (d: d.lists or {}) intentList.data);
@@ -373,34 +373,37 @@
           # 🦆 says ⮞ expand all sentence variants
           expandedSentences = lib.unique (lib.concatMap expandOptionalWords sentences);
           # 🦆 says ⮞ "in" > "out" for dem' subz 
-          substitutions = lib.flatten (map (lists: # 🦆 says ⮞ iterate through entity lists
-            lib.flatten (lib.mapAttrsToList (_listName: listData: # 🦆 says ⮞ process each list definition
-              if listData ? values then # 🦆 says ⮞ check for values existence
-                lib.flatten (map (item: # 🦆 says ⮞ process each entity value
-                  let # 🦆 says ⮞ clean and split input patterns
+          substitutions = lib.flatten (map (lists: 
+            lib.flatten (lib.mapAttrsToList (_listName: listData: 
+              if listData ? values then
+                lib.flatten (map (item: 
+                  let
                     rawIn = item."in";
                     value = item.out;
-                    # 🦆 says ⮞ handle cases like: "[foo|bar baz]" > ["foo", "bar baz"]
                     cleaned = lib.removePrefix "[" (lib.removeSuffix "]" rawIn);
                     variants = lib.splitString "|" cleaned;     
-                in map (v: let # 🦆 says ⮞ juzt in case - trim dem' spaces and normalize whitespace         
-                  cleanV = lib.replaceStrings ["  "] [" "] (lib.strings.trim v);
-                in {   
-                  pattern = if builtins.match ".* .*" cleanV != null
-                            then cleanV         # 🦆 says ⮞ multi word == "foo bar"
-                            else "(${cleanV})"; # 🦆 says ⮞ single word == \b(foo)\b
-                  value = value;
-                }) variants
-              ) listData.values)
-            else [] # 🦆 says ⮞ no listz defined - sorry dat gives empty list
-          ) lists)
-        ) allData);
-      in { # 🦆 says ⮞ final per script structure
-        inherit substitutions;
-        sentences = expandedSentences;
-      }
-    ) generatedIntents
-  ));
+                  in map (v: let
+                    cleanV = lib.replaceStrings ["  "] [" "] (lib.strings.trim v);
+                  in {   
+                    pattern = if builtins.match ".* .*" cleanV != null
+                              then cleanV
+                              else "(${cleanV})";
+                    value = value;
+                  }) variants
+                ) listData.values)
+              else []
+            ) lists)
+          ) allData);
+          # 🦆 says ⮞ CRITICAL: Include the lists data for wildcard detection
+          lists = lib.foldl (acc: d: acc // (d.lists or {})) {} intentList.data;
+        in {
+          inherit substitutions;
+          inherit sentences;
+          inherit lists;
+        }
+      ) generatedIntents
+    ));
+
 
   # 🦆 says ⮞ quack! now we preslicin' dem sentences wit their fuzzynutty signatures for bitchin' fast fuzz-lookup!
   fuzzyIndex = lib.mapAttrsToList (scriptName: intent:
@@ -855,6 +858,7 @@
     struct IntentData {
         substitutions: Vec<Substitution>,
         sentences: Vec<String>,
+        lists: HashMap<String, ListConfig>,  
     }
     
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -927,6 +931,14 @@
                 debug: env::var("DEBUG").is_ok() || env::var("DT_DEBUG").is_ok(),
                 memory_data,
             }
+        }
+
+        fn is_wildcard_param(&self, script_name: &str, param_name: &str) -> bool {
+            self.intent_data
+                .get(script_name)
+                .and_then(|intent| intent.lists.get(param_name))
+                .map(|list| list.wildcard)
+                .unwrap_or(false)
         }
 
         // 🦆 says ⮞ memory loader (from files)
@@ -1158,6 +1170,9 @@
     
         // 🦆 says ⮞ ENTITY RESOLVER - duck translation matrix!
         fn resolve_entity(&self, script_name: &str, param_name: &str, param_value: &str) -> String {
+            if self.is_wildcard_param(script_name, param_name) {
+                return param_value.to_string();
+            }
             if let Some(intent) = self.intent_data.get(script_name) {
                 let normalized_input = param_value.to_lowercase();
                 
@@ -1201,7 +1216,7 @@
         }
       
         // 🦆 says ⮞ DYNAMIC REGEX BUILDER - quacky pattern magic!
-        fn build_pattern_matcher(&self, _script_name: &str, sentence: &str) -> Option<(Regex, Vec<String>)> {
+        fn build_pattern_matcher(&self, script_name: &str, sentence: &str) -> Option<(Regex, Vec<String>)> {
             let start_time = Instant::now();
             self.quack_debug(&format!("    Building pattern matcher for: '{}'", sentence));
     
@@ -1223,17 +1238,36 @@
                     }
     
                     param_names.push(param.to_string());
-                    
-                    // 🦆 says ⮞ handle WILDCARD vs SPECIFIC paramz
-                    let regex_group = if param == "search" || param == "param" {
+                    let is_wildcard = self.is_wildcard_param(script_name, param);
+
+                    let regex_group = if is_wildcard {
                         // 🦆 says ⮞ wildcard - match anything!
                         self.quack_debug(&format!("      Wildcard parameter: {}", param));
                         "(.*)".to_string()
                     } else {
-                        // 🦆 says ⮞ specific parameter - match word boundaries
+                        // 🦆 says ⮞ specific parameter
                         self.quack_debug(&format!("      Specific parameter: {}", param));
-                        r"(\b[^ ]+\b)".to_string()
+                        let mut lookahead = after_param.to_string();
+                        let next_is_wildcard = loop {
+                            if let Some(next_start) = lookahead.find('{') {
+                                if let Some(next_end) = lookahead.find('}') {
+                                    let next_param = &lookahead[next_start+1..next_end];
+                                    if self.is_wildcard_param(script_name, next_param) {
+                                        break true;
+                                    }
+
+                                    lookahead = lookahead[next_end+1..].to_string();
+                                } else { break false; }
+                            } else { break false; }
+                        };
+    
+                        if next_is_wildcard {
+                            r"([^ ]+)".to_string()  // No trailing \b before wildcard
+                        } else {
+                            r"\b([^ ]+)\b".to_string()  // Normal word boundaries
+                        }
                     };
+
                     regex_parts.push(regex_group);
                     current = after_param.to_string();
                 } else {
@@ -1868,8 +1902,11 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
-        echo "[🦆🧠]"
-        cat ${voiceSentencesHelpFile} 
+        echo "=============="
+        echo "${intentDataFile}"
+        echo "=============="
+        #echo "[🦆🧠]"
+        #cat ${voiceSentencesHelpFile} 
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { name = "input"; description = "Text to translate"; optional = true; } 
