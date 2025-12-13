@@ -294,7 +294,7 @@
         let mut files = Vec::new();
     
         if use_v2 {
-            // 🦆 says ⮞ browsev2 logic with find
+            // 🦆 says ⮞ browsev2 with find
             let output = Command::new("find")
                 .arg(&full_path)
                 .arg("-maxdepth")
@@ -786,7 +786,9 @@
         // 🦆 says ⮞ route the request
         match (method, path_no_query) {
             ("GET", "/") => {
-                send_response(&mut stream, "200 OK", r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/health","/add","/add_folder","/do","/device/list","/device/control","/scene/activate","/device/rooms","/device/types","/upload"]}"#, None);
+                send_response(&mut stream, "200 OK", 
+                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/control","/scene/activate","/device/rooms","/device/types","/upload","/tts"]}"#, 
+                    None);
             }
             ("GET", "/browsev2") | ("GET", "/api/browsev2") => {
                 let path_arg = get_path_arg(query);
@@ -855,7 +857,75 @@
                     Ok(output) => send_response(&mut stream, "200 OK", &output, None),
                     Err(_) => send_response(&mut stream, "500 Internal Server Error", r#"{"error":"Failed to fetch playlist"}"#, None),
                 }
+            }           
+            ("GET", "/playlist/remove") | ("GET", "/api/playlist/remove") => {
+                let index_str = get_query_arg(query, "index");
+                if index_str.is_empty() {
+                    send_response(&mut stream, "400 Bad Request", r#"{"error":"Missing index parameter"}"#, None);
+                    return;
+                }
+    
+                match run_yo_command(&["vlc", "--list"]) {
+                    Ok(playlist_json) => {
+                        match serde_json::from_str::<serde_json::Value>(&playlist_json) {
+                            Ok(parsed) => {
+                                if let Some(playlist_array) = parsed.get("playlist").and_then(|p| p.as_array()) {
+                                    let index = index_str.parse::<usize>().unwrap_or(usize::MAX);
+                                    if index >= playlist_array.len() {
+                                        send_response(&mut stream, "400 Bad Request", 
+                                            &format!(r#"{{"error":"Index {} out of bounds (playlist has {} items)"}}"#, 
+                                            index, playlist_array.len()), None);
+                                        return;
+                                    }
+                        
+                                    if let Some(path_value) = playlist_array.get(index) {
+                                        if let Some(path) = path_value.as_str() {
+                                            match run_yo_command(&["vlc", "--remove", "true", "--add", path]) {
+                                                Ok(_) => send_response(&mut stream, "200 OK", 
+                                                    &format!(r#"{{"status":"ok","action":"remove","index":{},"path":"{}"}}"#, index, path), None),
+                                                Err(e) => send_response(&mut stream, "500 Internal Server Error", 
+                                                    &format!(r#"{{"error":"Failed to remove item: {}"}}"#, e), None),
+                                            }
+                                        } else {
+                                            send_response(&mut stream, "500 Internal Server Error", 
+                                                r#"{"error":"Invalid path format in playlist"}"#, None);
+                                        }
+                                    } else {
+                                        send_response(&mut stream, "400 Bad Request", 
+                                            &format!(r#"{{"error":"Invalid index: {}"}}"#, index), None);
+                                    }
+                                } else {
+                                    send_response(&mut stream, "500 Internal Server Error", 
+                                        r#"{"error":"Invalid playlist format"}"#, None);
+                                }
+                            }
+                            Err(e) => send_response(&mut stream, "500 Internal Server Error", 
+                                &format!(r#"{{"error":"Failed to parse playlist: {}"}}"#, e), None),
+                        }
+                    }
+                    Err(e) => send_response(&mut stream, "500 Internal Server Error", 
+                        &format!(r#"{{"error":"Failed to fetch playlist: {}"}}"#, e), None),
+                }
             }
+
+            ("GET", "/playlist/clear") | ("GET", "/api/playlist/clear") => {
+                match run_yo_command(&["vlc", "--clear", "true"]) {
+                    Ok(_) => send_response(&mut stream, "200 OK", 
+                        r#"{"status":"ok","action":"clear","message":"Playlist cleared"}"#, None),
+                    Err(e) => send_response(&mut stream, "500 Internal Server Error", 
+                        &format!(r#"{{"error":"Failed to clear playlist: {}"}}"#, e), None),
+                }
+            }
+
+            ("GET", "/playlist/shuffle") | ("GET", "/api/playlist/shuffle") => {
+                match run_yo_command(&["vlc", "--shuffle", "true"]) {
+                    Ok(_) => send_response(&mut stream, "200 OK", 
+                        r#"{"status":"ok","action":"shuffle","message":"Playlist shuffled"}"#, None),
+                    Err(e) => send_response(&mut stream, "500 Internal Server Error", 
+                        &format!(r#"{{"error":"Failed to shuffle playlist: {}"}}"#, e), None),
+                }
+            }
+                        
             ("GET", "/health") => {
                 let response = handle_health_check();
                 send_response(&mut stream, "200 OK", &response, None);
@@ -1077,7 +1147,7 @@ in {
   networking.firewall.allowedTCPPorts = [9815];
   # 🦆 says ⮞  da script yo
   yo.scripts.api = {
-    description = "Simple API for collecting system data";
+    description = "API endpoints for smart home control, virtual media playlist management, system wide health checks and more.";
     category = "🌐 Networking";
     autoStart = builtins.elem config.this.host.hostname [ "homie" ];
     logLevel = "DEBUG";
@@ -1099,6 +1169,22 @@ in {
       echo "# Using query parameter:"
       echo "curl 'http://${mqttHostip}:9815/device/list?password=\$PASS'"
       
+      echo "# Media Handling"
+      echo "Browse"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/browsev2?path=Movies'"      
+      echo "Add file to playlist"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/add?path=/Pool/Movies/movie.mp4'"
+      echo "Add entire folder to playlist"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/add_folder?path=/Pool/Movies/Godzilla%20(1998)'"
+      echo "Check playlist"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/playlist'"
+      echo "Remove item from playlist (0-based index):"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/playlist/remove?index=0'"
+      echo "Clear entire playlist:"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/playlist/clear'"
+      echo "Shuffle playlist:"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/playlist/shuffle'"
+     
       echo "# Health check (no auth required):"
       echo "curl http://${mqttHostip}:9815/health"
       

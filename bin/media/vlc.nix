@@ -43,14 +43,23 @@ in {
       { name = "addDir"; type = "path"; description = "Append directory path to playlist"; optional = true; }
       { name = "remove"; type = "bool"; description = "Boolean, true removes file path from playlist"; optional = true; }
       { name = "list"; type = "bool"; description = "List all current items in the playlist"; optional = true; }
-      { name = "shuffle"; type = "bool"; description = "Shuffle the playlist"; optional = true; }      
+      { name = "shuffle"; type = "bool"; description = "Shuffle the playlist"; optional = true; }
+      { name = "clear"; type = "bool"; description = "Clears the playlist"; optional = true; }
       { name = "playlist"; type = "string"; description = "Path to the playlist file"; default = "/home/pungkula/playlist.m3u"; optional = false; }
     ];
     code = ''
       ${cmdHelpers}
       dt_debug "Add: $add     Add Folder: $addDir"
-    
-      touch $playlist
+      playlist="$playlist"
+      
+      # 🦆 says ⮞ --clear? clear the entire playlist
+      if [ "$clear" = "true" ]; then
+        dt_debug "Clearing playlist"
+        > "$playlist"
+        dt_info "Playlist cleared"
+        exit 0
+      fi
+      touch "$playlist"
       
       # 🦆 says ⮞ --list? return json playlist      
       if [ "$list" = "true" ]; then
