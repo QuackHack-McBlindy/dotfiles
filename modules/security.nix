@@ -115,7 +115,11 @@
         {
           command = "/run/current-system/sw/bin/health";
           options = [ "NOPASSWD" ];
-        }    
+        }
+        {
+          command = "/run/current-system/sw/bin/nvme";
+          options = [ "NOPASSWD" ];
+        }
         {
           command = "/run/current-system/sw/bin/reboot";
           options = [ "NOPASSWD" ];

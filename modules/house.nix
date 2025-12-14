@@ -152,7 +152,7 @@
     in lib.strings.match "[0-9A-Fa-f]{6}" cleanColor != null;
 
   isValidBrightness = brightness: 
-    brightness >= 0 && brightness <= 255;
+    brightness >= 0 && brightness <= 254;
 
   isValidState = state: 
     builtins.elem state ["ON" "OFF"];
@@ -173,7 +173,7 @@
         }
         {
           assertion = settings ? brightness -> isValidBrightness settings.brightness;
-          message = "🦆 duck say ⮞ fuck ❌ Scene '${sceneName}' device '${deviceName}' has invalid brightness ${toString settings.brightness} (must be 0-255)";
+          message = "🦆 duck say ⮞ fuck ❌ Scene '${sceneName}' device '${deviceName}' has invalid brightness ${toString settings.brightness} (must be 0-254)";
         }
         {
           assertion = settings ? color -> settings.color ? hex -> isValidHexColor settings.color.hex;
@@ -433,7 +433,15 @@
   };
 
 in { # 🦆 says ⮞ Options for da house
-    options.house = {    
+    options.house = {
+      # 🦆 says ⮞ hostname to play sounds on (TTS, timers, alarms etc)
+      soundHost = lib.mkOption {
+        type = lib.types.str;
+        description = "hostname of the machine that should play sounds (TTS, timers, alarms etc)";
+        default = "";
+        example = "desktop";
+      };   
+      
       # 🦆 says ⮞ dashboard configuraiton
       dashboard = {
         passwordFile = lib.mkOption {

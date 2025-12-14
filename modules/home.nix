@@ -116,7 +116,7 @@ in {
         deps = [ "users" ];
       };
 
-      # 🦆 duck say ⮞ Set user variiables quack
+      # 🦆 say ⮞ Set user variiables quack
       environment.variables = {
         BROWSER = "firefox";
         EDITOR = "nano";
@@ -138,4 +138,5 @@ in {
         NIX_PATH = lib.mkForce "nixpkgs=flake:nixpkgs";
       };
     })
+    
   ];}

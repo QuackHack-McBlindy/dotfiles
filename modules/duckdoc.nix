@@ -128,13 +128,18 @@ let
     # 🦆 duck say ⮞ count generated patterns
     count_phrases() {
       nix eval ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.understandsPhrases
-    }    
+    }
+    count_ducks() {
+      grep -ro '🦆' --include='*.nix' "${config.this.user.me.dotfilesDir}" | wc -l
+    }
+    
 
     # 🦆 duck say ⮞ Get script counts
     total_scripts=$(count_bin)
     voice_scripts=$(count_voice)    
     total_patterns=$(count_patterns)
     total_phrases=$(count_phrases)
+    total_ducks=$(count_ducks)
 
     # 🦆 duck say ⮞ nix > json > nix lol
     json2nix() {
@@ -399,7 +404,12 @@ EOF
       echo "- __$total_scripts qwacktastic scripts in /bin - $voice_scripts scripts have voice commands.__ <br>"
       echo "- __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>"
       echo "- __Smart Home Nix Style - Managing $TOTAL_TVS TV's, $TOTAL_DEVICES devices & $TOTAL_SCENES scenes.__ <br>"      
-    ) 
+    )
+
+    DUCKS_BLOCK=$(
+      echo "I have hidden some ducks in the .nix files in this repository. <br>"
+      echo "Let's see if you can find all $total_ducks ducks?<br>" 
+    )
      
     # 🦆 duck say ⮞ Update version badges
     sed -i -E \
@@ -423,8 +433,9 @@ EOF
         -v theme="$THEME_BLOCK" \
         -v stats="$STATS_BLOCK" \
         -v smart="$SMART_HOME_BLOCK" \
+        -v ducks="$DUCKS_BLOCK" \
         '
-      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; in_stats=0; in_smart=0; printed=0 }
+      BEGIN { in_docs=0; in_contact=0; in_tree=0; in_flake=0; in_host=0; in_user=0; in_theme=0; in_stats=0; in_smart=0; in_ducks=0; printed=0 }
 
       /<!-- YO_DOCS_START -->/ { in_docs=1; print; print docs; next }
       /<!-- YO_DOCS_END -->/ { in_docs=0; print; next }
@@ -442,7 +453,9 @@ EOF
       /<!-- TREE_END -->/ { in_tree=0; print; next }
       /<!-- FLAKE_START -->/ { in_flake=1; print; print flake; next }
       /<!-- FLAKE_END -->/ { in_flake=0; print; next }
-      !in_docs && !in_tree && !in_theme && !in_flake && !in_smart && !in_stats && !in_host && !in_user { print }
+      /<!-- DUCKS_START -->/ { in_ducks=1; print; print ducks; next }
+      /<!-- DUCKS_END -->/ { in_ducks=0; print; next }      
+      !in_docs && !in_tree && !in_theme && !in_flake && !in_ducks && !in_smart && !in_stats && !in_host && !in_user { print }
       ' "$README_PATH" > "$tmpfile"  
 
     # 🦆 duck say ⮞ diff check

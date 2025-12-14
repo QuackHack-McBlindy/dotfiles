@@ -5,6 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
+  RustDuckTrace,
   ...
 } : let     
   # 🦆 says ⮞ dis fetch what host has Mosquitto
@@ -152,18 +153,20 @@
     serde_json = "1.0"
     chrono = { version = "0.4", features = ["serde"] }
     multipart = "0.18"
+    colored = "2.1" 
   ''; 
 
   api-rs = pkgs.writeText "api.rs" ''
-    use std::env;
-    use std::io::{BufRead, BufReader, Read, Write};
+    ${RustDuckTrace}
+    
+    use std::io::{BufRead, BufReader, Read};
     use std::net::{TcpListener, TcpStream};
     use std::process::Command;
-    use std::fs;
     use std::collections::HashMap;
-    use std::fs::{create_dir_all};
+    use std::fs::{self, create_dir_all};
     use serde_json::json;
     
+
     fn log(message: &str) {
         eprintln!("[API] {}", message);
     }
@@ -281,6 +284,7 @@
         
         // 🦆 says ⮞ safety first!
         if !full_path.starts_with(media_root) {
+            dt_warning(&format!("Access forbidden for path: {}", path_arg));
             return r#"{"error":"Access forbidden"}"#.to_string();
         }
     
@@ -399,7 +403,7 @@
             return r#"{"error":"No boundary in Content-Type"}"#.to_string();
         };
         
-        log(&format!("Boundary: {}", boundary));
+        dt_debug(&format!("Boundary: {}", boundary));
         
         let body_str = match String::from_utf8(body.to_vec()) {
             Ok(s) => s,
@@ -409,7 +413,7 @@
         let boundary_marker = format!("--{}", boundary);
         let parts: Vec<&str> = body_str.split(&boundary_marker).collect();
         
-        log(&format!("Found {} parts", parts.len()));
+        dt_debug(&format!("Found {} parts", parts.len()));
         
         for (i, part) in parts.iter().enumerate().skip(1) {
             if i == parts.len() - 1 && part.trim().ends_with("--") {
@@ -713,6 +717,31 @@
             }
         }
     }
+
+    fn handle_health_all() -> String {
+        let health_dir = "/var/lib/zigduck/health";
+        let mut health_data = std::collections::HashMap::new();
+
+        if let Ok(entries) = std::fs::read_dir(health_dir) {
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.extension().and_then(|s| s.to_str()) == Some("json") {
+                    if let Some(file_stem) = path.file_stem().and_then(|s| s.to_str()) {
+                        if let Ok(content) = std::fs::read_to_string(&path) {
+                            if let Ok(json) = serde_json::from_str::<serde_json::Value>(&content) {
+                                health_data.insert(file_stem.to_string(), json);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        match serde_json::to_string(&health_data) {
+            Ok(json) => json,
+            Err(_) => r#"{"error":"Failed to serialize health data"}"#.to_string(),
+        }
+    }
     
     fn handle_request(mut stream: TcpStream) {
         let mut reader = BufReader::new(&stream);
@@ -774,8 +803,8 @@
             None => (raw_path, ""),
         };
     
-        // 🦆 says ⮞ Check authentication for all endpoints except /health
-        if path_no_query != "/health" && !check_password_auth(&headers, query) {
+        // 🦆 says ⮞ exclude authentication for health
+        if path_no_query != "/health" && path_no_query != "/health/all" && !check_password_auth(&headers, query) {
             send_response(&mut stream, "401 Unauthorized", 
                 r#"{"error":"Authentication required","message":"Valid password required in Authorization: Bearer <password> header, X-API-Key header, or ?password= query parameter"}"#, 
                 None);
@@ -924,9 +953,13 @@
                         &format!(r#"{{"error":"Failed to shuffle playlist: {}"}}"#, e), None),
                 }
             }
-                        
-            ("GET", "/health") => {
+                     
+            ("GET", "/health") | ("GET", "/api/health") => {
                 let response = handle_health_check();
+                send_response(&mut stream, "200 OK", &response, None);
+            }            
+            ("GET", "/health/all") | ("GET", "/api/health/all") => {
+                let response = handle_health_all();
                 send_response(&mut stream, "200 OK", &response, None);
             }
             
@@ -984,7 +1017,7 @@
     
 
                 let output = std::process::Command::new("yo")
-                    .args(&["say", "--text", &text, "--web", "true", "--host", "${mqttHostip}]"])
+                    .args(&["say", "--text", &text, "--web"])
                     .output();
     
                 match output {
@@ -1056,7 +1089,7 @@
     
                 match run_yo_command(&["do", "--input", &natural_language]) {
                     Ok(output) => {
-                        // 🦆 says ⮞ filter out memory
+                        // 🦆 says ⮞ filter out memory & duckTrace logs
                         let filtered_output: String = output
                             .lines()
                             .filter(|line| !line.contains("MEMORY ADJUSTMENT:"))
@@ -1087,11 +1120,23 @@
             }
         }
     }
-    
+   
     fn main() {
+        setup_ducktrace_logging(None, None);
+        let log_file = std::env::var("DT_LOG_FILE")
+            .unwrap_or_else(|_| "api.log".to_string());
+        let log_path = std::env::var("DT_LOG_PATH")
+            .unwrap_or_else(|_| "/home/${config.this.user.me.name}/.config/duckTrace/".to_string());
+        let log_level = std::env::var("DT_LOG_LEVEL")
+            .unwrap_or_else(|_| "INFO".to_string());
+    
+        dt_info(&format!("🚀 Starting yo API server"));
+        dt_info(&format!("Log file: {}{}", log_path, log_file));
+        dt_info(&format!("Log Level: {}", log_level));
+            
         let args: Vec<String> = env::args().collect();
         if args.len() != 3 {
-            eprintln!("Usage: {} <host> <port>", args[0]);
+            dt_error("Usage: yo api");
             std::process::exit(1);
         }
     
@@ -1101,7 +1146,7 @@
     
         // 🦆 says ⮞ port in use?
         if TcpListener::bind(&address).is_err() {
-            eprintln!("Error: Port {} is already in use", port);
+            dt_error(&format!("❌ Port {} is already in use", port));
             std::process::exit(1);
         }
     
@@ -1135,7 +1180,7 @@
                     });
                 }
                 Err(e) => {
-                    log(&format!("Connection failed: {}", e));
+                    dt_warning(&format!("🔌 Connection failed: {}", e));
                 }
             }
         }

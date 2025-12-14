@@ -32,12 +32,9 @@ in { # 🦆 says ⮞
     aliases = [ "hc" ];
     runEvery = "15";
     code = ''
-      ${cmdHelpers}            
-      MQTT_BROKER="${mqttHostip}"
-      MQTT_USER="${config.house.zigbee.mosquitto.username}"
-      MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}")
-      HC="$(sudo health)"
-      mqtt_pub -t "zigbee2mqtt/health/${config.this.host.hostname}" -m "$HC"
+      ${cmdHelpers}
+      HC="$(health 2>/dev/null | sed -n '/^{/,$p' | jq -c .)"
+      yo mqtt_pub --topic "zigbee2mqtt/health/${config.this.host.hostname}" --message "$HC"
     '';  
     voice = {
       priority = 4;

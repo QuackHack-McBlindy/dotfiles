@@ -89,6 +89,8 @@
   
 in { # 🦆 duck say ⮞ qwack
   house = {
+    # 🦆says⮞ what machine should output sound   
+    soundHost = "desktop";
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom.icon    = "mdi:bed";
@@ -97,8 +99,8 @@ in { # 🦆 duck say ⮞ qwack
       livingroom.icon = "mdi:sofa";
       wc.icon         = "mdi:toilet";
       other.icon      = "mdi:misc";
-    };  
-
+    };
+    
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
     dashboard = {
        # 🦆 says ⮞  safety firzt!
@@ -147,10 +149,9 @@ in { # 🦆 duck say ⮞ qwack
 
       };
 
-
-    # 🦆 says ⮞ DASHBOARD PAGES (tabs)      
+      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)      
       pages = {        
-      # 🦆 says ⮞ system-wide health monitoring page
+        # 🦆 says ⮞ system-wide health monitoring page
         "4" = {
           icon = "fas fa-notes-medical";
           title = "health";
@@ -279,7 +280,7 @@ in { # 🦆 duck say ⮞ qwack
         };
         
 
-      # 🦆 says ⮞ duckGPT - better than regularGPT - less thinkin' more doin'
+        # 🦆 says ⮞ duckBot - better than regularGPT - less thinkin' more doin'
         "5" = {
           icon = "fas fa-comments";
           title = "chat";
@@ -370,8 +371,7 @@ in { # 🦆 duck say ⮞ qwack
                          localStorage.getItem('dashboardPassword') || 
                          "";
                 }
-
-             
+ 
                 function showNotification(message, type) {
                     let notification = document.getElementById('chat-notification');
                     if (!notification) {
@@ -619,7 +619,6 @@ in { # 🦆 duck say ⮞ qwack
                     const noAnsi = cleaned.replace(/\x1b\[[0-9;]*m/g, "");
                     const isTerminalOutput = noAnsi.includes('│') || noAnsi.includes('┌') || 
                                              noAnsi.includes('─') || noAnsi.includes('└');
-
                     if (isTerminalOutput) {
                         return {
                             type: 'terminal',
@@ -641,6 +640,7 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
 
+                // 🦆 says ⮞ chat response bubble
                 function addAIMessage(content, options = {}) {
                     const chatContainer = document.getElementById('chat');
                     const typingIndicator = document.querySelector('.typing-indicator');
@@ -679,16 +679,16 @@ in { # 🦆 duck say ⮞ qwack
                     chatContainer.appendChild(aiBubble);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
 
-                    // 🦆 play TTS audio file
+                    // 🦆says⮞play TTS audio file
                     const playTTSAudio = async () => {
                         try {
                             const response = await fetch('/tts/tts.wav', { method: 'HEAD' });
                             if (!response.ok) return;
                             const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
                             const now = Date.now();
-            
                             const lastCheck = window.lastTtsCheck || 0;
             
+                            // 🦆says⮞ only play TTS if it's new
                             if (lastModified > lastCheck && (now - lastModified) < 30000) {
                                 const cacheBuster = Date.now();
                                 const audio = new Audio(`/tts/tts.wav?cb=''${cacheBuster}`);
@@ -697,7 +697,6 @@ in { # 🦆 duck say ⮞ qwack
                                 audio.play().catch(error => {
                                     console.warn('Audio playback failed:', error);
                                 });
-                
                                 window.lastTtsCheck = lastModified;
                             }
                         } catch (error) {
@@ -900,7 +899,6 @@ in { # 🦆 duck say ⮞ qwack
                     const chatContainer = document.getElementById('chat');
                 
                     if (prompt === "" && selectedFiles.length === 0) return;
-                
                     if (prompt !== "") {
                         const userBubble = document.createElement('div');
                         userBubble.className = 'chat-bubble user-bubble';
@@ -991,7 +989,7 @@ in { # 🦆 duck say ⮞ qwack
         mqtt_triggered = {
           xmr = {
             enable = true;
-            description = "Writes XMR data to file for dashboard";
+            description = "Updating XMR price data on dashboard";
             topic = "zigbee2mqtt/crypto/xmr/price";
             actions = [
               {
@@ -1019,28 +1017,31 @@ in { # 🦆 duck say ⮞ qwack
             ];
           };
 
-
           alarms = {
             enable = true;
-            description = "Sets an alarm";
+            description = "Sets an alarm for specified time (HH:MM)";
             topic = "zigbee2mqtt/alarm/set";
             actions = [
               {
                 type = "shell";
                 command = ''
-                  SOUNDHOST="desktop"
+                  # 🦆 says ⮞ extract mqtt payload
                   hours=$(echo "$MQTT_PAYLOAD" | jq -r '.hours')
                   minutes=$(echo "$MQTT_PAYLOAD" | jq -r '.minutes')
                   sound=$(echo "$MQTT_PAYLOAD" | jq -r '.sound // ""')
-          
+  
+                  SOUNDHOST=${config.house.soundHost}
                   LOGFILE_DIR="/var/lib/zigduck/alarms"
                   mkdir -p "$LOGFILE_DIR"
-          
+                  
+                  # 🦆 says ⮞ calculate day
                   now=$(date +%s)
                   target=$(date -d "today $hours:$minutes" +%s)
                   if [ $target -le $now ]; then
                     target=$(date -d "tomorrow $hours:$minutes" +%s)
-                  fi       
+                  fi    
+                  
+                  # 🦆 says ⮞ create alarm
                   (
                     while [ $(date +%s) -lt $target ]; do
                       remaining=$((target - $(date +%s)))
@@ -1048,16 +1049,8 @@ in { # 🦆 duck say ⮞ qwack
                       sleep 1
                     done
                     echo -e "\n\e[1;5;31m[ALARM RINGS]\e[0m"
-                    rm -rf "$LOGFILE_DIR/$$.pid"
-                    if [ -f "$sound" ]; then
-                      for i in {1..10}; do
-                        ssh $SOUNDHOST aplay "$sound" >/dev/null 2>&1
-                      done
-                      sleep 30
-                      for i in {1..8}; do
-                        ssh $SOUNDHOST aplay "$sound" >/dev/null 2>&1
-                      done
-                    fi
+                    rm -rf "$LOGFILE_DIR/$$.pid"  
+                    ssh $SOUNDHOST aplay "$sound" >/dev/null 2>&1
                   ) > /var/lib/zigduck/alarms/yo-alarm.log 2>&1 &
                   pid=$!
                   echo "$pid $target" > "$LOGFILE_DIR/$pid.pid"
@@ -1069,7 +1062,7 @@ in { # 🦆 duck say ⮞ qwack
 
           energy = {
             enable = true;
-            description = "Writes tibber data to file for dashboard";
+            description = "Updating energy data on dashboard";
             topic = "zigbee2mqtt/tibber/energy";
             actions = [
               {
@@ -1085,7 +1078,7 @@ in { # 🦆 duck say ⮞ qwack
                 '';
               }
             ];
-          }; # health checks
+          }; # 🦆says⮞health checks from let block
         } // health; 
         
         # 🦆 says ⮞ 2. room action automations
@@ -1218,7 +1211,7 @@ in { # 🦆 duck say ⮞ qwack
         "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
         "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = icons.light.desk; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
-        "0xa4c1382553627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
+        "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; };
         "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
@@ -1314,27 +1307,27 @@ in { # 🦆 duck say ⮞ qwack
               "Takkrona 4" = { state = "OFF"; };   
           };  
           "max" = { # 🦆 says ⮞ let there be light
-              "Bloom" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Dörr" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Golvet" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Kök Bänk Slinga" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "PC" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Rustning" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Spotlight Kök 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Spotlight kök 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Sänggavel" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Sänglampa" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Tak Hall" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Taket Sovrum 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Taket Sovrum 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Uppe" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Vägg" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "WC 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "WC 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Takkrona 1" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
-              "Takkrona 2" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
-              "Takkrona 3" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };   
-              "Takkrona 4" = { state = "ON"; brightness = 255; color = { hex = "#FFFFFF"; }; };
+              "Bloom" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Dörr" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "PC" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Rustning" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Sänggavel" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Sänglampa" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Tak Hall" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Taket Sovrum 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Taket Sovrum 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Vägg" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "WC 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "WC 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Takkrona 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   
+              "Takkrona 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Takkrona 3" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   
+              "Takkrona 4" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
           };    
       };       
     };

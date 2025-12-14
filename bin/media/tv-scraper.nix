@@ -185,11 +185,11 @@
     def build_epg(urls, channel_names):
         try:
             xml_tv = ET.Element("tv", attrib={
-                "generator-info-name": "custom-epg-generator",
+                "generator-info-name": "DuckEPG-Generator",
                 "generator-info-url": "https://tv-tabla.se"
             })      
             json_data = {
-                "generator": "custom-epg-generator",
+                "generator": "DuckEPG-Generator",
                 "generator_url": "https://tv-tabla.se",
                 "channels": []
             }     

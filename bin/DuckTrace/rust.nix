@@ -6,45 +6,79 @@
     pkgs,
     ...
 } : let # 🦆say⮞setup
-#     fn main() -> io::Result<()> {
-#        setup_ducktrace_logging(None, Some("DEBUG"))?;     
+# ${RustDuckTrace}
+#    fn main() {
+#        setup_ducktrace_logging(None, None);
+#        let log_file = std::env::var("DT_LOG_FILE")
+#            .unwrap_or_else(|_| "api.log".to_string());
+#        let log_path = std::env::var("DT_LOG_PATH")
+#            .unwrap_or_else(|_| "/home/${config.this.user.me.name}/.config/duckTrace/".to_string());
+#        let log_level = std::env::var("DT_LOG_LEVEL")
+#            .unwrap_or_else(|_| "INFO".to_string());
+    
+#        dt_info(&format!("🚀 Starting yo API server"));
+#        dt_info(&format!("Log file: {}{}", log_path, log_file));
+#        dt_info(&format!("Log Level: {}", log_level));
 
+# 🦆says ⮞ make sure Cargo.toml has
 #[dependencies]
 #chrono = "0.4"
 #lazy_static = "1.4"
 #dirs = "5.0"
 #tempfile = "3.8"
+#colored = "2.1"
 in
   ''
-    const COLOR_DEBUG: &str = "\x1b[34m";
-    const COLOR_INFO: &str = "\x1b[0;32m";
-    const COLOR_WARNING: &str = "\x1b[33m";
-    const COLOR_ERROR: &str = "\x1b[1;31m";
-    const COLOR_CRITICAL: &str = "\x1b[1;5;31m";
-    const COLOR_RESET: &str = "\x1b[0m";
-    const COLOR_BOLD: &str = "\x1b[1m";
-    const COLOR_BLINK: &str = "\x1b[5m";
-    const COLOR_DSAY: &str = "\x1b[3m\x1b[38;2;0;150;150m";
-    const COLOR_GRAY: &str = "\x1b[38;5;244m";
-    const COLOR_YELLOW: &str = "\x1b[38;2;255;255;0m";
-    
-    const SYMBOL_DEBUG: &str = "⁉️";
-    const SYMBOL_INFO: &str = "✅";
-    const SYMBOL_WARNING: &str = "⚠️";
-    const SYMBOL_ERROR: &str = "❌";
-    const SYMBOL_CRITICAL: &str = "🚨";
-    
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-    pub enum LogLevel {
-        Debug = 0,
-        Info = 1,
-        Warning = 2,
-        Error = 3,
-        Critical = 4,
+    use std::env;
+    use std::fs::{OpenOptions, File};
+    use std::io::{self, Write};
+    use std::sync::Once;
+    use std::time::Instant;
+    use chrono::Local;
+    use colored::*;
+
+    static INIT: Once = Once::new();
+    static mut LOGGER: Option<DuckTraceLogger> = None;
+
+    struct DuckTraceLogger {
+        level: LogLevel,
+        log_file: Option<File>,
+        debug_mode: bool,
     }
-    
-    impl From<&str> for LogLevel {
-        fn from(s: &str) -> Self {
+
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd)]
+    enum LogLevel {
+        Debug,
+        Info,
+        Warning,
+        Error,
+        Critical,
+    }
+
+    impl DuckTraceLogger {
+        fn new(level_str: Option<&str>) -> Self {
+            let debug_mode = env::var("DEBUG").is_ok();
+            let level = match level_str {
+                Some(l) => Self::level_from_str(l),
+                None => match env::var("DT_LOG_LEVEL")
+                    .unwrap_or_else(|_| "INFO".to_string())
+                    .to_uppercase()
+                    .as_str()
+                {
+                    "DEBUG" => LogLevel::Debug,
+                    "WARNING" => LogLevel::Warning,
+                    "ERROR" => LogLevel::Error,
+                    "CRITICAL" => LogLevel::Critical,
+                    _ => LogLevel::Info,
+                },
+            };
+            
+            let log_file = Self::setup_log_file();
+            
+            Self { level, log_file, debug_mode }
+        }
+        
+        fn level_from_str(s: &str) -> LogLevel {
             match s.to_uppercase().as_str() {
                 "DEBUG" => LogLevel::Debug,
                 "INFO" => LogLevel::Info,
@@ -54,344 +88,214 @@ in
                 _ => LogLevel::Info,
             }
         }
-    }
-    
-    impl fmt::Display for LogLevel {
-        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-            match self {
-                LogLevel::Debug => write!(f, "DEBUG"),
-                LogLevel::Info => write!(f, "INFO"),
-                LogLevel::Warning => write!(f, "WARNING"),
-                LogLevel::Error => write!(f, "ERROR"),
-                LogLevel::Critical => write!(f, "CRITICAL"),
-            }
-        }
-    }
-    
-    #[derive(Clone)]
-    pub struct LoggerConfig {
-        pub name: Option<String>,
-        pub level: LogLevel,
-        pub log_path: PathBuf,
-        pub log_file: String,
-    }
-    
-    impl Default for LoggerConfig {
-        fn default() -> Self {
+        
+        fn setup_log_file() -> Option<File> {
             let log_path = env::var("DT_LOG_PATH")
-                .map(PathBuf::from)
-                .unwrap_or_else(|_| {
-                    let mut path = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-                    path.push(".config/duckTrace");
-                    path
-                });
+                .unwrap_or_else(|_| "/var/lib/zigduck/logs/".to_string());
             
-            let log_file = env::var("DT_LOG_FILE")
-                .unwrap_or_else(|_| "PyDuckTrace.log".to_string());
+            std::fs::create_dir_all(&log_path).ok()?;
             
-            let level = env::var("DT_LOG_LEVEL")
-                .unwrap_or_else(|_| "INFO".to_string());
+            let log_filename = env::var("DT_LOG_FILE")
+                .unwrap_or_else(|_| "zigduck-rs.log".to_string());
             
-            Self {
-                name: None,
-                level: LogLevel::from(level.as_str()),
-                log_path,
-                log_file,
-            }
-        }
-    }
-    
-    pub struct DuckTraceLogger {
-        config: LoggerConfig,
-        file_handle: Arc<Mutex<Option<File>>>,
-    }
-    
-    impl DuckTraceLogger {
-        pub fn new(config: LoggerConfig) -> io::Result<Self> {
-            fs::create_dir_all(&config.log_path)?;
+            let full_path = format!("{}/{}", log_path, log_filename);
             
-            let log_file_path = config.log_path.join(&config.log_file);
-            let file = OpenOptions::new()
+            OpenOptions::new()
                 .create(true)
                 .append(true)
-                .open(log_file_path)?;
-            
-            Ok(Self {
-                config,
-                file_handle: Arc::new(Mutex::new(Some(file))),
-            })
+                .open(&full_path)
+                .ok()
         }
         
-        pub fn setup(name: Option<&str>, level: Option<LogLevel>) -> io::Result<Self> {
-            let mut config = LoggerConfig::default();     
-            if let Some(n) = name {
-                config.name = Some(n.to_string());
+        fn should_log(&self, msg_level: LogLevel) -> bool {
+            if msg_level == LogLevel::Debug && !self.debug_mode {
+                return false;
             }
-            
-            if let Some(lvl) = level {
-                config.level = lvl;
+            msg_level >= self.level
+        }
+        
+        fn get_symbol(&self, level: LogLevel) -> &'static str {
+            match level {
+                LogLevel::Debug => "⁉️",
+                LogLevel::Info => "✅",
+                LogLevel::Warning => "⚠️",
+                LogLevel::Error => "❌",
+                LogLevel::Critical => "🚨",
             }
-            
-            Self::new(config)
         }
         
         fn format_message(&self, level: LogLevel, message: &str) -> String {
-            let timestamp = Local::now().format("%H:%M:%S").to_string();
-            
-            let (color, symbol) = match level {
-                LogLevel::Debug => (COLOR_DEBUG, SYMBOL_DEBUG),
-                LogLevel::Info => (COLOR_INFO, SYMBOL_INFO),
-                LogLevel::Warning => (COLOR_WARNING, SYMBOL_WARNING),
-                LogLevel::Error => (COLOR_ERROR, SYMBOL_ERROR),
-                LogLevel::Critical => (COLOR_CRITICAL, SYMBOL_CRITICAL),
+            let timestamp = Local::now().format("%H:%M:%S");
+            let symbol = self.get_symbol(level);
+            let level_str = match level {
+                LogLevel::Debug => "DEBUG",
+                LogLevel::Info => "INFO",
+                LogLevel::Warning => "WARNING",
+                LogLevel::Error => "ERROR",
+                LogLevel::Critical => "CRITICAL",
             };
             
-            let blink = if level >= LogLevel::Error {
-                COLOR_BLINK
+            format!("[🦆📜] [{}] {}{}{} ⮞ {}", 
+                timestamp, symbol, level_str, symbol, message)
+        }
+        
+        fn colorize_console(&self, level: LogLevel, formatted_msg: &str) -> String {
+            match level {
+                LogLevel::Debug => formatted_msg.blue().bold().to_string(),
+                LogLevel::Info => formatted_msg.green().bold().to_string(),
+                LogLevel::Warning => formatted_msg.yellow().bold().to_string(),
+                LogLevel::Error => formatted_msg.red().bold().blink().to_string(),
+                LogLevel::Critical => formatted_msg.red().bold().blink().to_string(),
+            }
+        }
+        
+        fn add_duck_say(&self, level: LogLevel, message: &str) -> String {
+            if matches!(level, LogLevel::Error | LogLevel::Critical) {
+                let duck_say = format!(
+                    "\n\x1b[3m\x1b[38;2;0;150;150m🦆 duck say \x1b[1m\x1b[38;2;255;255;0m⮞\x1b[0m\x1b[3m\x1b[38;2;0;150;150m fuck ❌ {}\x1b[0m",
+                    message
+                );
+                duck_say
             } else {
-                ""
-            };
-            
-            let mut formatted = format!(
-                "{}{}{}[🦆📜] [{}] {}{}{} ⮞ {}{}",
-                color, COLOR_BOLD, blink,
-                timestamp, symbol, level, symbol,
-                message, COLOR_RESET
-            );
-            
-            if level >= LogLevel::Error {
-                formatted.push_str(&format!(
-                    "\n{}{}🦆 duck say {}{}⮞{} fuck ❌ {}{}",
-                    COLOR_DSAY, COLOR_BOLD, COLOR_YELLOW, COLOR_RESET,
-                    COLOR_DSAY, message, COLOR_RESET
-                ));
-            }
-            
-            formatted
-        }
-        
-        fn write_to_file(&self, level: LogLevel, message: &str) -> io::Result<()> {
-            let timestamp = Local::now().format("%H:%M:%S").to_string();
-            let file_message = format!("[{}] {} - {}\n", timestamp, level, message);
-            
-            if let Some(file) = self.file_handle.lock().unwrap().as_mut() {
-                file.write_all(file_message.as_bytes())?;
-            }
-            
-            Ok(())
-        }
-        
-        pub fn log(&self, level: LogLevel, message: &str) -> io::Result<()> {
-            if level < self.config.level {
-                return Ok(());
-            }
-            
-            eprintln!("{}", self.format_message(level, message));
-            
-            self.write_to_file(level, message)
-        }
-        
-        pub fn debug(&self, message: &str) -> io::Result<()> {
-            self.log(LogLevel::Debug, message)
-        }
-        
-        pub fn info(&self, message: &str) -> io::Result<()> {
-            self.log(LogLevel::Info, message)
-        }
-        
-        pub fn warning(&self, message: &str) -> io::Result<()> {
-            self.log(LogLevel::Warning, message)
-        }
-        
-        pub fn error(&self, message: &str) -> io::Result<()> {
-            self.log(LogLevel::Error, message)
-        }
-        
-        pub fn critical(&self, message: &str) -> io::Result<()> {
-            self.log(LogLevel::Critical, message)
-        }
-    }
-    
-    lazy_static::lazy_static! {
-        static ref GLOBAL_LOGGER: Arc<Mutex<Option<DuckTraceLogger>>> = Arc::new(Mutex::new(None));
-    }
-    
-    pub fn dt_debug(message: &str) {
-        if let Some(logger) = GLOBAL_LOGGER.lock().unwrap().as_ref() {
-            let _ = logger.debug(message);
-        }
-    }
-    
-    pub fn dt_info(message: &str) {
-        if let Some(logger) = GLOBAL_LOGGER.lock().unwrap().as_ref() {
-            let _ = logger.info(message);
-        }
-    }
-    
-    pub fn dt_warning(message: &str) {
-        if let Some(logger) = GLOBAL_LOGGER.lock().unwrap().as_ref() {
-            let _ = logger.warning(message);
-        }
-    }
-    
-    pub fn dt_error(message: &str) {
-        if let Some(logger) = GLOBAL_LOGGER.lock().unwrap().as_ref() {
-            let _ = logger.error(message);
-        }
-    }
-    
-    pub fn dt_critical(message: &str) {
-        if let Some(logger) = GLOBAL_LOGGER.lock().unwrap().as_ref() {
-            let _ = logger.critical(message);
-        }
-    }
-    
-    pub fn setup_ducktrace_logging(name: Option<&str>, level: Option<&str>) -> io::Result<()> {
-        let log_level = level.map(LogLevel::from);
-        let logger = DuckTraceLogger::setup(name, log_level)?;
-        
-        let mut global_logger = GLOBAL_LOGGER.lock().unwrap();
-        *global_logger = Some(logger);
-        
-        Ok(())
-    }
-    
-    pub struct TimedFunction<'a> {
-        name: &'a str,
-        start_time: Instant,
-    }
-    
-    impl<'a> TimedFunction<'a> {
-        pub fn new(name: &'a str) -> Self {
-            dt_debug(&format!("Starting {}...", name));
-            Self {
-                name,
-                start_time: Instant::now(),
+                String::new()
             }
         }
         
-        pub fn complete(self) {
-            let elapsed = self.start_time.elapsed();
-            dt_debug(&format!("Completed {} in {:.3}s", self.name, elapsed.as_secs_f64()));
-        }
-        
-        pub fn complete_with_result<T>(self, result: &io::Result<T>) {
-            let elapsed = self.start_time.elapsed();
+        pub fn log(&mut self, level: LogLevel, message: &str) {
+            if !self.should_log(level) {
+                return;
+            }
             
-            match result {
-                Ok(_) => dt_debug(&format!("Completed {} in {:.3}s", self.name, elapsed.as_secs_f64())),
-                Err(e) => dt_error(&format!("Failed {} after {:.3}s: {}", self.name, elapsed.as_secs_f64(), e)),
+            let formatted = self.format_message(level, message);
+            let console_output = self.colorize_console(level, &formatted);
+            
+            eprintln!("{}", console_output);
+            
+            if matches!(level, LogLevel::Error | LogLevel::Critical) {
+                let duck_say = self.add_duck_say(level, message);
+                eprintln!("{}", duck_say);
+            }
+            
+            if let Some(file) = &mut self.log_file {
+                let timestamp = Local::now().format("%H:%M:%S");
+                let level_str = match level {
+                    LogLevel::Debug => "DEBUG",
+                    LogLevel::Info => "INFO",
+                    LogLevel::Warning => "WARNING",
+                    LogLevel::Error => "ERROR",
+                    LogLevel::Critical => "CRITICAL",
+                };
+                
+                let file_msg = format!("[{}] {} - {}\n", timestamp, level_str, message);
+                let _ = writeln!(file, "{}", file_msg);
+            }
+        }
+    }
+
+    pub fn dt_debug(msg: &str) {
+        unsafe {
+            if LOGGER.is_none() {
+                LOGGER = Some(DuckTraceLogger::new(None));
+            }
+            if let Some(logger) = &mut LOGGER {
+                logger.log(LogLevel::Debug, msg);
             }
         }
     }
     
-    #[macro_export]
-    macro_rules! timed_function {
-        ($name:expr, $func:expr) => {{
-            let timer = TimedFunction::new($name);
-            let result = $func;
-            timer.complete_with_result(&result);
-            result
-        }};
+    pub fn dt_info(msg: &str) {
+        unsafe {
+            if LOGGER.is_none() {
+                LOGGER = Some(DuckTraceLogger::new(None));
+            }
+            if let Some(logger) = &mut LOGGER {
+                logger.log(LogLevel::Info, msg);
+            }
+        }
+    }
+    
+    pub fn dt_warning(msg: &str) {
+        unsafe {
+            if LOGGER.is_none() {
+                LOGGER = Some(DuckTraceLogger::new(None));
+            }
+            if let Some(logger) = &mut LOGGER {
+                logger.log(LogLevel::Warning, msg);
+            }
+        }
+    }
+    
+    pub fn dt_error(msg: &str) {
+        unsafe {
+            if LOGGER.is_none() {
+                LOGGER = Some(DuckTraceLogger::new(None));
+            }
+            if let Some(logger) = &mut LOGGER {
+                logger.log(LogLevel::Error, msg);
+            }
+        }
+    }
+    
+    pub fn dt_critical(msg: &str) {
+        unsafe {
+            if LOGGER.is_none() {
+                LOGGER = Some(DuckTraceLogger::new(None));
+            }
+            if let Some(logger) = &mut LOGGER {
+                logger.log(LogLevel::Critical, msg);
+            }
+        }
+    }
+    
+    pub fn setup_ducktrace_logging(log_name: Option<&str>, level: Option<&str>) {
+        INIT.call_once(|| {
+            unsafe {
+                LOGGER = Some(DuckTraceLogger::new(level));
+            }
+        });
     }
     
     pub struct TranscriptionTimer {
         operation_name: String,
         start_time: Instant,
-        logger: Arc<Mutex<Option<DuckTraceLogger>>>,
     }
     
     impl TranscriptionTimer {
         pub fn new(operation_name: &str) -> Self {
-            if let Some(logger) = GLOBAL_LOGGER.lock().unwrap().as_ref() {
-                let _ = logger.debug(&format!("Starting {}...", operation_name));
-            }
-            
+            dt_debug(&format!("Starting {}...", operation_name));
             Self {
                 operation_name: operation_name.to_string(),
                 start_time: Instant::now(),
-                logger: GLOBAL_LOGGER.clone(),
             }
         }
         
         pub fn lap(&self, lap_name: &str) {
-            let elapsed = self.start_time.elapsed();
-            if let Some(logger) = self.logger.lock().unwrap().as_ref() {
-                let _ = logger.debug(&format!("{} - {}: {:.3}s", self.operation_name, lap_name, elapsed.as_secs_f64()));
-            }
+            let elapsed = self.start_time.elapsed().as_secs_f64();
+            dt_debug(&format!("{} - {}: {:.3}s", self.operation_name, lap_name, elapsed));
         }
         
         pub fn complete(self) {
-            let elapsed = self.start_time.elapsed();
-            if let Some(logger) = self.logger.lock().unwrap().as_ref() {
-                let _ = logger.debug(&format!("Completed {} in {:.3}s", self.operation_name, elapsed.as_secs_f64()));
-            }
+            let elapsed = self.start_time.elapsed().as_secs_f64();
+            dt_debug(&format!("Completed {} in {:.3}s", self.operation_name, elapsed));
         }
     }
     
-    pub mod builder {
-        use super::*;
-        use std::collections::HashMap;
-        
-        pub struct DuckTraceBuilder {
-            name: Option<String>,
-            level: Option<LogLevel>,
-            log_path: Option<PathBuf>,
-            log_file: Option<String>,
-        }
-        
-        impl DuckTraceBuilder {
-            pub fn new() -> Self {
-                Self {
-                    name: None,
-                    level: None,
-                    log_path: None,
-                    log_file: None,
-                }
-            }
-            
-            pub fn name(mut self, name: &str) -> Self {
-                self.name = Some(name.to_string());
-                self
-            }
-            
-            pub fn level(mut self, level: LogLevel) -> Self {
-                self.level = Some(level);
-                self
-            }
-            
-            pub fn log_path(mut self, path: &str) -> Self {
-                self.log_path = Some(PathBuf::from(path));
-                self
-            }
-            
-            pub fn log_file(mut self, file: &str) -> Self {
-                self.log_file = Some(file.to_string());
-                self
-            }
-            
-            pub fn build(self) -> io::Result<DuckTraceLogger> {
-                let mut config = LoggerConfig::default();
-                
-                if let Some(name) = self.name {
-                    config.name = Some(name);
-                }
-                
-                if let Some(level) = self.level {
-                    config.level = level;
-                }
-                
-                if let Some(path) = self.log_path {
-                    config.log_path = path;
-                }
-                
-                if let Some(file) = self.log_file {
-                    config.log_file = file;
-                }
-                
-                DuckTraceLogger::new(config)
-            }
-        }
-    }   
+    macro_rules! duck_log {
+        (debug: $($arg:tt)*) => {
+            dt_debug(&format!($($arg)*));
+        };
+        (info: $($arg:tt)*) => {
+            dt_info(&format!($($arg)*));
+        };
+        (warning: $($arg:tt)*) => {
+            dt_warning(&format!($($arg)*));
+        };
+        (error: $($arg:tt)*) => {
+            dt_error(&format!($($arg)*));
+        };
+        (critical: $($arg:tt)*) => {
+            dt_critical(&format!($($arg)*));
+        };
+    } 
   ''
 
