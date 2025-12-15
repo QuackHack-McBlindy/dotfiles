@@ -1076,6 +1076,26 @@ EOF
                 background: #1a1a1a !important;
                 color: #ffffff !important;
             }
+            .card-header {
+                background: #000000 !important;
+                border-bottom: 1px solid #333333 !important;
+                padding: 12px 16px !important;
+                border-radius: 12px 12px 0 0 !important;
+                display: flex !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+            }
+
+            .card-title {
+                font-size: 1.1rem !important;
+                font-weight: 600 !important;
+                color: #ffffff !important;
+                margin: 0 !important;
+            }
+
+            .card-header i {
+                font-size: 1.2rem !important;
+            }
             #pageCloud, #pageQwackify {
                 padding: 0;
                 height: 100%;

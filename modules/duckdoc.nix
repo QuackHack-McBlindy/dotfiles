@@ -283,7 +283,8 @@ $ yo wake
 ```
 
 ### ✨ Available Commands
-Set default values for your parameters to have them marked [optional]
+Set default values for your parameters to have them marked [optional]  
+Add \`?\` to any command to run it in DEBUG mode  
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 ${helpText}
