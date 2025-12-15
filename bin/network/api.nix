@@ -245,14 +245,19 @@
     fn send_response(stream: &mut TcpStream, status: &str, body: &str, content_type: Option<&str>) {
         let content_type = content_type.unwrap_or("application/json");
         let response = format!(
-            "HTTP/1.1 {}\r\nContent-Type: {}\r\nAccess-Control-Allow-Origin: *\r\nContent-Length: {}\r\n\r\n{}",
+            "HTTP/1.1 {}\r\n\
+             Content-Type: {}\r\n\
+             Access-Control-Allow-Origin: *\r\n\
+             Access-Control-Allow-Methods: GET, POST, OPTIONS\r\n\
+             Access-Control-Allow-Headers: Authorization, Content-Type, X-API-Key\r\n\
+             Content-Length: {}\r\n\r\n{}",
             status,
             content_type,
             body.len(),
             body
         );
         if let Err(e) = stream.write_all(response.as_bytes()) {
-            log(&format!("Failed to send response: {}", e));
+            dt_warning(&format!("Failed to send response: {}", e));
         }
     }
     
@@ -459,11 +464,11 @@
                         let mut full_path = Path::new(dir).join(&candidate);
                         
                         if !full_path.exists() {
-                            log(&format!("Base filename available: {}", candidate));
+                            dt_debug(&format!("Base filename available: {}", candidate));
                             return Ok(candidate);
                         }
                         
-                        log(&format!("Base filename exists: {}, generating unique name", candidate));
+                        dt_info(&format!("Base filename exists: {}, generating unique name", candidate));
                         
                         for counter in 1..=MAX_ATTEMPTS {
                             candidate = if ext.is_empty() {
@@ -506,7 +511,7 @@
                                         }]
                                     }).to_string();
                                     
-                                    log(&format!("Upload successful: {}", response));
+                                    dt_info(&format!("Upload successful: {}", response));
                                     return response;
                                 }
                                 Err(e) => {
@@ -544,7 +549,6 @@
             sanitized
         }
     }
-
       
     fn handle_shopping_list() -> String {
         match run_yo_command(&["shop-list", "--list"]) {
@@ -579,8 +583,42 @@
             Err(_) => r#"{"error":"Devices file not found"}"#.to_string(),
         }
     }
+            
+    fn handle_device_rest_control(path: &str) -> String {
+        dt_info(&format!("Device control request: {}", path));    
+        let segments: Vec<&str> = path.split('/').collect();
+        
+        if segments.is_empty() {
+            dt_warning("Device control called without device name");
+            return r#"{"error":"Missing device name"}"#.to_string();
+        }
+        
+        let device_name = urldecode(segments[0]);
+        dt_info(&format!("Controlling device: {}", device_name));
+        
+        let mut commands = Vec::new();
+        let mut i = 1;
+        
+        while i < segments.len() {
+            if i + 1 < segments.len() {
+                let action = segments[i];
+                let value = urldecode(segments[i + 1]);
+                commands.push((action, value));
+                i += 2;
+            } else {
+                return r#"{"error":"Malformed command path"}"#.to_string();
+            }
+        }
+        
+        if commands.is_empty() {
+            return r#"{"error":"No commands specified"}"#.to_string();
+        }
+        
+        handle_device_combined_control(&device_name, &commands)
+    }
     
-    fn handle_device_control(device_name: &str, action: &str, value: &str) -> String {
+    fn handle_device_combined_control(device_name: &str, commands: &[(&str, String)]) -> String {
+        dt_info(&format!("Device '{}' commands: {:?}", device_name, commands)); 
         let devices_json = fs::read_to_string("devices.json").unwrap_or_else(|_| "{}".to_string());
         let devices: HashMap<String, serde_json::Value> = serde_json::from_str(&devices_json).unwrap_or_default();
     
@@ -594,83 +632,112 @@
     
         match found_device {
             Some(actual_name) => {
+                let mut message = HashMap::new();
+                
+                for (action, value) in commands {
+                    match *action {
+                        "state" => {
+                            match value.to_lowercase().as_str() {
+                                "on" => {
+                                    message.insert("state".to_string(), "ON".to_string());
+                                }
+                                "off" => {
+                                    message.insert("state".to_string(), "OFF".to_string());
+                                }
+                                _ => return format!(r#"{{"error":"Invalid state value: {}"}}"#, value),
+                            }
+                        }
+                        "brightness" => {
+                            if let Ok(brightness) = value.parse::<u16>() {
+                                message.insert("brightness".to_string(), brightness.to_string());
+
+                                if !message.contains_key("state") {
+                                    message.insert("state".to_string(), "ON".to_string());
+                                }
+                            } else {
+                                return format!(r#"{{"error":"Invalid brightness value: {}"}}"#, value);
+                            }
+                        }
+                        "color" | "colour" => {
+                            let hex_value = if value.starts_with('#') { value.clone() } else { format!("#{}", value) };
+                            if hex_value.len() == 7 {
+                                let color_map = HashMap::from([("hex".to_string(), hex_value)]);
+                                message.insert("color".to_string(), serde_json::to_string(&color_map).unwrap());
+
+                                if !message.contains_key("state") {
+                                    message.insert("state".to_string(), "ON".to_string());
+                                }
+                            } else {
+                                return format!(r#"{{"error":"Invalid color format, use #RRGGBB or RRGGBB"}}"#);
+                            }
+                        }
+                        "temperature" | "temp" | "color_temp" => {
+                            if let Ok(temp) = value.parse::<u16>() {
+                                message.insert("color_temp".to_string(), temp.to_string());
+                                if !message.contains_key("state") {
+                                    message.insert("state".to_string(), "ON".to_string());
+                                }
+                            } else {
+                                return format!(r#"{{"error":"Invalid temperature value: {}"}}"#, value);
+                            }
+                        }
+                        _ => return format!(r#"{{"error":"Unknown action: {}"}}"#, action),
+                    }
+                }
+                
+                let message_json = serde_json::to_string(&message).unwrap_or_else(|_| "{}".to_string());
                 let topic = format!("zigbee2mqtt/{}/set", actual_name);
-                let message = match action {
-                    "on" => r#"{"state": "ON"}"#.to_string(),
-                    "off" => r#"{"state": "OFF"}"#.to_string(),
-                    "brightness" => {
-                        if let Ok(brightness) = value.parse::<u16>() {
-                            format!(r#"{{"state": "ON", "brightness": {}}}"#, brightness)
-                        } else {
-                            r#"{"error":"Invalid brightness value"}"#.to_string()
-                        }
+                
+                match run_yo_command(&["mqtt_pub", "--topic", &topic, "--message", &message_json]) {
+                    Ok(_) => {
+                        let command_list: Vec<String> = commands.iter()
+                            .map(|(a, v)| format!("{}:{}", a, v))
+                            .collect();
+                        format!(r#"{{"status":"ok","device":"{}","commands":{}}}"#, 
+                            actual_name, serde_json::to_string(&command_list).unwrap())
                     }
-                    "color" => {
-                        if value.starts_with('#') && value.len() == 7 {
-                            format!(r#"{{"state": "ON", "color": {{"hex": "{}"}}}}"#, value)
-                        } else {
-                            r#"{"error":"Invalid color format, use #RRGGBB"}"#.to_string()
-                        }
-                    }
-                    "temp" => {
-                        if let Ok(temp) = value.parse::<u16>() {
-                            format!(r#"{{"state": "ON", "color_temp": {}}}"#, temp)
-                        } else {
-                            r#"{"error":"Invalid temperature value"}"#.to_string()
-                        }
-                    }
-                    _ => r#"{"error":"Unknown action"}"#.to_string()
-                };
-                if message.contains("error") {
-                    message
-                } else {
-                    match run_yo_command(&["mqtt_pub", "--topic", &topic, "--message", &message]) {
-                        Ok(_) => format!(r#"{{"status":"ok","device":"{}","action":"{}"}}"#, actual_name, action),
-                        Err(e) => format!(r#"{{"error":"Failed to control device: {}"}}"#, e),
+                    Err(e) => {
+                        dt_error(&format!("Failed to control device '{}': {}", actual_name, e));
+                        format!(r#"{{"error":"Failed to control device: {}"}}"#, e)
                     }
                 }
             }
             None => format!(r#"{{"error":"Device not found: {}"}}"#, device_name),
         }
     }
-    
+        
     fn handle_scene_activate(scene_name: &str) -> String {
         if scene_name.is_empty() {
+            dt_warning("Scene activation called with empty scene name");
             return r#"{"error":"Missing scene name"}"#.to_string();
         }
-        let scenes_json = fs::read_to_string("scenes.json").unwrap_or_else(|_| "{}".to_string());
-        let scenes: HashMap<String, serde_json::Value> = serde_json::from_str(&scenes_json).unwrap_or_default();
-    
-        let mut found_scene = None;
-        for (scene_key, _) in &scenes {
-            if scene_key.to_lowercase() == scene_name.to_lowercase() {
-                found_scene = Some(scene_key);
-                break;
+
+        dt_info(&format!("Activating scene: {}", scene_name));
+        // 🦆 says ⮞ load scenes from json
+        let scenes_content = match fs::read_to_string("scenes.json") {
+            Ok(content) => content,
+            Err(_) => {
+                dt_error("Scenes file not found");
+                return r#"{"error":"Scenes file not found"}"#.to_string();
             }
+        };
+
+        let scenes_map: HashMap<String, serde_json::Value> = 
+            serde_json::from_str(&scenes_content).unwrap_or_default();
+
+        // 🦆 says ⮞ lowercase mappin'
+        let mut scene_lowercase_map = HashMap::new();
+        for (scene_key, _) in &scenes_map {
+            scene_lowercase_map.insert(scene_key.to_lowercase(), scene_key.clone());
         }
+
+        let normalized_scene_name = scene_name.to_lowercase();
     
-        match found_scene {
-            Some(actual_scene) => {
-                let scene_commands = &scenes[actual_scene];
-                let mut success_count = 0;
-                let mut total_count = 0;
-    
-                if let Some(command_map) = scene_commands.as_object() {
-                    for (_device, command_value) in command_map {
-                        if let Some(command) = command_value.as_str() {
-                            total_count += 1;
-                            if run_yo_command(&["sh", "-c", command]).is_ok() {
-                                success_count += 1;
-                            }
-                        }
-                    }
-                }
-    
-                if success_count == total_count {
-                    format!(r#"{{"status":"ok","scene":"{}","devices_updated":{}}}"#, actual_scene, success_count)
-                } else {
-                    format!(r#"{{"status":"partial","scene":"{}","successful":{}, "failed":{}}}"#, 
-                        actual_scene, success_count, total_count - success_count)
+        match scene_lowercase_map.get(&normalized_scene_name) {
+            Some(actual_scene_name) => {
+                match run_yo_command(&["house", "--scene", actual_scene_name]) {
+                    Ok(_) => format!(r#"{{"status":"ok","scene":"{}"}}"#, actual_scene_name),
+                    Err(e) => format!(r#"{{"error":"Failed to activate scene: {}"}}"#, e),
                 }
             }
             None => format!(r#"{{"error":"Scene not found: {}"}}"#, scene_name),
@@ -744,6 +811,11 @@
     }
     
     fn handle_request(mut stream: TcpStream) {
+        let peer_addr = match stream.peer_addr() {
+            Ok(addr) => addr.to_string(),
+            Err(_) => "unknown".to_string(),
+        };
+
         let mut reader = BufReader::new(&stream);
         let mut request_line = String::new();
         
@@ -752,6 +824,9 @@
             log("No data on stdin; exiting");
             return;
         }
+        // 🦆 says ⮞ log requester ip
+        dt_info(&format!("[{}] Request: {}", peer_addr, request_line.trim()));
+        
         log(&format!("Request: {}", request_line.trim()));
     
         let parts: Vec<&str> = request_line.split_whitespace().collect();
@@ -813,9 +888,17 @@
     
         // 🦆 says ⮞ route the request
         match (method, path_no_query) {
+            // 🦆 says ⮞ handle CORS preflight
+            ("OPTIONS", _) => {
+                dt_debug("CORS preflight request");
+                send_response(&mut stream, "200 OK", "", None);
+                return;
+            }
+        
             ("GET", "/") => {
+                dt_info("Root endpoint requested");
                 send_response(&mut stream, "200 OK", 
-                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/control","/scene/activate","/device/rooms","/device/types","/upload","/tts"]}"#, 
+                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/{device}/...","/scene/{scene}","/device/rooms","/device/types","/upload","/tts"]}"#,
                     None);
             }
             ("GET", "/browsev2") | ("GET", "/api/browsev2") => {
@@ -831,31 +914,51 @@
             ("GET", "/add") | ("GET", "/api/add") => {
                 let path_arg = get_path_arg(query);
                 if path_arg.is_empty() {
+                    dt_warning("Add endpoint called without path parameter");
                     send_response(&mut stream, "400 Bad Request", r#"{"error":"Missing path parameter"}"#, None);
                     return;
                 }
-                log(&format!("Adding file: {}", path_arg));
+
                 match run_yo_command(&["vlc", "--add", &path_arg]) {
-                    Ok(_) => send_response(&mut stream, "200 OK", &format!(r#"{{"status":"ok","action":"add","path":"{}"}}"#, path_arg), None),
-                    Err(_) => send_response(&mut stream, "500 Internal Server Error", &format!(r#"{{"error":"Failed to add file","path":"{}"}}"#, path_arg), None),
+                    Ok(_) => {
+                        dt_info(&format!("File added to playlist: {}", path_arg));
+                        send_response(&mut stream, "200 OK", &format!(r#"{{"status":"ok","action":"add","path":"{}"}}"#, path_arg), None);
+                    }
+                    Err(e) => {
+                        dt_error(&format!("Failed to add file '{}': {}", path_arg, e));
+                        send_response(&mut stream, "500 Internal Server Error", &format!(r#"{{"error":"Failed to add file","path":"{}"}}"#, path_arg), None);
+                    }
                 }
             }
             ("GET", "/add_folder") | ("GET", "/api/add_folder") => {
                 let path_arg = get_path_arg(query);
                 if path_arg.is_empty() {
+                    dt_warning("Add folder endpoint called without path parameter");
                     send_response(&mut stream, "400 Bad Request", r#"{"error":"Missing path parameter"}"#, None);
                     return;
                 }
                 log(&format!("Adding folder: {}", path_arg));
                 match run_yo_command(&["vlc", "--addDir", &path_arg]) {
-                    Ok(_) => send_response(&mut stream, "200 OK", &format!(r#"{{"status":"ok","action":"add_folder","path":"{}"}}"#, path_arg), None),
-                    Err(_) => send_response(&mut stream, "500 Internal Server Error", &format!(r#"{{"error":"Failed to add folder","path":"{}"}}"#, path_arg), None),
+                    Ok(_) => {
+                        dt_info(&format!("✅ Folder added to playlist: {}", path_arg));
+                        send_response(&mut stream, "200 OK", &format!(r#"{{"status":"ok","action":"add_folder","path":"{}"}}"#, path_arg), None);
+                    }
+                    Err(e) => {
+                        dt_error(&format!("❌ Failed to add folder '{}': {}", path_arg, e));
+                        send_response(&mut stream, "500 Internal Server Error", &format!(r#"{{"error":"Failed to add folder","path":"{}"}}"#, path_arg), None);
+                    }
                 }
             }
             ("GET", "/timers") | ("GET", "/api/timers") => {
                 match run_yo_command(&["timer", "--list"]) {
-                    Ok(output) => send_response(&mut stream, "200 OK", &output, None),
-                    Err(_) => send_response(&mut stream, "500 Internal Server Error", r#"{"error":"Failed to fetch timers"}"#, None),
+                    Ok(output) => {
+                        dt_info("Listing timers");
+                        send_response(&mut stream, "200 OK", &output, None);
+                    }
+                    Err(e) => {
+                        dt_error(&format!("Failed to fetch timers: {}", e));
+                        send_response(&mut stream, "500 Internal Server Error", r#"{"error":"Failed to fetch timers"}"#, None);
+                    }
                 }
             }
             ("GET", "/alarms") | ("GET", "/api/alarms") => {
@@ -889,6 +992,7 @@
             ("GET", "/playlist/remove") | ("GET", "/api/playlist/remove") => {
                 let index_str = get_query_arg(query, "index");
                 if index_str.is_empty() {
+                    dt_warning("Playlist remove called without index");
                     send_response(&mut stream, "400 Bad Request", r#"{"error":"Missing index parameter"}"#, None);
                     return;
                 }
@@ -900,6 +1004,7 @@
                                 if let Some(playlist_array) = parsed.get("playlist").and_then(|p| p.as_array()) {
                                     let index = index_str.parse::<usize>().unwrap_or(usize::MAX);
                                     if index >= playlist_array.len() {
+                                        dt_warning(&format!("Index {} out of bounds (playlist has {} items)", index, playlist_array.len()));
                                         send_response(&mut stream, "400 Bad Request", 
                                             &format!(r#"{{"error":"Index {} out of bounds (playlist has {} items)"}}"#, 
                                             index, playlist_array.len()), None);
@@ -909,48 +1014,75 @@
                                     if let Some(path_value) = playlist_array.get(index) {
                                         if let Some(path) = path_value.as_str() {
                                             match run_yo_command(&["vlc", "--remove", "true", "--add", path]) {
-                                                Ok(_) => send_response(&mut stream, "200 OK", 
-                                                    &format!(r#"{{"status":"ok","action":"remove","index":{},"path":"{}"}}"#, index, path), None),
-                                                Err(e) => send_response(&mut stream, "500 Internal Server Error", 
-                                                    &format!(r#"{{"error":"Failed to remove item: {}"}}"#, e), None),
+                                                Ok(_) => {
+                                                    dt_info(&format!("✅ Removed playlist item {}: {}", index, path));
+                                                    send_response(&mut stream, "200 OK", 
+                                                        &format!(r#"{{"status":"ok","action":"remove","index":{},"path":"{}"}}"#, index, path), None);
+                                                }
+                                                Err(e) => {
+                                                    dt_error(&format!("❌ Failed to remove playlist item {}: {}", index, e));
+                                                    send_response(&mut stream, "500 Internal Server Error", 
+                                                        &format!(r#"{{"error":"Failed to remove item: {}"}}"#, e), None);
+                                                }
                                             }
                                         } else {
+                                            dt_error(&format!("Invalid path format at index {}", index));
                                             send_response(&mut stream, "500 Internal Server Error", 
                                                 r#"{"error":"Invalid path format in playlist"}"#, None);
                                         }
                                     } else {
+                                        dt_warning(&format!("Invalid index: {}", index));
                                         send_response(&mut stream, "400 Bad Request", 
                                             &format!(r#"{{"error":"Invalid index: {}"}}"#, index), None);
                                     }
                                 } else {
+                                    dt_error("Invalid playlist format");
                                     send_response(&mut stream, "500 Internal Server Error", 
                                         r#"{"error":"Invalid playlist format"}"#, None);
                                 }
                             }
-                            Err(e) => send_response(&mut stream, "500 Internal Server Error", 
-                                &format!(r#"{{"error":"Failed to parse playlist: {}"}}"#, e), None),
-                        }
+                            Err(e) => {
+                                dt_error(&format!("Failed to parse playlist JSON: {}", e));
+                                send_response(&mut stream, "500 Internal Server Error", 
+                                    &format!(r#"{{"error":"Failed to parse playlist: {}"}}"#, e), None);
+                            }
+                        }    
                     }
-                    Err(e) => send_response(&mut stream, "500 Internal Server Error", 
-                        &format!(r#"{{"error":"Failed to fetch playlist: {}"}}"#, e), None),
+                    Err(e) => {
+                        dt_error(&format!("Failed to fetch playlist: {}", e));
+                        send_response(&mut stream, "500 Internal Server Error", 
+                            &format!(r#"{{"error":"Failed to fetch playlist: {}"}}"#, e), None);
+                    }
                 }
             }
 
             ("GET", "/playlist/clear") | ("GET", "/api/playlist/clear") => {
                 match run_yo_command(&["vlc", "--clear", "true"]) {
-                    Ok(_) => send_response(&mut stream, "200 OK", 
-                        r#"{"status":"ok","action":"clear","message":"Playlist cleared"}"#, None),
-                    Err(e) => send_response(&mut stream, "500 Internal Server Error", 
-                        &format!(r#"{{"error":"Failed to clear playlist: {}"}}"#, e), None),
+                    Ok(_) => {
+                        dt_info("🗑️ Clearing entire playlist");
+                        send_response(&mut stream, "200 OK", 
+                            r#"{"status":"ok","action":"clear","message":"Playlist cleared"}"#, None);
+                    }
+                    Err(e) => {
+                        dt_error(&format!("Failed to clear playlist: {}", e));
+                        send_response(&mut stream, "500 Internal Server Error", 
+                            &format!(r#"{{"error":"Failed to clear playlist: {}"}}"#, e), None);
+                    }
                 }
             }
 
             ("GET", "/playlist/shuffle") | ("GET", "/api/playlist/shuffle") => {
                 match run_yo_command(&["vlc", "--shuffle", "true"]) {
-                    Ok(_) => send_response(&mut stream, "200 OK", 
-                        r#"{"status":"ok","action":"shuffle","message":"Playlist shuffled"}"#, None),
-                    Err(e) => send_response(&mut stream, "500 Internal Server Error", 
-                        &format!(r#"{{"error":"Failed to shuffle playlist: {}"}}"#, e), None),
+                    Ok(_) => {
+                        dt_info("Playlist shuffled");
+                        send_response(&mut stream, "200 OK", 
+                            r#"{"status":"ok","action":"shuffle","message":"Playlist shuffled"}"#, None);
+                    }
+                    Err(e) => {
+                        dt_error(&format!("Failed to shuffle playlist: {}", e));
+                        send_response(&mut stream, "500 Internal Server Error", 
+                            &format!(r#"{{"error":"Failed to shuffle playlist: {}"}}"#, e), None);
+                    }
                 }
             }
                      
@@ -968,30 +1100,44 @@
                 send_response(&mut stream, "200 OK", &response, None);
             }
             
-            ("GET", "/device/control") | ("GET", "/api/device/control") => {
-                let device_name = get_query_arg(query, "device");
-                let action = get_query_arg(query, "action");
-                let value = get_query_arg(query, "value");
-    
-                if device_name.is_empty() || action.is_empty() {
-                    send_response(&mut stream, "400 Bad Request", r#"{"error":"Missing device or action parameters"}"#, None);
-                    return;
-                }
-    
-                let response = handle_device_control(&device_name, &action, &value);
-                if response.contains("error") {
-                    send_response(&mut stream, "400 Bad Request", &response, None);
+            ("GET", path) if path.starts_with("/device/") || path.starts_with("/api/device/") => {
+                let rest = if let Some(stripped) = path.strip_prefix("/api/device/") {
+                    stripped
+                } else if let Some(stripped) = path.strip_prefix("/device/") {
+                    stripped
                 } else {
+                    path
+                };
+    
+                if rest == "list" || rest == "rooms" || rest == "types" {
+                    // let existing handlers handle 'em
+                } else {
+                    dt_info(&format!("Device control: {}", rest));
+                    let response = handle_device_rest_control(rest);
                     send_response(&mut stream, "200 OK", &response, None);
+                    return;
                 }
             }
             
-            ("GET", "/scene/activate") | ("GET", "/api/scene/activate") => {
-                let scene_name = get_query_arg(query, "name");
-                let response = handle_scene_activate(&scene_name);
+            ("GET", path) if path.starts_with("/scene/") || path.starts_with("/api/scene/") => {
+                let scene_name = if let Some(stripped) = path.strip_prefix("/api/scene/") {
+                    stripped
+                } else if let Some(stripped) = path.strip_prefix("/scene/") {
+                    stripped
+                } else {
+                    path
+                };
+    
+                // 🦆 says ⮞ replace + with spaces
+                let decoded_scene_name = scene_name.replace('+', " ");
+                dt_info(&format!("Scene activation: {}", decoded_scene_name));
+                
+                let response = handle_scene_activate(&decoded_scene_name);
                 if response.contains("error") {
+                    dt_warning(&format!("Scene not found: {}", decoded_scene_name));
                     send_response(&mut stream, "404 Not Found", &response, None);
                 } else {
+                    dt_info(&format!("Scene activated: {}", decoded_scene_name));
                     send_response(&mut stream, "200 OK", &response, None);
                 }
             }
@@ -1005,24 +1151,25 @@
                 let response = handle_types_list();
                 send_response(&mut stream, "200 OK", &response, None);
             }
-
+         
             ("GET", "/tts") => {
-                let text = get_query_arg(query, "text");
-    
+                let text = urldecode(&get_query_arg(query, "text"));
                 if text.is_empty() {
+                    dt_warning("TTS endpoint called without text");
                     send_response(&mut stream, "400 Bad Request", 
                         r#"{"error":"Missing text parameter"}"#, None);
                     return;
                 }
-    
-
+                dt_info(&format!("TTS request: {}", text));
+                
                 let output = std::process::Command::new("yo")
                     .args(&["say", "--text", &text, "--web"])
                     .output();
-    
+            
                 match output {
                     Ok(output) if output.status.success() => {
                         let wav_path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+                        dt_info(&format!("TTS generated: {}", wav_path));
             
                         match std::fs::read(&wav_path) {
                             Ok(content) => {
@@ -1034,21 +1181,22 @@
                                      Cache-Control: no-cache\r\n\r\n",
                                     content.len()
                                 );
-                    
+            
                                 if let Err(e) = stream.write_all(response.as_bytes()) {
-                                    log(&format!("Failed to send headers: {}", e));
+                                    dt_error(&format!("Failed to send headers: {}", e));
                                     return;
                                 }
-                    
+            
                                 if let Err(e) = stream.write_all(&content) {
-                                    log(&format!("Failed to send audio: {}", e));
+                                    dt_error(&format!("Failed to send audio: {}", e));
                                 }
-                    
-
-                                let _ = std::fs::remove_file(&wav_path);
+                                
+                                if let Err(e) = std::fs::remove_file(&wav_path) {
+                                    dt_warning(&format!("Failed to remove TTS file {}: {}", wav_path, e));
+                                }
                             }
                             Err(e) => {
-                                log(&format!("Failed to read WAV file: {}", e));
+                                dt_error(&format!("Failed to read WAV file: {}", e));
                                 send_response(&mut stream, "500 Internal Server Error", 
                                     r#"{"error":"Failed to read audio"}"#, None);
                             }
@@ -1056,26 +1204,27 @@
                     }
                     Ok(output) => {
                         let stderr = String::from_utf8_lossy(&output.stderr);
-                        log(&format!("TTS command failed: {}", stderr));
+                        dt_error(&format!("TTS command failed: {}", stderr));
                         send_response(&mut stream, "500 Internal Server Error", 
                             &format!(r#"{{"error":"TTS failed: {}"}}"#, stderr), None);
                     }
                     Err(e) => {
-                        log(&format!("Failed to run TTS command: {}", e));
+                        dt_error(&format!("Failed to run TTS command: {}", e));
                         send_response(&mut stream, "500 Internal Server Error", 
                             &format!(r#"{{"error":"TTS command failed: {}"}}"#, e), None);
                     }
                 }
             }
-            
+                  
             ("GET", "/do") | ("GET", "/api/do") => {
                 let command = get_query_arg(query, "cmd");
                 if command.is_empty() {
+                    dt_warning("Do endpoint called without command");
                     send_response(&mut stream, "400 Bad Request", r#"{"error":"Missing cmd parameter"}"#, None);
                     return;
                 }
-    
-                log(&format!("Executing command: {}", command));
+                
+                dt_info(&format!("Executing command: {}", command));
                 let natural_language = if command.to_lowercase().starts_with("do ") {
                     command[3..].trim().to_string()
                 } else {
@@ -1083,6 +1232,7 @@
                 };
     
                 if natural_language.is_empty() {
+                    dt_warning("Empty command after 'do'");
                     send_response(&mut stream, "400 Bad Request", r#"{"error":"Empty command after 'do'"}"#, None);
                     return;
                 }
@@ -1097,12 +1247,14 @@
                             .collect::<Vec<&str>>()
                             .join("\n");        
                         let cleaned_output = filtered_output.replace('"', "\\\"").replace('\n', "\\n");
+                        dt_info(&format!("Command executed successfully: {}", natural_language));
                         let response = format!(r#"{{"status":"success","command":"{}","output":"{}"}}"#, 
                             natural_language, cleaned_output.trim());
                         send_response(&mut stream, "200 OK", &response, None);
                     }
                     Err(error) => {
                         let cleaned_error = error.replace('"', "\\\"").replace('\n', "\\n");
+                        dt_error(&format!("Command failed '{}': {}", natural_language, cleaned_error));
                         let response = format!(r#"{{"status":"error","command":"{}","error":"{}"}}"#, 
                             natural_language, cleaned_error.trim());
                         send_response(&mut stream, "500 Internal Server Error", &response, None);
@@ -1111,7 +1263,13 @@
             }
             
             ("POST", "/upload") | ("POST", "/api/upload") => {
+                dt_info("File upload request");
                 let response = handle_file_upload(&headers, &body);
+                if response.contains("error") {
+                    dt_error(&format!("Upload failed: {}", response));
+                } else {
+                    dt_info("File uploaded successfully");
+                }
                 send_response(&mut stream, "200 OK", &response, None);
             }
             
@@ -1151,21 +1309,38 @@
         }
     
         let listener = TcpListener::bind(&address).expect("Failed to bind to address");
-        log(&format!("Starting yo API server on {}:{}", host, port));
-        log("Endpoints:");
-        log("  GET /timers     - List timers");
-        log("  GET /alarms     - List alarms");
-        log("  GET /shopping   - List shopping items");
-        log("  GET /health     - Health check (no auth required)");
-        log("  GET /do?cmd=... - Execute natural language commands");
-        log("  GET /device/list - List all devices");
-        log("  GET /device/control - Control devices");
-        log("  GET /scene/activate - Activate scenes");
-        log("  GET /device/rooms - List devices by room");
-        log("  GET /device/types - List devices by type");
-        log("  POST /upload     - Upload files");
-        log("Authentication:");
-        log("  All endpoints except /health require password authentication");
+        log("Available endpoints:");
+        log("  GET /timers                     - List timers");
+        log("  GET /alarms                     - List alarms");
+        log("  GET /shopping                   - List shopping items");
+        log("  GET /reminders                  - List reminders");
+        log("  GET /health                     - Health check (no auth required)");
+        log("  GET /health/all                 - All health checks (no auth required)");
+        log("  GET /do?cmd=...                 - Execute natural language commands");
+        log("  GET /browse?path=...            - Browse media directory (legacy)");
+        log("  GET /browsev2?path=...          - Browse media directory (improved)");
+        log("  GET /add?path=...               - Add file to playlist");
+        log("  GET /add_folder?path=...        - Add folder to playlist");
+        log("  GET /playlist                   - Get current playlist");
+        log("  GET /playlist/remove?index=...  - Remove item from playlist");
+        log("  GET /playlist/clear             - Clear playlist");
+        log("  GET /playlist/shuffle           - Shuffle playlist");
+        log("  GET /tts?text=...               - Text to speech");
+        log("  GET /device/list                - List all devices");
+        log("  GET /device/rooms               - List devices by room");
+        log("  GET /device/types               - List devices by type");
+        log("  GET /scene/{scene}              - Activate scene (e.g., /scene/dark)");
+        log("  GET /device/{device}/{command}/{value} - Control devices");
+        log("      Examples:");
+        log("      /device/PC/state/on                     - Turn device on");
+        log("      /device/PC/state/off                    - Turn device off");
+        log("      /device/PC/brightness/200               - Set brightness");
+        log("      /device/PC/color/%23FF5733              - Set color (#FF5733)");
+        log("      /device/PC/temperature/300              - Set color temperature");
+        log("      /device/PC/state/on/brightness/200      - Combined commands");
+        log("  POST /upload                     - Upload files");
+        log("🔐 Authentication:");
+        log("  All endpoints except /health and /health/all require password authentication");
         log("  Use: Authorization: Bearer <password> header");
         log("  Or:  X-API-Key: <password> header");
         log("  Or:  ?password=<password> query parameter");
@@ -1239,22 +1414,15 @@ in {
       echo "curl 'http://${mqttHostip}:9815/do?cmd=your%20cmmand%20here&password=\$PASS'"
       
       echo "# Control devices:"
-      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/control?device=living_room_lamp&action=on'"
-      
-      echo "# Turn on a light"
-      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/control?device=PC&action=on'"
-      
-      echo "# Set brightness:"
-      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/control?device=bedroom_light&action=brightness&value=150'"
-      
-      echo "# Set color:"
-      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/control?device=kitchen_light&action=color&value=%23FF5733'"
-      
-      echo "# Set color temperature:"
-      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/control?device=office_light&action=temp&value=300'"
-      
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/state/on'"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/state/off'"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/brightness/150'"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/color/%23FF5733'"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/temperature/300'"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/state/on/brightness/200'"
+  
       echo "# Activate a scene:"
-      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/scene/activate?name=evening_relax'"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/scene/dark'"
 
       echo "# List devices:"
       echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/list'"

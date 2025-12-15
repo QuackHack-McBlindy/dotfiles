@@ -6,6 +6,7 @@
   pkgs,
   sysHosts,
   cmdHelpers,
+  RustDuckTrace,
   ...
 } : let
   cfg = config.yo;
@@ -24,18 +25,13 @@
       # 🦆 says ⮞ .. pointless if it haz no sentence data ..
       hasSentences = builtins.any (data: data ? sentences && data.sentences != []) intent.data;
     in # 🦆 says ⮞ .. so datz how we build da scriptz!
-#      builtins.hasAttr scriptName generatedIntents && hasSentences
-#  ) scriptNames; # 🦆 says ⮞ datz quackin' cool huh?!
       builtins.hasAttr scriptName generatedIntents && hasSentences
-  ) (builtins.attrNames scriptsWithVoice);
+  ) (builtins.attrNames scriptsWithVoice); # 🦆 says ⮞ datz quackin' cool huh?!
 
-
-#  scriptsWithVoice = lib.filterAttrs (_: script: script.voice != null) config.yo.scripts;
   # 🦆 says ⮞ only scripts with voice enabled and non-null voice config
   scriptsWithVoice = lib.filterAttrs (_: script: 
     script.voice != null && (script.voice.enabled or true)
   ) config.yo.scripts;
-
   
   # 🦆 says ⮞ generate intents
   generatedIntents = lib.mapAttrs (name: script: {
@@ -683,16 +679,15 @@
   else ""; # 🦆 duck say ⮞ no match? empty string
 
   # 🦆 duck say ⮞ u like speed too? Rusty Speed inc
-  do-rs = pkgs.writeText "do.rs" ''
-    // 🦆 SCREAMS ⮞ 500x++ FASTER!!🚀
+  do-rs = pkgs.writeText "do.rs" '' // 🦆 SCREAMS ⮞ 500x++ FASTER!!🚀
+    // 🦆 say ⮞ load da duck loggin' 
+    ${RustDuckTrace}  
+  
     use std::collections::HashMap;
-    use std::env;
     use std::fs;
     use std::process::{Command, exit};
     use regex::Regex;
     use serde::{Deserialize, Serialize};
-    use std::time::Instant;
-
 
     use tokio_tungstenite::{connect_async, tungstenite::protocol::Message};
     use futures_util::{SinkExt, StreamExt};
@@ -980,7 +975,7 @@
         }
 
         async fn process_transcription(&self, text: &str) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info(&format!("Real-time transcription: {}", text));
+            dt_info(&format!("Real-time transcription: {}", text));
             
             // 🦆 says ⮞ Process with existing NLP logic
             if let Some(match_result) = self.exact_match(text) {
@@ -988,7 +983,7 @@
             } else if let Some(match_result) = self.fuzzy_match(text) {
                 self.execute_script(&match_result)?;
             } else {
-                self.quack_debug(&format!("No command found for: {}", text));
+                dt_debug(&format!("No command found for: {}", text));
             }
             
             Ok(())
@@ -997,7 +992,7 @@
         // 🦆 says ⮞ Real-time mode
         pub async fn run_realtime(&mut self) -> Result<(), Box<dyn std::error::Error>> {
             let client = TranscriptionClient::new(Arc::new(self.clone())).await?;
-            self.quack_info("🦆 Real-time NLP mode activated - listening for transcriptions...");
+            dt_info("🦆 Real-time NLP mode activated - listening for transcriptions...");
             
             // 🦆 says ⮞ Keep alive
             tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
@@ -1051,9 +1046,9 @@
             
             // 🦆 says ⮞ log fuzzy matchin' candidates for analysis
             if !fuzzy_candidates.is_empty() {
-                self.quack_debug(&format!("Fuzzy candidates for '{}':", input));
+                dt_debug(&format!("Fuzzy candidates for '{}':", input));
                 for (script, sentence, score) in fuzzy_candidates {
-                    self.quack_debug(&format!("  {}%: {} -> {}", score, sentence, script));
+                    dt_debug(&format!("  {}%: {} -> {}", score, sentence, script));
                 }
             }        
             Ok(())
@@ -1094,28 +1089,17 @@
         fn load_intent_data(&mut self, intent_data_path: &str) -> Result<(), Box<dyn std::error::Error>> {
             let data = fs::read_to_string(intent_data_path)?;
             self.intent_data = serde_json::from_str(&data)?;
-            self.quack_debug(&format!("🦆 Loaded intent data for {} scripts", self.intent_data.len()));
+            dt_debug(&format!("🦆 Loaded intent data for {} scripts", self.intent_data.len()));
             Ok(())
         }
     
         fn load_fuzzy_index(&mut self, fuzzy_index_path: &str) -> Result<(), Box<dyn std::error::Error>> {
             let data = fs::read_to_string(fuzzy_index_path)?;
             self.fuzzy_index = serde_json::from_str(&data)?;
-            self.quack_debug(&format!("🦆 Loaded {} fuzzy index entries", self.fuzzy_index.len()));
+            dt_debug(&format!("🦆 Loaded {} fuzzy index entries", self.fuzzy_index.len()));
             Ok(())
         }
-    
-        // 🦆 says ⮞ DUCK DEBUGGER - quack while you work!
-        fn quack_debug(&self, msg: &str) {
-            if self.debug {
-                eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ {}", msg);
-            }
-        }
-    
-        fn quack_info(&self, msg: &str) {
-            eprintln!("[🦆📜] ✅INFO✅ ⮞ {}", msg);
-        }
-    
+        
         // 🦆 says ⮞ OPTIONAL WORD EXPANDER - make all the combinations!
         fn expand_optional_words(&self, sentence: &str) -> Vec<String> {
             let tokens: Vec<&str> = sentence.split_whitespace().collect();
@@ -1181,7 +1165,7 @@
                     
                     // 🦆 says ⮞ exact match
                     if pattern == normalized_input {
-                        self.quack_debug(&format!("      Exact entity match: {} → {}", param_value, sub.value));
+                        dt_debug(&format!("      Exact entity match: {} → {}", param_value, sub.value));
                         return sub.value.clone();
                     }
                     
@@ -1189,7 +1173,7 @@
                     if pattern.starts_with('(') && pattern.ends_with(')') {
                         let content = &pattern[1..pattern.len()-1]; // 🦆 says ⮞ remove parentheses
                         if content == normalized_input {
-                            self.quack_debug(&format!("      Parenthesized entity match: {} → {}", param_value, sub.value));
+                            dt_debug(&format!("      Parenthesized entity match: {} → {}", param_value, sub.value));
                             return sub.value.clone();
                         }
                     }
@@ -1200,7 +1184,7 @@
                         let alternatives: Vec<&str> = content.split('|').collect();
                         for alternative in alternatives {
                             if alternative.trim() == normalized_input {
-                                self.quack_debug(&format!("      Parenthesized alternative match: {} → {}", param_value, sub.value));
+                                dt_debug(&format!("      Parenthesized alternative match: {} → {}", param_value, sub.value));
                                 return sub.value.clone();
                             }
                         }
@@ -1208,7 +1192,7 @@
                 }
                 
                 // 🦆 says ⮞ Debug: show what we tried to match against
-                self.quack_debug(&format!("      No entity match found for '{}' in {} substitutions", 
+                dt_debug(&format!("      No entity match found for '{}' in {} substitutions", 
                     param_value, intent.substitutions.len()));
             }
             
@@ -1218,7 +1202,7 @@
         // 🦆 says ⮞ DYNAMIC REGEX BUILDER - quacky pattern magic!
         fn build_pattern_matcher(&self, script_name: &str, sentence: &str) -> Option<(Regex, Vec<String>)> {
             let start_time = Instant::now();
-            self.quack_debug(&format!("    Building pattern matcher for: '{}'", sentence));
+            dt_debug(&format!("    Building pattern matcher for: '{}'", sentence));
     
             let mut regex_parts = Vec::new();
             let mut param_names = Vec::new();
@@ -1242,11 +1226,11 @@
 
                     let regex_group = if is_wildcard {
                         // 🦆 says ⮞ wildcard - match anything!
-                        self.quack_debug(&format!("      Wildcard parameter: {}", param));
+                        dt_debug(&format!("      Wildcard parameter: {}", param));
                         "(.*)".to_string()
                     } else {
                         // 🦆 says ⮞ specific parameter
-                        self.quack_debug(&format!("      Specific parameter: {}", param));
+                        dt_debug(&format!("      Specific parameter: {}", param));
                         let mut lookahead = after_param.to_string();
                         let next_is_wildcard = loop {
                             if let Some(next_start) = lookahead.find('{') {
@@ -1283,16 +1267,16 @@
             let regex_pattern = format!("^{}$", regex_parts.join(""));
             
             let build_time = start_time.elapsed();
-            self.quack_debug(&format!("      Final regex: {}", regex_pattern));
-            self.quack_debug(&format!("      Parameter names: {:?}", param_names));
-            self.quack_debug(&format!("      Regex build time: {:?}", build_time));  
+            dt_debug(&format!("      Final regex: {}", regex_pattern));
+            dt_debug(&format!("      Parameter names: {:?}", param_names));
+            dt_debug(&format!("      Regex build time: {:?}", build_time));  
             match Regex::new(&regex_pattern) {
                 Ok(re) => {
-                    self.quack_debug("      Regex compiled successfully");
+                    dt_debug("      Regex compiled successfully");
                     Some((re, param_names))
                 },
                 Err(e) => {
-                    self.quack_debug(&format!("🦆 says ⮞ fuck ❌ Regex compilation failed: {}", e));
+                    dt_debug(&format!("🦆 says ⮞ fuck ❌ Regex compilation failed: {}", e));
                     None
                 },
             }
@@ -1305,7 +1289,7 @@
                 // 🦆 says ⮞ start wit base priority from voice config
                 let base_priority = 3; // 🦆 says ⮞ TODO: from voice config
                 // 🦆be⮞debuggin'
-                self.quack_debug(&format!("Memory context: last_action={}, recent_commands={}", 
+                dt_debug(&format!("Memory context: last_action={}, recent_commands={}", 
                     self.memory_data.context.last_action, 
                     self.memory_data.history.recent_commands.len()));
         
@@ -1320,7 +1304,7 @@
                 // 🦆 says ⮞ booztz 4 context match (if dis script was last action)
                 if self.memory_data.context.last_action == *script_name {
                     adjusted_priority -= 2; // Big boost for context continuity
-self.quack_debug(&format!("  Context boost applied for {} (last action)", script_name));
+dt_debug(&format!("  Context boost applied for {} (last action)", script_name));
                 }        
                 // 🦆says⮞ b(.)(.)bs for confirmed patterns
                 let confirmation_key = format!("{}:", script_name);
@@ -1330,7 +1314,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                     .count();
                 adjusted_priority -= confirmation_count as i32;
                 if confirmation_count > 0 {
-                    self.quack_debug(&format!("  Confirmation boost: {} patterns confirmed", confirmation_count));
+                    dt_debug(&format!("  Confirmation boost: {} patterns confirmed", confirmation_count));
                 }
                 // 🦆says⮞priority? don't u dare go below da zero
                 adjusted_priority = adjusted_priority.max(0);  
@@ -1345,7 +1329,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                     has_complex_patterns,
                 });
         
-                self.quack_info(&format!("MEMORY ADJUSTMENT: {}: base={} → adjusted={} (uses={}, confirms={}, context={})", 
+                dt_info(&format!("MEMORY ADJUSTMENT: {}: base={} → adjusted={} (uses={}, confirms={}, context={})", 
                     script_name, base_priority, adjusted_priority, recent_usage, confirmation_count,
                     if self.memory_data.context.last_action == *script_name { "YES" } else { "NO" }));
             }
@@ -1358,7 +1342,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             });
 
             self.processing_order = script_priorities;
-            self.quack_debug(&format!("Final processing order with memory: {:?}", 
+            dt_debug(&format!("Final processing order with memory: {:?}", 
                 self.processing_order.iter().map(|s| format!("{}[{}]", s.name, s.priority)).collect::<Vec<_>>()));
         }
     
@@ -1376,7 +1360,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                             let original = original_match.as_str().to_string();
                             resolved_text = re.replace_all(&resolved_text, &sub.value).to_string();
                             substitutions.insert(original.clone(), sub.value.clone());
-                            self.quack_debug(&format!("      Real-time sub: {} → {}", original, sub.value));
+                            dt_debug(&format!("      Real-time sub: {} → {}", original, sub.value));
                         }
                     }
                 }
@@ -1388,15 +1372,15 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
         fn exact_match(&self, text: &str) -> Option<MatchResult> {
             let global_start = Instant::now();
             let text = text.to_lowercase();     
-            self.quack_debug(&format!("Starting EXACT match for: '{}'", text));
+            dt_debug(&format!("Starting EXACT match for: '{}'", text));
         
             for (script_index, script_priority) in self.processing_order.iter().enumerate() {
                 let script_name = &script_priority.name; 
-                self.quack_debug(&format!("Trying script [{}/{}]: {}", 
+                dt_debug(&format!("Trying script [{}/{}]: {}", 
                     script_index + 1, self.processing_order.len(), script_name));
                 // 🦆 says ⮞ go real-time substitutions i choose u!
                 let (resolved_text, substitutions) = self.apply_real_time_substitutions(script_name, &text);
-                self.quack_debug(&format!("After substitutions: '{}'", resolved_text));
+                dt_debug(&format!("After substitutions: '{}'", resolved_text));
                 if let Some(intent) = self.intent_data.get(script_name) {
                     for sentence in &intent.sentences {
                         let expanded_variants = self.expand_optional_words(sentence);
@@ -1417,21 +1401,21 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                         
                                             let mut param_value = matched.as_str().to_string();     
                                             // 🦆 says ⮞ go entity resolution i choose u!
-                                            self.quack_debug(&format!("Before entity resolution: --{} {}", param_name, param_value));
+                                            dt_debug(&format!("Before entity resolution: --{} {}", param_name, param_value));
                                             
                                             let entity_resolved = self.resolve_entity(script_name, param_name, &param_value);
                                             if entity_resolved != param_value {
-                                                self.quack_debug(&format!("      Entity resolution: --{} {} → {}", 
+                                                dt_debug(&format!("      Entity resolution: --{} {} → {}", 
                                                     param_name, param_value, entity_resolved));
                                                 param_value = entity_resolved;
                                             }
                                             
                                             if let Some(sub) = substitutions.get(&param_value) {
-                                                self.quack_debug(&format!("      Substitution: {} → {}", param_value, sub));
+                                                dt_debug(&format!("      Substitution: {} → {}", param_value, sub));
                                                 param_value = sub.clone();
                                             }
                                             
-                                            self.quack_debug(&format!("      Final argument: --{} {}", param_name, param_value));
+                                            dt_debug(&format!("      Final argument: --{} {}", param_name, param_value));
                                             args.push(format!("--{}", param_name));
                                             args.push(param_value);
                                         }
@@ -1440,7 +1424,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                                     return Some(MatchResult {
                                         script_name: script_name.clone(),
                                         args,
-                                        matched_sentence: variant,
+                                        matched_sentence: text.clone(),
                                         processing_time: global_start.elapsed(),
                                     });
                                 }
@@ -1451,7 +1435,6 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             }          
             None
         }
-
 
                  
         // 🦆 says ⮞ fallback yo! FUZZY MATCHIN' 2 teh moon!
@@ -1484,7 +1467,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             let normalized_input = text.to_lowercase();
             let mut best_score = 0;
             let mut best_match = None;
-            self.quack_debug(&format!("Fuzzy matching against {} entries", self.fuzzy_index.len()));
+            dt_debug(&format!("Fuzzy matching against {} entries", self.fuzzy_index.len()));
     
             for entry in &self.fuzzy_index {
                 let normalized_sentence = entry.sentence.to_lowercase();            
@@ -1494,13 +1477,13 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                 if max_len == 0 { continue; }      
                 let score = 100 - (distance * 100 / max_len) as i32;
         
-                self.quack_debug(&format!("  '{}' vs '{}' -> {}%", normalized_input, normalized_sentence, score));
+                dt_debug(&format!("  '{}' vs '{}' -> {}%", normalized_input, normalized_sentence, score));
         
                 if score >= self.fuzzy_threshold {
                     if score > best_score {
                         best_score = score;
                         best_match = Some((entry.script.clone(), entry.sentence.clone(), score));
-                        self.quack_debug(&format!("  🦆 NEW BEST: {}%", score));
+                        dt_debug(&format!("  🦆 NEW BEST: {}%", score));
                     }
                 }
             }
@@ -1513,15 +1496,15 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
         }    
     
         fn fuzzy_match(&self, text: &str) -> Option<MatchResult> {
-            self.quack_debug(&format!("Starting FUZZY match for: '{}'", text));
+            dt_debug(&format!("Starting FUZZY match for: '{}'", text));
 
             if let Some((script_name, sentence, score)) = self.find_best_fuzzy_match(text) {
                 // 🦆 say 🛑 STOP 🛑 fuzzy iz allowed?
                 if !self.is_fuzzy_allowed(&script_name) {
-                    self.quack_debug(&format!("Fuzzy matching disabled for script: {}", script_name));
+                    dt_debug(&format!("Fuzzy matching disabled for script: {}", script_name));
                     return None;
                 }
-                self.quack_info(&format!("Fuzzy match: {} (score: {}%)", script_name, score)); 
+                dt_info(&format!("Fuzzy match: {} (score: {}%)", script_name, score)); 
                 // 🦆 says ⮞ TODO parameter extraction for fuzzy matches
                 let input_words: Vec<&str> = text.split_whitespace().collect();
                 let sentence_words: Vec<&str> = sentence.split_whitespace().collect();     
@@ -1551,7 +1534,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                             args.push(resolved_value);
                             param_index += 1;
                             
-                            self.quack_debug(&format!("      Fuzzy argument: --{} {}", param_name, param_value));
+                            dt_debug(&format!("      Fuzzy argument: --{} {}", param_name, param_value));
                         }
                     }
                 }
@@ -1559,11 +1542,11 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                 Some(MatchResult {
                     script_name,
                     args,
-                    matched_sentence: sentence,
+                    matched_sentence: text.to_string(),
                     processing_time: std::time::Duration::default(),
                 })
             } else {
-                self.quack_debug("No fuzzy match found");
+                dt_debug("No fuzzy match found");
                 None
             }
         }
@@ -1599,7 +1582,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             // 🦆says⮞save da updated context
             let context_json = serde_json::to_string_pretty(&context)?;
             std::fs::write(&context_path, context_json)?;    
-            self.quack_debug(&format!("Updated memory context: last_action={}, environment={}", 
+            dt_debug(&format!("Updated memory context: last_action={}, environment={}", 
                 context.last_action, context.environment));    
             Ok(())
         }    
@@ -1607,7 +1590,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
         // 🦆 says ⮞ YO waz qwackin' yo?!
         // 🦆 says ⮞ here comez da executta 
         fn execute_script(&self, result: &MatchResult) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
+            dt_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
             
             // 🦆 says ⮞ update yo memory
             eprintln!("🦆MEMORY:SCRIPT:{}", result.script_name);
@@ -1617,7 +1600,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
 
             // 🦆 says ⮞ UPDATE MEMORY CONTEXT
             if let Err(e) = self.update_memory_context(&result.script_name, &result.args) {
-                self.quack_debug(&format!("Failed to update memory context: {}", e));
+                dt_debug(&format!("Failed to update memory context: {}", e));
             }
                    
             // 🦆 says ⮞ execution duck tree climber
@@ -1673,9 +1656,9 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             // 🦆say⮞reload-memory! (duck wish dis easy irl....)
             if let Ok(memory_data) = Self::load_memory_data() {
                 self.memory_data = memory_data;
-                self.quack_debug("🦆 Memory data reloaded for context-aware processing");
+                dt_debug("🦆 Memory data reloaded for context-aware processing");
             } else {
-                self.quack_debug("🦆 Using default memory data");
+                dt_debug("🦆 Using default memory data");
             }
 
             self.calculate_processing_order();
@@ -1705,22 +1688,22 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             
             // 🦆 says ⮞ 2>partz? process dem all 
             if parts.len() > 1 {
-                self.quack_debug(&format!("Found {} parts to process: {:?}", parts.len(), parts));
+                dt_debug(&format!("Found {} parts to process: {:?}", parts.len(), parts));
                 let mut all_successful = true;
                 let mut processed_count = 0;
                 
                 for (index, part) in parts.iter().enumerate() {
-                    self.quack_info(&format!("Processing part {}/{}: '{}'", index + 1, parts.len(), part));
+                    dt_info(&format!("Processing part {}/{}: '{}'", index + 1, parts.len(), part));
                     
                     // 🦆 says ⮞ process each part individually 🦆 say ⮞ dat iz eazier 2 say in swe qwack
                     match self.process_single_input(part, total_start) {
                         Ok(_) => {
                             processed_count += 1;
-                            self.quack_debug(&format!("Successfully processed part {}/{}", index + 1, parts.len()));
+                            dt_debug(&format!("Successfully processed part {}/{}", index + 1, parts.len()));
                         }
                         Err(e) => {
                             all_successful = false;
-                            self.quack_debug(&format!("🦆 says ⮞ fuck ❌ Failed to process part {}: {}", index + 1, e));
+                            dt_debug(&format!("🦆 says ⮞ fuck ❌ Failed to process part {}: {}", index + 1, e));
                             // 🦆 says ⮞ keep going anyway plz
                         }
                     }
@@ -1730,10 +1713,10 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
                     }
                 }
                 if processed_count > 0 {
-                    self.quack_debug(&format!("Successfully processed {}/{} parts", processed_count, parts.len()));
+                    dt_debug(&format!("Successfully processed {}/{} parts", processed_count, parts.len()));
                     return Ok(());
                 } else {
-                    self.quack_info("🦆 says ⮞ fuck ❌ All parts failed to process");
+                    dt_info("🦆 says ⮞ fuck ❌ All parts failed to process");
                     std::process::exit(1);
                 }
             } else {
@@ -1766,7 +1749,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             // 🦆 says ⮞ exact matchin'
             if let Some(match_result) = self.exact_match(input) {
                 let part_elapsed = part_start.elapsed();
-                self.quack_debug(&format!("Exact match found: {}", match_result.script_name));
+                dt_debug(&format!("Exact match found: {}", match_result.script_name));
                 let _ = self.log_successful_command(&match_result.script_name, &match_result.args, part_elapsed);    
                 let final_result = MatchResult {
                     script_name: match_result.script_name,
@@ -1781,7 +1764,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             // 🦆 says ⮞ fallback yo go fuzzy matchin' i choose u!
             if let Some(match_result) = self.fuzzy_match(input) {
                 let part_elapsed = part_start.elapsed();
-                self.quack_info(&format!("Fuzzy match found: {}", match_result.script_name));
+                dt_info(&format!("Fuzzy match found: {}", match_result.script_name));
                 let final_result = MatchResult {
                     script_name: match_result.script_name,
                     args: match_result.args,
@@ -1815,14 +1798,25 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
             self.say_no_match();
             
             // 🦆 says ⮞ log failed command with analysis data
-            self.quack_debug("No match found for part, logging statistics...");
+            dt_debug("No match found for part, logging statistics...");
             let _ = self.log_failed_command(input, &fuzzy_candidates);
             Err("No match found for this part".into())
         }
         
     }
+    
     fn main() -> Result<(), Box<dyn std::error::Error>> {
         let args: Vec<String> = env::args().collect(); 
+        setup_ducktrace_logging(None, None);
+        let log_file = std::env::var("DT_LOG_FILE")
+            .unwrap_or_else(|_| "do.log".to_string());
+        let log_path = std::env::var("DT_LOG_PATH")
+            .unwrap_or_else(|_| "/home/${config.this.user.me.name}/.config/duckTrace/".to_string());
+        let log_level = std::env::var("DT_LOG_LEVEL")
+            .unwrap_or_else(|_| "INFO".to_string());
+    
+        dt_debug(&format!("Log file: {}{}", log_path, log_file));
+        dt_debug(&format!("Log Level: {}", log_level));
 
         // 🦆 says ⮞ Handle real-time mode
         if args.len() > 1 && args[1] == "--realtime" {
@@ -1888,6 +1882,7 @@ self.quack_debug(&format!("  Context boost applied for {} (last action)", script
     tokio = { version = "1.0", features = ["full"] }
     tokio-tungstenite = "0.20"
     futures-util = "0.3"
+    colored = "2.1"    
   '';
 
  
@@ -1896,22 +1891,19 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
     do = {
-      description = "Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution";
+      description = "Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
       aliases = [ "brain" ];
       autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
-        echo "=============="
-        echo "${intentDataFile}"
-        echo "=============="
-        #echo "[🦆🧠]"
-        #cat ${voiceSentencesHelpFile} 
+        echo "[🦆🧠]"
+        cat ${voiceSentencesHelpFile} 
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { name = "input"; description = "Text to translate"; optional = true; } 
         { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 60; }
-        { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/do-rs"; optional = false; } 
+        { name = "dir"; description = "Directory path to compile in"; default = "/home/${config.this.user.me.name}/do-rs"; optional = false; } 
         { name = "build"; type = "bool"; description = "Flag for building the Rust binary"; optional = true; default = false; }            
         { name = "realtime"; type = "bool"; description = "Run in real-time mode for voice assistant"; optional = true; default = false; } 
       ];
@@ -2012,4 +2004,4 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       message = assertionCheckForConflictingSentences.message;
     } # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
   ];}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
-# 🦆 says ⮞ QuackHack-McBLindy out!  
+# 🦆 says ⮞ QuackHack-McBLindy out!

@@ -268,7 +268,7 @@ in { # 🦆 says ⮞ yo
         "vad (sänds|visas|spelas|går) på [kanal] {channel} [just nu]"       
 
         # 🦆 says ⮞ show all currently airing programs        
-        "(tv-guide|tvguide|tv guide)"       
+        "(tv-guide|tvguide)"       
         "visa [mig] [tv] (tv-tablå|tv-tablån|tv-guide|tv-guiden|tv tablån|guide|guiden|tablån)"
         "vad (visa|visas|går|sänds|spelas) på tv [just] [nu]"
       ];    

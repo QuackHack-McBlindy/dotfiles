@@ -1275,11 +1275,17 @@ in { # 🦆 says ⮞ Options for da house
             MQTT_USER="${config.house.zigbee.mosquitto.username}"
             MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
             SCENE="$1"      
+            # 🦆 says ⮞ convert to lowercase
+            SCENE_LOWER=$(echo "$SCENE" | tr '[:upper:]' '[:lower:]')
+      
             # 🦆 says ⮞ no scene == random scene
             if [ -z "$SCENE" ]; then
               SCENE=$(shuf -n 1 -e ${lib.concatStringsSep " " (lib.map (name: "\"${name}\"") (lib.attrNames sceneCommands))})
-            fi      
-            case "$SCENE" in
+              SCENE_LOWER=$(echo "$SCENE" | tr '[:upper:]' '[:lower:]')
+            fi
+      
+            # 🦆 says ⮞ create lowercase scene names
+            case "$SCENE_LOWER" in
             ${
               lib.concatStringsSep "\n" (
                 lib.mapAttrsToList (sceneName: cmds:
@@ -1287,8 +1293,9 @@ in { # 🦆 says ⮞ Options for da house
                     commandLines = lib.concatStringsSep "\n    " (
                       lib.mapAttrsToList (_: cmd: cmd) cmds
                     );
+                    lowercaseName = lib.toLower sceneName;
                   in
-                    "\"${sceneName}\")\n    ${commandLines}\n    ;;"
+                    "\"${lowercaseName}\")\n    ${commandLines}\n    ;;"
                 ) sceneCommands
               )
             }
@@ -1297,7 +1304,7 @@ in { # 🦆 says ⮞ Options for da house
               exit 1
               ;;
             esac
-          '')     
+          '')  
           # 🦆 says ⮞ helper function 4 controlling zingle device
           (pkgs.writeScriptBin "zig" ''
             ${cmdHelpers}

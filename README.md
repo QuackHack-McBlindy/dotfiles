@@ -43,7 +43,7 @@ Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __99 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
-- __2468 dynamically generated regex patterns - makes 294355072 phrases available as commands.__ <br>
+- __2469 dynamically generated regex patterns - makes 294355073 phrases available as commands.__ <br>
 - __Smart Home Nix Style - Managing 2 TV's, 41 devices & 6 scenes.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
@@ -163,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/mjc3vrfsqvd4py5pzly116lq36jyfn1j-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/vic9bclvf58cv2rdq4n1p9rzinsdsv5j-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -2031,7 +2031,7 @@ Set default values for your parameters to have them marked [optional]
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
 | [yo cancel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/cancel.nix) [--input] |  | Cancel coammands microphone recording sent to transcription. | ✅ |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--dir] [--build] [--realtime] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. At runtime it runs exact and fuzzy pattern matching with automatic parameter resolution and seamless execution | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--dir] [--build] [--realtime] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzy] |  | [🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?) | 📛 |
 | [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/espaudio.nix)  |  | WIP! ESP32 audio development | 📛 |
 | [yo kill-mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/kill-mic.nix)  |  | Kill mic-stream by port with voice | ✅ |
@@ -2124,7 +2124,7 @@ For specific command help:
 
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 7489 ducks.<br>
+Let's see if you can find all 7494 ducks?<br>
 <!-- DUCKS_END -->
 
 <br>

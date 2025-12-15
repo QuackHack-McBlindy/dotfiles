@@ -91,14 +91,14 @@ in
         
         fn setup_log_file() -> Option<File> {
             let log_path = env::var("DT_LOG_PATH")
-                .unwrap_or_else(|_| "/var/lib/zigduck/logs/".to_string());
+                .unwrap_or_else(|_| "/home/${config.this.user.me.name}/.config/duckTrace".to_string());
             
             std::fs::create_dir_all(&log_path).ok()?;
             
             let log_filename = env::var("DT_LOG_FILE")
-                .unwrap_or_else(|_| "zigduck-rs.log".to_string());
+                .unwrap_or_else(|_| "unknown.rs-script.log".to_string());
             
-            let full_path = format!("{}/{}", log_path, log_filename);
+            let full_path = format!("{}{}", log_path, log_filename);
             
             OpenOptions::new()
                 .create(true)
