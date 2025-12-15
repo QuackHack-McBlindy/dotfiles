@@ -163,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/vic9bclvf58cv2rdq4n1p9rzinsdsv5j-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/yz2x5hc5wym1bgw958y1ry5mzm72b8fw-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -2115,13 +2115,19 @@ For specific command help:
 
 <br>
 
-## 🦆 **Follow my Adventures**
+## 🦆 **Follow My Adventures**
+
+This repository is complex, and it's not a typical NixOS dotfiles setup.<br>
+Since NixOS probably never have been used in such a unique way, understanding how everything is working solely from massive source code will be tricky for newcomers aswell as advanced users. <br>
+I try to simplify that process in my blog. <br> 
 
 [𝑸𝓾𝒂𝒄𝒌𝑯𝒂𝒄𝒌-𝑴𝒄𝑩𝒍𝒊𝒏𝒅𝒚 𝗕𝗹𝗼𝗴](https://quackhack-mcblindy.github.io/blog/)
 
 
 <br>
 
+### Duck Challenge
+  
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
 Let's see if you can find all 7494 ducks?<br>
@@ -2133,4 +2139,6 @@ Let's see if you can find all 7494 ducks?<br>
 > __Im not blind.__ <br>
 > **I just can't see.** 🧑‍🦯
 <br>
+  
+__I'll stop qwackin' here, qwack..__
 
