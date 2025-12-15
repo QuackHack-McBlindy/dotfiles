@@ -47,7 +47,7 @@ Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
 - __Smart Home Nix Style - Managing 2 TV's, 41 devices & 6 scenes.__ <br>
 <!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
-- __duckGPT Frontend Chatbot - Better than regularGPT, less thinking more doing__ <br>
+- __Frontend Chatbot (no LLM) - Less thinking, more doing!__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
 - __Self Documenting__<br>
@@ -163,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/yz2x5hc5wym1bgw958y1ry5mzm72b8fw-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/qksphrwfjijya30zkrw3rpni3b4l6lp7-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
