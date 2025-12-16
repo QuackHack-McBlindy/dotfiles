@@ -1087,14 +1087,14 @@ EOF
             }
 
             .card-title {
-                font-size: 1.1rem !important;
+                font-size: 1.5rem !important;
                 font-weight: 600 !important;
                 color: #ffffff !important;
                 margin: 0 !important;
             }
 
             .card-header i {
-                font-size: 1.2rem !important;
+                font-size: 1.5rem !important;
             }
             #pageCloud, #pageQwackify {
                 padding: 0;

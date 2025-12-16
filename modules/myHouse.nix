@@ -280,7 +280,7 @@ in { # 🦆 duck say ⮞ qwack
         };
         
 
-        # 🦆 says ⮞ duckBot - better than regularGPT - less thinkin' more doin'
+        # 🦆says⮞ ChatBot (no LLM) - proof of concept that what people call "AI" can be replaced with BASIC scripting - less expensive, more reliable
         "5" = {
           icon = "fas fa-comments";
           title = "chat";
@@ -290,27 +290,6 @@ in { # 🦆 duck say ⮞ qwack
           code = ''
             <div id="chat-container">            
                 <div id="chat">
-                    <div class="chat-bubble ai-bubble">
-                        🦆Quack quack! 🦆 I'm a 🦆 here to help! Qwack to me yo!
-                    </div>
-                    <div class="chat-bubble suggestion-bubble">
-                        Visa inköpslistan
-                    </div>
-                    <div class="chat-bubble suggestion-bubble">
-                        Visa påminnelser
-                    </div>
-                    <div class="chat-bubble suggestion-bubble">
-                        Visa alarm
-                    </div>
-                    <div class="chat-bubble suggestion-bubble">
-                        När går tåget till Hörnefors Resecentrum från Umeå Central ? 
-                    </div>
-                    <div class="chat-bubble suggestion-bubble">
-                       Släck alla lampor
-                    </div>                 
-                    <div class="chat-bubble suggestion-bubble">
-                       Jag vill höra nyheterna
-                    </div>
 
                 </div>
                 <div id="input-container">
@@ -337,16 +316,64 @@ in { # 🦆 duck say ⮞ qwack
                 window.addEventListener('load', fixViewportHeight);
                 window.addEventListener('resize', fixViewportHeight);
                 window.addEventListener('orientationchange', fixViewportHeight);
-          
+       
+                // 🦆 says ⮞ message history
+                let messageHistory = [];
+                let historyIndex = -1;
+
+                // 🦆 says ⮞ add to history when message is sent
+                function addToHistory(message) {
+                    if (!message.trim()) return;
+    
+                    // 🦆 says ⮞ same as last msg? don't add!
+                    if (messageHistory.length > 0 && messageHistory[messageHistory.length - 1] === message) {
+                        return;
+                    }
+                    messageHistory.push(message);
+    
+                    // 🦆 says ⮞ limit history to 50
+                    if (messageHistory.length > 50) {
+                        messageHistory.shift();
+                    }
+                    // 🦆 says ⮞ reset history index to the end
+                    historyIndex = messageHistory.length;
+                }
+
+                // 🦆 says ⮞ navigate history with up/down keys
+                function navigateHistory(direction) {
+                    const promptInput = document.getElementById('prompt');
+                    if (messageHistory.length === 0) return;
+    
+                    if (direction === 'up') {
+                        if (historyIndex > 0) {
+                            historyIndex--;
+                        } else {
+                            historyIndex = 0;
+                        }
+                    } else if (direction === 'down') {
+                        if (historyIndex < messageHistory.length - 1) {
+                            historyIndex++;
+                        } else {
+                            promptInput.value = "";
+                            historyIndex = messageHistory.length;
+                            return;
+                        }
+                    }
+    
+                    if (historyIndex >= 0 && historyIndex < messageHistory.length) {
+                        promptInput.value = messageHistory[historyIndex];
+                    }
+                }
+       
                 const AUDIO_CONFIG = {
                     enabled: true,
                     volume: 0.8
                 };
 
                 const API_CONFIG = {
-                  host: '192.168.1.211',
+                  host: '${mqttHostip}',
                   port: '9815',
-                  baseUrl: 'http://192.168.1.211:9815'
+                  baseUrl: 'http://${mqttHostip}:9815'
                 };       
        
                 function getAuthToken() {
@@ -904,8 +931,10 @@ in { # 🦆 duck say ⮞ qwack
                         userBubble.className = 'chat-bubble user-bubble';
                         userBubble.textContent = prompt;
                         chatContainer.appendChild(userBubble);
+                        addToHistory(prompt);
                     }             
-                    promptInput.value = "";               
+                    promptInput.value = "";
+                    historyIndex = messageHistory.length;
                     chatContainer.scrollTop = chatContainer.scrollHeight;          
                     sendCommandToAPI(prompt);         
                     isFirstMessage = false;
@@ -920,9 +949,15 @@ in { # 🦆 duck say ⮞ qwack
                 function checkEnter(event) {
                     if (event.key === 'Enter') {
                         sendMessage();
+                    } else if (event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        navigateHistory('up');
+                    } else if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        navigateHistory('down');
                     }
                 }
-                
+               
                 setupFileUpload();
                 checkAPIHealth();     
                 document.getElementById('prompt').addEventListener('keydown', checkEnter);
@@ -934,13 +969,12 @@ in { # 🦆 duck say ⮞ qwack
                 });            
                 setTimeout(() => {
                     if (isFirstMessage) {
-                        addAIMessage("duckpuck![🏒🦆] !");
+                        addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
                     }
                 }, 2000);
                 
                 setInterval(checkAPIHealth, 30000);
-            </script>
-            
+            </script>            
           '';
         };
       
@@ -1004,7 +1038,7 @@ in { # 🦆 duck say ⮞ qwack
         
           btc = {
             enable = true;
-            description = "Writes BTC data to file for dashboard";
+            description = "Updating BTC price data on dashboard";
             topic = "zigbee2mqtt/crypto/btc/price";
             actions = [
               {
@@ -1321,7 +1355,7 @@ in { # 🦆 duck say ⮞ qwack
               "Taket Sovrum 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Taket Sovrum 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Vägg" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Vägg" = { state = "ON"; brightness = 1; };
               "WC 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "WC 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Takkrona 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   

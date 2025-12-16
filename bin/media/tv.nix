@@ -250,32 +250,38 @@ in {
           rm "$temp_file"
           dt_info "Playlist generated: $PLAYLIST_SAVE_PATH (shuffle: $SHUFFLE)"
       }
+      
       play_favorites() {
           local device_ip="$1"
           local playlist_url="$FAVORITES"
           control_device "$device_ip" power_on
           local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
+
           if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
               dt_debug "Started playing favorites on device ''${device_ip}"
           else
               adb disconnect ''${device_ip}
               sleep 0.2
               adb connect ''${device_ip}
-              sleep 0.1
+              sleep 0.2
+              local max_retries=5  # Add this
+              local retries=0      
               if (( retries < max_retries )); then
-                dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
-                start_playlist "$device_ip" $((retries + 1))
+                  dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
+                  start_playlist "$device_ip" $((retries + 1))
               else
-                dt_error "Max retries reached. Could not start playlist on ''${device_ip}"
+                  dt_error "Max retries reached. Could not start playlist on ''${device_ip}"
               fi
           fi
       }
+      
       start_playlist() {
           local device_ip="$1"
           local playlist_url="$WEBSERVER/playlist.m3u"
           control_device "$device_ip" power_on
           local retries="''${2:-0}"
-#          local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" -t \"audio/x-mpegurl\""
+          local max_retries=5 
+
           local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" \
             --ez \"extra_force_software\" true \
             -t \"audio/x-mpegurl\""
@@ -286,7 +292,7 @@ in {
               adb disconnect ''${device_ip}
               sleep 0.2
               adb connect ''${device_ip}
-              sleep 0.1
+              sleep 0.3
               if (( retries < max_retries )); then
                 dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
                 start_playlist "$device_ip" $((retries + 1))
