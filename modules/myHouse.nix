@@ -667,19 +667,285 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
 
-                // 🦆 says ⮞ chat response bubble
+                
+      
+                function extractVideoUrls(text) {
+                    const urlRegex = /https?:\/\/[^\s]+/g;
+                    const urls = text.match(urlRegex) || [];
+                    return urls.filter(url => {
+                        try {
+                            const urlObj = new URL(url);
+                            const pathname = urlObj.pathname.toLowerCase();
+                            const videoExtensions = ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.flv', '.wmv'];
+                            const playlistExtensions = ['.m3u', '.m3u8'];
+                            
+                            if (videoExtensions.some(ext => pathname.endsWith(ext))) {
+                                return true;
+                            }
+                            
+                            if (playlistExtensions.some(ext => pathname.endsWith(ext))) {
+                                return true;
+                            }
+                            
+                            const streamingKeywords = ['stream', 'hls', 'live', 'm3u8', 'playlist'];
+                            const urlLower = url.toLowerCase();
+                            return streamingKeywords.some(keyword => urlLower.includes(keyword));
+                        } catch (e) {
+                            return false;
+                        }
+                    });
+                }
+                
+                // 🦆 says ⮞ Get MIME type from URL
+                function getVideoMimeType(url) {
+                    try {
+                        const urlObj = new URL(url);
+                        const pathname = urlObj.pathname.toLowerCase();
+                        const extension = pathname.includes('.') ? pathname.split('.').pop() : "";
+                        
+                        const searchParams = new URLSearchParams(urlObj.search);
+                        const formatParam = searchParams.get('format') || "";
+                        
+                        switch(true) {
+                            case extension === 'mp4' || formatParam.includes('mp4'):
+                                return 'video/mp4';
+                            case extension === 'webm' || formatParam.includes('webm'):
+                                return 'video/webm';
+                            case extension === 'avi':
+                                return 'video/x-msvideo';
+                            case extension === 'mov':
+                                return 'video/quicktime';
+                            case extension === 'mkv':
+                                return 'video/x-matroska';
+                            case extension === 'flv':
+                                return 'video/x-flv';
+                            case extension === 'wmv':
+                                return 'video/x-ms-wmv';
+                            case extension === 'm3u' || extension === 'm3u8' || formatParam.includes('hls'):
+                                return 'application/vnd.apple.mpegurl';
+                            default:
+                                if (url.includes('hls') || url.includes('m3u')) {
+                                    return 'application/vnd.apple.mpegurl';
+                                }
+                                return 'video/mp4'; // Default fallback
+                        }
+                    } catch (e) {
+                        return 'application/vnd.apple.mpegurl'; // Default for unknown URLs
+                    }
+                }
+
+                let hlsJsLoaded = false;
+                let hlsJsLoading = false;
+                
+                function loadHlsJs() {
+                    return new Promise((resolve, reject) => {
+                        if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                            hlsJsLoaded = true;
+                            resolve(true);
+                            return;
+                        }
+                        
+                        if (hlsJsLoading) {
+                            const checkInterval = setInterval(() => {
+                                if (typeof Hls !== 'undefined') {
+                                    clearInterval(checkInterval);
+                                    hlsJsLoaded = true;
+                                    resolve(true);
+                                }
+                            }, 100);
+                            return;
+                        }
+                        
+                        hlsJsLoading = true;
+                        const script = document.createElement('script');
+                        script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js';
+                        script.onload = function() {
+                            hlsJsLoading = false;
+                            if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                                hlsJsLoaded = true;
+                                console.log('🦆 HLS.js loaded successfully');
+                                resolve(true);
+                            } else {
+                                console.warn('🦆 HLS.js loaded but not supported');
+                                resolve(false);
+                            }
+                        };
+                        script.onerror = function() {
+                            hlsJsLoading = false;
+                            console.warn('🦆 Failed to load HLS.js');
+                            resolve(false);
+                        };
+                        document.head.appendChild(script);
+                    });
+                }
+                
+                // 🦆 says ⮞ Check if URL is a playlist (HLS or m3u)
+                function isPlaylistUrl(url) {
+                    try {
+                        const urlObj = new URL(url);
+                        const pathname = urlObj.pathname.toLowerCase();
+                        return pathname.endsWith('.m3u') || 
+                               pathname.endsWith('.m3u8') || 
+                               url.toLowerCase().includes('m3u8') ||
+                               url.toLowerCase().includes('/hls/') ||
+                               url.toLowerCase().includes('playlist');
+                    } catch (e) {
+                        return false;
+                    }
+                }
+                
+                // 🦆 says ⮞ Create HLS video player
+                function createHlsPlayer(videoUrl, container) {
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.style.maxWidth = '100%';
+                    video.style.borderRadius = '8px';
+                    video.style.background = '#000';
+                    video.style.marginBottom = '10px';
+                    
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'hls-status';
+                    statusDiv.style.fontSize = '0.9em';
+                    statusDiv.style.color = '#666';
+                    statusDiv.style.marginTop = '5px';
+                    statusDiv.textContent = 'Loading HLS stream...';
+                    
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'hls-error';
+                    errorDiv.style.fontSize = '0.9em';
+                    errorDiv.style.color = '#ff4444';
+                    errorDiv.style.marginTop = '5px';
+                    errorDiv.style.display = 'none';
+                    
+                    const source = document.createElement('source');
+                    source.src = videoUrl;
+                    source.type = 'application/vnd.apple.mpegurl';
+                    video.appendChild(source);
+                    
+                    container.appendChild(video);
+                    container.appendChild(statusDiv);
+                    container.appendChild(errorDiv);
+                    
+                    loadHlsJs().then(hlsAvailable => {
+                        if (hlsAvailable && Hls.isSupported()) {
+                            const hls = new Hls({
+                                debug: false,
+                                enableWorker: true,
+                                lowLatencyMode: true,
+                                backBufferLength: 90
+                            });
+                            
+                            hls.loadSource(videoUrl);
+                            hls.attachMedia(video);
+                            
+                            hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                                statusDiv.textContent = 'HLS stream ready';
+                                statusDiv.style.color = '#4CAF50';
+                                video.play().catch(e => {
+                                    console.log('Auto-play prevented:', e);
+                                    statusDiv.textContent = 'Click play to start stream';
+                                });
+                            });
+                            
+                            hls.on(Hls.Events.ERROR, function(event, data) {
+                                console.warn('🦆 HLS error:', data);
+                                if (data.fatal) {
+                                    switch(data.type) {
+                                        case Hls.ErrorTypes.NETWORK_ERROR:
+                                            statusDiv.textContent = 'Network error, trying fallback...';
+                                            hls.startLoad();
+                                            break;
+                                        case Hls.ErrorTypes.MEDIA_ERROR:
+                                            statusDiv.textContent = 'Media error, trying fallback...';
+                                            hls.recoverMediaError();
+                                            break;
+                                        default:
+                                            statusDiv.textContent = 'Stream error, trying native playback...';
+                                            hls.destroy();
+                                            video.src = videoUrl;
+                                            errorDiv.textContent = 'Using native playback (may not work in all browsers)';
+                                            errorDiv.style.display = 'block';
+                                            break;
+                                    }
+                                }
+                            });
+                        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                            statusDiv.textContent = 'Using native HLS playback (Safari/Apple devices)';
+                            video.src = videoUrl;
+                            video.load();
+                        } else {
+                            statusDiv.textContent = 'HLS not supported in this browser';
+                            statusDiv.style.color = '#ff4444';
+                            errorDiv.textContent = 'For HLS streams, use Chrome/Firefox or Safari on Apple devices';
+                            errorDiv.style.display = 'block';
+                            
+                            const link = document.createElement('a');
+                            link.href = videoUrl;
+                            link.target = '_blank';
+                            link.textContent = 'Open stream in external player';
+                            link.style.display = 'block';
+                            link.style.marginTop = '10px';
+                            link.style.color = '#2196F3';
+                            errorDiv.appendChild(link);
+                        }
+                    });
+                    
+                    return video;
+                }
+                
+                function createRegularVideoPlayer(videoUrl, container) {
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.style.maxWidth = '100%';
+                    video.style.borderRadius = '8px';
+                    video.style.background = '#000';
+                    video.style.marginBottom = '10px';
+                    
+                    const source = document.createElement('source');
+                    source.src = videoUrl;
+                    source.type = getVideoMimeType(videoUrl);
+                    video.appendChild(source);
+                    
+                    const fallback = document.createElement('p');
+                    fallback.textContent = 'Your browser does not support this video format. ';
+                    fallback.style.color = '#666';
+                    fallback.style.fontSize = '0.9em';
+                    fallback.style.marginTop = '5px';
+                    
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = videoUrl;
+                    downloadLink.target = '_blank';
+                    downloadLink.textContent = 'Download video';
+                    downloadLink.style.color = '#2196F3';
+                    downloadLink.style.textDecoration = 'none';
+                    downloadLink.style.marginLeft = '5px';
+                    
+                    fallback.appendChild(downloadLink);
+                    video.appendChild(fallback);
+                    
+                    container.appendChild(video);
+                    return video;
+                }
+                
+                // 🦆 says ⮞ chat response bubble            
                 function addAIMessage(content, options = {}) {
                     const chatContainer = document.getElementById('chat');
                     const typingIndicator = document.querySelector('.typing-indicator');
                     if (typingIndicator) {
                         chatContainer.removeChild(typingIndicator);
                     }
-
-                    // 🦆 says ⮞ pretty chat bubble up                  
-                    const enhanced = enhanceContent(content);
+                    
+                    const videoUrls = extractVideoUrls(content);
+                    let textContent = content;
+                    
+                    videoUrls.forEach(url => {
+                        textContent = textContent.replace(url, "").trim();
+                    });
+                    
+                    const enhanced = enhanceContent(textContent);
                     const aiBubble = document.createElement('div');
                     aiBubble.className = 'chat-bubble ai-bubble';
-
+                    
                     if (enhanced.type === 'terminal') {
                         const pre = document.createElement('pre');
                         pre.style.cssText = `
@@ -699,14 +965,59 @@ in { # 🦆 duck say ⮞ qwack
                         `;
                         pre.textContent = enhanced.content;
                         aiBubble.appendChild(pre);
-                    } else {
+                    } else if (textContent.trim()) {
                         aiBubble.innerHTML = enhanced.content;
                     }
-
+                    
+                    if (videoUrls.length > 0) {
+                        if (textContent.trim()) {
+                            const separator = document.createElement('div');
+                            separator.style.height = '20px';
+                            aiBubble.appendChild(separator);
+                        }
+                        
+                        videoUrls.forEach((videoUrl, index) => {
+                            const videoContainer = document.createElement('div');
+                            videoContainer.className = 'video-container';
+                            
+                            const title = document.createElement('div');
+                            title.className = 'video-title';
+                            title.textContent = `📹 Media ''${index + 1}: ''${videoUrl.split('/').pop() || 'Stream'}`;
+                            title.style.fontWeight = 'bold';
+                            title.style.marginBottom = '10px';
+                            title.style.color = '#2196F3';
+                            videoContainer.appendChild(title);
+                            
+                            const isLocalFile = videoUrl.startsWith('file://') || videoUrl.startsWith('/');
+                            const isPlaylist = isPlaylistUrl(videoUrl);
+                            
+                            if (isPlaylist) {
+                                createStreamingPlayer(videoUrl, videoContainer, isLocalFile);
+                            } else {
+                                createRegularVideoPlayer(videoUrl, videoContainer, isLocalFile);
+                            }
+                            
+                            const infoDiv = document.createElement('div');
+                            infoDiv.style.marginTop = '8px';
+                            infoDiv.style.fontSize = '0.85em';
+                            infoDiv.style.color = '#666';
+                            
+                            const urlType = isLocalFile ? 'Local file' : (isPlaylist ? 'HLS Stream' : 'Video file');
+                            infoDiv.innerHTML = `
+                                <span style="margin-right: 10px;">''${urlType}</span>
+                                <a href="''${videoUrl}" target="_blank" style="color: #666; text-decoration: none; border-bottom: 1px dashed #666;">
+                                    Direct link
+                                </a>
+                            `;
+                            
+                            videoContainer.appendChild(infoDiv);
+                            aiBubble.appendChild(videoContainer);
+                        });
+                    }
+                    
                     chatContainer.appendChild(aiBubble);
                     chatContainer.scrollTop = chatContainer.scrollHeight;
-
-                    // 🦆says⮞play TTS audio file
+                    
                     const playTTSAudio = async () => {
                         try {
                             const response = await fetch('/tts/tts.wav', { method: 'HEAD' });
@@ -714,13 +1025,11 @@ in { # 🦆 duck say ⮞ qwack
                             const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
                             const now = Date.now();
                             const lastCheck = window.lastTtsCheck || 0;
-            
-                            // 🦆says⮞ only play TTS if it's new
+                            
                             if (lastModified > lastCheck && (now - lastModified) < 30000) {
                                 const cacheBuster = Date.now();
                                 const audio = new Audio(`/tts/tts.wav?cb=''${cacheBuster}`);
                                 audio.volume = AUDIO_CONFIG.enabled ? AUDIO_CONFIG.volume : 0;
-                
                                 audio.play().catch(error => {
                                     console.warn('Audio playback failed:', error);
                                 });
@@ -734,6 +1043,164 @@ in { # 🦆 duck say ⮞ qwack
                         playTTSAudio().catch(console.error);
                     }, 500);
                 }
+                
+                function createStreamingPlayer(videoUrl, container, isLocalFile) {
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.style.maxWidth = '100%';
+                    video.style.borderRadius = '8px';
+                    video.style.background = '#000';
+                    video.style.marginBottom = '10px';
+                    video.preload = 'auto';
+                    
+                    const statusDiv = document.createElement('div');
+                    statusDiv.className = 'stream-status';
+                    statusDiv.style.fontSize = '0.9em';
+                    statusDiv.style.color = '#666';
+                    statusDiv.style.marginTop = '5px';
+                    statusDiv.textContent = 'Testing stream accessibility...';
+                    
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'stream-error';
+                    errorDiv.style.fontSize = '0.9em';
+                    errorDiv.style.color = '#ff4444';
+                    errorDiv.style.marginTop = '5px';
+                    errorDiv.style.display = 'none';
+                    
+                    container.appendChild(video);
+                    container.appendChild(statusDiv);
+                    container.appendChild(errorDiv);
+                    
+                    testStreamAccessibility(videoUrl).then(accessible => {
+                        if (!accessible) {
+                            statusDiv.textContent = '⚠️ Stream not accessible (CORS/network issue)';
+                            statusDiv.style.color = '#ff9800';
+                            errorDiv.innerHTML = `
+                                <div>Possible issues:</div>
+                                <ul style="margin: 5px 0; padding-left: 20px;">
+                                    <li>Server doesn't allow CORS</li>
+                                    <li>Network firewall blocking</li>
+                                    <li>Stream server offline</li>
+                                </ul>
+                                <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
+                                    🔗 Try opening in VLC or external player
+                                </a>
+                            `;
+                            errorDiv.style.display = 'block';
+                            return;
+                        }
+                        
+                        statusDiv.textContent = 'Stream accessible, loading player...';
+                        
+                        loadHlsJs().then(hlsAvailable => {
+                            if (hlsAvailable && Hls.isSupported()) {
+                                const hls = new Hls({
+                                    debug: false,
+                                    enableWorker: true,
+                                    lowLatencyMode: true,
+                                    xhrSetup: function(xhr, url) {
+                                        xhr.withCredentials = false;
+                                    }
+                                });
+                                
+                                hls.loadSource(videoUrl);
+                                hls.attachMedia(video);
+                                
+                                hls.on(Hls.Events.MANIFEST_PARSED, function() {
+                                    statusDiv.textContent = '✅ Stream ready - click play';
+                                    statusDiv.style.color = '#4CAF50';
+                                    video.play().catch(e => {
+                                        console.log('Auto-play prevented, waiting for user interaction');
+                                    });
+                                });
+                                
+                                hls.on(Hls.Events.ERROR, function(event, data) {
+                                    console.warn('Stream error:', data);
+                                    if (data.fatal) {
+                                        hls.destroy();
+                                        statusDiv.textContent = '❌ HLS playback failed';
+                                        statusDiv.style.color = '#ff4444';
+                                        
+                                        // 🦆 says ⮞ Fallback to native player
+                                        errorDiv.innerHTML = `
+                                            <div>Trying native playback fallback...</div>
+                                            <div style="margin-top: 5px;">
+                                                <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
+                                                    🔗 Open in external player instead
+                                                </a>
+                                            </div>
+                                        `;
+                                        errorDiv.style.display = 'block';
+                                        
+                                        if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                                            video.src = videoUrl;
+                                            video.load();
+                                        }
+                                    }
+                                });
+                            } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                                statusDiv.textContent = 'Using Safari native HLS playback';
+                                video.src = videoUrl;
+                                video.load();
+                            } else {
+                                statusDiv.textContent = '❌ HLS not supported in this browser';
+                                statusDiv.style.color = '#ff4444';
+                                errorDiv.innerHTML = `
+                                    <div>For HLS streams, try:</div>
+                                    <ul style="margin: 5px 0; padding-left: 20px;">
+                                        <li>Chrome/Firefox with HLS.js (should work)</li>
+                                        <li>Safari (native support)</li>
+                                        <li><a href="''${videoUrl}" target="_blank" style="color: #2196F3;">Open in VLC/mpv</a></li>
+                                    </ul>
+                                `;
+                                errorDiv.style.display = 'block';
+                            }
+                        });
+                    }).catch(error => {
+                        statusDiv.textContent = '❌ Cannot test stream accessibility';
+                        statusDiv.style.color = '#ff4444';
+                        errorDiv.textContent = `Error: ''${error.message}`;
+                        errorDiv.style.display = 'block';
+                    });
+                }
+                
+                // 🦆 says ⮞ Test if a stream URL is accessible
+                async function testStreamAccessibility(url) {
+                    try {
+                        const response = await fetch(url, {
+                            method: 'HEAD',
+                            mode: 'cors',
+                            cache: 'no-cache'
+                        });
+                        return response.ok;
+                    } catch (headError) {
+                        console.log('HEAD failed, trying GET with timeout:', headError);
+                        
+                        try {
+                            const controller = new AbortController();
+                            const timeoutId = setTimeout(() => controller.abort(), 5000);
+                            
+                            const response = await fetch(url, {
+                                method: 'GET',
+                                mode: 'cors',
+                                cache: 'no-cache',
+                                signal: controller.signal,
+                                headers: {
+                                    'Range': 'bytes=0-100' // Only request first 100 bytes
+                                }
+                            });
+                            
+                            clearTimeout(timeoutId);
+                            return response.ok;
+                        } catch (getError) {
+                            console.log('GET also failed:', getError);
+                            return false;
+                        }
+                    }
+                }
+                
+               
+             
 
                 // 🦆 says ⮞ FUCK!
                 function addErrorMessage(text) {
@@ -1499,6 +1966,135 @@ in { # 🦆 duck say ⮞ qwack
         };
       };
       # 🦆 says ⮞ Bedroom
+      bedroom = {
+        enable = true;
+        room = "bedroom";
+        ip = "192.168.1.153";
+        apps = {
+          telenor = "se.telenor.stream/.MainActivity";
+          tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+        };  
+        channels = {     
+          "1" = {
+            name = "SVT1";
+            id = 1; # 🦆 says ⮞ adb channel ID
+            # 🦆 says ⮞ OR
+            # stream_url = "https://url.com/";
+            cmd = "open_telenor && wait 5 && start_channel_1";
+            # 🦆 says ⮞ automagi generated tv-guide web & EPG          
+            icon = ./themes/icons/tv/1.png;
+            scrape_url = "https://tv-tabla.se/tabla/svt1/";          
+          };
+          "2" = {
+            id = 2; 
+            name = "SVT2";
+            cmd = "open_telenor && wait 5 && start_channel_2";
+            icon = ./themes/icons/tv/2.png;          
+            scrape_url = "https://tv-tabla.se/tabla/svt2/";
+          };
+          "3" = {
+            id = 3;
+            name = "Kanal 3";
+            cmd = "open_telenor && wait 5 && start_channel_3";
+            icon = ./themes/icons/tv/3.png;
+            scrape_url = "https://tv-tabla.se/tabla/tv3/";
+          };
+          "4" = {
+            id = 4;
+            name = "TV4";
+            cmd = "open_telenor && wait 5 && start_channel_4";
+            icon = ./themes/icons/tv/4.png;
+            scrape_url = "https://tv-tabla.se/tabla/tv4/";
+          };
+          "5" = {
+            id = 5;
+            name = "Kanal 5";
+            cmd = "open_telenor && wait 5 && start_channel_5";
+            icon = ./themes/icons/tv/5.png;
+            scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
+          };
+          "6" = {
+            id = 6;
+            name = "Kanal 6";
+            cmd = "open_telenor && wait 5 && start_channel_6";
+            icon = ./themes/icons/tv/6.png;
+            scrape_url = "https://tv-tabla.se/tabla/tv6/";
+          };
+          "7" = {
+            id = 7;
+            name = "Sjuan";
+            cmd = "open_telenor && wait 5 && start_channel_7";
+            icon = ./themes/icons/tv/7.png;
+            scrape_url = "https://tv-tabla.se/tabla/sjuan/";
+          };
+          "8" = {
+            id = 8;
+            name = "TV8";
+            icon = ./themes/icons/tv/8.png;          
+            scrape_url = "https://tv-tabla.se/tabla/tv8/";
+          };
+          "9" = {
+            id = 9;
+            name = "Kanal 9";
+            icon = ./themes/icons/tv/9.png;          
+            scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
+          };
+          "10" = {
+            id = 10;
+            name = "Kanal 10";
+            icon = ./themes/icons/tv/10.png;
+            scrape_url = "https://tv-tabla.se/tabla/tv10/";
+          };
+          "11" = {
+            id = 11;
+            name = "Kanal 11";
+            icon = ./themes/icons/tv/11.png;
+            scrape_url = "https://tv-tabla.se/tabla/tv11/";
+          };
+          "12" = {
+            id = 12;
+            name = "Kanal 12";
+            icon = ./themes/icons/tv/12.png;
+            scrape_url = "https://tv-tabla.se/tabla/tv12/";
+          };
+          "13" = {
+            id = 13;
+            name = "TV4 Hockey";
+            icon = ./themes/icons/tv/13.png;
+            cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
+            scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
+          };        
+          "14" = {
+            id = 14;
+            name = "TV4 Sport Live 1";
+            icon = ./themes/icons/tv/14.png;
+            cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
+            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
+          };
+          "15" = {
+            id = 15;
+            name = "TV4 Sport Live 2";
+            icon = ./themes/icons/tv/15.png;
+            cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";    
+            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
+          };
+          "16" = {
+            id = 16;
+            name = "TV4 Sport Live 3";
+            icon = ./themes/icons/tv/16.png;
+            cmd = "open_tv4 && nav_down && nav_right && nav_right && nav_center";
+            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
+          };
+          "17" = {
+            id = 17;
+            name = "TV4 Sport Live 4";
+            icon = ./themes/icons/tv/17.png;
+            cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
+            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
+          };       
+        };
+      };      
+      
       arris = {
         enable = true;
         room = "bedroom";

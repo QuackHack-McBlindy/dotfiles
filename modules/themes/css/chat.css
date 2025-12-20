@@ -793,3 +793,61 @@ pre .header {
     background: rgba(33, 150, 243, 0.2);
     transform: translateX(5px);
 }
+
+.video-container {
+    margin: 10px 0;
+    max-width: 100%;
+}
+
+.video-container video {
+    width: 100%;
+    max-height: 400px;
+    background: #000;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.playlist-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0,0,0,0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.playlist-title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #4CAF50;
+    font-size: 1.1em;
+}
+
+.video-description {
+    margin-top: 15px;
+    padding: 10px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    font-size: 0.9em;
+}
+
+.video-link {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 5px;
+    background: #2196F3;
+    color: white;
+    border-radius: 4px;
+    text-decoration: none;
+    font-size: 0.9em;
+    transition: background 0.3s;
+}
+
+.video-link:hover {
+    background: #0b7dda;
+}
+
+@media (max-width: 768px) {
+    .video-container video {
+        max-height: 300px;
+    }
+}

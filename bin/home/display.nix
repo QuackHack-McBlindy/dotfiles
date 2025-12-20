@@ -65,12 +65,12 @@ in {
     category = "🛖 Home Automation";     
     description = "Creates a HTML image that can be displayed on the chat frontend.";
     parameters = [ 
-      { name = "path"; description = "URL/file path to the image to display."; optional = false; } 
+      { name = "path"; description = "URL/file path to the image to display."; optional = true; } 
     ];
     code = ''
       ${cmdHelpers}
-      echo "<img src=\"$path\">"
-      
+      #echo "<img src=\"$path\">"
+      echo "https://qwackify.duckdns.org/playlist.m3u"
     '';
     voice = {
       enabled = true;

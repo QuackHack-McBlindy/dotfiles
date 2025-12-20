@@ -229,6 +229,20 @@
   # 🦆 says ⮞ get house.tv configuration with debug info
   tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
 
+  # 🦆 says ⮞ generate room mapping with both ID and friendly name
+  roomDeviceMappings = lib.concatMapStrings (room: 
+    let roomLights = devicesByRoom.${room} or [];
+    in if roomLights != [] then
+      let
+        deviceMappings = map (d: {
+          id = d.id;
+          friendly_name = d.friendly_name or d.id;
+        }) roomLights;
+      in
+        "window.roomDeviceMappings['${room}'] = " + builtins.toJSON deviceMappings + ";\n"
+    else ""
+  ) sortedRooms;
+
   # 🦆 says ⮞ generate TV selector options with debug
   tvOptions = let
     tvNames = lib.attrNames tvConfig;
@@ -263,38 +277,79 @@
   devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) lightDevices;
   devicesByRoom = lib.groupBy (device: device.room) devicesWithId;
   sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
-
-  roomControlsHtml = ''
+  
+  # 🦆 says ⮞ generate devices in collapsible rooms
+  roomControlsHtml = let
+    devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) lightDevices;
+    devicesByRoom = lib.groupBy (device: device.room) devicesWithId;
+    sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
+  in ''
     <div class="room-controls-section">
       <h3>Rooms</h3>
-      <div class="room-controls-grid">
+      <div class="rooms" id="roomsContainer">
         ${lib.concatMapStrings (room: 
           let 
-            icon = lib.removePrefix "mdi:" (roomIcons.${room} or "mdi:home");
+            iconName = lib.removePrefix "mdi:" (roomIcons.${room} or "mdi:home");
             roomLights = devicesByRoom.${room} or [];
             hasLights = roomLights != [];
           in
             if hasLights then ''
-              <div class="room-control-card" data-room="${room}">
-                <div class="room-control-header">
-                  <i class="mdi mdi-${icon}"></i>
-                  <span class="room-name">${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}</span>
+              <div class="room" id="room-${room}" data-room="${room}">
+                <div class="room-header">
+                  <div class="room-title">
+                    <i class="mdi mdi-${iconName} room-icon"></i>
+                    <span class="room-name">${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}</span>
+                  </div>
+                  <div class="room-controls">
+                    <button class="collapse-btn">▸</button>
+                  </div>
                 </div>
-                <div class="room-control-body">
-                  <label class="ios-toggle">
-                    <input type="checkbox" class="room-toggle" onchange="toggleRoom('${room}', this.checked)">
-                    <span class="ios-toggle-slider"></span>
-                  </label>
-                  <input type="range" min="0" max="254" value="254" class="room-brightness-slider" oninput="setRoomBrightness('${room}', this.value)">
+                <input class="brightness room-brightness" type="range" min="0" max="100" value="100">
+                <div class="devices hidden" id="devices-${room}">
+                  ${lib.concatMapStrings (device: 
+                    let
+                      deviceIconName = lib.removePrefix "mdi:" (device.icon or "mdi:lightbulb");
+                      supportsColor = device.supports_color or false;
+                      deviceColor = "#ffffff";
+                    in ''
+                      <div class="device" id="device-${device.id}" data-device="${device.id}">
+                        <div class="device-top">
+                          <div class="device-icon-container">
+                            <i class="mdi mdi-${deviceIconName} device-icon"></i>
+                            <div class="device-name">${device.friendly_name or device.id}</div>
+                          </div>
+                          <div class="device-controls">
+                            <div class="controls-row">
+                              ${if supportsColor then ''<input class="color-picker" type="color" value="${deviceColor}">'' else ""}
+                              <label class="switch">
+                                <input type="checkbox" class="device-toggle">
+                                <span class="toggle-slider"></span>
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                        <input class="brightness device-brightness" type="range" min="0" max="100" value="100">
+                      </div>
+                    ''
+                  ) roomLights}
                 </div>
               </div>
             '' else ""
         ) sortedRooms}
       </div>
-    </div>
+    </div><br><br><br>
   '';
 
   roomControlCSS = ''
+    :root {
+      --bg: #0e1117;
+      --card: #161b22;
+      --text: #e6edf3;
+      --muted: #8b949e;
+      --border: #30363d;
+      --accent: #34c759;
+    }
+
     .room-controls-section {
       margin-top: 20px;
       padding: 0 20px;
@@ -310,143 +365,868 @@
       letter-spacing: 1px;
     }
     
-    .room-controls-grid {
+    .rooms {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 20px;
+      gap: 18px;
     }
     
-    .room-control-card {
-      background: #1a1a1a;
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    .room {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 12px 16px;
+      border: 2px solid var(--border);
+      transition: box-shadow 0.2s, border-color 0.2s;
+    }
+    
+    .room.on {
+      border-color: var(--room-color);
+      box-shadow: 0 0 18px var(--room-color);
+    }
+    
+    .room-header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 8px;
+      cursor: pointer;
+    }
+    
+    .room-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .room-icon {
+      font-size: 1.8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+    }
+    
+    .room-name {
+      font-size: 1.5rem;
+    }
+    
+    .room-controls {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .devices {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      margin-top: 12px;
+    }
+    
+    .devices.hidden {
+      display: none;
+    }
+    
+    .device {
+      background: #0b0f14;
+      border-radius: 12px;
+      padding: 12px;
+      border: 2px solid var(--border);
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      border: 1px solid #333333;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      gap: 10px;
+      transition: box-shadow 0.15s, border-color 0.15s, opacity 0.15s;
+      min-height: 120px;
     }
     
-    .room-control-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    .device.on {
+      border-color: var(--device-color);
+      box-shadow: 0 0 10px var(--device-color);
     }
     
-    .room-control-header {
+    .device.off {
+      opacity: 0.75;
+    }
+    
+    .device-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-grow: 1;
+    }
+    
+    .device-icon-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      min-width: 40px;
+    }
+    
+    .device-icon {
+      font-size: 1.8rem;
       display: flex;
       align-items: center;
-      gap: 15px;
+      justify-content: center;
+    }
+    
+    .device-name {
+      font-size: 14px;
       font-weight: 600;
-      color: #ffffff;
+      text-align: center;
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      line-height: 1.3;
+      min-height: 36px;
     }
     
-    .room-control-header .mdi {
-      font-size: 2.5rem;
-      color: #2b6cb0;
+    .device-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      flex-grow: 1;
     }
     
-    .room-control-body {
+    .controls-row {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 10px;
+      width: 100%;
+      justify-content: space-between;
     }
     
-    /* 🦆 says ⮞ iOS-style toggle switch */
-    .ios-toggle {
+    .device .switch {
       position: relative;
       display: inline-block;
-      width: 60px;
-      height: 34px;
-      flex-shrink: 0;
+      width: 52px;
+      height: 28px;
+      min-width: 52px;
     }
     
-    .ios-toggle input {
+    .device .switch input {
       opacity: 0;
       width: 0;
       height: 0;
     }
     
-    .ios-toggle-slider {
+    .device .toggle-slider {
       position: absolute;
       cursor: pointer;
       top: 0;
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #cccccc;
+      background-color: #3a3f45;
       transition: .4s;
       border-radius: 34px;
-      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
     }
     
-    .ios-toggle-slider:before {
+    .device .toggle-slider:before {
       position: absolute;
       content: "";
-      height: 26px;
-      width: 26px;
+      height: 20px;
+      width: 20px;
       left: 4px;
       bottom: 4px;
       background-color: white;
       transition: .4s;
       border-radius: 50%;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
     
-    input:checked + .ios-toggle-slider {
-      background-color: #4CD964; /* 🦆 says ⮞ iOS green */
+    .device input:checked + .toggle-slider {
+      background-color: var(--accent);
     }
     
-    input:checked + .ios-toggle-slider:before {
-      transform: translateX(26px);
+    .device input:checked + .toggle-slider:before {
+      transform: translateX(24px);
     }
     
-    /* 🦆 says ⮞ state with slight scale effect */
-    .ios-toggle input:active + .ios-toggle-slider:before {
-      transform: translateX(13px) scale(0.9);
+    .color-picker {
+      width: 28px;
+      height: 28px;
+      border: 2px solid var(--border);
+      border-radius: 50%;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+      min-width: 28px;
     }
     
-    input:checked:active + .ios-toggle-slider:before {
-      transform: translateX(13px) scale(0.9);
+    .color-picker::-webkit-color-swatch {
+      border-radius: 50%;
+      border: none;
     }
     
-    .room-control-body .room-brightness-slider {
-      flex: 1;
-      height: 8px;
-      border-radius: 4px;
-      background: #333333;
+    .color-picker::-moz-color-swatch {
+      border-radius: 50%;
+      border: none;
+    }
+    
+    .device-brightness, .room-brightness {
+      width: 100%;
+      margin-top: 8px;
+      display: none;
+    }
+    
+    .device.on .device-brightness {
+      display: block;
+    }
+    
+    .room.on .room-brightness {
+      display: block;
+    }
+    
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      background: #30363d;
+      border-radius: 5px;
       outline: none;
+    }
+    
+    input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
-      cursor: pointer;
-    }
-    
-    .room-control-body .room-brightness-slider::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: #2b6cb0;
+      background: white;
       cursor: pointer;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--border);
     }
     
-    .room-control-body .room-brightness-slider::-moz-range-thumb {
-      width: 22px;
-      height: 22px;
+    input[type="range"]::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
       border-radius: 50%;
-      background: #2b6cb0;
+      background: white;
       cursor: pointer;
-      border: 2px solid #ffffff;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      border: 2px solid var(--border);
     }
     
-    .room-name {
-      font-size: 2.0rem;
-      font-weight: 800;
+    .collapse-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 18px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      transition: background-color 0.2s, transform 0.2s;
+      min-width: 36px;
+    }
+    
+    .collapse-btn:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+    
+    @media (max-width: 768px) {
+      .devices {
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: 10px;
+      }
+      
+      .device {
+        padding: 10px;
+        min-height: 110px;
+      }
+      
+      .device-icon {
+        font-size: 1.6rem;
+      }
+      
+      .device-name {
+        font-size: 13px;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .devices {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+      
+      .room-controls-section {
+        padding: 0 12px;
+      }
+      
+      .room {
+        padding: 10px 12px;
+      }
     }
   '';
+
+  roomControlJs = '' 
+    function syncRoomStatesAfterLoad() {
+        console.log('🦆 Syncing room states after load...');   
+        document.querySelectorAll('.room').forEach(roomEl => {
+            const roomName = roomEl.getAttribute('data-room');
+            const deviceElements = Array.from(roomEl.querySelectorAll('.device'));
+            let anyOn = false;
+        
+            deviceElements.forEach(device => {
+                const deviceId = device.getAttribute('data-device');
+                const deviceData = window.devices[deviceId];
+                const toggle = device.querySelector('.device-toggle');
+            
+                if (deviceData && deviceData.state === 'ON' && toggle) {
+                    toggle.checked = true;
+                    device.classList.add('on');
+                    device.classList.remove('off');
+                    anyOn = true;
+                }
+            });
+        
+            if (anyOn) {
+                roomEl.classList.add('on');
+            
+                const roomBrightnessSlider = roomEl.querySelector('.room-brightness');
+                if (roomBrightnessSlider) {
+                    roomBrightnessSlider.style.display = 'block';
+                }
+            } else {
+                roomEl.classList.remove('on');
+            }
+        });
+    
+        updateRoomColors();
+    }
+
   
+    // 🦆 says ⮞ room control func
+    function updateRoomColors() {
+        document.querySelectorAll('.room').forEach(roomEl => {
+            const roomName = roomEl.getAttribute('data-room');
+            const deviceElements = Array.from(roomEl.querySelectorAll('.device'));
+            const anyOn = deviceElements.some(device => {
+                const toggle = device.querySelector('.device-toggle');
+                return device.classList.contains('on') || (toggle && toggle.checked);
+            });
+        
+            if (anyOn) {
+                const onDevices = deviceElements.filter(device => {
+                    const toggle = device.querySelector('.device-toggle');
+                    return device.classList.contains('on') || (toggle && toggle.checked);
+                });
+            
+                let r = 0, g = 0, b = 0, count = 0;
+            
+                onDevices.forEach(device => {
+                    const colorPicker = device.querySelector('.color-picker');
+                    const toggle = device.querySelector('.device-toggle');
+                
+                    if (colorPicker && toggle && toggle.checked) {
+                        const color = colorPicker.value;
+                        const c = color.replace('#', "");
+                        r += parseInt(c.substr(0, 2), 16);
+                        g += parseInt(c.substr(2, 2), 16);
+                        b += parseInt(c.substr(4, 2), 16);
+                        count++;
+                    }
+                });
+            
+                if (count > 0) {
+                    r = Math.round(r / count);
+                    g = Math.round(g / count);
+                    b = Math.round(b / count);
+                    const roomColor = `rgb(''${r}, ''${g}, ''${b})`;
+                    roomEl.style.setProperty('--room-color', roomColor);
+                    roomEl.classList.add('on');
+                } else {
+                    roomEl.classList.remove('on');
+                }
+            } else {
+                roomEl.classList.remove('on');
+            }
+        });
+    }
+    
+    function toggleRoom(roomName, state) {
+      console.log('🦆 Toggle room:', roomName, state);
+      const devices = window.roomDevices ? window.roomDevices[roomName] : [];
+      if (!devices || devices.length === 0) {
+        console.error('No devices found for room:', roomName);
+        showNotification('No devices found in ' + roomName, 'error');
+        return;
+      }
+      
+      const command = { state: state ? 'ON' : 'OFF' };
+      console.log('🦆 Sending command to devices:', devices, command);
+      
+      devices.forEach(device => {
+        if (window.sendCommand) {
+          window.sendCommand(device, command);
+        } else {
+          console.error('sendCommand not available');
+        }
+      });
+      
+      showNotification(`''${state ? 'Turning on' : 'Turning off'} ''${roomName}`, 'success');
+    }
+    
+    function setRoomBrightness(roomName, brightness) {
+      console.log('🦆 Set room brightness:', roomName, brightness);
+      const devices = window.roomDevices ? window.roomDevices[roomName] : [];
+      if (!devices || devices.length === 0) {
+        console.error('No devices found for room:', roomName);
+        return;
+      }
+      
+      const command = { brightness: Math.round((parseInt(brightness) / 100) * 255) };
+      console.log('🦆 Sending brightness to devices:', devices, command);
+      
+      devices.forEach(device => {
+        if (window.sendCommand) {
+          window.sendCommand(device, command);
+        } else {
+          console.error('sendCommand not available');
+        }
+      });
+    }
+    
+    function setDeviceBrightness(deviceId, brightness) {
+      console.log('🦆 Set device brightness:', deviceId, brightness);
+      const command = { brightness: Math.round((parseInt(brightness) / 100) * 255) };
+      
+      if (window.sendCommand) {
+        window.sendCommand(deviceId, command);
+      } else {
+        console.error('sendCommand not available');
+      }
+    }
+    
+    function setDeviceColor(deviceId, color) {
+      console.log('🦆 Set device color:', deviceId, color);
+      const hex = color.replace('#', "");
+      const r = parseInt(hex.substr(0,2), 16);
+      const g = parseInt(hex.substr(2,2), 16);
+      const b = parseInt(hex.substr(4,2), 16);
+      
+      const command = { color: { r, g, b } };
+      
+      if (window.sendCommand) {
+        window.sendCommand(deviceId, command);
+      } else {
+        console.error('sendCommand not available');
+      }
+    }
+    
+    function initRoomControls() {
+      document.querySelectorAll('.room-header').forEach(header => {
+        header.addEventListener('click', function(e) {
+          if (e.target.classList.contains('collapse-btn')) return;
+          
+          const roomEl = this.closest('.room');
+          const roomName = roomEl.getAttribute('data-room');
+          const devices = roomEl.querySelectorAll('.device');
+          const anyOn = Array.from(devices).some(device => 
+            device.classList.contains('on')
+          );
+          
+          toggleRoom(roomName, !anyOn);
+        });
+      });
+      
+      // 🦆 says ⮞ handle collapse button clicks
+      document.querySelectorAll('.collapse-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          const roomEl = this.closest('.room');
+          const devicesEl = roomEl.querySelector('.devices');
+          devicesEl.classList.toggle('hidden');
+          this.textContent = devicesEl.classList.contains('hidden') ? '▸' : '▾';
+        });
+      });
+      
+      document.querySelectorAll('.device-toggle').forEach(toggle => {
+        toggle.addEventListener('change', function() {
+          const deviceEl = this.closest('.device');
+          const deviceId = deviceEl.getAttribute('data-device');
+          const command = { state: this.checked ? 'ON' : 'OFF' };
+          
+          if (window.sendCommand) {
+            window.sendCommand(deviceId, command);
+          }
+          
+          deviceEl.classList.toggle('on', this.checked);
+          deviceEl.classList.toggle('off', !this.checked);
+          
+          const brightnessSlider = deviceEl.querySelector('.device-brightness');
+          if (brightnessSlider) {
+            brightnessSlider.style.display = this.checked ? 'block' : 'none';
+          }
+          
+          updateRoomColors();
+        });
+      });
+      
+      document.querySelectorAll('.device-brightness').forEach(slider => {
+        slider.addEventListener('input', function() {
+          const deviceEl = this.closest('.device');
+          const deviceId = deviceEl.getAttribute('data-device');
+          setDeviceBrightness(deviceId, this.value);
+        });
+      });
+      
+      document.querySelectorAll('.room-brightness').forEach(slider => {
+        slider.addEventListener('input', function() {
+          const roomEl = this.closest('.room');
+          const roomName = roomEl.getAttribute('data-room');
+          setRoomBrightness(roomName, this.value);
+        });
+      });
+      
+      document.querySelectorAll('.color-picker').forEach(picker => {
+        picker.addEventListener('input', function() {
+          const deviceEl = this.closest('.device');
+          const deviceId = deviceEl.getAttribute('data-device');
+          setDeviceColor(deviceId, this.value);
+          
+          deviceEl.style.setProperty('--device-color', this.value);
+          deviceEl.classList.add('on');
+          
+          updateRoomColors();
+        });
+      });
+    }
+    
+    function updateDeviceUIFromMQTT(deviceId, data) {
+      const deviceEl = document.getElementById('device-''${deviceId}');
+      if (!deviceEl) return;
+      
+      const toggle = deviceEl.querySelector('.device-toggle');
+      const brightnessSlider = deviceEl.querySelector('.device-brightness');
+      const colorPicker = deviceEl.querySelector('.color-picker');
+      
+      if (toggle && data.state !== undefined) {
+        toggle.checked = data.state === 'ON';
+        deviceEl.classList.toggle('on', data.state === 'ON');
+        deviceEl.classList.toggle('off', data.state !== 'ON');
+        
+        if (brightnessSlider) {
+          brightnessSlider.style.display = data.state === 'ON' ? 'block' : 'none';
+        }
+      }
+      
+      if (brightnessSlider && data.brightness !== undefined) {
+        const percent = Math.round((data.brightness / 254) * 100);
+        brightnessSlider.value = percent;
+      }
+      
+      if (colorPicker && data.color && data.color.hex) {
+        colorPicker.value = data.color.hex;
+        deviceEl.style.setProperty('--device-color', data.color.hex);
+      }
+      
+      const roomEl = deviceEl.closest('.room');
+      if (roomEl) {
+        const roomName = roomEl.getAttribute('data-room');
+        const anyOn = Array.from(roomEl.querySelectorAll('.device')).some(device => 
+          device.classList.contains('on')
+        );
+        
+        const roomBrightnessSlider = roomEl.querySelector('.room-brightness');
+        if (roomBrightnessSlider) {
+          roomBrightnessSlider.style.display = anyOn ? 'block' : 'none';
+        }
+        
+        updateRoomColors();
+      }
+    }
+    
+    
+    function updateAllRoomControls() {
+        console.log('🦆 updateAllRoomControls called');
+        console.log('🦆 window.devices:', window.devices);
+        console.log('🦆 window.roomDeviceMappings:', window.roomDeviceMappings);
+
+        if (!window.roomDeviceMappings) {
+            console.error('🦆 window.roomDeviceMappings is not defined');
+            return;
+        }
+
+        if (!window.devices || Object.keys(window.devices).length === 0) {
+            console.error('🦆 window.devices is empty or not defined');
+            return;
+        }
+
+        Object.entries(window.roomDeviceMappings).forEach(([roomName, deviceMappings]) => {
+            console.log(`🦆 Processing room "''${roomName}" with devices:`, deviceMappings);
+    
+            deviceMappings.forEach(deviceInfo => {
+                const deviceId = deviceInfo.id;
+                const friendlyName = deviceInfo.friendly_name;
+        
+                let deviceData = window.devices[deviceId];
+            
+                if (!deviceData) {
+                    deviceData = window.devices[friendlyName];
+                }
+            
+                if (!deviceData) {
+                    const foundKey = Object.keys(window.devices).find(key => 
+                        key.includes(deviceId) || 
+                        key.includes(friendlyName) ||
+                        (window.devices[key] && window.devices[key].friendly_name === friendlyName)
+                    );
+                    if (foundKey) {
+                        deviceData = window.devices[foundKey];
+                    }
+                }
+        
+                console.log(`🦆 Device ''${deviceId}/''${friendlyName} data:`, deviceData);
+        
+                if (deviceData) {
+                    updateDeviceInRoom(deviceId, deviceData);
+                } else {
+                    console.warn(`🦆 No data found for device ''${deviceId}/''${friendlyName}`);
+                }
+            });
+    
+            updateRoomHeaderState(roomName);
+        });
+
+        updateRoomColors();
+        console.log('🦆 Room controls updated');
+    }
+
+    
+    // 🦆 says ⮞ Manual device update for fallback
+    function updateDeviceInRoom(deviceId, data) {
+        // Use the device ID directly from the data or mapping
+        const deviceElementId = 'device-' + deviceId;
+        const deviceEl = document.getElementById(deviceElementId);
+    
+        if (!deviceEl) {
+            console.warn(`🦆 Device element not found for ID: ''${deviceId}`);
+        
+            // Try alternative lookup by data-device attribute
+            const altEl = document.querySelector(`[data-device="''${deviceId}"]`);
+            if (altEl) {
+                deviceEl = altEl;
+            } else {
+                // Last resort: try to find by any means
+                const allDeviceEls = document.querySelectorAll('[data-device]');
+                for (const el of allDeviceEls) {
+                    if (el.querySelector('.device-name')?.textContent === deviceId) {
+                        deviceEl = el;
+                        break;
+                    }
+                }
+            }
+        
+            if (!deviceEl) {
+                console.error(`🦆 Could not find device element for: ''${deviceId}`);
+                return;
+            }
+        } 
+        
+        const toggle = deviceEl.querySelector('.device-toggle');
+        const brightnessSlider = deviceEl.querySelector('.device-brightness');
+        const colorPicker = deviceEl.querySelector('.color-picker');
+        
+        let deviceState = data.state;
+        if (deviceState === undefined) {
+            deviceState = data.State || data.STATE || data.power || data.Power;
+        }
+        
+        console.log(`🦆 Device ''${deviceId} state:`, deviceState, 'from data:', data);
+        
+        if (toggle && deviceState !== undefined) {
+            const isOn = typeof deviceState === 'string' 
+                ? deviceState.toUpperCase() === 'ON'
+                : Boolean(deviceState);
+            
+            toggle.checked = isOn;
+            deviceEl.classList.toggle('on', isOn);
+            deviceEl.classList.toggle('off', !isOn);
+            
+            if (brightnessSlider) {
+                brightnessSlider.style.display = isOn ? 'block' : 'none';
+            }
+        } else if (toggle) {
+            console.warn(`🦆 No state found for device ''${deviceId}`);
+        }
+        
+        if (brightnessSlider && data.brightness !== undefined) {
+            const percent = Math.round((data.brightness / 254) * 100);
+            brightnessSlider.value = percent;
+            console.log(`🦆 Device ''${deviceId} brightness: ''${percent}%`);
+        }
+        
+        if (colorPicker && data.color) {
+            const colorHex = normalizeColorFromState(data.color);
+            if (colorHex) {
+                colorPicker.value = colorHex;
+                deviceEl.style.setProperty('--device-color', colorHex);
+            }
+        }
+    }
+        
+    function normalizeColorFromState(colorData) {
+      if (!colorData) return '#ffffff';      
+      try {
+        if (colorData.hex) {
+          return colorData.hex;
+        }
+        
+        if (typeof colorData === 'string') {
+          const parsed = JSON.parse(colorData);
+          return normalizeColorFromState(parsed);
+        }
+        
+        if (colorData.x !== undefined && colorData.y !== undefined) {
+          const { x, y } = colorData;
+          const z = 1.0 - x - y;
+          const Y = 1.0; // Assuming full brightness
+          const X = (Y / y) * x;
+          const Z = (Y / y) * z;
+          
+          let r = X * 1.656492 - Y * 0.354851 - Z * 0.255038;
+          let g = -X * 0.707196 + Y * 1.655397 + Z * 0.036152;
+          let b = X * 0.051713 - Y * 0.121364 + Z * 1.011530;
+          
+          r = r <= 0.0031308 ? 12.92 * r : 1.055 * Math.pow(r, 1/2.4) - 0.055;
+          g = g <= 0.0031308 ? 12.92 * g : 1.055 * Math.pow(g, 1/2.4) - 0.055;
+          b = b <= 0.0031308 ? 12.92 * b : 1.055 * Math.pow(b, 1/2.4) - 0.055;
+          
+          r = Math.round(Math.max(0, Math.min(1, r)) * 255);
+          g = Math.round(Math.max(0, Math.min(1, g)) * 255);
+          b = Math.round(Math.max(0, Math.min(1, b)) * 255);
+          
+          return `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+        }
+        
+        if (colorData.hue !== undefined || colorData.h !== undefined) {
+          const h = (colorData.hue || colorData.h || 0) / 360;
+          const s = ((colorData.saturation || colorData.s || 100) / 100);
+          const v = 1;
+          
+          const i = Math.floor(h * 6);
+          const f = h * 6 - i;
+          const p = v * (1 - s);
+          const q = v * (1 - f * s);
+          const t = v * (1 - (1 - f) * s);
+          
+          let r, g, b;
+          switch (i % 6) {
+            case 0: r = v, g = t, b = p; break;
+            case 1: r = q, g = v, b = p; break;
+            case 2: r = p, g = v, b = t; break;
+            case 3: r = p, g = q, b = v; break;
+            case 4: r = t, g = p, b = v; break;
+            case 5: r = v, g = p, b = q; break;
+          }
+          
+          r = Math.round(r * 255);
+          g = Math.round(g * 255);
+          b = Math.round(b * 255);
+          
+          return `#''${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+        }
+        
+      } catch (e) {
+        console.warn('Failed to parse color:', colorData, e);
+      }
+      
+      return '#ffffff';
+    }
+    
+    // 🦆 says ⮞ Update room header state (ON/OFF)
+    function updateRoomHeaderState(roomName) {
+      const roomEl = document.getElementById('room-' + roomName);
+      if (!roomEl) return;
+      
+      const deviceIds = window.roomDevices[roomName] || [];
+      const anyOn = deviceIds.some(deviceId => {
+        const deviceData = window.devices[deviceId];
+        return deviceData && deviceData.state === 'ON';
+      });
+      
+      const roomBrightnessSlider = roomEl.querySelector('.room-brightness');
+      if (roomBrightnessSlider) {
+        roomBrightnessSlider.style.display = anyOn ? 'block' : 'none';
+      }
+      
+      if (anyOn) {
+        const onDevices = deviceIds.filter(id => 
+          window.devices[id] && window.devices[id].state === 'ON' && window.devices[id].brightness
+        );
+        
+        let avgBrightness = 100;
+        if (onDevices.length > 0) {
+          const totalBrightness = onDevices.reduce((sum, deviceId) => {
+            const brightness = window.devices[deviceId].brightness;
+            return sum + (brightness || 0);
+          }, 0);
+          avgBrightness = Math.round((totalBrightness / onDevices.length) / 2.54); // Convert 0-255 to 0-100
+        }
+        
+        if (roomBrightnessSlider) {
+          roomBrightnessSlider.value = avgBrightness;
+        }
+      }
+    }
+    
+    // 🦆 says ⮞ Sync room toggles based on device states
+    function syncRoomTogglesFromState() {
+      if (!window.roomDevices || !window.devices) return;
+      
+      Object.entries(window.roomDevices).forEach(([roomName, deviceIds]) => {
+        const anyDeviceOn = deviceIds.some(deviceId => {
+          const device = window.devices[deviceId];
+          return device && device.state === 'ON';
+        });
+        
+        const roomEl = document.getElementById(`room-''${roomName}`);
+        if (roomEl) {
+          roomEl.classList.toggle('on', anyDeviceOn);
+          roomEl.classList.toggle('off', !anyDeviceOn);
+          
+          const roomBrightnessSlider = roomEl.querySelector('.room-brightness');
+          if (roomBrightnessSlider) {
+            roomBrightnessSlider.style.display = anyDeviceOn ? 'block' : 'none';
+          }
+        }
+      });
+    }
+    
+    function setInitialRoomCollapse() {
+      document.querySelectorAll('.room').forEach(roomEl => {
+        const roomName = roomEl.getAttribute('data-room');
+        const devicesInRoom = window.roomDevices[roomName] || [];
+        
+        const anyOn = devicesInRoom.some(deviceId => 
+          window.devices[deviceId] && window.devices[deviceId].state === 'ON'
+        );
+        
+        if (!anyOn) {
+          const devicesEl = roomEl.querySelector('.devices');
+          const collapseBtn = roomEl.querySelector('.collapse-btn');
+          if (devicesEl && collapseBtn) {
+            devicesEl.classList.add('hidden');
+            collapseBtn.textContent = '▸';
+          }
+        }
+      });
+    }
+    
+    window.updateDeviceUIFromMQTT = updateDeviceUIFromMQTT;
+    window.updateAllRoomControls = updateAllRoomControls;
+    window.syncRoomTogglesFromState = syncRoomTogglesFromState;
+    window.setInitialRoomCollapse = setInitialRoomCollapse;
+  '';
+
+  
+
 
   httpServer = pkgs.writeShellScriptBin "serve-dashboard" ''
     HOST=''${1:-0.0.0.0}
@@ -573,20 +1353,17 @@ if __name__ == '__main__':
     os.chdir(os.path.dirname(__file__))    
     port = int(os.environ.get('PORT', 13337))
     
-    # 🦆 says ⮞ Get SSL certificate paths from environment
     cert_file = os.environ.get('CERT_FILE', "")
     key_file = os.environ.get('KEY_FILE', "")
     
     httpd = socketserver.TCPServer(("", port), SimpleAuthHandler)
     
-    # 🦆 says ⮞ Set up SSL if certificates are provided
     ssl_context = None
     if cert_file and key_file and os.path.exists(cert_file) and os.path.exists(key_file):
         try:
             ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
             ssl_context.load_cert_chain(cert_file, key_file)
             
-            # 🦆 says ⮞ Wrap the socket with SSL
             httpd.socket = ssl_context.wrap_socket(httpd.socket, server_side=True)
             print(f"🦆 HTTPS server started on https://0.0.0.0:{port}")
             
@@ -1792,6 +2569,7 @@ EOF
             ${statusCardsJs}
             ${updateAllCardsJs}
             ${fileRefreshJs}
+            ${roomControlJs}
 
             window.syncRoomToggles = function() {
               if (!window.roomDevices || !window.devices) return;
@@ -1977,13 +2755,17 @@ EOF
 
 
                 // 🦆 says ⮞ create room to devices mapping
+                // 🦆 says ⮞ Initialize room device mappings
+                window.roomDeviceMappings = {};
+                ${roomDeviceMappings}
+
+                // 🦆 says ⮞ Also create roomDevices for backward compatibility
                 window.roomDevices = {};
-                ${lib.concatMapStrings (room: 
-                  let roomLights = devicesByRoom.${room} or [];
-                  in if roomLights != [] then
-                    "window.roomDevices['${room}'] = " + builtins.toJSON (map (d: d.id) roomLights) + ";"
-                  else ""
-                ) sortedRooms}
+                Object.keys(window.roomDeviceMappings || {}).forEach(roomName => {
+                    if (window.roomDeviceMappings[roomName]) {
+                        window.roomDevices[roomName] = window.roomDeviceMappings[roomName].map(d => d.id);
+                    }
+                });
 
                 console.log('🦆 Room devices mapping:', window.roomDevices);
 
@@ -2730,6 +3512,11 @@ EOF
                                     updateStatusCards();
                                     onMQTTDataUpdate();   
                                     
+                                    // 🦆 says ⮞ Update room control UI
+                                    if (window.updateDeviceUIFromMQTT) {
+                                      updateDeviceUIFromMQTT(deviceName, data);
+                                    }
+                                    
                                     if (window.syncRoomToggles) {
                                         window.syncRoomToggles();
                                     }
@@ -3418,76 +4205,107 @@ EOF
                     });
                 }
                 
+                
                 async function loadInitialState() {
                     try {
                         const response = await fetch('/state.json');
                         if (!response.ok) {
                             throw new Error(`HTTP ''${response.status}: ''${response.statusText}`);
                         }
-
+                
                         const serverState = await response.json();
                         const { ['bridge/state']: bridgeState, ...devicesState } = serverState;
-
-                        // 🦆 says ⮞ convert string values to numbers
-                        for (const [device, data] of Object.entries(devicesState)) {
-                            for (const [key, value] of Object.entries(data)) {
-                                if (typeof value === 'string' && !isNaN(value) && value.trim() !== "") {
-                                    data[key] = Number(value);
-                                }
-
-                                if (key === 'color' && typeof value === 'string') {
-                                    try {
-                                        data[key] = JSON.parse(value);
-                                    } catch (e) {
-                                        console.warn('Failed to parse color for device', device, value);
-                                        delete data[key];
-                                    }
-                                }
+                
+                        // 🦆 says ⮞ normalize all device data
+                        window.devices = {};
+                        for (const [deviceKey, data] of Object.entries(devicesState)) {
+                            const normalizedData = normalizeDeviceData(data);
+                            window.devices[deviceKey] = normalizedData;
+                            
+                            // 🦆 says ⮞ also store by ID if we have a mapping
+                            if (normalizedData.id) {
+                                window.devices[normalizedData.id] = normalizedData;
                             }
                         }
-
-                        // 🦆 says ⮞ merge data
-                        for (const [device, data] of Object.entries(devicesState)) {
-                            devices[device] = {...devices[device], ...data};
+                
+                        console.log('🦆 Loaded devices:', Object.keys(window.devices));
+                        console.log('🦆 Room mappings:', window.roomDeviceMappings);
+                
+                        // 🦆 says ⮞ now update room controls with the loaded state
+                        if (window.updateAllRoomControls) {
+                            window.updateAllRoomControls();
                         }
-
-                        if (devices.tibber) {
-                            if (devices.tibber.current_price !== undefined) {
-                                document.getElementById('energyPrice').textContent = 
-                                    devices.tibber.current_price.toFixed(2) + ' SEK/kWh';
-                            }
-                            if (devices.tibber.monthly_usage !== undefined) {
-                                document.getElementById('energyUsage').textContent = 
-                                    devices.tibber.monthly_usage.toFixed(1) + ' kWh (month)';
-                            }
+                
+                        if (window.syncRoomTogglesFromState) {
+                            window.syncRoomTogglesFromState();
                         }
-                        updateDeviceSelector();
-                        updateStatusCards();
-
-                        if (window.syncRoomToggles) {
-                            window.syncRoomToggles();
-                        }
-
-                        if (selectedDevice && devices[selectedDevice]) {
-                            updateDeviceUI(devices[selectedDevice]);
-                        }
-
+                
+                        // 🦆 says ⮞ update status cards
+                        updateAllStatusCards();
+                
                         showNotification('Initial state loaded from server', 'success');
+                        
+                        return window.devices;
                     } catch (error) {
                         console.error('Error loading initial state:', error);
                         showNotification('Using cached device data', 'info');
+                        return {};
                     }
+                }
+                
+                function normalizeDeviceData(data) {
+                    const normalized = { ...data };
+                    
+                    // 🦆 says ⮞ ensure state is uppercase
+                    if (normalized.state) {
+                        normalized.state = String(normalized.state).toUpperCase();
+                    }
+                    
+                    // 🦆 says ⮞ convert string numbers to actual numbers
+                    if (normalized.brightness && typeof normalized.brightness === 'string') {
+                        normalized.brightness = parseInt(normalized.brightness, 10);
+                    }
+                    
+                    // 🦆 says ⮞ parse color if it's a string
+                    if (normalized.color && typeof normalized.color === 'string') {
+                        try {
+                            normalized.color = JSON.parse(normalized.color);
+                        } catch (e) {
+                            console.warn('Failed to parse color:', normalized.color);
+                        }
+                    }
+                    
+                    return normalized;
                 }
 
 
                 function initDashboard() {
-                    // 🦆 says ⮞ load initial state from the server
                     loadInitialState().then(() => {
-                        // 🦆 says ⮞ load state from localStorage
+                        console.log('🦆 Initial state loaded, devices:', Object.keys(window.devices));
+        
+                        if (window.initRoomControls) {
+                            initRoomControls();
+                        }
+        
+                        // 🦆 says ⮞ Update room controls with current state
+                        setTimeout(() => {
+                            console.log('🦆 Updating room controls from state...');
+                            if (window.updateAllRoomControls) {
+                                updateAllRoomControls();
+                            }
+                            if (typeof syncRoomStatesAfterLoad === 'function') {
+                                syncRoomStatesAfterLoad();
+                            }
+            
+                            if (window.setInitialRoomCollapse) {
+                                setInitialRoomCollapse();
+                            }
+                        }, 500);
+        
                         loadSavedState();
                         statusCard.refreshAllFromAPI();
                         startAPIAutoRefresh();
-        
+    
                         document.getElementById('targetTV').addEventListener('change', function() {
                             const selectedTV = this.value;
                             const channelDisplay = document.getElementById('tvChannelDisplay');
