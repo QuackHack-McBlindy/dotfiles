@@ -1122,7 +1122,7 @@ in {
           search.wildcard = true;
           # 🦆 says ⮞ hardcoded device names
           device.values = [
-            { "in" = "[sovrum|sovrummet|bedroom]"; out = "192.168.1.152"; }
+            { "in" = "[sovrum|sovrummet|bedroom]"; out = "192.168.1.153"; }
             { "in" = "[vardagsrum|vardagsrummet|livingroom]"; out = "192.168.1.223"; }              
           ]; # 🦆 says ⮞ or use device name from Nix config          
           # device.values = let

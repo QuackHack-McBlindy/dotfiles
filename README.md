@@ -163,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/2jssqihrlg54f5x1n0rwzzbn5y0c9iad-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/pn02yy5qza49jrn84a12x9zkcl37hk0h-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -759,7 +759,7 @@ in { # 🦆 duck say ⮞ qwack
                         return true;
                     } catch (error) {
                         console.error('File upload failed:', error);
-                        addErrorMessage(`❌ File upload failed: ''${error.message}`);
+                        addErrorMessage(`File upload failed: ''${error.message}`);
                         return false;
                     }
                 }
@@ -853,7 +853,7 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
             
-                // 🦆 says ⮞ let'z make chat handle video and music yo
+                // 🦆 says ⮞ let'z make chat handle video/music playlists yo
                 function extractVideoUrls(text) {
                     const urlRegex = /https?://[^s]+/g;
                     const urls = text.match(urlRegex) || [];
@@ -896,11 +896,13 @@ in { # 🦆 duck say ⮞ qwack
                             case extension === 'webm' || formatParam.includes('webm'):
                                 return 'video/webm';
                             case extension === 'avi':
-                                return 'video/x-msvideo';
+                                return "";
+                            //    return 'video/x-msvideo';
                             case extension === 'mov':
                                 return 'video/quicktime';
                             case extension === 'mkv':
-                                return 'video/x-matroska';
+                                return "";                      
+                            //    return 'video/x-matroska';
                             case extension === 'flv':
                                 return 'video/x-flv';
                             case extension === 'wmv':
@@ -911,10 +913,10 @@ in { # 🦆 duck say ⮞ qwack
                                 if (url.includes('hls') || url.includes('m3u')) {
                                     return 'application/vnd.apple.mpegurl';
                                 }
-                                return 'video/mp4'; // Default fallback
+                                return 'video/mp4';
                         }
                     } catch (e) {
-                        return 'application/vnd.apple.mpegurl'; // Default for unknown URLs
+                        return 'application/vnd.apple.mpegurl';
                     }
                 }
 
@@ -1182,7 +1184,9 @@ in { # 🦆 duck say ⮞ qwack
                     video.style.borderRadius = '8px';
                     video.style.background = '#000';
                     video.style.marginBottom = '10px';
-                    
+                    // 🦆 says ⮞ crossorigin to handle CORS
+                    video.crossOrigin = 'anonymous';
+
                     const source = document.createElement('source');
                     source.src = videoUrl;
                     source.type = getVideoMimeType(videoUrl);
@@ -1287,7 +1291,6 @@ in { # 🦆 duck say ⮞ qwack
                                             videoContainer.innerHTML = 'No valid video URLs found in playlist';
                                             return;
                                         }
-
                                         console.log('🦆 Playlist detected with', videoUrlsList.length, 'items');
 
                                         createPlaylistPlayer(videoUrlsList, videoContainer, isLocalFile);
@@ -1614,7 +1617,7 @@ in { # 🦆 duck say ⮞ qwack
                 
                 async function sendCommandToAPI(command) {
                     if (!apiConnected) {
-                        addErrorMessage("❌ Not connected to API. Check if the API server is running.");
+                        addErrorMessage("Not connected to API. Check if the API server is running.");
                         return false;
                     }
                 
@@ -1644,7 +1647,7 @@ in { # 🦆 duck say ⮞ qwack
                         }
                     } catch (error) {
                         console.error('API call failed:', error);
-                        addErrorMessage("❌ Failed to send command to API. Please check the connection.");
+                        addErrorMessage("Failed to send command to API. Please check the connection.");
                         return false;
                     }
                 }
@@ -1670,7 +1673,7 @@ in { # 🦆 duck say ⮞ qwack
                       }
                       return true;
                     } else {
-                      addErrorMessage('❌ API Error: ' + response.status + ' - ' + response.statusText);
+                      addErrorMessage('API Error: ' + response.status + ' - ' + response.statusText);
                       return false;
                     }
                   } catch (error) {
@@ -2705,7 +2708,8 @@ $ yo wake
 ```
 
 ### ✨ Available Commands
-Set default values for your parameters to have them marked [optional]
+Set default values for your parameters to have them marked [optional]  
+Add `?` to any command to run it in DEBUG mode  
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 | **🖥️ System Management** | | | |
@@ -2862,7 +2866,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8081 ducks?<br>
+Let's see if you can find all 8051 ducks?<br>
 <!-- DUCKS_END -->
 
 <br>

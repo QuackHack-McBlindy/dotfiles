@@ -2490,15 +2490,7 @@ EOF
                         </div>
                     </div>
                 </div>
-                
-                     
-                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
-                 🦆 says ⮞ PAGE 4 - 🦆☁️)
-                 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
-                <div class="page" id="pageCloud">
-
-                </div> -->
-                
+                             
     
                <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
                🦆 says ⮞ CUSTOM PAGES
@@ -2524,10 +2516,7 @@ EOF
                 </div>
                 <div class="nav-tab" data-page="3">
                     <i class="mdi mdi-remote"></i>
-                </div> <!--
-                <div class="nav-tab" data-page="4">
-                    <img src="https://pungkula.duckdns.org/public/icons/duckcloud.png" class="nav-icon">
-                </div> -->
+                </div>
                 ${customTabsHtml}
             </div>
         </div>
@@ -3301,7 +3290,7 @@ EOF
                     }
                     
                     const options = {
-                        username: 'mqtt',
+                        username: '${config.house.zigbee.mosquitto.username}',
                         password: password,
                         clientId: 'web-dashboard-' + Math.random().toString(16).substring(2, 10)
                     };
@@ -4458,29 +4447,6 @@ EOF
                     });
                 }
                 
-                function activateScene(sceneName) {
-                    const scene = sceneData[sceneName];
-                    if (!scene) {
-                        showNotification(`Scene "''${sceneName}" not found`, 'error');
-                        return;
-                    }
-    
-                    showNotification(`Activating "''${sceneName}" scene`, 'success');
-    
-                    Object.entries(scene).forEach(([device, settings]) => {
-                        let command = {...settings};
-                        if (command.color && command.color.hex) {
-                            const hex = command.color.hex.replace('#', "");
-                            command.color = {
-                                r: parseInt(hex.substr(0, 2), 16),
-                                g: parseInt(hex.substr(2, 2), 16),
-                                b: parseInt(hex.substr(4, 2), 16)
-                            };
-                        }
-        
-                        sendCommand(device, command);
-                    });
-                }
 
                 const API_BASE = `http://''${window.location.hostname}:9815`;
                              
