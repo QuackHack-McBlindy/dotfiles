@@ -163,7 +163,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/x2gxfcqxrslwq5m5qyrp16gv4grjyrda-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/vbhapyx1dyzk439kd5xq8dklrpxra5jp-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -2495,7 +2495,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles
+git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=6cbdd26760c2754802b11a1b01da118e26decabe
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
