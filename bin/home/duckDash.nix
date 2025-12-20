@@ -337,7 +337,7 @@
             '' else ""
         ) sortedRooms}
       </div>
-    </div><br><br><br>
+    </div><br><br><br><br>
   '';
 
   roomControlCSS = ''
@@ -699,8 +699,7 @@
     
         updateRoomColors();
     }
-
-  
+ 
     // 🦆 says ⮞ room control func
     function updateRoomColors() {
         document.querySelectorAll('.room').forEach(roomEl => {
@@ -900,8 +899,7 @@
     
     function updateDeviceUIFromMQTT(deviceId, data) {
       const deviceEl = document.getElementById('device-''${deviceId}');
-      if (!deviceEl) return;
-      
+      if (!deviceEl) return;      
       const toggle = deviceEl.querySelector('.device-toggle');
       const brightnessSlider = deviceEl.querySelector('.device-brightness');
       const colorPicker = deviceEl.querySelector('.color-picker');
@@ -941,13 +939,11 @@
         updateRoomColors();
       }
     }
-    
-    
+        
     function updateAllRoomControls() {
         console.log('🦆 updateAllRoomControls called');
         console.log('🦆 window.devices:', window.devices);
         console.log('🦆 window.roomDeviceMappings:', window.roomDeviceMappings);
-
         if (!window.roomDeviceMappings) {
             console.error('🦆 window.roomDeviceMappings is not defined');
             return;
@@ -997,23 +993,17 @@
         updateRoomColors();
         console.log('🦆 Room controls updated');
     }
-
     
-    // 🦆 says ⮞ Manual device update for fallback
     function updateDeviceInRoom(deviceId, data) {
-        // Use the device ID directly from the data or mapping
         const deviceElementId = 'device-' + deviceId;
-        const deviceEl = document.getElementById(deviceElementId);
-    
+        const deviceEl = document.getElementById(deviceElementId);  
         if (!deviceEl) {
             console.warn(`🦆 Device element not found for ID: ''${deviceId}`);
         
-            // Try alternative lookup by data-device attribute
             const altEl = document.querySelector(`[data-device="''${deviceId}"]`);
             if (altEl) {
                 deviceEl = altEl;
             } else {
-                // Last resort: try to find by any means
                 const allDeviceEls = document.querySelectorAll('[data-device]');
                 for (const el of allDeviceEls) {
                     if (el.querySelector('.device-name')?.textContent === deviceId) {
@@ -1140,7 +1130,7 @@
       return '#ffffff';
     }
     
-    // 🦆 says ⮞ Update room header state (ON/OFF)
+    // 🦆 says ⮞ update room state
     function updateRoomHeaderState(roomName) {
       const roomEl = document.getElementById('room-' + roomName);
       if (!roomEl) return;
@@ -1176,7 +1166,7 @@
       }
     }
     
-    // 🦆 says ⮞ Sync room toggles based on device states
+    // 🦆 says ⮞ sync room toggles based on device states
     function syncRoomTogglesFromState() {
       if (!window.roomDevices || !window.devices) return;
       
@@ -1226,8 +1216,6 @@
   '';
 
   
-
-
   httpServer = pkgs.writeShellScriptBin "serve-dashboard" ''
     HOST=''${1:-0.0.0.0}
     PORT=''${2:-13337}
@@ -1724,7 +1712,7 @@ EOF
             }
   
             ${roomControlCSS}
-            /* 🦆 says ⮞ BLACK BACKGROUND FOR HEADER AND TABS */
+
             header {
                 background: #000000 !important;
                 border-bottom: 1px solid #333333 !important;
@@ -1742,7 +1730,6 @@ EOF
                 color: #ffffff !important;
             }
             
-            /* 🦆 says ⮞ MAKE TABS WHITE */
             .nav-tab {
                 color: #ffffff !important;
             }
@@ -1752,7 +1739,6 @@ EOF
                 color: #ffffff !important;
             }
             
-            /* 🦆 says ⮞ SEARCH BAR DARK STYLING */
             .search-bar {
                 background: #1a1a1a !important;
                 border: 1px solid #333333 !important;
@@ -1767,7 +1753,6 @@ EOF
                 color: #888888 !important;
             }
             
-            /* 🦆 says ⮞ DEVICE SELECTOR DARK STYLING */
             .device-selector-container {
                 background: #000000 !important;
             }
@@ -1778,21 +1763,18 @@ EOF
                 border: 1px solid #333333 !important;
             }
             
-            /* 🦆 says ⮞ MIC BUTTON DARK STYLING */
             .mic-btn {
                 background: #1a1a1a !important;
                 color: #ffffff !important;
                 border: 1px solid #333333 !important;
             }
             
-            /* 🦆 says ⮞ CONNECTION STATUS DARK STYLING */
             .connection-status {
                 background: #1a1a1a !important;
                 color: #ffffff !important;
                 border: 1px solid #333333 !important;
             }
             
-            /* 🦆 says ⮞ DEVICE CONTROLS DARK STYLING */
             .device-controls {
                 background: #000000 !important;
                 color: #ffffff !important;
@@ -1808,12 +1790,10 @@ EOF
                 color: #ffffff !important;
             }
             
-            /* 🦆 says ⮞ SCENES PAGE DARK STYLING */
             #pageScenes h2 {
                 color: #ffffff !important;
             }
             
-            /* 🦆 says ⮞ TV PAGE DARK STYLING */
             .tv-selector {
                 background: #1a1a1a !important;
                 color: #ffffff !important;
@@ -1825,19 +1805,16 @@ EOF
                 color: #ffffff !important;
             }
             
-            /* 🦆 says ⮞ MAKE ALL TEXT WHITE */
             body, .container, .page, header, .nav-tabs {
                 color: #ffffff !important;
             }
             
-            /* 🦆 says ⮞ FIX SPECIFIC TEXT ELEMENTS */
             .card-title, .card-value, .card-details,
             .device-info h2, .device-info p,
             #currentDeviceName, #currentDeviceStatus {
                 color: #ffffff !important;
             }
-            
-     
+             
             body {
                 background: #000000 !important;
             }
@@ -1895,7 +1872,6 @@ EOF
                 display: block;
             }
             
-
             .fullpage-iframe {
                 width: 100%;
                 height: 100%;
@@ -2079,7 +2055,6 @@ EOF
             }    
             
             /* 🦆 says ⮞ TV */
-            /* 🦆 says ⮞ TV Channel Display */
             .tv-channel-display {
                 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
                 border-radius: 12px;
@@ -2157,7 +2132,6 @@ EOF
                 transition: width 0.3s ease;
             }
             
-            /* 🦆 says ⮞ Remove time display */
             .program-time {
                 display: none !important;
             }
@@ -2295,7 +2269,6 @@ EOF
                 grid-column: 2;
             }
            
-            /* 🦆 says ⮞ TEMPORARY DEBUG - Remove after testing */
             .channel-icon {
                 background-color: rgba(255, 0, 0, 0.3) !important; /* Red background to see the element */
                 border: 3px solid #00ff00 !important; /* Green border to see the bounds */
@@ -2334,10 +2307,7 @@ EOF
                   <span class="dash-text">'Dash!</span>
                   <button id="micButton" class="mic-btn">🎙️</button>
                 </div>
-                
- 
-    
-            
+                            
             </header>
     
             
@@ -2375,12 +2345,11 @@ EOF
                                 <span id="temperatureLocation">Waiting for data</span>
                             </div>
                         </div>
-                        
-                        
+                                             
                     </div>
                     </div>
                     ${roomControlsHtml}
-                </div>
+                </div><br><br><br>
                 
                 
                 <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
@@ -2575,7 +2544,6 @@ EOF
               if (!window.roomDevices || !window.devices) return;
   
               Object.entries(window.roomDevices).forEach(([roomName, deviceIds]) => {
-                // 🦆 says ⮞ check if any device in the room is ON
                 const anyDeviceOn = deviceIds.some(deviceId => {
                   const device = window.devices[deviceId];
                   return device && device.state === 'ON';
@@ -2674,7 +2642,6 @@ EOF
             }
             
             document.addEventListener('DOMContentLoaded', function() {
-
                 // 🦆 says ⮞ mqtt
                 let client = null;
                 
@@ -3056,7 +3023,7 @@ EOF
                     const fallbackElement = document.getElementById('currentChannelNumberFallback');
     
                     if (!iconElement) {
-                        console.error('❌ Channel icon element not found!');
+                        console.error('Channel icon element not found!');
                         return;
                     }
     
@@ -3163,9 +3130,9 @@ EOF
                     });
                 }
 
-                // 🦆 says ⮞ Parse EPG timestamp
+                // 🦆 says ⮞ parse EPG time
                 function parseEPGTime(epgTime) {
-                    // 🦆 says ⮞ Format: YYYYMMDDHHMMSS +0000
+                    // 🦆 says ⮞ format: YYYYMMDDHHMMSS +0000
                     const year = epgTime.substring(0, 4);
                     const month = epgTime.substring(4, 6) - 1;
                     const day = epgTime.substring(6, 8);
@@ -3175,15 +3142,15 @@ EOF
                     return new Date(year, month, day, hour, minute, second);
                 }
 
-                // 🦆 says ⮞ Clean program title by removing channel names and HTML tags
+                // 🦆 says ⮞ clean program title from html
                 function cleanProgramTitle(rawTitle) {
                     if (!rawTitle) return 'No program...';
                     let clean = rawTitle.replace(/<[^>]*>/g, "");
                     const channelPatterns = [
-                        /^Kanal\s+\d+\s*[-–]?\s*/i, // "Kanal 3 - " or "Kanal 3"
-                        /^TV\d+\s*[-–]?\s*/i,       // "TV4 - " or "TV4"
-                        /^SVT\d*\s*[-–]?\s*/i,      // "SVT1 - " or "SVT"
-                        /^\d+\s*[-–]?\s*/           // "3 - " or "3"
+                        /^Kanal\s+\d+\s*[-–]?\s*/i,
+                        /^TV\d+\s*[-–]?\s*/i,
+                        /^SVT\d*\s*[-–]?\s*/i,
+                        /^\d+\s*[-–]?\s*/
                     ];
                     channelPatterns.forEach(pattern => {
                         clean = clean.replace(pattern, "");
@@ -3195,7 +3162,7 @@ EOF
                     return clean;
                 }
 
-                // 🦆 says ⮞ Toggle program description visibility
+                // 🦆 says ⮞ toggle program description visibility
                 function toggleProgramDescription() {
                     const descElement = document.getElementById('currentProgramDescription');
                     const channelDisplay = document.getElementById('tvChannelDisplay');
@@ -3211,7 +3178,7 @@ EOF
                     }
                 }
 
-                // 🦆 says ⮞ Update the display with program information
+                // 🦆 says ⮞ update the display with program info
                 function updateChannelDisplayWithProgram(channel, program, currentTime) {
                     const elements = {
                         programTitle: document.getElementById('currentProgramTitle'),
@@ -3512,7 +3479,7 @@ EOF
                                     updateStatusCards();
                                     onMQTTDataUpdate();   
                                     
-                                    // 🦆 says ⮞ Update room control UI
+                                    // 🦆 says ⮞ update room control UI
                                     if (window.updateDeviceUIFromMQTT) {
                                       updateDeviceUIFromMQTT(deviceName, data);
                                     }
@@ -3604,7 +3571,6 @@ EOF
                 }
                 
                 function updateStatusCards() {
-                    // 🦆 says ⮞ Only update the temperature card if it exists
                     let temperature = '--.-';
                     let tempLocation = 'No sensor';
 
@@ -3615,7 +3581,7 @@ EOF
                             break;
                         }
                     }    
-                    // 🦆 says ⮞ update temperature elements if they exist
+                    // 🦆 says ⮞ update temperature elements
                     const temperatureValueElement = document.getElementById('temperatureValue');
                     if (temperatureValueElement) {
                         temperatureValueElement.textContent = `''${temperature}°C`;
@@ -3625,7 +3591,6 @@ EOF
                         temperatureLocationElement.textContent = tempLocation;
                     }
                 }
-
       
                 function updateDeviceIcon(deviceName) {
                     console.log('updateDeviceIcon called for:', deviceName);
@@ -3800,8 +3765,7 @@ EOF
                 }
           
                 ${customPagesJs}
-
-            
+         
                 function updateLinkquality(percent) {
                   const bars = document.querySelectorAll(".lq-bar");
                   const activeBars = Math.round((percent / 100) * bars.length);
@@ -4204,8 +4168,7 @@ EOF
                         if (el) el.oninput = syncFromSliders;
                     });
                 }
-                
-                
+                                
                 async function loadInitialState() {
                     try {
                         const response = await fetch('/state.json');
@@ -4231,7 +4194,6 @@ EOF
                         console.log('🦆 Loaded devices:', Object.keys(window.devices));
                         console.log('🦆 Room mappings:', window.roomDeviceMappings);
                 
-                        // 🦆 says ⮞ now update room controls with the loaded state
                         if (window.updateAllRoomControls) {
                             window.updateAllRoomControls();
                         }
@@ -4287,7 +4249,7 @@ EOF
                             initRoomControls();
                         }
         
-                        // 🦆 says ⮞ Update room controls with current state
+                        // 🦆 says ⮞ update room controls with current state
                         setTimeout(() => {
                             console.log('🦆 Updating room controls from state...');
                             if (window.updateAllRoomControls) {
@@ -4411,8 +4373,7 @@ EOF
                         
  
                         pageContainer.addEventListener('touchend', (e) => {
-                            const diffY = startY - e.changedTouches[0].clientY;
-                            
+                            const diffY = startY - e.changedTouches[0].clientY;           
                             if (currentPage === 1 && Math.abs(diffY) > Math.abs(startX - currentX)) {
                                 handleDevicePageVerticalSwipe(diffY);
                                 return;
@@ -4565,9 +4526,8 @@ EOF
                   }
                 };
                    
-                   
-                                   
-                // 🦆 says ⮞ Auto-refresh API data
+                                                      
+                // 🦆 says ⮞ auto-refresh API data
                 let apiRefreshIntervals = [];
                 
                 function startAPIAutoRefresh() {
@@ -4596,7 +4556,6 @@ EOF
                 }
               
 
-
                 // 🦆 says ⮞ unified status card manager
                 const statusCard = {
                   data: {
@@ -4611,7 +4570,7 @@ EOF
                   
                   priorities: ['critical', 'high', 'medium', 'low', 'info'],
                   
-                  // 🦆 says ⮞ Save status card data to localStorage
+                  // 🦆 says ⮞ save status card data to localStorage
                   saveData() {
                     try {
                       const statusData = JSON.stringify(this.data);
@@ -4644,7 +4603,6 @@ EOF
                     }
                   },
                 
-                  // 🦆 says ⮞ API refresh methods
                   async refreshTimersFromAPI() {
                     try {
                       const timerData = await apiService.fetchTimers();
@@ -4758,7 +4716,7 @@ EOF
                   
                   getHighestPriorityContent() {
                     console.log('🦆 Finding highest priority content from:', this.data);
-                    // 🦆 says ⮞ check reminders first (critical)
+                    // 🦆 says ⮞ check reminders first
                     if (this.data.reminders.items.length > 0) {
                       const reminder = this.data.reminders.items[0];
                       return {
@@ -4782,7 +4740,7 @@ EOF
                       };
                     }
                     
-                    // 🦆 says ⮞ Check calendar events happening soon (medium)
+                    // 🦆 says ⮞ check calendar events happening soon (medium)
                     const upcomingEvent = this.getNextCalendarEvent();
                     if (upcomingEvent) {
                       return {
@@ -4794,7 +4752,7 @@ EOF
                       };
                     }
                     
-                    // 🦆 says ⮞ Check recent shopping list updates (low)
+                    // 🦆 says ⮞ check recent shopping list updates (low)
                     if (this.isShoppingListRecent()) {
                       const itemCount = this.data.shopping.items.length;
                       return {
@@ -4808,8 +4766,7 @@ EOF
                     
                     return null;
                   },
-                  
-                  
+                                   
                   async refreshAllData() {
                     await this.refreshTimersFromAPI();
                     await this.refreshShoppingFromAPI();
@@ -4819,8 +4776,7 @@ EOF
                   
                   // 🦆 says ⮞ timer functions
                   formatTimeRemaining(seconds) {
-                    if (seconds <= 0) return 'Finished!';
-                    
+                    if (seconds <= 0) return 'Finished!';              
                     const hours = Math.floor(seconds / 3600);
                     const minutes = Math.floor((seconds % 3600) / 60);
                     const secs = seconds % 60;
@@ -4859,7 +4815,7 @@ EOF
                         this.playTimerFinishedSound();
                       }
                       
-                      // 🦆 says ⮞ Update the card display
+                      // 🦆 says ⮞ update the card display
                       this.updateCard();
                       this.saveData();
                       
@@ -4946,13 +4902,13 @@ EOF
                       const data = JSON.parse(message.toString());
                       const newTimers = data.active_timers || data.timers || [];
                       
-                      // 🦆 says ⮞ Generate unique IDs for new timers
+                      // 🦆 says ⮞ generate unique IDs for new timers
                       newTimers.forEach(timer => {
                         if (!timer.id) {
                           timer.id = 'timer_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                         }
                         
-                        // 🦆 says ⮞ Start countdown for new timers
+                        // 🦆 says ⮞ start countdown for new timers
                         if (timer.remaining > 0) {
                           this.startTimerCountdown(timer.id);
                         }
@@ -4995,12 +4951,10 @@ EOF
                   }
                 };
                 
-                
-                
+                               
                 function setupStatusSubscriptions() {
                     statusCard.refreshAllData();
                 }
-
   
                 statusCard.refreshAllFromAPI = function() {
                   this.refreshTimersFromAPI();

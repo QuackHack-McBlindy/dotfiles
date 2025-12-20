@@ -280,7 +280,7 @@ in { # 🦆 duck say ⮞ qwack
         };
         
 
-        # 🦆says⮞ ChatBot (no LLM) - proof of concept that what people call "AI" can be replaced with BASIC scripting - less expensive, more reliable
+        # 🦆says⮞ ChatBot (no LLM) - proof of concept that what people call "AI" can be replaced with basic scripting - less expensive, more reliable
         "5" = {
           icon = "fas fa-comments";
           title = "chat";
@@ -666,9 +666,8 @@ in { # 🦆 duck say ⮞ qwack
                         };
                     }
                 }
-
-                
-      
+            
+                // 🦆 says ⮞ let'z make chat handle video and music yo
                 function extractVideoUrls(text) {
                     const urlRegex = /https?:\/\/[^\s]+/g;
                     const urls = text.match(urlRegex) || [];
@@ -696,7 +695,6 @@ in { # 🦆 duck say ⮞ qwack
                     });
                 }
                 
-                // 🦆 says ⮞ Get MIME type from URL
                 function getVideoMimeType(url) {
                     try {
                         const urlObj = new URL(url);
@@ -779,7 +777,7 @@ in { # 🦆 duck say ⮞ qwack
                     });
                 }
                 
-                // 🦆 says ⮞ Check if URL is a playlist (HLS or m3u)
+                // 🦆 says ⮞ playlist?
                 function isPlaylistUrl(url) {
                     try {
                         const urlObj = new URL(url);
@@ -794,7 +792,19 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
                 
-                // 🦆 says ⮞ Create HLS video player
+                // 🦆says⮞ m3u ?
+                async function isSimpleM3U(url) {
+                    try {
+                        const response = await fetch(url);
+                        const text = await response.text();
+                        const firstLine = text.split('\n')[0].trim();
+                        return !firstLine.startsWith('#');
+                    } catch (e) {
+                        return false;
+                    }
+                }
+           
+                // 🦆 says ⮞ create HLS video player
                 function createHlsPlayer(videoUrl, container) {
                     const video = document.createElement('video');
                     video.controls = true;
@@ -893,6 +903,91 @@ in { # 🦆 duck say ⮞ qwack
                     return video;
                 }
                 
+                // 🦆 says ⮞ create a player that cycles a playlist
+                function createPlaylistPlayer(videoUrls, container, isLocalFile) {
+                    const video = document.createElement('video');
+                    video.controls = true;
+                    video.style.maxWidth = '100%';
+                    video.style.borderRadius = '8px';
+                    video.style.background = '#000';
+                    video.style.marginBottom = '10px';
+
+                    const controlsDiv = document.createElement('div');
+                    controlsDiv.className = 'playlist-controls';
+                    controlsDiv.style.marginTop = '10px';
+                    controlsDiv.style.fontSize = '0.9em';
+                    controlsDiv.style.color = '#666';
+
+                    let currentIndex = 0;
+                    let isPlaying = false;
+
+                    // 🦆 says ⮞ load and play specific index
+                    function playVideoAtIndex(index) {
+                        if (index < 0 || index >= videoUrls.length) return;
+                        currentIndex = index;
+                        const currentUrl = videoUrls[currentIndex];
+        
+                        video.src = currentUrl;
+                        video.load();
+        
+                        updateControls();
+        
+                        if (isPlaying) {
+                            video.play().catch(e => {
+                                console.log('Auto-play prevented:', e);
+                                isPlaying = false;
+                            });
+                        }
+                    }
+
+                    // 🦆 says ⮞ update playback controls
+                    function updateControls() {
+                        controlsDiv.innerHTML = `
+                            <div style="margin-bottom: 5px;">
+                                <span>''${currentIndex + 1}/''${videoUrls.length}: ''${videoUrls[currentIndex].split('/').pop() || 'Video'}</span>
+                            </div>
+                            <div>
+                                <button onclick="playPrev()" style="margin-right: 10px; background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">◀ Prev</button> <button onclick="playNext()" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Next ▶</button>                            
+                            </div>
+                        `;
+                    }
+
+                    // 🦆 says ⮞ playback buttons
+                    window.playPrev = () => {
+                        if (currentIndex > 0) {
+                            playVideoAtIndex(currentIndex - 1);
+                        }
+                    };
+
+                    window.playNext = () => {
+                        if (currentIndex < videoUrls.length - 1) {
+                            playVideoAtIndex(currentIndex + 1);
+                        } else {
+                            playVideoAtIndex(0);
+                        }
+                    };
+
+                    // 🦆 says ⮞ event listener 4 first item ends
+                    video.addEventListener('ended', () => {
+                        isPlaying = false;
+                        if (currentIndex < videoUrls.length - 1) {
+                            setTimeout(() => {
+                                playNext();
+                                video.play().catch(e => console.log('Auto-play prevented after end:', e));
+                            }, 500);
+                        }
+                    });
+
+                    video.addEventListener('play', () => { isPlaying = true; });
+                    video.addEventListener('pause', () => { isPlaying = false; });
+
+                    container.appendChild(video);
+                    container.appendChild(controlsDiv);
+                    playVideoAtIndex(0);
+
+                    return video;
+                }
+                
                 function createRegularVideoPlayer(videoUrl, container) {
                     const video = document.createElement('video');
                     video.controls = true;
@@ -926,8 +1021,7 @@ in { # 🦆 duck say ⮞ qwack
                     container.appendChild(video);
                     return video;
                 }
-                
-                // 🦆 says ⮞ chat response bubble            
+                         
                 function addAIMessage(content, options = {}) {
                     const chatContainer = document.getElementById('chat');
                     const typingIndicator = document.querySelector('.typing-indicator');
@@ -982,7 +1076,7 @@ in { # 🦆 duck say ⮞ qwack
                             
                             const title = document.createElement('div');
                             title.className = 'video-title';
-                            title.textContent = `📹 Media ''${index + 1}: ''${videoUrl.split('/').pop() || 'Stream'}`;
+                            title.textContent = `Media: ''${videoUrl.split('/').pop() || 'Stream'}`;
                             title.style.fontWeight = 'bold';
                             title.style.marginBottom = '10px';
                             title.style.color = '#2196F3';
@@ -990,9 +1084,30 @@ in { # 🦆 duck say ⮞ qwack
                             
                             const isLocalFile = videoUrl.startsWith('file://') || videoUrl.startsWith('/');
                             const isPlaylist = isPlaylistUrl(videoUrl);
-                            
+
                             if (isPlaylist) {
-                                createStreamingPlayer(videoUrl, videoContainer, isLocalFile);
+                                // 🦆 says ⮞ playlist? fetch and play all
+                                (async () => {
+                                    try {
+                                        const response = await fetch(videoUrl);
+                                        const text = await response.text();
+                                        const videoUrlsList = text.split('\n')
+                                            .map(line => line.trim())
+                                            .filter(line => line && !line.startsWith('#') && line.length > 0);
+
+                                        if (videoUrlsList.length === 0) {
+                                            videoContainer.innerHTML = 'No valid video URLs found in playlist';
+                                            return;
+                                        }
+
+                                        console.log('🦆 Playlist detected with', videoUrlsList.length, 'items');
+
+                                        createPlaylistPlayer(videoUrlsList, videoContainer, isLocalFile);
+                                    } catch (error) {
+                                        console.error('Failed to process playlist:', error);
+                                        videoContainer.innerHTML = `Failed to load playlist: ''${error.message}`;
+                                    }
+                                })();
                             } else {
                                 createRegularVideoPlayer(videoUrl, videoContainer, isLocalFile);
                             }
@@ -1001,15 +1116,7 @@ in { # 🦆 duck say ⮞ qwack
                             infoDiv.style.marginTop = '8px';
                             infoDiv.style.fontSize = '0.85em';
                             infoDiv.style.color = '#666';
-                            
-                            const urlType = isLocalFile ? 'Local file' : (isPlaylist ? 'HLS Stream' : 'Video file');
-                            infoDiv.innerHTML = `
-                                <span style="margin-right: 10px;">''${urlType}</span>
-                                <a href="''${videoUrl}" target="_blank" style="color: #666; text-decoration: none; border-bottom: 1px dashed #666;">
-                                    Direct link
-                                </a>
-                            `;
-                            
+                                                        
                             videoContainer.appendChild(infoDiv);
                             aiBubble.appendChild(videoContainer);
                         });
@@ -1073,7 +1180,7 @@ in { # 🦆 duck say ⮞ qwack
                     
                     testStreamAccessibility(videoUrl).then(accessible => {
                         if (!accessible) {
-                            statusDiv.textContent = '⚠️ Stream not accessible (CORS/network issue)';
+                            statusDiv.textContent = 'Stream not accessible (CORS/network issue)';
                             statusDiv.style.color = '#ff9800';
                             errorDiv.innerHTML = `
                                 <div>Possible issues:</div>
@@ -1083,15 +1190,14 @@ in { # 🦆 duck say ⮞ qwack
                                     <li>Stream server offline</li>
                                 </ul>
                                 <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                    🔗 Try opening in VLC or external player
+                                    Try opening in external player
                                 </a>
                             `;
                             errorDiv.style.display = 'block';
                             return;
                         }
                         
-                        statusDiv.textContent = 'Stream accessible, loading player...';
-                        
+                        statusDiv.textContent = 'Stream accessible, loading player...';   
                         loadHlsJs().then(hlsAvailable => {
                             if (hlsAvailable && Hls.isSupported()) {
                                 const hls = new Hls({
@@ -1107,7 +1213,7 @@ in { # 🦆 duck say ⮞ qwack
                                 hls.attachMedia(video);
                                 
                                 hls.on(Hls.Events.MANIFEST_PARSED, function() {
-                                    statusDiv.textContent = '✅ Stream ready - click play';
+                                    statusDiv.textContent = 'Stream ready - click play';
                                     statusDiv.style.color = '#4CAF50';
                                     video.play().catch(e => {
                                         console.log('Auto-play prevented, waiting for user interaction');
@@ -1118,15 +1224,15 @@ in { # 🦆 duck say ⮞ qwack
                                     console.warn('Stream error:', data);
                                     if (data.fatal) {
                                         hls.destroy();
-                                        statusDiv.textContent = '❌ HLS playback failed';
+                                        statusDiv.textContent = 'HLS playback failed';
                                         statusDiv.style.color = '#ff4444';
                                         
-                                        // 🦆 says ⮞ Fallback to native player
+                                        // 🦆 says ⮞ fallback native player
                                         errorDiv.innerHTML = `
                                             <div>Trying native playback fallback...</div>
                                             <div style="margin-top: 5px;">
                                                 <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                                    🔗 Open in external player instead
+                                                    Open in external player instead
                                                 </a>
                                             </div>
                                         `;
@@ -1157,14 +1263,13 @@ in { # 🦆 duck say ⮞ qwack
                             }
                         });
                     }).catch(error => {
-                        statusDiv.textContent = '❌ Cannot test stream accessibility';
+                        statusDiv.textContent = 'Cannot test stream accessibility';
                         statusDiv.style.color = '#ff4444';
                         errorDiv.textContent = `Error: ''${error.message}`;
                         errorDiv.style.display = 'block';
                     });
                 }
                 
-                // 🦆 says ⮞ Test if a stream URL is accessible
                 async function testStreamAccessibility(url) {
                     try {
                         const response = await fetch(url, {
@@ -1174,19 +1279,17 @@ in { # 🦆 duck say ⮞ qwack
                         });
                         return response.ok;
                     } catch (headError) {
-                        console.log('HEAD failed, trying GET with timeout:', headError);
-                        
+                        console.log('HEAD failed, trying GET with timeout:', headError);        
                         try {
                             const controller = new AbortController();
-                            const timeoutId = setTimeout(() => controller.abort(), 5000);
-                            
+                            const timeoutId = setTimeout(() => controller.abort(), 5000);       
                             const response = await fetch(url, {
                                 method: 'GET',
                                 mode: 'cors',
                                 cache: 'no-cache',
                                 signal: controller.signal,
                                 headers: {
-                                    'Range': 'bytes=0-100' // Only request first 100 bytes
+                                    'Range': 'bytes=0-100'
                                 }
                             });
                             
@@ -1198,10 +1301,7 @@ in { # 🦆 duck say ⮞ qwack
                         }
                     }
                 }
-                
-               
-             
-
+                              
                 // 🦆 says ⮞ FUCK!
                 function addErrorMessage(text) {
                     const chatContainer = document.getElementById('chat');

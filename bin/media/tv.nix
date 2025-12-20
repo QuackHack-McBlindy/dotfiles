@@ -249,6 +249,7 @@ in {
     
           rm "$temp_file"
           dt_info "Playlist generated: $PLAYLIST_SAVE_PATH (shuffle: $SHUFFLE)"
+          echo "Playlist generated at: ''${WEBSERVER}/playlist.m3u"
       }
       
       play_favorites() {
@@ -264,7 +265,7 @@ in {
               sleep 0.2
               adb connect ''${device_ip}
               sleep 0.2
-              local max_retries=5  # Add this
+              local max_retries=5
               local retries=0      
               if (( retries < max_retries )); then
                   dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
