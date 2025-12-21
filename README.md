@@ -58,6 +58,27 @@ _"What makes this configuration common?_" <br>
 
 
 <br> 
+
+
+## 🦆 **Follow My Adventures**
+
+This repository is complex, and it's not a typical NixOS dotfiles setup.<br>
+Since NixOS probably never have been used in such a unique way, understanding how everything is working solely from massive source code will be tricky for newcomers as well as advanced users. <br>
+I try to simplify that process in my blog. <br> 
+
+[𝑸𝓾𝒂𝒄𝒌𝑯𝒂𝒄𝒌-𝑴𝒄𝑩𝒍𝒊𝒏𝒅𝒚 𝗕𝗹𝗼𝗴](https://quackhack-mcblindy.github.io/blog/)
+
+
+<br>
+
+### Duck Challenge
+  
+<!-- DUCKS_START -->
+I have hidden some ducks in the .nix files in this repository. <br>
+Let's see if you can find all 8050 ducks?<br>
+<!-- DUCKS_END -->
+
+<br>
   
 ## ❄️ **Flake**
 
@@ -163,7 +184,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
   };
   name = "gtk3.css";
-  styles = "/nix/store/pn02yy5qza49jrn84a12x9zkcl37hk0h-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/lgigdn4pjrn0nj0098lzryv98b7l4vfi-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1373,18 +1394,6 @@ in { # 🦆 duck say ⮞ qwack
                         if (!accessible) {
                             statusDiv.textContent = 'Stream not accessible (CORS/network issue)';
                             statusDiv.style.color = '#ff9800';
-                            errorDiv.innerHTML = `
-                                <div>Possible issues:</div>
-                                <ul style="margin: 5px 0; padding-left: 20px;">
-                                    <li>Server doesn't allow CORS</li>
-                                    <li>Network firewall blocking</li>
-                                    <li>Stream server offline</li>
-                                </ul>
-                                <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                    Try opening in external player
-                                </a>
-                            `;
-                            errorDiv.style.display = 'block';
                             return;
                         }
                         
@@ -1417,18 +1426,7 @@ in { # 🦆 duck say ⮞ qwack
                                         hls.destroy();
                                         statusDiv.textContent = 'HLS playback failed';
                                         statusDiv.style.color = '#ff4444';
-                                        
-                                        // 🦆 says ⮞ fallback native player
-                                        errorDiv.innerHTML = `
-                                            <div>Trying native playback fallback...</div>
-                                            <div style="margin-top: 5px;">
-                                                <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                                    Open in external player instead
-                                                </a>
-                                            </div>
-                                        `;
-                                        errorDiv.style.display = 'block';
-                                        
+                                                                               
                                         if (video.canPlayType('application/vnd.apple.mpegurl')) {
                                             video.src = videoUrl;
                                             video.load();
@@ -1440,17 +1438,8 @@ in { # 🦆 duck say ⮞ qwack
                                 video.src = videoUrl;
                                 video.load();
                             } else {
-                                statusDiv.textContent = '❌ HLS not supported in this browser';
+                                statusDiv.textContent = 'HLS not supported in this browser';
                                 statusDiv.style.color = '#ff4444';
-                                errorDiv.innerHTML = `
-                                    <div>For HLS streams, try:</div>
-                                    <ul style="margin: 5px 0; padding-left: 20px;">
-                                        <li>Chrome/Firefox with HLS.js (should work)</li>
-                                        <li>Safari (native support)</li>
-                                        <li><a href="''${videoUrl}" target="_blank" style="color: #2196F3;">Open in VLC/mpv</a></li>
-                                    </ul>
-                                `;
-                                errorDiv.style.display = 'block';
                             }
                         });
                     }).catch(error => {
@@ -2680,6 +2669,8 @@ $ yo deploy laptop
 
 <br>
 
+
+
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI 🦆**
 The `yo` CLI is a framework designed to execute scripts defined in the `./bin` directory.  
@@ -2851,25 +2842,7 @@ For specific command help:
 
 <br>
 
-## 🦆 **Follow My Adventures**
 
-This repository is complex, and it's not a typical NixOS dotfiles setup.<br>
-Since NixOS probably never have been used in such a unique way, understanding how everything is working solely from massive source code will be tricky for newcomers aswell as advanced users. <br>
-I try to simplify that process in my blog. <br> 
-
-[𝑸𝓾𝒂𝒄𝒌𝑯𝒂𝒄𝒌-𝑴𝒄𝑩𝒍𝒊𝒏𝒅𝒚 𝗕𝗹𝗼𝗴](https://quackhack-mcblindy.github.io/blog/)
-
-
-<br>
-
-### Duck Challenge
-  
-<!-- DUCKS_START -->
-I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8051 ducks?<br>
-<!-- DUCKS_END -->
-
-<br>
 
 > [!NOTE]
 > __Im not blind.__ <br>

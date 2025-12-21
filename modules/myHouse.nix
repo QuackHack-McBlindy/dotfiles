@@ -1185,18 +1185,6 @@ in { # 🦆 duck say ⮞ qwack
                         if (!accessible) {
                             statusDiv.textContent = 'Stream not accessible (CORS/network issue)';
                             statusDiv.style.color = '#ff9800';
-                            errorDiv.innerHTML = `
-                                <div>Possible issues:</div>
-                                <ul style="margin: 5px 0; padding-left: 20px;">
-                                    <li>Server doesn't allow CORS</li>
-                                    <li>Network firewall blocking</li>
-                                    <li>Stream server offline</li>
-                                </ul>
-                                <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                    Try opening in external player
-                                </a>
-                            `;
-                            errorDiv.style.display = 'block';
                             return;
                         }
                         
@@ -1229,18 +1217,7 @@ in { # 🦆 duck say ⮞ qwack
                                         hls.destroy();
                                         statusDiv.textContent = 'HLS playback failed';
                                         statusDiv.style.color = '#ff4444';
-                                        
-                                        // 🦆 says ⮞ fallback native player
-                                        errorDiv.innerHTML = `
-                                            <div>Trying native playback fallback...</div>
-                                            <div style="margin-top: 5px;">
-                                                <a href="''${videoUrl}" target="_blank" style="color: #2196F3; text-decoration: none;">
-                                                    Open in external player instead
-                                                </a>
-                                            </div>
-                                        `;
-                                        errorDiv.style.display = 'block';
-                                        
+                                                                               
                                         if (video.canPlayType('application/vnd.apple.mpegurl')) {
                                             video.src = videoUrl;
                                             video.load();
@@ -1252,17 +1229,8 @@ in { # 🦆 duck say ⮞ qwack
                                 video.src = videoUrl;
                                 video.load();
                             } else {
-                                statusDiv.textContent = '❌ HLS not supported in this browser';
+                                statusDiv.textContent = 'HLS not supported in this browser';
                                 statusDiv.style.color = '#ff4444';
-                                errorDiv.innerHTML = `
-                                    <div>For HLS streams, try:</div>
-                                    <ul style="margin: 5px 0; padding-left: 20px;">
-                                        <li>Chrome/Firefox with HLS.js (should work)</li>
-                                        <li>Safari (native support)</li>
-                                        <li><a href="''${videoUrl}" target="_blank" style="color: #2196F3;">Open in VLC/mpv</a></li>
-                                    </ul>
-                                `;
-                                errorDiv.style.display = 'block';
                             }
                         });
                     }).catch(error => {
