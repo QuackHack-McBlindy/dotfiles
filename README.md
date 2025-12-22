@@ -40,7 +40,7 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 Nix declarative configuration style, custom modules evaluated dynamically for each host. <br>
 Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
-Home Assistant - __Quack no!__ No assistance needed!
+Home Assistant - __Quack no!__ No assistance needed! <br>
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br>
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
@@ -187,7 +187,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/6wmp7hg77pgccnvjzpk8b64nwpp1pz23-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
-  styles = "/nix/store/hws9yfy81m5y1fkas943vwqak2xh2ai6-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/fps0n7wk6v7853hnzp9qs1bz3v98wbgw-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
