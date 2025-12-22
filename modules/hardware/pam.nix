@@ -20,7 +20,6 @@ in
         yubikey-agent
         #yubikey-manager-qt
       #  yubikey-touch-detector
-        yubikey-personalization-gui
         yubikey-personalization
         yubikey-manager
         pam_u2f

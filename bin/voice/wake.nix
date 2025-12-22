@@ -187,7 +187,7 @@ in {
   services.wyoming.openwakeword = lib.mkIf wakeAutoStart {
     enable = true;
     uri = "tcp://0.0.0.0:10400";
-    preloadModels = [ "yo_bitch" ]; # 🦆 says ⮞ mature....
+#    preloadModels = [ "yo_bitch" ]; # 🦆 says ⮞ mature....
     customModelsDirectories = [ "/etc/openwakeword" ];
     threshold = 0.8; # 🦆 says ⮞ dooz not really matter since we run fake sat yo
     triggerLevel = 1;

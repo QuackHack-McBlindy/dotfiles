@@ -260,7 +260,6 @@ in {
                     age-plugin-yubikey
                     yubioath-flutter
                     yubikey-agent
-                    yubikey-personalization-gui
                     yubikey-personalization    
                     yubikey-manager    
                     pam_u2f

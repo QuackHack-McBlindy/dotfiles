@@ -10,13 +10,15 @@ in {
       noisereduce = pySuper.buildPythonPackage rec {
         pname = "noisereduce";
         version = "3.0.3";
+        format = "pyproject";
 
         src = pySuper.fetchPypi {
           inherit pname version;
           sha256 = "ff64a28fb92e3c81f153cf29550e5c2db56b2523afa8f56f5e03c177cc5e918f";
         };
 
-        propagatedBuildInputs = with pySuper; [ numpy scipy librosa tqdm ];
+        nativeBuildInputs = with pySuper; [ setuptools ]; 
+        propagatedBuildInputs = with pySuper; [ numpy matplotlib scipy librosa tqdm ];
 
         meta = {
           description = "Noise reduction in python using spectral gating";

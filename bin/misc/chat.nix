@@ -19,7 +19,7 @@ in {
     environmentVariables = {};
     home = "/var/lib/ollama";
     loadModels = [ "llama3.1:8b" "codellama:7b" "deepseek-r1:32b" ];
-    acceleration = "rocm";
+#    acceleration = "rocm";
     openFirewall = true;
   };
 

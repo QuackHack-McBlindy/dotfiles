@@ -1,14 +1,16 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
 <!-- VERSIONS_START -->
-![NixOS](https://img.shields.io/badge/NixOS-25.11-blue?style=flat-square&logo=NixOS&logoColor=white)
+![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.31.2+1-blue?style=flat-square&logo=nixos&logoColor=white)
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.30-red?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-48.1-purple?style=flat-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.2.37-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.10-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.86.0-orange?style=flat-square&logo=rust&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.28.3-blue?style=flat-square&logo=nixos&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.3.3-red?style=flat-square&logo=gnubash&logoColor=white)
+![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.91.1-orange?style=flat-square&logo=rust&logoColor=white)
+![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
+![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
 
 <!-- VERSIONS_END -->
@@ -30,27 +32,29 @@ __Here lives home machines configurations,__
 __and home automations, fully reproducible,__  
 __crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
-__easiy expanded and used to deploy, doc, and duck around__ 🦆✨  
+__easiy expanded and used to deploy, doc, and duck around__
 
 
 
-## **What makes this configuration unique?** 
+## **What Makes This Configuration Unique?** 
 
 Nix declarative configuration style, custom modules evaluated dynamically for each host. <br>
 Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
+Home Assistant - __Quack no!__ No assistance needed!
 Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br>
-Not only that - voice assistant is LIGHTNIGHT FAST! (ms) ⚡🏆 <br><br>
+Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __99 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
-- __2469 dynamically generated regex patterns - makes 294355209 phrases available as commands.__ <br>
+- __2503 dynamically generated regex patterns - makes 294355243 phrases available as commands.__ <br>
 - __Smart Home Nix Style - Managing 3 TV's, 41 devices & 6 scenes.__ <br>
-<!-- SCRIPT_STATS_END -->
 - __Natural Language support with complete voice pipeline__ <br>
 - __Frontend Chatbot (no LLM) - Less thinking, more doing!__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
-- __Self Documenting__<br>
+- __Self Documenting__ <br>
+<!-- SCRIPT_STATS_END -->
+
 
 _List would get long, very quackly._ <br>
 _perhaps a more suitable question would be:_ <br>
@@ -68,14 +72,13 @@ I try to simplify that process in my blog. <br>
 
 [𝑸𝓾𝒂𝒄𝒌𝑯𝒂𝒄𝒌-𝑴𝒄𝑩𝒍𝒊𝒏𝒅𝒚 𝗕𝗹𝗼𝗴](https://quackhack-mcblindy.github.io/blog/)
 
-
 <br>
 
 ### Duck Challenge
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8050 ducks?<br>
+Let's see if you can find all 8054 ducks?<br>
 <!-- DUCKS_END -->
 
 <br>
@@ -165,13 +168,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/1np4cfqil5jh04zmscj3i6h2zvh9yqvv-bibata-cursors-2.0.7";
+    package = "/nix/store/4p7vcxk9yn32qm9xh0zp48rflgki8yf5-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/k4s2ckig2pyi2lzzaxmh8wcwbq7n7pz3-fira-code-6.2" ];
+    packages = [ "/nix/store/w4ispjj8wckxwc8adkd1r5j5i8w9h5xv-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -181,10 +184,10 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/5ncf05fvvy7zmb2azprzq1qhymwh733h-papirus-icon-theme-20250201"
+    package = "/nix/store/6wmp7hg77pgccnvjzpk8b64nwpp1pz23-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
-  styles = "/nix/store/lgigdn4pjrn0nj0098lzryv98b7l4vfi-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/hws9yfy81m5y1fkas943vwqak2xh2ai6-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -517,7 +520,49 @@ in { # 🦆 duck say ⮞ qwack
                 window.addEventListener('load', fixViewportHeight);
                 window.addEventListener('resize', fixViewportHeight);
                 window.addEventListener('orientationchange', fixViewportHeight);
-       
+                
+                // 🦆 says ⮞ click handler 4 fullscreen bubble
+                document.addEventListener('click', function(e) {
+                  const bubble = e.target.closest('.chat-bubble');
+                  
+                  if (!bubble) return;
+                  if (e.target.closest('button') || 
+                      e.target.closest('a') || 
+                      e.target.closest('input') ||
+                      e.target.closest('video') ||
+                      e.target.closest('.remove-file-btn') ||
+                      e.target.closest('.playlist-controls')) {
+                    return;
+                  }
+                  
+                  // 🦆 says ⮞toggle fullscreen
+                  bubble.classList.toggle('fullscreen');
+                  
+                  if (bubble.classList.contains('fullscreen')) {
+                    const handleEscape = (event) => {
+                      if (event.key === 'Escape') {
+                        bubble.classList.remove('fullscreen');
+                        document.removeEventListener('keydown', handleEscape);
+                      }
+                    };
+                    document.addEventListener('keydown', handleEscape);
+                    const closeHandler = (event) => {
+                      if (event.target === bubble || event.target.closest('.chat-bubble') === bubble) {
+                        const rect = bubble.getBoundingClientRect();
+                        const x = event.clientX;
+                        const y = event.clientY;
+                        
+                        if (x > rect.right - 60 && y < rect.top + 60) {
+                          bubble.classList.remove('fullscreen');
+                          document.removeEventListener('keydown', handleEscape);
+                        }
+                      }
+                    };
+                    
+                    bubble.addEventListener('click', closeHandler, { once: true });
+                  }
+                });
+                       
                 // 🦆 says ⮞ message history
                 let messageHistory = [];
                 let historyIndex = -1;
@@ -2621,14 +2666,12 @@ git+file:///home/pungkula/dotfiles
     │   ├───health omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───jellyfin omitted (use '--all-systems' to show)
-    │   ├───say omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
     │   └───yo-bitch omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───jellyfin: package 'jellyfin'
-        ├───say: package 'say'
         ├───tv: package 'tv'
         └───yo-bitch: package 'yo-bitch'
 ```

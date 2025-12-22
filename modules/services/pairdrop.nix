@@ -1,4 +1,5 @@
-{ 
+# dotfiles/modules/services/pairdrop.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 duck say ⮞ file sharing between devices from browser
   config,
   lib,
   pkgs,
@@ -7,7 +8,7 @@
   enabled = lib.elem "pairdrop" config.this.host.modules.services;
 in {
 
-  options.services.pairdrop = {
+  options.services.pairdropp = {
     package = lib.mkPackageOption pkgs "pairdrop" { };
     port = lib.mkOption {
       type = lib.types.port;
@@ -33,15 +34,15 @@ in {
       after = [ "network.target" ];
 
       serviceConfig = {
-        ExecStart = "${config.services.pairdrop.package}/bin/pairdrop";
+        ExecStart = "${config.services.pairdropp.package}/bin/pairdrop";
         Restart = "always";
         User = "pairdrop";
         Group = "pairdrop";
         WorkingDirectory = "/var/lib/pairdrop";
         StateDirectory = "pairdrop";
         Environment = 
-          (lib.mapAttrsToList (name: value: "${name}=${value}") config.services.pairdrop.extraEnv)
-          ++ [ "PORT=${toString config.services.pairdrop.port}" ];
+          (lib.mapAttrsToList (name: value: "${name}=${value}") config.services.pairdropp.extraEnv)
+          ++ [ "PORT=${toString config.services.pairdropp.port}" ];
       };
     };
 
@@ -55,8 +56,8 @@ in {
     users.groups.pairdrop = { };
 
     networking.firewall.allowedTCPPorts = 
-      lib.mkIf config.services.pairdrop.openFirewall [ config.services.pairdrop.port ];
+      lib.mkIf config.services.pairdropp.openFirewall [ config.services.pairdrop.port ];
 
-    environment.systemPackages = [ config.services.pairdrop.package ];
-  };
-}
+    environment.systemPackages = [ config.services.pairdropp.package ];
+
+  };}

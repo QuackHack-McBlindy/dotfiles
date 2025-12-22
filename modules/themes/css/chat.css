@@ -20,13 +20,13 @@
             body {
                 background-color: var(--background-color);
                 color: var(--text-color);
-                height: 100vh;
+                height: auto;
                 display: flex;
                 flex-direction: column;
                 background-image: 
                     radial-gradient(circle at 10% 20%, rgba(0, 180, 216, 0.1) 0%, transparent 20%),
                     radial-gradient(circle at 90% 80%, rgba(0, 119, 182, 0.1) 0%, transparent 20%);
-                overflow: hidden;
+                overflow: auto;
             }
             
             header {
@@ -128,6 +128,7 @@
             #input-container {
                 display: flex;
                 gap: 10px;
+                bottom: 63px;
                 padding: 15px 20px;
                 background-color: rgba(0, 0, 0, 0.5);
                 border-radius: 0;
@@ -556,7 +557,7 @@
 
 #input-container {
     position: sticky;
-    bottom: 0;
+    bottom: 63px;
     left: 0;
     right: 0;
     background-color: rgba(10, 25, 41, 0.95);
@@ -621,6 +622,7 @@
         
         #input-container {
             padding: 8px 10px;
+            bottom: 63px;
             gap: 8px;
         }
         
@@ -635,11 +637,6 @@
 }
 
 
-body {
-    overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-}
 
 @supports (-webkit-touch-callout: none) {
     .page[data-page="5"] {
@@ -850,4 +847,56 @@ pre .header {
     .video-container video {
         max-height: 300px;
     }
+}
+
+.chat-bubble.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  margin: 0;
+  border-radius: 0;
+  padding: 30px;
+  overflow-y: auto;
+  background: rgba(0, 0, 0, 0.95);
+  backdrop-filter: blur(10px);
+}
+
+.chat-bubble.fullscreen::before {
+  content: '×';
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 50px;
+  height: 50px;
+  background: #ff4444;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  cursor: pointer;
+  z-index: 10000;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.chat-bubble.fullscreen::after {
+  content: none;
+}
+
+.chat-bubble.fullscreen pre {
+  max-height: none;
+  font-size: 16px;
+  padding: 20px;
+  background: #000;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.chat-bubble.fullscreen video {
+  max-width: 90vw;
+  max-height: 80vh;
 }

@@ -36,7 +36,7 @@
         };
         kernelPackages = pkgs.linuxPackages_6_1; 
         extraModulePackages = [
-            config.boot.kernelPackages.broadcom_sta
+        #    config.boot.kernelPackages.broadcom_sta
         ];
     };
     

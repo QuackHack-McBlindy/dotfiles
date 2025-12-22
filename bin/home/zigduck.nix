@@ -845,41 +845,41 @@ EOF
 
 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
-  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-    wantedBy = [ "multi-user.target" ];
-    after = [ "sops-nix.service" "network.target" ];
-    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
-    preStart = '' 
-      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+#  systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+#    wantedBy = [ "multi-user.target" ];
+#    after = [ "sops-nix.service" "network.target" ];
+#    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
+#    preStart = '' 
+#      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
       # 🦆 says ⮞ our real mosquitto password quack quack
-      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
+#      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
       # 🦆 says ⮞ Injecting password into config...
-      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml  
+#      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml  
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
-      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+#      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
+#      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
       # 🦆 says ⮞ starting awk decryption magic..."
-      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
-        /(^|[[:space:]])network_key:/ { found = 1 }
+#      ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
+#        /(^|[[:space:]])network_key:/ { found = 1 }
 
-        { lines[NR] = $0 }
+#        { lines[NR] = $0 }
 
-        END {
-          if (found) {
-            for (i = 1; i <= NR; i++) print lines[i]
-          } else {
-            print lines[1]
-            print "  network_key:"
-            while ((getline line < keyfile) > 0) {
-              print "    " line
-            }
-            close(keyfile)
-            for (i = 2; i <= NR; i++) print lines[i]
-          }
-        }
-      ' "$CFGFILE" > "$TMPFILE"      
-      mv "$TMPFILE" "$CFGFILE"
-    ''; # 🦆 says ⮞ thnx fo quackin' along!
-  };} # 🦆 says ⮞ sleep tight!
+#        END {
+#          if (found) {
+#            for (i = 1; i <= NR; i++) print lines[i]
+#          } else {
+#            print lines[1]
+#            print "  network_key:"
+#            while ((getline line < keyfile) > 0) {
+#              print "    " line
+#            }
+#            close(keyfile)
+#            for (i = 2; i <= NR; i++) print lines[i]
+#          }
+#        }
+#      ' "$CFGFILE" > "$TMPFILE"      
+#      mv "$TMPFILE" "$CFGFILE"
+#    ''; # 🦆 says ⮞ thnx fo quackin' along!
+  }#;} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤

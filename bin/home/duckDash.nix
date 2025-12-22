@@ -1675,6 +1675,29 @@ EOF
     </html>      
   '';
 
+  iOSmanifest = pkgs.writeText "manifest.json" ''
+    {
+      "name": "🦆'Dash",
+      "short_name": "🦆'Dash",
+      "start_url": "/",
+      "display": "standalone",
+      "background_color": "#ffffff",
+      "theme_color": "#ffffff",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        },
+        {
+          "src": "/icon-512.png",
+          "sizes": "512x512",
+          "type": "image/png"
+        }
+      ]
+    }
+  '';
+
   # 🦆 says ⮞ MAIN DASHBOARD INDEX.HTML    
   indexHtml = ''    
     <!DOCTYPE html>
@@ -1682,6 +1705,12 @@ EOF
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="default">
+        <meta name="apple-mobile-web-app-title" content="🦆'Dash">
+        <link rel="apple-touch-icon" href="/icon-192.png">
+        <link rel="manifest" href="${iOSmanifest}">
+               
         <title>🦆'Dash</title>
         <link rel="preconnect" href="https://cdn.jsdelivr.net">
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
@@ -1691,6 +1720,7 @@ EOF
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
 
+
         <style> 
             .container {
                 width: 100% !important;          
@@ -1699,11 +1729,13 @@ EOF
             }
   
             .page {
+                background: #000000 !important;
                 width: 100% !important;
                 max-width: none !important;
                 margin: 0 !important;
                 padding: 20px !important;
                 box-sizing: border-box !important;
+
             }
   
             .page-container {
@@ -1712,24 +1744,18 @@ EOF
             }
   
             ${roomControlCSS}
-
-            header {
-                background: #000000 !important;
-                border-bottom: 1px solid #333333 !important;
-            }
             
             .nav-tabs {
                 background: #000000 !important;
                 border-top: 1px solid #333333 !important;
+                position: fixed !important;
+                bottom: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                height: 60px !important;
+                z-index: 1000 !important;
             }
-            
-            header .logo,
-            header .dash-text,
-            header .search-bar,
-            header .search-bar input {
-                color: #ffffff !important;
-            }
-            
+                    
             .nav-tab {
                 color: #ffffff !important;
             }
@@ -1738,21 +1764,7 @@ EOF
                 background: #2b6cb0 !important;
                 color: #ffffff !important;
             }
-            
-            .search-bar {
-                background: #1a1a1a !important;
-                border: 1px solid #333333 !important;
-            }
-            
-            .search-bar input {
-                background: transparent !important;
-                color: #ffffff !important;
-            }
-            
-            .search-bar input::placeholder {
-                color: #888888 !important;
-            }
-            
+                        
             .device-selector-container {
                 background: #000000 !important;
             }
@@ -1823,9 +1835,6 @@ EOF
                 background: #000000 !important;
             }
 
-            .page {
-                background: #000000 !important;
-            }
             .card {
                 background: #1a1a1a !important;
                 color: #ffffff !important;
@@ -1885,23 +1894,7 @@ EOF
                 justify-content: center;
             }
 
-            .qwackify-grid {
-                width: 100%;
-                height: 100%;
-                max-width: 1920px;
-                max-height: 1080px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
 
-            .qwackify-grid iframe {
-                width: 100%;
-                height: 100%;
-                border: none;
-                border-radius: 10px;
-                display: block;
-            }
             .nav-icon {
                 width: 36px;
                 height: 36px;
@@ -2023,10 +2016,6 @@ EOF
             .status-priority-medium { background: linear-gradient(135deg, #feca57 0%, #ff9f43 100%) !important; }
             .status-priority-low { background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%) !important; }
             .status-priority-info { background: linear-gradient(135deg, #1dd1a1 0%, #10ac84 100%) !important; }
-            .page {
-                overflow-y: auto;
-                -webkit-overflow-scrolling: touch;
-            }
 
             .page-container {
                 overflow: hidden;
@@ -2300,16 +2289,6 @@ EOF
     </head>
     <body>
         <div class="container">
-            <header>
-                 <div class="logo" onclick="showPage(0)" style="cursor: pointer;">
-                  <i class="fas fa-home"></i>
-                  <h1 class="floating-duck">🦆</h1>
-                  <span class="dash-text">'Dash!</span>
-                  <button id="micButton" class="mic-btn">🎙️</button>
-                </div>
-                            
-            </header>
-    
             
             <div id="deviceSelectorContainer" class="device-selector-container hidden">
                 <select id="deviceSelect" class="device-selector">
@@ -2671,7 +2650,6 @@ EOF
                 let recording = false;
                 const transcriptionServerURL = "https://localhost:25451/transcribe";
                 const recordingStatus = document.getElementById('recordingStatus');
-                const micButton = document.getElementById('micButton');  
   
                 // 🦆 says ⮞ page
                 const pageContainer = document.getElementById('pageContainer');
@@ -3614,91 +3592,6 @@ EOF
                 }
                 window.sendCommand = sendCommand;
                 
-                // 🦆 says ⮞ audio recording functions
-                async function initAudioRecording() {
-                    try {
-                        const stream = await navigator.mediaDevices.getUserMedia({ 
-                            audio: {
-                                channelCount: 1,
-                                sampleRate: 16000,
-                                sampleSize: 16,
-                                echoCancellation: true,
-                                noiseSuppression: true
-                            } 
-                        });
-        
-                        // 🦆 says ⮞ media recorder
-                        mediaRecorder = new MediaRecorder(stream);
-                        audioChunks = [];
-        
-                        mediaRecorder.ondataavailable = (event) => {
-                           if (event.data.size > 0) {
-                                audioChunks.push(event.data);
-                           }
-                        };
-        
-                        mediaRecorder.onstop = async () => {
-                           const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-                           await sendAudioToServer(audioBlob);
-                           audioChunks = [];
-                        };
-        
-                        console.log('Audio recording initialized');
-                    } catch (error) {
-                        console.error('Error initializing audio recording:', error);
-                        showNotification('Microphone access denied', 'error');
-                    }
-                }
-
-                async function sendAudioToServer(audioBlob) {
-                    try {
-                        const formData = new FormData();
-                        formData.append('audio', audioBlob, 'recording.webm');
-                        formData.append('reduce_noise', 'true');
-        
-                        const response = await fetch(transcriptionServerURL, {
-                            method: 'POST',
-                            body: formData
-                        });
-        
-                        if (!response.ok) {
-                            throw new Error(`Server returned ''${response.status}`);
-                        }
-        
-                        const result = await response.json();
-                        showNotification('Transcription: ' + result.transcription, 'success');
-                    } catch (error) {
-                        console.error('Error sending audio to server:', error);
-                        showNotification('Transcription failed: ' + error.message, 'error');
-                    }
-                }
-
-                function toggleRecording() {
-                    if (!mediaRecorder) {
-                        showNotification('Audio recording not initialized', 'error');
-                        return;
-                    }
-    
-                    if (!recording) {
-                        // 🦆 says ⮞ start rec
-                        mediaRecorder.start();
-                        recording = true;
-                        micButton.classList.add('recording');
-                        recordingStatus.style.display = 'block';
-                        showNotification('Recording started', 'success');
-                    } else {
-                        // 🦆 says ⮞ stop rec
-                        mediaRecorder.stop();
-                        recording = false;
-                        micButton.classList.remove('recording');
-                        recordingStatus.style.display = 'none';
-                        showNotification('Recording stopped', 'success');
-                    }
-                }
-                
-                initAudioRecording();
-                micButton.addEventListener('click', toggleRecording);
-                              
                 function showPage(pageId) {
                     console.log('🦆 Switching to page:', pageId, typeof pageId);
                     currentPage = pageId;

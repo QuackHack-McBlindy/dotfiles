@@ -156,30 +156,32 @@ in {
       display_weather_table() {
         local processed_data=$1
         local title=$2
-        
-        echo -e "\n\033[1m$title\033[0m"
-        echo "────────────────────────────────────────────────────────────────────"
-        printf "%-12s │ %-8s │ %-8s │ %-6s │ %-s\n" "Day" "Min/Max" "Wind" "Precip" "Conditions"
-        echo "────────────────────────────────────────────────────────────────────"
-        
-        local day_count=$(echo "$processed_data" | jq length)
-        
-        for ((i=0; i<day_count; i++)); do
-          day_data=$(echo "$processed_data" | jq -r ".[$i]")          
-
-          date_epoch=$(date -d "$(echo "$day_data" | jq -r '.date')" +%s)
-          day_name=$(get_day_name_from_epoch "$date_epoch")
-          mintempC=$(echo "$day_data" | jq -r '.mintempC')
-          maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
-          weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
-          condition_emoji="''${WEATHER_CODES[$weather_code]:-❓}"
-          condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc')
-          wind=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
-          precip=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
-
-          printf "%-12s │ %-3s-%-3s°C │ %-4skm/h │ %-5smm │ %s %s\n" \
-            "$day_name" "$mintempC" "$maxtempC" "$wind" "$precip" "$condition_emoji" "$condition_text"
-        done
+  
+        markdown_table=$(
+          echo "# Weather" 
+          echo "| Day | Min/Max | Wind | Precip | Conditions |"
+          echo "|-----|---------|------|--------|------------|"
+    
+          local day_count=$(echo "$processed_data" | jq length)
+    
+          for ((i=0; i<day_count; i++)); do
+            day_data=$(echo "$processed_data" | jq -r ".[$i]")
+      
+            date_epoch=$(date -d "$(echo "$day_data" | jq -r '.date')" +%s)
+            day_name=$(get_day_name_from_epoch "$date_epoch")
+            mintempC=$(echo "$day_data" | jq -r '.mintempC')
+            maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
+            weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
+            condition_emoji="''${WEATHER_CODES[$weather_code]:-❓}"
+            condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc')
+            wind=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
+            precip=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
+      
+            echo "| $day_name | $mintempC-$maxtempC°C | $wind km/h | $precip mm | $condition_emoji $condition_text |"
+          done
+        )
+  
+        echo "$markdown_table" | ${pkgs.glow}/bin/glow -
       }
       
       # 🦆 says ⮞ display specific day forecast
@@ -245,6 +247,127 @@ in {
         
         display_weather_table "$processed" "$location_param"
       }
+
+      generate_tts_summary() {
+          local processed=$(jq '[.weather[0], .weather[1], .weather[2] | {
+              date,
+              mintempC,
+              maxtempC,
+              noonWeather: (.hourly[] | select(.time=="1200") | {
+                  weatherCode,
+                  weatherDesc: .weatherDesc[0].value,
+                  windspeedKmph,
+                  humidity,
+                  precipMM,
+                  chanceofrain,
+                  FeelsLikeC
+              })
+          }]' "$weather_file")
+          
+          local summary="Väderöversikt för nästa tre dagar. "
+          
+          for i in 0 1 2; do
+              local day_data=$(echo "$processed" | jq -r ".[$i]")
+              local date_epoch=$(date -d "$(echo "$day_data" | jq -r '.date')" +%s)
+              local day_name=$(get_day_name_from_epoch "$date_epoch")
+              
+              local mintempC=$(echo "$day_data" | jq -r '.mintempC')
+              local maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
+              local weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
+              local condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc')
+              local precipMM=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
+              local chance_of_rain=$(echo "$day_data" | jq -r '.noonWeather.chanceofrain')
+              local wind_speed=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
+              
+              local lookup_key=$(echo "$condition_text" | sed -E 's/(^| )([a-z])/\1\u\2/g')
+              local swedish_condition="''${WEATHER_SWEDISH_DESC[$lookup_key]:-''${condition_text,,}}"
+              
+              case $i in
+                  0) day_desc="Idag" ;;
+                  1) day_desc="Imorgon" ;;
+                  2) day_desc="I övermorgon" ;;
+                  *) day_desc="På $day_name" ;;
+              esac
+              
+              local temp_desc="mellan $mintempC och $maxtempC grader"
+              
+              local wind_desc=""
+              if (( wind_speed > 20 )); then
+                  local ms_speed=$(kmh_to_ms "$wind_speed")
+                  wind_desc=", blåsigt med $wind_speed kilometer per timme"
+              elif (( wind_speed > 10 )); then
+                  wind_desc=", lätt bris på $wind_speed kilometer per timme"
+              fi
+              
+              local precip_desc=""
+              if (( $(echo "$precipMM > 0" | bc -l) )); then
+                  if (( $(echo "$precipMM < 1" | bc -l) )); then
+                      precip_desc=", lite nederbörd på $precipMM millimeter"
+                  elif (( $(echo "$precipMM < 5" | bc -l) )); then
+                      precip_desc=", nederbörd på $precipMM millimeter"
+                  else
+                      precip_desc=", kraftig nederbörd på $precipMM millimeter"
+                  fi
+                  
+                  if [ -n "$chance_of_rain" ] && [ "$chance_of_rain" != "null" ] && [ "$chance_of_rain" != "0" ]; then
+                      precip_desc="$precip_desc med $chance_of_rain procents risk"
+                  fi
+              fi
+              
+              local humidity=$(echo "$day_data" | jq -r '.noonWeather.humidity')
+              local humidity_desc=""
+              if [ -n "$humidity" ] && [ "$humidity" != "null" ]; then
+                  if (( humidity > 80 )); then
+                      humidity_desc=", hög luftfuktighet på $humidity procent"
+                  elif (( humidity < 40 )); then
+                      humidity_desc=", torrt med $humidity procent luftfuktighet"
+                  fi
+              fi
+              
+              local feels_like=$(echo "$day_data" | jq -r '.noonWeather.FeelsLikeC')
+              local feels_desc=""
+              if [ -n "$feels_like" ] && [ "$feels_like" != "null" ] && [ "$feels_like" != "maxtempC" ]; then
+                  local temp_diff=$((feels_like - maxtempC))
+                  if (( temp_diff > 2 )); then
+                      feels_desc=", känns som $feels_like grader på grund av hög luftfuktighet"
+                  elif (( temp_diff < -2 )); then
+                      feels_desc=", känns som $feels_like grader på grund av vinden"
+                  fi
+              fi
+              
+              summary="$summary $day_desc: $swedish_condition, $temp_desc$precip_desc$wind_desc$humidity_desc$feels_desc. "
+          done
+          
+          local general_advice=""
+          local first_day=$(echo "$processed" | jq -r '.[0]')
+          local max_temp1=$(echo "$first_day" | jq -r '.maxtempC | tonumber')
+          local precip1=$(echo "$first_day" | jq -r '.noonWeather.precipMM | tonumber')
+          local wind1=$(echo "$first_day" | jq -r '.noonWeather.windspeedKmph | tonumber')
+          
+          if (( max_temp1 > 25 )); then
+              general_advice=" Kom ihåg att dricka mycket vatten och skydda dig mot solen."
+          elif (( max_temp1 < 5 )); then
+              general_advice=" Se till att klä dig varmt."
+          fi
+          
+          if (( $(echo "$precip1 > 5" | bc -l) )); then
+              general_advice="$general_advice Ta med paraply eller regnkläder."
+          fi
+          
+          if (( wind1 > 15 )); then
+              general_advice="$general_advice Var försiktig ute i stark vinden."
+          fi
+          
+          summary="$summary$general_advice"          
+          echo "$summary"
+      }
+      
+      speak_weather_summary() {
+          local summary=$(generate_tts_summary)
+          summary=$(echo "$summary" | sed 's/  / /g' | sed 's/\. \././g')    
+          dt_debug "TTS Summary: $summary"
+          yo-say "$summary"
+      }      
 
       # 🦆 says ⮞ check for specific condition
       check_condition() {
@@ -369,6 +492,7 @@ in {
           show_day_forecast $offset
       else
           show_5day_forecast
+          speak_weather_summary
       fi
     '';
     voice = {
@@ -376,7 +500,7 @@ in {
       priority = 2;
       sentences = [ 
         # 🦆 says ⮞ 3 day weather cast
-        "hur är vädret"
+        "(vad|hur) (är|blir) [det] [för] (vädret|väder)"
         "vädret"
         # 🦆 says ⮞ Specify day
         "hur (blir|är) vädret [på] {day}"

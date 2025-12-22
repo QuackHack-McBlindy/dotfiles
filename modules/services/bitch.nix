@@ -13,7 +13,7 @@
         enable = true;
         package = pkgs.wyoming-openwakeword;
         uri = "tcp://0.0.0.0:10400";
-        preloadModels = [ "yo_bitch" ];
+#        preloadModels = [ "yo_bitch" ];
         customModelsDirectories = [ "/etc/openwakeword" ];
         threshold = 0.3;
         triggerLevel = 1;

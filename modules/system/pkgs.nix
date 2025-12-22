@@ -1,5 +1,5 @@
-# dotfiles/modules/system/pkgs.nix
-{ 
+# dotfiles/modules/system/pkgs.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says⮞ system packages
     config,
     lib,
     pkgs,
@@ -34,7 +34,7 @@
                 pkgs.python312Packages.httpx
                 pkgs.python312Packages.aiocron
                 pkgs.python312Packages.aioesphomeapi
-                pkgs.python3Full
+                pkgs.python312
                 pkgs.python312Packages.requests
                 pkgs.python312Packages.pyaml
                 pkgs.python312Packages.invoke
@@ -100,46 +100,37 @@
                 pkgs.nix-serve
                 pkgs.dconf
                 pkgs.nvme-cli
-               # pkgs.syncthing
-           #     inputs.voice-client.packages.x86_64-linux.voice-client
-              #  inputs.say.packages.x86_64-linux.say
-                self.packages.${pkgs.system}.say
+               # inputs.say.packages.x86_64-linux.say
                 self.packages.${pkgs.system}.health
-               # inputs.tv.packages.x86_64-linux.tv
-                # inputs.api.packages.x86_64-linux.api
                 pkgs.nix-index
                 pkgs.rich-cli
-                pkgs.mosquitto
                 pkgs.lsd
                 pkgs.gedit
                 pkgs.firefox-esr
                 pkgs.vscodium
                 pkgs.transmission_4-qt
                 pkgs.file
-                pkgs.chromium 		# yuck
+                pkgs.chromium 	       # yuck
                 pkgs.neovim
                 pkgs.librewolf 	# privacy firefox
                 pkgs.libsForQt5.qt5.qtwayland
                 pkgs.jellyfin-ffmpeg   # transcoding
-                pkgs.drawing 		# simple image editing
+                pkgs.drawing 	       # simple image editing
                 pkgs.vlc  			# media player
                 #   amberol
                 pkgs.cava
                 pkgs.nordic 		# theme
                 pkgs.papirus-icon-theme # theme
                 pkgs.poweralertd
-            #    pkgs.vesktop 		# discord
                 pkgs.signal-desktop 		# signal messaging w/ API
                 pkgs.signal-cli
-          #      signal-backup 
                 pkgs.speedtest-cli
                 pkgs.jellyfin-media-player
                 pkgs.jftui
                 pkgs.keepass		# password management
                 pkgs.gnome-terminal
                 pkgs.gnome-text-editor
-                pkgs.you-have-mail-cli
-                
+                pkgs.you-have-mail-cli   
                 pkgs.bat
                 pkgs.ripgrep
                 pkgs.vim
@@ -151,7 +142,6 @@
                 pkgs.systemctl-tui
                 pkgs.cheat
                 pkgs.fzf
-              #  pass 		# gnome password management
                 pkgs.jq
                 pkgs.atuin
                 pkgs.direnv
@@ -172,11 +162,7 @@
                 pkgs.scrcpy
                 pkgs.nixos-anywhere
                 pkgs.piper-tts
-           #     pkgs.mkchromecast
                 pkgs.keyd
-               # self.packages.x86_64-linux.yo-bitch
-#                self.packages.x86_64-linux.yo-mic
-#                self.packages.x86_64-linux.hold
             ]     
         ];
         

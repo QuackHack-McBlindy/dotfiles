@@ -45,9 +45,74 @@ in {
       LIST_FILE="$HOME/.shopping_list.txt"
       mkdir -p "$(dirname "$LIST_FILE")"
       touch "$LIST_FILE"
+
+      display_shopping_list_table() {
+        if [ ! -s "$LIST_FILE" ]; then
+          echo "# 📝 Inköpslista" 
+          echo ""
+          echo "*Listan är tom*" | ${pkgs.glow}/bin/glow -
+          return
+        fi
+  
+        local item_count=$(wc -l < "$LIST_FILE")
+  
+        markdown_table=$(
+          echo "# 📝 Inköpslista" 
+          echo ""
+          echo "| Index | Artikel |"
+          echo "|-------|---------|"
+    
+          local index=1
+          while IFS= read -r item; do
+            echo "| $index | $item |"
+            index=$((index + 1))
+          done < "$LIST_FILE"
+    
+          echo ""
+          echo "**Totalt:** $item_count artikel$([ $item_count -ne 1 ] && echo "r" || echo "")"
+        )
+  
+        echo "$markdown_table" | ${pkgs.glow}/bin/glow -
+      }
+      
+      speak_shopping_list() {
+        if [ ! -s "$LIST_FILE" ]; then
+          yo-say "Inköpslistan är tom."
+          return
+        fi
+        
+        local items=()
+        while IFS= read -r item; do
+          items+=("$item")
+        done < "$LIST_FILE"
+        
+        local item_count="''${#items[@]}"
+        local speech="Du har $item_count stycken föremål på inköpslistan"
+        
+        if [ "$item_count" -eq 1 ]; then
+          speech="$speech: ''${items[0]}."
+        elif [ "$item_count" -eq 2 ]; then
+          speech="$speech: ''${items[0]} och ''${items[1]}."
+        elif [ "$item_count" -le 5 ]; then
+          speech="$speech: "
+          for ((i=0; i<item_count-1; i++)); do
+            speech="$speech''${items[$i]}, "
+          done
+          speech="$speech och slutligen ''${items[-1]}."
+        else
+          speech="$speech: "
+          for ((i=0; i<3 && i<item_count; i++)); do
+            speech="$speech''${items[$i]}, "
+          done
+          speech="$speech och $(($item_count - 3)) fler artiklar."
+        fi
+        
+        yo-say "$speech"
+      }
       
       if [ "$list" = "true" ]; then
-        cat "$LIST_FILE"
+        display_shopping_list_table
+        speak_shopping_list
         exit 0
       fi
       
@@ -104,16 +169,19 @@ in {
         "{operation} bort {item}"
         "{operation} {item} från listan"
             
-        "visa inköpslistan"
-        "vad finns på inköpslistan"
-        "visa listan"
-        "vad är på listan"
+        "{list} (inköpslistan|shopping) [listan]"
+        "{list} finns på inköpslistan"
+        "{list} listan"
+        "{list} är på listan"
       ];
       lists = {
         operation.values = [
           { "in" = "[lägg]"; out = "add"; }
           { "in" = "[ta|bort|radera]"; out = "remove"; }  
           { "in" = "[rensa]"; out = "clear"; }      
+        ];
+        list.values = [
+          { "in" = "[visa|vad]"; out = "--list"; }   
         ];
         item.wildcard = true;
       };

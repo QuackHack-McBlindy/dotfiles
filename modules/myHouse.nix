@@ -316,7 +316,49 @@ in { # 🦆 duck say ⮞ qwack
                 window.addEventListener('load', fixViewportHeight);
                 window.addEventListener('resize', fixViewportHeight);
                 window.addEventListener('orientationchange', fixViewportHeight);
-       
+                
+                // 🦆 says ⮞ click handler 4 fullscreen bubble
+                document.addEventListener('click', function(e) {
+                  const bubble = e.target.closest('.chat-bubble');
+                  
+                  if (!bubble) return;
+                  if (e.target.closest('button') || 
+                      e.target.closest('a') || 
+                      e.target.closest('input') ||
+                      e.target.closest('video') ||
+                      e.target.closest('.remove-file-btn') ||
+                      e.target.closest('.playlist-controls')) {
+                    return;
+                  }
+                  
+                  // 🦆 says ⮞toggle fullscreen
+                  bubble.classList.toggle('fullscreen');
+                  
+                  if (bubble.classList.contains('fullscreen')) {
+                    const handleEscape = (event) => {
+                      if (event.key === 'Escape') {
+                        bubble.classList.remove('fullscreen');
+                        document.removeEventListener('keydown', handleEscape);
+                      }
+                    };
+                    document.addEventListener('keydown', handleEscape);
+                    const closeHandler = (event) => {
+                      if (event.target === bubble || event.target.closest('.chat-bubble') === bubble) {
+                        const rect = bubble.getBoundingClientRect();
+                        const x = event.clientX;
+                        const y = event.clientY;
+                        
+                        if (x > rect.right - 60 && y < rect.top + 60) {
+                          bubble.classList.remove('fullscreen');
+                          document.removeEventListener('keydown', handleEscape);
+                        }
+                      }
+                    };
+                    
+                    bubble.addEventListener('click', closeHandler, { once: true });
+                  }
+                });
+                       
                 // 🦆 says ⮞ message history
                 let messageHistory = [];
                 let historyIndex = -1;

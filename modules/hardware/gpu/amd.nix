@@ -13,21 +13,22 @@ in {
         
         hardware.amdgpu = {
             opencl.enable = true; 
-            amdvlk = {
-                enable = true;
-                settings = {
+            # removed
+#            amdvlk = {
+#                enable = true;
+#                settings = {
                     # 🦆 duck say ⮞ enable pipeline caching
-                    AllowVkPipelineCachingToDisk = 1;
+#                    AllowVkPipelineCachingToDisk = 1;
                     # 🦆 duck say ⮞ better memory management
-                    EnableVmAlwaysValid = 1;
+#                    EnableVmAlwaysValid = 1;
                     # 🦆 duck say ⮞ disable image view feedback
-                    IFH = 0;
+#                    IFH = 0;
                     # 🦆 duck say ⮞ enable shader cache
-                    ShaderCacheMode = 1;
+#                    ShaderCacheMode = 1;
                     # 🦆 duck say ⮞ set cache size limit (MB)
-                    ShaderCacheMaxSize = 512;
-                };
-            };
+#                    ShaderCacheMaxSize = 512;
+#                };
+#            };
         
         };
     };}

@@ -1780,10 +1780,10 @@ EOF
   # 🦆 says ⮞ Z2MQTT configurations
   services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ once again - dis is server configuration
     enable = true;
-    dataDir = "/var/lib/zigbee";
+    dataDir = lib.mkForce "/var/lib/zigbee";
     settings = {
-        experimental.output = "json";
-        homeassistant = false; # 🦆 says ⮞ no thnx....
+#        experimental.output = "json";
+        homeassistant = lib.mkDefault false; # 🦆 says ⮞ no thnx....
         mqtt = {
           server = "mqtt://localhost:1883";
           user = config.house.zigbee.mosquitto.username;
@@ -1793,30 +1793,32 @@ EOF
         # 🦆 says ⮞ physical port mapping
         serial = { # 🦆 says ⮞ either USB port (/dev/ttyUSB0), network Zigbee adapters (tcp://192.168.1.1:6638) or mDNS adapter (mdns://my-adapter).       
          port = "/dev/" + config.house.zigbee.coordinator.symlink; # 🦆 says ⮞ all hosts, same serial port yo!
-         disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
+         adapter = "zstack";
+#         disable_led = true; # 🦆 says ⮞ save quack on electricity bill yo  
         };
         frontend = { 
-          enabled = false;
+          enabled = true;
           host = "0.0.0.0";   
           port = 8099; 
         };
         advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
-          export_state = true;
-          export_state_path = "${zigduckDir}/zigbee_devices.json";
+#          export_state = true;
+#          export_state_path = "${zigduckDir}/zigbee_devices.json";
           homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
+          homeassistant_legacy_triggers = false;
           legacy_api = false;
           legacy_availability_payload = false;
-          log_syslog = { # 🦆 says ⮞ log settings
-            app_name = "Zigbee2MQTT";
-            eol = "/n";
-            host = "localhost";
-            localhost = "localhost";
-            path = "/dev/log";
-            pid = "process.pid"; # 🦆 says ⮞ process id
-            port = 123;
-            protocol = "tcp4";# 🦆 says ⮞ TCP4pcplife
-            type = "5424";
-          };
+#          log_syslog = { # 🦆 says ⮞ log settings
+#            app_name = "Zigbee2MQTT";
+#            eol = "/n";
+#            host = "localhost";
+#            localhost = "localhost";
+#            path = "/dev/log";
+#            pid = "process.pid"; # 🦆 says ⮞ process id
+#            port = 123;
+#            protocol = "tcp4";# 🦆 says ⮞ TCP4pcplife
+#            type = "5424";
+#          };
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";

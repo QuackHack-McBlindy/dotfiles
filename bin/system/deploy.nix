@@ -121,7 +121,8 @@ in {
            --option builders ""    
            --flake "$flake#$host"
            --target-host "$user@$host"
-           --use-remote-sudo
+           #--use-remote-sudo
+           --ask-sudo-password
            --show-trace
        )
 

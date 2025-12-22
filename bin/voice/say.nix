@@ -44,7 +44,7 @@ in { # 🦆 says ⮞ yo yo yo yo
         
         if [ "$CURRENT_HOST" = "homie" ]; then
           mkdir -p "/var/lib/zigduck/tts"
-          echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$FIXED_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
+          echo "$INPUT" | piper -m "$MODEL_PATH" -f "$FIXED_WAV" --sentence-silence "$SENTENCE_SILENCE" >/dev/null 2>&1
         else
           # 🦆 says ⮞ SSH into homie to generate TTS
           ARGS="--text \"$INPUT\""
@@ -80,7 +80,7 @@ in { # 🦆 says ⮞ yo yo yo yo
         if [ "$BLOCKING" = "true" ]; then
           TMP_WAV=$(mktemp --suffix=.wav)
           trap 'rm -f "$TMP_WAV"' EXIT
-          echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
+          echo "$INPUT" | piper -m "$MODEL_PATH" -f "$TMP_WAV" --sentence-silence "$SENTENCE_SILENCE" >/dev/null 2>&1
 
           if [ -n "$CAF_OUTPUT" ]; then
             ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i "$TMP_WAV" "$CAF_OUTPUT"
@@ -91,7 +91,7 @@ in { # 🦆 says ⮞ yo yo yo yo
           (
             TMP_WAV=$(mktemp --suffix=.wav)
             trap 'rm -f "$TMP_WAV"' EXIT
-            echo "$INPUT" | piper -q -m "$MODEL_PATH" -f "$TMP_WAV" -sentence_silence "$SENTENCE_SILENCE" >/dev/null 2>&1
+            echo "$INPUT" | piper -m "$MODEL_PATH" -f "$TMP_WAV" --sentence-silence "$SENTENCE_SILENCE" >/dev/null 2>&1
             
             if [ -n "$CAF_OUTPUT" ]; then
               ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i "$TMP_WAV" "$CAF_OUTPUT"

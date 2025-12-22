@@ -1,5 +1,5 @@
-# dotfiles/modules/hardware/cpu/intel.nix
-{ 
+# dotfiles/modules/hardware/cpu/intel.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 say ⮞ intel cpu hardware configurations
   config,
   lib,
   pkgs,
@@ -18,7 +18,8 @@
                 extraPackages = with pkgs; [
                   intel-media-driver
                   intel-vaapi-driver # previously vaapiIntel
-                  vaapiVdpau
+#                  vaapiVdpau
+                  libva-vdpau-driver
                   libvdpau-va-gl
                   intel-compute-runtime # OpenCL filter support (hardware tonemapping and subtitle burn-in)
                   vpl-gpu-rt # QSV on 11th gen or newer
