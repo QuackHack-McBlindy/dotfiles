@@ -1,5 +1,5 @@
 # dotfiles/modules/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ here we define options that help us control our house yo 
+{ # 🦆 says ⮞ here we define options that help us control our house yo 
   self,
   config,
   lib,
@@ -9,13 +9,16 @@
   inherit (lib) types mkOption mkEnableOption mkMerge;  
 
   cmdHelpers = ''
-    say_duck() { # 🦆 duck say ⮞ diis need explaination? 
+    # 🦆 duck say ⮞ diis need explaination?!
+    say_duck() {
       echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
     }  
-    mqtt_pub() { # 🦆 says ⮞ publish Mosquitto
+    # 🦆 says ⮞ publish Mosquitto msgz
+    mqtt_pub() {
       ${pkgs.mosquitto}/bin/mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
     }
-    color2hex() { # 🦆 duck say ⮞ outputs random hex within color range from plain text color names
+    # 🦆 says ⮞ outputs random hex within color range from plain text color names
+    color2hex() {
       local color="$1"
       declare -A color_ranges=(
         ["red"]="255,0,0:165,0,0"
@@ -46,6 +49,42 @@
         b=$(( min_b + RANDOM % (max_b - min_b + 1) ))
       fi
       printf "%02x%02x%02x\n" "$r" "$g" "$b"
+    }    
+    # 🦆 says ⮞ hex to xy converter
+    hex_to_xy() {
+      local hex="$1"
+      local r g b 
+      hex=$(echo "$hex" | sed 's/^#//')
+      [[ ''${#hex} -eq 6 ]] || { echo "0.5 0.4"; return 1; }
+  
+      r=$((16#''${hex:0:2}))
+      g=$((16#''${hex:2:2}))
+      b=$((16#''${hex:4:2}))
+  
+      local r_cor g_cor b_cor
+      r_cor=$(echo "scale=4; $r / 255" | bc -l)
+      g_cor=$(echo "scale=4; $g / 255" | bc -l)
+      b_cor=$(echo "scale=4; $b / 255" | bc -l)
+  
+      r_cor=$(echo "scale=4; if ($r_cor > 0.04045) { e(2.4 * l($r_cor / 1.055 + 0.055)) } else { $r_cor / 12.92 }" | bc -l)
+      g_cor=$(echo "scale=4; if ($g_cor > 0.04045) { e(2.4 * l($g_cor / 1.055 + 0.055)) } else { $g_cor / 12.92 }" | bc -l)
+      b_cor=$(echo "scale=4; if ($b_cor > 0.04045) { e(2.4 * l($b_cor / 1.055 + 0.055)) } else { $b_cor / 12.92 }" | bc -l)
+  
+      local x y z
+      x=$(echo "scale=4; ($r_cor * 0.649926 + $g_cor * 0.103455 + $b_cor * 0.197109)" | bc -l)
+      y=$(echo "scale=4; ($r_cor * 0.234327 + $g_cor * 0.743075 + $b_cor * 0.022598)" | bc -l)
+      z=$(echo "scale=4; ($r_cor * 0.000000 + $g_cor * 0.053077 + $b_cor * 1.035763)" | bc -l)
+  
+      local total
+      total=$(echo "scale=4; $x + $y + $z" | bc -l)  
+      if [[ $(echo "$total == 0" | bc -l) -eq 1 ]]; then
+        echo "0.5 0.4"
+      else
+        local x_y y_y
+        x_y=$(echo "scale=4; $x / $total" | bc -l)
+        y_y=$(echo "scale=4; $y / $total" | bc -l)
+        echo "$x_y $y_y"
+      fi
     }
   '';
 
@@ -66,7 +105,7 @@
     };
   }; 
 
-  # 🦆 says ⮞ 
+  # 🦆 says ⮞ auto what
   automationActionType = types.oneOf [
     (types.str)
     (types.submodule {
@@ -219,7 +258,6 @@
     ) (config.house.zigbee.automations.presence_based or {})
   );
 
-
   # 🦆 says ⮞ duplicate friendly names
   duplicateFriendlyNameValidation = 
     let
@@ -257,7 +295,7 @@
     lib.mapAttrsToList validateMqttTriggered (config.house.zigbee.automations.mqtt_triggered or {})
   );
 
-  # 🦆 says ⮞ Add validation for MQTT configuration
+  # 🦆 says ⮞ validation for MQTT configuration
   mqttValidations = [
     {
       assertion = config.house.zigbee.mosquitto != null -> 
@@ -271,6 +309,20 @@
     }
   ];
 
+  # 🦆 says ⮞ validation for syncBox TV
+  syncBoxTvValidation = {
+    assertion = config.house.zigbee.hueSyncBox != null && 
+                config.house.zigbee.hueSyncBox.enable && 
+                config.house.zigbee.hueSyncBox.syncBox.tv != "" -> 
+                builtins.hasAttr config.house.zigbee.hueSyncBox.syncBox.tv config.house.tv;
+    message = let
+      syncBox = config.house.zigbee.hueSyncBox;
+      tv = syncBox.syncBox.tv;
+      availableTvs = lib.attrNames config.house.tv;
+    in "🦆 duck say ⮞ fuck ❌ Hue Sync Box references non-existent TV '${tv}'. Available TVs: ${toString availableTvs}";
+  };
+
+  # 🦆 says ⮞ dynamic mosquitto host finder
   sysHosts = lib.attrNames self.nixosConfigurations; 
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
@@ -484,7 +536,7 @@ in { # 🦆 says ⮞ Options for da house
           description = "Custom pages for the dashboard";
         };
 
-      
+        # 🦆 says ⮞ junk card TODO remove   
         betaCard = {
           enable = (mkEnableOption "the beta card") // { default = false; };
         };
@@ -576,7 +628,7 @@ in { # 🦆 says ⮞ Options for da house
         default = {};
       };
       
-      # 🦆 duck say ⮞ set our esp device info
+      # 🦆 says ⮞ set our esp device info
       esp = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
           options = {
@@ -695,8 +747,61 @@ in { # 🦆 says ⮞ Options for da house
         description = "Serial port device mapping by USB IDs";
       };
 
+      # 🦆 says ⮞ Philips Hue Play HDMI Sync Box (winz price for longest product name?)
+      # 🦆 says ⮞ syncing lights to TV
+      zigbee.hueSyncBox = mkOption {
+        type = types.nullOr (types.submodule {
+          options = {
+            enable = mkEnableOption "Enable Philips Hue Bridge & Sync Box integration";      
+            # 🦆 says ⮞ Hue Bridge configuration (sadly must have for sync - i block it's internet access)
+            bridge = {
+              ip = mkOption {
+                type = types.str;
+                description = "IP address of the Philips Hue Bridge";
+              };
+              passwordFile = mkOption {
+                type = types.path;
+                description = "File containing the Hue Bridge API key (username)";
+              };
+            };      
+            # 🦆 says ⮞ Hue Sync Box configuration
+            syncBox = {
+              ip = mkOption {
+                type = types.str;
+                description = "IP address of the Philips Hue Sync Box";
+              };
+              passwordFile = mkOption {
+                type = types.path;
+                description = "File containing the Hue Sync Box API key";
+              };
+              tv = mkOption {
+                type = types.str;
+                description = "What TV should syncBox syncronize the lights to. Available TVs: ${lib.concatStringsSep ", " (lib.attrNames config.house.tv)}";
+                default = "";
+                example = "shield";
+                apply = tvName:
+                  if tvName == "" then tvName
+                  else if builtins.hasAttr tvName config.house.tv then tvName
+                  else throw "TV '${tvName}' is not defined in house.tv. Available: ${lib.concatStringsSep ", " (lib.attrNames config.house.tv)}";
+              };
+            };      
+            insecure = mkOption {
+              type = types.bool;
+              default = false;
+              description = "Allow insecure HTTP for Bridge (use with caution!)";
+            };
+            skipCertCheck = mkOption {
+              type = types.bool;
+              default = true;
+              description = "Skip SSL certificate verification for Sync Box (self-signed cert)";
+            };
+          };
+        });
+        default = null;
+        description = "Philips Hue Bridge & Sync Box configuration for TV to lights syncing";
+      };
 
-      # 🦆 duck say ⮞ lights don't help blind ducks but guests might like
+      # 🦆 say ⮞ lights don't help blind ducks but guests might like
       zigbee.devices = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
           options = {
@@ -1244,7 +1349,8 @@ in { # 🦆 says ⮞ Options for da house
       {
         assertions = sceneValidations ++ deviceValidations ++ 
                      duplicateFriendlyNameValidation ++ motionSensorValidations ++
-                     mqttValidations ++ mqttTriggeredValidations;
+                     mqttValidations ++ mqttTriggeredValidations ++
+                     [syncBoxTvValidation];
       }
       {
         environment.etc."dark-time.conf".text = ''
@@ -1260,11 +1366,13 @@ in { # 🦆 says ⮞ Options for da house
           # 🦆 says ⮞ Dependencies 
           pkgs.mosquitto
           pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
+          
           # 🦆 says ⮞ scene fireworks  
           (pkgs.writeScriptBin "scene-roll" ''
             ${cmdHelpers}
             ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
           '')
+          
           # 🦆 says ⮞ activate a scene yo
           (pkgs.writeScriptBin "scene" ''
             ${cmdHelpers}
@@ -1305,6 +1413,7 @@ in { # 🦆 says ⮞ Options for da house
               ;;
             esac
           '')  
+          
           # 🦆 says ⮞ helper function 4 controlling zingle device
           (pkgs.writeScriptBin "zig" ''
             ${cmdHelpers}
@@ -1376,7 +1485,214 @@ in { # 🦆 says ⮞ Options for da house
             # 🦆 says ⮞ publish payload
             mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
             say_duck "$PAYLOAD"   
-          '') 
+          '')
+          
+          # 🦆 says ⮞ Philips Hue Sync Box control
+          (pkgs.writeScriptBin "hue" ''
+            ${cmdHelpers}
+            set -euo pipefail      
+            if [ "${if config.house.zigbee.hueSyncBox != null && config.house.zigbee.hueSyncBox.enable then "1" else "0"}" = "1" ]; then
+              HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}"
+              HUE_BRIDGE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")"
+              HUE_SYNC_BOX_IP="${config.house.zigbee.hueSyncBox.syncBox.ip}"
+              HUE_SYNC_BOX_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.syncBox.passwordFile}" 2>/dev/null || echo "")"
+              HUE_INSECURE="${toString config.house.zigbee.hueSyncBox.insecure}"
+              HUE_SKIP_CERT_CHECK="${toString config.house.zigbee.hueSyncBox.skipCertCheck}"
+            else
+              HUE_BRIDGE_IP=""
+              HUE_BRIDGE_API_KEY=""
+              HUE_SYNC_BOX_IP=""
+              HUE_SYNC_BOX_API_KEY=""
+              HUE_INSECURE="false"
+              HUE_SKIP_CERT_CHECK="false"
+            fi
+            hue_api() {
+              local target="$1" method="$2" endpoint="$3" data="$4"
+              local ip key base curl_opts=""  
+              case "$target" in
+                bridge)
+                  ip="$HUE_BRIDGE_IP"
+                  key="$HUE_BRIDGE_API_KEY"
+                  base="http://$ip/api/$key"
+                  [ "$HUE_INSECURE" = "true" ] && curl_opts="-k"
+                  ;;
+                sync)
+                  ip="$HUE_SYNC_BOX_IP"
+                  key="$HUE_SYNC_BOX_API_KEY"
+                  base="https://$ip/api/v1/$key"
+                  [ "$HUE_SKIP_CERT_CHECK" = "true" ] && curl_opts="-k"
+                  ;;
+                *)
+                  say_duck "fuck ❌ Invalid target: $target"
+                  exit 1
+                  ;;
+              esac      
+              [[ -z "$ip" || -z "$key" ]] && {
+                say_duck "fuck ❌ $target not configured or API key missing"
+                exit 1
+              }
+              if [[ -n "$data" ]]; then
+                curl $curl_opts -X "$method" "$base$endpoint" \
+                  -H "Content-Type: application/json" \
+                  -d "$data" 2>/dev/null || { say_duck fuck ❌ "$target API call failed"; exit 1; }
+              else
+                curl $curl_opts -X "$method" "$base$endpoint" 2>/dev/null || { say_duck "$target API call failed"; exit 1; }
+              fi
+            }
+            # 🦆 says ⮞ routing
+            case "$1" in
+              # 🦆 says ⮞ bridge
+              bridge)
+                case "$2" in
+                  lights)
+                    hue_api bridge GET "/lights" "" | ${pkgs.jq}/bin/jq '.'
+                    ;;
+                  scenes)
+                    hue_api bridge GET "/scenes" "" | ${pkgs.jq}/bin/jq '.'
+                    ;;
+                  groups)
+                    hue_api bridge GET "/groups" "" | ${pkgs.jq}/bin/jq '.'
+                    ;;
+                  light)
+                    light_id="$3"
+                    action="$4"
+                    value="$5"
+                    case "$action" in
+                      on)
+                        hue_api bridge PUT "/lights/$light_id/state" '{"on":true}'
+                        ;;
+                      off)
+                        hue_api bridge PUT "/lights/$light_id/state" '{"on":false}'
+                        ;;
+                      toggle)
+                        current_state=$(hue_api bridge GET "/lights/$light_id" "")
+                        is_on=$(echo "$current_state" | ${pkgs.jq}/bin/jq -r '.state.on')
+                        new_state=$([ "$is_on" = "true" ] && echo "false" || echo "true")
+                        hue_api bridge PUT "/lights/$light_id/state" "{\"on\":$new_state}"
+                        ;;
+                      brightness)
+                        [[ "$value" =~ ^[0-9]+$ && "$value" -ge 0 && "$value" -le 254 ]] || {
+                          say_duck "fuck ❌ Brightness must be 0-254"
+                          exit 1
+                        }
+                        hue_api bridge PUT "/lights/$light_id/state" "{\"bri\":$value}"
+                        ;;
+                      color)
+                        hex_value=$(color2hex "$value") || {
+                          say_duck "fuck ❌ Invalid color: $value"
+                          exit 1
+                        }
+                        xy_coords=$(hex_to_xy "$hex_value")
+                        x=$(echo "$xy_coords" | cut -d' ' -f1)
+                        y=$(echo "$xy_coords" | cut -d' ' -f2)   
+                        hue_api bridge PUT "/lights/$light_id/state" "{\"xy\":[$x,$y]}"
+                        ;;
+                      *)
+                        say_duck "fuck ❌ Unknown light action: $action"
+                        exit 1
+                        ;;
+                    esac
+                    ;;
+                  scene)
+                    scene_id="$3"
+                    hue_api bridge PUT "/groups/0/action" "{\"scene\":\"$scene_id\"}"
+                    ;;
+                  group)
+                    group_id="$3"
+                    action="$4"
+                    case "$action" in
+                      on)
+                        hue_api bridge PUT "/groups/$group_id/action" '{"on":true}'
+                        ;;
+                      off)
+                        hue_api bridge PUT "/groups/$group_id/action" '{"on":false}'
+                        ;;
+                      brightness)
+                        value="$5"
+                        [[ "$value" =~ ^[0-9]+$ && "$value" -ge 0 && "$value" -le 254 ]] || {
+                          say_duck "fuck ❌ Brightness must be 0-254"
+                          exit 1
+                        }
+                        hue_api bridge PUT "/groups/$group_id/action" "{\"bri\":$value}"
+                        ;;
+                      *)
+                        say_duck "fuck ❌ Unknown group action: $action"
+                        exit 1
+                        ;;
+                    esac
+                    ;;
+                  *)
+                    say_duck "fuck ❌ Unknown bridge command: $2"
+                    exit 1
+                    ;;
+                esac
+                ;;            
+              # 🦆 says ⮞ syncBox
+              sync)
+                case "$2" in
+                  on)
+                    hue_api sync PUT "/sync" '{"syncActive":true}'
+                    ;;
+                  off)
+                    hue_api sync PUT "/sync" '{"syncActive":false}'
+                    ;;
+                  toggle)
+                    status=$(hue_api sync GET "" "")
+                    is_active=$(echo "$status" | ${pkgs.jq}/bin/jq -r '.execution.syncActive')
+                    new_state=$([ "$is_active" = "true" ] && echo "false" || echo "true")
+                    hue_api sync PUT "/sync" "{\"syncActive\":$new_state}"
+                    ;;
+                  status)
+                    hue_api sync GET "" "" | ${pkgs.jq}/bin/jq '.'
+                    ;;
+                  mode)
+                    mode="$3"
+                    case "$mode" in
+                      video|music|game)
+                        hue_api sync PUT "/sync" "{\"mode\":\"$mode\"}"
+                        ;;
+                      *)
+                        say_duck "fuck ❌ Invalid mode: $mode"
+                        exit 1
+                        ;;
+                    esac
+                    ;;
+                  intensity)
+                    intensity="$3"
+                    case "$intensity" in
+                      subtle|moderate|high|intense)
+                        hue_api sync PUT "/sync" "{\"intensity\":\"$intensity\"}"
+                        ;;
+                      *)
+                        say_duck "fuck ❌ Invalid intensity: $intensity"
+                        exit 1
+                        ;;
+                    esac
+                    ;;
+                  entertainment-area)
+                    area_id="$3"
+                    hue_api sync PUT "/sync" "{\"entertainmentConfiguration\":\"$area_id\"}"
+                    ;;
+                  hdmi-input)
+                    input="$3"
+                    [[ "$input" =~ ^[1-4]$ ]] || {
+                      say_duck "fuck ❌ Invalid HDMI input: $input"
+                      exit 1
+                    }
+                    hue_api sync PUT "/sync" "{\"hdmiSource\":\"input$input\"}"
+                    ;;
+                  *)
+                    say_duck "fuck ❌ Unknown sync command: $2"
+                    exit 1
+                    ;;
+                esac
+                ;;
+              *)
+                say_duck "fuck ❌ Unknown command: $1"
+                exit 1
+                ;;
+            esac
+          '')
         ];        
       }
        

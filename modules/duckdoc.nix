@@ -191,7 +191,7 @@ JQ
     nix_version=$(nix --version | awk '{print $3}')
     bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
     gnome_version=$(gnome-shell --version | awk '{print $3}')
-#    python_version=$(python3 --version | awk '{print $2}')  
+    python_version=$(python3 --version | awk '{print $2}')  
     rustc_version=$(rustc --version | awk '{print $2}')
     mosquitto_version=$(mosquitto -h | awk '/^mosquitto version/{print $3}')
     zigbee2mqtt_version=$(zigbee2mqtt --help 2>&1 | grep -oE 'zigbee2mqtt-[0-9]+\.[0-9]+\.[0-9]+' | head -n1 | cut -d'-' -f2)
@@ -202,7 +202,7 @@ JQ
     nix_badge="https://img.shields.io/badge/Nix-''${nix_version}-blue?style=flat-square\\&logo=nixos\\&logoColor=white"
     bash_badge="https://img.shields.io/badge/bash-''${bash_version}-red?style=flat-square\\&logo=gnubash\\&logoColor=white"
     gnome_badge="https://img.shields.io/badge/GNOME-''${gnome_version}-purple?style=flat-square\\&logo=gnome\\&logoColor=white"
-#    python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
+    python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
     rust_badge="https://img.shields.io/badge/Rust-''${rustc_version}-orange?style=flat-square\\&logo=rust\\&logoColor=white"
     mosquitto_badge="https://img.shields.io/badge/Mosquitto-''${mosquitto_version}-yellow?style=flat-square\\&logo=eclipsemosquitto\\&logoColor=white"
     zigbee2mqtt_badge="https://img.shields.io/badge/Zigbee2MQTT-''${zigbee2mqtt_version}-yellow?style=flat-square\\&logo=zigbee2mqtt\\&logoColor=white"
@@ -409,6 +409,7 @@ EOF
       echo "- __Frontend Chatbot (no LLM) - Less thinking, more doing!__ <br>"
       echo "- __Infra as everyday accessibility__ <br>"
       echo "- __Yubikey encrypted deployment system__ <br>"
+      echo "- __Version controlled ESP32 firmware management__ <br>"      
       echo "- __Self Documenting__ <br>"      
     )
 
@@ -424,7 +425,7 @@ EOF
       -e "s|https://img.shields.io/badge/Nix-[^)]*|$nix_badge|g" \
       -e "s|https://img.shields.io/badge/bash-[^)]*|$bash_badge|g" \
       -e "s|https://img.shields.io/badge/GNOME-[^)]*|$gnome_badge|g" \
-#      -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
+      -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
       -e "s|https://img.shields.io/badge/Rust-[^)]*|$rust_badge|g" \
       -e "s|https://img.shields.io/badge/Mosquitto-[^)]*|$mosquitto_badge|g" \
       -e "s|https://img.shields.io/badge/Zigbee2MQTT-[^)]*|$zigbee2mqtt_badge|g" \

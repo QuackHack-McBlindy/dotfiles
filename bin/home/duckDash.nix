@@ -1238,7 +1238,7 @@
       if card.enable then "ln -sf ${card.filePath} $WORKDIR/${builtins.baseNameOf card.filePath};" else ""
     ) config.house.dashboard.statusCards)}
 
-    # 🦆 Process page files from dashboard configuration
+    # 🦆 says ⮞ process page files from dashboard configuration
     ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: page:
       lib.mapAttrsToList (name: source: 
         if lib.isString source then
@@ -1248,10 +1248,10 @@
       ) (page.files or {})
     ) config.house.dashboard.pages))}
 
-    # 🦆 CSS files only
+    # 🦆 says ⮞ CSS files only (no matter what it says below)
     ${pageFilesAndCss}
 
-    # 🦆 says ⮞ add TV icons
+    # 🦆 says ⮞ TV icons
     mkdir -p $WORKDIR/tv-icons
     ${lib.concatMapStrings (tvName: 
         let tv = tvConfig.${tvName};
@@ -1675,6 +1675,8 @@ EOF
     </html>      
   '';
 
+
+  # 🦆 says ⮞ letz convert the website into an iOS application (Open Safari & Save bookmark to homescreen) 
   iOSmanifest = pkgs.writeText "manifest.json" ''
     {
       "name": "🦆'Dash",

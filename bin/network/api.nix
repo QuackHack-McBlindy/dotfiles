@@ -1246,7 +1246,13 @@
                             .filter(|line| !line.contains("[🦆📜]"))
                             .collect::<Vec<&str>>()
                             .join("\n");        
-                        let cleaned_output = filtered_output.replace('"', "\\\"").replace('\n', "\\n");
+
+                        // 🦆 says ⮞ replace "⮞" (U+2B9E) with "▶" (U+25B6) for iOS
+                        let cleaned_output = filtered_output
+                            .replace('⮞', "▶")
+                            .replace('"', "\\\"")
+                            .replace('\n', "\\n");
+            
                         dt_info(&format!("Command executed successfully: {}", natural_language));
                         let response = format!(r#"{{"status":"success","command":"{}","output":"{}"}}"#, 
                             natural_language, cleaned_output.trim());

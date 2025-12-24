@@ -296,7 +296,7 @@ in { # 🦆 duck say ⮞ qwack
                     <button id="attachment-button" title="Attach file">📎</button>                
                     <input type="text" id="prompt" placeholder="Qwack something ... ">
                     <input type="file" id="file-input" style="display: none;" multiple>
-                    <button id="send-button">🦆⮞</button>
+                    <button id="send-button">🦆 ▶</button>
                 </div>
                 <div id="file-preview" style="display: none;"></div>
             </div>
@@ -1333,10 +1333,13 @@ in { # 🦆 duck say ⮞ qwack
     
                     // 🦆 says ⮞ extraction
                     const errorMatch = cleanedText.match(/🦆 says ⮞ fuck ❌[^\n]*/);
-                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'Error!';
+                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'FUCK!';
     
+                   // errorBubble.innerHTML = `
+                   //     <div class="error-special-text">🦆says ▶''${errorMessage}</div>
+                   // `;
                     errorBubble.innerHTML = `
-                        <div class="error-special-text">🦆says⮞''${errorMessage}</div>
+                        <div class="error-special-text">🦆says ▶ FUCK!</div>
                     `;
     
                     chatContainer.appendChild(errorBubble);
@@ -1570,6 +1573,23 @@ in { # 🦆 duck say ⮞ qwack
       mosquitto = {
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
+      };
+      
+      # 🦆 says ⮞ TV light syncin' 
+      hueSyncBox = {
+        enable = true;
+        # 🦆 says ⮞ sadly needed (i disable itz internet access - u should too)
+        bridge = { 
+          ip = "192.168.1.33";
+          # 🦆 says ⮞ run the following to get api token:
+          # curl -X POST http://192.168.1.33/api -d '{"devicetype":"house#nixos"}'
+          passwordFile = config.sops.secrets.hueBridgeAPI.path;
+        }; 
+        syncBox = { # C42996020AAE
+          ip = "192.168.1.34";
+          passwordFile = config.sops.secrets.hueBridgeAPI.path;
+          tv = "shield";
+        };
       };
       
       # 🦆says⮞ coordinator configuration
@@ -2333,6 +2353,12 @@ in { # 🦆 duck say ⮞ qwack
     secrets =  {
       api = {
         sopsFile = ./../secrets/api.yaml;
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440"; # Read-only for owner and group
+      };
+      hueBridgeAPI = {
+        sopsFile = ./../secrets/hueBridgeAPI.yaml;
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0440"; # Read-only for owner and group

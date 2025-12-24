@@ -38,10 +38,32 @@
   }; # 🦆 duck say ⮞ we be duckTracin' even when on da zzznake
   PythonDuckTrace = import ./DuckTrace/python.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
-  };  
+  };
+  
+  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  mqttHost = lib.findSingle (host:
+      let cfg = self.nixosConfigurations.${host}.config;
+      in cfg.services.mosquitto.enable or false
+    ) null null sysHosts;    
+  mqttHostip = if mqttHost != null
+    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+      let
+        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+        '');
+      in
+        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+    )
+    else (throw "No Mosquitto host found in configuration");
+  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})"; 
+  mqttBroker =
+    if mqttHostip == config.this.host.ip
+    then "localhost"
+    else mqttHostip;
+
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
-        inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace pkgs sysHosts;
+        inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace pkgs sysHosts mqttHostip;
     }) (
         importModulesRecursive ./voice ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++

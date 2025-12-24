@@ -72,7 +72,7 @@ in {
           echo "**Totalt:** $item_count artikel$([ $item_count -ne 1 ] && echo "r" || echo "")"
         )
   
-        echo "$markdown_table" | ${pkgs.glow}/bin/glow -
+        echo "$markdown_table" | ${pkgs.glow}/bin/glow format
       }
       
       speak_shopping_list() {
@@ -111,7 +111,33 @@ in {
       }
       
       if [ "$list" = "true" ]; then
-        display_shopping_list_table
+        if [ ! -s "$LIST_FILE" ]; then
+          ${pkgs.glow}/bin/glow - <<EOF
+# 📝 Inköpslista
+
+*Listan är tom*
+EOF
+        else
+          item_count=$(wc -l < "$LIST_FILE")
+    
+          markdown_table=$(
+            echo "# 📝 Inköpslista"
+            echo ""
+            echo "| Index | Artikel |"
+            echo "|-------|---------|"
+      
+            index=1
+            while IFS= read -r item; do
+              echo "| $index | $item |"
+              index=$((index + 1))
+            done < "$LIST_FILE"
+      
+            echo ""
+            echo "**Totalt:** $item_count artikel$([ $item_count -ne 1 ] && echo "r")"
+          )
+    
+          echo "$markdown_table" | ${pkgs.glow}/bin/glow -
+        fi
         speak_shopping_list
         exit 0
       fi

@@ -1,3 +1,4 @@
+*.bak
 modules/dump
 /home/Public/dump
 bin/dump

@@ -4,13 +4,13 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.31.2+1-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.12.30-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.12.62-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.3-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.91.1-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
-![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
+![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT--yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
 
 <!-- VERSIONS_END -->
@@ -52,6 +52,7 @@ Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 - __Frontend Chatbot (no LLM) - Less thinking, more doing!__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
+- __Version controlled ESP32 firmware management__ <br>
 - __Self Documenting__ <br>
 <!-- SCRIPT_STATS_END -->
 
@@ -78,7 +79,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8054 ducks?<br>
+Let's see if you can find all 8074 ducks?<br>
 <!-- DUCKS_END -->
 
 <br>
@@ -187,7 +188,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/6wmp7hg77pgccnvjzpk8b64nwpp1pz23-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
-  styles = "/nix/store/fps0n7wk6v7853hnzp9qs1bz3v98wbgw-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/0n1yj289rlandi7lhdzam3qln5352y5y-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -500,7 +501,7 @@ in { # 🦆 duck say ⮞ qwack
                     <button id="attachment-button" title="Attach file">📎</button>                
                     <input type="text" id="prompt" placeholder="Qwack something ... ">
                     <input type="file" id="file-input" style="display: none;" multiple>
-                    <button id="send-button">🦆⮞</button>
+                    <button id="send-button">🦆 ▶</button>
                 </div>
                 <div id="file-preview" style="display: none;"></div>
             </div>
@@ -1548,10 +1549,13 @@ in { # 🦆 duck say ⮞ qwack
                     // 🦆 says ⮞ extraction
                     const errorMatch = cleanedText.match(/🦆 says ⮞ fuck ❌[^
 ]*/);
-                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'Error!';
+                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'FUCK!';
     
+                   // errorBubble.innerHTML = `
+                   //     <div class="error-special-text">🦆says ▶''${errorMessage}</div>
+                   // `;
                     errorBubble.innerHTML = `
-                        <div class="error-special-text">🦆says⮞''${errorMessage}</div>
+                        <div class="error-special-text">🦆says ▶ FUCK!</div>
                     `;
     
                     chatContainer.appendChild(errorBubble);
@@ -1787,6 +1791,23 @@ in { # 🦆 duck say ⮞ qwack
       mosquitto = {
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
+      };
+      
+      # 🦆 says ⮞ TV light syncin' 
+      hueSyncBox = {
+        enable = true;
+        # 🦆 says ⮞ sadly needed (i disable itz internet access - u should too)
+        bridge = { 
+          ip = "192.168.1.33";
+          # 🦆 says ⮞ run the following to get api token:
+          # curl -X POST http://192.168.1.33/api -d '{"devicetype":"house#nixos"}'
+          passwordFile = config.sops.secrets.hueBridgeAPI.path;
+        }; 
+        syncBox = { # C42996020AAE
+          ip = "192.168.1.34";
+          passwordFile = config.sops.secrets.hueBridgeAPI.path;
+          tv = "shield";
+        };
       };
       
       # 🦆says⮞ coordinator configuration
@@ -2551,6 +2572,12 @@ e[1;5;31m[ALARM RINGS]e[0m"
     secrets =  {
       api = {
         sopsFile = ./../secrets/api.yaml;
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440"; # Read-only for owner and group
+      };
+      hueBridgeAPI = {
+        sopsFile = ./../secrets/hueBridgeAPI.yaml;
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0440"; # Read-only for owner and group
