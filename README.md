@@ -10,7 +10,7 @@
 ![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.91.1-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
-![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT--yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
+![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
 
 <!-- VERSIONS_END -->
@@ -46,7 +46,7 @@ Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __99 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
-- __2503 dynamically generated regex patterns - makes 294355243 phrases available as commands.__ <br>
+- __2500 dynamically generated regex patterns - makes 294355039 phrases available as commands.__ <br>
 - __Smart Home Nix Style - Managing 3 TV's, 41 devices & 6 scenes.__ <br>
 - __Natural Language support with complete voice pipeline__ <br>
 - __Frontend Chatbot (no LLM) - Less thinking, more doing!__ <br>
@@ -79,7 +79,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8074 ducks?<br>
+Let's see if you can find all 8116 ducks?<br>
 <!-- DUCKS_END -->
 
 <br>
@@ -188,7 +188,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/6wmp7hg77pgccnvjzpk8b64nwpp1pz23-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
-  styles = "/nix/store/0n1yj289rlandi7lhdzam3qln5352y5y-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/q08rmgp6sh7m7q6bw4wdxq89m5k21rcf-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -1789,6 +1789,7 @@ in { # 🦆 duck say ⮞ qwack
       
       # 🦆 says ⮞ mosquitto authentication
       mosquitto = {
+        host = "192.168.1.211";
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
       };
@@ -1913,6 +1914,79 @@ e[1;5;31m[ALARM RINGS]e[0m"
             ];
           };
 
+          tv_command = {
+            enable = true;
+            description = "TV command sent";
+            topic = "zigbee2mqtt/tvCommand";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  tv_command=$(echo "$MQTT_PAYLOAD" | jq -r '.tvCommand')
+                  ip=$(echo "$MQTT_PAYLOAD" | jq -r '.ip // "192.168.1.223"')
+                  yo tv --typ "$tv_command" --device "$ip"
+                  echo "TV command received! Command: $tv_command. IP: $ip"
+                '';
+              }
+            ];
+          };
+
+          tv_channel_change = {
+            enable = true;
+            description = "Change TV channel via yo command";
+            topic = "zigbee2mqtt/tvChannelCommand";  # Note: Changed topic for clarity
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  channel=$(echo "$MQTT_PAYLOAD" | jq -r '.tvChannel')
+                  ip=$(echo "$MQTT_PAYLOAD" | jq -r '.ip // "192.168.1.223"')
+                  yo tv --typ livetv --device "$ip" --search "$channel"
+                '';
+              }
+            ];
+          };
+
+          shopping_list = {
+            enable = true;
+            description = "Shopping list changed";
+            topic = "zigbee2mqtt/shopping_list";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  action=$(echo "$MQTT_PAYLOAD" | jq -r '.shopping_action // empty')
+                  item=$(echo "$MQTT_PAYLOAD" | jq -r '.item // empty')
+                  shopping_file="/var/lib/zigduck/shopping_list.txt"        
+                  case "$action" in
+                    "add")
+                      if [ -n "$item" ]; then
+                        echo "$item" >> "$shopping_file"
+                        mosquitto_pub -h "${mqttHostip}" ${mqttAuth}                           -t "zigbee2mqtt/shopping_list/updated"                           -m "{"action":"add","item":"$item"}"
+                        yo notify "🛒 Added: $item"
+                      fi
+                      ;;     
+                    "remove")
+                      if [ -n "$item" ]; then
+                        temp_file=$(mktemp)
+                        grep -v "^$item$" "$shopping_file" > "$temp_file"
+                        mv "$temp_file" "$shopping_file"
+                      fi
+                      ;;          
+                    "clear")
+                      > "$shopping_file"
+                      mosquitto_pub -h "${mqttHostip}" ${mqttAuth}                         -t "zigbee2mqtt/shopping_list/updated"                         -m '{"action":"clear"}'
+                      yo notify "🛒 List cleared"
+                      ;;         
+                    "view")
+                      echo ""
+                      ;;
+                  esac
+                '';
+              }
+            ];
+          };
+
           energy = {
             enable = true;
             description = "Updating energy data on dashboard";
@@ -1931,7 +2005,7 @@ e[1;5;31m[ALARM RINGS]e[0m"
                 '';
               }
             ];
-          }; # 🦆says⮞health checks from let block
+          }; # 🦆says⮞health checks (from let block)
         } // health; 
         
         # 🦆 says ⮞ 2. room action automations
@@ -1940,8 +2014,9 @@ e[1;5;31m[ALARM RINGS]e[0m"
             door_opened = [];
             door_closed = [];
           };  
+          # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion
           bedroom = { 
-            # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion (if darkTime)
+            # 🦆 says ⮞ this will override that in bedroom
             motion_detected = [
               {
                 type = "scene";
@@ -1977,13 +2052,6 @@ e[1;5;31m[ALARM RINGS]e[0m"
         # 🦆 says ⮞ 4. dimmer actions automations
         dimmer_actions = {          
           bedroom = {
-            on_hold_release = {
-              enable = true;
-              description = "Turn off all configured light devices";
-              extra_actions = [];
-              override_actions = [];
-            };
-
             off_hold_release = {
               enable = true;
               description = "Turn off all configured light devices";
@@ -1992,6 +2060,11 @@ e[1;5;31m[ALARM RINGS]e[0m"
                 {
                   type = "scene";
                   command = "dark";
+                }
+                {
+                  type = "mqtt";
+                  topic = "zigbee2mqtt/Fläkt/set";
+                  message = ''{"state":"OFF"}'';
                 }
               ];
             };   
@@ -2093,10 +2166,10 @@ e[1;5;31m[ALARM RINGS]e[0m"
               "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # 🦆 says ⮞ Dark Orchid
               "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };            # 🦆 says ⮞ Light Pink
               "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
-              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
+              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
+              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
+              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
           }; 
           "Green D" = {
               "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -2322,129 +2395,8 @@ e[1;5;31m[ALARM RINGS]e[0m"
         enable = true;
         room = "bedroom";
         ip = "192.168.1.153";
-        apps = {
-          telenor = "se.telenor.stream/.MainActivity";
-          tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
-        };  
-        channels = {     
-          "1" = {
-            name = "SVT1";
-            id = 1; # 🦆 says ⮞ adb channel ID
-            # 🦆 says ⮞ OR
-            # stream_url = "https://url.com/";
-            cmd = "open_telenor && wait 5 && start_channel_1";
-            # 🦆 says ⮞ automagi generated tv-guide web & EPG          
-            icon = ./themes/icons/tv/1.png;
-            scrape_url = "https://tv-tabla.se/tabla/svt1/";          
-          };
-          "2" = {
-            id = 2; 
-            name = "SVT2";
-            cmd = "open_telenor && wait 5 && start_channel_2";
-            icon = ./themes/icons/tv/2.png;          
-            scrape_url = "https://tv-tabla.se/tabla/svt2/";
-          };
-          "3" = {
-            id = 3;
-            name = "Kanal 3";
-            cmd = "open_telenor && wait 5 && start_channel_3";
-            icon = ./themes/icons/tv/3.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv3/";
-          };
-          "4" = {
-            id = 4;
-            name = "TV4";
-            cmd = "open_telenor && wait 5 && start_channel_4";
-            icon = ./themes/icons/tv/4.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv4/";
-          };
-          "5" = {
-            id = 5;
-            name = "Kanal 5";
-            cmd = "open_telenor && wait 5 && start_channel_5";
-            icon = ./themes/icons/tv/5.png;
-            scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
-          };
-          "6" = {
-            id = 6;
-            name = "Kanal 6";
-            cmd = "open_telenor && wait 5 && start_channel_6";
-            icon = ./themes/icons/tv/6.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv6/";
-          };
-          "7" = {
-            id = 7;
-            name = "Sjuan";
-            cmd = "open_telenor && wait 5 && start_channel_7";
-            icon = ./themes/icons/tv/7.png;
-            scrape_url = "https://tv-tabla.se/tabla/sjuan/";
-          };
-          "8" = {
-            id = 8;
-            name = "TV8";
-            icon = ./themes/icons/tv/8.png;          
-            scrape_url = "https://tv-tabla.se/tabla/tv8/";
-          };
-          "9" = {
-            id = 9;
-            name = "Kanal 9";
-            icon = ./themes/icons/tv/9.png;          
-            scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
-          };
-          "10" = {
-            id = 10;
-            name = "Kanal 10";
-            icon = ./themes/icons/tv/10.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv10/";
-          };
-          "11" = {
-            id = 11;
-            name = "Kanal 11";
-            icon = ./themes/icons/tv/11.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv11/";
-          };
-          "12" = {
-            id = 12;
-            name = "Kanal 12";
-            icon = ./themes/icons/tv/12.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv12/";
-          };
-          "13" = {
-            id = 13;
-            name = "TV4 Hockey";
-            icon = ./themes/icons/tv/13.png;
-            cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
-            scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
-          };        
-          "14" = {
-            id = 14;
-            name = "TV4 Sport Live 1";
-            icon = ./themes/icons/tv/14.png;
-            cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
-          };
-          "15" = {
-            id = 15;
-            name = "TV4 Sport Live 2";
-            icon = ./themes/icons/tv/15.png;
-            cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";    
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
-          };
-          "16" = {
-            id = 16;
-            name = "TV4 Sport Live 3";
-            icon = ./themes/icons/tv/16.png;
-            cmd = "open_tv4 && nav_down && nav_right && nav_right && nav_center";
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
-          };
-          "17" = {
-            id = 17;
-            name = "TV4 Sport Live 4";
-            icon = ./themes/icons/tv/17.png;
-            cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
-          };       
-        };
+        apps = config.house.tv.shield.apps;
+        channels = config.house.tv.shield.channels;
       };      
       
       arris = {
@@ -2852,7 +2804,7 @@ Add `?` to any command to run it in DEBUG mode
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard) | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--user] [--passwordfile] [--flake] [--pair] [--cheapMode] |  | Control lights and other home automatioon devices | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--user] [--passwordfile] [--flake] [--pair] [--cheapMode] |  | High-performance Rust CLI MQTT publisher for controlling Zigbee devices. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo mqtt_pub](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt_pub.nix) --topic --message |  | Mosquitto publisher | 📛 |

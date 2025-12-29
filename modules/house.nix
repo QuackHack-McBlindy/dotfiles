@@ -692,6 +692,12 @@ in { # 🦆 says ⮞ Options for da house
       zigbee.mosquitto = mkOption {
         type = types.nullOr (types.submodule {
           options = {
+            host = mkOption {
+              type = types.nullOr types.str;
+              default = null;
+              description = "IP address of the host running Mosquitto";
+              example = "192.168.1.211";
+            };  
             username = mkOption {
               type = types.nullOr types.str;
               default = null;
@@ -740,6 +746,11 @@ in { # 🦆 says ⮞ Options for da house
             symlink = mkOption {
               type = types.str;
               description = "Symlink name to create in /dev";
+            };
+            adapter = mkOption {
+              type = types.str;
+              description = "Adapter type for the coordinator, required for Zigbee2MQTT version 2.x and above. If you don't kknow leave blank for default.";
+              default = "zstack";
             };
           };
         });
@@ -800,6 +811,78 @@ in { # 🦆 says ⮞ Options for da house
         default = null;
         description = "Philips Hue Bridge & Sync Box configuration for TV to lights syncing";
       };
+
+      # 🦆 says ⮞ dimmer coniguration      
+      zigbee.dimmer = lib.mkOption {
+        type = types.submodule {
+          options = {
+            # 🦆 says ⮞ which MQTT field contains the action
+            message = lib.mkOption {
+              type = lib.types.str;
+              default = "action";
+              description = "MQTT field name containing dimmer action";
+            };
+            # 🦆 says ⮞ action mappings
+            actions = {
+              onPress = lib.mkOption {
+                type = lib.types.str;
+                default = "on_press_release";
+                description = "Action for single press of ON button";
+              };
+              onHold = lib.mkOption {
+                type = lib.types.str;
+                default = "on_hold_release";
+                description = "Action for holding ON button";
+              };
+              offPress = lib.mkOption {
+                type = lib.types.str;
+                default = "off_press_release";
+                description = "Action for single press of OFF button";
+              };
+              offHold = lib.mkOption {
+                type = lib.types.str;
+                default = "off_hold_release";
+                description = "Action for holding OFF button";
+              };
+              upPress = lib.mkOption {
+                type = lib.types.str;
+                default = "up_press_release";
+                description = "Action for single press of UP button";
+              };
+              upHold = lib.mkOption {
+                type = lib.types.str;
+                default = "up_hold_release";
+                description = "Action for holding UP button";
+              };
+              downPress = lib.mkOption {
+                type = lib.types.str;
+                default = "down_press_release";
+                description = "Action for single press of DOWN button";
+              };
+              downHold = lib.mkOption {
+                type = lib.types.str;
+                default = "down_hold_release";
+                description = "Action for holding DOWN button";
+              };
+            };
+          };  
+        };    
+        default = {
+          message = "action";
+          actions = {
+            onPress = "on_press_release";
+            onHold = "on_hold_release";
+            offPress = "off_press_release";
+            offHold = "off_hold_release";
+            upPress = "up_press_release";
+            upHold = "up_hold_release";
+            downPress = "down_press_release";
+            downHold = "down_hold_release";
+          };
+        };
+        description = "Configuration for dimmer switches. Default configuration is for the Philips Hue Dimmer Switch. You can check the message for your specific dimmer at zigbee2MQTT documentation.";
+      };
+
 
       # 🦆 say ⮞ lights don't help blind ducks but guests might like
       zigbee.devices = lib.mkOption {
@@ -1695,8 +1778,7 @@ in { # 🦆 says ⮞ Options for da house
           '')
         ];        
       }
-       
-     
+            
       {
         services.udev.extraRules = let
           port = config.house.zigbee.coordinator;

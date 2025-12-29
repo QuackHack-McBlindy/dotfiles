@@ -6,10 +6,11 @@
   pkgs,
   cmdHelpers,
   ...
-} : let # 🦆 says ⮞ configuration directory for diz module
+}: let
+  # 🦆 says ⮞ configuration directory for diz module
   zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
+  
   # 🦆 says ⮞ findz da mosquitto host
-  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = let
     sysHosts = lib.attrNames self.nixosConfigurations;
     mqttHosts = lib.filter (host:
@@ -27,79 +28,856 @@
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
 
+  # 🦆 says ⮞ Convert Nix devices to JSON format for Rust
+  devicesJson = builtins.toJSON (
+    lib.mapAttrs (id: device: {
+      friendly_name = device.friendly_name or id;
+      room = device.room or "unknown";
+      type = device.type or "unknown";
+      endpoint = device.endpoint or 11;
+      icon = device.icon or null;
+      battery_type = device.batteryType or null;
+    }) zigbeeDevices
+  );
+
+  scenes = config.house.zigbee.scenes;
+
+  # 🦆 says ⮞ Generate scenes JSON - FIXED VERSION
+  scenesJson = builtins.toJSON (
+    lib.mapAttrs (sceneName: sceneDevices: {
+      friendly_name = sceneName;
+      devices = sceneDevices;
+    }) scenes
+  );
+
+  # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
+  deviceMeta = builtins.toJSON (
+    lib.listToAttrs (
+      lib.filter (attr: attr.name != null) (
+        lib.mapAttrsToList (_: dev: {
+          name = dev.friendly_name;
+          value = {
+            room = dev.room;
+            type = dev.type;
+            id = dev.friendly_name;
+            endpoint = dev.endpoint;
+          };
+        }) zigbeeDevices
+      )
+    )
+  );# 🦆 says ⮞ yaaaaaaaaaaaaaaay
+
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
   ) zigbeeDevices;
 
-  # 🦆 says ⮞ Group devices by room
+  # 🦆 says ⮞ group devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
   in lib.mapAttrs (room: devices: 
       map (d: d.friendly_name) devices
     ) grouped;
 
-  # 🦆 says ⮞ All devices list for 'all' area
-  allDevicesList = lib.attrValues normalizedDeviceMap;
-
   # 🦆 says ⮞ device validation list
   deviceList = builtins.attrNames normalizedDeviceMap;
 
-  # 🦆 says ⮞ scene simplifier? or not
-  sceneLight = {state, brightness ? 200, hex ? null, temp ? null}:
-    let
-      colorValue = if hex != null then { inherit hex; } else null;
-    in
-    {
-      inherit state brightness;
-    } // (if colorValue != null then { color = colorValue; } else {})
-      // (if temp != null then { color_temp = temp; } else {});
+  zigduck-cli = pkgs.writeText "main.rs" ''    
+    use clap::{Parser, Subcommand, ValueEnum};
+    use serde::{Deserialize, Serialize};
+    use rumqttc::{Client, MqttOptions, QoS};
+    use std::time::Duration;
+    use anyhow::{Result, Context};
+    use colored::*;
+    use std::collections::HashMap;
+    use std::fs;
+    use std::path::PathBuf;
+    
+    #[derive(Parser)]
+    #[command(
+        name = "zigduck-cli",
+        version = "1.0.0",
+        author = "🦆 QuackHack-McBLindy",
+        about = "High-performance Zigbee home automation controller",
+        long_about = "Control Zigbee devices, scenes, and automations with Rust speed and reliability"
+    )]
+    struct Cli {
+        #[command(subcommand)]
+        command: Commands,
+        
+        #[arg(long, short, help = "MQTT broker host", env = "MQTT_BROKER", default_value = "127.0.0.1")]
+        broker: String,
+        
+        #[arg(long, short = 'u', help = "MQTT username", env = "MQTT_USER", default_value = "mqtt")]
+        user: String,
+        
+        #[arg(long, help = "MQTT password file", env = "MQTT_PASSWORD_FILE")]
+        password_file: Option<PathBuf>,
+        
+        #[arg(long, help = "MQTT password", env = "MQTT_PASSWORD")]
+        password: Option<String>,
+        
+        #[arg(long, short = 'v', action = clap::ArgAction::Count, help = "Verbosity level")]
+        verbose: u8,
+        
+        #[arg(long, help = "Path to devices configuration", env = "DEVICES_CONFIG")]
+        devices_config: Option<PathBuf>,
+        
+        #[arg(long, help = "Path to scenes configuration", env = "SCENES_CONFIG")]
+        scenes_config: Option<PathBuf>,
+    }
+    
+    #[derive(Subcommand)]
+    enum Commands {
+        // 🦆 says ⮞ control individual device
+        Device {
+            // 🦆 says ⮞ device name
+            #[arg(short, long)]
+            name: String,
+        
+            // 🦆 says ⮞ device state
+            #[arg(short, long, value_enum)]
+            state: DeviceState,
+        
+            // 🦆 says ⮞ brightness percentage
+            #[arg(short, long)]
+            brightness: Option<u8>,
+        
+            // 🦆 says ⮞ color name or hex code
+            #[arg(short, long)]
+            color: Option<String>,
+        
+            // 🦆 says ⮞ color temperature
+            #[arg(short = 't', long)]
+            temperature: Option<u16>,
+        
+            // 🦆 says ⮞ transition time in seconds
+            #[arg(short = 'T', long)]
+            transition: Option<f32>,
+        },
+        
+        // 🦆 says ⮞ control all devices in a room
+        Room {
+            // 🦆 says ⮞ room name
+            #[arg(short, long)]
+            name: String,
+            
+            // 🦆 says ⮞ room state
+            #[arg(value_enum)]
+            state: DeviceState,
+            
+            // 🦆 says ⮞ brightness percentage
+            #[arg(short, long)]
+            brightness: Option<u8>,
+            
+            // 🦆 says ⮞ color name or hex code
+            #[arg(short, long)]
+            color: Option<String>,
+            
+            // 🦆 says ⮞ color temperature
+            #[arg(short = 't', long)]
+            temperature: Option<u16>,
+        },
+        
+        // 🦆 says ⮞ activate scene
+        Scene {
+            // 🦆 says ⮞ scene name
+            name: String,
+            
+            // 🦆 says ⮞ random scene if no provided
+            #[arg(short, long, default_value_t = false)]
+            random: bool,
+        },
+        
+        // 🦆 says ⮞ enter pairing mode for new devices
+        Pair {
+            // 🦆 says ⮞ pairing duration in seconds
+            #[arg(short, long, default_value_t = 120)]
+            duration: u16,
+            
+            // 🦆 says ⮞ watch for new devices
+            #[arg(short, long, default_value_t = false)]
+            watch: bool,
+        },
+        
+        // 🦆 says ⮞ control all lights
+        AllLights {
+            // 🦆 says ⮞ all lights state
+            #[arg(value_enum)]
+            state: DeviceState,            
+            // 🦆 says ⮞ brightness percentage
+            #[arg(short, long)]
+            brightness: Option<u8>,            
+            // 🦆 says ⮞ color name or hex code
+            #[arg(short, long)]
+            color: Option<String>,
+        },
+        
+        // 🦆 says ⮞ List available devices, rooms, or scenes
+        List {
+            // 🦆 says ⮞ what to list
+            #[arg(value_enum)]
+            what: ListType,            
+            // 🦆 says ⮞ output as JSON
+            #[arg(short, long, default_value_t = false)]
+            json: bool,
+        },
+        
+        // 🦆 says ⮞ energy saving mode - turn off lights after delay
+        CheapMode {
+            // 🦆 says ⮞ room name
+            room: String,            
+            // 🦆 says ⮞ delay in seconds before turning off
+            #[arg(short, long, default_value_t = 300)]
+            delay: u64,
+        },
+    }
+    
+    #[derive(Clone, ValueEnum)]
+    enum DeviceState {
+        On,
+        Off,
+        Toggle,
+    }
+    
+    #[derive(Clone, ValueEnum)]
+    enum ListType {
+        Devices,
+        Rooms,
+        Scenes,
+        Lights,
+        Sensors,
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct DeviceConfig {
+        friendly_name: String,
+        room: String,
+        #[serde(rename = "type")]
+        device_type: String,
+        #[serde(default = "default_endpoint")]
+        endpoint: u8,
+        #[serde(default)]
+        icon: Option<String>,
+        #[serde(default)]
+        battery_type: Option<String>,
+    }
+    
+    fn default_endpoint() -> u8 {
+        11
+    }
+    
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct SceneConfig {
+        #[serde(default)]
+        friendly_name: Option<String>,
+        devices: HashMap<String, serde_json::Value>,
+    }
 
-  # 🎨 Scenes  🦆 YELLS ⮞ SCENES!!!!!!!!!!!!!!!11
-  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!   
 
-  # 🦆 says ⮞ Generate scene commands    
-  makeCommand = device: settings:
-    let
-      json = builtins.toJSON settings;
-    in
-      ''
-      yo mqtt_pub --topic "zigbee2mqtt/${device}/set" --message '${json}'
-      '';
-      
-  sceneCommands = lib.mapAttrs
-    (sceneName: sceneDevices:
-      lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
-    ) scenes;  
+    // 🦆 says ⮞ remove Debug derive since Client doesn't implement Debug
+    struct ZigduckController {
+        mqtt_client: Client,
+        devices: HashMap<String, DeviceConfig>,
+        scenes: HashMap<String, SceneConfig>,
+        verbose: bool,
+    }
+    
+    impl ZigduckController {
+        fn new(
+            broker: String,
+            user: String,
+            password: String,
+            devices_config: Option<PathBuf>,
+            scenes_config: Option<PathBuf>,
+            verbose: bool,
+        ) -> Result<Self> {
+            let mut mqttoptions = MqttOptions::new("zigduck-cli", &broker, 1883);
+            mqttoptions.set_credentials(&user, &password);
+            mqttoptions.set_keep_alive(Duration::from_secs(5));
+            
+            let (mqtt_client, mut connection) = Client::new(mqttoptions, 10);
+            
+            // 🦆 says ⮞ separate threaded event loop
+            let mqtt_client_clone = mqtt_client.clone();
+            std::thread::spawn(move || {
+                for notification in connection.iter() {
+                    match notification {
+                        Ok(_) => {
+                            // 🦆 says ⮞ We don't need to handle notifications in CLI
+                        }
+                        Err(e) => {
+                            eprintln!("MQTT connection error: {}", e);
+                            break;
+                        }
+                    }
+                }
+            });
+            
+            // 🦆 says ⮞ establish connection
+            std::thread::sleep(Duration::from_millis(100));
+            
+            // 🦆 says ⮞ load devices from config file
+            let devices = Self::load_devices(devices_config)?;
+            let scenes = Self::load_scenes(scenes_config)?;
+            
+            if verbose {
+                println!("{} Connected to MQTT broker: {}", "✅".green(), broker);
+                println!("{} Loaded {} devices", "📱".blue(), devices.len());
+                println!("{} Loaded {} scenes", "🎨".purple(), scenes.len());
+            }
+            
+            Ok(Self {
+                mqtt_client: mqtt_client_clone,
+                devices,
+                scenes,
+                verbose,
+            })
+        }
+        
+        fn load_devices(config_path: Option<PathBuf>) -> Result<HashMap<String, DeviceConfig>> {
+            let config_path = config_path.ok_or_else(|| anyhow::anyhow!("No devices config provided"))?;
+            
+            if !config_path.exists() {
+                println!("{} No devices config found at {:?}, using empty list", "⚠️".yellow(), config_path);
+                return Ok(HashMap::new());
+            }
+            
+            let devices_json = fs::read_to_string(config_path)
+                .context("Failed to read devices config file")?;
+            
+            let devices: HashMap<String, DeviceConfig> = serde_json::from_str(&devices_json)
+                .map_err(|e| anyhow::anyhow!("Failed to parse devices JSON: {}", e))?;
+            
+            Ok(devices)
+        }
+        
+        fn load_scenes(config_path: Option<PathBuf>) -> Result<HashMap<String, SceneConfig>> {
+            let config_path = config_path.ok_or_else(|| anyhow::anyhow!("No scenes config provided"))?;
+            
+            if !config_path.exists() {
+                println!("{} No scenes config found at {:?}, using empty list", "⚠️".yellow(), config_path);
+                return Ok(HashMap::new());
+            }
+            
+            let scenes_json = fs::read_to_string(config_path)
+                .context("Failed to read scenes config file")?;
+            
+            let scenes: HashMap<String, SceneConfig> = serde_json::from_str(&scenes_json)
+                .map_err(|e| anyhow::anyhow!("Failed to parse scenes JSON: {}", e))?;
+            
+            Ok(scenes)
+        }
+        
+        fn publish_command(&mut self, topic: &str, payload: serde_json::Value) -> Result<()> {
+            let payload_str = serde_json::to_string(&payload)?;
+            
+            if self.verbose {
+                println!("{} {} → {}", "🦆 PUBLISH".cyan(), topic.blue(), payload_str.yellow());
+            }
+            
+            self.mqtt_client
+                .publish(topic, QoS::AtMostOnce, false, payload_str)
+                .map_err(|e| anyhow::anyhow!("Failed to publish MQTT message: {}", e))?;
+            
+            // 🦆 says ⮞ tiny delay to make sure message is sent
+            std::thread::sleep(Duration::from_millis(50));
+            
+            Ok(())
+        }
+        
+        fn control_device(
+            &mut self,
+            device_name: &str,
+            state: &DeviceState,
+            brightness: Option<u8>,
+            color: Option<String>,
+            temperature: Option<u16>,
+            transition: Option<f32>,
+        ) -> Result<()> {
+            let device = self.find_device(device_name)?;
+            
+            if device.device_type == "sensor" || device.friendly_name.contains("Smoke") {
+                println!("{} {} is a sensor, skipping", "⚠️".yellow(), device.friendly_name);
+                return Ok(());
+            }
+            
+            let mut payload = serde_json::Map::new();
+            
+            match state {
+                DeviceState::On => {
+                    payload.insert("state".to_string(), "ON".into());
+                    
+                    if let Some(brightness_val) = brightness {
+                        if !(1..=100).contains(&brightness_val) {
+                            anyhow::bail!("Brightness must be between 1-100");
+                        }
+                        let mqtt_brightness = (brightness_val as f32 * 2.54).round() as u8;
+                        payload.insert("brightness".to_string(), mqtt_brightness.into());
+                    }
+                    
+                    if let Some(color_val) = color {
+                        if color_val.starts_with('#') && color_val.len() == 7 {
+                            payload.insert("color".to_string(), 
+                                serde_json::json!({"hex": color_val}));
+                        } else {
+                            let hex_code = self.color_name_to_hex(&color_val)?;
+                            payload.insert("color".to_string(), 
+                                serde_json::json!({"hex": hex_code}));
+                        }
+                    }
+                    
+                    if let Some(temp_val) = temperature {
+                        payload.insert("color_temp".to_string(), temp_val.into());
+                    }
+                    
+                    if let Some(transition_val) = transition {
+                        payload.insert("transition".to_string(), transition_val.into());
+                    }
+                }
+                DeviceState::Off => {
+                    payload.insert("state".to_string(), "OFF".into());
+                }
+                DeviceState::Toggle => {
+                    // 🦆 says ⮞ TODO check state
+                    // 🦆 says ⮞ implement as ON if we don't know
+                    println!("{} Toggle not fully implemented, defaulting to ON", "⚠️".yellow());
+                    payload.insert("state".to_string(), "ON".into());
+                }
+            }
+            
+            let topic = format!("zigbee2mqtt/{}/set", device.friendly_name);
+            self.publish_command(&topic, serde_json::Value::Object(payload))
+        }
+        
+        fn control_room(
+            &mut self,
+            room_name: &str,
+            state: &DeviceState,
+            brightness: Option<u8>,
+            color: Option<String>,
+            temperature: Option<u16>,
+        ) -> Result<()> {
+            // 🦆 says ⮞ collect device names first to avoid holding reference while mutating
+            let device_names: Vec<String> = self.devices
+                .values()
+                .filter(|d| d.room.to_lowercase() == room_name.to_lowercase() && d.device_type == "light")
+                .map(|d| d.friendly_name.clone())
+                .collect();
+    
+            if device_names.is_empty() {
+                anyhow::bail!("No lights found in room: {}", room_name);
+            }
+    
+            println!("{} Controlling {} lights in {}", 
+                "💡".green(), device_names.len(), room_name.bold());
+    
+            for device_name in device_names {
+                self.control_device(
+                    &device_name,
+                    state,
+                    brightness,
+                    color.clone(),
+                    temperature,
+                    None,
+                )?;        
+                // 🦆 says ⮞ chill
+                std::thread::sleep(Duration::from_millis(50));
+            }
+    
+            Ok(())
+        }
 
+        fn activate_scene(
+            &mut self,
+            scene_name: &str,
+            random: bool,
+        ) -> Result<()> {
+            // 🦆 says ⮞ determine which scene to activate
+            let scene_to_activate = if random {
+                use rand::seq::SliceRandom;
+                // 🦆 says ⮞ collect owned Strings
+                let scene_names: Vec<String> = self.scenes.keys().cloned().collect();
+                let chosen = scene_names.choose(&mut rand::thread_rng())
+                    .context("No scenes configured")?
+                    .clone();
+                chosen
+            } else {
+                scene_name.to_string()
+            };
+    
+            println!("{} Activating scene: {}", "🎨".purple(), scene_to_activate.bold());
+    
+            // 🦆 says ⮞ get scene
+            let scene = self.scenes
+                .get(&scene_to_activate)
+                .context(format!("Scene not found: {}", scene_to_activate))?;
+    
+            if self.verbose {
+                println!("{} Scene '{}' has {} devices", "🔍".cyan(), scene_to_activate, scene.devices.len());
+            }
+    
+            if scene.devices.is_empty() {
+                anyhow::bail!("No devices found in scene: {}", scene_to_activate);
+            }
+    
+            let mut device_count = 0;
+    
+            for (device_name, settings) in &scene.devices {
+                // 🦆 says ⮞ skip if settings is not object
+                if !settings.is_object() {
+                    println!("{} Skipping {}: invalid settings format", "⚠️".yellow(), device_name);
+                    continue;
+                }
+        
+                let topic = format!("zigbee2mqtt/{}/set", device_name);
+        
+                if self.verbose {
+                    println!("{} {} → {}", "🦆 PUBLISH".cyan(), topic.blue(), settings.to_string().yellow());
+                }
+        
+                self.mqtt_client
+                    .publish(&topic, QoS::AtMostOnce, false, settings.to_string())
+                    .map_err(|e| anyhow::anyhow!("Failed to publish MQTT message for {}: {}", device_name, e))?;
+        
+                device_count += 1;
+                // 🦆 says ⮞ wait
+                std::thread::sleep(Duration::from_millis(10));
+            }
+    
+            if device_count == 0 {
+                anyhow::bail!("No valid devices found in scene: {}", scene_to_activate);
+            }
+    
+            println!("{} Scene '{}' activated ({} devices)", "✅".green(), scene_to_activate, device_count);
+            Ok(())
+        }
+        
+        fn enter_pairing_mode(
+            &mut self,
+            duration: u16,
+            watch: bool,
+        ) -> Result<()> {
+            println!("{} Entering pairing mode for {} seconds...", 
+                "📡".blue(), duration);
+            
+            let enable_payload = serde_json::json!({
+                "value": true,
+                "time": duration
+            });
+            
+            self.publish_command("zigbee2mqtt/bridge/request/permit_join", enable_payload)?;
+            
+            if watch {
+                println!("{} Watching for new devices...", "👀".cyan());
+                println!("{} Put your device in pairing mode now!", "👉".yellow());
+                
+                std::thread::sleep(Duration::from_secs(duration as u64));
+            } else {
+                println!("{} Pairing mode active for {} seconds", "⏰".yellow(), duration);
+                std::thread::sleep(Duration::from_secs(duration as u64));
+            }
+            
+            // 🦆 says ⮞ disable pairing
+            let disable_payload = serde_json::json!({
+                "value": false
+            });
+            
+            self.publish_command("zigbee2mqtt/bridge/request/permit_join", disable_payload)?;
+            
+            println!("{} Pairing mode finished", "✅".green());
+            Ok(())
+        }
+        
+        fn control_all_lights(
+            &mut self,
+            state: &DeviceState,
+            brightness: Option<u8>,
+            color: Option<String>,
+        ) -> Result<()> {
+            // 🦆 says ⮞ collect device names first to avoid holding reference while mutating
+            let device_names: Vec<String> = self.devices
+                .values()
+                .filter(|d| d.device_type == "light")
+                .map(|d| d.friendly_name.clone())
+                .collect();
+    
+            println!("{} Controlling {} lights", "💡".green(), device_names.len());
+    
+            for device_name in device_names {
+                self.control_device(
+                    &device_name,
+                    state,
+                    brightness,
+                    color.clone(),
+                    None,
+                    None,
+                )?;
+        
+                std::thread::sleep(Duration::from_millis(50));
+            }    
+            Ok(())
+        }
+        
+        fn cheap_mode(
+            &mut self,
+            room: &str,
+            delay: u64,
+        ) -> Result<()> {
+            println!("{} Energy saving mode for {} ({} seconds delay)", 
+                "💰".green(), room, delay);
+            
+            // 🦆 says ⮞ first turn on the room lights
+            self.control_room(room, &DeviceState::On, Some(50), None, None)?;
+            
+            println!("{} Lights on, will turn off in {} seconds...", 
+                "⏰".yellow(), delay);
+            
+            // 🦆 says ⮞ wait
+            std::thread::sleep(Duration::from_secs(delay));
+            
+            // 🦆 says ⮞ turn off the lights
+            self.control_room(room, &DeviceState::Off, None, None, None)?;            
+            println!("{} Lights turned off for energy saving", "✅".green());
+            
+            Ok(())
+        }
+        
+        fn list_items(&self, what: &ListType, json: bool) -> Result<()> {
+            match what {
+                ListType::Devices => {
+                    let devices_list: Vec<_> = self.devices.values().collect();
+                    if json {
+                        let json = serde_json::to_string_pretty(&devices_list)?;
+                        println!("{}", json);
+                    } else {
+                        println!("\n{} All Devices ({} total):", "📱".blue(), devices_list.len());
+                        for device in devices_list {
+                            println!("  • {} [{}] - {}", 
+                                device.friendly_name.bold(), 
+                                device.room, 
+                                device.device_type);
+                        }
+                    }
+                }
+                ListType::Rooms => {
+                    let mut rooms = std::collections::HashMap::new();
+                    for device in self.devices.values() {
+                        *rooms.entry(&device.room).or_insert(0) += 1;
+                    }
+                    
+                    if json {
+                        let json = serde_json::to_string_pretty(&rooms)?;
+                        println!("{}", json);
+                    } else {
+                        println!("\n{} Rooms ({} total):", "🏠".blue(), rooms.len());
+                        for (room, count) in rooms {
+                            println!("  • {} ({} devices)", room.bold(), count);
+                        }
+                    }
+                }
 
-  # 🦆 says ⮞ Get Zigbee configuration
-  zigbeeCfg = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.services.zigbee2mqtt.settings or {}
-    else {};
+                ListType::Scenes => {
+                    if json {
+                        let json = serde_json::to_string_pretty(&self.scenes)?;
+                        println!("{}", json);
+                    } else {
+                        println!("\n{} Scenes ({} total):", "🎨".purple(), self.scenes.len());
+                        for (scene_name, scene) in &self.scenes {
+                            let friendly_name = scene.friendly_name
+                                .as_deref()
+                                .unwrap_or(scene_name);
+                            let device_count = scene.devices.len();  // Direct access
+            
+                            println!("  • {} ({} devices)", friendly_name.bold(), device_count);
+                        }
+                    }
+                }
+                ListType::Lights => {
+                    let lights: Vec<_> = self.devices.values()
+                        .filter(|d| d.device_type == "light")
+                        .collect();
+                    
+                    if json {
+                        let json = serde_json::to_string_pretty(&lights)?;
+                        println!("{}", json);
+                    } else {
+                        println!("\n{} Lights ({} total):", "💡".yellow(), lights.len());
+                        for light in lights {
+                            println!("  • {} [{}]", light.friendly_name.bold(), light.room);
+                        }
+                    }
+                }
+                ListType::Sensors => {
+                    let sensors: Vec<_> = self.devices.values()
+                        .filter(|d| d.device_type.contains("sensor") || 
+                                   d.device_type.contains("motion") || 
+                                   d.device_type.contains("contact"))
+                        .collect();
+                    
+                    if json {
+                        let json = serde_json::to_string_pretty(&sensors)?;
+                        println!("{}", json);
+                    } else {
+                        println!("\n{} Sensors ({} total):", "📡".cyan(), sensors.len());
+                        for sensor in sensors {
+                            println!("  • {} [{}]", sensor.friendly_name.bold(), sensor.room);
+                        }
+                    }
+                }
+            }
+            
+            Ok(())
+        }
+        
+        fn find_device(&self, query: &str) -> Result<&DeviceConfig> {
+            let query_lower = query.to_lowercase();            
+            if let Some(device) = self.devices.values().find(|d| 
+                d.friendly_name.to_lowercase() == query_lower
+            ) {
+                return Ok(device);
+            }
+            
+            if let Some(device) = self.devices.values().find(|d| 
+                d.friendly_name.to_lowercase().contains(&query_lower)
+            ) {
+                return Ok(device);
+            }
+            
+            if let Some(device) = self.devices.get(query) {
+                return Ok(device);
+            }
+            
+            anyhow::bail!("Device not found: {}", query)
+        }
+        
+        fn color_name_to_hex(&self, color_name: &str) -> Result<String> {
+            let hex = match color_name.to_lowercase().as_str() {
+                "red" => "#FF0000".to_string(),
+                "green" => "#00FF00".to_string(),
+                "blue" => "#0000FF".to_string(),
+                "yellow" => "#FFFF00".to_string(),
+                "orange" => "#FFA500".to_string(),
+                "purple" => "#800080".to_string(),
+                "pink" => "#FFC0CB".to_string(),
+                "white" => "#FFFFFF".to_string(),
+                "black" => "#000000".to_string(),
+                "gray" | "grey" => "#808080".to_string(),
+                "brown" => "#A52A2A".to_string(),
+                "cyan" => "#00FFFF".to_string(),
+                "magenta" => "#FF00FF".to_string(),
+                "turquoise" => "#40E0D0".to_string(),
+                "teal" => "#008080".to_string(),
+                "lime" => "#00FF00".to_string(),
+                "maroon" => "#800000".to_string(),
+                "olive" => "#808000".to_string(),
+                "navy" => "#000080".to_string(),
+                "lavender" => "#E6E6FA".to_string(),
+                "coral" => "#FF7F50".to_string(),
+                "gold" => "#FFD700".to_string(),
+                "silver" => "#C0C0C0".to_string(),
+                "random" => {
+                    use rand::Rng;
+                    let mut rng = rand::thread_rng();
+                    format!("#{:06X}", rng.gen_range(0..0xFFFFFF))
+                }
+                _ if color_name.starts_with('#') && color_name.len() == 7 => {
+                    return Ok(color_name.to_string());
+                }
+                _ => anyhow::bail!("Unknown color: {}", color_name),
+            };
+            
+            Ok(hex)
+        }
+    }
+    
+    fn main() -> Result<()> {
+        let cli = Cli::parse();
+        
+        // 🦆 says ⮞ load password from file, otherwise use env var or empty
+        let password = if let Some(password_file) = cli.password_file {
+            fs::read_to_string(password_file)?.trim().to_string()
+        } else if let Some(password) = cli.password {
+            password
+        } else if let Ok(password) = std::env::var("MQTT_PASSWORD") {
+            password
+        } else {
+            "".to_string()
+        };
+        
+        let mut controller = ZigduckController::new(
+            cli.broker,
+            cli.user,
+            password,
+            cli.devices_config,
+            cli.scenes_config,
+            cli.verbose > 0,
+        )?;
+        
+        match cli.command {
+            Commands::Device { name, state, brightness, color, temperature, transition } => {
+                controller.control_device(&name, &state, brightness, color, temperature, transition)
+            }
+            Commands::Room { name, state, brightness, color, temperature } => {
+                controller.control_room(&name, &state, brightness, color, temperature)
+            }
+            Commands::Scene { name, random } => {
+                controller.activate_scene(&name, random)
+            }
+            Commands::Pair { duration, watch } => {
+                controller.enter_pairing_mode(duration, watch)
+            }
+            Commands::AllLights { state, brightness, color } => {
+                controller.control_all_lights(&state, brightness, color)
+            }
+            Commands::CheapMode { room, delay } => {
+                controller.cheap_mode(&room, delay)
+            }
+            Commands::List { what, json } => {
+                controller.list_items(&what, json)
+            }
+        }
+    }
+  '';
+  
+  # 🦆 says ⮞ Write the devices and scenes to JSON files
+  devicesConfigFile = pkgs.writeText "devices.json" devicesJson;
+  scenesConfigFile = pkgs.writeText "scenes.json" scenesJson;
 
-  # 🦆 says ⮞ Precompute device and group mappings
-  devicesSet = zigbeeCfg.devices or {};
-  groupsSet = zigbeeCfg.groups or {};
+  zigduck-toml = pkgs.writeText "zigduck.toml" ''    
+    [package]
+    name = "zigduck-cli"
+    version = "1.0.0"
+    edition = "2021"
+    authors = ["QuackHack-McBLindy"]
+    description = "High-performance Rust CLI Mosquitto publisher for home automation"
+    license = "MIT"
 
-  # 🦆 says ⮞ Room bash map with only lights, using | as separator
-  roomBashMap = lib.mapAttrs' (room: devices:
-    lib.nameValuePair room (lib.concatStringsSep "|" devices)
-  ) roomDevicesMap;
+    [[bin]]
+    name = "zigduck-cli"
+    path = "src/main.rs"
 
-  # 🦆 says ⮞ All devices as a pipe-separated string
-  allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-in { # 🦆 says ⮞ Voice Intents
+    [dependencies]
+    clap = { version = "4.4", features = ["derive", "env"] }
+    rumqttc = "0.22"
+    serde = { version = "1.0", features = ["derive"] }
+    serde_json = "1.0"
+    serde_yaml = "0.9"
+    anyhow = "1.0"
+    colored = "2.1"
+    rand = "0.8"
+  '';
+in {
   yo.scripts.house = {
-    description = "Control lights and other home automatioon devices";
+    description = "High-performance Rust CLI MQTT publisher for controlling Zigbee devices.";
     category = "🛖 Home Automation";
     autoStart = false;
     logLevel = "DEBUG";
     helpFooter = ''  
-      MQTT_HOST="${mqttHost}"
+      MQTT_HOST="${config.house.zigbee.mosquitto.host}"
       ZIGDUCKDIR="${zigduckDir}"
       STATE_FILE="$ZIGDUCKDIR/state.json"
       if [[ "$MQTT_HOST" == "$HOSTNAME" ]]; then
@@ -160,262 +938,161 @@ in { # 🦆 says ⮞ Voice Intents
       { name = "temperature"; description = "Light color temperature to set on the device"; optional = true; }          
       { name = "scene"; description = "Activate a predefined scene"; optional = true; }     
       { name = "room"; description = "Room to target"; optional = true; }        
-      { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
-      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
+      { name = "user"; description = "Mosquitto username to use"; default = config.house.zigbee.mosquitto.username; }    
+      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.house.zigbee.mosquitto.passwordFile; }
       { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }
-      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairring and start searching for new devices"; default = false; }
+      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; default = false; }
       { name = "cheapMode"; type = "bool"; description = "Energy saving mode. Turns off the lights again after X seconds."; default = false; }
     ];
     code = ''
       ${cmdHelpers}
- #     set -euo pipefail
+      
       # 🦆 says ⮞ create case insensitive map of device friendly_name
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
       available_devices=( ${toString deviceList} )      
       DOTFILES="$flake"
-      STATE_DIR="${zigduckDir}"
+      DIR="/home/${config.this.user.me.name}/zigduck-cli"
       DEVICE="$device"
       STATE="$state"
       SCENE="$scene"
       BRIGHTNESS="$brightness"
       COLOR="$color"
       TEMP="$temperature"
-      MQTT_BROKER="${mqttHostIp}"
+      MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$PWFILE")
-      ROOM="$device"
-      touch "$STATE_DIR/voice-debug.log"        
-      if [[ "$cheapMode" == "true" ]]; then
-        reset_room_timer "$ROOM"
-        dt_info "Restarting room timer for $ROOM" 
-        exit 0
-      fi
-      if [[ -n "$SCENE" && -z "$DEVICE" ]]; then
-        scene "$SCENE"
-        exit 0
+      ROOM="$room"
+      
+      dt_info "MQTT_BROKER: $MQTT_BROKER" 
+      dt_info "State directory: $DIR"
+      
+      mkdir -p "$DIR"
+      
+      # 🦆 says ⮞ copy config files to 
+      if [ ! -f "$DIR/devices.json" ]; then
+        cat ${devicesConfigFile} > "$DIR/devices.json"
       fi
       
-      if [[ "$pair" == "true" ]]; then
-        echo "🦆 Activating Zigbee2MQTT pairing mode for 120 seconds..."
-        mqtt_pub -t "zigbee2mqtt/bridge/request/permit_join" -m '{"value": true, "time": 120}'    
-        dt_info "📡 Searching for new Zigbee devices... Put your device in pairing mode now!"
-        dt_info "⏰ Pairing mode! 120 sec... (Ctrl+C to stop early)"
-        cleanup() {
-          dt_debug "Disabling pairing mode..."
-          mqtt_pub -t "zigbee2mqtt/bridge/request/permit_join" -m '{"value": false}'
-          exit 0
-        }
-        trap cleanup INT TERM EXIT
-        ${pkgs.mosquitto}/bin/mosquitto_sub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" \
-        -t "zigbee2mqtt/bridge/event" -t "zigbee2mqtt/bridge/log" | while IFS= read -r line; do
-        
-        dt_debug "Received: $line"
-                   
-        if echo "$line" | jq -e '.type == "device_joined"' > /dev/null 2>&1; then
-          device_data=$(echo "$line" | jq -r '.data')
-          friendly_name=$(echo "$device_data" | jq -r '.friendly_name')
-          ieee_address=$(echo "$device_data" | jq -r '.ieee_address')
-          echo "✅ New device joined: $friendly_name ($ieee_address)"
-        fi
-                
-        if echo "$line" | jq -e '.type == "device_interview"' > /dev/null; then
-          interview_data=$(echo "$line" | jq -r '.data')
-          status=$(echo "$interview_data" | jq -r '.status')
-          ieee_address=$(echo "$interview_data" | jq -r '.ieee_address')
-                    
-          if [[ "$status" == "successful" ]]; then
-            model=$(echo "$interview_data" | jq -r '.definition.model // "unknown"')
-            vendor=$(echo "$interview_data" | jq -r '.definition.vendor // "unknown"')
-            description=$(echo "$interview_data" | jq -r '.definition.description // "unknown"')      
-            dt_info "🎉 Device interview successful!"
-            dt_info "Model: $model"
-            dt_info "Vendor: $vendor" 
-            dt_info "Description: $description"
-            dt_info "IEEE: $ieee_address"
-                        
-            cat << EOF
-🦆 says ⮞ To add this device to your Nix configuration, add to `house.zigbee.devices`:
-
-''${ieee_address} = {
-  friendly_name = "$friendly_name";
-  room = "unknown"; # ⮜ 🦆 says ⮞ Set the room name
-  type = "unknown"; # ⮜ 🦆 says ⮞ Set device type (light, dimmer, sensor, motion, outlet, remote, pusher, blind)
-  endpoint = 11;     # ⮜ 🦆 says ⮞ Set endpoint if needed
-  icon = "mdi:toggle-switch"; # ⮜ 🦆 says ⮞ Set icon for frontend
-  batteryType = "CR2450"; }; # ⮜ 🦆 says ⮞ Optional option if device has a battery. (AAA, CR1, CR2032, CR2450) 
-};
-
-EOF
-            elif [[ "$status" == "failed" ]]; then
-              dt_warning "❌ Device interview failed for $ieee_address"
-            fi
-          fi
-        
-          if echo "$line" | jq -e '.message != null' > /dev/null 2>&1; then
-            message=$(echo "$line" | jq -r '.message')
-            level=$(echo "$line" | jq -r '.level // "info"')
-            
-            if [[ "$level" == "info" ]]; then
-              dt_info "Bridge: $message"
-            elif [[ "$level" == "warning" ]]; then
-              dt_warning "Bridge: $message"
-            elif [[ "$level" == "error" ]]; then
-              dt_error "Bridge: $message"
-            else
-              dt_debug "Bridge: $message"
-            fi
-          fi
-        done
+      if [ ! -f "$DIR/scenes.json" ]; then
+        cat ${scenesConfigFile} > "$DIR/scenes.json"
+      fi
+      
+      mkdir -p "$DIR/src"
+      cat ${zigduck-cli} > "$DIR/src/main.rs"
+      cat ${zigduck-toml} > "$DIR/Cargo.toml"
+      
+      cd "$DIR"
+      # 🦆 says ⮞ if no binary exist - compile it yo
+      if [ ! -f "target/release/zigduck-cli" ]; then
+        ${pkgs.cargo}/bin/cargo generate-lockfile
+        ${pkgs.cargo}/bin/cargo build --release      
+      fi
     
-        cleanup
+      # 🦆 says ⮞ build cmd args
+      RUST_ARGS=()
+      
+      RUST_ARGS+=(--broker "$MQTT_BROKER")
+      RUST_ARGS+=(--user "$MQTT_USER")
+      RUST_ARGS+=(--password "$MQTT_PASSWORD")
+      
+      RUST_ARGS+=(--devices-config "$DIR/devices.json")
+      RUST_ARGS+=(--scenes-config "$DIR/scenes.json")
+      
+      if [ "$VERBOSE" -ge 1 ]; then
+        RUST_ARGS+=(--verbose)
       fi
-      if [[ "$DEVICE" == "ALL_LIGHTS" ]]; then
-        if [[ "$STATE" == "ON" ]]; then
-          scene max
-          if_voice_say "Jag maxade alla lampor brorsan."
-        elif [[ "$STATE" == "OFF" ]]; then
-          scene dark
-          if_voice_say "Nu blev det mörkt!"
+      
+      # 🦆 says ⮞ determine state
+      determine_state() {
+        local state="$1"
+        local color="$2"
+        local brightness="$3"
+        local temp="$4"
+        
+        if [ -n "$state" ]; then
+          echo "$(echo "$state" | tr '[:upper:]' '[:lower:]')"
+        elif [ -n "$color" ] || [ -n "$brightness" ] || [ -n "$temp" ]; then
+          echo "on"
         else
-          echo "$(date) - ❌ Unknown state for all_lights: $STATE" >> "$STATE_DIR/voice-debug.log"
-          say_duck "❌ Unknown state for all_lights: $STATE"
-          exit 1
+          echo "toggle"
         fi
+      }
+      
+      # 🦆 says ⮞ ROOM CONTROL
+      if [ -n "$ROOM" ]; then
+        STATE_FOR_RUST=$(determine_state "$STATE" "$COLOR" "$BRIGHTNESS" "$TEMP")
+        
+        RUST_ARGS+=(room --name "$ROOM" "$STATE_FOR_RUST")
+        
+        if [ -n "$BRIGHTNESS" ]; then
+          RUST_ARGS+=(--brightness "$BRIGHTNESS")
+        fi
+        
+        if [ -n "$COLOR" ]; then
+          RUST_ARGS+=(--color "$COLOR")
+        fi
+        
+        if [ -n "$TEMP" ]; then
+          RUST_ARGS+=(--temperature "$TEMP")
+        fi
+        
+      # 🦆 says ⮞ device control
+      elif [ -n "$DEVICE" ]; then
+        DEVICE_LOWER=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
+        EXACT_NAME="''${device_map["$DEVICE_LOWER"]:-}"
+    
+        if [ -n "$EXACT_NAME" ]; then
+          DEVICE="$EXACT_NAME"
+        fi
+    
+        ROOM_DEVICES=$(echo "''${roomDevicesMap["$DEVICE"]:-}" | head -1)
+        STATE_FOR_RUST=$(determine_state "$STATE" "$COLOR" "$BRIGHTNESS" "$TEMP")
+    
+        if [ -n "$ROOM_DEVICES" ]; then
+          RUST_ARGS+=(room --name "$DEVICE" "$STATE_FOR_RUST")
+        else
+          RUST_ARGS+=(device --name "$DEVICE" --state "$STATE_FOR_RUST")
+        fi
+    
+        if [ -n "$BRIGHTNESS" ]; then
+          RUST_ARGS+=(--brightness "$BRIGHTNESS")
+        fi
+    
+        if [ -n "$COLOR" ]; then
+          RUST_ARGS+=(--color "$COLOR")
+        fi
+    
+        if [ -n "$TEMP" ]; then
+          RUST_ARGS+=(--temperature "$TEMP")
+        fi
+    
+      elif [ -n "$SCENE" ]; then
+        RUST_ARGS+=(scene "$SCENE")      
+      elif [ "$pair" = "true" ]; then
+        RUST_ARGS+=(pair --watch)      
+      elif [ "$cheapMode" = "true" ]; then
+        if [ -n "$room" ]; then
+          RUST_ARGS+=(cheap-mode "$room" --delay 300)
+        else
+          dt_error "Cheap mode requires a room parameter"
+          exit 1
+        fi     
+      else
+        RUST_ARGS+=(list devices)
+      fi
+      
+      # 🦆 says ⮞ run in debug mode
+      if [ "$VERBOSE" -ge 1 ]; then
+        dt_info "Running: ./target/release/zigduck-cli ''${RUST_ARGS[@]}"
+        DEBUG=1 ./target/release/zigduck-cli ''${RUST_ARGS[@]}
         exit 0
       fi
-      control_device() {
-        local dev="$1"
-        local state="$2"
-        local brightness="$3"
-        local color_input="$4"      
-        local hex_code=""
-        if [[ "$dev" == "Smoke Alarm Kitchen" ]]; then
-          dt_info "$dev is a sensor, exiting"
-          return 0
-        fi
-        if [[ -n "$color_input" ]]; then
-          if [[ "$color_input" =~ ^#[0-9a-fA-F]{6}$ ]]; then
-            hex_code="$color_input"
-          else
-            hex_code=$(color2hex "$color_input") || {
-              echo "$(date) - ❌ Unknown color: $color_input" >> "$STATE_DIR/voice-debug.log"
-              say_duck "fuck ❌ Invalid color: $color_input"
-              exit 1
-            }
-          fi
-        fi
-        
-        if [[ -n "$SCENE" ]]; then
-          scene $SCENE
-          say_duck "Activated scene $SCENE"
-        fi   
-        
-        if [[ "$state" == "off" ]]; then
-          mqtt_pub -t "zigbee2mqtt/$dev/set" -m '{"state":"OFF"}'
-          say_duck "Turned off $dev"
-          if_voice_say "Stängde av $dev"
-        else
-          # 🦆 says ⮞ Validate brightness value
-          if [[ -n "$brightness" ]]; then
-            if ! [[ "$brightness" =~ ^[0-9]+$ ]] || [ "$brightness" -lt 1 ] || [ "$brightness" -gt 100 ]; then
-              echo "Unknown brightness: $brightness" >> "$STATE_DIR/voice-debug.log"
-              say_duck "Ogiltig ljusstyrka: $brightness%. Ange 1-100."
-              exit 1
-            fi
-            brightness=$((brightness * 254 / 100))
-          fi
-          local payload='{"state":"ON"'
-          [[ -n "$brightness" ]] && payload+=", \"brightness\":$brightness"
-          [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
-          payload+="}"
-          mqtt_pub -t "zigbee2mqtt/$dev/set" -m "$payload"
-          say_duck "Set $dev: $payload"
-          if_voice_say "Klart kompis"
-        fi
-      }
       
-      if [[ -n "$DEVICE" ]]; then
-        input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
-        exact_name="''${device_map["''$input_lower"]:-}"   
-        if [[ -n "$exact_name" ]]; then
-          control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
-          exit 0
-
-        else
-          for dev in "''${!device_map[@]}"; do
-            if [[ "$dev" == *"$input_lower"* ]]; then
-              exact_name="''${device_map[$dev]}"
-              break
-            fi
-          done
-          
-          if [[ -n "$exact_name" ]]; then
-            control_device "$exact_name" "$STATE" "$BRIGHTNESS" "$COLOR"
-            exit 0
-          fi
-          
-          group_topics=($(jq -r '.groups | keys[]' "$STATE_DIR/zigbee_devices.json"))
-          for group in "''${group_topics[@]}"; do
-            if [[ "$(echo "$group" | tr '[:upper:]' '[:lower:]')" == *"$input_lower"* ]]; then
-              control_group "$group" "$STATE" "$BRIGHTNESS" "$COLOR"
-              exit 0
-            fi
-          done
-             
-          AREA="$DEVICE"
-          say_duck "⚠️ Device '$DEVICE' not found, trying as area '$AREA'"
-          echo "$(date) - ⚠️ Device $DEVICE not found as area" >> "$STATE_DIR/voice-debug.log"
-        fi
-      fi
-            
-      control_room() {
-        local room="$1"
-        if [[ -z "$room" ]]; then
-          echo "Usage: control_room <room-name>"
-          return 1
-        fi
-      
-        readarray -t devices < <(nix eval $DOTFILES#nixosConfigurations.desktop.config.house --json \
-          | jq -r --arg room "$room" '
-              .zigbee.devices
-              | to_entries
-              | map(select(.value.room == $room and .value.type == "light"))
-              | map(.value.friendly_name)
-              | .[]')
-      
-        for light_id in "''${devices[@]}"; do
-          local hex_code=""
-               
-          if [[ -n "$COLOR" ]]; then
-            hex_code=$(color2hex "$COLOR") || {
-              echo "$(date) - ❌ Unknown color: $COLOR" >> "$STATE_DIR/voice-debug.log"
-              say_duck "❌ Invalid color: $COLOR"
-              continue
-            }
-          fi
-      
-          local payload='{"state":"ON"'
-          [[ -n "$BRIGHTNESS" ]] && payload+=", \"brightness\":$BRIGHTNESS"
-          [[ -n "$hex_code" ]] && payload+=", \"color\":{\"hex\":\"$hex_code\"}"
-          payload+="}"
-      
-          if [[ "$light_id" == *"Smoke"* || "$light_id" == *"Sensor"* || "$light_id" == *"Alarm"* ]]; then
-            echo "Skipping invalid light device: $light_id" >> "$STATE_DIR/voice-debug.log"
-            continue
-          fi
-
-      
-          mqtt_pub -t "zigbee2mqtt/$light_id/set" -m "$payload"
-          say_duck "$light_id $payload"
-        done
-      }
-      
-      if [[ -n "$AREA" ]]; then
-        normalized_area=$(echo "$AREA" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')
-        control_room $AREA
-      fi        
-    ''; 
+      # 🦆 says ⮞ normal execution
+      ./target/release/zigduck-cli "''${RUST_ARGS[@]}"
+    '';
+    
     voice = {
       priority = 1;
       sentences = [
@@ -423,12 +1100,11 @@ EOF
         "{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
         "{device} {state} och ljusstyrka {brightness} procent"
         "(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
-        "(tänd|tänk|släck|starta|stäng) {device}"
-        #"{state} {device}"
+        "{scene} alla lampor"
+        "{scene} (belysning|belysningen)"
         "{slate} alla lampor i {device}"
         "{state} {device} (lampor|igen)"   
         "{state} lamporna i {device}"
-        "{state} alla lampor"
         "stäng {state} {device}"
         "starta {state} {device}"
         # 🦆 says ⮞ color control
@@ -566,10 +1242,13 @@ EOF
           ];      
         in [
           # 🦆 says ⮞ scenes
-          { "in" = "[max|maxa|maxad|maximum|fullt|fullt läge]"; out = "max"; }
-          { "in" = "[mörk|mörker|mörkt|släckt|avstängd]"; out = "dark"; }
-          { "in" = "[av|släckt|stängd]"; out = "dark"; }
+          { "in" = "[tänd||tänk|max|maxa|maxxa|maxad|maximum]"; out = "max"; }
           { "in" = "[på|tänd|aktiv]"; out = "max"; }
+          
+          { "in" = "[mörk|mörker|mörkt|släckt|avstängd]"; out = "dark"; }
+          { "in" = "[av|släck|släckt|stängd|stäng]"; out = "dark"; }
+
+          { "in" = "[mys|myspys|mysig|chill|chilla]"; out = "Chill Scene"; }
         ] ++
         (lib.mapAttrsToList (sceneId: sceneConfig:
           let
