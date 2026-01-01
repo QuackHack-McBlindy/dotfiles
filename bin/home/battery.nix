@@ -268,7 +268,44 @@ in {
       
       dt_info "Using device: $matched_device"
       
-      battery=$(ssh "$MQTT_HOST" cat "$STATE_FILE" | ${pkgs.jq}/bin/jq -r --arg device "$matched_device" '.[$device].battery // "N/A"')
+      password_file="${config.house.dashboard.passwordFile}"
+      if [ ! -f "$password_file" ]; then
+        dt_error "Password file not found: $password_file"
+        exit 1
+      fi
+      
+      password=$(cat "$password_file" | tr -d '[:space:]')
+      
+      if [ -z "$password" ]; then
+        dt_error "Password is empty or could not be read"
+        exit 1
+      fi
+      
+      # 🦆 says ⮞ URL encode
+      encoded_device=$(printf "%s" "$matched_device" | ${pkgs.jq}/bin/jq -sRr @uri)
+      
+      # 🦆 says ⮞ call API to get device state
+      api_url="http://${mqttHostIp}:9815/state/$encoded_device"
+      
+      dt_debug "Calling API: $api_url"
+      
+      response=$(curl -s -H "Authorization: Bearer $password" "$api_url")
+      
+      if [ $? -ne 0 ]; then
+        dt_error "Failed to call API for device: $matched_device"
+        exit 1
+      fi
+      
+      # 🦆 says ⮞ check if response contains error
+      if echo "$response" | ${pkgs.jq}/bin/jq -e 'has("error")' >/dev/null 2>&1; then
+        error_msg=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.error // "Unknown error"')
+        dt_error "API returned error: $error_msg"
+        exit 1
+      fi
+      
+      # 🦆 says ⮞ extract battery and last_seen from API response
+      battery=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.battery // "N/A"')
+      last_seen=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.last_seen // empty')
       
       if [ "$battery" = "null" ] || [ -z "$battery" ]; then
         battery="N/A"
@@ -277,12 +314,8 @@ in {
       
       dt_debug "Battery: $battery"
       
-      last_seen=$(ssh "$MQTT_HOST" cat "$STATE_FILE" | ${pkgs.jq}/bin/jq -r --arg device "$matched_device" '.[$device].last_seen // empty')
-      
-
       if [ "$last_seen" != "null" ] && [ -n "$last_seen" ]; then
         formatted_last_seen=$(
-
           ${pkgs.coreutils}/bin/date -d "$last_seen" '+%A den %d %B %Y, klockan %H:%M:%S' --locale=sv_SE.UTF-8 2>/dev/null ||
           ${pkgs.coreutils}/bin/date -d "@$(echo "$last_seen" | cut -c1-10)" '+%A den %d %B %Y, klockan %H:%M:%S' --locale=sv_SE.UTF-8 2>/dev/null ||
           echo "Unknown"

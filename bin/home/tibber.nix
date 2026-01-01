@@ -159,10 +159,17 @@ EOF
 
         dt_debug "$RESPONSE"
   
-        CURRENT_MONTH=$(date +%Y-%m)
-        TOTAL_KWH=$(${pkgs.jq}/bin/jq -r '.data.viewer.home.consumption.nodes[] |
-          select(.from | startswith("'"$CURRENT_MONTH"'")) |
+        #CURRENT_MONTH=$(date +%Y-%m)
+        #TOTAL_KWH=$(${pkgs.jq}/bin/jq -r '.data.viewer.home.consumption.nodes[] |
+        #  select(.from | startswith("'"$CURRENT_MONTH"'")) |
+        #  .consumption' <<< "$RESPONSE" | awk '{sum+=$1} END{print sum}')
+        FIRST_DAY=$(date +%Y-%m-01)
+
+        TOTAL_KWH=$(${pkgs.jq}/bin/jq -r --arg first_day "$FIRST_DAY" '
+          .data.viewer.home.consumption.nodes[] |
+          select(.from >= $first_day) |
           .consumption' <<< "$RESPONSE" | awk '{sum+=$1} END{print sum}')
+
 
         MONTH_NAME=$(LC_TIME=sv_SE.UTF-8 date +%B)
 

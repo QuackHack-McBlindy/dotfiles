@@ -113,12 +113,13 @@ in { # 🦆 duck say ⮞ qwack
           enable = true;
           title = "XMR";
           icon = "fab fa-monero";
-          color = "#ff6600";
+          color = "#a78bfa";
           filePath = "/var/lib/zigduck/xmr.json";
           jsonField = "current_price";
           format = "\${value}";
-          detailsJsonField = "24h_change";
-          detailsFormat = "24h: {value}%";
+          detailsJsonField = "7d_change";
+          detailsFormat = "7d: {value}%";
+          chart = true;
         };
 
         # 🦆 says ⮞ Bitcoin USD price ticker
@@ -130,23 +131,48 @@ in { # 🦆 duck say ⮞ qwack
           filePath = "/var/lib/zigduck/btc.json";
           jsonField = "current_price";
           format = "\${value}";
-          detailsJsonField = "24h_change";
-          detailsFormat = "24h: {value}%";
+          detailsJsonField = "7d_change";
+          detailsFormat = "7d: {value}%";
+          chart = true;
         };
 
-        # 🦆 says ⮞ kWh/price and energy usage ticker
-        energy = {
+        # 🦆 says ⮞ kWh/price chart card
+        energyPrice = {
           enable = true;
-          title = "Energy";
+          title = "Energy Price";
+          icon = "fas fa-bolt";
+          color = "#4caf50";
+          filePath = "/var/lib/zigduck/energy_price.json";          
+          jsonField = "current_price";
+          format = "{value} SEK/kWh";          
+          chart = true;
+        };
+
+        # 🦆 says ⮞ energy usage card
+        energyUsage = {
+          enable = true;
+          title = "Energy Usage";
           icon = "fas fa-bolt";
           color = "#4caf50";
           filePath = "/var/lib/zigduck/energy.json";          
-          jsonField = "current_price";
-          format = "{value} SEK/kWh";          
-          detailsJsonField = "monthly_usage";
-          detailsFormat = "Usage: {value} kWh";
-        };
+          jsonField = "monthly_usage";
+          format = "{value} kWh";
+          chart = false;
+        };  
 
+        # 🦆 says ⮞ show indoor temperature
+        temperature = {
+          enable = true;
+          title = "Temperature";
+          icon = "fas fa-thermometer-half";
+          color = "#e74c3c";
+          filePath = "/var/lib/zigduck/temperature.json";          
+          jsonField = "temperature";
+          format = "{value} °C";
+          detailsFormat = "Temperature in Hallway";
+          chart = false;
+        };          
+                    
       };
 
       # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)      
@@ -1620,6 +1646,7 @@ in { # 🦆 duck say ⮞ qwack
           sayOnHost = "desktop";
         };
         
+
         # 🦆 says ⮞ 1. MQTT triggered automations
         mqtt_triggered = {
           xmr = {
@@ -1630,13 +1657,27 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "shell";
                 command = ''
-                  touch /var/lib/zigduck/xmr.json
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/xmr.json
+                  FILE="/var/lib/zigduck/xmr.json"
+                  touch "$FILE"
+                  PRICE=$(echo "$MQTT_PAYLOAD" | jq '.current_price')
+                  CHANGE_24H=$(echo "$MQTT_PAYLOAD" | jq '."24h_change"')
+                  CHANGE_7D=$(echo "$MQTT_PAYLOAD" | jq '."7d_change"')
+                  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
+                    echo "{\"current_price\": $PRICE, \"24h_change\": $CHANGE_24H, \"7d_change\": $CHANGE_7D, \"history\": [$PRICE]}" > "$FILE"
+                  else
+                    jq --argjson price "$PRICE" --argjson change24h "$CHANGE_24H" --argjson change7d "$CHANGE_7D" '
+                      .current_price = $price
+                      | .["24h_change"] = $change24h
+                      | .["7d_change"] = $change7d
+                      | .history += [$price]
+                      | .history = (.history[-200:]) # 🦆 says ⮞ keep 200 in history
+                    ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+                  fi
                 '';
               }
             ];
-          };
-        
+          };  
+                
           btc = {
             enable = true;
             description = "Updating BTC price data on dashboard";
@@ -1645,8 +1686,38 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "shell";
                 command = ''
-                  touch /var/lib/zigduck/btc.json
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/btc.json
+                  FILE="/var/lib/zigduck/btc.json"
+                  touch "$FILE"
+                  PRICE=$(echo "$MQTT_PAYLOAD" | jq '.current_price')
+                  CHANGE_24H=$(echo "$MQTT_PAYLOAD" | jq '."24h_change"')
+                  CHANGE_7D=$(echo "$MQTT_PAYLOAD" | jq '."7d_change"')
+                  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
+                    echo "{\"current_price\": $PRICE, \"24h_change\": $CHANGE_24H, \"7d_change\": $CHANGE_7D, \"history\": [$PRICE]}" > "$FILE"
+                  else
+                    jq --argjson price "$PRICE" --argjson change24h "$CHANGE_24H" --argjson change7d "$CHANGE_7D" '
+                      .current_price = $price
+                      | .["24h_change"] = $change24h
+                      | .["7d_change"] = $change7d
+                      | .history += [$price]
+                      | .history = (.history[-200:]) # 🦆 says ⮞ keep 200 in history
+                    ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+                  fi
+                '';
+              }
+            ];
+          };
+
+          temperature = {
+            enable = true;
+            description = "Updating temperature data on dashboard";
+            topic = "zigbee2mqtt/Motion Sensor Hall";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  FILE="/var/lib/zigduck/temperature.json"
+                  touch "$FILE"
+                  echo "$MQTT_PAYLOAD" > "$FILE"
                 '';
               }
             ];
@@ -1660,7 +1731,6 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "shell";
                 command = ''
-                  # 🦆 says ⮞ extract mqtt payload
                   hours=$(echo "$MQTT_PAYLOAD" | jq -r '.hours')
                   minutes=$(echo "$MQTT_PAYLOAD" | jq -r '.minutes')
                   sound=$(echo "$MQTT_PAYLOAD" | jq -r '.sound // ""')
@@ -1780,13 +1850,27 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "shell";
                 command = ''
-                  touch /var/lib/zigduck/energy.json
+                  FILE="/var/lib/zigduck/energy_price.json"
+                  touch "$FILE"
+                  touch "/var/lib/zigduck/energy.json"
                   echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy.json
-                  current_price=$(echo "$MQTT_PAYLOAD" | jq -r '.current_price' | sed 's/\"//g')
+                  PRICE=$(echo "$MQTT_PAYLOAD" | jq '.current_price')
+          
                   # 🦆says⮞ notify if high energy price
-                  if [ $(echo "$current_price > 2.0" | bc -l) -eq 1 ]; then
-                    yo notify "⚡ High energy price: $current_price SEK/kWh"
+                  if [ $(echo "$PRICE > 2.0" | bc -l) -eq 1 ]; then
+                    yo notify "⚡ High energy price: $PRICE SEK/kWh"
+                  fi          
+          
+                  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
+                    echo "{\"current_price\":$PRICE,\"history\":[$PRICE]}" > "$FILE"
+                    exit 0
                   fi
+
+                  jq --argjson price "$PRICE" '
+                    .current_price = $price
+                    | .history += [$price]
+                    | .history = (.history[-100:])  # Keep last 100 entries
+                  ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
                 '';
               }
             ];
@@ -1798,7 +1882,7 @@ in { # 🦆 duck say ⮞ qwack
           hallway = { 
             door_opened = [];
             door_closed = [];
-          };  
+          };
           # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion
           bedroom = { 
             # 🦆 says ⮞ this will override that in bedroom

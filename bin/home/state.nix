@@ -253,11 +253,18 @@ in {
       # 🦆 says ⮞ state helper
       get_device_state() {
         local device_name="$1"
-        local state_data="$2"
-        local normalized_name=$(normalize_string "$device_name")
+        local state_json="$2"
+        
+        # 🦆 says ⮞ Check if response is an error
+        if echo "$state_json" | ${pkgs.jq}/bin/jq -e 'has("error")' >/dev/null 2>&1; then
+          error_msg=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.error // "Unknown error"')
+          dt_error "API returned error: $error_msg"
+          echo "ERROR: $error_msg"
+          return 1
+        fi
         
         # 🦆 says ⮞ BLINDS / SHADES
-        local position=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$device_name" '.[$device].position // empty')
+        local position=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.position // empty')
         if [ -n "$position" ] && [ "$position" != "null" ]; then
           if [ "$position" = "0" ]; then
             echo "CLOSED"
@@ -270,7 +277,7 @@ in {
         fi
         
         # 🦆 says ⮞ DOOR / WINDOW SENSORS
-        local contact=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$device_name" '.[$device].contact // empty')
+        local contact=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.contact // empty')
         if [ -n "$contact" ] && [ "$contact" != "null" ]; then
           if [ "$contact" = "true" ]; then
             echo "CLOSED"
@@ -281,7 +288,7 @@ in {
         fi
         
         # 🦆 says ⮞ MOTION SENSORS
-        local occupancy=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$device_name" '.[$device].occupancy // empty')
+        local occupancy=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.occupancy // empty')
         if [ -n "$occupancy" ] && [ "$occupancy" != "null" ]; then
           if [ "$occupancy" = "true" ]; then
             echo "MOTION"
@@ -292,15 +299,15 @@ in {
         fi
                 
         # 🦆 says ⮞ STATE        
-        local state=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$device_name" '.[$device].state // "N/A"')
+        local state=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.state // "N/A"')
         if [ "$state" != "N/A" ] && [ "$state" != "null" ]; then
           echo "$state"
           return
         fi
         
         # 🦆 says ⮞ device online? based on link quality & last_seen
-        local linkquality=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$device_name" '.[$device].linkquality // 0')
-        local last_seen=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$device_name" '.[$device].last_seen // empty')
+        local linkquality=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.linkquality // 0')
+        local last_seen=$(echo "$state_json" | ${pkgs.jq}/bin/jq -r '.last_seen // empty')
         if [ -n "$last_seen" ] && [ "$last_seen" != "null" ]; then
           last_seen_epoch=$(${pkgs.coreutils}/bin/date -d "$last_seen" +%s 2>/dev/null || echo 0)
           now_epoch=$(${pkgs.coreutils}/bin/date +%s)
@@ -315,7 +322,6 @@ in {
         fi
       }
   
-      dt_debug "MQTT_HOST: $MQTT_HOST"
       dt_debug "Input device: $device"   
       matched_device=$(fuzzy_find_device "$device" "''${available_devices[@]}")    
       if [ $? -ne 0 ] || [ -z "$matched_device" ]; then
@@ -325,12 +331,46 @@ in {
       
       dt_debug "Using device: $matched_device"
       
-      # 🦆 says ⮞ get state file data
-      state_data=$(ssh "$MQTT_HOST" cat "$STATE_FILE")
+      password_file="${config.house.dashboard.passwordFile}"
+      if [ ! -f "$password_file" ]; then
+        dt_error "Password file not found: $password_file"
+        exit 1
+      fi
+      
+      password=$(cat "$password_file" | tr -d '[:space:]')
+      
+      if [ -z "$password" ]; then
+        dt_error "Password is empty or could not be read"
+        exit 1
+      fi
+      
+      # 🦆 says ⮞ URL encode
+      encoded_device=$(printf "%s" "$matched_device" | ${pkgs.jq}/bin/jq -sRr @uri)
+      
+      # 🦆 says ⮞ call it!
+      api_url="http://${mqttHostIp}:9815/state/$encoded_device"
+      
+      dt_debug "Calling API: $api_url"
+      
+      response=$(curl -s -H "Authorization: Bearer $password" "$api_url")
+      
+      if [ $? -ne 0 ]; then
+        dt_error "Failed to call API for device: $matched_device"
+        exit 1
+      fi
+      
       # 🦆 says ⮞ fetch da state
-      state=$(get_device_state "$matched_device" "$state_data")   
+      state=$(get_device_state "$matched_device" "$response")   
+      
+      if [ $? -ne 0 ]; then
+        dt_error "Failed to get device state"
+        exit 1
+      fi
+      
       dt_debug "State: $state"
-      last_seen=$(echo "$state_data" | ${pkgs.jq}/bin/jq -r --arg device "$matched_device" '.[$device].last_seen // empty')
+      
+      # 🦆 says ⮞ extract last_seen from response
+      last_seen=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.last_seen // empty')
 
       # 🦆 says ⮞ start building voice responnse
       if [ "$last_seen" != "null" ] && [ -n "$last_seen" ]; then
@@ -386,6 +426,15 @@ in {
         *%)
           if_voice_say "$matched_device är öppen till $state."
           dt_debug "TTS: $matched_device är öppen till $state."
+          ;;
+        ERROR:*)
+          error_msg="''${state#ERROR: }"
+          if_voice_say "Fel vid hämtning av status för $matched_device: $error_msg"
+          dt_error "API error: $error_msg"
+          ;;
+        *)
+          if_voice_say "$matched_device status är $state."
+          dt_debug "TTS: $matched_device status är $state."
           ;;
       esac
     '';

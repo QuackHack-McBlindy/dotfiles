@@ -471,16 +471,28 @@
         type = str; 
         default = "{value}"; 
         description = "Format string for details value. Use {value} placeholder";
-      };    
+      };
+      chart = mkOption { 
+        type = bool; 
+        default = false; 
+        description = "Wether to show a history chart in the status card";
+      };
+      historyField = mkOption { 
+        type = str; 
+        default = "history"; 
+        description = "JSON field to extract history data from for the chart";
+      };          
+  
       # 🦆 says ⮞ fallback values
-      defaultValue = mkOption { type = str; default = "--"; };
-      defaultDetails = mkOption { type = str; default = "Waiting for data"; };   
+      defaultValue = mkOption { type = str; default = ""; };
+      defaultDetails = mkOption { type = str; default = ""; };   
       # 🦆 says ⮞ legacy support - will be used if detailsJsonField is null
       details = mkOption { 
         type = str; 
         default = ""; 
         description = "Static details text (used if detailsJsonField is not set)";
       };
+
     };
   };
 
@@ -1788,5 +1800,4 @@ in { # 🦆 says ⮞ Options for da house
           '';
       }
 
-        
     ];}

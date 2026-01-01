@@ -25,7 +25,8 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-    
+
+  zigduckStateFile = "/var/lib/zigduck/state.json";    
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
   
@@ -164,8 +165,7 @@
     use std::process::Command;
     use std::collections::HashMap;
     use std::fs::{self, create_dir_all};
-    use serde_json::json;
-    
+    use serde_json::{Value, json, Map};
 
     fn log(message: &str) {
         eprintln!("[API] {}", message);
@@ -282,6 +282,83 @@
         }
         String::new()
     }
+  
+    // 🦆 says ⮞ read zigduck state.json
+    fn handle_state_all() -> String {
+        let state_file_path = "/var/lib/zigduck/state.json";
+        match fs::read_to_string(state_file_path) {
+            Ok(content) => {
+                dt_info("Returning full state.json");
+                content
+            }
+            Err(e) => {
+                dt_error(&format!("Failed to read state file: {}", e));
+                r#"{"error":"Failed to read state file"}"#.to_string()
+            }
+        }
+    }
+    
+    fn handle_state_device(device_name: &str) -> String {
+        let state_file_path = "/var/lib/zigduck/state.json";
+        match fs::read_to_string(state_file_path) {
+            Ok(content) => {
+                let state_data: serde_json::Value = serde_json::from_str(&content)
+                    .unwrap_or_else(|_| json!({}));
+                
+                if let Some(device_state) = state_data.get(device_name) {
+                    dt_info(&format!("Returning state for device: {}", device_name));
+                    device_state.to_string()
+                } else {
+                    dt_warning(&format!("Device not found in state: {}", device_name));
+                    r#"{"error":"Device not found in state"}"#.to_string()
+                }
+            }
+            Err(e) => {
+                dt_error(&format!("Failed to read state file: {}", e));
+                r#"{"error":"Failed to read state file"}"#.to_string()
+            }
+        }
+    }
+    
+    fn handle_state_room(room: &str) -> String {
+        let state_file_path = "/var/lib/zigduck/state.json";
+        let devices_file = "devices.json";
+        
+        match fs::read_to_string(state_file_path) {
+            Ok(content) => {
+                let state_data: Value = serde_json::from_str(&content)
+                    .unwrap_or_else(|_| json!({}));
+                
+                // 🦆 says ⮞ load devices to filter by room
+                let devices_content = fs::read_to_string(devices_file)
+                    .unwrap_or_else(|_| "{}".to_string());
+                let devices: Map<String, Value> = 
+                    serde_json::from_str(&devices_content).unwrap_or_else(|_| Map::new());
+                
+                let mut room_devices = Map::new();
+                
+                let empty_map = Map::new();
+                for (device_name, device_state) in state_data.as_object().unwrap_or(&empty_map) {
+                    if let Some(device_info) = devices.get(device_name) {
+                        if let Some(device_room) = device_info.get("room") {
+                            if let Some(room_str) = device_room.as_str() {
+                                if room_str.to_lowercase() == room.to_lowercase() {
+                                    room_devices.insert(device_name.clone(), device_state.clone());
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                dt_info(&format!("Returning state for room: {} ({} devices)", room, room_devices.len()));
+                serde_json::to_string(&room_devices).unwrap_or_else(|_| "{}".to_string())
+            }
+            Err(e) => {
+                dt_error(&format!("Failed to read state file: {}", e));
+                r#"{"error":"Failed to read state file"}"#.to_string()
+            }
+        }
+    } 
     
     fn handle_browse(path_arg: &str, use_v2: bool) -> String {
         let media_root = "/Pool";
@@ -898,7 +975,7 @@
             ("GET", "/") => {
                 dt_info("Root endpoint requested");
                 send_response(&mut stream, "200 OK", 
-                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/{device}/...","/scene/{scene}","/device/rooms","/device/types","/upload","/tts"]}"#,
+                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/{device}/...","/scene/{scene}","/device/rooms","/device/types","/upload","/tts","/state","/state/{device}","/state/room/{room}"]}"#,
                     None);
             }
             ("GET", "/browsev2") | ("GET", "/api/browsev2") => {
@@ -1094,6 +1171,57 @@
                 let response = handle_health_all();
                 send_response(&mut stream, "200 OK", &response, None);
             }
+            
+            ("GET", "/state") | ("GET", "/api/state") => {
+                dt_info("Full state request");
+                let response = handle_state_all();
+                send_response(&mut stream, "200 OK", &response, Some("application/json"));
+            }
+            
+            ("GET", path) if path.starts_with("/state/") || path.starts_with("/api/state/") => {
+                let rest = if let Some(stripped) = path.strip_prefix("/api/state/") {
+                    stripped
+                } else if let Some(stripped) = path.strip_prefix("/state/") {
+                    stripped
+                } else {
+                    path
+                };
+                
+                let parts: Vec<&str> = rest.split('/').collect();
+                
+                if parts.is_empty() {
+                    dt_warning("State endpoint called without parameters");
+                    send_response(&mut stream, "400 Bad Request", 
+                        r#"{"error":"Missing parameters"}"#, None);
+                    return;
+                }
+                
+                let first_param = parts[0].to_lowercase();
+                
+                match first_param.as_str() {
+                    "room" => {
+                        if parts.len() < 2 {
+                            dt_warning("Room state request without room name");
+                            send_response(&mut stream, "400 Bad Request", 
+                                r#"{"error":"Missing room name"}"#, None);
+                            return;
+                        }
+                        let room_name = parts[1..].join("/");
+                        let decoded_room = urldecode(&room_name);
+                        dt_info(&format!("Room state request: {}", decoded_room));
+                        let response = handle_state_room(&decoded_room);
+                        send_response(&mut stream, "200 OK", &response, Some("application/json"));
+                    }
+                    _ => {
+                        // 🦆 says ⮞ assume it's a device name
+                        let device_name = parts.join("/");
+                        let decoded_device = urldecode(&device_name);
+                        dt_info(&format!("Device state request: {}", decoded_device));
+                        let response = handle_state_device(&decoded_device);
+                        send_response(&mut stream, "200 OK", &response, Some("application/json"));
+                    }
+                }
+            }   
             
             ("GET", "/device/list") | ("GET", "/api/device/list") => {
                 let response = handle_device_list();
@@ -1332,6 +1460,9 @@
         log("  GET /playlist/clear             - Clear playlist");
         log("  GET /playlist/shuffle           - Shuffle playlist");
         log("  GET /tts?text=...               - Text to speech");
+        log("  GET /state                     - Get full state of all devices");
+        log("  GET /state/{device}            - Get state for specific device");
+        log("  GET /state/room/{room}         - Get state for all devices in a room");
         log("  GET /device/list                - List all devices");
         log("  GET /device/rooms               - List devices by room");
         log("  GET /device/types               - List devices by type");
@@ -1418,7 +1549,14 @@ in {
       
       echo "# Yo Do commands:"
       echo "curl 'http://${mqttHostip}:9815/do?cmd=your%20cmmand%20here&password=\$PASS'"
-      
+  
+      echo "# Get full state of all devices:"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/state'"
+      echo "# Get state for specific device:"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/state/PC'"
+      echo "# Get state for all devices in a room:"
+      echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/state/room/living%20room'"
+
       echo "# Control devices:"
       echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/state/on'"
       echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/device/PC/state/off'"
@@ -1490,8 +1628,7 @@ in {
         dt_error "api-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
         sleep 3
       done         
-    '';      
-    
+    '';    
   };
 
   # 🦆 says ⮞ fancy cat'z...

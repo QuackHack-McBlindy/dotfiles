@@ -46,16 +46,24 @@
   # 🦆 says ⮞ generate html for status cards
   statusCardsHtml = lib.concatStrings (lib.mapAttrsToList (name: card: 
     if card.enable then ''
-      <div class="card" data-card="${name}">
+      <div class="card${if card.chart then " has-chart" else ""}" data-card="${name}">
         <div class="card-header">
           <div class="card-title">${card.title}</div>
           <i class="${card.icon}" style="color: ${card.color};"></i>
         </div>
         <div class="card-value" id="status-${name}-value">${card.defaultValue}</div>
-        <div class="card-details">
-          <i class="fas fa-info-circle"></i>
-          <span id="status-${name}-details">${card.defaultDetails}</span>
-        </div>
+        ${if (card.detailsJsonField != null) || (card.details != "") then ''
+          <div class="card-details">
+            <i class="fas fa-info-circle"></i>
+            <span id="status-${name}-details">${card.defaultDetails}</span>
+          </div>
+        '' else ""}
+        ${if card.chart then ''
+          <div class="card-delta" id="status-${name}-delta"></div>
+          <div class="card-chart">
+            <canvas id="status-${name}-chart"></canvas>
+          </div>
+        '' else ""}
       </div>
     '' else ""
   ) config.house.dashboard.statusCards);
@@ -95,6 +103,14 @@
               '' else ''
                 updateCardDetails("${name}", "${card.defaultDetails}");
               ''}
+              
+              // 🦆 says ⮞ Handle chart if enabled
+              ${if card.chart then ''
+                const historyData = data['${card.historyField}'];
+                if (historyData && Array.isArray(historyData) && historyData.length > 0) {
+                  updateCardChart("${name}", historyData, '${card.color}');
+                }
+              '' else ""}
             })
             .catch(error => {
               console.error('🦆 Error fetching ${name} data:', error);
@@ -105,6 +121,8 @@
       '' else ""
     ) config.house.dashboard.statusCards;
   in lib.concatStrings cardUpdates;
+  
+
   
   # 🦆 says ⮞ generate the main update function
   updateAllCardsJs = let
@@ -1837,6 +1855,55 @@ EOF
                 background: #000000 !important;
             }
 
+            /* 🦆 says ⮞ Chart status cards */
+            .card.has-chart {
+                position: relative;
+                padding-bottom: 60px;
+                min-height: 180px;
+            }
+
+            .card-chart {
+                position: absolute;
+                bottom: 12px;
+                left: 12px;
+                right: 12px;
+                height: 50px;
+                z-index: 1;
+            }
+
+            .card-chart canvas {
+                width: 100% !important;
+                height: 100% !important;
+            }
+
+            .card-delta {
+                position: absolute;
+                bottom: 70px;
+                right: 16px;
+                font-size: 12px;
+                font-weight: 600;
+                z-index: 2;
+                background: rgba(0, 0, 0, 0.3);
+                padding: 2px 6px;
+                border-radius: 4px;
+                backdrop-filter: blur(4px);
+            }
+
+            /* 🦆 says ⮞ Update existing card styles for better chart integration */
+            .card.has-chart .card-value {
+                font-size: 28px;
+                margin-top: 8px;
+            }
+
+            .card.has-chart .card-details {
+                margin-top: 4px;
+            }
+
+            /* 🦆 says ⮞ Make sure regular cards don't have extra padding */
+            .card:not(.has-chart) {
+                padding-bottom: 16px;
+            }
+
             .card {
                 background: #1a1a1a !important;
                 color: #ffffff !important;
@@ -2315,7 +2382,7 @@ EOF
                     <div class="status-cards">
                         ${statusCardsHtml}
                        
-                        <div class="card">
+                        <!--<div class="card">
                             <div class="card-header">
                                 <div class="card-title">Temperature</div>
                                 <i class="fas fa-thermometer-half" style="color: #e74c3c;"></i>
@@ -2325,7 +2392,7 @@ EOF
                                 <i class="fas fa-map-marker-alt"></i>
                                 <span id="temperatureLocation">Waiting for data</span>
                             </div>
-                        </div>
+                        </div> -->
                                              
                     </div>
                     </div>
@@ -2507,6 +2574,99 @@ EOF
         <script>
             ${statusCardsJs}
             ${updateAllCardsJs}
+            
+            // 🦆 says ⮞ chart functions
+            function updateCardChart(cardId, historyData, color) {
+                const canvas = document.getElementById(`status-''${cardId}-chart`);
+                if (!canvas) return;
+                
+                // 🦆 says ⮞ check if Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    loadChartJS().then(() => {
+                        renderCardChart(cardId, historyData, color);
+                    });
+                } else {
+                    renderCardChart(cardId, historyData, color);
+                }
+            }
+            
+            function loadChartJS() {
+                return new Promise((resolve, reject) => {
+                    if (typeof Chart !== 'undefined') {
+                        resolve();
+                        return;
+                    }
+                    
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+            }
+            
+            function renderCardChart(cardId, historyData, color) {
+                const canvas = document.getElementById(`status-''${cardId}-chart`);
+                if (!canvas) return;
+                
+                // 🦆 says ⮞ Destroy existing chart if it exists
+                if (canvas.chartInstance) {
+                    canvas.chartInstance.destroy();
+                }
+                
+                // 🦆 says ⮞ Calculate delta (percentage change)
+                const currentValue = historyData[historyData.length - 1];
+                const previousValue = historyData.length > 1 ? historyData[historyData.length - 2] : currentValue;
+                const delta = ((currentValue - previousValue) / previousValue * 100).toFixed(1);
+                
+                // 🦆 says ⮞ Update delta display
+                const deltaElement = document.getElementById(`status-''${cardId}-delta`);
+                if (deltaElement) {
+                    deltaElement.innerHTML = `<i class="fas fa-arrow-''${delta >= 0 ? 'up' : 'down'}"></i> ''${Math.abs(delta)}%`;
+                    deltaElement.style.color = delta >= 0 ? '#22c55e' : '#ef4444';
+                }
+                
+                // 🦆 says ⮞ Create sparkline chart
+                canvas.chartInstance = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: historyData.map((_, i) => i),
+                        datasets: [{
+                            data: historyData,
+                            borderColor: color,
+                            borderWidth: 2,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { enabled: false }
+                        },
+                        scales: {
+                            x: { 
+                                display: false,
+                                grid: { display: false }
+                            },
+                            y: { 
+                                display: false,
+                                grid: { display: false }
+                            }
+                        },
+                        elements: {
+                            line: {
+                                tension: 0.4
+                            }
+                        }
+                    }
+                });
+            }
+                        
+            
             ${fileRefreshJs}
             ${roomControlJs}
 
