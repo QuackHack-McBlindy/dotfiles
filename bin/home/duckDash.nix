@@ -7,34 +7,271 @@
   cmdHelpers,
   ...
 }: let 
-  # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
-  mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
-      let
-        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
-          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
-        '');
-      in
-        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
-    )
-    else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
+  css = {
+    global  = builtins.readFile ./../../modules/themes/css/duckdash/global.css;
+    home    = builtins.readFile ./../../modules/themes/css/duckdash/home.css;
+    devices = builtins.readFile ./../../modules/themes/css/duckdash/devices.css;
+    scenes  = builtins.readFile ./../../modules/themes/css/duckdash/scenes.css;
+    tv      = builtins.readFile ./../../modules/themes/css/duckdash/tv.css;
+  };
 
-  # 🦆 says ⮞ get whisperd host
-  transcriptionHost = lib.findFirst
-    (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.yo.scripts.transcribe.autoStart or false
-    ) null sysHosts;
-  transcriptionHostIP = if transcriptionHost != null then
-    self.nixosConfigurations.${transcriptionHost}.config.this.host.ip
-  else
-    "0.0.0.0"; 
+
+  enhancedChartJs = ''
+    function renderEnhancedChart(cardId, historyData, color) {
+      const canvas = document.getElementById('status-' + cardId + '-chart');
+      if (!canvas) return;
+      
+      // 🦆 says ⮞ destroy current chart with style
+      if (canvas.chartInstance) {
+        canvas.chartInstance.destroy();
+        canvas.classList.add('fade-out');
+        setTimeout(() => canvas.classList.remove('fade-out'), 300);
+      }
+      
+      // 🦆 says ⮞ calc delta
+      const currentValue = historyData[historyData.length - 1];
+      const previousValue = historyData.length > 1 ? historyData[historyData.length - 2] : currentValue;
+      const delta = ((currentValue - previousValue) / (previousValue || 1) * 100).toFixed(1);
+      
+      // 🦆 says ⮞ animated delta display
+      const deltaElement = document.getElementById('status-' + cardId + '-delta');
+      if (deltaElement) {
+        const arrow = delta >= 0 ? 'fa-arrow-up' : 'fa-arrow-down';
+        deltaElement.innerHTML = '<i class="fas ' + arrow + '"></i> ' + Math.abs(delta) + '%';
+        deltaElement.style.color = delta >= 0 ? '#22c55e' : '#ef4444';
+        deltaElement.style.background = delta >= 0 ? 
+          'rgba(34, 197, 94, 0.2)' : 'rgba(239, 68, 68, 0.2)';
+        
+        // 🦆 says ⮞ bounce animation
+        deltaElement.classList.add('delta-update');
+        setTimeout(() => deltaElement.classList.remove('delta-update'), 1000);
+      }
+      
+      // 🦆 says ⮞ create gradient for chart
+      const ctx = canvas.getContext('2d');
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, color + '80');
+      gradient.addColorStop(0.7, color + '20');
+      gradient.addColorStop(1, color + '05');
+      
+      // 🦆 says ⮞ create gradient for border
+      const borderGradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
+      borderGradient.addColorStop(0, '#00e5ff');
+      borderGradient.addColorStop(0.5, color);
+      borderGradient.addColorStop(1, '#ff00ff');
+      
+      // 🦆 says ⮞ ultra maxd personality chart config
+      canvas.chartInstance = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels: historyData.map((_, i) => i),
+          datasets: [{
+            data: historyData,
+            borderColor: borderGradient,
+            backgroundColor: gradient,
+            borderWidth: 3,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: color,
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 8,
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: color,
+            pointHoverBorderWidth: 3,
+            fill: true,
+            cubicInterpolationMode: 'monotone'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          animation: {
+            duration: 1000,
+            easing: 'easeOutQuart',
+            onComplete: () => {
+              canvas.classList.add('chart-loaded');
+            }
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(0, 0, 0, 0.8)',
+              titleColor: '#fff',
+              bodyColor: color,
+              borderColor: color,
+              borderWidth: 1,
+              cornerRadius: 8,
+              displayColors: false,
+              callbacks: {
+                label: function(context) {
+                  return cardId + ': ' + context.parsed.y.toFixed(2);
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              display: false,
+              grid: { display: false }
+            },
+            y: {
+              display: false,
+              grid: {
+                color: 'rgba(255, 255, 255, 0.1)',
+                drawBorder: false
+              },
+              beginAtZero: false
+            }
+          },
+          elements: {
+            line: {
+              tension: 0.4
+            }
+          },
+          interaction: {
+            intersect: false,
+            mode: 'index'
+          }
+        }
+      });
+      
+      // 🦆 says ⮞ particles for temperature charts
+      if (cardId === 'temperature') {
+        addChartParticles(canvas, historyData, color);
+      }
+    }
+    
+    // 🦆 says ⮞ floating particles to temperature chart
+    function addChartParticles(canvas, data, color) {
+      const particleContainer = document.createElement('div');
+      particleContainer.className = 'chart-particles';
+      particleContainer.style.position = 'absolute';
+      particleContainer.style.top = '0';
+      particleContainer.style.left = '0';
+      particleContainer.style.width = '100%';
+      particleContainer.style.height = '100%';
+      particleContainer.style.pointerEvents = 'none';
+      particleContainer.style.zIndex = '1';
+      
+      canvas.parentNode.style.position = 'relative';
+      canvas.parentNode.appendChild(particleContainer);
+      
+      for (let i = 0; i < 10; i++) {
+        const particle = document.createElement('div');
+        particle.className = 'chart-particle';
+        particle.style.position = 'absolute';
+        particle.style.width = '4px';
+        particle.style.height = '4px';
+        particle.style.background = color;
+        particle.style.borderRadius = '50%';
+        particle.style.opacity = '0.6';
+        particle.style.filter = 'blur(1px)';
+        
+        const x = Math.random() * 100;
+        const y = Math.random() * 100;
+        particle.style.left = x + '%';
+        particle.style.top = y + '%';
+        
+        particle.animate([
+          { 
+            transform: 'translate(0, 0) scale(1)',
+            opacity: 0.6 
+          },
+          { 
+            transform: 'translate(' + (Math.random() * 20 - 10) + 'px, ' + (Math.random() * 20 - 10) + 'px) scale(1.5)',
+            opacity: 0.2 
+          }
+        ], {
+          duration: 2000 + Math.random() * 2000,
+          iterations: Infinity,
+          direction: 'alternate',
+          easing: 'ease-in-out'
+        });
+        
+        particleContainer.appendChild(particle);
+      }
+    }
+    
+
+    function updateCardValueWithAnimation(cardId, value) {
+      const element = document.getElementById('status-' + cardId + '-value');
+      if (!element) return;
+      
+      element.classList.add('value-update');
+      
+      const oldValue = parseFloat(element.textContent) || 0;
+      const newValue = parseFloat(value) || 0;
+      
+      animateNumber(element, oldValue, newValue, 500);
+      
+      if (cardId === 'temperature') {
+        let tempColor;
+        if (newValue < 18) tempColor = '#3498db'; // Cold
+        else if (newValue < 22) tempColor = '#2ecc71'; // Comfortable
+        else if (newValue < 26) tempColor = '#f39c12'; // Warm
+        else tempColor = '#e74c3c'; // Hot
+        
+        element.style.color = tempColor;
+        element.style.textShadow = '0 0 20px ' + tempColor + ', 0 0 40px ' + tempColor + '40';
+      }
+      
+      setTimeout(() => element.classList.remove('value-update'), 500);
+    }
+    
+    // 🦆 says ⮞ Smooth number animation
+    function animateNumber(element, start, end, duration) {
+      const startTime = performance.now();
+      
+      function update(currentTime) {
+        const elapsed = currentTime - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = start + (end - start) * easeOutQuart;
+        
+        element.textContent = current.toFixed(1);
+        
+        if (progress < 1) {
+          requestAnimationFrame(update);
+        }
+      }      
+      requestAnimationFrame(update);
+    }
+    
+    // 🦆 says ⮞ QUACK SOUND EFFECTS!
+    function playQuackSound() {
+      try {
+        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+        
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+        
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+        oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+        oscillator.frequency.exponentialRampToValueAtTime(600, audioContext.currentTime + 0.15);
+        
+        gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+        
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.2);
+        
+        document.querySelectorAll('.duck-emoji').forEach(duck => {
+          duck.style.animation = 'quackFast 0.5s ease-in-out';
+          setTimeout(() => duck.style.animation = "", 500);
+        });
+        
+      } catch (e) {
+        console.log('🦆 No audio support, but still quacking in spirit!');
+      }
+    }
+  '';
+
 
   pageFilesAndCss = let
     pages = config.house.dashboard.pages;
@@ -46,20 +283,37 @@
   # 🦆 says ⮞ generate html for status cards
   statusCardsHtml = lib.concatStrings (lib.mapAttrsToList (name: card: 
     if card.enable then ''
-      <div class="card${if card.chart then " has-chart" else ""}" data-card="${name}">
+      <div class="card${if card.chart then " has-chart" else ""}${if name == "temperature" then " quacking" else ""}" 
+           data-card="${name}"
+           style="border-color: ${card.color}; --card-glow-color: ${card.color}40;">
+        
+        ${if name == "temperature" then ''
+          <div class="duck-emoji">🦆</div>
+        '' else ""}
+        
         <div class="card-header">
           <div class="card-title">${card.title}</div>
-          <i class="${card.icon}" style="color: ${card.color};"></i>
+          <i class="${card.icon}" style="color: ${card.color}; 
+            text-shadow: 0 0 15px ${card.color}80;"></i>
         </div>
-        <div class="card-value" id="status-${name}-value">${card.defaultValue}</div>
+        
+        <div class="card-value" id="status-${name}-value" 
+             style="color: ${card.color};">
+          ${card.defaultValue}
+        </div>
+        
         ${if (card.detailsJsonField != null) || (card.details != "") then ''
           <div class="card-details">
             <i class="fas fa-info-circle"></i>
             <span id="status-${name}-details">${card.defaultDetails}</span>
           </div>
         '' else ""}
+        
         ${if card.chart then ''
-          <div class="card-delta" id="status-${name}-delta"></div>
+          <div class="card-delta" id="status-${name}-delta"
+               style="background: ${card.color}30; color: ${card.color};">
+            <i class="fas fa-arrow-up"></i> 0%
+          </div>
           <div class="card-chart">
             <canvas id="status-${name}-chart"></canvas>
           </div>
@@ -68,11 +322,41 @@
     '' else ""
   ) config.house.dashboard.statusCards);
 
+
+  # 🦆 says ⮞ Enhanced update function
+  enhancedUpdateAllCardsJs = let
+    functionCalls = lib.mapAttrsToList (name: card: 
+      if card.enable then 
+        "update${lib.toUpper (lib.substring 0 1 name)}${lib.substring 1 (lib.stringLength name) name}Card();"
+      else ""
+    ) config.house.dashboard.statusCards;
+  in ''
+    // 🦆 says ⮞ Update all cards with personality!
+    function updateAllStatusCards() {
+      console.log('🦆 QUACK QUACK QUACK! Updating all cards!');
+      
+      // 🦆 says ⮞ Show loading state
+      document.querySelectorAll('.card').forEach(card => {
+        card.classList.add('loading-temp');
+      });
+      
+      // 🦆 says ⮞ Update each card
+      ${lib.concatStringsSep "\n      " functionCalls}
+      
+      // 🦆 says ⮞ Remove loading state
+      setTimeout(() => {
+        document.querySelectorAll('.card').forEach(card => {
+          card.classList.remove('loading-temp');
+        });
+      }, 1000);
+    }
+  '';
+
+
   # 🦆 says ⮞ generate js update functions
   statusCardsJs = let
     cardUpdates = lib.mapAttrsToList (name: card: 
       if card.enable then ''
-        // 🦆says⮞ update function for ${name}
         function update${lib.toUpper (lib.substring 0 1 name)}${lib.substring 1 (lib.stringLength name) name}Card() {
           console.log('🦆 Fetching ${name} data from /${builtins.baseNameOf card.filePath}');
           fetch('/${builtins.baseNameOf card.filePath}')
@@ -89,7 +373,6 @@
               console.log('🦆 ${name} formatted value:', formattedValue);
               updateCardValue("${name}", formattedValue);
               
-              // 🦆 says ⮞ Handle details field
               ${if card.detailsJsonField != null then ''
                 const detailsValue = data['${card.detailsJsonField}'];
                 if (detailsValue !== undefined && detailsValue !== null) {
@@ -104,7 +387,6 @@
                 updateCardDetails("${name}", "${card.defaultDetails}");
               ''}
               
-              // 🦆 says ⮞ Handle chart if enabled
               ${if card.chart then ''
                 const historyData = data['${card.historyField}'];
                 if (historyData && Array.isArray(historyData) && historyData.length > 0) {
@@ -154,7 +436,41 @@
   ) pages);
 
   # 🦆 says ⮞ generate custom pages js
-  customPagesJs = "";
+  customPagesJs = " ";
+
+  # 🦆 says ⮞ Interactive card click handler JS
+  interactiveCardJs = ''
+    // 🦆 says ⮞ Interactive card clicks
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        document.querySelectorAll('.card').forEach(card => {
+          card.addEventListener('click', function() {
+            // 🦆 says ⮞ Add click animation
+            this.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+              this.style.transform = "";
+            }, 200);
+            
+            // 🦆 says ⮞ Play click sound (only sometimes)
+            if (Math.random() > 0.5) {
+              playQuackSound();
+            }
+          });
+          
+          // 🦆 says ⮞ Hover effects
+          card.addEventListener('mouseenter', function() {
+            this.style.zIndex = '10';
+          });
+          
+          card.addEventListener('mouseleave', function() {
+            this.style.zIndex = "";
+          });
+        });
+      }, 1000);
+    });
+  '';
+
+
 
   # 🦆 says ⮞ auto-refresh file cards
   fileRefreshJs = ''
@@ -297,48 +613,64 @@
   sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
   
   # 🦆 says ⮞ generate devices in collapsible rooms
-  roomControlsHtml = let
-    devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) lightDevices;
-    devicesByRoom = lib.groupBy (device: device.room) devicesWithId;
-    sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
-  in ''
+  roomControlsHtml = ''
     <div class="room-controls-section">
-      <h3>Rooms</h3>
+      <h3>🦆 ROOOOOMS CONTROL 🦆</h3>
       <div class="rooms" id="roomsContainer">
         ${lib.concatMapStrings (room: 
           let 
             iconName = lib.removePrefix "mdi:" (roomIcons.${room} or "mdi:home");
             roomLights = devicesByRoom.${room} or [];
             hasLights = roomLights != [];
+            roomId = lib.toLower (lib.replaceStrings [" "] ["-"] room);
           in
             if hasLights then ''
-              <div class="room" id="room-${room}" data-room="${room}">
+              <div class="room" id="room-${roomId}" data-room="${roomId}">
                 <div class="room-header">
+                  <!-- Add brightness indicator overlay -->
+                  <div class="brightness-indicator"></div>
+                  <div class="brightness-value-display">100%</div>
+                  </div>
+
+                  <div class="room-brightness-container">
                   <div class="room-title">
                     <i class="mdi mdi-${iconName} room-icon"></i>
-                    <span class="room-name">${lib.toUpper (lib.substring 0 1 room)}${lib.substring 1 (lib.stringLength room) room}</span>
+                    <span class="room-name">${lib.toUpper room}</span>
                   </div>
                   <div class="room-controls">
-                    <button class="collapse-btn">▸</button>
+                    
+                    <button class="collapse-btn" title="Expand/Collapse">▸</button>
                   </div>
                 </div>
-                <input class="brightness room-brightness" type="range" min="0" max="100" value="100">
-                <div class="devices hidden" id="devices-${room}">
+              
+                <div class="room-brightness-container">
+                  <div class="room-brightness-label">
+                    <span>☀️</span>
+                    <span class="brightness-value">100%</span>
+                  </div>
+                  <input class="brightness room-brightness" type="range" min="0" max="100" value="100" 
+                         title="Adjust room brightness">
+                </div>
+                
+                <div class="devices hidden" id="devices-${roomId}">
                   ${lib.concatMapStrings (device: 
                     let
                       deviceIconName = lib.removePrefix "mdi:" (device.icon or "mdi:lightbulb");
                       supportsColor = device.supports_color or false;
-                      deviceColor = "#ffffff";
+                      deviceColor = if device ? color && device.color ? hex then device.color.hex else "#ffffff";
+                      deviceIdSafe = lib.replaceStrings [" " "/" "\\" "."] ["-" "-" "-" "-"] device.id;
                     in ''
-                      <div class="device" id="device-${device.id}" data-device="${device.id}">
+                      <div class="device" id="device-${deviceIdSafe}" data-device="${device.id}">
                         <div class="device-top">
                           <div class="device-icon-container">
-                            <i class="mdi mdi-${deviceIconName} device-icon"></i>
                             <div class="device-name">${device.friendly_name or device.id}</div>
                           </div>
                           <div class="device-controls">
                             <div class="controls-row">
-                              ${if supportsColor then ''<input class="color-picker" type="color" value="${deviceColor}">'' else ""}
+                              ${if supportsColor then ''
+                                <input class="color-picker" type="color" value="${deviceColor}" 
+                                       title="Change color">
+                              '' else ""}
                               <label class="switch">
                                 <input type="checkbox" class="device-toggle">
                                 <span class="toggle-slider"></span>
@@ -346,7 +678,15 @@
                             </div>
                           </div>
                         </div>
-                        <input class="brightness device-brightness" type="range" min="0" max="100" value="100">
+                        
+                        <div class="room-brightness-container">
+                          <div class="room-brightness-label">
+                            <span>☀️</span>
+                            <span class="brightness-value">100%</span>
+                          </div>
+                          <input class="brightness device-brightness" type="range" min="0" max="100" value="100"
+                                 title="Adjust device brightness">
+                        </div>
                       </div>
                     ''
                   ) roomLights}
@@ -355,332 +695,11 @@
             '' else ""
         ) sortedRooms}
       </div>
-    </div><br><br><br><br>
+    </div>
+    <br><br><br><br>
   '';
-
-  roomControlCSS = ''
-    :root {
-      --bg: #0e1117;
-      --card: #161b22;
-      --text: #e6edf3;
-      --muted: #8b949e;
-      --border: #30363d;
-      --accent: #34c759;
-    }
-
-    .room-controls-section {
-      margin-top: 20px;
-      padding: 0 20px;
-    }
-    
-    .room-controls-section h3 {
-      color: #ffffff;
-      margin-bottom: 20px;
-      font-size: 2.2rem;
-      text-align: center;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .rooms {
-      display: grid;
-      gap: 18px;
-    }
-    
-    .room {
-      background: var(--card);
-      border-radius: 14px;
-      padding: 12px 16px;
-      border: 2px solid var(--border);
-      transition: box-shadow 0.2s, border-color 0.2s;
-    }
-    
-    .room.on {
-      border-color: var(--room-color);
-      box-shadow: 0 0 18px var(--room-color);
-    }
-    
-    .room-header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 8px;
-      cursor: pointer;
-    }
-    
-    .room-title {
-      font-size: 18px;
-      font-weight: 600;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-    
-    .room-icon {
-      font-size: 1.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 32px;
-    }
-    
-    .room-name {
-      font-size: 1.5rem;
-    }
-    
-    .room-controls {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    
-    .devices {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-      margin-top: 12px;
-    }
-    
-    .devices.hidden {
-      display: none;
-    }
-    
-    .device {
-      background: #0b0f14;
-      border-radius: 12px;
-      padding: 12px;
-      border: 2px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      transition: box-shadow 0.15s, border-color 0.15s, opacity 0.15s;
-      min-height: 120px;
-    }
-    
-    .device.on {
-      border-color: var(--device-color);
-      box-shadow: 0 0 10px var(--device-color);
-    }
-    
-    .device.off {
-      opacity: 0.75;
-    }
-    
-    .device-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 8px;
-      flex-grow: 1;
-    }
-    
-    .device-icon-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      min-width: 40px;
-    }
-    
-    .device-icon {
-      font-size: 1.8rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .device-name {
-      font-size: 14px;
-      font-weight: 600;
-      text-align: center;
-      color: var(--text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      line-height: 1.3;
-      min-height: 36px;
-    }
-    
-    .device-controls {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 8px;
-      flex-grow: 1;
-    }
-    
-    .controls-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      width: 100%;
-      justify-content: space-between;
-    }
-    
-    .device .switch {
-      position: relative;
-      display: inline-block;
-      width: 52px;
-      height: 28px;
-      min-width: 52px;
-    }
-    
-    .device .switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-    
-    .device .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: #3a3f45;
-      transition: .4s;
-      border-radius: 34px;
-    }
-    
-    .device .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 20px;
-      width: 20px;
-      left: 4px;
-      bottom: 4px;
-      background-color: white;
-      transition: .4s;
-      border-radius: 50%;
-    }
-    
-    .device input:checked + .toggle-slider {
-      background-color: var(--accent);
-    }
-    
-    .device input:checked + .toggle-slider:before {
-      transform: translateX(24px);
-    }
-    
-    .color-picker {
-      width: 28px;
-      height: 28px;
-      border: 2px solid var(--border);
-      border-radius: 50%;
-      background: none;
-      cursor: pointer;
-      padding: 0;
-      min-width: 28px;
-    }
-    
-    .color-picker::-webkit-color-swatch {
-      border-radius: 50%;
-      border: none;
-    }
-    
-    .color-picker::-moz-color-swatch {
-      border-radius: 50%;
-      border: none;
-    }
-    
-    .device-brightness, .room-brightness {
-      width: 100%;
-      margin-top: 8px;
-      display: none;
-    }
-    
-    .device.on .device-brightness {
-      display: block;
-    }
-    
-    .room.on .room-brightness {
-      display: block;
-    }
-    
-    input[type="range"] {
-      -webkit-appearance: none;
-      width: 100%;
-      height: 6px;
-      background: #30363d;
-      border-radius: 5px;
-      outline: none;
-    }
-    
-    input[type="range"]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: white;
-      cursor: pointer;
-      border: 2px solid var(--border);
-    }
-    
-    input[type="range"]::-moz-range-thumb {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      background: white;
-      cursor: pointer;
-      border: 2px solid var(--border);
-    }
-    
-    .collapse-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      cursor: pointer;
-      font-size: 18px;
-      padding: 6px 10px;
-      border-radius: 6px;
-      transition: background-color 0.2s, transform 0.2s;
-      min-width: 36px;
-    }
-    
-    .collapse-btn:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-      transform: scale(1.1);
-    }
-    
-    @media (max-width: 768px) {
-      .devices {
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 10px;
-      }
-      
-      .device {
-        padding: 10px;
-        min-height: 110px;
-      }
-      
-      .device-icon {
-        font-size: 1.6rem;
-      }
-      
-      .device-name {
-        font-size: 13px;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .devices {
-        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-      }
-      
-      .room-controls-section {
-        padding: 0 12px;
-      }
-      
-      .room {
-        padding: 10px 12px;
-      }
-    }
-  '';
+  
+  
 
   roomControlJs = '' 
     function syncRoomStatesAfterLoad() {
@@ -1227,12 +1246,622 @@
       });
     }
     
+ 
+    
+    function initRoomControlsWithSlide() {
+        console.log('🦆 Initializing room controls with horizontal slide-to-brightness!');
+        document.querySelectorAll('.room').forEach(roomEl => {
+            let isSliding = false;
+            let startX = 0;
+            let startBrightness = 0;
+            let touchStartX = 0;
+            
+            roomEl.addEventListener('mousedown', function(e) {
+                if (!roomEl.classList.contains('on')) return;
+                if (e.target.closest('.collapse-btn')) return;
+                
+                isSliding = true;
+                startX = e.clientX;
+                startBrightness = parseInt(roomEl.querySelector('.room-brightness').value) || 100;
+                
+                roomEl.classList.add('brightness-sliding');
+                roomEl.classList.add('brightness-active');
+                
+                updateBrightnessDisplay(roomEl, startBrightness);
+                
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            roomEl.addEventListener('touchstart', function(e) {
+                if (!roomEl.classList.contains('on')) return;
+                if (e.target.closest('.collapse-btn')) return;
+                
+                isSliding = true;
+                touchStartX = e.touches[0].clientX;
+                startBrightness = parseInt(roomEl.querySelector('.room-brightness').value) || 100;
+                
+                roomEl.classList.add('brightness-sliding');
+                roomEl.classList.add('brightness-active');
+                
+                updateBrightnessDisplay(roomEl, startBrightness);
+                
+                e.preventDefault();
+                e.stopPropagation();
+            }, { passive: false });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (!isSliding) return;
+                
+                const deltaX = e.clientX - startX;
+                const newBrightness = calculateNewBrightness(startBrightness, deltaX);
+                
+                updateRoomBrightness(roomEl, newBrightness);
+                updateBrightnessDisplay(roomEl, newBrightness);
+                
+                e.preventDefault();
+            });
+            
+            document.addEventListener('touchmove', function(e) {
+                if (!isSliding) return;
+                
+                const deltaX = e.touches[0].clientX - touchStartX;
+                const newBrightness = calculateNewBrightness(startBrightness, deltaX);
+                
+                updateRoomBrightness(roomEl, newBrightness);
+                updateBrightnessDisplay(roomEl, newBrightness);
+                
+                e.preventDefault();
+            }, { passive: false });
+            
+            function endSlide() {
+                if (!isSliding) return;
+                
+                isSliding = false;
+                roomEl.classList.remove('brightness-sliding');
+                roomEl.classList.remove('brightness-active');
+                
+                setTimeout(() => {
+                    const display = roomEl.querySelector('.brightness-value-display');
+                    if (display) display.style.opacity = '0';
+                }, 500);
+                
+                playBrightnessSound();
+            }
+            
+            document.addEventListener('mouseup', endSlide);
+            document.addEventListener('touchend', endSlide);
+            document.addEventListener('touchcancel', endSlide);
+            document.addEventListener('mouseleave', function(e) {
+                if (isSliding) endSlide();
+            });
+        });
+        
+        function calculateNewBrightness(startBrightness, deltaX) {
+            const brightnessChange = Math.round(deltaX * 0.5);
+            let newBrightness = startBrightness + brightnessChange;
+            
+            newBrightness = Math.max(0, Math.min(100, newBrightness));          
+            return newBrightness;
+        }
+    
+        
+        function updateRoomBrightness(roomEl, brightness) {
+            const roomName = roomEl.getAttribute('data-room');
+            const brightnessSlider = roomEl.querySelector('.room-brightness');
+            const brightnessValue = roomEl.querySelector('.room-brightness-container .brightness-value');
+            const indicator = roomEl.querySelector('.brightness-indicator');
+            
+            brightnessSlider.value = brightness;
+            if (brightnessValue) brightnessValue.textContent = brightness + '%';
+            
+            if (indicator) {
+                indicator.style.height = brightness + '%';
+            }
+            
+            const currentColor = getComputedStyle(roomEl).getPropertyValue('--room-color') || '#2ecc71';
+            const adjustedColor = adjustColorForBrightness(currentColor, brightness);
+            roomEl.style.setProperty('--room-color', adjustedColor);
+            
+            clearTimeout(roomEl._brightnessTimeout);
+            roomEl._brightnessTimeout = setTimeout(() => {
+                setRoomBrightness(roomName, brightness);
+            }, 150);
+        }
+        
+        function updateBrightnessDisplay(roomEl, brightness) {
+            const display = roomEl.querySelector('.brightness-value-display');
+            if (display) {
+                display.textContent = brightness + '%';
+                display.style.opacity = '1';
+            }
+        }
+        
+        function adjustColorForBrightness(color, brightness) {
+            const factor = brightness / 100;
+            return color.replace('rgb(', 'rgba(').replace(')', `, ''${0.3 + factor * 0.7})`);
+        }
+        
+        function playBrightnessSound() {
+            try {
+                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(500, audioContext.currentTime);
+                
+                gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.1);
+            } catch (e) {
+                console.log('🦆 No audio support for brightness changes');
+            }
+        }
+        
+        document.querySelectorAll('.collapse-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const roomEl = this.closest('.room');
+                const devicesEl = roomEl.querySelector('.devices');
+                
+                this.style.transform = 'rotate(180deg)';
+                setTimeout(() => {
+                    devicesEl.classList.toggle('hidden');
+                    this.textContent = devicesEl.classList.contains('hidden') ? '▸' : '▾';
+                    this.style.transform = "";
+                }, 300);
+                
+                playSuccessSound();
+            });
+        });
+        
+        document.querySelectorAll('.device-toggle').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const deviceEl = this.closest('.device');
+                const deviceId = deviceEl.getAttribute('data-device');
+                
+                deviceEl.classList.add('loading');
+                setTimeout(() => {
+                    if (window.sendCommand) {
+                        window.sendCommand(deviceId, { state: this.checked ? 'ON' : 'OFF' });
+                    }
+                    
+                    deviceEl.classList.toggle('on', this.checked);
+                    deviceEl.classList.toggle('off', !this.checked);
+                    deviceEl.classList.remove('loading');
+                    
+                    const brightnessSlider = deviceEl.querySelector('.device-brightness');
+                    if (brightnessSlider) {
+                        brightnessSlider.style.display = this.checked ? 'block' : 'none';
+                    }
+                    
+                    playSuccessSound();
+                    updateRoomColors();
+                }, 300);
+            });
+        });
+        
+        document.querySelectorAll('.device-brightness').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const deviceEl = this.closest('.device');
+                const deviceId = deviceEl.getAttribute('data-device');
+                
+                clearTimeout(this._timeout);
+                this._timeout = setTimeout(() => {
+                    setDeviceBrightness(deviceId, this.value);
+                    
+                    updateRoomBrightnessFromDevices(deviceEl.closest('.room'));
+                }, 200);
+            });
+        });
+        
+        document.querySelectorAll('.color-picker').forEach(picker => {
+            picker.addEventListener('input', function() {
+                const deviceEl = this.closest('.device');
+                const deviceId = deviceEl.getAttribute('data-device');
+                
+                deviceEl.style.animation = 'none';
+                setTimeout(() => {
+                    deviceEl.style.animation = 'deviceAppear 0.5s ease-out';
+                    setDeviceColor(deviceId, this.value);
+                    
+                    deviceEl.style.setProperty('--device-color', this.value);
+                    deviceEl.classList.add('on');
+                    
+                    updateRoomColors();
+                    playQuackSound();
+                }, 10);
+            });
+        });
+        
+
+        function updateRoomBrightnessFromDevices(roomEl) {
+            const deviceBrightnesses = Array.from(roomEl.querySelectorAll('.device.on .device-brightness'))
+                .map(slider => parseInt(slider.value))
+                .filter(value => !isNaN(value));
+            
+            if (deviceBrightnesses.length > 0) {
+                const avgBrightness = Math.round(deviceBrightnesses.reduce((a, b) => a + b) / deviceBrightnesses.length);
+                const roomSlider = roomEl.querySelector('.room-brightness');
+                const roomValue = roomEl.querySelector('.room-brightness-container .brightness-value');
+                
+                if (roomSlider && roomValue) {
+                    roomSlider.value = avgBrightness;
+                    roomValue.textContent = avgBrightness + '%';
+                }
+            }
+        }
+        
+        console.log('🦆 Slide-to-brightness controls initialized! 🦆✨');
+    }
+    
+    window.initRoomControls = initRoomControlsWithSlide;
+        
     window.updateDeviceUIFromMQTT = updateDeviceUIFromMQTT;
     window.updateAllRoomControls = updateAllRoomControls;
     window.syncRoomTogglesFromState = syncRoomTogglesFromState;
     window.setInitialRoomCollapse = setInitialRoomCollapse;
   '';
 
+
+  enhancedRoomControlJs = ''
+    function updateRoomColors() {
+        document.querySelectorAll('.room').forEach(roomEl => {
+            const roomName = roomEl.getAttribute('data-room');
+            const deviceElements = Array.from(roomEl.querySelectorAll('.device'));
+            const anyOn = deviceElements.some(device => {
+                const toggle = device.querySelector('.device-toggle');
+                return device.classList.contains('on') || (toggle && toggle.checked);
+            });
+        
+            if (anyOn) {
+                const onDevices = deviceElements.filter(device => {
+                    const toggle = device.querySelector('.device-toggle');
+                    return device.classList.contains('on') || (toggle && toggle.checked);
+                });
+            
+                let r = 0, g = 0, b = 0, count = 0;
+            
+                onDevices.forEach(device => {
+                    const colorPicker = device.querySelector('.color-picker');
+                    const toggle = device.querySelector('.device-toggle');
+                
+                    if (colorPicker && toggle && toggle.checked) {
+                        const color = colorPicker.value;
+                        const c = color.replace('#', "");
+                        r += parseInt(c.substr(0, 2), 16);
+                        g += parseInt(c.substr(2, 2), 16);
+                        b += parseInt(c.substr(4, 2), 16);
+                        count++;
+                    }
+                });
+            
+                if (count > 0) {
+                    r = Math.round(r / count);
+                    g = Math.round(g / count);
+                    b = Math.round(b / count);
+                    const roomColor = \`rgb(\''${r}, \''${g}, \''${b})\`;
+                    roomEl.style.setProperty('--room-color', roomColor);
+                    roomEl.style.setProperty('--room-color-rgb', \`\''${r}, \''${g}, \''${b}\`);
+                    roomEl.classList.add('on');
+                    
+                    roomEl.classList.add('success');
+                    setTimeout(() => roomEl.classList.remove('success'), 1000);
+                } else {
+                    roomEl.classList.remove('on');
+                }
+            } else {
+                roomEl.classList.remove('on');
+            }
+        });
+    }
+  
+    function updateDeviceInRoom(deviceId, data) {
+        const deviceElementId = 'device-' + deviceId;
+        let deviceEl = document.getElementById(deviceElementId);  
+        if (!deviceEl) {
+            console.warn('🦆 Device element not found for ID: ' + deviceId);
+        
+            const altEl = document.querySelector('[data-device="' + deviceId + '"]');
+            if (altEl) {
+                deviceEl = altEl;
+            } else {
+                const allDeviceEls = document.querySelectorAll('[data-device]');
+                for (const el of allDeviceEls) {
+                    if (el.querySelector('.device-name')?.textContent === deviceId) {
+                        deviceEl = el;
+                        break;
+                    }
+                }
+            }
+        
+            if (!deviceEl) {
+                console.error('🦆 Could not find device element for: ' + deviceId);
+                return;
+            }
+        } 
+        
+        const toggle = deviceEl.querySelector('.device-toggle');
+        const brightnessSlider = deviceEl.querySelector('.device-brightness');
+        const colorPicker = deviceEl.querySelector('.color-picker');
+        
+        let deviceState = data.state;
+        if (deviceState === undefined) {
+            deviceState = data.State || data.STATE || data.power || data.Power;
+        }
+        
+        console.log('🦆 Device ' + deviceId + ' state:', deviceState, 'from data:', data);
+        
+        if (toggle && deviceState !== undefined) {
+            const isOn = typeof deviceState === 'string' 
+                ? deviceState.toUpperCase() === 'ON'
+                : Boolean(deviceState);
+            
+            // 🦆 says ⮞ Add toggle animation
+            if (toggle.checked !== isOn) {
+                deviceEl.classList.add('loading');
+                setTimeout(() => {
+                    toggle.checked = isOn;
+                    deviceEl.classList.toggle('on', isOn);
+                    deviceEl.classList.toggle('off', !isOn);
+                    deviceEl.classList.remove('loading');
+                    
+                    // 🦆 says ⮞ Play sound for state change
+                    if (isOn) playSuccessSound();
+                }, 300);
+            } else {
+                toggle.checked = isOn;
+                deviceEl.classList.toggle('on', isOn);
+                deviceEl.classList.toggle('off', !isOn);
+            }
+            
+            if (brightnessSlider) {
+                brightnessSlider.style.display = isOn ? 'block' : 'none';
+            }
+        } else if (toggle) {
+            console.warn('🦆 No state found for device ' + deviceId);
+        }
+        
+        if (brightnessSlider && data.brightness !== undefined) {
+            const percent = Math.round((data.brightness / 254) * 100);
+            brightnessSlider.value = percent;
+            
+            // 🦆 says ⮞ Add visual feedback for brightness changes
+            if (Math.abs(percent - parseInt(brightnessSlider.dataset.lastValue || 0)) > 10) {
+                brightnessSlider.classList.add('brightness-active');
+                setTimeout(() => brightnessSlider.classList.remove('brightness-active'), 500);
+            }
+            brightnessSlider.dataset.lastValue = percent;
+            
+            // 🦆 says ⮞ Update brightness value display
+            const brightnessValue = deviceEl.querySelector('.brightness-value');
+            if (brightnessValue) {
+                brightnessValue.textContent = percent + '%';
+            }
+        }
+        
+        if (colorPicker && data.color) {
+            const colorHex = normalizeColorFromState(data.color);
+            if (colorHex) {
+                colorPicker.value = colorHex;
+                deviceEl.style.setProperty('--device-color', colorHex);
+                deviceEl.style.setProperty('--device-color-rgb', 
+                    parseInt(colorHex.substr(1, 2), 16) + ', ' +
+                    parseInt(colorHex.substr(3, 2), 16) + ', ' +
+                    parseInt(colorHex.substr(5, 2), 16)
+                );
+                
+                // 🦆 says ⮞ Add color change animation
+                deviceEl.style.animation = 'none';
+                setTimeout(() => {
+                    deviceEl.style.animation = 'deviceAppear 0.3s ease-out';
+                }, 10);
+            }
+        }
+        
+        updateRoomColors();
+    }
+  
+    // 🦆 says ⮞ Success sound for device actions
+    function playSuccessSound() {
+        try {
+            const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Success tone
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(1200, audioContext.currentTime + 0.1);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.2);
+        } catch (e) {
+            console.log('🦆 Audio not supported, silent success!');
+        }
+    }
+  
+    // 🦆 says ⮞ Enhanced init with personality
+    function initRoomControlsWithPersonality() {
+        console.log('🦆 Initializing room controls with personality!');
+        
+        // 🦆 says ⮞ Add loading animation to all rooms
+        document.querySelectorAll('.room').forEach(room => {
+            room.classList.add('loading');
+        });
+        
+        setTimeout(() => {
+            document.querySelectorAll('.room').forEach(room => {
+                room.classList.remove('loading');
+            });
+        }, 1000);
+        
+        document.querySelectorAll('.room-header').forEach(header => {
+            header.addEventListener('click', function(e) {
+                if (e.target.classList.contains('collapse-btn')) return;
+                
+                const roomEl = this.closest('.room');
+                const roomName = roomEl.getAttribute('data-room');
+                const devices = roomEl.querySelectorAll('.device');
+                const anyOn = Array.from(devices).some(device => 
+                    device.classList.contains('on')
+                );
+                
+                // 🦆 says ⮞ Add click animation
+                roomEl.classList.add('loading');
+                setTimeout(() => {
+                    toggleRoom(roomName, !anyOn);
+                    roomEl.classList.remove('loading');
+                    
+                    // 🦆 says ⮞ Play quack for room toggle
+                    if (Math.random() > 0.5) playQuackSound();
+                }, 200);
+            });
+        });
+        
+        // 🦆 says ⮞ Enhanced collapse button with animation
+        document.querySelectorAll('.collapse-btn').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const roomEl = this.closest('.room');
+                const devicesEl = roomEl.querySelector('.devices');
+                
+                // 🦆 says ⮞ Add rotation animation
+                this.style.transform = 'rotate(180deg)';
+                setTimeout(() => {
+                    devicesEl.classList.toggle('hidden');
+                    this.textContent = devicesEl.classList.contains('hidden') ? '▸' : '▾';
+                    this.style.transform = "";
+                }, 300);
+                
+                // 🦆 says ⮞ Play subtle sound
+                playSuccessSound();
+            });
+        });
+        
+        // 🦆 says ⮞ Enhanced device toggle with animation
+        document.querySelectorAll('.device-toggle').forEach(toggle => {
+            toggle.addEventListener('change', function() {
+                const deviceEl = this.closest('.device');
+                const deviceId = deviceEl.getAttribute('data-device');
+                const command = { state: this.checked ? 'ON' : 'OFF' };
+                
+                // 🦆 says ⮞ Add loading state
+                deviceEl.classList.add('loading');
+                
+                setTimeout(() => {
+                    if (window.sendCommand) {
+                        window.sendCommand(deviceId, command);
+                    }
+                    
+                    deviceEl.classList.toggle('on', this.checked);
+                    deviceEl.classList.toggle('off', !this.checked);
+                    deviceEl.classList.remove('loading');
+                    
+                    const brightnessSlider = deviceEl.querySelector('.device-brightness');
+                    if (brightnessSlider) {
+                        brightnessSlider.style.display = this.checked ? 'block' : 'none';
+                    }
+                    
+                    // 🦆 says ⮞ Play success sound
+                    playSuccessSound();
+                    updateRoomColors();
+                }, 300);
+            });
+        });
+        
+        // 🦆 says ⮞ Enhanced brightness slider with visual feedback
+        document.querySelectorAll('.device-brightness').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const deviceEl = this.closest('.device');
+                const deviceId = deviceEl.getAttribute('data-device');
+                
+                // 🦆 says ⮞ Update value display
+                const valueDisplay = deviceEl.querySelector('.brightness-value') || 
+                                    (() => {
+                                        const span = document.createElement('span');
+                                        span.className = 'brightness-value';
+                                        span.style.cssText = 'position: absolute; top: 5px; right: 5px; font-size: 0.9rem; color: var(--neon-yellow);';
+                                        deviceEl.appendChild(span);
+                                        return span;
+                                    })();
+                
+                valueDisplay.textContent = this.value + '%';
+                
+                // 🦆 says ⮞ Debounce the command
+                clearTimeout(slider._timeout);
+                slider._timeout = setTimeout(() => {
+                    setDeviceBrightness(deviceId, this.value);
+                }, 200);
+            });
+        });
+        
+        // 🦆 says ⮞ Enhanced room brightness slider
+        document.querySelectorAll('.room-brightness').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const roomEl = this.closest('.room');
+                const roomName = roomEl.getAttribute('data-room');
+                
+                // 🦆 says ⮞ Add visual feedback
+                this.classList.add('brightness-active');
+                
+                // 🦆 says ⮞ Debounce the command
+                clearTimeout(this._timeout);
+                this._timeout = setTimeout(() => {
+                    setRoomBrightness(roomName, this.value);
+                    this.classList.remove('brightness-active');
+                }, 300);
+            });
+        });
+        
+        // 🦆 says ⮞ Enhanced color picker with animation
+        document.querySelectorAll('.color-picker').forEach(picker => {
+            picker.addEventListener('input', function() {
+                const deviceEl = this.closest('.device');
+                const deviceId = deviceEl.getAttribute('data-device');
+                
+                // 🦆 says ⮞ Add color change animation
+                deviceEl.style.animation = 'none';
+                setTimeout(() => {
+                    deviceEl.style.animation = 'deviceAppear 0.5s ease-out';
+                    setDeviceColor(deviceId, this.value);
+                    
+                    deviceEl.style.setProperty('--device-color', this.value);
+                    deviceEl.classList.add('on');
+                    
+                    // 🦆 says ⮞ Convert hex to RGB for CSS variable
+                    const hex = this.value.replace('#', "");
+                    const r = parseInt(hex.substr(0, 2), 16);
+                    const g = parseInt(hex.substr(2, 2), 16);
+                    const b = parseInt(hex.substr(4, 2), 16);
+                    deviceEl.style.setProperty('--device-color-rgb', \`\''${r}, \''${g}, \''${b}\`);
+                    
+                    updateRoomColors();
+                    
+                    // 🦆 says ⮞ Play color change sound
+                    playSuccessSound();
+                }, 10);
+            });
+        });
+        
+        console.log('🦆 Room controls initialized with personality! 🦆✨');
+    }
+  
+    window.initRoomControls = initRoomControlsWithPersonality;
+  '';
+  
   
   httpServer = pkgs.writeShellScriptBin "serve-dashboard" ''
     HOST=''${1:-0.0.0.0}
@@ -1734,634 +2363,34 @@ EOF
         <title>🦆'Dash</title>
         <link rel="preconnect" href="https://cdn.jsdelivr.net">
         <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <link rel="stylesheet" href="https://raw.githack.com/QuackHack-McBlindy/dotfiles/main/modules/themes/css/duckdash2.css">        
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">     
         <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
         <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>        
 
-
         <style> 
-            .container {
-                width: 100% !important;          
-                margin: 0 !important;
-                padding: 0 !important;
-            }
-  
             .page {
-                background: #000000 !important;
-                width: 100% !important;
-                max-width: none !important;
-                margin: 0 !important;
-                padding: 20px !important;
-                box-sizing: border-box !important;
-
-            }
-  
-            .page-container {
-                width: 100% !important;
-                max-width: none !important;
-            }
-  
-            ${roomControlCSS}
-            
-            .nav-tabs {
-                background: #000000 !important;
-                border-top: 1px solid #333333 !important;
-                position: fixed !important;
-                bottom: 0 !important;
-                left: 0 !important;
-                right: 0 !important;
-                height: 60px !important;
-                z-index: 1000 !important;
-            }
-                    
-            .nav-tab {
-                color: #ffffff !important;
-            }
-            
-            .nav-tab.active {
-                background: #2b6cb0 !important;
-                color: #ffffff !important;
-            }
-                        
-            .device-selector-container {
-                background: #000000 !important;
-            }
-            
-            .device-selector {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-                border: 1px solid #333333 !important;
-            }
-            
-            .mic-btn {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-                border: 1px solid #333333 !important;
-            }
-            
-            .connection-status {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-                border: 1px solid #333333 !important;
-            }
-            
-            .device-controls {
-                background: #000000 !important;
-                color: #ffffff !important;
-            }
-            
-            .device-header {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-            }
-            
-            .device-panel {
-                background: #000000 !important;
-                color: #ffffff !important;
-            }
-            
-            #pageScenes h2 {
-                color: #ffffff !important;
-            }
-            
-            .tv-selector {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-                border: 1px solid #333333 !important;
-            }
-            
-            .tv-selector option {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-            }
-            
-            body, .container, .page, header, .nav-tabs {
-                color: #ffffff !important;
-            }
-            
-            .card-title, .card-value, .card-details,
-            .device-info h2, .device-info p,
-            #currentDeviceName, #currentDeviceStatus {
-                color: #ffffff !important;
-            }
-             
-            body {
-                background: #000000 !important;
-            }
-
-            .container {
-                background: #000000 !important;
-            }
-
-            /* 🦆 says ⮞ Chart status cards */
-            .card.has-chart {
-                position: relative;
-                padding-bottom: 60px;
-                min-height: 180px;
-            }
-
-            .card-chart {
-                position: absolute;
-                bottom: 12px;
-                left: 12px;
-                right: 12px;
-                height: 50px;
-                z-index: 1;
-            }
-
-            .card-chart canvas {
-                width: 100% !important;
-                height: 100% !important;
-            }
-
-            .card-delta {
-                position: absolute;
-                bottom: 70px;
-                right: 16px;
-                font-size: 12px;
-                font-weight: 600;
-                z-index: 2;
-                background: rgba(0, 0, 0, 0.3);
-                padding: 2px 6px;
-                border-radius: 4px;
-                backdrop-filter: blur(4px);
-            }
-
-            /* 🦆 says ⮞ Update existing card styles for better chart integration */
-            .card.has-chart .card-value {
-                font-size: 28px;
-                margin-top: 8px;
-            }
-
-            .card.has-chart .card-details {
-                margin-top: 4px;
-            }
-
-            /* 🦆 says ⮞ Make sure regular cards don't have extra padding */
-            .card:not(.has-chart) {
-                padding-bottom: 16px;
-            }
-
-            .card {
-                background: #1a1a1a !important;
-                color: #ffffff !important;
-            }
-            .card-header {
-                background: #000000 !important;
-                border-bottom: 1px solid #333333 !important;
-                padding: 12px 16px !important;
-                border-radius: 12px 12px 0 0 !important;
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-            }
-
-            .card-title {
-                font-size: 1.5rem !important;
-                font-weight: 600 !important;
-                color: #ffffff !important;
-                margin: 0 !important;
-            }
-
-            .card-header i {
-                font-size: 1.5rem !important;
-            }
-            #pageCloud, #pageQwackify {
-                padding: 0;
-                height: 100%;
-            }
-            
-            .qwackify-grid, .cloud-grid {
+                display: none;
                 width: 100%;
-                height: 100%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                background: var(--light);
-            }
-            
-            .qwackify-grid iframe, .cloud-grid iframe {
-                width: 100%;
-                height: 100%;
-                border: none;
-                border-radius: 0;
-                display: block;
-            }
-            
-            .fullpage-iframe {
-                width: 100%;
-                height: 100%;
-                transform-origin: top left;
-            }
-            
-            #pagesContainer {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            }
-
-
-            .nav-icon {
-                width: 36px;
-                height: 36px;
-                object-fit: contain;
-                margin-right: 8px;
-                vertical-align: middle;
-            }
-            .status-card-action-menu {
-                background: white;
-                border-radius: 12px;
+                min-height: 100%;
                 padding: 20px;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-                z-index: 1000;
-                position: fixed;
-                animation: slideUp 0.2s ease;
+                box-sizing: border-box;
             }
-            
-            @keyframes slideUp {
-                from { opacity: 0; transform: translateY(20px); }
-                to { opacity: 1; transform: translateY(0); }
-            }
-            
-            .action-menu-header {
-                text-align: center;
-                margin-bottom: 15px;
-                padding-bottom: 15px;
-                border-bottom: 1px solid #e2e8f0;
-            }
-            
-            .action-menu-header h3 {
-                margin: 0 0 5px 0;
-                color: #2d3748;
-            }
-            
-            .action-menu-header p {
-                margin: 0;
-                color: #718096;
-                font-size: 0.9rem;
-            }
-            
-            .action-buttons {
-                display: flex;
-                flex-direction: column;
-                gap: 10px;
-            }
-            
-            .action-btn {
-                padding: 12px 15px;
-                border: none;
-                border-radius: 8px;
-                font-size: 1rem;
-                cursor: pointer;
-                transition: all 0.2s ease;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                justify-content: center;
-            }
-            
-            .read-btn {
-                background: linear-gradient(135deg, #48bb78, #38a169);
-                color: white;
-            }
-            
-            .hide-btn {
-                background: linear-gradient(135deg, #f56565, #e53e3e);
-                color: white;
-            }
-            
-            .cancel-btn {
-                background: #e2e8f0;
-                color: #4a5568;
-            }
-            
-            .action-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            }
-            
-            .action-menu-backdrop {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0, 0, 0, 0.5);
-                z-index: 999;
-            }
-            
-            .unified-status-card {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                margin-bottom: 0 !important;
-                color: white;
-                position: relative;
-                overflow: hidden;
-            }
-    
-            .device-selector-container {
-                transition: all 0.3s ease;
-                margin: 10px 20px;
-            }
-
-            .device-selector-container.hidden {
-              display: none;
-            }
-    
-            .unified-status-card::before {
-              content: "";
-              position: absolute;
-              top: 0;
-              left: 0;
-              right: 0;
-              height: 4px;
-              background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #ffeaa7);
-            }
-    
-            .status-priority-critical { background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%) !important; }
-            .status-priority-high { background: linear-gradient(135deg, #ff9ff3 0%, #f368e0 100%) !important; }
-            .status-priority-medium { background: linear-gradient(135deg, #feca57 0%, #ff9f43 100%) !important; }
-            .status-priority-low { background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%) !important; }
-            .status-priority-info { background: linear-gradient(135deg, #1dd1a1 0%, #10ac84 100%) !important; }
-
-            .page-container {
-                overflow: hidden;
-                height: calc(100vh - 140px);
-            }
-
-            .connection-status {
-                transition: all 0.5s ease;
-                opacity: 1;
-                transform: translateY(0);
-            }
-            
-            .connection-status.hidden {
-                opacity: 0;
-                transform: translateY(-20px);
-                pointer-events: none;
-            }
-
-            .status-cards {
-                gap: 5px;
-                padding-bottom: 10px;
-            }
-
-            .scene-grid {
-                padding-bottom: 80px;
-            }    
-            
-            /* 🦆 says ⮞ TV */
-            .tv-channel-display {
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                border-radius: 12px;
-                padding: 15px;
-                margin: 15px auto;
-                max-width: 300px;
-                color: white;
-                text-align: center;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                min-height: 70px;
-            }
-
-            .channel-info {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 15px;
-                height: 100%;
-            }
-
-            .channel-icon {
-                width: 50px !important;
-                height: 50px !important;
-                border-radius: 10px;
-                background-size: cover !important;
-                background-position: center !important;
-                background-repeat: no-repeat !important;
-                flex-shrink: 0;
-                border: 2px solid rgba(255, 255, 255, 0.4);
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                position: relative;
-                min-width: 50px;
-                min-height: 50px;
-            }
-
-            .channel-number-fallback {
-                font-size: 1.1rem;
-                font-weight: bold;
-                color: white;
-                background: rgba(0, 0, 0, 0.3);
-                border-radius: 6px;
-                padding: 4px 8px;
-            }
- 
-            .program-info {
-                flex: 1;
-                text-align: left;
-                min-width: 0;
-            }
-            
-            .program-title {
-                font-size: 1rem;
-                font-weight: bold;
-                margin: 0 0 8px 0;
-                line-height: 1.2;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                cursor: pointer;
-            }
-            
-            .program-progress {
-                background: rgba(255, 255, 255, 0.2);
-                border-radius: 10px;
-                height: 6px;
-                overflow: hidden;
-            }
-            
-            .program-progress-bar {
-                height: 100%;
-                width: 0%;
-                background: linear-gradient(90deg, #4cd964, #2ecc71);
-                transition: width 0.3s ease;
-            }
-            
-            .program-time {
-                display: none !important;
-            }
-            
-            .tv-control-btn.channel { background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%); }
-            .tv-control-btn.volume { background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); }
-            .tv-control-btn.nav { background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); }
-            .tv-control-btn.playback { background: linear-gradient(135deg, #22c55e 0%, #15803d 100%); }
-            .tv-control-btn.system { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); }
-            .tv-control-btn.power { background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); }
-            
-            .tv-control-btn[data-nav] {
-                font-size: 1.8rem;
-                width: 90px;
-                height: 90px;
-            }
-            
-            .tv-controls-grid .tv-control-row:nth-child(2) {
-                margin-bottom: 20px;
-            }
-            
-            .tv-controls-grid .tv-control-row:nth-child(5) {
-                margin-bottom: 20px;
-            }
-            
-            .tv-controls-grid {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 15px;
-                margin-top: 20px;
-            }
-            
-            .tv-control-row {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                gap: 15px;
-            }
-            
-            .tv-control-btn {
-                padding: 15px 20px;
-                border: none;
-                border-radius: 12px;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                color: white;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                min-width: 80px;
-                justify-content: center;
-            }
-            
-            .tv-control-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-            }
-            
-            .tv-control-btn.ok {
-                background: linear-gradient(135deg, #4cd964 0%, #2ecc71 100%);
-            }
-            
-            .tv-control-btn.icon-only {
-                min-width: 60px;
-                padding: 15px;
-            }
-            
-            .tv-selector-container {
-                margin-bottom: 20px;
-                display: flex;
-                justify-content: center;
-            }
-            
-            .tv-selector {
-                padding: 12px;
-                border-radius: 8px;
-                border: 2px solid #38bdf8;
-                background: #f0f9ff;
-                font-size: 1rem;
-                width: 100%;
-                max-width: 280px;
-            }
-            
-            .tv-guide-placeholder {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                padding: 40px;
-                background: var(--light);
-                border-radius: 12px;
-                margin-bottom: 20px;
-                gap: 10px;
-                color: var(--gray);
-            }
-            
-            .tv-controls {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 20px;
-                margin-top: 20px;
-            }
-            
-            .tv-power {
-                display: flex;
-                justify-content: center;
-            }
-            
-            .tv-volume, .tv-navigation, .tv-playback {
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 10px;
-            }
-            
-            .tv-btn {
-                padding: 15px;
-                border-radius: 12px;
-                background: white;
-                border: none;
-                box-shadow: var(--card-shadow);
-                font-size: 1.2rem;
-                cursor: pointer;
-                transition: var(--transition);
-            }
-            
-            .tv-btn:hover {
-                background: var(--primary);
-                color: white;
-            }
-            
-            .tv-btn.ok {
-                grid-column: 2;
-            }
-           
-            .channel-icon {
-                background-color: rgba(255, 0, 0, 0.3) !important; /* Red background to see the element */
-                border: 3px solid #00ff00 !important; /* Green border to see the bounds */
-            }
-
-            #currentChannelIcon {
-                display: flex !important;
-                visibility: visible !important;
-                opacity: 1 !important;
-            }             
-            
-            .scene-item {
-                padding: 15px;
-                border-radius: 12px;
-                cursor: pointer;
-                transition: var(--transition);
-                text-align: center;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                background: black;
-                color: white;
-            }
+        
+            ${css.global}
+            ${css.devices}
+            ${css.scenes}
             ${sceneGradientCss}
+            ${css.tv}
         </style>
+        
     </head>
     <body>
         <div class="container">
             
             <div id="deviceSelectorContainer" class="device-selector-container hidden">
                 <select id="deviceSelect" class="device-selector">
-                    <option value="">🦆 says > pick a device </option>
+                    <option value="">🦆 says ▶ pick a device! </option>
                 </select>
             </div>
     
@@ -2382,17 +2411,6 @@ EOF
                     <div class="status-cards">
                         ${statusCardsHtml}
                        
-                        <!--<div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Temperature</div>
-                                <i class="fas fa-thermometer-half" style="color: #e74c3c;"></i>
-                            </div>
-                            <div class="card-value" id="temperatureValue">--.-°C</div>
-                            <div class="card-details">
-                                <i class="fas fa-map-marker-alt"></i>
-                                <span id="temperatureLocation">Waiting for data</span>
-                            </div>
-                        </div> -->
                                              
                     </div>
                     </div>
@@ -2411,7 +2429,7 @@ EOF
                             </div>
                             <div class="device-info">
                                 <h1 id="currentDeviceName">Select a device</h1>
-                                <p id="currentDeviceStatus">Or swipe around!</p>
+                                <p id="currentDeviceStatus">Choose a device from dropdown</p>
                             </div>
                             <div class="linkquality-mini">
                                 <div class="lq-bars"></div>
@@ -2430,7 +2448,9 @@ EOF
                  🦆 says ⮞ PAGE 2 - SCENES
                  🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆 -->
                 <div class="page" id="pageScenes" data-page="2">
-                    <h2>Scenes</h2>
+                    <div class="room-controls-section">
+                      <h3>🦆<i class="fas fa-palette"></i> SCENES <i class="fas fa-palette"></i>🦆</h3>
+                    </div>  
                     <div class="scene-grid" id="scenesContainer">
                       ${sceneGridHtml}
                     </div>
@@ -2443,7 +2463,7 @@ EOF
                 <div class="page" id="pageTV" data-page="3">
                     <div class="tv-selector-container">
                         <select id="targetTV" class="tv-selector">
-                            <option value="">🦆 says > pick a TV</option>
+                            <option value="">🦆 says ▶ pick a TV source</option>
                             ${tvOptions}
                         </select>
                     </div>
@@ -2465,63 +2485,63 @@ EOF
 
                 
                     <div class="tv-controls-grid">
-                        <!-- 🦆 says ⮞ ROW 1 -->
+                        <!-- 🦆 says ⮞ ROW 1 - GREEN -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn channel" onclick="sendTVCommand('channel_up')">
-                                <i class="fas fa-arrow-up"></i>
-                            </button>
-                            <button class="tv-control-btn volume" onclick="sendTVCommand('up')">
-                                <i class="fas fa-volume-up"></i>
-                            </button>
+                          <button class="tv-control-btn channel green" onclick="sendTVCommand('channel_up')">
+                            <i class="fas fa-arrow-up"></i>
+                          </button>
+                          <button class="tv-control-btn volume green" onclick="sendTVCommand('up')">
+                            <i class="fas fa-volume-up"></i>
+                          </button>
                         </div>
-                        
-                        <!-- 🦆 says ⮞ ROW 2 -->
+      
+                        <!-- 🦆 says ⮞ ROW 2 - RED -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn channel" onclick="sendTVCommand('channel_down')">
-                                <i class="fas fa-arrow-down"></i>
-                            </button>
-                            <button class="tv-control-btn volume" onclick="sendTVCommand('down')">
-                                <i class="fas fa-volume-down"></i>
-                            </button>
+                          <button class="tv-control-btn channel red" onclick="sendTVCommand('channel_down')">
+                            <i class="fas fa-arrow-down"></i>
+                          </button>
+                          <button class="tv-control-btn volume red" onclick="sendTVCommand('down')">
+                            <i class="fas fa-volume-down"></i>
+                          </button>
                         </div>
-                        
-                        <!-- 🦆 says ⮞ ROW 3 -->
+      
+                        <!-- 🦆 says ⮞ ROW 3 - ORANGE for nav up -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('menu')">
-                                <i class="mdi mdi-menu"></i>
-                            </button>
-                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_up')">
-                                <i class="fas fa-arrow-up"></i>
-                            </button>
-                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('home')">
-                                <i class="mdi mdi-home"></i>
-                            </button>
+                          <button class="tv-control-btn icon-only system" onclick="sendTVCommand('menu')">
+                            <i class="mdi mdi-menu"></i>
+                          </button>
+                          <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_up')">
+                            <i class="fas fa-arrow-up"></i>
+                          </button>
+                          <button class="tv-control-btn icon-only system" onclick="sendTVCommand('home')">
+                            <i class="mdi mdi-home"></i>
+                          </button>
                         </div>
-                        
-                        <!-- 🦆 says ⮞ ROW 4 -->
+      
+                        <!-- 🦆 says ⮞ ROW 4 - ORANGE with BLUE DUCK center -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_left')">
-                                <i class="fas fa-arrow-left"></i>
-                            </button>
-                            <button class="tv-control-btn ok nav" onclick="sendTVCommand('nav_select')">
-                                <i class="fas fa-dot-circle"></i>
-                            </button>
-                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_right')">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
+                          <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_left')">
+                            <i class="fas fa-arrow-left"></i>
+                          </button>
+                          <button class="tv-control-btn ok blue" onclick="sendTVCommand('nav_select')">
+                            <span class="duck-emoji">🦆</span>
+                          </button>
+                          <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_right')">
+                            <i class="fas fa-arrow-right"></i>
+                          </button>
                         </div>
-                        
-                        <!-- 🦆 says ⮞ ROW 5 -->
+      
+                        <!-- 🦆 says ⮞ ROW 5 - ORANGE for nav down -->
                         <div class="tv-control-row">
-                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('back')">
-                                <i class="mdi mdi-arrow-left-circle"></i>
-                            </button>
-                            <button class="tv-control-btn nav" data-nav onclick="sendTVCommand('nav_down')">
-                                <i class="fas fa-arrow-down"></i>
-                            </button>
-                            <button class="tv-control-btn icon-only system" onclick="sendTVCommand('app_switcher')">
-                                <i class="mdi mdi-apps"></i>
-                            </button>
+                          <button class="tv-control-btn icon-only system" onclick="sendTVCommand('back')">
+                            <i class="mdi mdi-arrow-left-circle"></i>
+                          </button>
+                          <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_down')">
+                            <i class="fas fa-arrow-down"></i>
+                          </button>
+                          <button class="tv-control-btn icon-only system" onclick="sendTVCommand('app_switcher')">
+                            <i class="mdi mdi-apps"></i>
+                          </button>
                         </div>
                         
                         <!-- 🦆 says ⮞ ROW 6 -->
@@ -2570,23 +2590,25 @@ EOF
         </div>
     
         <div class="notification hidden" id="notification"></div>
-    
+     
         <script>
             ${statusCardsJs}
-            ${updateAllCardsJs}
+            ${enhancedChartJs}
+            ${enhancedUpdateAllCardsJs}
+            ${interactiveCardJs}
             
             // 🦆 says ⮞ chart functions
             function updateCardChart(cardId, historyData, color) {
-                const canvas = document.getElementById(`status-''${cardId}-chart`);
+                const canvas = document.getElementById('status-' + cardId + '-chart');
                 if (!canvas) return;
                 
                 // 🦆 says ⮞ check if Chart.js is loaded
                 if (typeof Chart === 'undefined') {
                     loadChartJS().then(() => {
-                        renderCardChart(cardId, historyData, color);
+                        renderEnhancedChart(cardId, historyData, color);
                     });
                 } else {
-                    renderCardChart(cardId, historyData, color);
+                    renderEnhancedChart(cardId, historyData, color);
                 }
             }
             
@@ -2604,68 +2626,63 @@ EOF
                     document.head.appendChild(script);
                 });
             }
+
+            function updateCardValue(cardId, value) {
+                updateCardValueWithAnimation(cardId, value);
+            }
+
+            function updateCardDetails(cardId, details) {
+                const element = document.getElementById('status-' + cardId + '-details');
+                if (element) {
+                    element.textContent = details;
+                }
+            }
+
+            ${enhancedChartJs}
+            ${enhancedUpdateAllCardsJs}
+            ${interactiveCardJs}
             
-            function renderCardChart(cardId, historyData, color) {
-                const canvas = document.getElementById(`status-''${cardId}-chart`);
+            // 🦆 says ⮞ chart functions
+            function updateCardChart(cardId, historyData, color) {
+                const canvas = document.getElementById('status-' + cardId + '-chart');
                 if (!canvas) return;
                 
-                // 🦆 says ⮞ Destroy existing chart if it exists
-                if (canvas.chartInstance) {
-                    canvas.chartInstance.destroy();
+                // 🦆 says ⮞ check if Chart.js is loaded
+                if (typeof Chart === 'undefined') {
+                    loadChartJS().then(() => {
+                        renderEnhancedChart(cardId, historyData, color);
+                    });
+                } else {
+                    renderEnhancedChart(cardId, historyData, color);
                 }
-                
-                // 🦆 says ⮞ Calculate delta (percentage change)
-                const currentValue = historyData[historyData.length - 1];
-                const previousValue = historyData.length > 1 ? historyData[historyData.length - 2] : currentValue;
-                const delta = ((currentValue - previousValue) / previousValue * 100).toFixed(1);
-                
-                // 🦆 says ⮞ Update delta display
-                const deltaElement = document.getElementById(`status-''${cardId}-delta`);
-                if (deltaElement) {
-                    deltaElement.innerHTML = `<i class="fas fa-arrow-''${delta >= 0 ? 'up' : 'down'}"></i> ''${Math.abs(delta)}%`;
-                    deltaElement.style.color = delta >= 0 ? '#22c55e' : '#ef4444';
-                }
-                
-                // 🦆 says ⮞ Create sparkline chart
-                canvas.chartInstance = new Chart(canvas, {
-                    type: 'line',
-                    data: {
-                        labels: historyData.map((_, i) => i),
-                        datasets: [{
-                            data: historyData,
-                            borderColor: color,
-                            borderWidth: 2,
-                            tension: 0.4,
-                            pointRadius: 0,
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { enabled: false }
-                        },
-                        scales: {
-                            x: { 
-                                display: false,
-                                grid: { display: false }
-                            },
-                            y: { 
-                                display: false,
-                                grid: { display: false }
-                            }
-                        },
-                        elements: {
-                            line: {
-                                tension: 0.4
-                            }
-                        }
+            }
+            
+            function loadChartJS() {
+                return new Promise((resolve, reject) => {
+                    if (typeof Chart !== 'undefined') {
+                        resolve();
+                        return;
                     }
+                    
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/chart.js';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
                 });
             }
-                        
+
+            // 🦆 says ⮞ Keep original update functions for compatibility
+            function updateCardValue(cardId, value) {
+                updateCardValueWithAnimation(cardId, value);
+            }
+
+            function updateCardDetails(cardId, details) {
+                const element = document.getElementById('status-' + cardId + '-details');
+                if (element) {
+                    element.textContent = details;
+                }
+            }         
             
             ${fileRefreshJs}
             ${roomControlJs}
@@ -2775,7 +2792,7 @@ EOF
                 // 🦆 says ⮞ mqtt
                 let client = null;
                 
-                const brokerUrl = 'ws://${mqttHostip}:9001';              
+                const brokerUrl = 'ws://${config.house.zigbee.mosquitto.host}:9001';              
                 const statusElement = document.getElementById('connectionStatus');
                 const notification = document.getElementById('notification');
         
@@ -2850,12 +2867,11 @@ EOF
                 }
 
 
-                // 🦆 says ⮞ create room to devices mapping
-                // 🦆 says ⮞ Initialize room device mappings
+                // 🦆 says ⮞ create room to devices mapping & init
                 window.roomDeviceMappings = {};
                 ${roomDeviceMappings}
 
-                // 🦆 says ⮞ Also create roomDevices for backward compatibility
+                // 🦆 says ⮞ & create roomDevices (legacy)
                 window.roomDevices = {};
                 Object.keys(window.roomDeviceMappings || {}).forEach(roomName => {
                     if (window.roomDeviceMappings[roomName]) {
@@ -3072,6 +3088,8 @@ EOF
                     const ip = targetTV.value;   
                     console.log('🦆 Selected TV IP:', ip);
                     
+                    
+                    
                     if (!ip) {
                         console.warn('🦆 No TV selected, showing error notification');
                         showNotification('Please select a TV first', 'error');
@@ -3249,7 +3267,6 @@ EOF
                     }
                 }
 
-
                 // 🦆 says ⮞ find the currently playing program
                 function findCurrentProgram(programs, currentTime) {
                     return programs.find(program => {
@@ -3346,6 +3363,235 @@ EOF
                         elements.progressBar.style.background = 'linear-gradient(90deg, #ff3b30, #e74c3c)';
                     }
                 }
+
+
+                
+                function addDeviceParticles() {
+                    const devicesPage = document.getElementById('pageDevices');
+                    if (!devicesPage) return;
+                    
+                    const particleContainer = document.createElement('div');
+                    particleContainer.className = 'devices-particles';
+                    devicesPage.appendChild(particleContainer);
+                    
+                    // Create particles
+                    for (let i = 0; i < 50; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'devices-particle';
+                        
+                        const x = Math.random() * 100;
+                        const y = Math.random() * 100;
+                        const size = Math.random() * 10 + 2;
+                        particle.style.left = x + '%';
+                        particle.style.top = y + '%';
+                        particle.style.width = size + 'px';
+                        particle.style.height = size + 'px';
+                        
+                        // Random color
+                        const colors = ['#00ffaa', '#38bdf8', '#8b5cf6', '#facc15', '#ef4444', '#22c55e'];
+                        particle.style.background = `radial-gradient(circle at 30% 30%, ''${colors[Math.floor(Math.random() * colors.length)]}, transparent 70%)`;
+                        
+                        // Animation
+                        particle.animate([
+                            { 
+                                transform: 'translate(0, 0) rotate(0deg)',
+                                opacity: Math.random() * 0.5 + 0.3
+                            },
+                            { 
+                                transform: `translate(''${Math.random() * 100 - 50}px, ''${Math.random() * 100 - 50}px) rotate(''${Math.random() * 360}deg)`,
+                                opacity: 0.1
+                            }
+                        ], {
+                            duration: 5000 + Math.random() * 5000,
+                            iterations: Infinity,
+                            direction: 'alternate',
+                            easing: 'ease-in-out'
+                        });
+                        
+                        particleContainer.appendChild(particle);
+                    }
+                }
+                
+                // 🦆 says ⮞ Enhanced device control sounds
+                function playDeviceSound(type) {
+                    try {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        let frequency = 800;
+                        let duration = 0.2;
+                        
+                        switch(type) {
+                            case 'toggle':
+                                frequency = 600;
+                                duration = 0.3;
+                                break;
+                            case 'slider':
+                                frequency = 400;
+                                duration = 0.1;
+                                break;
+                            case 'color':
+                                frequency = 1000;
+                                duration = 0.4;
+                                break;
+                            case 'success':
+                                frequency = 1200;
+                                duration = 0.5;
+                                break;
+                            case 'error':
+                                frequency = 300;
+                                duration = 0.3;
+                                break;
+                            default:
+                                frequency = 800;
+                                duration = 0.2;
+                        }
+                        
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, audioContext.currentTime + duration);
+                        
+                        gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + duration);
+                        
+                    } catch (e) {
+                        console.log('🦆 No audio support, silent device control!');
+                    }
+                }
+                
+                // 🦆 says ⮞ Enhanced device toggle animation
+                function enhancedToggleAnimation(checkbox) {
+                    const toggleContainer = checkbox.closest('.state-display');
+                    if (!toggleContainer) return;
+                    
+                    if (checkbox.checked) {
+                        toggleContainer.classList.remove('state-off');
+                        toggleContainer.classList.add('state-on');
+                        playDeviceSound('toggle');
+                        
+                        // Add success animation
+                        toggleContainer.classList.add('success');
+                        setTimeout(() => toggleContainer.classList.remove('success'), 500);
+                    } else {
+                        toggleContainer.classList.remove('state-on');
+                        toggleContainer.classList.add('state-off');
+                        playDeviceSound('toggle');
+                    }
+                }
+                
+                // 🦆 says ⮞ Enhanced color picker with ripple
+                function enhancedColorPick(color, element) {
+                    const ripple = document.createElement('span');
+                    const rect = element.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height) * 2;
+                    const x = rect.left + rect.width / 2 - size / 2;
+                    const y = rect.top + rect.height / 2 - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: fixed;
+                        border-radius: 50%;
+                        background: ''${color};
+                        transform: scale(0);
+                        animation: ripple 0.6s linear;
+                        width: ''${size}px;
+                        height: ''${size}px;
+                        top: ''${y}px;
+                        left: ''${x}px;
+                        pointer-events: none;
+                        z-index: 1000;
+                        opacity: 0.3;
+                    `;
+                    
+                    document.body.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                    
+                    playDeviceSound('color');
+                    playQuackSound(); // Always quack for color changes!
+                }
+                
+                // 🦆 says ⮞ Initialize devices page with personality
+                function initDevicesPageWithPersonality() {
+                    console.log('🦆 Initializing devices page with maximum personality!');
+                    
+                    // Add particles
+                    setTimeout(addDeviceParticles, 500);
+                    
+                    // Enhanced event listeners for devices page
+                    document.querySelectorAll('.switch input').forEach(checkbox => {
+                        checkbox.addEventListener('change', function() {
+                            enhancedToggleAnimation(this);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.color-preset').forEach(preset => {
+                        preset.addEventListener('click', function() {
+                            const color = this.style.backgroundColor || this.style.background;
+                            enhancedColorPick(color, this);
+                        });
+                    });
+                    
+                    // Enhanced brightness slider
+                    document.querySelectorAll('.brightness-slider').forEach(slider => {
+                        let timeout;
+                        slider.addEventListener('input', function() {
+                            clearTimeout(timeout);
+                            timeout = setTimeout(() => {
+                                playDeviceSound('slider');
+                                
+                                // Visual feedback
+                                const valueDisplay = this.closest('.brightness-display').querySelector('.brightness-value');
+                                if (valueDisplay) {
+                                    valueDisplay.style.transform = 'scale(1.1)';
+                                    setTimeout(() => valueDisplay.style.transform = 'scale(1)', 200);
+                                }
+                            }, 200);
+                        });
+                    });
+                    
+                    // Add ripple effects to all buttons
+                    document.querySelectorAll('.color-picker-btn, .cover-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            const ripple = document.createElement('span');
+                            const rect = this.getBoundingClientRect();
+                            const size = Math.max(rect.width, rect.height);
+                            const x = e.clientX - rect.left - size / 2;
+                            const y = e.clientY - rect.top - size / 2;
+                            
+                            ripple.style.cssText = `
+                                position: absolute;
+                                border-radius: 50%;
+                                background: rgba(255, 255, 255, 0.6);
+                                transform: scale(0);
+                                animation: ripple 0.6s linear;
+                                width: ''${size}px;
+                                height: ''${size}px;
+                                top: ''${y}px;
+                                left: ''${x}px;
+                                pointer-events: none;
+                            `;
+                            
+                            this.appendChild(ripple);
+                            setTimeout(() => ripple.remove(), 600);
+                        });
+                    });
+                    
+                    // Add hover effects to device header
+                    const deviceHeader = document.querySelector('.device-header');
+                    if (deviceHeader) {
+                        deviceHeader.addEventListener('mouseenter', () => {
+                            playDeviceSound('success');
+                        });
+                    }
+                }
+               
+
 
                 // 🦆 says ⮞ update TV channel display
                 function updateTVChannelDisplay(deviceIp, channelData) {
@@ -4073,7 +4319,7 @@ EOF
                                     </div>
                                     <div class="color-picker-container">
                                         <button class="color-picker-btn" onclick="openColorPicker()">
-                                            <i class="fas fa-palette"></i> 🦆 says ⮞ custom color
+                                            🦆 says ▶ <i class="fas fa-palette"></i> custom color
                                         </button>
                                         <input type="color" id="hiddenColorPicker" style="display: none;" onchange="setColor(this.value)">
                                    </div>
@@ -4362,80 +4608,6 @@ EOF
                             });
                         });
         
-                        // 🦆 says ⮞ swipe
-                        let startX = 0;
-                        let currentX = 0;  
-                        pageContainer.addEventListener('touchstart', (e) => {
-                            startX = e.touches[0].clientX;
-                        });
-        
-                        pageContainer.addEventListener('touchmove', (e) => {
-                            currentX = e.touches[0].clientX;
-                        });
-        
-                        pageContainer.addEventListener('touchend', () => {
-                            const diff = startX - currentX;
-                            const swipeThreshold = 50;
-
-                            if (Math.abs(diff) > swipeThreshold) {
-                                if (diff > 0 && currentPage < 5) {
-                                    // 🦆 says ⮞ swipe left
-                                    showPage(currentPage + 1);
-                                } else if (diff < 0 && currentPage > 0) {
-                                    // 🦆 says ⮞ swipe right
-                                    showPage(currentPage - 1);
-                                }
-                            }
-                        });
-                        
-                        // 🦆 says ⮞ vertical swipe 4 da device page
-                        function handleDevicePageVerticalSwipe(diffY) {
-                            if (Math.abs(diffY) > verticalSwipeThreshold) {
-                                const selector = document.getElementById('deviceSelect');
-                                const options = Array.from(selector.options).filter(opt => opt.value);
-                                
-                                if (options.length > 0) {
-                                    const currentIndex = options.findIndex(opt => opt.value === selectedDevice);
-                                    let newIndex;
-                                    
-                                    if (diffY > 0) {
-                                        // 🦆 says ⮞ swipe down - next device
-                                        newIndex = (currentIndex + 1) % options.length;
-                                    } else {
-                                        // 🦆 says ⮞ swipe up - previous device
-                                        newIndex = (currentIndex - 1 + options.length) % options.length;
-                                    }
-                                    
-                                    if (newIndex >= 0 && newIndex < options.length) {
-                                        selector.value = options[newIndex].value;
-                                        selector.dispatchEvent(new Event('change'));
-                                        showNotification(`Switched to ''${options[newIndex].textContent}`, 'success');
-                                    }
-                                }
-                            }
-                        }
-                        
- 
-                        pageContainer.addEventListener('touchend', (e) => {
-                            const diffY = startY - e.changedTouches[0].clientY;           
-                            if (currentPage === 1 && Math.abs(diffY) > Math.abs(startX - currentX)) {
-                                handleDevicePageVerticalSwipe(diffY);
-                                return;
-                            }
-                            
-                            if (!isSwiping) return;
-                            
-                            const diff = startX - currentX;
-                            
-                            if (Math.abs(diff) > swipeThreshold) {
-                                if (diff > 0 && currentPage < 5) {
-                                    showPage(currentPage + 1);
-                                } else if (diff < 0 && currentPage > 0) {
-                                    showPage(currentPage - 1);
-                                }
-                            }
-                            isSwiping = false;
-                        });
                    
 
                         document.querySelector('.logo').addEventListener('click', () => {
@@ -5194,8 +5366,8 @@ in {
       parameters = [   
         { name = "host"; description = "IP address of the host (127.0.0.1 / 0.0.0.0"; default = "0.0.0.0"; }      
         { name = "port"; description = "Port to run the frontend service on"; default = "13337"; }
-        { name = "cert"; description = "Path to SSL certificate to run the sever on"; default = "/home/pungkula/.ssl/cert.pem"; } 
-        { name = "key"; description = "Path to key file to run the sever on"; default = "/home/pungkula/.ssl/key.pem"; } 
+        { name = "cert"; description = "Path to SSL certificate to run the sever on"; } 
+        { name = "key"; description = "Path to key file to run the sever on"; } 
       ];
       code = ''
         ${cmdHelpers}

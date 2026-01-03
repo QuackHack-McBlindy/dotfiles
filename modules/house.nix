@@ -574,6 +574,288 @@ in { # 🦆 says ⮞ Options for da house
         description = "A set of rooms in the house with their attributes.";
       };
 
+      # 🦆 says ⮞ Service configuration for Zigduck Rust, API Rust, and DuckDash
+      services = lib.mkOption {
+        type = types.submodule {
+          options = {
+            # 🦆 says ⮞ SSL configuration type for services
+            sslOptions = types.submodule {
+              options = {
+                enable = mkEnableOption "Enable SSL/TLS for this service";
+                certFile = mkOption {
+                  type = types.nullOr types.path;
+                  default = null;
+                  description = "Path to SSL certificate file";
+                };
+                keyFile = mkOption {
+                  type = types.nullOr types.path;
+                  default = null;
+                  description = "Path to SSL private key file";
+                };
+                caCertFile = mkOption {
+                  type = types.nullOr types.path;
+                  default = null;
+                  description = "Path to CA certificate file for client verification";
+                };
+                verifyClient = mkOption {
+                  type = types.bool;
+                  default = false;
+                  description = "Enable client certificate verification";
+                };
+              };
+            };
+      
+            zigduck-rs = {
+              enable = lib.mkEnableOption "Enable the Zigduck Rust service (home automation)" // {
+                default = false;
+              };
+              host = lib.mkOption {
+                type = lib.types.str;
+                default = "0.0.0.0";
+                description = "Host address for Zigduck Rust service to bind to";
+                example = "127.0.0.1";
+              };
+              port = lib.mkOption {
+                type = lib.types.port;
+                default = 8080;
+                description = "Port for Zigduck Rust service";
+                example = 8080;
+              };
+              openFirewall = mkEnableOption "Open firewall port for Zigduck Rust service" // {
+                default = false;
+              };
+              user = lib.mkOption {
+                type = lib.types.str;
+                default = "zigduck";
+                description = "User to run Zigduck Rust service as";
+              };
+              group = lib.mkOption {
+                type = lib.types.str;
+                default = "zigduck";
+                description = "Group to run Zigduck Rust service as";
+              };
+              dataDir = lib.mkOption {
+                type = lib.types.str;
+                default = "/var/lib/zigduck-rs";
+                description = "Data directory for Zigduck Rust service";
+              };
+              stateDir = lib.mkOption {
+                type = lib.types.str;
+                default = "/var/lib/zigduck-rs";
+                description = "State directory for Zigduck Rust service";
+              };
+              logLevel = lib.mkOption {
+                type = lib.types.enum ["error" "warn" "info" "debug" "trace"];
+                default = "info";
+                description = "Log level for Zigduck Rust service";
+              };
+              environmentFile = lib.mkOption {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Environment file for Zigduck Rust service";
+              };
+              extraConfig = lib.mkOption {
+                type = lib.types.attrs;
+                default = {};
+                description = "Extra configuration options for Zigduck Rust service";
+              };
+              ssl = lib.mkOption {
+                type = types.nullOr (types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable SSL/TLS for Zigduck Rust service";
+                    certFile = mkOption {
+                      type = types.path;
+                      description = "Path to SSL certificate file";
+                    };
+                    keyFile = mkOption {
+                      type = types.path;
+                      description = "Path to SSL private key file";
+                    };
+                    caCertFile = mkOption {
+                      type = types.nullOr types.path;
+                      default = null;
+                      description = "Path to CA certificate file for client verification";
+                    };
+                  };
+                });
+                default = null;
+                description = "SSL/TLS configuration for Zigduck Rust service";
+              };
+            };
+      
+            api-rs = {
+              enable = lib.mkEnableOption "Enable the API Rust service" // {
+                default = false;
+              };
+              host = lib.mkOption {
+                type = lib.types.str;
+                default = "0.0.0.0";
+                description = "Host address for API Rust service to bind to";
+                example = "127.0.0.1";
+              };
+              port = lib.mkOption {
+                type = lib.types.port;
+                default = 13335;
+                description = "Port for API Rust service";
+                example = 9815;
+              };
+              openFirewall = mkEnableOption "Open firewall port for API Rust service" // {
+                default = false;
+              };
+              user = lib.mkOption {
+                type = lib.types.str;
+                default = "zigduck";
+                description = "User to run API Rust service as";
+              };
+              group = lib.mkOption {
+                type = lib.types.str;
+                default = "zigduck";
+                description = "Group to run API Rust service as";
+              };
+              dataDir = lib.mkOption {
+                type = lib.types.str;
+                default = "/var/lib/api-rs";
+                description = "Data directory for API Rust service";
+              };
+              stateDir = lib.mkOption {
+                type = lib.types.str;
+                default = "/var/lib/api-rs/state";
+                description = "State directory for API Rust service";
+              };
+              logLevel = lib.mkOption {
+                type = lib.types.enum ["error" "warn" "info" "debug" "trace"];
+                default = "info";
+                description = "Log level for API Rust service";
+              };
+              environmentFile = lib.mkOption {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Environment file for API Rust service";
+              };
+              extraConfig = lib.mkOption {
+                type = lib.types.attrs;
+                default = {};
+                description = "Extra configuration options for API Rust service";
+              };
+              ssl = lib.mkOption {
+                type = types.nullOr (types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable SSL/TLS for API Rust service";
+                    certFile = mkOption {
+                      type = types.path;
+                      description = "Path to SSL certificate file";
+                    };
+                    keyFile = mkOption {
+                      type = types.path;
+                      description = "Path to SSL private key file";
+                    };
+                    caCertFile = mkOption {
+                      type = types.nullOr types.path;
+                      default = null;
+                      description = "Path to CA certificate file for client verification";
+                    };
+                  };
+                });
+                default = null;
+                description = "SSL/TLS configuration for API Rust service";
+              };
+            };
+      
+            duckdash = {
+              enable = lib.mkEnableOption "Enable the DuckDash web dashboard" // {
+                default = false;
+              };
+              host = lib.mkOption {
+                type = lib.types.str;
+                default = "0.0.0.0";
+                description = "Host address for DuckDash to bind to";
+                example = "0.0.0.0";
+              };
+              port = lib.mkOption {
+                type = lib.types.port;
+                default = 13337;
+                description = "Port for DuckDash web dashboard";
+                example = 8082;
+              };
+              openFirewall = mkEnableOption "Open firewall port for DuckDash service" // {
+                default = false;
+              };
+              user = lib.mkOption {
+                type = lib.types.str;
+                default = "duckdash";
+                description = "User to run DuckDash service as";
+              };
+              group = lib.mkOption {
+                type = lib.types.str;
+                default = "duckdash";
+                description = "Group to run DuckDash service as";
+              };
+              dataDir = lib.mkOption {
+                type = lib.types.str;
+                default = "/var/lib/duckdash";
+                description = "Data directory for DuckDash service";
+              };
+              stateDir = lib.mkOption {
+                type = lib.types.str;
+                default = "/var/lib/duckdash/state";
+                description = "State directory for DuckDash service";
+              };
+              logLevel = lib.mkOption {
+                type = lib.types.enum ["error" "warn" "info" "debug" "trace"];
+                default = "info";
+                description = "Log level for DuckDash service";
+              };
+              environmentFile = lib.mkOption {
+                type = types.nullOr types.path;
+                default = null;
+                description = "Environment file for DuckDash service";
+              };
+              extraConfig = lib.mkOption {
+                type = lib.types.attrs;
+                default = {};
+                description = "Extra configuration options for DuckDash service";
+              };
+              # 🦆 says ⮞ SSL configuration specifically for DuckDash
+              ssl = lib.mkOption {
+                type = types.nullOr (types.submodule {
+                  options = {
+                    enable = mkEnableOption "Enable SSL/TLS for DuckDash service";
+                    certFile = mkOption {
+                      type = types.path;
+                      description = "Path to SSL certificate file";
+                    };
+                    keyFile = mkOption {
+                      type = types.path;
+                      description = "Path to SSL private key file";
+                    };
+                    caCertFile = mkOption {
+                      type = types.nullOr types.path;
+                      default = null;
+                      description = "Path to CA certificate file for client verification";
+                    };
+                    redirectHttp = mkOption {
+                      type = types.bool;
+                      default = true;
+                      description = "Redirect HTTP to HTTPS";
+                    };
+                    httpPort = mkOption {
+                      type = types.port;
+                      default = 80;
+                      description = "HTTP port for redirection (if redirectHttp is enabled)";
+                    };
+                  };
+                });
+                default = null;
+                description = "SSL/TLS configuration for DuckDash service";
+              };
+            };
+          };
+        };
+        default = {};
+        description = "House service configurations for Zigduck Rust Automation System, Rust REST API Endpoints, DuckDash Generates HTML/JS/CSS from Nix house configuration";
+      };
+      
+      
       # 🦆 duck say ⮞ set our esp device info
       tv = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {

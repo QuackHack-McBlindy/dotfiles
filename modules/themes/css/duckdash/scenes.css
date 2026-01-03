@@ -1,0 +1,39 @@
+.scene-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+    padding-bottom: 80px;
+}
+
+.scene-item {
+    padding: 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: black;
+    color: white;
+    min-height: 120px;
+}
+
+.scene-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.scene-item i {
+    font-size: 2rem;
+    margin-bottom: 10px;
+}
+
+.scene-item span {
+    font-weight: 600;
+    font-size: 1rem;
+}

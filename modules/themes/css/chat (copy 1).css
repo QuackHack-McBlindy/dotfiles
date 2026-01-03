@@ -907,6 +907,4 @@ pre .header {
     width: 100% !important;
     max-width: none !important;
 }
-.page[data-page="5"] {
-    border: 5px solid red !important;
-}
+

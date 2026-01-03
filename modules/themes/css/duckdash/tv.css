@@ -1,0 +1,551 @@
+/* Keyframes - Global definitions for page 3 */
+@keyframes duckFloat {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-20px, 10px) rotate(5deg); }
+  50% { transform: translate(10px, -10px) rotate(-5deg); }
+  75% { transform: translate(-10px, -5px) rotate(3deg); }
+}
+
+@keyframes tvPulse {
+  0% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7); }
+  70% { box-shadow: 0 0 0 15px rgba(56, 189, 248, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(56, 189, 248, 0); }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes channelGlow {
+  from { box-shadow: 0 0 5px #fff, 0 0 10px #fff, 0 0 15px #0073e6; }
+  to { box-shadow: 0 0 10px #fff, 0 0 20px #4cd964, 0 0 30px #4cd964; }
+}
+
+@keyframes numberPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+@keyframes tvBounce {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(10deg); }
+}
+
+@keyframes progressShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+@keyframes channelButtonGlow {
+  0%, 100% { box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+  50% { box-shadow: 0 4px 25px rgba(99, 102, 241, 0.7); }
+}
+
+@keyframes powerPulse {
+  0%, 100% { box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 4px 25px rgba(239, 68, 68, 0.7); }
+}
+
+@keyframes tvSuccess {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); background: linear-gradient(135deg, #4cd964, #2ecc71); }
+  100% { transform: scale(1); }
+}
+
+@keyframes tvError {
+  0% { transform: translateX(0); }
+  25% { transform: translateX(-10px); background: linear-gradient(135deg, #ef4444, #b91c1c); }
+  75% { transform: translateX(10px); }
+  100% { transform: translateX(0); }
+}
+
+/* Page 3 specific styles */
+.page[data-page="3"] #pageTV {
+  position: relative;
+  overflow: hidden;
+}
+
+.page[data-page="3"] #pageTV::before {
+  content: '🦆';
+  position: absolute;
+  font-size: 3rem;
+  top: 10px;
+  right: 10px;
+  opacity: 0.7;
+  z-index: 1;
+  animation: duckFloat 10s ease-in-out infinite;
+}
+
+.page[data-page="3"] .tv-selector-container {
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.page[data-page="3"] .tv-selector {
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid #38bdf8;
+  background: #1a1a1a;
+  color: #ffffff;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 280px;
+  transition: all 0.3s ease;
+  font-family: 'Poppins', sans-serif;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.page[data-page="3"] .tv-selector:hover {
+  border-color: #00ffaa;
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  transform: scale(1.02);
+}
+
+.page[data-page="3"] .tv-selector:focus {
+  outline: none;
+  animation: tvPulse 2s infinite;
+  border-color: #00ffaa;
+  box-shadow: 0 0 30px rgba(0, 255, 170, 0.7);
+}
+
+.page[data-page="3"] .tv-channel-display {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 15px;
+  margin: 15px auto;
+  max-width: 300px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  min-height: 70px;
+  position: relative;
+  overflow: hidden;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.page[data-page="3"] .tv-channel-display:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+  border-color: #00ffaa;
+}
+
+.page[data-page="3"] .tv-channel-display::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: shimmer 3s infinite;
+  pointer-events: none;
+}
+
+.page[data-page="3"] .channel-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  height: 100%;
+  position: relative;
+  z-index: 2;
+}
+
+.page[data-page="3"] .channel-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 10px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.page[data-page="3"] .channel-icon:hover {
+  animation: channelGlow 1s ease-in-out infinite alternate;
+  transform: scale(1.1);
+}
+
+.page[data-page="3"] .channel-number-fallback {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: white;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 4px 8px;
+  animation: numberPulse 2s infinite;
+}
+
+.page[data-page="3"] .program-info {
+  flex: 1;
+  text-align: left;
+  min-width: 0;
+}
+
+.page[data-page="3"] .program-title {
+  font-size: 1rem;
+  font-weight: bold;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  padding-left: 20px;
+}
+
+.page[data-page="3"] .program-title::before {
+  content: '📺';
+  position: absolute;
+  left: 0;
+  animation: tvBounce 2s infinite;
+}
+
+.page[data-page="3"] .program-title:hover {
+  color: #00ffaa;
+  text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+  transform: translateX(5px);
+}
+
+.page[data-page="3"] .program-progress {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  height: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+.page[data-page="3"] .program-progress::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: progressShimmer 2s infinite;
+}
+
+.page[data-page="3"] .program-progress-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #4cd964, #2ecc71);
+  transition: width 0.3s ease;
+  position: relative;
+  z-index: 2;
+}
+
+/* 🦆 TV CONTROLS WITH PERSONALITY */
+.page[data-page="3"] .tv-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  margin-top: 20px;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 20px;
+  border: 2px solid rgba(56, 189, 248, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.page[data-page="3"] .tv-controls-grid::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.page[data-page="3"] .tv-control-row {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.page[data-page="3"] .tv-control-btn {
+  padding: 15px 20px;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 80px;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Poppins', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.page[data-page="3"] .tv-control-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transform: translateX(-100%);
+  transition: transform 0.6s;
+}
+
+.page[data-page="3"] .tv-control-btn:hover::before {
+  transform: translateX(100%);
+}
+
+.page[data-page="3"] .tv-control-btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+}
+
+.page[data-page="3"] .tv-control-btn:active {
+  transform: translateY(-2px) scale(0.98);
+  transition: transform 0.1s;
+}
+
+.page[data-page="3"] .tv-control-btn.ok {
+  background: linear-gradient(135deg, #4cd964 0%, #2ecc71 100%);
+}
+
+.page[data-page="3"] .tv-control-btn.ok:hover {
+  background: linear-gradient(135deg, #5de973 0%, #3edd7d 100%);
+  box-shadow: 0 0 20px rgba(76, 217, 100, 0.4);
+}
+
+.page[data-page="3"] .tv-control-btn.icon-only {
+  min-width: 60px;
+  padding: 15px;
+}
+
+/* 🦆 Color-coded buttons with personality */
+.page[data-page="3"] .tv-control-btn.channel { 
+  background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+  animation: channelButtonGlow 3s infinite;
+}
+
+.page[data-page="3"] .tv-control-btn.volume { 
+  background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
+}
+
+.page[data-page="3"] .tv-control-btn.nav { 
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.page[data-page="3"] .tv-control-btn.playback { 
+  background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
+}
+
+.page[data-page="3"] .tv-control-btn.system { 
+  background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
+}
+
+.page[data-page="3"] .tv-control-btn.power { 
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  animation: powerPulse 2s infinite;
+}
+
+.page[data-page="3"] .tv-control-btn[data-nav] {
+  font-size: 1.8rem;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  box-shadow: 0 6px 20px rgba(59, 130, 246, 0.3);
+}
+
+.page[data-page="3"] .tv-control-btn[data-nav]:hover {
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.5);
+}
+
+/* 🦆 Floating particles for TV page */
+.page[data-page="3"] .tv-particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.page[data-page="3"] .tv-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: linear-gradient(45deg, #00ffaa, #38bdf8);
+  border-radius: 50%;
+  filter: blur(1px);
+  opacity: 0.7;
+}
+
+/* 🦆 Success/failure animations */
+.page[data-page="3"] .tv-success {
+  animation: tvSuccess 1s ease-out;
+}
+
+.page[data-page="3"] .tv-error {
+  animation: tvError 0.5s ease-out;
+}
+
+.tv-control-btn.green {
+  background: linear-gradient(145deg, #2ecc71, #27ae60);
+  border-color: #27ae60;
+  box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+}
+
+.tv-control-btn.green:hover {
+  background: linear-gradient(145deg, #27ae60, #219653);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+    
+.tv-control-btn.red {
+  background: linear-gradient(145deg, #e74c3c, #c0392b);
+  border-color: #c0392b;
+  box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+    
+.tv-control-btn.red:hover {
+  background: linear-gradient(145deg, #c0392b, #a93226);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+    
+.tv-control-btn.orange {
+  background: linear-gradient(145deg, #f39c12, #e67e22);
+  border-color: #e67e22;
+  box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+}
+    
+.tv-control-btn.orange:hover {
+  background: linear-gradient(145deg, #e67e22, #d35400);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+}
+    
+.tv-control-btn.blue {
+  background: linear-gradient(145deg, #3498db, #2980b9);
+  border-color: #2980b9;
+  box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  font-size: 2rem !important;
+}
+    
+.tv-control-btn.blue:hover {
+  background: linear-gradient(145deg, #2980b9, #1f639b);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+    
+
+.tv-control-btn.ok.blue {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  padding: 0;
+}
+    
+.tv-control-btn.ok.blue .duck-emoji {
+  font-size: 3rem;
+  animation: gentleWobble 3s ease-in-out infinite;
+}
+    
+@keyframes gentleWobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(5deg); }
+  75% { transform: rotate(-5deg); }
+}
+    
+
+.rainbow-mode .tv-control-btn {
+  animation: rainbowGradient 3s linear infinite !important;
+  background-size: 300% 300% !important;
+  border: 2px solid rgba(255, 255, 255, 0.8) !important;
+  box-shadow: 
+    0 0 20px rgba(255, 255, 255, 0.3),
+    0 0 40px rgba(255, 255, 255, 0.2),
+    0 0 60px rgba(255, 255, 255, 0.1) !important;
+}
+    
+@keyframes rainbowGradient {
+  0% {
+    background: linear-gradient(
+      45deg,
+      #ff0000, #ff7f00, #ffff00, #00ff00,
+      #0000ff, #4b0082, #9400d3, #ff0000
+    );
+    background-position: 0% 50%;
+  }
+  50% {
+    background: linear-gradient(
+      45deg,
+      #9400d3, #ff0000, #ff7f00, #ffff00,
+      #00ff00, #0000ff, #4b0082, #9400d3
+    );
+    background-position: 100% 50%;
+  }
+  100% {
+    background: linear-gradient(
+      45deg,
+      #4b0082, #9400d3, #ff0000, #ff7f00,
+      #ffff00, #00ff00, #0000ff, #4b0082
+    );
+    background-position: 0% 50%;
+  }
+}
+    
+.rainbow-mode .tv-control-btn.ok.blue {
+  animation: rainbowGradient 3s linear infinite, 
+             pulseGlow 2s ease-in-out infinite !important;
+  transform: scale(1.1);
+}
+    
+@keyframes pulseGlow {
+  0%, 100% { 
+    box-shadow: 
+      0 0 20px rgba(255, 255, 255, 0.5),
+      0 0 40px rgba(255, 255, 255, 0.3),
+      0 0 60px rgba(255, 255, 255, 0.2);
+  }
+  50% { 
+    box-shadow: 
+      0 0 30px rgba(255, 255, 255, 0.7),
+      0 0 60px rgba(255, 255, 255, 0.5),
+      0 0 90px rgba(255, 255, 255, 0.3);
+  }
+}
+    
+
+.tv-control-btn {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}

@@ -1601,28 +1601,29 @@ in { # 🦆 says ⮞ finally here, quack!
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ];
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
-    helpFooter = '' 
-      # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
-      STATE_DIR=/var/lib/zigbee
-      STATE_FILE="state.json"
+    helpFooter = ''
       WIDTH=100
+      PASS=$(cat ${config.house.dashboard.passwordFile} | tr -d '[:space:]')
       cat <<EOF | ${pkgs.glow}/bin/glow --width $WIDTH -
-## ──────⋆⋅☆⋅⋆────── ##
-## 🔋 Battery Status
-$(${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
-  to_entries[] |
-  select(.value.battery != null) |
-  .key as $ieee |
-  .value.battery as $battery |
-  ($mapping[0] | .[$ieee] // $ieee) as $display_name |
-  "### 🖥️ Device: `\($display_name)`\n**Battery:** \($battery)% " +
-  (
-    if $battery >= 75 then "🔋"
-    elif $battery >= 30 then "🟡"
-    else "🪫"
-    end
-  ) + "\n"
-' $STATE_DIR/$STATE_FILE)
+# ──────⋆⋅🦆☆🔋⋅⋆──────
+# 🔋 Battery Status
+$(curl -s -H "Authorization: Bearer $PASS" "http://${config.house.zigbee.mosquitto.host}:9815/state" |
+${pkgs.jq}/bin/jq -r --slurpfile mapping ${mappingFile} '
+to_entries[] |
+select(.value.battery != null) |
+.key as $ieee |
+.value.battery as $battery |
+($mapping[0] | .[$ieee] // $ieee) as $display_name |
+"# 🖥️ Device: \($display_name)\nBattery: ($battery)% " +
+(
+if $battery >= 75 then "🔋"
+elif $battery >= 30 then "🟡"
+else "🪫"
+end
+) + "\n"
+')
+
+
 ## ──────⋆⋅☆⋅⋆────── ##
 EOF
     '';
@@ -1630,7 +1631,8 @@ EOF
       ${cmdHelpers}
       MQTT_BROKER="${mqttHostip}"
 
-      dt_info "MQTT_BROKER: $MQTT_BROKER" 
+      dt_debug "MQTT_BROKER: $MQTT_BROKER" 
+      dt_info "Building zigduck-rs ... qwack in a sec ..."
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")
 

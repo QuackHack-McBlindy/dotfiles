@@ -19,12 +19,63 @@ in {
 #    helpFooter = '' # 🦆 says ⮞ display log file in markdown with Glow
 #    '';
     parameters = [ 
-      { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
+
+      { name = "service"; description = "View specified yo scripts logs"; optional = true; wildcard = true; }
+      { name = "host"; description = "Specify optional host"; optional = true; 
+        values = lib.genList (i: {
+          "in" = "host" + toString i;
+          out = "host" + toString i;
+        }) 50; }  # 50 host values!
+      { name = "errors"; type = "bool"; description = "Show errors"; optional = true; }
+      { name = "monitor"; type = "bool"; description = "Monitor continuously"; optional = true; }
+      { name = "severity"; description = "Error severity level"; optional = true;
+        values = [
+          { "in" = "[critical|kritisk|fatal|emergency]"; out = "CRITICAL"; }
+          { "in" = "[error|fel|problem|fail]"; out = "ERROR"; }
+          { "in" = "[warning|varning|alert|caution]"; out = "WARNING"; }
+          { "in" = "[info|information|status]"; out = "INFO"; }
+          { "in" = "[debug|debugging|verbose]"; out = "DEBUG"; }
+        ]; }
+      { name = "timeframe"; description = "Time period"; optional = true;
+        values = [
+          { "in" = "[last|previous|past|recent] hour"; out = "1h"; }
+    
+          { "in" = "[last|previous|past|recent] 6 hours"; out = "6h"; }
+          { "in" = "[last|previous|past|recent] 12 hours"; out = "12h"; }
+          { "in" = "[last|previous|past|recent] day"; out = "24h"; }
+          { "in" = "[last|previous|past|recent] week"; out = "7d"; }
+          { "in" = "[last|previous|past|recent] month"; out = "30d"; }
+          { "in" = "[today|todays|current]"; out = "today"; }
+          { "in" = "[yesterday|yesterdays]"; out = "yesterday"; }
+        ]; }
+      { name = "format"; description = "Output format"; optional = true;
+        values = [
+          { "in" = "[json|json format|as json]"; out = "json"; }
+          { "in" = "[yaml|yaml format|as yaml]"; out = "yaml"; }
+          { "in" = "[text|plain|human readable]"; out = "text"; }
+          { "in" = "[table|tabular|as table]"; out = "table"; }
+          { "in" = "[csv|comma separated]"; out = "csv"; }
+        ]; }
+      { name = "sort"; description = "Sort order"; optional = true;
+        values = [
+          { "in" = "[by time|chronological|oldest first]"; out = "time_asc"; }
+          { "in" = "[newest first|reverse chronological]"; out = "time_desc"; }
+          { "in" = "[by severity|most critical first]"; out = "severity_desc"; }
+          { "in" = "[alphabetical|by name]"; out = "name_asc"; }
+        ]; }
+      { name = "limit"; description = "Result limit"; optional = true; type = "int";
+        values = lib.genList (i: {
+          "in" = toString (i + 1);
+          out = toString (i + 1);
+        }) 100; }  # Limit from 1 to 100
+    ];    
+    
+#      { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
       #{ name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }       
-      { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
-      { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
-    ]; 
+#      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }       
+#      { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
+#      { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
+#    ]; 
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
       DT_MONITOR_HOSTS="desktop,laptop,homie,nasty";
@@ -376,26 +427,53 @@ in {
       enabled = true;
       priority = 5;
       sentences = [
-        "sök [i] {service}[s] [log|loggar|loggen] efter fel på {host}"      
-        "sök [i] {service}[s] [log|loggar|loggen] efter fel"
-        "sök [efter] error på {host}"        
-        "sök [efter] error"
-        "ducktrace {service}"
-        "kolla [i] [log|loggen|loggar|loggarna)]"
-        "kolla [efter] fel [på|hos] {host}"
-        "är {host} felfri"
-        "visa alla fel"
-        "check [for] error[s] [on] {host}"
+        "[(please|could you|can you|would you|kindly)] [show|display|list|get|fetch|retrieve] [(all|the|any|some)] [(recent|latest|current|previous|past)] [(error|errors|warning|warnings|log|logs|entry|entries)] [from|on|at|for] [(service|script|program|application)] {service} [on|at|for|from] [(host|machine|server|computer|device)] {host} [with|having|showing] [(severity|level|type)] {severity} [from|during|in] [(time|period|duration|timeframe)] {timeframe} [in|as|using|with] [(format|output)] {format} [sorted|ordered|arranged] [(by|according to)] {sort} [(limited to|showing only|maximum of)] {limit} [(results|entries|lines)] [(and|also|plus)] [(monitor|watch|follow|track)] {monitor} [(errors only|just errors)] {errors}"
+    
+        "(check|view|examine|analyze|scan|review|inspect|audit) [(the|my|our)] [(system|application|service|script)] {service} [(logs|log files|log entries|log data|logging information)] [(on|at|for|from)] [(host|server|machine)] {host} [(for|looking for|searching for|seeking)] [(errors|problems|issues|failures|warnings|alerts)] {errors} [(with|having)] [(severity|criticality|level)] {severity} [(during|in|over|for)] [(time period|duration|interval|timeframe)] {timeframe} [(in|using|as)] [(output format|display format|report format)] {format} [(sorted|ordered|organized)] [(by|according to|based on)] {sort} [(limited to|showing only|maximum)] {limit} [(and|while also|plus)] [(monitoring|watching|tracking)] {monitor}"
+    
+
+        "(i want|i need|can i get|show me|display for me|let me see) [(all|some|any|the latest|the recent|the past)] [(error messages|warnings|log entries|system logs|application logs|debug logs)] [(from|coming from|generated by|produced by)] {service} [(running on|hosted on|located on|executing on)] {host} [(that are|which are|with)] {severity} [(severity|level|priority)] [(occurred|happened|were logged) (during|in|over|within)] {timeframe} [(presented|formatted|displayed) (as|in)] {format} [(arranged|sorted|organized) (by|according to)] {sort} [(showing only|limited to|maximum of)] {limit} [(items|results|entries)] [(and|while|also) (continuously|constantly|in real-time) (monitoring|watching|tracking)] {monitor} [(for|to catch) (errors|problems)] {errors}"
+    
+
+        "(log|logs|logging) [(for|of|from)] {service} [(on|at)] {host} [(show|display|list|get)] [(errors|warnings|all entries)] {errors} [(with|having)] {severity} [(from|during)] {timeframe} [(format|as)] {format} [(sort|order)] {sort} [(limit|max)] {limit} [(monitor|watch)] {monitor}"
+    
+
+        "(what are|show me|tell me|list|display) [(the|any|some|all)] [(recent|latest|current|previous|past)] [(errors|warnings|log messages|log entries)] [(for|from|in)] {service} [(on|at|for)] {host} [(with|having)] {severity} [(severity|level)] [(from|during|in)] {timeframe} [(in|as)] {format} [(format|output)] [(sorted|ordered) (by|according to)] {sort} [(limited to|showing only)] {limit} [(and|while) (monitoring|watching)] {monitor} [(for errors|for problems)] {errors} [please] [?]"
+    
+
+        "(get|fetch|retrieve|pull|download) [(all|the|any)] [(log data|logging information|system logs)] [(from|of)] {service} [(hosted on|running on|located at)] {host} [(filtered by|showing only)] {severity} [(from time|during period)] {timeframe} [(output as|formatted as)] {format} [(ordered by|sorted by)] {sort} [(maximum results|limit to)] {limit} [(while monitoring|and monitor)] {monitor} [(errors only|just errors)] {errors}"
+    
+        "(display|show|present|render) [(a|an|the)] [(log|logs|logging) (view|report|summary|overview)] [(for|of)] {service} [(at|on)] {host} [(with|including)] {severity} [(severity|level)] [(during|from)] {timeframe} [(in|using)] {format} [(format|style)] [(sorted|arranged) (by|per)] {sort} [(limited to|max)] {limit} [(and|plus) (live monitoring|real-time watching)] {monitor} [(for errors|error checking)] {errors}"
+    
+        "(check|verify|examine) [(the|any)] [(error log|warning log|system log|application log)] [(entries|messages|records)] [(from|for)] {service} [(on server|on host|on machine)] {host} [(having|with)] {severity} [(priority|level)] [(within|during)] {timeframe} [(presented in|output in)] {format} [(format|layout)] [(organized by|grouped by)] {sort} [(showing only|limited to)] {limit} [(items|entries)] [(while also|and) (monitoring|watching)] {monitor} [(errors|error states)] {errors}"
+    
+       "(analyze|scan|review) [(all|the|any)] [(recent|past|historical)] [(log entries|log messages|log records)] [(generated by|from)] {service} [(executing on|running on)] {host} [(with|showing)] {severity} [(severity level|criticality)] [(over|during)] {timeframe} [(in format|as)] {format} [(sorted according to|ordered by)] {sort} [(maximum of|up to)] {limit} [(and|while) (continuously monitoring|live tracking)] {monitor} [(for error conditions|for failures)] {errors}"
+    
+        "(provide|give|generate|create) [(a|an|the)] [(log report|error summary|warning overview)] [(for|about)] {service} [(on|at)] {host} [(featuring|including)] {severity} [(level|type)] [(from|during)] {timeframe} [(in|using)] {format} [(format|presentation)] [(arranged by|sorted by)] {sort} [(limited to|showing only)] {limit} [(entries|results)] [(and|also) (monitoring in real-time|watching live)] {monitor} [(for errors|error detection)] {errors}"
       ];
       lists = {
         host.wildcard = true;
-        host.values = [
-          { "in" = "[desktop|datorn]"; out = "desktop"; }
-          { "in" = "nas"; out = "nasty"; }
-          { "in" = "laptop"; out = "laptop"; }
-          { "in" = "homie"; out = "homie"; }
-        ];
+        host.values = let
+          baseHosts = [
+            { "in" = "[desktop|datorn|workstation|pc]"; out = "desktop"; }
+            { "in" = "[nas|nasty|storage|server]"; out = "nasty"; }
+            { "in" = "[laptop|notebook|portable|mobile]"; out = "laptop"; }
+            { "in" = "[homie|home|raspberry|pi]"; out = "homie"; }
+          ];
+          numberedHosts = lib.genList (i: {
+            "in" = "host" + toString i;
+            out = "host" + toString i;
+          }) 46;  # Total 50 hosts
+        in baseHosts ++ numberedHosts;
+    
+        service.wildcard = true;
+        service.values = lib.genList (i: {
+          "in" = "service" + toString i;
+          out = "service" + toString i;
+        }) 100;  # 100 common service names
       };   
+
+  
     };  
     
   };}
