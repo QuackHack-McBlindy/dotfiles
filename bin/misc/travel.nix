@@ -15,59 +15,10 @@ in { # 🦆 says ⮞ voice intents
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "service"; description = "View specified yo scripts logs"; optional = true; wildcard = true; }
-      { name = "host"; description = "Specify optional host"; optional = true; 
-        values = lib.genList (i: {
-          "in" = "host" + toString i;
-          out = "host" + toString i;
-        }) 50; }  # 50 host values!
-      { name = "errors"; type = "bool"; description = "Show errors"; optional = true; }
-      { name = "monitor"; type = "bool"; description = "Monitor continuously"; optional = true; }
-      { name = "severity"; description = "Error severity level"; optional = true;
-        values = [
-          { "in" = "[critical|kritisk|fatal|emergency]"; out = "CRITICAL"; }
-          { "in" = "[error|fel|problem|fail]"; out = "ERROR"; }
-          { "in" = "[warning|varning|alert|caution]"; out = "WARNING"; }
-          { "in" = "[info|information|status]"; out = "INFO"; }
-          { "in" = "[debug|debugging|verbose]"; out = "DEBUG"; }
-        ]; }
-      { name = "timeframe"; description = "Time period"; optional = true;
-        values = [
-          { "in" = "[last|previous|past|recent] hour"; out = "1h"; }
-          { "in" = "[last|previous|past|recent] 2 hours"; out = "2h"; }
-          { "in" = "[last|previous|past|recent] 6 hours"; out = "6h"; }
-          { "in" = "[last|previous|past|recent] 12 hours"; out = "12h"; }
-          { "in" = "[last|previous|past|recent] day"; out = "24h"; }
-          { "in" = "[last|previous|past|recent] week"; out = "7d"; }
-          { "in" = "[last|previous|past|recent] month"; out = "30d"; }
-          { "in" = "[today|todays|current]"; out = "today"; }
-          { "in" = "[yesterday|yesterdays]"; out = "yesterday"; }
-        ]; }
-      { name = "format"; description = "Output format"; optional = true;
-        values = [
-          { "in" = "[json|json format|as json]"; out = "json"; }
-          { "in" = "[yaml|yaml format|as yaml]"; out = "yaml"; }
-          { "in" = "[text|plain|human readable]"; out = "text"; }
-          { "in" = "[table|tabular|as table]"; out = "table"; }
-          { "in" = "[csv|comma separated]"; out = "csv"; }
-        ]; }
-      { name = "sort"; description = "Sort order"; optional = true;
-        values = [
-          { "in" = "[by time|chronological|oldest first]"; out = "time_asc"; }
-          { "in" = "[newest first|reverse chronological]"; out = "time_desc"; }
-          { "in" = "[by severity|most critical first]"; out = "severity_desc"; }
-          { "in" = "[alphabetical|by name]"; out = "name_asc"; }
-        ]; }
-      { name = "limit"; description = "Result limit"; optional = true; type = "int";
-        values = lib.genList (i: {
-          "in" = toString (i + 1);
-          out = toString (i + 1);
-        }) 100; }  # Limit from 1 to 100
-
-#      { name = "arrival"; description = "Destination stop or city"; optional = false; default = config.sops.secrets."users/pungkula/homeStop".path; }
-#      { name = "departure"; description = "Departure stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
-#      { name = "type"; description = "Optionally specify a transportation type"; optional = true; }      
-#      { name = "apikeyPath"; description = "Trafiklab API key path"; optional = true; default = config.sops.secrets.resrobot.path; }
+      { name = "arrival"; description = "Destination stop or city"; optional = false; default = config.sops.secrets."users/pungkula/homeStop".path; }
+      { name = "departure"; description = "Departure stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
+      { name = "type"; description = "Optionally specify a transportation type"; optional = true; }      
+      { name = "apikeyPath"; description = "Trafiklab API key path"; optional = true; default = config.sops.secrets.resrobot.path; }
     ];
     code = ''
       ${cmdHelpers}      

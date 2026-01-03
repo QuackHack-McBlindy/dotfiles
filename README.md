@@ -79,7 +79,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8139 ducks?<br>
+Let's see if you can find all 8206 ducks?<br>
 <!-- DUCKS_END -->
 
 <br>
@@ -188,7 +188,7 @@ Define any optional theme configuration at `config.this.theme`.
     package = "/nix/store/6wmp7hg77pgccnvjzpk8b64nwpp1pz23-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
-  styles = "/nix/store/p32rhfla0zdkmw6akwjkdxw58miv12iv-source/modules/themes/css/gtk3.css"
+  styles = "/nix/store/9y25s21j1m8gwyam7mlbczq6md8v4rl4-source/modules/themes/css/gtk3.css"
 };
 ```
 <!-- THEME_END -->
@@ -214,35 +214,15 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
     builtins.replaceStrings [ "/*" "*/" ] [ "" "" ] text;
 
   css = {
-    health   = builtins.readFile ./themes/css/health.css;
-    chat     = builtins.readFile ./themes/css/chat.css;
-    qwackify =  builtins.readFile ./themes/css/qwackify.css;
+    health   = builtins.readFile ./themes/css/duckdash/health.css;
+    chat     = builtins.readFile ./themes/css/duckdash/chat.css;
   };
 
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
-  mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
-      let
-        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
-          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
-        '');
-      in
-        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "
-" resolved) 0))
-    )
-    else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})"; 
-  mqttBroker =
-    if mqttHostip == config.this.host.ip
-    then "localhost"
-    else mqttHostip;
 
-  # 🦆 duck say ⮞ icon map
+  # 🦆 says ⮞ icon map
   icons = {
     light = {
       ceiling         = "mdi:ceiling-light";
@@ -275,7 +255,23 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
     pusher            = "mdi:gesture-tap-button";
     blinds            = "mdi:blinds";
   };
-  
+
+
+  Mqtt2jsonHistory = field: file: ''
+    FILE="/var/lib/zigduck/${file}"
+    VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
+    mkdir -p "$(dirname "$FILE")"
+    if [ ! -s "$FILE" ]; then
+      jq -n --argjson v "$VALUE"         '{ ${field}: $v, history: [$v] }' > "$FILE"
+    else
+      jq --argjson v "$VALUE" '
+        .${field} = $v
+        | .history += [$v]
+        | .history = (.history[-200:])
+      ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+    fi
+  '';
+
   health = lib.mapAttrs (hostName: _: {
     enable = true;
     description = "Health Check: ${hostName}";
@@ -307,16 +303,14 @@ in { # 🦆 duck say ⮞ qwack
     };
     
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
-    dashboard = {
-       # 🦆 says ⮞  safety firzt!
-      passwordFile = config.sops.secrets.api.path;
-      
+    dashboard = { 
+      passwordFile = config.sops.secrets.api.path; # 🦆 says ⮞  safety firzt!      
       # 🦆 says ⮞  home page information cards
       statusCards = {
         # 🦆 says ⮞ Monero USD price ticker
         xmr = {
           enable = true;
-          title = "XMR";
+          title = "🏴‍☠️🏴‍☠️ ▶▶ 𝑿𝑴𝑹";
           icon = "fab fa-monero";
           color = "#a78bfa";
           filePath = "/var/lib/zigduck/xmr.json";
@@ -330,7 +324,7 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ Bitcoin USD price ticker
         btc = {
           enable = true;
-          title = "BTC";
+          title = "₿ ▶▶ 𝑩𝒊𝑻𝑪𝑶 𝒊𝑵";
           icon = "fab fa-bitcoin";
           color = "#ff6600";
           filePath = "/var/lib/zigduck/btc.json";
@@ -339,45 +333,48 @@ in { # 🦆 duck say ⮞ qwack
           detailsJsonField = "7d_change";
           detailsFormat = "7d: {value}%";
           chart = true;
+          historyField = "history";
         };
 
         # 🦆 says ⮞ kWh/price chart card
         energyPrice = {
           enable = true;
-          title = "Energy Price";
+          title = "▶⚡𝑬𝑵𝑬𝑹𝑮𝒀▶⚡𝑷𝑹𝑰𝑪𝑬";
           icon = "fas fa-bolt";
           color = "#4caf50";
           filePath = "/var/lib/zigduck/energy_price.json";          
           jsonField = "current_price";
           format = "{value} SEK/kWh";          
           chart = true;
+          historyField = "history";
         };
 
         # 🦆 says ⮞ energy usage card
         energyUsage = {
           enable = true;
-          title = "Energy Usage";
+          title = "▶ ⚡𝑬𝑵𝑬𝑹𝑮𝒀 USAGE";
           icon = "fas fa-bolt";
           color = "#4caf50";
-          filePath = "/var/lib/zigduck/energy.json";          
+          filePath = "/var/lib/zigduck/energy_usage.json";          
           jsonField = "monthly_usage";
           format = "{value} kWh";
-          chart = false;
+          chart = true;
+          historyField = "history";
         };  
 
         # 🦆 says ⮞ show indoor temperature
         temperature = {
           enable = true;
-          title = "Temperature";
+          title = "▶  TEMPERATURE  ";
           icon = "fas fa-thermometer-half";
           color = "#e74c3c";
           filePath = "/var/lib/zigduck/temperature.json";          
           jsonField = "temperature";
           format = "{value} °C";
           detailsFormat = "Temperature in Hallway";
-          chart = false;
-        };          
-                    
+          chart = true;
+          historyField = "history";
+        };                   
       };
 
       # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)      
@@ -396,7 +393,7 @@ in { # 🦆 duck say ⮞ qwack
             <script>
               async function loadHealthData() {
                 try {
-                  const response = await fetch('http://${mqttHostip}:9815/health/all');
+                  const response = await fetch('http://${config.house.zigbee.mosquitto.host}}:9815/health/all');
                   if (!response.ok) throw new Error('HTTP ' + response.status);
     
                   const healthData = await response.json();
@@ -533,6 +530,7 @@ in { # 🦆 duck say ⮞ qwack
             </div>
             
             <script>
+            
                 function fixViewportHeight() {
                     const vh = window.innerHeight * 0.01;
                     document.documentElement.style.setProperty('--vh', `''${vh}px`);
@@ -644,9 +642,9 @@ in { # 🦆 duck say ⮞ qwack
                 };
 
                 const API_CONFIG = {
-                  host: '${mqttHostip}',
+                  host: '${config.house.zigbee.mosquitto.host}',
                   port: '9815',
-                  baseUrl: 'http://${mqttHostip}:9815'
+                  baseUrl: 'http://${config.house.zigbee.mosquitto.host}:9815'
                 };       
        
                 function getAuthToken() {
@@ -672,6 +670,298 @@ in { # 🦆 duck say ⮞ qwack
                          "";
                 }
  
+                
+                function addChatParticles() {
+                    const chatPage = document.getElementById('pageCustom5') || document.querySelector('.page[data-page="5"]');
+                    if (!chatPage) return;
+                    
+                    const particleContainer = document.createElement('div');
+                    particleContainer.className = 'chat-particles';
+                    chatPage.appendChild(particleContainer);
+                    
+                    for (let i = 0; i < 40; i++) {
+                        const particle = document.createElement('div');
+                        particle.className = 'chat-particle';
+                        
+                        const x = Math.random() * 100;
+                        const y = Math.random() * 100;
+                        const size = Math.random() * 8 + 2;
+                        particle.style.left = x + '%';
+                        particle.style.top = y + '%';
+                        particle.style.width = size + 'px';
+                        particle.style.height = size + 'px';
+                        
+                        const colors = ['#00b4d8', '#0077b6', '#00e5ff', '#00ffaa', '#ff6b35'];
+                        particle.style.background = `radial-gradient(circle at 30% 30%, ''${colors[Math.floor(Math.random() * colors.length)]}, transparent 70%)`;
+                        
+                        particle.animate([
+                            { 
+                                transform: 'translate(0, 0) rotate(0deg)',
+                                opacity: Math.random() * 0.5 + 0.3
+                            },
+                            { 
+                                transform: `translate(''${Math.random() * 80 - 40}px, ''${Math.random() * 80 - 40}px) rotate(''${Math.random() * 360}deg)`,
+                                opacity: 0.1
+                            }
+                        ], {
+                            duration: 4000 + Math.random() * 4000,
+                            iterations: Infinity,
+                            direction: 'alternate',
+                            easing: 'ease-in-out'
+                        });
+                        
+                        particleContainer.appendChild(particle);
+                    }
+                }
+                
+                // 🦆 says ⮞ chat sound effects
+                function playChatSound(type) {
+                    try {
+                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                        const oscillator = audioContext.createOscillator();
+                        const gainNode = audioContext.createGain();
+                        
+                        oscillator.connect(gainNode);
+                        gainNode.connect(audioContext.destination);
+                        
+                        let frequency = 800;
+                        let duration = 0.2;
+                        
+                        switch(type) {
+                            case 'send':
+                                frequency = 600;
+                                duration = 0.3;
+                                break;
+                            case 'receive':
+                                frequency = 1000;
+                                duration = 0.4;
+                                break;
+                            case 'typing':
+                                frequency = 400;
+                                duration = 0.1;
+                                break;
+                            case 'error':
+                                frequency = 300;
+                                duration = 0.3;
+                                break;
+                            case 'success':
+                                frequency = 1200;
+                                duration = 0.5;
+                                break;
+                            default:
+                                frequency = 800;
+                                duration = 0.2;
+                        }
+                        
+                        oscillator.type = 'sine';
+                        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+                        oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, audioContext.currentTime + duration);
+                        
+                        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+                        
+                        oscillator.start(audioContext.currentTime);
+                        oscillator.stop(audioContext.currentTime + duration);
+                        
+                    } catch (e) {
+                        console.log('🦆 No audio support, silent chat!');
+                    }
+                }
+                
+                // 🦆 says ⮞ send message with effects
+                function enhancedSendMessage() {
+                    const sendButton = document.querySelector('#input-container button');
+                    const input = document.querySelector('#prompt');
+                    
+                    if (sendButton && input && input.value.trim()) {
+                        playChatSound('send');
+                        
+                        sendButton.classList.add('chat-success');
+                        setTimeout(() => sendButton.classList.remove('chat-success'), 500);
+                        
+                        input.style.transform = 'scale(0.98)';
+                        setTimeout(() => input.style.transform = "", 200);
+                        
+                        if (Math.random() > 0.7) {
+                            setTimeout(() => playQuackSound(), 100);
+                        }
+                    }
+                }
+                
+                // 🦆 says ⮞ receive message with effects
+                function enhancedReceiveMessage(messageElement) {
+                    if (!messageElement) return;
+                    
+                    playChatSound('receive');
+                    
+                    messageElement.classList.add('chat-success');
+                    setTimeout(() => messageElement.classList.remove('chat-success'), 1000);
+                    
+                    const ripple = document.createElement('span');
+                    const rect = messageElement.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height) * 2;
+                    const x = rect.left + rect.width / 2 - size / 2;
+                    const y = rect.top + rect.height / 2 - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: fixed;
+                        border-radius: 50%;
+                        background: rgba(0, 180, 216, 0.3);
+                        transform: scale(0);
+                        animation: chatRipple 0.6s linear;
+                        width: ''${size}px;
+                        height: ''${size}px;
+                        top: ''${y}px;
+                        left: ''${x}px;
+                        pointer-events: none;
+                        z-index: 1000;
+                    `;
+                    
+                    document.body.appendChild(ripple);
+                    setTimeout(() => ripple.remove(), 600);
+                }
+                
+                // 🦆 says ⮞ Enhanced typing indicator
+                function enhancedTypingIndicator() {
+                    const typingIndicator = document.querySelector('.typing-indicator');
+                    if (typingIndicator) {
+                        typingIndicator.style.animation = 'typingGlow 2s infinite alternate';
+                        
+                        // Play typing sound
+                        playChatSound('typing');
+                    }
+                }
+                
+                // 🦆says⮞initi chat page my way
+                function initChatPageWithPersonality() {
+                    console.log('🦆 Initializing chat page with maximum personality!');
+                    
+                    // Add connection status AFTER DOM is ready
+                    const chatContainer = document.getElementById('chat-container');
+                    if (chatContainer && !document.getElementById('chat-connection-status')) {
+                        const connectionStatus = document.createElement('div');
+                        connectionStatus.id = 'chat-connection-status';
+                        connectionStatus.className = 'connection-status disconnected';
+                        connectionStatus.innerHTML = '<i class="fas fa-plug"></i><span>API: Disconnected</span>';
+                        chatContainer.insertBefore(connectionStatus, document.getElementById('chat'));
+                    }
+                    
+                    if (document.readyState === 'loading') {
+                        document.addEventListener('DOMContentLoaded', () => {
+                            setTimeout(addChatParticles, 500);
+                        });
+                    } else {
+                        setTimeout(addChatParticles, 500);
+                    }
+                    
+                    const sendButton = document.querySelector('#input-container button');
+                    if (sendButton) {
+                        sendButton.onclick = function(e) {
+                            enhancedSendMessage();
+                            sendMessage();
+                        };
+                        
+                        sendButton.addEventListener('click', function(e) {
+                            const ripple = document.createElement('span');
+                            const rect = this.getBoundingClientRect();
+                            const size = Math.max(rect.width, rect.height);
+                            const x = e.clientX - rect.left - size / 2;
+                            const y = e.clientY - rect.top - size / 2;
+                            
+                            ripple.style.cssText = `
+                                position: absolute;
+                                border-radius: 50%;
+                                background: rgba(255, 255, 255, 0.6);
+                                transform: scale(0);
+                                animation: chatRipple 0.6s linear;
+                                width: ''${size}px;
+                                height: ''${size}px;
+                                top: ''${y}px;
+                                left: ''${x}px;
+                                pointer-events: none;
+                            `;
+                            
+                            this.appendChild(ripple);
+                            setTimeout(() => ripple.remove(), 600);
+                        });
+                    }
+                    
+                    const input = document.querySelector('#prompt');
+                    if (input) {
+                        input.addEventListener('keypress', function(e) {
+                            if (e.key === 'Enter' && !e.shiftKey) {
+                                enhancedSendMessage();
+                            }
+                        });
+                        
+                        input.addEventListener('focus', function() {
+                            this.parentElement.style.boxShadow = '0 0 30px rgba(0, 180, 216, 0.3)';
+                        });
+                        
+                        input.addEventListener('blur', function() {
+                            this.parentElement.style.boxShadow = "";
+                        });
+                    }
+                    
+                    setTimeout(() => {
+                        document.querySelectorAll('.chat-bubble').forEach(bubble => {
+                            bubble.addEventListener('click', function() {
+                                const ripple = document.createElement('span');
+                                const rect = this.getBoundingClientRect();
+                                const size = Math.max(rect.width, rect.height);
+                                const x = event.clientX - rect.left - size / 2;
+                                const y = event.clientY - rect.top - size / 2;
+                                
+                                ripple.style.cssText = `
+                                    position: absolute;
+                                    border-radius: 50%;
+                                    background: rgba(255, 255, 255, 0.4);
+                                    transform: scale(0);
+                                    animation: chatRipple 0.6s linear;
+                                    width: ''${size}px;
+                                    height: ''${size}px;
+                                    top: ''${y}px;
+                                    left: ''${x}px;
+                                    pointer-events: none;
+                                `;
+                                
+                                this.appendChild(ripple);
+                                setTimeout(() => ripple.remove(), 600);
+                                
+                                playChatSound('receive');
+                            });
+                            
+                            const codeBlocks = this.querySelectorAll('pre, code');
+                            codeBlocks.forEach(code => {
+                                code.style.transition = 'all 0.3s ease';
+                                code.addEventListener('mouseenter', () => {
+                                    code.style.transform = 'scale(1.02)';
+                                    code.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.4)';
+                                });
+                                code.addEventListener('mouseleave', () => {
+                                    code.style.transform = "";
+                                    code.style.boxShadow = "";
+                                });
+                            });
+                        });
+                    }, 1000);
+                    
+                    const attachmentButton = document.querySelector('#attachment-button');
+                    if (attachmentButton) {
+                        attachmentButton.addEventListener('click', function() {
+                            playChatSound('success');
+                            
+                            this.style.transform = 'rotate(360deg) scale(1.2)';
+                            setTimeout(() => {
+                                this.style.transform = "";
+                            }, 300);
+                        });
+                    }
+                    
+                    console.log('🦆 Chat page initialized with personality! 🦆💬');
+                }
+
+              
                 function showNotification(message, type) {
                     let notification = document.getElementById('chat-notification');
                     if (!notification) {
@@ -712,12 +1002,6 @@ in { # 🦆 duck say ⮞ qwack
                 let apiConnected = false;
                 let selectedFiles = [];
                 let lastTtsCheck = 0;
-
-                const connectionStatus = document.createElement('div');
-                connectionStatus.id = 'chat-connection-status';
-                connectionStatus.className = 'connection-status disconnected';
-                connectionStatus.innerHTML = '<i class="fas fa-plug"></i><span>API: Disconnected</span>';
-                document.getElementById('chat-container').insertBefore(connectionStatus, document.getElementById('chat'));
                 
                 function setupFileUpload() {
                     const attachmentButton = document.getElementById('attachment-button');
@@ -1577,9 +1861,6 @@ in { # 🦆 duck say ⮞ qwack
 ]*/);
                     const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'FUCK!';
     
-                   // errorBubble.innerHTML = `
-                   //     <div class="error-special-text">🦆says ▶''${errorMessage}</div>
-                   // `;
                     errorBubble.innerHTML = `
                         <div class="error-special-text">🦆says ▶ FUCK!</div>
                     `;
@@ -1785,23 +2066,41 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
                
-                setupFileUpload();
-                checkAPIHealth();     
-                document.getElementById('prompt').addEventListener('keydown', checkEnter);
-                document.getElementById('send-button').addEventListener('click', sendMessage);        
-                document.querySelectorAll('.suggestion-bubble').forEach(bubble => {
-                    bubble.addEventListener('click', function() {
-                        sendSuggestion(this);
-                    });
-                });            
-                setTimeout(() => {
-                    if (isFirstMessage) {
-                        addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
+                // Initialize when DOM is ready
+                document.addEventListener('DOMContentLoaded', function() {
+                    setupFileUpload();
+                    checkAPIHealth();     
+                    document.getElementById('prompt').addEventListener('keydown', checkEnter);
+                    document.getElementById('send-button').addEventListener('click', sendMessage);
+                    
+                    const chatPage = document.getElementById('pageCustom5') || 
+                                     document.querySelector('.page[data-page="5"]');
+                    if (chatPage && chatPage.style.display !== 'none') {
+                        console.log('🦆 Chat page already visible - INITIATE DUCK MADNESS!');
+                        initChatPageWithPersonality();
                     }
-                }, 2000);
-                
+                    
+                    // Add initial welcome message
+                    setTimeout(() => {
+                        if (isFirstMessage) {
+                            addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
+                        }
+                    }, 1000);
+                });
+
+                // Handle page changes
+                document.addEventListener('pageChanged', function(e) {
+                    const chatPage = document.getElementById('pageCustom5') || 
+                                     document.querySelector('.page[data-page="5"]');
+                    if (chatPage && chatPage.style.display !== 'none') {
+                        console.log('🦆 Page changed to chat - RELEASING THE DUCKS!');
+                        setTimeout(initChatPageWithPersonality, 100);
+                    }
+                });
+
+                // Health check
                 setInterval(checkAPIHealth, 30000);
-            </script>            
+            </script>        
           '';
         };
       
@@ -1867,123 +2166,40 @@ in { # 🦆 duck say ⮞ qwack
 
         # 🦆 says ⮞ 1. MQTT triggered automations
         mqtt_triggered = {
+          # 🦆say⮞ crypto tickers 
           xmr = {
             enable = true;
             description = "Updating XMR price data on dashboard";
             topic = "zigbee2mqtt/crypto/xmr/price";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  FILE="/var/lib/zigduck/xmr.json"
-                  touch "$FILE"
-                  PRICE=$(echo "$MQTT_PAYLOAD" | jq '.current_price')
-                  CHANGE_24H=$(echo "$MQTT_PAYLOAD" | jq '."24h_change"')
-                  CHANGE_7D=$(echo "$MQTT_PAYLOAD" | jq '."7d_change"')
-                  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
-                    echo "{"current_price": $PRICE, "24h_change": $CHANGE_24H, "7d_change": $CHANGE_7D, "history": [$PRICE]}" > "$FILE"
-                  else
-                    jq --argjson price "$PRICE" --argjson change24h "$CHANGE_24H" --argjson change7d "$CHANGE_7D" '
-                      .current_price = $price
-                      | .["24h_change"] = $change24h
-                      | .["7d_change"] = $change7d
-                      | .history += [$price]
-                      | .history = (.history[-200:]) # 🦆 says ⮞ keep 200 in history
-                    ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
-                  fi
-                '';
-              }
-            ];
-          };  
-                
+            actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "xmr.json"; }];
+          };            
           btc = {
             enable = true;
             description = "Updating BTC price data on dashboard";
             topic = "zigbee2mqtt/crypto/btc/price";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  FILE="/var/lib/zigduck/btc.json"
-                  touch "$FILE"
-                  PRICE=$(echo "$MQTT_PAYLOAD" | jq '.current_price')
-                  CHANGE_24H=$(echo "$MQTT_PAYLOAD" | jq '."24h_change"')
-                  CHANGE_7D=$(echo "$MQTT_PAYLOAD" | jq '."7d_change"')
-                  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
-                    echo "{"current_price": $PRICE, "24h_change": $CHANGE_24H, "7d_change": $CHANGE_7D, "history": [$PRICE]}" > "$FILE"
-                  else
-                    jq --argjson price "$PRICE" --argjson change24h "$CHANGE_24H" --argjson change7d "$CHANGE_7D" '
-                      .current_price = $price
-                      | .["24h_change"] = $change24h
-                      | .["7d_change"] = $change7d
-                      | .history += [$price]
-                      | .history = (.history[-200:]) # 🦆 says ⮞ keep 200 in history
-                    ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
-                  fi
-                '';
-              }
-            ];
+            actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "btc.json"; }];
           };
-
+          # 🦆say⮞ energy tracking 
+          energyPrice = {
+            enable = true;
+            description = "Updating energy data on dashboard";
+            topic = "zigbee2mqtt/tibber/energy";
+            actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "energy_price.json"; }];
+          };
+          energyUsage = {
+            enable = true;
+            description = "Updating energy data on dashboard";
+            topic = "zigbee2mqtt/tibber/energy";
+            actions = [{ type = "shell"; command = Mqtt2jsonHistory "monthly_usage" "energy_usage.json"; }];
+          };   
+          # 🦆say⮞ hallway temperature  
           temperature = {
             enable = true;
             description = "Updating temperature data on dashboard";
             topic = "zigbee2mqtt/Motion Sensor Hall";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  FILE="/var/lib/zigduck/temperature.json"
-                  touch "$FILE"
-                  echo "$MQTT_PAYLOAD" > "$FILE"
-                '';
-              }
-            ];
-          };
-
-          alarms = {
-            enable = true;
-            description = "Sets an alarm for specified time (HH:MM)";
-            topic = "zigbee2mqtt/alarm/set";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  hours=$(echo "$MQTT_PAYLOAD" | jq -r '.hours')
-                  minutes=$(echo "$MQTT_PAYLOAD" | jq -r '.minutes')
-                  sound=$(echo "$MQTT_PAYLOAD" | jq -r '.sound // ""')
-  
-                  SOUNDHOST=${config.house.soundHost}
-                  LOGFILE_DIR="/var/lib/zigduck/alarms"
-                  mkdir -p "$LOGFILE_DIR"
-                  
-                  # 🦆 says ⮞ calculate day
-                  now=$(date +%s)
-                  target=$(date -d "today $hours:$minutes" +%s)
-                  if [ $target -le $now ]; then
-                    target=$(date -d "tomorrow $hours:$minutes" +%s)
-                  fi    
-                  
-                  # 🦆 says ⮞ create alarm
-                  (
-                    while [ $(date +%s) -lt $target ]; do
-                      remaining=$((target - $(date +%s)))
-                      echo -ne "Time until alarm: ''${remaining}s"
-                      sleep 1
-                    done
-                    echo -e "
-e[1;5;31m[ALARM RINGS]e[0m"
-                    rm -rf "$LOGFILE_DIR/$$.pid"  
-                    ssh $SOUNDHOST aplay "$sound" >/dev/null 2>&1
-                  ) > /var/lib/zigduck/alarms/yo-alarm.log 2>&1 &
-                  pid=$!
-                  echo "$pid $target" > "$LOGFILE_DIR/$pid.pid"
-                  disown "$pid"
-                '';
-              }
-            ];
-          };
-
+            actions = [{ type = "shell"; command = Mqtt2jsonHistory "temperature" "temperature.json"; }];
+          };          
+          # 🦆say⮞ tv control 
           tv_command = {
             enable = true;
             description = "TV command sent";
@@ -2000,11 +2216,10 @@ e[1;5;31m[ALARM RINGS]e[0m"
               }
             ];
           };
-
           tv_channel_change = {
             enable = true;
             description = "Change TV channel via yo command";
-            topic = "zigbee2mqtt/tvChannelCommand";  # Note: Changed topic for clarity
+            topic = "zigbee2mqtt/tvChannelCommand";
             actions = [
               {
                 type = "shell";
@@ -2015,83 +2230,10 @@ e[1;5;31m[ALARM RINGS]e[0m"
                 '';
               }
             ];
-          };
-
-          shopping_list = {
-            enable = true;
-            description = "Shopping list changed";
-            topic = "zigbee2mqtt/shopping_list";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  action=$(echo "$MQTT_PAYLOAD" | jq -r '.shopping_action // empty')
-                  item=$(echo "$MQTT_PAYLOAD" | jq -r '.item // empty')
-                  shopping_file="/var/lib/zigduck/shopping_list.txt"        
-                  case "$action" in
-                    "add")
-                      if [ -n "$item" ]; then
-                        echo "$item" >> "$shopping_file"
-                        mosquitto_pub -h "${mqttHostip}" ${mqttAuth}                           -t "zigbee2mqtt/shopping_list/updated"                           -m "{"action":"add","item":"$item"}"
-                        yo notify "🛒 Added: $item"
-                      fi
-                      ;;     
-                    "remove")
-                      if [ -n "$item" ]; then
-                        temp_file=$(mktemp)
-                        grep -v "^$item$" "$shopping_file" > "$temp_file"
-                        mv "$temp_file" "$shopping_file"
-                      fi
-                      ;;          
-                    "clear")
-                      > "$shopping_file"
-                      mosquitto_pub -h "${mqttHostip}" ${mqttAuth}                         -t "zigbee2mqtt/shopping_list/updated"                         -m '{"action":"clear"}'
-                      yo notify "🛒 List cleared"
-                      ;;         
-                    "view")
-                      echo ""
-                      ;;
-                  esac
-                '';
-              }
-            ];
-          };
-
-          energy = {
-            enable = true;
-            description = "Updating energy data on dashboard";
-            topic = "zigbee2mqtt/tibber/energy";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  FILE="/var/lib/zigduck/energy_price.json"
-                  touch "$FILE"
-                  touch "/var/lib/zigduck/energy.json"
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/energy.json
-                  PRICE=$(echo "$MQTT_PAYLOAD" | jq '.current_price')
-          
-                  # 🦆says⮞ notify if high energy price
-                  if [ $(echo "$PRICE > 2.0" | bc -l) -eq 1 ]; then
-                    yo notify "⚡ High energy price: $PRICE SEK/kWh"
-                  fi          
-          
-                  if [ ! -f "$FILE" ] || [ ! -s "$FILE" ]; then
-                    echo "{"current_price":$PRICE,"history":[$PRICE]}" > "$FILE"
-                    exit 0
-                  fi
-
-                  jq --argjson price "$PRICE" '
-                    .current_price = $price
-                    | .history += [$price]
-                    | .history = (.history[-100:])  # Keep last 100 entries
-                  ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
-                '';
-              }
-            ];
           }; # 🦆says⮞health checks (from let block)
         } // health; 
         
+
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = { 
