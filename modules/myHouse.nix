@@ -10,9 +10,22 @@
     builtins.replaceStrings [ "/*" "*/" ] [ "" "" ] text;
 
   css = {
-    health   = builtins.readFile ./themes/css/duckdash/health.css;
-    chat     = builtins.readFile ./themes/css/duckdash/chat.css;
+    tv      = builtins.readFile ./themes/css/duckdash/tv.css;  
+    health  = builtins.readFile ./themes/css/duckdash/health.css;
+    chat    = builtins.readFile ./themes/css/duckdash/chat.css;
   };
+  
+  # 🦆 says ⮞ get house.tv configuration with debug info
+  tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
+    
+  # 🦆 says ⮞ generate TV selector options with debug
+  tvOptions = let
+    tvNames = lib.attrNames tvConfig;
+    options = lib.concatMapStrings (tvName: 
+      let tv = tvConfig.${tvName};
+      in if tv.enable then ''<option value="${tv.ip}">${tvName}</option>'' else ""
+    ) tvNames;
+  in builtins.trace "TV options: ${options}" options;
 
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
@@ -96,6 +109,7 @@ in { # 🦆 duck say ⮞ qwack
       kitchen.icon    = "mdi:food-fork-drink";
       livingroom.icon = "mdi:sofa";
       wc.icon         = "mdi:toilet";
+      tv-area.icon    = "mdi:television";
       other.icon      = "mdi:misc";
     };
     
@@ -104,15 +118,38 @@ in { # 🦆 duck say ⮞ qwack
       passwordFile = config.sops.secrets.api.path; # 🦆 says ⮞  safety firzt!      
       # 🦆 says ⮞  home page information cards
       statusCards = {
+        calendar = {
+          enable = true;
+          title = "𝑪𝑨𝑳𝑬𝑵𝑫𝑨𝑹";
+          group = "1";
+          icon = "fas fa-calendar";
+          color = "#ff0000";
+          theme = "glass";
+          filePath = "/var/lib/zigduck/calendar.json";
+          jsonField = "today_date";
+          format = "{value}";
+          detailsJsonField = "today_events";
+          detailsFormat = "{value}";
+          chart = false;
+          on_click_action = [
+            {
+              type = "shell";
+              command = "yo say \"detta är ett ank test - testar ankor ankor anka naka naka ojojojjoj vad många ankor detta blev oj oj\" --host desktop";
+            }
+          ];  
+        };
+            
         # 🦆 says ⮞ Monero USD price ticker
         xmr = {
           enable = true;
-          title = "🏴‍☠️🏴‍☠️ ▶▶ 𝑿𝑴𝑹";
+          title = "𝑿𝑴𝑹";
+          group = "tickers";
           icon = "fab fa-monero";
           color = "#a78bfa";
+          theme = "colorful";
           filePath = "/var/lib/zigduck/xmr.json";
           jsonField = "current_price";
-          format = "\${value}";
+          format = "{value}";
           detailsJsonField = "7d_change";
           detailsFormat = "7d: {value}%";
           chart = true;
@@ -121,12 +158,13 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ Bitcoin USD price ticker
         btc = {
           enable = true;
-          title = "₿ ▶▶ 𝑩𝒊𝑻𝑪𝑶 𝒊𝑵";
+          title = "𝑩𝑻𝑪";
+          group = "tickers";
           icon = "fab fa-bitcoin";
           color = "#ff6600";
           filePath = "/var/lib/zigduck/btc.json";
           jsonField = "current_price";
-          format = "\${value}";
+          format = "{value}";
           detailsJsonField = "7d_change";
           detailsFormat = "7d: {value}%";
           chart = true;
@@ -136,9 +174,10 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ kWh/price chart card
         energyPrice = {
           enable = true;
-          title = "▶⚡𝑬𝑵𝑬𝑹𝑮𝒀▶⚡𝑷𝑹𝑰𝑪𝑬";
+          title = "𝑷𝑹𝑰𝑪𝑬";
+          group = "energy";
           icon = "fas fa-bolt";
-          color = "#4caf50";
+          color = "#ffff00";
           filePath = "/var/lib/zigduck/energy_price.json";          
           jsonField = "current_price";
           format = "{value} SEK/kWh";          
@@ -149,9 +188,10 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ energy usage card
         energyUsage = {
           enable = true;
-          title = "▶ ⚡𝑬𝑵𝑬𝑹𝑮𝒀 USAGE";
+          title = "USAGE";
+          group = "energy";
           icon = "fas fa-bolt";
-          color = "#4caf50";
+          color = "#ffff00";
           filePath = "/var/lib/zigduck/energy_usage.json";          
           jsonField = "monthly_usage";
           format = "{value} kWh";
@@ -162,9 +202,11 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ show indoor temperature
         temperature = {
           enable = true;
-          title = "▶  TEMPERATURE  ";
+          title = "TEMPERATURE";
+          group = "sensors";
           icon = "fas fa-thermometer-half";
           color = "#e74c3c";
+          theme = "glass";
           filePath = "/var/lib/zigduck/temperature.json";          
           jsonField = "temperature";
           format = "{value} °C";
@@ -175,7 +217,510 @@ in { # 🦆 duck say ⮞ qwack
       };
 
       # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)      
-      pages = {        
+      pages = {    
+        # 🦆 says ⮞ (TV) remote page 
+        "3" = {
+          icon = "fas fa-television";
+          title = "remote";
+          # 🦆 says ⮞ symlink epg to webserver
+          files = { tv = "/var/lib/zigduck/tv"; };
+          css = css.tv;
+          code = ''
+            <div class="tv-selector-container">
+                <select id="targetTV" class="tv-selector">
+                    <option value="">🦆 says ▶ pick a TV source</option>
+                    ${tvOptions}
+                </select>
+            </div>
+            
+            <!-- 🦆 says ⮞ TV channel display -->
+            <div class="tv-channel-display" id="tvChannelDisplay" style="display: none;">
+                <div class="channel-info">
+                    <div class="channel-icon" id="currentChannelIcon">
+                        <div class="channel-number-fallback" id="currentChannelNumberFallback">--</div>
+                    </div>
+                    <div class="program-info">
+                        <div class="program-title" id="currentProgramTitle">No program...</div>
+                        <div class="program-progress">
+                            <div class="program-progress-bar" id="programProgressBar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div
+
+        
+            <div class="tv-controls-grid">
+                <!-- 🦆 says ⮞ ROW 1 -->
+                <div class="tv-control-row">
+                  <button class="tv-control-btn channel green" onclick="sendTVCommand('channel_up')">
+                    <i class="fas fa-arrow-up"></i>
+                  </button>
+                  <button class="tv-control-btn volume green" onclick="sendTVCommand('up')">
+                    <i class="fas fa-volume-up"></i>
+                  </button>
+                </div>
+
+                <!-- 🦆 says ⮞ ROW 2 -->
+                <div class="tv-control-row">
+                  <button class="tv-control-btn channel red" onclick="sendTVCommand('channel_down')">
+                    <i class="fas fa-arrow-down"></i>
+                  </button>
+                  <button class="tv-control-btn volume red" onclick="sendTVCommand('down')">
+                    <i class="fas fa-volume-down"></i>
+                  </button>
+                </div>
+
+                <!-- 🦆 says ⮞ ROW 3 -->
+                <div class="tv-control-row">
+                  <button class="tv-control-btn icon-only system" onclick="sendTVCommand('menu')">
+                    <i class="mdi mdi-menu"></i>
+                  </button>
+                  <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_up')">
+                    <i class="fas fa-arrow-up"></i>
+                  </button>
+                  <button class="tv-control-btn icon-only system" onclick="sendTVCommand('home')">
+                    <i class="mdi mdi-home"></i>
+                  </button>
+                </div>
+
+                <!-- 🦆 says ⮞ ROW 4 - ORANGE with BLUE DUCK center -->
+                <div class="tv-control-row">
+                  <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_left')">
+                    <i class="fas fa-arrow-left"></i>
+                  </button>
+                  <button class="tv-control-btn ok blue" onclick="sendTVCommand('nav_select')">
+                    <span class="duck-emoji">🦆</span>
+                  </button>
+                  <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_right')">
+                    <i class="fas fa-arrow-right"></i>
+                  </button>
+                </div>
+
+                <!-- 🦆 says ⮞ ROW 5 -->
+                <div class="tv-control-row">
+                  <button class="tv-control-btn icon-only system" onclick="sendTVCommand('back')">
+                    <i class="mdi mdi-arrow-left-circle"></i>
+                  </button>
+                  <button class="tv-control-btn nav orange" onclick="sendTVCommand('nav_down')">
+                    <i class="fas fa-arrow-down"></i>
+                  </button>
+                  <button class="tv-control-btn icon-only system" onclick="sendTVCommand('app_switcher')">
+                    <i class="mdi mdi-apps"></i>
+                  </button>
+                </div>
+                
+                <!-- 🦆 says ⮞ ROW 6 -->
+                <div class="tv-control-row">
+                    <button class="tv-control-btn playback" onclick="sendTVCommand('previous')">
+                        <i class="fas fa-backward"></i>
+                    </button>
+                    <button class="tv-control-btn playback" onclick="sendTVCommand('play_pause')">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="tv-control-btn playback" onclick="sendTVCommand('next')">
+                        <i class="fas fa-forward"></i>
+                    </button>
+                </div>
+            </div>
+
+            <script>             
+                // 🦆 says ⮞ TV control function
+                window.sendTVCommand = function(command) {
+                    console.log('🦆 TV command triggered:', command);       
+                    const targetTV = document.getElementById('targetTV');
+                    console.log('🦆 TV selector element:', targetTV);
+                    
+                    const ip = targetTV.value;   
+                    console.log('🦆 Selected TV IP:', ip);
+                                        
+                    if (!ip) {
+                        console.warn('🦆 No TV selected, showing error notification');
+                        showNotification('Please select a TV first', 'error');
+                        return;
+                    }   
+                    const payload = {
+                        tvCommand: command,
+                        ip: ip
+                    };      
+                    console.log('MQTT payload:', payload);
+                    console.log('MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');     
+                    if (client && client.connected) {
+                        console.log('Publishing to topic: zigbee2mqtt/tvCommand');
+                        client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload), function(err) {
+                            if (err) {
+                                console.error('MQTT publish error:', err);
+                                showNotification('Failed to send TV command', 'error');
+                            } else {
+                                console.log('TV command published successfully');
+                                showNotification('TV command sent: ' + command, 'success');
+                            }
+                        });
+                    } else {
+                        console.warn('MQTT client not connected');
+                        showNotification('Not connected to MQTT', 'error');
+                    }
+                };
+
+                // 🦆 says ⮞ create device ID to icon mapping
+                let deviceIdToIcon = {};
+                fetch('/devices.json')
+                    .then(response => response.json())
+                    .then(allDevices => {
+                        Object.entries(allDevices).forEach(([deviceId, device]) => {
+                            if (device.icon) {
+                                deviceIdToIcon[deviceId] = device.icon;
+                            }
+                        });
+                        console.log('Device ID to icon mapping:', deviceIdToIcon);
+                    })
+                    .catch(error => {
+                        console.log('Could not load devices.json for icon mapping');
+                    });
+
+                // 🦆 says ⮞ update TV channel display
+                function updateTVChannelDisplay(deviceIp, channelData) {
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (!channelDisplay) return;
+
+                    const currentTV = document.getElementById('targetTV').value;
+                    if (currentTV === deviceIp) {
+                        channelDisplay.style.display = 'block';
+                        if (channelData.channel_id) {
+                            updateChannelIcon(channelData.channel_id.toString());
+                        }
+                        const programTitle = document.getElementById('currentProgramTitle');
+                        if (programTitle) {
+                            if (channelData.program_title) {
+                                programTitle.textContent = cleanProgramTitle(channelData.program_title);
+                                programTitle.style.cursor = 'pointer';
+                            } else {
+                                programTitle.textContent = 'No program...';
+                                programTitle.style.cursor = 'default';
+                            }
+                        }
+                    }
+                }
+
+                // 🦆 says ⮞ format timestamp
+                function formatChannelTime(timestamp) {
+                    if (!timestamp) return '--';
+                    try {
+                        const date = new Date(timestamp);
+                        return date.toLocaleTimeString('sv-SE', { 
+                            hour: '2-digit', 
+                            minute: '2-digit',
+                            hour12: false 
+                        });
+                    } catch (e) {
+                        return '--';
+                    }
+                }
+
+                // 🦆 says ⮞ load initial TV channel state
+                function loadInitialTVState() {
+                    fetch('/state.json')
+                        .then(response => response.json())
+                        .then(state => {
+                            Object.entries(state).forEach(([key, data]) => {
+                                if (key.startsWith('tv_') && data.current_channel) {
+                                    const tvName = key.replace('tv_', "");
+                                    const tvConfig = ${builtins.toJSON config.house.tv};
+                                    const tvDevice = Object.values(tvConfig).find(tv => 
+                                        tv.room.toLowerCase().includes(tvName.toLowerCase())
+                                    );																			
+                                    if (tvDevice) {
+                                        updateTVChannelDisplay(tvDevice.ip, {
+                                           channel_id: data.current_channel,
+                                            channel_name: data.current_channel_name || `Channel ''${data.current_channel}`,
+                                            timestamp: data.last_update
+                                        });
+                                    }
+                                }
+                            });
+                        })
+                        .catch(error => {
+                            console.log('No initial TV state available');
+                        });
+                }
+
+
+                // 🦆 says ⮞ load and display EPG data
+                function loadEPGData() {
+                    const tvPage = document.getElementById('pageTV');
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (!tvPage && !channelDisplay) {
+                        console.log('TV page elements not available, skipping EPG load');
+                        return;
+                    }
+                    fetch('/epg.json')
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('EPG data not available');
+                            }
+                            return response.json();
+                        })
+                        .then(epgData => {
+                            window.epgData = epgData;
+                            console.log('EPG data loaded successfully');
+                            console.log('EPG data structure:', epgData);
+                            const currentTV = document.getElementById('targetTV');
+                            if (currentTV && currentTV.value) {
+                                updateTVWithEPG(currentTV.value);
+                            }
+                        })
+                        .catch(error => {
+                            console.log('EPG data not available:', error);
+                        });
+                }
+                
+                function updateChannelIcon(channelId) {
+                    console.log('🦆 updateChannelIcon called with channelId:', channelId);
+                    const iconElement = document.getElementById('currentChannelIcon');
+                    const fallbackElement = document.getElementById('currentChannelNumberFallback');
+    
+                    if (!iconElement) {
+                        console.error('Channel icon element not found!');
+                        return;
+                    }
+    
+                    if (iconElement && channelId) {
+                        const iconPath = `/tv-icons/''${channelId}.png`;
+                        console.log('🦆 Looking for channel icon at:', iconPath);
+                        iconElement.style.display = 'flex';
+                        iconElement.style.visibility = 'visible';
+                        iconElement.style.opacity = '1';
+                        iconElement.className = 'channel-icon';
+                        iconElement.style.backgroundSize = 'cover';
+                        iconElement.style.backgroundPosition = 'center';
+                        iconElement.style.backgroundRepeat = 'no-repeat';
+        
+                        iconElement.style.backgroundColor = "";
+                        iconElement.style.border = '2px solid rgba(255, 255, 255, 0.4)';
+        
+                        if (fallbackElement) {
+                            fallbackElement.textContent = channelId;
+                            fallbackElement.style.display = 'none'; // Hide fallback initially
+                        }
+        
+                        const img = new Image();
+                        img.onload = function() {
+                            console.log('🦆 Channel icon loaded successfully:', iconPath);
+                            console.log('Setting background image to:', iconPath);
+                            iconElement.style.backgroundImage = `url(''${iconPath}')`;
+                            iconElement.style.display = 'none';
+                            iconElement.offsetHeight;
+                            iconElement.style.display = 'flex';
+            
+                            if (fallbackElement) {
+                                fallbackElement.style.display = 'none';
+                            }
+            
+                            console.log('Final backgroundImage:', iconElement.style.backgroundImage);
+                        };
+                        img.onerror = function() {
+                            console.warn('🦆 Channel icon not found:', iconPath);
+                            iconElement.style.backgroundImage = 'none';
+                            iconElement.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                            if (fallbackElement) {
+                                fallbackElement.style.display = 'flex';
+                            }
+                        };
+                        img.src = iconPath;
+                    } else if (iconElement) {
+                        console.log('🦆 No channelId provided, showing fallback');
+                        iconElement.style.backgroundImage = 'none';
+                        iconElement.style.backgroundColor = 'rgba(0, 0, 0, 0.3)';
+                        if (fallbackElement) {
+                            fallbackElement.style.display = 'flex';
+                            fallbackElement.textContent = '--';
+                        }
+                    }
+                }
+           
+                // 🦆 says ⮞ update TV display with EPG information
+                function updateTVWithEPG(deviceIp) {
+                    if (!window.epgData || !window.epgData.channels) return;
+                    const tvConfig = ${builtins.toJSON config.house.tv};
+                    const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+                        config.ip === deviceIp
+                    );   
+                    if (!tvDevice) {
+                        console.log('No TV config found for IP:', deviceIp);
+                        return;
+                    }    
+                    const tvName = tvDevice[0];
+                    const tvKey = `tv_''${tvName}`;
+                    const tvState = devices[tvKey];
+                    if (!tvState || !tvState.current_channel) {
+                        console.log('No TV state found for:', tvKey, tvState);
+                        return;
+                    }  
+                    const channelId = tvState.current_channel.toString();
+                    console.log('🦆 Found TV channel:', channelId, 'for device:', deviceIp, 'name:', tvName);   
+                    updateChannelIcon(channelId);
+                    const channel = window.epgData.channels.find(ch => ch.id === channelId);  
+                    if (!channel || !channel.programs) {
+                        console.log('No EPG data for channel:', channelId);
+                        return;
+                    }   
+                    const now = new Date();
+                    const currentProgram = findCurrentProgram(channel.programs, now);
+                    if (currentProgram) {
+                        updateChannelDisplayWithProgram(channel, currentProgram, now);
+                    } else {
+                        console.log('No current program found for channel:', channelId);
+                        const programTitle = document.getElementById('currentProgramTitle');
+                        if (programTitle) {
+                            programTitle.textContent = tvState.current_channel_name || 'No program data';
+                        }
+                    }
+                }
+
+                // 🦆 says ⮞ find the currently playing program
+                function findCurrentProgram(programs, currentTime) {
+                    return programs.find(program => {
+                        const startTime = parseEPGTime(program.start);
+                        const endTime = parseEPGTime(program.stop);
+                        return currentTime >= startTime && currentTime < endTime;
+                    });
+                }
+
+                // 🦆 says ⮞ parse EPG time
+                function parseEPGTime(epgTime) {
+                    // 🦆 says ⮞ format: YYYYMMDDHHMMSS +0000
+                    const year = epgTime.substring(0, 4);
+                    const month = epgTime.substring(4, 6) - 1;
+                    const day = epgTime.substring(6, 8);
+                    const hour = epgTime.substring(8, 10);
+                    const minute = epgTime.substring(10, 12);
+                    const second = epgTime.substring(12, 14);
+                    return new Date(year, month, day, hour, minute, second);
+                }
+
+                // 🦆 says ⮞ clean program title from html
+                function cleanProgramTitle(rawTitle) {
+                    if (!rawTitle) return 'No program...';
+                    let clean = rawTitle.replace(/<[^>]*>/g, "");
+                    const channelPatterns = [
+                        /^Kanal\s+\d+\s*[-–]?\s*/i,
+                        /^TV\d+\s*[-–]?\s*/i,
+                        /^SVT\d*\s*[-–]?\s*/i,
+                        /^\d+\s*[-–]?\s*/
+                    ];
+                    channelPatterns.forEach(pattern => {
+                        clean = clean.replace(pattern, "");
+                    });
+                    clean = clean.replace(/^\s*[-–]\s*/, "").trim();
+                    if (!clean) {
+                        return rawTitle.replace(/<[^>]*>/g, "").trim() || 'No program...';
+                    }
+                    return clean;
+                }
+
+                // 🦆 says ⮞ toggle program description visibility
+                function toggleProgramDescription() {
+                    const descElement = document.getElementById('currentProgramDescription');
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (descElement && channelDisplay) {
+                        const isExpanded = descElement.classList.contains('expanded');
+                        if (isExpanded) {
+                            descElement.classList.remove('expanded');
+                            channelDisplay.classList.remove('expanded');
+                        } else {
+                            descElement.classList.add('expanded');
+                            channelDisplay.classList.add('expanded');
+                        }
+                    }
+                }
+
+                // 🦆 says ⮞ update the display with program info
+                function updateChannelDisplayWithProgram(channel, program, currentTime) {
+                    const elements = {
+                        programTitle: document.getElementById('currentProgramTitle'),
+                        progressBar: document.getElementById('programProgressBar')
+                    };
+    
+                    if (!elements.programTitle || !elements.progressBar) {
+                        console.log('Required TV display elements not found, skipping update');
+                        return;
+                    }
+    
+                    const startTime = parseEPGTime(program.start);
+                    const endTime = parseEPGTime(program.stop);
+                    const currentUTC = new Date(currentTime.toISOString());
+    
+                    const totalDuration = endTime - startTime;
+                    const elapsed = currentUTC - startTime;
+                    const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+    
+                    console.log('Program progress:', {
+                        start: startTime,
+                        end: endTime,
+                        current: currentUTC,
+                        progress: progress + '%'
+                    });
+    
+                    const cleanTitle = cleanProgramTitle(program.title);
+                    elements.programTitle.textContent = cleanTitle;
+                    elements.progressBar.style.width = `''${progress}%`;
+    
+                    if (progress < 25) {
+                        elements.progressBar.style.background = 'linear-gradient(90deg, #4cd964, #2ecc71)';
+                    } else if (progress < 75) {
+                        elements.progressBar.style.background = 'linear-gradient(90deg, #ffcc00, #ff9500)';
+                    } else {
+                        elements.progressBar.style.background = 'linear-gradient(90deg, #ff3b30, #e74c3c)';
+                    }
+                }
+
+                document.getElementById('targetTV').addEventListener('change', function() {
+                    const selectedTV = this.value;
+                    const channelDisplay = document.getElementById('tvChannelDisplay');
+                    if (selectedTV && channelDisplay) {
+                        channelDisplay.style.display = 'block';
+                        const tvConfig = ${builtins.toJSON config.house.tv};
+                        const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+                            config.ip === selectedTV
+                        );       
+                        if (tvDevice) {
+                            const tvName = tvDevice[0];
+                            const tvKey = `tv_''${tvName}`;
+                            const tvState = devices[tvKey];   
+                            if (tvState) {
+                                updateTVChannelDisplay(selectedTV, tvState);
+                            } else {
+                                console.log('No TV state found for:', tvKey);
+                                const programTitle = document.getElementById('currentProgramTitle');
+                                if (programTitle) programTitle.textContent = 'No channel info';
+                                updateChannelIcon(null);
+                            }
+                        }
+                        if (window.epgData) {
+                            updateTVWithEPG(selectedTV);
+                        }
+                    } else if (channelDisplay) {
+                        channelDisplay.style.display = 'none';
+                    }
+                });
+
+                // 🦆 says ⮞ set default TV if none selected and we have options
+                const tvSelector = document.getElementById('targetTV');
+                if (tvSelector && tvSelector.options.length > 1 && !tvSelector.value) {
+                    tvSelector.value = tvSelector.options[1].value;
+                    tvSelector.dispatchEvent(new Event('change'));
+                }
+
+               // 🦆 says ⮞ load EPG data after TV is set up
+                setTimeout(loadEPGData, 500);
+
+                // 🦆 says ⮞ load initial TV channel state
+                loadInitialTVState();
+
+
+            </script>
+          '';
+        };  
+      
         # 🦆 says ⮞ system-wide health monitoring page
         "4" = {
           icon = "fas fa-notes-medical";
@@ -305,7 +850,7 @@ in { # 🦆 duck say ⮞ qwack
         };
         
 
-        # 🦆says⮞ ChatBot (no LLM) - proof of concept that what people call "AI" can be replaced with basic scripting - less expensive, more reliable
+        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
         "5" = {
           icon = "fas fa-comments";
           title = "chat";
@@ -1184,7 +1729,14 @@ in { # 🦆 duck say ⮞ qwack
                     errorDiv.style.display = 'none';
                     
                     const source = document.createElement('source');
-                    source.src = videoUrl;
+                    
+                    // source.src = videoUrl;
+                    // 🦆 says ⮞ no let'z not do that... we transcode it and get a stream source
+                    const authToken = getAuthToken();
+                    const transcodedUrl = `''${API_CONFIG.baseUrl}/transcode-video?url=''${encodeURIComponent(videoUrl)}&password=''${encodeURIComponent(authToken)}`;
+                    source.src = transcodedUrl;
+                    source.type = 'video/mp4';
+                    
                     source.type = 'application/vnd.apple.mpegurl';
                     video.appendChild(source);
                     
@@ -1351,7 +1903,7 @@ in { # 🦆 duck say ⮞ qwack
                     video.style.borderRadius = '8px';
                     video.style.background = '#000';
                     video.style.marginBottom = '10px';
-                    // 🦆 says ⮞ crossorigin to handle CORS
+                    // 🦆 says ⮞ crossorigin to handle CORS better
                     video.crossOrigin = 'anonymous';
 
                     const source = document.createElement('source');
@@ -1397,6 +1949,15 @@ in { # 🦆 duck say ⮞ qwack
                     const enhanced = enhanceContent(textContent);
                     const aiBubble = document.createElement('div');
                     aiBubble.className = 'chat-bubble ai-bubble';
+                    
+                    if (isFirstMessage) {
+                        aiBubble.classList.add('first-message');
+                        isFirstMessage = false;
+        
+                        createConfetti(aiBubble);
+        
+                        content = "🦆 " + content;
+                    }  
                     
                     if (enhanced.type === 'terminal') {
                         const pre = document.createElement('pre');
@@ -1507,6 +2068,22 @@ in { # 🦆 duck say ⮞ qwack
                         playTTSAudio().catch(console.error);
                     }, 500);
                 }
+                
+                function createConfetti(container) {
+                    const colors = ['#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#9900ff'];
+    
+                    for (let i = 0; i < 50; i++) {
+                        const confetti = document.createElement('div');
+                        confetti.className = 'first-message-confetti';
+                        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                        confetti.style.left = Math.random() * 100 + '%';
+                        confetti.style.top = Math.random() * 100 + '%';
+                        confetti.style.animation = `confetti-fall ''${Math.random() * 3 + 2}s linear ''${Math.random() * 1}s infinite`;
+        
+                        container.appendChild(confetti);
+                    }
+                }
+
                 
                 function createStreamingPlayer(videoUrl, container, isLocalFile) {
                     const video = document.createElement('video');
@@ -1850,7 +2427,6 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
                
-                // Initialize when DOM is ready
                 document.addEventListener('DOMContentLoaded', function() {
                     setupFileUpload();
                     checkAPIHealth();     
@@ -1864,7 +2440,6 @@ in { # 🦆 duck say ⮞ qwack
                         initChatPageWithPersonality();
                     }
                     
-                    // Add initial welcome message
                     setTimeout(() => {
                         if (isFirstMessage) {
                             addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
@@ -1872,7 +2447,6 @@ in { # 🦆 duck say ⮞ qwack
                     }, 1000);
                 });
 
-                // Handle page changes
                 document.addEventListener('pageChanged', function(e) {
                     const chatPage = document.getElementById('pageCustom5') || 
                                      document.querySelector('.page[data-page="5"]');
@@ -1882,7 +2456,7 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 });
 
-                // Health check
+
                 setInterval(checkAPIHealth, 30000);
             </script>        
           '';
@@ -1904,7 +2478,7 @@ in { # 🦆 duck say ⮞ qwack
       };
       
       # 🦆 says ⮞ TV light syncin' 
-      hueSyncBox = {
+      hueSyncBox = { 
         enable = true;
         # 🦆 says ⮞ sadly needed (i disable itz internet access - u should too)
         bridge = { 
@@ -2031,7 +2605,7 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "scene";
                 scene = "Chill Scene";
-              }           
+              }       
             ];
             motion_not_detected = [
               {
@@ -2082,11 +2656,25 @@ in { # 🦆 duck say ⮞ qwack
         };
         
         # 🦆 says ⮞ 5. time based automations
-        time_based = {};
+        time_based = {
+          time_teller = {
+            enable = true;
+            description = "It's 18:55? Verifying...";
+            schedule = {
+              start = "18:55";
+              days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
+            };
+            actions = [
+              {
+                type = "shell";
+                command = "ssh desktop yo do \"vad är klockan\"";
+              }
+            ];
+          };
+        };
         
         # 🦆 says ⮞ 6. presence based automations
-        presence_based = {};
-        
+        presence_based = {};        
       };  
 
 
@@ -2145,15 +2733,25 @@ in { # 🦆 duck say ⮞ qwack
         "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
         "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
         "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
-        "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = icons.light.desk; endpoint = 11; supports_color = true; };
+        "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = "./themes/icons/zigbee/bloom.png"; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
         "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; };
         "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
         "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
+
+        # 🦆 says ⮞ TV-AREA (entertainment area)
+        "00178801095f06300b" = { friendly_name = "TV Play Strip"; room = "tv-area"; type = "hue_light"; icon = icons.light.strip; endpoint = 1; supports_color = true; hue_id = 38; };
+        "0017880106ff30720b" = { friendly_name = "TV Play 1"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 40; };
+        "0017880109f06a700b" = { friendly_name = "TV Play 2"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 41; };
+        "0017880109f06a7c0b" = { friendly_name = "TV Play 3"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 37; };
+        "0017880106ff22530b" = { friendly_name = "TV Play 4"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 39; };
+        "001788010985d1820b" = { friendly_name = "Play Top L"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 61; };                        
+        "00178801098d5b320b" = { friendly_name = "Play Top R"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 60; };        
       };
       
+            
   # 🦆 ⮞ SCENES ⮜
       scenes = {
           # 🦆 says ⮞ Scene name
@@ -2217,7 +2815,14 @@ in { # 🦆 duck say ⮞ qwack
               "Takkrona 1" = { state = "OFF"; transition = 10; };   
               "Takkrona 2" = { state = "OFF"; transition = 10; };
               "Takkrona 3" = { state = "OFF"; transition = 10; };   
-              "Takkrona 4" = { state = "OFF"; transition = 10; };   
+              "Takkrona 4" = { state = "OFF"; transition = 10; };
+              "TV Play Strip" = { state = "OFF"; transition = 150; };
+              "TV Play 1" = { state = "OFF"; transition = 150; };
+              "TV Play 2" = { state = "OFF"; transition = 150; };
+              "TV Play 3" = { state = "OFF"; transition = 150; };
+              "TV Play 4" = { state = "OFF"; transition = 150; };
+              "Play Top L" = { state = "OFF"; transition = 150; };
+              "Play Top R" = { state = "OFF"; transition = 150; };
           };  
           "dark-fast" = { # 🦆 says ⮞ eat darkness... NAO!  
               "Bloom" = { state = "OFF"; };
@@ -2239,9 +2844,16 @@ in { # 🦆 duck say ⮞ qwack
               "WC 2" = { state = "OFF"; };
               "Takkrona 1" = { state = "OFF"; };   
               "Takkrona 2" = { state = "OFF"; };
-              "Takkrona 3" = { state = "OFF"; };   
-              "Takkrona 4" = { state = "OFF"; };   
-          };  
+              "Takkrona 3" = { state = "OFF"; };
+              "Takkrona 4" = { state = "OFF"; }; 
+              "TV Play Strip" = { state = "OFF"; };
+              "TV Play 1" = { state = "OFF"; };
+              "TV Play 2" = { state = "OFF"; };
+              "TV Play 3" = { state = "OFF"; };
+              "TV Play 4" = { state = "OFF"; };
+              "Play Top L" = { state = "OFF"; };
+              "Play Top R" = { state = "OFF"; };
+          };
           "max" = { # 🦆 says ⮞ let there be light
               "Bloom" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Dörr" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -2264,8 +2876,42 @@ in { # 🦆 duck say ⮞ qwack
               "Takkrona 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Takkrona 3" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   
               "Takkrona 4" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-          };    
-      };       
+              "TV Play Strip" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+              "TV Play 1" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+              "TV Play 2" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+              "TV Play 3" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+              "TV Play 4" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+              "Play Top L" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+              "Play Top R" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
+          };     
+          "tv-area1" = {
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 3"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.4995 0.4697 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 4"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2293 0.0945 ]; }; mode = "homeautomation"; transition = 150; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6187 0.3687 ]; }; mode = "homeautomation"; transition = 150; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1611 0.5294 ]; }; mode = "homeautomation"; transition = 150; };
+          };
+          "tv-area2" = {
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 3"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.2746 0.1320 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 4"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.4088 0.5170 ]; }; mode = "homeautomation"; transition = 150; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.2255 0.3299 ]; }; mode = "homeautomation"; transition = 150; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.1670 0.3520 ]; }; mode = "homeautomation"; transition = 150; };
+          };
+          "tv-area3" = {
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; mode = "homeautomation"; transition = 150; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; mode = "homeautomation"; transition = 150; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; mode = "homeautomation"; transition = 150; };
+          };
+        };  
     };
     
     # 🦆 ⮞ TV ⮜
@@ -2543,6 +3189,24 @@ in { # 🦆 duck say ⮞ qwack
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0440"; # Read-only for owner and group
+      };
+      mosquitto = { # 🦆 says ⮞ quack, stupid!
+        sopsFile = ./../secrets/mosquitto.yaml; 
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+      }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
+      z2m_network_key = { 
+        sopsFile = ./../secrets/z2m_network_key.yaml; 
+        owner = "zigbee2mqtt";
+        group = "zigbee2mqtt";
+        mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+      };
+      z2m_mosquitto = { 
+        sopsFile = ./../secrets/z2m_mosquitto.yaml; 
+        owner = "zigbee2mqtt";
+        group = "zigbee2mqtt";
+        mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
       };
     };
     

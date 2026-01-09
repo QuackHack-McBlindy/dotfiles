@@ -171,6 +171,65 @@
         eprintln!("[API] {}", message);
     }
 
+    fn handle_transcode_video_stream(url: &str, stream: &mut std::net::TcpStream) -> Result<(), String> {
+        dt_info(&format!("Streaming transcoded video from URL: {}", url));
+    
+        let mut child = std::process::Command::new("bash")
+            .arg("-c")
+            .arg(format!("curl -s -L '{}' | ffmpeg -i pipe:0 -f mp4 -movflags frag_keyframe+empty_moov -preset ultrafast -c:v libx264 -c:a aac -b:a 192k -", url))
+            .stdout(std::process::Stdio::piped())
+            .stderr(std::process::Stdio::piped())
+            .spawn()
+            .map_err(|e| format!("Error starting transcoding pipeline: {}", e))?;
+    
+        let mut stdout = child.stdout.take()
+            .ok_or("Failed to capture ffmpeg stdout".to_string())?;
+    
+        // 🦆 says ⮞ send http headers
+        stream.write_all(b"HTTP/1.1 200 OK\r\n")
+            .map_err(|e| format!("Failed to write status line: {}", e))?;
+        stream.write_all(b"Content-Type: video/mp4\r\n")
+            .map_err(|e| format!("Failed to write content type: {}", e))?;
+        stream.write_all(b"Access-Control-Allow-Origin: *\r\n")
+            .map_err(|e| format!("Failed to write CORS header: {}", e))?;
+        stream.write_all(b"Transfer-Encoding: chunked\r\n")
+            .map_err(|e| format!("Failed to write transfer encoding: {}", e))?;
+        stream.write_all(b"\r\n")
+            .map_err(|e| format!("Failed to write header terminator: {}", e))?;
+    
+        // 🦆 says ⮞ stream video data in chunks
+        let mut buffer = [0; 8192];
+        loop {
+            match stdout.read(&mut buffer) {
+                Ok(0) => break, // EOF
+                Ok(n) => {
+                    // 🦆 says ⮞ ciao chunk
+                    let chunk_header = format!("{:x}\r\n", n);
+                    stream.write_all(chunk_header.as_bytes())
+                        .map_err(|e| format!("Failed to write chunk header: {}", e))?;
+                    stream.write_all(&buffer[..n])
+                        .map_err(|e| format!("Failed to write chunk data: {}", e))?;
+                    stream.write_all(b"\r\n")
+                        .map_err(|e| format!("Failed to write chunk terminator: {}", e))?;
+                }
+                Err(e) => {
+                    dt_warning(&format!("Error reading from ffmpeg: {}", e));
+                    break;
+                }
+            }
+        }
+    
+        // 🦆 says ⮞ send bye-bye goodnight chunk
+        stream.write_all(b"0\r\n\r\n")
+            .map_err(|e| format!("Failed to write final chunk: {}", e))?;
+    
+        let _ = child.wait();
+    
+        dt_info("Video streaming completed");
+        Ok(())
+    }
+
+
     // 🦆 says ⮞ Password authentication function
     fn check_password_auth(headers: &HashMap<String, String>, query: &str) -> bool {
         let password_file_path = std::env::var("YO_API_PASSWORD_FILE")
@@ -975,9 +1034,33 @@
             ("GET", "/") => {
                 dt_info("Root endpoint requested");
                 send_response(&mut stream, "200 OK", 
-                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/{device}/...","/scene/{scene}","/device/rooms","/device/types","/upload","/tts","/state","/state/{device}","/state/room/{room}"]}"#,
+                    r#"{"service":"yo-api","endpoints":["/timers","/alarms","/shopping","/reminders","/health","/browse","/browsev2","/add","/add_folder","/playlist","/playlist/remove","/playlist/clear","/playlist/shuffle","/do","/device/list","/device/{device}/...","/scene/{scene}","/device/rooms","/device/types","/upload","/tts","/state","/state/{device}","/state/room/{room}","/transcode-video"]}"#,
                     None);
             }
+            
+            ("GET", "/transcode-video") | ("GET", "/api/transcode-video") => {
+                let url = get_query_arg(query, "url");
+                if url.is_empty() {
+                    dt_warning("Transcode video called without URL");
+                    send_response(&mut stream, "400 Bad Request", 
+                        r#"{"error":"Missing url parameter"}"#, None);
+                    return;
+                }
+    
+                dt_info(&format!("Transcoding video from: {}", url));
+    
+                match handle_transcode_video_stream(&url, &mut stream) {
+                    Ok(_) => {
+                        return;
+                    }
+                    Err(e) => {
+                        dt_error(&format!("Transcoding failed: {}", e));
+                        send_response(&mut stream, "500 Internal Server Error", 
+                            &format!(r#"{{"error":"Transcoding failed: {}"}}"#, e), None);
+                    }
+                }
+            }            
+                       
             ("GET", "/browsev2") | ("GET", "/api/browsev2") => {
                 let path_arg = get_path_arg(query);
                 let response = handle_browse(&path_arg, true);
@@ -1540,6 +1623,10 @@ in {
       echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/playlist/clear'"
       echo "Shuffle playlist:"
       echo "curl -H 'Authorization: Bearer \$PASS' 'http://${mqttHostip}:9815/playlist/shuffle'"
+     
+     echo "# Transcode Media to Stream"
+     echo "vlc 'http://${mqttHostip}:9815/transcode-video?url=https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4&password=\$PASS'"
+     
      
       echo "# Health check (no auth required):"
       echo "curl http://${mqttHostip}:9815/health"

@@ -334,6 +334,16 @@ body, html {
   border-radius: 20px;
   border: 1px solid rgba(56, 189, 248, 0.1);
   backdrop-filter: blur(10px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.page[data-page="1"] .device-panel > * {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .page[data-page="1"] .panel-title {
@@ -593,6 +603,7 @@ body, html {
   border: 2px solid rgba(56, 189, 248, 0.3);
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .page[data-page="1"] .brightness-value {
@@ -611,6 +622,8 @@ body, html {
 .page[data-page="1"] .slider-row {
   width: 100%;
   position: relative;
+  max-width: 350px;
+  margin: 0 auto;
 }
 
 .page[data-page="1"] .brightness-slider {
@@ -681,6 +694,7 @@ body, html {
   border: 2px solid rgba(139, 92, 246, 0.3);
   position: relative;
   overflow: hidden;
+  margin: 0 auto;
 }
 
 .page[data-page="1"] .color-section::before {
@@ -707,6 +721,8 @@ body, html {
   max-width: 350px;
   position: relative;
   z-index: 1;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .page[data-page="1"] .color-preset {
@@ -881,9 +897,10 @@ body, html {
   border-radius: 25px;
   border: 3px solid transparent;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  margin: 20px auto;
+  margin: 20px auto; 
   position: relative;
   overflow: hidden;
+  max-width: 300px; 
 }
 
 .page[data-page="1"] .temperature-value {
@@ -968,6 +985,8 @@ body, html {
   overflow: hidden;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  margin: 10px auto;
+  max-width: 300px;
 }
 
 .page[data-page="1"] .contact-status::before,
@@ -1014,6 +1033,11 @@ body, html {
   gap: 15px;
   margin-bottom: 20px;
   position: relative;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .page[data-page="1"] .cover-btn {
@@ -1226,6 +1250,22 @@ body, html {
         align-items: flex-start;
         gap: 10px;
     }
+}
+
+.page[data-page="1"] .device-panel .section {
+  font-weight: 900;
+  font-size: 1.6rem;
+  text-align: center;
+  margin: 0;
+  background: linear-gradient(45deg, #00ffaa, #38bdf8);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  width: 100%;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  position: relative;
+  padding: 10px 0;
 }
 
 

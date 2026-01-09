@@ -13,6 +13,8 @@
                 pkgs.nix-prefetch-github 
                 pkgs.cargo
                 pkgs.rustc
+                pkgs.openssl
+                pkgs.pkg-config
                 pkgs.rustfmt
                 pkgs.clippy
                 pkgs.ollama-rocm
@@ -141,7 +143,9 @@
                 pkgs.brave
                 pkgs.systemctl-tui
                 pkgs.cheat
+                pkgs.pkg-config
                 pkgs.fzf
+                pkgs.xclip
                 pkgs.jq
                 pkgs.atuin
                 pkgs.direnv

@@ -107,6 +107,7 @@ let
     DEVICES_JSON=$(${pkgs.nix}/bin/nix eval --json ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.house.zigbee.devices)
     SCENES_JSON=$(${pkgs.nix}/bin/nix eval --json ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.house.zigbee.scenes)
     TV_JSON=$(${pkgs.nix}/bin/nix eval --json ${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.house.tv)
+
     # 🦆 duck say ⮞ count da zigbee devices & scenes
     TOTAL_DEVICES=$(echo "$DEVICES_JSON" | jq 'length') 
     TOTAL_SCENES=$(echo "$SCENES_JSON" | jq 'length')
@@ -404,7 +405,7 @@ EOF
     STATS_BLOCK=$(
       echo "- __$total_scripts qwacktastic scripts in /bin - $voice_scripts scripts have voice commands.__ <br>"
       echo "- __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>"
-      echo "- __Smart Home Nix Style - Managing $TOTAL_TVS TV's, $TOTAL_DEVICES devices & $TOTAL_SCENES scenes.__ <br>"
+      echo "- __Smart Home Nix-fu - Managing $TOTAL_TVS TV's, $TOTAL_DEVICES devices & $TOTAL_SCENES scenes.__ <br>"
       echo "- __Natural Language support with complete voice pipeline__ <br>"
       echo "- __Frontend Chatbot (no LLM) - Less thinking, more doing!__ <br>"
       echo "- __Infra as everyday accessibility__ <br>"

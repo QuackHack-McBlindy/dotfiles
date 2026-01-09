@@ -311,7 +311,11 @@ in {
     code = ''
       ${cmdHelpers}
       HTML_OUT="/home/${config.this.user.me.name}/.config/tv.html"
+      HTML_OUT2="/var/lib/zigduck/tv/tv.html"
       FLAKE_DIR="$flake"
+      
+      mkdir -p "$(dirname "$HTML_OUT")"
+      mkdir -p "$(dirname "$HTML_OUT2")"
       
       ${scraper} --xmlPath "$epgFilePath" --jsonPath "$jsonFilePath" --urlMapping "${urlMappingJson}" --channelNames "${channelNamesJson}"    
 
@@ -422,6 +426,8 @@ in {
           echo "</body>"
           echo "</html>"
       } > "$HTML_OUT"
+
+      cat "$HTML_OUT" > "$HTML_OUT2"
 
       dt_info "HTML TV-Guide generated: $HTML_OUT"
       echo "HTML TV-Guide generated: $HTML_OUT"

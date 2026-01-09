@@ -1,5 +1,5 @@
 # dotfiles/bin/home/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ main home controller
+{ # 🦆 says ⮞ Rust CLI tool for controlling all smart home devices
   self,
   lib,
   config,
@@ -28,7 +28,7 @@
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
 
-  # 🦆 says ⮞ Convert Nix devices to JSON format for Rust
+  # 🦆 says ⮞ create devices json file
   devicesJson = builtins.toJSON (
     lib.mapAttrs (id: device: {
       friendly_name = device.friendly_name or id;
@@ -37,12 +37,15 @@
       endpoint = device.endpoint or 11;
       icon = device.icon or null;
       battery_type = device.batteryType or null;
+      hue_id = device.hue_id or null;  # Include hue_id
     }) zigbeeDevices
   );
 
+
+  # 🦆 SCREAMS ⮞ SCENES!!!111
   scenes = config.house.zigbee.scenes;
 
-  # 🦆 says ⮞ Generate scenes JSON - FIXED VERSION
+  # 🦆 says ⮞ generate scenes json
   scenesJson = builtins.toJSON (
     lib.mapAttrs (sceneName: sceneDevices: {
       friendly_name = sceneName;
@@ -85,7 +88,10 @@
   # 🦆 says ⮞ device validation list
   deviceList = builtins.attrNames normalizedDeviceMap;
 
+  # 🦆🚀🚀  rocket  ⮞ 🌙 
   zigduck-cli = pkgs.writeText "main.rs" ''    
+    use std::process::Command;    
+    use std::thread::sleep;
     use clap::{Parser, Subcommand, ValueEnum};
     use serde::{Deserialize, Serialize};
     use rumqttc::{Client, MqttOptions, QoS};
@@ -128,6 +134,12 @@
         
         #[arg(long, help = "Path to scenes configuration", env = "SCENES_CONFIG")]
         scenes_config: Option<PathBuf>,
+        
+        #[arg(long, help = "Hue Bridge IP", env = "HUE_BRIDGE_IP")]
+        hue_bridge_ip: Option<String>,
+    
+        #[arg(long, help = "Hue Bridge API key", env = "HUE_API_KEY")]
+        hue_api_key: Option<String>,        
     }
     
     #[derive(Subcommand)]
@@ -264,7 +276,57 @@
         icon: Option<String>,
         #[serde(default)]
         battery_type: Option<String>,
+        hue_id: Option<u16>,
     }
+    
+    struct HueClient {
+        base_url: String,
+        client: reqwest::blocking::Client,
+    }
+    
+    impl HueClient {
+        fn new(bridge_ip: &str, api_key: &str) -> Result<Self> {
+            let base_url = format!("http://{}/api/{}", bridge_ip, api_key);
+            let client = reqwest::blocking::Client::new();
+        
+            Ok(Self {
+                base_url,
+                client,
+            })
+        }
+    
+        fn set_light_state(&self, light_id: u16, state: serde_json::Value) -> Result<()> {
+            let url = format!("{}/lights/{}/state", self.base_url, light_id);
+        
+            let response = self.client
+                .put(&url)
+                .json(&state)
+                .send()
+                .context("Failed to send Hue API request")?;
+        
+            if !response.status().is_success() {
+                let status = response.status();
+                let body = response.text().unwrap_or_default();
+                anyhow::bail!("Hue API error {}: {}", status, body);
+            }      
+            Ok(())
+        }
+    }
+    
+    // 🦆 says ⮞ determine backend from device type & hue_id
+    fn get_device_backend(device: &DeviceConfig) -> Backend {
+        if device.device_type == "hue_light" && device.hue_id.is_some() {
+            Backend::Hue
+        } else {
+            Backend::Zigbee2Mqtt
+        }
+    }
+    
+    enum Backend {
+        Zigbee2Mqtt,
+        Hue,
+    }
+    
     
     fn default_endpoint() -> u8 {
         11
@@ -276,21 +338,59 @@
         friendly_name: Option<String>,
         devices: HashMap<String, serde_json::Value>,
     }
-
-
+      
+    
     // 🦆 says ⮞ remove Debug derive since Client doesn't implement Debug
     struct ZigduckController {
         mqtt_client: Client,
+        hue_client: Option<HueClient>,
         devices: HashMap<String, DeviceConfig>,
         scenes: HashMap<String, SceneConfig>,
         verbose: bool,
     }
     
     impl ZigduckController {
+        fn run_shell_command(&self, command: &str) -> Result<()> {
+            println!("{} Running shell command: {}", "🦆".cyan(), command);
+        
+            let output = Command::new("sh")
+                .arg("-c")
+                .arg(command)
+                .output()
+                .context("Failed to execute shell command")?;
+            
+            if output.status.success() {
+                let stdout = String::from_utf8_lossy(&output.stdout);
+                if !stdout.trim().is_empty() {
+                    println!("{} Command output: {}", "✅".green(), stdout);
+                }
+            } else {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                anyhow::bail!("Command failed: {}", stderr);
+            }        
+            Ok(())
+        }
+
+        fn get_device_backend(&self, device: &DeviceConfig) -> Backend {
+            if (device.device_type == "light" || device.device_type == "hue_light") && device.hue_id.is_some() {
+                Backend::Hue
+            } else {
+                Backend::Zigbee2Mqtt
+            }
+        }
+
+        fn is_hue_device(&self, device: &DeviceConfig) -> bool {
+            let is_light = device.device_type == "light" || device.device_type == "hue_light";
+            is_light && device.hue_id.is_some()
+        }
+
+        
         fn new(
             broker: String,
             user: String,
             password: String,
+            hue_bridge_ip: Option<String>,
+            hue_api_key: Option<String>,    
             devices_config: Option<PathBuf>,
             scenes_config: Option<PathBuf>,
             verbose: bool,
@@ -298,6 +398,13 @@
             let mut mqttoptions = MqttOptions::new("zigduck-cli", &broker, 1883);
             mqttoptions.set_credentials(&user, &password);
             mqttoptions.set_keep_alive(Duration::from_secs(5));
+            
+            // 🦆 says ⮞ init Hue client if credentials
+            let hue_client = if let (Some(ip), Some(key)) = (hue_bridge_ip, hue_api_key) {
+                Some(HueClient::new(&ip, &key)?)
+            } else {
+                None
+            };
             
             let (mqtt_client, mut connection) = Client::new(mqttoptions, 10);
             
@@ -332,6 +439,7 @@
             
             Ok(Self {
                 mqtt_client: mqtt_client_clone,
+                hue_client,
                 devices,
                 scenes,
                 verbose,
@@ -371,7 +479,49 @@
             
             Ok(scenes)
         }
-        
+                
+        fn hex_to_xy(&self, hex: &str) -> Result<(f64, f64)> {
+            // 🦆 says ⮞ simple conversion
+            let hex = hex.trim_start_matches('#');
+            if hex.len() != 6 {
+                anyhow::bail!("Invalid hex color: {}", hex);
+            }
+            
+            let r = u8::from_str_radix(&hex[0..2], 16)? as f64 / 255.0;
+            let g = u8::from_str_radix(&hex[2..4], 16)? as f64 / 255.0;
+            let b = u8::from_str_radix(&hex[4..6], 16)? as f64 / 255.0;
+            
+            // 🦆 says ⮞ convert to XYZ
+            let r = if r > 0.04045 {
+                ((r + 0.055) / 1.055).powf(2.4)
+            } else {
+                r / 12.92
+            };
+            
+            let g = if g > 0.04045 {
+                ((g + 0.055) / 1.055).powf(2.4)
+            } else {
+                g / 12.92
+            };
+            
+            let b = if b > 0.04045 {
+                ((b + 0.055) / 1.055).powf(2.4)
+            } else {
+                b / 12.92
+            };
+            
+            let x = r * 0.649926 + g * 0.103455 + b * 0.197109;
+            let y = r * 0.234327 + g * 0.743075 + b * 0.022598;
+            let z = r * 0.000000 + g * 0.053077 + b * 1.035763;
+            
+            let sum = x + y + z;
+            if sum == 0.0 {
+                Ok((0.5, 0.4)) // 🦆 says ⮞ default neutral
+            } else {
+                Ok((x / sum, y / sum))
+            }
+        }
+             
         fn publish_command(&mut self, topic: &str, payload: serde_json::Value) -> Result<()> {
             let payload_str = serde_json::to_string(&payload)?;
             
@@ -389,7 +539,65 @@
             Ok(())
         }
         
-        fn control_device(
+        // 🦆 says ⮞ hue device controller
+        fn control_hue_device(
+            &mut self,
+            hue_id: u16,
+            state: &DeviceState,
+            brightness: Option<u8>,
+            color: Option<String>,
+            temperature: Option<u16>,
+            transition: Option<f32>,
+        ) -> Result<()> {
+            let hue_client = self.hue_client.as_ref()
+                .context("Hue client not initialized")?;
+            
+            let mut payload = serde_json::Map::new();
+            
+            match state {
+                DeviceState::On => {
+                    payload.insert("on".to_string(), serde_json::Value::Bool(true));
+                    
+                    if let Some(brightness_val) = brightness {
+                        if !(1..=100).contains(&brightness_val) {
+                            anyhow::bail!("Brightness must be between 1-100");
+                        }
+                        let hue_brightness = (brightness_val as f32 * 2.54).round() as u8;
+                        payload.insert("bri".to_string(), hue_brightness.into());
+                    }
+                    
+                    if let Some(color_val) = color {
+                        let xy = self.hex_to_xy(&color_val)?;
+                        // 🦆 says ⮞ FIX: Convert tuple to JSON array
+                        payload.insert("xy".to_string(), 
+                            serde_json::json!([xy.0, xy.1]));
+                    }
+                    
+                    if let Some(temp_val) = temperature {
+                        payload.insert("ct".to_string(), temp_val.into());
+                    }
+                    
+                    if let Some(transition_val) = transition {
+                        let hue_transition = (transition_val * 10.0).round() as u16; // seconds to deciseconds
+                        payload.insert("transitiontime".to_string(), hue_transition.into());
+                    }
+                }
+                DeviceState::Off => {
+                    payload.insert("on".to_string(), serde_json::Value::Bool(false));
+                }
+                DeviceState::Toggle => {
+                    // 🦆 says ⮞ TODO
+                    println!("{} Toggle not implemented for Hue yet, defaulting to ON", "⚠️".yellow());
+                    payload.insert("on".to_string(), serde_json::Value::Bool(true));
+                }
+            }
+            
+            let payload_json = serde_json::Value::Object(payload);
+            hue_client.set_light_state(hue_id, payload_json)
+        }
+        
+        // 🦆 says ⮞ zigbee device controller 
+        fn control_mqtt_device(
             &mut self,
             device_name: &str,
             state: &DeviceState,
@@ -398,13 +606,6 @@
             temperature: Option<u16>,
             transition: Option<f32>,
         ) -> Result<()> {
-            let device = self.find_device(device_name)?;
-            
-            if device.device_type == "sensor" || device.friendly_name.contains("Smoke") {
-                println!("{} {} is a sensor, skipping", "⚠️".yellow(), device.friendly_name);
-                return Ok(());
-            }
-            
             let mut payload = serde_json::Map::new();
             
             match state {
@@ -442,17 +643,92 @@
                     payload.insert("state".to_string(), "OFF".into());
                 }
                 DeviceState::Toggle => {
-                    // 🦆 says ⮞ TODO check state
-                    // 🦆 says ⮞ implement as ON if we don't know
+                    // 🦆 says ⮞ TODO
                     println!("{} Toggle not fully implemented, defaulting to ON", "⚠️".yellow());
                     payload.insert("state".to_string(), "ON".into());
                 }
             }
             
-            let topic = format!("zigbee2mqtt/{}/set", device.friendly_name);
+            let topic = format!("zigbee2mqtt/{}/set", device_name);
             self.publish_command(&topic, serde_json::Value::Object(payload))
         }
         
+        fn control_device(
+            &mut self,
+            device_name: &str,
+            state: &DeviceState,
+            brightness: Option<u8>,
+            color: Option<String>,
+            temperature: Option<u16>,
+            transition: Option<f32>,
+        ) -> Result<()> {
+            let device = self.find_device(device_name)?;
+            
+            if device.device_type == "sensor" || device.friendly_name.contains("Smoke") {
+                println!("{} {} is a sensor, skipping", "⚠️".yellow(), device.friendly_name);
+                return Ok(());
+            }
+            
+            // 🦆 says ⮞ Hue light?
+            if device.device_type == "hue_light" && device.hue_id.is_some() {
+                // 🦆 says ⮞ use Hue backend
+                let hue_client = self.hue_client.as_ref()
+                    .context("Hue client not initialized for Hue light")?;
+                
+                let hue_id = device.hue_id.unwrap();
+                let mut hue_payload = serde_json::Map::new();
+                
+                match state {
+                    DeviceState::On => {
+                        hue_payload.insert("on".to_string(), serde_json::Value::Bool(true));
+                        
+                        if let Some(brightness_val) = brightness {
+                            if !(1..=100).contains(&brightness_val) {
+                                anyhow::bail!("Brightness must be between 1-100");
+                            }
+                            let hue_brightness = (brightness_val as f32 * 2.54).round() as u8;
+                            hue_payload.insert("bri".to_string(), hue_brightness.into());
+                        }
+                        
+                        if let Some(color_val) = color {
+                            let hex = if color_val.starts_with('#') {
+                                color_val.clone()
+                            } else {
+                                self.color_name_to_hex(&color_val)?
+                            };
+                            let xy = self.hex_to_xy(&hex)?;
+                            // 🦆 says ⮞ FIX: Convert tuple to JSON array
+                            hue_payload.insert("xy".to_string(), 
+                                serde_json::json!([xy.0, xy.1]));
+                        }
+                        
+                        if let Some(temp_val) = temperature {
+                            hue_payload.insert("ct".to_string(), temp_val.into());
+                        }
+                        
+                        if let Some(transition_val) = transition {
+                            let hue_transition = (transition_val * 10.0).round() as u16;
+                            hue_payload.insert("transitiontime".to_string(), hue_transition.into());
+                        }
+                    }
+                    DeviceState::Off => {
+                        hue_payload.insert("on".to_string(), serde_json::Value::Bool(false));
+                    }
+                    DeviceState::Toggle => {
+                        println!("{} Toggle not implemented for Hue, defaulting to ON", "⚠️".yellow());
+                        hue_payload.insert("on".to_string(), serde_json::Value::Bool(true));
+                    }
+                }
+                
+                let payload_json = serde_json::Value::Object(hue_payload);
+                hue_client.set_light_state(hue_id, payload_json)
+            } else {
+                // 🦆 says ⮞ use Z2M backend
+                self.control_mqtt_device(device_name, state, brightness, color, temperature, transition)
+            }
+        }
+        
+        // 🦆 says ⮞ room specific controller
         fn control_room(
             &mut self,
             room_name: &str,
@@ -490,16 +766,45 @@
     
             Ok(())
         }
+    
+    
+        fn convert_to_hue_payload(&self, settings: &serde_json::Value) -> Result<serde_json::Value> {
+            let mut payload = serde_json::Map::new();         
+            // 🦆 says ⮞  state
+            if let Some(state) = settings.get("state").and_then(|s| s.as_str()) {
+                payload.insert("on".to_string(), serde_json::Value::Bool(state == "ON"));
+            }
+            
+            // 🦆 says ⮞  brightness (0-254)
+            if let Some(brightness) = settings.get("brightness").and_then(|b| b.as_u64()) {
+                payload.insert("bri".to_string(), brightness.into());
+            }
+            
+            // 🦆 says ⮞ color
+            if let Some(color) = settings.get("color") {
+                if let Some(xy) = color.get("xy") {
+                    payload.insert("xy".to_string(), xy.clone());
+                } else if let Some(hex) = color.get("hex").and_then(|h| h.as_str()) {
+                    let xy = self.hex_to_xy(hex)?;
+                    // 🦆 says ⮞ FIX: Convert tuple to JSON array
+                    payload.insert("xy".to_string(), serde_json::json!([xy.0, xy.1]));
+                }
+            }
+            
+            if let Some(transition) = settings.get("transition").and_then(|t| t.as_u64()) {
+                payload.insert("transitiontime".to_string(), transition.into());
+            }        
+            Ok(serde_json::Value::Object(payload))
+        }
 
+   
         fn activate_scene(
             &mut self,
             scene_name: &str,
             random: bool,
         ) -> Result<()> {
-            // 🦆 says ⮞ determine which scene to activate
             let scene_to_activate = if random {
                 use rand::seq::SliceRandom;
-                // 🦆 says ⮞ collect owned Strings
                 let scene_names: Vec<String> = self.scenes.keys().cloned().collect();
                 let chosen = scene_names.choose(&mut rand::thread_rng())
                     .context("No scenes configured")?
@@ -508,31 +813,57 @@
             } else {
                 scene_name.to_string()
             };
-    
+        
             println!("{} Activating scene: {}", "🎨".purple(), scene_to_activate.bold());
-    
-            // 🦆 says ⮞ get scene
+        
             let scene = self.scenes
                 .get(&scene_to_activate)
                 .context(format!("Scene not found: {}", scene_to_activate))?;
-    
+        
             if self.verbose {
                 println!("{} Scene '{}' has {} devices", "🔍".cyan(), scene_to_activate, scene.devices.len());
             }
-    
+        
             if scene.devices.is_empty() {
                 anyhow::bail!("No devices found in scene: {}", scene_to_activate);
             }
-    
+        
             let mut device_count = 0;
-    
+            let mut hue_device_count = 0;
+            let mut mqtt_device_count = 0;
+        
             for (device_name, settings) in &scene.devices {
-                // 🦆 says ⮞ skip if settings is not object
                 if !settings.is_object() {
                     println!("{} Skipping {}: invalid settings format", "⚠️".yellow(), device_name);
                     continue;
                 }
-        
+                
+                // 🦆 says ⮞ FIX: More flexible Hue device detection
+                if let Some(device) = self.devices.get(device_name) {
+                    // Check if device is a light AND has hue_id (not just device_type == "hue_light")
+                    let is_light = device.device_type == "light" || device.device_type == "hue_light";
+                    if is_light && device.hue_id.is_some() {
+                        // 🦆 says ⮞ use Hue Bridge API
+                        if let Some(hue_client) = &self.hue_client {
+                            let hue_id = device.hue_id.unwrap();
+                            let hue_payload = self.convert_to_hue_payload(settings)?;
+                            
+                            if self.verbose {
+                                println!("{} Hue API {} (id: {}) → {}", "🦆 PUBLISH".cyan(), 
+                                    device_name.blue(), hue_id, hue_payload.to_string().yellow());
+                            }
+                            
+                            hue_client.set_light_state(hue_id, hue_payload)?;
+                            hue_device_count += 1;
+                            device_count += 1;
+                            continue;
+                        } else {
+                            println!("{} Skipping Hue device {}: Hue client not initialized", "⚠️".yellow(), device_name);
+                        }
+                    }
+                }
+                
+                // 🦆 says ⮞ fallback 2 z2m
                 let topic = format!("zigbee2mqtt/{}/set", device_name);
         
                 if self.verbose {
@@ -543,19 +874,29 @@
                     .publish(&topic, QoS::AtMostOnce, false, settings.to_string())
                     .map_err(|e| anyhow::anyhow!("Failed to publish MQTT message for {}: {}", device_name, e))?;
         
+                mqtt_device_count += 1;
                 device_count += 1;
-                // 🦆 says ⮞ wait
                 std::thread::sleep(Duration::from_millis(10));
             }
-    
+        
             if device_count == 0 {
                 anyhow::bail!("No valid devices found in scene: {}", scene_to_activate);
             }
-    
-            println!("{} Scene '{}' activated ({} devices)", "✅".green(), scene_to_activate, device_count);
+
+            if self.verbose {
+                println!("{} Running Hue bridge command for remaining devices", "🎨".purple());
+            }
+        
+            let hue_command = format!("hue bridge apply-scene \"{}\"", scene_name);
+            if let Err(e) = self.run_shell_command(&hue_command) {
+                println!("{} Hue bridge command failed: {}", "⚠️".yellow(), e);
+            }
+          
+            println!("{} Scene '{}' activated ({} total devices: {} via Hue, {} via MQTT)", 
+                "✅".green(), scene_to_activate, device_count, hue_device_count, mqtt_device_count);
             Ok(())
         }
-        
+                
         fn enter_pairing_mode(
             &mut self,
             duration: u16,
@@ -679,7 +1020,7 @@
                         }
                     }
                 }
-
+    
                 ListType::Scenes => {
                     if json {
                         let json = serde_json::to_string_pretty(&self.scenes)?;
@@ -812,6 +1153,8 @@
             cli.broker,
             cli.user,
             password,
+            cli.hue_bridge_ip,
+            cli.hue_api_key,
             cli.devices_config,
             cli.scenes_config,
             cli.verbose > 0,
@@ -841,6 +1184,8 @@
             }
         }
     }
+    
+
   '';
   
   # 🦆 says ⮞ Write the devices and scenes to JSON files
@@ -869,7 +1214,16 @@
     anyhow = "1.0"
     colored = "2.1"
     rand = "0.8"
+    reqwest = { version = "0.11", features = ["blocking", "json"] }
+    tokio = { version = "1.0", features = ["full"] }
   '';
+
+
+  environment.variables = {
+    OPENSSL_DIR = "${pkgs.openssl.dev}";
+    PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+  };
+  
 in {
   yo.scripts.house = {
     description = "High-performance Rust CLI MQTT publisher for controlling Zigbee devices.";
@@ -946,7 +1300,10 @@ in {
     ];
     code = ''
       ${cmdHelpers}
-      
+      export OPENSSL_DIR="${pkgs.openssl.dev}"
+      export OPENSSL_LIB_DIR="${pkgs.openssl.out}/lib"
+      export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
+      export PATH="${pkgs.pkg-config}/bin:$PATH"      
       # 🦆 says ⮞ create case insensitive map of device friendly_name
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
       available_devices=( ${toString deviceList} )      
@@ -962,6 +1319,8 @@ in {
       PWFILE="$passwordfile"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$PWFILE")
+      HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip or ""}"
+      HUE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")"      
       ROOM="$room"
       
       dt_info "MQTT_BROKER: $MQTT_BROKER" 
@@ -995,6 +1354,12 @@ in {
       RUST_ARGS+=(--broker "$MQTT_BROKER")
       RUST_ARGS+=(--user "$MQTT_USER")
       RUST_ARGS+=(--password "$MQTT_PASSWORD")
+      
+      
+      if [ -n "$HUE_BRIDGE_IP" ] && [ -n "$HUE_API_KEY" ]; then
+        RUST_ARGS+=(--hue-bridge-ip "$HUE_BRIDGE_IP")
+        RUST_ARGS+=(--hue-api-key "$HUE_API_KEY")
+      fi      
       
       RUST_ARGS+=(--devices-config "$DIR/devices.json")
       RUST_ARGS+=(--scenes-config "$DIR/scenes.json")
@@ -1085,12 +1450,12 @@ in {
       # 🦆 says ⮞ run in debug mode
       if [ "$VERBOSE" -ge 1 ]; then
         dt_info "Running: ./target/release/zigduck-cli ''${RUST_ARGS[@]}"
-        DEBUG=1 ./target/release/zigduck-cli ''${RUST_ARGS[@]}
+        HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip or ""}" HUE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")" DEBUG=1 ./target/release/zigduck-cli ''${RUST_ARGS[@]}
         exit 0
       fi
       
       # 🦆 says ⮞ normal execution
-      ./target/release/zigduck-cli "''${RUST_ARGS[@]}"
+      HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip or ""}" HUE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")" ./target/release/zigduck-cli "''${RUST_ARGS[@]}"
     '';
     
     voice = {

@@ -9,28 +9,35 @@
 } : let # yo follow 🦆 home ⬇⬇ 🦆 says diz way plz? quack quackz
   # 🦆 says ⮞ Directpry  for this configuration 
   zigduckDir = "/var/lib/zigduck";
-  # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
+ 
+ # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
+
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
-  mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
-      let
-        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
-          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
-        '');
-      in
-        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
-    )
-    else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
 
   # 🦆 says ⮞ define Zigbee devices here yo 
-  zigbeeDevices = config.house.zigbee.devices;
+  zigbeeDevices = lib.filterAttrs (_: device: !(device ? hue_id)) config.house.zigbee.devices;
+  hueDevices = lib.filterAttrs (_: device: (device ? hue_id)) config.house.zigbee.devices;
+
+  # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
+  deviceMeta = builtins.toJSON (
+    lib.listToAttrs (
+      lib.filter (attr: attr.name != null) (
+        lib.mapAttrsToList (ieee: dev: {
+          name = dev.friendly_name;
+          value = {
+            ieee = ieee;
+            room = dev.room;
+            type = dev.type;
+            id = dev.friendly_name;
+            endpoint = dev.endpoint;
+            hue_id = dev.hue_id or null;
+          };
+        }) config.house.zigbee.devices
+      )
+    )
+  );
   
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
@@ -70,13 +77,13 @@
       lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
     ) scenes;  
 
-  # 🦆 says ⮞ Filter devices by rooms
+  # 🦆 says ⮞ filter devices by rooms
   byRoom = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
       ${dev.room} = (acc.${dev.room} or []) ++ [ id ];
     }) {} zigbeeDevices;
 
-  # 🦆 says ⮞ Filter by device type
+  # 🦆 says ⮞ filter by device type
   byType = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
       ${dev.type} = (acc.${dev.type} or []) ++ [ id ];
@@ -107,26 +114,13 @@
   mappingJSON = builtins.toJSON ieeeToFriendly;
   mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
 
-  # 🦆 says ⮞ not to be confused with facebook - this is not even duckbook
-  deviceMeta = builtins.toJSON (
-    lib.listToAttrs (
-      lib.filter (attr: attr.name != null) (
-        lib.mapAttrsToList (_: dev: {
-          name = dev.friendly_name;
-          value = {
-            room = dev.room;
-            type = dev.type;
-            id = dev.friendly_name;
-            endpoint = dev.endpoint;
-          };
-        }) zigbeeDevices
-      )
-    )
-  );# 🦆 says ⮞ yaaaaaaaaaaaaaaay
-
-  # 🦆 says ⮞ Generate automations configuration
+  # 🦆 says ⮞ generate automations configuration
   automationsJSON = builtins.toJSON config.house.zigbee.automations;
   automationsFile = pkgs.writeText "automations.json" automationsJSON;
+  
+  # 🦆 says ⮞ generate dashboard config 2 fetch status card click automations
+  dashboardCardsJson = builtins.toJSON config.house.dashboard.statusCards;
+  dashboardCardsFile = pkgs.writeText "dashboard-cards.json" dashboardCardsJson;
 
   # 🦆 says ⮞ Dark time enabled flag
   darkTimeEnabled = if config.house.zigbee.darkTime.enable then "1" else "0";
@@ -144,14 +138,18 @@
     use std::process::Command;
     use serde::{Deserialize, Serialize};
     use chrono::{Local, Timelike};
-    
+
+        
     #[derive(Debug, Clone, Serialize, Deserialize)]
     struct Device {
+        ieee: String, 
         room: String,
         #[serde(rename = "type")]
         device_type: String,
         id: String,
         endpoint: u32,
+        #[serde(default)]
+        hue_id: Option<u32>,
     }
 
     #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -217,6 +215,17 @@
         days: Vec<String>,
     }
 
+    #[derive(Debug, Clone, Serialize, Deserialize)]
+    struct StatusCardConfig {
+        on_click_action: Vec<AutomationAction>,
+        #[serde(default)]
+        enable: bool,
+        #[serde(default)]
+        title: String,
+    }
+
+    type DashboardCards = HashMap<String, StatusCardConfig>;
+
     #[derive(Debug)]
     struct ZigduckState {
         mqtt_broker: String,
@@ -227,6 +236,7 @@
         larmed_file: String,
         devices: HashMap<String, Device>,
         scene_config: SceneConfig,
+        dashboard_cards: DashboardCards,
         automations: AutomationConfig,
         dark_time_enabled: bool,
         motion_tracker: MotionTracker,
@@ -249,6 +259,7 @@
                 devices: self.devices.clone(),
                 scene_config: self.scene_config.clone(),
                 automations: self.automations.clone(),
+                dashboard_cards: self.dashboard_cards.clone(),
                 dark_time_enabled: self.dark_time_enabled,
                 motion_tracker: self.motion_tracker.clone(),
                 motion_timers: HashMap::new(),
@@ -317,7 +328,179 @@
     }
    
     impl ZigduckState {
+        // 🦆 says ⮞ topic rewrites (friendly name ⮞ IEEE)
+        fn needs_remapping(&self, topic: &str) -> Option<(String, String)> {
+            // 🦆 says ⮞ z2m topic with friendly name?
+            if let Some(device_part) = topic.strip_prefix("zigbee2mqtt/") {
+                // 🦆 says ⮞ split to get the device id
+                let parts: Vec<&str> = device_part.split('/').collect();
+                if !parts.is_empty() {
+                    let potential_friendly_name = parts[0];
+                
+                    for (friendly_name, device) in &self.devices {
+                        if friendly_name == potential_friendly_name {
+                            // 🦆 says ⮞ rewrite
+                            let new_topic = topic.replace(
+                                &format!("zigbee2mqtt/{}/", friendly_name),
+                                &format!("zigbee2mqtt/{}/", device.ieee)
+                            );
+                            return Some((new_topic, friendly_name.clone()));
+                        }
+                    }
+                }
+            }
+            None
+        }
+    
+        // 🦆 says ⮞ rewrite then process
+        async fn process_incoming_message(&mut self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
+            let start_time = std::time::Instant::now();
         
+            // 🦆 says ⮞ z2m topic with friendly name?
+            if let Some((remapped_topic, friendly_name)) = self.needs_remapping(topic) {
+                self.quack_debug(&format!("Remapping topic: {} → {}", topic, remapped_topic));
+            
+                // 🦆 says ⮞ publish to the new (real) topic
+                self.mqtt_publish(&remapped_topic, payload)?;
+            
+                let data: Value = match serde_json::from_str(payload) {
+                    Ok(parsed) => parsed,
+                    Err(_) => {
+                        self.quack_debug(&format!("Invalid JSON payload: {}", payload));
+                        return Ok(());
+                    }
+                };
+            
+                // 🦆 says ⮞ update state
+                if let Err(e) = self.update_device_state_from_data(&friendly_name, &data) {
+                    self.quack_debug(&format!("Failed to update device state: {}", e));
+                }
+            } else {
+                // 🦆 says ⮞ no rewrite? run regular process 
+                self.process_message(topic, payload).await?;
+            }
+        
+            let duration = start_time.elapsed().as_millis();
+            self.update_performance_stats(topic, duration);
+            Ok(())
+        }
+
+        fn build_ieee_to_friendly_map(&self) -> HashMap<String, String> {
+            let mut map = HashMap::new();
+            for (friendly_name, device) in &self.devices {
+                map.insert(device.ieee.clone(), friendly_name.clone());
+            }
+            map
+        }
+    
+        fn is_ieee_topic(&self, topic: &str) -> Option<String> {
+            if let Some(device_part) = topic.strip_prefix("zigbee2mqtt/") {
+                let parts: Vec<&str> = device_part.split('/').collect();
+                if !parts.is_empty() {
+                    let potential_ieee = parts[0];
+                    // 🦆 says ⮞ ieee addresses start with 0x and are 16+ chars
+                    if potential_ieee.starts_with("0x") && potential_ieee.len() >= 16 {
+                        return Some(potential_ieee.to_string());
+                    }
+                }
+            }
+            None
+        }
+    
+        // 🦆 says ⮞ get friendly name from ieee
+        fn get_friendly_name_from_ieee(&self, ieee: &str) -> Option<&String> {
+            for (friendly_name, device) in &self.devices {
+                if device.ieee == ieee {
+                    return Some(friendly_name);
+                }
+            }
+            None
+        }
+
+        fn sync_hue_states(&self) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_debug("🦆 Syncing Hue device states...");
+            
+            let output = std::process::Command::new("hue")
+                .args(&["bridge", "lights"])
+                .output()?;
+            
+            if !output.status.success() {
+                self.quack_debug("Failed to get Hue lights state");
+                return Ok(());
+            }
+            
+            let hue_json: serde_json::Value = serde_json::from_slice(&output.stdout)?;
+            
+            let now_iso = chrono::Local::now().to_rfc3339();
+            let now_epoch = chrono::Local::now().timestamp();
+            
+            let state_content = std::fs::read_to_string(&self.state_file)?;
+            let mut state: serde_json::Value = serde_json::from_str(&state_content).unwrap_or_else(|_| json!({}));
+            
+            if let Some(hue_lights) = hue_json.as_object() {
+                for (hue_id, light_data) in hue_lights {
+                    if let Some(hue_id_num) = hue_id.parse::<u32>().ok() {
+                        // 🦆 says ⮞ find device by hue_id in device map
+                        for (device_name, device) in &self.devices {
+                            if let Some(device_hue_id) = device.hue_id {
+                                if device_hue_id == hue_id_num {
+                                    let mut device_state = serde_json::Map::new();
+                                    
+                                    // 🦆 says ⮞ extract light state
+                                    if let Some(light_obj) = light_data.as_object() {
+                                        if let Some(state_obj) = light_obj.get("state") {
+                                            if let Some(on) = state_obj.get("on").and_then(|v| v.as_bool()) {
+                                                device_state.insert("state".to_string(), 
+                                                    serde_json::Value::String(if on { "ON".to_string() } else { "OFF".to_string() }));
+                                            }
+                                            
+                                            if let Some(bri) = state_obj.get("bri").and_then(|v| v.as_u64()) {
+                                                device_state.insert("brightness".to_string(), 
+                                                    serde_json::Value::Number(serde_json::Number::from(bri)));
+                                            }
+                                            
+                                            if let Some(xy) = state_obj.get("xy").and_then(|v| v.as_array()) {
+                                                if xy.len() == 2 {
+                                                    let x = xy[0].as_f64().unwrap_or(0.0);
+                                                    let y = xy[1].as_f64().unwrap_or(0.0);
+                                                    let color_obj = json!({
+                                                        "x": x,
+                                                        "y": y
+                                                    });
+                                                    device_state.insert("color".to_string(), color_obj);
+                                                }
+                                            }
+                                        }
+                                        
+                                        // 🦆 says ⮞ get device name from Hue
+                                        if let Some(name) = light_obj.get("name").and_then(|v| v.as_str()) {
+                                            device_state.insert("hue_name".to_string(), 
+                                                serde_json::Value::String(name.to_string()));
+                                        }
+                                    }
+                                    
+                                    device_state.insert("last_seen".to_string(), serde_json::Value::String(now_iso.clone()));
+                                    device_state.insert("last_updated".to_string(), serde_json::Value::Number(serde_json::Number::from(now_epoch)));
+                                    device_state.insert("source".to_string(), serde_json::Value::String("hue".to_string()));
+                                    
+                                    state[device_name] = serde_json::Value::Object(device_state);
+                                    
+                                    self.quack_debug(&format!("Updated Hue state for {} (Hue ID: {})", device_name, hue_id));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            
+            std::fs::write(&self.state_file, state.to_string())?;
+            self.quack_info(&format!("Hue state sync completed. Updated {} Hue devices", 
+                hue_json.as_object().map_or(0, |m| m.len())));
+            
+            Ok(())
+        }
+        
+                
         // 🦆 says ⮞ handle MQTT triggered automations
         async fn check_mqtt_triggered_automations(&self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
             for (name, automation) in &self.automations.mqtt_triggered {
@@ -334,7 +517,7 @@
                     }
                     // 🦆 says ⮞ check conditions
                     if self.check_conditions(&automation.conditions).await {
-                        self.quack_info(&format!("Triggering MQTT automation: {}", automation.description));
+                        self.quack_info(&format!("TRIGGER ▶ : {}", automation.description));
                         for action in &automation.actions {
                             if let Err(e) = self.execute_automation_action_mqtt(action, "mqtt_triggered", "global", topic, payload) {
                                 self.quack_debug(&format!("Error executing MQTT automation action: {}", e));
@@ -349,11 +532,22 @@
         async fn start_periodic_checks(&self) {
             let state = self.clone();
             tokio::spawn(async move {
-                let mut interval = tokio::time::interval(Duration::from_secs(60)); // Check every minute
+                let mut interval = tokio::time::interval(Duration::from_secs(60));
                 loop {
                     interval.tick().await;
                     state.check_presence_automations().await;
-                    state.check_time_based_automations().await; // Add this too
+                    state.check_time_based_automations().await;
+                    // 🦆 says ⮞ sync Hue states every 5 minutes
+                    static mut HUE_SYNC_COUNTER: u32 = 0;
+                    unsafe {
+                        HUE_SYNC_COUNTER += 1;
+                        if HUE_SYNC_COUNTER >= 5 {
+                            if let Err(e) = state.sync_hue_states() {
+                                state.quack_debug(&format!("Hue sync failed: {}", e));
+                            }
+                            HUE_SYNC_COUNTER = 0;
+                        }
+                    }
                 }
             });
         }
@@ -646,10 +840,24 @@
                         }
                     }
                 }
+      
+            // 🦆 says ⮞ load dashboard cards configuration
+            let dashboard_cards_file = std::env::var("DASHBOARD_CARDS_FILE")
+                .unwrap_or_else(|_| "dashboard-cards.json".to_string());
+        
+            let dashboard_cards: DashboardCards = std::fs::read_to_string(&dashboard_cards_file)
+                .ok()
+                .and_then(|content| serde_json::from_str(&content).ok())
+                .unwrap_or_else(|| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to load dashboard cards from {}", dashboard_cards_file);
+                    HashMap::new()
+                });
+        
 
-
+        
 
             eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} devices from {}", devices.len(), devices_file);
+            eprintln!("[🦆📜] ✅INFO✅ ⮞ Loaded {} dashboard cards", dashboard_cards.len());
             eprintln!("[🦆📜] ✅INFO✅ ⮞ State directory: {}", state_dir);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ State file: {}", state_file);
             eprintln!("[🦆📜] ✅INFO✅ ⮞ Security file: {}", larmed_file);
@@ -688,6 +896,7 @@
                     devices,
                     scene_config,
                     automations,
+                    dashboard_cards,
                     dark_time_enabled,
                     processing_times: HashMap::new(),
                     message_counts: HashMap::new(),
@@ -698,30 +907,23 @@
                 }
             }
    
-        // 🦆 says ⮞ sset scene
+        // 🦆 says ⮞ set scene
         fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-            if let Some(scene_devices) = self.scene_config.scenes.get(scene_name) {
-                self.quack_info(&format!("Activating scene: {} ({} devices)", scene_name, scene_devices.len()));        
-                for (device_name, settings) in scene_devices {
-                    let topic = format!("zigbee2mqtt/{}/set", device_name);
-            
-                    if settings.is_object() {
-                        self.mqtt_publish(&topic, &settings.to_string())?;
-                        self.quack_debug(&format!("Published to {}: {}", topic, settings));
-                    } else {
-                        self.quack_debug(&format!("Invalid settings for {} in scene {}", device_name, scene_name));
-                    }
-            
-                    tokio::time::sleep(Duration::from_millis(10));
-                }
-        
-                self.quack_info(&format!("Successfully activated scene: {}", scene_name));
-                Ok(())
+            self.quack_info(&format!("Activating scene: {}", scene_name));
+    
+            // 🦆 says ⮞ handles both z2m devices and hue bridged devices
+            let output = std::process::Command::new("yo")
+                .args(&["house", "--scene", scene_name])
+                .output()?;
+    
+            if output.status.success() {
+                self.quack_info(&format!("Scene '{}' activated successfully", scene_name));
             } else {
-                let error_msg = format!("Scene '{}' not found", scene_name);
-                self.quack_info(&error_msg);
-                Err(error_msg.into())
-            }
+                let error = String::from_utf8_lossy(&output.stderr);
+                self.quack_debug(&format!("Failed to activate scene '{}': {}", scene_name, error));
+                return Err(format!("Failed to activate scene: {}", error).into());
+            }   
+            Ok(())
         }
     
         // 🦆 says ⮞ duckTrace - quack loggin' be bitchin'
@@ -1191,11 +1393,7 @@
                 return Ok(());
             }
             
-            // 🦆 says ⮞ MQTT TRIGGERED AUTOMATIONS
-            if let Err(e) = self.check_mqtt_triggered_automations(topic, payload).await {
-                self.quack_info(&format!("Error checking MQTT automations: {}", e));
-            }
-            
+
             // 🦆 says ⮞ debug log raw payloadz yo    
             self.quack_debug(&format!("TOPIC: {}", topic));
             self.quack_debug(&format!("PAYLOAD: {}", payload));
@@ -1458,6 +1656,68 @@
     
             }
     
+           // 🦆 says ⮞ DASHBOARD ACTION AUTOMATIONS
+            if topic.starts_with("zigbee2mqtt/dashboard/card/") && topic.ends_with("/click") {
+                let card_id = topic.split('/').nth(3).unwrap_or("unknown");
+                self.quack_info(&format!("Dashboard card clicked: {}", card_id));
+    
+                // 🦆 says ⮞ get da card config from automations
+                if let Some(card_config) = self.dashboard_cards.get(card_id) {
+                    self.quack_info(&format!("Found {} actions for card {}", card_config.on_click_action.len(), card_id));
+        
+                    for (i, action) in card_config.on_click_action.iter().enumerate() {
+                        self.quack_debug(&format!("Executing action {} for card {}...", i + 1, card_id));
+                        if let Err(e) = self.execute_automation_action_mqtt(action, "dashboard", "global", topic, payload) {
+                            self.quack_debug(&format!("Error executing card action {}: {}", i + 1, e));
+                        } else {
+                            self.quack_debug(&format!("Successfully executed action {} for card {}", i + 1, card_id));
+                        }
+                    }
+                    self.quack_info(&format!("Finished executing all actions for card {}", card_id));
+                } else {
+                    self.quack_debug(&format!("No card config found for ID: {}", card_id));
+                }
+            }
+            
+            // 🦆 says ⮞ SCENE ACTIVATION VIA MQTT
+            if topic.starts_with("zigbee2mqtt/scene/") {
+                let scene_name = topic.strip_prefix("zigbee2mqtt/scene/").unwrap_or("");
+                if !scene_name.is_empty() {
+                    self.quack_info(&format!("🦆 Scene activation requested via MQTT: {}", scene_name));
+        
+                    // 🦆 says ⮞ handles all light types
+                    let output = std::process::Command::new("yo")
+                        .args(&["house", "--scene", scene_name])
+                        .output()?;
+        
+                    if output.status.success() {
+                        self.quack_info(&format!("Scene '{}' activated successfully via MQTT", scene_name));
+                    } else {
+                        let error = String::from_utf8_lossy(&output.stderr);
+                        self.quack_debug(&format!("❌ Failed to activate scene '{}' via MQTT: {}", scene_name, error));
+                    }
+                }
+            }
+            
+            // 🦆 says ⮞ HUE SYNC TRIGGER
+            if topic == "zigbee2mqtt/hue/sync" {
+                self.quack_info("🦆 Manual Hue sync requested via MQTT");
+                let state_clone = self.clone();
+                tokio::spawn(async move {
+                    if let Err(e) = state_clone.sync_hue_states() {
+                        state_clone.quack_debug(&format!("Manual Hue sync failed: {}", e));
+                    } else {
+                        state_clone.quack_info("Manual Hue sync completed");
+                    }
+                });
+            }
+            
+            // 🦆 says ⮞ MQTT TRIGGERED AUTOMATIONS
+            if let Err(e) = self.check_mqtt_triggered_automations(topic, payload).await {
+                self.quack_info(&format!("Error checking MQTT automations: {}", e));
+            }
+                
+    
             let duration = start_time.elapsed().as_millis();
             self.update_performance_stats(topic, duration); 
             Ok(())
@@ -1486,7 +1746,8 @@
                             let topic = publish.topic;
                             let payload = String::from_utf8_lossy(&publish.payload);
                             
-                            if let Err(e) = self.process_message(&topic, &payload).await {
+                            // 🦆 says ⮞ topic rewrite (if ieee⮞friendly_name)⮞process 
+                            if let Err(e) = self.process_incoming_message(&topic, &payload).await {
                                 self.quack_debug(&format!("Failed to process message: {}", e));
                             }
                         }
@@ -1588,8 +1849,9 @@
   environment.variables."AUTOMATIONS_FILE" = automationsFile;
   environment.variables."DARK_TIME_ENABLED" = darkTimeEnabled;
   environment.variables."SCENE_CONFIG_FILE" = sceneConfig;  
+  environment.variables."DASHBOARD_CARDS_FILE" = dashboardCardsFile;  
+  
 in { # 🦆 says ⮞ finally here, quack! 
-
   yo.scripts.zigduck-rs = {
     description = "[🦆🏡] ZigDuck - Home automation system! Devices, scenes, automations -- EVERYTHING is defined using Nix options from the module 'house.nix'. (Written in Rust)";
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
@@ -1629,12 +1891,14 @@ EOF
     '';
     code = ''
       ${cmdHelpers}
-      MQTT_BROKER="${mqttHostip}"
+      MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
 
       dt_debug "MQTT_BROKER: $MQTT_BROKER" 
       dt_info "Building zigduck-rs ... qwack in a sec ..."
-      MQTT_USER="$user"
+      MQTT_USER="${config.house.zigbee.mosquitto.username}"
       MQTT_PASSWORD=$(cat "$pwfile")
+      DASHBOARD_CARDS_FILE="${dashboardCardsFile}"
+      
 
       # 🦆 says ⮞ create the Rust projectz directory and move into it      
       tmp=$(mktemp -d)
@@ -1653,7 +1917,7 @@ EOF
       if [ "$VERBOSE" -ge 1 ]; then
         while true; do
           # 🦆 says ⮞ keep me alive plx
-          DEBUG=1 ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" SCENE_CONFIG_FILE="$tmp/scene-config.json" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+          DEBUG=1 DASHBOARD_CARDS_FILE="${dashboardCardsFile}" HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}" HUE_API_KEY=$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}") HUE_SCRIPT_PATH=$(which hue) ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" SCENE_CONFIG_FILE="$tmp/scene-config.json" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
           EXIT_CODE=$?
           dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
           sleep 3
@@ -1662,7 +1926,7 @@ EOF
       # 🦆 says ⮞ keep me alive plx
       while true; do
         # 🦆 says ⮞ else run debugless yo
-        ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" SCENE_CONFIG_FILE="$tmp/scene-config.json" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+        DASHBOARD_CARDS_FILE="${dashboardCardsFile}" HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}" HUE_API_KEY=$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}") HUE_SCRIPT_PATH=$(which hue) ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" SCENE_CONFIG_FILE="$tmp/scene-config.json" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
         EXIT_CODE=$?
         dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
         sleep 3
@@ -1670,27 +1934,7 @@ EOF
     '';
   };
 
-  # 🦆 says ⮞ how does ducks say ssschh?
-  sops.secrets = {
-    mosquitto = { # 🦆 says ⮞ quack, stupid!
-      sopsFile = ./../../secrets/mosquitto.yaml; 
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
-      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
-    z2m_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
-      sopsFile = ./../../secrets/z2m_network_key.yaml; 
-      owner = "zigbee2mqtt";
-      group = "zigbee2mqtt";
-      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    };
-    z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
-      sopsFile = ./../../secrets/z2m_mosquitto.yaml; 
-      owner = "zigbee2mqtt";
-      group = "zigbee2mqtt";
-      mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    };
-  };
+
   # 🦆 says ⮞ Mosquitto configuration
   # 🦆 says ⮞ we only need server configuration on one host - so set zigduck at config.this.host.module services in your host config
   services.mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {

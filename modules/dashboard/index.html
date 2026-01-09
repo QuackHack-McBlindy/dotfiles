@@ -1,0 +1,110 @@
+# dotfiles/modules/dashboard/index.nix.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ auto generate smart home dashboard
+  self, 
+  config,
+  lib, 
+  pkgs,
+  cmdHelpers,
+  ...
+}: let 
+
+  login = import ./login.nix { inherit lib; };
+  home = import ./home.nix { inherit lib config; };
+  rooms = import ./rooms.nix { inherit lib config; };
+  devices = import ./devices.nix { inherit lib config; };
+  scenes = import ./scenes.nix { inherit lib config; };
+  tv = import ./tv.nix { inherit lib config; };
+  cards = import ./cards.nix { inherit lib config; };
+  css = import ./css.nix { inherit lib config; };
+  js = import ./js.nix { inherit lib config; };
+  server = import ./server.nix { inherit pkgs lib config; };
+in {
+
+  indexHtml = ''
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🦆'Dash</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">     
+        <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600&display=swap" rel="stylesheet">
+        <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+        
+        <style>${css.global}</style>
+    </head>
+    <body>
+        <div class="container">
+            <!-- Main dashboard content -->
+            <div class="page-container" id="pageContainer">
+                <!-- Home page -->
+                <div class="page" id="pageHome" data-page="0">
+                    <div class="status-cards">
+                        ${home.statusCardsHtml}
+                    </div>
+                    ${rooms.roomControlsHtml}
+                </div>
+                
+                <!-- Devices page -->
+                <div class="page" id="pageDevices" data-page="1">
+                    ${devices.deviceControlsHtml}
+                </div>
+                
+                <!-- Scenes page -->
+                <div class="page" id="pageScenes" data-page="2">
+                    ${scenes.sceneGridHtml}
+                </div>
+                
+                <!-- TV page -->
+                <div class="page" id="pageTV" data-page="3">
+                    ${tv.tvControlsHtml}
+                </div>
+            </div>
+            
+            <!-- Navigation tabs -->
+            <div class="nav-tabs">
+                <div class="nav-tab active" data-page="0">
+                    <i class="mdi mdi-home"></i>
+                </div>
+                <div class="nav-tab" data-page="1">
+                    <i class="mdi mdi-lightbulb"></i>
+                </div>
+                <div class="nav-tab" data-page="2">
+                    <i class="mdi mdi-palette"></i>
+                </div>
+                <div class="nav-tab" data-page="3">
+                    <i class="mdi mdi-remote"></i>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Room device mappings
+            window.roomDeviceMappings = {};
+            ${rooms.roomDeviceMappings}
+            
+            // JavaScript modules
+            ${js.rooms.slidingRoomsJS}
+            ${js.rooms.roomControlJs}
+            ${js.cards.statusCardsJs}
+            ${js.cards.enhancedChartJs}
+            
+            // Main initialization
+            document.addEventListener('DOMContentLoaded', function() {
+                // Initialize everything
+                initDashboard();
+            });
+            
+            function initDashboard() {
+                console.log('🦆 Dashboard initialized!');
+                // Initialize components here
+            }
+        </script>
+    </body>
+    </html>
+  '';
+  
+  # Export the server
+  httpServer = server.httpServer;
+}
