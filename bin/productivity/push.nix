@@ -48,7 +48,7 @@
           fi
           
           echo -e "\033[1;34m🔄 Updating README version badge...\033[0m"
-          update-readme
+          # update-readme
 
           # 🦆 says ⮞ generation number
           if [[ -n "$generation" ]]; then
