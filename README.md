@@ -17,7 +17,7 @@
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)
 
-![QuackHack-McBlindy](home/profile.png)
+<img src="home/profile.png" alt="QuackHack-McBlindy" width="100">
 
 
 <div align="right"><sub>
