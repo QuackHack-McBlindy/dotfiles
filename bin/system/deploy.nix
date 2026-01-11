@@ -23,10 +23,15 @@ in {
        { name = "repo"; type = "string"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }    
        { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
        { name = "test"; type = "bool"; description = "Test deployment, does NOT save system generation, no git push, reboot to revert"; default = true; }
+       { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }
      ];
      code = ''   
        ${cmdHelpers}
 
+       if $DRY_RUN; then
+         echo "❗❗❗ Test run: reboot will revert activation"
+       fi
+       
        FAIL_COUNT_FILE="/tmp/nixos_rebuild_fail_count"
        
        if [[ -f "$FAIL_COUNT_FILE" ]]; then
@@ -39,9 +44,7 @@ in {
          DRY_RUN=1
        fi
        
-       if $DRY_RUN; then
-         echo "❗ Test run: reboot will revert activation"
-       fi
+
 
        # 🦆 say ⮞ If host is empty, do local rebuild
        if [ -z "$host" ]; then

@@ -386,26 +386,26 @@
                         
                         if let Some(device) = self.devices.get(potential_friendly_name) {
                             if let Some(hue_id) = device.hue_id {
-                                self.quack_info(&format!("🎯 Hue device detected: {} (Hue ID: {})", 
+                                self.quack_info(&format!("Hue device detected: {} (Hue ID: {})", 
                                     potential_friendly_name, hue_id));
                                 
                                 let data: Value = match serde_json::from_str(payload) {
                                     Ok(parsed) => {
-                                        self.quack_debug(&format!("  ├─ ✅ Parsed JSON payload: {:?}", parsed));
+                                        self.quack_info(&format!("  ├─ ✅ Parsed JSON payload: {:?}", parsed));
                                         parsed
                                     },
                                     Err(e) => {
-                                        self.quack_debug(&format!("  ├─ ❌ Failed to parse JSON: {}", e));
+                                        self.quack_info(&format!("  ├─ ❌ Failed to parse JSON: {}", e));
                                         return Ok(());
                                     }
                                 };
                                 
-                                // 🦆 says ⮞ Forward to Hue bridge
+                                // 🦆 says ⮞ forward to Hue bridge
                                 let forward_result = self.forward_to_hue_bridge(potential_friendly_name, hue_id, &data).await;
                                 
-                                // 🦆 says ⮞ Update state even for Hue devices
+                                // 🦆 says ⮞ update state even for Hue devices
                                 if let Err(e) = self.update_device_state_from_data(potential_friendly_name, &data) {
-                                    self.quack_debug(&format!("  ├─ ⚠️ Failed to update device state: {}", e));
+                                    self.quack_info(&format!("  ├─ ⚠️ Failed to update device state: {}", e));
                                 }
                                 
                                 let duration = start_time.elapsed().as_millis();
@@ -417,30 +417,30 @@
                                     potential_friendly_name));
                             }
                         } else {
-                            self.quack_debug(&format!("  ├─ ⚠️ Device '{}' not found in device registry", 
+                            self.quack_info(&format!("  ├─ ⚠️ Device '{}' not found in device registry", 
                                 potential_friendly_name));
                         }
                     }
                 }
             } else {
-                self.quack_debug("  ├─ Not a /set command, skipping Hue check");
+                self.quack_info("  ├─ Not a /set command, skipping Hue check");
             }
             
             // 🦆 says ⮞ z2m topic with friendly name that needs remapping?
             if let Some((remapped_topic, friendly_name)) = self.needs_remapping(topic) {
-                self.quack_debug(&format!("🔄 Remapping topic: {} → {}", topic, remapped_topic));
+                self.quack_debug(&format!("Remapping topic: {} → {}", topic, remapped_topic));
                 
                 // 🦆 says ⮞ publish to the new (real) topic
                 self.quack_debug(&format!("  ├─ Publishing to remapped topic: {}", remapped_topic));
                 if let Err(e) = self.mqtt_publish(&remapped_topic, payload) {
                     self.quack_debug(&format!("  ├─ ❌ Failed to publish: {}", e));
                 } else {
-                    self.quack_debug(&format!("  ├─ ✅ Published successfully"));
+                    self.quack_info(&format!("  ├─ Published successfully"));
                 }
                 
                 let data: Value = match serde_json::from_str(payload) {
                     Ok(parsed) => {
-                        self.quack_debug(&format!("  ├─ ✅ Parsed JSON for state update"));
+                        self.quack_debug(&format!("  ├─ Parsed JSON for state update"));
                         parsed
                     },
                     Err(_) => {
@@ -453,7 +453,7 @@
                 if let Err(e) = self.update_device_state_from_data(&friendly_name, &data) {
                     self.quack_debug(&format!("  ├─ ❌ Failed to update device state: {}", e));
                 } else {
-                    self.quack_debug(&format!("  ├─ ✅ Device state updated"));
+                    self.quack_debug(&format!("  ├─ evice state updated"));
                 }
             } else {
                 self.quack_debug("  ├─ No remapping needed, processing normally");
@@ -463,12 +463,12 @@
         
             let duration = start_time.elapsed().as_millis();
             self.update_performance_stats(topic, duration);
-            self.quack_debug(&format!("  └─ ✅ Processing completed in {}ms", duration));
+            self.quack_debug(&format!("  └─ Processing completed in {}ms", duration));
             Ok(())
         }
     
         async fn forward_to_hue_bridge(&self, device_name: &str, hue_id: u32, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
-            self.quack_info(&format!("🔄 Forwarding to Hue bridge for {} (Hue ID: {})", device_name, hue_id));
+            self.quack_info(&format!("Forwarding to Hue bridge for {} (Hue ID: {})", device_name, hue_id));
             self.quack_debug(&format!("  ├─ Received data: {}", data));
             
             let mut hue_command = serde_json::Map::new();
@@ -494,7 +494,7 @@
                 self.quack_debug("  ├─ No brightness in payload");
             }
     
-            // 🦆 says ⮞ Parse color
+            // 🦆 says ⮞ parse color
             if let Some(color) = data.get("color") {
                 if let Some(hex) = color.get("hex").and_then(|v| v.as_str()) {
                     self.quack_debug(&format!("  ├─ Color hex: {}", hex));
@@ -514,10 +514,10 @@
                     self.quack_debug(&format!("  ├─ Using existing xy: [{:.4}, {:.4}]", x, y));
                 }
             } else {
-                self.quack_debug("  ├─ No color in payload");
+                self.quack_info("  ├─ No color in payload");
             }
     
-            // 🦆 says ⮞ Parse color temperature
+            // 🦆 says ⮞ parse color temperature
             if let Some(temp) = data.get("color_temp").and_then(|v| v.as_u64()) {
                 hue_command.insert("ct".to_string(), Value::Number(temp.into()));
                 command_fields.push(format!("color_temp: {}", temp));
@@ -526,7 +526,7 @@
                 self.quack_debug("  ├─ No color temp in payload");
             }
     
-            // 🦆 says ⮞ Check if we have any commands
+            // 🦆 says ⮞ any commands? 
             if hue_command.is_empty() {
                 self.quack_debug("  ├─ ⚠️ No valid commands found in payload, nothing to forward");
                 return Ok(());
@@ -537,7 +537,7 @@
             self.quack_info(&format!("  ├─ Hue command fields: {}", command_fields.join(", ")));
             self.quack_debug(&format!("  ├─ Generated Hue JSON: {}", hue_state_json));
             
-            // 🦆 says ⮞ Execute hue CLI command
+            // 🦆 says ⮞ execute hue CLI command
             self.quack_debug(&format!("  ├─ Executing: hue bridge lights {} set --state '{}'", hue_id, hue_state_json));
             
             let output = std::process::Command::new("hue")
@@ -2191,10 +2191,6 @@ EOF
         done
       fi
     '';
-    
-    
-    
-
   };
 
 
