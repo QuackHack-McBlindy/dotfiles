@@ -2656,22 +2656,7 @@ in { # 🦆 duck say ⮞ qwack
         };
         
         # 🦆 says ⮞ 5. time based automations
-        time_based = {
-          time_teller = {
-            enable = true;
-            description = "It's 18:55? Verifying...";
-            schedule = {
-              start = "18:55";
-              days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
-            };
-            actions = [
-              {
-                type = "shell";
-                command = "ssh desktop yo do \"vad är klockan\"";
-              }
-            ];
-          };
-        };
+        time_based = {};
         
         # 🦆 says ⮞ 6. presence based automations
         presence_based = {};        

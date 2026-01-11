@@ -1337,29 +1337,34 @@ in { # 🦆 says ⮞ Options for da house
               default = "mdi:monitor-shimmer";
               example = "mdi:cancel";
             };
+            
             batteryType = mkOption {
               type = types.nullOr (types.enum ["CR2032" "CR2450" "CR02" "AAA" "AA"]);
               default = null;
               description = "Optional type of battery the device uses, if applicable.";
               example = "CR2032";
             };
+            
             supports_color = mkOption {
               type = types.bool;
               default = false;
               description = "Whether the light device supports setting color.";
               example = true;
             };
+            
             supports_temperature = mkOption {
               type = types.bool;
               default = false;
               description = "Whether the light device supports setting temperature.";
               example = true;
-            };            
+            };
+            
             endpoint = lib.mkOption { 
               type = lib.types.int;
               description = "The Zigbee endpoint to control this device.";
               example = 11;
             };
+            
             hue_id = lib.mkOption { 
               type = types.nullOr types.int;
               description = "The light_id for the device. Integrates Philips Hue paired devices. Configuring this option will NOT insert the device into the Zigbee2MQTT configuration file.";
@@ -1994,6 +1999,7 @@ in { # 🦆 says ⮞ Options for da house
               mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":50,"transition":3.5}'
               exit 0
             fi      
+                        
             # 🦆 says ⮞ construct payload
             PAYLOAD="{\"state\":\"ON\""
             [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"
@@ -2001,7 +2007,25 @@ in { # 🦆 says ⮞ Options for da house
             PAYLOAD+="}"
             # 🦆 says ⮞ publish payload
             mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
-            say_duck "$PAYLOAD"   
+            say_duck "$PAYLOAD" 
+     
+     
+     
+            # 🦆TODO⮞ BRIDGED PAYLOAD 
+            PAYLOAD="{\"state\":\"true\""
+            [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"bri\":$BRIGHTNESS"
+            [[ -n "$COLOR" ]] && PAYLOAD+=", \"color\":{\"hex\":\"$COLOR\"}"
+            PAYLOAD+="}"
+            # 🦆 says ⮞ publish payload
+            mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
+            say_duck "$PAYLOAD" 
+            
+               
+     
+     
+     
+            
+            
           '')
           
           # 🦆 says ⮞ Philips Hue Sync Box control

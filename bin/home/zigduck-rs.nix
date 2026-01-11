@@ -327,62 +327,287 @@
         last_motion: HashMap<String, SystemTime>,
     }
    
+    
+    
+    
     impl ZigduckState {
         // 🦆 says ⮞ topic rewrites (friendly name ⮞ IEEE)
         fn needs_remapping(&self, topic: &str) -> Option<(String, String)> {
-            // 🦆 says ⮞ z2m topic with friendly name?
+            self.quack_debug(&format!("📡 Checking if topic needs remapping: {}", topic));
+            
             if let Some(device_part) = topic.strip_prefix("zigbee2mqtt/") {
-                // 🦆 says ⮞ split to get the device id
                 let parts: Vec<&str> = device_part.split('/').collect();
+                
+                self.quack_debug(&format!("  ├─ Topic parts: {:?}", parts));
+                
                 if !parts.is_empty() {
                     let potential_friendly_name = parts[0];
-                
+                    self.quack_debug(&format!("  ├─ Looking for device: '{}'", potential_friendly_name));
+                    
                     for (friendly_name, device) in &self.devices {
                         if friendly_name == potential_friendly_name {
-                            // 🦆 says ⮞ rewrite
+                            self.quack_debug(&format!("  ├─ ✅ Found device '{}' (IEEE: {})", friendly_name, device.ieee));
+                            
                             let new_topic = topic.replace(
                                 &format!("zigbee2mqtt/{}/", friendly_name),
                                 &format!("zigbee2mqtt/{}/", device.ieee)
                             );
+                            
+                            self.quack_debug(&format!("  └─ Remapping: {} → {}", topic, new_topic));
                             return Some((new_topic, friendly_name.clone()));
                         }
                     }
+                    
+                    self.quack_debug(&format!("  └─ ❌ Device '{}' not found in device map", potential_friendly_name));
                 }
+            } else {
+                self.quack_debug("  └─ ❌ Not a zigbee2mqtt topic, skipping remap");
             }
+            
             None
         }
     
         // 🦆 says ⮞ rewrite then process
         async fn process_incoming_message(&mut self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
             let start_time = std::time::Instant::now();
-        
-            // 🦆 says ⮞ z2m topic with friendly name?
+            
+            self.quack_debug(&format!("🔄 Processing message on topic: {}", topic));
+            self.quack_debug(&format!("  ├─ Payload ({} chars): {}", payload.len(), payload));
+            
+            // 🦆 says ⮞ Check if this is a set command for a Hue device
+            if topic.contains("/set") {
+                if let Some(device_part) = topic.strip_prefix("zigbee2mqtt/") {
+                    let parts: Vec<&str> = device_part.split('/').collect();
+                    
+                    if !parts.is_empty() {
+                        let potential_friendly_name = parts[0];
+                        
+                        self.quack_debug(&format!("  ├─ Checking for Hue device: '{}'", potential_friendly_name));
+                        
+                        if let Some(device) = self.devices.get(potential_friendly_name) {
+                            if let Some(hue_id) = device.hue_id {
+                                self.quack_info(&format!("🎯 Hue device detected: {} (Hue ID: {})", 
+                                    potential_friendly_name, hue_id));
+                                
+                                let data: Value = match serde_json::from_str(payload) {
+                                    Ok(parsed) => {
+                                        self.quack_debug(&format!("  ├─ ✅ Parsed JSON payload: {:?}", parsed));
+                                        parsed
+                                    },
+                                    Err(e) => {
+                                        self.quack_debug(&format!("  ├─ ❌ Failed to parse JSON: {}", e));
+                                        return Ok(());
+                                    }
+                                };
+                                
+                                // 🦆 says ⮞ Forward to Hue bridge
+                                let forward_result = self.forward_to_hue_bridge(potential_friendly_name, hue_id, &data).await;
+                                
+                                // 🦆 says ⮞ Update state even for Hue devices
+                                if let Err(e) = self.update_device_state_from_data(potential_friendly_name, &data) {
+                                    self.quack_debug(&format!("  ├─ ⚠️ Failed to update device state: {}", e));
+                                }
+                                
+                                let duration = start_time.elapsed().as_millis();
+                                self.update_performance_stats(topic, duration);
+                                
+                                return forward_result;
+                            } else {
+                                self.quack_debug(&format!("  ├─ ⚠️ Device '{}' has no hue_id, not a Hue device", 
+                                    potential_friendly_name));
+                            }
+                        } else {
+                            self.quack_debug(&format!("  ├─ ⚠️ Device '{}' not found in device registry", 
+                                potential_friendly_name));
+                        }
+                    }
+                }
+            } else {
+                self.quack_debug("  ├─ Not a /set command, skipping Hue check");
+            }
+            
+            // 🦆 says ⮞ z2m topic with friendly name that needs remapping?
             if let Some((remapped_topic, friendly_name)) = self.needs_remapping(topic) {
-                self.quack_debug(&format!("Remapping topic: {} → {}", topic, remapped_topic));
-            
+                self.quack_debug(&format!("🔄 Remapping topic: {} → {}", topic, remapped_topic));
+                
                 // 🦆 says ⮞ publish to the new (real) topic
-                self.mqtt_publish(&remapped_topic, payload)?;
-            
+                self.quack_debug(&format!("  ├─ Publishing to remapped topic: {}", remapped_topic));
+                if let Err(e) = self.mqtt_publish(&remapped_topic, payload) {
+                    self.quack_debug(&format!("  ├─ ❌ Failed to publish: {}", e));
+                } else {
+                    self.quack_debug(&format!("  ├─ ✅ Published successfully"));
+                }
+                
                 let data: Value = match serde_json::from_str(payload) {
-                    Ok(parsed) => parsed,
+                    Ok(parsed) => {
+                        self.quack_debug(&format!("  ├─ ✅ Parsed JSON for state update"));
+                        parsed
+                    },
                     Err(_) => {
-                        self.quack_debug(&format!("Invalid JSON payload: {}", payload));
+                        self.quack_debug(&format!("  ├─ ❌ Invalid JSON payload: {}", payload));
                         return Ok(());
                     }
                 };
-            
+                
                 // 🦆 says ⮞ update state
                 if let Err(e) = self.update_device_state_from_data(&friendly_name, &data) {
-                    self.quack_debug(&format!("Failed to update device state: {}", e));
+                    self.quack_debug(&format!("  ├─ ❌ Failed to update device state: {}", e));
+                } else {
+                    self.quack_debug(&format!("  ├─ ✅ Device state updated"));
                 }
             } else {
+                self.quack_debug("  ├─ No remapping needed, processing normally");
                 // 🦆 says ⮞ no rewrite? run regular process 
                 self.process_message(topic, payload).await?;
             }
         
             let duration = start_time.elapsed().as_millis();
             self.update_performance_stats(topic, duration);
+            self.quack_debug(&format!("  └─ ✅ Processing completed in {}ms", duration));
             Ok(())
+        }
+    
+        async fn forward_to_hue_bridge(&self, device_name: &str, hue_id: u32, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
+            self.quack_info(&format!("🔄 Forwarding to Hue bridge for {} (Hue ID: {})", device_name, hue_id));
+            self.quack_debug(&format!("  ├─ Received data: {}", data));
+            
+            let mut hue_command = serde_json::Map::new();
+            let mut command_fields = Vec::new();
+    
+            // 🦆 says ⮞ Parse state
+            if let Some(state) = data.get("state").and_then(|v| v.as_str()) {
+                let hue_state = state == "ON";
+                hue_command.insert("on".to_string(), Value::Bool(hue_state));
+                command_fields.push(format!("state: {} → on: {}", state, hue_state));
+                self.quack_debug(&format!("  ├─ State: {} → {}", state, hue_state));
+            } else {
+                self.quack_debug("  ├─ No state in payload");
+            }
+    
+            // 🦆 says ⮞ Parse brightness
+            if let Some(brightness) = data.get("brightness").and_then(|v| v.as_u64()) {
+                let hue_brightness = ((brightness as f64 * 254.0) / 255.0).round() as u64;
+                hue_command.insert("bri".to_string(), Value::Number(hue_brightness.into()));
+                command_fields.push(format!("brightness: {} → bri: {}", brightness, hue_brightness));
+                self.quack_debug(&format!("  ├─ Brightness: {} → {}", brightness, hue_brightness));
+            } else {
+                self.quack_debug("  ├─ No brightness in payload");
+            }
+    
+            // 🦆 says ⮞ Parse color
+            if let Some(color) = data.get("color") {
+                if let Some(hex) = color.get("hex").and_then(|v| v.as_str()) {
+                    self.quack_debug(&format!("  ├─ Color hex: {}", hex));
+                    let xy = self.hex_to_xy(hex);
+                    hue_command.insert("xy".to_string(), Value::Array(vec![
+                        Value::Number(serde_json::Number::from_f64(xy.0).unwrap()),
+                        Value::Number(serde_json::Number::from_f64(xy.1).unwrap())
+                    ]));
+                    command_fields.push(format!("hex: {} → xy: [{:.4}, {:.4}]", hex, xy.0, xy.1));
+                    self.quack_debug(&format!("  ├─ Converted to xy: [{:.4}, {:.4}]", xy.0, xy.1));
+                } else if let (Some(x), Some(y)) = (color.get("x").and_then(|v| v.as_f64()), color.get("y").and_then(|v| v.as_f64())) {
+                    hue_command.insert("xy".to_string(), Value::Array(vec![
+                        Value::Number(serde_json::Number::from_f64(x).unwrap()),
+                        Value::Number(serde_json::Number::from_f64(y).unwrap())
+                    ]));
+                    command_fields.push(format!("xy: [{:.4}, {:.4}]", x, y));
+                    self.quack_debug(&format!("  ├─ Using existing xy: [{:.4}, {:.4}]", x, y));
+                }
+            } else {
+                self.quack_debug("  ├─ No color in payload");
+            }
+    
+            // 🦆 says ⮞ Parse color temperature
+            if let Some(temp) = data.get("color_temp").and_then(|v| v.as_u64()) {
+                hue_command.insert("ct".to_string(), Value::Number(temp.into()));
+                command_fields.push(format!("color_temp: {}", temp));
+                self.quack_debug(&format!("  ├─ Color temp: {}", temp));
+            } else {
+                self.quack_debug("  ├─ No color temp in payload");
+            }
+    
+            // 🦆 says ⮞ Check if we have any commands
+            if hue_command.is_empty() {
+                self.quack_debug("  ├─ ⚠️ No valid commands found in payload, nothing to forward");
+                return Ok(());
+            }
+    
+            let hue_state_json = Value::Object(hue_command).to_string();
+            
+            self.quack_info(&format!("  ├─ Hue command fields: {}", command_fields.join(", ")));
+            self.quack_debug(&format!("  ├─ Generated Hue JSON: {}", hue_state_json));
+            
+            // 🦆 says ⮞ Execute hue CLI command
+            self.quack_debug(&format!("  ├─ Executing: hue bridge lights {} set --state '{}'", hue_id, hue_state_json));
+            
+            let output = std::process::Command::new("hue")
+                .args(&["bridge", "lights", &hue_id.to_string(), "set", "--state", &hue_state_json])
+                .output()?;
+    
+            self.quack_debug(&format!("  ├─ Command exit code: {}", output.status.code().unwrap_or(-1)));
+            self.quack_debug(&format!("  ├─ Command stdout ({} chars): {}", 
+                output.stdout.len(), 
+                String::from_utf8_lossy(&output.stdout).trim()));
+            
+            if !output.status.success() {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                self.quack_debug(&format!("  ├─ ❌ Command stderr: {}", stderr.trim()));
+                self.quack_debug(&format!("  └─ ❌ Failed to send to Hue bridge"));
+                
+                // 🦆 says ⮞ Try to extract more info from stderr
+                if stderr.contains("Connection refused") || stderr.contains("ECONNREFUSED") {
+                    self.quack_debug("  └─ 🔌 Hue bridge connection refused - check if bridge is online");
+                } else if stderr.contains("unauthorized") || stderr.contains("Unauthorized") {
+                    self.quack_debug("  └─ 🔑 Hue bridge unauthorized - check API token");
+                } else if stderr.contains("device is off") {
+                    self.quack_debug("  └─ 💡 Hue device is off - command ignored");
+                }
+                
+                return Err(format!("Hue command failed: {}", stderr).into());
+            } else {
+                self.quack_debug(&format!("  └─ ✅ Successfully forwarded to Hue bridge for {}", device_name));
+                self.quack_info(&format!("🎯 Hue command sent: {} → {}", device_name, command_fields.join(", ")));
+            }
+            
+            Ok(())
+        }
+    
+        fn hex_to_xy(&self, hex_color: &str) -> (f64, f64) {
+            self.quack_debug(&format!("🎨 Converting hex to xy: {}", hex_color));
+            
+            let hex = hex_color.trim_start_matches('#');
+            
+            self.quack_debug(&format!("  ├─ Cleaned hex: {}", hex));
+            
+            let r = u8::from_str_radix(&hex[0..2], 16).unwrap_or(0) as f64 / 255.0;
+            let g = u8::from_str_radix(&hex[2..4], 16).unwrap_or(0) as f64 / 255.0;
+            let b = u8::from_str_radix(&hex[4..6], 16).unwrap_or(0) as f64 / 255.0;
+            
+            self.quack_debug(&format!("  ├─ Normalized RGB: [{:.3}, {:.3}, {:.3}]", r, g, b));
+            
+            let r_gamma = if r > 0.04045 { ((r + 0.055) / 1.055).powf(2.4) } else { r / 12.92 };
+            let g_gamma = if g > 0.04045 { ((g + 0.055) / 1.055).powf(2.4) } else { g / 12.92 };
+            let b_gamma = if b > 0.04045 { ((b + 0.055) / 1.055).powf(2.4) } else { b / 12.92 };
+            
+            self.quack_debug(&format!("  ├─ Gamma corrected: [{:.3}, {:.3}, {:.3}]", r_gamma, g_gamma, b_gamma));
+            
+            let x = r_gamma * 0.4124564 + g_gamma * 0.3575761 + b_gamma * 0.1804375;
+            let y = r_gamma * 0.2126729 + g_gamma * 0.7151522 + b_gamma * 0.0721750;
+            let z = r_gamma * 0.0193339 + g_gamma * 0.1191920 + b_gamma * 0.9503041;
+            
+            self.quack_debug(&format!("  ├─ XYZ values: [{:.3}, {:.3}, {:.3}]", x, y, z));
+            
+            let sum = x + y + z;
+            if sum == 0.0 {
+                self.quack_debug("  ├─ ⚠️ Sum is zero, returning (0, 0)");
+                self.quack_debug("  └─ 🎨 XY result: (0.0000, 0.0000)");
+                (0.0, 0.0)
+            } else {
+                let xy_result = (x / sum, y / sum);
+                self.quack_debug(&format!("  ├─ Sum: {:.3}", sum));
+                self.quack_debug(&format!("  └─ 🎨 XY result: ({:.4}, {:.4})", xy_result.0, xy_result.1));
+                xy_result
+            }
         }
 
         fn build_ieee_to_friendly_map(&self) -> HashMap<String, String> {
@@ -1033,7 +1258,7 @@
                         .output()?;
             
                     if !output.status.success() {
-                        self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                        self.quack_info(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
                     }
                 }
                 AutomationAction::Structured(action_config) => {
@@ -1466,7 +1691,7 @@
                             "timestamp": Local::now().to_rfc3339()
                         }); // 🦆 says ⮞ save it, useful laterz?
                         fs::write(format!("{}/last_motion.json", self.state_dir), motion_data.to_string())?;
-                        self.quack_debug(&format!("🕵️ Motion in {} {}", device_name, room));
+                        self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
                         
                         self.execute_automations("motion", "motion_detected", device_name, room)?;
                         // 🦆 says ⮞ & update state file yo
@@ -1849,7 +2074,10 @@
   environment.variables."AUTOMATIONS_FILE" = automationsFile;
   environment.variables."DARK_TIME_ENABLED" = darkTimeEnabled;
   environment.variables."SCENE_CONFIG_FILE" = sceneConfig;  
-  environment.variables."DASHBOARD_CARDS_FILE" = dashboardCardsFile;  
+  environment.variables."DASHBOARD_CARDS_FILE" = dashboardCardsFile;
+  environment.variables."HUE_BRIGE_IP" = config.house.zigbee.hueSyncBox.bridge.ip;
+  environment.variables."BRIGE_TOKEN_FILE" = config.house.zigbee.hueSyncBox.bridge.passwordFile;
+      
   
 in { # 🦆 says ⮞ finally here, quack! 
   yo.scripts.zigduck-rs = {
@@ -1859,8 +2087,10 @@ in { # 🦆 says ⮞ finally here, quack!
     autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "dir"; description = "Directory path to compile in"; default = "/home/pungkula/zigduck-rs"; optional = false; } 
-      { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
-      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
+      { name = "user"; description = "User which Mosquitto runs on"; default = config.house.zigbee.mosquitto.username; optional = false; }
+      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.house.zigbee.mosquitto.passwordFile; }
+      { name = "hueBridgeIP"; description = "Hue Bridge IP to connect to"; optional = true; default = config.house.zigbee.hueSyncBox.bridge.ip; } 
+      { name = "bridgePwFile"; description = "File containing Philips Hue Bridge API token"; optional = true; default = config.house.zigbee.hueSyncBox.bridge.passwordFile; }      
     ];
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
     helpFooter = ''
@@ -1898,8 +2128,10 @@ EOF
       MQTT_USER="${config.house.zigbee.mosquitto.username}"
       MQTT_PASSWORD=$(cat "$pwfile")
       DASHBOARD_CARDS_FILE="${dashboardCardsFile}"
-      
-
+   
+      HUE_IP="$hueBridgeIP"
+      HUE_TOKEN=$(cat "$bridgePwFile")
+    
       # 🦆 says ⮞ create the Rust projectz directory and move into it      
       tmp=$(mktemp -d)
       trap "rm -rf '$tmp'" EXIT
@@ -1907,31 +2139,62 @@ EOF
       cat ${zigduck-rs}   > "$tmp/src/main.rs"
       cat ${zigduck-toml} > "$tmp/Cargo.toml"
       cp ${sceneConfig} "$tmp/scene-config.json"
-  
+      
       cd "$tmp"
       ${pkgs.cargo}/bin/cargo generate-lockfile
       ${pkgs.cargo}/bin/cargo build --release      
       
-
+    
       # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
       if [ "$VERBOSE" -ge 1 ]; then
+        dt_info "Running in DEBUG mode"
         while true; do
           # 🦆 says ⮞ keep me alive plx
-          DEBUG=1 DASHBOARD_CARDS_FILE="${dashboardCardsFile}" HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}" HUE_API_KEY=$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}") HUE_SCRIPT_PATH=$(which hue) ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" SCENE_CONFIG_FILE="$tmp/scene-config.json" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
+          DEBUG=1 \
+          HUE_IP="$hueBridgeIP" \
+          HUE_TOKEN_FILE="$bridgePwFile" \
+          DASHBOARD_CARDS_FILE="${dashboardCardsFile}" \
+          HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}" \
+          HUE_API_KEY=$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}") \
+          HUE_SCRIPT_PATH=$(which hue) \
+          ZIGBEE_DEVICES='${deviceMeta}' \
+          ZIGBEE_DEVICES_FILE="${devices-json}" \
+          SCENE_CONFIG_FILE="$tmp/scene-config.json" \
+          AUTOMATIONS_FILE="${automationsFile}" \
+          DARK_TIME_ENABLED="${darkTimeEnabled}" \
+          DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" \
+          ./target/release/zigduck-rs
           EXIT_CODE=$?
           dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
           sleep 3
-       done
-      fi  
-      # 🦆 says ⮞ keep me alive plx
-      while true; do
-        # 🦆 says ⮞ else run debugless yo
-        DASHBOARD_CARDS_FILE="${dashboardCardsFile}" HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}" HUE_API_KEY=$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}") HUE_SCRIPT_PATH=$(which hue) ZIGBEE_DEVICES='${deviceMeta}' ZIGBEE_DEVICES_FILE="${devices-json}" SCENE_CONFIG_FILE="$tmp/scene-config.json" AUTOMATIONS_FILE="${automationsFile}" DARK_TIME_ENABLED="${darkTimeEnabled}" DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" ./target/release/zigduck-rs
-        EXIT_CODE=$?
-        dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
-        sleep 3
-      done         
+        done
+      else
+        # 🦆 says ⮞ keep me alive plx
+        while true; do
+          # 🦆 says ⮞ else run debugless yo
+          HUE_IP="$hueBridgeIP" \
+          HUE_TOKEN_FILE="$bridgePwFile" \
+          DASHBOARD_CARDS_FILE="${dashboardCardsFile}" \
+          HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}" \
+          HUE_API_KEY=$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}") \
+          HUE_SCRIPT_PATH=$(which hue) \
+          ZIGBEE_DEVICES='${deviceMeta}' \
+          ZIGBEE_DEVICES_FILE="${devices-json}" \
+          SCENE_CONFIG_FILE="$tmp/scene-config.json" \
+          AUTOMATIONS_FILE="${automationsFile}" \
+          DARK_TIME_ENABLED="${darkTimeEnabled}" \
+          DT_LOG_FILE_PATH="$DT_LOG_PATH$DT_LOG_FILE" \
+          ./target/release/zigduck-rs
+          EXIT_CODE=$?
+          dt_error "zigduck-rs exited with code $EXIT_CODE, restarting in 3 seconds..."
+          sleep 3
+        done
+      fi
     '';
+    
+    
+    
+
   };
 
 

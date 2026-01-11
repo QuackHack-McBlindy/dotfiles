@@ -62,7 +62,7 @@
       json = builtins.toJSON settings;
     in
       ''
-      mqtt_pub -t "zigbee2mqtt/${device}/set" -m '${json}'
+      mqtt_pub -t "zigbee2mqtt/''${device}/set" -m '''${json}'
       '';
       
   sceneCommands = lib.mapAttrs
@@ -300,6 +300,7 @@
 
   statusCards = ''
     <div class="status-cards">
+      <h3>🦆 STATUS 🦆</h3>
       <div class="card unified-status-card" id="unifiedStatusCard">
         <div class="card-header">
           <div class="card-title" id="statusCardTitle">Status</div>
@@ -620,6 +621,10 @@ EOF
     </head>
     <body>
         <div class="container">    
+            <div id="mqttStatus" style="position: fixed; top: 10px; right: 10px; z-index: 1000; 
+                 background: rgba(0,0,0,0.8); color: white; padding: 5px 10px; border-radius: 5px;">
+                 ...
+            </div>
             <div id="connectionStatus" style="display: none;"></div>
             <div id="deviceSelectorContainer" class="device-selector-container hidden">
                 <select id="deviceSelect" class="device-selector">
@@ -652,8 +657,9 @@ EOF
                       <i class="mdi mdi-home panel-room-icon" id="panelRoomIcon"></i>
                     </div>
                   </div>
-    
-                  <div class="panel-devices-container" id="panelDevicesContainer">
+                    
+                  <div class="panel-controls" id="panelDevicesContainer">
+                  <!--  <div class="panel-devices-container" id="panelDevicesContainer">  -->
                     <!-- 🦆says⮞ room devices is shown here  -->
                   </div>
                 </div>
@@ -1025,7 +1031,7 @@ EOF
                             if (state.devices) {
                                 devices = {...state.devices, ...devices};
                                 updateDeviceSelector();
-                                updateStatusCards();
+                                // updateStatusCards();
                             }
             
                             if (state.selectedDevice) {
@@ -1072,7 +1078,7 @@ EOF
                         selectedDevice = null;
                         window.selectedDevice = null;
                         updateDeviceSelector();
-                        updateStatusCards();
+                        // updateStatusCards();
                         document.getElementById('currentDeviceName').textContent = 'quack or tap a device';
                         document.getElementById('currentDeviceStatus').textContent = 'up there yo';
                         showNotification('Saved data cleared', 'success');
@@ -1364,7 +1370,10 @@ EOF
                     try {
                         client = mqtt.connect(brokerUrl, options);
                         
+                        window.mqttClient = client; 
+                        
                         client.on('connect', function() {
+                            window.mqttConnected = true;
                             showConnectionStatus();
                             statusElement.className = 'connection-status status-connected';
                             statusElement.innerHTML = '<i class="fas fa-plug"></i><span>🟢</span>';
@@ -1378,6 +1387,7 @@ EOF
                         });
                         
                         client.on('error', function(err) {
+                            window.mqttConnected = false; 
                             showConnectionStatus(); // 🦆 says ⮞ show on error
                             statusElement.className = 'connection-status status-error';
                             statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>⚠️📛</span>';
@@ -1423,7 +1433,7 @@ EOF
                                     if (selectedDevice === deviceName) {
                                         updateDeviceUI(data);
                                     }      
-                                    updateStatusCards();
+                                    // updateStatusCards();
                                     onMQTTDataUpdate();   
                                     
                                     // 🦆 says ⮞ update room control UI
@@ -1447,6 +1457,7 @@ EOF
                         });
                         
                         client.on('close', function() {
+                            window.mqttConnected = false; 
                             showConnectionStatus(); // 🦆 says ⮞ show on disconnect
                             statusElement.className = 'connection-status status-error';
                             statusElement.innerHTML = '<i class="fas fa-exclamation-triangle"></i><span>⚠️📛</span>';
@@ -1540,26 +1551,33 @@ EOF
                 }    
       
                 function sendCommand(device, command) {
+                    const client = window.mqttClient;
                     if (!client || !client.connected) {
-                        showNotification('Not connected to MQTT', 'error');
+                        showNotification('Not connected to MQTT, reconnecting...', 'warning');
+                        connectToMQTT();
+                        setTimeout(() => {
+                            if (window.mqttClient && window.mqttClient.connected) {
+                                window.mqttClient.publish(`zigbee2mqtt/''${device}/set`, JSON.stringify(command));
+                            } else {
+                                showNotification('Still not connected to MQTT', 'error');
+                            }
+                        }, 1000);
                         return;
                     }
-                    if (typeof device !== 'string') {
-                        console.error('Invalid device name:', device);
-                        return;
-                    }
-                    
+    
                     const topic = `zigbee2mqtt/''${device}/set`;
                     client.publish(topic, JSON.stringify(command), function(err) {
                         if (err) {
                             showNotification('Failed to send command', 'error');
                             console.error('Publish error: ', err);
                         } else {
-                            devices[device] = {...devices[device], ...command};
-                            saveState();
+                            if (window.devices && window.devices[device]) {
+                                window.devices[device] = { ...window.devices[device], ...command };
+                            }
                         }
                     });
                 }
+                
                 window.sendCommand = sendCommand;
                 
                 function showPage(pageId) {
@@ -1872,15 +1890,13 @@ EOF
                                 <div class="color-section">
                                     <div class="color-presets">
                                         <div class="color-preset" style="background: #ff3b30;" onclick="setColor('#ff3b30')"></div>
-                                        <div class="color-preset" style="background: #ff9500;" onclick="setColor('#ff9500')"></div>
-                                        <div class="color-preset" style="background: #ffcc00;" onclick="setColor('#ffcc00')"></div>
                                         <div class="color-preset" style="background: #4cd964;" onclick="setColor('#4cd964')"></div>
                                         <div class="color-preset" style="background: #5ac8fa;" onclick="setColor('#5ac8fa')"></div>
                                         <div class="color-preset" style="background: #007aff;" onclick="setColor('#007aff')"></div>
                                     </div>
                                     <div class="color-picker-container">
                                         <button class="color-picker-btn" onclick="openColorPicker()">
-                                            🦆 says ▶ <i class="fas fa-palette"></i> custom color
+                                            🦆say▶ <i class="fas fa-palette"></i> custom color
                                         </button>
                                         <input type="color" id="hiddenColorPicker" style="display: none;" onchange="setColor(this.value)">
                                    </div>
@@ -1935,20 +1951,22 @@ EOF
                     // 🦆 says ⮞ hook controls up yo
                     const toggle = document.getElementById('stateToggle');
                     if (toggle) {
+                        const currentDeviceName = selectedDevice;
+    
                         toggle.onchange = () => {
                             const stateText = document.querySelector('.state-text');
                             const stateDisplay = document.querySelector('.state-display');
-        
+
                             if (toggle.checked) {
                                 stateText.textContent = 'ON';
                                 stateDisplay.classList.remove('state-off');
                                 stateDisplay.classList.add('state-on');
-                                publishPatch({ state: 'ON' });
+                                sendCommand(currentDeviceName, { state: 'ON' }); // Use sendCommand directly
                             } else {
                                 stateText.textContent = 'OFF';
                                 stateDisplay.classList.remove('state-on');
                                 stateDisplay.classList.add('state-off');
-                                publishPatch({ state: 'OFF' });
+                                sendCommand(currentDeviceName, { state: 'OFF' }); // Use sendCommand directly
                             }
                         };
                     }
@@ -2044,6 +2062,13 @@ EOF
                                 normalizedData.icon = deviceIcons[deviceKey];
                             }
                         }
+
+                        window.deviceIdToMqttTopic = {};
+                        Object.entries(window.devices).forEach(([mqttTopic, deviceData]) => {
+                            if (deviceData.id) {
+                                window.deviceIdToMqttTopic[deviceData.id] = mqttTopic;
+                            }
+                        });
         
                         console.log('🦆 Loaded devices with icons:', Object.keys(window.devices));
                         console.log('🦆 Room mappings:', window.roomDeviceMappings);
