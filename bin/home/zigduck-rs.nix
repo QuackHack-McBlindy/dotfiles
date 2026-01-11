@@ -368,23 +368,16 @@
         }
     
         // 🦆 says ⮞ rewrite then process
+        
+        
         async fn process_incoming_message(&mut self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
             let start_time = std::time::Instant::now();
             
             self.quack_debug(&format!("🔄 Processing message on topic: {}", topic));
             self.quack_debug(&format!("  ├─ Payload ({} chars): {}", payload.len(), payload));
             
-            // 🦆 says ⮞ Check if this is a set command for a Hue device
+            // 🦆 says ⮞ check if this is a set command for a Hue device
             if topic.contains("/set") {
-                if let Some(device_part) = topic.strip_prefix("zigbee2mqtt/") {
-                    let parts: Vec<&str> = device_part.split('/').collect();
-                    
-                    if !parts.is_empty() {
-        
-            // 🦆 says ⮞ set command for a Hue device?
-            if topic.contains("/set") {
-                self.quack_info("  ├─ This is a /set command, checking for Hue device...");
-                
                 if let Some(device_part) = topic.strip_prefix("zigbee2mqtt/") {
                     let parts: Vec<&str> = device_part.split('/').collect();
                     
@@ -436,9 +429,9 @@
                     }
                 }
             } else {
-                self.quack_info("  ├─ Not a /set command, skipping Hue check");
+                self.quack_debug("  ├─ Not a /set command, skipping Hue check");
             }
-                       
+            
             // 🦆 says ⮞ z2m topic with friendly name that needs remapping?
             if let Some((remapped_topic, friendly_name)) = self.needs_remapping(topic) {
                 self.quack_debug(&format!("Remapping topic: {} → {}", topic, remapped_topic));
@@ -479,7 +472,8 @@
             self.quack_debug(&format!("  └─ Processing completed in {}ms", duration));
             Ok(())
         }
-    
+            
+                
         async fn forward_to_hue_bridge(&self, device_name: &str, hue_id: u32, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
             self.quack_info(&format!("Forwarding to Hue bridge for {} (Hue ID: {})", device_name, hue_id));
             self.quack_debug(&format!("  ├─ Received data: {}", data));    
@@ -487,7 +481,7 @@
                 
             let mut hue_command = serde_json::Map::new();
             let mut command_fields = Vec::new();
-    
+        
             // 🦆 says ⮞ parse state
             if let Some(state) = data.get("state").and_then(|v| v.as_str()) {
                 let hue_state = state == "ON";
@@ -497,10 +491,7 @@
             } else {
                 self.quack_debug("  ├─ No state in payload");
             }
-    
-            // 🦆says⮞i logz 
-            self.quack_info(&format!("  ├─ Hue command: {:?}", hue_command)); 
-    
+        
             // 🦆 says ⮞ Parse brightness
             if let Some(brightness) = data.get("brightness").and_then(|v| v.as_u64()) {
                 let hue_brightness = ((brightness as f64 * 254.0) / 255.0).round() as u64;
@@ -510,10 +501,7 @@
             } else {
                 self.quack_debug("  ├─ No brightness in payload");
             }
-    
-            // 🦆says⮞i logz 
-            self.quack_info(&format!("  ├─ Hue command: {:?}", hue_command));
-      
+        
             // 🦆 says ⮞ parse color
             if let Some(color) = data.get("color") {
                 if let Some(hex) = color.get("hex").and_then(|v| v.as_str()) {
@@ -536,7 +524,7 @@
             } else {
                 self.quack_debug("  ├─ No color in payload");
             }
-    
+        
             // 🦆 says ⮞ parse color temperature
             if let Some(temp) = data.get("color_temp").and_then(|v| v.as_u64()) {
                 hue_command.insert("ct".to_string(), Value::Number(temp.into()));
@@ -545,21 +533,17 @@
             } else {
                 self.quack_debug("  ├─ No color temp in payload");
             }
-    
-            // 🦆says⮞i logz 
-            self.quack_info(&format!("  ├─ Hue command: {:?}", hue_command));
-    
+        
             // 🦆 says ⮞ any commands? 
             if hue_command.is_empty() {
                 self.quack_debug("  ├─ ⚠️ No valid commands found in payload, nothing to forward");
                 return Ok(());
             }
-    
-            let hue_state_json = Value::Object(hue_command).to_string();
-            
-            // 🦆says⮞i logz 
+        
             self.quack_info(&format!("  ├─ Hue command: {:?}", hue_command));
             self.quack_info(&format!("  ├─ Hue command fields: {}", command_fields.join(", ")));
+            
+            let hue_state_json = Value::Object(hue_command.clone()).to_string();
             self.quack_info(&format!("  ├─ Generated Hue JSON: {}", hue_state_json));
             
             // 🦆 says ⮞ execute hue CLI command
@@ -568,7 +552,7 @@
             let output = std::process::Command::new("hue")
                 .args(&["bridge", "lights", &hue_id.to_string(), "set", "--state", &hue_state_json])
                 .output()?;
-    
+        
             self.quack_info(&format!("  ├─ Command exit code: {}", output.status.code().unwrap_or(-1)));
             self.quack_info(&format!("  ├─ Command stdout ({} chars): {}", 
                 output.stdout.len(), 
@@ -596,7 +580,7 @@
             
             Ok(())
         }
-    
+         
         fn hex_to_xy(&self, hex_color: &str) -> (f64, f64) {
             self.quack_debug(&format!("🎨 Converting hex to xy: {}", hex_color));
             
