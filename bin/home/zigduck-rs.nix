@@ -591,7 +591,7 @@
                 return Err(format!("Hue command failed: {}", stderr).into());
             } else {
                 self.quack_info(&format!("  └─ ✅ Successfully forwarded to Hue bridge for {}", device_name));
-                self.quack_inf🎉o(&format!("🎉 Hue command sent: {} → {}", device_name, command_fields.join(", ")));
+                self.quack_info(&format!("🎉 Hue command sent: {} → {}", device_name, command_fields.join(", ")));
             }
             
             Ok(())

@@ -13,7 +13,7 @@ in {
       switch = {
         description = "Rebuild and switch Nix OS system configuration. ('!' to test)";
         category = "🖥️ System Management";
-#        aliases = [ "rb" ];
+        aliases = [ "rb" ];
         parameters = [
           { name = "flake"; description = "Path to the irectory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; } 
           { name = "!"; description = "Test mode (does not save new NixOS generation)"; optional = true; }

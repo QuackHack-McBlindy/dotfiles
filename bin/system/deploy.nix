@@ -15,7 +15,6 @@ in {
    deploy = {
      description = "Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation.";
      category = "🖥️ System Management";
-     aliases = [ "rb" ];
      parameters = [
        { name = "host"; type = "string"; description = "Host machine to build and activate"; default = ""; optional = false; }
        { name = "flake"; type = "path"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
@@ -45,56 +44,6 @@ in {
        fi
        
 
-
-       # 🦆 say ⮞ If host is empty, do local rebuild
-       if [ -z "$host" ]; then
-         if [ "$test" = "true" ]; then
-           rebuild_command="test"
-         else
-           rebuild_command="switch"
-         fi
-         cmd=(
-           sudo ${pkgs.nixos-rebuild}/bin/nixos-rebuild
-           $rebuild_command
-             --flake "$flake"
-             --show-trace
-         )
-       
-         if "''${cmd[@]}"; then
-           if [[ $FAIL_COUNT -ge 11 ]]; then
-             dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
-             play_relax
-           elif [[ $FAIL_COUNT -ge 5 ]]; then
-             dt_info "😅 phew! $FAIL_COUNT noob fails!"
-             play_win
-           else
-             if $DRY_RUN; then
-               say_duck " ⚠️ Rebuild Test completed! - No system generation created!"
-             else
-               say_duck " ✅ Created new system generation!"
-             fi
-             play_win
-           fi
-           echo 0 > "$FAIL_COUNT_FILE"
-         else
-           FAIL_COUNT=$((FAIL_COUNT + 1))
-           echo "$FAIL_COUNT" > "$FAIL_COUNT_FILE"
-         
-           if [[ $FAIL_COUNT -ge 5 ]]; then
-             say_duck "fuck ❌ System rebuild failed!"
-             play_fail3
-           elif [[ $FAIL_COUNT -ge 3 ]]; then
-             say_duck "fuck ❌ System rebuild failed!"
-             play_fail2
-           else
-             say_duck "fuck ❌ System rebuild failed!"
-             play_fail
-           fi
-           exit 1
-         fi
-         exit 0
-       fi
-                
        # 🦆 duck say ⮞ validate host connectivity
        if ! ssh -p "$port" -o ConnectTimeout=5 "$user@$host" true; then
          dt_error "❌ Cannot connect to $host via SSH."
@@ -187,7 +136,7 @@ in {
       
        # 🦆 say ⮞ resultz?
        if "''${cmd[@]}"; then
-         if [[ $FAIL_COUNT -ge 9 ]]; then
+         if [[ $FAIL_COUNT -ge 7 ]]; then
            dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
            play_relax
          elif [[ $FAIL_COUNT -ge 5 ]]; then
