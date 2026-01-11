@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
-<action>
-	<icon>utilities-terminal</icon>
-	<name>Open Terminal Here</name>
-	<submenu></submenu>
-	<unique-id>1735842801107432-1</unique-id>
-	<command>$TERMINAL $PWD</command>
-	<description>Example for a custom action</description>
-	<range></range>
-	<patterns>*</patterns>
-	<startup-notify/>
-	<directories/>
-</action>
+  <action>
+    <icon>network-server</icon>
+    <name>Start Python HTTP Server</name>
+    <unique-id>start-python-http-server</unique-id>
+    <command>bash -c 'PORT=$(shuf -i 8000-8999 -n 1); echo "Starting server at http://localhost:$PORT"; python3 -m http.server $PORT & sleep 1; firefox-esr "http://localhost:$PORT"'</command>
+    <description>Start Python HTTP server in this directory</description>
+    <patterns>*</patterns>
+    <directories/>
+    <startup-notify/>
+  </action>
 </actions>
+

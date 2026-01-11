@@ -13,7 +13,6 @@ echo "IP Address: $ip_var"
 duckdns1Token=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-gh-quackhack.yaml | grep 'TOKEN=' | sed 's/TOKEN=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
 duckdns1domains=$(sops -d /home/pungkula/dotfiles/secrets/duckdnsEnv-gh-quackhack.yaml | grep 'SUBDOMAINS=' | sed 's/SUBDOMAINS=//g' | sed 's/^[ \t]*//;s/[ \t]*$//')
 
-# Debug: Show the extracted values for duckdns1
 echo "duckdns1Token: '$duckdns1Token'"
 echo "duckdns1domains: '$duckdns1domains'"
 
