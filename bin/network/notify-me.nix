@@ -14,7 +14,7 @@ in {
     description = "Notification server for iOS devices";
     category = "🌐 Networking";
     logLevel = "DEBUG";
-    autoStart = builtins.elem config.this.host.hostname [ "homie" ];
+#    autoStart = builtins.elem config.this.host.hostname [ "homie" ];
     parameters = [
       { name = "address"; description = "IP to run server on"; default = "0.0.0.0"; }
       { name = "port"; description = "Port for the service"; default = "9913";  } 

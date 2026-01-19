@@ -2007,8 +2007,8 @@ input[type="range"].brightness-active {
 .panel-device {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)) !important;
   border: 2px solid rgba(255, 255, 255, 0.1) !important;
-  border-radius: 24px !important;
-  padding: 25px !important;
+  border-radius: 12px !important;
+  padding: 10px !important;
   margin-bottom: 20px !important;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
   position: relative !important;
@@ -2264,11 +2264,14 @@ input[type="range"].brightness-active {
 }
 
 .panel-devices-container {
-  flex: 1;
-  overflow-y: auto; /* This is key! */
-  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-  padding: 20px;
+  flex: 1 !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  height: calc(100vh - 160px) !important;
+  padding: 15px 20px !important;
+  -webkit-overflow-scrolling: touch !important;
 }
+
 
 
 .panel-devices-container::-webkit-scrollbar {
@@ -2295,7 +2298,7 @@ input[type="range"].brightness-active {
 
 .card.has-chart {
   position: relative;
-  padding-bottom: 120px !important; /* Increased for better chart visibility */
+  padding-bottom: 120px !important;
   min-height: 200px;
 }
 
