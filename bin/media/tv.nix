@@ -1,5 +1,5 @@
 # dotfiles/bin/media/tv.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Android TVOS Controller 
+{ # 🦆 says ⮞ Android TVOS Controller & playlist generator
   self,
   lib,
   config,
@@ -66,428 +66,9 @@
     [ "30" "trettio" ]
   ];
 
-  # 🦆 says ⮞ Configuration loading from environment/args
-  configRs = pkgs.writeText "config.rs" ''
-    use std::collections::HashMap;
-    use std::env;
-    use std::fs;
-    use serde::{Deserialize, Serialize};
-
-    #[derive(Debug, Clone, Serialize, Deserialize)]
-    pub struct MediaConfig {
-        pub tv_dir: String,
-        pub movie_dir: String,
-        pub music_dir: String,
-        pub podcast_dir: String,
-        pub audiobook_dir: String,
-        pub musicvideo_dir: String,
-        pub videos_dir: String,
-        pub max_items: usize,
-        pub fuzzy_threshold: i32,
-    }
-
-    impl Default for MediaConfig {
-        fn default() -> Self {
-            MediaConfig {
-                tv_dir: "/Pool/TV".to_string(),
-                movie_dir: "/Pool/Movies".to_string(),
-                music_dir: "/Pool/Music".to_string(),
-                podcast_dir: "/Pool/Podcasts".to_string(),
-                audiobook_dir: "/Pool/Audiobooks".to_string(),
-                musicvideo_dir: "/Pool/Music_Videos".to_string(),
-                videos_dir: "/Pool/Other_Videos".to_string(),
-                max_items: 200,
-                fuzzy_threshold: 30,
-            }
-        }
-    }
-
-    impl MediaConfig {
-        pub fn from_env() -> Self {
-            let mut config = Self::default();
-            
-            // 🦆 says ⮞ Load from environment variables
-            if let Ok(val) = env::var("TVDIR") {
-                config.tv_dir = val;
-            }
-            if let Ok(val) = env::var("MOVIEDIR") {
-                config.movie_dir = val;
-            }
-            if let Ok(val) = env::var("MUSICDIR") {
-                config.music_dir = val;
-            }
-            if let Ok(val) = env::var("PODCASTDIR") {
-                config.podcast_dir = val;
-            }
-            if let Ok(val) = env::var("AUDIOBOOKDIR") {
-                config.audiobook_dir = val;
-            }
-            if let Ok(val) = env::var("MUSICVIDEODIR") {
-                config.musicvideo_dir = val;
-            }
-            if let Ok(val) = env::var("VIDEOSDIR") {
-                config.videos_dir = val;
-            }
-            if let Ok(val) = env::var("MAX_ITEMS") {
-                if let Ok(num) = val.parse() {
-                    config.max_items = num;
-                }
-            }
-            if let Ok(val) = env::var("FUZZY_THRESHOLD") {
-                if let Ok(num) = val.parse() {
-                    config.fuzzy_threshold = num;
-                }
-            }
-            
-            config
-        }
-        
-        pub fn search_dir(&self, media_type: &str) -> Option<String> {
-            match media_type {
-                "tv" => Some(self.tv_dir.clone()),
-                "movie" => Some(self.movie_dir.clone()),
-                "music" => Some(self.music_dir.clone()),
-                "song" => Some(self.music_dir.clone()),
-                "podcast" => Some(self.podcast_dir.clone()),
-                "audiobook" => Some(self.audiobook_dir.clone()),
-                "musicvideo" => Some(self.musicvideo_dir.clone()),
-                "othervideo" => Some(self.videos_dir.clone()),
-                "jukebox" => Some(self.music_dir.clone()),
-                _ => None,
-            }
-        }
-        
-        pub fn get_extensions(&self, media_type: &str) -> Vec<String> {
-            match media_type {
-                "song" => vec![
-                    "*.mp3".to_string(),
-                    "*.flac".to_string(),
-                    "*.m4a".to_string(),
-                    "*.wav".to_string(),
-                    "*.ogg".to_string(),
-                ],
-                "music" => vec![],
-                "othervideo" => vec![
-                    "*.mp4".to_string(),
-                    "*.mkv".to_string(),
-                    "*.avi".to_string(),
-                    "*.mov".to_string(),
-                    "*.wmv".to_string(),
-                ],
-                "musicvideo" => vec![
-                    "*.mp4".to_string(),
-                    "*.mkv".to_string(),
-                    "*.mov".to_string(),
-                ],
-                "movie" => vec![
-                    "*.mp4".to_string(),
-                    "*.mkv".to_string(),
-                    "*.avi".to_string(),
-                    "*.mov".to_string(),
-                ],
-                _ => vec![],
-            }
-        }
-    }
-
-    #[derive(Debug, Serialize, Deserialize)]
-    pub struct SearchResult {
-        pub score: i32,
-        pub path: String,
-        pub filename: String,
-        pub normalized_name: String,
-    }
-
-    impl SearchResult {
-        pub fn to_output_format(&self) -> String {
-            format!("{}:{}:{}", self.score, self.path, self.filename)
-        }
-    }
-  '';
-
-  # 🦆say⮞ TV in Rust
-  tv-rs = pkgs.writeText "main.rs" ''
-    // 🦆 say ⮞ load da duck loggin' 
-    ${RustDuckTrace}
-    
-    use std::collections::HashSet;
-    use std::fs;
-    use std::path::Path;
-    use walkdir::WalkDir;
-    use regex::Regex;
-
-    // 🦆 says ⮞ String normalization
-    fn normalize_string(s: &str) -> String {
-        let re = Regex::new(r"[^a-z0-9åäö]").unwrap();
-        re.replace_all(&s.to_lowercase(), "").to_string()
-    }
-
-    // 🦆 says ⮞ Levenshtein distance
-    fn levenshtein_distance(a: &str, b: &str) -> usize {
-        let a_chars: Vec<char> = a.chars().collect();
-        let b_chars: Vec<char> = b.chars().collect();
-        let a_len = a_chars.len();
-        let b_len = b_chars.len();
-
-        if a_len == 0 { return b_len; }
-        if b_len == 0 { return a_len; }
-
-        let mut matrix = vec![vec![0; b_len + 1]; a_len + 1];
-
-        for i in 0..=a_len { matrix[i][0] = i; }
-        for j in 0..=b_len { matrix[0][j] = j; }
-
-        for i in 1..=a_len {
-            for j in 1..=b_len {
-                let cost = if a_chars[i-1] == b_chars[j-1] { 0 } else { 1 };
-                matrix[i][j] = (matrix[i-1][j] + 1)
-                    .min(matrix[i][j-1] + 1)
-                    .min(matrix[i-1][j-1] + cost);
-            }
-        }
-        matrix[a_len][b_len]
-    }
-
-    // 🦆 says ⮞ Levenshtein similarity
-    fn levenshtein_similarity(a: &str, b: &str) -> i32 {
-        if a.is_empty() && b.is_empty() {
-            return 100;
-        }
-        
-        let max_len = a.len().max(b.len());
-        if max_len == 0 {
-            return 100;
-        }
-        
-        let distance = levenshtein_distance(a, b);
-        let similarity = 100 - (distance * 100 / max_len);
-        similarity as i32
-    }
-
-    // 🦆 says ⮞ Trigram similarity
-    fn trigram_similarity(a: &str, b: &str) -> i32 {
-        if a.is_empty() || b.is_empty() {
-            return 0;
-        }
-        
-        let a_trigrams: HashSet<String> = a
-            .chars()
-            .collect::<Vec<_>>()
-            .windows(3)
-            .map(|w| w.iter().collect::<String>())
-            .collect();
-        
-        let b_trigrams: HashSet<String> = b
-            .chars()
-            .collect::<Vec<_>>()
-            .windows(3)
-            .map(|w| w.iter().collect::<String>())
-            .collect();
-        
-        if a_trigrams.is_empty() && b_trigrams.is_empty() {
-            return 100;
-        }
-        
-        let intersection: HashSet<_> = a_trigrams.intersection(&b_trigrams).collect();
-        let union: HashSet<_> = a_trigrams.union(&b_trigrams).collect();
-        
-        if union.is_empty() {
-            return 0;
-        }
-        
-        ((intersection.len() as f32 / union.len() as f32) * 100.0) as i32
-    }
-
-    // 🦆 says ⮞ Search files in directory
-    fn search_files(dir: &str, search_query: &str, extensions: &[String], threshold: i32, max_results: usize) -> Vec<(i32, String, String)> {
-        let normalized_search = normalize_string(search_query);
-        let mut results = Vec::new();
-        
-        println!("Searching in: {}", dir);
-        println!("Query: '{}' (normalized: '{}')", search_query, normalized_search);
-        
-        let walker = WalkDir::new(dir)
-            .follow_links(false)
-            .max_depth(5)
-            .into_iter()
-            .filter_map(|e| e.ok())
-            .filter(|e| e.file_type().is_file());
-
-        for entry in walker {
-            // Check extension filter
-            if !extensions.is_empty() {
-                let path = entry.path();
-                if let Some(ext) = path.extension() {
-                    let ext_str = ext.to_string_lossy().to_lowercase();
-                    let ext_pattern = format!("*.{}", ext_str);
-                    if !extensions.iter().any(|e| {
-                        e == "*" || e.to_lowercase() == ext_pattern
-                    }) {
-                        continue;
-                    }
-                } else {
-                    continue;
-                }
-            }
-            
-            let path = entry.path().to_string_lossy().to_string();
-            let filename = entry.file_name().to_string_lossy().to_string();
-            let base_name = Path::new(&filename)
-                .file_stem()
-                .unwrap_or_default()
-                .to_string_lossy()
-                .to_string();
-            
-            let normalized_item = normalize_string(&base_name);
-            
-            // Skip if both empty
-            if normalized_search.is_empty() && normalized_item.is_empty() {
-                continue;
-            }
-            
-            // Calculate similarity scores
-            let tri_score = trigram_similarity(&normalized_search, &normalized_item);
-            let lev_score = levenshtein_similarity(&normalized_search, &normalized_item);
-            let combined_score = (lev_score * 80 + tri_score * 20) / 100;
-            
-            if combined_score >= threshold {
-                results.push((combined_score, path, base_name));
-                
-                // Early exit if we have enough results
-                if results.len() > max_results * 2 {
-                    break;
-                }
-            }
-        }
-        
-        // Sort by score (highest first) and limit results
-        results.sort_by(|a, b| b.0.cmp(&a.0));
-        results.truncate(max_results);
-        
-        results
-    }
-
-    // 🦆 says ⮞ Main function
-    fn main() -> Result<(), Box<dyn std::error::Error>> {
-        let args: Vec<String> = env::args().collect();
-        
-        if args.len() < 3 {
-            eprintln!("Usage: {} <directory> <search_query> [--extensions mp3 flac ...]", args[0]);
-            eprintln!("Example: {} /Pool/Music \"coldplay yellow\" --extensions mp3 flac", args[0]);
-            std::process::exit(1);
-        }
-        
-        let dir = &args[1];
-        let search_query = &args[2];
-        let mut extensions = Vec::new();
-        let threshold = 30;
-        let max_results = 10;
-        
-        // Parse extension arguments
-        let mut i = 3;
-        while i < args.len() {
-            if args[i] == "--extensions" || args[i] == "-e" {
-                i += 1;
-                while i < args.len() && !args[i].starts_with("--") {
-                    extensions.push(format!("*.{}", args[i].to_lowercase()));
-                    i += 1;
-                }
-            } else {
-                i += 1;
-            }
-        }
-        
-        // Search files
-        let results = search_files(dir, search_query, &extensions, threshold, max_results);
-        
-        // Output results in bash-compatible format: score:path:filename
-        if results.is_empty() {
-            println!("NO_MATCHES");
-        } else {
-            for (score, path, filename) in results {
-                println!("{}:{}:{}", score, path, filename);
-            }
-        }
-        
-        Ok(())
-    }
-  '';
-
-  cargoToml = pkgs.writeText "Cargo.toml.simple" ''    
-    [package]
-    name = "tv-rs"
-    version = "0.1.0"
-    edition = "2024"
-
-    [dependencies]
-    tokio = { version = "1.0", features = ["full"] }
-    rumqttc = "0.21.0"
-    serde = { version = "1.0", features = ["derive"] }
-    serde_json = "1.0"
-    rand = "0.8"    
-    chrono = { version = "0.4", features = ["serde"] }
-  '';
-
-
- 
 # 🦆 says ⮞ expose da magic! dis builds da NLP
 in { 
-  yo.scripts = { 
-    tv-rs = {
-      description = "High performance Media Management written in Rust.";
-      category = "🎧 Media Management";
-      autoStart = false;
-      logLevel = "INFO";
-      parameters = [ # 🦆 says ⮞ set your mosquitto user & password
-        { name = "type"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; values = [ "on" "off" "up" "down" "next" "prev" "call" "favorites" "add" "tv" "movie" "livetv" "podcast" "news" "music" "song" "musicvideo" "jukebox" "othervideo" "youtube" "nav_up" "nav_down" "nav_left" "nav_right" "nav_select" "nav_menu" "nav_back" "channel_up" "channel_down" ]; }
-        { name = "search"; type = "string"; description = "Media to search"; optional = true; }
-        { name = "dir"; description = "Directory path to compile in"; default = "/home/${config.this.user.me.name}/tv-rs"; optional = false; } 
-        { name = "build"; type = "bool"; description = "Flag for building the Rust binary"; optional = true; default = false; }            
-      ];
-      code = ''
-        set +u  
-        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
-
-        
-        # 🦆 says ⮞ create the Rust projectz directory and move into it
-        mkdir -p "$dir"
-        cd "$dir"
-        mkdir -p src
-        
-        # 🦆 says ⮞ create the source filez yo 
-        cat ${tv-rs} > src/main.rs
-        cat ${configRs} src/config.rs
-        cat ${cargoToml} > Cargo.toml     
-        
-        # 🦆 says ⮞ check build bool
-        if [ "$build" = true ]; then
-          dt_debug "Deleting any possible old versions of the binary"
-          rm -f target/release/yo_do
-          ${pkgs.cargo}/bin/cargo generate-lockfile     
-          ${pkgs.cargo}/bin/cargo build --release  
-          dt_debug "Build complete!"
-        fi
-        
-        # 🦆 says ⮞ if no binary exist - compile it yo
-        if [ ! -f "target/release/tv_rs" ]; then
-          ${pkgs.cargo}/bin/cargo generate-lockfile     
-          ${pkgs.cargo}/bin/cargo build --release
-          dt_debug "Build complete!"
-        fi
-
-        # 🦆 says ⮞ capture Rust output
-        TEMP_OUTPUT=$(mktemp)
-        
-        # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
-        if [ "$VERBOSE" -ge 1 ]; then
-          DEBUG=1 ./target/release/tv_rs "$type" "$search"
-        else
-          DEBUG=0 ./target/release/tv_rs "$type" "$search"
-        fi
-      '';
-    };  
-
-   
+  yo.scripts = {   
     tv = {
       description = "Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. Fully conttrollable.";
       category = "🎧 Media Management";
@@ -1161,144 +742,152 @@ in {
                       exit 1
                   fi
               else
-                  # 🦆 says ⮞ existing behavior when no season specified
-                  items=()
-                  while IFS= read -r -d $'\0' item; do
-                      items+=("$(basename "$item")")
-                  done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
-                  
-                  best_score=0
-                  best_match=""
-                  normalized_search=$(normalize_string "$media_search")
-                  
-                  for item in "''${items[@]}"; do
-                      normalized_item=$(normalize_string "$item")
-                      [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
-                      tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
-                      lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
-                      combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-                      
-                      if (( combined_score > best_score )); then
-                          best_score=$combined_score
-                          best_match="$item"
-                      fi
-                  done
-                  
-                  if (( best_score >= 30 )); then
-                      matched_media="$best_match"
-                      FULL_PATH="$search_dir/$matched_media"
-                      yo say "Spelar TV-serien $matched_media"
-                  else
-                      dt_error "No TV show found matching: $media_search"
-                      exit 1
-                  fi
-              fi
+                  # 🦆 says ⮞ search tv show random season WITH SPEED 🚀🚀
+                  yo tv-rs "$typ" "$search"
+                  start_playlist "$DEVICE"
+              fi    
               ;;
+#                  items=()
+#                  while IFS= read -r -d $'\0' item; do
+#                      items+=("$(basename "$item")")
+#                  done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
+                  
+#                  best_score=0
+#                  best_match=""
+#                  normalized_search=$(normalize_string "$media_search")
+                  
+#                  for item in "''${items[@]}"; do
+#                      normalized_item=$(normalize_string "$item")
+#                      [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
+#                      tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+#                      lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+#                      combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+                      
+#                      if (( combined_score > best_score )); then
+#                          best_score=$combined_score
+#                          best_match="$item"
+#                      fi
+#                  done
+                  
+#                  if (( best_score >= 30 )); then
+#                      matched_media="$best_match"
+#                      FULL_PATH="$search_dir/$matched_media"
+#                      yo say "Spelar TV-serien $matched_media"
+#                  else
+#                      dt_error "No TV show found matching: $media_search"
+#                      exit 1
+#                  fi
+#              fi
+#              ;;
                
           # 🦆 says ⮞ directory based searchez
-          podcast|movie|audiobook|musicvideo|music)
-            case "$media_type" in
-              podcast)   search_dir="$PODCASTDIR" ;;
-              movie)     search_dir="$MOVIEDIR" ;;
-              audiobook) search_dir="$AUDIOBOOKDIR" ;;
-              musicvideo) search_dir="$MUSICVIDEODIR" ;;
-              music) search_dir="$MUSICDIR" ;;
-              livetv) search_dir="$MUSICDIR" ;;            
-            esac
+          podcast|movie|audiobook|musicvideo|music|song|othervideo|jukebox )
+#            case "$media_type" in
+#              podcast)   search_dir="$PODCASTDIR" ;;
+#              movie)     search_dir="$MOVIEDIR" ;;
+#              audiobook) search_dir="$AUDIOBOOKDIR" ;;
+#              musicvideo) search_dir="$MUSICVIDEODIR" ;;
+#              music) search_dir="$MUSICDIR" ;;
+#              livetv) search_dir="$MUSICDIR" ;;            
+#            esac
             
             dt_debug "Searching in $search_dir for $media_search"
-            items=()
-            while IFS= read -r -d $'\0' item; do
-                items+=("$(basename "$item")")
-            done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
-            
-            best_score=0
-            best_match=""
-            normalized_search=$(normalize_string "$media_search")
-            
-            for item in "''${items[@]}"; do
-                normalized_item=$(normalize_string "$item")
-                [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
-                tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
-                lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
-                combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
-                dt_debug "Fuzzy matching: $search > $item"
-                if (( combined_score > best_score )); then
-                    best_score=$combined_score
-                    best_match="$item"
-                    dt_debug "New best match: $best_match"
-                fi
-            done
-            
-            if (( best_score >= 30 )); then
-                matched_media="$best_match"
-                case "$media_type" in
-                livetv)   type_desc="Live TV channels" ;;
-                tv)       type_desc="TV-serien" ;;
-                movie)    type_desc="filmen" ;;
-                music)    type_desc="musik artisten" ;;
-                song)     type_desc="musik låten" ;;
-                podcast)  type_desc="podden" ;;
-                audiobook) type_desc="ljudboken" ;;
-                jukebox)  type_desc="Slumpad musik mix" ;;
-                musicvideo) type_desc="musikvideon" ;;
-                playlist) type_desc="spellistan" ;;
-                *)        type_desc="$media_type" ;;
-              esac
-              yo say "Spelar upp $type_desc ''${matched_media//./ }"
-              
-            else
-                for item in "''${items[@]}"; do
-                    normalized_item=$(normalize_string "$item")
-                    if [[ "$normalized_item" == *"$normalized_search"* ]]; then
-                        matched_media="$item"
-                        break
-                    fi
-                done
-            fi
+            # 🦆 says ⮞ search tv show random season WITH SPEED 🚀🚀
+            yo tv-rs "$typ" "$search"
+            start_playlist "$DEVICE"
             ;;
+#            items=()
+#            while IFS= read -r -d $'\0' item; do
+#                items+=("$(basename "$item")")
+#            done < <(find "$search_dir" -maxdepth 1 -mindepth 1 -type d -print0 2>/dev/null)
+            
+#            best_score=0
+#            best_match=""
+#            normalized_search=$(normalize_string "$media_search")
+            
+#            for item in "''${items[@]}"; do
+#                normalized_item=$(normalize_string "$item")
+#                [[ -z "$normalized_search" || -z "$normalized_item" ]] && continue        
+#                tri_score=$(trigram_similarity "$normalized_search" "$normalized_item")
+#                lev_score=$(levenshtein_similarity "$normalized_search" "$normalized_item")
+#                combined_score=$(( (lev_score * 80 + tri_score * 20) / 100 ))
+#                dt_debug "Fuzzy matching: $search > $item"
+#                if (( combined_score > best_score )); then
+#                    best_score=$combined_score
+#                    best_match="$item"
+#                    dt_debug "New best match: $best_match"
+#                fi
+#            done
+            
+#            if (( best_score >= 30 )); then
+#                matched_media="$best_match"
+#                case "$media_type" in
+#                livetv)   type_desc="Live TV channels" ;;
+#                tv)       type_desc="TV-serien" ;;
+#                movie)    type_desc="filmen" ;;
+#                music)    type_desc="musik artisten" ;;
+#                song)     type_desc="musik låten" ;;
+#                podcast)  type_desc="podden" ;;
+#                audiobook) type_desc="ljudboken" ;;
+#                jukebox)  type_desc="Slumpad musik mix" ;;
+#                musicvideo) type_desc="musikvideon" ;;
+#                playlist) type_desc="spellistan" ;;
+#                *)        type_desc="$media_type" ;;
+#              esac
+#              yo say "Spelar upp $type_desc ''${matched_media//./ }"
+              
+#            else
+#                for item in "''${items[@]}"; do
+#                    normalized_item=$(normalize_string "$item")
+#                    if [[ "$normalized_item" == *"$normalized_search"* ]]; then
+#                        matched_media="$item"
+#                        break
+#                    fi
+#                done
+#            fi
+#            ;;
   
         # 🦆 says ⮞ file based searchez - like song etc, yo!  
-        song|othervideo)
-            case "$media_type" in
-              song) # 🦆 says ⮞ search 4 music song yo
-                search_dir="$MUSICDIR"
-                extensions=("*.mp3" "*.flac" "*.m4a" "*.wav")
-                ;; 
-              othervideo) # 🦆 says ⮞ other videos not categorized elsewhere
-                search_dir="$VIDEOSDIR"
-                extensions=("*.mp4" "*.mkv" "*.avi" "*.mov")
-                ;;
-            esac
+#        song|othervideo)
+#            case "$media_type" in
+#              song) # 🦆 says ⮞ search 4 music song yo
+#                search_dir="$MUSICDIR"
+#                extensions=("*.mp3" "*.flac" "*.m4a" "*.wav")
+#                ;; 
+#              othervideo) # 🦆 says ⮞ other videos not categorized elsewhere
+#                search_dir="$VIDEOSDIR"
+#                extensions=("*.mp4" "*.mkv" "*.avi" "*.mov")
+#                ;;
+#            esac
         
             # 🦆 says ⮞ get matches yo
-            matches=()
-            while IFS= read -r line; do
-                matches+=("$line")
-            done < <(fuzzy_match_files "$search_dir" "$media_search" "''${extensions[@]}" 2>/dev/null)
+#            matches=()
+#            while IFS= read -r line; do
+#                matches+=("$line")
+#            done < <(fuzzy_match_files "$search_dir" "$media_search" "''${extensions[@]}" 2>/dev/null)
         
-            if (( ''${#matches[@]} > 0 )); then
-                echo "#EXTM3U" > "$PLAYLIST_SAVE_PATH"
-                echo "$INTRO_URL" >> "$PLAYLIST_SAVE_PATH"    
-                # 🦆 says ⮞ add top matchez
-                for match in "''${matches[@]}"; do
-                    IFS=':' read -r _ full_path base_name <<< "$match"
-                    url=$(template_single_path "$full_path" "$media_type")
-                    echo "$url" >> "$PLAYLIST_SAVE_PATH"
-                done
+#            if (( ''${#matches[@]} > 0 )); then
+#                echo "#EXTM3U" > "$PLAYLIST_SAVE_PATH"
+#                echo "$INTRO_URL" >> "$PLAYLIST_SAVE_PATH"    
+#                # 🦆 says ⮞ add top matchez
+#                for match in "''${matches[@]}"; do
+#                    IFS=':' read -r _ full_path base_name <<< "$match"
+#                    url=$(template_single_path "$full_path" "$media_type")
+#                    echo "$url" >> "$PLAYLIST_SAVE_PATH"
+#                done
         
-                yo say "Spelar upp de bästa matcherna för $media_search"
-                start_playlist "$DEVICE"
-                exit 0
-            else
-                dt_error "Inga filer hittades för $media_search"
-                exit 1
-            fi
-            ;; 
-          jukebox) # 🦆 says ⮞ shuffled randomized music
-            matched_media="shuffle"
-            yo say "Spelar slumpad musik"
-            ;; 
+#                yo say "Spelar upp de bästa matcherna för $media_search"
+#                start_playlist "$DEVICE"
+#                exit 0
+#            else
+#                dt_error "Inga filer hittades för $media_search"
+#                exit 1
+#            fi
+#            ;; 
+#          jukebox) # 🦆 says ⮞ shuffled randomized music
+#            matched_media="shuffle"
+#            yo say "Spelar slumpad musik"
+#            ;; 
           favorites) # 🦆 says ⮞ play favourite music playlist 
             play_favorites
             ;; 

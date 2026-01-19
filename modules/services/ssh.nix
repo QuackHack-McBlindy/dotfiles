@@ -139,5 +139,5 @@ in {
         mode = "0400"; # Read-only for owner and group
       };    
     };
-  };
-}
+    
+  };}

@@ -279,7 +279,6 @@ in {
                     (lib.gvariant.mkUint32 57)
                   ];
 
-                  # Continue this pattern for all palette entries
                   dark-palette3 = [
                     (lib.gvariant.mkUint32 36)
                     (lib.gvariant.mkUint32 63)

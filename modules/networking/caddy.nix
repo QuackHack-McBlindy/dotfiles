@@ -1,5 +1,5 @@
-# dotfiles/modules/networking/caddy.nix
-{ 
+# dotfiles/modules/networking/caddy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 say ⮞ Reverse proxy configuration - keeping my domain names hidden 
   config,
   lib,
   pkgs,

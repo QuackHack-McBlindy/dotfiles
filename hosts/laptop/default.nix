@@ -6,7 +6,12 @@
   self,
   ...
 } : { 
-    
+   
+    nixpkgs.config.permittedInsecurePackages = [
+        "broadcom-sta-6.30.223.271-59-6.1.159"
+    ];
+
+   
     boot = {
         loader = {
             systemd-boot.enable = true;
@@ -42,9 +47,25 @@
     };
     
    
-    this = {
-        home = ./../../home;
-        theme.name = "gtk3.css"; 
+    this = { # 🦆 duck say ⮞ this defines everythang
+        home = ./../../home; # 🦆 duck say ⮞ nix store home path
+        theme = { # 🦆 duck say ⮞ themez
+            name = "gtk3.css"; 
+            iconTheme = {
+                name = "Papirus-Dark";
+                package = pkgs.papirus-icon-theme;
+            };
+            cursorTheme = {
+                name = "Bibata-Modern-Classic";
+                package = pkgs.bibata-cursors;
+                size = 32;
+            };
+            fonts = {
+                system = "Fira Sans";
+                monospace = "Fira Code";
+                packages = [ pkgs.fira-code ];
+            };
+        }; # 🦆 duck say ⮞ userz
         user = {       
             enable = true;
             me = {
@@ -68,10 +89,10 @@
             wgip = "10.0.0.3";
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
-                system = [ "nix" "pkgs" "gnome" "gtk" ];
+                system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "wireless" "pool" ];
                 services = [ "ssh" "keyd" ];
-                programs = [ "default" "thunar" "firefox" "vesktop" ];
+                programs = [ "default" "thunar" "firefox" ];
                 virtualisation = [  ];
             };  
             keys.publicKeys = {
@@ -90,17 +111,20 @@
     };                
 
 
-    fileSystems."/boot" = {
-        device = "/dev/disk/by-label/boot";
-        fsType = "vfat";
+  fileSystems."/" =
+    { device = "/dev/disk/by-uuid/a5cae74b-f222-4a10-b254-63ab80a983ec";
+      fsType = "ext4";
     };
 
-    fileSystems."/" = {
-        device = "/dev/disk/by-label/nixos";
-        fsType = "ext4";
+  fileSystems."/boot" =
+    { device = "/dev/disk/by-uuid/E803-F289";
+      fsType = "vfat";
+      options = [ "fmask=0022" "dmask=0022" ];
     };
 
-    swapDevices = [{ device = "/dev/disk/by-label/swap"; }];
+  swapDevices =
+    [ { device = "/dev/disk/by-uuid/6e281696-5985-4a6a-bf59-034a826e48dd"; }
+    ];
 
     hardware.enableAllFirmware = true;
     virtualisation.libvirtd.enable = true;

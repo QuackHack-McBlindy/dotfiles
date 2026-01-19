@@ -526,7 +526,7 @@
             return;
           }
           
-          const command = { brightness: Math.round((parseInt(brightness) / 100) * 255) };
+          const command = { brightness: Math.round((parseInt(brightness) / 100) * 254) };
           console.log('🦆 Sending brightness to devices:', devices, command);
           
           devices.forEach(device => {

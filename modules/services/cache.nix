@@ -1,4 +1,5 @@
-{ 
+# dotfiles/modules/services/cache.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 say ⮞ locally cached binaries at https://cache
   config,
   lib,
   pkgs,
@@ -101,5 +102,5 @@ in {
       after = [ "nix-serve.service" ];
       requires = [ "nix-serve.service" ];
     };
-  };
-}
+    
+  };}

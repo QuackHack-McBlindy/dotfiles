@@ -1,5 +1,5 @@
 # dotfiles/modules/networking/wg-client.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞  Simple WireGuard™ client configuration
+{ # 🦆 say ⮞  Simple WireGuard™ client configuration
   config,
   lib,
   pkgs,

@@ -1,5 +1,5 @@
 # dotfiles/modules/networking/wg-server.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ A duckz dynamic approach to configuring a WireGuard™ server declaratively
+{ # 🦆 say ⮞ A duckz dynamic approach to configuring a WireGuard™ server declaratively
   config,
   lib,
   pkgs,
