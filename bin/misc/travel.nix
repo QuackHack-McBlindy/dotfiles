@@ -10,7 +10,7 @@
 in { # 🦆 says ⮞ voice intents
   # 🦆 says ⮞ da script yo
   yo.scripts.travel = {
-    description = "Public transportation helper. Fetches current bus and train schedules. (Sweden)";
+    description = "Public transportation helper. Fetches current bus, boat, train and air travel schedules. (Sweden)";
     category = "🌍 Localization";
     autoStart = false;
     logLevel = "INFO";
@@ -412,4 +412,5 @@ in { # 🦆 says ⮞ voice intents
         mode = "0440";
       };      
     };
+    
   };}

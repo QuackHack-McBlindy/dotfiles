@@ -866,13 +866,12 @@ in { # 🦆 duck say ⮞ qwack
                     <button id="attachment-button" title="Attach file">📎</button>                
                     <input type="text" id="prompt" placeholder="Qwack something ... ">
                     <input type="file" id="file-input" style="display: none;" multiple>
-                    <button id="send-button">🦆 ▶</button>
+                    <button id="send-button">🦆⮞</button>
                 </div>
                 <div id="file-preview" style="display: none;"></div>
             </div>
             
             <script>
-            
                 function fixViewportHeight() {
                     const vh = window.innerHeight * 0.01;
                     document.documentElement.style.setProperty('--vh', `''${vh}px`);
@@ -1012,298 +1011,6 @@ in { # 🦆 duck say ⮞ qwack
                          "";
                 }
  
-                
-                function addChatParticles() {
-                    const chatPage = document.getElementById('pageCustom5') || document.querySelector('.page[data-page="5"]');
-                    if (!chatPage) return;
-                    
-                    const particleContainer = document.createElement('div');
-                    particleContainer.className = 'chat-particles';
-                    chatPage.appendChild(particleContainer);
-                    
-                    for (let i = 0; i < 40; i++) {
-                        const particle = document.createElement('div');
-                        particle.className = 'chat-particle';
-                        
-                        const x = Math.random() * 100;
-                        const y = Math.random() * 100;
-                        const size = Math.random() * 8 + 2;
-                        particle.style.left = x + '%';
-                        particle.style.top = y + '%';
-                        particle.style.width = size + 'px';
-                        particle.style.height = size + 'px';
-                        
-                        const colors = ['#00b4d8', '#0077b6', '#00e5ff', '#00ffaa', '#ff6b35'];
-                        particle.style.background = `radial-gradient(circle at 30% 30%, ''${colors[Math.floor(Math.random() * colors.length)]}, transparent 70%)`;
-                        
-                        particle.animate([
-                            { 
-                                transform: 'translate(0, 0) rotate(0deg)',
-                                opacity: Math.random() * 0.5 + 0.3
-                            },
-                            { 
-                                transform: `translate(''${Math.random() * 80 - 40}px, ''${Math.random() * 80 - 40}px) rotate(''${Math.random() * 360}deg)`,
-                                opacity: 0.1
-                            }
-                        ], {
-                            duration: 4000 + Math.random() * 4000,
-                            iterations: Infinity,
-                            direction: 'alternate',
-                            easing: 'ease-in-out'
-                        });
-                        
-                        particleContainer.appendChild(particle);
-                    }
-                }
-                
-                // 🦆 says ⮞ chat sound effects
-                function playChatSound(type) {
-                    try {
-                        const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                        const oscillator = audioContext.createOscillator();
-                        const gainNode = audioContext.createGain();
-                        
-                        oscillator.connect(gainNode);
-                        gainNode.connect(audioContext.destination);
-                        
-                        let frequency = 800;
-                        let duration = 0.2;
-                        
-                        switch(type) {
-                            case 'send':
-                                frequency = 600;
-                                duration = 0.3;
-                                break;
-                            case 'receive':
-                                frequency = 1000;
-                                duration = 0.4;
-                                break;
-                            case 'typing':
-                                frequency = 400;
-                                duration = 0.1;
-                                break;
-                            case 'error':
-                                frequency = 300;
-                                duration = 0.3;
-                                break;
-                            case 'success':
-                                frequency = 1200;
-                                duration = 0.5;
-                                break;
-                            default:
-                                frequency = 800;
-                                duration = 0.2;
-                        }
-                        
-                        oscillator.type = 'sine';
-                        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-                        oscillator.frequency.exponentialRampToValueAtTime(frequency * 1.5, audioContext.currentTime + duration);
-                        
-                        gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
-                        gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
-                        
-                        oscillator.start(audioContext.currentTime);
-                        oscillator.stop(audioContext.currentTime + duration);
-                        
-                    } catch (e) {
-                        console.log('🦆 No audio support, silent chat!');
-                    }
-                }
-                
-                // 🦆 says ⮞ send message with effects
-                function enhancedSendMessage() {
-                    const sendButton = document.querySelector('#input-container button');
-                    const input = document.querySelector('#prompt');
-                    
-                    if (sendButton && input && input.value.trim()) {
-                        playChatSound('send');
-                        
-                        sendButton.classList.add('chat-success');
-                        setTimeout(() => sendButton.classList.remove('chat-success'), 500);
-                        
-                        input.style.transform = 'scale(0.98)';
-                        setTimeout(() => input.style.transform = "", 200);
-                        
-                        if (Math.random() > 0.7) {
-                            setTimeout(() => playQuackSound(), 100);
-                        }
-                    }
-                }
-                
-                // 🦆 says ⮞ receive message with effects
-                function enhancedReceiveMessage(messageElement) {
-                    if (!messageElement) return;
-                    
-                    playChatSound('receive');
-                    
-                    messageElement.classList.add('chat-success');
-                    setTimeout(() => messageElement.classList.remove('chat-success'), 1000);
-                    
-                    const ripple = document.createElement('span');
-                    const rect = messageElement.getBoundingClientRect();
-                    const size = Math.max(rect.width, rect.height) * 2;
-                    const x = rect.left + rect.width / 2 - size / 2;
-                    const y = rect.top + rect.height / 2 - size / 2;
-                    
-                    ripple.style.cssText = `
-                        position: fixed;
-                        border-radius: 50%;
-                        background: rgba(0, 180, 216, 0.3);
-                        transform: scale(0);
-                        animation: chatRipple 0.6s linear;
-                        width: ''${size}px;
-                        height: ''${size}px;
-                        top: ''${y}px;
-                        left: ''${x}px;
-                        pointer-events: none;
-                        z-index: 1000;
-                    `;
-                    
-                    document.body.appendChild(ripple);
-                    setTimeout(() => ripple.remove(), 600);
-                }
-                
-                // 🦆 says ⮞ Enhanced typing indicator
-                function enhancedTypingIndicator() {
-                    const typingIndicator = document.querySelector('.typing-indicator');
-                    if (typingIndicator) {
-                        typingIndicator.style.animation = 'typingGlow 2s infinite alternate';
-                        
-                        // Play typing sound
-                        playChatSound('typing');
-                    }
-                }
-                
-                // 🦆says⮞initi chat page my way
-                function initChatPageWithPersonality() {
-                    console.log('🦆 Initializing chat page with maximum personality!');
-                    
-                    // Add connection status AFTER DOM is ready
-                    const chatContainer = document.getElementById('chat-container');
-                    if (chatContainer && !document.getElementById('chat-connection-status')) {
-                        const connectionStatus = document.createElement('div');
-                        connectionStatus.id = 'chat-connection-status';
-                        connectionStatus.className = 'connection-status disconnected';
-                        connectionStatus.innerHTML = '<i class="fas fa-plug"></i><span>API: Disconnected</span>';
-                        chatContainer.insertBefore(connectionStatus, document.getElementById('chat'));
-                    }
-                    
-                    if (document.readyState === 'loading') {
-                        document.addEventListener('DOMContentLoaded', () => {
-                            setTimeout(addChatParticles, 500);
-                        });
-                    } else {
-                        setTimeout(addChatParticles, 500);
-                    }
-                    
-                    const sendButton = document.querySelector('#input-container button');
-                    if (sendButton) {
-                        sendButton.onclick = function(e) {
-                            enhancedSendMessage();
-                            sendMessage();
-                        };
-                        
-                        sendButton.addEventListener('click', function(e) {
-                            const ripple = document.createElement('span');
-                            const rect = this.getBoundingClientRect();
-                            const size = Math.max(rect.width, rect.height);
-                            const x = e.clientX - rect.left - size / 2;
-                            const y = e.clientY - rect.top - size / 2;
-                            
-                            ripple.style.cssText = `
-                                position: absolute;
-                                border-radius: 50%;
-                                background: rgba(255, 255, 255, 0.6);
-                                transform: scale(0);
-                                animation: chatRipple 0.6s linear;
-                                width: ''${size}px;
-                                height: ''${size}px;
-                                top: ''${y}px;
-                                left: ''${x}px;
-                                pointer-events: none;
-                            `;
-                            
-                            this.appendChild(ripple);
-                            setTimeout(() => ripple.remove(), 600);
-                        });
-                    }
-                    
-                    const input = document.querySelector('#prompt');
-                    if (input) {
-                        input.addEventListener('keypress', function(e) {
-                            if (e.key === 'Enter' && !e.shiftKey) {
-                                enhancedSendMessage();
-                            }
-                        });
-                        
-                        input.addEventListener('focus', function() {
-                            this.parentElement.style.boxShadow = '0 0 30px rgba(0, 180, 216, 0.3)';
-                        });
-                        
-                        input.addEventListener('blur', function() {
-                            this.parentElement.style.boxShadow = "";
-                        });
-                    }
-                    
-                    setTimeout(() => {
-                        document.querySelectorAll('.chat-bubble').forEach(bubble => {
-                            bubble.addEventListener('click', function() {
-                                const ripple = document.createElement('span');
-                                const rect = this.getBoundingClientRect();
-                                const size = Math.max(rect.width, rect.height);
-                                const x = event.clientX - rect.left - size / 2;
-                                const y = event.clientY - rect.top - size / 2;
-                                
-                                ripple.style.cssText = `
-                                    position: absolute;
-                                    border-radius: 50%;
-                                    background: rgba(255, 255, 255, 0.4);
-                                    transform: scale(0);
-                                    animation: chatRipple 0.6s linear;
-                                    width: ''${size}px;
-                                    height: ''${size}px;
-                                    top: ''${y}px;
-                                    left: ''${x}px;
-                                    pointer-events: none;
-                                `;
-                                
-                                this.appendChild(ripple);
-                                setTimeout(() => ripple.remove(), 600);
-                                
-                                playChatSound('receive');
-                            });
-                            
-                            const codeBlocks = this.querySelectorAll('pre, code');
-                            codeBlocks.forEach(code => {
-                                code.style.transition = 'all 0.3s ease';
-                                code.addEventListener('mouseenter', () => {
-                                    code.style.transform = 'scale(1.02)';
-                                    code.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.4)';
-                                });
-                                code.addEventListener('mouseleave', () => {
-                                    code.style.transform = "";
-                                    code.style.boxShadow = "";
-                                });
-                            });
-                        });
-                    }, 1000);
-                    
-                    const attachmentButton = document.querySelector('#attachment-button');
-                    if (attachmentButton) {
-                        attachmentButton.addEventListener('click', function() {
-                            playChatSound('success');
-                            
-                            this.style.transform = 'rotate(360deg) scale(1.2)';
-                            setTimeout(() => {
-                                this.style.transform = "";
-                            }, 300);
-                        });
-                    }
-                    
-                    console.log('🦆 Chat page initialized with personality! 🦆💬');
-                }
-
-              
                 function showNotification(message, type) {
                     let notification = document.getElementById('chat-notification');
                     if (!notification) {
@@ -1344,6 +1051,12 @@ in { # 🦆 duck say ⮞ qwack
                 let apiConnected = false;
                 let selectedFiles = [];
                 let lastTtsCheck = 0;
+
+                const connectionStatus = document.createElement('div');
+                connectionStatus.id = 'chat-connection-status';
+                connectionStatus.className = 'connection-status disconnected';
+                connectionStatus.innerHTML = '<i class="fas fa-plug"></i><span>API: Disconnected</span>';
+                document.getElementById('chat-container').insertBefore(connectionStatus, document.getElementById('chat'));
                 
                 function setupFileUpload() {
                     const attachmentButton = document.getElementById('attachment-button');
@@ -1729,14 +1442,7 @@ in { # 🦆 duck say ⮞ qwack
                     errorDiv.style.display = 'none';
                     
                     const source = document.createElement('source');
-                    
-                    // source.src = videoUrl;
-                    // 🦆 says ⮞ no let'z not do that... we transcode it and get a stream source
-                    const authToken = getAuthToken();
-                    const transcodedUrl = `''${API_CONFIG.baseUrl}/transcode-video?url=''${encodeURIComponent(videoUrl)}&password=''${encodeURIComponent(authToken)}`;
-                    source.src = transcodedUrl;
-                    source.type = 'video/mp4';
-                    
+                    source.src = videoUrl;
                     source.type = 'application/vnd.apple.mpegurl';
                     video.appendChild(source);
                     
@@ -1903,7 +1609,7 @@ in { # 🦆 duck say ⮞ qwack
                     video.style.borderRadius = '8px';
                     video.style.background = '#000';
                     video.style.marginBottom = '10px';
-                    // 🦆 says ⮞ crossorigin to handle CORS better
+                    // 🦆 says ⮞ crossorigin to handle CORS
                     video.crossOrigin = 'anonymous';
 
                     const source = document.createElement('source');
@@ -1949,15 +1655,6 @@ in { # 🦆 duck say ⮞ qwack
                     const enhanced = enhanceContent(textContent);
                     const aiBubble = document.createElement('div');
                     aiBubble.className = 'chat-bubble ai-bubble';
-                    
-                    if (isFirstMessage) {
-                        aiBubble.classList.add('first-message');
-                        isFirstMessage = false;
-        
-                        createConfetti(aiBubble);
-        
-                        content = "🦆 " + content;
-                    }  
                     
                     if (enhanced.type === 'terminal') {
                         const pre = document.createElement('pre');
@@ -2068,22 +1765,6 @@ in { # 🦆 duck say ⮞ qwack
                         playTTSAudio().catch(console.error);
                     }, 500);
                 }
-                
-                function createConfetti(container) {
-                    const colors = ['#ff0000', '#ff9900', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#9900ff'];
-    
-                    for (let i = 0; i < 50; i++) {
-                        const confetti = document.createElement('div');
-                        confetti.className = 'first-message-confetti';
-                        confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
-                        confetti.style.left = Math.random() * 100 + '%';
-                        confetti.style.top = Math.random() * 100 + '%';
-                        confetti.style.animation = `confetti-fall ''${Math.random() * 3 + 2}s linear ''${Math.random() * 1}s infinite`;
-        
-                        container.appendChild(confetti);
-                    }
-                }
-
                 
                 function createStreamingPlayer(videoUrl, container, isLocalFile) {
                     const video = document.createElement('video');
@@ -2222,10 +1903,10 @@ in { # 🦆 duck say ⮞ qwack
     
                     // 🦆 says ⮞ extraction
                     const errorMatch = cleanedText.match(/🦆 says ⮞ fuck ❌[^\n]*/);
-                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'FUCK!';
+                    const errorMessage = errorMatch ? errorMatch[0].replace('🦆 says ⮞ ', "") : 'Error!';
     
                     errorBubble.innerHTML = `
-                        <div class="error-special-text">🦆says ▶ FUCK!</div>
+                        <div class="error-special-text">🦆says⮞''${errorMessage}</div>
                     `;
     
                     chatContainer.appendChild(errorBubble);
@@ -2427,38 +2108,23 @@ in { # 🦆 duck say ⮞ qwack
                     }
                 }
                
-                document.addEventListener('DOMContentLoaded', function() {
-                    setupFileUpload();
-                    checkAPIHealth();     
-                    document.getElementById('prompt').addEventListener('keydown', checkEnter);
-                    document.getElementById('send-button').addEventListener('click', sendMessage);
-                    
-                    const chatPage = document.getElementById('pageCustom5') || 
-                                     document.querySelector('.page[data-page="5"]');
-                    if (chatPage && chatPage.style.display !== 'none') {
-                        console.log('🦆 Chat page already visible - INITIATE DUCK MADNESS!');
-                        initChatPageWithPersonality();
+                setupFileUpload();
+                checkAPIHealth();     
+                document.getElementById('prompt').addEventListener('keydown', checkEnter);
+                document.getElementById('send-button').addEventListener('click', sendMessage);        
+                document.querySelectorAll('.suggestion-bubble').forEach(bubble => {
+                    bubble.addEventListener('click', function() {
+                        sendSuggestion(this);
+                    });
+                });            
+                setTimeout(() => {
+                    if (isFirstMessage) {
+                        addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
                     }
-                    
-                    setTimeout(() => {
-                        if (isFirstMessage) {
-                            addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
-                        }
-                    }, 1000);
-                });
-
-                document.addEventListener('pageChanged', function(e) {
-                    const chatPage = document.getElementById('pageCustom5') || 
-                                     document.querySelector('.page[data-page="5"]');
-                    if (chatPage && chatPage.style.display !== 'none') {
-                        console.log('🦆 Page changed to chat - RELEASING THE DUCKS!');
-                        setTimeout(initChatPageWithPersonality, 100);
-                    }
-                });
-
-
+                }, 2000);
+                
                 setInterval(checkAPIHealth, 30000);
-            </script>        
+            </script>            
           '';
         };
       
@@ -2733,7 +2399,7 @@ in { # 🦆 duck say ⮞ qwack
         "0017880109f06a7c0b" = { friendly_name = "TV Play 3"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 37; };
         "0017880106ff22530b" = { friendly_name = "TV Play 4"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 39; };
         "001788010985d1820b" = { friendly_name = "Play Top L"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 61; };                        
-        "00178801098d5b320b" = { friendly_name = "Play Top R"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 60; };        
+        "00178801098d5b320b" = { friendly_name = "Play Top R"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 60; };     
       };
       
             
@@ -2870,31 +2536,31 @@ in { # 🦆 duck say ⮞ qwack
               "Play Top R" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
           };     
           "tv-area1" = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 3"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.4995 0.4697 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 4"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2293 0.0945 ]; }; mode = "homeautomation"; transition = 150; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6187 0.3687 ]; }; mode = "homeautomation"; transition = 150; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1611 0.5294 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 150; };
+              "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 150; };
+              "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; transition = 150; };
+              "TV Play 3"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.4995 0.4697 ]; }; transition = 150; };
+              "TV Play 4"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2293 0.0945 ]; }; transition = 150; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6187 0.3687 ]; }; transition = 150; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1611 0.5294 ]; }; transition = 150; };
           };
           "tv-area2" = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 3"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.2746 0.1320 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 4"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.4088 0.5170 ]; }; mode = "homeautomation"; transition = 150; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.2255 0.3299 ]; }; mode = "homeautomation"; transition = 150; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.1670 0.3520 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; transition = 150; };
+              "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; transition = 150; };
+              "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; transition = 150; };
+              "TV Play 3"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.2746 0.1320 ]; }; transition = 150; };
+              "TV Play 4"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.4088 0.5170 ]; }; transition = 150; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.2255 0.3299 ]; }; transition = 150; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.1670 0.3520 ]; }; transition = 150; };
           };
           "tv-area3" = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; mode = "homeautomation"; transition = 150; };
-              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; mode = "homeautomation"; transition = 150; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; mode = "homeautomation"; transition = 150; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; mode = "homeautomation"; transition = 150; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; transition = 150; };
+              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; transition = 150; };
+              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; transition = 150; };
+              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; transition = 150; };
+              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; transition = 150; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; transition = 150; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; transition = 150; };
           };
         };  
     };

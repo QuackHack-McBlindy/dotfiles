@@ -22,16 +22,17 @@ in {
         "http://api.sr.se/api/v2/podfiles?programid=3992&format=json" # 🦆 says ⮞ Radio Västerbotten
       ]; }
       { name = "clear"; type = "bool"; description = "Clears the playedFile before playing"; optional = true; }
-      { name = "playedFile"; type = "path"; description = "Path to location where to write played news metadata"; default = "/home/" + config.this.user.me.name + "/played_news"; } 
     ];
     code = ''
       ${cmdHelpers}     
       APIS="$apis"
-      PLAYED_NEWS_FILE="$playedFile"
+      PLAYED_NEWS_FILE="$XDG_CACHE_HOME/played_news.txt"
       MAX_PLAYED_NEWS_ENTRIES="350"
       PLAYED_NEWS_FILE="$playedFile"
       MAX_PLAYED_NEWS_ENTRIES=350
       PLAYLIST_FILE="/tmp/news_playlist.m3u"
+      
+      touch "$PLAYED_NEWS_FILE"
       
       # 🦆 says ⮞ --clear cleans played news file 
       if [ -n "$clear" ]; then

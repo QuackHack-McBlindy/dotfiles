@@ -1,5 +1,5 @@
-# dotfiles/modules/networking/default.nix
-{ 
+# dotfiles/modules/networking/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 say ⮞ default networking 
   config,
   self,
   lib,

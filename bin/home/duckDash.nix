@@ -30,7 +30,9 @@
 
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
-  lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
+  lightDevices = lib.filterAttrs (_: device: 
+    device.type == "light" || device.type == "hue_light"
+  ) zigbeeDevices;
   
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
@@ -223,6 +225,8 @@
   sceneData = builtins.toJSON zigbeeScenes;
   iconData = builtins.toJSON zigbeeDevicesIcon;
 
+
+
   # 🦆 says ⮞ generate  scene gradients css
   sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
@@ -372,7 +376,7 @@
                 
                 <div class="room-devices-summary">
                   <i class="fas fa-lightbulb"></i>
-                  <span class="room-devices-count">${toString deviceCount} devices</span>
+                  <span class="room-devices-count">${toString deviceCount} lights</span>
                   <span>•</span>
                   <span class="room-on-devices" id="room-${roomId}-on-count">${toString initialOnCount} on</span>
                 </div>
@@ -640,7 +644,7 @@ EOF
                     
                     <div class="status-cards">
                     <div class="status-cards">
-                        ${statusCardsHtml}                                            
+                        ${statusCardsHtml}
                     </div>
                     </div>
                     ${roomControlsHtml}
@@ -1541,7 +1545,6 @@ EOF
                         iconElement.innerHTML = icon;
                     } else {
                         // 🦆 says ⮞ default behavior
-
                         console.log('Icon element found:', !!iconElement);
                         if (iconElement) {
                             iconElement.className = 'mdi mdi-' + iconName;
@@ -1550,33 +1553,64 @@ EOF
                     }
                 }    
       
-                function sendCommand(device, command) {
+
+                // 🦆 says ⮞ unified command topic (hue + z2m)
+                function sendCommand(deviceId, command) {
                     const client = window.mqttClient;
                     if (!client || !client.connected) {
                         showNotification('Not connected to MQTT, reconnecting...', 'warning');
                         connectToMQTT();
                         setTimeout(() => {
                             if (window.mqttClient && window.mqttClient.connected) {
-                                window.mqttClient.publish(`zigbee2mqtt/''${device}/set`, JSON.stringify(command));
+                                window.mqttClient.publish(`zigbee2mqtt/device_command/''${deviceId}`, JSON.stringify(command));
                             } else {
                                 showNotification('Still not connected to MQTT', 'error');
                             }
                         }, 1000);
                         return;
                     }
-    
-                    const topic = `zigbee2mqtt/''${device}/set`;
+
+                    const topic = `zigbee2mqtt/device_command/''${deviceId}`;
                     client.publish(topic, JSON.stringify(command), function(err) {
                         if (err) {
                             showNotification('Failed to send command', 'error');
                             console.error('Publish error: ', err);
                         } else {
-                            if (window.devices && window.devices[device]) {
-                                window.devices[device] = { ...window.devices[device], ...command };
+                            if (window.devices && window.devices[deviceId]) {
+                                window.devices[deviceId] = { ...window.devices[deviceId], ...command };
                             }
                         }
                     });
                 }
+
+
+
+                    //const client = window.mqttClient;
+                    //if (!client || !client.connected) {
+                     //   showNotification('Not connected to MQTT, reconnecting...', 'warning');
+                    //    connectToMQTT();
+                    //    setTimeout(() => {
+                    //        if (window.mqttClient && window.mqttClient.connected) {
+                    //            window.mqttClient.publish(`zigbee2mqtt/''${device}/set`, JSON.stringify(command));
+                    //        } else {
+                    //            showNotification('Still not connected to MQTT', 'error');
+                   //         }
+                   //     }, 1000);
+                   //     return;
+                   // }
+    
+                   // const topic = `zigbee2mqtt/''${device}/set`;
+                   // client.publish(topic, JSON.stringify(command), function(err) {
+                   //     if (err) {
+                   //         showNotification('Failed to send command', 'error');
+                   //         console.error('Publish error: ', err);
+                   //     } else {
+                   //         if (window.devices && window.devices[device]) {
+                  //              window.devices[device] = { ...window.devices[device], ...command };
+                 //           }
+                 //       }
+                 //   });
+                //}
                 
                 window.sendCommand = sendCommand;
                 
@@ -1961,12 +1995,12 @@ EOF
                                 stateText.textContent = 'ON';
                                 stateDisplay.classList.remove('state-off');
                                 stateDisplay.classList.add('state-on');
-                                sendCommand(currentDeviceName, { state: 'ON' }); // Use sendCommand directly
+                                sendCommand(currentDeviceName, { state: 'ON' });
                             } else {
                                 stateText.textContent = 'OFF';
                                 stateDisplay.classList.remove('state-on');
                                 stateDisplay.classList.add('state-off');
-                                sendCommand(currentDeviceName, { state: 'OFF' }); // Use sendCommand directly
+                                sendCommand(currentDeviceName, { state: 'OFF' });
                             }
                         };
                     }
