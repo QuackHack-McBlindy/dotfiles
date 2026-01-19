@@ -1268,10 +1268,13 @@
             }
             false
         }
-
-          
-        fn handle_device_command<'a>(&'a self, device_id: &'a str, payload: &'a str) -> 
-            std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), Box<dyn std::error::Error>>> + 'a>> {
+        
+        // 🦆 says ⮞ unified devices controller (hue api/zigbee2mqtt)       
+        fn handle_device_command<'a>(
+            &'a self,
+            device_id: &'a str,
+            payload: &'a str,
+        ) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<(), Box<dyn std::error::Error>>> + 'a>> {
             Box::pin(async move {
                 let data: Value = match serde_json::from_str(payload) {
                     Ok(d) => d,
@@ -1280,198 +1283,107 @@
                         return Ok(());
                     }
                 };
-            
-                let mut lookup_name = device_id.to_string();
-
-                if device_id.starts_with("0x") || device_id.len() >= 16 {
-                    let ieee_without_prefix = device_id.strip_prefix("0x").unwrap_or(device_id);
-            
-                    for (friendly_name, device_info) in &self.devices {
-                        if let Some(device_ieee) = &device_info.ieee {
-                            let stored_ieee_without_prefix = device_ieee.strip_prefix("0x").unwrap_or(device_ieee);
-                            
-                            if device_ieee == ieee_without_prefix {
-                                lookup_name = friendly_name.clone();
-                                self.quack_debug(&format!("Mapped IEEE {} to friendly name {}", device_id, lookup_name));
-                                break;
-                            }
-
-                            if device_ieee.to_lowercase() == ieee_without_prefix.to_lowercase() {
-                                lookup_name = friendly_name.clone();
-                                self.quack_debug(&format!("Mapped IEEE {} (case-insensitive) to friendly name {}", device_id, lookup_name));
-                                break;
-                            }
-                        }
-                
-                        if friendly_name.contains(ieee_without_prefix) || 
-                           device_info.id.contains(ieee_without_prefix) {
-                            lookup_name = friendly_name.clone();
-                            self.quack_debug(&format!("Mapped IEEE {} (partial match) to friendly name {}", device_id, lookup_name));
-                            break;
-                        }
-                    }
-                }
-
-                // 🦆 says ⮞ find device by the lookup_name
-                let mut device = self.devices.get(&lookup_name);
         
-                if device.is_none() {
-                    let device_id_lower = lookup_name.to_lowercase();
-                    for (key, _) in &self.devices {
-                        if key.to_lowercase() == device_id_lower {
-                            device = self.devices.get(key);
-                            self.quack_debug(&format!("Found device by lowercase match: {} -> {}", lookup_name, key));
+                let normalize = |s: &str| s.to_lowercase().trim_start_matches("0x").to_string();
+                let incoming_norm = normalize(device_id);
+        
+                let mut resolved_device = None;
+        
+                for (_key, info) in &self.devices {
+                    // 🦆 says ⮞ match by ieee
+                    if normalize(&info.id) == incoming_norm {
+                        resolved_device = Some(info);
+                        break;
+                    }
+        
+                    // 🦆 says ⮞ match by stored IEEE
+                    if let Some(ieee) = &info.ieee {
+                        if normalize(ieee) == incoming_norm {
+                            resolved_device = Some(info);
                             break;
                         }
                     }
-                }
-                
-                // 🦆 says ⮞ no match? normalize
-                if device.is_none() {
-                    let device_id_lower = device_id.to_lowercase();
-                    if let Some((actual_key, _)) = self.devices.iter().find(|(key, _)| {
-                        key.to_lowercase() == device_id_lower || 
-                        key.to_lowercase().contains(&device_id_lower) ||
-                        device_id_lower.contains(&key.to_lowercase())
-                    }) {
-                        device = self.devices.get(actual_key);
-                        self.quack_debug(&format!("Found device by lowercase match: {} -> {}", device_id, actual_key));
+        
+                    // 🦆 says ⮞ match by friendly name
+                    if info.id.eq_ignore_ascii_case(device_id) {
+                        resolved_device = Some(info);
+                        break;
                     }
                 }
-            
-                if let Some(device_info) = device {
-                    match device_info.device_type.as_str() {
-                        "hue_light" => {
-                            // 🦆 says ⮞ convert to hue payload
-                            let mut hue_payload = serde_json::Map::new();
-                            
-                            if let Some(state) = data.get("state").and_then(|v| v.as_str()) {
-                                let on = state.to_uppercase() == "ON";
-                                hue_payload.insert("on".to_string(), Value::Bool(on));
-                            }
-                            
-                            if let Some(brightness) = data.get("brightness") {
-                                if let Some(bri_u64) = brightness.as_u64() {
-                                    let bri = if bri_u64 > 100 {
-                                        bri_u64.clamp(0, 254)
-                                    } else {
-                                        ((bri_u64 as f64 / 100.0) * 254.0).round() as u64
-                                    };
-                                    hue_payload.insert("bri".to_string(), Value::Number(serde_json::Number::from(bri)));
-                                }
-                            }
-                            
-                            if let Some(color) = data.get("color") {
-                                let hex = if let Some(hex_str) = color.as_str() {
-                                    if hex_str.starts_with('#') {
-                                        Some(hex_str.to_string())
-                                    } else {
-                                        None
-                                    }
-                                } else if let Some(color_obj) = color.as_object() {
-                                    color_obj.get("hex").and_then(|v| v.as_str()).map(|s| s.to_string())
-                                        .or_else(|| {
-                                            if let (Some(r), Some(g), Some(b)) = (
-                                                color_obj.get("r").and_then(|v| v.as_u64()),
-                                                color_obj.get("g").and_then(|v| v.as_u64()),
-                                                color_obj.get("b").and_then(|v| v.as_u64()),
-                                            ) {
-                                                Some(format!("#{:02x}{:02x}{:02x}", r, g, b))
-                                            } else {
-                                                None
-                                            }
-                                        })
-                                } else {
-                                    None
-                                };
-                                
-                                if let Some(hex_color) = hex {
-                                    let hex_upper = hex_color.to_uppercase();
-                                    let (hue_val, sat_val) = match hex_upper.as_str() {
-                                        "#FF0000" | "#FF0800" | "#FF1C00" | "#FF4000" | "#FF8000" => (0, 254), // 🦆 says ⮞ red/orange
-                                        "#00FF00" | "#00FF08" | "#00FF1C" | "#00FF40" | "#00FF80" => (25500, 254), // 🦆 says ⮞ green
-                                        "#0000FF" | "#0800FF" | "#1C00FF" | "#4000FF" | "#8000FF" => (46920, 254), // 🦆 says ⮞ blue
-                                        "#FFFF00" | "#FFEE00" | "#FFDD00" => (12750, 254), // 🦆 says ⮞ yellow
-                                        "#FF00FF" | "#EE00FF" | "#DD00FF" => (54612, 254), // 🦆 says ⮞ magenta
-                                        "#00FFFF" | "#00EEFF" | "#00DDFF" => (38250, 254), // 🦆 says ⮞ cyan
-                                        "#FFFFFF" | "#F8F8F8" | "#F0F0F0" => (0, 0), // 🦆 says ⮞ white
-                                        "#FF8800" | "#FF9900" | "#FFAA00" => (6375, 254), // 🦆 says ⮞ orange
-                                        "#8800FF" | "#9900FF" => (54612, 254), // 🦆 says ⮞ purple
-                                        _ => {
-                                            (0, 0) // 🦆 says ⮞ warm white
-                                        }
-                                    };
-                                    
-                                    hue_payload.insert("hue".to_string(), Value::Number(serde_json::Number::from(hue_val)));
-                                    hue_payload.insert("sat".to_string(), Value::Number(serde_json::Number::from(sat_val)));
-                                }
-                            }
-                            
-                            // 🦆 says ⮞ color temp, 153-500 (mireds)
-                            if let Some(color_temp) = data.get("color_temp").and_then(|v| v.as_u64()) {
-                                let ct = color_temp.clamp(153, 500);
-                                hue_payload.insert("ct".to_string(), Value::Number(serde_json::Number::from(ct)));
-                            }
-                            
-                            // 🦆 says ⮞ transition time seconds 2 centiseconds (1/100th second)
-                            if let Some(transition) = data.get("transition").and_then(|v| v.as_f64()) {
-                                let transitiontime = (transition * 100.0).round() as u64;
-                                hue_payload.insert("transitiontime".to_string(), Value::Number(serde_json::Number::from(transitiontime)));
-                            }
-                            
-                            if hue_payload.contains_key("on") && !hue_payload.contains_key("bri") {
-                                hue_payload.insert("bri".to_string(), Value::Number(serde_json::Number::from(254)));
-                            }
-                            
-                            let hue_json = serde_json::to_string(&Value::Object(hue_payload))?;
-                            self.quack_debug(&format!("Converting Hue command for: {}", device_id));
-                            self.quack_debug(&format!("Original: {}, Converted: {}", payload, hue_json));
-                            
-                            // 🦆 says ⮞ use friendly name for yo house
-                            let output = std::process::Command::new("yo")
-                                .arg("house")
-                                .arg("--device")
-                                .arg(&device_info.id)
-                                .arg("--json")
-                                .arg(&hue_json)
-                                .output()?;
-                
-                            if output.status.success() {
-                                self.quack_info(&format!("Hue light command sent: {} -> {}", device_info.id, hue_json));
+        
+                let device_info = match resolved_device {
+                    Some(d) => d,
+                    None => {
+                        self.quack_info(&format!("❌ Device not found: {}", device_id));
+                        self.quack_info(&format!(
+                            "Available devices: {:?}",
+                            self.devices.keys().collect::<Vec<_>>()
+                        ));
+                        return Ok(());
+                    }
+                };
+        
+                // 🦆 says ⮞ routing
+                match device_info.device_type.as_str() {
+                    "hue_light" => {
+                        let mut hue_payload = serde_json::Map::new();
+        
+                        if let Some(state) = data.get("state").and_then(|v| v.as_str()) {
+                            hue_payload.insert("on".into(), Value::Bool(state.eq_ignore_ascii_case("on")));
+                        }
+        
+                        if let Some(brightness) = data.get("brightness").and_then(|v| v.as_u64()) {
+                            let bri = if brightness > 100 {
+                                brightness.clamp(0, 254)
                             } else {
-                                let stderr = String::from_utf8_lossy(&output.stderr);
-                                self.quack_debug(&format!("❌ Hue command failed: {}", stderr));
-                            }
+                                ((brightness as f64 / 100.0) * 254.0).round() as u64
+                            };
+                            hue_payload.insert("bri".into(), Value::Number(bri.into()));
                         }
-                        _ => {
-                            // 🦆 says ⮞ not hue? send 2 z2m
-                            let topic = format!("zigbee2mqtt/{}/set", device_info.id);
-                            self.mqtt_publish(&topic, payload)?;
+        
+                        if let Some(transition) = data.get("transition").and_then(|v| v.as_f64()) {
+                            hue_payload.insert(
+                                "transitiontime".into(),
+                                Value::Number(((transition * 100.0).round() as u64).into()),
+                            );
+                        }
+        
+                        if hue_payload.contains_key("on") && !hue_payload.contains_key("bri") {
+                            hue_payload.insert("bri".into(), Value::Number(254.into()));
+                        }
+        
+                        let hue_json = serde_json::to_string(&Value::Object(hue_payload))?;
+                        self.quack_debug(&format!("Hue payload: {}", hue_json));
+        
+                        let output = std::process::Command::new("yo")
+                            .arg("house")
+                            .arg("--device")
+                            .arg(&device_info.id)
+                            .arg("--json")
+                            .arg(&hue_json)
+                            .output()?;
+        
+                        if !output.status.success() {
+                            self.quack_debug(&format!(
+                                "Hue failed: {}",
+                                String::from_utf8_lossy(&output.stderr)
+                            ));
                         }
                     }
-                } else {
-                    self.quack_info(&format!("❌ Device not found: {}", device_id));
-                    self.quack_debug(&format!("Available devices: {:?}", self.devices.keys().collect::<Vec<_>>()));
-                    
-                    let found_key = self.devices.iter()
-                        .find(|(_, d)| {
-                            d.id.to_lowercase().contains(&device_id.to_lowercase()) ||
-                            device_id.to_lowercase().contains(&d.id.to_lowercase())
-                        })
-                        .map(|(key, _)| key);
-                        
-                    if let Some(actual_key) = found_key {
-                        self.quack_info(&format!("Found device by partial match: {} -> {}", device_id, actual_key));
-                        // 🦆 says ⮞  box it
-                        return self.handle_device_command(actual_key, payload).await;
+        
+                    // 🦆 says ⮞ not hue? publish to mqtt
+                    _ => {
+                        let topic = format!("zigbee2mqtt/{}/set", device_info.id);
+                        self.quack_debug(&format!("MQTT → {}", topic));
+                        self.mqtt_publish(&topic, payload)?;
                     }
                 }
+        
                 Ok(())
             })
         }
         
-        
-                
+                        
         // 🦆 says ⮞ PROCESS MQTT MESSAGES    
         async fn process_message(&mut self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
             // 🦆 says ⮞ start timer 4 exec time messurementz    
