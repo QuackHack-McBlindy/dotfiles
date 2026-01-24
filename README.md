@@ -15,18 +15,19 @@
 
 <!-- VERSIONS_END -->
 
-<img src="home/profile.png" alt="QuackHack-McBlindy" width="148">
-
-[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)
-
-
-
 
 <div align="right"><sub>
 
 _This is a <abbr title="Magically automated with duck-powered quackery">automagiduckically</abbr> updated README.md_
 
 </sub></div> 
+
+
+
+<img src="home/profile.png" alt="QuackHack-McBlindy" width="148">
+
+[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)
+
 
 
 > [!CAUTION]
@@ -52,7 +53,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __98 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
+- __100 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
 - __2500 dynamically generated regex patterns - makes 297584379 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 9 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -87,7 +88,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4194 ducks? <br>
+Let's see if you can find all 4221 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -2649,17 +2650,18 @@ And you'll get a dashboard for your devices generated and found at http://localh
 
 </strong></summary>
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%"><br>
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash4.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash4.png?raw=true" width="25%"><bbr>
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash5.png?raw=true" width="25%">
-
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash6.png?raw=true" width="25%">
 <br>
 The dashboard currently gives you: <br><br>
 
-- __Advanced zigbee device control__ <br>
+- __Easy status cards setup with charts.__ <br>
+- __Advanced zigbee/Philips Hue device control__ <br>
 - __Remote for your Android TV devices__ <br>
-- __Set scenes__ <br>
+- __Activate scenes__ <br>
 - __Access to `yo do` through both an text input field aswell as microphone__ <br>
 - __and more...__ <br>
 
@@ -2852,6 +2854,8 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo api](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/api.nix) [--host] [--port] [--dir] |  | API endpoints for smart home control, virtual media playlist management, system wide health checks and more. | 📛 |
 | [yo block](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) --url [--blocklist] | ad | Block URLs using DNS | 📛 |
 | [yo ip-updater](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/ip-updater.nix) [--token1] [--token2] [--token3] |  | DDNS updater | ✅ |
+| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) [--text] [--title] [--icon] [--url] [--group] [--sound] [--volume] [--copy] [--autoCopy] [--level] [--encrypt] [--base_urlFile] [--deviceKeyFile] |  | Send custom push to iOS devices | 📛 |
+| [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] [--dataDir] |  | Notification server for iOS devices | 📛 |
 | [yo shareWiFi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/shareWiFi.nix) [--ssidFile] [--passwordFile] |  | creates a QR code of guest WiFi and push image to iPhone | ✅ |
 | [yo speed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix)  | st | Test internet download speed | ✅ |
 | **🎧 Media Management** | | | |

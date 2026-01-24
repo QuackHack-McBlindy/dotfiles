@@ -33,6 +33,18 @@
   lightDevices = lib.filterAttrs (_: device: 
     device.type == "light" || device.type == "hue_light"
   ) zigbeeDevices;
+
+  outletDevices = lib.filterAttrs (_: device: 
+    device.type == "outlet" || device.type == "pusher"
+  ) zigbeeDevices;
+
+  # 🦆 says ⮞ all room devices
+  allRoomDevices = lib.filterAttrs (_: device: 
+    device.type == "light" || 
+    device.type == "hue_light" || 
+    device.type == "outlet" ||
+    device.type == "pusher"
+  ) zigbeeDevices;
   
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
@@ -225,8 +237,6 @@
   sceneData = builtins.toJSON zigbeeScenes;
   iconData = builtins.toJSON zigbeeDevicesIcon;
 
-
-
   # 🦆 says ⮞ generate  scene gradients css
   sceneGradientCss = lib.concatStrings (lib.mapAttrsToList (name: scene: 
     let
@@ -296,6 +306,7 @@
         deviceMappings = map (d: {
           id = d.id;
           friendly_name = d.friendly_name or d.id;
+          type = d.type;
         }) roomLights;
       in
         "window.roomDeviceMappings['${room}'] = " + builtins.toJSON deviceMappings + ";\n"
@@ -325,7 +336,7 @@
     value = room.icon;
   }) config.house.rooms;
   
-  devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) lightDevices;
+  devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) allRoomDevices;
   devicesByRoom = lib.groupBy (device: device.room) devicesWithId;
   sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
   
@@ -1727,6 +1738,11 @@ EOF
                         showNotification('Please select a device first', 'error');
                         return;
                     }
+
+                    console.group('publishPatch');
+                    console.log('Device:', selectedDevice);
+                    console.log('Payload:', payload);
+                    console.groupEnd();
                     
                     sendCommand(selectedDevice, payload);
                 }
@@ -1753,6 +1769,7 @@ EOF
                     let controlsHtml = "";
                     let rowsHtml = "";
                     updateRoomStats();
+                    
                     // 🦆 says ⮞ STATE (toggle)
                     if ('state' in parsed) {
                         const checked = String(parsed.state).toUpperCase() === 'ON' ? 'checked' : "";
@@ -1760,7 +1777,27 @@ EOF
                         const stateClass = parsed.state === 'ON' ? 'state-on' : 'state-off';
     
                         controlsHtml += `
-                            <div class="section">Power</div>
+                            <div class="section">State</div>
+                            <div class="row special">
+                                <div class="state-display ''${stateClass}">
+                                    <label class="switch">
+                                        <input type="checkbox" id="stateToggle" ''${checked}  onclick="publishPatch({ state: this.checked ? 'ON' : 'OFF' })">
+                                        <span class="slider-round"></span>
+                                    </label>
+                                    <span class="state-text">''${stateText}</span>
+                                </div>
+                            </div>`;
+                    }
+
+
+                    // 🦆 says ⮞ TOUCH (toggle)
+                    if ('touch' in parsed) {
+                        const checked = String(parsed.touch).toUpperCase() === 'ON' ? 'checked' : "";
+                        const stateText = parsed.touch === 'ON' ? 'ON' : 'OFF';
+                        const stateClass = parsed.touch === 'ON' ? 'state-on' : 'state-off';
+    
+                        controlsHtml += `
+                            <div class="section">Touch</div>
                             <div class="row special">
                                 <div class="state-display ''${stateClass}">
                                     <label class="switch">
@@ -1772,6 +1809,25 @@ EOF
                             </div>`;
                     }
 
+                    // 🦆 says ⮞ REVERSE (toggle)
+                    if ('reverse' in parsed) {
+                        const checked = String(parsed.reverse).toUpperCase() === 'ON' ? 'checked' : "";
+                        const stateText = parsed.reverse === 'ON' ? 'ON' : 'OFF';
+                        const stateClass = parsed.reverse === 'ON' ? 'state-on' : 'state-off';
+    
+                        controlsHtml += `
+                            <div class="section">reverse</div>
+                            <div class="row special">
+                                <div class="state-display ''${stateClass}">
+                                    <label class="switch">
+                                        <input type="checkbox" id="stateToggle" ''${checked}>
+                                        <span class="slider-round"></span>
+                                    </label>
+                                    <span class="state-text">''${stateText}</span>
+                                </div>
+                            </div>`;
+                    }
+               
                
                     // 🦆 says ⮞ BATTERY METER
                     if ('battery' in parsed) {
@@ -1923,10 +1979,13 @@ EOF
                             <div class="row special">
                                 <div class="color-section">
                                     <div class="color-presets">
-                                        <div class="color-preset" style="background: #ff3b30;" onclick="setColor('#ff3b30')"></div>
-                                        <div class="color-preset" style="background: #4cd964;" onclick="setColor('#4cd964')"></div>
-                                        <div class="color-preset" style="background: #5ac8fa;" onclick="setColor('#5ac8fa')"></div>
-                                        <div class="color-preset" style="background: #007aff;" onclick="setColor('#007aff')"></div>
+                                        <div class="color-preset" style="background: #ffffff;" onclick="setColor('#ffffff')"></div>
+                                        <div class="color-preset" style="background: #7852A9;" onclick="setColor('#7852A9')"></div>
+                                        <div class="color-preset" style="background: #0000FF;" onclick="setColor('#0000FF')"></div>
+                                        <!-- 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+                                        🦆 says ⮞ RANDOM COLOR -->
+                                        <div class="color-preset rainbow" onclick="setColor('rainbow')"></div>
+                                        <div class="color-preset" style="background: #FF0000;" onclick="setColor('#FF0000')"></div>
                                     </div>
                                     <div class="color-picker-container">
                                         <button class="color-picker-btn" onclick="openColorPicker()">
@@ -1934,6 +1993,46 @@ EOF
                                         </button>
                                         <input type="color" id="hiddenColorPicker" style="display: none;" onchange="setColor(this.value)">
                                    </div>
+                                </div>
+                            </div>`;
+                    }
+                    
+                    // 🦆 says ⮞ COLOR TEMPERATURE
+                    const tempKey = ['color_temperature', 'color_temp', 'ct']
+                        .find(k => k in parsed);
+
+                    if (tempKey) {
+                        const temp = parsed[tempKey];
+
+                        controlsHtml += `
+                            <div class="section">Color temperature</div>
+                            <div class="row special">
+                                <div class="color-section">
+                                    <div class="color-presets temperature">
+
+                                        <!-- 🦆 says ⮞ COLDEST -->
+                                        <div class="color-preset"
+                                             style="background:#e6f1ff;"
+                                             onclick="setColorTemperature(9000)">
+                                        </div>
+
+                    
+                                             style="background:#ffffff;"
+                                             onclick="setColorTemperature(6500)">
+                                        </div>
+
+                                        <div class="color-preset"
+                                             style="background:#ffd6a1;"
+                                             onclick="setColorTemperature(4000)">
+                                        </div>
+
+                                        <!-- 🦆 says ⮞ WARMEST -->
+                                        <div class="color-preset"
+                                             style="background:#ffb46b;"
+                                             onclick="setColorTemperature(2700)">
+                                        </div>
+
+                                    </div>
                                 </div>
                             </div>`;
                     }

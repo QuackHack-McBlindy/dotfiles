@@ -2263,13 +2263,19 @@ input[type="range"].brightness-active {
   overflow: hidden;
 }
 
-.panel-devices-container {
+.panel-controls, #panelDevicesContainer {
   flex: 1 !important;
   overflow-y: auto !important;
   overflow-x: hidden !important;
   height: calc(100vh - 160px) !important;
   padding: 15px 20px !important;
   -webkit-overflow-scrolling: touch !important;
+}
+
+#panelDevicesContainer {
+  overflow-y: auto;
+  flex: 1;
+  padding: 20px;
 }
 
 
@@ -2413,3 +2419,48 @@ input[type="range"].brightness-active {
     height: 100px !important;
   }
 }
+
+
+.device-selector {
+  margin-top: 20px;
+  padding: 0 20px;
+}
+
+.device-selector h3 {
+  color: var(--neon-yellow);
+  margin-bottom: 30px;
+  font-size: 2.8rem;
+  text-align: center;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  text-shadow: 
+    0 0 20px var(--neon-yellow),
+    0 0 40px rgba(255, 230, 0, 0.3);
+  animation: textPulse 2s infinite alternate;
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.device-selector h3::before {
+  content: "🦆";
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  animation: quack 2s infinite ease-in-out;
+}
+
+.device-selector h3::after {
+  content: "🦆";
+  position: absolute;
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem;
+  animation: quack 2s infinite ease-in-out reverse;
+}
+
+

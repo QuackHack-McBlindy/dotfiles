@@ -1,4 +1,4 @@
-# dotfiles/bin/productivity/calendar.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/bin/productivity/calendar.nix ⮞ https://github.com/quackhack-mcblundy/dotfiles
 { # 🦆 says ⮞ cool calendar yo
   self,
   config,
@@ -12,6 +12,7 @@
         description = "Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice.";
         category = "⚡ Productivity";
         aliases = [ "kal" ];
+        runEvery = "05";
         helpFooter = ''
           ${cmdHelpers}        
           echo "## ──────⋆⋅☆⋅⋆────── ##"
@@ -32,7 +33,7 @@
           echo "## ──────⋆⋅☆⋅⋆────── ##" 
         '';
         parameters = [
-          { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; default = "view"; }
+          { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; default = "list"; }
           { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/dotfiles/home/allsvenskan.ics"; }       
         ];
         code = ''
@@ -41,6 +42,66 @@
           IFS=',' read -ra ICS_FILES <<< "$calenders"
           TEMP_DIR=$(mktemp -d)
           trap 'rm -rf "$TEMP_DIR"' EXIT
+
+          publish_to_mqtt() {
+            local date="$1"
+            local events="$2"
+            
+            local json_payload
+            json_payload=$(jq -n \
+              --arg today_date "$date" \
+              --arg today_events "$events" \
+              '{today_date: $today_date, today_events: $today_events}' 2>/dev/null)
+            
+            if [ -z "$json_payload" ]; then
+              json_payload="{\"today_date\":\"$date\",\"today_events\":\"$events\"}"
+            fi
+            
+            if command -v mosquitto_pub >/dev/null 2>&1; then
+              yo mqtt_pub --topic "zigbee2mqtt/calendar" .-message "$json_payload" 2>/dev/null || true
+              echo "Published to MQTT: $json_payload"
+            else
+              echo "Warning: mosquitto_pub not found. Install mosquitto-clients to enable MQTT publishing."
+            fi
+          }
+
+          get_todays_events() {
+            local today=$(date +%Y%m%d)
+            local today_formatted=$(date +%Y-%m-%d)
+            local events=""
+            
+            for file in "''${ICS_FILES[@]}"; do
+              [[ -f "$file" ]] && \
+              awk -v today="$today" '
+                BEGIN {RS = "BEGIN:VEVENT"; FS = "\n"}
+                /DTSTART;VALUE=DATE/ {
+                  for(i = 1; i <= NF; i++) {
+                    if($i ~ /^DTSTART;VALUE=DATE/) {
+                      split($i, dt, ":")
+                      date = dt[2]
+                      if(date == today) {
+                        for(j = 1; j <= NF; j++) {
+                          if($j ~ /^SUMMARY/) {
+                            summary = substr($j, index($j, ":") + 1)
+                            if (events == "") {
+                              events = summary
+                            } else {
+                              events = events ", " summary
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }' "$file"
+            done
+            
+            if [ -z "$events" ]; then
+              events="Nothing today..."
+            fi
+            
+            echo "$events"
+          }
 
           list_calendar_events() {
             for file in "''${ICS_FILES[@]}"; do
@@ -375,10 +436,17 @@
 
             validate_date() {
               local date="$1"
+              # Accept multiple date formats
+              if [[ "$date" =~ ^[0-9]{8}$ ]]; then
+                # Convert YYYYMMDD to YYYY-MM-DD
+                date="''${date:0:4}-''${date:4:2}-''${date:6:2}"
+              fi
+              
               if ! date -d "$date" >/dev/null 2>&1; then
-                dt_error "Error: Invalid date format: $date. Use YYYY-MM-DD"
+                dt_error "Error: Invalid date format: $date. Use YYYY-MM-DD or YYYYMMDD"
                 return 1
               fi
+              echo "$date"
               return 0
             }
 
@@ -483,6 +551,9 @@
               ;;
             list)
               list_calendar_events
+              # Publish today's events to MQTT
+              today_events=$(get_todays_events)
+              publish_to_mqtt "$(date +%Y-%m-%d)" "$today_events"
               ;;
             upcoming)
               show_upcoming
@@ -490,18 +561,26 @@
             add)
               if [[ $# -lt 2 ]]; then
                 echo "Usage: $0 add YYYY-MM-DD \"Event Description\""
+                echo "       $0 add YYYYMMDD \"Event Description\""
                 exit 1
               fi
-              validate_date "$1" || exit 1
-              add_event "$1" "$2"
+              validated_date=$(validate_date "$1")
+              if [[ $? -ne 0 ]]; then
+                exit 1
+              fi
+              add_event "$validated_date" "$2"
               ;;
             remove)
               if [[ $# -lt 2 ]]; then
                 echo "Usage: $0 remove YYYY-MM-DD \"Event Description\""
+                echo "       $0 remove YYYYMMDD \"Event Description\""
                 exit 1
               fi
-              validate_date "$1" || exit 1
-              remove_event "$1" "$2"
+              validated_date=$(validate_date "$1")
+              if [[ $? -ne 0 ]]; then
+                exit 1
+              fi
+              remove_event "$validated_date" "$2"
               ;;
             *)
               show_calendar
