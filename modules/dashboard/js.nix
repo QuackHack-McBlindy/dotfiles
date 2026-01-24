@@ -1639,8 +1639,9 @@
             return response.json();
           })
           .then(data => {
+            console.group('cardData');
             console.log('🦆 Card data for', cardName, ':', data);
-            
+            console.groupEnd();
             const value = data[config.jsonField];
             if (value === undefined) {
               throw new Error(`Field ''${config.jsonField} not found in JSON`);
