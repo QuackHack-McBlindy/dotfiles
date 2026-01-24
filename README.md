@@ -2650,11 +2650,14 @@ And you'll get a dashboard for your devices generated and found at http://localh
 
 </strong></summary>
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%"><br>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash4.png?raw=true" width="25%"><bbr>
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="25%"><br><br>
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash4.png?raw=true" width="25%">
 <img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash5.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash6.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash6.png?raw=true" width="25%"><br><br>
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash7.png?raw=true" width="25%">
+<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash8.png?raw=true" width="25%">
+
 <br>
 The dashboard currently gives you: <br><br>
 
