@@ -7,9 +7,9 @@
   ...
 } : { 
    
-    nixpkgs.config.permittedInsecurePackages = [
-        "broadcom-sta-6.30.223.271-59-6.1.159"
-    ];
+#    nixpkgs.config.permittedInsecurePackages = [
+#        "broadcom-sta-6.30.223.271-59-6.1.159"
+#    ];
 
    
     boot = {
@@ -41,9 +41,9 @@
             systemd.enable = true;
         };
         kernelPackages = pkgs.linuxPackages_6_1; 
-        extraModulePackages = [
-            config.boot.kernelPackages.broadcom_sta
-        ];
+#        extraModulePackages = [
+#            config.boot.kernelPackages.broadcom_sta
+#        ];
     };
     
    
@@ -92,7 +92,7 @@
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "wireless" "pool" ];
                 services = [ "ssh" "keyd" ];
-                programs = [ "default" "thunar" "firefox" ];
+                programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [  ];
             };  
             keys.publicKeys = {

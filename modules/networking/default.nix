@@ -95,24 +95,22 @@
         };
     };
     
-    wirelessNetworking = lib.mkIf (!config.this.installer) {
-        networking.wireless.networks."pungkula2".psk = config.sops.secrets.w.path;
-        networking.wireless.iwd = {
-            enable = true;
-            settings = {
-                Settings = {
-                    AutoConnect = true;
-                };
-            };
-        };
-        networking.networkmanager.wifi.backend = "iwd";    
+  wirelessNetworking = lib.mkIf (!config.this.installer) {
+    networking.networkmanager.enable = lib.mkForce false;
+
+    networking.wireless = {
+      enable = lib.mkForce false;
+      iwd.enable = true;
     };
+
+  };
+
 in {
     config = lib.mkMerge [
         (lib.mkIf (lib.elem "default" config.this.host.modules.networking) defaultNetworking)
     
         (lib.mkIf (lib.elem "wireless" config.this.host.modules.networking) (lib.mkMerge [
-            defaultNetworking
+            #defaultNetworking
             wirelessNetworking
         ]))        
     ];}

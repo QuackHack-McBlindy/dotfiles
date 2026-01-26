@@ -65,11 +65,11 @@
             wgip = "10.0.0.1";
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
-                system = [ "nix" "pkgs" ];
+                system = [ "nix" "crossEnv" "pkgs" ];
                 networking = [ "default" "dns" "pool" "wg-server" ];
                 services = [ "ssh" "default" "adb" "pairdrop" "zigduck" "navidrome" "ip-updater" ];
                 programs = [ "default" ];
-                virtualisation = [ "docker-rootless" "home-assistant" ];
+                virtualisation = [ "docker-rootless" ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIgxAwZZQF+fjTx4l9tfXKRyK4WqPojU1OuDshcbLAnD";

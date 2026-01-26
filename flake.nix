@@ -7,8 +7,13 @@
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
+        mobile-nixos = {
+            url = "github:mobile-nixos/mobile-nixos/183ba2469ab06c4ecb6580ed8b62c3911e8597f5";
+            flake = false;
+        };
+
     };
-    outputs = inputs @ { self, systems, nixpkgs, ... }:
+    outputs = inputs @ { self, systems, nixpkgs, mobile-nixos, ... }:
         let
             lib = import ./lib { 
                 inherit self inputs;

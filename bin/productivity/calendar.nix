@@ -34,7 +34,7 @@
         '';
         parameters = [
           { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; default = "list"; }
-          { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/dotfiles/home/allsvenskan.ics"; }       
+          { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/Downloads/basic.ics"; }       
         ];
         code = ''
           ${cmdHelpers}
@@ -65,43 +65,44 @@
             fi
           }
 
+          
+          
           get_todays_events() {
             local today=$(date +%Y%m%d)
-            local today_formatted=$(date +%Y-%m-%d)
-            local events=""
-            
-            for file in "''${ICS_FILES[@]}"; do
-              [[ -f "$file" ]] && \
-              awk -v today="$today" '
-                BEGIN {RS = "BEGIN:VEVENT"; FS = "\n"}
-                /DTSTART;VALUE=DATE/ {
-                  for(i = 1; i <= NF; i++) {
-                    if($i ~ /^DTSTART;VALUE=DATE/) {
-                      split($i, dt, ":")
-                      date = dt[2]
-                      if(date == today) {
-                        for(j = 1; j <= NF; j++) {
-                          if($j ~ /^SUMMARY/) {
-                            summary = substr($j, index($j, ":") + 1)
-                            if (events == "") {
-                              events = summary
-                            } else {
-                              events = events ", " summary
-                            }
-                          }
-                        }
+          
+            local events=$(
+              for file in "''${ICS_FILES[@]}"; do
+                [[ -f "$file" ]] && \
+                awk -v today="$today" '
+                  BEGIN {RS="BEGIN:VEVENT"; FS="\n"}
+                  {
+                    date=""; summary=""
+                    for(i=1;i<=NF;i++) {
+                      if($i ~ /^DTSTART(;VALUE=DATE)?/) {
+                        split($i,dt,":"); date=dt[2]
+                      }
+                      if($i ~ /^SUMMARY/) {
+                        summary=substr($i,index($i,":")+1)
                       }
                     }
+                    if(date==today && summary!="") {
+                      print summary
+                    }
                   }
-                }' "$file"
-            done
-            
+                ' "$file"
+              done
+            )
+          
             if [ -z "$events" ]; then
-              events="Nothing today..."
+              echo "Nothing today..."
+            else
+              echo "$events" | paste -sd ", " -
             fi
-            
-            echo "$events"
           }
+          
+          
+          
+
 
           list_calendar_events() {
             for file in "''${ICS_FILES[@]}"; do

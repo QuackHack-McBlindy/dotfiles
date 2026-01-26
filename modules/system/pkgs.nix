@@ -114,7 +114,6 @@
                 pkgs.file
                 pkgs.chromium 	       # yuck
                 pkgs.neovim
-                pkgs.librewolf 	# privacy firefox
                 pkgs.libsForQt5.qt5.qtwayland
                 pkgs.jellyfin-ffmpeg   # transcoding
                 pkgs.drawing 	       # simple image editing
