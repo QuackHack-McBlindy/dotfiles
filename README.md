@@ -3,10 +3,10 @@
 <!-- VERSIONS_START -->
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.31.2+1-blue?style=flat-square&logo=nixos&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.31.3-blue?style=flat-square&logo=nixos&logoColor=white)
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.1.159-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.3.3-red?style=flat-square&logo=gnubash&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust--orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
@@ -158,7 +158,7 @@ Define each hosts data at `config.this.host`.
   modules =   {
     hardware = [ "cpu/intel" "audio" ];
     networking = [ "wireless" "pool" ];
-    programs = [ "default" "thunar" "firefox" ];
+    programs = [ "default" "thunar" "firefox" "vesktop" ];
     services = [ "ssh" "keyd" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [  ]
@@ -2892,7 +2892,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo mic-stream](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic-stream.nix) [--chunk] [--silence] [--silenceLevel] |  | Stream microphone audio to WS chunk transcription | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] [--web] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
 | [yo sleep](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/sleep.nix) --time |  | Waits for specified time (seconds). Useful in command chains. | ✅ |
-| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | Extensive automated sentence testing for the NLP | ✅ |
+| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | High performance automated testing fo user defined sentences for the natural language processor written in Rust | ✅ |
 | [yo tests-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests-rs.nix) [--input] [--stats] [--fuzzy] [--dir] [--build] [--realtime] |  | Extensive automated sentence testing for the NLP () | 📛 |
 | [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
 | [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
