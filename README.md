@@ -88,7 +88,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4221 ducks? <br>
+Let's see if you can find all 4241 ducks? <br>
 
 <!-- DUCKS_END -->
 

@@ -438,7 +438,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack      
     # 🦆 says ⮞ automatic doin' sentencin' testin'
     tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
-      description = "Extensive automated sentence testing for the NLP"; 
+      description = "High performance automated testing fo user defined sentences for the natural language processor written in Rust"; 
       category = "🗣️ Voice";
       autoStart = false;
       logLevel = "INFO";

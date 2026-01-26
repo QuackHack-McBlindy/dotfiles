@@ -365,6 +365,8 @@ in { # 🦆 duck say ⮞ qwack
               }
             ];
           };
+          
+
           # 🦆say⮞ tv control 
           tv_command = {
             enable = true;
@@ -406,6 +408,35 @@ in { # 🦆 duck say ⮞ qwack
             door_opened = [];
             door_closed = [];
           };
+          
+          # 🦆 says ⮞ 
+          kitchen = { 
+            motion_not_detected = [
+              {
+                type = "shell";
+                command = ''
+                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+                  if (( power > 20 )); then
+                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 45}'
+                  fi
+                  yo house --room "kitchen" --state off --transition 100
+                '';
+              }
+            ];  
+            # 🦆 says ⮞ this will override that in bedroom
+            motion_detected = [
+              {
+                type = "shell";
+                command = ''
+                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+                  yo house --room "kitchen" --state on --brightness 254
+                  if [ "$STATE" = "OFF" ]; then               
+                    yo house --device "Fläkt" --state on
+                  fi
+                '';
+              }
+            ];
+          };  
           # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion
           #bedroom = { 
             # 🦆 says ⮞ this will override that in bedroom
@@ -422,7 +453,7 @@ in { # 🦆 duck say ⮞ qwack
             #    message = ''{"state":"OFF", "brightness": 80}'';
             #  }              
             #];
-          #};
+#          };
         };
           
         # 🦆 says ⮞ 3. global actions automations  
@@ -495,8 +526,9 @@ in { # 🦆 duck say ⮞ qwack
         "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; };
         "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; }; 
         "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1; };
-        "0x0c4314fffe179b05" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
+        "0xa4c138b9aab1cf3f" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         # 🦆 says ⮞ LIVING ROOM
+        "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
         "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
         "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };   
         "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
@@ -529,7 +561,6 @@ in { # 🦆 duck say ⮞ qwack
         "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = "./themes/icons/zigbee/bloom.png"; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
         "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
-        "0xa4c138b9aab1cf3f" = { friendly_name = "Power Plug 2"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; };
         "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
         "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
