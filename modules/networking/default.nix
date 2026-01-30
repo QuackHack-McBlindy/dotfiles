@@ -37,10 +37,13 @@
             };
             hosts = {
                 "192.168.1.1" = [ "router.lan" "router.local" "router" ];
+                # 🦆 say ⮞ NixOS hosts
                 "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
                 "192.168.1.211" = [ "homie.lan" "homie.local" "homie" "cache" ];
                 "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
                 "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
+                "192.168.1.23" = [ "pinephone.lan" "pinephone.local" "pinephone" "phone" ];
+                # 🦆 say ⮞ TV devices
                 "192.169.1.223" = [ "shield.lan" "shield.local" "shield" ];
                 "192.169.1.152" = [ "arris.lan" "arris.local" "arris" ];
             };                                                                                        
@@ -91,7 +94,7 @@
             resolvconf = {
                 useLocalResolver = false;
             };
-            dhcpcd.extraConfig = "nohook resolv.conf";  # Stop DHCP from managing DNS
+            dhcpcd.extraConfig = "nohook resolv.conf";
         };
     };
     
@@ -112,5 +115,6 @@ in {
         (lib.mkIf (lib.elem "wireless" config.this.host.modules.networking) (lib.mkMerge [
             #defaultNetworking
             wirelessNetworking
-        ]))        
+        ]))
+        
     ];}

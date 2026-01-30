@@ -1069,6 +1069,9 @@ in {
       voice = { # 🦆 says ⮞ low priority = faser execution? wtf
           priority = 1; # 🦆 says ⮞ 1 to 5
           sentences = [
+
+
+
             # 🦆 says ⮞ season specific search
             "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} (säsong|season) {season} i {device}"
             "jag vill se {typ} {search} (säsong|season) {season} i {device}" 
@@ -1141,6 +1144,10 @@ in {
             #   out = device.ip; 
             # }) devices;
             season.values = map (pair: {
+              "in" = builtins.concatStringsSep "|" pair;
+              out  = builtins.head pair;
+            }) nums;
+            episode.values = map (pair: {
               "in" = builtins.concatStringsSep "|" pair;
               out  = builtins.head pair;
             }) nums;

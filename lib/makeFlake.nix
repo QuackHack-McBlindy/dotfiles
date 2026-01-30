@@ -8,8 +8,10 @@
   makeApp = program: {
     inherit program;
     type = "app";
-  };  # 🦆 duck say ⮞ big thing dat make flakes small
-  makeFlakeInternal = { # 🦆 duck say ⮞ give it - and you shall receive!
+  };
+  
+  # 🦆 says ⮞ big thing dat make flakes small
+  makeFlakeInternal = { # 🦆 sayz ⮞ give it - and you shall receive!
     systems, 
     hosts ? {}, 
     modules ? [], 
@@ -18,18 +20,23 @@
     apps ? {}, 
     devShells ? {}, 
     ... 
-  } @ flake: # 🦆 duck say ⮞ thx
+  } @ flake: # 🦆 say ⮞ thx
     let
-      # 🦆 duck say ⮞ first we load all da machines by mapping hosts directory
+      # 🦆 say ⮞ first we load all da machines by mapping hosts directory
       hosts = dirMap.mapHosts ../hosts;        
-      
-      # 🦆 duck say ⮞ helper dat init nixpkgs with system and overlays - allowing unfree
+
+      # 🦆 say⮞helper dat init nixpkgs with system and overlays - allowing unfree
       makePkgs = system: pkgs: overlays: import pkgs {
         inherit system overlays;
         config.allowUnfree = true;
       };
-      
-      # 🦆 duck say ⮞ builds nixosConfiguration for each host
+
+      # 🦆 says ⮞ mobile phone's are handled differently
+      isMobileHost = hostConfig:
+        builtins.elem "pinephone"
+          (hostConfig.host.modules.hardware or []);
+
+      # 🦆 says ⮞ builds nixosConfiguration for each host
       nixosConfigurations = lib.mapAttrs (hostName: hostConfig:
         let
           system = hostConfig.host.system or hostName;
@@ -45,16 +52,28 @@
               modules = lib.filterAttrs (_: v: v ? nixosModules) inputs;
             };
           };
-          modules = [
-            inputs.sops-nix.nixosModules.sops # 🦆 duck say ⮞ secret keepin'
-            {
-              nixpkgs.overlays = overlays; 
-            }
-            ../. # 🦆 duck say ⮞ loads ../default.nix
-            hostConfig             
-            ../modules/home.nix # 🦆 duck say ⮞ home is where your duck's at
-          ];
-        }) hosts;
+          modules = 
+            lib.optionals (isMobileHost hostConfig) [
+              { # 🦆 says ⮞ mobile has it's own nixpkgs
+                nix.nixPath = [
+                  "nixpkgs=${inputs.mobile-pkgs}"
+                  "mobile-nixos=${inputs.mobile-nixos}"
+                ];
+              }
+              # 🦆 says ⮞ import pinephone specific config
+              (import "${inputs.mobile-nixos}/lib/configuration.nix" {
+                device = "pinephone";
+              })
+            ]
+            ++ [
+              inputs.sops-nix.nixosModules.sops # 🦆 says ⮞ secret keepin'
+              { nixpkgs.overlays = overlays; }
+              ../. # 🦆 says ⮞ loads ../default.nix
+              hostConfig
+              ../modules/home.nix # 🦆 says ⮞ home is where your duck's at
+            ];
+        }
+      ) hosts;
       
       # 🦆 duck say ⮞ for each system build packages, apps & devShells
       perSystem = system: let # 🦆 duck say ⮞ init dis system with nixpkgs & overlays
@@ -65,7 +84,7 @@
           (makePkgs system inputs.nixpkgs flake.overlays).callPackage v {
             inherit self;
             lib = inputs.nixpkgs.lib.extend (final: prev: {
-              # 🦆 duck say ⮞ addd custom lib extensions here yo
+              # 🦆 says ⮞ addd custom lib extensions here yo
             });
           }
         ) packages;
@@ -118,8 +137,8 @@
         (lib.filterAttrs (name: type: lib.hasSuffix ".nix" name)
           (builtins.readDir ../overlays));
     };
-in { # 🦆 duck say ⮞ expose makeApp & makeFlake for use in flake
+in { # 🦆 says ⮞ expose makeApp & makeFlake for use in flake
   inherit makeApp;
   makeFlake = args: makeFlakeInternal args;  
-  } # 🦆 duck say ⮞ da end
+  } # 🦆 says ⮞ da end
 

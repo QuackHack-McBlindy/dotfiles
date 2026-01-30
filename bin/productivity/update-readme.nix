@@ -334,15 +334,15 @@ The yo CLI supports flexible parameter parsing through two primary mechanisms:
 
 ```bash
 # Named Parameters  
-$ yo deploy --host laptop --flake /home/pungkula/dotfiles
+$ yo deploy --host pinephone --flake /home/pungkula/dotfiles
 
 # Positional Parameters
-$ yo deploy laptop /home/pungkula/dotfiles
+$ yo deploy pinephone /home/pungkula/dotfiles
 
 # Scripts can also be executed with natural language text by typing:
-$ yo do "is laptop overheating"
+$ yo do "is pinephone overheating"
 # Natural language voice commands are also supported, say:
-"yo bitch reboot the laptop"
+"yo bitch reboot the pinephone"
 
 # If the server is not running, it can be manually started with:
 $ yo transcribe

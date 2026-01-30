@@ -10,7 +10,6 @@
   yo.scripts.call-remote = {
     description = "Used to call the tv remote, for easy localization.";
     category = "🎧 Media Management";
-    aliases = [ "call" ];
     autoStart = false;
     logLevel = "INFO";
     code = ''

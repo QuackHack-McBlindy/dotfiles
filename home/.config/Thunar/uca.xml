@@ -1,14 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <actions>
+
   <action>
     <icon>network-server</icon>
-    <name>Start Python HTTP Server</name>
-    <unique-id>start-python-http-server</unique-id>
-    <command>bash -c 'PORT=$(shuf -i 8000-8999 -n 1); echo "Starting server at http://localhost:$PORT"; python3 -m http.server $PORT & sleep 1; firefox-esr "http://localhost:$PORT"'</command>
-    <description>Start Python HTTP server in this directory</description>
+    <name>Serve this directory over HTTP</name>
+    <unique-id>serve-directory-http</unique-id>
+    <command>bash -c 'DIR="%f"; PORT=$(shuf -i 8000-8999 -n 1); echo "Serving $DIR at http://localhost:$PORT"; cd "$DIR"; python3 -m http.server $PORT &amp; sleep 1; firefox-esr "http://localhost:$PORT"'</command>
+    <description>Start a Python HTTP server in this directory</description>
     <patterns>*</patterns>
     <directories/>
     <startup-notify/>
   </action>
+
+  <action>
+    <icon>utilities-terminal</icon>
+    <name>Open terminal here</name>
+    <unique-id>open-terminal-here</unique-id>
+    <command>bash -c '$TERMINAL --working-directory="%f" &amp;'</command>
+    <description>Open terminal in this directory</description>
+    <patterns>*</patterns>
+    <directories/>
+    <startup-notify/>
+  </action>
+
 </actions>
 

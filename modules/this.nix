@@ -168,31 +168,31 @@ in {
                 hardware = mkOption {
                     type = types.listOf types.str;
                     example = [ "cpu/intel" "gpu/amd" ];
-                    default = [ "cpu/intel" ];
+                    default = [];
                     description = "Hardware configuration modules to enable";
                 };
                 system = mkOption {
                     type = types.listOf types.str;
                     example = [ "nix" "pkgs" "gnome" ];
-                    default = [ "nix" "pkgs" "gnome" ];
+                    default = [];
                     description = "System-level modules to enable (e.g., desktop environments)";
                 };
                 networking = mkOption {
                     type = types.listOf types.str;
                     example = [ "default/wireless" "caddy" ];
-                    default = [ "default" ];
+                    default = [];
                     description = "Networking modules to enable";
                 };
                 services = mkOption {
                     type = types.listOf types.str;
                     example = [ "ssh" "pairdrop" ];
-                    default = [ "ssh" ];
+                    default = [];
                     description = "Service modules to enable";
                 };
                 programs = mkOption {
                     type = types.listOf types.str;
                     example = [ "default" "thunar" ];
-                    default = [ "default" ];
+                    default = [];
                     description = "Program modules to enable";
                 };
                 virtualisation = mkOption {
@@ -261,7 +261,7 @@ in {
                     yubioath-flutter
                     yubikey-agent
                     yubikey-personalization    
-                    yubikey-manager    
+                    yubikey-manager
                     pam_u2f
                     libu2f-host
                     libykclient

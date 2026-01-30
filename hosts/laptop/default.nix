@@ -72,7 +72,7 @@
                 name = "pungkula";
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
-                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
+                extraGroups = [ "networkmanager" "wheel" "dialout" "users" "pungkula" "adbusers" "audio" ]; 
                 mobileDevices = {
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
@@ -84,20 +84,20 @@
         host = {
             system = "x86_64-linux";
             hostname = "laptop";
-            interface = [ "wlan0" ];
+            interface = [ "enp0s25" ];
             ip = "192.168.1.222";
             wgip = "10.0.0.3";
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-                networking = [ "wireless" "pool" ];
+                networking = [ "default" "pool" ];
                 services = [ "ssh" "keyd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [  ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSaGhXOT3kn3dUlZ699qwZShRvjAXXR0SlTulhk+P0W";
-                ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOJ6+aLTPanIYS88EjCVtCZv6pw2jC4lIIZNRY6VrnoF";
+                ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
                 age = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";
                 wireguard = "/n41MVtIQcQ0JuJkuh2SFlYN393KOWed76EwpnSugFk=";
                 builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQ7c/AeIpmJS6cWQkHOe4ZEq3DXVRnjtTWuWfx6L46n";

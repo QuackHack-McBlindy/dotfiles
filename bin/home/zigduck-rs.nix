@@ -13,21 +13,21 @@
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
-  mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
-      let
-        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
-          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
-        '');
-      in
-        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
-    )
-    else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
+#  mqttHost = lib.findSingle (host:
+#      let cfg = self.nixosConfigurations.${host}.config;
+#      in cfg.services.mosquitto.enable or false
+#    ) null null sysHosts;    
+#  mqttHostip = if mqttHost != null
+#    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+#      let
+#        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+#          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+#        '');
+#      in
+#        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+#    )
+#    else (throw "No Mosquitto host found in configuration");
+#  mqttAuth = "-u mqtt -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
 
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
@@ -117,6 +117,9 @@
       ) ids;
     };
   }) byRoom;
+
+  format = pkgs.formats.yaml { };
+  configFile = format.generate "zigbee2mqtt.yaml" config.house.zigbee.settings;
 
   # 🦆 says ⮞ gen json from `config.house.tv`  
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
@@ -1499,6 +1502,40 @@
                     }
                 }
     
+                // 🦆 says ⮞ ⚡ POWER
+                if let Some(power) = data["power"].as_u64() {
+                    let prev_power = self.get_state(device_name, "power");
+                    if prev_power.as_deref() != Some(&power.to_string()) && prev_power.is_some() {
+                        self.quack_info(&format!("⚡ Power update for {}: {}W > {}W", device_name, prev_power.unwrap(), power));
+                    }
+                }
+                
+                
+                // 🦆 says ⮞ ⚡ Energy
+                if let Some(energy) = data["energy"].as_u64() {
+                    let prev_energy = self.get_state(device_name, "energy");
+                    if prev_energy.as_deref() != Some(&energy.to_string()) && prev_energy.is_some() {
+                        self.quack_info(&format!("🔋 Energy update for {}: {} kWh > {} kWh", device_name, prev_energy.unwrap(), energy));
+                    }
+                }
+    
+    
+                // 🦆 says ⮞ ⚡ Voltage
+                if let Some(voltage) = data["voltage"].as_u64() {
+                    let prev_voltage = self.get_state(device_name, "voltage");
+                    if prev_voltage.as_deref() != Some(&voltage.to_string()) && prev_voltage.is_some() {
+                        self.quack_info(&format!("⚡ Voltage update for {}: {}V > {}V", device_name, prev_voltage.unwrap(), voltage));
+                    }
+                }
+    
+                // 🦆 says ⮞ 🔋 Charging
+                if let Some(charging) = data["charging"].as_u64() {
+                    let prev_charging = self.get_state(device_name, "charging");
+                    if prev_charging.as_deref() != Some(&charging.to_string()) && prev_charging.is_some() {
+                        self.quack_info(&format!("🔋 Charging changed for {}: {} > {}", device_name, prev_charging.unwrap(), charging));
+                    }
+                }
+        
                 // 🦆 says ⮞ 🌡️ TEMPERATURE SENSORS
                 if let Some(temperature) = data["temperature"].as_f64() {
                     let prev_temp = self.get_state(device_name, "temperature");
@@ -1885,7 +1922,7 @@ EOF
     '';
     code = ''
       ${cmdHelpers}
-      MQTT_BROKER="${mqttHostip}"
+      MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
 
       dt_info "MQTT_BROKER: $MQTT_BROKER" 
       MQTT_USER="$user"
@@ -1979,7 +2016,7 @@ EOF
   services.udev.extraRules = ''SUBSYSTEM=="tty", ATTRS{idVendor}=="10c4", ATTRS{idProduct}=="ea60", SYMLINK+="zigbee"'';
   
   # 🦆 says ⮞ Z2MQTT configurations
-  services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ once again - dis is server configuration
+  house.zigbee = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { # 🦆 says ⮞ once again - dis is server configuration
     enable = true;
     dataDir = lib.mkForce "/var/lib/zigbee";
     settings = {
@@ -2003,45 +2040,32 @@ EOF
           port = 8099; 
         };
         advanced = { # 🦆 says ⮞ dis is advanced? ='( duck tearz of sadness
-#          export_state = true;
-#          export_state_path = "${zigduckDir}/zigbee_devices.json";
           homeassistant_legacy_entity_attributes = false; # 🦆 says ⮞ wat the duck?! wat do u thiink?
           homeassistant_legacy_triggers = false;
           legacy_api = false;
           legacy_availability_payload = false;
-#          log_syslog = { # 🦆 says ⮞ log settings
-#            app_name = "Zigbee2MQTT";
-#            eol = "/n";
-#            host = "localhost";
-#            localhost = "localhost";
-#            path = "/dev/log";
-#            pid = "process.pid"; # 🦆 says ⮞ process id
-#            port = 123;
-#            protocol = "tcp4";# 🦆 says ⮞ TCP4pcplife
-#            type = "5424";
-#          };
           transmit_power = 9; # 🦆 says ⮞ to avoid brain damage, set low power
           channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
           last_seen = "ISO_8601_local";
           # 🦆 says ⮞ zigbee encryption key.. quack? - better not expose it yo - letz handle dat down below
-            # network_key = [ "..." ]
-            pan_id = 60410;
-          };
-          device_options = { legacy = false; };
-          availability = false;
-          permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
-          devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
-          groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
-            all_lights = { # 🦆 says ⮞ + create a group containing all light devices
-              friendly_name = "all";
-              devices = lib.concatMap (id: 
-                let dev = zigbeeDevices.${id};
-                in if dev.type == "light" then ["${id}/${toString dev.endpoint}"] else []
-              ) (lib.attrNames zigbeeDevices);
-            };
+          #network_key = [ ];
+          pan_id = 60410;
+        };
+        device_options = { legacy = false; };
+        availability = false;
+        permit_join = false; # 🦆 says ⮞ allow new devices, not suggested for thin wallets
+        devices = deviceConfig; # 🦆 says ⮞ inject defined Zigbee D!
+        groups = groupConfig // { # 🦆 says ⮞ inject defined Zigbee G, yo!
+          all_lights = { # 🦆 says ⮞ + create a group containing all light devices
+            friendly_name = "all";
+            devices = lib.concatMap (id: 
+              let dev = zigbeeDevices.${id};
+              in if dev.type == "light" then ["${id}/${toString dev.endpoint}"] else []
+            ) (lib.attrNames zigbeeDevices);
           };
         };
-      }; 
+    }; 
+  };  
 
   environment.systemPackages = [
     pkgs.clang
@@ -2050,6 +2074,7 @@ EOF
     pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
   ];  
 
+  
   systemd.services.zigduck-rs = {
     serviceConfig = {
       User = config.this.user.me.name;
@@ -2074,22 +2099,33 @@ EOF
     "d /var/lib/zigduck 0755 ${config.this.user.me.name} ${config.this.user.me.name} - -"
     "d /var/lib/zigduck/timers 0755 ${config.this.user.me.name} ${config.this.user.me.name} - -"
     "f /var/lib/zigduck/state.json 0644 ${config.this.user.me.name} ${config.this.user.me.name} - -"
+    "d /var/lib/zigbee 0755 zigbee2mqtt zigbee2mqtt -"
   ];
 
   # 🦆 says ⮞ let's do some ducktastic decryption magic into yaml files before we boot services up duck duck yo
   systemd.services.zigbee2mqtt = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+
     wantedBy = [ "multi-user.target" ];
     after = [ "sops-nix.service" "network.target" ];
-    environment.ZIGBEE2MQTT_DATA = config.services.zigbee2mqtt.dataDir;
-    preStart = '' 
-      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+    environment.ZIGBEE2MQTT_DATA = config.house.zigbee.dataDir;
+    preStart = ''
+      # 🦆 says ⮞ Let's do some clean quacktastic config setup!
+    
+      # 🦆 says ⮞ Cceate data dir
+      mkdir -p ${config.house.zigbee.dataDir}
+    
+      # 🦆 says ⮞ copy base setings
+      cp --no-preserve=mode ${configFile} ${config.house.zigbee.dataDir}/configuration.yaml
+ 
       # 🦆 says ⮞ our real mosquitto password quack quack
-      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
+      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path})
+      network_key=$(cat ${config.house.zigbee.networkKeyFile})
+
       # 🦆 says ⮞ Injecting password into config...
-      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml  
+      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.house.zigbee.dataDir}/configuration.yaml  
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
-      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
+      TMPFILE="${config.house.zigbee.dataDir}/config.yaml"
+      CFGFILE="${config.house.zigbee.dataDir}/configuration.yaml"
       # 🦆 says ⮞ starting awk decryption magic..."
       ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
         /(^|[[:space:]])network_key:/ { found = 1 }
@@ -2110,8 +2146,69 @@ EOF
           }
         }
       ' "$CFGFILE" > "$TMPFILE"      
-      mv "$TMPFILE" "$CFGFILE"
+      cp "$TMPFILE" "$CFGFILE"
     ''; # 🦆 says ⮞ thnx fo quackin' along!
+
+    serviceConfig = {
+      ExecStart = "${pkgs.zigbee2mqtt}/bin/zigbee2mqtt";
+      User = "zigbee2mqtt";
+      Group = "zigbee2mqtt";
+      WorkingDirectory = config.house.zigbee.dataDir;
+      StateDirectory = "zigbee2mqtt";
+      StateDirectoryMode = "0700";
+
+
+      # Hardening
+      CapabilityBoundingSet = "";
+      DeviceAllow = lib.optionals (lib.hasPrefix "/" config.house.zigbee.settings.serial.port) [
+        config.house.zigbee.settings.serial.port
+      ];
+      DevicePolicy = "closed";
+      LockPersonality = true;
+      MemoryDenyWriteExecute = false;
+      NoNewPrivileges = true;
+      PrivateDevices = false; # prevents access to /dev/serial, because it is set 0700 root:root
+      PrivateUsers = true;
+      PrivateTmp = true;
+      ProtectClock = true;
+      ProtectControlGroups = true;
+      ProtectHome = true;
+      ProtectHostname = true;
+      ProtectKernelLogs = true;
+      ProtectKernelModules = true;
+      ProtectKernelTunables = true;
+      ProtectProc = "invisible";
+      ProcSubset = "pid";
+      ProtectSystem = "strict";
+      ReadWritePaths = config.house.zigbee.dataDir;
+      RemoveIPC = true;
+      RestrictAddressFamilies = [
+        "AF_INET"
+        "AF_INET6"
+        "AF_NETLINK"
+      ];
+      RestrictNamespaces = true;
+      RestrictRealtime = true;
+      RestrictSUIDSGID = true;
+      SupplementaryGroups = [
+        "dialout"
+      ];
+      SystemCallArchitectures = "native";
+      SystemCallFilter = [
+        "@system-service @pkey"
+        "~@privileged @resources"
+        "@chown"
+      ];
+      UMask = "0077";
+
+    };
   };} # 🦆 says ⮞ sleep tight!
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤
+
+#MQTT_PASSWORD="$(cat /run/secrets/mosquitto)"
+#yq -i --arg pwd "$MQTT_PASSWORD" \
+#  '.mqtt.password = $pwd' \
+#  configuration.yaml
+
+

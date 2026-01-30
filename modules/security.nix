@@ -1,5 +1,5 @@
 # dotfiles/modules/security.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-# 🦆 duck say ⮞ SECURITY?! WAT THE QUACK IS DAT?!
+# 🦆 says ⮞ SECURITY?! WAT THE QUACK IS DAT?!
 {
   self,
   inputs,
@@ -8,7 +8,9 @@
   lib,
   ...
 }: {
-  # 🦆 duck say ⮞ BOOT?! DUCKS DON'T WEAR SHOES?!
+#  imports = [ ./sops-yubikey.nix ];
+
+  # 🦆 says ⮞ BOOT?! DUCKS DON'T WEAR SHOES?!
   boot = {
 #    tmp.useTmpfs = lib.mkDefault true;
 #    tmp.cleanOnBoot = lib.mkDefault (!config.boot.tmp.useTmpfs);
@@ -92,6 +94,10 @@
   security.sudo.extraConfig = ''
     pungkula ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/systemctl restart yo-wake
   '';
+
+  # 🦆 says ⮞ ensures sops required keys are properly decrypted before building
+#  services.sops-yubikey.enable = true;  
+    
   security.sudo.extraRules = [  
     {
       users = [ "pungkula" ];

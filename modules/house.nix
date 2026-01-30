@@ -7,6 +7,8 @@
   ...
 } : let
   inherit (lib) types mkOption mkEnableOption mkMerge;  
+  format = pkgs.formats.yaml { };
+  configFile = format.generate "zigbee2mqtt.yaml" config.house.zigbee.settings;
 
   cmdHelpers = ''
     # 🦆 duck say ⮞ diis need explaination?!
@@ -1111,6 +1113,38 @@ in { # 🦆 says ⮞ Options for da house
       };
 
       zigbee = {
+      
+        enable = lib.mkEnableOption "zigbee2mqtt service";
+
+        #package = lib.mkPackageOption pkgs "zigbee2mqtt" { };
+
+        dataDir = lib.mkOption {
+          description = "Zigbee2mqtt data directory";
+          default = "/var/lib/zigbee";
+          type = lib.types.path;
+        };
+
+        settings = lib.mkOption {
+          type = format.type;
+          default = { };
+          example = lib.literalExpression ''
+            {
+              homeassistant.enabled = config.services.home-assistant.enable;
+              permit_join = true;
+              serial = {
+                port = "/dev/ttyACM1";
+              };
+            }
+          '';
+          description = ''
+            Your {file}`configuration.yaml` as a Nix attribute set.
+            Check the [documentation](https://www.zigbee2mqtt.io/information/configuration.html)
+            for possible options.
+          '';
+        };
+
+      
+      
         networkKeyFile = mkOption {
           type = types.path;
           description = "Path to the Zigbee network key file.";
@@ -2073,6 +2107,7 @@ in { # 🦆 says ⮞ Options for da house
                   hueDeviceMapping
               )}'
               
+              
               # 🦆 says ⮞ Nix scenes
               HUE_NIX_SCENES='${builtins.toJSON config.house.zigbee.scenes}'
             else
@@ -2128,6 +2163,7 @@ in { # 🦆 says ⮞ Options for da house
             load_device_map() {
               echo "$HUE_DEVICE_MAP" | ${pkgs.jq}/bin/jq '.'
             }
+            
           
             load_nix_scenes() {
               echo "$HUE_NIX_SCENES" | ${pkgs.jq}/bin/jq '.'

@@ -298,3 +298,6 @@ copy() {
     rsync -avh --progress "$src/" "$dest/" | pv -pet -s "$total_size" > /dev/null
 }
 
+log() {
+ journalctl -u "$1" -n 200 -f -b --no-pager
+} 
