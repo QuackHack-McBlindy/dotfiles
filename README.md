@@ -4,7 +4,7 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.31.3-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.1.159-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.1.161-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
@@ -36,7 +36,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 <br>
 
 
-__Here lives home machines configurations,__  
+__Here lives all home machines/phone config files,__  
 __and home automations, fully reproducible,__  
 __crafted as a tiny Nix flake__  
 __Glued together by a Nix-flavoured command line utility,__  
@@ -53,8 +53,8 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __100 qwacktastic scripts in /bin - 59 scripts have voice commands.__ <br>
-- __2500 dynamically generated regex patterns - makes 297584379 phrases available as commands.__ <br>
+- __102 qwacktastic scripts in /bin - 61 scripts have voice commands.__ <br>
+- __2504 dynamically generated regex patterns - makes 297584379 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 9 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
@@ -88,7 +88,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4241 ducks? <br>
+Let's see if you can find all 4275 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -106,7 +106,7 @@ Define yourself at `config.this.user.me`.
   discord = "";
   dotfilesDir = "/home/pungkula/dotfiles";
   email = "quackhack@protonmail.com";
-  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ];
+  extraGroups = [ "networkmanager" "wheel" "dialout" "users" "pungkula" "adbusers" "audio" ];
   hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
   matrix = "";
   mobileDevices =   {
@@ -137,7 +137,7 @@ Define each hosts data at `config.this.host`.
 ```nix
 {
   hostname = "laptop";
-  interface = [ "wlan0" ];
+  interface = [ "enp0s25" ];
   ip = "192.168.1.222";
   keys =   {
     privateKeys =     {
@@ -151,13 +151,13 @@ Define each hosts data at `config.this.host`.
       cache = "cache:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc=";
       host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSaGhXOT3kn3dUlZ699qwZShRvjAXXR0SlTulhk+P0W";
       iPhone = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq";
-      ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOJ6+aLTPanIYS88EjCVtCZv6pw2jC4lIIZNRY6VrnoF";
+      ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
       wireguard = "/n41MVtIQcQ0JuJkuh2SFlYN393KOWed76EwpnSugFk="
     }
   };
   modules =   {
     hardware = [ "cpu/intel" "audio" ];
-    networking = [ "wireless" "pool" ];
+    networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
     services = [ "ssh" "keyd" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
@@ -2807,15 +2807,15 @@ The yo CLI supports flexible parameter parsing through two primary mechanisms:
 
 ```bash
 # Named Parameters  
-$ yo deploy --host laptop --flake /home/pungkula/dotfiles
+$ yo deploy --host pinephone --flake /home/pungkula/dotfiles
 
 # Positional Parameters
-$ yo deploy laptop /home/pungkula/dotfiles
+$ yo deploy pinephone /home/pungkula/dotfiles
 
 # Scripts can also be executed with natural language text by typing:
-$ yo do "is laptop overheating"
+$ yo do "is pinephone overheating"
 # Natural language voice commands are also supported, say:
-"yo bitch reboot the laptop"
+"yo bitch reboot the pinephone"
 
 # If the server is not running, it can be manually started with:
 $ yo transcribe
@@ -2837,6 +2837,9 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo rollback](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) --host [--flake] [--user] |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. | 📛 |
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration. ('!' to test) | ✅ |
+| **☎️ Phone** | | | |
+| [yo call](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/call.nix) --contactName --contactFile |  | Calls phone number from contact list | ✅ |
+| [yo text](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/text.nix) --contactName --contactFile |  | Text message a phone number from contact list | ✅ |
 | **⚡ Productivity** | | | |
 | [yo calculator](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calculator.nix) --expression | calc | Calculate math expressions | ✅ |
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
@@ -2862,7 +2865,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo shareWiFi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/shareWiFi.nix) [--ssidFile] [--passwordFile] |  | creates a QR code of guest WiFi and push image to iPhone | ✅ |
 | [yo speed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix)  | st | Test internet download speed | ✅ |
 | **🎧 Media Management** | | | |
-| [yo call-remote](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/call-remote.nix)  | call | Used to call the tv remote, for easy localization. | ✅ |
+| [yo call-remote](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/call-remote.nix)  |  | Used to call the tv remote, for easy localization. | ✅ |
 | [yo hacker-news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/hacker-news.nix) [--show] [--item] [--user] [--clear] [--number] | hn | Hacker news API controller | 📛 |
 | [yo news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/news.nix) [--apis] [--clear] |  | API caller and playlist manager for latest Swedish news from SR. | ✅ |
 | [yo transcode](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/transcode.nix) [--directory] | trans | Transcode media files | 📛 |

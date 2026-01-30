@@ -132,7 +132,7 @@ in {
     };
 
     sops.secrets = lib.mkIf (!config.this.installer) {
-      "users/pungkula/ssh_ed25519" = {
+      "users/${config.this.user.me.name}/ssh_ed25519" = {
         sopsFile = ./../../secrets/users/${config.this.user.me.name}/ssh_ed25519.yaml; 
         owner = config.this.user.me.name;
         group = config.this.user.me.name;

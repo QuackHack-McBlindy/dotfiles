@@ -118,18 +118,33 @@
     "mobile-nixos": {
       "flake": false,
       "locked": {
-        "lastModified": 1643409618,
-        "narHash": "sha256-my6Jr43y8PW6ax4E335oZMaGQoUpCU1HdfyvcxAWLUc=",
-        "owner": "mobile-nixos",
+        "lastModified": 1653513225,
+        "narHash": "sha256-DjIrBfb3cbLG15cWKpSIfBxorXCMWVBeFOc1K7HOzw4=",
+        "owner": "nixos",
         "repo": "mobile-nixos",
-        "rev": "183ba2469ab06c4ecb6580ed8b62c3911e8597f5",
+        "rev": "efbe2c3c5409c868309ae0770852638e623690b5",
         "type": "github"
       },
       "original": {
-        "owner": "mobile-nixos",
+        "owner": "nixos",
         "repo": "mobile-nixos",
-        "rev": "183ba2469ab06c4ecb6580ed8b62c3911e8597f5",
+        "rev": "efbe2c3c5409c868309ae0770852638e623690b5",
         "type": "github"
+      }
+    },
+    "mobile-pkgs": {
+      "locked": {
+        "lastModified": 1653060744,
+        "narHash": "sha256-kfRusllRumpt33J1hPV+CeCCylCXEU7e0gn2/cIM7cY=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "dfd82985c273aac6eced03625f454b334daae2e8",
+        "type": "github"
+      },
+      "original": {
+        "id": "nixpkgs",
+        "rev": "dfd82985c273aac6eced03625f454b334daae2e8",
+        "type": "indirect"
       }
     },
     "nixpkgs": {
@@ -226,6 +241,7 @@
         "caddy-duckdns": "caddy-duckdns",
         "installer": "installer",
         "mobile-nixos": "mobile-nixos",
+        "mobile-pkgs": "mobile-pkgs",
         "nixpkgs": "nixpkgs_3",
         "sops-nix": "sops-nix",
         "systems": "systems_2"

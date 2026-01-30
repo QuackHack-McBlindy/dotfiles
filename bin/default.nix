@@ -70,6 +70,7 @@ in { # 🦆 duck say ⮞ import everythang in defined directories
         importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./maintenance ++ # 🦆 duck say ⮞ +++++ plus plus plus rots of duck's give lot'z of luck
+        importModulesRecursive ./phone ++        
         importModulesRecursive ./productivity ++
         importModulesRecursive ./network ++
         importModulesRecursive ./media ++

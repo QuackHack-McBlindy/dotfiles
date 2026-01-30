@@ -46,6 +46,7 @@
                 ## CLI TOOLS
                ###############
                 pkgs.qrencode
+                pkgs.age-plugin-yubikey
                 pkgs.ntfy-sh
                 pkgs.ghostty
                 pkgs.imagemagick

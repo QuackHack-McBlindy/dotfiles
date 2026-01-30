@@ -10,21 +10,23 @@
 } : let     
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
-  mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
-      let
-        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
-          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
-        '');
-      in
-        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
-    )
-    else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+#  mqttHost = lib.findSingle (host:
+#      let cfg = self.nixosConfigurations.${host}.config;
+#      in cfg.services.mosquitto.enable or false
+#    ) null null sysHosts;    
+#  mqttHostip = if mqttHost != null
+#    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
+#      let
+#        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
+#          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
+#        '');
+#      in
+#        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
+#    )
+#    else (throw "No Mosquitto host found in configuration");
+#  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+
+  mqttHostip = "192.168.1.211";
 
   zigduckStateFile = "/var/lib/zigduck/state.json";    
   # 🦆 says ⮞ define Zigbee devices here yo 

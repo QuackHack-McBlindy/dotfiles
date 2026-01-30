@@ -25,10 +25,10 @@ in { # 🦆 duck say ⮞ all machines needz some of dis
         ./bin     # 🦆 duck say ⮞ loadz yo script's default.nix
     ]; 
     
-    # 🦆 duck say ⮞ each host haz it's own system defined in dis `this` config quackidly quack
+    # 🦆 says ⮞ each host haz it's own system defined in dis `this` config
     nixpkgs.hostPlatform = config.this.host.system; 
     
-    networking = { # 🦆 duck say ⮞ ducks don't like netz =( 
-        hostName = config.this.host.hostname; # 🦆 duck say ⮞ here we go again with dis `this` and dat
-        useDHCP = lib.mkDefault true; # 🦆 duck say ⮞ if nuthin else is said         
-   };} # 🦆 duck say ⮞ i'll say dat's dat
+    networking = { # 🦆 say ⮞ ducks don't like netz =( 
+        hostName = config.this.host.hostname; # 🦆 says ⮞ here we go again with dis `this` and dat
+        useDHCP = lib.mkDefault true; # 🦆 says ⮞ if nuthin else is said         
+   };} # 🦆 says ⮞ i'll say dat's dat
