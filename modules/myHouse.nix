@@ -410,33 +410,40 @@ in { # 🦆 duck say ⮞ qwack
           };
           
           # 🦆 says ⮞ 
-          kitchen = { 
-            motion_not_detected = [
-              {
-                type = "shell";
-                command = ''
-                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
-                  if (( power > 20 )); then
-                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 45}'
-                  fi
-                  yo house --room "kitchen" --state off --transition 100
-                '';
-              }
-            ];  
-            # 🦆 says ⮞ this will override that in bedroom
-            motion_detected = [
-              {
-                type = "shell";
-                command = ''
-                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
-                  yo house --room "kitchen" --state on --brightness 254
-                  if [ "$STATE" = "OFF" ]; then               
-                    yo house --device "Fläkt" --state on
-                  fi
-                '';
-              }
-            ];
-          };  
+#          kitchen = { 
+#            motion_not_detected = [
+#              {
+#                type = "shell";
+#                command = ''
+#                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+#                  # 🦆 says ⮞ no need 2 turn off if it'z not on
+#                  if (( power > 20 )); then
+#                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 45}'
+#                  fi
+#                '';
+#              }
+#              { # 🦆 says ⮞  slow go light go bye bye
+#                type = "scene";
+#                command = "kitchenFadeOff";
+#              }
+#            ];  
+
+#            motion_detected = [
+#              { # 🦆 SCREAM ⮞ INSANT LIGHT QWACK
+#                type = "scene";
+#                command = "kitchenInstant";
+#              }            
+#              {
+#                type = "shell";
+#                command = ''
+#                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+#                  if [ "$STATE" = "OFF" ]; then               
+#                    yo house --device "Fläkt" --state on
+#                  fi
+#                '';
+#              }
+#            ];
+#          };  
           # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion
           #bedroom = { 
             # 🦆 says ⮞ this will override that in bedroom
@@ -617,7 +624,24 @@ in { # 🦆 duck say ⮞ qwack
               "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
               "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
               "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-          };  
+          };
+
+          "kitchenInstant" = {
+              "Golvet" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; }; 
+          };
+          # 🦆 says ⮞ veeeery slow turn off
+          "kitchenFadeOff" = {
+              "Golvet" = { state = "OFF"; transition = 100; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 100; };
+              "PC" = { state = "OFF"; transition = 109; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 100; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 109; };
+              "Uppe" = { state = "OFF"; transition = 100; };       
+          };
           "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
               "Bloom" = { state = "OFF"; transition = 10; };
               "Dörr" = { state = "OFF"; transition = 10; };

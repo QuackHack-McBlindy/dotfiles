@@ -54,8 +54,8 @@ Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __102 qwacktastic scripts in /bin - 61 scripts have voice commands.__ <br>
-- __2504 dynamically generated regex patterns - makes 297584379 phrases available as commands.__ <br>
-- __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 9 scenes.__ <br>
+- __2504 dynamically generated regex patterns - makes 297584385 phrases available as commands.__ <br>
+- __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
 - __Infra as everyday accessibility__ <br>
@@ -88,7 +88,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4275 ducks? <br>
+Let's see if you can find all 4282 ducks? <br>
 
 <!-- DUCKS_END -->
 
