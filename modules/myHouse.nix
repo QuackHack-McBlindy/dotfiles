@@ -105,6 +105,7 @@
   
 in { # 🦆 duck say ⮞ qwack
   house = {
+    media.root = "/Pool";
     # 🦆says⮞ what machine should output sound   
     soundHost = "desktop";
     # 🦆 says ⮞ ROOM CONFIGURATION
