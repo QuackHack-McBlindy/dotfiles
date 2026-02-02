@@ -10,6 +10,15 @@
   format = pkgs.formats.yaml { };
   configFile = format.generate "zigbee2mqtt.yaml" config.house.zigbee.settings;
 
+  defaultPaths = root: {
+    tv = root + "/TV";
+    movies = root + "/Movies";
+    music = root + "/Music";
+    musicVideos = root + "/Music_Videos";
+    otherVideos = root + "/Other_Videos";
+    podcasts = root + "/Podcasts";
+  };
+
   cmdHelpers = ''
     # 🦆 duck say ⮞ diis need explaination?!
     say_duck() {
@@ -634,6 +643,57 @@
 
 in { # 🦆 says ⮞ Options for da house
     options.house = {
+      # 🦆 says ⮞ mainly used to cast media to tv
+      https = {
+        domainNameFile = lib.mkOption {
+          type = lib.types.path;
+          description = ''
+            File containing full https url.
+            This should be served as webserver. (TLS req?)
+            Example: "https://my-domain.com"
+          '';
+          default = "";
+        };
+      };  
+      # 🦆 says ⮞ set media root & the rest is overrides
+      media = with lib; {
+        root = mkOption {
+          type = types.nullOr types.path;
+          default = null;
+          description = "Root directory for all media";
+        };
+
+        movies = mkOption {
+          type = types.path;
+          description = "Movies directory";
+        };
+
+        tv = mkOption {
+          type = types.path;
+          description = "TV shows directory";
+        };
+
+        music = mkOption {
+          type = types.path;
+          description = "Music directory";
+        };
+
+        musicVideos = mkOption {
+          type = types.path;
+          description = "Music videos directory";
+        };
+
+        otherVideos = mkOption {
+          type = types.path;
+          description = "Other videos directory";
+        };
+
+        podcasts = mkOption {
+          type = types.path;
+          description = "Podcasts directory";
+        };
+      };    
+    
       # 🦆 says ⮞ hostname to play sounds on (TTS, timers, alarms etc)
       soundHost = lib.mkOption {
         type = lib.types.str;
@@ -648,7 +708,7 @@ in { # 🦆 says ⮞ Options for da house
           type = lib.types.path;
           description = "Passwordfile for the dashboard API";
           default = "";
-        };         
+        };
       
         pages = lib.mkOption {
           type = lib.types.attrsOf (lib.types.submodule {
@@ -1915,6 +1975,19 @@ in { # 🦆 says ⮞ Options for da house
           DARK_TIME_END="${config.house.zigbee.darkTime.end}"
         '';    
       }
+        
+      (lib.mkIf (config.house.media.root != null) (let
+        defaults = defaultPaths config.house.media.root;
+      in {
+        house.media = {
+          movies = lib.mkIf (!(lib.hasAttr "movies" config.house.media)) (lib.mkDefault defaults.movies);
+          tv = lib.mkIf (!(lib.hasAttr "tv" config.house.media)) (lib.mkDefault defaults.tv);
+          music = lib.mkIf (!(lib.hasAttr "music" config.house.media)) (lib.mkDefault defaults.music);
+          musicVideos = lib.mkIf (!(lib.hasAttr "musicVideos" config.house.media)) (lib.mkDefault defaults.musicVideos);
+          otherVideos = lib.mkIf (!(lib.hasAttr "otherVideos" config.house.media)) (lib.mkDefault defaults.otherVideos);
+          podcasts = lib.mkIf (!(lib.hasAttr "podcasts" config.house.media)) (lib.mkDefault defaults.podcasts);
+        };
+      }))
         
       {
         environment.systemPackages = [
