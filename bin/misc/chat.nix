@@ -56,7 +56,7 @@ in {
       dt_debug "Received response: $response"
       echo "$response"
       # 🦆 says ⮞ say it yo
-      yo say --text "$response" 
+     # yo say --text "$response" 
     
     '';
     voice = {
