@@ -122,6 +122,40 @@ in {
         # 🦆 says ⮞ load TV devices & channels
         CHANNELS_JSON="${channelsJson}"
         TV_DEVICES_JSON=${tvDevicesJson}
+
+        start_playlist() {
+            local device_ip="$1"
+            local playlist_url="$WEBSERVER/playlist.m3u"
+            control_device "$device_ip" power_on
+            local retries="''${2:-0}"
+            local max_retries=5 
+  
+            local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" \
+              --ez \"extra_force_software\" true \
+              -t \"audio/x-mpegurl\""
+  
+            if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
+                dt_debug "Playlist started successfully on device ''${device_ip}"
+            else
+                adb disconnect ''${device_ip}
+                sleep 0.2
+                adb connect ''${device_ip}
+                sleep 0.3
+                if (( retries < max_retries )); then
+                  dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
+                  start_playlist "$device_ip" $((retries + 1))
+                else
+                  dt_error "Max retries reached. Could not start playlist on ''${device_ip}"
+                fi
+            fi
+        }
+    
+        if [[ "$typ" == "tv" || "$typ" == "movie" || "$typ" == "music" || "$typ" == "song" ]]; then
+          yo tv-rs "$typ" "$search"
+          start_playlist "$device"
+          exit 1
+        fi
+  
     
         declare -A SEARCH_FOLDERS=(
             [tv]="$TVDIR"
@@ -278,32 +312,6 @@ in {
             fi
         }
         
-        start_playlist() {
-            local device_ip="$1"
-            local playlist_url="$WEBSERVER/playlist.m3u"
-            control_device "$device_ip" power_on
-            local retries="''${2:-0}"
-            local max_retries=5 
-  
-            local command="am start -a android.intent.action.VIEW -d \"''${playlist_url}\" \
-              --ez \"extra_force_software\" true \
-              -t \"audio/x-mpegurl\""
-  
-            if adb -s "''${device_ip}" shell "''${command}" &> /dev/null; then
-                dt_debug "Playlist started successfully on device ''${device_ip}"
-            else
-                adb disconnect ''${device_ip}
-                sleep 0.2
-                adb connect ''${device_ip}
-                sleep 0.3
-                if (( retries < max_retries )); then
-                  dt_debug "Retrying start_playlist (''${retries}/''${max_retries})..."
-                  start_playlist "$device_ip" $((retries + 1))
-                else
-                  dt_error "Max retries reached. Could not start playlist on ''${device_ip}"
-                fi
-            fi
-        }
                     
         template_single_path() {
             local path="$1"
