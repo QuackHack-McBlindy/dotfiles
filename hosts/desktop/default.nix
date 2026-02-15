@@ -74,7 +74,7 @@
             wgip = "10.0.0.2";
             # 🦆 duck say ⮞ modulez
             modules = {
-                hardware = [ "cpu/intel" "gpu/amd" "audio" ];
+                hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
                 services = [ "ssh" "default" "adb" "backup" "cache" "keyd" "jelly" "duck-tv" ];
