@@ -4,11 +4,11 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.31.3-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.1.161-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.12.62-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust--orange?style=flat-square&logo=rust&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.92.0-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
@@ -88,7 +88,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4285 ducks? <br>
+Let's see if you can find all 8565 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -103,10 +103,10 @@ Define yourself at `config.this.user.me`.
 <!-- USER_START -->
 ```nix
 {
-  discord = "";
+  discord = "https://discordapp.com/users/675530282849533952";
   dotfilesDir = "/home/pungkula/dotfiles";
-  email = "quackhack@protonmail.com";
-  extraGroups = [ "networkmanager" "wheel" "dialout" "users" "pungkula" "adbusers" "audio" ];
+  email = "isthisrandomenough@protonmail.com";
+  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" ];
   hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
   matrix = "";
   mobileDevices =   {
@@ -136,9 +136,9 @@ Define each hosts data at `config.this.host`.
 <!-- HOST_START -->
 ```nix
 {
-  hostname = "laptop";
-  interface = [ "enp0s25" ];
-  ip = "192.168.1.222";
+  hostname = "desktop";
+  interface = [ "enp119s0" ];
+  ip = "192.168.1.111";
   keys =   {
     privateKeys =     {
 
@@ -149,22 +149,22 @@ Define each hosts data at `config.this.host`.
       borg = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVYczAOBSeS7WfSvzYDOS4Q9Ss+yxCf2G5MVfAALOx/";
       builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQ7c/AeIpmJS6cWQkHOe4ZEq3DXVRnjtTWuWfx6L46n";
       cache = "cache:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc=";
-      host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSaGhXOT3kn3dUlZ699qwZShRvjAXXR0SlTulhk+P0W";
+      host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdwPkRQxlbrbRGwEO5zMJ4m+7QqUQPZg1iqbd5HRP34";
       iPhone = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq";
       ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
-      wireguard = "/n41MVtIQcQ0JuJkuh2SFlYN393KOWed76EwpnSugFk="
+      wireguard = "Oq0ZaYAnOo5sLpV//OEFwLgjVCxPyeQqf8cZBASluWk="
     }
   };
   modules =   {
     hardware = [ "cpu/intel" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "keyd" ];
+    services = [ "ssh" "default" "adb" "backup" "cache" "keyd" "jelly" "duck-tv" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-    virtualisation = [  ]
+    virtualisation = [ "docker" "vm" ]
   };
   system = "x86_64-linux";
-  wgip = "10.0.0.3"
+  wgip = "10.0.0.2"
 }
 ```
 
@@ -1618,7 +1618,8 @@ For specific command help:
 
 
 <!-- CONTACT_START -->
-[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:quackhack@protonmail.com)
+[![Discord](https://img.shields.io/badge/Discord-Chat-5865F2?style=flat-square&logo=discord&logoColor=white)](https://discordapp.com/users/675530282849533952)
+[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
 
 <!-- CONTACT_END -->
 
