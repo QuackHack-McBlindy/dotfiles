@@ -1,9 +1,13 @@
-Minimal multi-client microphone audio streaming with wake-word detection and transcription with optional shell command execution with the transcribed text as argument.  
+# **yo-rs**
+
+**yo-rs** is a minimal multi-client microphone audio streaming service with wake-word detection and transcription with optional shell command execution with the transcribed text as argument.  
 All communication is over TCP with a simple binary protocol, using RMS based VAD.  
+
 
 # **This package includes two binaries:**
 
 ## **yo-rs (Server)**
+
 
 - **Wake-word detection (ONNX)**
 - **Speech-to-text (Whisper GGML)**
@@ -24,7 +28,6 @@ Options:
 --exec-command (optional)
 --debug	(default: false)
 --help, -h
-
 ```
 
 # **yo-client**
@@ -48,9 +51,9 @@ Options:
 
 ## **NixOS Module**
 
-[Use the module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo-rs.nix)
+[Use this module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo-rs.nix)
 
-**Example**
+**Example configuration:**
 
 ```nix
       services.yo-rs = {
@@ -67,6 +70,7 @@ Options:
           temperature = 0.2;
           threads = 4;
         };
+        
         client = {
           enable = true;
           uri = "192.168.1.111:12345";
