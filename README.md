@@ -1408,7 +1408,7 @@ git+file:///home/pungkula/dotfiles
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───jellyfin: package 'jellyfin'
         ├───tv: package 'tv'
-        └───yo-rs: package 'yo-rs-0.1.9'
+        └───yo-rs: package 'yo-rs-0.1.1'
 ```
 
   <!-- TREE_END -->

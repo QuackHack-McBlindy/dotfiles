@@ -19,7 +19,7 @@
 in  
 rustPlatform.buildRustPackage {
   pname = "yo-rs";
-  version = "0.1.9";
+  version = "0.1.1";
 
   src = ./yo-rs;
 

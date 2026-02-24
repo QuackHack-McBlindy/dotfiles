@@ -1,7 +1,7 @@
 [package]
 name = "yo-rs"
 description = "yo-rs is a multi-client wake word detection and speech-to-text server + client. All communication is over TCP with a simple binary protocol."
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 license = "MIT"
 keywords = ["wakeword", "detection", "onnx", "speech-to-text", "multi-client"]
