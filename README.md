@@ -7,7 +7,7 @@
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.12.67-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.13.11-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.92.0-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
@@ -1368,7 +1368,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=a102caaab070d4c48389ba4894ecbd23edfd3b4e
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
