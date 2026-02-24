@@ -1,0 +1,510 @@
+// ddotfiles/packages/yo-rs/src/main.rs ⮞ https://github.com/QuackHack-McBlindy/dotfiles
+use std::{ // 🦆 says ⮞ yo-rs (Server)
+    env,
+    io::{Read, Write, Cursor},
+    net::{TcpListener, TcpStream},
+    process::Command,
+    thread,
+    time::{Duration, Instant},
+};
+
+use anyhow::Result;
+use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use oww_rs::oww::{OwwModel, OWW_MODEL_CHUNK_SIZE};
+use rodio::OutputStream;
+use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
+
+const LISTEN_ADDR: &str = "0.0.0.0:12345";
+const DING_WAV: &[u8] = include_bytes!("../ding.wav");
+
+fn handle_client(
+    mut stream: TcpStream,
+    mut wake_model: OwwModel,
+    whisper_ctx: WhisperContext,
+    client_id: String,
+    debug: bool,
+    cooldown_secs: u64,
+    beam_size: i32,
+    temperature: f32,
+    language: Option<String>,
+    threads: i32,
+    sound_data: Vec<u8>,
+    exec_command: Option<String>,
+) -> Result<()> {
+    println!("📡 ☑️ 🎙️ {} Connected", client_id);
+    let mut last_detection: Option<Instant> = None;
+
+    loop {
+        // 🦆 says ⮞ Wake‑word detection
+        let len = match stream.read_u32::<LittleEndian>() {
+            Ok(l) => l as usize,
+            Err(e) => {
+                eprintln!("[{}] Failed to read length: {} – client disconnected", client_id, e);
+                break;
+            }
+        };
+
+        let mut sample_bytes = vec![0u8; len * 4];
+        if let Err(e) = stream.read_exact(&mut sample_bytes) {
+            eprintln!("[{}] Failed to read samples: {}", client_id, e);
+            break;
+        }
+
+        let samples: Vec<f32> = sample_bytes
+            .chunks_exact(4)
+            .map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+            .collect();
+
+        if samples.len() != OWW_MODEL_CHUNK_SIZE {
+            eprintln!(
+                "[{}] Warning: received chunk of size {}, expected {}",
+                client_id,
+                samples.len(),
+                OWW_MODEL_CHUNK_SIZE
+            );
+        }
+
+        let detection = wake_model.detection(samples);
+        if detection.detected {
+            // 🦆 says ⮞ Debounce
+            if let Some(last) = last_detection {
+                if last.elapsed() < Duration::from_secs(1) {
+                    thread::sleep(Duration::from_millis(100)); // avoid spinning
+                    continue;
+                }
+            }
+
+            println!("[{}] DETECTED! Probability: {:.4}", client_id, detection.probability);
+
+            // 🦆 says ⮞ Play sound
+            let sound_data_for_thread = sound_data.clone();
+            let client_id_clone = client_id.clone();
+            let debug_clone = debug;
+            thread::spawn(move || {
+                let (_stream, handle) = OutputStream::try_default().unwrap();
+                let cursor = Cursor::new(sound_data_for_thread);
+                if let Ok(sink) = handle.play_once(cursor) {
+                    sink.sleep_until_end();
+                }
+                if debug_clone {
+                    println!("[{}] Finished playing sound", client_id_clone);
+                }
+            });
+
+            // 🦆 says ⮞ Send notification to client
+            if let Err(e) = stream.write_u8(0x01) {
+                eprintln!("[{}] Failed to send detection notification: {}", client_id, e);
+            }
+            if let Err(e) = stream.flush() {
+                eprintln!("[{}] Failed to flush: {}", client_id, e);
+            }
+
+            // 🦆 says ⮞ wait for transcription, discarding stray chunks
+            let transcription_audio = loop {
+                let mut msg_type = [0u8; 1];
+                if let Err(e) = stream.read_exact(&mut msg_type) {
+                    eprintln!("[{}] Failed to read message type after detection: {}", client_id, e);
+                    return Ok(());
+                }
+                match msg_type[0] {
+                    0x02 => {
+                        let num_samples = match stream.read_u32::<LittleEndian>() {
+                            Ok(n) => n as usize,
+                            Err(e) => {
+                                eprintln!("[{}] Failed to read transcription length: {}", client_id, e);
+                                return Ok(());
+                            }
+                        };
+                        let mut audio_bytes = vec![0u8; num_samples * 4];
+                        if let Err(e) = stream.read_exact(&mut audio_bytes) {
+                            eprintln!("[{}] Failed to read transcription samples: {}", client_id, e);
+                            return Ok(());
+                        }
+                        let audio_f32: Vec<f32> = audio_bytes
+                            .chunks_exact(4)
+                            .map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+                            .collect();
+                        break audio_f32;
+                    }
+                    _ => {
+                        let len = match stream.read_u32::<LittleEndian>() {
+                            Ok(l) => l as usize,
+                            Err(e) => {
+                                eprintln!("[{}] Failed to read discarded chunk length: {}", client_id, e);
+                                return Ok(());
+                            }
+                        };
+                        let mut discard = vec![0u8; len * 4];
+                        if let Err(e) = stream.read_exact(&mut discard) {
+                            eprintln!("[{}] Failed to read discarded chunk samples: {}", client_id, e);
+                            return Ok(());
+                        }
+                        eprintln!("[{}] Discarded a pending wake chunk ({} samples)", client_id, len);
+                        continue;
+                    }
+                }
+            };
+
+            let perf_start = if debug { Some(Instant::now()) } else { None };
+
+            // 🦆 says ⮞ Transcribe
+            let sampling_strategy = if beam_size > 0 {
+                SamplingStrategy::BeamSearch { beam_size, patience: 1.0 }
+            } else {
+                // 🦆 says ⮞ beam_size == 0 -> greedy decoding with best_of = 1
+                SamplingStrategy::Greedy { best_of: 1 }
+            };
+            let mut whisper_params = FullParams::new(sampling_strategy);
+ 
+            whisper_params.set_n_threads(threads);
+            whisper_params.set_translate(false);
+            whisper_params.set_language(language.as_deref());
+            whisper_params.set_print_special(false);
+            whisper_params.set_print_progress(false);
+            whisper_params.set_print_realtime(false);
+            whisper_params.set_print_timestamps(false);
+            whisper_params.set_temperature(temperature);
+            whisper_params.set_suppress_blank(true);
+            whisper_params.set_suppress_non_speech_tokens(true);
+            // whisper_params.set_token_timestamps(true);
+
+            let mut state = whisper_ctx.create_state().expect("failed to create state");
+            if let Err(e) = state.full(whisper_params, &transcription_audio) {
+                eprintln!("[{}] Whisper transcription failed: {}", client_id, e);
+            } else {
+                let num_segments = state.full_n_segments()? as usize;
+                let mut transcription = String::new();
+                for i in 0..num_segments {
+                    let segment = state.full_get_segment_text(i as i32)?;
+                    transcription.push_str(&segment);
+                }
+                println!("[{}] Transcription: {}", client_id, transcription);                
+
+                // 🦆 says ⮞ if --debug
+                if debug { // 🦆 says ⮞ print transcription timer
+                    if let Some(start) = perf_start {
+                        let elapsed = start.elapsed();
+                        println!("[{}] Transcription took {:.3}s", client_id, elapsed.as_secs_f64());
+                    }
+                }
+
+                let normalized = normalize_transcription(&transcription);
+                if debug {
+                    println!("[{}] Normalized: {}", client_id, normalized);
+                }
+
+                // 🦆 says ⮞ execute command
+                if let Some(ref cmd_str) = exec_command {
+                    if normalized.is_empty() {
+                        eprintln!("[{}] Normalized text is empty, nothing to execute", client_id);
+                    } else {
+                        let mut parts = cmd_str.split_whitespace();
+                        if let Some(program) = parts.next() {
+                            let mut command = Command::new(program);
+                            for arg in parts {
+                                command.arg(arg);
+                            }
+                            command.arg(&normalized);               // append transcribed text
+                            command.env("VOICE_MODE", "1");
+
+                            match command.status() {
+                                Ok(status) => {
+                                    if status.success() {
+                                        println!("[{}] Command executed successfully", client_id);
+                                    } else {
+                                        eprintln!("[{}] Command failed with exit code: {:?}", client_id, status.code());
+                                    }
+                                }
+                                Err(e) => eprintln!("[{}] Failed to execute command: {}", client_id, e),
+                            }
+                        } else {
+                            eprintln!("[{}] Invalid exec command: empty", client_id);
+                        }
+                    }
+                }
+                // 🦆 says ⮞ if no exec command, do nothing                 
+            }
+            last_detection = Some(Instant::now());
+        } else if debug && detection.probability > 0.0 {
+            println!("[{}] Probability: {:.4}", client_id, detection.probability);
+        }
+    }
+
+    println!("[{}] Client disconnected", client_id);
+    Ok(())
+}
+
+fn normalize_transcription(text: &str) -> String {
+    text.trim()
+        .to_lowercase()
+        .chars()
+        .filter(|c| c.is_alphanumeric() || c.is_whitespace() || *c == '.' || *c == '-' || *c == '_')
+        .collect::<String>()
+        .split_whitespace()
+        .collect::<Vec<&str>>()
+        .join(" ")
+}
+
+fn print_usage(program_name: &str) {
+    eprintln!(
+        "Usage: {} [OPTIONS]\n\
+         Options:\n\
+         --host <ADDRESS>         Listening address (default: 0.0.0.0:12345)\n\
+         --awake-sound <PATH>     Path to WAV file to play on wake (default: ./ding.wav)\n\
+         --wake-word <PATH>       Path to wake word model (default: ./models/wake-words/yo_bitch.onnx)\n\
+         --threshold <FLOAT>      Detection threshold (default: 0.5)\n\
+         --model <PATH>           Path to Whisper model (default: ./ggml-tiny.bin)\n\
+         --cooldown <SECONDS>     Cooldown between detections (default: auto)\n\
+         --beam-size <INT>        Beam size for Whisper (0 = greedy, >0 = beam search, default: 5)\n\
+         --temperature <FLOAT>    Whisper temperature (default: 0.2)\n\
+         --language <LANG>        Language code (e.g., sv, en) or 'auto' (default: sv)\n\
+         --threads <INT>          Number of threads for Whisper (default: 4)\n\
+         --exec-command <CMD>     Command to execute with transcribed text as argument (default: none)\n\
+         --debug                  Enable debug logging\n\
+         --help, -h               Show this help message",
+        program_name
+    );
+}
+
+fn main() -> Result<()> {
+    env_logger::init();
+
+    let args: Vec<String> = env::args().collect();
+
+    // 🦆 says ⮞ --help ? 
+    if args.len() > 1 && (args[1] == "--help" || args[1] == "-h") {
+        print_usage(&args[0]);
+        return Ok(());
+    }
+
+
+    // 🦆 says ⮞ Defaults
+    let mut host = LISTEN_ADDR.to_string();
+    let mut sound_path: Option<String> = None;
+    let mut wake_word_path = "./models/wake-words/yo_bitch.onnx".to_string();
+    let mut threshold = 0.5;
+    let mut whisper_model_path = "./models/stt/ggml-tiny.bin".to_string();
+    let mut cooldown_secs = 10;
+    let mut debug = false;
+    let mut beam_size = 5;
+    let mut temperature = 0.2;
+    let mut language = Some("sv".to_string());
+    let mut threads = 4;
+    let mut exec_command: Option<String> = None;
+
+    // 🦆 says ⮞ parse arguments
+    let mut i = 1;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--host" => {
+                if i + 1 < args.len() {
+                    host = args[i + 1].clone();
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --host");
+                    std::process::exit(1);
+                }
+            }
+            "--awake-sound" => {
+                if i + 1 < args.len() {
+                    sound_path = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --awake-sound");
+                    std::process::exit(1);
+                }
+            }
+            "--beam-size" => {
+                if i + 1 < args.len() {
+                    let val = args[i + 1].parse().unwrap_or_else(|_| {
+                        eprintln!("Invalid beam size value – must be an integer >= 0");
+                        std::process::exit(1);
+                    });
+                    if val < 0 {
+                        eprintln!("Beam size must be >= 0");
+                        std::process::exit(1);
+                    }
+                    beam_size = val;
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --beam-size");
+                    std::process::exit(1);
+                }
+            }
+            "--wake-word" => {
+                if i + 1 < args.len() {
+                    wake_word_path = args[i + 1].clone();
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --wake-word");
+                    std::process::exit(1);
+                }
+            }
+            "--threshold" => {
+                if i + 1 < args.len() {
+                    threshold = args[i + 1].parse().unwrap_or_else(|_| {
+                        eprintln!("Invalid threshold value");
+                        std::process::exit(1);
+                    });
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --threshold");
+                    std::process::exit(1);
+                }
+            }
+            "--model" => {
+                if i + 1 < args.len() {
+                    whisper_model_path = args[i + 1].clone();
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --model");
+                    std::process::exit(1);
+                }
+            }
+            "--cooldown" => {
+                if i + 1 < args.len() {
+                    cooldown_secs = args[i + 1].parse().unwrap_or_else(|_| {
+                        eprintln!("Invalid cooldown value");
+                        std::process::exit(1);
+                    });
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --cooldown");
+                    std::process::exit(1);
+                }
+            }       
+            "--temperature" => {
+                if i + 1 < args.len() {
+                    temperature = args[i + 1].parse().unwrap_or_else(|_| {
+                        eprintln!("Invalid temperature value – must be a float");
+                        std::process::exit(1);
+                    });
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --temperature");
+                    std::process::exit(1);
+                }
+            }
+            "--language" => {
+                if i + 1 < args.len() {
+                    let lang = args[i + 1].clone();
+                    language = if lang == "auto" { None } else { Some(lang) };
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --language");
+                    std::process::exit(1);
+                }
+            }
+            "--threads" => {
+                if i + 1 < args.len() {
+                    threads = args[i + 1].parse().unwrap_or_else(|_| {
+                        eprintln!("Invalid threads value – must be an integer");
+                        std::process::exit(1);
+                    });
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --threads");
+                    std::process::exit(1);
+                }
+            }
+            "--exec-command" => {
+                if i + 1 < args.len() {
+                    exec_command = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --exec-command");
+                    std::process::exit(1);
+                }
+            }
+            "--debug" => {
+                debug = true;
+                i += 1;
+            }
+            _ => {
+                eprintln!("Unknown argument: {}", args[i]);
+                std::process::exit(1);
+            }
+        }
+    }
+
+    let sound_data = if let Some(ref path) = sound_path {
+        match std::fs::read(&path) {
+            Ok(data) => {
+                println!("Loaded custom awake sound from {}", path);
+                data
+            }
+            Err(e) => {
+                eprintln!("Failed to read awake sound file '{}': {}. Using embedded sound.", path, e);
+                DING_WAV.to_vec()
+            }
+        }
+    } else {
+        DING_WAV.to_vec()
+    };
+
+    let listener = TcpListener::bind(&host)?;
+    
+    // 🦆 says ⮞ Print current settings
+    println!(
+        "Multi‑client detector listening on {} (debug={}, cooldown={}s, wake_word={}, threshold={}, whisper_model={}, temperature={}, language={}, threads={}, sound={}, exec_command={})",
+        host, debug, cooldown_secs, wake_word_path, threshold, whisper_model_path, temperature,
+        language.as_deref().unwrap_or("auto"), threads,
+        if sound_path.is_some() { "custom" } else { "embedded" },
+        if exec_command.is_some() { "yes" } else { "no" }
+    );
+
+    for stream in listener.incoming() {
+        match stream {
+            Ok(stream) => {
+                let peer_addr = match stream.peer_addr() {
+                    Ok(addr) => addr.to_string(),
+                    Err(_) => "unknown".to_string(),
+                };
+                let client_id = format!("client @ {}", peer_addr);
+                let sound_data = sound_data.clone();
+                let exec_command = exec_command.clone();
+
+                let wake_model = match OwwModel::from_path(&wake_word_path, threshold) {
+                    Ok(m) => m,
+                    Err(e) => {
+                        eprintln!("[{}] Failed to load wake model from {}: {}", client_id, wake_word_path, e);
+                        continue;
+                    }
+                };
+
+                let whisper_ctx = match WhisperContext::new(&whisper_model_path) {
+                    Ok(ctx) => ctx,
+                    Err(e) => {
+                        eprintln!("[{}] Failed to load Whisper model from {}: {}", client_id, whisper_model_path, e);
+                        continue;
+                    }
+                };
+
+                let temperature = temperature;
+                let language = language.clone();
+                let threads = threads;
+
+                thread::spawn(move || {
+                    if let Err(e) = handle_client(
+                        stream,
+                        wake_model,
+                        whisper_ctx,
+                        client_id,
+                        debug,
+                        cooldown_secs,
+                        beam_size,
+                        temperature,
+                        language,
+                        threads,
+                        sound_data,
+                        exec_command,
+                    ) {
+                        eprintln!("Error in client handler: {}", e);
+                    }
+                });
+            }
+            Err(e) => eprintln!("Connection failed: {}", e),
+        }
+    }
+    Ok(())
+}

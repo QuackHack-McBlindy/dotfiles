@@ -35,7 +35,7 @@ in {
         system.tools.nixos-option.enable = true;
 
         nix = {
-            distributedBuilds = false;
+            distributedBuilds = true;
 
             buildMachines = [{
                 protocol = "ssh";

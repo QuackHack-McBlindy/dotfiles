@@ -6,8 +6,9 @@
   self,
   ...
 } : { 
-
-    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 ];
+    services.udev.packages = [ pkgs.openrgb ];
+    users.users.pungkula.extraGroups = [ "i2c" ];    
+    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   
@@ -50,7 +51,7 @@
                 #matrix = "";
                 email = "isthisrandomenough@protonmail.com";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
-                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" ]; 
+                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" ]; 
                 mobileDevices = { # 🦆 duck say ⮞ non nixos devices
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
@@ -77,7 +78,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "default" "adb" "backup" "cache" "keyd" "jelly" "duck-tv" ];
+                services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo

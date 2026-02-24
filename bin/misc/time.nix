@@ -28,10 +28,11 @@ in {
       TIME=$(date "+%H . %M")
       DAY=$(date "+%A")
       DATE=$(date "+%d %B")
+      WEEK=$(week)
       say_duck "Klockan är $TIME . Det är $DAY dem $DATE ."
       echo "$TIME"
       #if_voice_say "Klockan är $TIME . Det är $DAY den $DATE ."  
-      yo say "Klockan är $TIME . Det är $DAY den $DATE ."  --web true
+      yo say "Klockan är $TIME . Det är $DAY den $DATE . Vecka $WEEK"
     '';
     voice = {
       enabled = true;

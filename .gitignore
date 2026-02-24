@@ -15,6 +15,7 @@ home/.local/share/piper
 overlays/dump
 modules/networking/caddy.nix.save
 borg_settings.txt
+packages/yo-rs/models/stt
 baseurl
 key/
 **/keys.txt
@@ -55,10 +56,8 @@ build/             # Build output for C++ projects
 result/            # Nix build output
 **/result/
 **/result
-*.pid              # Process ID files
-*.sock             # Unix socket files
-**/vendor
-**/vendor/
+*.pid
+*.sock
 **/.direnv
 **/*.typed
 played_news.txt

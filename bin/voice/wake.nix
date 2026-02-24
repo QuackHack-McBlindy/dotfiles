@@ -28,7 +28,8 @@ in {
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
     category = "🗣️ Voice"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
-    autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
+    #autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
+    autoStart = false;
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.85"; }
@@ -103,6 +104,7 @@ in {
       wakeword_connection() { # 🦆 says ⮞ requred to read da probability threashold
         ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
           --name fakeSat \
+          --wake-word-name yo_bitch \
           --uri tcp://0.0.0.0:10700\
           --mic-command "${pkgs.alsa-utils}/bin/arecord -r 16000 -c 1 -f S16_LE -t raw" \
           --snd-command "${pkgs.alsa-utils}/bin/aplay -r 22050 -c 1 -f S16_LE -t raw" \
@@ -187,7 +189,7 @@ in {
   services.wyoming.openwakeword = lib.mkIf wakeAutoStart {
     enable = true;
     uri = "tcp://0.0.0.0:10400";
-#    preloadModels = [ "yo_bitch" ]; # 🦆 says ⮞ mature....
+    #preloadModels = [ "yo_bitch" ]; # 🦆 says ⮞ mature....
     customModelsDirectories = [ "/etc/openwakeword" ];
     threshold = 0.8; # 🦆 says ⮞ dooz not really matter since we run fake sat yo
     triggerLevel = 1;

@@ -13,8 +13,13 @@
                 pkgs.nix-prefetch-github 
                 pkgs.cargo
                 pkgs.rustc
+                pkgs.libclang
+                pkgs.cmake
                 pkgs.openssl
+                pkgs.openssl.dev
                 pkgs.pkg-config
+                pkgs.alsa-ucm-conf
+                pkgs.alsa-lib-with-plugins
                 pkgs.rustfmt
                 pkgs.clippy
                 pkgs.ollama-rocm
@@ -34,6 +39,7 @@
                 pkgs.npth
                 #   esphome
                 pkgs.python312Packages.httpx
+                pkgs.python312Packages.beautifulsoup4
                 pkgs.python312Packages.aiocron
                 pkgs.python312Packages.aioesphomeapi
                 pkgs.python312

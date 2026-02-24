@@ -253,7 +253,8 @@ in { # 🦆 says ⮞ yo yo yo yo
   yo.scripts.transcribe = {
     description = "Transcription server-side service. Sit and waits for audio that get transcribed and returned.";
     category = "🗣️ Voice"; 
-    autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
+    #autoStart = config.this.host.hostname == "desktop"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
+    autoStart = false;
 #    helpFooter = '' # 🦆 says ⮞ TODO some useful & fun helpFooter yo
 #    '';
     logLevel = "INFO";

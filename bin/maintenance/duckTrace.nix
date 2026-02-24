@@ -21,7 +21,8 @@ in {
     parameters = [ 
       { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
       #{ name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }       
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }
+      { name = "user"; type = "bool"; description = "Operate on user services instead of system services"; optional = true; default = false; }
       { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
       { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
     ]; 
@@ -35,6 +36,7 @@ in {
       export GUM_CHOOSE_CURSOR="🦆 ➤ "  
       export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
       export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
+      USER_SERVICE="${user:-false}"
       
       announce_error() {
         local file="$DT_LOG_PATH/error_state"
@@ -107,7 +109,11 @@ in {
       systemd_log() {
         local service
         service=$(get_service_name)
-        ${pkgs.systemd}/bin/journalctl -u "$service" -f
+        local user_flag=""
+        if [[ "$USER_SERVICE" == "true" ]]; then
+          user_flag="--user"
+        fi
+        ${pkgs.systemd}/bin/journalctl $user_flag -u "$service" -f
       }
 
       restart_service() {

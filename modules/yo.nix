@@ -811,7 +811,10 @@ EOF
       "yo-${scriptName}-at-${safeTime}";
 
   
-in { # 🦆 duck say ⮞ options options duck duck
+in { # 🦆 duck say ⮞ import server/client module
+  imports = [ ./yo-rs.nix ];
+
+  # 🦆 duck say ⮞ options options duck duck
   options = { # 🦆 duck say ⮞ quack 
     yo = {
       pkgs = mkOption {

@@ -20,7 +20,7 @@ in {
       ${cmdHelpers}
       JOKE_FILE="$jokeFile"
       JOKE=$(shuf -n 1 "$JOKE_FILE")
-      yo say --text "$JOKE" --web true --host homie 
+      yo say --text "$JOKE" 
       say_duck "$JOKE"
     '';   
     voice = {

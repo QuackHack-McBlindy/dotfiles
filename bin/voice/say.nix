@@ -19,11 +19,11 @@ in { # 🦆 says ⮞ yo yo yo yo
       { name = "model"; description = "File name of the model"; default = "sv_SE-lisa-medium.onnx"; } # 🦆 says ⮞ lisa sounds hot - bet she likez ducks
       { name = "modelDir"; description = "Path to the directory containing model"; default = "/home/" + config.this.user.me.name + "/.local/share/piper"; }
       { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
-      { name = "host"; description = "Host to play the audio on"; default = "homie"; }       
+      { name = "host"; description = "Host to play the audio on"; default = config.this.host.hostname; }
       { name = "blocking"; type = "bool"; description = "Wait for TTS playback to finish"; default = false; }
       { name = "file"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }
       { name = "caf"; description = "Path to output .caf file"; default = ""; }
-      { name = "web"; type = "bool"; description = "Generate for web and output HTTP URL"; default = true; }
+      { name = "web"; type = "bool"; description = "Generate for web and output HTTP URL"; default = false; }
     ];
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
@@ -37,6 +37,9 @@ in { # 🦆 says ⮞ yo yo yo yo
       CURRENT_HOST=$(hostname)
       CAF_OUTPUT="$caf"
       WEB="$web"
+      if [ "$(hostname)" = "homie" ]; then
+        WEB=true
+      fi
 
       # 🦆 says ⮞ Web mode - always run on mqttHost
       if [ "$WEB" = "true" ]; then

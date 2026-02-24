@@ -1,0 +1,27 @@
+[package]
+name = "yo-rs"
+description = "yo-rs is a multi-client wake word detection and speech-to-text server + client. All communication is over TCP with a simple binary protocol."
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+keywords = ["wakeword", "detection", "onnx", "speech-to-text", "multi-client"]
+
+[dependencies]
+oww-rs = { path = "vendor/oww-rs" }
+whisper-rs = "0.8"
+cpal = "0.16"
+anyhow = "1.0"
+env_logger = "0.11"
+tokio = { version = "1", features = ["full"] }
+tokio-tungstenite = "0.20"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+futures-util = "0.3"
+log = "0.4"
+byteorder = "1.5"
+rodio = "0.17"
+
+
+[[bin]]
+name = "yo-client"
+path = "src/yo-client.rs"
