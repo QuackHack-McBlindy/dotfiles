@@ -21,7 +21,7 @@ in {
           #wakeWordPath = "/home/pungkula/dotfiles/home/.config/models/yo_bitch.onnx";
           threshold = 0.8; 
           #awakeSound = "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav";
-          whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
+          #whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           language = "sv";
           beamSize = 5;
           temperature = 0.2; # 🦆 says ⮞ no more LSD plx

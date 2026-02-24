@@ -208,7 +208,14 @@ in {
 
       if [[ -z "$LOGFILE" ]]; then
         cd "$DT_LOG_PATH" || exit 1
+        
+        # 🦆 says ⮞ real log files
         FILES=($(${pkgs.findutils}/bin/find . -type f -size +0c -printf '%f\n'))
+        # 🦆 says ⮞ user yo services
+        YO_SERVICES=$(${pkgs.systemd}/bin/systemctl --user list-unit-files --type=service \
+          | awk '/^yo-.*\.service/ {print "[journal] " $1}')
+        # 🦆 says ⮞ merge them
+        FILES+=($YO_SERVICES)
         if [[ ''${#FILES[@]} -eq 0 ]]; then
           dt_error "No log files found in $DT_LOG_PATH"
           exit 1
@@ -222,6 +229,15 @@ in {
           dt_info "No log file selected."
           exit 0
         fi
+        
+        # 🦆 says ⮞ handle journal entries
+        if [[ "$LOGFILE" == "[journal]"* ]]; then
+          service=$(echo "$LOGFILE" | awk '{print $2}')
+          ${pkgs.systemd}/bin/journalctl --user -u "$service" -o short-iso \
+            | ${pkgs.less}/bin/less
+          exit 0
+        fi
+        
         LOGFILE="$DT_LOG_PATH/$LOGFILE"
       else
         if [[ ! -f "$LOGFILE" ]]; then

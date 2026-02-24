@@ -6,6 +6,7 @@ use std::{ // 🦆 says ⮞ yo-rs (Server)
     process::Command,
     thread,
     time::{Duration, Instant},
+    sync::Arc,
 };
 
 use anyhow::Result;
@@ -21,7 +22,8 @@ const DEFAULT_WAKE_MODEL: &[u8] = include_bytes!("./../models/wake-words/yo_bitc
 fn handle_client(
     mut stream: TcpStream,
     mut wake_model: OwwModel,
-    whisper_ctx: WhisperContext,
+    //whisper_ctx: WhisperContext,
+    whisper_ctx: Arc<WhisperContext>,
     client_id: String,
     debug: bool,
     cooldown_secs: u64,
@@ -481,6 +483,8 @@ fn main() -> Result<()> {
         exec_display,
     );
 
+    let whisper_ctx = Arc::new(WhisperContext::new(&whisper_model_path)?);
+
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
@@ -511,13 +515,14 @@ fn main() -> Result<()> {
                     }
                 };
 
-                let whisper_ctx = match WhisperContext::new(&whisper_model_path) {
-                    Ok(ctx) => ctx,
-                    Err(e) => {
-                        eprintln!("[{}] Failed to load Whisper model from {}: {}", client_id, whisper_model_path, e);
-                        continue;
-                    }
-                };
+                let whisper_ctx = Arc::clone(&whisper_ctx);
+                //let whisper_ctx = match WhisperContext::new(&whisper_model_path) {
+                //    Ok(ctx) => ctx,
+                //    Err(e) => {
+                //        eprintln!("[{}] Failed to load Whisper model from {}: {}", client_id, whisper_model_path, e);
+                //        continue;
+                //    }
+                //};
 
                 let temperature = temperature;
                 let language = language.clone();

@@ -37,8 +37,9 @@ in {
       };
 
       wakeWordPath = mkOption {
-        type = types.path;
-        default = "${cfg.package}/share/yo-rs/models/wake-words/yo_bitch.onnx";
+        type = types.nullOr types.path;
+        #default = "${cfg.package}/share/yo-rs/models/wake-words/yo_bitch.onnx";
+        default = null;
         description = "Path to the wake‑word ONNX model.";
       };
 
@@ -50,7 +51,7 @@ in {
 
       whisperModelPath = mkOption {
         type = types.path;
-        default = "${cfg.package}/share/yo-rs/models/stt/ggml-tiny.bin";
+        default = "${cfg.package}/share/yo-rs/models/stt/ggml-small.bin";
         description = "Path to the Whisper GGML model.";
       };
 
@@ -68,7 +69,7 @@ in {
 
       language = mkOption {
         type = types.nullOr types.str;
-        default = "sv";
+        default = "en";
         description = ''
           Language code (e.g., `sv`, `en`) or `"auto"`.
           Use `null` for automatic detection (equivalent to `auto`).
@@ -162,7 +163,8 @@ in {
           RestartSec = "15s";
           ExecStart = lib.escapeShellArgs (
             [ (getExe cfg.package) "--host" cfg.server.host ]
-            ++ [ "--wake-word" cfg.server.wakeWordPath ]
+            ++ optionals (cfg.server.wakeWordPath != null)   # ← conditionally added
+                [ "--wake-word" cfg.server.wakeWordPath ]
             ++ [ "--threshold" (toString cfg.server.threshold) ]
             ++ [ "--model" cfg.server.whisperModelPath ]
             ++ [ "--beam-size" (toString cfg.server.beamSize) ]
