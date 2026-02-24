@@ -7,14 +7,19 @@
   fetchFromGitHub,
   ...
 } : let
-  whisperModel = pkgs.fetchurl {
+  tinyWhisper = pkgs.fetchurl {
     url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-tiny.bin";
     sha256 = "sha256-vgfgSOHlma1GNByNKhNWRQl6U4IhZ4t6zdGxkZxuGyE=";
+  };
+  # 🦆 says ⮞ small whisper model
+  whisperModel = pkgs.fetchurl {
+    url = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin";
+    sha256 = "sha256-G+OpsgY4Z7k35k4ux0gzZKeZF+FX+pjF2UtcH//qmHs=";
   };
 in  
 rustPlatform.buildRustPackage {
   pname = "yo-rs";
-  version = "0.1.0";
+  version = "0.1.9";
 
   src = ./yo-rs;
 
@@ -41,12 +46,12 @@ rustPlatform.buildRustPackage {
     cp ding.wav $out/share/yo-rs/ding.wav
 
     # 🦆 says ⮞ install wake‑word model
-    mkdir -p $out/share/yo-rs/models/wake-words
-    cp models/wake-words/yo_bitch.onnx $out/share/yo-rs/models/wake-words/yo_bitch.onnx
+    # mkdir -p $out/share/yo-rs/models/wake-words
+    # cp models/wake-words/yo_bitch.onnx $out/share/yo-rs/models/wake-words/yo_bitch.onnx
 
-    # 🦆 says ⮞ install tiny-Whisper model
+    # 🦆 says ⮞ install small Whisper model
     mkdir -p $out/share/yo-rs/models/stt
-    cp ${whisperModel} $out/share/yo-rs/models/stt/ggml-tiny.bin
+    cp ${whisperModel} $out/share/yo-rs/models/stt/ggml-small.bin
   '';
 
   meta = with lib; {

@@ -88,7 +88,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8572 ducks? <br>
+Let's see if you can find all 8573 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1408,7 +1408,7 @@ git+file:///home/pungkula/dotfiles
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───jellyfin: package 'jellyfin'
         ├───tv: package 'tv'
-        └───yo-rs: package 'yo-rs-0.1.0'
+        └───yo-rs: package 'yo-rs-0.1.9'
 ```
 
   <!-- TREE_END -->

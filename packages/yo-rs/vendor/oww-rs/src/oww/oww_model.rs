@@ -14,7 +14,6 @@ use tract_core::prelude::multithread::{self, Executor};
 use tract_core::prelude::{Framework, TValue};
 use tract_onnx::prelude::{InferenceModelExt, IntoTensor, Tensor as TractTensor, tvec};
 
-// NEW: imports for file I/O
 use std::fs::File;
 use std::io::Read;
 
@@ -95,12 +94,11 @@ impl OwwModel {
         if positive_count > MIN_POSITIVE_DETECTIONS && avg > self.threshold { avg } else { 0.0 }
     }
 
-    // Existing constructor for embedded models
+    // constructor for embedded models
     pub fn new(model_type: SpeechUnlockType, threshold: f32) -> Result<OwwModel, String> {
         let model_data = match model_type {
             SpeechUnlockType::OpenWakeWordAlexa => &crate::oww::oww_model::SpeechModels::get("alexa.onnx").unwrap().data,
-            // NEW: handle custom variant – will be called from model.rs with the path,
-            // but we use a separate constructor for that.
+            
             SpeechUnlockType::Custom(_) => unreachable!("Use OwwModel::from_path for custom models"),
         };
 
@@ -123,7 +121,7 @@ impl OwwModel {
         })
     }
 
-    // NEW: constructor to load a custom speech model from a file path
+    // 🦆 ⮞ constructor to load a custom speech model from a file path
     pub fn from_path(model_path: &str, threshold: f32) -> Result<OwwModel, String> {
         let mut file = File::open(model_path).map_err(|e| e.to_string())?;
         let mut model_data = Vec::new();
@@ -133,6 +131,29 @@ impl OwwModel {
         let mut rdr = Cursor::new(model_data);
         let tract_model = tract_onnx::onnx()
             .model_for_read(&mut rdr)
+            .map_err(|e| e.to_string())?
+            .into_optimized()
+            .map_err(|e| e.to_string())?
+            .into_runnable()
+            .map_err(|e| e.to_string())?;
+
+        Ok(OwwModel {
+            audio: AudioFeaturesTract::create_default(),
+            tract_model,
+            threshold,
+            last_detection_time: Instant::now(),
+            detections_buffer,
+            model_unlock_word: "Custom".to_string(),
+        })
+    }
+    
+    // 🦆 ⮞ load a wake word model from an in‑memory byte slice
+    pub fn from_bytes(model_bytes: &[u8], threshold: f32) -> Result<Self, String> {
+        let detections_buffer = CircularBuffer::<DETECTION_BUFFER_SIZE, f32>::new();
+        let mut cursor = Cursor::new(model_bytes);
+
+        let tract_model = tract_onnx::onnx()
+            .model_for_read(&mut cursor)
             .map_err(|e| e.to_string())?
             .into_optimized()
             .map_err(|e| e.to_string())?

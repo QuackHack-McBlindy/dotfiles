@@ -15,7 +15,8 @@ use rodio::OutputStream;
 use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
 
 const LISTEN_ADDR: &str = "0.0.0.0:12345";
-const DING_WAV: &[u8] = include_bytes!("../ding.wav");
+const DING_WAV: &[u8] = include_bytes!("./../ding.wav");
+const DEFAULT_WAKE_MODEL: &[u8] = include_bytes!("./../models/wake-words/yo_bitch.onnx");
 
 fn handle_client(
     mut stream: TcpStream,
@@ -281,7 +282,8 @@ fn main() -> Result<()> {
     // 🦆 says ⮞ Defaults
     let mut host = LISTEN_ADDR.to_string();
     let mut sound_path: Option<String> = None;
-    let mut wake_word_path = "./models/wake-words/yo_bitch.onnx".to_string();
+    let mut wake_word_path = String::new();
+    let mut custom_wake_word_provided = false;  
     let mut threshold = 0.5;
     let mut whisper_model_path = "./models/stt/ggml-tiny.bin".to_string();
     let mut cooldown_secs = 10;
@@ -334,6 +336,7 @@ fn main() -> Result<()> {
             "--wake-word" => {
                 if i + 1 < args.len() {
                     wake_word_path = args[i + 1].clone();
+                    custom_wake_word_provided = true;
                     i += 2;
                 } else {
                     eprintln!("Missing value for --wake-word");
@@ -427,6 +430,7 @@ fn main() -> Result<()> {
         }
     }
 
+    // sound loading
     let sound_data = if let Some(ref path) = sound_path {
         match std::fs::read(&path) {
             Ok(data) => {
@@ -445,12 +449,36 @@ fn main() -> Result<()> {
     let listener = TcpListener::bind(&host)?;
     
     // 🦆 says ⮞ Print current settings
+    let sound_display = sound_path.as_deref().unwrap_or("ding.wav (embedded)");
+    let exec_display = exec_command.as_deref().unwrap_or("none");
+    let wake_word_display = if custom_wake_word_provided {
+        wake_word_path.as_str()
+    } else {
+        "yo_bitch"
+    };
+
     println!(
-        "Multi‑client detector listening on {} (debug={}, cooldown={}s, wake_word={}, threshold={}, whisper_model={}, temperature={}, language={}, threads={}, sound={}, exec_command={})",
-        host, debug, cooldown_secs, wake_word_path, threshold, whisper_model_path, temperature,
-        language.as_deref().unwrap_or("auto"), threads,
-        if sound_path.is_some() { "custom" } else { "embedded" },
-        if exec_command.is_some() { "yes" } else { "no" }
+        r#"Settings:
+      Host:           {}
+      Debug:          {}
+      Wake word:      {}
+      Threshold:      {}
+      Whisper model:  {}
+      Temperature:    {}
+      Language:       {}
+      Threads:        {}
+      Sound:          {}
+      Exec command:   {}"#,
+        host,
+        debug,
+        wake_word_display,
+        threshold,
+        whisper_model_path,
+        temperature,
+        language.as_deref().unwrap_or("auto"),
+        threads,
+        sound_display,
+        exec_display,
     );
 
     for stream in listener.incoming() {
@@ -464,11 +492,22 @@ fn main() -> Result<()> {
                 let sound_data = sound_data.clone();
                 let exec_command = exec_command.clone();
 
-                let wake_model = match OwwModel::from_path(&wake_word_path, threshold) {
-                    Ok(m) => m,
-                    Err(e) => {
-                        eprintln!("[{}] Failed to load wake model from {}: {}", client_id, wake_word_path, e);
-                        continue;
+                // 🦆 says ⮞ no --wake-word provided? use the embedded bytes
+                let wake_model = if custom_wake_word_provided {
+                    match OwwModel::from_path(&wake_word_path, threshold) {
+                        Ok(m) => m,
+                        Err(e) => {
+                            eprintln!("[{}] Failed to load wake model from {}: {}", client_id, wake_word_path, e);
+                            continue;
+                        }
+                    }
+                } else {
+                    match OwwModel::from_bytes(DEFAULT_WAKE_MODEL, threshold) {
+                        Ok(m) => m,
+                        Err(e) => {
+                            eprintln!("[{}] Failed to load embedded wake model: {}", client_id, e);
+                            continue;
+                        }
                     }
                 };
 

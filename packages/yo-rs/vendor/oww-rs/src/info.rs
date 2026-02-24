@@ -19,7 +19,7 @@ impl LanguageModel {
 pub fn get_trigger_phases(unlock_config: &UnlockConfig) -> Vec<String> {
     match unlock_config.unlock_type {
         SpeechUnlockType::OpenWakeWordAlexa => vec!["Alexa".to_string()],
-        SpeechUnlockType::Custom(_) => vec!["Custom".to_string()], // Placeholder for custom models
+        SpeechUnlockType::Custom(_) => vec!["Custom".to_string()], // 🦆 ⮞ custom models
     }
 }
 
@@ -28,7 +28,7 @@ pub fn set_unlock_model(language_model: &LanguageModel) -> Option<UnlockConfig> 
 
     let model_type = match language_model.name.as_str() {
         OWW_CZ_NAME_ALEXA => SpeechUnlockType::OpenWakeWordAlexa,
-        // For any other name, we cannot determine a custom model path; return None.
+         // 🦆 ⮞ for any other name, we cannot determine a custom model path; return None.
         _ => {
             debug!("Unknown language model {:?}, cannot set unlock model", language_model);
             return None;
