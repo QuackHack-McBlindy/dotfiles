@@ -16,12 +16,14 @@
                 pkgs.libclang
                 pkgs.cmake
                 pkgs.openssl
+                pkgs.piper-phonemize
                 pkgs.openssl.dev
                 pkgs.pkg-config
                 pkgs.alsa-ucm-conf
                 pkgs.alsa-lib-with-plugins
                 pkgs.rustfmt
                 pkgs.clippy
+                pkgs.espeak
                 pkgs.ollama-rocm
                 pkgs.jellyfin-web
                 pkgs.jellycli

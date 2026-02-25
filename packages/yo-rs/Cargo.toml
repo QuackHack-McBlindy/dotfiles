@@ -1,10 +1,10 @@
 [package]
 name = "yo-rs"
-description = "yo-rs is a multi-client wake word detection and speech-to-text server + client. All communication is over TCP with a simple binary protocol."
-version = "0.1.1"
+description = "yo-rs is a multi-client wake word detection and transcription server with shell command translation and execution. Including microphone client. All communication is over TCP with a simple binary protocol."
+version = "0.1.3"
 edition = "2021"
 license = "MIT"
-keywords = ["wakeword", "detection", "onnx", "speech-to-text", "multi-client"]
+keywords = ["wakeword", "speech-to-text", "shell-translator", "multi-client"]
 
 [dependencies]
 oww-rs = { path = "vendor/oww-rs" }
@@ -20,8 +20,24 @@ futures-util = "0.3"
 log = "0.4"
 byteorder = "1.5"
 rodio = "0.17"
-
+# Logging dependencies
+lazy_static = "1.4"
+dirs = "5.0"
+tempfile = "3.8"
+colored = "2.1"
+# Shell translator dependencies (yo-do)
+regex = "1.0"
+chrono = { version = "0.4", features = ["serde", "clock"] }
+rand = "0.8"
 
 [[bin]]
 name = "yo-client"
 path = "src/yo-client.rs"
+
+[[bin]]
+name = "yo-do"
+path = "src/yo-do.rs"
+
+[[bin]]
+name = "yo-tests"
+path = "src/yo-tests.rs"

@@ -843,18 +843,21 @@ in { # 🦆 duck say ⮞ import server/client module
         type = types.listOf types.str;
         default = [ "samt" ];
         example = [ "and" "also" ];
-        description = "List of words that is used for command chaining.";
+        description = ''
+          List of words that is used for command chaining.
+          Using one of these words would effectively end current command and start the next one.
+        '';
       };            
-      wakeWord = mkOption {
-        type = types.nullOr types.path;
-        default = null;
-        apply = p:
-          if p == null || lib.hasSuffix ".tflite" (toString p)
-          then p
-          else throw "yo.voice.wakeWord must be null or a .tflite file";
-        example = "/etc/yo/wake_word_model.tflite";
-        description = "Optional path to the .tflite wake word model file.";
-      }; # 🦆 duck say ⮞ generated regex patterns count
+      #wakeWord = mkOption {
+      #  type = types.nullOr types.path;
+      #  default = null;
+      #  apply = p:
+      #    if p == null || lib.hasSuffix ".tflite" (toString p)
+      #    then p
+      #    else throw "yo.voice.wakeWord must be null or a .tflite file";
+      #  example = "/etc/yo/wake_word_model.tflite";
+      #  description = "Optional path to the .tflite wake word model file.";
+      #}; # 🦆 duck say ⮞ generated regex patterns count
       generatedPatterns = mkOption {
         type = types.int;
         readOnly = true;

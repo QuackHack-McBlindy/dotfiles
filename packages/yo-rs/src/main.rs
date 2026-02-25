@@ -17,6 +17,8 @@ use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
 
 const LISTEN_ADDR: &str = "0.0.0.0:12345";
 const DING_WAV: &[u8] = include_bytes!("./../ding.wav");
+const DONE_WAV: &[u8] = include_bytes!("./../done.wav");
+
 const DEFAULT_WAKE_MODEL: &[u8] = include_bytes!("./../models/wake-words/yo_bitch.onnx");
 
 fn handle_client(
@@ -32,7 +34,9 @@ fn handle_client(
     language: Option<String>,
     threads: i32,
     sound_data: Vec<u8>,
+    done_sound_data: Vec<u8>,
     exec_command: Option<String>,
+    translate_to_shell: bool,
 ) -> Result<()> {
     println!("📡 ☑️ 🎙️ {} Connected", client_id);
     let mut last_detection: Option<Instant> = None;
@@ -90,7 +94,7 @@ fn handle_client(
                     sink.sleep_until_end();
                 }
                 if debug_clone {
-                    println!("[{}] Finished playing sound", client_id_clone);
+                    println!("[{}] Finished playing awake sound", client_id_clone);
                 }
             });
 
@@ -196,10 +200,37 @@ fn handle_client(
                     println!("[{}] Normalized: {}", client_id, normalized);
                 }
 
-                // 🦆 says ⮞ execute command
+                // 🦆 says ⮞ translate transcribed text to shell command and execute
+                if translate_to_shell {
+                    if normalized.is_empty() {
+                        if debug {
+                            eprintln!("[{}] Normalized text is empty, nothing to translate.", client_id);
+                        }
+                    } else {
+                        let status = Command::new("yo-do")
+                            .arg(&normalized)
+                            .env("VOICE_MODE", "1")
+                            .status();
+
+                        match status {
+                            Ok(status) => {
+                                if status.success() {
+                                    println!("🎉 {} Shell translation successful!", client_id);
+                                    play_done_sound(done_sound_data.clone(), client_id.clone(), debug);
+                                } else {
+                                    eprintln!("[{}] Shell translator failed with exit code: {:?}", client_id, status.code());
+                                }
+                            }
+                            Err(e) => eprintln!("[{}] Failed to execute yo-do: {}", client_id, e),
+                        }
+                    }
+                }
+
                 if let Some(ref cmd_str) = exec_command {
                     if normalized.is_empty() {
-                        eprintln!("[{}] Normalized text is empty, nothing to execute", client_id);
+                        if debug {
+                            eprintln!("[{}] Normalized text is empty, nothing to execute", client_id);
+                        }
                     } else {
                         let mut parts = cmd_str.split_whitespace();
                         if let Some(program) = parts.next() {
@@ -207,21 +238,22 @@ fn handle_client(
                             for arg in parts {
                                 command.arg(arg);
                             }
-                            command.arg(&normalized);               // append transcribed text
+                            command.arg(&normalized);
                             command.env("VOICE_MODE", "1");
 
                             match command.status() {
                                 Ok(status) => {
                                     if status.success() {
-                                        println!("[{}] Command executed successfully", client_id);
+                                        println!("🎉 {} Executed successfully!", client_id);
+                                        play_done_sound(done_sound_data.clone(), client_id.clone(), debug);
                                     } else {
-                                        eprintln!("[{}] Command failed with exit code: {:?}", client_id, status.code());
+                                        eprintln!("🚫 {} Command failed with exit code: {:?}", client_id, status.code());
                                     }
                                 }
-                                Err(e) => eprintln!("[{}] Failed to execute command: {}", client_id, e),
+                                Err(e) => eprintln!("🚫 {} Failed to execute command: {}", client_id, e),
                             }
-                        } else {
-                            eprintln!("[{}] Invalid exec command: empty", client_id);
+                        } else if debug {
+                            eprintln!("🚫 {} Invalid exec command: empty", client_id);
                         }
                     }
                 }
@@ -233,7 +265,7 @@ fn handle_client(
         }
     }
 
-    println!("[{}] Client disconnected", client_id);
+    println!("🚫 ❌ {} Disconnected!", client_id);
     Ok(())
 }
 
@@ -248,6 +280,19 @@ fn normalize_transcription(text: &str) -> String {
         .join(" ")
 }
 
+fn play_done_sound(done_sound_data: Vec<u8>, client_id: String, debug: bool) {
+    thread::spawn(move || {
+        let (_stream, handle) = OutputStream::try_default().unwrap();
+        let cursor = Cursor::new(done_sound_data);
+        if let Ok(sink) = handle.play_once(cursor) {
+            sink.sleep_until_end();
+        }
+        if debug {
+            println!("[{}] Finished playing done sound", client_id);
+        }
+    });
+}
+
 fn print_usage(program_name: &str) {
     eprintln!(
         "Usage: {} [OPTIONS]\n\
@@ -255,6 +300,7 @@ fn print_usage(program_name: &str) {
          --host <ADDRESS>         Listening address (default: 0.0.0.0:12345)\n\
          --awake-sound <PATH>     Path to WAV file to play on wake (default: ./ding.wav)\n\
          --wake-word <PATH>       Path to wake word model (default: ./models/wake-words/yo_bitch.onnx)\n\
+         --done-sound <PATH>      Path to WAV file to play after successful command execution (default: ./done.wav)\n\
          --threshold <FLOAT>      Detection threshold (default: 0.5)\n\
          --model <PATH>           Path to Whisper model (default: ./ggml-tiny.bin)\n\
          --cooldown <SECONDS>     Cooldown between detections (default: auto)\n\
@@ -284,6 +330,7 @@ fn main() -> Result<()> {
     // 🦆 says ⮞ Defaults
     let mut host = LISTEN_ADDR.to_string();
     let mut sound_path: Option<String> = None;
+    let mut done_sound_path: Option<String> = None;
     let mut wake_word_path = String::new();
     let mut custom_wake_word_provided = false;  
     let mut threshold = 0.5;
@@ -295,6 +342,7 @@ fn main() -> Result<()> {
     let mut language = Some("sv".to_string());
     let mut threads = 4;
     let mut exec_command: Option<String> = None;
+    let mut translate_to_shell = false;
 
     // 🦆 says ⮞ parse arguments
     let mut i = 1;
@@ -309,12 +357,25 @@ fn main() -> Result<()> {
                     std::process::exit(1);
                 }
             }
+            "--translate-to-shell" => {
+                translate_to_shell = true;
+                i += 1;
+            }
             "--awake-sound" => {
                 if i + 1 < args.len() {
                     sound_path = Some(args[i + 1].clone());
                     i += 2;
                 } else {
                     eprintln!("Missing value for --awake-sound");
+                    std::process::exit(1);
+                }
+            }
+            "--done-sound" => {
+                if i + 1 < args.len() {
+                    done_sound_path = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --done-sound");
                     std::process::exit(1);
                 }
             }
@@ -433,6 +494,21 @@ fn main() -> Result<()> {
     }
 
     // sound loading
+    let done_sound_data = if let Some(ref path) = done_sound_path {
+        match std::fs::read(path) {
+            Ok(data) => {
+                println!("Loaded custom done sound from {}", path);
+                data
+            }
+            Err(e) => {
+                eprintln!("Failed to read done sound file '{}': {}. Using embedded sound.", path, e);
+                DONE_WAV.to_vec()
+            }
+        }
+    } else {
+        DONE_WAV.to_vec()
+    };    
+    // awake sound
     let sound_data = if let Some(ref path) = sound_path {
         match std::fs::read(&path) {
             Ok(data) => {
@@ -451,13 +527,12 @@ fn main() -> Result<()> {
     let listener = TcpListener::bind(&host)?;
     
     // 🦆 says ⮞ Print current settings
-    let sound_display = sound_path.as_deref().unwrap_or("ding.wav (embedded)");
+    let done_sound_display = done_sound_path.as_deref().unwrap_or("done.wav (embedded)");
+    let awake_sound_display = sound_path.as_deref().unwrap_or("ding.wav (embedded)");
     let exec_display = exec_command.as_deref().unwrap_or("none");
     let wake_word_display = if custom_wake_word_provided {
         wake_word_path.as_str()
-    } else {
-        "yo_bitch"
-    };
+    } else { "yo_bitch" };
 
     println!(
         r#"Settings:
@@ -469,8 +544,10 @@ fn main() -> Result<()> {
       Temperature:    {}
       Language:       {}
       Threads:        {}
-      Sound:          {}
-      Exec command:   {}"#,
+      Awake sound:    {}
+      Done sound:     {}   
+      Exec command:   {}
+      Translate to shell: {}"#,   
         host,
         debug,
         wake_word_display,
@@ -479,8 +556,10 @@ fn main() -> Result<()> {
         temperature,
         language.as_deref().unwrap_or("auto"),
         threads,
-        sound_display,
+        awake_sound_display,
+        done_sound_display,
         exec_display,
+        translate_to_shell,
     );
 
     let whisper_ctx = Arc::new(WhisperContext::new(&whisper_model_path)?);
@@ -494,6 +573,7 @@ fn main() -> Result<()> {
                 };
                 let client_id = format!("client @ {}", peer_addr);
                 let sound_data = sound_data.clone();
+                let done_sound_data = done_sound_data.clone();
                 let exec_command = exec_command.clone();
 
                 // 🦆 says ⮞ no --wake-word provided? use the embedded bytes
@@ -541,7 +621,9 @@ fn main() -> Result<()> {
                         language,
                         threads,
                         sound_data,
+                        done_sound_data,
                         exec_command,
+                        translate_to_shell,
                     ) {
                         eprintln!("Error in client handler: {}", e);
                     }

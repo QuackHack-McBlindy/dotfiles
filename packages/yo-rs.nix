@@ -19,7 +19,7 @@
 in  
 rustPlatform.buildRustPackage {
   pname = "yo-rs";
-  version = "0.1.1";
+  version = "0.1.3";
 
   src = ./yo-rs;
 
@@ -34,6 +34,7 @@ rustPlatform.buildRustPackage {
     rustPlatform.bindgenHook
   ];
 
+
   buildInputs = [ pkgs.openssl.dev pkgs.alsa-lib-with-plugins ];
 
   # 🦆 says ⮞ required for some crates that use cmake
@@ -44,10 +45,6 @@ rustPlatform.buildRustPackage {
     # 🦆 says ⮞ install ding.wav
     mkdir -p $out/share/yo-rs
     cp ding.wav $out/share/yo-rs/ding.wav
-
-    # 🦆 says ⮞ install wake‑word model
-    # mkdir -p $out/share/yo-rs/models/wake-words
-    # cp models/wake-words/yo_bitch.onnx $out/share/yo-rs/models/wake-words/yo_bitch.onnx
 
     # 🦆 says ⮞ install small Whisper model
     mkdir -p $out/share/yo-rs/models/stt

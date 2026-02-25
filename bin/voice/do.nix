@@ -425,16 +425,25 @@
     (script.voice.fuzzy.enable or true)  # 🦆 Must explicitly allow fuzzy
   ) config.yo.scripts;
 
+  splitWordsFile = pkgs.writeText "split-words.json" (builtins.toJSON config.yo.SplitWords);
+  sorryPhrasesFile = pkgs.writeText "sorry-phrases.json" (builtins.toJSON config.yo.sorryPhrases);
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
   fuzzyIndexFlatFile = pkgs.writeText "fuzzy-rust-index.json" (builtins.toJSON fuzzyFlatIndex);  
   matcherDir = pkgs.linkFarm "yo-matchers" (
     map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
-  ); # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
-  environment.variables."YO_INTENT_DATA" = intentDataFile; 
-  environment.variables."ỲO_FUZZY_INDEX" = fuzzyIndexFile;   
-  environment.variables."MATCHER_DIR" = matcherDir;
-  environment.variables."MATCHER_SOURCE" = matcherSourceScript;
-    
+  ); 
+
+
+  # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
+  environment.variables = {
+    "YO_SPLIT_WORDS" = splitWordsFile;
+    "YO_SORRY_PHRASES" = sorryPhrasesFile;
+    "YO_INTENT_DATA" = intentDataFile;
+    "ỲO_FUZZY_INDEX" = fuzzyIndexFile;  
+    "MATCHER_DIR" = matcherDir;
+    "MATCHER_SOURCE" = matcherSourceScript;
+  };
+  
   # 🦆 says ⮞ priority system 4 runtime optimization
   scriptRecordsWithIntents = 
     let # 🦆 says ⮞ calculate priority
@@ -977,7 +986,6 @@
         async fn process_transcription(&self, text: &str) -> Result<(), Box<dyn std::error::Error>> {
             dt_info(&format!("Real-time transcription: {}", text));
             
-            // 🦆 says ⮞ Process with existing NLP logic
             if let Some(match_result) = self.exact_match(text) {
                 self.execute_script(&match_result)?;
             } else if let Some(match_result) = self.fuzzy_match(text) {

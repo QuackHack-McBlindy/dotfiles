@@ -44,6 +44,7 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 
+
 ## **What Makes This Configuration Unique?** 
 
 Nix declarative configuration style, custom modules evaluated dynamically for each host. <br>
@@ -88,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8577 ducks? <br>
+Let's see if you can find all 8575 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1290,7 +1291,7 @@ in { # 🦆 duck say ⮞ qwack
 And you'll get a dashboard for your devices generated and found at http://localhost:13337 <br> 
 
 
-[Watch demo](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash.mp4)
+https://github.com/user-attachments/assets/46265444-a173-4ac5-8b9c-c2772634171c
 
 
 </strong></summary>
@@ -1408,7 +1409,7 @@ git+file:///home/pungkula/dotfiles
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───jellyfin: package 'jellyfin'
         ├───tv: package 'tv'
-        └───yo-rs: package 'yo-rs-0.1.1'
+        └───yo-rs: package 'yo-rs-0.1.3'
 ```
 
   <!-- TREE_END -->
@@ -1633,5 +1634,6 @@ For specific command help:
 <br>
   
 __I'll stop qwackin' here, qwack..__
+
 
 

@@ -36,6 +36,15 @@ in {
         '';
       };
 
+      doneSound = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = ''
+          Path to a custom WAV file played on successful command execution.
+          If `null`, the embedded `done.wav` is used.
+        '';
+      };
+
       wakeWordPath = mkOption {
         type = types.nullOr types.path;
         #default = "${cfg.package}/share/yo-rs/models/wake-words/yo_bitch.onnx";
@@ -53,6 +62,12 @@ in {
         type = types.path;
         default = "${cfg.package}/share/yo-rs/models/stt/ggml-small.bin";
         description = "Path to the Whisper GGML model.";
+      };
+
+      shellTranslate = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Translate the transcription to shell command and execute.";
       };
 
       beamSize = mkOption {
@@ -171,8 +186,10 @@ in {
             ++ [ "--temperature" (toString cfg.server.temperature) ]
             ++ [ "--threads" (toString cfg.server.threads) ]
             ++ optionals (cfg.server.awakeSound != null) [ "--awake-sound" cfg.server.awakeSound ]
+            ++ optionals (cfg.server.doneSound != null) [ "--done-sound" cfg.server.doneSound ]
             ++ optionals (cfg.server.language != null) [ "--language" cfg.server.language ]
             ++ optionals (cfg.server.execCommand != null) [ "--exec-command" cfg.server.execCommand ]
+            ++ optionals cfg.server.shellTranslate [ "--translate-to-shell" ]
             ++ optionals cfg.server.debug [ "--debug" ]
             ++ cfg.server.extraArgs
           );
