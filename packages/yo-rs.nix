@@ -55,5 +55,6 @@ rustPlatform.buildRustPackage {
     description = "Minimal multi-client microphone audio streaming with wake-word detection and transcription";
     license = licenses.mit;
     maintainers = [ "QuackHack-McBlindy" ];
+    mainProgram = "yo-rs";
     
   };}

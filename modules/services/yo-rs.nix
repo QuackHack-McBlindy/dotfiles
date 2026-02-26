@@ -19,16 +19,12 @@ in {
           enable = true;
           host = "0.0.0.0:12345";
           shellTranslate = true;
-          #wakeWordPath = "/home/pungkula/dotfiles/home/.config/models/yo_bitch.onnx";
-          threshold = 0.8; 
-          #awakeSound = "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav";
-          #doneSound = "/home/pungkula/dotfiles/modules/themes/sounds/done.wav";          
-          #whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
+          threshold = 0.8;    
+          whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           language = "sv";
           beamSize = 5;
           temperature = 0.2; # 🦆 says ⮞ no more LSD plx
-          threads = 4;  
-          #execCommand = "echo";
+          threads = 4;
           debug = false;
         };
       };
@@ -46,7 +42,7 @@ in {
           uri = "192.168.1.111:12345";
           silenceThreshold = 0.02;
           silenceTimeout = 1.5;
-          maxDuration = 5.0;
+          maxDuration = 6.0;
           debug = false;          
         };
       };  

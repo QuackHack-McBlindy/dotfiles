@@ -54,8 +54,8 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __102 qwacktastic scripts in /bin - 61 scripts have voice commands.__ <br>
-- __2504 dynamically generated regex patterns - makes 297584385 phrases available as commands.__ <br>
+- __88 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __2490 dynamically generated regex patterns - makes 297584371 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8575 ducks? <br>
+Let's see if you can find all 8860 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1541,22 +1541,8 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
-| [yo cancel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/cancel.nix) [--input] |  | Cancel coammands microphone recording sent to transcription. | ✅ |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--dir] [--build] [--realtime] | brain | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
-| [yo do-bash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do-bash.nix) --input [--fuzzy] |  | \[🦆🧠\] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?) | 📛 |
-| [yo espaudio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/espaudio.nix)  |  | WIP! ESP32 audio development | 📛 |
-| [yo kill-mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/kill-mic.nix)  |  | Kill mic-stream by port with voice | ✅ |
-| [yo memory](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/memory.nix) [--show] [--record] [--good] [--tail] [--reset] | stats | Memory is stats and metrics that acts as contexual awareness for the natural langugage processor.  | 📛 |
-| [yo mic](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic.nix) [--port] [--host] [--seconds] |  | \[🦆🎙️\] Trigger microphone recording sent to transcription. | 📛 |
-| [yo mic-stream](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/mic-stream.nix) [--chunk] [--silence] [--silenceLevel] |  | Stream microphone audio to WS chunk transcription | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] |  | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] [--web] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
-| [yo sleep](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/sleep.nix) --time |  | Waits for specified time (seconds). Useful in command chains. | ✅ |
-| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] |  | High performance automated testing fo user defined sentences for the natural language processor written in Rust | ✅ |
-| [yo tests-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests-rs.nix) [--input] [--stats] [--fuzzy] [--dir] [--build] [--realtime] |  | Extensive automated sentence testing for the NLP () | 📛 |
-| [yo train](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/train.nix) --phrase |  | Trains the NLP module. Correct misclassified commands and update NLP patterns | 📛 |
-| [yo transcribe](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcribe.nix) [--port] [--model] [--language] [--beamSize] [--gpu] [--cert] [--key] |  | Transcription server-side service. Sit and waits for audio that get transcribed and returned. | 📛 |
-| [yo transcription-ws](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/transcription-ws.nix)  |  | WebSocket server for real-time transcription streaming to NLP | 📛 |
-| [yo wake](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/wake.nix) [--threshold] [--cooldown] [--sound] [--remoteSound] [--redisHost] [--redis_pwFIle] |  | Run Wake word detection for audio recording and transcription | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo battery](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/battery.nix) [--device] |  | Fetch battery level for specified device. | ✅ |

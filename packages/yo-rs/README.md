@@ -59,15 +59,15 @@ Options:
 
 ## **yo-do**
 
-The natural language shell translator can also be used as a standalone application:  
+The natural language shell translator can also be used as a standalone executable:  
  
 **Example usage:**  
 
 ```bash
-yo-do "i want to watch show seinfeld in bedroom" 50
+yo do "i want to watch show seinfeld in bedroom" 50
 ```
 
-This will run the translator with a fuzzy matching threashold of 50 and would translate to:    
+This will run the translator with a fuzzy matching threshold of 50 and would translate and execute:    
 
 ```bash
 yo tv --type "tv" --search "seinfeld" --device "192.168.1.153" 
@@ -85,13 +85,15 @@ Defining shell scripts that can be executed:
 
 **How to define sentences**
 
-- Parameters: `{param}`
-- Optional words: `[optional|words|can|be|omitted]`
-- Required words: `(one|of|these|words|must|be|used)`
-- Wildcard: will match anything
+- **Parameters:** `{param}`
+- **Optional words:** `[optional|words|can|be|omitted]`
+- **Required words:** `(one|of|these|words|must|be|used)`
+- **Wildcard:** will match anything
 
-Running `yo-tests` will do extensive tests on all user defined sentences for conflicts and misconfigurations.
+
+Running `yo tests` will do extensive tests on all user defined sentences for conflicts and misconfigurations that would make the shell translator have issues translating.  
 Running `yo --help` will display markdown rendered help for all yo scripts.  
+
 
 **Example yo script with sentences:**
 
@@ -134,7 +136,7 @@ Running `yo --help` will display markdown rendered help for all yo scripts.
           "find {type}"            
         ]; # lists are in‑word → out‑word
         lists = {
-          typ.values = [          
+          type.values = [          
             { "in" = "[show|series|the series|tv series|the tv series]"; out = "tv"; }
             { "in" = "[pod|podcast|the podcast]"; out = "podcast"; }
             { "in" = "[random|shuffle|music|mix]"; out = "jukebox"; }
@@ -171,7 +173,9 @@ Running `yo --help` will display markdown rendered help for all yo scripts.
 
 
 </details>
+    
 
+    
 
 [Standalone service module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo-rs.nix)
 

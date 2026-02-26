@@ -1,7 +1,9 @@
+
 *.bak
 modules/dump
 /home/Public/dump
 bin/dump
+bin/voice/dump
 devShells/dump
 lib/dump
 home/dump
@@ -62,4 +64,3 @@ result/            # Nix build output
 **/*.typed
 played_news.txt
 speedtest_speeds.txt
-packages/yo-rs/models/stt/

@@ -207,7 +207,7 @@ fn handle_client(
                             eprintln!("[{}] Normalized text is empty, nothing to translate.", client_id);
                         }
                     } else {
-                        let status = Command::new("yo-do")
+                        let status = Command::new("yo do")
                             .arg(&normalized)
                             .env("VOICE_MODE", "1")
                             .status();
@@ -596,13 +596,6 @@ fn main() -> Result<()> {
                 };
 
                 let whisper_ctx = Arc::clone(&whisper_ctx);
-                //let whisper_ctx = match WhisperContext::new(&whisper_model_path) {
-                //    Ok(ctx) => ctx,
-                //    Err(e) => {
-                //        eprintln!("[{}] Failed to load Whisper model from {}: {}", client_id, whisper_model_path, e);
-                //        continue;
-                //    }
-                //};
 
                 let temperature = temperature;
                 let language = language.clone();
