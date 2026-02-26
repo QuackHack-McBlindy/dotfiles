@@ -1,3 +1,26 @@
+# dotfiles/home/.shell/functions.sh ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# 🦆 says ⮞ sourced bash functions (mostly junk)
+
+
+# 🦆 ⮞ view & handle user services    
+service() {
+    systemctl --user list-units 'yo-*.service' --type=service --no-legend --no-pager \
+    | awk '{print $1}' \
+    | fzf --preview 'journalctl --user -u {} -r -o cat --no-pager' \
+          --preview-window=right:70% \
+          --bind 'enter:become(
+              service="{}";
+              action=$(gum choose "Restart" "Stop" "View log" "Exit") || exit;
+              case $action in
+                  Restart) systemctl --user restart "$service" ;;
+                  Stop)    systemctl --user stop "$service" ;;
+                  "View log") journalctl --user -u "$service" -n 300 --no-pager | less ;;
+                  "🚫 Exit") exit ;;
+              esac
+          )'
+}
+
+# 🦆 ⮞ sleep $1    
 wait() {
     if [[ "$1" =~ ^[0-9]+$ ]]; then
         gum spin --spinner meter --title "Please wait..." -- sleep "$1"
@@ -6,7 +29,7 @@ wait() {
     fi
 }
 
-
+# 🦆 ⮞ interactive cd    
 cd() { 
     if [ -z "$1" ]; then
         builtin cd "$(find ~ -type d | fzf)"
@@ -268,7 +291,7 @@ decrypt() {
 
 encrypt() {
   local filepath="$1"
-  local decrypted_filepath="${filepath}_DECRYPTED"  # Rename the file to add _DECRYPTED suffix
+  local decrypted_filepath="$filepath_DECRYPTED"
   mv "$filepath" "$decrypted_filepath"
   if rage -r age1yubikey1q0ek47e26sg9eej2xlvxj308fgw8h8ajgx6ucagjzlm9tzgxtckdw35eg0m -o "$filepath" "$decrypted_filepath"; then
     rm -f "$decrypted_filepath"
@@ -279,25 +302,8 @@ encrypt() {
 }
 
 
-copy() {
-    if [[ $# -ne 2 ]]; then
-        echo "Usage: copy_with_progress <source> <destination>"
-        return 1
-    fi
-    local src="$1"
-    local dest="$2"
-    if [[ ! -d "$src" ]]; then
-        echo "Error: Source directory does not exist: $src"
-        return 1
-    fi
-    if [[ ! -d "$dest" ]]; then
-        echo "Destination does not exist. Creating: $dest"
-        mkdir -p "$dest"
-    fi
-    local total_size=$(du -sb "$src" | awk '{print $1}')
-    rsync -avh --progress "$src/" "$dest/" | pv -pet -s "$total_size" > /dev/null
-}
+
 
 log() {
- journalctl -u "$1" -n 200 -f -b --no-pager
+ journalctl -u $1 -n 200 -f -b --no-pager
 } 

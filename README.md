@@ -54,7 +54,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __88 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __89 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
 - __2490 dynamically generated regex patterns - makes 297584371 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8860 ducks? <br>
+Let's see if you can find all 8871 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1474,8 +1474,7 @@ $ yo do "is pinephone overheating"
 "yo bitch reboot the pinephone"
 
 # If the server is not running, it can be manually started with:
-$ yo transcribe
-$ yo wake
+$ yo-rs
 ```
 
 ### ✨ Available Commands
@@ -1541,8 +1540,9 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] |  | Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] [--web] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
+| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo battery](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/battery.nix) [--device] |  | Fetch battery level for specified device. | ✅ |

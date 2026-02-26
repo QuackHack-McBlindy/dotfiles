@@ -93,18 +93,14 @@ fn handle_client(
                 if let Ok(sink) = handle.play_once(cursor) {
                     sink.sleep_until_end();
                 }
-                if debug_clone {
-                    println!("[{}] Finished playing awake sound", client_id_clone);
-                }
+                if debug_clone { println!("[{}] Finished playing awake sound", client_id_clone); }
             });
 
             // 🦆 says ⮞ Send notification to client
             if let Err(e) = stream.write_u8(0x01) {
                 eprintln!("[{}] Failed to send detection notification: {}", client_id, e);
             }
-            if let Err(e) = stream.flush() {
-                eprintln!("[{}] Failed to flush: {}", client_id, e);
-            }
+            if let Err(e) = stream.flush() { eprintln!("[{}] Failed to flush: {}", client_id, e); }
 
             // 🦆 says ⮞ wait for transcription, discarding stray chunks
             let transcription_audio = loop {
@@ -157,10 +153,9 @@ fn handle_client(
             // 🦆 says ⮞ Transcribe
             let sampling_strategy = if beam_size > 0 {
                 SamplingStrategy::BeamSearch { beam_size, patience: 1.0 }
-            } else {
-                // 🦆 says ⮞ beam_size == 0 -> greedy decoding with best_of = 1
-                SamplingStrategy::Greedy { best_of: 1 }
-            };
+            // 🦆 says ⮞ beam_size == 0 -> greedy decoding with best_of = 1
+            } else { SamplingStrategy::Greedy { best_of: 1 } };
+            
             let mut whisper_params = FullParams::new(sampling_strategy);
  
             whisper_params.set_n_threads(threads);
@@ -196,18 +191,15 @@ fn handle_client(
                 }
 
                 let normalized = normalize_transcription(&transcription);
-                if debug {
-                    println!("[{}] Normalized: {}", client_id, normalized);
-                }
+                if debug { println!("[{}] Normalized: {}", client_id, normalized); }
 
                 // 🦆 says ⮞ translate transcribed text to shell command and execute
                 if translate_to_shell {
                     if normalized.is_empty() {
-                        if debug {
-                            eprintln!("[{}] Normalized text is empty, nothing to translate.", client_id);
-                        }
+                        if debug { eprintln!("[{}] Normalized text is empty, nothing to translate.", client_id); }
                     } else {
-                        let status = Command::new("yo do")
+                        let status = Command::new("yo")
+                            .arg("do")
                             .arg(&normalized)
                             .env("VOICE_MODE", "1")
                             .status();
@@ -217,27 +209,21 @@ fn handle_client(
                                 if status.success() {
                                     println!("🎉 {} Shell translation successful!", client_id);
                                     play_done_sound(done_sound_data.clone(), client_id.clone(), debug);
-                                } else {
-                                    eprintln!("[{}] Shell translator failed with exit code: {:?}", client_id, status.code());
-                                }
+                                } else { eprintln!("[{}] Shell translator failed with exit code: {:?}", client_id, status.code()); }
                             }
-                            Err(e) => eprintln!("[{}] Failed to execute yo-do: {}", client_id, e),
+                            Err(e) => eprintln!("[{}] Failed to execute yo do: {}", client_id, e),
                         }
                     }
                 }
 
                 if let Some(ref cmd_str) = exec_command {
                     if normalized.is_empty() {
-                        if debug {
-                            eprintln!("[{}] Normalized text is empty, nothing to execute", client_id);
-                        }
+                        if debug { eprintln!("[{}] Normalized text is empty, nothing to execute", client_id); }
                     } else {
                         let mut parts = cmd_str.split_whitespace();
                         if let Some(program) = parts.next() {
                             let mut command = Command::new(program);
-                            for arg in parts {
-                                command.arg(arg);
-                            }
+                            for arg in parts { command.arg(arg); }
                             command.arg(&normalized);
                             command.env("VOICE_MODE", "1");
 
@@ -246,15 +232,11 @@ fn handle_client(
                                     if status.success() {
                                         println!("🎉 {} Executed successfully!", client_id);
                                         play_done_sound(done_sound_data.clone(), client_id.clone(), debug);
-                                    } else {
-                                        eprintln!("🚫 {} Command failed with exit code: {:?}", client_id, status.code());
-                                    }
+                                    } else { eprintln!("🚫 {} Command failed with exit code: {:?}", client_id, status.code()); }
                                 }
                                 Err(e) => eprintln!("🚫 {} Failed to execute command: {}", client_id, e),
                             }
-                        } else if debug {
-                            eprintln!("🚫 {} Invalid exec command: empty", client_id);
-                        }
+                        } else if debug { eprintln!("🚫 {} Invalid exec command: empty", client_id); }
                     }
                 }
                 // 🦆 says ⮞ if no exec command, do nothing                 
@@ -298,15 +280,15 @@ fn print_usage(program_name: &str) {
         "Usage: {} [OPTIONS]\n\
          Options:\n\
          --host <ADDRESS>         Listening address (default: 0.0.0.0:12345)\n\
-         --awake-sound <PATH>     Path to WAV file to play on wake (default: ./ding.wav)\n\
-         --wake-word <PATH>       Path to wake word model (default: ./models/wake-words/yo_bitch.onnx)\n\
-         --done-sound <PATH>      Path to WAV file to play after successful command execution (default: ./done.wav)\n\
+         --awake-sound <PATH>     Path to WAV file to play on wake (default: ding)\n\
+         --wake-word <PATH>       Path to wake word model (default: yo_bitch.onnx)\n\
+         --done-sound <PATH>      Path to WAV file to play after successful command execution (default: done)\n\
          --threshold <FLOAT>      Detection threshold (default: 0.5)\n\
          --model <PATH>           Path to Whisper model (default: ./ggml-tiny.bin)\n\
          --cooldown <SECONDS>     Cooldown between detections (default: auto)\n\
          --beam-size <INT>        Beam size for Whisper (0 = greedy, >0 = beam search, default: 5)\n\
          --temperature <FLOAT>    Whisper temperature (default: 0.2)\n\
-         --language <LANG>        Language code (e.g., sv, en) or 'auto' (default: sv)\n\
+         --language <LANG>        Language code (e.g., sv, en) or 'auto' (default: en)\n\
          --threads <INT>          Number of threads for Whisper (default: 4)\n\
          --exec-command <CMD>     Command to execute with transcribed text as argument (default: none)\n\
          --debug                  Enable debug logging\n\
@@ -520,9 +502,7 @@ fn main() -> Result<()> {
                 DING_WAV.to_vec()
             }
         }
-    } else {
-        DING_WAV.to_vec()
-    };
+    } else { DING_WAV.to_vec() };
 
     let listener = TcpListener::bind(&host)?;
     
@@ -617,12 +597,10 @@ fn main() -> Result<()> {
                         done_sound_data,
                         exec_command,
                         translate_to_shell,
-                    ) {
-                        eprintln!("Error in client handler: {}", e);
-                    }
+                    ) { eprintln!("Error in client handler: {}", e); }
                 });
             }
-            Err(e) => eprintln!("Connection failed: {}", e),
+            Err(e) => eprintln!("❌ 🚫 Connection failed: {}", e),
         }
     }
     Ok(())

@@ -348,8 +348,7 @@ $ yo do "is pinephone overheating"
 "yo bitch reboot the pinephone"
 
 # If the server is not running, it can be manually started with:
-$ yo transcribe
-$ yo wake
+$ yo-rs
 ```
 
 ### ✨ Available Commands

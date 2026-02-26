@@ -232,7 +232,7 @@ fn main() -> Result<()> {
     println!("Streaming audio to detector. Press Enter to stop.");
 
     loop {
-        println!("Attempting to connect to {}...", server_addr);
+        println!("Connecting to {}...", server_addr);
         let stream = loop {
             match TcpStream::connect(&server_addr) {
                 Ok(s) => break s,
@@ -242,6 +242,7 @@ fn main() -> Result<()> {
                 }
             }
         };
+        // 🦆 says ⮞ SUCCESSFUL CONNECTION
         println!("📡 ☑️ 🎙️ @ {}", server_addr);
 
         // 🦆 says ⮞ Clone streams for reading and writing
@@ -376,13 +377,17 @@ fn main() -> Result<()> {
                                         break;
                                     }
 
-                                    // 🦆 says ⮞ RMS
+                                    // 🦆 says ⮞ calculate RMS over the most recent window of samples
                                     let rms = {
+                                        // 🦆 says ⮞ lock the shared recording buffer
                                         let guard = receiver_recording_buffer.lock().unwrap();
+                                        // 🦆 says ⮞ total number of samples in current buffer
                                         let len = guard.len();
                                         if len == 0 {
                                             continue;
                                         }
+                                        
+                                        // 🦆 says ⮞ determine the starting index of the window
                                         let start_idx = if len > window_samples { len - window_samples } else { 0 };
                                         let window = &guard[start_idx..];
                                         if window.is_empty() {
@@ -392,16 +397,14 @@ fn main() -> Result<()> {
                                     };
 
                                     // 🦆 says ⮞ --debug? print RMS
-                                    if receiver_debug {
-                                        println!("RMS: {:.6}", rms);
-                                    }
-
-                                    if rms > receiver_silence_threshold {
-                                        last_speech_time = Instant::now();
-                                    }
-                                    if last_speech_time.elapsed() > receiver_silence_timeout {
-                                        break;
-                                    }
+                                    if receiver_debug { println!("RMS: {:.6}", rms); }
+                                    
+                                    // 🦆 says ⮞ RMS exceeds configured silence threshold,
+                                    // treat this as speech activity and reset the silence timer
+                                    if rms > receiver_silence_threshold { last_speech_time = Instant::now(); }
+                                    
+                                    // 🦆 says ⮞ reached silence timeout - exit loop
+                                    if last_speech_time.elapsed() > receiver_silence_timeout { break; }
                                 }
 
                                 receiver_recording_active.store(false, Ordering::SeqCst);
@@ -422,19 +425,15 @@ fn main() -> Result<()> {
                                     if let Err(e) = guard.write_u8(0x02) {
                                         eprintln!("Failed to send transcription type: {}", e);
                                     }
-                                    if let Err(e) = guard.write_u32::<LittleEndian>(resampled_audio.len() as u32) {
+                                    if let Err(e) = guard.write_u32::<LittleEndian>(resampled_audio.len() as u32) { 
                                         eprintln!("Failed to send transcription length: {}", e);
                                     }
                                     let mut bytes = Vec::with_capacity(resampled_audio.len() * 4);
                                     for &s in &resampled_audio {
                                         bytes.extend_from_slice(&s.to_le_bytes());
                                     }
-                                    if let Err(e) = guard.write_all(&bytes) {
-                                        eprintln!("Failed to send transcription samples: {}", e);
-                                    }
-                                    if let Err(e) = guard.flush() {
-                                        eprintln!("Failed to flush: {}", e);
-                                    }
+                                    if let Err(e) = guard.write_all(&bytes) { eprintln!("Failed to send transcription samples: {}", e); }
+                                    if let Err(e) = guard.flush() { eprintln!("Failed to flush: {}", e); }
                                 }
 
                                 receiver_is_transcribing.store(false, Ordering::SeqCst);

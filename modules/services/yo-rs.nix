@@ -41,7 +41,7 @@ in {
           enable = true;
           uri = "192.168.1.111:12345";
           silenceThreshold = 0.02;
-          silenceTimeout = 1.5;
+          silenceTimeout = 1.2;
           maxDuration = 6.0;
           debug = false;          
         };

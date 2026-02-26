@@ -28,7 +28,7 @@ in {
       TIME=$(date "+%H . %M")
       DAY=$(date "+%A")
       DATE=$(date "+%d %B")
-      WEEK=$(week)
+      WEEK=$(date +%V)
       say_duck "Klockan är $TIME . Det är $DAY dem $DATE ."
       echo "$TIME"
       #if_voice_say "Klockan är $TIME . Det är $DAY den $DATE ."  

@@ -1,7 +1,13 @@
+# dotfiles/home/.shell/functions.sh ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# 🦆 says ⮞ sourced bash aliases (mostly junk)
+
+
+# 🦆 ⮞ pip
 pip3() {
     PIP_REQUIRE_VIRTUALENV="" pip3 "$@"
 }
 
+# 🦆 ⮞ RAINBOW $1
 rainbow_text() {
     local text="$1"
     local colors=(
@@ -26,6 +32,7 @@ rainbow_text() {
 }
 
 
+# 🦆 ⮞ create dir and cd into it
 mkd() {
     mkdir "${1}" && cd "${1}"
 }
@@ -51,6 +58,7 @@ hm-logs() {
   fi
 }
 
+# 🦆 ⮞ copy $1 to clip
 c() {
   cat "$1" | xclip -selection clipboard
 }

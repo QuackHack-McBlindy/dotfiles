@@ -1441,7 +1441,7 @@ in { # 🦆 duck say ⮞ import server/client module
   config = {  # 🦆 duck say ⮞ expose diz module and all yo.scripts as a package  
 
     yo.scripts.do = {
-      description = "Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution";
+      description = "do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
       logLevel = "INFO";
       helpFooter = ''
@@ -1464,6 +1464,67 @@ in { # 🦆 duck say ⮞ import server/client module
         fi
       '';
     };
+
+    yo.scripts.tests = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data 
+      description = "Extensive automated sentence testing for the yo do"; 
+      category = "🗣️ Voice";
+      parameters = [
+        { name = "input"; description = "Text to test as a single  sentence test"; optional = true; }
+        { name = "stats"; type = "bool"; description = "Flag to display voice commands information like generated regex patterns, generated phrases and ratio"; optional = true; }    
+        { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 30; }
+      ];
+      helpFooter = ''
+        nix eval --raw /home/pungkula/dotfiles#nixosConfigurations.desktop.config.yo.scripts --apply '
+          s:
+          let
+            scripts = builtins.attrValues (builtins.mapAttrs (n: v: v // { name = n; }) s);
+            categorize = builtins.map (x:
+              let
+                patterns = x.voicePatterns or 0;
+                phrases = x.voicePhrases or 0;
+                ratio = if patterns == 0 then 0 else builtins.floor (phrases / patterns);
+                status =
+                  if patterns == 0 then "EMPTY"
+                  else if phrases == 0 || (patterns > 0 && phrases / patterns < 0.5) then "NEEDS PHRASES"
+                  else if ratio > 50 then "HIGH RATIO"
+                  else "OK";
+                priorityStr = toString (x.voice.priority or "-");
+              in
+                { name = x.name; status = status; phrases = phrases; patterns = patterns; ratio = ratio; priority = priorityStr; }
+            ) scripts;
+     
+            attention = builtins.filter (x: x.name == "house" && x.status == "HIGH RATIO") categorize;
+            needsPhrases = builtins.filter (x: x.status == "NEEDS PHRASES") categorize;
+            sortedNeeds = builtins.sort (a: b: a.phrases <= b.phrases) needsPhrases;
+        
+            formatAttention = builtins.map (x:
+              "# Attention!\n⚠️\nThe \"" + x.name + "\" script has a very high phrase-to-pattern ratio (" + toString x.ratio + ") with " + toString x.patterns + " patterns, priority " + x.priority + ". Double-check the voice configuration!"
+            ) attention;
+        
+            formatNeeds = builtins.map (x:
+              "- " + x.name + ": only " + toString x.phrases + " phrases across " + toString x.patterns + " patterns."
+            ) sortedNeeds;
+          in
+            builtins.concatStringsSep "\n\n" (formatAttention ++ ["Scripts needing more phrases:"] ++ formatNeeds)
+        '
+        echo && echo
+        echo "The key to remember when configuring a scripts voice definition is that a high pattern value decreases pattern matching performance in terms of speed, while increasing accuracy."
+        echo "Recommended approach if you need a high pattern value is to counter decreased speed with a low priority value (5)."
+        echo "This will make the scripts pattern matching go last, meaning an increased amount of patterns less important as long as an exact match is found."         
+      '';
+      code = ''
+        set +u
+        FUZZY_THRESHOLD=$fuzzy
+        text="$input"
+        
+        # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
+        if [ "$VERBOSE" -ge 1 ]; then
+          DEBUG=1 YO_INTENT_DATA="${intentDataFile}" YO_FUZZY_INDEX="${fuzzyIndexFlatFile}" yo-tests "$input" $FUZZY_THRESHOLD
+        else
+          YO_INTENT_DATA="${intentDataFile}" YO_FUZZY_INDEX="${fuzzyIndexFlatFile}" yo-tests "$input" $FUZZY_THRESHOLD
+        fi
+      '';
+    };  
 
 
     yo.pkgs = yoScriptsPackage; # 🦆 duck say ⮞ reference as: ${config.pkgs.yo}/bin/yo-<name>
@@ -1629,7 +1690,7 @@ in { # 🦆 duck say ⮞ import server/client module
     ];
 
     # 🦆 duck say ⮞ buildz systemd services    
-    systemd.services = lib.mkMerge [
+    systemd.user.services = lib.mkMerge [
       # 🦆 duck say ⮞ if `autoStart` is set
       (lib.mapAttrs' (name: script:
         lib.nameValuePair "yo-${name}" (mkIf script.autoStart {
@@ -1638,6 +1699,16 @@ in { # 🦆 duck say ⮞ import server/client module
           after = ["sound.target" "network.target" "pulseaudio.socket" "sops-nix.service"];
     
           serviceConfig = {
+            Environment = "PATH=${
+              lib.concatStringsSep ":" [
+                "/run/wrappers/bin"
+                "/run/current-system/sw/bin"
+                "/usr/local/bin"
+                "/usr/bin"
+                "/bin"
+              ]
+            }";
+            
             ExecStart = let
               args = lib.concatMapStringsSep " " (param:
                 "--${param.name} ${lib.escapeShellArg param.default}"
@@ -1656,7 +1727,16 @@ in { # 🦆 duck say ⮞ import server/client module
           description = "Periodic execution of yo.${name}";
           serviceConfig = {
             Type = "oneshot";
-
+            Environment = "PATH=${
+              lib.concatStringsSep ":" [
+                "/run/wrappers/bin"
+                "/run/current-system/sw/bin"
+                "/usr/local/bin"
+                "/usr/bin"
+                "/bin"
+              ]
+            }";
+            
             ExecStart = let
               args = lib.concatMapStringsSep " " (param:
                 "--${param.name} ${lib.escapeShellArg param.default}"
@@ -1683,6 +1763,16 @@ in { # 🦆 duck say ⮞ import server/client module
           in baseDesc;
           serviceConfig = {
             Type = "oneshot";
+            Environment = "PATH=${
+              lib.concatStringsSep ":" [
+                "/run/wrappers/bin"
+                "/run/current-system/sw/bin"
+                "/usr/local/bin"
+                "/usr/bin"
+                "/bin"
+              ]
+            }";
+            
             ExecStart = let
               args = lib.concatMapStringsSep " " (param:
                 "--${param.name} ${lib.escapeShellArg param.default}"
@@ -1694,7 +1784,7 @@ in { # 🦆 duck say ⮞ import server/client module
     ];
 
     # 🦆 duck say ⮞ systemd timer configuration
-    systemd.timers = lib.mkMerge [  
+    systemd.user.timers = lib.mkMerge [  
       # 🦆 duck say ⮞ if `runEvery` is configured 
       (lib.mapAttrs' (name: script:
         lib.nameValuePair "yo-${name}-periodic" (mkIf (script.runEvery != null) {

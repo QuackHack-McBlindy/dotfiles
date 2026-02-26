@@ -112,6 +112,16 @@ in {
         default = false;
         description = "Enable debug logging (prints probabilities, timings).";
       };
+      
+      extraPath = mkOption {
+        type = types.listOf types.str;
+        default = [ ];
+        description = ''
+          Additional directories to prepend to the `PATH` environment variable
+          of the systemd service. You can use systemd specifiers like `%h`
+          (home directory) or `%u` (username).
+        '';
+      };
 
       extraArgs = mkOption {
         type = types.listOf types.str;
@@ -171,14 +181,26 @@ in {
         description = "yo-rs wake word detection and transcription server";
         after = [ "network.target" ];
         wants = [ "network.target" ];
-        wantedBy = [ "default.target" ];  # start when user logs in
+        wantedBy = [ "default.target" ];
 
         serviceConfig = {
           Restart = "always";
           RestartSec = "15s";
+          
+          Environment = "PATH=${
+            lib.concatStringsSep ":"
+              (cfg.server.extraPath ++ [
+                "/run/wrappers/bin"
+                "/run/current-system/sw/bin"
+                "/usr/local/bin"
+                "/usr/bin"
+                "/bin"
+              ])
+          }";
+          
           ExecStart = lib.escapeShellArgs (
             [ (getExe cfg.package) "--host" cfg.server.host ]
-            ++ optionals (cfg.server.wakeWordPath != null)   # ← conditionally added
+            ++ optionals (cfg.server.wakeWordPath != null)
                 [ "--wake-word" cfg.server.wakeWordPath ]
             ++ [ "--threshold" (toString cfg.server.threshold) ]
             ++ [ "--model" cfg.server.whisperModelPath ]
