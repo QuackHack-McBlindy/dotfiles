@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8871 ducks? <br>
+Let's see if you can find all 8872 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1400,12 +1400,14 @@ git+file:///home/pungkula/dotfiles
 └───packages
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)
+    │   ├───health-rs omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───jellyfin omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
     │   └───yo-rs omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
+        ├───health-rs: package 'health-rs-0.1.0'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───jellyfin: package 'jellyfin'
         ├───tv: package 'tv'

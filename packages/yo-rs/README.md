@@ -76,9 +76,11 @@ yo tv --type "tv" --search "seinfeld" --device "192.168.1.153"
 
 ## **NixOS Modules**
 
+  
 [Full yo module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo.nix)
-
-
+  
+  
+  
 <details><summary><strong>
 Defining shell scripts that can be executed:
 </strong></summary>
@@ -102,7 +104,7 @@ Running `yo --help` will display markdown rendered help for all yo scripts.
     tv = {
       description = "Example script controlling a TV.";
       parameters = [
-        { name = "type"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; }
+        { name = "type"; description = "Specify the type of command or the media type to search for"; default = "tv"; optional = true; }
         { name = "search"; type = "string"; description = "Media to search"; optional = true; }
         { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }
         { name = "shuffle"; type = "bool"; description = "Shuffle Toggle, true or false"; default = true; }
@@ -173,8 +175,8 @@ Running `yo --help` will display markdown rendered help for all yo scripts.
 
 
 </details>
-    
-
+     
+  
     
 
 [Standalone service module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo-rs.nix)
@@ -194,8 +196,8 @@ This way the server/client can still be utilized and an optional --exec-command 
         };        
       };   
 ```
-
-
+  
+  
 <details><summary><strong>
 Full configuration:
 </strong></summary>
@@ -230,6 +232,7 @@ Full configuration:
 
 </details>
 
+  
 ## **Protocol**
 
 1. Wake‑word chunks – Client sends `[length (u32)] + [f32 samples]` repeatedly.
