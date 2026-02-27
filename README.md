@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8872 ducks? <br>
+Let's see if you can find all 8881 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1404,14 +1404,16 @@ git+file:///home/pungkula/dotfiles
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───jellyfin omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
-    │   └───yo-rs omitted (use '--all-systems' to show)
+    │   ├───yo-rs omitted (use '--all-systems' to show)
+    │   └───zigduck-rs omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
         ├───health-rs: package 'health-rs-0.1.0'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───jellyfin: package 'jellyfin'
         ├───tv: package 'tv'
-        └───yo-rs: package 'yo-rs-0.1.3'
+        ├───yo-rs: package 'yo-rs-0.1.4'
+        └───zigduck-rs: package 'zigduck-rs-0.1.0'
 ```
 
   <!-- TREE_END -->
@@ -1579,7 +1581,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo reminder](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/reminder.nix) [--about] [--list] [--clear] [--user] [--pwfile] | remind | Reminder Assistant | ✅ |
 | [yo shop-list](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shop-list.nix) [--operation] [--item] [--list] [--mqttUser] [--mqttPWFile] |  | Shopping list management | ✅ |
 | [yo suno](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) --prompt [--genre] | mg | AI generated lyrics and music files powered by Suno | ✅ |
-| [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day and date | ✅ |
+| [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | **🧹 Maintenance** | | | |
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |

@@ -431,23 +431,6 @@
     in "🦆 duck say ⮞ fuck ❌ Hue Sync Box references non-existent TV '${tv}'. Available TVs: ${toString availableTvs}";
   };
 
-  # 🦆 says ⮞ dynamic mosquitto host finder
-  sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttHost = lib.findSingle (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
-  mqttHostip = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
-      let
-        resolved = builtins.readFile (pkgs.runCommand "resolve-host" {} ''
-          ${pkgs.dnsutils}/bin/host -t A ${mqttHost} > $out
-        '');
-      in
-        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
-    )
-    else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
 
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
@@ -2005,10 +1988,7 @@ in { # 🦆 says ⮞ Options for da house
           # 🦆 says ⮞ activate a scene yo
           (pkgs.writeScriptBin "scene" ''
             ${cmdHelpers}
-            MQTT_BROKER="${mqttHostip}"
-            if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
-              MQTT_BROKER="localhost"
-            fi
+            MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
             MQTT_USER="${config.house.zigbee.mosquitto.username}"
             MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
             SCENE="$1"      
@@ -2060,11 +2040,8 @@ in { # 🦆 says ⮞ Options for da house
             COLOR="''${4:-}"
             TEMP="''${5:-}"
             ZIGBEE_DEVICES='${deviceMeta}'
-            MQTT_BROKER="${mqttHostip}"
-            if [ "$MQTT_BROKER" = "{config.this.host.ip}" ]; then
-              MQTT_BROKER="localhost"
-            fi
-            #MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
+            MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
+
             MQTT_USER="${config.house.zigbee.mosquitto.username}"
             MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
             # 🦆 says ⮞ Zigbee coordinator backup

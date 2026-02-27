@@ -20,7 +20,7 @@
   swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
 in {
   yo.scripts.time = {
-    description = "Tells time, day and date";
+    description = "Tells time, day, date & week";
     category = "🧩 Miscellaneous";
     code = ''
       ${cmdHelpers}
@@ -31,7 +31,6 @@ in {
       WEEK=$(date +%V)
       say_duck "Klockan är $TIME . Det är $DAY dem $DATE ."
       echo "$TIME"
-      #if_voice_say "Klockan är $TIME . Det är $DAY den $DATE ."  
       yo say "Klockan är $TIME . Det är $DAY den $DATE . Vecka $WEEK"
     '';
     voice = {

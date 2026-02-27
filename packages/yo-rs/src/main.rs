@@ -81,7 +81,7 @@ fn handle_client(
                 }
             }
 
-            println!("[{}] DETECTED! Probability: {:.4}", client_id, detection.probability);
+            println!("💥 DETECTED! {} Probability: {:.4}", client_id, detection.probability);
 
             // 🦆 says ⮞ Play sound
             let sound_data_for_thread = sound_data.clone();
@@ -291,6 +291,7 @@ fn print_usage(program_name: &str) {
          --language <LANG>        Language code (e.g., sv, en) or 'auto' (default: en)\n\
          --threads <INT>          Number of threads for Whisper (default: 4)\n\
          --exec-command <CMD>     Command to execute with transcribed text as argument (default: none)\n\
+         --tts-model <PATH>       Path to TTS ONNX model (default: ./models/tts/en_US-amy-medium.onnx)\n\
          --debug                  Enable debug logging\n\
          --help, -h               Show this help message",
         program_name
@@ -325,6 +326,7 @@ fn main() -> Result<()> {
     let mut threads = 4;
     let mut exec_command: Option<String> = None;
     let mut translate_to_shell = false;
+    let mut tts_model_path = "./../models/tts/en_US-amy-medium.onnx".to_string();
 
     // 🦆 says ⮞ parse arguments
     let mut i = 1;
@@ -464,6 +466,15 @@ fn main() -> Result<()> {
                     std::process::exit(1);
                 }
             }
+            "--tts-model" => {
+                if i + 1 < args.len() {
+                    tts_model_path = args[i + 1].clone();
+                    i += 2;
+                } else {
+                    eprintln!("Missing value for --tts-model");
+                    std::process::exit(1);
+                }
+            }
             "--debug" => {
                 debug = true;
                 i += 1;
@@ -521,6 +532,7 @@ fn main() -> Result<()> {
       Wake word:      {}
       Threshold:      {}
       Whisper model:  {}
+      TTS model:      {} 
       Temperature:    {}
       Language:       {}
       Threads:        {}
@@ -533,6 +545,7 @@ fn main() -> Result<()> {
         wake_word_display,
         threshold,
         whisper_model_path,
+        tts_model_path,
         temperature,
         language.as_deref().unwrap_or("auto"),
         threads,

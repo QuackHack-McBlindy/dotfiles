@@ -350,7 +350,7 @@ fn main() -> Result<()> {
                                     }
                                 });
                                 // 🦆 says ⮞ BOOOOM 
-                                println!("🎉 DETECTED!");
+                                println!("💥 DETECTED!");
 
                                 thread::sleep(Duration::from_millis(100));
 

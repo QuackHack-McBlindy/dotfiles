@@ -106,6 +106,12 @@ in {
           Example: `"yo do"`.
         '';
       };
+      
+      textToSpeechModelPath = mkOption {
+        type = types.nullOr types.path;
+        default = "${cfg.package}/share/yo-rs/models/tts/en_US-amy-medium.onnx";
+        description = "Path to the text-to-speech ONNX model.";
+      };
 
       debug = mkOption {
         type = types.bool;
@@ -212,6 +218,7 @@ in {
             ++ optionals (cfg.server.language != null) [ "--language" cfg.server.language ]
             ++ optionals (cfg.server.execCommand != null) [ "--exec-command" cfg.server.execCommand ]
             ++ optionals cfg.server.shellTranslate [ "--translate-to-shell" ]
+            ++ optionals (cfg.server.textToSpeechModelPath != null) [ "--tts-model" cfg.server.textToSpeechModelPath ]
             ++ optionals cfg.server.debug [ "--debug" ]
             ++ cfg.server.extraArgs
           );

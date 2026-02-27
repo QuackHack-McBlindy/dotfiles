@@ -6,7 +6,7 @@
   self,
   ...
 } : let
- 
+  cfg = config.services.yo-rs;
 in {
   config = lib.mkMerge [
     # 🦆 say ⮞ for da server
@@ -25,6 +25,7 @@ in {
           beamSize = 5;
           temperature = 0.2; # 🦆 says ⮞ no more LSD plx
           threads = 4;
+          textToSpeechModelPath = "${cfg.package}/share/yo-rs/models/tts/sv_SE-lisa-medium.onnx";
           debug = false;
         };
       };

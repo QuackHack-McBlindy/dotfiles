@@ -1,0 +1,21 @@
+[package]
+name = "zigduck-rs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.0", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+rand = "0.8"    
+chrono = { version = "0.4", features = ["serde"] }
+clap = { version = "4.4", features = ["derive", "env"] }
+rumqttc = "0.22"
+anyhow = "1.0"
+colored = "2.1"
+reqwest = { version = "0.11", features = ["blocking", "json"] }
+
+[[bin]]
+name = "zigduck-cli"
+path = "src/zigduck-cli.rs"
+

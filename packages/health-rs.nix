@@ -20,6 +20,7 @@ rustPlatform.buildRustPackage {
   };
 
   nativeBuildInputs = [
+
     rustPlatform.bindgenHook
   ];
 
