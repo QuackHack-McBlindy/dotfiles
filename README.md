@@ -54,7 +54,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __89 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __87 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
 - __2490 dynamically generated regex patterns - makes 297584371 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8881 ducks? <br>
+Let's see if you can find all 8893 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -478,7 +478,7 @@ in { # 🦆 duck say ⮞ qwack
     };
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
-    zigbee = {
+    zigbee = {      
       # 🦆 says ⮞ encrypted zigbee network key
       networkKeyFile = config.sops.secrets.z2m_network_key.path;
       
@@ -516,9 +516,9 @@ in { # 🦆 duck say ⮞ qwack
       # 🦆 says ⮞ when motion triggers lights
       darkTime = {
         enable = true;
-        after = "14";
-        before = "9";
-        duration = "900";
+        after = 14;
+        before = 9;
+        duration = 900;
       };
       
   # 🦆 ⮞ AUTOMATIONS ⮜
@@ -527,9 +527,9 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ + a greeting automation
         greeting = {
           enable = true;
-          awayDuration = "7200";
+          awayDuration = 7200;
           greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
-          delay = "10";
+          delay = 10;
           sayOnHost = "desktop";
         };
         
@@ -759,7 +759,7 @@ in { # 🦆 duck say ⮞ qwack
         "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
         "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
         "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };   
-        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
+        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };
         "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };                  
         "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
         "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };
@@ -1567,8 +1567,6 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
-| [yo zigduck](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/zigduck.nix) [--user] [--pwfile] |  | \[🦆🏡\] yo zigduck - Home automation system written in Bash | 📛 |
-| [yo zigduck-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/zigduck-rs.nix) [--dir] [--user] [--pwfile] |  | \[🦆🏡\] ZigDuck - Home automation system! Devices, scenes, automations -- EVERYTHING is defined using Nix options from the module 'house.nix'. (Written in Rust) | 📛 |
 | **🧩 Miscellaneous** | | | |
 | [yo btc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/btc.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency BTC price tracker | ✅ |
 | [yo chat](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chat.nix) --text |  | No fwendz? Let's chat yo! | ✅ |

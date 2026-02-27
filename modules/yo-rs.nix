@@ -47,7 +47,6 @@ in {
 
       wakeWordPath = mkOption {
         type = types.nullOr types.path;
-        #default = "${cfg.package}/share/yo-rs/models/wake-words/yo_bitch.onnx";
         default = null;
         description = "Path to the wake‑word ONNX model.";
       };

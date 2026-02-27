@@ -4,7 +4,7 @@ use std::{ // 🦆 says ⮞ zigduck-rs
     fs,    
     fs::{OpenOptions, File},
     io::{self, Write},
-    sync::Once,
+    sync::{Once, OnceLock, Mutex},
     time::Instant,
 };
 use chrono:: {
@@ -14,8 +14,9 @@ use chrono:: {
   
 use colored::*;
 
-static INIT: Once = Once::new();
-static mut LOGGER: Option<DuckTraceLogger> = None;
+
+static LOGGER: OnceLock<Mutex<DuckTraceLogger>> = OnceLock::new();
+static SETUP: Once = Once::new();
 
 struct DuckTraceLogger {
     level: LogLevel,
@@ -173,64 +174,39 @@ impl DuckTraceLogger {
 }
 
 pub fn dt_debug(msg: &str) {
-    unsafe {
-        if LOGGER.is_none() {
-            LOGGER = Some(DuckTraceLogger::new(None));
-        }
-        if let Some(logger) = &mut LOGGER {
-            logger.log(LogLevel::Debug, msg);
-        }
-    }
+    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
+    let mut guard = logger.lock().unwrap();
+    guard.log(LogLevel::Debug, msg);
 }
 
 pub fn dt_info(msg: &str) {
-    unsafe {
-        if LOGGER.is_none() {
-            LOGGER = Some(DuckTraceLogger::new(None));
-        }
-        if let Some(logger) = &mut LOGGER {
-            logger.log(LogLevel::Info, msg);
-        }
-    }
+    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
+    let mut guard = logger.lock().unwrap();
+    guard.log(LogLevel::Info, msg);
 }
 
 pub fn dt_warning(msg: &str) {
-    unsafe {
-        if LOGGER.is_none() {
-            LOGGER = Some(DuckTraceLogger::new(None));
-        }
-        if let Some(logger) = &mut LOGGER {
-            logger.log(LogLevel::Warning, msg);
-        }
-    }
+    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
+    let mut guard = logger.lock().unwrap();
+    guard.log(LogLevel::Warning, msg);
 }
 
 pub fn dt_error(msg: &str) {
-    unsafe {
-        if LOGGER.is_none() {
-            LOGGER = Some(DuckTraceLogger::new(None));
-        }
-        if let Some(logger) = &mut LOGGER {
-            logger.log(LogLevel::Error, msg);
-        }
-    }
+    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
+    let mut guard = logger.lock().unwrap();
+    guard.log(LogLevel::Error, msg);
 }
 
 pub fn dt_critical(msg: &str) {
-    unsafe {
-        if LOGGER.is_none() {
-            LOGGER = Some(DuckTraceLogger::new(None));
-        }
-        if let Some(logger) = &mut LOGGER {
-            logger.log(LogLevel::Critical, msg);
-        }
-    }
+    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
+    let mut guard = logger.lock().unwrap();
+    guard.log(LogLevel::Critical, msg);
 }
 
-pub fn setup_ducktrace_logging(log_name: Option<&str>, level: Option<&str>) {
-    INIT.call_once(|| {
-        unsafe {
-            LOGGER = Some(DuckTraceLogger::new(level));
+pub fn setup_ducktrace_logging(_log_name: Option<&str>, level: Option<&str>) {
+    SETUP.call_once(|| {
+        if LOGGER.get().is_none() {
+            let _ = LOGGER.set(Mutex::new(DuckTraceLogger::new(level)));
         }
     });
 }

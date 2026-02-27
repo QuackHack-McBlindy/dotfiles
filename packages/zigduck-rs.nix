@@ -19,10 +19,13 @@ rustPlatform.buildRustPackage {
     lockFile = ./zigduck-rs/Cargo.lock;
   };
 
+  env.CMAKE_POLICY_VERSION_MINIMUM = "3.5";
+
+
   nativeBuildInputs = [
     pkgs.pkg-config
-#    pkgs.cmake
-#    pkgs.libclang
+    pkgs.cmake
+    pkgs.libclang
     rustPlatform.bindgenHook
   ];
 

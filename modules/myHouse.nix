@@ -258,7 +258,7 @@ in { # 🦆 duck say ⮞ qwack
     };
   
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
-    zigbee = {
+    zigbee = {      
       # 🦆 says ⮞ encrypted zigbee network key
       networkKeyFile = config.sops.secrets.z2m_network_key.path;
       
@@ -296,9 +296,9 @@ in { # 🦆 duck say ⮞ qwack
       # 🦆 says ⮞ when motion triggers lights
       darkTime = {
         enable = true;
-        after = "14";
-        before = "9";
-        duration = "900";
+        after = 14;
+        before = 9;
+        duration = 900;
       };
       
   # 🦆 ⮞ AUTOMATIONS ⮜
@@ -307,9 +307,9 @@ in { # 🦆 duck say ⮞ qwack
         # 🦆 says ⮞ + a greeting automation
         greeting = {
           enable = true;
-          awayDuration = "7200";
+          awayDuration = 7200;
           greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
-          delay = "10";
+          delay = 10;
           sayOnHost = "desktop";
         };
         
@@ -539,7 +539,7 @@ in { # 🦆 duck say ⮞ qwack
         "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
         "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
         "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };   
-        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
+        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };
         "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };                  
         "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
         "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };

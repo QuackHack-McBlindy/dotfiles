@@ -573,7 +573,8 @@ See `examples/` for more example usage.
   
 </details>
      
-    
+
+<br><br><br>
     
 
 [Standalone service module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo-rs.nix)

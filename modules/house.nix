@@ -625,6 +625,7 @@
   };
 
 in { # 🦆 says ⮞ Options for da house
+    imports = [ ./zigduck.nix ];
     options.house = {
       # 🦆 says ⮞ mainly used to cast media to tv
       https = {
@@ -1488,18 +1489,18 @@ in { # 🦆 says ⮞ Options for da house
                 description = "End time of dark time range (in HH:MM)";
               }; # 🦆 duck say ⮞ used in Zigduck Rust
               after = lib.mkOption {
-                type = lib.types.str;
-                default = "16";
+                type = lib.types.int;
+                default = 16;
                 description = "Start time of dark time range (HH)";
               };
               before = lib.mkOption {
-                type = lib.types.str;
-                default = "9";
+                type = lib.types.int;
+                default = 9;
                 description = "End time of dark time range (HH format)";
               }; 
               duration = lib.mkOption {
-                type = lib.types.str;
-                default = "900"; # 🦆 duck say ⮞ 15 minutes
+                type = lib.types.int;
+                default = 900; # 🦆 duck say ⮞ 15 minutes
                 description = "Number of seconds to wait before turning the lights off after motion is detected in dark time";
               };              
             };
@@ -1761,13 +1762,13 @@ in { # 🦆 says ⮞ Options for da house
                       description = "Greeting message to say";
                     };
                     awayDuration = mkOption {
-                      type = types.str;
-                      default = "7200";
+                      type = types.int;
+                      default = 7200;
                       description = "Time in seconds to be concidered away from home (default 7200)";
                     };                    
                     delay = mkOption {
-                      type = types.str;
-                      default = "10";
+                      type = types.int;
+                      default = 10;
                       description = "Delay in seconds before triggering greeting";
                     };
                     sayOnHost = mkOption {

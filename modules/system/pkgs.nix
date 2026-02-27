@@ -11,6 +11,7 @@
         environment.systemPackages = lib.mkMerge [
             (lib.mkIf (config.networking.hostName == "desktop") [ 
                 pkgs.nix-prefetch-github 
+                self.packages.x86_64-linux.zigduck-rs
                 pkgs.cargo
                 pkgs.rustc
                 pkgs.libclang

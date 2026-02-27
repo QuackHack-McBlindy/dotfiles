@@ -1,183 +1,150 @@
-use std::process::Command;    
-use std::thread::sleep;
-use clap::{Parser, Subcommand, ValueEnum, Args};
+// ddotfiles/packages/zigduck-rs/src/zigduck-cli.rs ⮞ https://github.com/QuackHack-McBlindy/dotfiles
+use std::{ // 🦆 says ⮞ zigduck-cli is a command line device controller for zigduck
+    fs,
+    process::Command,    
+    thread::sleep,
+    path::PathBuf,
+    time::Duration,
+    collections::HashMap,
+};    
+use clap::{
+    Parser,
+    ArgGroup,
+    ValueEnum,
+};
+use rand:: {
+    Rng,
+    seq::SliceRandom,
+};
 use serde::{Deserialize, Serialize};
 use rumqttc::{Client, MqttOptions, QoS};
-use std::time::Duration;
 use anyhow::{Result, Context};
 use colored::*;
-use std::collections::HashMap;
-use std::fs;
-use std::path::PathBuf;
 use reqwest::blocking::Client as HttpClient;
-use rand::Rng;
-use rand::seq::SliceRandom; 
-
+ 
 #[derive(Parser)]
 #[command(
-	name = "zigduck-cli",
-	version = "0.1.0",
-	author = "QuackHack-McBLindy",
-	about = "High-performance unified home automation controller",
-	long_about = "Control Zigbee and Hue devices, scenes, and automations with Rust speed and reliability"
+    name = "zigduck-cli",
+    version = "0.1.0",
+    author = "QuackHack-McBLindy",
+    about = "High-performance unified home automation controller",
+    long_about = "Control Zigbee and Hue devices, scenes, and automations with Rust speed and reliability"
 )]
+#[command(group(
+    ArgGroup::new("action")
+        .required(true)
+        .args(["device", "room", "scene", "list", "pair", "all_lights", "cheap_mode", "json_cmd"])
+))]
 struct Cli {
-	#[command(subcommand)]
-	command: Commands,
-	
-	#[arg(long, short, help = "MQTT broker host", env = "MQTT_BROKER", default_value = "127.0.0.1")]
-	broker: String,
-	
-	#[arg(long, short = 'u', help = "MQTT username", env = "MQTT_USER", default_value = "mqtt")]
-	user: String,
-	
-	#[arg(long, help = "MQTT password file", env = "MQTT_PASSWORD_FILE")]
-	password_file: Option<PathBuf>,
-	
-	#[arg(long, help = "MQTT password", env = "MQTT_PASSWORD")]
-	password: Option<String>,
-	
-	#[arg(long, short = 'v', action = clap::ArgAction::Count, help = "Verbosity level")]
-	verbose: u8,
-	
-	#[arg(long, help = "Path to devices configuration", env = "DEVICES_CONFIG")]
-	devices_config: Option<PathBuf>,
-	
-	#[arg(long, help = "Path to scenes configuration", env = "SCENES_CONFIG")]
-	scenes_config: Option<PathBuf>,
-	
-	#[arg(long, help = "Hue Bridge IP", env = "HUE_BRIDGE_IP")]
-	hue_bridge_ip: Option<String>,
+    // 🦆 says ⮞ global options
+    #[arg(long, short, help = "MQTT broker host", env = "MQTT_BROKER", default_value = "127.0.0.1")]
+    broker: String,
 
-	#[arg(long, help = "Hue Bridge API key", env = "HUE_API_KEY")]
-	hue_api_key: Option<String>,        
-}
+    #[arg(long, short = 'u', help = "MQTT username", env = "MQTT_USER", default_value = "mqtt")]
+    user: String,
 
-#[derive(Subcommand)]
-enum Commands {
-	/// 🦆 says ⮞ control individual device with named parameters
-	Device(DeviceCommand),
-	
-	/// 🦆 says ⮞ control device with raw JSON
-	Json(JsonCommand),
-	
-	/// 🦆 says ⮞ control all devices in a room
-	Room {
-	    /// 🦆 says ⮞ room name
-	    #[arg(short, long)]
-	    name: String,
-	    
-	    /// 🦆 says ⮞ room state
-	    #[arg(value_enum)]
-	    state: DeviceState,
-	    
-	    /// 🦆 says ⮞ brightness percentage
-	    #[arg(short, long)]
-	    brightness: Option<u8>,
-	    
-	    /// 🦆 says ⮞ color name or hex code
-	    #[arg(short, long)]
-	    color: Option<String>,
-	    
-	    /// 🦆 says ⮞ color temperature (153-500)
-	    #[arg(short = 't', long)]
-	    temperature: Option<u16>,
-	},
-	
-	/// 🦆 says ⮞ activate scene
-	Scene {
-	    /// 🦆 says ⮞ scene name
-	    name: String,
-	    
-	    /// 🦆 says ⮞ random scene if no provided
-	    #[arg(short, long, default_value_t = false)]
-	    random: bool,
-	},
-	
-	/// 🦆 says ⮞ enter pairing mode for new devices
-	Pair {
-	    /// 🦆 says ⮞ pairing duration in seconds
-	    #[arg(short, long, default_value_t = 120)]
-	    duration: u16,
-	    
-	    /// 🦆 says ⮞ watch for new devices
-	    #[arg(short, long, default_value_t = false)]
-	    watch: bool,
-	},
-	
-	/// 🦆 says ⮞ control all lights
-	AllLights {
-	    /// 🦆 says ⮞ all lights state
-	    #[arg(value_enum)]
-	    state: DeviceState,            
-	    /// 🦆 says ⮞ brightness percentage
-	    #[arg(short, long)]
-	    brightness: Option<u8>,            
-	    /// 🦆 says ⮞ color name or hex code
-	    #[arg(short, long)]
-	    color: Option<String>,
-	},
-	
-	/// 🦆 says ⮞ List available devices, rooms, or scenes
-	List {
-	    /// 🦆 says ⮞ what to list
-	    #[arg(value_enum)]
-	    what: ListType,            
-	    /// 🦆 says ⮞ output as JSON
-	    #[arg(short, long, default_value_t = false)]
-	    json: bool,
-	},
-	
-	/// 🦆 says ⮞ energy saving mode - turn off lights after delay
-	CheapMode {
-	    /// 🦆 says ⮞ room name
-	    room: String,            
-	    /// 🦆 says ⮞ delay in seconds before turning off
-	    #[arg(short, long, default_value_t = 300)]
-	    delay: u64,
-	},
-}
+    #[arg(long, help = "MQTT password file", env = "MQTT_PASSWORD_FILE")]
+    password_file: Option<PathBuf>,
 
-#[derive(Args)]
-struct DeviceCommand {
-	/// 🦆 says ⮞ device name
-	#[arg(short, long)]
-	device: String,
-	
-	/// 🦆 says ⮞ device state
-	#[arg(short, long, value_enum)]
-	state: DeviceState,
-	
-	/// 🦆 says ⮞ brightness percentage (1-100)
-	#[arg(short, long)]
-	brightness: Option<u8>,
-	
-	/// 🦆 says ⮞ color name or hex code
-	#[arg(short, long)]
-	color: Option<String>,
-	
-	/// 🦆 says ⮞ color temperature (153-500)
-	#[arg(short = 't', long)]
-	temperature: Option<u16>,
-	
-	/// 🦆 says ⮞ transition time in seconds
-	#[arg(short = 'T', long)]
-	transition: Option<f32>,
-}
+    #[arg(long, help = "MQTT password", env = "MQTT_PASSWORD")]
+    password: Option<String>,
 
-#[derive(Args)]
-struct JsonCommand {
-	/// 🦆 says ⮞ device name
-	#[arg(short, long)]
-	device: String,
-	
-	/// 🦆 says ⮞ raw JSON to send
-	#[arg(short, long)]
-	json: String,
-	
-	/// 🦆 says ⮞ backend type (auto, zigbee, hue)
-	#[arg(short, long, value_enum, default_value = "auto")]
-	backend: BackendType,
+    #[arg(long, short = 'v', action = clap::ArgAction::Count, help = "Verbosity level")]
+    verbose: u8,
+
+    #[arg(long, help = "Path to devices configuration", env = "DEVICES_CONFIG")]
+    devices_config: Option<PathBuf>,
+
+    #[arg(long, help = "Path to scenes configuration", env = "SCENES_CONFIG")]
+    scenes_config: Option<PathBuf>,
+
+    #[arg(long, help = "Hue Bridge IP", env = "HUE_BRIDGE_IP")]
+    hue_bridge_ip: Option<String>,
+
+    #[arg(long, help = "Hue Bridge API key", env = "HUE_API_KEY")]
+    hue_api_key: Option<String>,
+
+    // 🦆 says ⮞ action flags (mutually exclusive)
+    // 🦆 says ⮞ control a single device
+    #[arg(long, help = "Device name (friendly name)")]
+    device: Option<String>,
+
+    // 🦆 says ⮞ control all lights in a room
+    #[arg(long, help = "Room name")]
+    room: Option<String>,
+
+    // 🦆 says ⮞ activate a scene
+    #[arg(long, help = "Scene name")]
+    scene: Option<String>,
+
+    // 🦆 says ⮞ list available items
+    #[arg(long, help = "List devices, rooms, scenes, lights, or sensors")]
+    list: Option<Option<ListType>>,
+
+    // 🦆 says ⮞ enter pairing mode for new Zigbee devices
+    #[arg(long, num_args(0..=1), default_missing_value = "120", help = "Pairing duration in seconds (default: 120)")]
+    pair: Option<Option<u16>>,
+
+    // 🦆 says ⮞ control every light in the house
+    #[arg(long, help = "Control all lights")]
+    all_lights: bool,
+
+    // 🦆 says ⮞ eEnergy‑saving mode: lights on, then off after a delay
+    #[arg(long, help = "Room name for cheap mode")]
+    cheap_mode: Option<String>,
+
+    // 🦆 says ⮞ send raw JSON payload to a device
+    #[arg(long, help = "Send raw JSON to a device")]
+    json_cmd: bool,
+
+    // 🦆 says ⮞ additional arguments for specific actions
+    // 🦆 says ⮞ device state (on/off/toggle)
+    #[arg(long, value_enum)]
+    state: Option<DeviceState>,
+
+    // 🦆 says ⮞ brightness percentage
+    #[arg(long)]
+    brightness: Option<u8>,
+
+    // 🦆 says ⮞ color name or hex code
+    #[arg(long)]
+    color: Option<String>,
+
+    // 🦆 says ⮞ color temperature (153-500)
+    #[arg(long)]
+    temperature: Option<u16>,
+
+    // 🦆 says ⮞ transition time in seconds (device only)
+    #[arg(long, requires = "device")]
+    transition: Option<f32>,
+
+    // 🦆 says ⮞ raw JSON payload (for --json-cmd)
+    #[arg(long, requires = "json_cmd")]
+    payload: Option<String>,
+
+    // 🦆 says ⮞ backend type for JSON command (auto/zigbee/hue)
+    #[arg(long, value_enum, default_value = "auto", requires = "json_cmd")]
+    backend: BackendType,
+
+    // 🦆 says ⮞ output list as JSON
+    #[arg(long, requires = "list")]
+    json_output: bool,
+
+    // 🦆 says ⮞ for --pair: watch for new devices
+    #[arg(long, requires = "pair")]
+    watch: bool,
+
+    // 🦆 says ⮞ for --scene: pick a random scene
+    #[arg(long, requires = "scene")]
+    random: bool,
+
+    // 🦆 says ⮞ for --scene: restrict to a specific room
+    #[arg(long, requires = "scene")]
+    scene_room: Option<String>,
+
+    // 🦆 says ⮞ for --cheap-mode: delay in seconds before turning off (default: 300)
+    #[arg(long, default_value_t = 300, requires = "cheap_mode")]
+    delay: u64,
 }
 
 #[derive(Clone, ValueEnum)]
@@ -1059,58 +1026,58 @@ fn main() -> Result<()> {
 	    "".to_string()
 	};
 	
-	let mut controller = ZigduckController::new(
-	    cli.broker,
-	    cli.user,
-	    password,
-	    cli.hue_bridge_ip,
-	    cli.hue_api_key,
-	    cli.devices_config,
-	    cli.scenes_config,
-	    cli.verbose > 0,
-	)?;
-	
-	match cli.command {
-	    Commands::Device(cmd) => {
-	        controller.control_device_with_params(
-	            &cmd.device,
-	            &cmd.state,
-	            cmd.brightness,
-	            cmd.color,
-	            cmd.temperature,
-	            cmd.transition,
-	        )
-	    }
-	    Commands::Json(cmd) => {
-	        controller.control_device_with_json(
-	            &cmd.device,
-	            &cmd.json,
-	            &cmd.backend,
-	        )
-	    }
-	    Commands::Room { name, state, brightness, color, temperature } => {
-	        controller.control_room(&name, &state, brightness, color, temperature)
-	    }
-	    Commands::Scene { name, random } => {
-	        controller.activate_scene(&name, random)
-	    }
-	    Commands::Pair { duration, watch } => {
-	        controller.enter_pairing_mode(duration, watch)
-	    }
-	    Commands::AllLights { state, brightness, color } => {
-	        controller.control_all_lights(&state, brightness, color)
-	    }
-	    Commands::CheapMode { room, delay } => {
-	        controller.cheap_mode(&room, delay)
-	    }
-	    Commands::List { what, json } => {
-	        controller.list_items(&what, json)
-	    }
-	}
+    let mut controller = ZigduckController::new(
+        cli.broker, cli.user, password,
+        cli.hue_bridge_ip, cli.hue_api_key,
+        cli.devices_config, cli.scenes_config,
+        cli.verbose > 0,
+    )?;
+
+    // 🦆 says ⮞ determine which action was requested
+    if let Some(device_name) = cli.device {
+        // 🦆 says ⮞ device action
+        let state = cli.state.expect("--state is required for device");
+        controller.control_device_with_params(
+            &device_name,
+            &state,
+            cli.brightness,
+            cli.color,
+            cli.temperature,
+            cli.transition,
+        )
+    } else if let Some(room_name) = cli.room {
+        // 🦆 says ⮞ room action
+        let state = cli.state.expect("--state is required for room");
+        controller.control_room(
+            &room_name,
+            &state,
+            cli.brightness,
+            cli.color,
+            cli.temperature,
+        )
+    } else if let Some(scene_name) = cli.scene {
+        // 🦆 says ⮞ Scene action
+        controller.activate_scene(&scene_name, cli.random)?;
+        Ok(())
+    } else if let Some(list_arg) = cli.list {
+        let what = list_arg.unwrap_or(ListType::Devices);
+        controller.list_items(&what, cli.json_output);
+        Ok(())
+    } else if let Some(pair_arg) = cli.pair {
+        // 🦆 says ⮞ pair action
+        let duration = pair_arg.unwrap_or(120);
+        controller.enter_pairing_mode(duration, cli.watch)
+    } else if cli.all_lights {
+        // 🦆 says ⮞ all lights action
+        let state = cli.state.expect("--state is required for all-lights");
+        controller.control_all_lights(&state, cli.brightness, cli.color)
+    } else if let Some(room_name) = cli.cheap_mode {
+        // 🦆 says ⮞ cheap mode action
+        controller.cheap_mode(&room_name, cli.delay)
+    } else if cli.json_cmd {
+        // 🦆 says ⮞ JSON command (requires --device and --payload)
+        let device_name = cli.device.expect("--device is required for JSON command");
+        let payload = cli.payload.expect("--payload is required for JSON command");
+        controller.control_device_with_json(&device_name, &payload, &cli.backend)
+    } else { unreachable!("No action specified"); }
 }
-
-
-
-
-
-
