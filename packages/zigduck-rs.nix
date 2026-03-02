@@ -17,6 +17,10 @@ rustPlatform.buildRustPackage {
 
   cargoLock = {
     lockFile = ./zigduck-rs/Cargo.lock;
+#    outputHashes = {
+#      "ducktrace-logger-0.1.3" = "sha256-ofufdOnykNSpEVqjhQTOU6HtI+/j2Bv7Za+FovG7Huc=";
+#      "ducktrace-logger-0.1.3" = lib.fakeHash;
+#    };
   };
 
   env.CMAKE_POLICY_VERSION_MINIMUM = "3.5";

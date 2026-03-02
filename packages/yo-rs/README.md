@@ -640,5 +640,9 @@ Full service configuration:
 
 3. Transcription audio – Client sends `0x02 + [length (u32)] + [f32 samples]`.
 
-4. Discard – Any other message type causes the server to discard the following chunk (used to skip pending wake chunks).
+4. Success notification – server sends `0x03` after successful command execution.
+
+5. Failure notification – server sends `0x04` if the command fails.
+
+6. Discard – Any other message type causes the server to discard the following chunk (used to skip pending wake chunks).
 

@@ -227,6 +227,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ducktrace-logger"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "409b4e9b1df48d2d80e6411565e1064c24cd1453c2304bf0a46f5e4ca7be765c"
+dependencies = [
+ "chrono",
+ "colored",
+]
+
+[[package]]
 name = "encoding_rs"
 version = "0.8.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2283,6 +2293,7 @@ dependencies = [
  "chrono",
  "clap",
  "colored",
+ "ducktrace-logger",
  "rand",
  "reqwest",
  "rumqttc",

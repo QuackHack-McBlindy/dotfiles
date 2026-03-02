@@ -37,6 +37,10 @@ rustPlatform.buildRustPackage {
 
   cargoLock = {
     lockFile = ./yo-rs/Cargo.lock;
+#    outputHashes = {
+#      "ducktrace-logger-0.1.3" = "sha256-ofufdOnykNSpEVqjhQTOU6HtI+/j2Bv7Za+FovG7Huc=";
+#      "ducktrace-logger-0.1.3" = lib.fakeHash;
+#    };
   };
 
   nativeBuildInputs = [

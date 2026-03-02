@@ -16,6 +16,7 @@ use rand:: {
     Rng,
     seq::SliceRandom,
 };
+use ducktrace_logger::*;
 use serde::{Deserialize, Serialize};
 use rumqttc::{Client, MqttOptions, QoS};
 use anyhow::{Result, Context};
@@ -1014,6 +1015,8 @@ Ok(serde_json::Value::Object(payload))
 }
 
 fn main() -> Result<()> {
+    dt_setup(None, None);
+    dt_debug("zigduck-cli init!");
 	let cli = Cli::parse();
 	
 	let password = if let Some(password_file) = cli.password_file {

@@ -57,6 +57,7 @@
                 pkgs.qrencode
                 pkgs.age-plugin-yubikey
                 pkgs.ntfy-sh
+
                 pkgs.ghostty
                 pkgs.imagemagick
                 pkgs.smartmontools
@@ -164,6 +165,7 @@
                 pkgs.rage
                 pkgs.syslogng
                 pkgs.gum		# scripts 
+                inputs.ducktrace-tui.packages.x86_64-linux.default
                 pkgs.wyoming-piper # wy0ming server
                 pkgs.ripgrep 		# Better `grep`
                 pkgs.fd

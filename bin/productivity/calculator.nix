@@ -25,21 +25,25 @@
           RESET='\033[0m'
         
           # 🦆 duck say ⮞ swedish math words > math symbols
-           math=$(echo "$math" \
+          math=$(echo "$math" \
             | sed -e 's/plus/+/g' \
-              -e 's/minus/-/g' \
-              -e 's/gånger/*/g' \
-              -e 's/delat med/\//g' \
-              -e 's/roten ur/sqrt/g' \
-              -e 's/÷/\//g' \
-              -e 's/[xX]/\*/g' \
-              -e 's/komma/./g' \
+                  -e 's/minus/-/g' \
+                  -e 's/gånger/*/g' \
+                  -e 's/delat med/\//g' \
+                  -e 's/delat i/\//g' \
+                  -e 's/dela med/\//g' \
+                  -e 's/dela i/\//g' \
+                  -e 's/roten ur/sqrt/g' \
+                  -e 's/roten av/sqrt/g' \
+                  -e 's/÷/\//g' \
+                  -e 's/[xX]/\*/g' \
+                  -e 's/komma/./g' \
           )
 
           # 🦆 duck say ⮞ replace any divide symbol with slash
           math=$(echo "$math" | sed 's/÷/\//g')
   
-          # 🦆 duck say ⮞ x is a star if it's betweeb duguts or spaces yo
+          # 🦆 duck say ⮞ x is a star if it's between digits or spaces yo
           math=$(echo "$math" | sed -E -e 's/([0-9]) *[xX] *([0-9])/\1*\2/g' -e 's/^ *[xX] *([0-9])/*\1/g' -e 's/([0-9]) *[xX] *$/\1*/g')
     
           # 🦆 duck say ⮞ convert swedish number words to digits

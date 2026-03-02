@@ -11,255 +11,7 @@ use chrono:: {
   Local,
   Timelike,
 };  
-  
-use colored::*;
-
-
-static LOGGER: OnceLock<Mutex<DuckTraceLogger>> = OnceLock::new();
-static SETUP: Once = Once::new();
-
-struct DuckTraceLogger {
-    level: LogLevel,
-    log_file: Option<File>,
-    debug_mode: bool,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd)]
-enum LogLevel {
-    Debug,
-    Info,
-    Warning,
-    Error,
-    Critical,
-}
-
-impl DuckTraceLogger {
-    fn new(level_str: Option<&str>) -> Self {
-        let debug_mode = env::var("DEBUG").is_ok();
-        let level = match level_str {
-            Some(l) => Self::level_from_str(l),
-            None => match env::var("DT_LOG_LEVEL")
-                .unwrap_or_else(|_| "INFO".to_string())
-                .to_uppercase()
-                .as_str()
-            {
-                "DEBUG" => LogLevel::Debug,
-                "WARNING" => LogLevel::Warning,
-                "ERROR" => LogLevel::Error,
-                "CRITICAL" => LogLevel::Critical,
-                _ => LogLevel::Info,
-            },
-        };
-        
-        let log_file = Self::setup_log_file();
-        
-        Self { level, log_file, debug_mode }
-    }
-    
-    fn level_from_str(s: &str) -> LogLevel {
-        match s.to_uppercase().as_str() {
-            "DEBUG" => LogLevel::Debug,
-            "INFO" => LogLevel::Info,
-            "WARNING" => LogLevel::Warning,
-            "ERROR" => LogLevel::Error,
-            "CRITICAL" => LogLevel::Critical,
-            _ => LogLevel::Info,
-        }
-    }
-    
-    fn setup_log_file() -> Option<File> {
-        let log_path = env::var("DT_LOG_PATH")
-            .unwrap_or_else(|_| {
-                let home = env::var("HOME").unwrap_or_else(|_| ".".to_string());
-                format!("{}/.config/duckTrace", home)
-            });
-        
-        std::fs::create_dir_all(&log_path).ok()?;
-        
-        let log_filename = env::var("DT_LOG_FILE")
-            .unwrap_or_else(|_| "unknown.rs-script.log".to_string());
-        
-        let full_path = format!("{}{}", log_path, log_filename);
-        
-        OpenOptions::new()
-            .create(true)
-            .append(true)
-            .open(&full_path)
-            .ok()
-    }
-    
-    fn should_log(&self, msg_level: LogLevel) -> bool {
-        if msg_level == LogLevel::Debug && !self.debug_mode {
-            return false;
-        }
-        msg_level >= self.level
-    }
-    
-    fn get_symbol(&self, level: LogLevel) -> &'static str {
-        match level {
-            LogLevel::Debug => "⁉️",
-            LogLevel::Info => "✅",
-            LogLevel::Warning => "⚠️",
-            LogLevel::Error => "❌",
-            LogLevel::Critical => "🚨",
-        }
-    }
-    
-    fn format_message(&self, level: LogLevel, message: &str) -> String {
-        let timestamp = Local::now().format("%H:%M:%S");
-        let symbol = self.get_symbol(level);
-        let level_str = match level {
-            LogLevel::Debug => "DEBUG",
-            LogLevel::Info => "INFO",
-            LogLevel::Warning => "WARNING",
-            LogLevel::Error => "ERROR",
-            LogLevel::Critical => "CRITICAL",
-        };
-        
-        format!("[🦆📜] [{}] {}{}{} ⮞ {}", 
-            timestamp, symbol, level_str, symbol, message)
-    }
-    
-    fn colorize_console(&self, level: LogLevel, formatted_msg: &str) -> String {
-        match level {
-            LogLevel::Debug => formatted_msg.blue().bold().to_string(),
-            LogLevel::Info => formatted_msg.green().bold().to_string(),
-            LogLevel::Warning => formatted_msg.yellow().bold().to_string(),
-            LogLevel::Error => formatted_msg.red().bold().blink().to_string(),
-            LogLevel::Critical => formatted_msg.red().bold().blink().to_string(),
-        }
-    }
-    
-    fn add_duck_say(&self, level: LogLevel, message: &str) -> String {
-        if matches!(level, LogLevel::Error | LogLevel::Critical) {
-            let duck_say = format!(
-                "\n\x1b[3m\x1b[38;2;0;150;150m🦆 duck say \x1b[1m\x1b[38;2;255;255;0m⮞\x1b[0m\x1b[3m\x1b[38;2;0;150;150m fuck ❌ {}\x1b[0m",
-                message
-            );
-            duck_say
-        } else {
-            String::new()
-        }
-    }
-    
-    pub fn log(&mut self, level: LogLevel, message: &str) {
-        if !self.should_log(level) {
-            return;
-        }
-        
-        let formatted = self.format_message(level, message);
-        let console_output = self.colorize_console(level, &formatted);
-        
-        eprintln!("{}", console_output);
-        
-        if matches!(level, LogLevel::Error | LogLevel::Critical) {
-            let duck_say = self.add_duck_say(level, message);
-            eprintln!("{}", duck_say);
-        }
-        
-        if let Some(file) = &mut self.log_file {
-            let timestamp = Local::now().format("%H:%M:%S");
-            let level_str = match level {
-                LogLevel::Debug => "DEBUG",
-                LogLevel::Info => "INFO",
-                LogLevel::Warning => "WARNING",
-                LogLevel::Error => "ERROR",
-                LogLevel::Critical => "CRITICAL",
-            };
-            
-            let file_msg = format!("[{}] {} - {}\n", timestamp, level_str, message);
-            let _ = writeln!(file, "{}", file_msg);
-        }
-    }
-}
-
-pub fn dt_debug(msg: &str) {
-    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
-    let mut guard = logger.lock().unwrap();
-    guard.log(LogLevel::Debug, msg);
-}
-
-pub fn dt_info(msg: &str) {
-    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
-    let mut guard = logger.lock().unwrap();
-    guard.log(LogLevel::Info, msg);
-}
-
-pub fn dt_warning(msg: &str) {
-    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
-    let mut guard = logger.lock().unwrap();
-    guard.log(LogLevel::Warning, msg);
-}
-
-pub fn dt_error(msg: &str) {
-    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
-    let mut guard = logger.lock().unwrap();
-    guard.log(LogLevel::Error, msg);
-}
-
-pub fn dt_critical(msg: &str) {
-    let logger = LOGGER.get_or_init(|| Mutex::new(DuckTraceLogger::new(None)));
-    let mut guard = logger.lock().unwrap();
-    guard.log(LogLevel::Critical, msg);
-}
-
-pub fn setup_ducktrace_logging(_log_name: Option<&str>, level: Option<&str>) {
-    SETUP.call_once(|| {
-        if LOGGER.get().is_none() {
-            let _ = LOGGER.set(Mutex::new(DuckTraceLogger::new(level)));
-        }
-    });
-}
-
-pub struct TranscriptionTimer {
-    operation_name: String,
-    start_time: Instant,
-}
-
-impl TranscriptionTimer {
-    pub fn new(operation_name: &str) -> Self {
-        dt_debug(&format!("Starting {}...", operation_name));
-        Self {
-            operation_name: operation_name.to_string(),
-            start_time: Instant::now(),
-        }
-    }
-    
-    pub fn lap(&self, lap_name: &str) {
-        let elapsed = self.start_time.elapsed().as_secs_f64();
-        dt_debug(&format!("{} - {}: {:.3}s", self.operation_name, lap_name, elapsed));
-    }
-    
-    pub fn complete(self) {
-        let elapsed = self.start_time.elapsed().as_secs_f64();
-        dt_debug(&format!("Completed {} in {:.3}s", self.operation_name, elapsed));
-    }
-}
-
-macro_rules! duck_log {
-    (debug: $($arg:tt)*) => {
-        dt_debug(&format!($($arg)*));
-    };
-    (info: $($arg:tt)*) => {
-        dt_info(&format!($($arg)*));
-    };
-    (warning: $($arg:tt)*) => {
-        dt_warning(&format!($($arg)*));
-    };
-    (error: $($arg:tt)*) => {
-        dt_error(&format!($($arg)*));
-    };
-    (critical: $($arg:tt)*) => {
-        dt_critical(&format!($($arg)*));
-    };
-}
-
-
-
-
-
-
-
+use ducktrace_logger::*;
 use rumqttc::{MqttOptions, Client, QoS, Event, Incoming};
 use serde_json::{Value, json};
 use std::collections::HashMap;
@@ -518,10 +270,10 @@ impl ZigduckState {
                 }
                 // 🦆 says ⮞ check conditions
                 if self.check_conditions(&automation.conditions).await {
-                    self.quack_info(&format!("Triggering MQTT automation: {}", automation.description));
+                    if self.debug { dt_debug!("Triggering MQTT automation: {}", automation.description); }
                     for action in &automation.actions {
                         if let Err(e) = self.execute_automation_action_mqtt(action, "mqtt_triggered", "global", topic, payload) {
-                            self.quack_debug(&format!("Error executing MQTT automation action: {}", e));
+                            if self.debug { dt_debug!("Error executing MQTT automation action: {}", e); }
                         }
                     }
                 }
@@ -554,7 +306,7 @@ impl ZigduckState {
             if schedule_matches && self.check_conditions(&automation.conditions).await {
                 for action in &automation.actions {
                     if let Err(e) = self.execute_automation_action(action, "time_based", "global") {
-                        self.quack_debug(&format!("Error executing time-based automation: {}", e));
+                        if self.debug { dt_debug!("Error executing time-based automation: {}", e); }
                     }
                 }
             }
@@ -642,7 +394,7 @@ impl ZigduckState {
             if all_no_motion && self.check_conditions(&automation.conditions).await {
                 for action in &automation.actions {
                     if let Err(e) = self.execute_automation_action(action, "presence_based", "global") {
-                        self.quack_debug(&format!("Error executing presence automation: {}", e));
+                        if self.debug { dt_debug!("Error executing presence automation: {}", e); }
                     }
                 }
             }
@@ -694,14 +446,14 @@ impl ZigduckState {
                 if config.enable {
                     if !config.override_actions.is_empty() {
                         // 🦆 says ⮞ run only the override actions
-                        self.quack_debug(&format!("Running override actions for {} in {}", action, room));
+                        if self.debug { dt_debug!("Running override actions for {} in {}", action, room); }
                         for override_action in &config.override_actions {
                             self.execute_automation_action(override_action, device_name, room)?;
                         }
                         executed = true;
                     } else {
                         // 🦆 says ⮞ if no overrides - default + extra actions
-                        self.quack_debug(&format!("Running default + extra actions for {} in {}", action, room));
+                        if self.debug { dt_debug!("Running default + extra actions for {} in {}", action, room); }
                         if let Some(action_fn) = default_action.take() {
                             action_fn(room)?;
                         }
@@ -712,7 +464,7 @@ impl ZigduckState {
                     }
                 } else {
                     // 🦆 says ⮞ if none of the above - actions disabled 
-                    self.quack_debug(&format!("Actions disabled for {} in {}", action, room));
+                    if self.debug { dt_debug!("Actions disabled for {} in {}", action, room); }
                     executed = true;
                 }
             }
@@ -736,13 +488,13 @@ impl ZigduckState {
                 if let Some(config) = dimmer_action {
                     if config.enable {
                         if !config.override_actions.is_empty() {
-                            self.quack_debug(&format!("Running default override actions for {}", action));
+                            if self.debug { dt_debug!("Running default override actions for {}", action); }
                             for override_action in &config.override_actions {
                                 self.execute_automation_action(override_action, device_name, room)?;
                             }
                             executed = true;
                         } else {
-                            self.quack_debug(&format!("Running default actions for {}", action));
+                            if self.debug { dt_debug!("Running default actions for {}", action); }
                             if let Some(action_fn) = default_action.take() {
                                 action_fn(room)?;
                             }
@@ -758,7 +510,7 @@ impl ZigduckState {
         
         // 🦆 says ⮞ no configuration - run default action
         if !executed {
-            self.quack_debug(&format!("Running fallback default for {} in {}", action, room));
+            if self.debug { dt_debug!("Running fallback default for {} in {}", action, room); }
             if let Some(action_fn) = default_action.take() {
                 action_fn(room)?;
             }
@@ -901,7 +653,7 @@ impl ZigduckState {
     // 🦆 says ⮞ sset scene
     fn activate_scene(&self, scene_name: &str) -> Result<(), Box<dyn std::error::Error>> {
         if self.scene_config.scenes.contains_key(scene_name) {
-            self.quack_info(&format!("🎨 Activating scene: {}", scene_name));
+            dt_info!("🎨 Activating scene: {}", scene_name);
     
             let output = std::process::Command::new("yo")
                 .arg("house")
@@ -910,27 +662,27 @@ impl ZigduckState {
                 .output()?;
     
             if output.status.success() {
-                self.quack_info(&format!("✅ Scene '{}' activated via yo house", scene_name));
+                dt_info!("✅ Scene '{}' activated via yo house", scene_name);
         
                 if self.debug {
                     let stdout = String::from_utf8_lossy(&output.stdout);
                     let stderr = String::from_utf8_lossy(&output.stderr);
-                    self.quack_debug(&format!("stdout: {}", stdout));
+                    if self.debug { dt_debug!("stdout: {}", stdout); }
                     if !stderr.is_empty() {
-                        self.quack_debug(&format!("stderr: {}", stderr));
+                        if self.debug { dt_debug!("stderr: {}", stderr); }
                     }
                 }
             } else {
                 let stderr = String::from_utf8_lossy(&output.stderr);
                 let error_msg = format!("Failed to activate scene: {}", stderr);
-                self.quack_debug(&error_msg);
+                if self.debug { dt_debug!("{}", error_msg); }
                 return Err(error_msg.into());
             }
     
             Ok(())
         } else {
             let error_msg = format!("Scene '{}' not found", scene_name);
-            self.quack_info(&error_msg);
+            dt_info!("{}", error_msg);
             Err(error_msg.into())
         }
     }
@@ -1012,7 +764,7 @@ impl ZigduckState {
 
 
     fn execute_automation_action_mqtt(&self, action: &AutomationAction, device_name: &str, room: &str, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {     
-        self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
+        if self.debug { dt_debug!("Executing automation action for {} in {}", device_name, room); }
 
         // 🦆 says ⮞ set MQTT environment variables for shell actions
         unsafe { std::env::set_var("AUTOMATION_DEVICE", device_name); }
@@ -1042,7 +794,7 @@ impl ZigduckState {
                     .output()?;
         
                 if !output.status.success() {
-                    self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                    if self.debug { dt_debug!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)); }
                 }
             }
             AutomationAction::Structured(action_config) => {
@@ -1062,7 +814,7 @@ impl ZigduckState {
                                 .output()?;
                     
                             if !output.status.success() {
-                                self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                                if self.debug { dt_debug!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)); }
                             }
                         }
                     }
@@ -1079,7 +831,7 @@ impl ZigduckState {
     } 
 
     fn execute_automation_action(&self, action: &AutomationAction, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {        
-        self.quack_debug(&format!("Executing automation action for {} in {}", device_name, room));
+        if self.debug { dt_debug!("Executing automation action for {} in {}", device_name, room); }
 
         // 🦆 says ⮞ set MQTT environment variables for shell actions
         unsafe { std::env::set_var("AUTOMATION_DEVICE", device_name); }
@@ -1096,7 +848,7 @@ impl ZigduckState {
                     .output()?;
         
                 if !output.status.success() {
-                    self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                    if self.debug { dt_debug!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)); }
                 }
             }
             AutomationAction::Structured(action_config) => {
@@ -1116,7 +868,7 @@ impl ZigduckState {
                                 .output()?;
                     
                             if !output.status.success() {
-                                self.quack_debug(&format!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)));
+                                if self.debug { dt_debug!("Shell command failed: {}", String::from_utf8_lossy(&output.stderr)); }
                             }
                         }
                     }
@@ -1152,7 +904,7 @@ impl ZigduckState {
         let tmp_file = format!("{}/tmp_state.json", self.state_dir);
         fs::write(&tmp_file, state.to_string())?;
         fs::rename(&tmp_file, &self.state_file)?; 
-        self.quack_debug(&format!("Updated state: {}.{} = {}", device, key, value));
+        if self.debug { dt_debug!("Updated state: {}.{} = {}", device, key, value); }
         Ok(())
     }
 
@@ -1167,11 +919,11 @@ impl ZigduckState {
     fn update_device_state_from_data(&self, device_name: &str, data: &Value) -> Result<(), Box<dyn std::error::Error>> {
         // 🦆 says ⮞ skip set/availability topics
         if device_name.ends_with("/set") || device_name.ends_with("/availability") {
-            self.quack_debug(&format!("Skipping state update for {} (set/availability topic)", device_name));
+            if self.debug { dt_debug!("Skipping state update for {} (set/availability topic)", device_name); }
             return Ok(());
         }
 
-        self.quack_debug(&format!("Updating all state fields for: {}", device_name));
+        if self.debug { dt_debug!("Updating all state fields for: {}", device_name); }
 
         // 🦆 says ⮞ extract ALL fields
         if let Some(linkquality) = data["linkquality"].as_u64() {
@@ -1237,10 +989,10 @@ impl ZigduckState {
         fs::write(&self.larmed_file, state.to_string())?; 
         self.mqtt_publish("zigbee2mqtt/security/state", &state.to_string())?;
         if armed {
-            self.quack_info("🛡️ Security system ARMED");
+            dt_info!("🛡️ Security system ARMED");
             self.run_yo_command(&["notify", "🛡️ Security armed"])?;
         } else {
-            self.quack_info("🛡️ Security system DISARMED");
+            dt_info!("🛡️ Security system DISARMED");
             self.run_yo_command(&["notify", "🛡️ Security disarmed"])?;
         }       
         Ok(())
@@ -1279,7 +1031,7 @@ impl ZigduckState {
             .args(args)
             .output()?;    
         if !output.status.success() {
-            self.quack_debug(&format!("yo command failed: {}", String::from_utf8_lossy(&output.stderr)));
+            if self.debug { dt_debug!("yo command failed: {}", String::from_utf8_lossy(&output.stderr)); }
         }      
         Ok(())
     }
@@ -1324,14 +1076,14 @@ impl ZigduckState {
         *self.message_counts.entry(topic.to_string()).or_insert(0) += 1;
         self.total_messages += 1;
         if duration > 100 {
-            self.quack_info(&format!("[🦆📶] - SLOW PROCESSING: {} took {}ms", topic, duration));
+            dt_info!("[🦆📶] - SLOW PROCESSING: {} took {}ms", topic, duration);
         }
 
         if self.total_messages % 100 == 0 {
-            self.quack_debug(&format!("[🦆📶] - Total messages: {}", self.total_messages));
+            if self.debug { dt_debug!("[🦆📶] - Total messages: {}", self.total_messages); }
             for (topic_type, avg_time) in &self.processing_times {
                 let count = self.message_counts.get(topic_type).unwrap_or(&0);
-                self.quack_debug(&format!("{}: avg {}ms, count {}", topic_type, avg_time, count));
+                if self.debug { dt_debug!("{}: avg {}ms, count {}", topic_type, avg_time, count); }
             }
         }
     }
@@ -1367,7 +1119,7 @@ impl ZigduckState {
             }
         }
         let action = if state == "ON" { "ON" } else { "OFF" };
-        self.quack_info(&format!("💡 All lights turned {}", action));
+        dt_info!("💡 All lights turned {}", action);
         Ok(())
     }    
 
@@ -1399,7 +1151,7 @@ impl ZigduckState {
             let data: Value = match serde_json::from_str(payload) {
                 Ok(d) => d,
                 Err(e) => {
-                    self.quack_debug(&format!("Failed to parse payload: {}", e));
+                    if self.debug { dt_debug!("Failed to parse payload: {}", e); }
                     return Ok(());
                 }
             };
@@ -1434,11 +1186,11 @@ impl ZigduckState {
             let device_info = match resolved_device {
                 Some(d) => d,
                 None => {
-                    self.quack_info(&format!("❌ Device not found: {}", device_id));
-                    self.quack_info(&format!(
+                    dt_info!("❌ Device not found: {}", device_id);
+                    dt_info!(
                         "Available devices: {:?}",
                         self.devices.keys().collect::<Vec<_>>()
-                    ));
+                    );
                     return Ok(());
                 }
             };
@@ -1473,7 +1225,7 @@ impl ZigduckState {
                     }
     
                     let hue_json = serde_json::to_string(&Value::Object(hue_payload))?;
-                    self.quack_debug(&format!("Hue payload: {}", hue_json));
+                    if self.debug { dt_debug!("Hue payload: {}", hue_json); }
     
                     let output = std::process::Command::new("yo")
                         .arg("house")
@@ -1484,17 +1236,17 @@ impl ZigduckState {
                         .output()?;
     
                     if !output.status.success() {
-                        self.quack_debug(&format!(
+                        if self.debug { dt_debug!(
                             "Hue failed: {}",
                             String::from_utf8_lossy(&output.stderr)
-                        ));
+                        ); }
                     }
                 }
     
                 // 🦆 says ⮞ not hue? publish to mqtt
                 _ => {
                     let topic = format!("zigbee2mqtt/{}/set", device_info.id);
-                    self.quack_debug(&format!("MQTT → {}", topic));
+                    if self.debug { dt_debug!("MQTT → {}", topic); }
                     self.mqtt_publish(&topic, payload)?;
                 }
             }
@@ -1510,22 +1262,22 @@ impl ZigduckState {
         let start_time = std::time::Instant::now();
         // 🦆 says ⮞ skip large payloads
         if payload.len() > 10000 {
-            self.quack_debug(&format!("Skipping large payload on topic: {} (size: {})", topic, payload.len()));
+            if self.debug { dt_debug!("Skipping large payload on topic: {} (size: {})", topic, payload.len()); }
             return Ok(());
         }
         
         // 🦆 says ⮞ MQTT TRIGGERED AUTOMATIONS
         if let Err(e) = self.check_mqtt_triggered_automations(topic, payload).await {
-            self.quack_info(&format!("Error checking MQTT automations: {}", e));
+            dt_info!("Error checking MQTT automations: {}", e);
         }
         
         // 🦆 says ⮞ debug log raw payloadz yo    
-        self.quack_debug(&format!("TOPIC: {}", topic));
-        self.quack_debug(&format!("PAYLOAD: {}", payload));
+        if self.debug { dt_debug!("TOPIC: {}", topic); }
+        if self.debug { dt_debug!("PAYLOAD: {}", payload); }
         let data: Value = match serde_json::from_str(payload) {
             Ok(parsed) => parsed,
             Err(_) => {
-                self.quack_debug(&format!("Invalid JSON payload: {}", payload));
+                if self.debug { dt_debug!("Invalid JSON payload: {}", payload); }
                 return Ok(());
             }
         };
@@ -1546,7 +1298,7 @@ impl ZigduckState {
                 .unwrap_or("");
     
             if !card_name.is_empty() {
-                self.quack_info(&format!("Dashboard card clicked: {}", card_name));
+                dt_info!("Dashboard card clicked: {}", card_name);
         
                 // 🦆 says ⮞ parse payload 2 get click data
                 if let Ok(data) = serde_json::from_str::<Value>(payload) {
@@ -1554,14 +1306,14 @@ impl ZigduckState {
                         if card_config.enable {
                             for action in &card_config.on_click_action {
                                 if let Err(e) = self.execute_automation_action_mqtt(action, card_name, "dashboard", topic, payload) {
-                                    self.quack_debug(&format!("Error executing dashboard card action: {}", e));
+                                    if self.debug { dt_debug!("Error executing dashboard card action: {}", e); }
                                 }
                             }
                         } else {
-                            self.quack_debug(&format!("Card {} is disabled", card_name));
+                            if self.debug { dt_debug!("Card {} is disabled", card_name); }
                         }
                     } else {
-                        self.quack_debug(&format!("No configuration found for card: {}", card_name));
+                        if self.debug { dt_debug!("No configuration found for card: {}", card_name); }
                     }
                 }
             }
@@ -1573,10 +1325,10 @@ impl ZigduckState {
             let scene_name = topic.strip_prefix("zigbee2mqtt/scene/").unwrap_or("");
     
             if !scene_name.is_empty() {
-                self.quack_info(&format!("Activating scene: {}", scene_name));
+                dt_info!("Activating scene: {}", scene_name);
         
                 if let Err(e) = self.activate_scene(scene_name) {
-                    self.quack_debug(&format!("Error activating scene: {}", e));
+                    if self.debug { dt_debug!("Error activating scene: {}", e); }
                 }
             }
             return Ok(());
@@ -1595,7 +1347,7 @@ impl ZigduckState {
                     self.update_device_state(&device_key, "current_channel_name", channel_name)?; 
                     let timestamp = Local::now().to_rfc3339();
                     self.update_device_state(&device_key, "last_update", &timestamp)?;
-                    self.quack_info(&format!("📺 {} live tv channel: {}", device_ip, channel_name));
+                    dt_info!("📺 {} live tv channel: {}", device_ip, channel_name);
                 }
             }
             return Ok(());
@@ -1606,7 +1358,7 @@ impl ZigduckState {
 
         // 🦆 says ⮞ STATE UPDATES
         if let Err(e) = self.update_device_state_from_data(device_name, &data) {
-            self.quack_debug(&format!("Failed to update device state: {}", e));
+            if self.debug { dt_debug!("Failed to update device state: {}", e); }
         }
 
         if let Some(device) = self.devices.get(device_name) {
@@ -1615,7 +1367,7 @@ impl ZigduckState {
             if let Some(battery) = data["battery"].as_u64() {
                 let prev_battery = self.get_state(device_name, "battery");
                 if prev_battery.as_deref() != Some(&battery.to_string()) && prev_battery.is_some() {
-                    self.quack_info(&format!("🔋 Battery update for {}: {}% > {}%", device_name, prev_battery.unwrap(), battery));
+                    dt_info!("🔋 Battery update for {}: {}% > {}%", device_name, prev_battery.unwrap(), battery);
                 }
             }
 
@@ -1623,7 +1375,7 @@ impl ZigduckState {
             if let Some(power) = data["power"].as_u64() {
                 let prev_power = self.get_state(device_name, "power");
                 if prev_power.as_deref() != Some(&power.to_string()) && prev_power.is_some() {
-                    self.quack_info(&format!("⚡ Power update for {}: {}W > {}W", device_name, prev_power.unwrap(), power));
+                    dt_info!("⚡ Power update for {}: {}W > {}W", device_name, prev_power.unwrap(), power);
                 }
             }
             
@@ -1632,7 +1384,7 @@ impl ZigduckState {
             if let Some(energy) = data["energy"].as_u64() {
                 let prev_energy = self.get_state(device_name, "energy");
                 if prev_energy.as_deref() != Some(&energy.to_string()) && prev_energy.is_some() {
-                    self.quack_info(&format!("🔋 Energy update for {}: {} kWh > {} kWh", device_name, prev_energy.unwrap(), energy));
+                    dt_info!("🔋 Energy update for {}: {} kWh > {} kWh", device_name, prev_energy.unwrap(), energy);
                 }
             }
 
@@ -1641,7 +1393,7 @@ impl ZigduckState {
             if let Some(voltage) = data["voltage"].as_u64() {
                 let prev_voltage = self.get_state(device_name, "voltage");
                 if prev_voltage.as_deref() != Some(&voltage.to_string()) && prev_voltage.is_some() {
-                    self.quack_info(&format!("⚡ Voltage update for {}: {}V > {}V", device_name, prev_voltage.unwrap(), voltage));
+                    dt_info!("⚡ Voltage update for {}: {}V > {}V", device_name, prev_voltage.unwrap(), voltage);
                 }
             }
 
@@ -1649,7 +1401,7 @@ impl ZigduckState {
             if let Some(charging) = data["charging"].as_u64() {
                 let prev_charging = self.get_state(device_name, "charging");
                 if prev_charging.as_deref() != Some(&charging.to_string()) && prev_charging.is_some() {
-                    self.quack_info(&format!("🔋 Charging changed for {}: {} > {}", device_name, prev_charging.unwrap(), charging));
+                    dt_info!("🔋 Charging changed for {}: {} > {}", device_name, prev_charging.unwrap(), charging);
                 }
             }
     
@@ -1657,7 +1409,7 @@ impl ZigduckState {
             if let Some(temperature) = data["temperature"].as_f64() {
                 let prev_temp = self.get_state(device_name, "temperature");
                 if prev_temp.as_deref() != Some(&temperature.to_string()) && prev_temp.is_some() {
-                    self.quack_info(&format!("🌡️ Temperature update for {}: {}°C > {}°C", device_name, prev_temp.unwrap(), temperature));
+                    dt_info!("🌡️ Temperature update for {}: {}°C > {}°C", device_name, prev_temp.unwrap(), temperature);
                 }
             }
 
@@ -1666,7 +1418,7 @@ impl ZigduckState {
             if let Some(smoke) = data["smoke"].as_bool() {
                 if smoke {
                     self.execute_automations("smoke", "smoke_detected", device_name, room)?;
-                    self.quack_info(&format!("❤️‍🔥❤️‍🔥 SMOKE! in {} {}", device_name, room));
+                    dt_info!("❤️‍🔥❤️‍🔥 SMOKE! in {} {}", device_name, room);
                 }
             }
 
@@ -1678,7 +1430,7 @@ impl ZigduckState {
                         "timestamp": Local::now().to_rfc3339()
                     }); // 🦆 says ⮞ save it, useful laterz?
                     fs::write(format!("{}/last_motion.json", self.state_dir), motion_data.to_string())?;
-                    self.quack_info(&format!("🕵️ Motion in {} {}", device_name, room));
+                    dt_info!("🕵️ Motion in {} {}", device_name, room);
                     
                     self.execute_automations("motion", "motion_detected", device_name, room)?;
                     // 🦆 says ⮞ & update state file yo
@@ -1690,7 +1442,7 @@ impl ZigduckState {
                         // 🦆 says ⮞ cancel existing timer for this room
                         if let Some(existing_timer) = self.motion_timers.remove(room) {
                             existing_timer.abort();
-                            self.quack_debug(&format!("⏰ Cancelled existing timer for {}", room));
+                            if self.debug { dt_debug!("⏰ Cancelled existing timer for {}", room); }
                         }
                         self.set_motion_triggered(room, true)?; 
                         // 🦆 says ⮞ only turn on lights if no automation is defined
@@ -1698,21 +1450,21 @@ impl ZigduckState {
                             self.room_lights_on(room)?;
                         }
                     } else { // 🦆 says ⮞ daytime? lightz no thnx
-                        self.quack_debug("❌ Daytime - no lights activated by motion.");
+                        if self.debug { dt_debug!("❌ Daytime - no lights activated by motion."); }
                     }
                 } else { // 🦆 says ⮞ no more movementz update state file yo
-                    self.quack_debug(&format!("🛑 No more motion in {} {}", device_name, room));
+                    if self.debug { dt_debug!("🛑 No more motion in {} {}", device_name, room); }
                     self.execute_automations("motion", "motion_not_detected", device_name, room)?;
                     // 🦆 says ⮞ motion stopped - check if we should turn off lights
                     if self.is_motion_triggered(room) {
-                        self.quack_debug(&format!("⏰ Motion stopped in {}, will turn off lights in {}s", room, self.config.dark_time.duration));
+                        if self.debug { dt_debug!("⏰ Motion stopped in {}, will turn off lights in {}s", room, self.config.dark_time.duration); }
                         let room_clone = room.to_string();
                         let state_clone = std::sync::Arc::new(self.clone());        
                         let timer_handle = tokio::spawn(async move {
                             tokio::time::sleep(Duration::from_secs(state_clone.config.dark_time.duration)).await;
                             // 🦆 says ⮞ still no motion? lightz off 
                             if state_clone.is_motion_triggered(&room_clone) {
-                                state_clone.quack_debug(&format!("💡 Turning off motion-triggered lights in {}", room_clone));
+                                if state_clone.debug { dt_debug!("💡 Turning off motion-triggered lights in {}", room_clone); }
                                 let _ = state_clone.room_lights_off(&room_clone);
                                 let _ = state_clone.set_motion_triggered(&room_clone, false);
                             }
@@ -1724,24 +1476,24 @@ impl ZigduckState {
 
             // 🦆 says ⮞ 💧 WATER SENSORS
             if data["water_leak"].as_bool() == Some(true) || data["waterleak"].as_bool() == Some(true) {
-                self.quack_info(&format!("💧 WATER LEAK DETECTED in {} on {}", room, device_name));
+                dt_info!("💧 WATER LEAK DETECTED in {} on {}", room, device_name);
                 self.execute_automations("water_leak", "leak_detected", device_name, room)?;
             }
 
             // 🦆 says ⮞ DOOR / WINDOW SENSOR
             if let Some(contact) = data["contact"].as_bool() {
                 if !contact {
-                    self.quack_info(&format!("🚪 Door open in {} ({})", room, device_name));
+                    dt_info!("🚪 Door open in {} ({})", room, device_name);
                     self.execute_automations("contact", "door_opened", device_name, room)?;
                     // 🦆 says ⮞ check time & where last motion iz
                     let current_time = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
                     let last_motion_str = self.get_state("apartment", "last_motion").unwrap_or_else(|| "0".to_string());
                     let last_motion: u64 = last_motion_str.parse().unwrap_or(0);
                     let time_diff = current_time.saturating_sub(last_motion); 
-                    self.quack_debug(&format!("TIME: {} | LAST MOTION: {} | TIME DIFF: {}", current_time, last_motion, time_diff));
+                    if self.debug { dt_debug!("TIME: {} | LAST MOTION: {} | TIME DIFF: {}", current_time, last_motion, time_diff); }
                     
                     if time_diff > self.config.greeting.away_duration { // 🦆 says ⮞ secondz
-                        self.quack_info("Welcoming you home! (no motion for 2 hours, door opened)");
+                        dt_info!("Welcoming you home! (no motion for 2 hours, door opened)");
                         tokio::time::sleep(Duration::from_secs(self.config.greeting.delay)).await;
                         self.run_yo_command(&[
                             "say",
@@ -1751,7 +1503,7 @@ impl ZigduckState {
                             self.config.greeting.say_on_host.as_str(),
                         ])?;                        
                     } else { 
-                        self.quack_debug(&format!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60));
+                        if self.debug { dt_debug!("🛑 NOT WELCOMING:🛑 only {} minutes since last motion", time_diff / 60); }
                     }
                 } else { // 🦆 says ⮞ door closed  
                     self.execute_automations("contact", "door_closed", device_name, room)?;
@@ -1762,11 +1514,11 @@ impl ZigduckState {
             if let Some(position) = data["position"].as_u64() {
                 if device.device_type == "blind" {
                     if position == 0 {
-                        self.quack_info(&format!("🪟 Rolled DOWN {} in {}", device_name, room));
+                        dt_info!("🪟 Rolled DOWN {} in {}", device_name, room);
                     } else if position == 100 {
-                        self.quack_info(&format!("🪟 Rolled UP {} in {}", device_name, room));
+                        dt_info!("🪟 Rolled UP {} in {}", device_name, room);
                     } else {
-                        self.quack_debug(&format!("🪟 {} positioned at {}% in {}", device_name, position, room));
+                        if self.debug { dt_debug!("🪟 {} positioned at {}% in {}", device_name, position, room); }
                     }
                 }
             }
@@ -1776,23 +1528,23 @@ impl ZigduckState {
                 match device.device_type.as_str() { // 🦆 says ⮞ outletz/energy meters etc
                     "outlet" => {
                         if state == "ON" {
-                            self.quack_info(&format!("🔌 {} Turned ON in {}", device_name, room));
+                            dt_info!("🔌 {} Turned ON in {}", device_name, room);
                         } else if state == "OFF" {
-                            self.quack_info(&format!("🔌 {} Turned OFF in {}", device_name, room));
+                            dt_info!("🔌 {} Turned OFF in {}", device_name, room);
                         }
                     }
                     "light" => {
                         if state == "ON" {
-                            self.quack_debug(&format!("💡 {} Turned ON in {}", device_name, room));
+                            if self.debug { dt_debug!("💡 {} Turned ON in {}", device_name, room); }
                         } else if state == "OFF" {
-                            self.quack_debug(&format!("💡 {} Turned OFF in {}", device_name, room));
+                            if self.debug { dt_debug!("💡 {} Turned OFF in {}", device_name, room); }
                         }
                     }
                     _ => { // 🦆 says ⮞ handle other device types that have state
                         if state == "ON" {
-                            self.quack_debug(&format!("⚡ {} Turned ON in {}", device_name, room));
+                            if self.debug { dt_debug!("⚡ {} Turned ON in {}", device_name, room); }
                         } else if state == "OFF" {
-                            self.quack_debug(&format!("⚡ {} Turned OFF in {}", device_name, room));
+                            if self.debug { dt_debug!("⚡ {} Turned OFF in {}", device_name, room); }
                         }
                     }
                 }
@@ -1807,31 +1559,31 @@ impl ZigduckState {
                 let actions = &self.config.dimmer.actions;
                 if action == actions.on_press {
                     self.handle_room_dimmer_action(action, device_name, room, |room| {
-                        self.quack_info(&format!("💡 Turning on lights in {}", room));
+                        dt_info!("💡 Turning on lights in {}", room);
                         self.room_lights_on(room)
                     })?;
                 } else if action == actions.on_hold {
                     self.handle_room_dimmer_action(action, device_name, room, |_| {
                         self.control_all_lights("ON", Some(254))?;
-                        self.quack_info("✅💡 MAX LIGHTS ON");
+                        dt_info!("✅💡 MAX LIGHTS ON");
                         Ok(())
                     })?;
                 } else if action == actions.off_press {
                     self.handle_room_dimmer_action(action, device_name, room, |room| {
-                        self.quack_info(&format!("💡 Turning off lights in {}", room));
+                        dt_info!("💡 Turning off lights in {}", room);
                         self.room_lights_off(room)
                     })?;
                 } else if action == actions.off_hold {
                     self.handle_room_dimmer_action(action, device_name, room, |_| {
                         self.control_all_lights("OFF", None)?;
-                        self.quack_info("🦆 DARKNESS ON");
+                        dt_info!("🦆 DARKNESS ON");
                         Ok(())
                     })?;
                 } else if action == actions.up_press {
                     self.handle_room_dimmer_action(action, device_name, room, |room| {
                         for (light_id, light_device) in &self.devices {
                             if light_device.room == room && light_device.device_type == "light" {
-                                self.quack_info(&format!("🔺 Increasing brightness on {} in {}", light_id, room));
+                                dt_info!("🔺 Increasing brightness on {} in {}", light_id, room);
                                 let message = json!({
                                     "brightness_step": 50,
                                     "transition": 3.5
@@ -1846,7 +1598,7 @@ impl ZigduckState {
                     self.handle_room_dimmer_action(action, device_name, room, |room| {
                         for (light_id, light_device) in &self.devices {
                             if light_device.room == room && light_device.device_type == "light" {
-                                self.quack_info(&format!("🔻 Decreasing {} in {}", light_id, room));
+                                dt_info!("🔻 Decreasing {} in {}", light_id, room);
                                 let message = json!({
                                     "brightness_step": -50,
                                     "transition": 3.5
@@ -1860,10 +1612,10 @@ impl ZigduckState {
                 } else if action == actions.up_hold || action == actions.down_hold {
                     // 🦆 says ⮞ up/down_hold_release have no default actions
                     self.handle_room_dimmer_action(action, device_name, room, |_| {
-                        self.quack_debug(&format!("{} in {}", action, room));
+                        if self.debug { dt_debug!("{} in {}", action, room); }
                         Ok(())
                     })?;
-                } else { self.quack_debug(&format!("Unhandled dimmer action: {}", action)); }
+                } else { if self.debug { dt_debug!("Unhandled dimmer action: {}", action); } }
             }
 
         }
@@ -1874,8 +1626,8 @@ impl ZigduckState {
     }
 
     async fn start_listening(&mut self) -> Result<(), Box<dyn std::error::Error>> {
-        self.quack_info("🚀 Starting ZigDuck automation system");
-        self.quack_info("📡 Listening to all Zigbee events...");
+        dt_info!("🚀 Starting ZigDuck automation system");
+        dt_info!("📡 Listening to all Zigbee events...");
         self.start_periodic_checks().await;
         let mut mqttoptions = MqttOptions::new("zigduck-rs", &self.mqtt_broker, 1883);
         mqttoptions.set_credentials(&self.mqtt_user, &self.mqtt_password);
@@ -1886,8 +1638,8 @@ impl ZigduckState {
         let (mut client, mut connection) = Client::new(mqttoptions, 10);
         client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce)?;
 
-        self.quack_info(&format!("Connected to MQTT broker: {}", &self.mqtt_broker));
-        self.quack_info("[🦆🏡] ⮞ Welcome Home");
+        dt_info!("Connected to MQTT broker: {}", &self.mqtt_broker);
+        dt_info!("[🦆🏡] ⮞ Welcome Home");
         // 🦆 says ⮞ main event loop with reconnect yo 
         loop {
             match connection.eventloop.poll().await {
@@ -1897,13 +1649,13 @@ impl ZigduckState {
                         let payload = String::from_utf8_lossy(&publish.payload);
                         
                         if let Err(e) = self.process_message(&topic, &payload).await {
-                            self.quack_debug(&format!("Failed to process message: {}", e));
+                            if self.debug { dt_debug!("Failed to process message: {}", e); }
                         }
                     }
                 }
                 Err(e) => {
-                    self.quack_debug(&format!("Connection error: {}", e));
-                    self.quack_info("Attempting to reconnect in 5 seconds...");
+                    if self.debug { dt_debug!("Connection error: {}", e); }
+                    dt_info!("Attempting to reconnect in 5 seconds...");
                     tokio::time::sleep(Duration::from_secs(5)).await;
                     
                     // 🦆 says ⮞ recreate connection
@@ -1917,8 +1669,8 @@ impl ZigduckState {
                     connection = new_connection;
                     
                     match client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce) {
-                        Ok(_) => self.quack_info("Successfully reconnected and subscribed"),
-                        Err(e) => self.quack_debug(&format!("Failed to subscribe after reconnect: {}", e)),
+                        Ok(_) => dt_info!("Successfully reconnected and subscribed"),
+                        Err(e) => if self.debug { dt_debug!("Failed to subscribe after reconnect: {}", e); },
                     }
                 }
             }
@@ -1927,6 +1679,9 @@ impl ZigduckState {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    // 🦆 says ⮞ init ducktrace-logger 
+    dt_setup(None, None);
+    dt_info!("Started zigduck-rs service!");
     // 🦆 says ⮞ load config file
     let config_path = std::env::var("ZIGDUCK_CONFIG")
         .unwrap_or_else(|_| "/etc/zigduck/config.json".to_string());
@@ -1941,7 +1696,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let debug = std::env::var("DEBUG").is_ok();
     
     // 🦆 says ⮞ static state directory path
-    let state_dir = "/var/lib/zigduck".to_string();
+    let state_dir = std::env::var("STATE_DIR").unwrap_or_else(|_| "/var/lib/zigduck".to_string());
     let timer_dir = format!("{}/timers", state_dir);
     std::fs::create_dir_all(&timer_dir)?;
 
@@ -1958,6 +1713,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     eprintln!("[🦆📜] ✅INFO✅ ⮞ State Directory: {}", state_dir);
     eprintln!("[🦆📜] ✅INFO✅ ⮞ Devices file: {}", devices_file);
     if debug { eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Debug mode enabled"); }
+    
+    
 
     let mut state = ZigduckState::new(
         config,

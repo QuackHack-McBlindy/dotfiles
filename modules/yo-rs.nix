@@ -117,6 +117,16 @@ in {
         default = false;
         description = "Enable debug logging (prints probabilities, timings).";
       };
+
+      logFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = ''
+          Path to a custom log file path.
+          Use absolute path.
+          If `null`, default logging file path is `~/yo-rs-server.log`.
+        '';
+      };
       
       extraPath = mkOption {
         type = types.listOf types.str;
@@ -144,12 +154,6 @@ in {
         description = "Server address to connect to.";
       };
 
-      debug = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Print RMS values during recording.";
-      };
-
       silenceThreshold = mkOption {
         type = types.float;
         default = 0.005;
@@ -173,6 +177,22 @@ in {
         default = [ ];
         description = "Extra arguments passed verbatim to the client binary.";
       };
+          
+      logFile = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = ''
+          Path to a custom log file path.
+          Use absolute path.
+          If `null`, default logging file path is `~/yo-rs-server.log`.
+        '';
+      };
+      debug = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Print RMS values during recording.";
+      };
+
     };
   };
 
@@ -191,17 +211,23 @@ in {
         serviceConfig = {
           Restart = "always";
           RestartSec = "15s";
-          
-          Environment = "PATH=${
-            lib.concatStringsSep ":"
-              (cfg.server.extraPath ++ [
-                "/run/wrappers/bin"
-                "/run/current-system/sw/bin"
-                "/usr/local/bin"
-                "/usr/bin"
-                "/bin"
-              ])
-          }";
+          Environment = let
+            logLevel = if cfg.server.debug then "DEBUG" else "INFO";
+            logFile = if cfg.server.logFile != null then cfg.server.logFile else "%h/yo-rs-server.log";
+            defaultPathDirs = [
+              "/run/wrappers/bin"
+              "/run/current-system/sw/bin"
+              "/usr/local/bin"
+              "/usr/bin"
+              "/bin"
+            ];
+            path = lib.concatStringsSep ":" (cfg.server.extraPath ++ defaultPathDirs);
+            envVars = {
+              DT_LOG_LEVEL = logLevel;
+              DT_LOG_FILE = logFile;
+              PATH = path;
+            };
+          in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
           
           ExecStart = lib.escapeShellArgs (
             [ (getExe cfg.package) "--host" cfg.server.host ]
@@ -232,7 +258,17 @@ in {
 
         serviceConfig = {
           Restart = "always";
-          RestartSec = "15s";        
+          RestartSec = "15s";
+          Environment = let
+            logLevel = if cfg.client.debug then "DEBUG" else "INFO";
+            logFile = if cfg.client.logFile != null then cfg.client.logFile else "%h/yo-rs-client.log";
+            envVars = {
+              DT_LOG_LEVEL = logLevel;
+              DT_LOG_FILE = logFile;
+            };
+          in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
+
+                    
           ExecStart = lib.escapeShellArgs (
             [ "${cfg.package}/bin/yo-client" "--uri" cfg.client.uri ]
             ++ [ "--silence-threshold" (toString cfg.client.silenceThreshold) ]

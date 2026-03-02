@@ -5,6 +5,7 @@
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs

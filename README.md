@@ -54,7 +54,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __87 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __88 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
 - __2490 dynamically generated regex patterns - makes 297584371 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8893 ducks? <br>
+Let's see if you can find all 8894 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1332,6 +1332,7 @@ I like my flakes tiny & ny modules dynamically loaded,
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1509,6 +1510,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo img2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/img2phone.nix) --image |  | Send images to an iPhone | 📛 |
 | [yo pull](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pull.nix) [--flake] [--host] |  | Pull the latest changes from your dotfiles repo. Resets tracked files to origin/main but keeps local extras. | ✅ |
 | [yo push](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/push.nix) [--flake] [--repo] [--host] [--generation] | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. | 📛 |
+| [yo release](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/release.nix) [--confirm] |  | Bumps project version & commit, tag, and push to Git. | 📛 |
 | [yo scp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) --host [--path] [--username] [--downloadPath] |  | Move files between hosts interactively | 📛 |
 | [yo update-readme](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/update-readme.nix) [--readmePath] |  | Updates documentation in README.md with current system state (uses build-time config) | 📛 |
 | **🌍 Localization** | | | |

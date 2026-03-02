@@ -1,0 +1,10 @@
+target/
+models/stt/ggml-small-sv.bin
+models/stt/ggml-tiny-sv.bin
+models/stt/ggml-tiny-sv-q5_0.bin
+models/stt/ggml-small-sv-q5_0.bin
+models/stt/ggml-model-q5_0.bin
+models/stt/ggml-medium-sv.bin
+build.sh
+run.sh
+run-client.sh

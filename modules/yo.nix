@@ -855,6 +855,8 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
         default = [];
         description = "Parameters accepted by this script";
       };
+      
+      
       voice = mkOption {
         type = types.nullOr (types.submodule {
           options = {
@@ -891,6 +893,16 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
               default = [];
               description = "Voice command patterns for this script";
             };
+            requires_context = mkOption {
+              type = types.attrsOf (types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]));
+              default = {};
+              description = "Context keys that must be present (with optional specific values)";
+            };
+            excludes_context = mkOption {
+              type = types.attrsOf (types.nullOr (types.oneOf [ types.str (types.listOf types.str) ]));
+              default = {};
+              description = "Context key‑value pairs that must NOT be present";
+            };
             lists = mkOption {
               type = types.attrsOf (types.submodule {
                 options = {
@@ -905,6 +917,19 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
                       options.out = mkOption { type = types.str; };
                     });
                     default = [];
+                  };
+                  
+                  range = mkOption {
+                    type = types.nullOr (types.submodule {
+                      options = {
+                        type = mkOption { type = types.enum ["number"]; default = "number"; };
+                        from = mkOption { type = types.number; };
+                        to   = mkOption { type = types.number; };
+                        multiplier = mkOption { type = types.number; default = 1.0; };
+                      };
+                    });
+                    default = null;
+                    description = "Numeric range definition for this list";
                   };
                 };
               });
@@ -1404,7 +1429,14 @@ in { # 🦆 duck say ⮞ import server/client module
       };
       sorryPhrases = mkOption {
         type = types.listOf types.str;
-        default = [ 
+        default = [
+          "Buddy, you are speaking Japanese, I dont understand anything."
+          "It sounds like you have a meatball in your mouth. Finish your dinner and then try again."
+          "Hey bro, open your mouth before you talk, I dont get anything."
+          "No clue Golf ball."
+          "Excuse me"      
+        ];
+        example = [ 
           "Kompis du pratar japanska jag fattar ingenting"
           "Det låter som att du har en köttee bulle i käften. Ät klart middagen och försök sedan igen."
           "eeyyy bruscchan öppna käften innan du pratar ja fattar nada ju"

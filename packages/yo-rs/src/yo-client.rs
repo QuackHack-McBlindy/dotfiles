@@ -11,6 +11,7 @@ use std::{ // 🦆 says ⮞ yo-client (Microphone Client)
     time::{Duration, Instant},
 };
 
+use ducktrace_logger::*;
 use anyhow::{bail, Result};
 use byteorder::{LittleEndian, WriteBytesExt};
 use cpal::{
@@ -31,9 +32,10 @@ use oww_rs::{
 
 const DEFAULT_SERVER_ADDR: &str = "127.0.0.1:12345";
 const DING_WAV: &[u8] = include_bytes!("../ding.wav");
+const DONE_WAV: &[u8] = include_bytes!("../done.wav");
 
 fn print_usage(program_name: &str) {
-    eprintln!(
+    dt_error!(
         "Usage: {} [OPTIONS]\n\
          Options:\n\
          --uri <ADDRESS>              Server address (default: {})\n\
@@ -57,7 +59,8 @@ fn rms_f32(samples: &[f32]) -> f32 {
 
 fn main() -> Result<()> {
     env_logger::init();
-
+    dt_setup(None, None);
+    dt_info("Started yo-rs-client!");
     let args: Vec<String> = env::args().collect();
 
     if args.iter().any(|s| s == "--help" || s == "-h") {
@@ -79,7 +82,7 @@ fn main() -> Result<()> {
                     server_addr = args[i + 1].clone();
                     i += 2;
                 } else {
-                    eprintln!("Error: --uri requires a server address");
+                    dt_error!("Error: --uri requires a server address");
                     print_usage(&args[0]);
                     std::process::exit(1);
                 }
@@ -91,12 +94,12 @@ fn main() -> Result<()> {
             "--silence-threshold" => {
                 if i + 1 < args.len() {
                     silence_threshold = args[i + 1].parse().unwrap_or_else(|_| {
-                        eprintln!("Invalid silence threshold – must be a float");
+                        dt_error!("Invalid silence threshold – must be a float");
                         std::process::exit(1);
                     });
                     i += 2;
                 } else {
-                    eprintln!("Error: --silence-threshold requires a value");
+                    dt_error!("Error: --silence-threshold requires a value");
                     print_usage(&args[0]);
                     std::process::exit(1);
                 }
@@ -104,12 +107,12 @@ fn main() -> Result<()> {
             "--silence-timeout" => {
                 if i + 1 < args.len() {
                     silence_timeout_secs = args[i + 1].parse().unwrap_or_else(|_| {
-                        eprintln!("Invalid silence timeout – must be a number (seconds)");
+                        dt_error!("Invalid silence timeout – must be a number (seconds)");
                         std::process::exit(1);
                     });
                     i += 2;
                 } else {
-                    eprintln!("Error: --silence-timeout requires a value");
+                    dt_error!("Error: --silence-timeout requires a value");
                     print_usage(&args[0]);
                     std::process::exit(1);
                 }
@@ -117,12 +120,12 @@ fn main() -> Result<()> {
             "--max-duration" => {
                 if i + 1 < args.len() {
                     max_duration_secs = args[i + 1].parse().unwrap_or_else(|_| {
-                        eprintln!("Invalid max duration – must be a number (seconds)");
+                        dt_error!("Invalid max duration – must be a number (seconds)");
                         std::process::exit(1);
                     });
                     i += 2;
                 } else {
-                    eprintln!("Error: --max-duration requires a value");
+                    dt_error!("Error: --max-duration requires a value");
                     print_usage(&args[0]);
                     std::process::exit(1);
                 }
@@ -132,7 +135,7 @@ fn main() -> Result<()> {
                 return Ok(());
             }
             _ => {
-                eprintln!("Unknown argument: {}", args[i]);
+                dt_error!("Unknown argument: {}", args[i]);
                 print_usage(&args[0]);
                 std::process::exit(1);
             }
@@ -142,8 +145,10 @@ fn main() -> Result<()> {
     let silence_timeout = Duration::from_secs_f64(silence_timeout_secs);
     let max_duration = Duration::from_secs_f64(max_duration_secs);
 
-    println!("Settings: debug={}, silence_threshold={}, silence_timeout={}s, max_duration={}s",
-         debug, silence_threshold, silence_timeout_secs, max_duration_secs);
+    dt_info!(
+        "Settings: debug={}, silence_threshold={}, silence_timeout={}s, max_duration={}s",
+        debug, silence_threshold, silence_timeout_secs, max_duration_secs
+    );
 
     // 🦆 says ⮞ Microphone setup
     let host = cpal::default_host();
@@ -152,7 +157,7 @@ fn main() -> Result<()> {
         .ok_or_else(|| anyhow::anyhow!("No input device"))?;
     let (config, sample_format) = find_best_config(&device)
         .map_err(|e| anyhow::anyhow!("Config error: {}", e))?;
-    println!("Selected config: {:?}", config);
+    dt_info!("Selected config: {:?}", config);
 
     let original_sample_rate = config.sample_rate.0;
     let channels = config.channels as usize;
@@ -176,7 +181,7 @@ fn main() -> Result<()> {
     )
     .map_err(|e| anyhow::anyhow!("Resampler error: {}", e))?;
 
-    let err_fn = |err| eprintln!("Stream error: {}", err);
+    let err_fn = |err| dt_error!("Stream error: {}", err);
 
     // 🦆 says ⮞ build the input stream with a callback that uses the global sender
     let stream = match sample_format {
@@ -229,21 +234,21 @@ fn main() -> Result<()> {
     };
 
     stream.play()?;
-    println!("Streaming audio to detector. Press Enter to stop.");
+    dt_info!("Streaming audio to detector. Press Enter to stop.");
 
     loop {
-        println!("Connecting to {}...", server_addr);
+        dt_info!("Connecting to {}...", server_addr);
         let stream = loop {
             match TcpStream::connect(&server_addr) {
                 Ok(s) => break s,
                 Err(e) => {
-                    eprintln!("⚠️ 🚫 {}. Retrying in 5 seconds...", e);
+                    dt_error!("⚠️ 🚫 {}. Retrying in 5 seconds...", e);
                     thread::sleep(Duration::from_secs(5));
                 }
             }
         };
         // 🦆 says ⮞ SUCCESSFUL CONNECTION
-        println!("📡 ☑️ 🎙️ @ {}", server_addr);
+        dt_info!("📡 ☑️ 🎙️ @ {}", server_addr);
 
         // 🦆 says ⮞ Clone streams for reading and writing
         let read_stream = stream.try_clone()?;
@@ -251,7 +256,7 @@ fn main() -> Result<()> {
 
         // 🦆 says ⮞ set a read timeout so the receiver thread can check shutdown flag
         if let Err(e) = read_stream.set_read_timeout(Some(Duration::from_secs(1))) {
-            eprintln!("Failed to set read timeout: {}", e);
+            dt_error!("Failed to set read timeout: {}", e);
         }
 
         // 🦆 says ⮞ create a new channel for audio chunks
@@ -289,7 +294,7 @@ fn main() -> Result<()> {
                             break;
                         }
                         if let Err(e) = guard.write_u32::<LittleEndian>(chunk.len() as u32) {
-                            eprintln!("Failed to send length: {}", e);
+                            dt_error!("Failed to send length: {}", e);
                             break;
                         }
                         let mut bytes = Vec::with_capacity(chunk.len() * 4);
@@ -297,11 +302,11 @@ fn main() -> Result<()> {
                             bytes.extend_from_slice(&sample.to_le_bytes());
                         }
                         if let Err(e) = guard.write_all(&bytes) {
-                            eprintln!("Failed to send samples: {}", e);
+                            dt_error!("Failed to send samples: {}", e);
                             break;
                         }
                         if let Err(e) = guard.flush() {
-                            eprintln!("Failed to flush: {}", e);
+                            dt_error!("Failed to flush: {}", e);
                             break;
                         }
                     }
@@ -350,7 +355,8 @@ fn main() -> Result<()> {
                                     }
                                 });
                                 // 🦆 says ⮞ BOOOOM 
-                                println!("💥 DETECTED!");
+                                dt_info!("💥 DETECTED!");
+                                let timer = dt_timer("my operation");
 
                                 thread::sleep(Duration::from_millis(100));
 
@@ -397,7 +403,7 @@ fn main() -> Result<()> {
                                     };
 
                                     // 🦆 says ⮞ --debug? print RMS
-                                    if receiver_debug { println!("RMS: {:.6}", rms); }
+                                    if receiver_debug { dt_debug!("RMS: {:.6}", rms); }
                                     
                                     // 🦆 says ⮞ RMS exceeds configured silence threshold,
                                     // treat this as speech activity and reset the silence timer
@@ -423,19 +429,63 @@ fn main() -> Result<()> {
                                 {
                                     let mut guard = receiver_write_stream.lock().unwrap();
                                     if let Err(e) = guard.write_u8(0x02) {
-                                        eprintln!("Failed to send transcription type: {}", e);
+                                        dt_error!("Failed to send transcription type: {}", e);
                                     }
                                     if let Err(e) = guard.write_u32::<LittleEndian>(resampled_audio.len() as u32) { 
-                                        eprintln!("Failed to send transcription length: {}", e);
+                                        dt_error!("Failed to send transcription length: {}", e);
                                     }
                                     let mut bytes = Vec::with_capacity(resampled_audio.len() * 4);
                                     for &s in &resampled_audio {
                                         bytes.extend_from_slice(&s.to_le_bytes());
                                     }
-                                    if let Err(e) = guard.write_all(&bytes) { eprintln!("Failed to send transcription samples: {}", e); }
-                                    if let Err(e) = guard.flush() { eprintln!("Failed to flush: {}", e); }
+                                    if let Err(e) = guard.write_all(&bytes) { dt_error!("Failed to send transcription samples: {}", e); }
+                                    if let Err(e) = guard.flush() { dt_error!("Failed to flush: {}", e); }
                                 }
 
+                                //receiver_is_transcribing.store(false, Ordering::SeqCst);                                
+                                
+                                // 🦆 says ⮞ wait for server response
+                                let mut response_buf = [0u8; 1];
+                                let timeout_duration = Duration::from_secs(5);
+                                let start_wait = Instant::now();
+
+                                loop {
+                                    if start_wait.elapsed() > timeout_duration {
+                                        dt_debug!("No response from server within timeout, continuing...");
+                                        break;
+                                    }
+
+                                    match read_stream.read_exact(&mut response_buf) {
+                                        Ok(()) => { // 🎉
+                                            match response_buf[0] {
+                                                0x03 => {
+                                                    dt_info!("🎉 Command execution successful – playing done sound");
+                                                    timer.complete();
+                                                    let sound_data = DONE_WAV.to_vec();
+                                                    thread::spawn(move || {
+                                                        let (_stream, handle) = OutputStream::try_default().unwrap();
+                                                        let cursor = Cursor::new(sound_data);
+                                                        if let Ok(sink) = handle.play_once(cursor) {
+                                                            sink.sleep_until_end();
+                                                        }
+                                                    });
+                                                } // 💩
+                                                0x04 => { dt_debug!("Command execution failed – check server logs"); }
+                                                _ => { dt_warning!("Unknown response from server: {}", response_buf[0]); }
+                                            }
+                                            break;
+                                        }
+                                        Err(e) if e.kind() == std::io::ErrorKind::WouldBlock || e.kind() == std::io::ErrorKind::TimedOut => {
+                                            continue;
+                                        }
+                                        Err(e) => {
+                                            dt_error!("Error reading server response: {}", e);
+                                            break;
+                                        }
+                                    }
+                                }
+
+                                // 🦆 says ⮞ resume sending wake shunks
                                 receiver_is_transcribing.store(false, Ordering::SeqCst);
                             }
                         }
@@ -446,7 +496,7 @@ fn main() -> Result<()> {
                             continue;
                         }
                         Err(e) => {
-                            eprintln!("Read error: {}", e);
+                            dt_error!("Read error: {}", e);
                             break;
                         }
                     }
@@ -464,7 +514,7 @@ fn main() -> Result<()> {
         let _ = sender_handle.join();
         let _ = receiver_handle.join();
 
-        println!("⚠️ Reconnecting...");
+        dt_info!("⚠️ Reconnecting...");
         // 🦆 says ⮞ LOOOP IT YO!
     }
 }
@@ -481,7 +531,7 @@ fn resample_to_16k_mono(raw: &[f32], input_rate: u32, channels: usize) -> Vec<f3
     let mut resampler = match make_resampler(input_rate, 16000, 1) {
         Ok(r) => r,
         Err(e) => {
-            eprintln!("Failed to create resampler: {}", e);
+            dt_error!("Failed to create resampler: {}", e);
             return Vec::new();
         }
     };

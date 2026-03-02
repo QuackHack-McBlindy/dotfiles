@@ -17,7 +17,7 @@ High performance Rust home automation system that uses your Nix defined devices 
   
 [Use the house.nix module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/house.nix)
 
-The strength of this modules configuration is that your doing it correct the first time, fully declarative - configure once, and never again.  
+The strength of this modules configuration is that your doing it correct the first time, no nix-store exposed secrets and fully declarative - configure once, and never again.  
 Your secrets and zigbee network key is safe outside the nix store.  
 
 **Minimal configuration:**

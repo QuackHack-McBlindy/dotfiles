@@ -449,6 +449,9 @@ in {
             AUTOMATIONS_FILE = cfg.automationsFile;
             STATE_DIR = cfg.stateDir;
             SCENE_CONFIG_FILE = sceneConfig;
+            DT_LOG_LEVEL = "INFO";
+            DT_LOG_PATH = "~/.config/duckTrace";
+            DT_LOG_FILE = "zigduck-rs.log";
           } // optionalAttrs cfg.debug { DEBUG = "1"; } // cfg.extraEnv;
         in mapAttrsToList (name: value: "${name}=${value}") env;
       };
