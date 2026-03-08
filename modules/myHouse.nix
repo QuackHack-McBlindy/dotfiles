@@ -71,19 +71,29 @@
   };
 
 
-  Mqtt2jsonHistory = field: file: ''
+  Mqtt2jsonHistory = field: file: ''    
     FILE="/var/lib/zigduck/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
     mkdir -p "$(dirname "$FILE")"
+    
+    # 🦆 says ⮞ check current value
+    if [ -s "$FILE" ]; then
+        CURRENT=$(jq ".${field}" "$FILE")
+        if [ "$CURRENT" = "$VALUE" ]; then
+            exit 0 # 🦆 says ⮞ skip write – value unchanged
+        fi
+    fi
+    
+    # 🦆 says ⮞ otherwise, update
     if [ ! -s "$FILE" ]; then
-      jq -n --argjson v "$VALUE" \
-        '{ ${field}: $v, history: [$v] }' > "$FILE"
+        jq -n --argjson v "$VALUE" \
+            '{ ${field}: $v, history: [$v] }' > "$FILE"
     else
-      jq --argjson v "$VALUE" '
-        .${field} = $v
-        | .history += [$v]
-        | .history = (.history[-200:])
-      ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+        jq --argjson v "$VALUE" '
+            .${field} = $v
+            | .history += [$v]
+            | .history = (.history[-200:])
+        ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
     fi
   '';
 
@@ -308,9 +318,15 @@ in { # 🦆 duck say ⮞ qwack
         greeting = {
           enable = true;
           awayDuration = 7200;
-          greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
           delay = 10;
-          sayOnHost = "desktop";
+          actions = [
+            {
+              type = "shell";
+              command = ''
+                yo say "Borta bra, hemma bäst. Välkommen idiot!"
+              '';
+            }
+          ];
         };
         
 
@@ -352,7 +368,7 @@ in { # 🦆 duck say ⮞ qwack
           # 🦆say⮞ calendar 
           calendar = {
             enable = true;
-            description = "TUpdated today's events";
+            description = "Updated calendar events";
             topic = "zigbee2mqtt/calendar";
             actions = [
               {
@@ -410,58 +426,42 @@ in { # 🦆 duck say ⮞ qwack
             door_closed = [];
           };
           
-          # 🦆 says ⮞ 
-#          kitchen = { 
-#            motion_not_detected = [
-#              {
-#                type = "shell";
-#                command = ''
-#                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
-#                  # 🦆 says ⮞ no need 2 turn off if it'z not on
-#                  if (( power > 20 )); then
-#                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 45}'
-#                  fi
-#                '';
-#              }
-#              { # 🦆 says ⮞  slow go light go bye bye
-#                type = "scene";
-#                command = "kitchenFadeOff";
-#              }
-#            ];  
 
-#            motion_detected = [
-#              { # 🦆 SCREAM ⮞ INSANT LIGHT QWACK
-#                type = "scene";
-#                command = "kitchenInstant";
-#              }            
-#              {
-#                type = "shell";
-#                command = ''
-#                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
-#                  if [ "$STATE" = "OFF" ]; then               
-#                    yo house --device "Fläkt" --state on
-#                  fi
-#                '';
-#              }
-#            ];
-#          };  
-          # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion
-          #bedroom = { 
-            # 🦆 says ⮞ this will override that in bedroom
-            #motion_detected = [
-            #  {
-            #    type = "scene";
-            #    scene = "Chill Scene";
-            #  }       
-            #];
-            #motion_not_detected = [
-            #  {
-            #    type = "mqtt";
-            #    topic = "zigbee2mqtt/Sänggavel/set";
-            #    message = ''{"state":"OFF", "brightness": 80}'';
-            #  }              
-            #];
-#          };
+          kitchen = { 
+            motion_not_detected = [
+              {
+                type = "shell";
+                command = ''
+                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+                  # 🦆 says ⮞ no need 2 turn off if it'z not on
+                  if (( power > 20 )); then
+                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 120}'
+                  fi
+                '';
+              }
+              { # 🦆 says ⮞  slow go light go bye bye
+                type = "scene";
+                scene = "kitchenFadeOff";
+              }
+            ];  
+
+            motion_detected = [
+              {
+                type = "shell";
+                command = ''
+                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+                  if [ "$STATE" = "OFF" ]; then               
+                    nqtt --device "Fläkt" --state on
+                  fi
+                '';
+              }
+              { # 🦆 SCREAM ⮞ INSTANT LIGHT QWACK
+                type = "scene";
+                scene = "kitchenInstant";
+              }            
+
+            ];
+          };
         };
           
         # 🦆 says ⮞ 3. global actions automations  
@@ -490,7 +490,7 @@ in { # 🦆 duck say ⮞ qwack
               override_actions = [
                 {
                   type = "scene";
-                  command = "dark";
+                  scene = "dark";
                 }
                 {
                   type = "mqtt";
@@ -636,12 +636,12 @@ in { # 🦆 duck say ⮞ qwack
           };
           # 🦆 says ⮞ veeeery slow turn off
           "kitchenFadeOff" = {
-              "Golvet" = { state = "OFF"; transition = 100; };
-              "Kök Bänk Slinga" = { state = "OFF"; transition = 100; };
-              "PC" = { state = "OFF"; transition = 109; };
-              "Spotlight Kök 2" = { state = "OFF"; transition = 100; };
-              "Spotlight kök 1" = { state = "OFF"; transition = 109; };
-              "Uppe" = { state = "OFF"; transition = 100; };       
+              "Golvet" = { state = "OFF"; transition = 1000; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 1000; };
+              "PC" = { state = "OFF"; transition = 1000; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 1000; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 1000; };
+              "Uppe" = { state = "OFF"; transition = 1000; };
           };
           "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
               "Bloom" = { state = "OFF"; transition = 10; };
@@ -1043,7 +1043,7 @@ in { # 🦆 duck say ⮞ qwack
         sopsFile = ./../secrets/mosquitto.yaml; 
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
-        mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+        mode = "0444"; # 🦆 says ⮞ Read-only for owner and group
       }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
       z2m_network_key = { 
         sopsFile = ./../secrets/z2m_network_key.yaml; 

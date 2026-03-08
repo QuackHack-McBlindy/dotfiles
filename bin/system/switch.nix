@@ -49,7 +49,10 @@ in {
             if [[ $FAIL_COUNT -ge 11 ]]; then
               dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
               play_relax
-            elif [[ $FAIL_COUNT -ge 5 ]]; then
+            elif [[ $FAIL_COUNT -ge 6 ]]; then
+              dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
+              play_relax
+            elif [[ $FAIL_COUNT -ge 4 ]]; then
               dt_info "😅 phew! $FAIL_COUNT noob fails!"
               play_win
             else

@@ -31,11 +31,7 @@ use reqwest::blocking::Client as HttpClient;
     about = "High-performance unified home automation controller",
     long_about = "Control Zigbee and Hue devices, scenes, and automations with Rust speed and reliability"
 )]
-#[command(group(
-    ArgGroup::new("action")
-        .required(true)
-        .args(["device", "room", "scene", "list", "pair", "all_lights", "cheap_mode", "json_cmd"])
-))]
+
 struct Cli {
     // 🦆 says ⮞ global options
     #[arg(long, short, help = "MQTT broker host", env = "MQTT_BROKER", default_value = "127.0.0.1")]
@@ -65,7 +61,7 @@ struct Cli {
     #[arg(long, help = "Hue Bridge API key", env = "HUE_API_KEY")]
     hue_api_key: Option<String>,
 
-    // 🦆 says ⮞ action flags (mutually exclusive)
+    // 🦆 says ⮞ action flags
     // 🦆 says ⮞ control a single device
     #[arg(long, help = "Device name (friendly name)")]
     device: Option<String>,
@@ -87,8 +83,8 @@ struct Cli {
     pair: Option<Option<u16>>,
 
     // 🦆 says ⮞ control every light in the house
-    #[arg(long, help = "Control all lights")]
-    all_lights: bool,
+    #[arg(long, num_args = 0..=1, default_missing_value = "true", help = "Control all lights (optional true/false)")]
+    all_lights: Option<String>,
 
     // 🦆 says ⮞ eEnergy‑saving mode: lights on, then off after a delay
     #[arg(long, help = "Room name for cheap mode")]
@@ -99,10 +95,10 @@ struct Cli {
     json_cmd: bool,
 
     // 🦆 says ⮞ additional arguments for specific actions
-    // 🦆 says ⮞ device state (on/off/toggle)
-    #[arg(long, value_enum)]
-    state: Option<DeviceState>,
-
+    // 🦆 says ⮞ device state (on/max/off/dark/toggle)
+    #[arg(long, help = "Device state: on/off/toggle/max/dark")]
+    state: Option<String>,
+    
     // 🦆 says ⮞ brightness percentage
     #[arg(long)]
     brightness: Option<u8>,
@@ -723,90 +719,104 @@ fn control_device_with_json(
 	    Ok(())
 	}
 	
-fn activate_scene(&mut self, scene_name: &str, random: bool) -> Result<()> {
- let scene_to_activate = if random {
-     let scene_names: Vec<String> = self.scenes.keys().cloned().collect();
-     if scene_names.is_empty() {
-         anyhow::bail!("No scenes configured");
-     }
-     let mut rng = rand::thread_rng();
-     scene_names.choose(&mut rng).unwrap().clone()
- } else {
-     scene_name.to_string()
- };
+fn activate_scene(&mut self, scene_name: &str, random: bool, room_filter: Option<&str>) -> Result<()> {
+    let scene_to_activate = if random {
+        let scene_names: Vec<String> = self.scenes.keys().cloned().collect();
+        if scene_names.is_empty() {
+            anyhow::bail!("No scenes configured");
+        }
+        let mut rng = rand::thread_rng();
+        scene_names.choose(&mut rng).unwrap().clone()
+    } else {
+        scene_name.to_string()
+    };
 
- println!("{} Activating scene: {}", "🎨".purple(), scene_to_activate.bold());
+    println!("{} Activating scene: {}", "🎨".purple(), scene_to_activate.bold());
 
- // Get the scene and immediately clone its devices
- let scene = self.scenes
-     .get(&scene_to_activate)
-     .context(format!("Scene not found: {}", scene_to_activate))?;
+    let scene = self.scenes
+        .get(&scene_to_activate)
+        .context(format!("Scene not found: {}", scene_to_activate))?;
 
- if self.verbose {
-     println!("{} Scene '{}' has {} devices", "🔍".cyan(), scene_to_activate, scene.devices.len());
- }
+    // 🦆 says ⮞ filter devices by room if requested
+    let devices: Vec<(String, serde_json::Value)> = scene.devices
+        .iter()
+        .filter(|(device_name, _)| {
+            if let Some(room) = room_filter {
+                self.devices.get(*device_name)
+                    .map(|d| d.room.eq_ignore_ascii_case(room))
+                    .unwrap_or(false)
+            } else {
+                true
+            }
+        })
+        .map(|(k, v)| (k.clone(), v.clone()))
+        .collect();
 
- if scene.devices.is_empty() {
-     anyhow::bail!("No devices found in scene: {}", scene_to_activate);
- }
+    if devices.is_empty() {
+        let msg = if let Some(room) = room_filter {
+            format!("No devices in scene '{}' match room '{}'", scene_to_activate, room)
+        } else {
+            format!("No devices found in scene: {}", scene_to_activate)
+        };
+        anyhow::bail!("{}", msg);
+    }
 
- // Clone the devices map so we don't hold a borrow to self.scenes
- let devices: Vec<(String, serde_json::Value)> = scene.devices
-     .iter()
-     .map(|(k, v)| (k.clone(), v.clone()))
-     .collect();
+    if self.verbose {
+        println!("{} Scene '{}' has {} devices (filtered to {})", 
+            "🔍".cyan(), scene_to_activate, scene.devices.len(), devices.len());
+    }
 
- let mut hue_count = 0;
- let mut zigbee_count = 0;
+    let mut hue_count = 0;
+    let mut zigbee_count = 0;
 
- for (device_name, settings) in devices {
-     if let Ok(device) = self.find_device(&device_name) {
-         if self.is_hue_device(&device) {
-             if let Some(hue_client) = &self.hue_client {
-                 let hue_id = device.hue_id.unwrap();
-                 let hue_payload = self.convert_to_hue_payload(&settings)?;
- 
-                 if self.verbose {
-                     println!("{} Hue {} (ID: {}) → {}", "💡".yellow(), 
-                         device_name, hue_id, hue_payload.to_string());
-                 }
- 
-                 hue_client.set_light_state(hue_id, hue_payload)?;
-                 hue_count += 1;
-             } else {
-                 println!("{} Skipping Hue device {}: Hue client not initialized", "⚠️".yellow(), device_name);
-             }
-         } else {
-             let topic = format!("zigbee2mqtt/{}/set", device_name);
-             if self.verbose {
-                 println!("{} MQTT {} → {}", "🦆".cyan(), topic, settings.to_string());
-             }
-             self.publish_mqtt(&topic, settings)?;
-             zigbee_count += 1;
-         }
-     } else {
-         println!("{} Device {} not found", "⚠️".yellow(), device_name);
-     }
+    for (device_name, settings) in devices {
+        if let Ok(device) = self.find_device(&device_name) {
+            if self.is_hue_device(&device) {
+                if let Some(hue_client) = &self.hue_client {
+                    let hue_id = device.hue_id.unwrap();
+                    let hue_payload = self.convert_to_hue_payload(&settings)?;
 
-     std::thread::sleep(Duration::from_millis(10));
- }
+                    if self.verbose {
+                        println!("{} Hue {} (ID: {}) → {}", "💡".yellow(), 
+                            device_name, hue_id, hue_payload.to_string());
+                    }
 
- println!("{} Scene '{}' activated ({} Hue, {} Zigbee)", 
-     "✅".green(), scene_to_activate, hue_count, zigbee_count);
- Ok(())
+                    hue_client.set_light_state(hue_id, hue_payload)?;
+                    hue_count += 1;
+                } else {
+                    println!("{} Skipping Hue device {}: Hue client not initialized", "⚠️".yellow(), device_name);
+                }
+            } else {
+                let topic = format!("zigbee2mqtt/{}/set", device_name);
+                if self.verbose {
+                    println!("{} MQTT {} → {}", "🦆".cyan(), topic, settings.to_string());
+                }
+                self.publish_mqtt(&topic, settings)?;
+                zigbee_count += 1;
+            }
+        } else {
+            println!("{} Device {} not found", "⚠️".yellow(), device_name);
+        }
+
+        std::thread::sleep(Duration::from_millis(10));
+    }
+
+    println!("{} Scene '{}' activated ({} Hue, {} Zigbee)", 
+        "✅".green(), scene_to_activate, hue_count, zigbee_count);
+    Ok(())
 }
 	
 fn convert_to_hue_payload(&self, settings: &serde_json::Value) -> Result<serde_json::Value> {
 let mut payload = serde_json::Map::new();
 
-// Handle on/off state
+// 🦆 says ⮞ handle on/off state
 if let Some(state) = settings.get("state").and_then(|s| s.as_str()) {
 payload.insert("on".to_string(), serde_json::Value::Bool(state == "ON"));
 } else {
 payload.insert("on".to_string(), serde_json::Value::Bool(true));
 }
 
-// Handle brightness
+// 🦆 says ⮞ handle brightness
 if let Some(brightness) = settings.get("brightness") {
 if let Some(bri) = brightness.as_u64() {
    let hue_bri = (bri as f32).min(254.0) as u8;
@@ -821,7 +831,7 @@ if let Some(bri) = brightness.as_u64() {
 }
 }
 
-// Handle color with XY coordinates (this is the fix!)
+// 🦆 says ⮞ handle color with XY coordinates (this is the fix!)
 if let Some(color_obj) = settings.get("color") {
 if let Some(xy_array) = color_obj.get("xy") {
    if let Some(xy) = xy_array.as_array() {
@@ -832,16 +842,16 @@ if let Some(xy_array) = color_obj.get("xy") {
 }
 }
 
-// Handle color temperature (if present)
+// 🦆 says ⮞ Handle color temperature (if present)
 if let Some(temp) = settings.get("color_temp") {
 if let Some(ct) = temp.as_u64() {
-   // Convert to Hue's CT range (153-500)
+   // 🦆 says ⮞ convert to Hue's CT range (153-500)
    let hue_ct = if ct > 500 { 500 } else if ct < 153 { 153 } else { ct as u16 };
    payload.insert("ct".to_string(), serde_json::Value::Number(hue_ct.into()));
 }
 }
 
-// Handle transition time
+// 🦆 says ⮞ handle transition time
 if let Some(transition) = settings.get("transition") {
 if let Some(t) = transition.as_f64() {
    let trans_time = (t * 10.0).round() as u16;
@@ -985,9 +995,7 @@ Ok(serde_json::Value::Object(payload))
 	                for light in lights {
 	                    let hue_info = if light.hue_id.is_some() {
 	                        format!(" [Hue ID: {}]", light.hue_id.unwrap())
-	                    } else {
-	                        "".to_string()
-	                    };
+	                    } else { "".to_string() };
 	                    println!("  • {} [{}]{}", light.friendly_name.bold(), light.room, hue_info);
 	                }
 	            }
@@ -1015,8 +1023,10 @@ Ok(serde_json::Value::Object(payload))
 }
 
 fn main() -> Result<()> {
+    let debug = std::env::var("DEBUG").is_ok();
+    if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
-    dt_debug("zigduck-cli init!");
+    dt_debug!("Started zigduck-cli!");    
 	let cli = Cli::parse();
 	
 	let password = if let Some(password_file) = cli.password_file {
@@ -1036,51 +1046,93 @@ fn main() -> Result<()> {
         cli.verbose > 0,
     )?;
 
+    fn parse_state(state_str: &str, brightness: &mut Option<u8>, color: &mut Option<String>) -> Result<DeviceState> {
+        match state_str.to_lowercase().as_str() {
+            "on" => Ok(DeviceState::On),
+            "off" => Ok(DeviceState::Off),
+            "toggle" => Ok(DeviceState::Toggle),
+            "max" => {
+                if brightness.is_none() {
+                    *brightness = Some(100);
+                }
+                if color.is_none() {
+                    *color = Some("white".to_string());
+                }
+                Ok(DeviceState::On)
+            }
+            "dark" => {
+                Ok(DeviceState::Off)
+            }
+            _ => anyhow::bail!("Invalid state: {}. Must be on/off/toggle/max/dark", state_str),
+        }
+    }
+
+    fn all_lights_enabled(val: &Option<String>) -> bool {
+        match val {
+            None => false,
+            Some(s) => {
+                let s = s.to_lowercase();
+                !(s == "false" || s == "0" || s == "no" || s == "off")
+            }
+        }
+    }
+
+
     // 🦆 says ⮞ determine which action was requested
     if let Some(device_name) = cli.device {
         // 🦆 says ⮞ device action
-        let state = cli.state.expect("--state is required for device");
+        let state_str = cli.state.as_deref().context("--state is required for device")?;
+        let mut brightness = cli.brightness;
+        let mut color = cli.color;
+        let state = parse_state(state_str, &mut brightness, &mut color)?;
         controller.control_device_with_params(
             &device_name,
             &state,
-            cli.brightness,
-            cli.color,
+            brightness,
+            color,
             cli.temperature,
             cli.transition,
         )
+    } else if let Some(scene_name) = cli.scene {
+        controller.activate_scene(
+            &scene_name,
+            cli.random,
+            cli.room.as_deref()
+        )?;
+        Ok(())
     } else if let Some(room_name) = cli.room {
-        // 🦆 says ⮞ room action
-        let state = cli.state.expect("--state is required for room");
+        let state_str = cli.state.as_deref().context("--state is required for room")?;
+        let mut brightness = cli.brightness;
+        let mut color = cli.color;
+        let state = parse_state(state_str, &mut brightness, &mut color)?;
         controller.control_room(
             &room_name,
             &state,
-            cli.brightness,
-            cli.color,
+            brightness,
+            color,
             cli.temperature,
         )
-    } else if let Some(scene_name) = cli.scene {
-        // 🦆 says ⮞ Scene action
-        controller.activate_scene(&scene_name, cli.random)?;
-        Ok(())
     } else if let Some(list_arg) = cli.list {
         let what = list_arg.unwrap_or(ListType::Devices);
-        controller.list_items(&what, cli.json_output);
+        controller.list_items(&what, cli.json_output)?;
         Ok(())
     } else if let Some(pair_arg) = cli.pair {
-        // 🦆 says ⮞ pair action
         let duration = pair_arg.unwrap_or(120);
         controller.enter_pairing_mode(duration, cli.watch)
-    } else if cli.all_lights {
-        // 🦆 says ⮞ all lights action
-        let state = cli.state.expect("--state is required for all-lights");
-        controller.control_all_lights(&state, cli.brightness, cli.color)
+    } else if all_lights_enabled(&cli.all_lights) {
+        let state_str = cli.state.as_deref().context("--state is required for all-lights")?;
+        let mut brightness = cli.brightness;
+        let mut color = cli.color;
+        let state = parse_state(state_str, &mut brightness, &mut color)?;
+        controller.control_all_lights(&state, brightness, color)
     } else if let Some(room_name) = cli.cheap_mode {
-        // 🦆 says ⮞ cheap mode action
         controller.cheap_mode(&room_name, cli.delay)
     } else if cli.json_cmd {
-        // 🦆 says ⮞ JSON command (requires --device and --payload)
-        let device_name = cli.device.expect("--device is required for JSON command");
-        let payload = cli.payload.expect("--payload is required for JSON command");
+        let device_name = cli.device.context("--device is required for JSON command")?;
+        let payload = cli.payload.context("--payload is required for JSON command")?;
         controller.control_device_with_json(&device_name, &payload, &cli.backend)
-    } else { unreachable!("No action specified"); }
+    } else {
+        eprintln!("{} No action specified. Use --help for usage.", "🦆".cyan());
+        Ok(())
+    }
 }

@@ -1756,11 +1756,7 @@ in { # 🦆 says ⮞ Options for da house
                 type = types.submodule {
                   options = {
                     enable = mkEnableOption "Enable greeting automation";
-                    greeting = mkOption {
-                      type = types.str;
-                      default = "Welcome home, good to see you again sir!";
-                      description = "Greeting message to say";
-                    };
+
                     awayDuration = mkOption {
                       type = types.int;
                       default = 7200;
@@ -1771,14 +1767,8 @@ in { # 🦆 says ⮞ Options for da house
                       default = 10;
                       description = "Delay in seconds before triggering greeting";
                     };
-                    sayOnHost = mkOption {
-                      type = types.str;
-                      default = "";
-                      example = "HostWithSpeakers";
-                      description = "Specify on which host the greeting should be played onDelay in seconds before triggering greeting";
-                    };
-                    action = mkOption {
-                      type = automationActionType;
+                    actions = mkOption {
+                      type = types.listOf automationActionType;
                       default = "echo 'Welcome home!'";
                       description = "Action to perform for greeting";
                     };

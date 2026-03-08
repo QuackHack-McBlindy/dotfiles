@@ -24,7 +24,7 @@
 #        lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
 #    )
 #    else (throw "No Mosquitto host found in configuration");
-#  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
 
   mqttHostip = "192.168.1.211";
 

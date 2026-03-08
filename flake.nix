@@ -21,10 +21,10 @@
             lib = import ./lib { 
                 inherit self inputs;
                 lib = nixpkgs.lib;      
-            };                   
+            };             
         in lib.makeFlake {
-            systems = [ "x86_64-linux" "aarch64-linux" ]; 
-            overlays = lib.mapOverlays ./overlays { inherit lib; };
+            systems = [ "x86_64-linux" "aarch64-linux" ];
+            overlays = lib.mapOverlays ./overlays { inherit lib self inputs; };
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;

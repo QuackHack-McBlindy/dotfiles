@@ -47,12 +47,19 @@ Options:
 1. **Streams microphone audio to the server for wake‑word detection** 
 2. **On detection, records audio until silence (RMS‑based) or a maximum duration**
 3. **Sends the recorded audio to the server for transcription**
-4. **Streams microphone audio for wake‑word detection again** 
+4. **Waits for server response (success/failure), plays sounds and executes optional commands**
+5. **Streams microphone audio for wake‑word detection again** 
+ 
  
 Options:
 
 ```
 --uri (default: 127.0.0.1:12345)
+--awake-sound (default: embedded ding.wav)
+--done-sound (default: embedded done.wav)
+--fail-sound (default: embedded fail.wav)
+--awake-cmd (optional)
+--done-cmd (optional)
 --silence-threshold (default: 0.005)
 --silence-timeout (default: 1.0)
 --max-duration (default: 5.0)
@@ -609,8 +616,9 @@ Full service configuration:
           shellTranslate = true;
           wakeWordPath = "/home/pungkula/dotfiles/home/.config/models/yo_bitch.onnx";
           threshold = 0.8; 
-          awakeSound = "/home/pungkula/dotfiles/modules/themes/sounds/awake.wav";
-          doneSound = "/home/pungkula/dotfiles/modules/themes/sounds/done.wav";          
+          awakeSound = "/path/to/custom/awake.wav";
+          doneSound = "/path/to/custom/done.wav";
+          failSound = "/path/to/custom/fail.wav";        
           whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           textToSpeechModelPath = "/home/pungkula/models/tts/lisa_svSE-medium.onnx";
           language = "sv";
@@ -618,13 +626,22 @@ Full service configuration:
           temperature = 0.2;
           threads = 4;
           execCommand = "echo"; # Will echo "transcribed text"
+          debug = true;
+          logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
         };
         
         client = {
           enable = true;
           uri = "192.168.1.111:12345";
+          awakeSound = "/path/to/custom/awake.wav";
+          doneSound = "/path/to/custom/done.wav";
+          failSound = "/path/to/custom/fail.wav";
+          awakeCmd = "notify-send 'Wake word detected'";
+          doneCmd = "mpg123 /path/to/success.mp3"; 
           silenceThreshold = 0.03;
           silenceTimeout = 0.9; 
+          debug = true;
+          logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";          
         };        
       };   
 ```

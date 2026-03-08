@@ -422,6 +422,8 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
     map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
   ); 
 
+  # 🦆 duck say ⮞ turn hyphens into underscores so bash is happy
+  sanitizeVarName = name: builtins.replaceStrings ["-"] ["_"] name;
 
   # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
   environment.variables.YO_SPLIT_WORDS = splitWordsFile;
@@ -483,7 +485,11 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
     ];
   in
     lib.foldl (acc: r: lib.replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
- 
+
+  failingScripts = lib.filter (script:
+    ! ( (script.binary == null && (script.code != null && script.code != "")) ||
+        (script.binary != null && (script.code == null || script.code == "")) )
+  ) (lib.attrValues cfg.scripts); 
  
   # 🦆 says ⮞ conflict detection - no bad voice intentz quack!  
   assertionCheckForConflictingSentences = let
@@ -738,7 +744,7 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
           else if p.type == "path" then lib.escapeShellArg (toString p.default)
           else lib.escapeShellArg (toString p.default);
       in
-        "export ${p.name}=${defaultValue}"
+        "export ${sanitizeVarName p.name}=${defaultValue}"
     ) withDefaults;
   in lib.concatStringsSep "\n" exports;
 
@@ -800,8 +806,17 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
         apply = validateTimes;
       }; # 🦆 duck say ⮞ code to be executed when calling tda script yo      
       code = mkOption {
-        type = types.lines;
+        type = types.nullOr types.lines;
+        default = null;
         description = "The script code";
+      };
+      binary = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = ''
+          Path to an executable binary. If set, the script will call this binary with 
+          the parsed parameters instead of executing inline code. Mutually exclusive with `code`.
+        '';        
       }; # 🦆 duck say ⮞ alias for da script for extra execution triggerz 
       aliases = mkOption {
         type = types.listOf types.str;
@@ -1165,13 +1180,13 @@ EOF
             # 🦆 duck say ⮞ PHASE 3: assign dem' parameterz!
             ${concatStringsSep "\n" (lib.imap0 (idx: param: '' # 🦆 duck say ⮞ match positional paramz to script paramz by index
               if (( ${toString idx} < ''${#POSITIONAL[@]} )); then
-                ${param.name}="''${POSITIONAL[${toString idx}]}" # 🦆 duck say ⮞ assign positional paramz to variable
+                ${sanitizeVarName param.name}="''${POSITIONAL[${toString idx}]}" # 🦆 duck say ⮞ assign positional paramz to variable
               fi
             '') script.parameters)}
           # 🦆 duck say ⮞ assign named paramz! PARAMS ⮞ their variable
           ${concatStringsSep "\n" (map (param: ''
             if [[ -n "''${PARAMS[${param.name}]:-}" ]]; then
-              ${param.name}="''${PARAMS[${param.name}]}"
+              ${sanitizeVarName param.name}="''${PARAMS[${param.name}]}"
             fi
           '') script.parameters)}
 
@@ -1186,22 +1201,22 @@ EOF
           # 🦆 duck say ⮞ param type validation quuackidly quack yo
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.type != "string") ''
-              if [ -n "''${${param.name}:-}" ]; then
+              if [ -n "''${${sanitizeVarName param.name}:-}" ]; then
                 case "${param.type}" in
                   int)
-                    if ! [[ "''${${param.name}}" =~ ^[0-9]+$ ]]; then
+                    if ! [[ "''${${sanitizeVarName param.name}}" =~ ^[0-9]+$ ]]; then
                       echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} --${param.name} must be integer\033[0m" >&2
                       exit 1
                     fi
                     ;;
                   path)
-                    if ! [ -e "''${${param.name}}" ]; then
-                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Path not found: ''${${param.name}}\033[0m" >&2
+                    if ! [ -e "''${${sanitizeVarName param.name}}" ]; then
+                      echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Path not found: ''${${sanitizeVarName param.name}}\033[0m" >&2
                       exit 1
                     fi
                     ;;
                   bool)
-                    if ! [[ "''${${param.name}}" =~ ^(true|false)$ ]]; then
+                    if ! [[ "''${${sanitizeVarName param.name}}" =~ ^(true|false)$ ]]; then
                       echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Parameter ${param.name} must be true or false\033[0m" >&2
                       exit 1
                     fi
@@ -1215,12 +1230,12 @@ EOF
           # 🦆 duck say ⮞ values validation - explicit allowed list yo
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.values != null && param.type == "string") ''
-              if [ -n "''${${param.name}:-}" ]; then
+              if [ -n "''${${sanitizeVarName param.name}:-}" ]; then
                 # 🦆 duck say ⮞ check if value is in allowed list
                 allowed_values=(${lib.concatMapStringsSep " " (v: "'${lib.escapeShellArg v}'") param.values})
                 value_found=false
                 for allowed in "''${allowed_values[@]}"; do
-                  if [[ "''${${param.name}}" == "$allowed" ]]; then
+                  if [[ "''${${sanitizeVarName param.name}}" == "$allowed" ]]; then
                     value_found=true
                     break
                   fi
@@ -1237,7 +1252,7 @@ EOF
           # 🦆 duck say ⮞ boolean defaults - false if not provided
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.type == "bool" && param.default != null) ''
-              if [[ -z "''${${param.name}:-}" ]]; then
+              if [[ -z "''${${sanitizeVarName param.name}:-}" ]]; then
                 ${param.name}=${if param.default then "true" else "false"}
               fi
             '') script.parameters)}
@@ -1245,8 +1260,8 @@ EOF
 
           ${concatStringsSep "\n" (map (param: 
             optionalString (param.default != null) ''
-              if [[ -z "''${${param.name}:-}" ]]; then
-                ${param.name}=${
+              if [[ -z "''${${sanitizeVarName param.name}:-}" ]]; then
+                ${sanitizeVarName param.name}=${
                   if param.type == "string" then 
                     "'${lib.escapeShellArg (toString param.default)}'" 
                   else if param.type == "int" then
@@ -1264,15 +1279,30 @@ EOF
           # 🦆 duck say ⮞ checkz required param yo - missing? errorz out 
           ${concatStringsSep "\n" (map (param: ''
             ${optionalString (!param.optional && param.default == null) ''
-              if [[ -z "''${${param.name}:-}" ]]; then
+              if [[ -z "''${${sanitizeVarName param.name}:-}" ]]; then
                 echo -e "\033[1;31m 🦆 duck say ⮞ fuck ❌ ${name} Missing required parameter: ${param.name}\033[0m" >&2
                 exit 1
               fi
             ''}
           '') script.parameters)}
 
-          # 🦆 duck say ⮞ EXECUTEEEEEAAAOO 🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆quack🦆yo
-          ${script.code}
+
+          # ⮞ 🦆 ⮞ ⮞ 🦆 ⮞ ⮞ 🦆 ⮞ ⮞ 🦆 ⮞ ⮞ 🦆 ⮞ ⮞ 🦆 ⮞ 
+          # 🦆 duck say ⮞ EXECUTION
+
+          # 🦆 ⮞ if defined - exec binary     
+          ${if script.binary != null then ''
+            args=()
+            ${concatStringsSep "\n" (map (param: ''
+              if [[ -n "''${${sanitizeVarName param.name}:-}" ]]; then
+                args+=(--${param.name} "''${${sanitizeVarName param.name}}")
+              fi
+            '') script.parameters)}
+            exec ${lib.escapeShellArg script.binary} "''${args[@]}"
+          '' else ''  # 🦆 ⮞ else exec defined code 
+            ${script.code}
+          ''}
+          
         '';
         # 🦆 duck say ⮞ generate da entrypoint
         mainScript = pkgs.writeShellScriptBin "yo-${script.name}" scriptContent;
@@ -1482,6 +1512,7 @@ in { # 🦆 duck say ⮞ import server/client module
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { name = "input"; description = "Text to translate"; optional = true; } 
         { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 60; }
+        { name = "room"; type = "string"; description = "Optional client area (used for context)"; optional = true; }
       ];
       code = ''
         set +u  
@@ -1556,6 +1587,22 @@ in { # 🦆 duck say ⮞ import server/client module
           YO_INTENT_DATA="${intentDataFile}" YO_FUZZY_INDEX="${fuzzyIndexFlatFile}" yo-tests "$input" $FUZZY_THRESHOLD
         fi
       '';
+    };  
+
+
+    yo.scripts.say = {
+      description = "Text to speech with built in language detection and automatic model downloading";
+      category = "🗣️ Voice";
+      autoStart = false;
+      logLevel = "WARNING";
+      parameters = [ # 🦆 says ⮞ server api configuration goez here yo
+        { name = "text"; description = "Input text that should be spoken"; optional = false; }      
+        { name = "model"; description = "File name of the model"; default = config.services.yo-rs.server.textToSpeechModelPath; } # 🦆 says ⮞ lisa sounds hot - bet she likez ducks
+        { name = "blocking"; type = "bool"; description = "Wait for TTS playback to finish"; default = false; }
+        { name = "path"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }
+      ];
+      #binary = "{pkgs.yo-rs}/bin/yo-say";
+      binary = /run/current-system/sw/bin/yo-say;
     };  
 
 
@@ -1646,6 +1693,11 @@ in { # 🦆 duck say ⮞ import server/client module
         message = "🦆 duck say ⮞ fuck ❌ Duplicate aliases:\n" +
           lib.concatStringsSep "\n" (lib.mapAttrsToList formatDuplicate duplicateAliases);
       }
+      { # 🦆 duck say ⮞ code/binary check      
+        assertion = failingScripts == [];
+        message = "The following scripts do not have exactly one of `code` or `binary` defined (non‑empty): " +
+          lib.concatStringsSep ", " (map (s: s.name) failingScripts);
+      }      
       { # 🦆 duck say ⮞ autoStart scriptz must be fully configured of course!
         assertion = actualAutoStartErrors == [];
         message = "Auto-start errors:\n" + lib.concatStringsSep "\n" actualAutoStartErrors;
@@ -1664,6 +1716,14 @@ in { # 🦆 duck say ⮞ import server/client module
         assertion = valueTypeErrors == [];
         message = "Value type errors:\n" + lib.concatStringsSep "\n" valueTypeErrors;
       }
+      
+#      {
+#        assertion = lib.all (script:
+#          (script.code != "" && script.binary == null) ||
+#          (script.code == "" && script.binary != null)
+#        ) (lib.attrValues cfg.scripts);
+#        message = "Each script must have exactly one of `code` or `binary` defined (non‑empty).";
+#      }      
     ];
     # 🦆 duck say ⮞ TODO replace with: system.activationScripts.update-readme.text = "${updateReadme}/bin/update-readme";
 

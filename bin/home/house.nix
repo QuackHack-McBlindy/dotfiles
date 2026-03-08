@@ -1336,217 +1336,23 @@
 	      { name = "color"; description = "Color name or hex code"; optional = true; }    
 	      { name = "temperature"; description = "Light color temperature (153-500)"; optional = true; }          
 	      { name = "scene"; description = "Activate a predefined scene"; optional = true; }     
+	      { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }        
 	      { name = "room"; description = "Room to target"; optional = true; }        
-	      { name = "user"; description = "Mosquitto username to use"; default = config.house.zigbee.mosquitto.username; }    
-	      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.house.zigbee.mosquitto.passwordFile; }
-	      { name = "flake"; description = "Path containing flake.nix"; default = config.this.user.me.dotfilesDir; }
 	      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; default = false; }
-	      { name = "cheapMode"; type = "bool"; description = "Energy saving mode. Turns off the lights again after X seconds."; default = false; }
 	      { name = "json"; description = "Raw JSON to send to device"; optional = true; }
-	      { name = "backend"; description = "Backend type (auto, zigbee, hue)"; optional = true; default = "auto"; }
 	    ];
-	    code = ''
-	      ${cmdHelpers}
-	      export OPENSSL_DIR="${pkgs.openssl.dev}"
-	      export OPENSSL_LIB_DIR="${pkgs.openssl.out}/lib"
-	      export PKG_CONFIG_PATH="${pkgs.openssl.dev}/lib/pkgconfig"
-	      export PATH="${pkgs.pkg-config}/bin:$PATH"      
-	      # 🦆 says ⮞ create case insensitive map of device friendly_name
-            declare -A device_map
-            while IFS= read -r line; do
-              key=$(echo "$line" | cut -d'=' -f1 | tr -d "[:space:]'[]")
-              value=$(echo "$line" | cut -d'=' -f2 | tr -d "[:space:]'")
-              device_map["$key"]="$value"
-            done < <(
-              ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)}
-            )
-            available_devices=( ${toString deviceList} )
-	      DOTFILES="$flake"
-	      DIR="/home/${config.this.user.me.name}/zigduck-cli"
-	      DEVICE="$device"
-	      STATE="$state"
-	      SCENE="$scene"
-	      BRIGHTNESS="$brightness"
-	      COLOR="$color"
-	      TEMP="$temperature"
-	      JSON="$json"
-	      BACKEND="$backend"
-	      MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
-	      PWFILE="$passwordfile"
-	      MQTT_USER="$user"
-	      MQTT_PASSWORD=$(cat "$PWFILE")
-	      HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip or ""}"
-	      HUE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")"      
-	      ROOM="$room"
-	      
-	      dt_info "MQTT_BROKER: $MQTT_BROKER" 
-	      dt_info "State directory: $DIR"
-	      
-	      mkdir -p "$DIR"
-	      
-	      # 🦆 says ⮞ copy config files
-	      if [ ! -f "$DIR/devices.json" ]; then
-		cat ${devicesConfigFile} > "$DIR/devices.json"
-	      fi
-	      
-	      if [ ! -f "$DIR/scenes.json" ]; then
-		cat ${scenesConfigFile} > "$DIR/scenes.json"
-	      fi
-	      
-	      mkdir -p "$DIR/src"
-	      cat ${zigduck-cli} > "$DIR/src/main.rs"
-	      cat ${zigduck-toml} > "$DIR/Cargo.toml"
-	      
-	      cd "$DIR"
-	      # 🦆 says ⮞ compile if needed
-	      if [ ! -f "target/release/zigduck-cli" ]; then
-		${pkgs.cargo}/bin/cargo generate-lockfile
-		${pkgs.cargo}/bin/cargo build --release      
-	      fi
-	    
-	      # 🦆 says ⮞ build cmd args
-	      RUST_ARGS=()
-	      
-	      RUST_ARGS+=(--broker "$MQTT_BROKER")
-	      RUST_ARGS+=(--user "$MQTT_USER")
-	      RUST_ARGS+=(--password "$MQTT_PASSWORD")
-	      
-	      if [ -n "$HUE_BRIDGE_IP" ] && [ -n "$HUE_API_KEY" ]; then
-		RUST_ARGS+=(--hue-bridge-ip "$HUE_BRIDGE_IP")
-		RUST_ARGS+=(--hue-api-key "$HUE_API_KEY")
-	      fi      
-	      
-	      RUST_ARGS+=(--devices-config "$DIR/devices.json")
-	      RUST_ARGS+=(--scenes-config "$DIR/scenes.json")
-	      
-	      if [ "$VERBOSE" -ge 1 ]; then
-		RUST_ARGS+=(--verbose)
-	      fi
-	      
-	      # 🦆 says ⮞ determine state
-	      determine_state() {
-		local state="$1"
-		local color="$2"
-		local brightness="$3"
-		local temp="$4"
-		
-		if [ -n "$state" ]; then
-		  echo "$(echo "$state" | tr '[:upper:]' '[:lower:]')"
-		elif [ -n "$color" ] || [ -n "$brightness" ] || [ -n "$temp" ]; then
-		  echo "on"
-		else
-		  echo "toggle"
-		fi
-	      }
-	      
-	      # 🦆 says ⮞ JSON control
-	      if [ -n "$JSON" ]; then
-		if [ -z "$DEVICE" ]; then
-		  dt_error "JSON control requires a device parameter"
-		  exit 1
-		fi
-		
-		RUST_ARGS+=(json --device "$DEVICE" --json "$JSON")
-		if [ -n "$BACKEND" ]; then
-		  RUST_ARGS+=(--backend "$BACKEND")
-		fi
-		
-	      # 🦆 says ⮞ ROOM CONTROL
-            elif [ -n "$DEVICE" ]; then
-              DEVICE_LOWER=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
-              EXACT_NAME="''${device_map["$DEVICE_LOWER"]:-}"
-
-              if [ -n "$EXACT_NAME" ]; then
-                DEVICE="$EXACT_NAME"
-              fi
-
-              ROOM_DEVICES=$(echo "''${roomDevicesMap["$DEVICE"]:-}" | head -1)
-              STATE_FOR_RUST=$(determine_state "$STATE" "$COLOR" "$BRIGHTNESS" "$TEMP")
-
-              if [ -n "$ROOM_DEVICES" ]; then
-                RUST_ARGS+=(room --name "$DEVICE" "$STATE_FOR_RUST")
-              else
-                RUST_ARGS+=(device --device "$DEVICE" --state "$STATE_FOR_RUST")
-              fi
-
-              if [ -n "$BRIGHTNESS" ]; then
-                RUST_ARGS+=(--brightness "$BRIGHTNESS")
-              fi
-
-              if [ -n "$COLOR" ]; then
-                RUST_ARGS+=(--color "$COLOR")
-              fi
-
-              if [ -n "$TEMP" ]; then
-                RUST_ARGS+=(--temperature "$TEMP")
-              fi
-		
-	      # 🦆 says ⮞ device control
-	      elif [ -n "$DEVICE" ]; then
-		DEVICE_LOWER=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
-		EXACT_NAME="''${device_map["$DEVICE_LOWER"]:-}"
-	    
-		if [ -n "$EXACT_NAME" ]; then
-		  DEVICE="$EXACT_NAME"
-		fi
-	    
-		ROOM_DEVICES=$(echo "''${roomDevicesMap["$DEVICE"]:-}" | head -1)
-		STATE_FOR_RUST=$(determine_state "$STATE" "$COLOR" "$BRIGHTNESS" "$TEMP")
-	    
-		if [ -n "$ROOM_DEVICES" ]; then
-		  RUST_ARGS+=(room --name "$DEVICE" "$STATE_FOR_RUST")
-		else
-		  RUST_ARGS+=(device --device "$DEVICE" --state "$STATE_FOR_RUST")
-		fi
-	    
-		if [ -n "$BRIGHTNESS" ]; then
-		  RUST_ARGS+=(--brightness "$BRIGHTNESS")
-		fi
-	    
-		if [ -n "$COLOR" ]; then
-		  RUST_ARGS+=(--color "$COLOR")
-		fi
-	    
-		if [ -n "$TEMP" ]; then
-		  RUST_ARGS+=(--temperature "$TEMP")
-		fi
-	    
-	      elif [ -n "$SCENE" ]; then
-		RUST_ARGS+=(scene "$SCENE")      
-	      elif [ "$pair" = "true" ]; then
-		RUST_ARGS+=(pair --watch)      
-	      elif [ "$cheapMode" = "true" ]; then
-		if [ -n "$room" ]; then
-		  RUST_ARGS+=(cheap-mode "$room" --delay 300)
-		else
-		  dt_error "Cheap mode requires a room parameter"
-		  exit 1
-		fi     
-	      else
-		RUST_ARGS+=(list devices)
-	      fi
-	      
-	      # 🦆 says ⮞ run in debug mode
-	      if [ "$VERBOSE" -ge 1 ]; then
-		dt_info "Running: ./target/release/zigduck-cli ''${RUST_ARGS[@]}"
-		HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip or ""}" HUE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")" DEBUG=1 ./target/release/zigduck-cli ''${RUST_ARGS[@]}
-		exit 0
-	      fi
-	      
-	      # 🦆 says ⮞ normal execution
-	      HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip or ""}" HUE_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.bridge.passwordFile}" 2>/dev/null || echo "")" ./target/release/zigduck-cli "''${RUST_ARGS[@]}"
-	    '';
-	    
+	    binary = /run/current-system/sw/bin/nqtt;
 	    voice = {
 	      priority = 1;
 	      sentences = [
+		"{state} {all-lights} lampor"
 		# 🦆 says ⮞ multi taskerz
 		"{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
 		"{device} {state} och ljusstyrka {brightness} procent"
 		"(gör|ändra) {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"  
-		"{scene} alla lampor"
+		#"{scene} alla lampor"
 		"{scene} (belysning|belysningen)"
-		"{slate} alla lampor i {device}"
+		"{state} {all-lights} lampor"
 		"{state} {device} (lampor|igen)"   
 		"{state} lamporna i {device}"
 		"stäng {state} {device}"
@@ -1564,10 +1370,16 @@
 		  { "in" = "[tänd|tända|tänk|start|starta|på|tönd|tömd]"; out = "ON"; }             
 		  { "in" = "[släck|släcka|slick|av|stäng|stäng av]"; out = "OFF"; } 
 		];
-		brightness.values = builtins.genList (i: {
-		  "in" = toString (i + 1);
-		  out = toString (i + 1);
-		}) 100;
+		brightness.range = {
+                  type = "number";
+                  from = 1;
+                  to = 100;
+                  multiplier = 1;
+                };
+		#brightness.values = builtins.genList (i: {
+		#  "in" = toString (i + 1);
+		#  out = toString (i + 1);
+		#}) 100;
 		device.values = let
 		  reservedNames = [ "hall" "kitchen" "bedroom" "bathroom" "wc" "livingroom" "kitchen" "switch" "all" "every" ];
 		  sanitize = str:
@@ -1720,6 +1532,10 @@
 		
 		pair.values = [
 		  { "in" = "[para|paras]"; out = "true"; }
+		];
+
+		all-lights.values = [
+		  { "in" = "[all|alla]"; out = "true"; }
 		];
 		
 		room.values = [

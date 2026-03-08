@@ -154,6 +154,51 @@ in {
         description = "Server address to connect to.";
       };
 
+      room = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          Optional room identifier sent to the server. Used for context/memory for the shell translator.
+          Passed to `yo do` as `--room <value>` (only when `shellTranslate` is enabled).
+        '';
+      };
+
+      awakeSound = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = ''
+          Path to a custom WAV file played on wake detection (client‑side).
+          If `null`, the embedded `ding.wav` is used.
+        '';
+      };
+
+      doneSound = mkOption {
+        type = types.nullOr types.path;
+        default = null;
+        description = ''
+          Path to a custom WAV file played on successful command execution (client‑side).
+          If `null`, the embedded `done.wav` is used.
+        '';
+      };
+
+      awakeCmd = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          Command to execute on the client when wake word is detected.
+          The command is run in a background thread; output is logged.
+        '';
+      };
+
+      doneCmd = mkOption {
+        type = types.nullOr types.str;
+        default = null;
+        description = ''
+          Command to execute on the client after a successful voice command.
+          The command is run in a background thread; output is logged.
+        '';
+      };
+
       silenceThreshold = mkOption {
         type = types.float;
         default = 0.005;
@@ -226,7 +271,7 @@ in {
               DT_LOG_LEVEL = logLevel;
               DT_LOG_FILE = logFile;
               PATH = path;
-            };
+            } // lib.optionalAttrs cfg.server.debug { DEBUG = "1"; };
           in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
           
           ExecStart = lib.escapeShellArgs (
@@ -265,20 +310,24 @@ in {
             envVars = {
               DT_LOG_LEVEL = logLevel;
               DT_LOG_FILE = logFile;
-            };
+            } // lib.optionalAttrs cfg.client.debug { DEBUG = "1"; };
           in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
 
-                    
           ExecStart = lib.escapeShellArgs (
             [ "${cfg.package}/bin/yo-client" "--uri" cfg.client.uri ]
+            ++ optionals (cfg.client.awakeSound != null) [ "--awake-sound" cfg.client.awakeSound ]
+            ++ optionals (cfg.client.doneSound != null) [ "--done-sound" cfg.client.doneSound ]
+            ++ optionals (cfg.client.awakeCmd != null) [ "--awake-cmd" cfg.client.awakeCmd ]
+            ++ optionals (cfg.client.doneCmd != null) [ "--done-cmd" cfg.client.doneCmd ]
             ++ [ "--silence-threshold" (toString cfg.client.silenceThreshold) ]
             ++ [ "--silence-timeout" (toString cfg.client.silenceTimeout) ]
             ++ [ "--max-duration" (toString cfg.client.maxDuration) ]
+            ++ optionals (cfg.client.room != null) [ "--room" cfg.client.room ]
             ++ optionals cfg.client.debug [ "--debug" ]
             ++ cfg.client.extraArgs
           );
         };
       };
     };
-    
+   
   };}

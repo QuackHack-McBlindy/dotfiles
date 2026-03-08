@@ -33,19 +33,26 @@ use oww_rs::{
 const DEFAULT_SERVER_ADDR: &str = "127.0.0.1:12345";
 const DING_WAV: &[u8] = include_bytes!("../ding.wav");
 const DONE_WAV: &[u8] = include_bytes!("../done.wav");
+const FAIL_WAV: &[u8] = include_bytes!("../fail.wav");
 
 fn print_usage(program_name: &str) {
-    dt_error!(
-        "Usage: {} [OPTIONS]\n\
-         Options:\n\
-         --uri <ADDRESS>              Server address (default: {})\n\
-         --debug                       Enable debug output (prints RMS)\n\
-         --silence-threshold <FLOAT>   RMS threshold for silence detection (default: 0.005)\n\
-         --silence-timeout <SECONDS>   Seconds of silence before stopping (default: 1.0)\n\
-         --max-duration <SECONDS>      Maximum recording length (default: 5.0)\n\
-         --help, -h                     Show this help message",
-        program_name, DEFAULT_SERVER_ADDR
-    );
+  dt_error!(
+      r#"Usage: {} [OPTIONS]
+  Options:
+    --uri <ADDRESS>              Server address (default: {})
+    --room <ROOM>                Room identifier sent to server (optional)
+    --awake-sound <PATH>         Path to WAV file to play on wake (default: embedded ding.wav)
+    --done-sound <PATH>          Path to WAV file to play after successful command (default: embedded done.wav)
+    --fail-sound <PATH>          Path to WAV file to play after failed command (default: embedded fail.wav)
+    --awake-cmd <COMMAND>        Command to execute on wake (optional)
+    --done-cmd <COMMAND>         Command to execute after successful command (optional)
+    --silence-threshold <FLOAT>  RMS threshold for silence detection (default: 0.005)
+    --silence-timeout <SECONDS>  Seconds of silence before stopping (default: 1.0)
+    --max-duration <SECONDS>     Maximum recording length (default: 5.0)
+    --debug                      Enable debug output (prints RMS)
+    --help, -h                   Show this help message"#,
+      program_name, DEFAULT_SERVER_ADDR
+  );
 }
 
 // 🦆 says ⮞ RMS helper
@@ -59,8 +66,6 @@ fn rms_f32(samples: &[f32]) -> f32 {
 
 fn main() -> Result<()> {
     env_logger::init();
-    dt_setup(None, None);
-    dt_info("Started yo-rs-client!");
     let args: Vec<String> = env::args().collect();
 
     if args.iter().any(|s| s == "--help" || s == "-h") {
@@ -70,9 +75,15 @@ fn main() -> Result<()> {
 
     let mut debug = false;
     let mut server_addr = DEFAULT_SERVER_ADDR.to_string();
+    let mut room: Option<String> = None;
     let mut silence_threshold = 0.005;
     let mut silence_timeout_secs = 1.0;
     let mut max_duration_secs = 5.0;
+    let mut awake_sound_path: Option<String> = None;
+    let mut done_sound_path: Option<String> = None;
+    let mut fail_sound_path: Option<String> = None;
+    let mut awake_cmd: Option<String> = None;
+    let mut done_cmd: Option<String> = None;
 
     let mut i = 1;
     while i < args.len() {
@@ -87,6 +98,66 @@ fn main() -> Result<()> {
                     std::process::exit(1);
                 }
             }
+            "--room" => {
+                if i + 1 < args.len() {
+                    room = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    dt_error!("Error: --room requires a value");
+                    print_usage(&args[0]);
+                    std::process::exit(1);
+                }
+            }
+            "--awake-sound" => {
+                if i + 1 < args.len() {
+                    awake_sound_path = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    dt_error!("Error: --awake-sound requires a path");
+                    print_usage(&args[0]);
+                    std::process::exit(1);
+                }
+            }
+            "--done-sound" => {
+                if i + 1 < args.len() {
+                    done_sound_path = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    dt_error!("Error: --done-sound requires a path");
+                    print_usage(&args[0]);
+                    std::process::exit(1);
+                }
+            }
+            "--fail-sound" => {
+                if i + 1 < args.len() {
+                    fail_sound_path = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    dt_error!("Error: --fail-sound requires a path");
+                    print_usage(&args[0]);
+                    std::process::exit(1);
+                }
+            }
+            "--awake-cmd" => {
+                if i + 1 < args.len() {
+                    awake_cmd = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    dt_error!("Error: --awake-cmd requires a command string");
+                    print_usage(&args[0]);
+                    std::process::exit(1);
+                }
+            }
+            "--done-cmd" => {
+                if i + 1 < args.len() {
+                    done_cmd = Some(args[i + 1].clone());
+                    i += 2;
+                } else {
+                    dt_error!("Error: --done-cmd requires a command string");
+                    print_usage(&args[0]);
+                    std::process::exit(1);
+                }
+            }            
             "--debug" => {
                 debug = true;
                 i += 1;
@@ -142,13 +213,69 @@ fn main() -> Result<()> {
         }
     }
 
+    if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
+    dt_setup(None, None);
+
     let silence_timeout = Duration::from_secs_f64(silence_timeout_secs);
     let max_duration = Duration::from_secs_f64(max_duration_secs);
 
+    let awake_cmd_display = awake_cmd.as_deref().unwrap_or("none");
+    let done_cmd_display = done_cmd.as_deref().unwrap_or("none");
+
     dt_info!(
-        "Settings: debug={}, silence_threshold={}, silence_timeout={}s, max_duration={}s",
-        debug, silence_threshold, silence_timeout_secs, max_duration_secs
+        "Settings: debug={}, silence_threshold={}, silence_timeout={}s, max_duration={}s, awake_sound={}, done_sound={}, fail_sound={}, awake_cmd={}, done_cmd={}",
+        debug,
+        silence_threshold,
+        silence_timeout_secs,
+        max_duration_secs,
+        awake_sound_path.as_deref().unwrap_or("embedded ding.wav"),
+        done_sound_path.as_deref().unwrap_or("embedded done.wav"),
+        fail_sound_path.as_deref().unwrap_or("embedded fail.wav"),
+        awake_cmd_display,
+        done_cmd_display
     );
+
+    // 🦆 says ⮞ load awake sound
+    let awake_sound_data = if let Some(ref path) = awake_sound_path {
+        match std::fs::read(path) {
+            Ok(data) => {
+                dt_info!("Loaded custom awake sound from {}", path);
+                data
+            }
+            Err(e) => {
+                dt_error!("Failed to read awake sound file '{}': {}. Using embedded sound.", path, e);
+                DING_WAV.to_vec()
+            }
+        }
+    } else { DING_WAV.to_vec() };
+
+    // 🦆 says ⮞ load done sound
+    let done_sound_data = if let Some(ref path) = done_sound_path {
+        match std::fs::read(path) {
+            Ok(data) => {
+                dt_info!("Loaded custom done sound from {}", path);
+                data
+            }
+            Err(e) => {
+                dt_error!("Failed to read done sound file '{}': {}. Using embedded sound.", path, e);
+                DONE_WAV.to_vec()
+            }
+        }
+    } else { DONE_WAV.to_vec() };
+
+    // 🦆 says ⮞ load fail sound
+    let fail_sound_data = if let Some(ref path) = fail_sound_path {
+        match std::fs::read(path) {
+            Ok(data) => {
+                dt_info!("Loaded custom fail sound from {}", path);
+                data
+            }
+            Err(e) => {
+                dt_error!("Failed to read fail sound file '{}': {}. Using embedded sound.", path, e);
+                FAIL_WAV.to_vec()
+            }
+        }
+    } else { FAIL_WAV.to_vec() };
 
     // 🦆 says ⮞ Microphone setup
     let host = cpal::default_host();
@@ -238,17 +365,36 @@ fn main() -> Result<()> {
 
     loop {
         dt_info!("Connecting to {}...", server_addr);
-        let stream = loop {
+        let mut stream = loop {
             match TcpStream::connect(&server_addr) {
                 Ok(s) => break s,
                 Err(e) => {
-                    dt_error!("⚠️ 🚫 {}. Retrying in 5 seconds...", e);
+                    dt_info!("⚠️ 🚫 {}. Retrying in 5 seconds...", e);
                     thread::sleep(Duration::from_secs(5));
                 }
             }
         };
         // 🦆 says ⮞ SUCCESSFUL CONNECTION
         dt_info!("📡 ☑️ 🎙️ @ {}", server_addr);
+
+        // 🦆 says ⮞ send room to server as length‑prefixed UTF‑8
+        let room_bytes = room.as_deref().unwrap_or("").as_bytes();
+        let room_len = room_bytes.len() as u32;
+        if let Err(e) = stream.write_u32::<LittleEndian>(room_len) {
+            dt_error!("Failed to send room length: {}", e);
+            continue; // 🦆 says ⮞ reconnect
+        }
+        if room_len > 0 {
+            if let Err(e) = stream.write_all(room_bytes) {
+                dt_error!("Failed to send room: {}", e);
+                continue;
+            }
+        }
+        if let Err(e) = stream.flush() {
+            dt_error!("Failed to flush room info: {}", e);
+            continue;
+        }
+        dt_info!("Sent room: {}", room.as_deref().unwrap_or("(empty)"));
 
         // 🦆 says ⮞ Clone streams for reading and writing
         let read_stream = stream.try_clone()?;
@@ -329,6 +475,13 @@ fn main() -> Result<()> {
         let receiver_silence_timeout = silence_timeout;
         let receiver_max_duration = max_duration;
 
+        let receiver_awake_sound = awake_sound_data.clone();
+        let receiver_done_sound = done_sound_data.clone();
+        let receiver_fail_sound = fail_sound_data.clone();
+        let receiver_awake_cmd = awake_cmd.clone();
+        let receiver_done_cmd = done_cmd.clone();
+
+
         let receiver_handle = thread::spawn(move || {
             let _ = std::panic::catch_unwind(|| {
                 let mut read_stream = read_stream; // 🦆 say ⮞ take ownership
@@ -345,8 +498,8 @@ fn main() -> Result<()> {
                                 }
                                 receiver_is_transcribing.store(true, Ordering::SeqCst);
 
-                                // 🦆 says ⮞ play detection sound
-                                let sound_data = DING_WAV.to_vec();
+                                // 🦆 says ⮞ play detection sound     
+                                let sound_data = receiver_awake_sound.clone();
                                 thread::spawn(move || {
                                     let (_stream, handle) = OutputStream::try_default().unwrap();
                                     let cursor = Cursor::new(sound_data);
@@ -354,11 +507,38 @@ fn main() -> Result<()> {
                                         sink.sleep_until_end();
                                     }
                                 });
+                      
+                                // 🦆 says ⮞ execute awake command if provided
+                                if let Some(cmd) = &receiver_awake_cmd {
+                                    let cmd = cmd.clone();
+                                    thread::spawn(move || {
+                                        let parts: Vec<&str> = cmd.split_whitespace().collect();
+                                        if parts.is_empty() {
+                                            dt_error!("Empty awake command");
+                                            return;
+                                        }
+                                        let status = std::process::Command::new(parts[0])
+                                            .args(&parts[1..])
+                                            .status();
+                                        match status {
+                                            Ok(status) => {
+                                                if status.success() { 
+                                                    dt_debug!("Awake command executed successfully");
+                                                } else {
+                                                    dt_error!("Awake command failed with exit code: {:?}", status.code());
+                                                }
+                                            }
+                                            Err(e) => dt_error!("Failed to execute awake command: {}", e),
+                                        }
+                                    });
+                                }
+                      
                                 // 🦆 says ⮞ BOOOOM 
+                                let timer = dt_timer("voice pipeline");
                                 dt_info!("💥 DETECTED!");
-                                let timer = dt_timer("my operation");
+                                timer.lap("wake word detected");
 
-                                thread::sleep(Duration::from_millis(100));
+                                thread::sleep(Duration::from_millis(50));
 
                                 {
                                     let mut guard = receiver_recording_buffer.lock().unwrap();
@@ -414,6 +594,8 @@ fn main() -> Result<()> {
                                 }
 
                                 receiver_recording_active.store(false, Ordering::SeqCst);
+                                timer.lap("speech ended");
+                                let server_timer = dt_timer("server processing");
 
                                 let raw_audio = {
                                     let mut guard = receiver_recording_buffer.lock().unwrap();
@@ -459,9 +641,12 @@ fn main() -> Result<()> {
                                         Ok(()) => { // 🎉
                                             match response_buf[0] {
                                                 0x03 => {
-                                                    dt_info!("🎉 Command execution successful – playing done sound");
+                                                    dt_info!("🎉 Command execution successful");
+                                                    timer.lap("command executed sucessfully");
                                                     timer.complete();
-                                                    let sound_data = DONE_WAV.to_vec();
+                                                    server_timer.complete();
+                                                    // 🦆 says ⮞ play done sound
+                                                    let sound_data = receiver_done_sound.clone();
                                                     thread::spawn(move || {
                                                         let (_stream, handle) = OutputStream::try_default().unwrap();
                                                         let cursor = Cursor::new(sound_data);
@@ -469,8 +654,44 @@ fn main() -> Result<()> {
                                                             sink.sleep_until_end();
                                                         }
                                                     });
+
+                                                    // 🦆 says ⮞ execute done command
+                                                    if let Some(cmd) = &receiver_done_cmd {
+                                                        let cmd = cmd.clone();
+                                                        thread::spawn(move || {
+                                                            let parts: Vec<&str> = cmd.split_whitespace().collect();
+                                                            if parts.is_empty() {
+                                                                dt_error!("Empty done command");
+                                                                return;
+                                                            }
+                                                            let status = std::process::Command::new(parts[0])
+                                                                .args(&parts[1..])
+                                                                .status();
+                                                            match status {
+                                                                Ok(status) => {
+                                                                    if status.success() {
+                                                                        dt_debug!("Done command executed successfully");
+                                                                    } else {
+                                                                        dt_error!("Done command failed with exit code: {:?}", status.code());
+                                                                    }
+                                                                }
+                                                                Err(e) => dt_error!("Failed to execute done command: {}", e),
+                                                            }
+                                                        });
+                                                    }                            
                                                 } // 💩
-                                                0x04 => { dt_debug!("Command execution failed – check server logs"); }
+                                                0x04 => { 
+                                                    dt_debug!("Command execution failed – check server logs");
+                                                    // 🦆 says ⮞ play fail sound
+                                                    let sound_data = receiver_fail_sound.clone();
+                                                    thread::spawn(move || {
+                                                        let (_stream, handle) = OutputStream::try_default().unwrap();
+                                                        let cursor = Cursor::new(sound_data);
+                                                        if let Ok(sink) = handle.play_once(cursor) {
+                                                            sink.sleep_until_end();
+                                                        }
+                                                    });
+                                                }
                                                 _ => { dt_warning!("Unknown response from server: {}", response_buf[0]); }
                                             }
                                             break;
@@ -485,7 +706,7 @@ fn main() -> Result<()> {
                                     }
                                 }
 
-                                // 🦆 says ⮞ resume sending wake shunks
+                                // 🦆 says ⮞ resume sending wake chunks
                                 receiver_is_transcribing.store(false, Ordering::SeqCst);
                             }
                         }

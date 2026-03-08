@@ -5,6 +5,7 @@ modules/dump
 bin/dump
 bin/voice/dump
 devShells/dump
+packages/dump
 lib/dump
 home/dump
 home/.config/ha

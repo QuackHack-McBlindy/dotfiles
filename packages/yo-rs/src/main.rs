@@ -37,9 +37,8 @@ fn handle_client(
     done_sound_data: Vec<u8>,
     exec_command: Option<String>,
     translate_to_shell: bool,
-) -> Result<()> {
-    duck_log!(info: "📡 ☑️ 🎙️ {} Connected", client_id);
-    dt_info!("📡 ☑️ 🎙️ {} Connected", client_id);
+    room: String,
+) -> Result<()> {  
     let mut last_detection: Option<Instant> = None;
 
     loop {
@@ -203,11 +202,11 @@ fn handle_client(
                     if normalized.is_empty() {
                         if debug { dt_error!("[{}] Normalized text is empty, nothing to translate.", client_id); }
                     } else {
-                        let status = Command::new("yo")
-                            .arg("do")
-                            .arg(&normalized)
-                            .env("VOICE_MODE", "1")
-                            .status();
+                        let mut cmd = Command::new("yo");
+                        cmd.arg("do");
+                        if !room.is_empty() { cmd.arg("--room").arg(&room); }
+                        cmd.arg(&normalized).env("VOICE_MODE", "1");
+                        let status = cmd.status();
                 
                         match status {
                             Ok(status) => {
@@ -326,8 +325,7 @@ fn print_usage(program_name: &str) {
 
 fn main() -> Result<()> {
     env_logger::init();
-    dt_setup(None, None);
-    dt_info("Started yo-rs-server!");
+
     let args: Vec<String> = env::args().collect();
 
     // 🦆 says ⮞ --help ? 
@@ -513,6 +511,9 @@ fn main() -> Result<()> {
         }
     }
 
+    if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
+    dt_setup(None, None);
+
     // sound loading
     let done_sound_data = if let Some(ref path) = done_sound_path {
         match std::fs::read(path) {
@@ -583,20 +584,46 @@ fn main() -> Result<()> {
     );
 
     let whisper_ctx = Arc::new(WhisperContext::new(&whisper_model_path)?);
-
+    
     for stream in listener.incoming() {
         match stream {
-            Ok(stream) => {
+            Ok(mut stream) => {
                 let peer_addr = match stream.peer_addr() {
                     Ok(addr) => addr.to_string(),
                     Err(_) => "unknown".to_string(),
                 };
-                let client_id = format!("client @ {}", peer_addr);
+    
+                // 🦆 says ⮞ get room by client
+                let room_len = match stream.read_u32::<LittleEndian>() {
+                    Ok(len) => len as usize,
+                    Err(e) => {
+                        dt_error!("[{}] Failed to read room length: {} – assuming empty", peer_addr, e);
+                        0
+                    }
+                };
+                let room = if room_len > 0 {
+                    let mut room_buf = vec![0u8; room_len];
+                    if let Err(e) = stream.read_exact(&mut room_buf) {
+                        dt_error!("[{}] Failed to read room: {} – using empty", peer_addr, e);
+                        String::new()
+                    } else {
+                        String::from_utf8_lossy(&room_buf).to_string()
+                    }
+                } else {
+                    String::new()
+                };
+    
+                // 🦆 says ⮞ create client id
+                let client_id = if room.is_empty() {
+                    format!("client @ {}", peer_addr)
+                } else { format!("room '{}'", room) };
+                dt_info!("📡 ☑️ 🎙️ {} Connected (IP: {})", client_id, peer_addr);
+    
+                // 🦆 says ⮞ clone data for the thread
                 let sound_data = sound_data.clone();
                 let done_sound_data = done_sound_data.clone();
                 let exec_command = exec_command.clone();
-
-                // 🦆 says ⮞ no --wake-word provided? use the embedded bytes
+    
                 let wake_model = if custom_wake_word_provided {
                     match OwwModel::from_path(&wake_word_path, threshold) {
                         Ok(m) => m,
@@ -614,13 +641,9 @@ fn main() -> Result<()> {
                         }
                     }
                 };
-
+    
                 let whisper_ctx = Arc::clone(&whisper_ctx);
-
-                let temperature = temperature;
                 let language = language.clone();
-                let threads = threads;
-
                 thread::spawn(move || {
                     if let Err(e) = handle_client(
                         stream,
@@ -637,11 +660,14 @@ fn main() -> Result<()> {
                         done_sound_data,
                         exec_command,
                         translate_to_shell,
-                    ) { dt_error!("Error in client handler: {}", e); }
+                        room,
+                    ) {
+                        dt_error!("Error in client handler: {}", e);
+                    }
                 });
             }
             Err(e) => dt_error!("❌ 🚫 Connection failed: {}", e),
         }
-    }
+    }    
     Ok(())
 }

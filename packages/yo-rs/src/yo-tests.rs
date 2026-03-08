@@ -148,9 +148,7 @@ impl TestRunner {
                 alternatives.push("".to_string());
             } 
             // 🦆 says ⮞ regular token
-            else {
-                alternatives.push(token.to_string());
-            }
+            else { alternatives.push(token.to_string()); }
 
             for alt in alternatives {
                 let mut new_current = current.clone();
@@ -296,9 +294,7 @@ impl TestRunner {
             // 🦆 says ⮞ fuzzy matchin'
             if let Some(fuzzy_match) = self.find_best_fuzzy_match(input) {
                 println!("{} {} {} (score: {}%)", "   └─".yellow(), "FUZZY:".yellow(), fuzzy_match.0, fuzzy_match.1);
-            } else {
-                println!("{} {}", "   └─".red(), "❌ NO MATCH".red());
-            }
+            } else { println!("{} {}", "   └─".red(), "❌ NO MATCH".red()); }
         }
     }
 
@@ -469,9 +465,7 @@ impl TestRunner {
             
             let ratio = if patterns > 0 {
                 phrases as f64 / patterns as f64
-            } else {
-                0.0
-            };
+            } else { 0.0 };
 
             scripts_with_voice.push((script_name.clone(), patterns, phrases, ratio));
         }
@@ -481,9 +475,7 @@ impl TestRunner {
         for (name, patterns, phrases, ratio) in scripts_with_voice {
             let ratio_str = if patterns == 0 {
                 "∞".to_string()
-            } else {
-                format!("{:.1}", ratio)
-            };
+            } else { format!("{:.1}", ratio) };
 
             let status = if patterns == 0 {
                 "EMPTY".red()
@@ -491,9 +483,8 @@ impl TestRunner {
                 "NEEDS PHRASES".yellow()
             } else if ratio > 50.0 {
                 "HIGH RATIO".bright_yellow()
-            } else {
-                "OK".green()
-            };
+            } else { "OK".green() };
+            
             println!("{}: patterns={}, phrases={}, ratio={} - {}", 
                 name, patterns, phrases, ratio_str, status);
         }
@@ -552,8 +543,10 @@ impl TestRunner {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let debug = std::env::var("DEBUG").is_ok();
+    if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
-    dt_debug("Started yo-tests!");
+    dt_debug!("Started yo-tests!");    
     let args: Vec<String> = env::args().collect();
     let mut test_runner = TestRunner::new();
     let mut stats_mode = false;

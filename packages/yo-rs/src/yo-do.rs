@@ -136,9 +136,19 @@ struct VoiceConfig {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+struct RangeConfig {
+    r#type: String, // 🦆 ⮞ "number" for now
+    from: f64,
+    to: f64,
+    multiplier: f64,
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct ListConfig {
     wildcard: bool,
     values: Vec<ListValue>,
+    range: Option<RangeConfig>,
 }
 
 // 🦆 says ⮞ entity resolution
@@ -490,42 +500,55 @@ impl YoDo {
         if let Some(intent) = self.intent_data.get(script_name) {
             let normalized_input = param_value.to_lowercase();
             
+            // 1. 🦆 lists ⮞ substitutions from 'values'
             for sub in &intent.substitutions {
                 let pattern = sub.pattern.to_lowercase();
-                
-                // 🦆 says ⮞ exact match
+
+                // 🦆 say ⮞ exact match
                 if pattern == normalized_input {
                     dt_debug(&format!("      Exact entity match: {} → {}", param_value, sub.value));
                     return sub.value.clone();
                 }
-                
-                // 🦆 says ⮞ parenthesized content match
+
+                // 🦆 say ⮞ parenthesised group
                 if pattern.starts_with('(') && pattern.ends_with(')') {
-                    let content = &pattern[1..pattern.len()-1]; // 🦆 says ⮞ remove parentheses
+                    let content = &pattern[1..pattern.len()-1];
                     if content == normalized_input {
                         dt_debug(&format!("      Parenthesized entity match: {} → {}", param_value, sub.value));
                         return sub.value.clone();
                     }
-                }
-                
-                // 🦆 says ⮞ handle alternatives in parentheses
-                if pattern.starts_with('(') && pattern.ends_with(')') && pattern.contains('|') {
-                    let content = &pattern[1..pattern.len()-1];
-                    let alternatives: Vec<&str> = content.split('|').collect();
-                    for alternative in alternatives {
-                        if alternative.trim() == normalized_input {
-                            dt_debug(&format!("      Parenthesized alternative match: {} → {}", param_value, sub.value));
-                            return sub.value.clone();
+                    if pattern.contains('|') {
+                        for alt in content.split('|') {
+                            if alt.trim() == normalized_input {
+                                dt_debug(&format!("      Parenthesized alternative match: {} → {}", param_value, sub.value));
+                                return sub.value.clone();
+                            }
                         }
                     }
                 }
             }
-            
-            // 🦆 says ⮞ Debug: show what we tried to match against
-            dt_debug(&format!("      No entity match found for '{}' in {} substitutions", 
-                param_value, intent.substitutions.len()));
+
+            // 2. 🦆 lists ⮞ substitutions from 'range'
+            if let Some(list_config) = intent.lists.get(param_name) {
+                if let Some(range_config) = &list_config.range {
+                    // 🦆 say ⮞ parse the input as a number (accepts decimals)
+                    if let Ok(num) = param_value.parse::<f64>() {
+                        let scaled = num * range_config.multiplier;
+                        if scaled >= range_config.from && scaled <= range_config.to {
+                            dt_debug(&format!("      Range match: {} (scaled to {})", param_value, scaled));
+                            // 🦆 say ⮞ no .0 if integer
+                            if scaled.fract() == 0.0 {
+                                return format!("{}", scaled as i64);
+                            } else {
+                                return format!("{}", scaled);
+                            }
+                        }
+                    }
+                    // 🦆 TODO ⮞ add word‑to‑number map
+                }
+            }
+            dt_debug(&format!("      No entity match found for '{}'", param_value));
         }
-        
         param_value.to_string()
     }
   
@@ -923,10 +946,14 @@ impl YoDo {
         dt_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
         
         // 🦆 says ⮞ update yo memory
-        eprintln!("🦆MEMORY:SCRIPT:{}", result.script_name);
-        eprintln!("🦆MEMORY:ARGS:{}", result.args.join(" "));
-        eprintln!("🦆MEMORY:SENTENCE:{}", result.matched_sentence);
-        eprintln!("🦆MEMORY:TYPE:exact");
+        //eprintln!("🦆MEMORY:SCRIPT:{}", result.script_name);
+        //eprintln!("🦆MEMORY:ARGS:{}", result.args.join(" "));
+        //eprintln!("🦆MEMORY:SENTENCE:{}", result.matched_sentence);
+        //eprintln!("🦆MEMORY:TYPE:exact");
+        dt_debug!("🦆MEMORY:SCRIPT:{}", result.script_name);
+        dt_debug!("🦆MEMORY:ARGS:{}", result.args.join(" "));
+        dt_debug!("🦆MEMORY:SENTENCE:{}", result.matched_sentence);
+        dt_debug!("🦆MEMORY:TYPE:exact");
 
         // 🦆 says ⮞ UPDATE MEMORY CONTEXT
         if let Err(e) = self.update_memory_context(&result.script_name, &result.args) {
@@ -980,9 +1007,7 @@ impl YoDo {
         if let Ok(memory_data) = Self::load_memory_data() {
             self.memory_data = memory_data;
             dt_debug("🦆 Memory data reloaded for context-aware processing");
-        } else {
-            dt_debug("🦆 Using default memory data");
-        }
+        } else { dt_debug("🦆 Using default memory data"); }
 
         self.calculate_processing_order();
         
@@ -1001,9 +1026,7 @@ impl YoDo {
                     .map(|part| part.trim())
                     .filter(|part| !part.is_empty())
                     .collect()
-            } else {
-                vec![input]
-            }
+            } else { vec![input] }
         };
         
         // 🦆 says ⮞ 2>partz? process dem all 
@@ -1029,7 +1052,7 @@ impl YoDo {
                 }
                 // 🦆 says ⮞ yo do small delay
                 if index < parts.len() - 1 {
-                    std::thread::sleep(std::time::Duration::from_millis(100));
+                    std::thread::sleep(std::time::Duration::from_millis(10));
                 }
             }
             if processed_count > 0 {
@@ -1139,8 +1162,10 @@ fn load_sorry_phrases() -> Vec<String> {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args: Vec<String> = env::args().collect(); 
+    let debug = std::env::var("DEBUG").is_ok();
+    if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
-    dt_debug("Started yo-do!");
+    dt_debug!("Started yo-do!");    
 
     // 🦆 says ⮞ Handle real-time mode
     if args.len() > 1 && args[1] == "--realtime" {

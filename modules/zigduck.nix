@@ -7,16 +7,22 @@
 } : with lib;
 let
   cfg = config.services.zigduck;
+  house = config.house;
   zigduckDir = cfg.stateDir;
   
+
+  # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
   
+  # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
   ) zigbeeDevices;
 
+  # 🦆 says ⮞ device validation list
   deviceList = builtins.attrNames normalizedDeviceMap;
 
+  # 🦆 says ⮞ Create reverse mapping from friendly_name to device ID
   friendlyNameToId = builtins.listToAttrs (
     lib.flatten (
       lib.mapAttrsToList (id: device: [
@@ -28,6 +34,8 @@ let
     )
   );
 
+
+  # 🦆 says ⮞ scene simplifier? or not
   sceneLight = {state, brightness ? 200, hex ? null, temp ? null}:
     let
       colorValue = if hex != null then { inherit hex; } else null;
@@ -37,20 +45,32 @@ let
     } // (if colorValue != null then { color = colorValue; } else {})
       // (if temp != null then { color_temp = temp; } else {});
 
-  scenes = config.house.zigbee.scenes;
+  # 🎨 Scenes  🦆 YELLS ⮞ SCENES!!!!!!!!!!!!!!!11
+  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!   
   sceneConfig = pkgs.writeText "scene-config.json" (builtins.toJSON {
     scenes = scenes;
   });
+  # 🎨 Scenes for CLI
+  sceneConfigCli = pkgs.writeText "scene-config-cli.json" (builtins.toJSON (
+    lib.mapAttrs (sceneName: sceneDevices: {
+      friendly_name = sceneName;
+      devices = sceneDevices;
+    }) scenes
+  ));
   
+  # 🦆 says ⮞ Generate scene commands    
   makeCommand = deviceName: settings:
     let
+      # 🦆 says ⮞ Try to find device ID by friendly name
       deviceId = friendlyNameToId.${deviceName} or null;
       dev = if deviceId != null then zigbeeDevices.${deviceId} else null;
       json = builtins.toJSON settings;
       hue_id = if dev != null && dev.hue_id != null then toString dev.hue_id else "unknown";
+      # 🦆 says ⮞ Use device's friendly name for MQTT topic
       mqttName = if dev != null then dev.friendly_name else deviceName;
     in
       if dev == null then
+        # 🦆 says ⮞ Device not found - output error but continue
         ''echo "🦆 Warning: Device '${deviceName}' not found in zigbeeDevices"''
       else if dev.type == "hue_light" then
         ''yo house --device "${mqttName}" --json "${json}"''
@@ -63,16 +83,19 @@ let
       lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
     ) scenes;  
 
+  # 🦆 says ⮞ Filter devices by rooms
   byRoom = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
       ${dev.room} = (acc.${dev.room} or []) ++ [ id ];
     }) {} zigbeeDevices;
 
+  # 🦆 says ⮞ Filter by device type
   byType = lib.foldlAttrs (acc: id: dev:
     lib.recursiveUpdate acc {
       ${dev.type} = (acc.${dev.type} or []) ++ [ id ];
     }) {} zigbeeDevices;
 
+  # 🦆 says ⮞ dis creates group configuration for Z2M yo
   groupConfig = lib.mapAttrs' (room: ids: {
     name = room;
     value = {
@@ -84,44 +107,63 @@ let
     };
   }) byRoom;
 
-  yamlFormat = pkgs.formats.yaml { };
-  configFile = yamlFormat.generate "zigbee2mqtt.yaml" config.house.zigbee.settings;
+  format = pkgs.formats.yaml { };
+  configFile = format.generate "zigbee2mqtt.yaml" config.house.zigbee.settings;
 
+  # 🦆 says ⮞ gen json from `config.house.tv`  
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
+  # 🦆 says ⮞ IEEE not very human readable - lets fix dat yo
   ieeeToFriendly = lib.mapAttrs (ieee: dev: dev.friendly_name) zigbeeDevices;
   mappingJSON = builtins.toJSON ieeeToFriendly;
   mappingFile = pkgs.writeText "ieee-to-friendly.json" mappingJSON;
 
+
+  # 🦆 says ⮞ Service expects 'id' field (friendly_name), CLI expects 'friendly_name' field
   deviceMeta = builtins.toJSON (
     lib.listToAttrs (
       lib.filter (attr: attr.name != null) (
         lib.mapAttrsToList (ieee: dev: {
           name = dev.friendly_name;
           value = {
+            id = dev.friendly_name;
             room = dev.room;
             type = dev.type;
-            id = dev.friendly_name;
             endpoint = dev.endpoint;
-            ieee = ieee;            
+            ieee = ieee;
+          
+            # CLI
+            friendly_name = dev.friendly_name;
+            hue_id = dev.hue_id or null;
+            supports_color = dev.supports_color or null;
+            supports_temperature = dev.supports_temperature or null;
+            icon = dev.icon or null;
+            battery_type = dev.battery_type or null;
           };
         }) zigbeeDevices
       )
     )
   );
+  
 
+
+  # 🦆 says ⮞ dis creates device configuration for Z2M yo
   deviceConfig = 
     let
+      # 🦆 says ⮞ Z2M does not need hue lights
       filteredDevices = lib.filterAttrs (_: dev: dev.type != "hue_light") zigbeeDevices;
     in
+    # 🦆 says ⮞ create map for Z2M
     lib.mapAttrs (id: dev: {
       friendly_name = dev.friendly_name;
     }) filteredDevices;
 
 
+  # 🦆 says ⮞ Generate automations configuration
   automationsJSON = builtins.toJSON config.house.zigbee.automations;
-  automationsJSONFile = pkgs.writeText "automations.json" automationsJSON;
+  automationsFile = pkgs.writeText "automations.json" automationsJSON;
 
+  # 🦆 says ⮞ Generate dashboard configuration
   dashboardConfig = lib.filterAttrs (_: card: card.enable) config.house.dashboard.statusCards;
   dashboardConfigJSON = builtins.toJSON {
       cards = lib.mapAttrs (name: card: {
@@ -134,10 +176,9 @@ let
   };
   dashboardConfigFile = pkgs.writeText "dashboard-config.json" dashboardConfigJSON;
 
-  devices-json = pkgs.writeText "devices.json" deviceMeta;  
 
-  house = config.house;
-
+  # 🦆 needz 4 rust  
+  devices-json = pkgs.writeText "devices.json" deviceMeta;
   jsonFormat = pkgs.formats.json { };
 
   mainConfig = {
@@ -147,15 +188,8 @@ let
       before = house.zigbee.darkTime.before;
       duration = house.zigbee.darkTime.duration;
     };
-    automations = house.zigbee.automations;     
-    greeting = {
-      away_duration = house.zigbee.automations.greeting.awayDuration;
-      greeting = house.zigbee.automations.greeting.greeting;
-      say_on_host = house.zigbee.automations.greeting.sayOnHost;
-      delay = house.zigbee.automations.greeting.delay;
-    };
     dimmer = {
-      message = house.zigbee.dimmer.message;
+      message_key = house.zigbee.dimmer.message;
       actions = {
         on_press = house.zigbee.dimmer.actions.onPress;
         on_hold = house.zigbee.dimmer.actions.onHold;
@@ -169,16 +203,68 @@ let
     };
   };
 
-  automationsWithoutGreeting = filterAttrs (n: v: n != "greeting") house.zigbee.automations;
   zigduckConfigFile = jsonFormat.generate "config.json" mainConfig;
 
+  zigduck-cli-wrapper = pkgs.writeShellScriptBin "nqtt" ''
+    export MQTT_BROKER="${cfg.cli.broker}"
+    export MQTT_USER="${cfg.cli.user}"
+    ${optionalString (cfg.cli.passwordFile != null) "export MQTT_PASSWORD_FILE=\"${cfg.cli.passwordFile}\""}
+    export DEVICES_CONFIG="${cfg.devicesFile}"
+    export SCENES_CONFIG="${sceneConfigCli}"
+    ${optionalString (cfg.cli.hueBridgeIp != null) "export HUE_BRIDGE_IP=\"${cfg.cli.hueBridgeIp}\""}
+    ${optionalString (cfg.cli.hueApiKeyFile != null) "export HUE_API_KEY=\"$(cat ${cfg.cli.hueApiKeyFile})\""}
+
+    exec ${pkgs.zigduck-rs}/bin/zigduck-cli "$@"
+  '';
+
 in {
+
   options.services.zigduck = {
     enable = mkEnableOption "Zigduck";
 
+    # Command line options
+    cli = {
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = "Whether to install the zg wrapper with default settings.";
+      };
+
+      broker = mkOption {
+        type = types.str;
+        default = "127.0.0.1";
+        description = "Default MQTT broker host for the zg wrapper.";
+      };
+
+      user = mkOption {
+        type = types.str;
+        default = config.house.zigbee.mosquitto.username or "mqtt";
+        description = "Default MQTT username for the zg wrapper.";
+      };
+
+      passwordFile = mkOption {
+        type = types.nullOr types.path;
+        default = config.house.zigbee.mosquitto.passwordFile or null;
+        description = "Default path to MQTT password file for the zg wrapper.";
+      };
+
+      hueBridgeIp = mkOption {
+        type = types.nullOr types.str;
+        default = config.house.zigbee.hueBridgeIp or null;
+        description = "Default Hue Bridge IP for the zg wrapper.";
+      };
+
+      hueApiKeyFile = mkOption {
+        type = types.nullOr types.path;
+        default = config.house.zigbee.hueApiKeyFile or null;
+        description = "Default path to Hue API key file for the zg wrapper.";
+      };
+    };
+
+    # Zigduck Service options
     broker = mkOption {
       type = types.str;
-      default = "0.0.0.0";
+      default = "127.0.0.1";
       description = "MQTT broker hostname or IP address";
     };
 
@@ -193,7 +279,6 @@ in {
       default = config.house.zigbee.mosquitto.passwordFile;
       description = ''
         Path to a file containing the MQTT password.
-        The file must contain a line like: `MQTT_PASSWORD=yourpassword`
         If not set, the service will try to read `/run/secrets/mosquitto`.
       '';
     };
@@ -201,14 +286,19 @@ in {
     configFile = mkOption {
       type = types.path;
       description = "Path to zigduck JSON configuration file";
-      default = zigduckConfigFile;
-      example = "/etc/zigduck/config.json";
+      default = "/etc/zigduck/config.json";
     };
 
     devicesFile = mkOption {
       type = types.path;
-      default = devices-json; 
+      default = "/etc/zigduck/devices.json"; 
       description = "Path to devices JSON file";
+    };
+
+    sceneFile = mkOption {
+      type = types.path;
+      default = sceneConfig;
+      description = "Path to scenes JSON file";
     };
 
     automationsFile = mkOption {
@@ -236,25 +326,23 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
-    environment.systemPackages = [ 
-      self.packages.x86_64-linux.zigduck-rs
-      pkgs.clang
-      pkgs.mosquitto
-      pkgs.zigbee2mqtt      
-    ];
-
-    # 🦆 says ⮞ open firewall 4 Z2MQTT & Mosquitto on the server host
-    networking.firewall.allowedTCPPorts =
-      (map (l: l.port) config.services.mosquitto.listeners)
-      ++ [ config.house.zigbee.settings.frontend.port ];
-
-
-    # Zigbee2MQTT configuration
-    house.zigbee = {
-      enable = true;
-      dataDir = lib.mkForce "/var/lib/zigbee";
-      settings = {
+  
+  config = mkMerge [
+    (mkIf cfg.enable {
+      environment.systemPackages = [ 
+        pkgs.clang
+        pkgs.mosquitto
+        pkgs.zigbee2mqtt      
+      ];
+  
+      networking.firewall.allowedTCPPorts =
+        (map (l: l.port) config.services.mosquitto.listeners)
+        ++ [ config.house.zigbee.settings.frontend.port ];
+    
+      house.zigbee = {
+        enable = true;
+        dataDir = lib.mkForce "/var/lib/zigbee";
+        settings = {
           homeassistant = lib.mkDefault false;
           mqtt = {
             server = "mqtt://localhost:1883";
@@ -277,9 +365,8 @@ in {
             legacy_api = false;
             legacy_availability_payload = false;
             transmit_power = 9;
-            channel = 15; # 🦆 says ⮞ channel 15 optimized for minimal interference from other 2.4Ghz devices, provides good stability  
+            channel = 15;
             last_seen = "ISO_8601_local";
-            #network_key = [ ];
             pan_id = 60410;
           };
           device_options = { legacy = false; };
@@ -295,182 +382,165 @@ in {
               ) (lib.attrNames zigbeeDevices);
             };
           };
-      }; 
-    };
-    
-    systemd.services.zigbee2mqtt = {
-      wantedBy = [ "multi-user.target" ];
-      after = [ "sops-nix.service" "network.target" "systemd-tmpfiles-setup.service" ];  # ← added
-      wants = [ "systemd-tmpfiles-setup.service" ];                                      # ← added
-      environment.ZIGBEE2MQTT_DATA = config.house.zigbee.dataDir;
-      preStart = ''
-        # 🦆 says ⮞ Let's do some clean quacktastic config setup!
-        # 🦆 says ⮞ Cceate data dir
-        mkdir -p ${config.house.zigbee.dataDir}
-    
-        # 🦆 says ⮞ copy base setings
-        cp --no-preserve=mode ${configFile} ${config.house.zigbee.dataDir}/configuration.yaml
- 
-        # 🦆 says ⮞ our real mosquitto password quack quack
-        mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path})
-        network_key=$(cat ${config.house.zigbee.networkKeyFile})
-
-        # 🦆 says ⮞ Injecting password into config...
-        sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.house.zigbee.dataDir}/configuration.yaml  
-        # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
-        TMPFILE="${config.house.zigbee.dataDir}/config.yaml"
-        CFGFILE="${config.house.zigbee.dataDir}/configuration.yaml"
-        # 🦆 says ⮞ starting awk decryption magic..."
-        ${pkgs.gawk}/bin/awk -v keyfile="${config.sops.secrets.z2m_network_key.path}" '
-          /(^|[[:space:]])network_key:/ { found = 1 }
-
-          { lines[NR] = $0 }
-
-          END {
-            if (found) {
-              for (i = 1; i <= NR; i++) print lines[i]
-            } else {
-              print lines[1]
-              print "  network_key:"
-              while ((getline line < keyfile) > 0) {
-                print "    " line
+        }; 
+      };
+      
+      systemd.services.zigbee2mqtt = {
+        wantedBy = [ "multi-user.target" ];
+        after = [ "sops-nix.service" "network.target" "systemd-tmpfiles-setup.service" ];
+        wants = [ "systemd-tmpfiles-setup.service" ];
+        environment.ZIGBEE2MQTT_DATA = config.house.zigbee.dataDir;
+        preStart = ''
+          mkdir -p ${config.house.zigbee.dataDir}
+          cp --no-preserve=mode ${configFile} ${config.house.zigbee.dataDir}/configuration.yaml
+          mosquitto_password=$(cat ${config.house.zigbee.mosquitto.passwordFile})
+          network_key=$(cat ${config.house.zigbee.networkKeyFile})
+          sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.house.zigbee.dataDir}/configuration.yaml
+          TMPFILE="${config.house.zigbee.dataDir}/config.yaml"
+          CFGFILE="${config.house.zigbee.dataDir}/configuration.yaml"
+          ${pkgs.gawk}/bin/awk -v keyfile="${config.house.zigbee.networkKeyFile}" '
+            /(^|[[:space:]])network_key:/ { found = 1 }
+            { lines[NR] = $0 }
+            END {
+              if (found) {
+                for (i = 1; i <= NR; i++) print lines[i]
+              } else {
+                print lines[1]
+                print "  network_key:"
+                while ((getline line < keyfile) > 0) {
+                  print "    " line
+                }
+                close(keyfile)
+                for (i = 2; i <= NR; i++) print lines[i]
               }
-              close(keyfile)
-              for (i = 2; i <= NR; i++) print lines[i]
             }
-          }
-        ' "$CFGFILE" > "$TMPFILE"      
-        cp "$TMPFILE" "$CFGFILE"
-      ''; # 🦆 says ⮞ thnx fo quackin' along!
-
-      serviceConfig = {
-        ExecStart = "${pkgs.zigbee2mqtt}/bin/zigbee2mqtt";
-        User = "zigbee2mqtt";
-        Group = "zigbee2mqtt";
-        WorkingDirectory = config.house.zigbee.dataDir;
-        #StateDirectory = "zigbee2mqtt";
-        #StateDirectoryMode = "0700";
-
-        # Hardening
-        CapabilityBoundingSet = "";
-        DeviceAllow = lib.optionals (lib.hasPrefix "/" config.house.zigbee.settings.serial.port) [
-          config.house.zigbee.settings.serial.port
-        ];
-        DevicePolicy = "closed";
-        LockPersonality = true;
-        MemoryDenyWriteExecute = false;
-        NoNewPrivileges = true;
-        PrivateDevices = false; # prevents access to /dev/serial, because it is set 0700 root:root
-        PrivateUsers = true;
-        PrivateTmp = true;
-        ProtectClock = true;
-        ProtectControlGroups = true;
-        ProtectHome = true;
-        ProtectHostname = true;
-        ProtectKernelLogs = true;
-        ProtectKernelModules = true;
-        ProtectKernelTunables = true;
-        ProtectProc = "invisible";
-        ProcSubset = "pid";
-        ProtectSystem = "strict";
-        ReadWritePaths = config.house.zigbee.dataDir;
-        RemoveIPC = true;
-        RestrictAddressFamilies = [
-          "AF_INET"
-          "AF_INET6"
-          "AF_NETLINK"
-        ];
-        RestrictNamespaces = true;
-        RestrictRealtime = true;
-        RestrictSUIDSGID = true;
-        SupplementaryGroups = [
-          "dialout"
-        ];
-        SystemCallArchitectures = "native";
-        SystemCallFilter = [
-          "@system-service @pkey"
-          "~@privileged @resources"
-          "@chown"
-        ];
-        UMask = "0077";
+          ' "$CFGFILE" > "$TMPFILE"      
+          cp "$TMPFILE" "$CFGFILE"
+        '';
+  
+        serviceConfig = {
+          ExecStart = "${pkgs.zigbee2mqtt}/bin/zigbee2mqtt";
+          User = "zigbee2mqtt";
+          Group = "zigbee2mqtt";
+          WorkingDirectory = config.house.zigbee.dataDir;
+          CapabilityBoundingSet = "";
+          DeviceAllow = lib.optionals (lib.hasPrefix "/" config.house.zigbee.settings.serial.port) [
+            config.house.zigbee.settings.serial.port
+          ];
+          DevicePolicy = "closed";
+          LockPersonality = true;
+          MemoryDenyWriteExecute = false;
+          NoNewPrivileges = true;
+          PrivateDevices = false;
+          PrivateUsers = true;
+          PrivateTmp = true;
+          ProtectClock = true;
+          ProtectControlGroups = true;
+          ProtectHome = true;
+          ProtectHostname = true;
+          ProtectKernelLogs = true;
+          ProtectKernelModules = true;
+          ProtectKernelTunables = true;
+          ProtectProc = "invisible";
+          ProcSubset = "pid";
+          ProtectSystem = "strict";
+          ReadWritePaths = config.house.zigbee.dataDir;
+          RemoveIPC = true;
+          RestrictAddressFamilies = [ "AF_INET" "AF_INET6" "AF_NETLINK" ];
+          RestrictNamespaces = true;
+          RestrictRealtime = true;
+          RestrictSUIDSGID = true;
+          SupplementaryGroups = [ "dialout" ];
+          SystemCallArchitectures = "native";
+          SystemCallFilter = [ "@system-service @pkey" "~@privileged @resources" "@chown" ];
+          UMask = "0077";
+        };
       };
-    };
-
-
-    # Mosquitto configuration
-    services.mosquitto = {
-      enable = true;
-      listeners = [
-        {
-          acl = [ "pattern readwrite #" ];
-          port = 1883;
-          omitPasswordAuth = false;
-          users.${config.house.zigbee.mosquitto.username}.passwordFile = config.house.zigbee.mosquitto.passwordFile;
-          settings.allow_anonymous = false;
-  #        settings.require_certificate = true;
-  #        settings.use_identity_as_username = true;
-        }   
-        {
-          acl = [ "pattern readwrite #" ];
-          port = 9001;
-          settings.protocol = "websockets";
-          omitPasswordAuth = false;
-          users.${config.house.zigbee.mosquitto.username}.passwordFile = config.house.zigbee.mosquitto.passwordFile;
-          settings.allow_anonymous = false;
-          settings.require_certificate = false;
-        } 
-      ];
-    };
-
-    # Zigduck configuration
-    systemd.services.zigduck = {
-      description = "Zigduck Home Automation Service";
-      after = [ "network.target" "mosquitto.service" ];
-      wants = [ "mosquitto.service" ];
-      wantedBy = [ "multi-user.target" ];
-
-      serviceConfig = {
-        Type = "simple";
-        User = "zigduck";
-        Group = "zigduck";
-        StateDirectory = "zigduck";
-        StateDirectoryMode = "0750";
-        WorkingDirectory = cfg.stateDir;
-        ExecStart = "${self.packages.x86_64-linux.zigduck-rs}/bin/zigduck-rs";
-        Restart = "on-failure";
-        RestartSec = "45s";
-        EnvironmentFile = mkIf (cfg.passwordFile != null) [ cfg.passwordFile ];
-        Environment = let
-          env = {
-            MQTT_BROKER = cfg.broker;
-            MQTT_USER = cfg.user;
-            ZIGDUCK_CONFIG = cfg.configFile;
-            ZIGBEE_DEVICES_FILE = cfg.devicesFile;
-            AUTOMATIONS_FILE = cfg.automationsFile;
-            STATE_DIR = cfg.stateDir;
-            SCENE_CONFIG_FILE = sceneConfig;
-            DT_LOG_LEVEL = "INFO";
-            DT_LOG_PATH = "~/.config/duckTrace";
-            DT_LOG_FILE = "zigduck-rs.log";
-          } // optionalAttrs cfg.debug { DEBUG = "1"; } // cfg.extraEnv;
-        in mapAttrsToList (name: value: "${name}=${value}") env;
+  
+      services.mosquitto = {
+        enable = true;
+        listeners = [
+          {
+            acl = [ "pattern readwrite #" ];
+            port = 1883;
+            omitPasswordAuth = false;
+            users.${config.house.zigbee.mosquitto.username}.passwordFile = config.house.zigbee.mosquitto.passwordFile;
+            settings.allow_anonymous = false;
+          }   
+          {
+            acl = [ "pattern readwrite #" ];
+            port = 9001;
+            settings.protocol = "websockets";
+            omitPasswordAuth = false;
+            users.${config.house.zigbee.mosquitto.username}.passwordFile = config.house.zigbee.mosquitto.passwordFile;
+            settings.allow_anonymous = false;
+            settings.require_certificate = false;
+          } 
+        ];
       };
-    };
+  
+      systemd.services.zigduck = {
+        description = "Zigduck Home Automation Service";
+        after = [ "network.target" "mosquitto.service" ];
+        wants = [ "mosquitto.service" ];
+        wantedBy = [ "multi-user.target" ];
+  
+        serviceConfig = {
+          Type = "simple";
+          User = "zigduck";
+          Group = "zigduck";
+          StateDirectory = "zigduck";
+          StateDirectoryMode = "0750";
+          WorkingDirectory = cfg.stateDir;
+          ExecStart = "${pkgs.zigduck-rs}/bin/zigduck-rs";
+          Restart = "on-failure";
+          RestartSec = "45s";
 
-    users.users.zigduck = {
-      isSystemUser = true;
-      group = "zigduck";
-      home = cfg.stateDir;
-      createHome = true;
-    };
+          Environment = let
+            env = {
+              MQTT_BROKER = cfg.broker;
+              MQTT_USER = cfg.user;
+              MQTT_PASSWORD_FILE = cfg.passwordFile;
+              ZIGDUCK_CONFIG = cfg.configFile;
+              STATE_DIR = cfg.stateDir;
+              DT_LOG_LEVEL = "INFO";
+              DT_LOG_FILE = cfg.stateDir + "/zigduck.log";
+              PATH = "/run/current-system/sw/bin:/run/wrappers/bin:/nix/var/nix/profiles/default/bin:/nix/var/nix/profiles/default/sbin:/run/current-system/sw/sbin";
+            } // optionalAttrs cfg.debug { DEBUG = "1"; } // cfg.extraEnv;
+          in mapAttrsToList (name: value: "${name}=${value}") env;
+        };
+      };
+  
+  
+      systemd.tmpfiles.rules = [
+        "d ${cfg.stateDir} 0755 zigduck zigduck - -"
+        "d ${cfg.stateDir}/timers 0755 zigduck zigduck - -"
+        "f ${cfg.stateDir}/state.json 0644 zigduck zigduck - -"
+        "d ${config.house.zigbee.dataDir} 0755 zigbee2mqtt zigbee2mqtt -"
+      ];  
+    })
 
-    users.groups.zigduck = { };
+    (mkIf cfg.cli.enable {
+      environment.systemPackages = [ zigduck-cli-wrapper ];
+    })
+  
+    {
+      environment.systemPackages = [ pkgs.zigduck-rs ];
+      environment.etc."zigduck/config.json".source = zigduckConfigFile;
+      environment.etc."zigduck/devices.json".source = devices-json;
+      environment.etc."zigduck/automations.json".source = automationsFile;
+      environment.etc."zigduck/scenes.json".source = sceneConfig;
+      environment.etc."zigduck/dashboard.json".source = dashboardConfigFile;
+      
+
+      users.users.zigduck = {
+        isSystemUser = true;
+        group = "zigduck";
+        home = cfg.stateDir;
+        createHome = true;
+      };
+  
+      users.groups.zigduck = { };
+    }
     
-    systemd.tmpfiles.rules = [
-      "d ${cfg.stateDir} 0755 zigduck zigduck - -"
-      "d ${cfg.stateDir}/timers 0755 zigduck zigduck - -"
-      "f ${cfg.stateDir}/state.json 0644 zigduck zigduck - -"
-      "d ${config.house.zigbee.dataDir} 0755 zigbee2mqtt zigbee2mqtt -"
-    ]; 
-    
-  };}
+  ];}

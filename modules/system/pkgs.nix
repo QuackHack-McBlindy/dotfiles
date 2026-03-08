@@ -14,9 +14,12 @@
                 self.packages.x86_64-linux.zigduck-rs
                 pkgs.cargo
                 pkgs.rustc
+                pkgs.platformio
+                pkgs.platformio-core
                 pkgs.libclang
                 pkgs.cmake
                 pkgs.openssl
+                pkgs.rustup
                 pkgs.piper-phonemize
                 pkgs.openssl.dev
                 pkgs.pkg-config

@@ -8,7 +8,7 @@
 ![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.92.0-orange?style=flat-square&logo=rust&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.88.0-nightly-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
@@ -54,8 +54,8 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __88 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
-- __2490 dynamically generated regex patterns - makes 297584371 phrases available as commands.__ <br>
+- __88 qwacktastic scripts in /bin - 56 scripts have voice commands.__ <br>
+- __2489 dynamically generated regex patterns - makes 272684905 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 8894 ducks? <br>
+Let's see if you can find all 9375 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -107,7 +107,7 @@ Define yourself at `config.this.user.me`.
   discord = "https://discordapp.com/users/675530282849533952";
   dotfilesDir = "/home/pungkula/dotfiles";
   email = "isthisrandomenough@protonmail.com";
-  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" ];
+  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ];
   hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
   matrix = "";
   mobileDevices =   {
@@ -291,19 +291,29 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   };
 
 
-  Mqtt2jsonHistory = field: file: ''
+  Mqtt2jsonHistory = field: file: ''    
     FILE="/var/lib/zigduck/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
     mkdir -p "$(dirname "$FILE")"
+    
+    # 🦆 says ⮞ check current value
+    if [ -s "$FILE" ]; then
+        CURRENT=$(jq ".${field}" "$FILE")
+        if [ "$CURRENT" = "$VALUE" ]; then
+            exit 0 # 🦆 says ⮞ skip write – value unchanged
+        fi
+    fi
+    
+    # 🦆 says ⮞ otherwise, update
     if [ ! -s "$FILE" ]; then
-      jq -n --argjson v "$VALUE" \
-        '{ ${field}: $v, history: [$v] }' > "$FILE"
+        jq -n --argjson v "$VALUE" \
+            '{ ${field}: $v, history: [$v] }' > "$FILE"
     else
-      jq --argjson v "$VALUE" '
-        .${field} = $v
-        | .history += [$v]
-        | .history = (.history[-200:])
-      ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
+        jq --argjson v "$VALUE" '
+            .${field} = $v
+            | .history += [$v]
+            | .history = (.history[-200:])
+        ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
     fi
   '';
 
@@ -528,9 +538,15 @@ in { # 🦆 duck say ⮞ qwack
         greeting = {
           enable = true;
           awayDuration = 7200;
-          greeting = "Borta bra, hemma bäst. Välkommen idiot! ";
           delay = 10;
-          sayOnHost = "desktop";
+          actions = [
+            {
+              type = "shell";
+              command = ''
+                yo say "Borta bra, hemma bäst. Välkommen idiot!"
+              '';
+            }
+          ];
         };
         
 
@@ -572,7 +588,7 @@ in { # 🦆 duck say ⮞ qwack
           # 🦆say⮞ calendar 
           calendar = {
             enable = true;
-            description = "TUpdated today's events";
+            description = "Updated calendar events";
             topic = "zigbee2mqtt/calendar";
             actions = [
               {
@@ -630,58 +646,42 @@ in { # 🦆 duck say ⮞ qwack
             door_closed = [];
           };
           
-          # 🦆 says ⮞ 
-#          kitchen = { 
-#            motion_not_detected = [
-#              {
-#                type = "shell";
-#                command = ''
-#                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
-#                  # 🦆 says ⮞ no need 2 turn off if it'z not on
-#                  if (( power > 20 )); then
-#                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 45}'
-#                  fi
-#                '';
-#              }
-#              { # 🦆 says ⮞  slow go light go bye bye
-#                type = "scene";
-#                command = "kitchenFadeOff";
-#              }
-#            ];  
 
-#            motion_detected = [
-#              { # 🦆 SCREAM ⮞ INSANT LIGHT QWACK
-#                type = "scene";
-#                command = "kitchenInstant";
-#              }            
-#              {
-#                type = "shell";
-#                command = ''
-#                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
-#                  if [ "$STATE" = "OFF" ]; then               
-#                    yo house --device "Fläkt" --state on
-#                  fi
-#                '';
-#              }
-#            ];
-#          };  
-          # 🦆 says ⮞ default actions already configured - room lights will turn on upon motion
-          #bedroom = { 
-            # 🦆 says ⮞ this will override that in bedroom
-            #motion_detected = [
-            #  {
-            #    type = "scene";
-            #    scene = "Chill Scene";
-            #  }       
-            #];
-            #motion_not_detected = [
-            #  {
-            #    type = "mqtt";
-            #    topic = "zigbee2mqtt/Sänggavel/set";
-            #    message = ''{"state":"OFF", "brightness": 80}'';
-            #  }              
-            #];
-#          };
+          kitchen = { 
+            motion_not_detected = [
+              {
+                type = "shell";
+                command = ''
+                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+                  # 🦆 says ⮞ no need 2 turn off if it'z not on
+                  if (( power > 20 )); then
+                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 120}'
+                  fi
+                '';
+              }
+              { # 🦆 says ⮞  slow go light go bye bye
+                type = "scene";
+                scene = "kitchenFadeOff";
+              }
+            ];  
+
+            motion_detected = [
+              {
+                type = "shell";
+                command = ''
+                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+                  if [ "$STATE" = "OFF" ]; then               
+                    nqtt --device "Fläkt" --state on
+                  fi
+                '';
+              }
+              { # 🦆 SCREAM ⮞ INSTANT LIGHT QWACK
+                type = "scene";
+                scene = "kitchenInstant";
+              }            
+
+            ];
+          };
         };
           
         # 🦆 says ⮞ 3. global actions automations  
@@ -710,7 +710,7 @@ in { # 🦆 duck say ⮞ qwack
               override_actions = [
                 {
                   type = "scene";
-                  command = "dark";
+                  scene = "dark";
                 }
                 {
                   type = "mqtt";
@@ -856,12 +856,12 @@ in { # 🦆 duck say ⮞ qwack
           };
           # 🦆 says ⮞ veeeery slow turn off
           "kitchenFadeOff" = {
-              "Golvet" = { state = "OFF"; transition = 100; };
-              "Kök Bänk Slinga" = { state = "OFF"; transition = 100; };
-              "PC" = { state = "OFF"; transition = 109; };
-              "Spotlight Kök 2" = { state = "OFF"; transition = 100; };
-              "Spotlight kök 1" = { state = "OFF"; transition = 109; };
-              "Uppe" = { state = "OFF"; transition = 100; };       
+              "Golvet" = { state = "OFF"; transition = 1000; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 1000; };
+              "PC" = { state = "OFF"; transition = 1000; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 1000; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 1000; };
+              "Uppe" = { state = "OFF"; transition = 1000; };
           };
           "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
               "Bloom" = { state = "OFF"; transition = 10; };
@@ -1263,7 +1263,7 @@ in { # 🦆 duck say ⮞ qwack
         sopsFile = ./../secrets/mosquitto.yaml; 
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
-        mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+        mode = "0444"; # 🦆 says ⮞ Read-only for owner and group
       }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
       z2m_network_key = { 
         sopsFile = ./../secrets/z2m_network_key.yaml; 
@@ -1348,10 +1348,10 @@ I like my flakes tiny & ny modules dynamically loaded,
             lib = import ./lib { 
                 inherit self inputs;
                 lib = nixpkgs.lib;      
-            };                   
+            };             
         in lib.makeFlake {
-            systems = [ "x86_64-linux" "aarch64-linux" ]; 
-            overlays = lib.mapOverlays ./overlays { inherit lib; };
+            systems = [ "x86_64-linux" "aarch64-linux" ];
+            overlays = lib.mapOverlays ./overlays { inherit lib self inputs; };
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
@@ -1397,13 +1397,13 @@ git+file:///home/pungkula/dotfiles
 │   ├───nasty: NixOS configuration
 │   └───pinephone: NixOS configuration
 ├───overlays
-│   └───noisereduce: Nixpkgs overlay
+│   ├───noisereduce: Nixpkgs overlay
+│   └───quackhack-mcpkgs: Nixpkgs overlay
 └───packages
     ├───aarch64-linux
     │   ├───health omitted (use '--all-systems' to show)
     │   ├───health-rs omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
-    │   ├───jellyfin omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
     │   ├───yo-rs omitted (use '--all-systems' to show)
     │   └───zigduck-rs omitted (use '--all-systems' to show)
@@ -1411,7 +1411,6 @@ git+file:///home/pungkula/dotfiles
         ├───health: package 'health'
         ├───health-rs: package 'health-rs-0.1.0'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
-        ├───jellyfin: package 'jellyfin'
         ├───tv: package 'tv'
         ├───yo-rs: package 'yo-rs-0.1.4'
         └───zigduck-rs: package 'zigduck-rs-0.1.0'
@@ -1546,8 +1545,8 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
-| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--modelDir] [--silence] [--host] [--blocking] [--file] [--caf] [--web] |  | Text to speech with built in language detection and automatic model downloading | ✅ |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
+| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
@@ -1558,7 +1557,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard) | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--user] [--passwordfile] [--flake] [--pair] [--cheapMode] [--json] [--backend] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--pair] [--json] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo mqtt\_pub](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt_pub.nix) --topic --message |  | Mosquitto publisher | 📛 |
