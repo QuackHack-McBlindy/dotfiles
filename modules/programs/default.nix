@@ -56,9 +56,12 @@ in {
         export PYTHONPATH="/home/${config.this.user.me.name}/.shell/python:$PYTHONPATH"
         export PATH="/home/${config.this.user.me.name}/bin:$PATH:$PATH"
 
+        export HISTFILE=/dev/null
+        HISTSIZE=10000
+        HISTFILESIZE=0
+        
         bind 'set show-all-if-ambiguous on'
         bind 'set completion-ignore-case on'
-        shopt -s histappend
         shopt -s autocd
         shopt -s cdspell
         shopt -s checkwinsize

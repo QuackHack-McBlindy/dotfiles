@@ -20,6 +20,11 @@ use serde_json::Value;
 use std::sync::Arc;
 use tokio::sync::Mutex;
 
+const DEFAULT_SPLIT_WORDS_PATH: &str = "/etc/yo/split-words.json";
+const DEFAULT_SORRY_PHRASES_PATH: &str = "/etc/yo/sorry-phrases.json";
+const DEFAULT_INTENT_DATA_PATH: &str = "/etc/yo/intent-data.json";
+const DEFAULT_FUZZY_INDEX_PATH: &str = "/etc/yo/fuzzy-index.json";
+
 struct TranscriptionClient {
     ws: Option<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, Message>>,
     nlp_processor: Arc<YoDo>,
@@ -1149,15 +1154,21 @@ impl YoDo {
 }
 
 fn load_split_words() -> Vec<String> {
-    let path = env::var("YO_SPLIT_WORDS").expect("YO_SPLIT_WORDS not set");
-    let content = fs::read_to_string(path).expect("Failed to read split words file");
-    serde_json::from_str(&content).expect("Invalid JSON in split words file")
+    let path = std::env::var("YO_SPLIT_WORDS")
+        .unwrap_or_else(|_| DEFAULT_SPLIT_WORDS_PATH.to_string());
+    let content = fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("Failed to read split words file from {}: {}", path, e));
+    serde_json::from_str(&content)
+        .unwrap_or_else(|e| panic!("Invalid JSON in split words file {}: {}", path, e))
 }
 
 fn load_sorry_phrases() -> Vec<String> {
-    let path = env::var("YO_SORRY_PHRASES").expect("YO_SORRY_PHRASES not set");
-    let content = fs::read_to_string(path).expect("Failed to read sorry phrases file");
-    serde_json::from_str(&content).expect("Invalid JSON in sorry phrases file")
+    let path = std::env::var("YO_SORRY_PHRASES")
+        .unwrap_or_else(|_| DEFAULT_SORRY_PHRASES_PATH.to_string());
+    let content = fs::read_to_string(&path)
+        .unwrap_or_else(|e| panic!("Failed to read sorry phrases file from {}: {}", path, e));
+    serde_json::from_str(&content)
+        .unwrap_or_else(|e| panic!("Invalid JSON in sorry phrases file {}: {}", path, e))
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -1172,16 +1183,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut yo_do = YoDo::new();
     
         // 🦆 says ⮞ load da environment data
-        if let Ok(intent_data_path) = env::var("YO_INTENT_DATA") {
-            yo_do.load_intent_data(&intent_data_path)?;
-        } else {
-            eprintln!("🦆 says ⮞ fuck ❌ YO_INTENT_DATA environment variable not set");
-            return Ok(());
-        }    
-        if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
-            yo_do.load_fuzzy_index(&fuzzy_index_path)?;
-        }
-    
+        let intent_data_path = env::var("YO_INTENT_DATA")
+            .unwrap_or_else(|_| DEFAULT_INTENT_DATA_PATH.to_string());
+        yo_do.load_intent_data(&intent_data_path)?;
+        let fuzzy_index_path = env::var("YO_FUZZY_INDEX")
+            .unwrap_or_else(|_| DEFAULT_FUZZY_INDEX_PATH.to_string());
+        yo_do.load_fuzzy_index(&fuzzy_index_path)?;
         // 🦆 says ⮞ Run real-time mode
         tokio::runtime::Runtime::new()?.block_on(yo_do.run_realtime())?;
         Ok(())

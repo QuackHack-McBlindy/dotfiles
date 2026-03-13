@@ -21,6 +21,7 @@
                  
 in { # 🦆 duck say ⮞ all machines needz some of dis
     imports = [ (modulesPath + "/installer/scan/not-detected.nix")
+        self.inputs.yo.nixosModules.yo
         ./modules # 🦆 duck say ⮞ load ./modules/default.nix
         ./bin     # 🦆 duck say ⮞ loadz yo script's default.nix
     ]; 

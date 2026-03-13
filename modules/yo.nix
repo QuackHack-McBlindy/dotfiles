@@ -434,8 +434,8 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
   environment.variables.MATCHER_SOURCE = matcherSourceScript;
 
   environment.etc = {
-    "split-words.json".source = splitWordsFile;
-    "sorry-phrases.json".source = sorryPhrasesFile;
+    "yo/split-words.json".source = splitWordsFile;
+    "yo/sorry-phrases.json".source = sorryPhrasesFile;
     "yo/intent-data.json".source = intentDataFile;
     "yo/fuzzy-index.json".source = fuzzyIndexFile;
     "yo/matchers" = {
@@ -1874,6 +1874,18 @@ in { # 🦆 duck say ⮞ import server/client module
         })
       ) cfg.scripts)
     ];
+
+    environment.etc = {
+      "yo/split-words.json".source = splitWordsFile;
+      "yo/sorry-phrases.json".source = sorryPhrasesFile;
+      "yo/intent-data.json".source = intentDataFile;
+      "yo/fuzzy-index.json".source = fuzzyIndexFile;
+      "yo/matchers" = {
+        source = matcherDir;
+      };
+      "yo/matcher-loader.sh".source = matcherSourceScript;
+    };
+
 
     # 🦆 duck say ⮞ systemd timer configuration
     systemd.user.timers = lib.mkMerge [  

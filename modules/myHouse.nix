@@ -113,7 +113,16 @@
      ];
   }) self.nixosConfigurations;
   
-in { # 🦆 duck say ⮞ qwack
+in { # 🦆 duck say ⮞ voice assistant config
+  yo.legacy = false;
+  yo.SplitWords = [ "samt" ];
+  yo.sorryPhrases = [
+    "I didn't catch that, try again."
+    "Sorry, what was that?"
+    "Could you repeat?"
+  ];
+
+  # 🦆 duck say ⮞ house config   
   house = {
     media.root = "/Pool";
     # 🦆says⮞ what machine should output sound   
@@ -302,13 +311,25 @@ in { # 🦆 duck say ⮞ qwack
         productId = "ea60";
         symlink = "zigbee"; # 🦆 says ⮞ diz symlinkz da serial port to /dev/zigbee
       };
-    
+
+      # 🦆 says ⮞ optional dimmer config
+      dimmer = {
+        message = "action";
+        doubleClickTimeout = 500;
+        #actions = {
+        #  onPress = "on_press_release";
+        #  onHold = "on_hold_release";
+        #};  
+      };
+      
       # 🦆 says ⮞ when motion triggers lights
-      darkTime = {
+      motion = {
         enable = true;
-        after = 14;
-        before = 9;
-        duration = 900;
+        trigger.lights = {
+          after = 14;
+          before = 9;
+          duration = 900;
+        };  
       };
       
   # 🦆 ⮞ AUTOMATIONS ⮜
@@ -449,9 +470,12 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "shell";
                 command = ''
+                  # 🦆 says ⮞ cancel any pending countdown
+                  yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 0}'     
+                  # 🦆 says ⮞ if fan is off - start it
                   STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
                   if [ "$STATE" = "OFF" ]; then               
-                    nqtt --device "Fläkt" --state on
+                    zigduck-cli --device "Fläkt" --state on
                   fi
                 '';
               }

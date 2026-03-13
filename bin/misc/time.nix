@@ -19,7 +19,7 @@
   # 🦆 says ⮞ get dat number yo
   swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
 in {
-  yo.scripts.time = {
+  yo.scripts.timee = {
     description = "Tells time, day, date & week";
     category = "🧩 Miscellaneous";
     code = ''

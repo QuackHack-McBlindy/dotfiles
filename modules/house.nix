@@ -1371,6 +1371,11 @@ in { # 🦆 says ⮞ Options for da house
                 description = "Action for holding DOWN button";
               };
             };
+            doubleClickTimeout = mkOption {
+              type = types.nullOr types.int;
+              default = null;
+              description = "Timeout for double‑click detection in milliseconds (defaults to 300).";
+            };
           };  
         };    
         default = {
@@ -1471,7 +1476,8 @@ in { # 🦆 says ⮞ Options for da house
           default = {};
           description = "Scenes for Zigbee devices";
         };
-            
+           
+        # 🦆 TODO ⮞ REMOVE   
         zigbee.darkTime = lib.mkOption {
           type = lib.types.submodule {
             options = { # 🦆 duck say ⮞ used with Zigduck Bash
@@ -1508,7 +1514,49 @@ in { # 🦆 says ⮞ Options for da house
           default = {};
           description = "Time range when it's considered dark (HH:MM format)";
         };
-    
+ 
+        zigbee.motion = lib.mkOption {
+          type = lib.types.submodule {
+            options = {
+              enable = lib.mkEnableOption "Enable Zigbee motion handling" // {
+                default = true;
+              };
+              trigger = lib.mkOption {
+                type = lib.types.submodule {
+                  options = {
+                    lights = lib.mkOption {
+                      description = "Motion-triggered lighting behavior";
+                      type = lib.types.submodule {
+                        options = {
+                          after = lib.mkOption {
+                            type = lib.types.int;
+                            default = 16;
+                            description = "Lights activate only after this hour (24h)";
+                          };
+                          before = lib.mkOption {
+                            type = lib.types.int;
+                            default = 9;
+                            description = "Lights activate only before this hour (24h)";
+                          };
+                          duration = lib.mkOption {
+                            type = lib.types.int;
+                            default = 900;
+                            description = "Seconds to keep lights on after motion";
+                          };
+                        };
+                      };
+                      default = {};
+                    };
+
+                  };
+                };
+                default = {};
+              };
+            };
+          };
+          default = {};
+        }; 
+ 
         # 🦆 says ⮞ automations configuration
         zigbee.automations = mkOption {
           type = types.submodule {

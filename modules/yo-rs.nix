@@ -295,7 +295,7 @@ in {
         };
       };
 
-      yo-rs-client = mkIf cfg.client.enable {
+yo-rs-client = mkIf cfg.client.enable {
         description = "yo-rs client for streaming audio and recording";
         after = [ "network.target" "sound.target" ];
         wants = [ "network.target" "sound.target" ];
@@ -307,9 +307,18 @@ in {
           Environment = let
             logLevel = if cfg.client.debug then "DEBUG" else "INFO";
             logFile = if cfg.client.logFile != null then cfg.client.logFile else "%h/yo-rs-client.log";
+            defaultPathDirs = [
+              "/run/wrappers/bin"
+              "/run/current-system/sw/bin"
+              "/usr/local/bin"
+              "/usr/bin"
+              "/bin"
+            ];
+            path = lib.concatStringsSep ":" (defaultPathDirs);
             envVars = {
               DT_LOG_LEVEL = logLevel;
               DT_LOG_FILE = logFile;
+              PATH = path;              
             } // lib.optionalAttrs cfg.client.debug { DEBUG = "1"; };
           in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
 

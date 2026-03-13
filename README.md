@@ -4,11 +4,11 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.31.3-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.12.67-red?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-49.2-purple?style=flat-square&logo=gnome&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.16-red?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-49.4-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.12.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.88.0-nightly-orange?style=flat-square&logo=rust&logoColor=white)
+![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.94.0-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
@@ -54,7 +54,7 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __88 qwacktastic scripts in /bin - 56 scripts have voice commands.__ <br>
+- __89 qwacktastic scripts in /bin - 56 scripts have voice commands.__ <br>
 - __2489 dynamically generated regex patterns - makes 272684905 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 9375 ducks? <br>
+Let's see if you can find all 9389 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -183,13 +183,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/bysvgfvs99c3zwvxfbkbkz8xfsmda8q3-bibata-cursors-2.0.7";
+    package = "/nix/store/92n07gwy3liih8xyl4xhgia7lf4m749l-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/b2yrf20qpp2acy3xizkbcin1hyfv286y-fira-code-6.2" ];
+    packages = [ "/nix/store/07xval1187myf5cf0xqkaylph6xk45g3-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -199,7 +199,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/cj1pgagbmyi2yzh9ism76yyx5y9f3qf0-papirus-icon-theme-20250501"
+    package = "/nix/store/7d55nzjl8rg2al9s95y8lclsl2an3gk6-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -333,7 +333,16 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
      ];
   }) self.nixosConfigurations;
   
-in { # 🦆 duck say ⮞ qwack
+in { # 🦆 duck say ⮞ voice assistant config
+  yo.legacy = false;
+  yo.SplitWords = [ "samt" ];
+  yo.sorryPhrases = [
+    "I didn't catch that, try again."
+    "Sorry, what was that?"
+    "Could you repeat?"
+  ];
+
+  # 🦆 duck say ⮞ house config   
   house = {
     media.root = "/Pool";
     # 🦆says⮞ what machine should output sound   
@@ -522,13 +531,25 @@ in { # 🦆 duck say ⮞ qwack
         productId = "ea60";
         symlink = "zigbee"; # 🦆 says ⮞ diz symlinkz da serial port to /dev/zigbee
       };
-    
+
+      # 🦆 says ⮞ optional dimmer config
+      dimmer = {
+        message = "action";
+        doubleClickTimeout = 500;
+        #actions = {
+        #  onPress = "on_press_release";
+        #  onHold = "on_hold_release";
+        #};  
+      };
+      
       # 🦆 says ⮞ when motion triggers lights
-      darkTime = {
+      motion = {
         enable = true;
-        after = 14;
-        before = 9;
-        duration = 900;
+        trigger.lights = {
+          after = 14;
+          before = 9;
+          duration = 900;
+        };  
       };
       
   # 🦆 ⮞ AUTOMATIONS ⮜
@@ -669,9 +690,12 @@ in { # 🦆 duck say ⮞ qwack
               {
                 type = "shell";
                 command = ''
+                  # 🦆 says ⮞ cancel any pending countdown
+                  yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 0}'     
+                  # 🦆 says ⮞ if fan is off - start it
                   STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
                   if [ "$STATE" = "OFF" ]; then               
-                    nqtt --device "Fläkt" --state on
+                    zigduck-cli --device "Fläkt" --state on
                   fi
                 '';
               }
@@ -1333,6 +1357,7 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
+        yo.url = "git+ssh://git@github.com/QuackHack-McBlindy/yo.git";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1341,7 +1366,6 @@ I like my flakes tiny & ny modules dynamically loaded,
           url = "github:nixos/mobile-nixos/efbe2c3c5409c868309ae0770852638e623690b5";
           flake = false;
         };
-
     };
     outputs = inputs @ { self, systems, nixpkgs, mobile-pkgs, mobile-nixos, ... }:
         let
@@ -1374,6 +1398,7 @@ git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
+│   │   ├───esp32-rs omitted (use '--all-systems' to show)
 │   │   ├───esphome omitted (use '--all-systems' to show)
 │   │   ├───go omitted (use '--all-systems' to show)
 │   │   ├───java omitted (use '--all-systems' to show)
@@ -1383,6 +1408,7 @@ git+file:///home/pungkula/dotfiles
 │   │   └───rust omitted (use '--all-systems' to show)
 │   └───x86_64-linux
 │       ├───android: development environment 'nix-shell'
+│       ├───esp32-rs: development environment 'nix-shell'
 │       ├───esphome: development environment 'nix-shell'
 │       ├───go: development environment 'nix-shell'
 │       ├───java: development environment 'nix-shell'
@@ -1405,14 +1431,12 @@ git+file:///home/pungkula/dotfiles
     │   ├───health-rs omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
-    │   ├───yo-rs omitted (use '--all-systems' to show)
     │   └───zigduck-rs omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
         ├───health-rs: package 'health-rs-0.1.0'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───tv: package 'tv'
-        ├───yo-rs: package 'yo-rs-0.1.4'
         └───zigduck-rs: package 'zigduck-rs-0.1.0'
 ```
 
@@ -1487,8 +1511,9 @@ Add \`?\` to any command to run it in DEBUG mode
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 | **🖥️ System Management** | | | |
+| [yo audio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/audio.nix) [--auto] [--up] [--down] [--mute] [--get] |  | Time based volume control | 📛 |
 | [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] [--test] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | ✅ |
-| [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] |  | Start development enviorment | 📛 |
+| [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] [--list] |  | Start development enviorment | 📛 |
 | [yo dry](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dry.nix)  |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | 📛 |
 | [yo esp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/esp.nix) [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP] |  | Declarative firmware deployment tool for ESP32 boards with built-in version control. | 📛 |
 | [yo espOTA](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/espOTA.nix)  |  | Updates ESP32 devices over the air. | 📛 |
@@ -1580,7 +1605,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo reminder](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/reminder.nix) [--about] [--list] [--clear] [--user] [--pwfile] | remind | Reminder Assistant | ✅ |
 | [yo shop-list](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shop-list.nix) [--operation] [--item] [--list] [--mqttUser] [--mqttPWFile] |  | Shopping list management | ✅ |
 | [yo suno](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) --prompt [--genre] | mg | AI generated lyrics and music files powered by Suno | ✅ |
-| [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
+| [yo timee](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/timee.nix)  |  | Tells time, day, date & week | ✅ |
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | **🧹 Maintenance** | | | |
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |

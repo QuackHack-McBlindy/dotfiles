@@ -34,6 +34,7 @@
                 pkgs.kanata
                 pkgs.arduino-ide
                 pkgs.arduino-cli
+                
              #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
         
@@ -44,16 +45,16 @@
             [ 
                 pkgs.npth
                 #   esphome
-                pkgs.python312Packages.httpx
-                pkgs.python312Packages.beautifulsoup4
-                pkgs.python312Packages.aiocron
-                pkgs.python312Packages.aioesphomeapi
-                pkgs.python312
-                pkgs.python312Packages.requests
-                pkgs.python312Packages.pyaml
-                pkgs.python312Packages.invoke
-                pkgs.python312Packages.langid
-                pkgs.python312Packages.pysilero-vad
+                #pkgs.python312Packages.httpx
+                #pkgs.python312Packages.beautifulsoup4
+                #pkgs.python312Packages.aiocron
+                #pkgs.python312Packages.aioesphomeapi
+                #pkgs.python312
+                #pkgs.python312Packages.requests
+                #pkgs.python312Packages.pyaml
+                #pkgs.python312Packages.invoke
+                #pkgs.python312Packages.langid
+                #pkgs.python312Packages.pysilero-vad
 
                 ## CLI TOOLS
                ###############
@@ -89,7 +90,7 @@
                 pkgs.gnuplot
                 pkgs.sunwait
                # vaultwarden-postgressql
-                pkgs.neofetch
+                #pkgs.neofetch UNMAINTAINED?
                 pkgs.rsync
                 pkgs.android-tools
                 pkgs.libnotify

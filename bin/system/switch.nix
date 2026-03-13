@@ -48,9 +48,11 @@ in {
           if "''${cmd[@]}"; then
             if [[ $FAIL_COUNT -ge 11 ]]; then
               dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
+              yo audio --up
               play_relax
             elif [[ $FAIL_COUNT -ge 6 ]]; then
               dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
+              yo audio --up
               play_relax
             elif [[ $FAIL_COUNT -ge 4 ]]; then
               dt_info "😅 phew! $FAIL_COUNT noob fails!"

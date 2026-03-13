@@ -1,7 +1,8 @@
 // ddotfiles/packages/yo-rs/src/yo-say.rs ⮞ https://github.com/QuackHack-McBlindy/dotfiles
 use std::{ // 🦆 says ⮞ text-to-speech with an optional .wav file dump path
-    io,
+    io::{self, Write},
     process::{Command, Stdio},
+    os::unix::net::UnixStream,
 };
 use clap::Parser;
 use ducktrace_logger::*;
@@ -23,16 +24,32 @@ struct Args {
     path: Option<String>,
 }
 
+fn try_broadcast(text: &str) -> bool {
+    if let Ok(mut stream) = UnixStream::connect("/tmp/yo-tts.sock") {
+        if stream.write_all(text.as_bytes()).is_ok() && stream.flush().is_ok() {
+            dt_info!("Broadcasted TTS via Unix socket");
+            return true;
+        }
+    }
+    false
+}
+
 fn main() -> io::Result<()> {
     let args = Args::parse();
+
+
+    if try_broadcast(&args.text) {
+        return Ok(());
+    }
+
     let blocking = args.blocking.unwrap_or(false);
 
-    let (path, is_temp) = match args.path {
-        Some(p) => (p, false),
+    let (temp_holder, path, is_temp) = match args.path {
+        Some(p) => (None, p, false),
         None => {
             let temp = NamedTempFile::with_suffix(".wav")?;
             let path = temp.path().to_string_lossy().into_owned();
-            (path, true)
+            (Some(temp), path, true)
         }
     };
 
@@ -42,7 +59,7 @@ fn main() -> io::Result<()> {
 
     if is_temp && blocking {
         std::fs::remove_file(&path)?;
-        dt_debug!("Removed temporary file: {}", path);
+        dt_info!("Removed temporary file: {}", path);
     }
 
     Ok(())
@@ -59,7 +76,7 @@ fn run_piper_to_file(model: &str, text: &str, path: &str) -> io::Result<()> {
         .status()?;
 
     if !status.success() {
-        dt_debug!("Piper failed with exit code: {:?}", status.code());
+        dt_info!("Piper failed with exit code: {:?}", status.code());
         std::process::exit(status.code().unwrap_or(1));
     }
     Ok(())
@@ -75,10 +92,10 @@ fn play_file(path: &str, blocking: bool) -> io::Result<()> {
     if blocking {
         let status = player.wait()?;
         if !status.success() {
-            dt_debug!("aplay failed with exit code: {:?}", status.code());
+            dt_info!("aplay failed with exit code: {:?}", status.code());
             std::process::exit(status.code().unwrap_or(1));
         }
-    } else { dt_debug!("Playing in background (file: {})", path); }
+    } else { dt_info!("Playing in background (file: {})", path); }
 
     Ok(())
 }

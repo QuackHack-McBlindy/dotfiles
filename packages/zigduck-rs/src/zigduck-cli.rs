@@ -1,15 +1,12 @@
 // ddotfiles/packages/zigduck-rs/src/zigduck-cli.rs ⮞ https://github.com/QuackHack-McBlindy/dotfiles
 use std::{ // 🦆 says ⮞ zigduck-cli is a command line device controller for zigduck
     fs,
-    process::Command,    
-    thread::sleep,
     path::PathBuf,
     time::Duration,
     collections::HashMap,
 };    
 use clap::{
     Parser,
-    ArgGroup,
     ValueEnum,
 };
 use rand:: {
@@ -23,6 +20,25 @@ use anyhow::{Result, Context};
 use colored::*;
 use reqwest::blocking::Client as HttpClient;
  
+#[derive(Debug, Deserialize, Clone)]
+struct CliConfig {
+    mosquitto: Option<MosquittoConfig>,
+    hue: Option<HueConfig>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct MosquittoConfig {
+    broker: String,
+    user: String,
+    password_file: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Clone)]
+struct HueConfig {
+    bridge_ip: Option<String>,
+    password_file: Option<String>,
+}
+
 #[derive(Parser)]
 #[command(
     name = "zigduck-cli",
@@ -31,9 +47,7 @@ use reqwest::blocking::Client as HttpClient;
     about = "High-performance unified home automation controller",
     long_about = "Control Zigbee and Hue devices, scenes, and automations with Rust speed and reliability"
 )]
-
 struct Cli {
-    // 🦆 says ⮞ global options
     #[arg(long, short, help = "MQTT broker host", env = "MQTT_BROKER", default_value = "127.0.0.1")]
     broker: String,
 
@@ -61,190 +75,163 @@ struct Cli {
     #[arg(long, help = "Hue Bridge API key", env = "HUE_API_KEY")]
     hue_api_key: Option<String>,
 
-    // 🦆 says ⮞ action flags
-    // 🦆 says ⮞ control a single device
     #[arg(long, help = "Device name (friendly name)")]
     device: Option<String>,
 
-    // 🦆 says ⮞ control all lights in a room
     #[arg(long, help = "Room name")]
     room: Option<String>,
 
-    // 🦆 says ⮞ activate a scene
     #[arg(long, help = "Scene name")]
     scene: Option<String>,
 
-    // 🦆 says ⮞ list available items
     #[arg(long, help = "List devices, rooms, scenes, lights, or sensors")]
     list: Option<Option<ListType>>,
 
-    // 🦆 says ⮞ enter pairing mode for new Zigbee devices
     #[arg(long, num_args(0..=1), default_missing_value = "120", help = "Pairing duration in seconds (default: 120)")]
     pair: Option<Option<u16>>,
 
-    // 🦆 says ⮞ control every light in the house
     #[arg(long, num_args = 0..=1, default_missing_value = "true", help = "Control all lights (optional true/false)")]
     all_lights: Option<String>,
 
-    // 🦆 says ⮞ eEnergy‑saving mode: lights on, then off after a delay
     #[arg(long, help = "Room name for cheap mode")]
     cheap_mode: Option<String>,
 
-    // 🦆 says ⮞ send raw JSON payload to a device
     #[arg(long, help = "Send raw JSON to a device")]
     json_cmd: bool,
 
-    // 🦆 says ⮞ additional arguments for specific actions
-    // 🦆 says ⮞ device state (on/max/off/dark/toggle)
     #[arg(long, help = "Device state: on/off/toggle/max/dark")]
     state: Option<String>,
-    
-    // 🦆 says ⮞ brightness percentage
-    #[arg(long)]
+
+    #[arg(long, help = "Brightness percentage (1-100)")]
     brightness: Option<u8>,
 
-    // 🦆 says ⮞ color name or hex code
-    #[arg(long)]
+    #[arg(long, help = "Color name or hex code")]
     color: Option<String>,
 
-    // 🦆 says ⮞ color temperature (153-500)
-    #[arg(long)]
+    #[arg(long, help = "Color temperature (153-500)")]
     temperature: Option<u16>,
 
-    // 🦆 says ⮞ transition time in seconds (device only)
-    #[arg(long, requires = "device")]
+    #[arg(long, requires = "device", help = "Transition time in seconds")]
     transition: Option<f32>,
 
-    // 🦆 says ⮞ raw JSON payload (for --json-cmd)
-    #[arg(long, requires = "json_cmd")]
+    #[arg(long, requires = "json_cmd", help = "Raw JSON payload")]
     payload: Option<String>,
 
-    // 🦆 says ⮞ backend type for JSON command (auto/zigbee/hue)
-    #[arg(long, value_enum, default_value = "auto", requires = "json_cmd")]
+    #[arg(long, value_enum, default_value = "auto", requires = "json_cmd", help = "Backend type (auto/zigbee/hue)")]
     backend: BackendType,
 
-    // 🦆 says ⮞ output list as JSON
-    #[arg(long, requires = "list")]
+    #[arg(long, requires = "list", help = "Output list as JSON")]
     json_output: bool,
 
-    // 🦆 says ⮞ for --pair: watch for new devices
-    #[arg(long, requires = "pair")]
+    #[arg(long, requires = "pair", help = "Watch for new devices during pairing")]
     watch: bool,
 
-    // 🦆 says ⮞ for --scene: pick a random scene
-    #[arg(long, requires = "scene")]
+    #[arg(long, requires = "scene", help = "Pick a random scene")]
     random: bool,
 
-    // 🦆 says ⮞ for --scene: restrict to a specific room
-    #[arg(long, requires = "scene")]
+    #[arg(long, requires = "scene", help = "Restrict scene to a specific room")]
     scene_room: Option<String>,
 
-    // 🦆 says ⮞ for --cheap-mode: delay in seconds before turning off (default: 300)
-    #[arg(long, default_value_t = 300, requires = "cheap_mode")]
+    #[arg(long, default_value_t = 300, requires = "cheap_mode", help = "Delay in seconds for cheap mode")]
     delay: u64,
 }
 
 #[derive(Clone, ValueEnum)]
 enum DeviceState {
-	On,
-	Off,
-	Toggle,
+    On,
+    Off,
+    Toggle,
 }
 
 #[derive(Clone, ValueEnum)]
 enum ListType {
-	Devices,
-	Rooms,
-	Scenes,
-	Lights,
-	Sensors,
+    Devices,
+    Rooms,
+    Scenes,
+    Lights,
+    Sensors,
 }
 
 #[derive(Clone, ValueEnum)]
 enum BackendType {
-	Auto,
-	Zigbee,
-	Hue,
+    Auto,
+    Zigbee,
+    Hue,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]  // Add Clone here
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct DeviceConfig {
-friendly_name: String,
-room: String,
-#[serde(rename = "type")]
-device_type: String,
-#[serde(default = "default_endpoint")]
-endpoint: u8,
-#[serde(default)]
-icon: Option<String>,
-#[serde(default)]
-battery_type: Option<String>,
-hue_id: Option<u16>,
-supports_color: Option<bool>,
-supports_temperature: Option<bool>,
+    friendly_name: String,
+    room: String,
+    #[serde(rename = "type")]
+    device_type: String,
+    #[serde(default = "default_endpoint")]
+    endpoint: u8,
+    #[serde(default)]
+    icon: Option<String>,
+    #[serde(default)]
+    battery_type: Option<String>,
+    hue_id: Option<u16>,
+    supports_color: Option<bool>,
+    supports_temperature: Option<bool>,
+}
+
+fn default_endpoint() -> u8 {
+    11
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct SceneConfig {
+    #[serde(default)]
+    friendly_name: Option<String>,
+    devices: HashMap<String, serde_json::Value>,
 }
 
 
 struct HueClient {
-	base_url: String,
-	client: HttpClient,
+    base_url: String,
+    client: HttpClient,
 }
 
 impl HueClient {
-	fn new(bridge_ip: &str, api_key: &str) -> Result<Self> {
-	    let base_url = format!("http://{}/api/{}", bridge_ip, api_key);
-	    let client = HttpClient::new();
-	
-	    Ok(Self {
-	        base_url,
-	        client,
-	    })
-	}
+    fn new(bridge_ip: &str, api_key: &str) -> Result<Self> {
+        let base_url = format!("http://{}/api/{}", bridge_ip, api_key);
+        Ok(Self {
+            base_url,
+            client: HttpClient::new(),
+        })
+    }
 
-	fn set_light_state(&self, light_id: u16, state: serde_json::Value) -> Result<()> {
-	    let url = format!("{}/lights/{}/state", self.base_url, light_id);
-	
-	    let response = self.client
-	        .put(&url)
-	        .json(&state)
-	        .send()
-	        .context("Failed to send Hue API request")?;
-	
-	    if !response.status().is_success() {
-	        let status = response.status();
-	        let body = response.text().unwrap_or_default();
-	        anyhow::bail!("Hue API error {}: {}", status, body);
-	    }      
-	    Ok(())
-	}
-	
-	fn get_light_state(&self, light_id: u16) -> Result<serde_json::Value> {
-	    let url = format!("{}/lights/{}", self.base_url, light_id);
-	    
-	    let response = self.client
-	        .get(&url)
-	        .send()
-	        .context("Failed to get Hue light state")?;
-	        
-	    if !response.status().is_success() {
-	        anyhow::bail!("Failed to get light state: {}", response.status());
-	    }
-	    
-	    let json: serde_json::Value = response.json()?;
-	    Ok(json)
-	}
+    fn set_light_state(&self, light_id: u16, state: serde_json::Value) -> Result<()> {
+        let url = format!("{}/lights/{}/state", self.base_url, light_id);
+        let response = self.client
+            .put(&url)
+            .json(&state)
+            .send()
+            .context("Failed to send Hue API request")?;
+        if !response.status().is_success() {
+            let status = response.status();
+            let body = response.text().unwrap_or_default();
+            anyhow::bail!("Hue API error {}: {}", status, body);
+        }
+        Ok(())
+    }
+
+    fn get_light_state(&self, light_id: u16) -> Result<serde_json::Value> {
+        let url = format!("{}/lights/{}", self.base_url, light_id);
+        let response = self.client
+            .get(&url)
+            .send()
+            .context("Failed to get Hue light state")?;
+        if !response.status().is_success() {
+            anyhow::bail!("Failed to get light state: {}", response.status());
+        }
+        Ok(response.json()?)
+    }
 }
 
-fn default_endpoint() -> u8 {
-	11
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-struct SceneConfig {
-	#[serde(default)]
-	friendly_name: Option<String>,
-	devices: HashMap<String, serde_json::Value>,
-}
 
 struct ZigduckController {
 	mqtt_client: Client,
@@ -805,7 +792,7 @@ fn activate_scene(&mut self, scene_name: &str, random: bool, room_filter: Option
         "✅".green(), scene_to_activate, hue_count, zigbee_count);
     Ok(())
 }
-	
+
 fn convert_to_hue_payload(&self, settings: &serde_json::Value) -> Result<serde_json::Value> {
 let mut payload = serde_json::Map::new();
 
@@ -1027,21 +1014,80 @@ fn main() -> Result<()> {
     if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
     dt_debug!("Started zigduck-cli!");    
-	let cli = Cli::parse();
+
+	let mut cli = Cli::parse();
 	
-	let password = if let Some(password_file) = cli.password_file {
-	    fs::read_to_string(password_file)?.trim().to_string()
-	} else if let Some(password) = cli.password {
-	    password
-	} else if let Ok(password) = std::env::var("MQTT_PASSWORD") {
-	    password
-	} else {
-	    "".to_string()
-	};
-	
+    // 🦆 says ⮞ load default config from /etc/zigduck/config.json
+    let default_config_path = PathBuf::from("/etc/zigduck/config.json");
+    let config: Option<CliConfig> = if default_config_path.exists() {
+        match fs::read_to_string(&default_config_path) {
+            Ok(content) => serde_json::from_str(&content).ok(),
+            Err(_) => None,
+        }
+    } else { None };
+
+    // 🦆 says ⮞ fill missing values from config file
+    if let Some(cfg) = &config {
+        if cli.broker == "127.0.0.1" && !std::env::var("MQTT_BROKER").is_ok() {
+            if let Some(mosq) = &cfg.mosquitto {
+                cli.broker = mosq.broker.clone();
+            }
+        }
+        if cli.user == "mqtt" && !std::env::var("MQTT_USER").is_ok() {
+            if let Some(mosq) = &cfg.mosquitto {
+                cli.user = mosq.user.clone();
+            }
+        }
+        if cli.password.is_none() && cli.password_file.is_none() {
+            if let Some(mosq) = &cfg.mosquitto {
+                if let Some(pw_file) = &mosq.password_file {
+                    cli.password_file = Some(pw_file.into());
+                }
+            }
+        }
+        if cli.hue_bridge_ip.is_none() && !std::env::var("HUE_BRIDGE_IP").is_ok() {
+            if let Some(hue) = &cfg.hue {
+                cli.hue_bridge_ip = hue.bridge_ip.clone();
+            }
+        }
+        if cli.hue_api_key.is_none() {
+            if let Some(hue) = &cfg.hue {
+                if let Some(pw_file) = &hue.password_file {
+                    if let Ok(key) = fs::read_to_string(pw_file) {
+                        cli.hue_api_key = Some(key.trim().to_string());
+                    }
+                }
+            }
+        }
+    }
+
+    if cli.devices_config.is_none() && !std::env::var("DEVICES_CONFIG").is_ok() {
+        let default_devices = PathBuf::from("/etc/zigduck/devices.json");
+        if default_devices.exists() {
+            cli.devices_config = Some(default_devices);
+        }
+    }
+
+    if cli.scenes_config.is_none() && !std::env::var("SCENES_CONFIG").is_ok() {
+        let default_scenes = PathBuf::from("/etc/zigduck/scenesCLI.json");
+        if default_scenes.exists() {
+            cli.scenes_config = Some(default_scenes);
+        }
+    }
+
+    let password = if let Some(password_file) = cli.password_file {
+        fs::read_to_string(password_file)?.trim().to_string()
+    } else if let Some(password) = cli.password {
+        password
+    } else if let Ok(password) = std::env::var("MQTT_PASSWORD") {
+        password
+    } else { "".to_string() };
+
+    let hue_api_key = cli.hue_api_key.or_else(|| std::env::var("HUE_API_KEY").ok());
+
     let mut controller = ZigduckController::new(
         cli.broker, cli.user, password,
-        cli.hue_bridge_ip, cli.hue_api_key,
+        cli.hue_bridge_ip, hue_api_key,
         cli.devices_config, cli.scenes_config,
         cli.verbose > 0,
     )?;

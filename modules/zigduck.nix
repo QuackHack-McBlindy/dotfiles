@@ -176,17 +176,25 @@ let
   };
   dashboardConfigFile = pkgs.writeText "dashboard-config.json" dashboardConfigJSON;
 
-
   # 🦆 needz 4 rust  
   devices-json = pkgs.writeText "devices.json" deviceMeta;
   jsonFormat = pkgs.formats.json { };
 
   mainConfig = {
+    mosquitto = {
+      broker = house.zigbee.mosquitto.host;
+      user = house.zigbee.mosquitto.username;
+      password_file = house.zigbee.mosquitto.passwordFile; 
+    };
+    hue = {
+      bridge_ip = house.zigbee.hueSyncBox.bridge.ip;
+      password_file = house.zigbee.hueSyncBox.bridge.passwordFile;
+    };
     dark_time = {
-      enabled = house.zigbee.darkTime.enable;
-      after = house.zigbee.darkTime.after;
-      before = house.zigbee.darkTime.before;
-      duration = house.zigbee.darkTime.duration;
+      enabled = house.zigbee.motion.enable;
+      after = house.zigbee.motion.trigger.lights.after;
+      before = house.zigbee.motion.trigger.lights.before;
+      duration = house.zigbee.motion.trigger.lights.duration;
     };
     dimmer = {
       message_key = house.zigbee.dimmer.message;
@@ -200,22 +208,11 @@ let
         down_press = house.zigbee.dimmer.actions.downPress;
         down_hold = house.zigbee.dimmer.actions.downHold;
       };
+      double_click_timeout_ms = house.zigbee.dimmer.doubleClickTimeout;
     };
   };
 
   zigduckConfigFile = jsonFormat.generate "config.json" mainConfig;
-
-  zigduck-cli-wrapper = pkgs.writeShellScriptBin "nqtt" ''
-    export MQTT_BROKER="${cfg.cli.broker}"
-    export MQTT_USER="${cfg.cli.user}"
-    ${optionalString (cfg.cli.passwordFile != null) "export MQTT_PASSWORD_FILE=\"${cfg.cli.passwordFile}\""}
-    export DEVICES_CONFIG="${cfg.devicesFile}"
-    export SCENES_CONFIG="${sceneConfigCli}"
-    ${optionalString (cfg.cli.hueBridgeIp != null) "export HUE_BRIDGE_IP=\"${cfg.cli.hueBridgeIp}\""}
-    ${optionalString (cfg.cli.hueApiKeyFile != null) "export HUE_API_KEY=\"$(cat ${cfg.cli.hueApiKeyFile})\""}
-
-    exec ${pkgs.zigduck-rs}/bin/zigduck-cli "$@"
-  '';
 
 in {
 
@@ -521,7 +518,7 @@ in {
     })
 
     (mkIf cfg.cli.enable {
-      environment.systemPackages = [ zigduck-cli-wrapper ];
+      environment.systemPackages = [ pkgs.zigduck-rs ];
     })
   
     {
@@ -530,6 +527,7 @@ in {
       environment.etc."zigduck/devices.json".source = devices-json;
       environment.etc."zigduck/automations.json".source = automationsFile;
       environment.etc."zigduck/scenes.json".source = sceneConfig;
+      environment.etc."zigduck/scenesCLI.json".source = sceneConfigCli;
       environment.etc."zigduck/dashboard.json".source = dashboardConfigFile;
       
 

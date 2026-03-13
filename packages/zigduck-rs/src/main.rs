@@ -2,7 +2,7 @@ use std::{
     collections::HashMap,
     fs,
     process::Command,
-    sync::{Arc, RwLock},
+    sync::{Arc, Mutex, RwLock},
     time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use chrono::{Local, Timelike};
@@ -11,12 +11,30 @@ use serde::{Deserialize, Serialize};
 use serde_json::{json, Value};
 use tokio::time;
 use ducktrace_logger::*;
+use anyhow::{Result, Context, bail};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct MosquittoConfig {
+    broker: String,
+    user: String,
+    password_file: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct HueConfig {
+    bridge_ip: Option<String>,
+    password_file: Option<String>,
+}
+
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct HouseConfig {
+    mosquitto: Option<MosquittoConfig>,
+    hue: Option<HueConfig>,
     dimmer: DimmerConfig,
     dark_time: DarkTimeConfig,
     //greeting: GreetingConfig,
+    double_click_timeout_ms: Option<u64>,    
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -54,6 +72,42 @@ struct Device {
     id: String,
     endpoint: u32,
     ieee: Option<String>,
+    hue_id: Option<u16>,
+    supports_color: Option<bool>,
+    supports_temperature: Option<bool>,
+    icon: Option<String>,
+    battery_type: Option<String>,
+}
+
+#[derive(Debug, Clone)]
+struct HueClient {
+    base_url: String,
+    client: reqwest::Client,
+}
+
+impl HueClient {
+    fn new(bridge_ip: &str, api_key: &str) -> Result<Self> {
+        let base_url = format!("http://{}/api/{}", bridge_ip, api_key);
+        Ok(Self {
+            base_url,
+            client: reqwest::Client::new(),
+        })
+    }
+
+    async fn set_light_state(&self, light_id: u16, state: serde_json::Value) -> Result<()> {
+        let url = format!("{}/lights/{}/state", self.base_url, light_id);
+        let response = self.client.put(&url).json(&state).send().await?;
+        if !response.status().is_success() {
+            bail!("Hue API error: {}", response.status());
+        }
+        Ok(())
+    }
+
+    async fn get_light_state(&self, light_id: u16) -> Result<serde_json::Value> {
+        let url = format!("{}/lights/{}", self.base_url, light_id);
+        let response = self.client.get(&url).send().await?;
+        Ok(response.json().await?)
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -144,6 +198,7 @@ struct TimeRangeSchedule {
 
 #[derive(Debug)]
 struct ZigduckState {
+    hue_client: Option<HueClient>,
     mqtt_broker: String,
     mqtt_user: String,
     mqtt_password: String,
@@ -152,6 +207,8 @@ struct ZigduckState {
     state_file: String,
     devices: HashMap<String, Device>,
     scene_config: SceneConfig,
+    room_scenes: HashMap<String, Vec<String>>,
+    scene_index: Arc<RwLock<HashMap<String, usize>>>,    
     automations: AutomationConfig,
     motion_tracker: MotionTracker,
     motion_timers: HashMap<String, tokio::task::JoinHandle<()>>,
@@ -161,11 +218,14 @@ struct ZigduckState {
     debug: bool,
     device_states: Arc<RwLock<HashMap<String, HashMap<String, String>>>>,
     config: HouseConfig,
+    last_button_press: Arc<Mutex<HashMap<String, SystemTime>>>,
+    double_click_timeout: Duration,
 }
 
 impl Clone for ZigduckState {
     fn clone(&self) -> Self {
         Self {
+            hue_client: self.hue_client.clone(),
             mqtt_broker: self.mqtt_broker.clone(),
             mqtt_user: self.mqtt_user.clone(),
             mqtt_password: self.mqtt_password.clone(),
@@ -174,6 +234,8 @@ impl Clone for ZigduckState {
             state_file: self.state_file.clone(),
             devices: self.devices.clone(),
             scene_config: self.scene_config.clone(),
+            room_scenes: self.room_scenes.clone(),
+            scene_index: self.scene_index.clone(),            
             automations: self.automations.clone(),
             motion_tracker: self.motion_tracker.clone(),
             motion_timers: HashMap::new(),
@@ -183,6 +245,8 @@ impl Clone for ZigduckState {
             debug: self.debug,
             device_states: self.device_states.clone(),
             config: self.config.clone(),
+            last_button_press: Arc::new(Mutex::new(HashMap::new())),
+            double_click_timeout: self.double_click_timeout,
         }
     }
 }
@@ -244,6 +308,126 @@ struct MotionTracker {
 }
 
 impl ZigduckState {
+    fn convert_to_hue_payload(&self, settings: &serde_json::Value) -> Result<serde_json::Value> {
+        let mut payload = serde_json::Map::new();
+
+        if let Some(state) = settings.get("state").and_then(|s| s.as_str()) {
+            payload.insert("on".to_string(), serde_json::Value::Bool(state == "ON"));
+        } else {
+            payload.insert("on".to_string(), serde_json::Value::Bool(true));
+        }
+
+        if let Some(brightness) = settings.get("brightness") {
+            if let Some(bri) = brightness.as_u64() {
+                let hue_bri = (bri as f32).min(254.0) as u8;
+                if hue_bri > 0 {
+                    payload.insert("bri".to_string(), serde_json::Value::Number(hue_bri.into()));
+                }
+            } else if let Some(bri) = brightness.as_f64() {
+                let hue_bri = (bri as f32).min(254.0) as u8;
+                if hue_bri > 0 {
+                    payload.insert("bri".to_string(), serde_json::Value::Number(hue_bri.into()));
+                }
+            }
+        }
+
+        if let Some(color_obj) = settings.get("color") {
+            if let Some(xy_array) = color_obj.get("xy") {
+                if let Some(xy) = xy_array.as_array() {
+                    if xy.len() == 2 {
+                        payload.insert("xy".to_string(), serde_json::json!(xy));
+                    }
+                }
+            }
+        }
+
+        if let Some(temp) = settings.get("color_temp") {
+            if let Some(ct) = temp.as_u64() {
+                let hue_ct = if ct > 500 { 500 } else if ct < 153 { 153 } else { ct as u16 };
+                payload.insert("ct".to_string(), serde_json::Value::Number(hue_ct.into()));
+            }
+        }
+
+        if let Some(transition) = settings.get("transition") {
+            if let Some(t) = transition.as_f64() {
+                let trans_time = (t * 10.0).round() as u16;
+                payload.insert("transitiontime".to_string(), serde_json::Value::Number(trans_time.into()));
+            } else if let Some(t) = transition.as_u64() {
+                let trans_time = (t as f64 * 10.0).round() as u16;
+                payload.insert("transitiontime".to_string(), serde_json::Value::Number(trans_time.into()));
+            }
+        }
+
+        Ok(serde_json::Value::Object(payload))
+    }
+
+    async fn activate_scene_filtered(&self, scene_name: &str, room_filter: Option<&str>) -> Result<(), Box<dyn std::error::Error>> {
+        let scene = self.scene_config.scenes.get(scene_name)
+            .ok_or_else(|| format!("Scene '{}' not found", scene_name))?;
+        dt_info!("🎨 Activating scene: {} (filter: {:?})", scene_name, room_filter);
+
+        if let Some(room) = room_filter {
+            let mut any_device_on = false;
+            for (device_name, settings) in scene {
+                if let Some(device) = self.devices.get(device_name) {
+                    if device.room == room {
+                        let is_off = match (settings.get("state"), settings.get("on")) {
+                            (Some(state_val), _) => { state_val.as_str().map(|s| s.eq_ignore_ascii_case("OFF")).unwrap_or(false) }
+                            (None, Some(on_val)) => {
+                                on_val.as_bool().map(|b| !b).unwrap_or(false)
+                            }
+                            (None, None) => false, // No state/on field → assume not off
+                        };
+
+                        if !is_off {
+                            any_device_on = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if !any_device_on {
+                dt_debug!("Skipping scene '{}' for room '{}' because it would turn all lights off", scene_name, room);
+                return Ok(());
+            }
+        }
+
+        for (device_name, settings) in scene {
+            let device = self.devices.get(device_name)
+                .ok_or_else(|| format!("Device '{}' not found in scene", device_name))?;
+
+            if let Some(room) = room_filter {
+                if device.room != room {
+                    continue;
+                }
+            }
+
+            match device.device_type.as_str() {
+                "hue_light" => {
+                    if let Some(hue_id) = device.hue_id {
+                        if let Some(hue_client) = &self.hue_client {
+                            let hue_payload = self.convert_to_hue_payload(settings)?;
+                            if let Err(e) = hue_client.set_light_state(hue_id, hue_payload).await {
+                                dt_warning!("Failed to set Hue light {}: {}", device_name, e);
+                            }
+                        } else {
+                            dt_warning!("Hue client not initialized, skipping {}", device_name);
+                        }
+                    } else { dt_warning!("Hue light {} missing hue_id", device_name); }
+                }
+                "light" | _ => {
+                    let topic = format!("zigbee2mqtt/{}/set", device_name);
+                    let payload = serde_json::to_string(settings)?;
+                    if let Err(e) = self.mqtt_publish(&topic, &payload) {
+                        dt_warning!("Failed to publish MQTT for {}: {}", device_name, e);
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     // 🦆 says ⮞ handle MQTT triggered automations
     async fn check_mqtt_triggered_automations(&self, topic: &str, payload: &str) -> Result<(), Box<dyn std::error::Error>> {
         for (name, automation) in &self.automations.mqtt_triggered {
@@ -395,6 +579,8 @@ impl ZigduckState {
         self.motion_tracker.last_motion.insert(sensor_name.to_string(), SystemTime::now());
     }
 
+
+
     // 🦆 says ⮞ don't run default light actions if user defined automations in nix config
     fn has_motion_automation_for_room(&self, room: &str) -> bool {
         self.automations.room_actions
@@ -509,10 +695,7 @@ impl ZigduckState {
     }
 
     // 🦆 says ⮞ NEW NEW NEW ZigduckState::new new new
-    fn new(mqtt_broker: String, mqtt_user: String, mqtt_password: String,
-           state_dir: String, devices_file: String, automations_file: String,
-           debug: bool) -> Self {
-
+   fn new(state_dir: String, devices_file: String, automations_file: String, debug: bool) -> Self {
         let config_path = std::env::var("HOUSE_CONFIG_FILE")
             .unwrap_or_else(|_| "/etc/zigduck/config.json".to_string());
         let config: HouseConfig = std::fs::read_to_string(&config_path)
@@ -522,6 +705,64 @@ impl ZigduckState {
                 dt_error!("Failed to load house config from {}", config_path);
                 std::process::exit(1);
             });
+
+        // 🦆 says ⮞ load MQTT settings from config
+        let (mqtt_broker, mqtt_user, mqtt_password) = if let Some(mosq) = &config.mosquitto {
+            let broker = mosq.broker.clone();
+            let user = mosq.user.clone();
+            let password = if let Some(pw_file) = &mosq.password_file {
+                fs::read_to_string(pw_file).map(|s| s.trim().to_string()).unwrap_or_else(|e| {
+                    dt_warning!("Failed to read MQTT password file {}: {}", pw_file, e);
+                    String::new()
+                })
+            } else {
+                String::new()
+            };
+            (broker, user, password)
+        } else {
+            // fallback to environment variables
+            let broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "127.0.0.1".to_string());
+            let user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
+            let password = if let Ok(pw) = std::env::var("MQTT_PASSWORD") {
+                pw
+            } else if let Ok(pw_file) = std::env::var("MQTT_PASSWORD_FILE") {
+                fs::read_to_string(pw_file).map(|s| s.trim().to_string()).unwrap_or_default()
+            } else {
+                String::new()
+            };
+            (broker, user, password)
+        };
+
+        // load Hue client from config
+        let hue_client = if let Some(hue) = &config.hue {
+            if let (Some(ip), Some(pw_file)) = (&hue.bridge_ip, &hue.password_file) {
+                fs::read_to_string(pw_file).ok().and_then(|key| {
+                    match HueClient::new(ip, key.trim()) {
+                        Ok(c) => Some(c),
+                        Err(e) => {
+                            dt_warning!("Failed to initialize Hue client: {}", e);
+                            None
+                        }
+                    }
+                })
+            } else {
+                None
+            }
+        } else {
+            // fallback to env vars
+            if let (Ok(ip), Ok(key_file)) = (std::env::var("HUE_BRIDGE_IP"), std::env::var("HUE_API_KEY_FILE")) {
+                fs::read_to_string(&key_file).ok().and_then(|key| {
+                    match HueClient::new(&ip, key.trim()) {
+                        Ok(c) => Some(c),
+                        Err(e) => {
+                            dt_warning!("Failed to initialize Hue client from env: {}", e);
+                            None
+                        }
+                    }
+                })
+            } else { None }
+        };
+
 
         let state_file = format!("{}/state.json", state_dir);
 
@@ -572,6 +813,22 @@ impl ZigduckState {
             }
         }
 
+         // 🦆 says ⮞ build room scene map
+        let mut room_scenes: HashMap<String, Vec<String>> = HashMap::new();
+        for (scene_name, scene_devices) in &scene_config.scenes {
+            for device_name in scene_devices.keys() {
+                if let Some(device) = devices.get(device_name) {
+                    let room = device.room.clone();
+                    room_scenes.entry(room).or_default().push(scene_name.clone());
+                }
+            }
+        }
+        // 🦆 says ⮞ remove duplicates
+        for scenes in room_scenes.values_mut() {
+            scenes.sort();
+            scenes.dedup();
+        }
+
         dt_info!("Loaded {} devices from {}", devices.len(), devices_file);
         dt_info!("State directory: {}", state_dir);
         dt_info!("State file: {}", state_file);
@@ -620,15 +877,20 @@ impl ZigduckState {
             }
         }
 
+        let double_click_timeout = Duration::from_millis(config.double_click_timeout_ms.unwrap_or(300));
+
         Self {
             mqtt_broker,
             mqtt_user,
             mqtt_password,
+            hue_client,
             state_dir,
             state_file,
             dashboard_config,
             devices,
             scene_config,
+            room_scenes,
+            scene_index: Arc::new(RwLock::new(HashMap::new())),
             automations,
             processing_times: HashMap::new(),
             message_counts: HashMap::new(),
@@ -638,6 +900,8 @@ impl ZigduckState {
             debug,
             device_states,
             config,
+            double_click_timeout,
+            last_button_press: Arc::new(Mutex::new(HashMap::new())),
         }
     }
 
@@ -646,7 +910,7 @@ impl ZigduckState {
         if self.scene_config.scenes.contains_key(scene_name) {
             dt_debug!("🎨 Activating scene: {}", scene_name);
 
-            let output = std::process::Command::new("nqtt")
+            let output = std::process::Command::new("zigduck-cli")
                 .arg("--scene")
                 .arg(scene_name)
                 .output()?;
@@ -674,6 +938,7 @@ impl ZigduckState {
             Err(error_msg.into())
         }
     }
+
 
     fn execute_automations(&self, automation_type: &str, trigger: &str, device_name: &str, room: &str) -> Result<(), Box<dyn std::error::Error>> {
         // 🦆 says ⮞ load automations from Nix config
@@ -835,6 +1100,36 @@ impl ZigduckState {
         }
         Ok(())
     }
+
+    async fn check_double_click(&self, device_name: &str, room: &str, button_type: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let key = format!("{}:{}", device_name, button_type);
+        let now = SystemTime::now();
+        let mut last_press_map = self.last_button_press.lock().unwrap();
+
+        if let Some(last) = last_press_map.get(&key) {
+            if now.duration_since(*last).unwrap() < self.double_click_timeout {
+                dt_info!("Double-click detected: device={}, room={}, button={}", device_name, room, button_type);
+                let elapsed = now.duration_since(*last).unwrap().as_millis();
+                dt_info!("Time between presses: {} ms", elapsed);
+
+                if button_type == "on" {
+                    if let Some(scenes) = self.room_scenes.get(room) {
+                        if !scenes.is_empty() {
+                            let mut index_map = self.scene_index.write().unwrap();
+                            let current_index = index_map.entry(room.to_string()).or_insert(0);
+                            let next_scene = &scenes[*current_index];
+                            *current_index = (*current_index + 1) % scenes.len();
+                            dt_info!("Cycling to scene: {} (index {})", next_scene, *current_index);
+                            self.activate_scene_filtered(next_scene, Some(room)).await?;
+                        } else { dt_info!("No scenes available for room {}", room); }
+                    } else { dt_info!("No scenes configured for room {}", room); }
+                }
+            }
+        }
+        last_press_map.insert(key, now);
+        Ok(())
+    }
+
 
     // 🦆 says ⮞ check if someone is home
     fn is_someone_home(&self) -> bool {
@@ -1216,7 +1511,7 @@ impl ZigduckState {
                     let hue_json = serde_json::to_string(&Value::Object(hue_payload))?;
                     dt_debug!("Hue payload: {}", hue_json);
 
-                    let output = std::process::Command::new("nqtt")
+                    let output = std::process::Command::new("zigduck-cli")
                         .arg("--device")
                         .arg(&device_info.id)
                         .arg("--json")
@@ -1273,6 +1568,8 @@ impl ZigduckState {
                 return self.handle_device_command(device_id, payload).await;
             }
         }
+
+
 
         // 🦆 says ⮞ dashboard status card clicks automations
         if topic.starts_with("zigbee2mqtt/dashboard/card/") && topic.ends_with("/click") {
@@ -1489,23 +1786,27 @@ impl ZigduckState {
                         dt_info!("💡 Turning on lights in {}", room);
                         self.room_lights_on(room)
                     })?;
+                    self.check_double_click(device_name, &room, "on").await?;
                 } else if action == self.config.dimmer.actions.on_hold {
                     self.handle_room_dimmer_action(action, device_name, &room, |_| {
                         self.control_all_lights("ON", Some(254))?;
                         dt_info!("✅💡 MAX LIGHTS ON");
                         Ok(())
                     })?;
+                    self.check_double_click(device_name, &room, "on_hold").await?;
                 } else if action == self.config.dimmer.actions.off_press {
                     self.handle_room_dimmer_action(action, device_name, &room, |room| {
                         dt_info!("💡 Turning off lights in {}", room);
                         self.room_lights_off(room)
                     })?;
+                    self.check_double_click(device_name, &room, "off").await?;
                 } else if action == self.config.dimmer.actions.off_hold {
                     self.handle_room_dimmer_action(action, device_name, &room, |_| {
                         self.control_all_lights("OFF", None)?;
                         dt_info!("🦆 DARKNESS ON");
                         Ok(())
                     })?;
+                    self.check_double_click(device_name, &room, "off_hold").await?;
                 } else if action == self.config.dimmer.actions.up_press {
                     self.handle_room_dimmer_action(action, device_name, &room, |room| {
                         for (light_id, light_device) in &self.devices {
@@ -1626,24 +1927,24 @@ impl ZigduckState {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 🦆 says ⮞ get configuration from env var
-    let mqtt_broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "192.168.1.211".to_string());
-    let mqtt_user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
+    //let mqtt_broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "192.168.1.211".to_string());
+    //let mqtt_user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
     // 🦆 says ⮞ Password: from env var, or from file (configurable path), or empty
-    let mqtt_password = std::env::var("MQTT_PASSWORD")
-        .or_else(|_| {
-            let password_file = std::env::var("MQTT_PASSWORD_FILE")
-                .unwrap_or_else(|_| "/run/secrets/mosquitto".to_string());
-            std::fs::read_to_string(&password_file)
-                .map(|s| s.trim().to_string())
-                .map_err(|e| {
-                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read MQTT password from {}: {}", password_file, e);
-                    e
-                })
-        })
-        .unwrap_or_else(|_| {
-            eprintln!("[🦆📜] ⚠️ WARNING ⚠️ ⮞ No MQTT password set, proceeding with empty password");
-            "".to_string()
-        });
+    //let mqtt_password = std::env::var("MQTT_PASSWORD")
+    //    .or_else(|_| {
+    //        let password_file = std::env::var("MQTT_PASSWORD_FILE")
+    //            .unwrap_or_else(|_| "/run/secrets/mosquitto".to_string());
+    //        std::fs::read_to_string(&password_file)
+    //            .map(|s| s.trim().to_string())
+    //            .map_err(|e| {
+    //                eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read MQTT password from {}: {}", password_file, e);
+    //                e
+    //            })
+    //    })
+    //    .unwrap_or_else(|_| {
+    //        eprintln!("[🦆📜] ⚠️ WARNING ⚠️ ⮞ No MQTT password set, proceeding with empty password");
+    //        "".to_string()
+    //    });
 
     let debug = std::env::var("DEBUG").is_ok();
 
@@ -1666,17 +1967,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let devices_file = std::env::var("ZIGBEE_DEVICES_FILE")
         .unwrap_or_else(|_| "/etc/zigduck/devices.json".to_string());
 
-    eprintln!("[🦆📜] ✅INFO✅ ⮞ MQTT Broker: {}", mqtt_broker);
     eprintln!("[🦆📜] ✅INFO✅ ⮞ State Directory: {}", state_dir);
     eprintln!("[🦆📜] ✅INFO✅ ⮞ Devices file: {}", devices_file);
-    if debug {
-        eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Debug mode enabled");
-    }
+    if debug { eprintln!("[🦆📜] ⁉️DEBUG⁉️ ⮞ Debug mode enabled"); }
 
     let mut state = ZigduckState::new(
-        mqtt_broker,
-        mqtt_user,
-        mqtt_password,
         state_dir,
         devices_file,
         automations_file,

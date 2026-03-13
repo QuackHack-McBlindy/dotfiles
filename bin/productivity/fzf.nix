@@ -11,7 +11,7 @@
     category = "⚡ Productivity";
     aliases = [ "f" ];
     code = ''
-      RG_PREFIX="rg --line-number --hidden --color=never --smart-case --trim"
+      RG_PREFIX="rg --line-number --hidden --color=never --smart-case --trim -g '!**/.bash_history' -g '!**/.zsh_history' -g '!**/.fish_history' -g '!**/.history'"
       INITIAL_QUERY=""
 
       main() {
@@ -36,5 +36,5 @@
 
       main "$@"
     '';
-  };
-}
+
+  };}
