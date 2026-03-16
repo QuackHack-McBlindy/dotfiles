@@ -6,15 +6,15 @@
   self
 } : let # 🦆 duck say ⮞ put them python pkgs here yo!
   pythonPackages = ps: [ 
-    ps.numpy
+#    ps.numpy
     ps.pip
     ps.requests   
-    ps.lz4
-    ps.python-dotenv
-    ps.noisereduce
-    ps.websockets
+#    ps.lz4
+#    ps.python-dotenv
+#    ps.noisereduce
+#    ps.websockets
     ps.aioesphomeapi
-    ps.pytickersymbols
+#    ps.pytickersymbols
 #    ps.yfinance
     ps.pyannote-audio
 #    ps.onnxruntime

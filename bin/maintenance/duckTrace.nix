@@ -233,10 +233,16 @@ in {
         # 🦆 says ⮞ handle journal entries
         if [[ "$LOGFILE" == "[journal]"* ]]; then
           service=$(echo "$LOGFILE" | awk '{print $2}')
-          ${pkgs.systemd}/bin/journalctl --user -u "$service" -o short-iso \
-            | ${pkgs.less}/bin/less
+          if systemctl --user list-unit-files | grep -q "^$service$"; then
+            journalctl --user -u "$service" -o short-iso | less
+          elif systemctl list-unit-files | grep -q "^$service$"; then
+            journalctl -u "$service" -o short-iso | less
+          else
+            dt_error "Service $service not found as user or system service"
+          fi
           exit 0
         fi
+
         
         LOGFILE="$DT_LOG_PATH/$LOGFILE"
       else

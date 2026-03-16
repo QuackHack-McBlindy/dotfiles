@@ -10,7 +10,7 @@
     ps.torch
     ps.transformers
     ps.librosa
-
+    ps.beautifulsoup4
     ps.python-dotenv
     ps.noisereduce
     ps.sounddevice

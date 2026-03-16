@@ -54,8 +54,8 @@ Zigbee and smart home tightly integrated with Nix. For not just a declarative ho
 Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
-- __89 qwacktastic scripts in /bin - 56 scripts have voice commands.__ <br>
-- __2489 dynamically generated regex patterns - makes 272684905 phrases available as commands.__ <br>
+- __89 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __2499 dynamically generated regex patterns - makes 272684909 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 9389 ducks? <br>
+Let's see if you can find all 9400 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -199,7 +199,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/7d55nzjl8rg2al9s95y8lclsl2an3gk6-papirus-icon-theme-20250501"
+    package = "/nix/store/4qbficf8ajbxbldrzb62zayjnw90a2jq-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -334,7 +334,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   }) self.nixosConfigurations;
   
 in { # 🦆 duck say ⮞ voice assistant config
-  yo.legacy = false;
+#  yo.legacy = false;
   yo.SplitWords = [ "samt" ];
   yo.sorryPhrases = [
     "I didn't catch that, try again."
@@ -1273,8 +1273,8 @@ in { # 🦆 duck say ⮞ voice assistant config
     secrets =  {
       api = {
         sopsFile = ./../secrets/api.yaml;
-        owner = config.this.user.me.name;
-        group = config.this.user.me.name;
+        owner = "zigduck";
+        group = "zigduck";
         mode = "0440"; # Read-only for owner and group
       };
       hueBridgeAPI = {
@@ -1356,8 +1356,9 @@ I like my flakes tiny & ny modules dynamically loaded,
         nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
-        yo.url = "git+ssh://git@github.com/QuackHack-McBlindy/yo.git";
+        #yo.url = "github:QuackHack-McBlindy/yo";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1430,13 +1431,17 @@ git+file:///home/pungkula/dotfiles
     │   ├───health omitted (use '--all-systems' to show)
     │   ├───health-rs omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
+    │   ├───kagi omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
+    │   ├───yo-rs omitted (use '--all-systems' to show)
     │   └───zigduck-rs omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
         ├───health-rs: package 'health-rs-0.1.0'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
+        ├───kagi: package 'kagi'
         ├───tv: package 'tv'
+        ├───yo-rs: package 'yo-rs-0.1.4'
         └───zigduck-rs: package 'zigduck-rs-0.1.0'
 ```
 
@@ -1529,13 +1534,13 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
 | [yo clip2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/clip2phone.nix) --copy |  | Send clipboard to an iPhone, for quick copy paste | ✅ |
 | [yo fzf](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix)  | f | Interactive fzf search for file content with quick edit & jump to line | 📛 |
-| [yo google](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/google.nix) --search [--apiKeyFile] [--searchIDFile] | g | Perform web search on google | ✅ |
 | [yo hitta](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/hitta.nix) --search |  | Locate a persons address with help of Hitta.se | ✅ |
 | [yo img2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/img2phone.nix) --image |  | Send images to an iPhone | 📛 |
 | [yo pull](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pull.nix) [--flake] [--host] |  | Pull the latest changes from your dotfiles repo. Resets tracked files to origin/main but keeps local extras. | ✅ |
 | [yo push](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/push.nix) [--flake] [--repo] [--host] [--generation] | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. | 📛 |
 | [yo release](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/release.nix) [--confirm] |  | Bumps project version & commit, tag, and push to Git. | 📛 |
 | [yo scp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) --host [--path] [--username] [--downloadPath] |  | Move files between hosts interactively | 📛 |
+| [yo search](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/search.nix) --search [--token-file] [--num-results] |  | Perform web search using Kagi with Quick Answer | ✅ |
 | [yo update-readme](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/update-readme.nix) [--readmePath] |  | Updates documentation in README.md with current system state (uses build-time config) | 📛 |
 | **🌍 Localization** | | | |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |
@@ -1580,11 +1585,11 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
-| [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard) | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--pair] [--json] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--json] [--hue-key-file] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
+| [yo lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/lights.nix) [--state] |  | Lights toggle | ✅ |
 | [yo mqtt\_pub](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt_pub.nix) --topic --message |  | Mosquitto publisher | 📛 |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |

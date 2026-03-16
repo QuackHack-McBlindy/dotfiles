@@ -75,6 +75,10 @@ struct Cli {
     #[arg(long, help = "Hue Bridge API key", env = "HUE_API_KEY")]
     hue_api_key: Option<String>,
 
+    #[arg(long, help = "Hue Bridge API key file", env = "HUE_KEY_FILE")]
+    hue_key_file: Option<PathBuf>,
+
+
     #[arg(long, help = "Device name (friendly name)")]
     device: Option<String>,
 
@@ -1083,7 +1087,11 @@ fn main() -> Result<()> {
         password
     } else { "".to_string() };
 
-    let hue_api_key = cli.hue_api_key.or_else(|| std::env::var("HUE_API_KEY").ok());
+    let hue_api_key = if let Some(key_file) = cli.hue_key_file {
+        Some(fs::read_to_string(key_file)?.trim().to_string())
+    } else {
+        cli.hue_api_key.or_else(|| std::env::var("HUE_API_KEY").ok())
+    };
 
     let mut controller = ZigduckController::new(
         cli.broker, cli.user, password,

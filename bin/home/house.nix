@@ -1338,14 +1338,15 @@
 	      { name = "scene"; description = "Activate a predefined scene"; optional = true; }     
 	      { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }        
 	      { name = "room"; description = "Room to target"; optional = true; }        
-	      { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; default = false; }
+	      #{ name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; default = false; }
 	      { name = "json"; description = "Raw JSON to send to device"; optional = true; }
+	      { name = "hue-key-file"; description = ""; optional = true; default = config.sops.secrets.hueBridgeAPI.path; }
 	    ];
-	    binary = /run/current-system/sw/bin/nqtt;
+	    binary = /run/current-system/sw/bin/zigduck-cli;
 	    voice = {
 	      priority = 1;
 	      sentences = [
-		"{state} {all-lights} lampor"
+		#"{state} {all-lights} (lampor|lamporna)"
 		# 🦆 says ⮞ multi taskerz
 		"{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
 		"{device} {state} och ljusstyrka {brightness} procent"
@@ -1367,8 +1368,8 @@
 	      ];        
 	      lists = {
 		state.values = [
-		  { "in" = "[tänd|tända|tänk|start|starta|på|tönd|tömd]"; out = "ON"; }             
-		  { "in" = "[släck|släcka|slick|av|stäng|stäng av]"; out = "OFF"; } 
+		  { "in" = "tänd"; out = "ON"; }             
+		  { "in" = "släck"; out = "OFF"; } 
 		];
 		brightness.range = {
                   type = "number";

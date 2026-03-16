@@ -44,6 +44,7 @@
     
             [ 
                 pkgs.npth
+                pkgs.kagi
                 #   esphome
                 #pkgs.python312Packages.httpx
                 #pkgs.python312Packages.beautifulsoup4

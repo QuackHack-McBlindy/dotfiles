@@ -114,7 +114,7 @@
   }) self.nixosConfigurations;
   
 in { # 🦆 duck say ⮞ voice assistant config
-  yo.legacy = false;
+#  yo.legacy = false;
   yo.SplitWords = [ "samt" ];
   yo.sorryPhrases = [
     "I didn't catch that, try again."
@@ -1053,8 +1053,8 @@ in { # 🦆 duck say ⮞ voice assistant config
     secrets =  {
       api = {
         sopsFile = ./../secrets/api.yaml;
-        owner = config.this.user.me.name;
-        group = config.this.user.me.name;
+        owner = "zigduck";
+        group = "zigduck";
         mode = "0440"; # Read-only for owner and group
       };
       hueBridgeAPI = {

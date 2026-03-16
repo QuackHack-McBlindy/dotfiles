@@ -11,13 +11,14 @@ in {
   config = lib.mkMerge [
     # 🦆 say ⮞ for da server
     (lib.mkIf (lib.elem "yo-rs" config.this.host.modules.services) {
-      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
+#      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
+      environment.systemPackages = [ pkgs.yo-rs ];
       networking.firewall.allowedTCPPorts = [ 12345 ];
       
       services.yo-rs = {
         server = {
           enable = true;
-          demo = false;
+          #demo = false;
           host = "0.0.0.0:12345";
           shellTranslate = true;
           threshold = 0.8;    
@@ -36,7 +37,8 @@ in {
 
     # 🦆 say ⮞ microphones
     (lib.mkIf (lib.elem "yo-client" config.this.host.modules.services) {     
-      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
+#      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
+      environment.systemPackages = [ pkgs.yo-rs ];
       networking.firewall.allowedTCPPorts = [ 12345 ];
   
       services.yo-rs = {

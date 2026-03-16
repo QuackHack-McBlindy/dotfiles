@@ -15,8 +15,14 @@ rumqttc = "0.22"
 anyhow = "1.0"
 colored = "2.1"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
+multipart = "0.18"
+
 
 [[bin]]
 name = "zigduck-cli"
 path = "src/zigduck-cli.rs"
+
+[[bin]]
+name = "zigduck-api"
+path = "src/api.rs"
 

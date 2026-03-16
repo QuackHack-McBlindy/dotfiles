@@ -624,6 +624,13 @@
     };
   };
 
+  jsonFormat = pkgs.formats.json { };
+  apiConfig = {
+    password_file = config.house.dashboard.passwordFile;
+    data_dir = "/var/lib/zigduck";
+  };
+  apiConfigFile = jsonFormat.generate "api.json" apiConfig;
+
 in { # 🦆 says ⮞ Options for da house
     imports = [ ./zigduck.nix ];
     options.house = {
@@ -759,31 +766,31 @@ in { # 🦆 says ⮞ Options for da house
         type = types.submodule {
           options = {
             # 🦆 says ⮞ SSL configuration type for services
-            sslOptions = types.submodule {
-              options = {
-                enable = mkEnableOption "Enable SSL/TLS for this service";
-                certFile = mkOption {
-                  type = types.nullOr types.path;
-                  default = null;
-                  description = "Path to SSL certificate file";
-                };
-                keyFile = mkOption {
-                  type = types.nullOr types.path;
-                  default = null;
-                  description = "Path to SSL private key file";
-                };
-                caCertFile = mkOption {
-                  type = types.nullOr types.path;
-                  default = null;
-                  description = "Path to CA certificate file for client verification";
-                };
-                verifyClient = mkOption {
-                  type = types.bool;
-                  default = false;
-                  description = "Enable client certificate verification";
-                };
-              };
-            };
+#            sslOptions = types.submodule {
+#              options = {
+#                enable = mkEnableOption "Enable SSL/TLS for this service";
+#                certFile = mkOption {
+#                  type = types.nullOr types.path;
+#                  default = null;
+#                  description = "Path to SSL certificate file";
+#                };
+#                keyFile = mkOption {
+#                  type = types.nullOr types.path;
+#                  default = null;
+#                  description = "Path to SSL private key file";
+#                };
+#                caCertFile = mkOption {
+#                  type = types.nullOr types.path;
+#                  default = null;
+#                  description = "Path to CA certificate file for client verification";
+#                };
+#                verifyClient = mkOption {
+#                  type = types.bool;
+#                  default = false;
+#                  description = "Enable client certificate verification";
+#                };
+#              };
+#            };
       
             zigduck-rs = {
               enable = lib.mkEnableOption "Enable the Zigduck Rust service (home automation)" // {
@@ -962,24 +969,20 @@ in { # 🦆 says ⮞ Options for da house
               };
               user = lib.mkOption {
                 type = lib.types.str;
-                default = "duckdash";
+                default = "zigduck";
                 description = "User to run DuckDash service as";
               };
               group = lib.mkOption {
                 type = lib.types.str;
-                default = "duckdash";
+                default = "zigduck";
                 description = "Group to run DuckDash service as";
               };
               dataDir = lib.mkOption {
                 type = lib.types.str;
-                default = "/var/lib/duckdash";
+                default = "/var/lib/zigduck";
                 description = "Data directory for DuckDash service";
               };
-              stateDir = lib.mkOption {
-                type = lib.types.str;
-                default = "/var/lib/duckdash/state";
-                description = "State directory for DuckDash service";
-              };
+
               logLevel = lib.mkOption {
                 type = lib.types.enum ["error" "warn" "info" "debug" "trace"];
                 default = "info";
@@ -2754,5 +2757,9 @@ in { # 🦆 says ⮞ Options for da house
           }; 
           users.groups.zigbee2mqtt = {};
       }    
+      
+      {      
+          environment.etc."zigduck/api.json".source = apiConfigFile;
+      }
 
     ];}
