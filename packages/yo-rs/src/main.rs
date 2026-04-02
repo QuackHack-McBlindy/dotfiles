@@ -1,5 +1,4 @@
-// ddotfiles/packages/yo-rs/src/main.rs ⮞ https://github.com/QuackHack-McBlindy/dotfiles
-use std::{ // 🦆 says ⮞ yo-rs (Server)
+use std::{
     env,
     io::{Read, Write, Cursor},
     net::{TcpListener, TcpStream},
@@ -11,9 +10,56 @@ use std::{ // 🦆 says ⮞ yo-rs (Server)
 use ducktrace_logger::*;
 use anyhow::Result;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
-use oww_rs::oww::{OwwModel, OWW_MODEL_CHUNK_SIZE};
+use oww_rs::{
+    mic::{
+        converters::i16_to_f32,
+        mic_config::find_best_config,
+        process_audio::resample_into_chunks,
+        resampler::make_resampler,
+    },
+    oww::{OwwModel, OWW_MODEL_CHUNK_SIZE},
+};
 use rodio::OutputStream;
 use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
+
+
+// 🦆 says ⮞ RMS helper
+fn rms_f32(samples: &[f32]) -> f32 {
+    if samples.is_empty() {
+        return 0.0;
+    }
+    let sum_squares: f32 = samples.iter().map(|&x| x * x).sum();
+    (sum_squares / samples.len() as f32).sqrt()
+}
+
+fn save_audio_to_file(audio: &[f32], client_id: &str) -> std::io::Result<()> {
+    use std::fs::{File, create_dir_all};
+    use std::io::Write;
+    use std::path::Path;
+
+    let dir = Path::new("recordings");
+    if !dir.exists() {
+        create_dir_all(dir)?;
+    }
+
+    let safe_client_id = client_id
+        .chars()
+        .map(|c| if c.is_alphanumeric() { c } else { '_' })
+        .collect::<String>();
+
+    let timestamp = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap()
+        .as_secs();
+
+    let filename = format!("recordings/esp_{}_{}.raw", safe_client_id, timestamp);
+    let mut file = File::create(filename)?;
+    for &sample in audio {
+        file.write_all(&sample.to_le_bytes())?;
+    }
+    Ok(())
+}
+
 
 const LISTEN_ADDR: &str = "0.0.0.0:12345";
 const DING_WAV: &[u8] = include_bytes!("./../ding.wav");
@@ -21,10 +67,21 @@ const DONE_WAV: &[u8] = include_bytes!("./../done.wav");
 
 const DEFAULT_WAKE_MODEL: &[u8] = include_bytes!("./../models/wake-words/yo_bitch.onnx");
 
+// ESP32 client specific
+const ESP_SILENCE_THRESHOLD: f32 = 0.005;
+const ESP_SILENCE_TIMEOUT_SECS: f64 = 1.2;
+const ESP_MAX_DURATION_SECS: f64 = 5.0;
+
+fn reset_wake_model(model: &mut OwwModel, chunks_to_flush: usize) {
+    let zero_chunk = vec![0.0; OWW_MODEL_CHUNK_SIZE];
+    for _ in 0..chunks_to_flush {
+        let _ = model.detection(zero_chunk.clone());
+    }
+}
+
 fn handle_client(
     mut stream: TcpStream,
     mut wake_model: OwwModel,
-    //whisper_ctx: WhisperContext,
     whisper_ctx: Arc<WhisperContext>,
     client_id: String,
     debug: bool,
@@ -275,6 +332,319 @@ fn handle_client(
     dt_info!("🚫 ❌ {} Disconnected!", client_id);
     Ok(())
 }
+
+// ESP32 clients are simplified – VAD handled on server
+fn handle_client_esp(
+    mut stream: TcpStream,
+    mut wake_model: OwwModel,
+    whisper_ctx: Arc<WhisperContext>,
+    client_id: String,
+    debug: bool,
+    _cooldown_secs: u64,
+    beam_size: i32,
+    temperature: f32,
+    language: Option<String>,
+    threads: i32,
+    sound_data: Vec<u8>,
+    done_sound_data: Vec<u8>,
+    exec_command: Option<String>,
+    translate_to_shell: bool,
+    room: String,
+) -> Result<()> {
+    enum State {
+        Normal,
+        Recording {
+            buffer: Vec<f32>,
+            start: Instant,
+            last_speech: Instant,
+            duration: Duration,
+            timeout: Duration,
+            threshold: f32,
+        },
+        Cooldown {
+            until: Instant,
+        },
+    }
+
+    const SAMPLE_RATE: u32 = 16000;
+    const WINDOW_SECONDS: f64 = 0.5;
+
+    let mut state = State::Normal;
+    let mut last_detection: Option<Instant> = None;
+
+    loop {
+        let len = match stream.read_u32::<LittleEndian>() {
+            Ok(l) => l as usize,
+            Err(e) => {
+                dt_error!("[{}] Failed to read length: {} – client disconnected", client_id, e);
+                break;
+            }
+        };
+
+        let mut sample_bytes = vec![0u8; len * 4];
+        if let Err(e) = stream.read_exact(&mut sample_bytes) {
+            dt_error!("[{}] Failed to read samples: {}", client_id, e);
+            break;
+        }
+
+        let samples: Vec<f32> = sample_bytes
+            .chunks_exact(4)
+            .map(|b| f32::from_le_bytes([b[0], b[1], b[2], b[3]]))
+            .collect();
+
+        match state {
+            State::Normal => {
+                if samples.len() != OWW_MODEL_CHUNK_SIZE {
+                    dt_warning!(
+                        "[{}] Warning: received chunk of size {}, expected {}",
+                        client_id,
+                        samples.len(),
+                        OWW_MODEL_CHUNK_SIZE
+                    );
+                }
+
+                let detection = wake_model.detection(samples.clone());
+                if detection.detected {
+                    // debounce
+                    if let Some(last) = last_detection {
+                        if last.elapsed() < Duration::from_secs_f64(COOLDOWN_SECS) {
+                            continue;
+                        }
+                    }
+                    dt_info!("💥 DETECTED! {} Probability: {:.4}", client_id, detection.probability);
+                    last_detection = Some(Instant::now());
+
+                    // play awake sound
+                    let sound_data = sound_data.clone();
+                    let client_id_clone = client_id.clone();
+                    let debug_clone = debug;
+                    thread::spawn(move || {
+                        let (_stream, handle) = OutputStream::try_default().unwrap();
+                        let cursor = Cursor::new(sound_data);
+                        if let Ok(sink) = handle.play_once(cursor) {
+                            sink.sleep_until_end();
+                        }
+                        if debug_clone {
+                            dt_debug!("[{}] Finished playing awake sound", client_id_clone);
+                        }
+                    });
+
+                    // send 0x01 to client
+                    if let Err(e) = stream.write_u8(0x01) {
+                        dt_error!("[{}] Failed to send detection notification: {}", client_id, e);
+                    }
+                    if let Err(e) = stream.flush() {
+                        dt_error!("[{}] Failed to flush: {}", client_id, e);
+                    }
+
+                    // start recording
+                    let mut buffer = Vec::with_capacity((ESP_MAX_DURATION_SECS * SAMPLE_RATE as f64) as usize);
+                    buffer.extend(samples);
+                    let start = Instant::now();
+                    let last_speech = Instant::now();
+                    let duration = Duration::from_secs_f64(ESP_MAX_DURATION_SECS);
+                    let timeout = Duration::from_secs_f64(ESP_SILENCE_TIMEOUT_SECS);
+                    let threshold = ESP_SILENCE_THRESHOLD;
+                    state = State::Recording { buffer, start, last_speech, duration, timeout, threshold };
+                }
+            }
+            State::Recording {
+                mut buffer,
+                start,
+                mut last_speech,
+                duration,
+                timeout,
+                threshold,
+            } => {
+                buffer.extend(samples);
+
+                // stop recording?
+                let stop = if start.elapsed() >= duration {
+                    true
+                } else {
+                    // calculate RMS over the most recent window
+                    let window_samples = (WINDOW_SECONDS * SAMPLE_RATE as f64) as usize;
+                    if buffer.len() >= window_samples {
+                        let window_start = buffer.len() - window_samples;
+                        let window = &buffer[window_start..];
+                        let rms = rms_f32(window);
+                        if debug {
+                            dt_debug!("[{}] RMS: {:.6}", client_id, rms);
+                        }
+                        if rms > threshold {
+                            last_speech = Instant::now();
+                        }
+                        last_speech.elapsed() > timeout
+                    } else {
+                        false   // not enough data yet to make a decision
+                    }
+                };
+
+                if stop {
+                    let duration_secs = buffer.len() as f64 / SAMPLE_RATE as f64;
+                    dt_info!("[{}] Recording finished ({} samples, {:.2}s)", client_id, buffer.len(), duration_secs);
+
+                    if let Err(e) = save_audio_to_file(&buffer, &client_id) {
+                        dt_error!("[{}] Failed to save audio: {}", client_id, e);
+                    }
+
+                    // TRANSCRIBE
+                    let transcription_audio = buffer;
+                    let perf_start = if debug { Some(Instant::now()) } else { None };
+
+                    let sampling_strategy = if beam_size > 0 {
+                        SamplingStrategy::BeamSearch { beam_size, patience: 1.0 }
+                    } else {
+                        SamplingStrategy::Greedy { best_of: 1 }
+                    };
+                    let mut whisper_params = FullParams::new(sampling_strategy);
+                    whisper_params.set_n_threads(threads);
+                    whisper_params.set_translate(false);
+                    whisper_params.set_language(language.as_deref());
+                    whisper_params.set_print_special(false);
+                    whisper_params.set_print_progress(false);
+                    whisper_params.set_print_realtime(false);
+                    whisper_params.set_print_timestamps(false);
+                    whisper_params.set_temperature(temperature);
+                    whisper_params.set_suppress_blank(true);
+                    whisper_params.set_suppress_non_speech_tokens(true);
+
+                    let mut whisper_state = whisper_ctx.create_state().expect("failed to create state");
+                    let mut command_succeeded = false;
+                    if let Err(e) = whisper_state.full(whisper_params, &transcription_audio) {
+                        dt_error!("[{}] Whisper transcription failed: {}", client_id, e);
+                    } else {
+                        let num_segments = whisper_state.full_n_segments()? as usize;
+                        let mut transcription = String::new();
+                        for i in 0..num_segments {
+                            let segment = whisper_state.full_get_segment_text(i as i32)?;
+                            transcription.push_str(&segment);
+                        }
+                        dt_info!("[{}] Transcription: {}", client_id, transcription);
+
+                        if debug {
+                            if let Some(start) = perf_start {
+                                let elapsed = start.elapsed();
+                                dt_debug!("[{}] Transcription took {:.3}s", client_id, elapsed.as_secs_f64());
+                            }
+                        }
+
+                        let normalized = normalize_transcription(&transcription);
+                        if debug {
+                            dt_debug!("[{}] Normalized: {}", client_id, normalized);
+                        }
+
+                        if translate_to_shell {
+                            if normalized.is_empty() {
+                                if debug {
+                                    dt_error!("[{}] Normalized text is empty, nothing to translate.", client_id);
+                                }
+                            } else {
+                                let mut cmd = Command::new("yo");
+                                cmd.arg("do");
+                                if !room.is_empty() {
+                                    cmd.arg("--room").arg(&room);
+                                }
+                                cmd.arg("--input").cmd.arg(&normalized).env("VOICE_MODE", "1");
+                                let status = cmd.status();
+                                match status {
+                                    Ok(status) => {
+                                        if status.success() {
+                                            dt_info!("🎉 {} Shell translation successful!", client_id);
+                                            command_succeeded = true;
+                                        } else {
+                                            dt_error!(
+                                                "[{}] Shell translator failed with exit code: {:?}",
+                                                client_id,
+                                                status.code()
+                                            );
+                                        }
+                                    }
+                                    Err(e) => dt_error!("[{}] Failed to execute yo do: {}", client_id, e),
+                                }
+                            }
+                        }
+
+                        if let Some(ref cmd_str) = exec_command {
+                            if !translate_to_shell {
+                                if normalized.is_empty() {
+                                    if debug {
+                                        dt_error!("[{}] Normalized text is empty, nothing to execute", client_id);
+                                    }
+                                } else {
+                                    let mut parts = cmd_str.split_whitespace();
+                                    if let Some(program) = parts.next() {
+                                        let mut command = Command::new(program);
+                                        for arg in parts {
+                                            command.arg(arg);
+                                        }
+                                        command.arg(&normalized);
+                                        command.env("VOICE_MODE", "1");
+                                        match command.status() {
+                                            Ok(status) => {
+                                                if status.success() {
+                                                    dt_info!("🎉 {} Executed successfully!", client_id);
+                                                    command_succeeded = true;
+                                                } else {
+                                                    dt_error!(
+                                                        "🚫 {} Command failed with exit code: {:?}",
+                                                        client_id,
+                                                        status.code()
+                                                    );
+                                                }
+                                            }
+                                            Err(e) => dt_error!("🚫 {} Failed to execute command: {}", client_id, e),
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        // play done sound
+                        if command_succeeded {
+                            play_done_sound(done_sound_data.clone(), client_id.clone(), debug);
+                        }
+                    }
+
+                    // notify client (0x03 = success, 0x04 = failure)
+                    let notification_byte = if command_succeeded { 0x03 } else { 0x04 };
+                    if let Err(e) = stream.write_u8(notification_byte) {
+                        dt_error!("[{}] Failed to send notification to client: {}", client_id, e);
+                    }
+                    if let Err(e) = stream.flush() {
+                        dt_error!("[{}] Failed to flush after notification: {}", client_id, e);
+                    }
+
+                    reset_wake_model(&mut wake_model, 10);
+                    // after processing, go to cooldown
+                    let cooldown_until = Instant::now() + Duration::from_secs_f64(COOLDOWN_SECS);
+                    state = State::Cooldown { until: cooldown_until };
+                } else {
+                    // continue recording
+                    state = State::Recording {
+                        buffer,
+                        start,
+                        last_speech,
+                        duration,
+                        timeout,
+                        threshold,
+                    };
+                }
+            }
+            State::Cooldown { until } => {
+                // ignore chunks til cooldown expires
+                if Instant::now() >= until {
+                    state = State::Normal;
+                }
+                // else discard chunk
+            }
+        }
+    }
+
+    dt_info!("🚫 ❌ {} Disconnected!", client_id);
+    Ok(())
+}
+
 
 fn normalize_transcription(text: &str) -> String {
     text.trim()
@@ -645,23 +1015,44 @@ fn main() -> Result<()> {
                 let whisper_ctx = Arc::clone(&whisper_ctx);
                 let language = language.clone();
                 thread::spawn(move || {
-                    if let Err(e) = handle_client(
-                        stream,
-                        wake_model,
-                        whisper_ctx,
-                        client_id,
-                        debug,
-                        cooldown_secs,
-                        beam_size,
-                        temperature,
-                        language,
-                        threads,
-                        sound_data,
-                        done_sound_data,
-                        exec_command,
-                        translate_to_shell,
-                        room,
-                    ) {
+                    let result = if room == "esp" {
+                        handle_client_esp(
+                            stream,
+                            wake_model,
+                            whisper_ctx,
+                            client_id,
+                            debug,
+                            cooldown_secs,
+                            beam_size,
+                            temperature,
+                            language,
+                            threads,
+                            sound_data,
+                            done_sound_data,
+                            exec_command,
+                            translate_to_shell,
+                            room,
+                        )
+                    } else {
+                        handle_client(
+                            stream,
+                            wake_model,
+                            whisper_ctx,
+                            client_id,
+                            debug,
+                            cooldown_secs,
+                            beam_size,
+                            temperature,
+                            language,
+                            threads,
+                            sound_data,
+                            done_sound_data,
+                            exec_command,
+                            translate_to_shell,
+                            room,
+                        )
+                    };
+                    if let Err(e) = result {
                         dt_error!("Error in client handler: {}", e);
                     }
                 });

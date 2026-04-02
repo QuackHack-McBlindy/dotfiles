@@ -11,6 +11,8 @@
     rustc
     cargo
     clippy
+    esp-generate
+    rustup
     rustfmt
   ];
 

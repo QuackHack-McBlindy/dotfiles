@@ -43,22 +43,10 @@
             (lib.mkIf (config.networking.hostName == "homie") [ pkgs.pairdrop ])
     
             [ 
+                
                 pkgs.npth
                 pkgs.kagi
-                #   esphome
-                #pkgs.python312Packages.httpx
-                #pkgs.python312Packages.beautifulsoup4
-                #pkgs.python312Packages.aiocron
-                #pkgs.python312Packages.aioesphomeapi
-                #pkgs.python312
-                #pkgs.python312Packages.requests
-                #pkgs.python312Packages.pyaml
-                #pkgs.python312Packages.invoke
-                #pkgs.python312Packages.langid
-                #pkgs.python312Packages.pysilero-vad
 
-                ## CLI TOOLS
-               ###############
                 pkgs.qrencode
                 pkgs.age-plugin-yubikey
                 pkgs.ntfy-sh
@@ -87,7 +75,6 @@
                 pkgs.bark-server
                 pkgs.wyoming-satellite
                 pkgs.mpg123
-                pkgs.hassil
                 pkgs.gnuplot
                 pkgs.sunwait
                # vaultwarden-postgressql

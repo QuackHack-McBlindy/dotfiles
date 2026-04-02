@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+root_dir="$(pwd)"
+root_name="$(basename "$root_dir")"
+
+output=""
+
+output+="# ===== DIRECTORY: $root_name ====="$'\n\n'
+
+while IFS= read -r -d '' file; do
+    filename="$(basename "$file")"
+
+    output+="# ===== $file ====="$'\n'
+    output+="$(cat "$file")"$'\n\n\n'
+
+done < <(find . \
+    -type f \
+    ! -path "*/.git/*" \
+    ! -iname "*.png" \
+    ! -iname "*.jpg" \
+    ! -iname "*.jpeg" \
+    ! -iname "*.gif" \
+    ! -iname "*.bmp" \
+    ! -iname "*.webp" \
+    -print0)
+
+printf "%s" "$output" | xclip -selection clipboard
+
+echo "Copied combined content to clipboard."

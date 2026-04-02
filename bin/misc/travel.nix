@@ -15,33 +15,33 @@ in { # 🦆 says ⮞ voice intents
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "arrival"; description = "Destination stop or city"; optional = false; default = config.sops.secrets."users/pungkula/homeStop".path; }
-      { name = "departure"; description = "Departure stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
+      { name = "to"; description = "Destination stop or city"; optional = false; default = config.sops.secrets."users/pungkula/homeStop".path; }
+      { name = "from"; description = "from stop or city"; optional = true; default = config.sops.secrets."users/pungkula/homeStop".path; }
       { name = "type"; description = "Optionally specify a transportation type"; optional = true; }      
       { name = "apikeyPath"; description = "Trafiklab API key path"; optional = true; default = config.sops.secrets.resrobot.path; }
     ];
     code = ''
       ${cmdHelpers}      
       API_KEY=$(cat "$apikeyPath")
-      if [[ "$departure" == /* ]]; then
-        if [[ -f "$departure" ]]; then
-          origin="$(cat "$departure")"
+      if [[ "$from" == /* ]]; then
+        if [[ -f "$from" ]]; then
+          origin="$(cat "$from")"
         else
-          dt_error "File $departure not found."
+          dt_error "File $from not found."
           exit 1
         fi
       else
-        origin="$departure"
+        origin="$from"
       fi 
-      if [[ "$arrival" == /* ]]; then
-        if [[ -f "$arrival" ]]; then
-          destination="$(cat "$arrival")"
+      if [[ "$to" == /* ]]; then
+        if [[ -f "$to" ]]; then
+          destination="$(cat "$to")"
         else
-          dt_error "File $arrival not found."
+          dt_error "File $to not found."
           exit 1
         fi
       else
-        destination="$arrival"
+        destination="$to"
       fi
       transport_type="$type"
       export TZ="Europe/Stockholm"      
@@ -93,7 +93,7 @@ in { # 🦆 says ⮞ voice intents
         local stop_name="$1"
 #        dt_debug "Fetching stop ID for: $stop_name" 
         local encoded_stop_name
-        encoded_stop_name=$(python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$stop_name")
+        encoded_stop_name=$(${pkgs.python3}/bin/python3 -c "import urllib.parse, sys; print(urllib.parse.quote(sys.argv[1]))" "$stop_name")
         local url="https://api.resrobot.se/v2.1/location.name?input=$encoded_stop_name&format=json&accessId=$API_KEY"
         local response
         response=$(curl -s "$url")
@@ -366,25 +366,25 @@ in { # 🦆 says ⮞ voice intents
     voice = {
       priority = 2;
       sentences = [
-        # 🦆 says ⮞ using default --departure
-        "mår går tåget till {arrival}"
-        "vilken tid går tåget till {arrival}"
-        "mår går bussen till {arrival}"
-        "vilken tid går bussen till {arrival}"
-        # 🦆 says ⮞ using default --arrival
-        "mår går tåget från {departure}"
-        "vilken tid går tåget från {departure}"
-        "mår går bussen från {departure}"
-        "vilken tid går bussen från {departure}"
-        # 🦆 says ⮞ call using type, arrival, and departure
-        "när går {type} från {departure} till {arrival}"
-        "vilken tid går {type} från {departure} till {arrival}"
-        "när går {type} till {arrival} från {departure}"
-        "vilken tid går {type} till {arrival} från {departure}"
+        # 🦆 says ⮞ using default --from
+        "mår går tåget till {to}"
+        "vilken tid går tåget till {to}"
+        "mår går bussen till {to}"
+        "vilken tid går bussen till {to}"
+        # 🦆 says ⮞ using default --to
+        "mår går tåget från {from}"
+        "vilken tid går tåget från {from}"
+        "mår går bussen från {from}"
+        "vilken tid går bussen från {from}"
+        # 🦆 says ⮞ call using type, to, and from
+        "när går {type} från {from} till {to}"
+        "vilken tid går {type} från {from} till {to}"
+        "när går {type} till {to} från {from}"
+        "vilken tid går {type} till {to} från {from}"
       ];    
       lists = {
-        departure.wildcard = true;
-        arrival.wildcard = true;    
+        from.wildcard = true;
+        to.wildcard = true;    
         type.values = [
           { "in" = "[bus|buss|bussen]"; out = "bus"; }
           { "in" = "[tåg|tåget]"; out = "train"; }

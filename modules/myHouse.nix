@@ -125,6 +125,14 @@ in { # 🦆 duck say ⮞ voice assistant config
   # 🦆 duck say ⮞ house config   
   house = {
     media.root = "/Pool";
+    media = {
+      movies = "/Pool/Movies";
+      tv = "/Pool/TV"; 
+      music = "/Pool/Music"; 
+      musicVideos = "/Pool/Music_Videos";
+      otherVideos = "/Pool/Other_Videos"; 
+      podcasts = "/Pool/Podcasts";
+    };
     # 🦆says⮞ what machine should output sound   
     soundHost = "desktop";
     # 🦆 says ⮞ ROOM CONFIGURATION

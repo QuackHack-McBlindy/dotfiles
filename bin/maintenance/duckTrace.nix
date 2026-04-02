@@ -20,9 +20,7 @@ in {
 #    '';
     parameters = [ 
       { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
-      #{ name = "host"; description = "Specify optional host to browse the logs from"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }
-      { name = "user"; type = "bool"; description = "Operate on user services instead of system services"; optional = true; default = false; }
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }       
       { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
       { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
     ]; 
@@ -36,7 +34,6 @@ in {
       export GUM_CHOOSE_CURSOR="🦆 ➤ "  
       export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
       export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
-      USER_SERVICE="${user:-false}"
       
       announce_error() {
         local file="$DT_LOG_PATH/error_state"
@@ -98,9 +95,11 @@ in {
       get_service_name() {
         local log_base
         log_base=$(basename "$LOGFILE" .log)
-        # 🦆 says ⮞ remove yo.scripts prefix if present
+
         if [[ "$log_base" == yo.scripts.* ]]; then
           echo "yo-''${log_base#yo.scripts.}.service"
+        elif [[ "$log_base" == yo-* ]]; then
+          echo "''${log_base}.service"
         else
           echo "yo-$log_base.service"
         fi
@@ -109,25 +108,47 @@ in {
       systemd_log() {
         local service
         service=$(get_service_name)
-        local user_flag=""
-        if [[ "$USER_SERVICE" == "true" ]]; then
-          user_flag="--user"
+        ${pkgs.systemd}/bin/journalctl -u "$service" -f
+      }
+
+      run_systemctl() {
+        local action="$1"
+        local service="$2"
+
+        if [[ "$service" != *.service ]]; then
+          service="''${service}.service"
         fi
-        ${pkgs.systemd}/bin/journalctl $user_flag -u "$service" -f
+
+        if ${pkgs.systemd}/bin/systemctl --user status "$service" >/dev/null 2>&1; then
+          ${pkgs.systemd}/bin/systemctl --user "$action" "$service"
+          return 0
+        fi
+
+        if ${pkgs.systemd}/bin/systemctl status "$service" >/dev/null 2>&1; then
+          ${pkgs.systemd}/bin/systemctl "$action" "$service"
+          return 0
+        fi
+
+        echo "Service '$service' not found"
+        return 1
       }
 
       restart_service() {
         local service
         service=$(get_service_name)
-        ${pkgs.systemd}/bin/systemctl restart "$service"
+
+        run_systemctl restart "$service" || return 1
+
         ${pkgs.gum}/bin/gum spin --spinner line --title "Restarting $service" -- sleep 2
-        ${pkgs.gum}/bin/gum format --theme=pink "# Service restarted!" 
+        ${pkgs.gum}/bin/gum format --theme=pink "# Service restarted!"
       }
 
       start_service() {
         local service
         service=$(get_service_name)
-        ${pkgs.systemd}/bin/systemctl start "$service"
+
+        run_systemctl start "$service" || return 1
+
         ${pkgs.gum}/bin/gum spin --spinner line --title "Starting $service" -- sleep 2
         ${pkgs.gum}/bin/gum format --theme=green "# Service started!"
       }
@@ -135,7 +156,9 @@ in {
       stop_service() {
         local service
         service=$(get_service_name)
-        ${pkgs.systemd}/bin/systemctl stop "$service"
+
+        run_systemctl stop "$service" || return 1
+
         ${pkgs.gum}/bin/gum spin --spinner line --title "Stopping $service" -- sleep 2
         ${pkgs.gum}/bin/gum format --theme=red "# Service stopped!"
       }
@@ -208,14 +231,7 @@ in {
 
       if [[ -z "$LOGFILE" ]]; then
         cd "$DT_LOG_PATH" || exit 1
-        
-        # 🦆 says ⮞ real log files
         FILES=($(${pkgs.findutils}/bin/find . -type f -size +0c -printf '%f\n'))
-        # 🦆 says ⮞ user yo services
-        YO_SERVICES=$(${pkgs.systemd}/bin/systemctl --user list-unit-files --type=service \
-          | awk '/^yo-.*\.service/ {print "[journal] " $1}')
-        # 🦆 says ⮞ merge them
-        FILES+=($YO_SERVICES)
         if [[ ''${#FILES[@]} -eq 0 ]]; then
           dt_error "No log files found in $DT_LOG_PATH"
           exit 1
@@ -229,21 +245,6 @@ in {
           dt_info "No log file selected."
           exit 0
         fi
-        
-        # 🦆 says ⮞ handle journal entries
-        if [[ "$LOGFILE" == "[journal]"* ]]; then
-          service=$(echo "$LOGFILE" | awk '{print $2}')
-          if systemctl --user list-unit-files | grep -q "^$service$"; then
-            journalctl --user -u "$service" -o short-iso | less
-          elif systemctl list-unit-files | grep -q "^$service$"; then
-            journalctl -u "$service" -o short-iso | less
-          else
-            dt_error "Service $service not found as user or system service"
-          fi
-          exit 0
-        fi
-
-        
         LOGFILE="$DT_LOG_PATH/$LOGFILE"
       else
         if [[ ! -f "$LOGFILE" ]]; then

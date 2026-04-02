@@ -1,5 +1,4 @@
-// ddotfiles/packages/yo-rs/src/yo-do.rs ⮞ https://github.com/QuackHack-McBlindy/dotfiles
-use std::{ // 🦆 says ⮞ yo-do (Shell Translator)
+use std::{
     env,
     fs::{OpenOptions, File},
     io::{self, Write},
@@ -24,6 +23,15 @@ const DEFAULT_SPLIT_WORDS_PATH: &str = "/etc/yo/split-words.json";
 const DEFAULT_SORRY_PHRASES_PATH: &str = "/etc/yo/sorry-phrases.json";
 const DEFAULT_INTENT_DATA_PATH: &str = "/etc/yo/intent-data.json";
 const DEFAULT_FUZZY_INDEX_PATH: &str = "/etc/yo/fuzzy-index.json";
+
+
+struct CliArgs {
+    input: Option<String>,
+    fuzzy: i32,
+    room: Option<String>,
+    realtime: bool,
+}
+
 
 struct TranscriptionClient {
     ws: Option<futures_util::stream::SplitSink<tokio_tungstenite::WebSocketStream<tokio_tungstenite::MaybeTlsStream<tokio::net::TcpStream>>, Message>>,
@@ -1171,53 +1179,97 @@ fn load_sorry_phrases() -> Vec<String> {
         .unwrap_or_else(|e| panic!("Invalid JSON in sorry phrases file {}: {}", path, e))
 }
 
+
+fn parse_args() -> CliArgs {
+    let mut args = env::args().skip(1).peekable();
+    let mut input = None;
+    let mut fuzzy = 15;
+    let mut room = None;
+    let mut realtime = false;
+
+    while let Some(arg) = args.next() {
+        match arg.as_str() {
+            "--input" => {
+                let value = args.next().expect("Missing value for --input");
+                if input.is_some() {
+                    eprintln!("🦆 says ⮞ fuck ❌ Duplicate --input provided");
+                    std::process::exit(1);
+                }
+                input = Some(value);
+            }
+            "--fuzzy" => {
+                let value = args.next().expect("Missing value for --fuzzy");
+                fuzzy = value.parse().unwrap_or_else(|_| {
+                    eprintln!("🦆 says ⮞ fuck ❌ Invalid integer for --fuzzy");
+                    std::process::exit(1);
+                });
+            }
+            "--room" => {
+                let value = args.next().expect("Missing value for --room");
+                if room.is_some() {
+                    eprintln!("🦆 says ⮞ fuck ❌ Duplicate --room provided");
+                    std::process::exit(1);
+                }
+                room = Some(value);
+            }
+            "--realtime" => {
+                realtime = true;
+            }
+            _ => {
+                eprintln!("🦆 says ⮞ fuck ❌ Unknown argument: {}", arg);
+                std::process::exit(1);
+            }
+        }
+    }
+
+    CliArgs { input, fuzzy, room, realtime }
+}
+
+
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let args: Vec<String> = env::args().collect(); 
+    let cli = parse_args();
     let debug = std::env::var("DEBUG").is_ok();
     if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
-    dt_debug!("Started yo-do!");    
+    dt_debug!("Started yo-do!");
 
-    // 🦆 says ⮞ Handle real-time mode
-    if args.len() > 1 && args[1] == "--realtime" {
+    if cli.realtime {
         let mut yo_do = YoDo::new();
-    
-        // 🦆 says ⮞ load da environment data
         let intent_data_path = env::var("YO_INTENT_DATA")
             .unwrap_or_else(|_| DEFAULT_INTENT_DATA_PATH.to_string());
         yo_do.load_intent_data(&intent_data_path)?;
         let fuzzy_index_path = env::var("YO_FUZZY_INDEX")
             .unwrap_or_else(|_| DEFAULT_FUZZY_INDEX_PATH.to_string());
         yo_do.load_fuzzy_index(&fuzzy_index_path)?;
-        // 🦆 says ⮞ Run real-time mode
         tokio::runtime::Runtime::new()?.block_on(yo_do.run_realtime())?;
         Ok(())
     } else {
-        // 🦆 says ⮞ Original command mode
-        if args.len() < 2 {
-            exit(1);
-        }       
-        let input = &args[1];
-        let fuzzy_threshold = if args.len() > 2 {
-            args[2].parse().unwrap_or(15)
-        } else {
-            15
+        let input = match cli.input {
+            Some(i) => i,
+            None => {
+                eprintln!("🦆 says ⮞ fuck ❌ Missing required argument: --input");
+                std::process::exit(1);
+            }
         };
+
         let mut yo_do = YoDo::new();
-    
-        if let Ok(intent_data_path) = env::var("YO_INTENT_DATA") {
-            yo_do.load_intent_data(&intent_data_path)?;
-        } else {
+
+        let intent_data_path = env::var("YO_INTENT_DATA").unwrap_or_else(|_| {
             eprintln!("🦆 says ⮞ fuck ❌ YO_INTENT_DATA environment variable not set");
             eprintln!("Available YO_* vars:");
             for (key, _) in env::vars().filter(|(k, _)| k.starts_with("YO_")) {
                 eprintln!("   {}", key);
             }
-            return Ok(());
-        }    
+            std::process::exit(1);
+        });
+        yo_do.load_intent_data(&intent_data_path)?;
+
         if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
             yo_do.load_fuzzy_index(&fuzzy_index_path)?;
         }
-        yo_do.run(input, fuzzy_threshold)
+
+        yo_do.run(&input, cli.fuzzy)
     }
 }
+

@@ -8,7 +8,7 @@
 } : { 
     services.udev.packages = [ pkgs.openrgb ];
     users.users.pungkula.extraGroups = [ "i2c" ];    
-    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 ];
+    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12346 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   

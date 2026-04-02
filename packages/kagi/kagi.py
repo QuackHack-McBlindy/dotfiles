@@ -176,7 +176,7 @@ class KagiSearch:
             # 🦆 says ⮞ create default config
             config_file.parent.mkdir(parents=True, exist_ok=True)
             default_config = {
-                "password_command": "rbw get kagi-session-link",
+                "password_command": "cat /run/secrets/kagi",
                 "timeout": 30,
                 "max_retries": 5,
             }
@@ -192,7 +192,7 @@ class KagiSearch:
 
     def _get_session_token(self, config: Dict[str, Any]) -> str:
         """Get session token using password command from config."""
-        password_command = config.get("password_command", "rbw get kagi-session-link")
+        password_command = config.get("password_command", "cat /run/secrets/kagi")
 
         try:
             # 🦆 says ⮞ execute the password command

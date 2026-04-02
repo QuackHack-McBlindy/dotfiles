@@ -4,11 +4,11 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.31.3-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.16-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.19-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.4-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.94.0-orange?style=flat-square&logo=rust&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.94.1-orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
@@ -26,7 +26,7 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 <img src="home/profile.png" alt="QuackHack-McBlindy" width="148">
 
-[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=?&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)
+[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Sponsor&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Sponsor?style=flat&logo=buymeacoffee&logoColor=fff&labelColor=ff1493&color=ff1493)](https://buymeacoffee.com/quackhackmcblindy)
 
 
 
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 9400 ducks? <br>
+Let's see if you can find all 9395 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -183,13 +183,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/92n07gwy3liih8xyl4xhgia7lf4m749l-bibata-cursors-2.0.7";
+    package = "/nix/store/mghmxh2bw5wqjiffh8277rk7yz5dqlbf-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/07xval1187myf5cf0xqkaylph6xk45g3-fira-code-6.2" ];
+    packages = [ "/nix/store/afyrq8cj49cszjryhm2m7ps8jyp3l91i-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -199,7 +199,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/4qbficf8ajbxbldrzb62zayjnw90a2jq-papirus-icon-theme-20250501"
+    package = "/nix/store/fysbw79j24224x9k1fgi5w1v6snkpv9m-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -345,6 +345,14 @@ in { # 🦆 duck say ⮞ voice assistant config
   # 🦆 duck say ⮞ house config   
   house = {
     media.root = "/Pool";
+    media = {
+      movies = "/Pool/Movies";
+      tv = "/Pool/TV"; 
+      music = "/Pool/Music"; 
+      musicVideos = "/Pool/Music_Videos";
+      otherVideos = "/Pool/Other_Videos"; 
+      podcasts = "/Pool/Podcasts";
+    };
     # 🦆says⮞ what machine should output sound   
     soundHost = "desktop";
     # 🦆 says ⮞ ROOM CONFIGURATION
@@ -1359,6 +1367,7 @@ I like my flakes tiny & ny modules dynamically loaded,
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
         #yo.url = "github:QuackHack-McBlindy/yo";
+        yo.url = "path:/home/pungkula/yo";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1395,7 +1404,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=f6a71c4f51d11a6bfc5ff2c3d14874dc059f4625
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -1433,7 +1442,6 @@ git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=f6a71c4f51d11a6bfc5ff
     │   ├───installer omitted (use '--all-systems' to show)
     │   ├───kagi omitted (use '--all-systems' to show)
     │   ├───tv omitted (use '--all-systems' to show)
-    │   ├───yo-rs omitted (use '--all-systems' to show)
     │   └───zigduck-rs omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health: package 'health'
@@ -1441,7 +1449,6 @@ git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=f6a71c4f51d11a6bfc5ff
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
         ├───kagi: package 'kagi'
         ├───tv: package 'tv'
-        ├───yo-rs: package 'yo-rs-0.1.4'
         └───zigduck-rs: package 'zigduck-rs-0.1.0'
 ```
 
@@ -1544,7 +1551,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo update-readme](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/update-readme.nix) [--readmePath] |  | Updates documentation in README.md with current system state (uses build-time config) | 📛 |
 | **🌍 Localization** | | | |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |
-| [yo travel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) [--arrival] [--departure] [--type] [--apikeyPath] |  | Public transportation helper. Fetches current bus, boat, train and air travel schedules. (Sweden) | ✅ |
+| [yo travel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) [--to] [--from] [--type] [--apikeyPath] |  | Public transportation helper. Fetches current bus, boat, train and air travel schedules. (Sweden) | ✅ |
 | [yo weather](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) [--location] [--day] [--condition] [--locationPath] | weat | Weather Assistant. Ask anything weather related (3 day forecast) | ✅ |
 | **🌐 Networking** | | | |
 | [yo api](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/api.nix) [--host] [--port] [--dir] |  | API endpoints for smart home control, virtual media playlist management, system wide health checks and more. | 📛 |
@@ -1576,7 +1583,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
-| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
+| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
@@ -1614,7 +1621,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | **🧹 Maintenance** | | | |
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |
-| [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/duckTrace.nix) [--script] [--host] [--user] [--errors] [--monitor] | log | View duckTrace logs quick and quack, unified logging system | ✅ |
+| [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/duckTrace.nix) [--script] [--host] [--errors] [--monitor] | log | View duckTrace logs quick and quack, unified logging system | ✅ |
 | [yo health](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/health.nix)  | hc | Check system health status across your machines. Returns JSON structured responses. | ✅ |
 ### ❓ Detailed Help
 For specific command help: 
@@ -1642,6 +1649,8 @@ For specific command help:
 [![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:isthisrandomenough@protonmail.com)
 
 <!-- CONTACT_END -->
+
+<a href="https://www.buymeacoffee.com/quackhackmcblindy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 <br>
 

@@ -11,21 +11,21 @@ in {
   config = lib.mkMerge [
     # 🦆 say ⮞ for da server
     (lib.mkIf (lib.elem "yo-rs" config.this.host.modules.services) {
-#      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
-      environment.systemPackages = [ pkgs.yo-rs ];
+      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
+#      environment.systemPackages = [ pkgs.yo-rs ];
       networking.firewall.allowedTCPPorts = [ 12345 ];
       
       services.yo-rs = {
         server = {
           enable = true;
-          #demo = false;
+          demo = false;
           host = "0.0.0.0:12345";
           shellTranslate = true;
           threshold = 0.8;    
           whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           language = "sv";
           beamSize = 5;
-          temperature = 0.2; # 🦆 says ⮞ no more LSD plx
+          temperature = 0.6; # 🦆 says ⮞ no more LSD plx
           threads = 8;
           textToSpeechModelPath = "/home/pungkula/models/tts/sv_SE-lisa-medium.onnx";
           debug = false;
@@ -37,8 +37,8 @@ in {
 
     # 🦆 say ⮞ microphones
     (lib.mkIf (lib.elem "yo-client" config.this.host.modules.services) {     
-#      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
-      environment.systemPackages = [ pkgs.yo-rs ];
+      environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
+#      environment.systemPackages = [ pkgs.yo-rs ];
       networking.firewall.allowedTCPPorts = [ 12345 ];
   
       services.yo-rs = {
