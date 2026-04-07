@@ -53,6 +53,23 @@ in {
       default = {};
       description = "Files to create directly under ${homeBase}";
     };
+    
+    git.subRepo = mkOption {
+      type = types.attrsOf (types.submodule {
+        options = {
+          url = mkOption { type = types.str; };
+          rev = mkOption { type = types.str; };   # commit hash or tag
+          submodules = mkOption {
+            type = types.bool;
+            default = true;
+            description = "Whether to init/update submodules recursively";
+          };
+        };
+      });
+      default = {};
+      description = "${pkgs.git}/bin/git repositories with submodules to clone into home directory";
+    };
+    
     this.home = mkOption {
       type = types.path;
       description = "Directory to mirror to home directory";
@@ -85,6 +102,11 @@ in {
     }
     
     {
+      git.subRepo."no_std_components" = {
+        url = "https://github.com/quackhack-mcblindy/no_std_components.git";
+        rev = "main";       
+      };      
+      
       file."README.md" = ''
         # 🦆🧑‍🦯 **QuackHack-McBLindy'z ⮞ home directory yay** 🦆🧑‍🦯
 
@@ -103,10 +125,22 @@ in {
           
         ```
 
+        **🦆 duck say ⮞ i handle ur ${pkgs.git}/bin/git repoz inside HOME**  
+        **🦆 duck say ⮞ like diz:**  
+
+        ```nix
+          git.subRepo."no_std_components" = {
+            url = "https://github.com/quackhack-mcblindy/no_std_components.git";
+            rev = "main";   # or a specific commit hash like "a1b2c3d"           
+          };
+        ```
+                
+                
+
+
         ## 🦆 ⭐ 🦆 ⭐ 🦆 ⭐
 
         [![Star History](https://api.star-history.com/svg?repos=QuackHack-McBlindy/dotfiles&type=date&legend=top-left)](https://www.star-history.com/#QuackHack-McBlindy/dotfiles&type=date&legend=top-left)
-
        
       '';
     }
@@ -121,6 +155,41 @@ in {
         '';
         deps = [ "users" ];
       };
+
+      environment.systemPackages = with pkgs; [ git openssh ];      
+      system.activationScripts.submodule-mirror = {
+        deps = [ "home-mirror" ];
+        text = let
+          userName = config.this.user.me.name;
+          userHome = config.users.users.${userName}.home;
+          gitBin = "${pkgs.git}/bin";
+          sshBin = "${pkgs.openssh}/bin";
+          mkRepoScript = name: spec: ''
+            echo "🦆 Managing submodule repo: ${name} -> ${spec.url}"
+            target="${userHome}/${name}"
+            
+            # 🦆 Run as user with proper PATH and SSH command
+            ${pkgs.sudo}/bin/sudo -u ${userName} ${pkgs.bash}/bin/bash -c "
+              export PATH=${gitBin}:${sshBin}:\$PATH
+              export GIT_SSH_COMMAND=${sshBin}/ssh
+              set -e
+              target='$target'
+              if [[ ! -d \"\$target/.git\" ]]; then
+                echo 'Cloning ${spec.url} (with submodules)...'
+                ${gitBin}/git clone --recursive '${spec.url}' \"\$target\"
+              else
+                echo 'Updating ${spec.url}...'
+                (cd \"\$target\" && ${gitBin}/git fetch --all)
+              fi
+              (cd \"\$target\" && ${gitBin}/git checkout -f '${spec.rev}')
+              if [[ '${boolToString spec.submodules}' == 'true' ]]; then
+                (cd \"\$target\" && ${gitBin}/git submodule update --init --recursive --force)
+              fi
+            "
+          '';
+        in concatStringsSep "\n" (mapAttrsToList mkRepoScript config.git.subRepo);
+      };
+      
 
       # 🦆 say ⮞ Set user variiables quack
       environment.variables = {
@@ -143,6 +212,7 @@ in {
         XDG_BIN_HOME = "\${HOME}/dotfiles/home/bin";
         XDG_DATA_HOME = "\${HOME}/.local/share";
         NIX_PATH = lib.mkForce "nixpkgs=flake:nixpkgs";
+        
       };
     })
     

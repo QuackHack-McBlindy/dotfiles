@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 9395 ducks? <br>
+Let's see if you can find all 9399 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -1650,16 +1650,27 @@ For specific command help:
 
 <!-- CONTACT_END -->
 
-<a href="https://www.buymeacoffee.com/quackhackmcblindy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-<br>
+## **☕**
 
-
+[![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Sponsor&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Sponsor?style=flat&logo=buymeacoffee&logoColor=fff&labelColor=ff1493&color=ff1493)](https://buymeacoffee.com/quackhackmcblindy)
+> 🦆🧑‍🦯 says ⮞ Hi! I'm QuackHack-McBlindy!  
+> 🦆🧑‍🦯 says ⮞ Like my work?  
+> Buy me a coffee, or become a sponsor.  
+> Thanks for supporting open source/hungry developers ♥️🦆!   
 
 > [!NOTE]
 > __Im not blind.__ <br>
 > **I just can't see.** 🧑‍🦯
 <br>
+
+
+♥️₿ *Donate crypto? Wallet:* `pungkula.x`  
+<a href="https://www.buymeacoffee.com/quackhackmcblindy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+
+<a href="https://www.buymeacoffee.com/quackhackmcblindy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+  
   
 __I'll stop qwackin' here, qwack..__
 

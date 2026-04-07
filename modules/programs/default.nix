@@ -108,4 +108,11 @@ in {
       ];
     };   
     
+    sops.secrets.crates = {
+      sopsFile = ./../../secrets/crates.yaml;
+      owner = config.this.user.me.name;
+      group = config.this.user.me.name;
+      mode = "0440"; # Read-only for owner and group
+    };
+    
   };}

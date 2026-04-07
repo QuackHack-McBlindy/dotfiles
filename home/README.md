@@ -15,8 +15,20 @@
   
 ```
 
+**🦆 duck say ⮞ i handle ur /nix/store/7yvcckar1lzhqnr0xx2n19nsdjd4qa4d-git-2.53.0/bin/git repoz inside HOME**  
+**🦆 duck say ⮞ like diz:**  
+
+```nix
+  git.subRepo."no_std_components" = {
+    url = "https://github.com/quackhack-mcblindy/no_std_components.git";
+    rev = "main";   # or a specific commit hash like "a1b2c3d"           
+  };
+```
+        
+        
+
+
 ## 🦆 ⭐ 🦆 ⭐ 🦆 ⭐
 
 [![Star History](https://api.star-history.com/svg?repos=QuackHack-McBlindy/dotfiles&type=date&legend=top-left)](https://www.star-history.com/#QuackHack-McBlindy/dotfiles&type=date&legend=top-left)
-
 
