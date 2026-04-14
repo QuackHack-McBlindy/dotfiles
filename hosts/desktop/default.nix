@@ -8,7 +8,7 @@
 } : { 
     services.udev.packages = [ pkgs.openrgb ];
     users.users.pungkula.extraGroups = [ "i2c" ];    
-    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12346 ];
+    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   
@@ -48,7 +48,7 @@
                 name = "pungkula";
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                 discord = "https://discordapp.com/users/675530282849533952";
-                #matrix = "";
+                matrix = "https://matrix.to/#/@quackhack-mcblindy:matrix.org";
                 email = "isthisrandomenough@protonmail.com";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ]; 

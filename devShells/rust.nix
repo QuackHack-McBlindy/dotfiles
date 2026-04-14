@@ -10,6 +10,7 @@
     nixpkgs-fmt
     rustc
     cargo
+    cargo-msrv
     clippy
     esp-generate
     rustup

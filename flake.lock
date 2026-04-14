@@ -303,11 +303,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1774386573,
-        "narHash": "sha256-4hAV26quOxdC6iyG7kYaZcM3VOskcPUrdCQd/nx8obc=",
+        "lastModified": 1775710090,
+        "narHash": "sha256-ar3rofg+awPB8QXDaFJhJ2jJhu+KqN/PRCXeyuXR76E=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "46db2e09e1d3f113a13c0d7b81e2f221c63b8ce9",
+        "rev": "4c1018dae018162ec878d42fec712642d214fdfa",
         "type": "github"
       },
       "original": {
@@ -395,11 +395,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1774760784,
-        "narHash": "sha256-D+tgywBHldTc0klWCIC49+6Zlp57Y4GGwxP1CqfxZrY=",
+        "lastModified": 1776119890,
+        "narHash": "sha256-Zm6bxLNnEOYuS/SzrAGsYuXSwk3cbkRQZY0fJnk8a5M=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "8adb84861fe70e131d44e1e33c426a51e2e0bfa5",
+        "rev": "d4971dd58c6627bfee52a1ad4237637c0a2fb0cd",
         "type": "github"
       },
       "original": {
@@ -491,14 +491,17 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1774809381,
-        "narHash": "sha256-V0QkPDEnJw5UyFQSwMEmbWBOByw6k7g2HN6lHxwuNgs=",
-        "path": "/home/pungkula/yo",
-        "type": "path"
+        "lastModified": 1776158206,
+        "narHash": "sha256-sX8S8OQcOyDXbp275LGu/Br5gmTVagnoP6DZpLpz6rQ=",
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "rev": "70bbab47e26b57b84d16a40920a16792a384b50e",
+        "type": "github"
       },
       "original": {
-        "path": "/home/pungkula/yo",
-        "type": "path"
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "type": "github"
       }
     }
   },

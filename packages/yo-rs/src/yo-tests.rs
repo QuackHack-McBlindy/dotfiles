@@ -543,6 +543,14 @@ impl TestRunner {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    if env::var("YO_INTENT_DATA").is_err() {
+        env::set_var("YO_INTENT_DATA", "/etc/yo/intent-data.json");
+    }
+    if env::var("YO_FUZZY_INDEX").is_err() {
+        env::set_var("YO_FUZZY_INDEX", "/etc/yo/fuzzy-index.json");
+    }
+
+        
     let debug = std::env::var("DEBUG").is_ok();
     if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);

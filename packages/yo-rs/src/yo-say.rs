@@ -12,6 +12,7 @@ struct Args {
     blocking: bool,
     path: Option<String>,
     length_scale: f64,
+    announce: bool,
 }
 
 fn parse_args() -> Args {
@@ -60,6 +61,9 @@ fn parse_args() -> Args {
                 }
                 path = Some(value);
             }
+            "--announce" => {
+                announce = true;
+            }
             "--length-scale" => {
                 let value = args.next().expect("Missing value for --length-scale");
                 length_scale = value.parse::<f64>().unwrap_or_else(|_| {
@@ -97,8 +101,155 @@ fn try_broadcast(text: &str) -> bool {
     false
 }
 
+
+#[derive(Debug, Deserialize)]
+struct Client {
+    id: String,
+    ip: String,
+    connected_at: u64,
+}
+
+
+fn get_esp_ips() -> io::Result<Vec<String>> {
+    let home = dirs::home_dir().ok_or_else(|| {
+        io::Error::new(io::ErrorKind::NotFound, "Could not determine home directory")
+    })?;
+    let json_path = home.join(".config/yo/clients.json");
+    let data = std::fs::read_to_string(&json_path)?;
+    let clients: Vec<Client> = serde_json::from_str(&data)?;
+
+    let ips: Vec<String> = clients
+        .into_iter()
+        .filter(|c| c.id.contains("esp"))
+        .filter_map(|c| c.ip.split(':').next().map(|ip| ip.to_string()))
+        .collect();
+
+    Ok(ips)
+}
+
+
+fn stream_audio_to_esp(ip: &str, wav_path: &str) -> io::Result<()> {
+    const PORT: u16 = 12346;
+    const CHUNK_SIZE: usize = 1024; // samples per packet
+
+    dt_info!("Connecting to ESP at {}:{}", ip, PORT);
+    let mut stream = match TcpStream::connect((ip, PORT)) {
+        Ok(s) => s,
+        Err(e) => {
+            dt_error!("Failed to connect to {}:{} - {}", ip, PORT, e);
+            return Err(e);
+        }
+    };
+
+    let reader = match hound::WavReader::open(wav_path) {
+        Ok(r) => r,
+        Err(e) => {
+            dt_error!("Failed to open WAV file {}: {}", wav_path, e);
+            return Err(io::Error::new(io::ErrorKind::Other, e));
+        }
+    };
+
+    let spec = reader.spec();
+    let sample_rate = spec.sample_rate;
+    let channels = spec.channels;
+    let bits_per_sample = spec.bits_per_sample;
+    dt_info!("WAV: {} ch, {} bit, {} Hz", channels, bits_per_sample, sample_rate);
+
+    let samples_f32: Vec<f32> = match bits_per_sample {
+        16 => {
+            let samples_i16: Vec<i16> = reader.into_samples::<i16>()
+                .map(|s| s.unwrap())
+                .collect();
+            if channels == 1 {
+                samples_i16.into_iter().map(|s| s as f32 / 32768.0).collect()
+            } else {
+                samples_i16.chunks(channels as usize)
+                    .map(|chunk| chunk.iter().sum::<i16>() as f32 / (channels as f32 * 32768.0))
+                    .collect()
+            }
+        }
+        8 => {
+            let samples_u8: Vec<u8> = reader.into_samples::<u8>()
+                .map(|s| s.unwrap())
+                .collect();
+            if channels == 1 {
+                samples_u8.into_iter().map(|s| (s as f32 - 128.0) / 128.0).collect()
+            } else {
+                samples_u8.chunks(channels as usize)
+                    .map(|chunk| (chunk.iter().sum::<u8>() as f32 / channels as f32 - 128.0) / 128.0)
+                    .collect()
+            }
+        }
+        _ => {
+            dt_error!("Unsupported bits per sample: {}", bits_per_sample);
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Unsupported WAV format"));
+        }
+    };
+
+    let total_samples = samples_f32.len();
+    dt_info!("Converted to {} mono f32 samples", total_samples);
+
+    let mut offset = 0;
+    while offset < total_samples {
+        let end = (offset + CHUNK_SIZE).min(total_samples);
+        let chunk = &samples_f32[offset..end];
+
+        let len_bytes = (chunk.len() as u32).to_le_bytes();
+        stream.write_all(&len_bytes)?;
+
+        let chunk_bytes: Vec<u8> = chunk.iter()
+            .flat_map(|&f| f.to_le_bytes())
+            .collect();
+        stream.write_all(&chunk_bytes)?;
+
+        offset = end;
+        let sleep_secs = chunk.len() as f64 / sample_rate as f64;
+        sleep(Duration::from_secs_f64(sleep_secs));
+
+        dt_debug!("Progress: {}/{} samples", offset, total_samples);
+    }
+
+    dt_info!("Finished streaming to {}", ip);
+    Ok(())
+}
+
+
 fn main() -> io::Result<()> {
     let args = parse_args();
+
+    if args.announce {
+        let out_path = match args.path {
+            Some(p) => PathBuf::from(p),
+            None => {
+                let home = dirs::home_dir().expect("Could not find home directory");
+                home.join(".config/yo/tts.wav")
+            }
+        };
+        let out_path_str = out_path.to_string_lossy().to_string();
+
+        run_piper_to_file(&args.model, &args.text, &out_path_str, args.length_scale)?;
+        dt_info!("TTS saved to {}", out_path_str);
+
+        let esp_ips = match get_esp_ips() {
+            Ok(ips) => ips,
+            Err(e) => {
+                dt_error!("Failed to read clients.json: {}", e);
+                std::process::exit(1);
+            }
+        };
+
+        if esp_ips.is_empty() {
+            dt_warn!("No ESP devices found in clients.json");
+            return Ok(());
+        }
+
+        for ip in esp_ips {
+            if let Err(e) = stream_audio_to_esp(&ip, &out_path_str) {
+                dt_error!("Failed to stream to {}: {}", ip, e);
+            }
+        }
+        return Ok(());
+    }
 
     if try_broadcast(&args.text) {
         return Ok(());

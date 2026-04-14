@@ -2379,58 +2379,58 @@ EOF
 
 in {
 
-#  yo.scripts = { 
-#    duckDash = {
-#      description = "Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard)";
-#      aliases = [ "dash" ];
-#      category = "🛖 Home Automation";  
-#      autoStart = config.this.host.hostname == "homie";
-#      parameters = [   
-#        { name = "host"; description = "IP address of the host (127.0.0.1 / 0.0.0.0"; default = "0.0.0.0"; }      
-#        { name = "port"; description = "Port to run the frontend service on"; default = "13337"; }
-#        { name = "cert"; description = "Path to SSL certificate to run the sever on"; } 
-#        { name = "key"; description = "Path to key file to run the sever on"; } 
-#      ];
-#      code = ''
-#        ${cmdHelpers}
-#        HOST=$host
-#        PORT=$port
-#        CERT_FILE="$cert"
-#        KEY_FILE="$key"
-#        dt_info "Starting 🦆'Dash server on port $PORT"
-#        ${httpServer}/bin/serve-dashboard "$HOST" "$PORT"
-#      '';
-#    };  
-#  };
+  yo.scripts = { 
+    duckDash = {
+      description = "Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard)";
+      aliases = [ "dash" ];
+      category = "🛖 Home Automation";  
+      autoStart = config.this.host.hostname == "homie";
+      parameters = [   
+        { name = "host"; description = "IP address of the host (127.0.0.1 / 0.0.0.0"; default = "0.0.0.0"; }      
+        { name = "port"; description = "Port to run the frontend service on"; default = "13337"; }
+        { name = "cert"; description = "Path to SSL certificate to run the sever on"; } 
+        { name = "key"; description = "Path to key file to run the sever on"; } 
+      ];
+      code = ''
+        ${cmdHelpers}
+        HOST=$host
+        PORT=$port
+        CERT_FILE="$cert"
+        KEY_FILE="$key"
+        dt_info "Starting 🦆'Dash server on port $PORT"
+        ${httpServer}/bin/serve-dashboard "$HOST" "$PORT"
+      '';
+    };  
+  };
 
   # Systemd service
-  systemd.services.duckdash = {
-    description = "DuckDash Smart Home Dashboard";
-    after = [ "network.target" ];
-    wantedBy = [ "multi-user.target" ];
+#  systemd.services.duckdash = {
+#    description = "DuckDash Smart Home Dashboard";
+#    after = [ "network.target" ];
+#    wantedBy = [ "multi-user.target" ];
 
-    serviceConfig = {
-      Type = "simple";
-      ExecStart = ''${httpServer}/bin/serve-dashboard ${toString cfg.host} ${toString cfg.port}'';
+#    serviceConfig = {
+#      Type = "simple";
+#      ExecStart = ''${httpServer}/bin/serve-dashboard ${toString cfg.host} ${toString cfg.port}'';
       #RuntimeDirectory = "duckdash";
-      RuntimeDirectoryMode = "0755";
+#      RuntimeDirectoryMode = "0755";
       #DynamicUser = true;
       # If state.json or other files need group access, add SupplementaryGroups
-      Restart = "on-failure";
-      RestartSec = "5s";
+#      Restart = "on-failure";
+#      RestartSec = "5s";
       # Hardening
-      NoNewPrivileges = true;
-      PrivateTmp = true;
-      ProtectSystem = "strict";
-      ProtectHome = true;
+#      NoNewPrivileges = true;
+#      PrivateTmp = true;
+#      ProtectSystem = "strict";
+#      ProtectHome = true;
       #ReadWritePaths = [ "/run/duckdash" ];
-      ReadOnlyPaths = [
-        "/etc"
-        "/var/lib/zigduck"
-        (builtins.toString config.house.dashboard.passwordFile)
-      ];
-    };
-  };
+#      ReadOnlyPaths = [
+#        "/etc"
+#        "/var/lib/zigduck"
+#        (builtins.toString config.house.dashboard.passwordFile)
+#      ];
+#    };
+#  };
 
 
 

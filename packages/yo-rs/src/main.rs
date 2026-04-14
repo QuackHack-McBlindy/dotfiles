@@ -22,6 +22,73 @@ use oww_rs::{
 use rodio::OutputStream;
 use whisper_rs::{WhisperContext, FullParams, SamplingStrategy};
 
+use std::collections::HashSet;
+use std::fs::{self, File};
+use std::sync::Mutex;
+use std::path::PathBuf;
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct ClientEntry {
+    id: String,
+    ip: String,
+    connected_at: u64,
+}
+
+struct ClientRegistry {
+    entries: HashSet<(String, String)>,
+    file_path: PathBuf,
+}
+
+
+impl ClientRegistry {
+    fn new() -> Self {
+        let home = env::var("HOME").unwrap_or_else(|_| ".".to_string());
+        let dir = PathBuf::from(&home).join(".config/yo");
+        fs::create_dir_all(&dir).unwrap_or_else(|e| {
+            dt_error!("Failed to create config dir: {}", e);
+        });
+        let file_path = dir.join("clients.json");
+
+        let entries = HashSet::new();
+        let registry = Self { entries, file_path };
+        registry.save();
+        registry
+    }
+
+    fn add(&mut self, id: String, ip: String) {
+        self.entries.insert((id, ip));
+        self.save();
+    }
+
+    fn remove(&mut self, id: &str, ip: &str) {
+        self.entries.remove(&(id.to_string(), ip.to_string()));
+        self.save();
+    }
+
+    fn save(&self) {
+        let entries: Vec<ClientEntry> = self
+            .entries
+            .iter()
+            .map(|(id, ip)| ClientEntry {
+                id: id.clone(),
+                ip: ip.clone(),
+                connected_at: std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_secs(),
+            })
+            .collect();
+        let json = serde_json::to_string_pretty(&entries).unwrap_or_else(|e| {
+            dt_error!("failed to serialize client list: {}", e);
+            "[]".to_string()
+        });
+        if let Err(e) = File::create(&self.file_path).and_then(|mut f| f.write_all(json.as_bytes())) {
+            dt_error!("failed to write client list to {:?}: {}", self.file_path, e);
+        }
+    }
+}
+
 
 // 🦆 says ⮞ RMS helper
 fn rms_f32(samples: &[f32]) -> f32 {
@@ -67,10 +134,12 @@ const DONE_WAV: &[u8] = include_bytes!("./../done.wav");
 
 const DEFAULT_WAKE_MODEL: &[u8] = include_bytes!("./../models/wake-words/yo_bitch.onnx");
 
+
 // ESP32 client specific
 const ESP_SILENCE_THRESHOLD: f32 = 0.005;
 const ESP_SILENCE_TIMEOUT_SECS: f64 = 1.2;
 const ESP_MAX_DURATION_SECS: f64 = 5.0;
+const COOLDOWN_SECS: f64 = 10.0;  
 
 fn reset_wake_model(model: &mut OwwModel, chunks_to_flush: usize) {
     let zero_chunk = vec![0.0; OWW_MODEL_CHUNK_SIZE];
@@ -545,7 +614,7 @@ fn handle_client_esp(
                                 if !room.is_empty() {
                                     cmd.arg("--room").arg(&room);
                                 }
-                                cmd.arg("--input").cmd.arg(&normalized).env("VOICE_MODE", "1");
+                                cmd.arg("--input").arg(&normalized).env("VOICE_MODE", "1");
                                 let status = cmd.status();
                                 match status {
                                     Ok(status) => {
@@ -650,7 +719,9 @@ fn normalize_transcription(text: &str) -> String {
     text.trim()
         .to_lowercase()
         .chars()
-        .filter(|c| c.is_alphanumeric() || c.is_whitespace() || *c == '.' || *c == '-' || *c == '_')
+        .filter(|c| {
+            c.is_alphanumeric() || c.is_whitespace() || *c == '-' || *c == '_'
+        })
         .collect::<String>()
         .split_whitespace()
         .collect::<Vec<&str>>()
@@ -669,6 +740,9 @@ fn play_done_sound(done_sound_data: Vec<u8>, client_id: String, debug: bool) {
         }
     });
 }
+
+
+
 
 fn print_usage(program_name: &str) {
     dt_error!(
@@ -954,7 +1028,9 @@ fn main() -> Result<()> {
     );
 
     let whisper_ctx = Arc::new(WhisperContext::new(&whisper_model_path)?);
-    
+  
+    let client_registry = Arc::new(Mutex::new(ClientRegistry::new()));  
+  
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
@@ -988,7 +1064,18 @@ fn main() -> Result<()> {
                     format!("client @ {}", peer_addr)
                 } else { format!("room '{}'", room) };
                 dt_info!("📡 ☑️ 🎙️ {} Connected (IP: {})", client_id, peer_addr);
-    
+
+                { // register client
+                    let mut reg = client_registry.lock().unwrap();
+                    reg.add(client_id.clone(), peer_addr.clone());
+                }
+
+                let registry_clone = client_registry.clone();
+
+                // 🦆 says ⮞ clone for the unregistration step
+                let client_id_clone = client_id.clone();
+                let peer_addr_clone = peer_addr.clone();
+
                 // 🦆 says ⮞ clone data for the thread
                 let sound_data = sound_data.clone();
                 let done_sound_data = done_sound_data.clone();
@@ -1014,6 +1101,7 @@ fn main() -> Result<()> {
     
                 let whisper_ctx = Arc::clone(&whisper_ctx);
                 let language = language.clone();
+
                 thread::spawn(move || {
                     let result = if room == "esp" {
                         handle_client_esp(
@@ -1052,6 +1140,12 @@ fn main() -> Result<()> {
                             room,
                         )
                     };
+                    
+                    { // unreg client
+                        let mut reg = registry_clone.lock().unwrap();
+                        reg.remove(&client_id_clone, &peer_addr_clone);
+                    }          
+                    
                     if let Err(e) = result {
                         dt_error!("Error in client handler: {}", e);
                     }

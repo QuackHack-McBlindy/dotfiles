@@ -102,10 +102,10 @@ in {
     }
     
     {
-      git.subRepo."no_std_components" = {
-        url = "https://github.com/quackhack-mcblindy/no_std_components.git";
-        rev = "main";       
-      };      
+     # git.subRepo."no_std_components" = {
+     #   url = "https://github.com/quackhack-mcblindy/no_std_components.git";
+     #   rev = "main";       
+     # };      
       
       file."README.md" = ''
         # 🦆🧑‍🦯 **QuackHack-McBLindy'z ⮞ home directory yay** 🦆🧑‍🦯

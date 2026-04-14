@@ -56,7 +56,9 @@ in {
             -out ${certPath} \
             -subj "/CN=cache.lan"
         fi
-        chmod 400 ${certPath} ${keyPath}
+        chmod 644 ${certPath}
+        chmod 640 ${keyPath}
+        chown root:nginx ${keyPath}
       '';
       deps = [ "etc" ];
     });
