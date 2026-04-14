@@ -1652,6 +1652,10 @@ For specific command help:
 
 <!-- CONTACT_END -->
 
+> [!NOTE]
+> __Im not blind.__ <br>
+> **I just can't see.** 🧑‍🦯
+<br>
 
 ## **☕**
 
@@ -1661,20 +1665,5 @@ For specific command help:
 > Buy me a coffee, or become a sponsor.  
 > Thanks for supporting open source/hungry developers ♥️🦆!   
 
-> [!NOTE]
-> __Im not blind.__ <br>
-> **I just can't see.** 🧑‍🦯
-<br>
-
-
-♥️₿ *Donate crypto? Wallet:* `pungkula.x`  
-<a href="https://www.buymeacoffee.com/quackhackmcblindy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
-
-<a href="https://www.buymeacoffee.com/quackhackmcblindy" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-  
   
 __I'll stop qwackin' here, qwack..__
-
-
-
