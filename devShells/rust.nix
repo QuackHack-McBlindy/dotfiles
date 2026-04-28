@@ -9,11 +9,14 @@
     git
     nixpkgs-fmt
     rustc
+    clang
     cargo
     cargo-msrv
     clippy
     esp-generate
     rustup
+    openssl.dev
+    alsa-lib-with-plugins
     rustfmt
   ];
 
@@ -24,11 +27,15 @@ in {
 
   # 🦆 says ⮞ display dependencies when entering shell
   shellHook = ''
+    export PKG_CONFIG_PATH="${pkgs.alsa-lib.dev}/lib/pkgconfig"
+    export LIBCLANG_PATH="/nix/store/60y46s779qpjaqqal33yccwadcigscni-rocm-toolchain/lib/libclang.so.22.0"
     echo "Running on ${system}"
     echo ""
     ${formatHeader "Build inputs:"}
     ${pkgs.lib.concatMapStringsSep "\n" (pkg: "echo - \$'\\e[0;31m'${pkg.name}\$'\\e[0m'") myBuildInputs}
   '';
   
+  
+  CMAKE_POLICY_VERSION_MINIMUM = "3.5";
   NIX_CONFIG = "system = ${system}";
 }

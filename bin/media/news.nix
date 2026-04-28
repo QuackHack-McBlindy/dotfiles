@@ -91,7 +91,7 @@ in {
     voice = {
       priority = 2;
       sentences = [
-        "(senast|senaste) (myt|nyt|nytt)"
+        "(senast|senaste) (myt|nyt|nytt|nyheter|nyheterna)"
         
       ];  
     };

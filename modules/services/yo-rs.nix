@@ -21,11 +21,11 @@ in {
           demo = false;
           host = "0.0.0.0:12345";
           shellTranslate = true;
-          threshold = 0.8;    
+          threshold = 0.6;    
           whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           language = "sv";
           beamSize = 5;
-          temperature = 0.6; # 🦆 says ⮞ no more LSD plx
+          temperature = 0.2; # 🦆 says ⮞ no more LSD plx
           threads = 8;
           textToSpeechModelPath = "/home/pungkula/models/tts/sv_SE-lisa-medium.onnx";
           debug = false;

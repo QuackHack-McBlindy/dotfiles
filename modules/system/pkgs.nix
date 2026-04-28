@@ -9,9 +9,11 @@
 } : {
     config = lib.mkIf (lib.elem "pkgs" config.this.host.modules.system) {
         environment.systemPackages = lib.mkMerge [
+        # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [ 
                 pkgs.nix-prefetch-github 
                 self.packages.x86_64-linux.zigduck-rs
+                pkgs.element-desktop
                 pkgs.cargo
                 pkgs.rustc
                 pkgs.platformio
@@ -28,7 +30,6 @@
                 pkgs.rustfmt
                 pkgs.clippy
                 pkgs.espeak
-                pkgs.ollama-rocm
                 pkgs.jellyfin-web
                 pkgs.jellycli
                 pkgs.kanata
@@ -37,13 +38,15 @@
                 
              #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
-        
+        # 🦆 says⮞ NASTY        
             (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
+        # 🦆 says⮞ laptop            
             (lib.mkIf (config.networking.hostName == "laptop") [ pkgs.hello ])
+        # 🦆 says⮞ homie            
             (lib.mkIf (config.networking.hostName == "homie") [ pkgs.pairdrop ])
-    
-            [ 
-                
+            
+        # 🦆 says⮞ INSTALLED ON ALL HOSTS
+            [             
                 pkgs.npth
                 pkgs.kagi
 

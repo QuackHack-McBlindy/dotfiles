@@ -254,7 +254,64 @@ in {
               ;;
           esac
         }
-  
+        
+        stream_playlist_to_esp() {
+            local INPUT="$1"   
+            local ESP_PORT=12345
+            local SAMPLE_RATE=16000
+            local CHANNELS=2
+        
+            local ESP_IP
+            ESP_IP=$(jq -r '.[] | select(.room == "esp") | .ip' ~/.config/yo/clients.json | head -1)
+        
+            if [ -z "$ESP_IP" ]; then
+                echo "ESP IP not found in ~/.config/yo/clients.json" >&2
+                return 1
+            fi
+               
+            send_track() {
+                local track="$1"
+                echo "  ⮞ $track" >&2
+                ffmpeg -nostdin -i "$track" \
+                    -f s16le -acodec pcm_s16le \
+                    -ar $SAMPLE_RATE -ac $CHANNELS \
+                    -loglevel error - 2>/dev/null
+            }        
+            echo "Streaming to $ESP_IP:$ESP_PORT ..." >&2
+        
+            exec 3>/dev/tcp/$ESP_IP/$ESP_PORT || {
+                echo "Failed to connect to $ESP_IP:$ESP_PORT" >&2
+                return 1
+            }
+        
+            case "$INPUT" in
+                *.m3u | *.m3u8 | *.pls)
+                    echo "Reading playlist: $INPUT" >&2
+        
+                    while IFS= read -r line; do
+                        line="''${line#"''${line%%[![:space:]]*}"}"
+                        line="''${line%"''${line##*[![:space:]]}"}"
+        
+                        [[ -z "$line" || "$line" == \#* ]] && continue
+        
+                        send_track "$line" >&3
+                    done < <(
+                        if [[ "$INPUT" =~ ^https?:// ]]; then
+                            curl -sL "$INPUT"
+                        else
+                            cat "$INPUT"
+                        fi
+                    )
+                    ;;
+                *)
+                    send_track "$INPUT" >&3
+                    ;;
+            esac       
+            # close connection
+            exec 3>&-    
+            echo "Done!" >&2
+        }
+          
         generate_playlist() {
             local dir="$1"
             local media_type="$2"
@@ -803,6 +860,7 @@ in {
             # 🦆 says ⮞ search tv show random season WITH SPEED 🚀🚀
             yo tv-rs "$typ" "$search"
             start_playlist "$DEVICE"
+            stream_playlist_to_esp "$PLAYLIST_SAVE_PATH"
             ;;
 #            items=()
 #            while IFS= read -r -d $'\0' item; do

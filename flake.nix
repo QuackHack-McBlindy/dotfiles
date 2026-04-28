@@ -7,7 +7,9 @@
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
-        yo.url = "github:QuackHack-McBlindy/yo";
+        yo.url = "github:QuackHack-McBlindy/yo";     
+        #yo.url = "github:QuackHack-McBlindy/yo/29b576fee43ca4394b64302d3082c1722bd437b6"; 
+        #yo.url = "github:QuackHack-McBlindy/yo/70bbab47e26b57b84d16a40920a16792a384b50e";
         #yo.url = "path:/home/pungkula/yo";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";

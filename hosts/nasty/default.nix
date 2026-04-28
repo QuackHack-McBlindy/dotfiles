@@ -134,6 +134,7 @@ in {
     fileSystems."/Pool" = {
         device = "/mnt/Pool";
         options = [ "bind" ];
+        fsType = "none";
     };
    
     fileSystems."/mnt/backup" = {
@@ -145,6 +146,7 @@ in {
     fileSystems."/backup" = {
         device = "/mnt/backup";
         options = [ "bind" ];
+        fsType = "none";
     };
    
 

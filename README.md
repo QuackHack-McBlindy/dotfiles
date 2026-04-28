@@ -3,8 +3,8 @@
 <!-- VERSIONS_START -->
 ![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.31.4-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.21-red?style=flat-square&logo=linux&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.34.6-blue?style=flat-square&logo=nixos&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.24-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-49.4-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
@@ -55,7 +55,7 @@ Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
 
 <!-- SCRIPT_STATS_START -->
 - __90 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
-- __2499 dynamically generated regex patterns - makes 272684909 phrases available as commands.__ <br>
+- __2503 dynamically generated regex patterns - makes 272684913 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
@@ -89,7 +89,7 @@ I try to simplify that process in my blog. <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4641 ducks? <br>
+Let's see if you can find all 4646 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -183,13 +183,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/mghmxh2bw5wqjiffh8277rk7yz5dqlbf-bibata-cursors-2.0.7";
+    package = "/nix/store/f1hbsrnl35k5fxk9ny1ikc22q38dmhbm-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/69d29n8dsf85z5l29vla88vli1m0vzm3-fira-code-6.2" ];
+    packages = [ "/nix/store/xq0rmhyr8qxw9dyz64if6d7cq5gxfyqh-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -199,7 +199,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/fysbw79j24224x9k1fgi5w1v6snkpv9m-papirus-icon-theme-20250501"
+    package = "/nix/store/n03f6g8flrp8p5nlm45qadssjf3klhs0-papirus-icon-theme-20250501"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -1366,7 +1366,9 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
-        yo.url = "github:QuackHack-McBlindy/yo";
+        yo.url = "github:QuackHack-McBlindy/yo";     
+        #yo.url = "github:QuackHack-McBlindy/yo/29b576fee43ca4394b64302d3082c1722bd437b6"; 
+        #yo.url = "github:QuackHack-McBlindy/yo/70bbab47e26b57b84d16a40920a16792a384b50e";
         #yo.url = "path:/home/pungkula/yo";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";

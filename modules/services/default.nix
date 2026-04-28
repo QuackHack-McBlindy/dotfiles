@@ -9,5 +9,5 @@
 in {
     config = lib.mkIf (lib.elem "default" cfg) {
         services.atd.enable = true; 
-    
+        services.dbus.implementation = "dbus";
     };}
