@@ -171,6 +171,13 @@ in {
     logLevel = "INFO";
     parameters = [
       { name = "readmePath"; description = "Path to README.md file"; type = "path"; optional = false; default = config.this.user.me.dotfilesDir + "/README.md"; }
+      {
+        name = "voiceTablePath";
+        description = "Path to output voice-only command table";
+        type = "path";
+        optional = true;
+        default = config.this.user.me.dotfilesDir + "/voice-table.md";
+      }
     ]; 
     code = ''
       ${cmdHelpers}
@@ -608,6 +615,63 @@ EOF
         dt_debug "Changes detected:"
         git diff --stat "$README_PATH" 2>/dev/null || true
       fi
+
+      
+      
+      dt_info "Generating voice-only command table..."
+      
+      # Read the parameter (the framework already exports it)
+      VOICE_TABLE_PATH="$voiceTablePath"
+      
+      # The GitHub base URL is already computed earlier in the script
+      # (githubBaseUrl variable). If not, compute it similarly.
+      
+      # Use jq to extract voice‑ready scripts and format the table
+      VOICE_TABLE=$(${pkgs.jq}/bin/jq -r --arg base "$githubBaseUrl" '
+        [
+          .scripts
+          | to_entries[]
+          | select(.value.voiceReady == true)
+          | {
+              name: .key,
+              path: .value.filePath,
+              desc: .value.description,
+              aliases: .value.aliases? // [],
+              params: .value.parameters? // []
+            }
+        ]
+        | sort_by(.name)
+        | [
+            "## 🦆 Voice‑Ready Commands",
+            "",
+            "| Command | Aliases | Description |",
+            "|---------|---------|-------------|"
+          ] + (
+            .[] | (
+              "| [yo " + .name + "](" + $base + "/" + ((.path // "") | gsub(" "; "%20")) + ") "
+              + (
+                if (.params | length > 0) then
+                  (.params | map(if .optional or .default != null then "[--\(.name)]" else "--\(.name)" end) | join(" "))
+                else "" end
+              )
+              + " | "
+              + (if (.aliases | length > 0) then (.aliases | join(", ")) else "" end)
+              + " | "
+              + .desc
+              + " |"
+            )
+          )
+        | join("\n")
+      ' "$CONFIG_FILE")
+      
+      # Write to the target file
+      if [ -n "$VOICE_TABLE" ]; then
+        echo "$VOICE_TABLE" > "$VOICE_TABLE_PATH"
+        dt_info "Voice table written to $VOICE_TABLE_PATH"
+      else
+        dt_warning "No voice‑ready scripts found – voice-table.md not created"
+      fi
+      
     '';
 
   };}
