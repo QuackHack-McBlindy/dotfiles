@@ -80,7 +80,7 @@
                 networking = [ "default" "pool" ];
                 services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
-                virtualisation = [ "docker" "vm" ];
+                virtualisation = [ "docker-rootless" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdwPkRQxlbrbRGwEO5zMJ4m+7QqUQPZg1iqbd5HRP34";

@@ -35,6 +35,8 @@ in {
     '';
     voice = {
       enabled = true;
+      fuzzy.enable = true;
+      fuzzy.threshold = 0.1;
       priority = 2;
       sentences = [
         "(va|vad|vart) är klockan"

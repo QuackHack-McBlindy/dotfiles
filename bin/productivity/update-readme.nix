@@ -623,10 +623,8 @@ EOF
       # Read the parameter (the framework already exports it)
       VOICE_TABLE_PATH="$voiceTablePath"
       
-      # The GitHub base URL is already computed earlier in the script
-      # (githubBaseUrl variable). If not, compute it similarly.
-      
-      # Use jq to extract voice‑ready scripts and format the table
+
+
       VOICE_TABLE=$(${pkgs.jq}/bin/jq -r --arg base "$githubBaseUrl" '
         [
           .scripts
@@ -664,7 +662,7 @@ EOF
         | join("\n")
       ' "$CONFIG_FILE")
       
-      # Write to the target file
+
       if [ -n "$VOICE_TABLE" ]; then
         echo "$VOICE_TABLE" > "$VOICE_TABLE_PATH"
         dt_info "Voice table written to $VOICE_TABLE_PATH"

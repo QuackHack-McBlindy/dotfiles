@@ -1,13 +1,13 @@
-
 *.bak
-modules/dump
-/home/Public/dump
-bin/dump
-bin/voice/dump
-devShells/dump
-packages/dump
-lib/dump
-home/dump
+dump/
+**/dump/
+.env
+**/.env
+target/
+**/target/
+release/
+**/release/
+
 home/.config/ha
 home/.config/home-assistant
 result/
@@ -15,7 +15,7 @@ epg.xml
 home/.config/Yubico
 home/sketchbook/dump
 home/.local/share/piper
-overlays/dump
+
 modules/networking/caddy.nix.save
 borg_settings.txt
 packages/yo-rs/models/stt
@@ -26,7 +26,7 @@ key/
 *_DECRYPTED
 **/passwd
 **/log
-**/.env
+
 .DS_Store          # macOS file system metadata
 Thumbs.db          # Windows thumbnail cache
 __pycache__/       # Python bytecode cache folder
@@ -56,7 +56,7 @@ docker-compose.yml # Docker compose config
 *.iml              # IntelliJ IDEA module files
 target/            # Rust target folder
 build/             # Build output for C++ projects
-result/            # Nix build output
+
 **/result/
 **/result
 *.pid
