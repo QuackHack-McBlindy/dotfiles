@@ -65,13 +65,11 @@
         }
       ' "$SPEED_FILE"
     '';
-    voice = {
-      priority = 5;
-      sentences = [
-        "nätverks test"
-        "hur fort går internet"
-        "testa internet hastigheten"
-      ];
-    };
+    #voice = {
+    #  priority = 5;
+    #  sentences = [
+
+    #  ];
+    #};
 
   };}

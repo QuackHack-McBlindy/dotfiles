@@ -153,6 +153,8 @@ in {
         if [[ "$typ" == "tv" || "$typ" == "movie" || "$typ" == "music" || "$typ" == "song" ]]; then
           yo tv-rs "$typ" "$search"
           start_playlist "$device"
+          sleep 2
+          bash play_playlist_esp.sh
           exit 1
         fi
   
@@ -1121,6 +1123,8 @@ in {
   
         dt_debug "Matched media: $matched_media"
         dt_debug "Media type: $media_type" 
+
+        bash play_playlist_esp.sh
   
         # 🦆 says ⮞ unless season specified - create da playlist 
         if [[ -z "$season" ]] && [[ -n "''${SEARCH_FOLDERS[$media_type]}" ]]; then

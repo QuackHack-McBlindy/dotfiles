@@ -15,7 +15,7 @@
     ps.noisereduce
     ps.sounddevice
     ps.numpy
-
+    ps.pillow
   ];
   
   myPython = pkgs.python3.withPackages pythonPackages;

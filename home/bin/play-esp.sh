@@ -18,7 +18,7 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-INPUT="$1"
+
 
 send_track() {
     local track="$1"

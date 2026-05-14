@@ -18,6 +18,7 @@
     openssl.dev
     alsa-lib-with-plugins
     rustfmt
+    SDL2
   ];
 
   formatRed = name: "echo - \$'\\e[0;31m'${name}\$'\\e[0m'";
