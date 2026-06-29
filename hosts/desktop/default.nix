@@ -1,4 +1,4 @@
-# hosts/desktop/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/hosts/desktop/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ diz iz my main machine & waz my entry 4 da steelseries world championship build contest
   config, # 🦆 duck say ⮞ 2 much pc 4 a simple duck like me - basically sittin' on 3 horses here
   lib, 
@@ -8,7 +8,7 @@
 } : { 
     services.udev.packages = [ pkgs.openrgb ];
     users.users.pungkula.extraGroups = [ "i2c" ];    
-    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 ];
+    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 51821 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   
@@ -54,7 +54,8 @@
                 extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ]; 
                 mobileDevices = { # 🦆 duck say ⮞ non nixos devices
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
-                    tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };   
+                    tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };
+                    watch = { wgip = "10.0.0.9"; pubkey = "b28LFIbZSxbCLTaK7qsLp0hAMH+yo93+rVV14qif4hY="; };
                 };
             }; # 🦆 duck say ⮞ language
             i18n = "sv_SE.UTF-8";

@@ -1880,7 +1880,7 @@ impl ZigduckState {
         mqttoptions.set_credentials(&self.mqtt_user, &self.mqtt_password);
         mqttoptions.set_keep_alive(Duration::from_secs(5));
         // 🦆 says ⮞ max packet size if larger payloads
-        mqttoptions.set_max_packet_size(256 * 1024, 256 * 1024); // 🦆 says ⮞ 256KB
+        mqttoptions.set_max_packet_size(1024 * 1024, 1024 * 1024); // 🦆 says ⮞ 1MB
 
         let (mut client, mut connection) = Client::new(mqttoptions, 10);
         client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce)?;
@@ -1901,7 +1901,7 @@ impl ZigduckState {
                     }
                 }
                 Err(e) => {
-                    dt_debug!("Connection error: {}", e);
+                    dt_warning!("Connection error: {}", e);
                     dt_info!("Attempting to reconnect in 5 seconds...");
                     tokio::time::sleep(Duration::from_secs(5)).await;
 
@@ -1909,7 +1909,7 @@ impl ZigduckState {
                     let mut mqttoptions = MqttOptions::new("zigduck-rs", &self.mqtt_broker, 1883);
                     mqttoptions.set_credentials(&self.mqtt_user, &self.mqtt_password);
                     mqttoptions.set_keep_alive(Duration::from_secs(5));
-                    mqttoptions.set_max_packet_size(256 * 1024, 256 * 1024);
+                    mqttoptions.set_max_packet_size(1024 * 1024, 1024 * 1024); // 1MB
 
                     let (new_client, new_connection) = Client::new(mqttoptions, 10);
                     client = new_client;
@@ -1917,7 +1917,7 @@ impl ZigduckState {
 
                     match client.subscribe("zigbee2mqtt/#", QoS::AtMostOnce) {
                         Ok(_) => dt_info!("Successfully reconnected and subscribed"),
-                        Err(e) => dt_debug!("Failed to subscribe after reconnect: {}", e),
+                        Err(e) => dt_warning!("Failed to subscribe after reconnect: {}", e),
                     }
                 }
             }
@@ -1925,26 +1925,27 @@ impl ZigduckState {
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+#[tokio::main]
+async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 🦆 says ⮞ get configuration from env var
-    //let mqtt_broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "192.168.1.211".to_string());
-    //let mqtt_user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
+    let mqtt_broker = std::env::var("MQTT_BROKER").unwrap_or_else(|_| "192.168.1.211".to_string());
+    let mqtt_user = std::env::var("MQTT_USER").unwrap_or_else(|_| "mqtt".to_string());
     // 🦆 says ⮞ Password: from env var, or from file (configurable path), or empty
-    //let mqtt_password = std::env::var("MQTT_PASSWORD")
-    //    .or_else(|_| {
-    //        let password_file = std::env::var("MQTT_PASSWORD_FILE")
-    //            .unwrap_or_else(|_| "/run/secrets/mosquitto".to_string());
-    //        std::fs::read_to_string(&password_file)
-    //            .map(|s| s.trim().to_string())
-    //            .map_err(|e| {
-    //                eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read MQTT password from {}: {}", password_file, e);
-    //                e
-    //            })
-    //    })
-    //    .unwrap_or_else(|_| {
-    //        eprintln!("[🦆📜] ⚠️ WARNING ⚠️ ⮞ No MQTT password set, proceeding with empty password");
-    //        "".to_string()
-    //    });
+    let mqtt_password = std::env::var("MQTT_PASSWORD")
+        .or_else(|_| {
+            let password_file = std::env::var("MQTT_PASSWORD_FILE")
+                .unwrap_or_else(|_| "/run/secrets/mosquitto".to_string());
+            std::fs::read_to_string(&password_file)
+                .map(|s| s.trim().to_string())
+                .map_err(|e| {
+                    eprintln!("[🦆📜] ❌ERROR❌ ⮞ Failed to read MQTT password from {}: {}", password_file, e);
+                    e
+                })
+        })
+        .unwrap_or_else(|_| {
+            eprintln!("[🦆📜] ⚠️ WARNING ⚠️ ⮞ No MQTT password set, proceeding with empty password");
+            "".to_string()
+        });
 
     let debug = std::env::var("DEBUG").is_ok();
 
@@ -1978,9 +1979,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         debug,
     );
 
+    state.start_listening().await
+
     // 🦆 says ⮞ simple runtime
-    let rt = tokio::runtime::Runtime::new()?;
-    rt.block_on(async {
-        state.start_listening().await
-    })
+//    let rt = tokio::runtime::Runtime::new()?;
+//    rt.block_on(async {
+//        state.start_listening().await
+//    })
 }

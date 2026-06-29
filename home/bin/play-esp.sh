@@ -4,19 +4,28 @@ ESP_PORT=12345
 SAMPLE_RATE=16000
 CHANNELS=2
 
-ESP_IP=$(jq -r '.[] | select(.room == "esp") | .ip' ~/.config/yo/clients.json | head -1)
+if [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
+    ESP_IP="$1"
+    shift
+else
+    ESP_IP=$(jq -r '.[] | select(.room == "esp") | .ip' \
+        ~/.config/yo/clients.json | head -1)
+fi
+
 if [ -z "$ESP_IP" ]; then
-    echo "ESP IP not found in ~/.config/yo/clients.json"
+    echo "ESP IP not found"
     exit 1
 fi
 
 if [ $# -ne 1 ]; then
     echo "Usage:"
-    echo "$0 <file_or_playlist>"
-    echo "$0 <http_or_https_url>"
-    echo "$0 mic"
+    echo "$0 [esp_ip] <file_or_playlist>"
+    echo "$0 [esp_ip] <http_or_https_url>"
+    echo "$0 [esp_ip] mic"
     exit 1
 fi
+
+INPUT="$1"
 
 
 

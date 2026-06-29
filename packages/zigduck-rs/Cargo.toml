@@ -1,6 +1,6 @@
 [package]
 name = "zigduck-rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 
 [dependencies]
@@ -17,6 +17,9 @@ colored = "2.1"
 reqwest = { version = "0.11", features = ["blocking", "json"] }
 multipart = "0.18"
 
+[[bin]]
+name = "zigduck-rs"
+path = "src/main.rs"
 
 [[bin]]
 name = "zigduck-cli"

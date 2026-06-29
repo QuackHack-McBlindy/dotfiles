@@ -1,6 +1,5 @@
-
 # dotfiles/bin/home/timer.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ timer management - ised when cooking or whatever  
+{ # 🦆 says ⮞ timer management - used when cooking or whatever  
   self,
   lib,
   config,
@@ -8,24 +7,20 @@
   cmdHelpers,
   ...
 } : let
-  # 🦆 says ⮞ sweeedish number words 1-60
-  swedishNumbers = [
-    "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
-    "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton" "tjugo"
-    "tjugoett" "tjugotvå" "tjugotre" "tjugofyra" "tjugofem" "tjugosex" "tjugosju" "tjugoåtta" "tjugonio" "trettio"
-    "trettioett" "trettiotvå" "trettiotre" "trettiofyra" "trettiofem" "trettiosex" "trettiosju" "trettioåtta" "trettionio" "fyrtio"
-    "fyrtioett" "fyrtiotvå" "fyrtiotre" "fyrtiofyra" "fyrtiofem" "fyrtiosex" "fyrtiosju" "fyrtioåtta" "fyrtionio" "femtio"
-    "femtioett" "femtiotvå" "femtiotre" "femtiofyra" "femtiofem" "femtiosex" "femtiosju" "femtioåtta" "femtionio" "sextio"
+  # 🦆 says ⮞ english number words 1-60
+  englishNumbers = [
+    "one" "two" "three" "four" "five" "six" "seven" "eight" "nine" "ten"
+    "eleven" "twelve" "thirteen" "fourteen" "fifteen" "sixteen" "seventeen" "eighteen" "nineteen" "twenty"
+    "twenty-one" "twenty-two" "twenty-three" "twenty-four" "twenty-five" "twenty-six" "twenty-seven" "twenty-eight" "twenty-nine" "thirty"
+    "thirty-one" "thirty-two" "thirty-three" "thirty-four" "thirty-five" "thirty-six" "thirty-seven" "thirty-eight" "thirty-nine" "forty"
+    "forty-one" "forty-two" "forty-three" "forty-four" "forty-five" "forty-six" "forty-seven" "forty-eight" "forty-nine" "fifty"
+    "fifty-one" "fifty-two" "fifty-three" "fifty-four" "fifty-five" "fifty-six" "fifty-seven" "fifty-eight" "fifty-nine" "sixty"
   ];
-  # 🦆 says ⮞ get dat number yo
-  swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
+  # 🦆 says ⮞ get that number yo
+  englishNumber = n: builtins.elemAt englishNumbers (n - 1);
   
-  # 🦆 says ⮞ dis fetch what host has Mosquitto
+  # 🦆 says ⮞ this fetches which host has Mosquitto
   sysHosts = lib.attrNames self.nixosConfigurations; 
-#  mqttHost = lib.findSingle (host:
-#      let cfg = self.nixosConfigurations.${host}.config;
-#      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
   mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
@@ -77,7 +72,7 @@ in {
                 seconds_left=$((remaining % 60))
                 finish_time=$(date -d @$end_time +'%H:%M:%S')
                 timers+=("{\"id\":$pid,\"counter\":$counter,\"target\":\"$finish_time\",\"hours_left\":$hours_left,\"minutes_left\":$minutes_left,\"seconds_left\":$seconds_left}")
-                if_voice_say "Timer $counter . Ringer klockan $finish_time . om $hours_left timmar, $minutes_left minuter och $seconds_left sekunder" --blocking true --silence "0.6"
+                if_voice_say "Timer $counter. Rings at $finish_time. In $hours_left hours, $minutes_left minutes and $seconds_left seconds" --blocking true --silence "0.6"
                 counter=$((counter + 1))
               fi
             else
@@ -99,7 +94,7 @@ in {
       DURATION=$TIMER_TOTAL
       TIMER_MINUTES=$((DURATION / 60))
       dt_info "Setting timer on $TIMER_MINUTES minutes ..."
-      say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
+      say "Okay buddy! I set a timer for $TIMER_MINUTES minutes"
       
       if [ "$(hostname)" != "$mqttHost" ]; then
         dt_info "Setting timer on $TIMER_MINUTES minutes on $mqttHost ..."
@@ -120,7 +115,7 @@ in {
         echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
         rm -f "$LOGFILE_DIR/$$.pid"
 
-        yo notify "TIMER RINGER!!"
+        yo notify "TIMER RINGING!!"
 
         if [ -f "$SOUNDFILE" ]; then
           for i in {1..10}; do
@@ -129,7 +124,7 @@ in {
           sleep 15
           for i in {1..8}; do
             aplay "$SOUNDFILE" >/dev/null 2>&1
-            yo notify "TIMER RINGER!!"
+            yo notify "TIMER RINGING!!"
           done
         else
           dt_warning "Sound file not found: $SOUNDFILE"
@@ -142,35 +137,35 @@ in {
     voice = {
       priority = 1;
       sentences = [
-        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
-        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter) [och] {seconds} (sekund|sekunder)"
-        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter)"                     
-        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {seconds} sekunder"      
+        "(set|start|create) [a] timer [for] {hours} (hour|hours) {minutes} (minute|minutes) {seconds} (second|seconds)"
+        "(set|start|create) [a] timer [for] {minutes} (minute|minutes) [and] {seconds} (second|seconds)"
+        "(set|start|create) [a] timer [for] {minutes} (minute|minutes)"                     
+        "(set|start|create) [a] timer [for] {seconds} (second|seconds)"      
         
-        "hur {list} är det kvar på (time|timer|timern)"
-        "tid {list} på (time|timer|timern)"
-        "när {list} (time|timer|timern)"
+        "how (much|long) {list} left on [the] timer"
+        "time {list} on [the] timer"
+        "when {list} [the] timer"
       ];        
       lists = {
         list.values = [
-          { "in" = "[länge|kvar]"; out = "true"; }
+          { "in" = "[left|remaining]"; out = "true"; }
         ];
         seconds.values = builtins.concatLists (builtins.genList (
                 i: let n = i + 1; in [
                   { "in" = toString n; out = toString n; }     
-                  { "in" = swedishNumber n; out = toString n; }
+                  { "in" = englishNumber n; out = toString n; }
                 ]
               ) 60);
               minutes.values = builtins.concatLists (builtins.genList (
                 i: let n = i + 1; in [
                   { "in" = toString n; out = toString n; }
-                  { "in" = swedishNumber n; out = toString n; }
+                  { "in" = englishNumber n; out = toString n; }
                 ]
               ) 60);
               hours.values = builtins.concatLists (builtins.genList (
                 i: let n = i + 1; in [
                   { "in" = toString n; out = toString n; }
-                  { "in" = swedishNumber n; out = toString n; }
+                  { "in" = englishNumber n; out = toString n; }
                 ]
               ) 24);
         };

@@ -101,7 +101,7 @@ EOF
         dt_debug "$TOTAL SEK / kWh"
         echo "$TOTAL SEK / kWh"
         mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": $TOTAL}"
-        if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
+        yo say --text "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi  
 
       if [[ "$mode" == "history" ]]; then
@@ -211,7 +211,7 @@ EOF
         mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": \"$TOTAL\"}"
         mqtt_pub -t "zigbee2mqtt/tibber/energy" -m "{\"current_price\": \"$TOTAL\", \"monthly_usage\": \"$TOTAL_KWH\"}"
 
-        if_voice_say "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
+        yo say --text "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi   
     '';
     voice = {

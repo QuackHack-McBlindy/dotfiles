@@ -11,8 +11,7 @@
         environment.systemPackages = lib.mkMerge [
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [ 
-                pkgs.nix-prefetch-github 
-                self.packages.x86_64-linux.zigduck-rs
+                pkgs.nix-prefetch-github
                 pkgs.element-desktop
                 pkgs.cargo
                 pkgs.rustc
@@ -120,7 +119,7 @@
                 pkgs.file
                 pkgs.chromium 	       # yuck
                 pkgs.neovim
-                pkgs.libsForQt5.qt5.qtwayland
+                #pkgs.libsForQt5.qt5.qtwayland
                 pkgs.jellyfin-ffmpeg   # transcoding
                 pkgs.drawing 	       # simple image editing
                 pkgs.vlc  			# media player

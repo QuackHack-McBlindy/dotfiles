@@ -16,6 +16,7 @@
     ps.sounddevice
     ps.numpy
     ps.pillow
+    ps.cairosvg
   ];
   
   myPython = pkgs.python3.withPackages pythonPackages;
@@ -23,6 +24,7 @@
 
   myBuildInputs = with pkgs; [
     git
+    pngquant
     nixpkgs-fmt
     myPython    
     virtualenv

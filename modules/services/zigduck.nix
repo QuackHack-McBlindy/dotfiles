@@ -44,9 +44,16 @@
 in {
   config = lib.mkMerge [
     (lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-      environment.systemPackages = [ self.packages.x86_64-linux.zigduck-rs ];
+
+      environment.systemPackages = [ 
+        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-rs
+        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-cli
+        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-api
+      ];
       services.zigduck = {
         enable = true;
+        api.enable = true;
+        api.passwordFile = config.sops.secrets.api.path;
         broker = "192.168.1.211";
         extraEnv.PATH = 
           "/run/current-system/sw/bin:"
@@ -59,6 +66,7 @@ in {
     })
 
     {
+      environment.systemPackages = [ self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-cli ];
       services.zigduck.cli.broker = "192.168.1.211";
     }
    

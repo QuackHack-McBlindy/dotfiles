@@ -510,11 +510,11 @@ EOF
       yo-say --text "$1"
     }
     if_voice_say() { 
-      if [ "$VOICE_MODE" = "1" ]; then yo-say "$@"; fi
+      if [ "$VOICE_MODE" = "1" ]; then yo-say --text "$@"; fi
     }    
     confirm() {
       local question="$1"
-      yo-say "$question Säg: ja eller nej."
+      yo-say --text "$question Säg: ja eller nej."
       read -r ask
       ask=$(yo-mic)
       if [[ "$ask" == "ja" ]]; then

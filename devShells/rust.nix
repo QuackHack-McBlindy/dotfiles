@@ -29,6 +29,8 @@ in {
   # 🦆 says ⮞ display dependencies when entering shell
   shellHook = ''
     export PKG_CONFIG_PATH="${pkgs.alsa-lib.dev}/lib/pkgconfig"
+    export OPENSSL_INCLUDE_DIR=$(nix eval --raw nixpkgs#openssl.dev)/include
+    export OPENSSL_LIB_DIR=$(nix eval --raw nixpkgs#openssl.out)/lib
     export LIBCLANG_PATH="/nix/store/60y46s779qpjaqqal33yccwadcigscni-rocm-toolchain/lib/libclang.so.22.0"
     echo "Running on ${system}"
     echo ""

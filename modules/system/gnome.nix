@@ -27,8 +27,8 @@ in {
                 pkgs.gnomeExtensions.wireguard-vpn-extension
                 pkgs.gnomeExtensions.gsconnect
                 pkgs.gnomeExtensions.open-bar
-                pkgs.gnomeExtensions.dashbar
-                pkgs.gnomeExtensions.task-up
+                #pkgs.gnomeExtensions.dashbar
+                #pkgs.gnomeExtensions.task-up
                 pkgs.gnomeExtensions.emoji-copy
                 pkgs.gnomeExtensions.todotxt
                 pkgs.gnomeExtensions.space-bar

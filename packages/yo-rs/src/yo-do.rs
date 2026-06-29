@@ -239,6 +239,7 @@ struct YoDo {
     scripts: HashMap<String, ScriptConfig>,
     intent_data: HashMap<String, IntentData>,
     fuzzy_index: Vec<FuzzyIndexEntry>,
+    fuzzy_entity_dict: HashMap<String, HashMap<String, Vec<EntityMapping>>>,
     processing_order: Vec<ScriptPriority>,
     fuzzy_threshold: i32,
     debug: bool,
@@ -273,6 +274,7 @@ impl YoDo {
             scripts: HashMap::new(),
             intent_data: HashMap::new(),
             fuzzy_index: Vec::new(),
+            fuzzy_entity_dict: HashMap::new(),
             processing_order: Vec::new(),
             fuzzy_threshold: 15,
             debug: env::var("DEBUG").is_ok() || env::var("DT_DEBUG").is_ok(),
@@ -280,6 +282,51 @@ impl YoDo {
             split_words,
             sorry_phrases,
         }
+    }
+
+    fn fuzzy_resolve_entity(
+        &self,
+        script_name: &str,
+        param_name: &str,
+        value: &str,
+        threshold: i32,
+    ) -> Option<String> {
+        let param_dict = self.fuzzy_entity_dict
+            .get(script_name)?
+            .get(param_name)?;
+
+        let normalized_value = value.to_lowercase();
+        let mut best_score = 0;
+        let mut best_output = None;
+
+        for mapping in param_dict {
+            let input = &mapping.input.to_lowercase();
+            let distance = self.levenshtein_distance(&normalized_value, input);
+            let max_len = normalized_value.len().max(input.len());
+            if max_len == 0 {
+                continue;
+            }
+            let score = 100 - (distance * 100 / max_len) as i32;
+            if score >= threshold && score > best_score {
+                best_score = score;
+                best_output = Some(mapping.output.clone());
+            }
+        }
+
+        if let Some(out) = best_output {
+            dt_debug(&format!(
+                "      Fuzzy entity match ({}%): {} → {}",
+                best_score, value, out
+            ));
+        }
+        best_output
+    }
+
+    fn load_fuzzy_entity_dict(&mut self, path: &str) -> Result<(), Box<dyn std::error::Error>> {
+        let data = fs::read_to_string(path)?;
+        self.fuzzy_entity_dict = serde_json::from_str(&data)?;
+        dt_debug(&format!("🦆 Loaded fuzzy entity dict for {} scripts", self.fuzzy_entity_dict.len()));
+        Ok(())
     }
 
     fn is_wildcard_param(&self, script_name: &str, param_name: &str) -> bool {
@@ -327,6 +374,8 @@ impl YoDo {
         }; 
         Ok(MemoryData { context, history })
     }
+
+
 
     async fn process_transcription(&self, text: &str) -> Result<(), Box<dyn std::error::Error>> {
         dt_info(&format!("Real-time transcription: {}", text));
@@ -562,6 +611,13 @@ impl YoDo {
             }
             dt_debug(&format!("      No entity match found for '{}'", param_value));
         }
+       
+        // 🦆 fuzzy fallback if nothing matched
+        if let Some(fuzzy_result) = self.fuzzy_resolve_entity(script_name, param_name, param_value, 70) {
+            return fuzzy_result;
+        }
+        
+        // 🦆 say ⮞ ultimate fallback 
         param_value.to_string()
     }
   
@@ -1264,6 +1320,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             std::process::exit(1);
         });
         yo_do.load_intent_data(&intent_data_path)?;
+
+        let fuzzy_entity_path = env::var("YO_FUZZY_ENTITY_DICT")
+            .unwrap_or_else(|_| "/etc/yo/fuzzy-entity-dict.json".to_string());
+        yo_do.load_fuzzy_entity_dict(&fuzzy_entity_path)?;
 
         if let Ok(fuzzy_index_path) = env::var("YO_FUZZY_INDEX") {
             yo_do.load_fuzzy_index(&fuzzy_index_path)?;
