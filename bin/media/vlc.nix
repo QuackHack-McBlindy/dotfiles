@@ -169,7 +169,7 @@ in {
     webserver = { # 🦆 says ⮞ https required
       sopsFile = ../../secrets/webserver.yaml;
       owner = config.this.user.me.name;
-      group = config.this.user.me.name;
+      group = "zigduck";
       mode = "0440";
     }; # 🦆 says ⮞ required for youtube
     youtube_api_key = { 

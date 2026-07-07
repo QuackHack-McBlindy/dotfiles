@@ -53,6 +53,7 @@ in {
       services.zigduck = {
         enable = true;
         api.enable = true;
+        api.port = 13335;
         api.passwordFile = config.sops.secrets.api.path;
         broker = "192.168.1.211";
         extraEnv.PATH = 

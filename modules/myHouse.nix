@@ -1067,8 +1067,8 @@ in { # 🦆 duck say ⮞ voice assistant config
       };
       hueBridgeAPI = {
         sopsFile = ./../secrets/hueBridgeAPI.yaml;
-        owner = config.this.user.me.name;
-        group = config.this.user.me.name;
+        owner = "zigduck";
+        group = "zigduck";
         mode = "0440"; # Read-only for owner and group
       };
       mosquitto = { # 🦆 says ⮞ quack, stupid!

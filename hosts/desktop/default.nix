@@ -51,7 +51,7 @@
                 matrix = "https://matrix.to/#/@quackhack-mcblindy:matrix.org";
                 email = "isthisrandomenough@protonmail.com";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
-                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ]; 
+                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "zigduck" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ]; 
                 mobileDevices = { # 🦆 duck say ⮞ non nixos devices
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };

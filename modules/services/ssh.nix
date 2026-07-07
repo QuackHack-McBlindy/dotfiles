@@ -30,6 +30,8 @@
     # 🦆 duck say ⮞ additional keys
     extraKeys = builtins.filter (x: x != null) [
       config.this.host.keys.publicKeys.iPhone or null
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILX7WX1lpfk6IVRALzgWJPMEPzXS24xmnvej/ap52gQa"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOXExBQxsPTJ7lYBq7LUpVsLR9X1bJyQuIO17Us136HP"
     ];
   in hostKeys ++ extraKeys;
 

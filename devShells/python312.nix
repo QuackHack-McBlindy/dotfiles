@@ -16,6 +16,7 @@
     ps.sounddevice
     ps.numpy
     ps.pillow
+    ps.pynacl
     ps.cairosvg
   ];
   

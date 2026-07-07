@@ -8,6 +8,7 @@
     ...
 } : {
     config = lib.mkIf (lib.elem "pkgs" config.this.host.modules.system) {
+        nixpkgs.config.permittedInsecurePackages = [ "pnpm-10.29.2" ];
         environment.systemPackages = lib.mkMerge [
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [ 

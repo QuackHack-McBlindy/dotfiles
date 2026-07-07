@@ -22,7 +22,7 @@ in {
           host = "0.0.0.0:12345";
           shellTranslate = true;
           threshold = 0.6;    
-          whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
+          whisperModelPath = "/home/pungkula/models/stt/ggml-medium.bin";
           language = "sv";
           beamSize = 5;
           temperature = 0.4; # 🦆 says ⮞ no more LSD plx

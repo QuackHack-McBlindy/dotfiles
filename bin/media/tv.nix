@@ -76,7 +76,7 @@ in {
     parameters = [
       { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; values = [ "on" "off" "up" "down" "next" "prev" "call" "favorites" "add" "tv" "movie" "livetv" "podcast" "news" "music" "song" "musicvideo" "jukebox" "othervideo" "youtube" "nav_up" "nav_down" "nav_left" "nav_right" "nav_select" "nav_menu" "nav_back" "channel_up" "channel_down" ]; }
       { name = "search"; type = "string"; description = "Media to search"; optional = true; }
-      { name = "device"; description = "Device IP to play on"; default = "192.168.1.223"; }
+      { name = "device"; description = "Device IP to play on"; default = "192.168.1.224"; }
       { name = "season"; type = "string"; description = "Specific season to play"; optional = true; }
       { name = "shuffle"; type = "bool"; description = "Shuffle Toggle, true or false"; default = true; }
       { name = "tvshowsDir"; type = "path"; description = "TV shows directory"; default = "/Pool/TV"; }
@@ -1143,7 +1143,7 @@ in {
     webserver = { # 🦆 says ⮞ https required
       sopsFile = ../../secrets/webserver.yaml;
       owner = config.this.user.me.name;
-      group = config.this.user.me.name;
+      group = "zigduck";
       mode = "0440";
     }; # 🦆 says ⮞ required for youtube
     youtube_api_key = { 
