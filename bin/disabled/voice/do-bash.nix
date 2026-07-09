@@ -654,7 +654,7 @@
 in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
   yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
     do-bash = { # 🦆 says ⮞ wat? BASH?! quack - just bcause duck can! crazy huh?! 
-      description = "[🦆🧠] yo do - The Brain of this repository. Natural language to Shell script translator with dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Written in Bash (slower, but more dope🦆, don't ya think?)";
+      description = "yo let's do it - dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Bash and jq nothing more nothing less.";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       logLevel = "INFO";
       autoStart = false;
