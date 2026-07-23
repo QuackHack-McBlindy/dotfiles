@@ -427,7 +427,7 @@ in { # 🦆 duck say ⮞ voice assistant config
             description = "Automation actions performed when timers is finished";
             topic = "zigduck/timer/finished"; 
             actions = [
-              { type = "shell"; command = "yo notify 'TIMER!'"; }
+              { type = "shell"; command = "ssh desktop yo say 'timer timer timer'"; }
             ];
           };
 

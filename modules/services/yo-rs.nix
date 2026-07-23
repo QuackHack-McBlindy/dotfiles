@@ -60,13 +60,13 @@ in {
           awakeCmd =
             if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state on --brightness 50 --color blue" 
             else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state on --brightness 50 --color blue"            
-            else if config.this.host.hostname == "nasty" then "zigduck-cli --device bloom --state on --brightness 100 --color blue"
+            else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/ding"
             else "";
 
           doneCmd = 
             if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state off"
             else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state off"
-            else if config.this.host.hostname == "nasty" then "zigduck-cli --device bloom --state off"
+            else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/done"
             else "";
 
           debug = false;
