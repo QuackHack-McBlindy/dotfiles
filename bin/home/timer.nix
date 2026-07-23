@@ -120,6 +120,9 @@ in {
         echo -e "\n\e[1;5;31m[TIMER FINISHED]\e[0m"
         rm -f "$LOGFILE_DIR/$$.pid"
 
+        # 🦆 says ⮞ publish MQTT event so automations can react
+        mosquitto_pub -h "$mqttHost" $mqttAuth -t "zigduck/timer/finished" -m "{\"id\":\"$$\",\"duration\":$DURATION,\"}"
+
         yo notify "TIMER RINGER!!"
 
         if [ -f "$SOUNDFILE" ]; then

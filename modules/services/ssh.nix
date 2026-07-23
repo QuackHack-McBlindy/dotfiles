@@ -100,9 +100,9 @@ in {
       };
 
 #      extraConfig = ''GSSAPIAuthentication no'';
-      moduliFile = pkgs.runCommand "filterModuliFile" {} ''
-        awk '$5 >= 3071' "${config.programs.ssh.package}/etc/ssh/moduli" >"$out"
-      '';
+      #moduliFile = pkgs.runCommand "filterModuliFile" {} ''
+     #   awk '$5 >= 3071' "${config.programs.ssh.package}/etc/ssh/moduli" >"$out"
+     # '';
 
       listenAddresses = [
         { addr = "0.0.0.0"; port = 2222; }

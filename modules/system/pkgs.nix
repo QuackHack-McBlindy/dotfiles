@@ -8,7 +8,8 @@
     ...
 } : {
     config = lib.mkIf (lib.elem "pkgs" config.this.host.modules.system) {
-        nixpkgs.config.permittedInsecurePackages = [ "pnpm-10.29.2" ];
+        nixpkgs.config.permittedInsecurePackages = [ "pnpm-10.29.2" "electron-40.10.5" ];
+
         environment.systemPackages = lib.mkMerge [
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [ 
@@ -109,7 +110,7 @@
                 pkgs.dconf
                 pkgs.nvme-cli
                # inputs.say.packages.x86_64-linux.say
-                self.packages.${pkgs.system}.health
+               # self.packages.${pkgs.system}.health
                 pkgs.nix-index
                 pkgs.rich-cli
                 pkgs.lsd

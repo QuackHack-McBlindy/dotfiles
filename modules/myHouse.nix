@@ -360,7 +360,78 @@ in { # 🦆 duck say ⮞ voice assistant config
         
 
         # 🦆 says ⮞ 1. MQTT triggered automations
-        mqtt_triggered = {
+        mqtt_triggered = {      
+          alarm_wakeup = {
+            enable = true;
+            description = "Automation actions performed when alarm is ringing";
+            topic = "zigduck/alarm/triggered";
+            actions = [
+              { type = "shell"; command = "yo say 'stig upp nu latmask!!'"; }
+              { type = "scene"; scene = "max"; }
+            ];
+          };
+
+          timer_set = {
+            enable = true;
+            description = "Automation for setting timer";
+            topic = "zigduck/timer/set";
+            actions = [
+              {
+                type = "shell";
+                command = ''
+                  HOURS=$(echo "$MQTT_PAYLOAD" | jq -r '.hours // 0')
+                  MINUTES=$(echo "$MQTT_PAYLOAD" | jq -r '.minutes // 0')
+                  SECONDS=$(echo "$MQTT_PAYLOAD" | jq -r '.seconds // 0')
+                  TOTAL_SECONDS=$(( HOURS * 3600 + MINUTES * 60 + SECONDS ))
+
+                  if TOTAL_SECONDS -eq 0; then
+                    TOTAL_SECONDS=$(echo "$MQTT_PAYLOAD" | jq -r '.total_seconds // 0')
+                  fi
+
+                  if [ "$TOTAL_SECONDS" -le 0 ]; then
+                    exit 1
+                  fi
+
+                  MQTT_HOST="${config.house.zigbee.mosquitto.host}"
+                  MQTT_AUTH="${mqttAuth}"
+                  LOGDIR="/var/lib/zigduck/timers"
+                  mkdir -p "$LOGDIR"
+                  start_time=$(date +%s)
+                  end_time=$(( start_time + TOTAL_SECONDS ))
+
+                  (
+                    while [ $(date +%s) -lt $end_time ]; do
+                      remaining=$(( end_time - $(date +%s) ))
+                      echo "Time remaining: $remaining s"
+                      sleep 1
+                    done
+
+
+                    mosquitto_pub -h "$MQTT_HOST" $MQTT_AUTH \
+                      -t "zigduck/timer/finished" \
+                      -m "{\"id\":\"$$\",\"duration\":$TOTAL_SECONDS}"
+
+                    rm -f "$LOGDIR/$$.pid"
+                  ) > /dev/null 2>&1 &
+
+                  pid=$!
+                  echo "$pid $end_time" > "$LOGDIR/$pid.pid"
+                  disown "$pid"
+                '';
+              }
+            ];
+          };
+
+          timer_finish = {
+            enable = true;
+            description = "Automation actions performed when timers is finished";
+            topic = "zigduck/timer/finished"; 
+            actions = [
+              { type = "shell"; command = "yo notify 'TIMER!'"; }
+            ];
+          };
+
+
           # 🦆say⮞ crypto tickers 
           xmr = {
             enable = true;

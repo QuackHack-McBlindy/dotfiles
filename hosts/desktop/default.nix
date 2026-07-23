@@ -6,6 +6,17 @@
   self,
   ...
 } : { 
+
+    nixpkgs.overlays = [
+      (final: prev: {
+        python3Packages = prev.python3Packages.overrideScope (pyself: pysuper: {
+          inline-snapshot = pysuper.inline-snapshot.overrideAttrs (old: {
+            doCheck = false;
+            doInstallCheck = false;
+          });
+        });
+      })
+    ];
     services.udev.packages = [ pkgs.openrgb ];
     users.users.pungkula.extraGroups = [ "i2c" ];    
     networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 51821 ];

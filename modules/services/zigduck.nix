@@ -55,6 +55,9 @@ in {
         api.enable = true;
         api.port = 13335;
         api.passwordFile = config.sops.secrets.api.path;
+        dashboard.enable = true;
+        dashboard.port = 13337;
+        dashboard.passwordFile = config.sops.secrets.api.path;
         broker = "192.168.1.211";
         extraEnv.PATH = 
           "/run/current-system/sw/bin:"
