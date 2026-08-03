@@ -303,11 +303,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1784497964,
-        "narHash": "sha256-vlHUuqAcbcH2RKmHbPiuQzbv1pnzzavXnI62RD0bqCU=",
+        "lastModified": 1785692966,
+        "narHash": "sha256-vUfIeBEfpbAfZ5zjgIkYk7eHBeVfCYVjLbWnMkseYnk=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "241313f4e8e508cb9b13278c2b0fa25b9ca27163",
+        "rev": "643809054d65fdd466a63e3155b8c498cb483c04",
         "type": "github"
       },
       "original": {
@@ -561,11 +561,11 @@
         "tinyFlake": "tinyFlake_2"
       },
       "locked": {
-        "lastModified": 1784838459,
-        "narHash": "sha256-2G8Em10k/PSZW+C8y5+Fmo05LBOmbiECj6p3cD1ejIg=",
+        "lastModified": 1785759656,
+        "narHash": "sha256-h4suTd+l0bJeUqShgrQbFi/Sw9WNuRnsBzlbKkYfH0Y=",
         "owner": "QuackHack-McBlindy",
         "repo": "Zigduck2mqttnix",
-        "rev": "081eaf10d9f5073dc805af2a83e573d6ecd49b31",
+        "rev": "7093ef729550fa670f3dcd3526da0007b9e0548d",
         "type": "github"
       },
       "original": {

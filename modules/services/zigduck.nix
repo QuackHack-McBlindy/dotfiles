@@ -70,7 +70,10 @@ in {
     })
 
     {
-      environment.systemPackages = [ self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-cli ];
+      environment.systemPackages = [ 
+        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-cli
+        self.inputs.zigduck2mqttnix.packages.x86_64-linux.tv
+      ];
       services.zigduck.cli.broker = "192.168.1.211";
     }
    

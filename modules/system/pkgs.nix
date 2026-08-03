@@ -127,7 +127,7 @@
                 pkgs.vlc  			# media player
                 #   amberol
                 pkgs.cava
-                pkgs.nordic 		# theme
+                #pkgs.nordic 		# theme
                 pkgs.papirus-icon-theme # theme
                 pkgs.poweralertd
                 pkgs.signal-desktop 		# signal messaging w/ API

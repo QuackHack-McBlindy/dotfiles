@@ -114,17 +114,19 @@
   }) self.nixosConfigurations;
   
 in { # 🦆 duck say ⮞ voice assistant config
-#  yo.legacy = false;
+  yo.legacy = false;
   yo.SplitWords = [ "samt" ];
   yo.sorryPhrases = [
-    "I didn't catch that, try again."
-    "Sorry, what was that?"
-    "Could you repeat?"
+    "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
+    "Vad fan säger du för något?"
+    "Prata som en människa snälla"
   ];
 
   # 🦆 duck say ⮞ house config   
   house = {
+    https.domainNameFile = config.sops.secrets.webserver.path;
     media.root = "/Pool";
+    media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
       movies = "/Pool/Movies";
       tv = "/Pool/TV"; 
@@ -132,6 +134,7 @@ in { # 🦆 duck say ⮞ voice assistant config
       musicVideos = "/Pool/Music_Videos";
       otherVideos = "/Pool/Other_Videos"; 
       podcasts = "/Pool/Podcasts";
+      audiobooks = "/Pool/Audiobooks";
     };
     # 🦆says⮞ what machine should output sound   
     soundHost = "desktop";
@@ -364,9 +367,8 @@ in { # 🦆 duck say ⮞ voice assistant config
           alarm_wakeup = {
             enable = true;
             description = "Automation actions performed when alarm is ringing";
-            topic = "zigduck/alarm/triggered";
+            topic = "zigbee2mqtt/alarm/triggered";
             actions = [
-              { type = "shell"; command = "yo say 'stig upp nu latmask!!'"; }
               { type = "scene"; scene = "max"; }
             ];
           };
@@ -374,7 +376,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           timer_set = {
             enable = true;
             description = "Automation for setting timer";
-            topic = "zigduck/timer/set";
+            topic = "zigbee2mqtt/timer/set";
             actions = [
               {
                 type = "shell";
@@ -425,7 +427,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           timer_finish = {
             enable = true;
             description = "Automation actions performed when timers is finished";
-            topic = "zigduck/timer/finished"; 
+            topic = "zigbee2mqtt/timer/finished"; 
             actions = [
               { type = "shell"; command = "ssh desktop yo say 'timer timer timer'"; }
             ];
@@ -873,7 +875,7 @@ in { # 🦆 duck say ⮞ voice assistant config
       shield = {
         enable = true;
         room = "livingroom";
-        ip = "192.168.1.223";
+        ip = "192.168.1.224";
         apps = {
           telenor = "se.telenor.stream/.MainActivity";
           tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";

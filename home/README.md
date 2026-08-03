@@ -15,7 +15,7 @@
   
 ```
 
-**🦆 duck say ⮞ i handle ur /nix/store/1k2lblqlj39azh6wn1sffa2869vrg3mr-git-2.54.0/bin/git repoz inside HOME**  
+**🦆 duck say ⮞ i handle ur /nix/store/6f0qqak4qbcrbw4f750phr88c9yhpf5s-git-2.55.0/bin/git repoz inside HOME**  
 **🦆 duck say ⮞ like diz:**  
 
 ```nix
