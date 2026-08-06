@@ -124,7 +124,7 @@ in { # 🦆 duck say ⮞ voice assistant config
 
   # 🦆 duck say ⮞ house config   
   house = {
-    https.domainNameFile = config.sops.secrets.webserver.path;
+    https.urlFile = config.sops.secrets.webserver.path;
     media.root = "/Pool";
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
