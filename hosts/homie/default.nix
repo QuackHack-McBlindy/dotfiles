@@ -49,7 +49,7 @@
                 name = "pungkula";
                 repo = "git@github.com:QuackHack-McBlindy/dotfiles.git";
                 dotfilesDir = "/home/${config.this.user.me.name}/dotfiles"; 
-                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" ]; 
+                extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "zigduck" "adbusers" "audio" ]; 
                 mobileDevices = { # 🦆 duck say ⮞ non nixos devices
                     iphone = { wgip = "10.0.0.7"; pubkey = "UFB0T1Y/uLZi3UBtEaVhCi+QYldYGcOZiF9KKurC5Hw="; };
                     tablet = { wgip = "10.0.0.8"; pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4="; };

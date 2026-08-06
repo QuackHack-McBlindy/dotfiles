@@ -366,73 +366,42 @@ in { # 🦆 duck say ⮞ voice assistant config
         mqtt_triggered = {      
           alarm_wakeup = {
             enable = true;
-            description = "Automation actions performed when alarm is ringing";
+            description = "Time to wake up!";
             topic = "zigbee2mqtt/alarm/triggered";
-            actions = [
+            actions = [  # 🦆 says ⮞ max lightz
               { type = "scene"; scene = "max"; }
-            ];
-          };
-
-          timer_set = {
-            enable = true;
-            description = "Automation for setting timer";
-            topic = "zigbee2mqtt/timer/set";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  HOURS=$(echo "$MQTT_PAYLOAD" | jq -r '.hours // 0')
-                  MINUTES=$(echo "$MQTT_PAYLOAD" | jq -r '.minutes // 0')
-                  SECONDS=$(echo "$MQTT_PAYLOAD" | jq -r '.seconds // 0')
-                  TOTAL_SECONDS=$(( HOURS * 3600 + MINUTES * 60 + SECONDS ))
-
-                  if TOTAL_SECONDS -eq 0; then
-                    TOTAL_SECONDS=$(echo "$MQTT_PAYLOAD" | jq -r '.total_seconds // 0')
-                  fi
-
-                  if [ "$TOTAL_SECONDS" -le 0 ]; then
-                    exit 1
-                  fi
-
-                  MQTT_HOST="${config.house.zigbee.mosquitto.host}"
-                  MQTT_AUTH="${mqttAuth}"
-                  LOGDIR="/var/lib/zigduck/timers"
-                  mkdir -p "$LOGDIR"
-                  start_time=$(date +%s)
-                  end_time=$(( start_time + TOTAL_SECONDS ))
-
-                  (
-                    while [ $(date +%s) -lt $end_time ]; do
-                      remaining=$(( end_time - $(date +%s) ))
-                      echo "Time remaining: $remaining s"
-                      sleep 1
-                    done
-
-
-                    mosquitto_pub -h "$MQTT_HOST" $MQTT_AUTH \
-                      -t "zigduck/timer/finished" \
-                      -m "{\"id\":\"$$\",\"duration\":$TOTAL_SECONDS}"
-
-                    rm -f "$LOGDIR/$$.pid"
-                  ) > /dev/null 2>&1 &
-
-                  pid=$!
-                  echo "$pid $end_time" > "$LOGDIR/$pid.pid"
-                  disown "$pid"
-                '';
-              }
+              # 🦆 says ⮞ fuck up bed (neck up + feet up)
+              { type = "mqtt"; topic = "zigbee2mqtt/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
+              { type = "mqtt"; topic = "zigbee2mqtt/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
+              { type = "wait"; duration = 10; }
+              # 🦆 says ⮞ FLASH!
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; } # 🦆 ⮞ play sound on bedroom esp32 assistant
+              { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }              
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }     
+              # 🦆 says ⮞ ping watch with a ding
+              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }          
+              { type = "wait"; duration = 10; }
+              # 🦆 says ⮞ roll up da blindz let da sun come in 
+              { type = "mqtt"; topic = "zigbee2mqtt/Roller Shade/set"; message = ''{"state":"ON"}''; }
             ];
           };
 
           timer_finish = {
             enable = true;
-            description = "Automation actions performed when timers is finished";
+            description = "an timer is ringing";
             topic = "zigbee2mqtt/timer/finished"; 
             actions = [
-              { type = "shell"; command = "ssh desktop yo say 'timer timer timer'"; }
+              { type = "scene"; scene = "max"; }
+              # 🦆 says ⮞ ping watch with ding
+              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+              { type = "wait"; duration = 7; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }              
             ];
           };
-
 
           # 🦆say⮞ crypto tickers 
           xmr = {
@@ -524,7 +493,12 @@ in { # 🦆 duck say ⮞ voice assistant config
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = { 
-            door_opened = [];
+            door_opened = [
+              { # 🦆 says ⮞ ping watch with ding
+                type = "shell";
+                command = "curl http://192.168.1.15/api/settings/speaker/play/ding";
+              }  
+            ];
             door_closed = [];
           };
           
@@ -572,16 +546,20 @@ in { # 🦆 duck say ⮞ voice assistant config
         # 🦆 says ⮞ 3. global actions automations  
         global_actions = {
           leak_detected = [
+            { type = "scene"; scene = "max"; }
             {
               type = "shell";
               command = "yo notify '🚨 WATER LEAK DETECTED!'";
-            }
+            } # 🦆 says ⮞ ping watch with ding
+            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
           ];
           smoke_detected = [
+            { type = "scene"; scene = "max"; }          
             {
               type = "shell";
               command = "yo notify '🔥 SMOKE DETECTED!'";
-            }
+            } # 🦆 says ⮞ ping watch with ding
+            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
           ];
         };
 
@@ -608,7 +586,20 @@ in { # 🦆 duck say ⮞ voice assistant config
         };
         
         # 🦆 says ⮞ 5. time based automations
-        time_based = {};
+        time_based = {       
+          morning_wakeup = {
+            enable = true;
+            description = "set morning wakeup alarm (dont miss lunch)";
+            # 🦆 says ⮞ 01 AM mon-fri 
+            schedule = {
+              start = "01:00";
+              days = ["mon" "tue" "wed" "thu" "fri"];
+            };
+            conditions = [ { type = "someone_home"; value = true; } ];
+            # 🦆 says ⮞ 11 AM (i like to sleep in)
+            actions = [ "zigduck-cli alarm add --hours 11 --minutes 00" ];
+          };
+        };
         
         # 🦆 says ⮞ 6. presence based automations
         presence_based = {};        
@@ -1001,135 +992,135 @@ in { # 🦆 duck say ⮞ voice assistant config
         };
       };
       # 🦆 says ⮞ Bedroom
-      bedroom = {
-        enable = true;
-        room = "bedroom";
-        ip = "192.168.1.153";
-        apps = config.house.tv.shield.apps;
-        channels = config.house.tv.shield.channels;
-      };      
+      # bedroom = {
+      #   enable = true;
+      #   room = "bedroom";
+      #   ip = "192.168.1.153";
+      #   apps = config.house.tv.shield.apps;
+      #   channels = config.house.tv.shield.channels;
+      # };      
       
-      arris = {
-        enable = true;
-        room = "bedroom";
-        ip = "192.168.1.152"; 
-        apps = {
-          telenor = "se.telenor.stream/.MainActivity   ";
-          tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
-        };
-        channels = {     
-          "1" = {
-            id = 1;
-            name = "SVT1";
-            icon = ./themes/icons/tv/1.png;
-            scrape_url = "https://tv-tabla.se/tabla/svt1/";
-          };
-          "2" = {
-            id = 2; 
-            name = "SVT2";
-            icon = ./themes/icons/tv/2.png;
-            scrape_url = "https://tv-tabla.se/tabla/svt2/";
-          };
-          "3" = {
-            id = 3;
-            name = "Kanal 3";
-            icon = ./themes/icons/tv/3.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv3/";
-          };
-          "4" = {
-            id = 4;
-            name = "TV4";
-            icon = ./themes/icons/tv/4.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv4/";
-          };
-          "5" = {
-            id = 5;
-            name = "TV5";
-            icon = ./themes/icons/tv/5.png;
-            scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
-          };
-          "6" = {
-            id = 6;
-            name = "Kanal 6";
-            icon = ./themes/icons/tv/6.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv6/";
-          };
-          "7" = {
-            id = 7;
-            name = "Sjuan";
-            icon = ./themes/icons/tv/7.png;
-            scrape_url = "https://tv-tabla.se/tabla/sjuan/";
-          };
-          "8" = {
-            id = 8;
-            name = "TV8";
-            icon = ./themes/icons/tv/8.png;          
-            scrape_url = "https://tv-tabla.se/tabla/tv8/";
-          };
-          "9" = {
-            id = 9;
-            name = "Kanal 9";
-            icon = ./themes/icons/tv/9.png;          
-            scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
-          };
-          "10" = {
-            id = 10;
-            name = "Kanal 10";
-            icon = ./themes/icons/tv/10.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv10/";
-          };
-          "11" = {
-            id = 11;
-            name = "Kanal 11";
-            icon = ./themes/icons/tv/11.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv11/";
-          };
-          "12" = {
-            id = 12;
-            name = "Kanal 12";
-            icon = ./themes/icons/tv/12.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv12/";
-          };
-          "13" = {
-            id = 13;
-            name = "TV4 Hockey";
-            icon = ./themes/icons/tv/13.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";          
-            scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
-          };        
-          "14" = {
-            id = 14;
-            name = "TV4 Sport Live 1";
-            icon = ./themes/icons/tv/14.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";     
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
-          };
-          "15" = {
-            id = 15;
-            name = "TV4 Sport Live 2";
-            icon = ./themes/icons/tv/15.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
-          };
-          "16" = {
-            id = 16;
-            name = "TV4 Sport Live 3";
-            icon = ./themes/icons/tv/16.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
-          };
-          "17" = {
-            id = 17;
-            name = "TV 4 Sport Live 4";
-            icon = ./themes/icons/tv/17.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
-          };       
-        };
-      };
+      # arris = {
+      #   enable = true;
+      #   room = "bedroom";
+      #   ip = "192.168.1.152"; 
+      #   apps = {
+      #     telenor = "se.telenor.stream/.MainActivity   ";
+      #     tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+      #   };
+      #   channels = {     
+      #     "1" = {
+      #       id = 1;
+      #       name = "SVT1";
+      #       icon = ./themes/icons/tv/1.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/svt1/";
+      #     };
+      #     "2" = {
+      #       id = 2; 
+      #       name = "SVT2";
+      #       icon = ./themes/icons/tv/2.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/svt2/";
+      #     };
+      #     "3" = {
+      #       id = 3;
+      #       name = "Kanal 3";
+      #       icon = ./themes/icons/tv/3.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv3/";
+      #     };
+      #     "4" = {
+      #       id = 4;
+      #       name = "TV4";
+      #       icon = ./themes/icons/tv/4.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4/";
+      #     };
+      #     "5" = {
+      #       id = 5;
+      #       name = "TV5";
+      #       icon = ./themes/icons/tv/5.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
+      #     };
+      #     "6" = {
+      #       id = 6;
+      #       name = "Kanal 6";
+      #       icon = ./themes/icons/tv/6.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv6/";
+      #     };
+      #     "7" = {
+      #       id = 7;
+      #       name = "Sjuan";
+      #       icon = ./themes/icons/tv/7.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/sjuan/";
+      #     };
+      #     "8" = {
+      #       id = 8;
+      #       name = "TV8";
+      #       icon = ./themes/icons/tv/8.png;          
+      #       scrape_url = "https://tv-tabla.se/tabla/tv8/";
+      #     };
+      #     "9" = {
+      #       id = 9;
+      #       name = "Kanal 9";
+      #       icon = ./themes/icons/tv/9.png;          
+      #       scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
+      #     };
+      #     "10" = {
+      #       id = 10;
+      #       name = "Kanal 10";
+      #       icon = ./themes/icons/tv/10.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv10/";
+      #     };
+      #     "11" = {
+      #       id = 11;
+      #       name = "Kanal 11";
+      #       icon = ./themes/icons/tv/11.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv11/";
+      #     };
+      #     "12" = {
+      #       id = 12;
+      #       name = "Kanal 12";
+      #       icon = ./themes/icons/tv/12.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv12/";
+      #     };
+      #     "13" = {
+      #       id = 13;
+      #       name = "TV4 Hockey";
+      #       icon = ./themes/icons/tv/13.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";          
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
+      #     };        
+      #     "14" = {
+      #       id = 14;
+      #       name = "TV4 Sport Live 1";
+      #       icon = ./themes/icons/tv/14.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";     
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
+      #     };
+      #     "15" = {
+      #       id = 15;
+      #       name = "TV4 Sport Live 2";
+      #       icon = ./themes/icons/tv/15.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
+      #     };
+      #     "16" = {
+      #       id = 16;
+      #       name = "TV4 Sport Live 3";
+      #       icon = ./themes/icons/tv/16.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
+      #     };
+      #     "17" = {
+      #       id = 17;
+      #       name = "TV 4 Sport Live 4";
+      #       icon = ./themes/icons/tv/17.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
+      #     };       
+      #   };
+      # };
     };
   };
-
+  
   sops = {  
     secrets =  {
       api = {

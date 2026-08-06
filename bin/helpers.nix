@@ -247,7 +247,7 @@ EOF
         rm -f "$timer_file"
       fi  
       ( # 🦆 says ⮞ Time til' lights turn off after motion trigger activation
-        sleep ${toString config.house.zigbee.darkTime.duration} # 🦆 says ⮞ in seconds
+        sleep ${toString config.house.zigbee.motion.trigger.lights.duration} # 🦆 says ⮞ in seconds
         room_lights_off "$room"
         rm -f "$timer_file"
       ) & 
