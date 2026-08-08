@@ -100,7 +100,7 @@
   health = lib.mapAttrs (hostName: _: {
     enable = true;
     description = "Health Check: ${hostName}";
-    topic = "zigbee2mqtt/health/${hostName}";
+    topic = "zigduck/health/${hostName}";
     actions = [
       {
          type = "shell";
@@ -297,6 +297,7 @@ in { # 🦆 duck say ⮞ voice assistant config
         host = "192.168.1.211";
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
+        baseTopic = "zigduck";
       };
       
       # 🦆 says ⮞ TV light syncin' 
@@ -367,12 +368,12 @@ in { # 🦆 duck say ⮞ voice assistant config
           alarm_wakeup = {
             enable = true;
             description = "Time to wake up!";
-            topic = "zigbee2mqtt/alarm/triggered";
+            topic = "zigduck/alarm/triggered";
             actions = [  # 🦆 says ⮞ max lightz
               { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
-              { type = "mqtt"; topic = "zigbee2mqtt/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
-              { type = "mqtt"; topic = "zigbee2mqtt/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
+              { type = "mqtt"; topic = "zigduck/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
+              { type = "mqtt"; topic = "zigduck/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ FLASH!
               { type = "scene"; scene = "dark-fast"; }
@@ -384,14 +385,14 @@ in { # 🦆 duck say ⮞ voice assistant config
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }          
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ roll up da blindz let da sun come in 
-              { type = "mqtt"; topic = "zigbee2mqtt/Roller Shade/set"; message = ''{"state":"ON"}''; }
+              { type = "mqtt"; topic = "zigduck/Roller Shade/set"; message = ''{"state":"ON"}''; }
             ];
           };
 
           timer_finish = {
             enable = true;
             description = "an timer is ringing";
-            topic = "zigbee2mqtt/timer/finished"; 
+            topic = "zigduck/timer/finished"; 
             actions = [
               { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ ping watch with ding
@@ -407,40 +408,40 @@ in { # 🦆 duck say ⮞ voice assistant config
           xmr = {
             enable = true;
             description = "Updating XMR price data on dashboard";
-            topic = "zigbee2mqtt/crypto/xmr/price";
+            topic = "zigduck/crypto/xmr/price";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "xmr.json"; }];
           };            
           btc = {
             enable = true;
             description = "Updating BTC price data on dashboard";
-            topic = "zigbee2mqtt/crypto/btc/price";
+            topic = "zigduck/crypto/btc/price";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "btc.json"; }];
           };
           # 🦆say⮞ energy tracking 
           energyPrice = {
             enable = true;
             description = "Updating energy data on dashboard";
-            topic = "zigbee2mqtt/tibber/energy";
+            topic = "zigduck/tibber/energy";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "energy_price.json"; }];
           };
           energyUsage = {
             enable = true;
             description = "Updating energy data on dashboard";
-            topic = "zigbee2mqtt/tibber/energy";
+            topic = "zigduck/tibber/energy";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "monthly_usage" "energy_usage.json"; }];
           };   
           # 🦆say⮞ hallway temperature  
           temperature = {
             enable = true;
             description = "Updating temperature data on dashboard";
-            topic = "zigbee2mqtt/Motion Sensor Hall";
+            topic = "zigduck/Motion Sensor Hall";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "temperature" "temperature.json"; }];
           };
           # 🦆say⮞ calendar 
           calendar = {
             enable = true;
             description = "Updated calendar events";
-            topic = "zigbee2mqtt/calendar";
+            topic = "zigduck/calendar";
             actions = [
               {
                 type = "shell";
@@ -459,7 +460,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           tv_command = {
             enable = true;
             description = "TV command sent";
-            topic = "zigbee2mqtt/tvCommand";
+            topic = "zigduck/tvCommand";
             actions = [
               {
                 type = "shell";
@@ -475,7 +476,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           tv_channel_change = {
             enable = true;
             description = "Change TV channel via yo command";
-            topic = "zigbee2mqtt/tvChannelCommand";
+            topic = "zigduck/tvChannelCommand";
             actions = [
               {
                 type = "shell";
@@ -511,7 +512,7 @@ in { # 🦆 duck say ⮞ voice assistant config
                   power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
-                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 120}'
+                    yo mqtt_pub --topic "zigduck/Fläkt/set" --message '{"countdown": 120}'
                   fi
                 '';
               }
@@ -526,7 +527,7 @@ in { # 🦆 duck say ⮞ voice assistant config
                 type = "shell";
                 command = ''
                   # 🦆 says ⮞ cancel any pending countdown
-                  yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 0}'     
+                  yo mqtt_pub --topic "zigduck/Fläkt/set" --message '{"countdown": 0}'     
                   # 🦆 says ⮞ if fan is off - start it
                   STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
                   if [ "$STATE" = "OFF" ]; then               
@@ -577,7 +578,7 @@ in { # 🦆 duck say ⮞ voice assistant config
                 }
                 {
                   type = "mqtt";
-                  topic = "zigbee2mqtt/Fläkt/set";
+                  topic = "zigduck/Fläkt/set";
                   message = ''{"state":"OFF"}'';
                 }
               ];
