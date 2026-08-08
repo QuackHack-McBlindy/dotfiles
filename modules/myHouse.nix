@@ -493,13 +493,8 @@ in { # 🦆 duck say ⮞ voice assistant config
 
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
-          hallway = { 
-            door_opened = [
-              { # 🦆 says ⮞ ping watch with ding
-                type = "shell";
-                command = "curl http://192.168.1.15/api/settings/speaker/play/ding";
-              }  
-            ];
+          hallway = {  # 🦆 says ⮞ ping watch
+            door_opened = [ "curl http://192.168.1.15/api/settings/speaker/play/ding" ];
             door_closed = [];
           };
           
@@ -512,14 +507,11 @@ in { # 🦆 duck say ⮞ voice assistant config
                   power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
-                    yo mqtt_pub --topic "zigduck/Fläkt/set" --message '{"countdown": 120}'
+                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 120}'
                   fi
                 '';
-              }
-              { # 🦆 says ⮞  slow go light go bye bye
-                type = "scene";
-                scene = "kitchenFadeOff";
-              }
+              } # 🦆 says ⮞  slow go light go bye bye
+              { type = "scene"; scene = "kitchenFadeOff"; }
             ];  
 
             motion_detected = [
@@ -527,19 +519,15 @@ in { # 🦆 duck say ⮞ voice assistant config
                 type = "shell";
                 command = ''
                   # 🦆 says ⮞ cancel any pending countdown
-                  yo mqtt_pub --topic "zigduck/Fläkt/set" --message '{"countdown": 0}'     
+                  zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 0}'
                   # 🦆 says ⮞ if fan is off - start it
                   STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
                   if [ "$STATE" = "OFF" ]; then               
                     zigduck-cli --device "Fläkt" --state on
                   fi
                 '';
-              }
-              { # 🦆 SCREAM ⮞ INSTANT LIGHT QWACK
-                type = "scene";
-                scene = "kitchenInstant";
-              }            
-
+              } # 🦆 SCREAM ⮞ INSTANT LIGHT QWACK
+              { type = "scene"; scene = "kitchenInstant"; }            
             ];
           };
         };
@@ -548,10 +536,8 @@ in { # 🦆 duck say ⮞ voice assistant config
         global_actions = {
           leak_detected = [
             { type = "scene"; scene = "max"; }
-            {
-              type = "shell";
-              command = "yo notify '🚨 WATER LEAK DETECTED!'";
-            } # 🦆 says ⮞ ping watch with ding
+            { type = "shell"; command = "yo notify '🚨 WATER LEAK DETECTED!'"; }
+            # 🦆 says ⮞ ping watch with ding
             { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
           ];
           smoke_detected = [

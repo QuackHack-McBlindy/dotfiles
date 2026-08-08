@@ -478,7 +478,7 @@ in {
           local device_ip="$1"
           local channel_id="$2"
           local channel_name="$3"    
-          local topic="zigbee2mqtt/tv/''${device_ip}/channel"
+          local topic="zigduck/tv/''${device_ip}/channel"
           local payload="{\"channel_id\":\"$channel_id\",\"channel_name\":\"$channel_name\",\"timestamp\":\"$(date -Iseconds)\"}"
           mqtt_pub -t "$topic" -m "$payload"
           dt_debug "Published channel state: $channel_name ($channel_id) on $device_ip"

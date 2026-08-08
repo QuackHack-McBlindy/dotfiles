@@ -34,7 +34,7 @@ in { # 🦆 says ⮞
     code = ''
       ${cmdHelpers}
       HC="$(health 2>/dev/null | sed -n '/^{/,$p' | jq -c .)"
-      yo mqtt_pub --topic "zigbee2mqtt/health/${config.this.host.hostname}" --message "$HC"
+      yo mqtt_pub --topic "zigduck/health/${config.this.host.hostname}" --message "$HC"
     '';  
     voice = {
       priority = 4;

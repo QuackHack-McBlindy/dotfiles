@@ -561,11 +561,11 @@
         "tinyFlake": "tinyFlake_2"
       },
       "locked": {
-        "lastModified": 1786157139,
-        "narHash": "sha256-2VSlnC4bwZjUsegxZEkTAW3nP7XG/ZRCJf3zeEdGqtA=",
+        "lastModified": 1786210127,
+        "narHash": "sha256-bgFt4LSTTJWwadQ4RCbaH1apBvfPukCuo2dhK7Kf/w0=",
         "owner": "QuackHack-McBlindy",
         "repo": "Zigduck2mqttnix",
-        "rev": "008556de1de0de76fc9ad41f21ee57c2337cce50",
+        "rev": "42158976f1c48cce1805bf4a96675fe0c21f2316",
         "type": "github"
       },
       "original": {

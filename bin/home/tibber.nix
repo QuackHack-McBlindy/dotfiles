@@ -100,7 +100,7 @@ EOF
 
         dt_debug "$TOTAL SEK / kWh"
         echo "$TOTAL SEK / kWh"
-        mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": $TOTAL}"
+        mqtt_pub -t "zigduck/tibber/price" -m "{\"current_price\": $TOTAL}"
         yo say --text "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi  
 
@@ -168,8 +168,8 @@ EOF
 
         dt_debug "Elförbrukning hittills i $MONTH_NAME: $TOTAL_KWH kWh"
         echo "$TOTAL_KWH"
-        #mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
-        mqtt_pub -t "zigbee2mqtt/tibber/usage" -m "{\"monthly_usage\": \"$TOTAL_KWH\"}"
+        #mqtt_pub -t "zigduck/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
+        mqtt_pub -t "zigduck/tibber/usage" -m "{\"monthly_usage\": \"$TOTAL_KWH\"}"
         
         QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
           --arg q "{
@@ -208,8 +208,8 @@ EOF
 
         dt_debug "$TOTAL SEK / kWh"
         echo "$TOTAL SEK / kWh"
-        mqtt_pub -t "zigbee2mqtt/tibber/price" -m "{\"current_price\": \"$TOTAL\"}"
-        mqtt_pub -t "zigbee2mqtt/tibber/energy" -m "{\"current_price\": \"$TOTAL\", \"monthly_usage\": \"$TOTAL_KWH\"}"
+        mqtt_pub -t "zigduck/tibber/price" -m "{\"current_price\": \"$TOTAL\"}"
+        mqtt_pub -t "zigduck/tibber/energy" -m "{\"current_price\": \"$TOTAL\", \"monthly_usage\": \"$TOTAL_KWH\"}"
 
         yo say --text "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
       fi   

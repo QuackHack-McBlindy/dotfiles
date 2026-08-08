@@ -113,7 +113,7 @@ EOF
     dt_error() {
       _dt_log "ERROR" "❌" "$RED" "$1" true >&2
       create_error_state "$1" "ERROR"
-      yo mqtt_pub --topic "zigbee2mqtt/logging/${config.this.host.hostname}/error" --message "$1"
+      yo mqtt_pub --topic "zigduck/logging/${config.this.host.hostname}/error" --message "$1"
     }
     dt_critical() {
       _dt_log "CRITICAL" "🚨" "$RED" "$1" true >&2
@@ -310,7 +310,7 @@ EOF
       tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
       smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
                 
-      device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
+      device_name="''${topic#zigduck/}" && dt_debug "device_name: $device_name"
       dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
       dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
       dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
@@ -356,7 +356,7 @@ EOF
         'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
         $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
-          mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"ON"}'
+          mqtt_pub -t "zigduck/$light_id/set" -m '{"state":"ON"}'
         done      
     }
     # 🦆 says ⮞ turn off specified room
@@ -364,7 +364,7 @@ EOF
       local clean_room=$(echo "$1" | sed 's/"//g')
       ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
-          mqtt_pub -t "zigbee2mqtt/$light_id/set" -m '{"state":"OFF"}'
+          mqtt_pub -t "zigduck/$light_id/set" -m '{"state":"OFF"}'
         done    
     }
     
