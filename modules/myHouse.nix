@@ -586,6 +586,7 @@ in { # 🦆 duck say ⮞ voice assistant config
             # 🦆 says ⮞ 11 AM (i like to sleep in)
             actions = [ "zigduck-cli alarm add --hours 11 --minutes 00" ];
           };
+          
         };
         
         # 🦆 says ⮞ 6. presence based automations

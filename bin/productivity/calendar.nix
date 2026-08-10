@@ -1,6 +1,7 @@
 # dotfiles/bin/productivity/calendar.nix ⮞ https://github.com/quackhack-mcblundy/dotfiles
 { # 🦆 says ⮞ cool calendar yo
   self,
+  lib,
   config,
   pkgs,
   cmdHelpers,
@@ -12,7 +13,7 @@
         description = "Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice.";
         category = "⚡ Productivity";
         aliases = [ "kal" ];
-        runEvery = "05";
+        runEvery = lib.mkIf (config.this.host.hostname == "homie") "05";
         helpFooter = ''
           ${cmdHelpers}        
           echo "## ──────⋆⋅☆⋅⋆────── ##"

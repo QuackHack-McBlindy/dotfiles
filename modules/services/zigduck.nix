@@ -58,7 +58,7 @@ in {
         dashboard.enable = true;
         dashboard.port = 13337;
         dashboard.passwordFile = config.sops.secrets.api.path;
-        broker = "192.168.1.211";
+        broker = "211";
         extraEnv.PATH = 
           "/run/current-system/sw/bin:"
           + "/run/wrappers/bin:"
