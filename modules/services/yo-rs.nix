@@ -75,5 +75,21 @@ in {
       };  
         
     })
+
+    {
+      yo = {
+        legacy = false;
+        SplitWords = [ "samt" ];
+        sorryPhrases = [
+          "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
+          "Vad fan säger du för något?"
+          "Prata som en människa snälla"
+        ];
+
+        scripts.say.parameters = [ 
+          ( { name = "path"; description = "Specify a file path where wav will be saved to disk"; optional = true; } // lib.optionalAttrs (config.this.host.hostname == "homie") { default = "/var/lib/zigduck/tts/tts.wav"; } )
+        ];
+      };
+    }
         
   ];}

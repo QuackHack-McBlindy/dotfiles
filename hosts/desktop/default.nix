@@ -7,14 +7,19 @@
   ...
 } : { 
 
+
+
     nixpkgs.overlays = [
       (final: prev: {
-        python3Packages = prev.python3Packages.overrideScope (pyself: pysuper: {
-          inline-snapshot = pysuper.inline-snapshot.overrideAttrs (old: {
-            doCheck = false;
-            doInstallCheck = false;
-          });
-        });
+        python313Packages = prev.python313Packages.overrideScope (
+          pyfinal: pyprev: {
+            nanoemoji = pyprev.nanoemoji.overrideAttrs (old: {
+              src = old.src.overrideAttrs (_: {
+                hash = "sha256-FysyKC01XBnRiur5RR9fcsTxQqE8x0JJHSoe3q6JtKc=";
+              });
+            });
+          }
+        );
       })
     ];
     

@@ -331,7 +331,7 @@ in {
       
       dt_debug "Using device: $matched_device"
       
-      password_file="${config.house.dashboard.passwordFile}"
+      password_file="${config.services.zigduck.dashboard.passwordFile}"
       if [ ! -f "$password_file" ]; then
         dt_error "Password file not found: $password_file"
         exit 1

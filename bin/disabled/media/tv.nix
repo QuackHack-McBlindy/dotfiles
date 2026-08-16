@@ -1084,7 +1084,7 @@ in {
           "lägg till den här [låten] i {typ}"
           # 🦆 says ⮞ find remote
           "ring {typ}"
-          "hitta {typ}"            
+          "hitta {typ}"
         ]; # 🦆 says ⮞ lists are in word > out word
         lists = { # swap 🦆 says ⮞ long list incomin' yo 
           typ.values = [          

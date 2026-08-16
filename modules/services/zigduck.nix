@@ -6,75 +6,24 @@
   self,
   ...
 } : let
-  # 🦆 says ⮞ icon map
-  icons = {
-    light = {
-      ceiling         = "mdi:ceiling-light";
-      strip           = "mdi:light-strip";
-      spotlight       = "mdi:spotlight";
-      bulb            = "mdi:lightbulb";
-      bulb_color      = "mdi:lightbulb-multiple";
-      desk            = "mdi:desk-lamp";
-      floor           = "mdi:floor-lamp";
-      wall            = "mdi:wall-sconce-round";
-      chandelier      = "mdi:chandelier";
-      pendant         = "mdi:vanity-light";
-      nightlight      = "mdi:lightbulb-night";
-      strip_rgb       = "mdi:led-strip-variant";
-      reading         = "mdi:book-open-variant";
-      candle          = "mdi:candle";
-      ambient         = "mdi:weather-night";
-    };
-    sensor = {
-      motion          = "mdi:motion-sensor";
-      smoke           = "mdi:smoke-detector";
-      water           = "mdi:water";
-      contact         = "mdi:door";
-      temperature     = "mdi:thermometer";
-      humidity        = "mdi:water-percent";
-    };
-    remote            = "mdi:remote";
-    outlet            = "mdi:power-socket-eu";
-    dimmer            = "mdi:toggle-switch";
-    pusher            = "mdi:gesture-tap-button";
-    blinds            = "mdi:blinds";
-  };
-
 
 in {
-  config = lib.mkMerge [
-    (lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
-
-      environment.systemPackages = [ 
-        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-rs
-        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-cli
-        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-api
-      ];
+  config = lib.mkMerge [   
+    {      
       services.zigduck = {
-        enable = true;
-        api.enable = true;
-        api.port = 13335;
-        api.passwordFile = config.sops.secrets.api.path;
-        dashboard.enable = true;
+        enable = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
+        cli.enable = true;
+        dashboard.enable = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         dashboard.port = 13337;
         dashboard.passwordFile = config.sops.secrets.api.path;
-        broker = "211";
+        dashboard.secure = false;                
         extraEnv.PATH = 
           "/run/current-system/sw/bin:"
           + "/run/wrappers/bin:"
           + "/nix/var/nix/profiles/default/bin:"
           + "/nix/var/nix/profiles/default/sbin:"
           + "/run/current-system/sw/sbin";
-      };              
-          
-    })
-
-    {
-      environment.systemPackages = [ 
-        self.inputs.zigduck2mqttnix.packages.x86_64-linux.zigduck-cli
-        self.inputs.zigduck2mqttnix.packages.x86_64-linux.tv
-      ];
-      services.zigduck.cli.broker = "192.168.1.211";
+      };            
     }
    
   ];}

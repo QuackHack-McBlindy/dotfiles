@@ -10,7 +10,7 @@
     builtins.replaceStrings [ "/*" "*/" ] [ "" "" ] text;
 
   # 🦆 says ⮞ load custom pages 4 dashboard
-  customPages = import ./dashboard/customPages.nix { inherit lib config pkgs; };
+  customPages = import ./dashboard.nix { inherit lib config pkgs; };
   pages = customPages.pages;
 
   # 🦆 says ⮞ load css files
@@ -40,7 +40,7 @@
   icons = {
     light = {
       ceiling         = "mdi:ceiling-light";
-      strip           = "mdi:light-strip";
+      strip           = "mdi:led-strip";
       spotlight       = "mdi:spotlight";
       bulb            = "mdi:lightbulb";
       bulb_color      = "mdi:lightbulb-multiple";
@@ -113,17 +113,20 @@
      ];
   }) self.nixosConfigurations;
   
-in { # 🦆 duck say ⮞ voice assistant config
-  yo.legacy = false;
-  yo.SplitWords = [ "samt" ];
-  yo.sorryPhrases = [
-    "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
-    "Vad fan säger du för något?"
-    "Prata som en människa snälla"
-  ];
-
-  # 🦆 duck say ⮞ house config   
+in { # 🦆 duck say ⮞ house config   
   house = {
+    # 🦆 says ⮞ ROOM CONFIGURATION
+    rooms = {
+      bedroom.icon    = "mdi:bed";
+      hallway.icon    = "mdi:door";
+      kitchen.icon    = "mdi:food-fork-drink";
+      livingroom.icon = "mdi:sofa";
+      wc.icon         = "mdi:toilet";
+      tv-area.icon    = "mdi:television";
+      other.icon      = "mdi:misc";
+    };  
+  
+    # 🦆 says ⮞ media
     https.urlFile = config.sops.secrets.webserver.path;
     media.root = "/Pool";
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
@@ -136,22 +139,9 @@ in { # 🦆 duck say ⮞ voice assistant config
       podcasts = "/Pool/Podcasts";
       audiobooks = "/Pool/Audiobooks";
     };
-    # 🦆says⮞ what machine should output sound   
-    soundHost = "desktop";
-    # 🦆 says ⮞ ROOM CONFIGURATION
-    rooms = {
-      bedroom.icon    = "mdi:bed";
-      hallway.icon    = "mdi:door";
-      kitchen.icon    = "mdi:food-fork-drink";
-      livingroom.icon = "mdi:sofa";
-      wc.icon         = "mdi:toilet";
-      tv-area.icon    = "mdi:television";
-      other.icon      = "mdi:misc";
-    };
     
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
-    dashboard = { 
-      passwordFile = config.sops.secrets.api.path; # 🦆 says ⮞  safety firzt!      
+    dashboard = {   
       # 🦆 says ⮞  home page information cards
       statusCards = {
         calendar = {
@@ -336,13 +326,23 @@ in { # 🦆 duck say ⮞ voice assistant config
       
       # 🦆 says ⮞ when motion triggers lights
       motion = {
-        enable = true;
+        when.dark.enable = true;
         trigger.lights = {
           after = 14;
           before = 9;
           duration = 900;
         };  
       };
+
+      # 🦆 says ⮞ when no motion triggers ALL lights off
+      no.motion.trigger = {
+        all.lights.off = {
+          enable = true;
+          after = 60; # 🦆 says ⮞  min
+          exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name, leaves their states as-is)
+        };  
+      };      
+      
       
   # 🦆 ⮞ AUTOMATIONS ⮜
       automations = {  
@@ -352,14 +352,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           enable = true;
           awayDuration = 7200;
           delay = 10;
-          actions = [
-            {
-              type = "shell";
-              command = ''
-                yo say "Borta bra, hemma bäst. Välkommen idiot!"
-              '';
-            }
-          ];
+          actions = [ "yo say 'Borta bra, hemma bäst. Välkommen idiot!'" ];
         };
         
 
@@ -391,7 +384,7 @@ in { # 🦆 duck say ⮞ voice assistant config
 
           timer_finish = {
             enable = true;
-            description = "an timer is ringing";
+            description = "a timer is ringing";
             topic = "zigduck/timer/finished"; 
             actions = [
               { type = "scene"; scene = "max"; }
@@ -515,6 +508,7 @@ in { # 🦆 duck say ⮞ voice assistant config
             ];  
 
             motion_detected = [
+              { type = "scene"; scene = "kitchenInstant"; }
               {
                 type = "shell";
                 command = ''
@@ -522,16 +516,15 @@ in { # 🦆 duck say ⮞ voice assistant config
                   zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 0}'
                   # 🦆 says ⮞ if fan is off - start it
                   STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
-                  if [ "$STATE" = "OFF" ]; then               
+                  if [ "$STATE" = "OFF" ]; then
                     zigduck-cli --device "Fläkt" --state on
                   fi
                 '';
-              } # 🦆 SCREAM ⮞ INSTANT LIGHT QWACK
-              { type = "scene"; scene = "kitchenInstant"; }            
+              }
             ];
           };
         };
-          
+
         # 🦆 says ⮞ 3. global actions automations  
         global_actions = {
           leak_detected = [
@@ -569,8 +562,23 @@ in { # 🦆 duck say ⮞ voice assistant config
                 }
               ];
             };   
-          };              
-        };
+          };       
+          
+          kitchen = {
+            on_press_release = {
+              enable = true;
+              description = "Turn on kitchen fan (+ lights)";
+              extra_actions = [
+                {
+                  type = "mqtt";
+                  topic = "zigduck/Fläkt/set";
+                  message = ''{"state":"ON"}'';
+                }
+              ];
+              override_actions = [ ];
+            };   
+          };
+        };  
         
         # 🦆 says ⮞ 5. time based automations
         time_based = {       
@@ -613,19 +621,19 @@ in { # 🦆 duck say ⮞ voice assistant config
           endpoint = 11;
         };
         "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; icon = icons.light.spotlight; endpoint = 11; };
-        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
-        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
-        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; };
+        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
+        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
+        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; };
         "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; }; 
         "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1; };
         "0xa4c138b9aab1cf3f" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         # 🦆 says ⮞ LIVING ROOM
         "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
         "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
-        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };   
-        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };
-        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };                  
-        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
+        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };   
+        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
+        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };                  
+        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };  
         "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };
         "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
         "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
@@ -647,9 +655,9 @@ in { # 🦆 duck say ⮞ voice assistant config
         "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = icons.light.bulb; endpoint = 11; supports_color = true; };
-        "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
-        "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = "./themes/icons/zigbee/bloom.png"; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
         "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
@@ -658,7 +666,7 @@ in { # 🦆 duck say ⮞ voice assistant config
         "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
 
         # 🦆 says ⮞ TV-AREA (entertainment area)
-        "00178801095f06300b" = { friendly_name = "TV Play Strip"; room = "tv-area"; type = "hue_light"; icon = icons.light.strip; endpoint = 1; supports_color = true; hue_id = 38; };
+        "00178801095f06300b" = { friendly_name = "TV Play Strip"; room = "tv-area"; type = "hue_light"; icon = icons.light.strip_rgb; endpoint = 1; supports_color = true; hue_id = 38; };
         "0017880106ff30720b" = { friendly_name = "TV Play 1"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 40; };
         "0017880109f06a700b" = { friendly_name = "TV Play 2"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 41; };
         "0017880109f06a7c0b" = { friendly_name = "TV Play 3"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 37; };
@@ -670,17 +678,9 @@ in { # 🦆 duck say ⮞ voice assistant config
             
   # 🦆 ⮞ SCENES ⮜
       scenes = {
-          # 🦆 says ⮞ Scene name
-          "Duck Scene" = {
-              # 🦆 says ⮞ Device friendly_name
-              "PC" = { # 🦆 says ⮞ Device state
-                  state = "ON";
-                  brightness = 200;
-                  color = { hex = "#00FF00"; };
-              };
-          };
-          # 🦆 says ⮞ Scene 2    
+          # 🦆 says ⮞ Scene name    
           "Chill Scene" = {
+              # 🦆 says ⮞ device friendly name & state
               "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };               # 🦆 says ⮞ Blue Violet
               "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };           # 🦆 says ⮞ Turquoise
               "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };             # 🦆 says ⮞ Hot Pink
@@ -712,7 +712,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           };
 
           "kitchenInstant" = {
-              "Golvet" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#FFFFFF"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -790,7 +790,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           "max" = { # 🦆 says ⮞ let there be light
               "Bloom" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Dörr" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Golvet" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#FFFFFF"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "PC" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Rustning" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -802,7 +802,7 @@ in { # 🦆 duck say ⮞ voice assistant config
               "Taket Sovrum 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Taket Sovrum 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Vägg" = { state = "ON"; brightness = 1; };
+              "Vägg" = { state = "ON"; brightness = 1; }; # 🦆 says ⮞ 1% bright enuff on dis qwackit...
               "WC 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "WC 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Takkrona 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   

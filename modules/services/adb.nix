@@ -18,7 +18,7 @@ EOF
       '';    
 in {
     config = lib.mkIf (lib.elem "adb" config.this.host.modules.services) {
-        environment.systemPackages = [ pkgs.android-tools self.packages.${pkgs.system}.tv ];
+        environment.systemPackages = [ pkgs.android-tools ];
         systemd.services.android_config = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
             preStart = ''

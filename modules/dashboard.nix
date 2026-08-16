@@ -1,4 +1,4 @@
-# dotfiles/modules/dashboard/customPages.nix.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/modules/dashboard.nix.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ custom dashboard pages
   lib, 
   config,
@@ -526,7 +526,7 @@
       <script>
         async function loadHealthData() {
           try {
-            const response = await fetch('http://${config.house.zigbee.mosquitto.host}}:9815/health/all');
+            const response = await fetch('http://${config.house.zigbee.mosquitto.host}:${toString config.services.zigduck.dashboard.port}/health/all');
             if (!response.ok) throw new Error('HTTP ' + response.status);
 
             const healthData = await response.json();
@@ -769,8 +769,8 @@
 
           const API_CONFIG = {
             host: '${config.house.zigbee.mosquitto.host}',
-            port: '9815',
-            baseUrl: 'http://${config.house.zigbee.mosquitto.host}:9815'
+            port: '${toString config.services.zigduck.dashboard.port}',
+            baseUrl: 'http://${config.house.zigbee.mosquitto.host}:${toString config.services.zigduck.dashboard.port}'
           };       
  
           function getAuthToken() {
@@ -954,8 +954,11 @@
                   for (const file of selectedFiles) {
                       const formData = new FormData();
                       formData.append('file', file);
-                      const response = await fetch(API_CONFIG.baseUrl + '/upload?password=' + encodeURIComponent(password), {
+                      const response = await fetch(API_CONFIG.baseUrl + '/upload', {
                           method: 'POST',
+                          headers: {
+                              'Authorization': `Bearer ''${password}`
+                          },
                           body: formData
                       });
 
@@ -1815,7 +1818,11 @@
           async function sendNaturalLanguageCommand(command) {
             try {
               const password = getAuthToken();
-              const response = await fetch(API_CONFIG.baseUrl + '/do?cmd=' + encodeURIComponent(command) + '&password=' + encodeURIComponent(password));
+              const response = await fetch(`''${API_CONFIG.baseUrl}/do?cmd=''${encodeURIComponent(command)}`, {
+                headers: {
+                  'Authorization': `Bearer ''${password}`
+                }
+              });
               console.error(response); 
               if (response.ok) {
                 let responseText = await response.text();
@@ -1898,8 +1905,6 @@
           
           setInterval(checkAPIHealth, 30000);
       </script>  
-
-
       
     '';
   };
