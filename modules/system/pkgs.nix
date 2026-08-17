@@ -16,13 +16,6 @@
                 pkgs.nix-prefetch-github
                 pkgs.element-desktop
                 pkgs.cargo
-                pkgs.rustc
-                pkgs.platformio
-                pkgs.platformio-core
-                pkgs.libclang
-                pkgs.cmake
-                pkgs.openssl
-                pkgs.rustup
                 pkgs.piper-phonemize
                 pkgs.openssl.dev
                 pkgs.pkg-config
@@ -34,10 +27,8 @@
                 pkgs.jellyfin-web
                 pkgs.jellycli
                 pkgs.kanata
-                pkgs.arduino-ide
-                pkgs.arduino-cli
+                pkgs.gh
                 
-             #   inputs.voice-server.packages.x86_64-linux.voice-server
             ])
         # 🦆 says⮞ NASTY        
             (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])

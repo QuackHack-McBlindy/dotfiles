@@ -150,7 +150,6 @@ result-*
 
 # CI/CD
 .circleci/
-.github/workflows/*.yml
 .gitlab-ci.yml
 .azure-pipelines/
 .cache/
