@@ -23,10 +23,11 @@ in {
           threshold = 0.6;    
           whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           language = "sv";
-          beamSize = 5;
+          beamSize = 0;
           temperature = 0.4; # 🦆 says ⮞ no more LSD plx
-          threads = 4;
+          threads = 8;
           textToSpeechModelPath = "/home/pungkula/models/tts/sv_SE-lisa-medium.onnx";
+          #textToSpeechSavePath = "/var/lib/zigduck/dashboard/tts.wav";
           debug = false;
           logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
         };

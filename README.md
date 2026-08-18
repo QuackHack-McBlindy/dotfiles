@@ -44,14 +44,16 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 
+**honorable mentions:**    
+- 🗣️[yo](https://github.com/QuackHack-McBlindy/yo) - holds my scripts and my grammar and runs voice pipeline.   
+- 🦆[Zigduck2mqttnix](https://github.com/QuackHack-McBlindy/Zigduck2mqttnix) - automates my house.  
+
 
 ## **What Makes This Configuration Unique?** 
 
-Nix declarative configuration style, custom modules evaluated dynamically for each host. <br>
-Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
-Home Assistant - __Quack no!__ No assistance needed! <br>
-Zigbee and smart home tightly integrated with Nix. For not just a declarative house but also deployable apartments. <br>
-Not only that - my voice assistant is LIGHTNING FAST! (ms) ⚡🏆 <br><br>
+❌ Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
+❌ Home Assistant - __Quack no!__ No assistance needed! <br>
+
 
 <!-- SCRIPT_STATS_START -->
 - __90 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
@@ -73,17 +75,6 @@ _"What makes this configuration common?_" <br>
 
 
 <br> 
-
-
-## 🦆 **Follow My Adventures**
-
-This repository is complex, and it's not a typical NixOS dotfiles setup.<br>
-Since NixOS probably never have been used in such a unique way, understanding how everything is working solely from massive source code will be tricky for newcomers as well as advanced users. <br>
-I try to simplify that process in my blog. <br> 
-
-[𝑸𝓾𝒂𝒄𝒌𝑯𝒂𝒄𝒌-𝑴𝒄𝑩𝒍𝒊𝒏𝒅𝒚 𝗕𝗹𝗼𝗴](https://quackhack-mcblindy.github.io/blog/)
-
-<br>
 
 ### Duck Challenge
   
@@ -1317,38 +1308,6 @@ in { # 🦆 duck say ⮞ voice assistant config
 <!-- SMARTHOME_END -->
 
 </details>
-
-
-<details><summary><strong>
-And you'll get a dashboard for your devices generated and found at http://localhost:13337 <br> 
-
-
-https://github.com/user-attachments/assets/46265444-a173-4ac5-8b9c-c2772634171c
-
-
-</strong></summary>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash1.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash2.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash3.png?raw=true" width="25%"><br><br>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash4.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash5.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash6.png?raw=true" width="25%"><br><br>
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash7.png?raw=true" width="25%">
-<img src="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/home/duckdash8.png?raw=true" width="25%">
-
-<br>
-The dashboard currently gives you: <br><br>
-
-- __Easy status cards setup with charts.__ <br>
-- __Advanced zigbee/Philips Hue device control__ <br>
-- __Remote for your Android TV devices__ <br>
-- __Activate scenes__ <br>
-- __Access to `yo do` through both an text input field aswell as microphone__ <br>
-- __and more...__ <br>
-
-
-</details>
-
 
 
 <details><summary><strong>

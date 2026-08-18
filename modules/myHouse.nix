@@ -590,9 +590,8 @@ in { # 🦆 duck say ⮞ house config
               start = "01:00";
               days = ["mon" "tue" "wed" "thu" "fri"];
             };
-            conditions = [ { type = "someone_home"; value = true; } ];
             # 🦆 says ⮞ 11 AM (i like to sleep in)
-            actions = [ "zigduck-cli alarm add --hours 11 --minutes 00" ];
+            actions = [ "zigduck-cli alarm add --hours 10 --minutes 45 --name vakna" ];
           };
           
         };

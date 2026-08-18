@@ -409,7 +409,6 @@ EOF
 - __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing $total_tvs TV's, $total_devices devices & $total_scenes scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
-- __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
 - __Version controlled ESP32 firmware management__ <br>      
@@ -616,11 +615,9 @@ EOF
         git diff --stat "$README_PATH" 2>/dev/null || true
       fi
 
-      
-      
+            
       dt_info "Generating voice-only command table..."
       
-      # Read the parameter (the framework already exports it)
       VOICE_TABLE_PATH="$voiceTablePath"
       
 
