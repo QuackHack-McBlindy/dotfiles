@@ -535,7 +535,7 @@ in {
       priority =  2;
       sentences = [
         # 🦆 says ⮞ game results patterns
-        "(vad|hur) (hände|gick) (det|matchen) (för|med) {team} (senast|igår)"
+        "(vad|hur) (hände|gick) [det|matchen] (för|med) {team} (senast|igår)"
         "(berätta|visa) (om|) {team} (senaste|sista) match"
         "(vilka|vad) (hände|resultat) (i|) hockyn (igår|senast)"
         "senaste hockymatcherna"

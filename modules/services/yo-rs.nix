@@ -18,7 +18,6 @@ in {
       services.yo-rs = {
         server = {
           enable = true;
-          demo = false;
           host = "0.0.0.0:12345";
           shellTranslate = true;
           threshold = 0.6;    

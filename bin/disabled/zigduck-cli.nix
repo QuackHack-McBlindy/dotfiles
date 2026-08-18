@@ -27,7 +27,7 @@ in {
       { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; default = false; }
     ];
     code = ''
-      echo 'hello world'
+       'hello world'
     '';
     voice = {
       priority = 1;
@@ -40,11 +40,11 @@ in {
 
   yo.scripts.zigduck-cli.voice.sentences = [
     # english patterns
-    "{state} {device} in the {room} and set color to {color} [and] brightness to {brightness} percent"
-    "{state} {device} and brightness {brightness} percent"
+    "(turn|switch) {state} {device} in the {room} and set color to {color} [and] brightness to {brightness} percent"
+    "(turn|switch) {state} {device} and brightness {brightness} percent"
     "set {device} to {color} [and] {brightness} percent [brightness]"
-    "{scene} [scene]"
-    "{state} all lights"
+    "set [the] {scene} [scene]"
+    "(turn|switch){state} {all-lights} lights"
     "{state} the {device} [lights]"
     "turn {state} the {device}"
     "start {state} {device}"
@@ -61,8 +61,8 @@ in {
 
   yo.scripts.zigduck-cli.voice.lists = {
     state.values = [
-      { "in" = "turn on|on|switch on|activate"; out = "ON"; }
-      { "in" = "turn off|off|switch off|deactivate"; out = "OFF"; }
+      { "in" = "on|activate"; out = "ON"; }
+      { "in" = "off|deactivate"; out = "OFF"; }
     ];
 
     brightness.range = {

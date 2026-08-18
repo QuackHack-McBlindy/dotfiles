@@ -712,7 +712,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "kitchenInstant" = {
-              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -790,7 +790,7 @@ in { # 🦆 duck say ⮞ house config
           "max" = { # 🦆 says ⮞ let there be light
               "Bloom" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Dörr" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "PC" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Rustning" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
