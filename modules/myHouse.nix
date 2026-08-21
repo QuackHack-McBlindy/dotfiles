@@ -1134,6 +1134,18 @@ in { # 🦆 duck say ⮞ house config
         group = "zigbee2mqtt";
         mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
       };
+      webserver = { # 🦆 says ⮞ https required
+        sopsFile = ./../secrets/webserver.yaml;
+        owner = config.this.user.me.name;
+        group = "zigduck";
+        mode = "0440";
+      }; # 🦆 says ⮞ required for youtube
+      youtube_api_key = { 
+        sopsFile = ./../secrets/youtube.yaml;
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440";
+      };
       z2m_mosquitto = { 
         sopsFile = ./../secrets/z2m_mosquitto.yaml; 
         owner = "zigbee2mqtt";

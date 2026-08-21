@@ -43,7 +43,7 @@ in {
                         repo = mkOption {
                             type = types.str;
                             default = "git@github.com:QuackHack-McBlindy/dotfiles.git";
-                            example = "git@github.com/{config.this.user.me.name}/dotfiles.git";
+                            example = "git@github.com/myUsername/dotfiles.git";
                             description = "The users GitHub dotfiles repository ";
                         };
                         discord = mkOption {
@@ -67,7 +67,7 @@ in {
                         dotfilesDir = mkOption {
                             type = types.str;
                             default = "/home/${config.this.user.me.name}/dotfiles";
-                            example = "/home/${config.this.user.me.name}/dotfiles";
+                            example = "/home/myUsername/dotfiles";
                             description = "Path of the users flake directory";
                         };
                         mobileDevices = mkOption {
@@ -151,14 +151,14 @@ in {
             };
             
             ip = mkOption {
-                type = types.str;
-                example = "182,168.1.100";
+                type = types.nullOr types.str;
+                example = "192.168.1.100";
                 default = null;
                 description = "IP address to bind host to";
             };
             
             wgip = mkOption {
-                type = types.str;
+                type = types.nullOr types.str;
                 example = "10.10.10.10";
                 default = null;
                 description = "WireGuard peer IP address";

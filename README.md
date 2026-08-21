@@ -1,15 +1,15 @@
 # ❄️🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
 <!-- VERSIONS_START -->
-![NixOS](https://img.shields.io/badge/NixOS-26.05-blue?style=flat-square&logo=NixOS&logoColor=white)
+![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.34.6-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.24-red?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-49.4-purple?style=flat-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.3.9-red?style=flat-square&logo=gnubash&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.34.8-blue?style=flat-square&logo=nixos&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.44-red?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=flat-square&logo=gnome&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust--orange?style=flat-square&logo=rust&logoColor=white)
-![Mosquitto](https://img.shields.io/badge/Mosquitto-2.0.22-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
+![Mosquitto](https://img.shields.io/badge/Mosquitto-2.1.2-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
 
 
@@ -56,11 +56,10 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 <!-- SCRIPT_STATS_START -->
-- __90 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
-- __2503 dynamically generated regex patterns - makes 272684913 phrases available as commands.__ <br>
-- __Smart Home Nix Fu - Managing 3 TV's, 48 devices & 11 scenes.__ <br>
+- __87 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __2493 dynamically generated regex patterns - makes 272682898 phrases available as commands.__ <br>
+- __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
-- __Mobile Frontend with Chatbot (no LLM) - Less thinking, more doing!__ <br>
 - __Infra as everyday accessibility__ <br>
 - __Yubikey encrypted deployment system__ <br>
 - __Version controlled ESP32 firmware management__ <br>      
@@ -80,7 +79,7 @@ _"What makes this configuration common?_" <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4646 ducks? <br>
+Let's see if you can find all 4508 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -98,7 +97,7 @@ Define yourself at `config.this.user.me`.
   discord = "https://discordapp.com/users/675530282849533952";
   dotfilesDir = "/home/pungkula/dotfiles";
   email = "isthisrandomenough@protonmail.com";
-  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ];
+  extraGroups = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "zigduck" "users" "pungkula" "adbusers" "audio" "2000" "i2c" "mqtt" ];
   hashedPassword = "$y$j9T$m8hPD36i1VMaO5rurbZ4j0$KpzQyat.F6NoWFKpisEj77TvpN2wBGB8ezd26QoKDj6";
   matrix = "https://matrix.to/#/@quackhack-mcblindy:matrix.org";
   mobileDevices =   {
@@ -109,6 +108,10 @@ Define yourself at `config.this.user.me`.
     tablet =     {
       pubkey = "ETRh93SQaY+Tz/F2rLAZcW7RFd83eofNcBtfyHCBWE4=";
       wgip = "10.0.0.8"
+    };
+    watch =     {
+      pubkey = "b28LFIbZSxbCLTaK7qsLp0hAMH+yo93+rVV14qif4hY=";
+      wgip = "10.0.0.9"
     }
   };
   name = "pungkula";
@@ -151,7 +154,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" ];
+    services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" "duckdns" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -174,13 +177,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/f1hbsrnl35k5fxk9ny1ikc22q38dmhbm-bibata-cursors-2.0.7";
+    package = "/nix/store/wpzfdr6rc0rr8rwskldy900iv5is7zmv-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/xq0rmhyr8qxw9dyz64if6d7cq5gxfyqh-fira-code-6.2" ];
+    packages = [ "/nix/store/5k6hdbkzwkdpalrfprzrs2l2x7vg7ara-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -190,7 +193,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/n03f6g8flrp8p5nlm45qadssjf3klhs0-papirus-icon-theme-20250501"
+    package = "/nix/store/djjj95npwdwr56b16v9rfq7xxs0hjz6s-papirus-icon-theme-20260801"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -221,7 +224,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
     builtins.replaceStrings [ "/*" "*/" ] [ "" "" ] text;
 
   # 🦆 says ⮞ load custom pages 4 dashboard
-  customPages = import ./dashboard/customPages.nix { inherit lib config pkgs; };
+  customPages = import ./dashboard.nix { inherit lib config pkgs; };
   pages = customPages.pages;
 
   # 🦆 says ⮞ load css files
@@ -251,7 +254,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   icons = {
     light = {
       ceiling         = "mdi:ceiling-light";
-      strip           = "mdi:light-strip";
+      strip           = "mdi:led-strip";
       spotlight       = "mdi:spotlight";
       bulb            = "mdi:lightbulb";
       bulb_color      = "mdi:lightbulb-multiple";
@@ -311,7 +314,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   health = lib.mapAttrs (hostName: _: {
     enable = true;
     description = "Health Check: ${hostName}";
-    topic = "zigbee2mqtt/health/${hostName}";
+    topic = "zigduck/health/${hostName}";
     actions = [
       {
          type = "shell";
@@ -324,28 +327,8 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
      ];
   }) self.nixosConfigurations;
   
-in { # 🦆 duck say ⮞ voice assistant config
-#  yo.legacy = false;
-  yo.SplitWords = [ "samt" ];
-  yo.sorryPhrases = [
-    "I didn't catch that, try again."
-    "Sorry, what was that?"
-    "Could you repeat?"
-  ];
-
-  # 🦆 duck say ⮞ house config   
+in { # 🦆 duck say ⮞ house config   
   house = {
-    media.root = "/Pool";
-    media = {
-      movies = "/Pool/Movies";
-      tv = "/Pool/TV"; 
-      music = "/Pool/Music"; 
-      musicVideos = "/Pool/Music_Videos";
-      otherVideos = "/Pool/Other_Videos"; 
-      podcasts = "/Pool/Podcasts";
-    };
-    # 🦆says⮞ what machine should output sound   
-    soundHost = "desktop";
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom.icon    = "mdi:bed";
@@ -355,11 +338,24 @@ in { # 🦆 duck say ⮞ voice assistant config
       wc.icon         = "mdi:toilet";
       tv-area.icon    = "mdi:television";
       other.icon      = "mdi:misc";
+    };  
+  
+    # 🦆 says ⮞ media
+    https.urlFile = config.sops.secrets.webserver.path;
+    media.root = "/Pool";
+    media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
+    media = {
+      movies = "/Pool/Movies";
+      tv = "/Pool/TV"; 
+      music = "/Pool/Music"; 
+      musicVideos = "/Pool/Music_Videos";
+      otherVideos = "/Pool/Other_Videos"; 
+      podcasts = "/Pool/Podcasts";
+      audiobooks = "/Pool/Audiobooks";
     };
     
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
-    dashboard = { 
-      passwordFile = config.sops.secrets.api.path; # 🦆 says ⮞  safety firzt!      
+    dashboard = {   
       # 🦆 says ⮞  home page information cards
       statusCards = {
         calendar = {
@@ -505,6 +501,7 @@ in { # 🦆 duck say ⮞ voice assistant config
         host = "192.168.1.211";
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
+        baseTopic = "zigduck";
       };
       
       # 🦆 says ⮞ TV light syncin' 
@@ -543,13 +540,23 @@ in { # 🦆 duck say ⮞ voice assistant config
       
       # 🦆 says ⮞ when motion triggers lights
       motion = {
-        enable = true;
+        when.dark.enable = true;
         trigger.lights = {
           after = 14;
           before = 9;
           duration = 900;
         };  
       };
+
+      # 🦆 says ⮞ when no motion triggers ALL lights off
+      no.motion.trigger = {
+        all.lights.off = {
+          enable = true;
+          after = 60; # 🦆 says ⮞  min
+          exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name, leaves their states as-is)
+        };  
+      };      
+      
       
   # 🦆 ⮞ AUTOMATIONS ⮜
       automations = {  
@@ -559,57 +566,89 @@ in { # 🦆 duck say ⮞ voice assistant config
           enable = true;
           awayDuration = 7200;
           delay = 10;
-          actions = [
-            {
-              type = "shell";
-              command = ''
-                yo say "Borta bra, hemma bäst. Välkommen idiot!"
-              '';
-            }
-          ];
+          actions = [ "yo say 'Borta bra, hemma bäst. Välkommen idiot!'" ];
         };
         
 
         # 🦆 says ⮞ 1. MQTT triggered automations
-        mqtt_triggered = {
+        mqtt_triggered = {      
+          alarm_wakeup = {
+            enable = true;
+            description = "Time to wake up!";
+            topic = "zigduck/alarm/triggered";
+            actions = [  # 🦆 says ⮞ max lightz
+              { type = "scene"; scene = "max"; }
+              # 🦆 says ⮞ fuck up bed (neck up + feet up)
+              { type = "mqtt"; topic = "zigduck/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
+              { type = "mqtt"; topic = "zigduck/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
+              { type = "wait"; duration = 10; }
+              # 🦆 says ⮞ FLASH!
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; } # 🦆 ⮞ play sound on bedroom esp32 assistant
+              { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }              
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }     
+              # 🦆 says ⮞ ping watch with a ding
+              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }          
+              { type = "wait"; duration = 10; }
+              # 🦆 says ⮞ roll up da blindz let da sun come in 
+              { type = "mqtt"; topic = "zigduck/Roller Shade/set"; message = ''{"state":"ON"}''; }
+            ];
+          };
+
+          timer_finish = {
+            enable = true;
+            description = "a timer is ringing";
+            topic = "zigduck/timer/finished"; 
+            actions = [
+              { type = "scene"; scene = "max"; }
+              # 🦆 says ⮞ ping watch with ding
+              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+              { type = "wait"; duration = 7; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }              
+            ];
+          };
+
           # 🦆say⮞ crypto tickers 
           xmr = {
             enable = true;
             description = "Updating XMR price data on dashboard";
-            topic = "zigbee2mqtt/crypto/xmr/price";
+            topic = "zigduck/crypto/xmr/price";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "xmr.json"; }];
           };            
           btc = {
             enable = true;
             description = "Updating BTC price data on dashboard";
-            topic = "zigbee2mqtt/crypto/btc/price";
+            topic = "zigduck/crypto/btc/price";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "btc.json"; }];
           };
           # 🦆say⮞ energy tracking 
           energyPrice = {
             enable = true;
             description = "Updating energy data on dashboard";
-            topic = "zigbee2mqtt/tibber/energy";
+            topic = "zigduck/tibber/energy";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "energy_price.json"; }];
           };
           energyUsage = {
             enable = true;
             description = "Updating energy data on dashboard";
-            topic = "zigbee2mqtt/tibber/energy";
+            topic = "zigduck/tibber/energy";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "monthly_usage" "energy_usage.json"; }];
           };   
           # 🦆say⮞ hallway temperature  
           temperature = {
             enable = true;
             description = "Updating temperature data on dashboard";
-            topic = "zigbee2mqtt/Motion Sensor Hall";
+            topic = "zigduck/Motion Sensor Hall";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "temperature" "temperature.json"; }];
           };
           # 🦆say⮞ calendar 
           calendar = {
             enable = true;
             description = "Updated calendar events";
-            topic = "zigbee2mqtt/calendar";
+            topic = "zigduck/calendar";
             actions = [
               {
                 type = "shell";
@@ -628,7 +667,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           tv_command = {
             enable = true;
             description = "TV command sent";
-            topic = "zigbee2mqtt/tvCommand";
+            topic = "zigduck/tvCommand";
             actions = [
               {
                 type = "shell";
@@ -644,7 +683,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           tv_channel_change = {
             enable = true;
             description = "Change TV channel via yo command";
-            topic = "zigbee2mqtt/tvChannelCommand";
+            topic = "zigduck/tvChannelCommand";
             actions = [
               {
                 type = "shell";
@@ -661,8 +700,8 @@ in { # 🦆 duck say ⮞ voice assistant config
 
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
-          hallway = { 
-            door_opened = [];
+          hallway = {  # 🦆 says ⮞ ping watch
+            door_opened = [ "curl http://192.168.1.15/api/settings/speaker/play/ding" ];
             door_closed = [];
           };
           
@@ -675,51 +714,46 @@ in { # 🦆 duck say ⮞ voice assistant config
                   power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
-                    yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 120}'
+                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 120}'
                   fi
                 '';
-              }
-              { # 🦆 says ⮞  slow go light go bye bye
-                type = "scene";
-                scene = "kitchenFadeOff";
-              }
+              } # 🦆 says ⮞  slow go light go bye bye
+              { type = "scene"; scene = "kitchenFadeOff"; }
             ];  
 
             motion_detected = [
+              { type = "scene"; scene = "kitchenInstant"; }
               {
                 type = "shell";
                 command = ''
                   # 🦆 says ⮞ cancel any pending countdown
-                  yo mqtt_pub --topic "zigbee2mqtt/Fläkt/set" --message '{"countdown": 0}'     
+                  zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 0}'
                   # 🦆 says ⮞ if fan is off - start it
                   STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
-                  if [ "$STATE" = "OFF" ]; then               
+                  if [ "$STATE" = "OFF" ]; then
                     zigduck-cli --device "Fläkt" --state on
                   fi
                 '';
               }
-              { # 🦆 SCREAM ⮞ INSTANT LIGHT QWACK
-                type = "scene";
-                scene = "kitchenInstant";
-              }            
-
             ];
           };
         };
-          
+
         # 🦆 says ⮞ 3. global actions automations  
         global_actions = {
           leak_detected = [
-            {
-              type = "shell";
-              command = "yo notify '🚨 WATER LEAK DETECTED!'";
-            }
+            { type = "scene"; scene = "max"; }
+            { type = "shell"; command = "yo notify '🚨 WATER LEAK DETECTED!'"; }
+            # 🦆 says ⮞ ping watch with ding
+            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
           ];
           smoke_detected = [
+            { type = "scene"; scene = "max"; }          
             {
               type = "shell";
               command = "yo notify '🔥 SMOKE DETECTED!'";
-            }
+            } # 🦆 says ⮞ ping watch with ding
+            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
           ];
         };
 
@@ -737,16 +771,44 @@ in { # 🦆 duck say ⮞ voice assistant config
                 }
                 {
                   type = "mqtt";
-                  topic = "zigbee2mqtt/Fläkt/set";
+                  topic = "zigduck/Fläkt/set";
                   message = ''{"state":"OFF"}'';
                 }
               ];
             };   
-          };              
-        };
+          };       
+          
+          kitchen = {
+            on_press_release = {
+              enable = true;
+              description = "Turn on kitchen fan (+ lights)";
+              extra_actions = [
+                {
+                  type = "mqtt";
+                  topic = "zigduck/Fläkt/set";
+                  message = ''{"state":"ON"}'';
+                }
+              ];
+              override_actions = [ ];
+            };   
+          };
+        };  
         
         # 🦆 says ⮞ 5. time based automations
-        time_based = {};
+        time_based = {       
+          morning_wakeup = {
+            enable = true;
+            description = "set morning wakeup alarm (dont miss lunch)";
+            # 🦆 says ⮞ 01 AM mon-fri 
+            schedule = {
+              start = "01:00";
+              days = ["mon" "tue" "wed" "thu" "fri"];
+            };
+            # 🦆 says ⮞ 11 AM (i like to sleep in)
+            actions = [ "zigduck-cli alarm add --hours 10 --minutes 45 --name vakna" ];
+          };
+          
+        };
         
         # 🦆 says ⮞ 6. presence based automations
         presence_based = {};        
@@ -772,19 +834,19 @@ in { # 🦆 duck say ⮞ voice assistant config
           endpoint = 11;
         };
         "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; icon = icons.light.spotlight; endpoint = 11; };
-        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
-        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
-        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip; endpoint = 11; };
+        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
+        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
+        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; };
         "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; }; 
         "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1; };
         "0xa4c138b9aab1cf3f" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         # 🦆 says ⮞ LIVING ROOM
         "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
         "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
-        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };   
-        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };
-        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };                  
-        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; };  
+        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };   
+        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
+        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };                  
+        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };  
         "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };
         "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
         "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
@@ -806,9 +868,9 @@ in { # 🦆 duck say ⮞ voice assistant config
         "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = icons.light.bulb; endpoint = 11; supports_color = true; };
-        "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
-        "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip; endpoint = 11; supports_color = true; };
+        "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = "./themes/icons/zigbee/bloom.png"; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
         "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
@@ -817,7 +879,7 @@ in { # 🦆 duck say ⮞ voice assistant config
         "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
 
         # 🦆 says ⮞ TV-AREA (entertainment area)
-        "00178801095f06300b" = { friendly_name = "TV Play Strip"; room = "tv-area"; type = "hue_light"; icon = icons.light.strip; endpoint = 1; supports_color = true; hue_id = 38; };
+        "00178801095f06300b" = { friendly_name = "TV Play Strip"; room = "tv-area"; type = "hue_light"; icon = icons.light.strip_rgb; endpoint = 1; supports_color = true; hue_id = 38; };
         "0017880106ff30720b" = { friendly_name = "TV Play 1"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 40; };
         "0017880109f06a700b" = { friendly_name = "TV Play 2"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 41; };
         "0017880109f06a7c0b" = { friendly_name = "TV Play 3"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 37; };
@@ -829,17 +891,9 @@ in { # 🦆 duck say ⮞ voice assistant config
             
   # 🦆 ⮞ SCENES ⮜
       scenes = {
-          # 🦆 says ⮞ Scene name
-          "Duck Scene" = {
-              # 🦆 says ⮞ Device friendly_name
-              "PC" = { # 🦆 says ⮞ Device state
-                  state = "ON";
-                  brightness = 200;
-                  color = { hex = "#00FF00"; };
-              };
-          };
-          # 🦆 says ⮞ Scene 2    
+          # 🦆 says ⮞ Scene name    
           "Chill Scene" = {
+              # 🦆 says ⮞ device friendly name & state
               "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };               # 🦆 says ⮞ Blue Violet
               "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };           # 🦆 says ⮞ Turquoise
               "Uppe" = { state = "ON"; brightness = 200; color = { hex = "#FF69B4"; }; };             # 🦆 says ⮞ Hot Pink
@@ -871,7 +925,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           };
 
           "kitchenInstant" = {
-              "Golvet" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -949,7 +1003,7 @@ in { # 🦆 duck say ⮞ voice assistant config
           "max" = { # 🦆 says ⮞ let there be light
               "Bloom" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Dörr" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Golvet" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Golvet" = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "PC" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Rustning" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -961,7 +1015,7 @@ in { # 🦆 duck say ⮞ voice assistant config
               "Taket Sovrum 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Taket Sovrum 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Vägg" = { state = "ON"; brightness = 1; };
+              "Vägg" = { state = "ON"; brightness = 1; }; # 🦆 says ⮞ 1% bright enuff on dis qwackit...
               "WC 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "WC 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Takkrona 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   
@@ -1013,7 +1067,7 @@ in { # 🦆 duck say ⮞ voice assistant config
       shield = {
         enable = true;
         room = "livingroom";
-        ip = "192.168.1.223";
+        ip = "192.168.1.224";
         apps = {
           telenor = "se.telenor.stream/.MainActivity";
           tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
@@ -1139,135 +1193,135 @@ in { # 🦆 duck say ⮞ voice assistant config
         };
       };
       # 🦆 says ⮞ Bedroom
-      bedroom = {
-        enable = true;
-        room = "bedroom";
-        ip = "192.168.1.153";
-        apps = config.house.tv.shield.apps;
-        channels = config.house.tv.shield.channels;
-      };      
+      # bedroom = {
+      #   enable = true;
+      #   room = "bedroom";
+      #   ip = "192.168.1.153";
+      #   apps = config.house.tv.shield.apps;
+      #   channels = config.house.tv.shield.channels;
+      # };      
       
-      arris = {
-        enable = true;
-        room = "bedroom";
-        ip = "192.168.1.152"; 
-        apps = {
-          telenor = "se.telenor.stream/.MainActivity   ";
-          tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
-        };
-        channels = {     
-          "1" = {
-            id = 1;
-            name = "SVT1";
-            icon = ./themes/icons/tv/1.png;
-            scrape_url = "https://tv-tabla.se/tabla/svt1/";
-          };
-          "2" = {
-            id = 2; 
-            name = "SVT2";
-            icon = ./themes/icons/tv/2.png;
-            scrape_url = "https://tv-tabla.se/tabla/svt2/";
-          };
-          "3" = {
-            id = 3;
-            name = "Kanal 3";
-            icon = ./themes/icons/tv/3.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv3/";
-          };
-          "4" = {
-            id = 4;
-            name = "TV4";
-            icon = ./themes/icons/tv/4.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv4/";
-          };
-          "5" = {
-            id = 5;
-            name = "TV5";
-            icon = ./themes/icons/tv/5.png;
-            scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
-          };
-          "6" = {
-            id = 6;
-            name = "Kanal 6";
-            icon = ./themes/icons/tv/6.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv6/";
-          };
-          "7" = {
-            id = 7;
-            name = "Sjuan";
-            icon = ./themes/icons/tv/7.png;
-            scrape_url = "https://tv-tabla.se/tabla/sjuan/";
-          };
-          "8" = {
-            id = 8;
-            name = "TV8";
-            icon = ./themes/icons/tv/8.png;          
-            scrape_url = "https://tv-tabla.se/tabla/tv8/";
-          };
-          "9" = {
-            id = 9;
-            name = "Kanal 9";
-            icon = ./themes/icons/tv/9.png;          
-            scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
-          };
-          "10" = {
-            id = 10;
-            name = "Kanal 10";
-            icon = ./themes/icons/tv/10.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv10/";
-          };
-          "11" = {
-            id = 11;
-            name = "Kanal 11";
-            icon = ./themes/icons/tv/11.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv11/";
-          };
-          "12" = {
-            id = 12;
-            name = "Kanal 12";
-            icon = ./themes/icons/tv/12.png;
-            scrape_url = "https://tv-tabla.se/tabla/tv12/";
-          };
-          "13" = {
-            id = 13;
-            name = "TV4 Hockey";
-            icon = ./themes/icons/tv/13.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";          
-            scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
-          };        
-          "14" = {
-            id = 14;
-            name = "TV4 Sport Live 1";
-            icon = ./themes/icons/tv/14.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";     
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
-          };
-          "15" = {
-            id = 15;
-            name = "TV4 Sport Live 2";
-            icon = ./themes/icons/tv/15.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
-          };
-          "16" = {
-            id = 16;
-            name = "TV4 Sport Live 3";
-            icon = ./themes/icons/tv/16.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
-          };
-          "17" = {
-            id = 17;
-            name = "TV 4 Sport Live 4";
-            icon = ./themes/icons/tv/17.png;
-            cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
-            scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
-          };       
-        };
-      };
+      # arris = {
+      #   enable = true;
+      #   room = "bedroom";
+      #   ip = "192.168.1.152"; 
+      #   apps = {
+      #     telenor = "se.telenor.stream/.MainActivity   ";
+      #     tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+      #   };
+      #   channels = {     
+      #     "1" = {
+      #       id = 1;
+      #       name = "SVT1";
+      #       icon = ./themes/icons/tv/1.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/svt1/";
+      #     };
+      #     "2" = {
+      #       id = 2; 
+      #       name = "SVT2";
+      #       icon = ./themes/icons/tv/2.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/svt2/";
+      #     };
+      #     "3" = {
+      #       id = 3;
+      #       name = "Kanal 3";
+      #       icon = ./themes/icons/tv/3.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv3/";
+      #     };
+      #     "4" = {
+      #       id = 4;
+      #       name = "TV4";
+      #       icon = ./themes/icons/tv/4.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4/";
+      #     };
+      #     "5" = {
+      #       id = 5;
+      #       name = "TV5";
+      #       icon = ./themes/icons/tv/5.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/kanal_5/";
+      #     };
+      #     "6" = {
+      #       id = 6;
+      #       name = "Kanal 6";
+      #       icon = ./themes/icons/tv/6.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv6/";
+      #     };
+      #     "7" = {
+      #       id = 7;
+      #       name = "Sjuan";
+      #       icon = ./themes/icons/tv/7.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/sjuan/";
+      #     };
+      #     "8" = {
+      #       id = 8;
+      #       name = "TV8";
+      #       icon = ./themes/icons/tv/8.png;          
+      #       scrape_url = "https://tv-tabla.se/tabla/tv8/";
+      #     };
+      #     "9" = {
+      #       id = 9;
+      #       name = "Kanal 9";
+      #       icon = ./themes/icons/tv/9.png;          
+      #       scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
+      #     };
+      #     "10" = {
+      #       id = 10;
+      #       name = "Kanal 10";
+      #       icon = ./themes/icons/tv/10.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv10/";
+      #     };
+      #     "11" = {
+      #       id = 11;
+      #       name = "Kanal 11";
+      #       icon = ./themes/icons/tv/11.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv11/";
+      #     };
+      #     "12" = {
+      #       id = 12;
+      #       name = "Kanal 12";
+      #       icon = ./themes/icons/tv/12.png;
+      #       scrape_url = "https://tv-tabla.se/tabla/tv12/";
+      #     };
+      #     "13" = {
+      #       id = 13;
+      #       name = "TV4 Hockey";
+      #       icon = ./themes/icons/tv/13.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";          
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
+      #     };        
+      #     "14" = {
+      #       id = 14;
+      #       name = "TV4 Sport Live 1";
+      #       icon = ./themes/icons/tv/14.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";     
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
+      #     };
+      #     "15" = {
+      #       id = 15;
+      #       name = "TV4 Sport Live 2";
+      #       icon = ./themes/icons/tv/15.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
+      #     };
+      #     "16" = {
+      #       id = 16;
+      #       name = "TV4 Sport Live 3";
+      #       icon = ./themes/icons/tv/16.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
+      #     };
+      #     "17" = {
+      #       id = 17;
+      #       name = "TV 4 Sport Live 4";
+      #       icon = ./themes/icons/tv/17.png;
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
+      #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
+      #     };       
+      #   };
+      # };
     };
   };
-
+  
   sops = {  
     secrets =  {
       api = {
@@ -1278,8 +1332,8 @@ in { # 🦆 duck say ⮞ voice assistant config
       };
       hueBridgeAPI = {
         sopsFile = ./../secrets/hueBridgeAPI.yaml;
-        owner = config.this.user.me.name;
-        group = config.this.user.me.name;
+        owner = "zigduck";
+        group = "zigduck";
         mode = "0440"; # Read-only for owner and group
       };
       mosquitto = { # 🦆 says ⮞ quack, stupid!
@@ -1293,6 +1347,18 @@ in { # 🦆 duck say ⮞ voice assistant config
         owner = "zigbee2mqtt";
         group = "zigbee2mqtt";
         mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
+      };
+      webserver = { # 🦆 says ⮞ https required
+        sopsFile = ./../secrets/webserver.yaml;
+        owner = config.this.user.me.name;
+        group = "zigduck";
+        mode = "0440";
+      }; # 🦆 says ⮞ required for youtube
+      youtube_api_key = { 
+        sopsFile = ./../secrets/youtube.yaml;
+        owner = config.this.user.me.name;
+        group = config.this.user.me.name;
+        mode = "0440";
       };
       z2m_mosquitto = { 
         sopsFile = ./../secrets/z2m_mosquitto.yaml; 
@@ -1325,10 +1391,10 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
-        yo.url = "github:QuackHack-McBlindy/yo";     
-        #yo.url = "github:QuackHack-McBlindy/yo/29b576fee43ca4394b64302d3082c1722bd437b6"; 
-        #yo.url = "github:QuackHack-McBlindy/yo/70bbab47e26b57b84d16a40920a16792a384b50e";
-        #yo.url = "path:/home/pungkula/yo";
+        yo.url = "github:QuackHack-McBlindy/yo";
+        zigduck2mqttnix.url = "github:QuackHack-McBlindy/Zigduck2mqttnix";
+        #yo.url = "path:/home/pungkula/new/yo";
+        #zigduck2mqttnix.url = "path:/home/pungkula/Zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1398,19 +1464,13 @@ git+file:///home/pungkula/dotfiles
 │   └───quackhack-mcpkgs: Nixpkgs overlay
 └───packages
     ├───aarch64-linux
-    │   ├───health omitted (use '--all-systems' to show)
     │   ├───health-rs omitted (use '--all-systems' to show)
     │   ├───installer omitted (use '--all-systems' to show)
-    │   ├───kagi omitted (use '--all-systems' to show)
-    │   ├───tv omitted (use '--all-systems' to show)
-    │   └───zigduck-rs omitted (use '--all-systems' to show)
+    │   └───kagi omitted (use '--all-systems' to show)
     └───x86_64-linux
-        ├───health: package 'health'
         ├───health-rs: package 'health-rs-0.1.0'
         ├───installer: package 'nixos-auto-installer-24.05.20240406.ff0dbd9-x86_64-linux.iso'
-        ├───kagi: package 'kagi'
-        ├───tv: package 'tv'
-        └───zigduck-rs: package 'zigduck-rs-0.1.0'
+        └───kagi: package 'kagi'
 ```
 
   <!-- TREE_END -->
@@ -1488,12 +1548,11 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] [--test] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | ✅ |
 | [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] [--list] |  | Start development enviorment | 📛 |
 | [yo dry](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dry.nix)  |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | 📛 |
-| [yo esp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/esp.nix) [--device] [--serialPort] [--ota] [--otaPort] [--OTAPwFile] [--wifiSSID] [--wifiPwFile] [--mqttHost] [--mqttUser] [--mqttPwFile] [--transcriptionHostIP] |  | Declarative firmware deployment tool for ESP32 boards with built-in version control. | 📛 |
-| [yo espOTA](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/espOTA.nix)  |  | Updates ESP32 devices over the air. | 📛 |
 | [yo reboot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) [--host] | restart | Force reboot and wait for host | ✅ |
 | [yo rollback](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) --host [--flake] [--user] |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. | 📛 |
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration. ('!' to test) | ✅ |
+| [yo watch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/watch.nix) [--device] --setting [--value] |  | API controller for ESP32-S3-WATCH-rs. | ✅ |
 | **☎️ Phone** | | | |
 | [yo call](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/call.nix) --contactName --contactFile |  | Calls phone number from contact list | ✅ |
 | [yo text](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/text.nix) --contactName --contactFile |  | Text message a phone number from contact list | ✅ |
@@ -1513,10 +1572,9 @@ Add \`?\` to any command to run it in DEBUG mode
 | **🌍 Localization** | | | |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |
 | [yo travel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) [--to] [--from] [--type] [--apikeyPath] |  | Public transportation helper. Fetches current bus, boat, train and air travel schedules. (Sweden) | ✅ |
-| [yo weather](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) [--location] [--day] [--condition] [--locationPath] | weat | Weather Assistant. Ask anything weather related (3 day forecast) | ✅ |
 | **🌐 Networking** | | | |
-| [yo api](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/api.nix) [--host] [--port] [--dir] |  | API endpoints for smart home control, virtual media playlist management, system wide health checks and more. | 📛 |
 | [yo block](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) --url [--blocklist] | ad | Block URLs using DNS | 📛 |
+| [yo esp-get](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/esp-get.nix)  | get-esp | Microcontroller control script - enabling full device configuration on the fly with voice commands. | 📛 |
 | [yo ip-updater](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/ip-updater.nix) [--token1] [--token2] [--token3] |  | DDNS updater | ✅ |
 | [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) [--text] [--title] [--icon] [--url] [--group] [--sound] [--volume] [--copy] [--autoCopy] [--level] [--encrypt] [--base_urlFile] [--deviceKeyFile] |  | Send custom push to iOS devices | 📛 |
 | [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] [--dataDir] |  | Notification server for iOS devices | 📛 |
@@ -1527,7 +1585,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo hacker-news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/hacker-news.nix) [--show] [--item] [--user] [--clear] [--number] | hn | Hacker news API controller | 📛 |
 | [yo news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/news.nix) [--apis] [--clear] |  | API caller and playlist manager for latest Swedish news from SR. | ✅ |
 | [yo transcode](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/transcode.nix) [--directory] | trans | Transcode media files | 📛 |
-| [yo tv](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv.nix) [--typ] [--search] [--device] [--season] [--shuffle] [--tvshowsDir] [--moviesDir] [--musicDir] [--musicvideoDir] [--videosDir] [--podcastDir] [--audiobookDir] [--youtubeAPIkeyFile] [--webserver] [--defaultPlaylist] [--favoritesPlaylist] [--max_items] [--mqttUser] [--mqttPWFile] | remote | Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. Fully conttrollable. | ✅ |
+| [yo tv](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv.nix) [--typ] [--search] [--room] [--season] [--shuffle] |  | Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. | ✅ |
 | [yo tv-guide](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-guide.nix) [--search] [--channel] [--jsonFilePath] | tvg | TV-guide assistant.. | ✅ |
 | [yo tv-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-rs.nix) [--type] [--search] [--dir] [--build] |  | High performance Media Management written in Rust. | 📛 |
 | [yo tv-scraper](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-scraper.nix) [--epgFilePath] [--jsonFilePath] [--flake] | tvs | Scrapes web for tv-listing data. Builds EPG and generates HTML. | 📛 |
@@ -1544,8 +1602,8 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
-| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
-| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] |  | Extensive automated sentence testing for the yo do | 📛 |
+| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] [--path] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
+| [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] [--script] [--max-variants] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo battery](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/battery.nix) [--device] |  | Fetch battery level for specified device. | ✅ |
@@ -1553,7 +1611,6 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
-| [yo duckDash](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/duckDash.nix) [--host] [--port] [--cert] [--key] | dash | Mobile-first dashboard, unified frontend for Zigbee devices, tv remotes, and other smart home gadgets. Includes DuckCloud page for easy access to your files. (Use WireGuard) | 📛 |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--json] [--hue-key-file] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |

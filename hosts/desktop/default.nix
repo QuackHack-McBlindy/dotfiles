@@ -25,7 +25,7 @@
     
     services.udev.packages = [ pkgs.openrgb ];
     users.users.pungkula.extraGroups = [ "i2c" ];    
-    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 51821 ];
+    networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 51821 8000 ];
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];   
@@ -96,7 +96,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" ];
+                services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" "duckdns" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo

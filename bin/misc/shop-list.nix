@@ -181,7 +181,7 @@ EOF
       esac
     '';
     voice = {
-      enabled = true;
+      enabled = false;
       priority = 4;
       sentences = [
         "{operation} till {item} i (inköpslistan|shoppinglistan)"

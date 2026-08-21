@@ -58,10 +58,6 @@ in
     ###################
     # > PAM
 
-
-
-
-
       security.pam.u2f = {
         enable = true;
         cue = true;              # Prompts for Touch
