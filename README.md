@@ -1431,7 +1431,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=7e9235d1e20b71728e34fca2699849c5cd93ae53
+git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=633e061bb6f4428fcf47fc1be56a8242f579d531
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
