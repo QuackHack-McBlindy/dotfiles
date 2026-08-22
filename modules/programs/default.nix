@@ -55,10 +55,17 @@ in {
         export PYTHONSTARTUP="/home/${config.this.user.me.name}/.pythonrc"
         export PYTHONPATH="/home/${config.this.user.me.name}/.shell/python:$PYTHONPATH"
         export PATH="/home/${config.this.user.me.name}/bin:$PATH:$PATH"
+        
+        # 🦆 say ⮞ ensures no old nixstore json files are used for yo  
+        export YO_FUZZY_INDEX="/etc/yo/fuzzy-index.json" 
+        export YO_FUZZY_ENTITY_DICT="/etc/yo/fuzzy-entity-dict.json"
+        export YO_INTENT_DATA="/etc/yo/intent-data.json"
 
-        export HISTFILE=/dev/null
+        export HISTFILE="$HOME/.local/share/bash_history" 
         HISTSIZE=10000
-        HISTFILESIZE=0
+        HISTFILESIZE=10000
+        mkdir -p "$(dirname "$HISTFILE")"
+        shopt -s histappend
         
         bind 'set show-all-if-ambiguous on'
         bind 'set completion-ignore-case on'

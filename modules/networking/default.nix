@@ -44,7 +44,7 @@
                 "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
                 "192.168.1.23" = [ "pinephone.lan" "pinephone.local" "pinephone" "phone" ];
                 # 🦆 say ⮞ TV devices
-                "192.169.1.223" = [ "shield.lan" "shield.local" "shield" ];
+                "192.169.1.224" = [ "shield.lan" "shield.local" "shield" ];
                 "192.169.1.152" = [ "arris.lan" "arris.local" "arris" ];
             };                                                                                        
             

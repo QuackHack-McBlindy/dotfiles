@@ -15,8 +15,10 @@ let
     "fifty-one" "fifty-two" "fifty-three" "fifty-four" "fifty-five" "fifty-six" "fifty-seven" "fifty-eight" "fifty-nine" "sixty"
   ];
 
-  englishNumber = n: builtins.elemAt englishNumbers (n - 1);
-  
+  englishNumber = n: builtins.elemAt englishNumbers n;
+  hoursValues = builtins.map (n: toString n) (lib.range 1 12);
+  minutesValues = builtins.map (n: toString n) (lib.range 0 59);
+   
 in {
 
   yo.scripts.alarm = {
@@ -24,8 +26,8 @@ in {
     category = "Home Automation";
     logLevel = "INFO";
     parameters = [   
-      { name = "hours"; type = "int"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; }     
-      { name = "minutes"; type = "int"; description = "Clock to sewt the alarm for, MM format"; optional = false; }
+      { name = "hours"; type = "int"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; values = hoursValues;  }     
+      { name = "minutes"; type = "int"; description = "Clock to sewt the alarm for, MM format"; optional = false; values = minutesValues; }
       { name = "ampm"; description = "AM or PM"; optional = false; values = [ "am" "pm" ]; }      
       { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }      
     ];

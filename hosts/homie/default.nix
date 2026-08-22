@@ -68,7 +68,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "crossEnv" "pkgs" ];
                 networking = [ "default" "dns" "pool" "wg-server" ];
-                services = [ "ssh" "yo-client" "default" "adb" "zigduck" "pairdrop" "navidrome" "duckdns" ];
+                services = [ "ssh" "yo" "yo-client" "default" "adb" "zigduck" "pairdrop" "navidrome" "duckdns" ];
                 programs = [ "default" ];
                 virtualisation = [ "docker-rootless" ];
             };  

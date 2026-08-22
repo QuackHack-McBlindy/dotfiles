@@ -96,7 +96,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" "duckdns" ];
+                services = [ "ssh" "default" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo

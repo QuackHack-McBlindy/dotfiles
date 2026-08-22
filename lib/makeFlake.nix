@@ -126,16 +126,16 @@
       
       # 🦆 duck say ⮞ build per system packages, apps & devShells attributes  
       packages = lib.genAttrs systems (system:
-        (perSystem system).packages
+        lib.filterAttrs (_: pkg: pkg != null) (perSystem system).packages
       );
       apps = lib.genAttrs systems (system: (perSystem system).apps);
       devShells = lib.genAttrs systems (system: (perSystem system).devShells);
       # 🦆 duck say ⮞ show overlays in nix flake show
       overlays = lib.mapAttrs'
         (name: _: lib.nameValuePair (lib.removeSuffix ".nix" name)
-          (import (../overlays + "/${name}") { inherit lib; }))
+          (final: prev: (import (./../overlays + "/${name}") { inherit lib; }) final prev))
         (lib.filterAttrs (name: type: lib.hasSuffix ".nix" name)
-          (builtins.readDir ../overlays));
+          (builtins.readDir ./../overlays));
     };
 in { # 🦆 says ⮞ expose makeApp & makeFlake for use in flake
   inherit makeApp;

@@ -49,4 +49,5 @@
                 uri = "postgresql://@/atuin";
             };
         };
+        
     };}   

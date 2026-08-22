@@ -7,7 +7,7 @@
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.18.44-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python--%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust--orange?style=flat-square&logo=rust&logoColor=white)
 ![Mosquitto](https://img.shields.io/badge/Mosquitto-2.1.2-yellow?style=flat-square&logo=eclipsemosquitto&logoColor=white)
 ![Zigbee2MQTT](https://img.shields.io/badge/Zigbee2MQTT-2.7.1-yellow?style=flat-square&logo=zigbee2mqtt&logoColor=white)
@@ -56,8 +56,8 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 <!-- SCRIPT_STATS_START -->
-- __87 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
-- __2493 dynamically generated regex patterns - makes 272682898 phrases available as commands.__ <br>
+- __86 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __2493 dynamically generated regex patterns - makes 263726194 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Infra as everyday accessibility__ <br>
@@ -79,7 +79,7 @@ _"What makes this configuration common?_" <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4508 ducks? <br>
+Let's see if you can find all 4504 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -154,7 +154,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "default" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "yo-rs" "yo-client" "duckdns" ];
+    services = [ "ssh" "default" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -1465,7 +1465,6 @@ git+file:///home/pungkula/dotfiles
 └───packages
     ├───aarch64-linux
     │   ├───health-rs omitted (use '--all-systems' to show)
-    │   ├───installer omitted (use '--all-systems' to show)
     │   └───kagi omitted (use '--all-systems' to show)
     └───x86_64-linux
         ├───health-rs: package 'health-rs-0.1.0'
@@ -1544,7 +1543,6 @@ Add \`?\` to any command to run it in DEBUG mode
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 | **🖥️ System Management** | | | |
-| [yo audio](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/audio.nix) [--auto] [--up] [--down] [--mute] [--get] |  | Time based volume control | 📛 |
 | [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] [--test] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | ✅ |
 | [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] [--list] |  | Start development enviorment | 📛 |
 | [yo dry](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dry.nix)  |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | 📛 |
@@ -1602,7 +1600,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
-| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] [--path] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
+| [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] [--script] [--max-variants] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |

@@ -12,7 +12,7 @@
     cargo
     clippy
     rustfmt    
-    rust-bin.stable.latest.default
+    #rust-bin.stable.latest.default
     cmake
     ninja
     pkg-config  

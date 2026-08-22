@@ -303,11 +303,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1787135253,
-        "narHash": "sha256-RD2kNWCG+Bjo6h+JVjWVNntZs2GtRoeY2xHjts/FNkA=",
+        "lastModified": 1787360063,
+        "narHash": "sha256-dt4WdcvsA8/RCe+VZZwqU0X+XMM3wBbGCWA0/sFWzGo=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "ffb3c9b700e759be2ef13237c9d8f953b32a1e46",
+        "rev": "2c423e03bbafcff28bfadc6781a4a8257f205cb5",
         "type": "github"
       },
       "original": {
@@ -319,11 +319,11 @@
     },
     "nixpkgs_6": {
       "locked": {
-        "lastModified": 1786862985,
-        "narHash": "sha256-FBJRXmbGXiSUDvYEbfLYRkckayyZ6SK1UEqhCrIZ2Cs=",
+        "lastModified": 1787135253,
+        "narHash": "sha256-RD2kNWCG+Bjo6h+JVjWVNntZs2GtRoeY2xHjts/FNkA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e5bdc4a41d4c072fe1e3787eaa0320a384741d44",
+        "rev": "ffb3c9b700e759be2ef13237c9d8f953b32a1e46",
         "type": "github"
       },
       "original": {
@@ -335,11 +335,11 @@
     },
     "nixpkgs_7": {
       "locked": {
-        "lastModified": 1786862985,
-        "narHash": "sha256-FBJRXmbGXiSUDvYEbfLYRkckayyZ6SK1UEqhCrIZ2Cs=",
+        "lastModified": 1787135253,
+        "narHash": "sha256-RD2kNWCG+Bjo6h+JVjWVNntZs2GtRoeY2xHjts/FNkA=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "e5bdc4a41d4c072fe1e3787eaa0320a384741d44",
+        "rev": "ffb3c9b700e759be2ef13237c9d8f953b32a1e46",
         "type": "github"
       },
       "original": {
@@ -542,11 +542,11 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1787092616,
-        "narHash": "sha256-78ELPFdU/HtsjYjQTzcXuXWv10rZAGUPBMeDsZbYtOk=",
+        "lastModified": 1787413105,
+        "narHash": "sha256-Nitmsch5sZE194HJuefV/+TpHjeZlsYDeTbStN/olcE=",
         "owner": "QuackHack-McBlindy",
         "repo": "yo",
-        "rev": "5cdf4d7661ece2d2318c25bb447d8b74265935fa",
+        "rev": "4a512baa74bd568a624e3069816bda6a60166e2e",
         "type": "github"
       },
       "original": {
@@ -561,11 +561,11 @@
         "tinyFlake": "tinyFlake_2"
       },
       "locked": {
-        "lastModified": 1787325588,
-        "narHash": "sha256-BM00xwTNK0Yjc+DQYb4yB7GJM86S2Y4Nvo5zARGM5wQ=",
+        "lastModified": 1787414609,
+        "narHash": "sha256-1eA4DkEoferf+Vsj7bwtcw2vLQSSbl5nPVQOub4k5QU=",
         "owner": "QuackHack-McBlindy",
         "repo": "Zigduck2mqttnix",
-        "rev": "8f7711e53e351f724ee15bc39510e8791bb46842",
+        "rev": "73c9ce11b25b8cf41878397b8022a32505f7945a",
         "type": "github"
       },
       "original": {

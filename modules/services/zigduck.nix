@@ -15,6 +15,7 @@ in {
         cli.enable = true;
         dashboard.enable = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         dashboard.port = 13337;
+        dashboard.openFirewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         dashboard.passwordFile = config.sops.secrets.api.path;
         dashboard.secure = false;                
         extraEnv.PATH = 

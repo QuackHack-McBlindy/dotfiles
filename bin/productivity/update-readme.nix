@@ -253,7 +253,8 @@ in {
         nix_version=$(nix --version | awk '{print $3}')
         bash_version=$(bash --version | head -n1 | awk '{print $4}' | cut -d'(' -f1)
         gnome_version=$(gnome-shell --version | awk '{print $3}')
-        python_version=$(python3 --version 2>/dev/null | awk '{print $2}' || echo "unknown")
+        #python_version=$(python3 --version 2>/dev/null | awk '{print $2}' || echo "unknown")
+        python_version="3.12"
         rustc_version=$(rustc --version 2>/dev/null | awk '{print $2}' || echo "unknown")
         mosquitto_version=$(mosquitto -h 2>&1 | awk '/^mosquitto version/{print $3}' || echo "unknown")
   
