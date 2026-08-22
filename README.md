@@ -4,7 +4,7 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.34.8-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.44-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.45-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
@@ -154,7 +154,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "default" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" ];
+    services = [ "ssh" "default" "yo" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -1431,7 +1431,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=633e061bb6f4428fcf47fc1be56a8242f579d531
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)

@@ -19,18 +19,21 @@ in {
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
         language = "sv";
-        whisper = "base";
+        whisper = "small";
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  
         beamSize = 0;
         temperature = 0.4; # 🦆 says ⮞ no more LSD plx
-        threads = 8;
+        threads = 4;
       };
         
       client = {
         enable = lib.mkIf (lib.elem "yo-client" config.this.host.modules.services) true;
-        uri = "192.168.1.211:12345";
+        uri =
+            if config.this.host.hostname == "desktop"
+            then "127.0.0.1:12345"
+            else "192.168.1.111:12345";
         room = 
           if config.this.host.hostname == "homie" then "livingroom"
           else if config.this.host.hostname == "desktop" then "livingroom"
