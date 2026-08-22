@@ -542,17 +542,14 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1787413105,
-        "narHash": "sha256-Nitmsch5sZE194HJuefV/+TpHjeZlsYDeTbStN/olcE=",
-        "owner": "QuackHack-McBlindy",
-        "repo": "yo",
-        "rev": "4a512baa74bd568a624e3069816bda6a60166e2e",
-        "type": "github"
+        "lastModified": 1787429084,
+        "narHash": "sha256-lw23D30Dd0zEh2XZLYhfGghSsfCckIUrTqvML+9tSR4=",
+        "path": "/home/pungkula/new/yo",
+        "type": "path"
       },
       "original": {
-        "owner": "QuackHack-McBlindy",
-        "repo": "yo",
-        "type": "github"
+        "path": "/home/pungkula/new/yo",
+        "type": "path"
       }
     },
     "zigduck2mqttnix": {

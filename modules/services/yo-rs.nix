@@ -11,10 +11,9 @@ in {
   config = lib.mkMerge [{
 
     environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
-    networking.firewall.allowedTCPPorts = [ 12345 ];
-      
+
     services.yo-rs = {
-      port = "12345";
+      port = 12345;
       openFirewall = true;
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
