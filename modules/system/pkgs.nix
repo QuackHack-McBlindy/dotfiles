@@ -28,6 +28,7 @@
                 pkgs.jellycli
                 pkgs.kanata
                 pkgs.gh
+                pkgs.xclip
                 
             ])
         # 🦆 says⮞ NASTY        
@@ -147,13 +148,12 @@
                 pkgs.atuin
                 pkgs.direnv
                 pkgs.nix-direnv 
-                pkgs.sops 		# secrets 
+                pkgs.sops 	# secrets 
                 pkgs.age		# actually good encryption
                 pkgs.rage
                 pkgs.syslogng
                 pkgs.gum		# scripts 
                 inputs.ducktrace-tui.packages.x86_64-linux.default
-                pkgs.wyoming-piper # wy0ming server
                 pkgs.ripgrep 		# Better `grep`
                 pkgs.fd
                 pkgs.sd

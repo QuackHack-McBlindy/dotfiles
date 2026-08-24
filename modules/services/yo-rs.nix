@@ -17,7 +17,7 @@ in {
       openFirewall = true;
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
-        language = "sv";
+        language = "finnish";
         whisper = "small";
         ttsSpeed = "1.3";
         shellTranslate = true;        
@@ -64,7 +64,11 @@ in {
 
     yo = {
       legacy = false;
-      SplitWords = [ "samt" ];
+      fuzzy = {
+        conflict.detection = false;
+        conflict.threshold = 80;
+      };
+      splitWords = [ "samt" ];      
       sorryPhrases = [
         "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
         "Vad fan säger du för något?"

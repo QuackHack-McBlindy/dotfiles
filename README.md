@@ -56,7 +56,7 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 <!-- SCRIPT_STATS_START -->
-- __86 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __87 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
 - __2493 dynamically generated regex patterns - makes 263726194 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -1562,6 +1562,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo hitta](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/hitta.nix) --search |  | Locate a persons address with help of Hitta.se | ✅ |
 | [yo img2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/img2phone.nix) --image |  | Send images to an iPhone | 📛 |
 | [yo pull](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pull.nix) [--flake] [--host] |  | Pull the latest changes from your dotfiles repo. Resets tracked files to origin/main but keeps local extras. | ✅ |
+| [yo pull-request](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pull-request.nix)  | pr | Copies git diff to clipboard for summarizing | 📛 |
 | [yo push](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/push.nix) [--flake] [--repo] [--host] [--generation] | ps | Commit, tag, and push dotfiles and system state to GitHub. Tags based on host + generation, auto-updates README, and preserves history. | 📛 |
 | [yo release](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/release.nix) [--confirm] |  | Bumps project version & commit, tag, and push to Git. | 📛 |
 | [yo scp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) --host [--path] [--username] [--downloadPath] |  | Move files between hosts interactively | 📛 |

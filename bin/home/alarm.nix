@@ -40,6 +40,7 @@
 
 
 in {   
+
    yo.scripts.alarm = {
     description = "Set an alarm for a specified time";
     category = "🛖 Home Automation";  
@@ -144,5 +145,5 @@ in {
         ) 60);
       };
     };
-    
+
   };}
