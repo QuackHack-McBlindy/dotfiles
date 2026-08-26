@@ -363,6 +363,7 @@ in { # 🦆 duck say ⮞ house config
             description = "Time to wake up!";
             topic = "zigduck/alarm/triggered";
             actions = [  # 🦆 says ⮞ max lightz
+              { type = "snapshot"; snapshot_name = "before_alarm"; }
               { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
               { type = "mqtt"; topic = "zigduck/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
@@ -379,6 +380,7 @@ in { # 🦆 duck say ⮞ house config
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ roll up da blindz let da sun come in 
               { type = "mqtt"; topic = "zigduck/Roller Shade/set"; message = ''{"state":"ON"}''; }
+              { type = "restore"; snapshot_name = "before_alarm"; }
             ];
           };
 
