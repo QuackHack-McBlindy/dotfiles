@@ -303,11 +303,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1787360063,
-        "narHash": "sha256-dt4WdcvsA8/RCe+VZZwqU0X+XMM3wBbGCWA0/sFWzGo=",
+        "lastModified": 1787498568,
+        "narHash": "sha256-9i/VTdusq/+NM/tz+J1Re+ojkMB8MBf0QshnYfzHz30=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "2c423e03bbafcff28bfadc6781a4a8257f205cb5",
+        "rev": "56c02bc00adcf003215cc4bd996d6efaf4cff188",
         "type": "github"
       },
       "original": {
@@ -418,7 +418,7 @@
         "sops-nix": "sops-nix",
         "systems": "systems_4",
         "yo": "yo",
-        "zigduck2mqttnix": "zigduck2mqttnix"
+        "zigduck": "zigduck"
       }
     },
     "sops-nix": {
@@ -542,32 +542,35 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1787528887,
-        "narHash": "sha256-FrG0INKYNbGyI36uKyPYTxLcNQk6qrvOmubcLyCLqe4=",
-        "path": "/home/pungkula/new/yo",
-        "type": "path"
+        "lastModified": 1787706762,
+        "narHash": "sha256-0mshUAg24GJhKjjieWE6G+sPDl9kYFcBxozIYAy7mZc=",
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "rev": "b0f51b0d467d7f969fd19b486e3297558e3a6cbe",
+        "type": "github"
       },
       "original": {
-        "path": "/home/pungkula/new/yo",
-        "type": "path"
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "type": "github"
       }
     },
-    "zigduck2mqttnix": {
+    "zigduck": {
       "inputs": {
         "nixpkgs": "nixpkgs_8",
         "tinyFlake": "tinyFlake_2"
       },
       "locked": {
-        "lastModified": 1787414609,
-        "narHash": "sha256-1eA4DkEoferf+Vsj7bwtcw2vLQSSbl5nPVQOub4k5QU=",
+        "lastModified": 1787714935,
+        "narHash": "sha256-n+j2zCbxnVTaqi/Wczp+BPUBWVd2rivn7XvAvT4NLw0=",
         "owner": "QuackHack-McBlindy",
-        "repo": "Zigduck2mqttnix",
-        "rev": "73c9ce11b25b8cf41878397b8022a32505f7945a",
+        "repo": "zigduck",
+        "rev": "b2f7dbc5583689e2a8469df63e9b92c7b65cf73f",
         "type": "github"
       },
       "original": {
         "owner": "QuackHack-McBlindy",
-        "repo": "Zigduck2mqttnix",
+        "repo": "zigduck",
         "type": "github"
       }
     }

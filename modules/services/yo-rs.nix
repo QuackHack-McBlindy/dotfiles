@@ -17,25 +17,24 @@ in {
       openFirewall = true;
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
-        language = "finnish";
-        whisper = "small";
+        language = "swedish";
+        whisper = "base";
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  
         beamSize = 0;
         temperature = 0.4; # 🦆 says ⮞ no more LSD plx
-        threads = 4;
+        threads = 8;
+        logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
       };
         
       client = {
         enable = lib.mkIf (lib.elem "yo-client" config.this.host.modules.services) true;
-        uri =
-            if config.this.host.hostname == "desktop"
-            then "127.0.0.1:12345"
-            else "192.168.1.111:12345";
+        logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
+        uri = "192.168.1.111:12345";
         room = 
           if config.this.host.hostname == "homie" then "livingroom"
-          else if config.this.host.hostname == "desktop" then "livingroom"
+          else if config.this.host.hostname == "desktop" then "local"
           else if config.this.host.hostname == "nasty" then "bedroom"
           else "";
             
@@ -66,7 +65,7 @@ in {
       legacy = false;
       fuzzy = {
         conflict.detection = false;
-        conflict.threshold = 80;
+        conflict.threshold = 70;
       };
       splitWords = [ "samt" ];      
       sorryPhrases = [

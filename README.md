@@ -46,7 +46,7 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 **honorable mentions:**    
 - 🗣️[yo](https://github.com/QuackHack-McBlindy/yo) - holds my scripts and my grammar and runs voice pipeline.   
-- 🦆[Zigduck2mqttnix](https://github.com/QuackHack-McBlindy/Zigduck2mqttnix) - automates my house.  
+- 🦆[zigduck](https://github.com/QuackHack-McBlindy/zigduck) - automates my house.  
 
 
 ## **What Makes This Configuration Unique?** 
@@ -56,7 +56,7 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 <!-- SCRIPT_STATS_START -->
-- __87 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
+- __88 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
 - __2493 dynamically generated regex patterns - makes 263726194 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
@@ -79,7 +79,7 @@ _"What makes this configuration common?_" <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4504 ducks? <br>
+Let's see if you can find all 4506 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -601,13 +601,14 @@ in { # 🦆 duck say ⮞ house config
             description = "a timer is ringing";
             topic = "zigduck/timer/finished"; 
             actions = [
+              { type = "snapshot"; snapshot_name = "before_timer"; }
               { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ ping watch with ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
               { type = "scene"; scene = "dark-fast"; }
               { type = "wait"; duration = 2; }
-              { type = "scene"; scene = "max"; }              
+              { type = "restore"; snapshot_name = "before_timer"; }
             ];
           };
 
@@ -743,17 +744,15 @@ in { # 🦆 duck say ⮞ house config
         global_actions = {
           leak_detected = [
             { type = "scene"; scene = "max"; }
-            { type = "shell"; command = "yo notify '🚨 WATER LEAK DETECTED!'"; }
+            "yo notify '🚨 WATER LEAK DETECTED!'"
             # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            "curl http://192.168.1.15/api/settings/speaker/play/ding"
           ];
           smoke_detected = [
             { type = "scene"; scene = "max"; }          
-            {
-              type = "shell";
-              command = "yo notify '🔥 SMOKE DETECTED!'";
-            } # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            "yo notify '🔥 SMOKE DETECTED!'"
+            # 🦆 says ⮞ ping watch with ding
+            "curl http://192.168.1.15/api/settings/speaker/play/ding"
           ];
         };
 
@@ -1391,10 +1390,10 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
-        #yo.url = "github:QuackHack-McBlindy/yo";
-        zigduck2mqttnix.url = "github:QuackHack-McBlindy/Zigduck2mqttnix";
-        yo.url = "path:/home/pungkula/new/yo";
-        #zigduck2mqttnix.url = "path:/home/pungkula/Zigduck2mqttnix";
+        yo.url = "github:QuackHack-McBlindy/yo";
+        zigduck.url = "github:QuackHack-McBlindy/zigduck";
+        #yo.url = "path:/home/pungkula/new/yo";
+        #zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1567,6 +1566,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo release](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/release.nix) [--confirm] |  | Bumps project version & commit, tag, and push to Git. | 📛 |
 | [yo scp](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/scp.nix) --host [--path] [--username] [--downloadPath] |  | Move files between hosts interactively | 📛 |
 | [yo search](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/search.nix) --search [--token-file] [--num-results] |  | Perform web search using Kagi with Quick Answer | ✅ |
+| [yo sum-pr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/sum-pr.nix)  |  | Copies git diff to clipboard for summarizing | 📛 |
 | [yo update-readme](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/update-readme.nix) [--readmePath] |  | Updates documentation in README.md with current system state (uses build-time config) | 📛 |
 | **🌍 Localization** | | | |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |

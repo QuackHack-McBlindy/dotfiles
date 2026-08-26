@@ -7,6 +7,9 @@
   cmdHelpers,
   ...
 } : let
+
+  zigduck-cli = self.inputs.zigduck.packages.${pkgs.stdenv.hostPlatform.system}.zigduck-cli;
+  
   # 🦆 says ⮞ sweeedish number words 1-60
   swedishNumbers = [
     "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
@@ -35,7 +38,7 @@ in {
     ];
     code = ''
       if [ "$list" = "true" ] || [ "$list" = "1" ]; then
-        zigduck-cli timer list
+        ${zigduck-cli}/bin/zigduck-cli timer list
         exit 0
       fi
 
@@ -44,11 +47,11 @@ in {
       if [ -z "$seconds" ]; then seconds=0; fi
       
       if [ "$hours" -eq 0 ] && [ "$minutes" -eq 0 ] && [ "$seconds" -eq 0 ]; then
-        zigduck-cli timer list
+        ${zigduck-cli}/bin/zigduck-cli timer list
         exit 0
       fi
 
-      zigduck-cli timer set --hours "$hours" --minutes "$minutes" --seconds "$seconds"    
+      ${zigduck-cli}/bin/zigduck-cli timer set --hours "$hours" --minutes "$minutes" --seconds "$seconds"    
     '';
     voice = {
       priority = 1;

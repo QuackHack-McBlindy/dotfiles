@@ -70,7 +70,7 @@ in {
       { name = "season"; type = "string"; description = "Specific season to play"; optional = true; }
       { name = "shuffle"; type = "bool"; description = "Shuffle Toggle, true or false"; default = true; }
     ];
-    binary = self.inputs.zigduck2mqttnix.packages.x86_64-linux.tv + "/bin/tv";
+    binary = self.inputs.zigduck.packages.x86_64-linux.tv + "/bin/tv";
     voice = { # 🦆 says ⮞ low priority = higher priority! faser execution? wtf upside down?!
         priority = 1; # 🦆 says ⮞ 1 to 5
         sentences = [

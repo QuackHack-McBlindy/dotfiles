@@ -387,13 +387,14 @@ in { # 🦆 duck say ⮞ house config
             description = "a timer is ringing";
             topic = "zigduck/timer/finished"; 
             actions = [
+              { type = "snapshot"; snapshot_name = "before_timer"; }
               { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ ping watch with ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
               { type = "scene"; scene = "dark-fast"; }
               { type = "wait"; duration = 2; }
-              { type = "scene"; scene = "max"; }              
+              { type = "restore"; snapshot_name = "before_timer"; }
             ];
           };
 
@@ -529,17 +530,15 @@ in { # 🦆 duck say ⮞ house config
         global_actions = {
           leak_detected = [
             { type = "scene"; scene = "max"; }
-            { type = "shell"; command = "yo notify '🚨 WATER LEAK DETECTED!'"; }
+            "yo notify '🚨 WATER LEAK DETECTED!'"
             # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            "curl http://192.168.1.15/api/settings/speaker/play/ding"
           ];
           smoke_detected = [
             { type = "scene"; scene = "max"; }          
-            {
-              type = "shell";
-              command = "yo notify '🔥 SMOKE DETECTED!'";
-            } # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            "yo notify '🔥 SMOKE DETECTED!'"
+            # 🦆 says ⮞ ping watch with ding
+            "curl http://192.168.1.15/api/settings/speaker/play/ding"
           ];
         };
 

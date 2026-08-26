@@ -22,7 +22,7 @@ in {
     voice = {
       priority = 1;
       sentences = [
-	"{state} allt"
+      	"{state} allt"
         "{state} alla (lampor|lamporna)"
       ];        
       lists = {
