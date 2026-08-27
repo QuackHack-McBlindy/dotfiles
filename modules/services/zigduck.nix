@@ -17,7 +17,7 @@ in {
         dashboard.port = 13337;
         dashboard.openFirewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         dashboard.passwordFile = config.sops.secrets.api.path;
-        dashboard.secure = false;                
+        dashboard.secure = true;                
         extraEnv.PATH = 
           "/run/current-system/sw/bin:"
           + "/run/wrappers/bin:"

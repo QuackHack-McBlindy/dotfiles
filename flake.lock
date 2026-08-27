@@ -303,11 +303,11 @@
     },
     "nixpkgs_5": {
       "locked": {
-        "lastModified": 1787498568,
-        "narHash": "sha256-9i/VTdusq/+NM/tz+J1Re+ojkMB8MBf0QshnYfzHz30=",
+        "lastModified": 1787736819,
+        "narHash": "sha256-cV5xEJJK3BvhU8rEd4mC9UsmDi5qscv/kzGPhBRC5WA=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "56c02bc00adcf003215cc4bd996d6efaf4cff188",
+        "rev": "9fbb54b33e91ee4ca368e35a78e0613c720600b3",
         "type": "github"
       },
       "original": {
@@ -542,14 +542,17 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1787844451,
-        "narHash": "sha256-XoDQ1PObzmdUX7oSeSg4mxejzmZV70cH70HuHWD/8xM=",
-        "path": "/home/pungkula/new/yo",
-        "type": "path"
+        "lastModified": 1787747917,
+        "narHash": "sha256-dHA+iuHqLTvTuNUqT7DWiwAN70CKK0+NYUBR2Y5ABT8=",
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "rev": "8b74367a65b4b3fda9fd2f8434d14e86b8cb9de7",
+        "type": "github"
       },
       "original": {
-        "path": "/home/pungkula/new/yo",
-        "type": "path"
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "type": "github"
       }
     },
     "zigduck": {
@@ -558,14 +561,17 @@
         "tinyFlake": "tinyFlake_2"
       },
       "locked": {
-        "lastModified": 1787746864,
-        "narHash": "sha256-ackPm9ztCjhuWUVl5z2ZoagbWMkp6AJE2sVMmh9cwMA=",
-        "path": "/home/pungkula/Zigduck2mqttnix",
-        "type": "path"
+        "lastModified": 1787714935,
+        "narHash": "sha256-n+j2zCbxnVTaqi/Wczp+BPUBWVd2rivn7XvAvT4NLw0=",
+        "owner": "QuackHack-McBlindy",
+        "repo": "zigduck",
+        "rev": "b2f7dbc5583689e2a8469df63e9b92c7b65cf73f",
+        "type": "github"
       },
       "original": {
-        "path": "/home/pungkula/Zigduck2mqttnix",
-        "type": "path"
+        "owner": "QuackHack-McBlindy",
+        "repo": "zigduck",
+        "type": "github"
       }
     }
   },
