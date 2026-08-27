@@ -262,6 +262,7 @@
       }        
     ];
   };  
+  
 in {
   # 🦆 duck say ⮞ enabled by exposing `"firefox"` in `this.host.modules.programs`
   config = lib.mkIf (lib.elem "firefox" cfg) {

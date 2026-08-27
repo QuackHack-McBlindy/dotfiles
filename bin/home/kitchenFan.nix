@@ -7,22 +7,7 @@
   cmdHelpers,
   ...
 } : let # 🦆 says ⮞ configuration directory for diz module
-  zigduckDir = "/home/" + config.this.user.me.name + "/.config/zigduck";
-  # 🦆 says ⮞ findz da mosquitto host
-  sysHosts = lib.attrNames self.nixosConfigurations;
-  mqttHost = let
-    sysHosts = lib.attrNames self.nixosConfigurations;
-    mqttHosts = lib.filter (host:
-      let cfg = self.nixosConfigurations.${host}.config;
-      in cfg.services.mosquitto.enable or false
-    ) sysHosts;
-  in
-    if mqttHosts != [] then lib.head mqttHosts else null;
-
-  # 🦆 says ⮞ get MQTT broker IP (fallback to localhost)
-  mqttHostIp = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
-    else "127.0.0.1";
+  zigduck-cli = self.inputs.zigduck.packages.${pkgs.stdenv.hostPlatform.system}.zigduck-cli;
 
   # 🦆 says ⮞ define Zigbee devices here yo 
   zigbeeDevices = config.house.zigbee.devices;
@@ -48,14 +33,6 @@
   # 🦆 says ⮞ device validation list
   deviceList = builtins.attrNames normalizedDeviceMap;
 
-  # 🦆 says ⮞ Get Zigbee configuration
-  zigbeeCfg = if mqttHost != null
-    then self.nixosConfigurations.${mqttHost}.config.services.zigbee2mqtt.settings or {}
-    else {};
-
-  # 🦆 says ⮞ Precompute device and group mappings
-  devicesSet = zigbeeCfg.devices or {};
-  groupsSet = zigbeeCfg.groups or {};
 
   # 🦆 says ⮞ Room bash map with only lights, using | as separator
   roomBashMap = lib.mapAttrs' (room: devices:
@@ -74,9 +51,9 @@ in {
     code = ''
       ${cmdHelpers}
       if [[ "$state" == "on" ]]; then
-        zig Fläkt on
+        ${zigduck-cli}/bin/zigudkc-cli --device Fläkt --state ON
       else
-        zig Fläkt off
+        ${zigduck-cli}/bin/zigudkc-cli --device Fläkt --state OFF
       fi
     '';
     voice = {

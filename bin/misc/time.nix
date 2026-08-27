@@ -36,14 +36,14 @@ in {
     voice = {
       enabled = true;
       fuzzy.enable = true;
-      fuzzy.threshold = 0.1;
-      priority = 2;
+      fuzzy.threshold = 0.3;
+      priority = 1;
       sentences = [
-        "(va|vad|vart) är klockan"
-        "hur mycket är klockan"
-        "(va|vad|vart) är det för dag"
-        "vilket datum är det"
-        "vad är det för datum"
+        "(va|vad|vart) är (klocka|klockan)"
+        "hur mycket är (klocka|klockan)"
+        "(va|vad|vart) är (de|det) för dag [idag]"
+        "vilket datum är det [idag]"
+        "vad är det för datum [idag]"
       ];
     };
     

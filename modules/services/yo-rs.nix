@@ -18,7 +18,7 @@ in {
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
         language = "swedish";
-        whisper = "base";
+        whisper = "small";
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  
@@ -63,7 +63,9 @@ in {
 
     yo = {
       legacy = false;
+      # default fuzzy settings (overridden by per-script configurations)
       fuzzy = {
+        threshold = 0.7;
         conflict.detection = false;
         conflict.threshold = 70;
       };

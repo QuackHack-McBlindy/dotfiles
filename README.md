@@ -56,8 +56,8 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 <!-- SCRIPT_STATS_START -->
-- __88 qwacktastic scripts in /bin - 57 scripts have voice commands.__ <br>
-- __2493 dynamically generated regex patterns - makes 263726194 phrases available as commands.__ <br>
+- __82 qwacktastic scripts in /bin - 52 scripts have voice commands.__ <br>
+- __2534 dynamically generated regex patterns - makes 308892865 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Infra as everyday accessibility__ <br>
@@ -79,7 +79,7 @@ _"What makes this configuration common?_" <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4506 ducks? <br>
+Let's see if you can find all 4501 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -576,8 +576,9 @@ in { # 🦆 duck say ⮞ house config
             enable = true;
             description = "Time to wake up!";
             topic = "zigduck/alarm/triggered";
-            actions = [  # 🦆 says ⮞ max lightz
+            actions = [ 
               { type = "snapshot"; snapshot_name = "before_alarm"; }
+              # 🦆 says ⮞ max lightz
               { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
               { type = "mqtt"; topic = "zigduck/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
@@ -1392,10 +1393,10 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         ducktrace-tui.url = "github:QuackHack-McBlindy/ducktrace-tui";
-        yo.url = "github:QuackHack-McBlindy/yo";
-        zigduck.url = "github:QuackHack-McBlindy/zigduck";
-        #yo.url = "path:/home/pungkula/new/yo";
-        #zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
+        #yo.url = "github:QuackHack-McBlindy/yo";
+        #zigduck.url = "github:QuackHack-McBlindy/zigduck";
+        yo.url = "path:/home/pungkula/new/yo";
+        zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
@@ -1602,26 +1603,20 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] [--script] [--max-variants] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
-| [yo battery](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/battery.nix) [--device] |  | Fetch battery level for specified device. | ✅ |
 | [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
-| [yo blinds](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/blinds.nix) [--state] |  | Turn blinds up/down | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--json] [--hue-key-file] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--blinds] [--get-temp] [--get-bat] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
-| [yo lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/lights.nix) [--state] |  | Lights toggle | ✅ |
-| [yo mqtt\_pub](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt_pub.nix) --topic --message |  | Mosquitto publisher | 📛 |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
-| [yo state](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/state.nix) [--device] |  | Fetches the state of the specified device. | ✅ |
-| [yo temperatures](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/temperatures.nix)  |  | Get all temperature values from sensors and return a average value. | ✅ |
 | [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
