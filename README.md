@@ -43,12 +43,6 @@ __Glued together by a Nix-flavoured command line utility,__
 __easiy expanded and used to deploy, doc, and duck around__
 
 
-
-**honorable mentions:**    
-- 🗣️[yo](https://github.com/QuackHack-McBlindy/yo) - holds my scripts and my grammar and runs voice pipeline.   
-- 🦆[zigduck](https://github.com/QuackHack-McBlindy/zigduck) - automates my house.  
-
-
 ## **What Makes This Configuration Unique?** 
 
 ❌ Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
@@ -57,7 +51,7 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 <!-- SCRIPT_STATS_START -->
 - __82 qwacktastic scripts in /bin - 52 scripts have voice commands.__ <br>
-- __2534 dynamically generated regex patterns - makes 308892865 phrases available as commands.__ <br>
+- __2535 dynamically generated regex patterns - makes 308892875 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Infra as everyday accessibility__ <br>
@@ -72,6 +66,13 @@ _List would get long, very quackly._ <br>
 _perhaps a more suitable question would be:_ <br>
 _"What makes this configuration common?_" <br>
 
+<br> 
+
+**honorable mentions in my flake inputs:**  
+- 🔒[sops-nix](https://github.com/Mic92/sops-nix) - awesome secret keepin'.   
+- 🗣️[yo](https://github.com/QuackHack-McBlindy/yo) - holds my scripts and my grammar and runs voice pipeline.   
+- 🦆[zigduck](https://github.com/QuackHack-McBlindy/zigduck) - automates my house.  
+
 
 <br> 
 
@@ -79,7 +80,7 @@ _"What makes this configuration common?_" <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4501 ducks? <br>
+Let's see if you can find all 4502 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -177,13 +178,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/wpzfdr6rc0rr8rwskldy900iv5is7zmv-bibata-cursors-2.0.7";
+    package = "/nix/store/0aapb6vy86v1iwkqx9fpykmfjg5dri0m-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/5k6hdbkzwkdpalrfprzrs2l2x7vg7ara-fira-code-6.2" ];
+    packages = [ "/nix/store/gay275s7biyr7sd2nvqr58la17y17nm0-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -193,7 +194,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/djjj95npwdwr56b16v9rfq7xxs0hjz6s-papirus-icon-theme-20260801"
+    package = "/nix/store/jv5ghl6677d2hr5ala9x70v77fwa3zsy-papirus-icon-theme-20260801"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -1603,7 +1604,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo sops](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/sops.nix) --input [--operation] [--value] [--output] [--agePub] | e | Encrypts a file with sops-nix | 📛 |
 | [yo yubi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/security/yubi.nix) --operation --input | yk | Encrypts and decrypts files using a Yubikey and AGE | 📛 |
 | **🗣️ Voice** | | | |
-| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
+| [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--fuzzy] [--room] |  | do is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with built in language detection and automatic model downloading | 📛 |
 | [yo tests](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/tests.nix) [--input] [--stats] [--fuzzy] [--script] [--max-variants] |  | Extensive automated sentence testing for the yo do | 📛 |
 | **🛖 Home Automation** | | | |

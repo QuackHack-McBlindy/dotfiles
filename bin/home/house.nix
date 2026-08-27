@@ -108,6 +108,7 @@ in {
         "{state} {device} (lampor|igen)"   
         "{state} [alla|allt] (lampor|lamporna|ljus) i {room}"
         "{state} (lamporna|ljusen) [i] {room}"
+        "{state} {room}"
         "{state} belysningen i {room}"
         "{state} [på|av] i {room}"
         "{state} [alla|allt] (lampor|lamporna|ljus) i {room}"

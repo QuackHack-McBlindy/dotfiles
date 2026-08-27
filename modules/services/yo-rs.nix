@@ -11,7 +11,7 @@ in {
   config = lib.mkMerge [{
 
     environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
-
+    networking.firewall.allowedTCPPorts = [ 12345 ];
     services.yo-rs = {
       port = 12345;
       openFirewall = true;
@@ -22,7 +22,7 @@ in {
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  
-        beamSize = 0;
+        beamSize = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
         temperature = 0.4; # 🦆 says ⮞ no more LSD plx
         threads = 8;
         logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
