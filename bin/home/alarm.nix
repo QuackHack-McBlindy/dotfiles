@@ -59,6 +59,10 @@ in {
     '';
     voice = {
       priority = 5;
+      fuzzy = {
+        enable = true;
+        threshold = 0.9;
+      };  
       sentences = [
         "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"
         

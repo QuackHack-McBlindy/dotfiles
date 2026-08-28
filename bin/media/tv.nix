@@ -73,6 +73,10 @@ in {
     binary = self.inputs.zigduck.packages.x86_64-linux.tv + "/bin/tv";
     voice = { # 🦆 says ⮞ low priority = higher priority! faser execution? wtf upside down?!
         priority = 1; # 🦆 says ⮞ 1 to 5
+        fuzzy = {
+          enable = true;
+          threshold = 0.6;
+        };
         sentences = [
           # 🦆 says ⮞ season specific search
           "[jag] (spel|spela|kör|start|starta) [upp|igång] {typ} {search} (säsong|season) {season} i {room}"

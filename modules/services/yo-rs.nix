@@ -18,7 +18,7 @@ in {
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
         language = "swedish";
-        whisper = "small";
+        whisper = "tiny";
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  
@@ -29,7 +29,7 @@ in {
       };
         
       client = {
-        enable = lib.mkIf (lib.elem "yo-client" config.this.host.modules.services) true;
+        enable = true;
         logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
         uri = "192.168.1.111:12345";
         room = 
@@ -65,7 +65,7 @@ in {
       legacy = false;
       # default fuzzy settings (overridden by per-script configurations)
       fuzzy = {
-        threshold = 0.7;
+        threshold = 0.6;
         conflict.detection = false;
         conflict.threshold = 70;
       };

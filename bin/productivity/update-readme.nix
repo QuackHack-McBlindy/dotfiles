@@ -255,7 +255,8 @@ in {
         gnome_version=$(gnome-shell --version | awk '{print $3}')
         #python_version=$(python3 --version 2>/dev/null | awk '{print $2}' || echo "unknown")
         python_version="3.12"
-        rustc_version=$(rustc --version 2>/dev/null | awk '{print $2}' || echo "unknown")
+        #rustc_version=$(rustc --version 2>/dev/null | awk '{print $2}' || echo "unknown")
+        rustc_version="1.97.1"
         mosquitto_version=$(mosquitto -h 2>&1 | awk '/^mosquitto version/{print $3}' || echo "unknown")
   
         # 🦆 duck say ⮞ construct badge URLs

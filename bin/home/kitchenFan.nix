@@ -33,7 +33,6 @@
   # 🦆 says ⮞ device validation list
   deviceList = builtins.attrNames normalizedDeviceMap;
 
-
   # 🦆 says ⮞ Room bash map with only lights, using | as separator
   roomBashMap = lib.mapAttrs' (room: devices:
     lib.nameValuePair room (lib.concatStringsSep "|" devices)
@@ -51,20 +50,24 @@ in {
     code = ''
       ${cmdHelpers}
       if [[ "$state" == "on" ]]; then
-        ${zigduck-cli}/bin/zigudkc-cli --device Fläkt --state ON
+        ${zigduck-cli}/bin/zigduck-cli --device Fläkt --state ON
       else
-        ${zigduck-cli}/bin/zigudkc-cli --device Fläkt --state OFF
+        ${zigduck-cli}/bin/zigduck-cli --device Fläkt --state OFF
       fi
     '';
     voice = {
       priority = 1;
+      fuzzy = {
+        enable = true;
+        threshold = 0.5;
+      };
       sentences = [
         "(fläkt|fläck|fkäckt|fläckten|fläkten) {state}" 
       ];
       lists = {
         state.values = [
-          { "in" = "[på]"; out = "ON"; }             
-          { "in" = "[av]"; out = "OFF"; } 
+          { "in" = "på|starta"; out = "ON"; }             
+          { "in" = "av|släck|stäng"; out = "OFF"; } 
         ];
       };  
     };

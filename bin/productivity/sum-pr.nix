@@ -14,6 +14,7 @@
         #aliases = [ "pr" ];
         code = ''
           prompt_file="/home/pungkula/sum_pr.txt"
+          change_log="./CHANGELOG.md"
 
           if git diff --quiet; then
               diff=$(git diff --cached --color=never)
@@ -25,6 +26,8 @@
             cat "$prompt_file"
             printf '\n'
             printf '%s\n' "$diff"
+            printf '\n'
+            cat "$change_log"
           } | xclip -selection clipboard
         '';
       };

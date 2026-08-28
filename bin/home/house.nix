@@ -85,7 +85,7 @@ in {
     ];
     binary = self.inputs.zigduck.packages.x86_64-linux.zigduck-cli + "/bin/zigduck-cli";
     voice = {
-      priority = 1;
+      priority = 2;
       fuzzy = {
         enable = true;
         threshold = 0.5;
