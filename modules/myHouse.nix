@@ -127,7 +127,7 @@ in { # 🦆 duck say ⮞ house config
     };  
   
     # 🦆 says ⮞ media
-    https.urlFile = config.sops.secrets.webserver.path;
+    https.media.urlFile = config.sops.secrets.webserver.path;
     media.root = "/Pool";
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
@@ -141,6 +141,7 @@ in { # 🦆 duck say ⮞ house config
     };
     
     # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
+    https.dashboard.urlFile = config.sops.secrets.dashboard.path;
     dashboard = {   
       # 🦆 says ⮞  home page information cards
       statusCards = {
@@ -330,7 +331,8 @@ in { # 🦆 duck say ⮞ house config
         trigger.lights = {
           after = 14;
           before = 9;
-          duration = 900;
+          duration = 700;
+          transition = true;
         };  
       };
 
@@ -351,6 +353,7 @@ in { # 🦆 duck say ⮞ house config
         greeting = {
           enable = true;
           awayDuration = 7200;
+          door = "Door Sensor Hall";
           delay = 10;
           actions = [ "yo say 'Borta bra, hemma bäst. Välkommen idiot!'" ];
         };
@@ -366,21 +369,34 @@ in { # 🦆 duck say ⮞ house config
               { type = "snapshot"; snapshot_name = "before_alarm"; }
               # 🦆 says ⮞ max lightz
               { type = "scene"; scene = "max"; }
+              # 🦆 says ⮞ TTS time to wake up
+              { type = "shell"; command = "yo say 'wakieee wakiee dags att vaknaaaaaaa'"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
               { type = "mqtt"; topic = "zigduck/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
               { type = "mqtt"; topic = "zigduck/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ FLASH!
               { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 2; } # 🦆 ⮞ play sound on bedroom esp32 assistant
-              { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }              
-              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; } 
+              { type = "scene"; scene = "max"; }              
+              # 🦆 ⮞ play sound on bedroom esp32 assistant
+              { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }
+
               { type = "wait"; duration = 2; }     
               # 🦆 says ⮞ ping watch with a ding
-              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }          
+              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+              # 🦆 says ⮞ gib me a sec pls...
               { type = "wait"; duration = 10; }
-              # 🦆 says ⮞ roll up da blindz let da sun come in 
+              # 🦆 says ⮞ roll up da blindz let da sun come in
               { type = "mqtt"; topic = "zigduck/Roller Shade/set"; message = ''{"state":"ON"}''; }
+              # 🦆 says ⮞ check if im up yet....
+              { type = "shell"; command = ''
+                motion=$(jq -r '."Motion Sensor Sovrum".occupancy' /var/lib/zigduck/state.json)
+                # 🦆 says ⮞  if my lazy ass is still in bed, try calling the TV remote!
+                if [[ "$motion" == "false" ]]; then
+                  tv --typ call
+                fi
+              ''; }  
               { type = "restore"; snapshot_name = "before_alarm"; }
             ];
           };
@@ -392,11 +408,17 @@ in { # 🦆 duck say ⮞ house config
             actions = [
               { type = "snapshot"; snapshot_name = "before_timer"; }
               { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 1; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 1; }
+              { type = "scene"; scene = "dark-fast"; }              
+              { type = "wait"; duration = 1; }
+              { type = "scene"; scene = "max"; }              
               # 🦆 says ⮞ ping watch with ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 2; }
               { type = "restore"; snapshot_name = "before_timer"; }
             ];
           };
@@ -504,7 +526,7 @@ in { # 🦆 duck say ⮞ house config
                   power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
-                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 120}'
+                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 300}'
                   fi
                 '';
               } # 🦆 says ⮞  slow go light go bye bye
@@ -721,12 +743,12 @@ in { # 🦆 duck say ⮞ house config
           };
           # 🦆 says ⮞ veeeery slow turn off
           "kitchenFadeOff" = {
-              "Golvet" = { state = "OFF"; transition = 1000; };
-              "Kök Bänk Slinga" = { state = "OFF"; transition = 1000; };
-              "PC" = { state = "OFF"; transition = 1000; };
-              "Spotlight Kök 2" = { state = "OFF"; transition = 1000; };
-              "Spotlight kök 1" = { state = "OFF"; transition = 1000; };
-              "Uppe" = { state = "OFF"; transition = 1000; };
+              "Golvet" = { state = "OFF"; transition = 300; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 300; };
+              "PC" = { state = "OFF"; transition = 300; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 300; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 300; };
+              "Uppe" = { state = "OFF"; transition = 300; };
           };
           "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
               "Bloom" = { state = "OFF"; transition = 10; };
@@ -819,31 +841,31 @@ in { # 🦆 duck say ⮞ house config
               "Play Top R" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
           };     
           "tv-area1" = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 150; };
-              "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 150; };
-              "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; transition = 150; };
-              "TV Play 3"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.4995 0.4697 ]; }; transition = 150; };
-              "TV Play 4"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2293 0.0945 ]; }; transition = 150; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6187 0.3687 ]; }; transition = 150; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1611 0.5294 ]; }; transition = 150; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
+              "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
+              "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; transition = 15; };
+              "TV Play 3"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.4995 0.4697 ]; }; transition = 15; };
+              "TV Play 4"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2293 0.0945 ]; }; transition = 15; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6187 0.3687 ]; }; transition = 15; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1611 0.5294 ]; }; transition = 15; };
           };
           "tv-area2" = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; transition = 150; };
-              "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; transition = 150; };
-              "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; transition = 150; };
-              "TV Play 3"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.2746 0.1320 ]; }; transition = 150; };
-              "TV Play 4"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.4088 0.5170 ]; }; transition = 150; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.2255 0.3299 ]; }; transition = 150; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.1670 0.3520 ]; }; transition = 150; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; transition = 15; };
+              "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; transition = 15; };
+              "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; transition = 15; };
+              "TV Play 3"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.2746 0.1320 ]; }; transition = 15; };
+              "TV Play 4"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.4088 0.5170 ]; }; transition = 15; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.2255 0.3299 ]; }; transition = 15; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.1670 0.3520 ]; }; transition = 15; };
           };
           "tv-area3" = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; transition = 150; };
-              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; transition = 150; };
-              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; transition = 150; };
-              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; transition = 150; };
-              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; transition = 150; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; transition = 150; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; transition = 150; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; transition = 15; };
+              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; transition = 15; };
+              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; transition = 15; };
+              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; transition = 15; };
+              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; transition = 15; };
+              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; transition = 15; };
+              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; transition = 15; };
           };
         };  
     };
@@ -1138,6 +1160,12 @@ in { # 🦆 duck say ⮞ house config
       };
       webserver = { # 🦆 says ⮞ https required
         sopsFile = ./../secrets/webserver.yaml;
+        owner = config.this.user.me.name;
+        group = "zigduck";
+        mode = "0440";
+      };  
+      dashboard = { # 🦆 says ⮞ i likez TLS
+        sopsFile = ./../secrets/dashboard.yaml;
         owner = config.this.user.me.name;
         group = "zigduck";
         mode = "0440";

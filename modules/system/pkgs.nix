@@ -29,6 +29,7 @@
                 pkgs.kanata
                 pkgs.gh
                 pkgs.xclip
+                self.inputs.wayzoomy.packages.x86_64-linux.wayzoomy
                 
             ])
         # 🦆 says⮞ NASTY        

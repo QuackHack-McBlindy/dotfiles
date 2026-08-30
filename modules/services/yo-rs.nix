@@ -18,7 +18,7 @@ in {
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
         language = "swedish";
-        whisper = "tiny";
+        whisper = "small";
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  

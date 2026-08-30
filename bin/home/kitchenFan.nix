@@ -56,7 +56,7 @@ in {
       fi
     '';
     voice = {
-      priority = 1;
+      priority = 2;
       fuzzy = {
         enable = true;
         threshold = 0.5;

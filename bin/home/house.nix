@@ -123,11 +123,13 @@ in {
         "justera {device} till {brightness} procent"
         # 🦆 says ⮞ fetch temp
         "vad är {get-temp} i {room} [just] [nu]"
+        "vad är det för {get-temp} i {room} [nu]"
         "hur många {get-temp} är det i {room} [just] [nu]"
         "hur {get-temp} är det i {room} [just] [nu]"
         # 🦆 says ⮞ fetch battery
         "hur mycket {get-bat} återstår (på|i) {device}"
         "hur mycket {get-bat} är det kvar (på|i) {device}"
+        #"har {device} lite {get-bat} [kvar]"
         "är det mycket {get-bat} kvar på {device}"
         "vad har {device} för {get-bat} [nivå|procent]"
         # 🦆 says ⮞ contorl all blinds
@@ -325,3 +327,4 @@ in {
     };
 
   };}
+

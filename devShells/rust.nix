@@ -13,12 +13,12 @@
     cargo
     cargo-msrv
     clippy
-    esp-generate
-    rustup
-    openssl.dev
-    alsa-lib-with-plugins
+    #esp-generate
+    #rustup
+    #openssl.dev
+    #alsa-lib-with-plugins
     rustfmt
-    SDL2
+    #SDL2
   ];
 
   formatRed = name: "echo - \$'\\e[0;31m'${name}\$'\\e[0m'";

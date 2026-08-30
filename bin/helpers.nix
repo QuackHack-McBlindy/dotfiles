@@ -113,7 +113,7 @@ EOF
     dt_error() {
       _dt_log "ERROR" "❌" "$RED" "$1" true >&2
       create_error_state "$1" "ERROR"
-      yo mqtt_pub --topic "zigduck/logging/${config.this.host.hostname}/error" --message "$1"
+      zigduck-cli --publish --topic "zigduck/logging/${config.this.host.hostname}/error" --message "$1"
     }
     dt_critical() {
       _dt_log "CRITICAL" "🚨" "$RED" "$1" true >&2
