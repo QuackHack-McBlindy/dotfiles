@@ -17,13 +17,13 @@ in {
       openFirewall = true;
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
-        language = "swedish";
-        whisper = "small";
+        language = "english";
+        whisper = "tiny";
         ttsSpeed = "1.3";
         shellTranslate = true;        
         threshold = 0.6;  
         beamSize = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
-        temperature = 0.4; # 🦆 says ⮞ no more LSD plx
+        temperature = 0.0; # 🦆 says ⮞ no more LSD plx
         threads = 8;
         logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
       };
@@ -39,8 +39,8 @@ in {
           else "";
             
         silenceThreshold = 0.03;
-        silenceTimeout = 1.5;
-        maxDuration = 5.0;
+        silenceTimeout = 0.8;
+        maxDuration = 2.0;
         awakeCmd =
           if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state on --brightness 50 --color blue" 
           else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state on --brightness 50 --color blue"            

@@ -38,6 +38,7 @@ in {
         dps = "docker ps";
         dcu = "docker compose up";
         dcd = "docker compose down";
+        pyweb = "python -m http.server 8000";
       };
 
       interactiveShellInit = ''

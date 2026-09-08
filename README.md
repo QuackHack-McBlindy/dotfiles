@@ -4,7 +4,7 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.34.8-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.46-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.48-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
@@ -32,8 +32,10 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 > [!CAUTION]
 > __Do not blindly run this flake.__ <br>
-> **That's my job.** 🧑‍🦯
-<br>
+> **That's my job.** 🧑‍🦯<br>
+> [QuackHack-McBLindy.com](https://QuackHack-McBLindy.com)<br>
+
+
 
 
 __Here lives all home machines/phone config files,__  
@@ -50,8 +52,8 @@ __easiy expanded and used to deploy, doc, and duck around__
 
 
 <!-- SCRIPT_STATS_START -->
-- __82 qwacktastic scripts in /bin - 52 scripts have voice commands.__ <br>
-- __2537 dynamically generated regex patterns - makes 308892895 phrases available as commands.__ <br>
+- __83 qwacktastic scripts in /bin - 53 scripts have voice commands.__ <br>
+- __2554 dynamically generated regex patterns - makes 308892912 phrases available as commands.__ <br>
 - __Smart Home Nix Fu - Managing 1 TV's, 48 devices & 10 scenes.__ <br>
 - __Natural Language DevOps support with complete voice pipeline__ <br>
 - __Infra as everyday accessibility__ <br>
@@ -80,7 +82,7 @@ _"What makes this configuration common?_" <br>
   
 <!-- DUCKS_START -->
 I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all 4508 ducks? <br>
+Let's see if you can find all 4511 ducks? <br>
 
 <!-- DUCKS_END -->
 
@@ -194,7 +196,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/jv5ghl6677d2hr5ala9x70v77fwa3zsy-papirus-icon-theme-20260801"
+    package = "/nix/store/qi90bwjv5gx0waxw18gjkg91vvk1v45q-papirus-icon-theme-20260801"
   };
   name = "gtk3.css";
   styles = "/nix/store/5yb5i296sijga5k65cdw2ib3hhwwq6iq-gtk3.css"
@@ -1463,7 +1465,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=571f137ec45c8c1a5cbe96f0f2b24c4c7dde95f6
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
@@ -1663,6 +1665,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo shop-list](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shop-list.nix) [--operation] [--item] [--list] [--mqttUser] [--mqttPWFile] |  | Shopping list management | ✅ |
 | [yo suno](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) --prompt [--genre] | mg | AI generated lyrics and music files powered by Suno | ✅ |
 | [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
+| [yo time-en](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time-en.nix)  |  | Tells time, day, date & week | ✅ |
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | **🧹 Maintenance** | | | |
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |

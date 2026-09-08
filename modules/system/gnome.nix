@@ -49,7 +49,6 @@ in {
 
             environment.gnome.excludePackages = 
                 (with pkgs; [
-                    gnome-photos
                     gnome-tour
                     gnome-maps
                     gnome-weather

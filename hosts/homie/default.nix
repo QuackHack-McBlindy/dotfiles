@@ -68,10 +68,10 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "crossEnv" "pkgs" ];
                 networking = [ "default" "dns" "pool" "wg-server" ];
-                services = [ "ssh" "yo-client" "default" "adb" "zigduck" "pairdrop" "navidrome" "duckdns" ];
+                services = [ "ssh" "yo-client" "default" "adb" "zigduck" "pairdrop" "navidrome" ];
                 programs = [ "default" ];
                 virtualisation = [ "docker-rootless" ];
-            };  
+            };
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIIgxAwZZQF+fjTx4l9tfXKRyK4WqPojU1OuDshcbLAnD";
                 #ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOJ6+aLTPanIYS88EjCVtCZv6pw2jC4lIIZNRY6VrnoF";
