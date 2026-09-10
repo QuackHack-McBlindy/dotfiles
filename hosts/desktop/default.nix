@@ -7,7 +7,7 @@
   ...
 } : { 
 
-
+    services.orca.enable = false;
 
     nixpkgs.overlays = [
       (final: prev: {

@@ -617,6 +617,20 @@ in { # 🦆 duck say ⮞ house config
             # 🦆 says ⮞ 11 AM (i like to sleep in)
             actions = [ "zigduck-cli alarm add --hours 10 --minutes 45 --name vakna" ];
           };
+
+          # 🦆 says ⮞ daily tv scraper
+          tv_scraping = {
+            enable = true;
+            description = "Scrape TV-guide";
+            # 🦆 says ⮞ 03:30 AM everyday 
+            schedule = {
+              start = "03:30";
+              days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
+            };
+            # 🦆 says ⮞ scrape & save so dashboard can read
+            actions = [ "yo tv-scraper --htmlOutPath /var/lib/zigduck/tv/tv.html" ];
+          };
+
           
         };
         

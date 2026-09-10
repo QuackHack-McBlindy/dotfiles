@@ -54,10 +54,10 @@ in {
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" ];
-                networking = [ "default" "caddy" ];
+                networking = [ "default" ];
                 services = [ "ssh" "yo-client" "default" "www" "adb" "backup" "borg" "navidrome" "duckdns" ];
                 programs = [ "default" ];
-                virtualisation = [ "docker-rootless" "arr" ];
+                virtualisation = [ "docker-rootless" "arr" "caddy" ];
             };  
             keys.publicKeys = {
                 host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIARvG4osF3sXi0nN1fMQecMZaUmiOADw8o6+Wis2q77O";

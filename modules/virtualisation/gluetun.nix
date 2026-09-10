@@ -29,6 +29,7 @@
     
 in {
     config = lib.mkIf (lib.elem "arr" config.this.host.modules.virtualisation) {
+        networking.firewall.allowedTCPPorts = [ 8388 ];
         virtualisation.oci-containers = {
             backend = "docker";
             containers = {

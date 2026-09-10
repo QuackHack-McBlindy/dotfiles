@@ -58,7 +58,7 @@ in {
       type = types.attrsOf (types.submodule {
         options = {
           url = mkOption { type = types.str; };
-          rev = mkOption { type = types.str; };   # commit hash or tag
+          rev = mkOption { type = types.str; };
           submodules = mkOption {
             type = types.bool;
             default = true;

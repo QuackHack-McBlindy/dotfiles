@@ -29,7 +29,6 @@
                 pkgs.kanata
                 pkgs.gh
                 pkgs.xclip
-                self.inputs.wayzoomy.packages.x86_64-linux.wayzoomy
                 
             ])
         # 🦆 says⮞ NASTY        
@@ -149,13 +148,12 @@
                 pkgs.atuin
                 pkgs.direnv
                 pkgs.nix-direnv 
-                pkgs.sops 	# secrets 
-                pkgs.age		# actually good encryption
+                pkgs.sops 
+                pkgs.age
                 pkgs.rage
                 pkgs.syslogng
-                pkgs.gum		# scripts 
-                inputs.ducktrace-tui.packages.x86_64-linux.default
-                pkgs.ripgrep 		# Better `grep`
+                pkgs.gum
+                pkgs.ripgrep
                 pkgs.fd
                 pkgs.sd
                 pkgs.gnumake

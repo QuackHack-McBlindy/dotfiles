@@ -33,7 +33,7 @@
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
   # 🦆 says ⮞ bleh... got 2 advanced 4 bash - lazy py scrapin' .... quack quack
-  pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ]); 
+  pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ps.lxml ]); 
   scraper = pkgs.writeScript "tv-scraper.py" ''
     #!${pyEnv}/bin/python
     import os
@@ -43,11 +43,10 @@
     from datetime import datetime, timedelta
     import xml.etree.ElementTree as ET
     import logging
-    import html.parser
-    import html.entities
     import argparse
     import tempfile
     import shutil
+    from lxml import html
     
     parser = argparse.ArgumentParser()
     parser.add_argument('--xmlPath', type=str, default=os.path.expanduser("~/epg.xml"))
@@ -55,6 +54,7 @@
     parser.add_argument('--htmlPath', type=str, default=None)
     parser.add_argument('--urlMapping', type=str, required=True, help='Path to URL mapping JSON file')
     parser.add_argument('--channelNames', type=str, required=True, help='Path to channel names JSON file')
+    parser.add_argument('--debug-dir', type=str, default=None, help='If set, raw HTML files are saved to this directory')
     args = parser.parse_args()        
     temp_dir = tempfile.mkdtemp(prefix="tv_scraper_")    
     logging.basicConfig(
@@ -69,119 +69,58 @@
     
     TIME_OFFSET = timedelta(hours=0)
     
-    class SimpleScheduleParser(html.parser.HTMLParser):
-        def __init__(self):
-            super().__init__()
-            self.schedule = []
-            self.current_entry = {}
-            self.in_table = False
-            self.in_row = False
-            self.in_time = False
-            self.in_program = False
-            self.in_description = False
-            self.data_buffer = ""
-            self.cell_count = 0
-        
-        def handle_starttag(self, tag, attrs):
-            attrs_dict = dict(attrs)  
-            if tag == "table":
-                self.in_table = True
-                logger.debug("Found a table")
-            elif self.in_table and tag == "tr":
-                self.in_row = True
-                self.cell_count = 0
-                self.current_entry = {}
-                logger.debug("Starting row")
-            elif self.in_row and tag == "td":
-                self.cell_count += 1
-                if self.cell_count == 1:
-                    self.in_time = True
-                    logger.debug("Found time cell")
-                elif self.cell_count == 2:
-                    self.in_program = True
-                    logger.debug("Found program cell")
-            elif self.in_program and tag == "h2":
-                logger.debug("Found program title")  
-            elif self.in_program and tag == "a":
-                logger.debug("Found program link")
-            elif self.in_program and tag == "p":
-                self.in_description = True
-                logger.debug("Found description")
-        
-        def handle_endtag(self, tag):
-            if tag == "table":
-                self.in_table = False
-                logger.debug("Exiting table") 
-            elif tag == "tr" and self.in_row:
-                self.in_row = False
-                if self.current_entry.get('time') and self.current_entry.get('program'):
-                    self.schedule.append(self.current_entry)
-                    logger.debug(f"Added program: {self.current_entry['program']}")
-                self.current_entry = {}
-            
-            elif tag == "td" and self.in_time:
-                self.in_time = False
-                if self.data_buffer.strip():
-                    self.current_entry['time'] = self.data_buffer.strip()
-                    logger.debug(f"Time: {self.data_buffer.strip()}")
-                self.data_buffer = ""
-            
-            elif tag == "td" and self.in_program:
-                self.in_program = False
-                if self.data_buffer.strip() and not self.current_entry.get('program'):
-                    self.current_entry['program'] = self.data_buffer.strip()
-                    logger.debug(f"Program: {self.data_buffer.strip()}")
-                self.data_buffer = ""     
-            elif tag == "p" and self.in_description:
-                self.in_description = False
-                if self.data_buffer.strip():
-                    self.current_entry['description'] = self.data_buffer.strip()
-                    logger.debug(f"Description: {self.data_buffer.strip()}")
-                self.data_buffer = ""
-       
-        def handle_data(self, data):
-            if self.in_time or self.in_program or self.in_description:
-                self.data_buffer += data
-                logger.debug(f"Data: {data}")
-        
-        def handle_entityref(self, name):
-            char = html.entities.entitydefs.get(name, f'&{name};')
-            if self.in_time or self.in_program or self.in_description:
-                self.data_buffer += char
-                logger.debug(f"Entity: {char}")
-    
     def scrape_schedule(url, channel_id):
         try:
             headers = {
                 "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
                 "Accept-Language": "en-US,en;q=0.5",
-            }       
+            }
             logger.info(f"Fetching {url} for channel {channel_id}")
             response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()     
-            
-            html_filename = os.path.join(temp_dir, f"channel_{channel_id}.html")
-            with open(html_filename, "w", encoding="utf-8") as f:
-                f.write(response.text)
-            logger.info(f"Saved HTML to {html_filename}")      
-            logger.debug(f"HTML snippet: {response.text[:500]}")    
-            parser = SimpleScheduleParser()
-            parser.feed(response.text)  
-            if not parser.schedule:
-                logger.warning("Parser found no programs, trying regex fallback")
-                programs = re.findall(r'<td[^>]*>(.*?)</td>\s*<td[^>]*>.*?<h2[^>]*>(.*?)</h2>.*?<p>(.*?)</p>', response.text, re.DOTALL)
-                for time, program, desc in programs:
-                    parser.schedule.append({
-                        "time": time.strip(),
-                        "program": program.strip(),
-                        "description": desc.strip()
-                    })
-                logger.info(f"Regex found {len(parser.schedule)} programs")
-            return parser.schedule
+            response.raise_for_status()
+    
+            if args.debug_dir:
+                os.makedirs(args.debug_dir, exist_ok=True)
+                debug_path = os.path.join(args.debug_dir, f"{channel_id}.html")
+                with open(debug_path, "w", encoding="utf-8") as f:
+                    f.write(response.text)
+                logger.info(f"Saved debug HTML to {debug_path}")
+    
+            tree = html.fromstring(response.content)   # bytes avoids encoding issues
+    
+            schedule = []
+            rows = tree.xpath('//table[@id="channel-schedule"]//tr')
+            for row in rows:
+                time_el = row.xpath('.//time')
+                title_el = row.xpath('.//a[contains(@class, "program-title")]')
+                desc_el = row.xpath('.//p')
+    
+                if not time_el or not title_el:
+                    continue
+    
+                datetime_attr = time_el[0].get('datetime')
+                if datetime_attr:
+                    time_text = datetime_attr
+                else:
+                    time_text = time_el[0].text_content().strip()
+    
+                title = title_el[0].text_content().strip()
+                description = desc_el[0].text_content().strip() if desc_el else "No description"
+    
+                schedule.append({
+                    "time": time_text, 
+                    "program": title,
+                    "description": description
+                })
+    
+            logger.info(f"Found {len(schedule)} programs for {channel_id}")
+            return schedule
+    
         except Exception as e:
             logger.error(f"Failed to scrape {url}: {str(e)}", exc_info=True)
-            return None   
+            return None
+    
     def build_epg(urls, channel_names):
         try:
             xml_tv = ET.Element("tv", attrib={
@@ -210,39 +149,57 @@
                 current_date = datetime.now().date()    
                 for i, entry in enumerate(schedule):
                     try:
-                        time_str = re.sub(r"[^\d:\.]", "", entry["time"])   
-                        time_formats = ["%H:%M", "%H.%M"]
-                        start_time = None
-                        for fmt in time_formats:
-                            try:
-                                start_time = datetime.strptime(time_str, fmt).time()
-                                break
-                            except ValueError:
-                                continue    
-                        if not start_time:
-                            logger.warning(f"Could not parse time: {entry['time']}")
-                            continue      
-                        start_datetime = datetime.combine(current_date, start_time) + TIME_OFFSET
-                        if i < len(schedule) - 1:
-                            next_time_str = re.sub(r"[^\d:\.]", "", schedule[i + 1]["time"])
-                            next_time = None
+                        # Try to parse full ISO datetime first (from datetime attribute)
+                        raw_time = entry["time"]
+                        start_dt = None
+                        try:
+                            start_dt = datetime.fromisoformat(raw_time) + TIME_OFFSET
+                        except ValueError:
+                            # Fallback to old HH:MM parsing
+                            time_str = re.sub(r"[^\d:\.]", "", raw_time)
+                            time_formats = ["%H:%M", "%H.%M"]
+                            start_time = None
                             for fmt in time_formats:
                                 try:
-                                    next_time = datetime.strptime(next_time_str, fmt).time()
+                                    start_time = datetime.strptime(time_str, fmt).time()
                                     break
                                 except ValueError:
                                     continue
-                            if next_time:
-                                next_start_datetime = datetime.combine(current_date, next_time) + TIME_OFFSET
-                                if next_start_datetime < start_datetime:
-                                    next_start_datetime += timedelta(days=1)
-                                stop_datetime = next_start_datetime
+                            if start_time:
+                                start_dt = datetime.combine(current_date, start_time) + TIME_OFFSET
+                        if not start_dt:
+                            logger.warning(f"Could not parse time: {raw_time}")
+                            continue
+    
+                        # Determine stop time: next program's start, else +30 min
+                        if i < len(schedule) - 1:
+                            next_raw = schedule[i + 1]["time"]
+                            next_dt = None
+                            try:
+                                next_dt = datetime.fromisoformat(next_raw) + TIME_OFFSET
+                            except ValueError:
+                                # Fallback: parse as time and combine with current_date (or next day if before start)
+                                next_time_str = re.sub(r"[^\d:\.]", "", next_raw)
+                                next_time = None
+                                for fmt in time_formats:
+                                    try:
+                                        next_time = datetime.strptime(next_time_str, fmt).time()
+                                        break
+                                    except ValueError:
+                                        continue
+                                if next_time:
+                                    next_dt = datetime.combine(current_date, next_time) + TIME_OFFSET
+                                    if next_dt < start_dt:
+                                        next_dt += timedelta(days=1)
+                            if next_dt:
+                                stop_dt = next_dt
                             else:
-                                stop_datetime = start_datetime + timedelta(minutes=30)
+                                stop_dt = start_dt + timedelta(minutes=30)
                         else:
-                            stop_datetime = start_datetime + timedelta(minutes=30)
-                        start = start_datetime.strftime("%Y%m%d%H%M%S +0000")
-                        stop = stop_datetime.strftime("%Y%m%d%H%M%S +0000")          
+                            stop_dt = start_dt + timedelta(minutes=30)
+    
+                        start = start_dt.strftime("%Y%m%d%H%M%S +0000")
+                        stop = stop_dt.strftime("%Y%m%d%H%M%S +0000")          
                         programme = ET.SubElement(xml_tv, "programme", start=start, stop=stop, channel=channel_id)
                         title = ET.SubElement(programme, "title", lang="sv")
                         title.text = entry.get("program", "Unknown Program")
@@ -306,16 +263,15 @@ in {
     parameters = [
       { name = "epgFilePath"; description = "Path to storage of the xml EPG file"; optional = false; default = "/home/" + config.this.user.me.name + "/tvepg.xml"; }
       { name = "jsonFilePath"; description = "Optional option to write as JSON file in addation to the EPG"; optional = true; default = "/home/" + config.this.user.me.name + "/epg.json"; }
+      { name = "htmlOutPath"; description = "Where to save your new TV-guide html file."; optional = true; default = "/home/" + config.this.user.me.name + "/tv.html"; }      
       { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
     ];
     code = ''
       ${cmdHelpers}
-      HTML_OUT="/home/${config.this.user.me.name}/.config/tv.html"
-      HTML_OUT2="/var/lib/zigduck/tv/tv.html"
+      HTML_OUT="$htmlOutPath"
       FLAKE_DIR="$flake"
       
       mkdir -p "$(dirname "$HTML_OUT")"
-      mkdir -p "$(dirname "$HTML_OUT2")"
       
       ${scraper} --xmlPath "$epgFilePath" --jsonPath "$jsonFilePath" --urlMapping "${urlMappingJson}" --channelNames "${channelNamesJson}"    
 
@@ -426,8 +382,6 @@ in {
           echo "</body>"
           echo "</html>"
       } > "$HTML_OUT"
-
-      cat "$HTML_OUT" > "$HTML_OUT2"
 
       dt_info "HTML TV-Guide generated: $HTML_OUT"
       echo "HTML TV-Guide generated: $HTML_OUT"

@@ -17,6 +17,7 @@
     ps.numpy
     ps.pillow
     ps.pynacl
+    ps.lxml
     ps.cairosvg
   ];
   
