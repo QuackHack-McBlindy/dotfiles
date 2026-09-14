@@ -1,17 +1,17 @@
 # ❄️🦯🦆 **QuackHack-McBLindy NixOS dotfiles** <br>
 
 <!-- VERSIONS_START -->
-![CI](https://github.com/quackhack-mcblindy/zigduck/actions/workflows/ci.yml/badge.svg)
-![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.34.8-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.50-red?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=flat-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=flat-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.14.7-%23FFD43B?style=flat-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.98.1-orange?style=flat-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/yo-0.2.6-black?style=flat)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.4-black?style=flat)
+![CI](https://github.com/quackhack-mcblindy/dotfiles/actions/workflows/nix.yml/badge.svg)
+![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
+![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=plastic-square&logo=NixOS&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.34.8-blue?style=plastic-square&logo=nixos&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.50-red?style=plastic-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=plastic-square&logo=gnome&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=plastic-square&logo=gnubash&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14.7-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.98.1-orange?style=plastic-square&logo=rust&logoColor=white)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.6-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.4-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -38,19 +38,21 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 
 
 
-__Here lives all home machines/phone config files,__
-__and home automations, fully reproducible,__
-__crafted as a tiny Nix flake__
-__Glued together by a Nix-flavoured command line utility,__
-__easiy expanded and used to deploy, doc, and duck around__
+__Here lives all home machines/phone config files,__<br>
+__and home automations, fully reproducible,__<br>
+__crafted as a tiny Nix flake__<br>
+__Glued together by a Nix-flavoured command line utility,__<br>
+__easiy expanded and used to deploy, doc, and duck around__<br>
 
 
 ## **What Makes This Configuration Unique?**
 
-❌ Home Manager - __No ducking way!__ I just auto symlink ./home to /home <br>
+**I manage my own homes!** <br>
+
+❌ Home Manager - __No ducking way!__ I just auto symlink `./home` to `/home` <br>
 ❌ Home Assistant - __Quack no!__ No assistance needed! <br>
 
-**This flake holds:**
+**This flake holds:** 
 
 <!-- BADGES_START -->
 
@@ -73,6 +75,8 @@ __easiy expanded and used to deploy, doc, and duck around__
 ![Scenes](https://img.shields.io/badge/🎨_Scenes-10-0891b2?style=plastic)
 
 ![Ducks](https://img.shields.io/badge/🦆_Ducks-4425-eab308?style=plastic)
+
+![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
 <!-- BADGES_END -->
 
@@ -1706,9 +1710,9 @@ For specific command help:
 
 ## 💬 **Comments?**
 
-**Nix Talk? Or just say tiny flake sucks?**
-**That's cool!**
-**I am all ears. 👀**
+**Nix Talk? Or just say tiny flake sucks?**<br>
+**That's cool!**<br>
+**I am all ears. 👀**<br>
 
 <br>
 
@@ -1728,10 +1732,10 @@ For specific command help:
 ## **☕**
 
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Sponsor&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy) [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-Sponsor?style=flat&logo=buymeacoffee&logoColor=fff&labelColor=ff1493&color=ff1493)](https://buymeacoffee.com/quackhackmcblindy)
-> 🦆🧑‍🦯 says ⮞ Hi! I'm QuackHack-McBlindy!
-> 🦆🧑‍🦯 says ⮞ Like my work?
-> Buy me a coffee, or become a sponsor.
-> Thanks for supporting open source/hungry developers ♥️🦆!
+> 🦆🧑‍🦯 says ⮞ Hi! I'm QuackHack-McBlindy!<br>
+> 🦆🧑‍🦯 says ⮞ Like my work?<br>
+> Buy me a coffee, or become a sponsor.<br>
+> Thanks for supporting open source/hungry developers ♥️🦆!<br>
 
 
 __I'll stop qwackin' here, qwack..__

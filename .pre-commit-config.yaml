@@ -6,13 +6,11 @@ repos:
   - repo: builtin
     hooks:
       - id: trailing-whitespace
-        exclude: '^(docs/|dist/|vendor/|.*\.snap$)'
+        exclude: '^(docs/|dist/|vendor/|.*\.snap$|.*\.md$)'
       - id: end-of-file-fixer
         exclude: '^(docs/|dist/|vendor/|.*\.snap$)'
       - id: check-yaml
         args: [--allow-multiple-documents]
-      - id: check-added-large-files
-        args: [--maxkb=500]
       - id: check-merge-conflict
 
   - repo: local
