@@ -19,6 +19,7 @@ in {
         volumes = [
           "/docker/caddy/config:/caddy"
           "/run/secrets/caddyfile:/etc/caddy/Caddyfile:ro"
+          "/Pool:/Pool"
         ];
         environment = {
           CADDY_CONFIG = "/etc/caddy/Caddyfile";
