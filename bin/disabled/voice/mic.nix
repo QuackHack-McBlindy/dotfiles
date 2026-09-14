@@ -6,13 +6,13 @@
   pkgs,        # 🦆 says ⮞ create a noise profile
   cmdHelpers,  # 1. arecord -d 5 -f S16_LE -r 16000 -c 1 noise.wav
   PythonDuckTrace, # 2. sox noise.wav -n noiseprof noise.prof
-  ...         
-} : let 
-  # 🦆 says ⮞ auto correct list yo 
+  ...
+} : let
+  # 🦆 says ⮞ auto correct list yo
   autocorrect = import ./../autoCorrect.nix;
-  
+
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   transcriptionHost = lib.findFirst
     (host:
       let cfg = self.nixosConfigurations.${host}.config;
@@ -31,11 +31,11 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
       category = "🗣️ Voice";
       logLevel = "CRITICAL";
       parameters = [ # 🦆 says ⮞ some paramz to know where to pass audio
-        { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit 
+        { name = "port"; description = "Port to send audio to transcription on"; default = "25451"; } # 🦆 says ⮞ diz meanz "duck" in ASCII encoded truncated 32 bit
         { name = "host"; description = "Host ip that has transcription"; default = transcriptionHostIP; }
         { name = "seconds"; description = "How many seconds to record before sending for transcription"; default = "5"; }
 
-      ];  
+      ];
       code = ''
         ${cmdHelpers}
         SAMPLE_RATE="16000"
@@ -99,22 +99,22 @@ in { # 🦆 says ⮞ here goez da yo script - yo!
         CORRECTED="$ORIGINAL"
         for wrong in "''${!autocorrect[@]}"; do
           corrected="''${autocorrect[$wrong]}"
-          if echo "$CORRECTED" | grep -i -q "\\b$wrong\\b"; then 
+          if echo "$CORRECTED" | grep -i -q "\\b$wrong\\b"; then
             dt_debug "Autocorrected '$wrong' => '$corrected'"
           fi
           CORRECTED="$(${pkgs.gnused}/bin/sed -E "s/\\b$wrong\\b/$corrected/gI" <<< "$CORRECTED")"
         done
-        # 🦆 says ⮞ removes duplicate words caused by auto bad correction logic 
+        # 🦆 says ⮞ removes duplicate words caused by auto bad correction logic
         CLEANED="$(${pkgs.coreutils}/bin/echo "$CORRECTED" | ${pkgs.gnused}/bin/sed -E 's/\b([[:alnum:]]+)( \1\b)+/\1/Ig')"
 
         # 🦆 says ⮞ reconstruct da transcription into back into full json plz? ok np yo
         FINAL_JSON="$(${pkgs.jq}/bin/jq --arg corrected "$CLEANED" '.transcription = $corrected' <<< "$TRANSCRIPTION_JSON")"
-        
+
         # 🦆 says ⮞ clean it up, trim it down and turn it upside down yo
         TEXT=$("${pkgs.jq}/bin/jq" -r .transcription <<< "$FINAL_JSON")
         CLEANED_TEXT=$(${pkgs.coreutils}/bin/echo "$TEXT" | ${pkgs.gnused}/bin/sed 's/^[[:space:]]*//; s/[[:space:]]*$//' | tr -s ' ' | tr -d '.,!?' | tr '[:upper:]' '[:lower:]')
         # 🦆 says ⮞ aaaand... deliver! .. yo!
         ${pkgs.coreutils}/bin/echo "$CLEANED_TEXT"
-      '';    
-  
-  };}# 🦆 says ⮞ QuackHack-McBLindy - out yo!  
+      '';
+
+  };}# 🦆 says ⮞ QuackHack-McBLindy - out yo!

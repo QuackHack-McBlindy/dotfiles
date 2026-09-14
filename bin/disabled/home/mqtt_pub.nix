@@ -34,24 +34,24 @@ in {
     category = "🛖 Home Automation"; # 🦆 says ⮞ thnx for following me home
     logLevel = "INFO";
     parameters = [
-      { 
-        name = "topic"; 
-        description = "MQTT topic"; 
-        optional = false; 
+      {
+        name = "topic";
+        description = "MQTT topic";
+        optional = false;
       }
-      { 
-        name = "message"; 
-        description = "MQTT message"; 
-        optional = false; 
+      {
+        name = "message";
+        description = "MQTT message";
+        optional = false;
       }
-    ];  
+    ];
     code = ''
       ${cmdHelpers}
       MQTT_BROKER="${mqttHostIp}"
-      dt_info "MQTT_BROKER: $MQTT_BROKER" 
+      dt_info "MQTT_BROKER: $MQTT_BROKER"
       MQTT_USER="${config.house.zigbee.mosquitto.username}"
       MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}")
-   
+
       # 🦆 says ⮞ publish to MQTT
       ${pkgs.mosquitto}/bin/mosquitto_pub \
         -h "$MQTT_BROKER" \
@@ -59,10 +59,9 @@ in {
         -P "$MQTT_PASSWORD" \
         -t "$topic" \
         -m "$message"
-      
+
       dt_info "Published to topic: $topic"
       dt_info "Message: $message"
     '';
 
-  };}  
-    
+  };}

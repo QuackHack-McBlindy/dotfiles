@@ -1,21 +1,21 @@
 # dotfiles/bin/voice/sleep.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ sleep between natural langugage processing commands
-  config, 
+  config,
   lib,
   self,
   pkgs,
   cmdHelpers,
   ...
-} : let 
+} : let
 
-in { # 🦆 says ⮞ 
+in { # 🦆 says ⮞
   yo.scripts.sleep = {
       description = "Waits for specified time (seconds). Useful in command chains.";
       category = "🗣️ Voice";
       logLevel = "CRITICAL";
       parameters = [ # 🦆 says ⮞ some paramz to know where to pass audio
         { name = "time"; type = "int"; description = "Time to sleep"; optional = false; }
-      ];  
+      ];
       code = ''
         ${cmdHelpers}
         dt_debug "Sleeping for: $time..."
@@ -34,11 +34,11 @@ in { # 🦆 says ⮞
           { "in" = "5"; out = "5"; }
           { "in" = "10"; out = "10"; }
         ];
-      };  
+      };
   };}
         #  seconds.values = builtins.concatLists (builtins.genList (
         #        i: let n = i + 1; in [
-        #          { "in" = toString n; out = toString n; }     
+        #          { "in" = toString n; out = toString n; }
         #          { "in" = swedishNumber n; out = toString n; }
         #        ]
         #      ) 60);
@@ -55,5 +55,5 @@ in { # 🦆 says ⮞
              #   ]
              # ) 24);
 #      };
-      
- #   };} # 🦆 says ⮞ QuackHack-McBLindy - out yo!  
+
+ #   };} # 🦆 says ⮞ QuackHack-McBLindy - out yo!

@@ -1,8 +1,8 @@
-{ 
+{
   config,
   lib,
   pkgs,
-  ... 
+  ...
 } : {
     config = lib.mkIf (lib.elem "atuin" config.this.host.modules.services) {
         environment.systemPackages = [
@@ -19,7 +19,7 @@
                     ensureDBOwnership = true;
                 }
             ];
-            
+
             settings = {
                 port = 5432;
                 log_connections = true;
@@ -49,5 +49,5 @@
                 uri = "postgresql://@/atuin";
             };
         };
-        
-    };}   
+
+    };}

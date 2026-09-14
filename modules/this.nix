@@ -1,28 +1,28 @@
 # dotfiles/modules/this.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # 🦆 duck say ⮞ dis module is designed to define both user and host configurations
 # 🦆 duck say ⮞ so dat modules can dynamically adapt
-{ 
+{
     config,
     lib,
     pkgs,
     ...
 } : let
   inherit (lib) types mkOption mkEnableOption mkMerge;
-in {  
+in {
     options.this = {
-#=== 🦆 duck say ⮞ TODO Remove =========================#      
+#=== 🦆 duck say ⮞ TODO Remove =========================#
         installer = mkOption {
             type = types.bool;
             default = false;
             example = true;
             description = "Whether this system is used as an installer.";
         };
-#=== 🦆 duck say ⮞ USER =========================#      
+#=== 🦆 duck say ⮞ USER =========================#
         user = mkOption {
             type = types.submodule {
                 options = {
                     enable = mkEnableOption "user configurations";
-#============== 🦆 duck say ⮞ ME =========================#    
+#============== 🦆 duck say ⮞ ME =========================#
                     me = {
                         name = mkOption {
                             type = types.str;
@@ -37,7 +37,7 @@ in {
                         };
                         extraGroups = mkOption {
                             type = types.listOf types.str;
-                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "at" ]; 
+                            default = [ "networkmanager" "wheel" "dialout" "docker" "dockeruser" "users" "pungkula" "adbusers" "audio" "at" ];
                             description = "Extra groups for main user";
                         };
                         repo = mkOption {
@@ -95,7 +95,7 @@ in {
                           };
                           description = "Mapping of mobile devices to their WireGuard configurations.";
                         };
-                    };                                                             
+                    };
 
                     builder = {
                         enable = mkOption {
@@ -126,9 +126,9 @@ in {
             };
             default = {};
             description = "User configuration settings";
-        };   
+        };
 
-#=== 🦆 duck say ⮞ HOST =========================#    
+#=== 🦆 duck say ⮞ HOST =========================#
         host = {
             system = mkOption {
                 type = types.str;
@@ -149,14 +149,14 @@ in {
                 default = [ "eth0" ];
                 description = "Network interfaces to configure";
             };
-            
+
             ip = mkOption {
                 type = types.nullOr types.str;
                 example = "192.168.1.100";
                 default = null;
                 description = "IP address to bind host to";
             };
-            
+
             wgip = mkOption {
                 type = types.nullOr types.str;
                 example = "10.10.10.10";
@@ -200,8 +200,8 @@ in {
                     example = [ "docker" "vm" ];
                     default = [];
                     description = "Virtualisation modules to enable";
-                };      
-            };   
+                };
+            };
             keys = {
                 privateKeys = mkOption {
                     type = types.attrsOf types.str;
@@ -215,13 +215,13 @@ in {
                     description = "Public keys configuration";
                     default = {};
                 };
-            };         
-        };      
+            };
+        };
     };
 
 
 #== CONFIG ====================#
-    config = lib.mkMerge [ 
+    config = lib.mkMerge [
         (lib.mkIf config.this.user.enable (lib.mkMerge [
             {
                 users = {
@@ -251,7 +251,7 @@ in {
                                 openssh.authorizedKeys.keys = config.this.user.builder.sshKeys;
                                 extraGroups = [ "wheel" "builders" ];
                             };
-                        })             
+                        })
                     ];
                 };
             }
@@ -260,7 +260,7 @@ in {
                     age-plugin-yubikey
                     yubioath-flutter
                     yubikey-agent
-                    yubikey-personalization    
+                    yubikey-personalization
                     yubikey-manager
                     pam_u2f
                     libu2f-host
@@ -273,7 +273,7 @@ in {
                     pcsc-tools
                     acsccid
                 ];
-                
+
                 security.pam = {
                     u2f = {
                         enable = true;
@@ -281,33 +281,33 @@ in {
                             config.this.user.me.name
                             ":9LQVoQZaxoQ/BTFqI7PP84iW3aQtK4mgo6exBlXa/ajQJdF7/axiOCaSXlceKKx4zlPHdYbk5QN2jvP51QJasA==,pMW+NzKDm9unMiKIihpODB9bFRpCKxco0ZrA2l8N+57ht+4lCex8JztmpFic2llij1Ca9dbaIFsWqwfZeZ2beQ==,es256,+presence"
                             ":hTBhiePfih30Js9W775rup8mCJSgqBZqfMZeqsairqQ3s2q6phv55G+K0cMNbAMClnTD/T1ynQxzX0t/c+YAkg==,EuFh8q+uTdsRG48VGIdGnTxoKgxfaO5rfDPSrMQoNQE4O1i+xkHsX6X0d+Cd6vr+KI4uMkuNNq+nq2Rv9+e81A==,es256,+presence"
-                        ]); 
+                        ]);
                         origin = "pam://yubi";
                         appId = "pam://yubi";
                         cue = true;
                         interactive = false;
-                    };   
+                    };
                     yubico = {
                         enable = true;
                         debug = false;
-                        mode = "challenge-response";  
+                        mode = "challenge-response";
                         id = [ "16644366" "16038710" ];
                     };
                     services = {
                         login.u2fAuth = true;
                         sudo.u2fAuth = true;
-                    }; 
+                    };
                 };
-                
+
                 programs.yubikey-touch-detector = {
                     enable = true;
                     unixSocket = true;
                     libnotify = true;
                     verbose = true;
                 };
-              
+
                 services.pcscd.enable = true;
-        
+
                 services.udev.extraRules = ''
                     ACTION=="remove",\
                     ENV{ID_BUS}=="usb",\
@@ -316,7 +316,7 @@ in {
                     ENV{ID_VENDOR}=="Yubico",\
                     RUN+="${pkgs.systemd}/bin/loginctl lock-sessions"
                 '';
-            })    
+            })
             (lib.mkIf config.this.user.builder.enable {
                 security.sudo = {
                     enable = true;
@@ -367,5 +367,5 @@ in {
                     lib.mkIf (lib.elem name config.this.host.modules.${moduleType}) config;
             };
         }
-        
+
     ];}

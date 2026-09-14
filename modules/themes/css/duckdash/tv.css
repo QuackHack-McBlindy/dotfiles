@@ -271,7 +271,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
   pointer-events: none;
@@ -346,28 +346,28 @@
 }
 
 /* 🦆 Color-coded buttons with personality */
-.page[data-page="3"] .tv-control-btn.channel { 
+.page[data-page="3"] .tv-control-btn.channel {
   background: linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
   animation: channelButtonGlow 3s infinite;
 }
 
-.page[data-page="3"] .tv-control-btn.volume { 
+.page[data-page="3"] .tv-control-btn.volume {
   background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);
 }
 
-.page[data-page="3"] .tv-control-btn.nav { 
+.page[data-page="3"] .tv-control-btn.nav {
   background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
-.page[data-page="3"] .tv-control-btn.playback { 
+.page[data-page="3"] .tv-control-btn.playback {
   background: linear-gradient(135deg, #22c55e 0%, #15803d 100%);
 }
 
-.page[data-page="3"] .tv-control-btn.system { 
+.page[data-page="3"] .tv-control-btn.system {
   background: linear-gradient(135deg, #6b7280 0%, #374151 100%);
 }
 
-.page[data-page="3"] .tv-control-btn.power { 
+.page[data-page="3"] .tv-control-btn.power {
   background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
   animation: powerPulse 2s infinite;
 }
@@ -425,44 +425,44 @@
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
 }
-    
+
 .tv-control-btn.red {
   background: linear-gradient(145deg, #e74c3c, #c0392b);
   border-color: #c0392b;
   box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
 }
-    
+
 .tv-control-btn.red:hover {
   background: linear-gradient(145deg, #c0392b, #a93226);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
 }
-    
+
 .tv-control-btn.orange {
   background: linear-gradient(145deg, #f39c12, #e67e22);
   border-color: #e67e22;
   box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
 }
-    
+
 .tv-control-btn.orange:hover {
   background: linear-gradient(145deg, #e67e22, #d35400);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
 }
-    
+
 .tv-control-btn.blue {
   background: linear-gradient(145deg, #3498db, #2980b9);
   border-color: #2980b9;
   box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
   font-size: 2rem !important;
 }
-    
+
 .tv-control-btn.blue:hover {
   background: linear-gradient(145deg, #2980b9, #1f639b);
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
 }
-    
+
 
 .tv-control-btn.ok.blue {
   width: 80px;
@@ -474,29 +474,29 @@
   font-size: 3rem;
   padding: 0;
 }
-    
+
 .tv-control-btn.ok.blue .duck-emoji {
   font-size: 3rem;
   animation: gentleWobble 3s ease-in-out infinite;
 }
-    
+
 @keyframes gentleWobble {
   0%, 100% { transform: rotate(0deg); }
   25% { transform: rotate(5deg); }
   75% { transform: rotate(-5deg); }
 }
-    
+
 
 .rainbow-mode .tv-control-btn {
   animation: rainbowGradient 3s linear infinite !important;
   background-size: 300% 300% !important;
   border: 2px solid rgba(255, 255, 255, 0.8) !important;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(255, 255, 255, 0.3),
     0 0 40px rgba(255, 255, 255, 0.2),
     0 0 60px rgba(255, 255, 255, 0.1) !important;
 }
-    
+
 @keyframes rainbowGradient {
   0% {
     background: linear-gradient(
@@ -523,28 +523,28 @@
     background-position: 0% 50%;
   }
 }
-    
+
 .rainbow-mode .tv-control-btn.ok.blue {
-  animation: rainbowGradient 3s linear infinite, 
+  animation: rainbowGradient 3s linear infinite,
              pulseGlow 2s ease-in-out infinite !important;
   transform: scale(1.1);
 }
-    
+
 @keyframes pulseGlow {
-  0%, 100% { 
-    box-shadow: 
+  0%, 100% {
+    box-shadow:
       0 0 20px rgba(255, 255, 255, 0.5),
       0 0 40px rgba(255, 255, 255, 0.3),
       0 0 60px rgba(255, 255, 255, 0.2);
   }
-  50% { 
-    box-shadow: 
+  50% {
+    box-shadow:
       0 0 30px rgba(255, 255, 255, 0.7),
       0 0 60px rgba(255, 255, 255, 0.5),
       0 0 90px rgba(255, 255, 255, 0.3);
   }
 }
-    
+
 
 .tv-control-btn {
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);

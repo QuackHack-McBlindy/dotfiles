@@ -1,8 +1,8 @@
-{ 
-  config, 
-  lib, 
-  pkgs, 
-  ... 
+{
+  config,
+  lib,
+  pkgs,
+  ...
 } : let
 in {
   environment.systemPackages = lib.mkIf (lib.elem "jelly" config.this.host.modules.services) [

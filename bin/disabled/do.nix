@@ -14,9 +14,9 @@
   statsDir = "/home/${config.this.user.me.name}/.local/share/yo/stats";
   failedCommandsLog = "${statsDir}/failed_commands.log";
   commandStatsDB = "${statsDir}/command_stats.json";
-  
-  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'  
-  scripts = config.yo.scripts; 
+
+  # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
+  scripts = config.yo.scripts;
   scriptNames = builtins.attrNames scripts; # 🦆 says ⮞ just names - we never name one
   # 🦆 says ⮞ only scripts with known intentions
   scriptNamesWithIntents = builtins.filter (scriptName:
@@ -29,10 +29,10 @@
   ) (builtins.attrNames scriptsWithVoice); # 🦆 says ⮞ datz quackin' cool huh?!
 
   # 🦆 says ⮞ only scripts with voice enabled and non-null voice config
-  scriptsWithVoice = lib.filterAttrs (_: script: 
+  scriptsWithVoice = lib.filterAttrs (_: script:
     script.voice != null && (script.voice.enabled or true)
   ) config.yo.scripts;
-  
+
   # 🦆 says ⮞ generate intents
   generatedIntents = lib.mapAttrs (name: script: {
     priority = script.voice.priority or 3;
@@ -61,12 +61,12 @@
     }];
   }) scriptsWithFuzzy));
 
-  # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash 
+  # 🦆 says ⮞ helpz pass Nix path 4 intent data 2 Bash
   intentBasePath = "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts";
-  
+
   # 🦆 says ⮞ QUACK! da duck take a list of listz and duck make all da possible combinationz
   cartesianProductOfLists = lists:
-    # 🦆 says ⮞ if da listz iz empty .. 
+    # 🦆 says ⮞ if da listz iz empty ..
     if lists == [] then
       [ [] ] # 🦆 says ⮞ .. i gib u empty listz of listz yo got it?
     else # 🦆 says ⮞ ELSE WAT?!
@@ -78,45 +78,45 @@
         tailProduct = cartesianProductOfLists tail;
       in # 🦆 says ⮞ for everyy x in da listz ..
         lib.concatMap (x:
-          # 🦆 says ⮞ .. letz combinez wit every tail combinationz ..  
+          # 🦆 says ⮞ .. letz combinez wit every tail combinationz ..
           map (y: [x] ++ y) tailProduct
-        ) head; # 🦆 says ⮞ dang! datz a DUCK COMBO alright!  
+        ) head; # 🦆 says ⮞ dang! datz a DUCK COMBO alright!
 # 🦆 EXAMPLE ⮞ cartesianProductOfLists [ ["a" "b"] ["1" "2"] ["x" "y"] ]
-# 🦆 BOOOOOM ⮟ 
+# 🦆 BOOOOOM ⮟
 #  [ ["a" "1" "x"]
-#    ["a" "1" "y"] 
+#    ["a" "1" "y"]
 #    ["a" "2" "x"]
 #    ["a" "2" "y"]
 #    ["b" "1" "x"]
 #    ["b" "1" "y"]
 #    ["b" "2" "x"]
 #    ["b" "2" "y"] ]
-         
-  # 🦆 says ⮞ here i duckie help yo out! makin' yo life eazy sleazy' wen declarative sentence yo typin'    
+
+  # 🦆 says ⮞ here i duckie help yo out! makin' yo life eazy sleazy' wen declarative sentence yo typin'
   expandOptionalWords = sentence: # 🦆 says ⮞ qucik & simple sentences we quacky & hacky expandin'
-    let # 🦆 says ⮞ CHOP CHOP! Rest in lil' Pieceez bigg sentence!!1     
-      tokens = lib.splitString " " sentence;      
-      # 🦆 says ⮞ definin' dem wordz in da (braces) taggin' dem' wordz az (ALTERNATIVES) lettin' u choose one of dem wen triggerin' 
+    let # 🦆 says ⮞ CHOP CHOP! Rest in lil' Pieceez bigg sentence!!1
+      tokens = lib.splitString " " sentence;
+      # 🦆 says ⮞ definin' dem wordz in da (braces) taggin' dem' wordz az (ALTERNATIVES) lettin' u choose one of dem wen triggerin'
       isRequiredGroup = t: lib.hasPrefix "(" t && lib.hasSuffix ")" t;
-      # 🦆 says ⮞ puttin' sentence wordz in da [bracket] makin' em' [OPTIONAL] when bitchin' u don't have to be pickin' woooho 
-      isOptionalGroup = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;   
+      # 🦆 says ⮞ puttin' sentence wordz in da [bracket] makin' em' [OPTIONAL] when bitchin' u don't have to be pickin' woooho
+      isOptionalGroup = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
       expandToken = token: # 🦆 says ⮞ dis gets all da real wordz out of one token (yo!)
         if isRequiredGroup token then
-          let # 🦆 says ⮞ thnx 4 lettin' ducklin' be cleanin' - i'll be removin' dem "()" 
+          let # 🦆 says ⮞ thnx 4 lettin' ducklin' be cleanin' - i'll be removin' dem "()"
             clean = lib.removePrefix "(" (lib.removeSuffix ")" token);
-            alternatives = lib.splitString "|" clean; # 🦆 says ⮞ use "|" to split (alternative|wordz) yo 
+            alternatives = lib.splitString "|" clean; # 🦆 says ⮞ use "|" to split (alternative|wordz) yo
           in  # 🦆 says ⮞ dat's dat 4 dem alternativez
             alternatives
         else if isOptionalGroup token then
           let # 🦆 says ⮞ here we be goin' again - u dirty and i'll be cleanin' dem "[]"
             clean = lib.removePrefix "[" (lib.removeSuffix "]" token);
-            alternatives = lib.splitString "|" clean; # 🦆 says ⮞ i'll be stealin' dat "|" from u 
+            alternatives = lib.splitString "|" clean; # 🦆 says ⮞ i'll be stealin' dat "|" from u
           in # 🦆 says ⮞ u know wat? optional means we include blank too!
             alternatives ++ [ "" ]
         else # 🦆 says ⮞ else i be returnin' raw token for yo
-          [ token ];      
+          [ token ];
       # 🦆 says ⮞ now i gib u generatin' all dem combinationz yo
-      expanded = cartesianProductOfLists (map expandToken tokens);      
+      expanded = cartesianProductOfLists (map expandToken tokens);
       # 🦆 says ⮞ clean up if too much space, smush back into stringz for ya
       trimmedVariants = map (tokenList:
         let # 🦆 says ⮞ join with spaces then trim them suckers
@@ -124,17 +124,17 @@
           # 🦆 says ⮞ remove ALL extra spaces
           cleaned = lib.replaceStrings ["  "] [" "] (lib.strings.trim raw);
         in # 🦆 says ⮞ wow now they be shinin'
-          cleaned 
-      ) expanded; # 🦆 says ⮞ and they be multiplyyin'!      
+          cleaned
+      ) expanded; # 🦆 says ⮞ and they be multiplyyin'!
       # 🦆 says ⮞ throwin' out da empty and cursed ones yo
       nonEmpty = lib.filter (s: s != "") trimmedVariants;
       hasFixedText = v: builtins.match ".*[^\\{].*" v != null; # 🦆 says ⮞ no no no, no nullin'
       validVariants = lib.filter hasFixedText nonEmpty;
-    in # 🦆 says ⮞ returnin' all unique variantz of da sentences – holy duck dat'z fresh 
+    in # 🦆 says ⮞ returnin' all unique variantz of da sentences – holy duck dat'z fresh
       lib.unique validVariants;
-  
+
   # 🦆 says ⮞ we be doin' sorta da same wit dem listz
-  expandListInputVariants = value: 
+  expandListInputVariants = value:
     let # 🦆 says ⮞ first we choppy choppy - break up da list into word tokenz
       tokens = lib.splitString " " value;
       # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
@@ -175,7 +175,7 @@
           in "(?:" + lib.concatStringsSep "|" escaped + ")?"
         else
           lib.escapeRegex token;
-      
+
       # 🦆 says ⮞ split into tokens while preserving special groups
       tokenize = s:
         let
@@ -189,7 +189,7 @@
             tokens = if prefix != "" then [prefix] else [];
             tokensWithParam = if param != null then tokens ++ [param] else tokens;
           in tokensWithParam ++ tokenize rest;
-      
+
       # 🦆 says ⮞ process tokens into regex parts
       tokens = tokenize sentence;
       regexParts = map (token:
@@ -201,41 +201,41 @@
         else
           convertPattern token
       ) tokens;
-      
+
       # 🦆 says ⮞ combine parts into final regex
       regex = "^" + lib.concatStrings regexParts + "$";
     in
-      regex; 
+      regex;
 
   # 🦆 says ⮞ take each value like "yo|hey" and map it to its 'out' – buildin’ da translation matrix yo!
   makeEntityResolver = data: listName: # 🦆 says ⮞ i like ducks
     lib.concatMapStrings (entity:
-      let 
+      let
         variants = expandListInputVariants entity."in"; # 🦆 says ⮞ "in" must always be quoted in Nix. never forget yo
       in # 🦆 says ⮞ otherwize itz an in like this one!
         lib.concatMapStrings (variant: ''
           "${variant}") echo "${entity.out}";;
         '') variants # 🦆 says ⮞ all of them yo!
     ) data.lists.${listName}.values; # 🦆 says ⮞ maps each "in" value to an echo of its "out"
-  
-  # 🦆 says ⮞ where da magic dynamic regex iz at 
+
+  # 🦆 says ⮞ where da magic dynamic regex iz at
   makePatternMatcher = scriptName: let
-    dataList = generatedIntents.${scriptName}.data;    
-  in '' # 🦆 says ⮞ diz iz how i pick da script u want 
+    dataList = generatedIntents.${scriptName}.data;
+  in '' # 🦆 says ⮞ diz iz how i pick da script u want
     match_${scriptName}() { # 🦆 says ⮞ shushin' da caps – lowercase life 4 cleaner dyn regex zen ✨
-      local input="$(echo "$1" | tr '[:upper:]' '[:lower:]')" 
+      local input="$(echo "$1" | tr '[:upper:]' '[:lower:]')"
       # 🦆 says ⮞ always show input in debug mode
-      # 🦆 says ⮞ watch the fancy stuff live in action  
+      # 🦆 says ⮞ watch the fancy stuff live in action
       dt_debug "Trying to match for script: ${scriptName}" >&2
       dt_debug "Input: $input" >&2
-      # 🦆 says ⮞ duck presentin' - da madnezz 
+      # 🦆 says ⮞ duck presentin' - da madnezz
       ${lib.concatMapStrings (data:
         lib.concatMapStrings (sentence:
           lib.concatMapStrings (sentenceText: let
             # 🦆 says ⮞ now sentenceText is one of the expanded variants!
-            parts = lib.splitString "{" sentenceText; # 🦆 says ⮞ diggin' out da goodies from curly nests! Gimme dem {param} nuggets! 
-            firstPart = lib.escapeRegex (lib.elemAt parts 0); # 🦆 says ⮞ gotta escape them weird chars 
-            restParts = lib.drop 1 parts;  # 🦆 says ⮞ now we in the variable zone quack?  
+            parts = lib.splitString "{" sentenceText; # 🦆 says ⮞ diggin' out da goodies from curly nests! Gimme dem {param} nuggets!
+            firstPart = lib.escapeRegex (lib.elemAt parts 0); # 🦆 says ⮞ gotta escape them weird chars
+            restParts = lib.drop 1 parts;  # 🦆 says ⮞ now we in the variable zone quack?
             # 🦆 says ⮞ process each part to build regex and params
             regexParts = lib.imap (i: part:
               let
@@ -256,21 +256,21 @@
             fullRegex = let
               clean = lib.strings.trim (firstPart + lib.concatStrings (map (v: v.regex) regexParts));
             in "^${clean}$"; # 🦆 says ⮞ mash all regex bits 2gether
-            paramList = map (v: v.param) regexParts; # 🦆 says ⮞ the squad of parameters 
+            paramList = map (v: v.param) regexParts; # 🦆 says ⮞ the squad of parameters
           in ''
             local regex='^${fullRegex}$'
             dt_debug "REGEX: $regex"
-            if [[ "$input" =~ $regex ]]; then  # 🦆 says ⮞ DANG DANG – regex match engaged 
+            if [[ "$input" =~ $regex ]]; then  # 🦆 says ⮞ DANG DANG – regex match engaged
               ${lib.concatImapStrings (i: paramName: ''
-                # 🦆 says ⮞ extract match group #i+1 – param value, come here plz 
+                # 🦆 says ⮞ extract match group #i+1 – param value, come here plz
                 param_value="''${BASH_REMATCH[${toString (i+1)}]}"
-                # 🦆 says ⮞ if param got synonym, apply the duckfilter 
+                # 🦆 says ⮞ if param got synonym, apply the duckfilter
                 if [[ -n "''${param_value:-}" && -v substitutions["$param_value"] ]]; then
                   subbed="''${substitutions["$param_value"]}"
                   if [[ -n "$subbed" ]]; then
                     param_value="$subbed"
                   fi
-                fi           
+                fi
                 ${lib.optionalString (
                   data.lists ? ${paramName} && !(data.lists.${paramName}.wildcard or false)
                 ) ''
@@ -283,11 +283,11 @@
                     *) ;;
                   esac
                 ''} # 🦆 says ⮞ declare global param – duck want it everywhere! (for bash access)
-                declare -g "_param_${paramName}"="$param_value"            
+                declare -g "_param_${paramName}"="$param_value"
                 declare -A params=()
                 params["${paramName}"]="$param_value"
                 matched_params+=("$paramName")
-              '') paramList} # 🦆 says ⮞ set dat param as a GLOBAL VAR yo! every duck gotta know 
+              '') paramList} # 🦆 says ⮞ set dat param as a GLOBAL VAR yo! every duck gotta know
               # 🦆 says ⮞ build cmd args: --param valu
               cmd_args=()
               ${lib.concatImapStrings (i: paramName: ''
@@ -318,7 +318,7 @@
       # 🦆 says ⮞ skip regex! dat shit iz crazy - use aligned wordz yo
       declare -A params=()
       local input_words=($input)
-      local sentence_words=($matched_sentence)     
+      local sentence_words=($matched_sentence)
       # 🦆 says ⮞ extract params by aligning words cool huh
       for i in ''${!sentence_words[@]}; do
         local word="''${sentence_words[$i]}"
@@ -342,7 +342,7 @@
       return 0
     }
   '';
-  
+
   # 🦆 says ⮞ matcher to json yao
   matchers = lib.mapAttrsToList (scriptName: data:
     let
@@ -365,22 +365,22 @@
         let
           allData = lib.flatten (map (d: d.lists or {}) intentList.data);
           # 🦆 says ⮞ collect all sentences for diz intent
-          sentences = lib.concatMap (d: d.sentences or []) intentList.data;      
+          sentences = lib.concatMap (d: d.sentences or []) intentList.data;
           # 🦆 says ⮞ expand all sentence variants
           expandedSentences = lib.unique (lib.concatMap expandOptionalWords sentences);
-          # 🦆 says ⮞ "in" > "out" for dem' subz 
-          substitutions = lib.flatten (map (lists: 
-            lib.flatten (lib.mapAttrsToList (_listName: listData: 
+          # 🦆 says ⮞ "in" > "out" for dem' subz
+          substitutions = lib.flatten (map (lists:
+            lib.flatten (lib.mapAttrsToList (_listName: listData:
               if listData ? values then
-                lib.flatten (map (item: 
+                lib.flatten (map (item:
                   let
                     rawIn = item."in";
                     value = item.out;
                     cleaned = lib.removePrefix "[" (lib.removeSuffix "]" rawIn);
-                    variants = lib.splitString "|" cleaned;     
+                    variants = lib.splitString "|" cleaned;
                   in map (v: let
                     cleanV = lib.replaceStrings ["  "] [" "] (lib.strings.trim v);
-                  in {   
+                  in {
                     pattern = if builtins.match ".* .*" cleanV != null
                               then cleanV
                               else "(${cleanV})";
@@ -408,19 +408,19 @@
         map (expanded: { # 🦆 says ⮞ ayy, time to expand theze feathers
           script = scriptName; # 🦆 says ⮞ label diz bird wit itz intent script yo
           sentence = expanded; # 🦆 says ⮞ this da expanded sentence duck gon' match against
-          # 🦆 says ⮞ precompute signature for FAAASTEERRr matching - quicky quacky snappy matchin' yo! 
+          # 🦆 says ⮞ precompute signature for FAAASTEERRr matching - quicky quacky snappy matchin' yo!
           signature = let
             words = lib.splitString " " (lib.toLower expanded); # 🦆 says ⮞ lowercase & split likez stale rye
             sorted = lib.sort (a: b: lib.hasPrefix a b) words; # 🦆 says ⮞ duck sort dem quackz alphabetically-ish quack quack
-          in builtins.concatStringsSep "|" sorted;  # 🦆 says ⮞ make a fuzzy-flyin’ signature string, pipe separated - yo' know it 
+          in builtins.concatStringsSep "|" sorted;  # 🦆 says ⮞ make a fuzzy-flyin’ signature string, pipe separated - yo' know it
         }) (expandOptionalWords sentence) # 🦆 says ⮞ diz iz where optional wordz becomez reality
       ) data.sentences # 🦆 says ⮞ waddlin' through all yo' sentencez
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
-  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom  
+  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom
 
   # 🦆 says ⮞ fuzzy index only for allowed yo scriptz dat allow dem fuzzy matchin' yo
-  scriptsWithFuzzy = lib.filterAttrs (_: script: 
-    script.voice != null && 
+  scriptsWithFuzzy = lib.filterAttrs (_: script:
+    script.voice != null &&
     (script.voice.enabled or true) &&
     (script.voice.fuzzy.enable or true)  # 🦆 Must explicitly allow fuzzy
   ) config.yo.scripts;
@@ -428,10 +428,10 @@
   splitWordsFile = pkgs.writeText "split-words.json" (builtins.toJSON config.yo.SplitWords);
   sorryPhrasesFile = pkgs.writeText "sorry-phrases.json" (builtins.toJSON config.yo.sorryPhrases);
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
-  fuzzyIndexFlatFile = pkgs.writeText "fuzzy-rust-index.json" (builtins.toJSON fuzzyFlatIndex);  
+  fuzzyIndexFlatFile = pkgs.writeText "fuzzy-rust-index.json" (builtins.toJSON fuzzyFlatIndex);
   matcherDir = pkgs.linkFarm "yo-matchers" (
     map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
-  ); 
+  );
 
 
   # 🦆 says ⮞ export da nix store path to da intent data - could be useful yo
@@ -439,14 +439,14 @@
     "YO_SPLIT_WORDS" = splitWordsFile;
     "YO_SORRY_PHRASES" = sorryPhrasesFile;
     "YO_INTENT_DATA" = intentDataFile;
-    "ỲO_FUZZY_INDEX" = fuzzyIndexFile;  
+    "ỲO_FUZZY_INDEX" = fuzzyIndexFile;
     "MATCHER_DIR" = matcherDir;
     "MATCHER_SOURCE" = matcherSourceScript;
   };
-  
+
 
   # 🦆 says ⮞ priority system 4 runtime optimization
-  scriptRecordsWithIntents = 
+  scriptRecordsWithIntents =
     let # 🦆 says ⮞ calculate priority
       calculatePriority = scriptName:
         generatedIntents.${scriptName}.priority or 3; # Default medium
@@ -455,15 +455,15 @@
       makeRecord = scriptName: rec {
         name = scriptName;
         priority = calculatePriority scriptName;
-        hasComplexPatterns = 
-          let 
+        hasComplexPatterns =
+          let
             intent = generatedIntents.${scriptName};
             patterns = lib.concatMap (d: d.sentences) intent.data;
           in builtins.any (p: lib.hasInfix "{" p || lib.hasInfix "[" p) patterns;
-      };    
+      };
     in lib.sort (a: b:
         # 🦆 says ⮞ primary sort: lower number = higher priority
-        a.priority < b.priority 
+        a.priority < b.priority
         # 🦆 says ⮞ secondary sort: simple patterns before complex ones
         || (a.priority == b.priority && !a.hasComplexPatterns && b.hasComplexPatterns)
         # 🦆 says ⮞ third sort: alphabetical for determinism
@@ -484,8 +484,8 @@
     ];
   in
     lib.foldl (acc: r: lib.replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
- 
-  # 🦆 says ⮞ conflict detection - no bad voice intentz quack!  
+
+  # 🦆 says ⮞ conflict detection - no bad voice intentz quack!
   assertionCheckForConflictingSentences = let
     # 🦆 says ⮞ collect all expanded sentences with their script originz
     allExpandedSentences = lib.flatten (lib.mapAttrsToList (scriptName: intent:
@@ -496,13 +496,13 @@
             sentence = expanded;
             original = sentence;
             # 🦆 says ⮞ extract parameter positionz & count da fixed words
-            hasWildcardAtEnd = lib.hasSuffix " {search}" (lib.toLower expanded) || 
+            hasWildcardAtEnd = lib.hasSuffix " {search}" (lib.toLower expanded) ||
                               lib.hasSuffix " {param}" (lib.toLower expanded) ||
-                              (lib.hasInfix " {" expanded && 
+                              (lib.hasInfix " {" expanded &&
                                !(lib.hasInfix "} " expanded)); # 🦆 says ⮞ wildcard at end if no } followed by space
             fixedWordCount = let
               words = lib.splitString " " expanded;
-              nonParamWords = lib.filter (word: 
+              nonParamWords = lib.filter (word:
                 !(lib.hasPrefix "{" word) && !(lib.hasSuffix "}" word)
               ) words;
             in lib.length nonParamWords;
@@ -513,7 +513,7 @@
     # 🦆 says ⮞ check for prefix conflictz
     checkPrefixConflicts = sentences:
       let
-        sortedSentences = lib.sort (a: b: 
+        sortedSentences = lib.sort (a: b:
           lib.stringLength a.sentence < lib.stringLength b.sentence
         ) sentences;
         conflicts = lib.foldl (acc: shorterItem:
@@ -547,11 +547,11 @@
     # 🦆 says ⮞ find prefix conflictz!
     sentencesByText = lib.groupBy (item: item.sentence) allExpandedSentences;
     exactConflicts = lib.filterAttrs (sentence: items:
-      let 
+      let
         uniqueScripts = lib.unique (map (item: item.scriptName) items);
-      in 
+      in
         lib.length uniqueScripts > 1
-    ) sentencesByText; 
+    ) sentencesByText;
     # 🦆 says ⮞ find duplicatez!
     exactConflictList = lib.mapAttrsToList (sentence: items:
       let
@@ -562,22 +562,22 @@
         scripts = scripts;
         reason = "Exact pattern match in scripts: ${lib.concatStringsSep ", " scripts}";
       }
-    ) exactConflicts;   
+    ) exactConflicts;
     # 🦆  says ⮞ find prefix conflictz
-    prefixConflicts = checkPrefixConflicts allExpandedSentences;    
+    prefixConflicts = checkPrefixConflicts allExpandedSentences;
     # 🦆  says ⮞ letz put dem conflictz together okay?
     allConflicts = exactConflictList ++ prefixConflicts;
-    hasConflicts = allConflicts != [];    
-    # 🦆  says ⮞ find da prefix conflictz  
+    hasConflicts = allConflicts != [];
+    # 🦆  says ⮞ find da prefix conflictz
   in {
     assertion = !hasConflicts;
-    message = 
+    message =
       if hasConflicts then
         let
           conflictMsgs = map (conflict:
             if conflict.type == "EXACT_CONFLICT" then
               ''
-              🦆 says ⮞ CONFLICT! 
+              🦆 says ⮞ CONFLICT!
                 Pattern "${conflict.sentence}"
                 In scripts: ${lib.concatStringsSep ", " conflict.scripts}
               ''
@@ -603,10 +603,10 @@
   # 🦆 says ⮞ category based helper with actual names instead of {param}
   voiceSentencesHelpFile = pkgs.writeText "voice-sentences-help.md" (
     let
-      scriptsWithVoice = lib.filterAttrs (_: script: 
+      scriptsWithVoice = lib.filterAttrs (_: script:
         script.voice != null && script.voice.sentences != [] && (script.voice.enabled or true)
       ) config.yo.scripts;
-      
+
       # 🦆 says ⮞ replace {param} with actual values from voice lists
       replaceParamsWithValues = sentence: voiceData:
         let
@@ -631,30 +631,30 @@
                       examples = lib.take 3 (lib.unique expandedValues);
                     in
                       if examples == [] then "ANYTHING"
-                      else "(" + lib.concatStringsSep "|" examples + 
+                      else "(" + lib.concatStringsSep "|" examples +
                            (if lib.length examples < lib.length expandedValues then "|...)" else ")")
                 else
                   "ANYTHING" # 🦆 says ⮞ fallback if param not found
             else
               token;
-          
+
           # 🦆 says ⮞ split sentence and process each token
           tokens = lib.splitString " " sentence;
           processedTokens = map processToken tokens;
         in
           lib.concatStringsSep " " processedTokens;
-      
+
       # 🦆 says ⮞ group by category
-      groupedScripts = lib.groupBy (script: script.category or "🧩 Miscellaneous") 
+      groupedScripts = lib.groupBy (script: script.category or "🧩 Miscellaneous")
         (lib.attrValues scriptsWithVoice);
-      
+
       # 🦆 says ⮞ generate category sections with param replacement
       categorySections = lib.mapAttrsToList (category: scripts:
         let
           scriptLines = map (script:
             let
               # 🦆 says ⮞ replace params in each sentence
-              sentenceLines = lib.concatMapStrings (sentence: 
+              sentenceLines = lib.concatMapStrings (sentence:
                 let processedSentence = replaceParamsWithValues sentence script.voice;
                 in "    - \"${escapeMD processedSentence}\"\n"
               ) script.voice.sentences;
@@ -664,15 +664,15 @@
         in
           "# ${category}\n\n${lib.concatStringsSep "\n" scriptLines}"
       ) groupedScripts;
-      
+
       # 🦆 says ⮞ statistics
       totalScripts = lib.length (lib.attrNames config.yo.scripts);
       voiceScripts = lib.length (lib.attrNames scriptsWithVoice);
       totalPatterns = config.yo.generatedPatterns;
-      totalPhrases = config.yo.understandsPhrases;    
-      stats = ''  
+      totalPhrases = config.yo.understandsPhrases;
+      stats = ''
   # ----────----──⋆⋅☆☆☆⋅⋆─────----─ #
-  # Total:  
+  # Total:
   - **Scripts with voice enabled**: ${toString voiceScripts} / ${toString totalScripts}
   - **Generated patterns**: ${toString totalPatterns}
   - **Understandable phrases**: ${toString totalPhrases}
@@ -681,51 +681,51 @@
       "# 🦆 Voice Commands\nÅ\n\n${lib.concatStringsSep "\n\n" categorySections}\n\n${stats}"
   );
 
-  # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
+  # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo`
   githubBaseUrl = let # 🦆 duck say ⮞ pattern match to extract username and repo name
     matches = builtins.match ".*github.com[:/]([^/]+)/([^/\\.]+).*" config.this.user.me.repo;
   in if matches != null then # 🦆 duck say ⮞ if match - construct
     "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
   else ""; # 🦆 duck say ⮞ no match? empty string
 
- 
+
 # 🦆 says ⮞ expose da magic! dis builds da NLP
-in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO    
-  yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack 
+in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
+  yo.scripts = { # 🦆 says ⮞ quack quack quack quack quack.... qwack
     # 🦆 says ⮞ GO RUST DO I CHOOSE u!!1
     do = {
       description = "Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution";
-      category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!     
+      category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       aliases = [ "brain" ];
       autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
         echo "[🦆🧠]"
-        cat ${voiceSentencesHelpFile} 
+        cat ${voiceSentencesHelpFile}
       '';
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
-        { name = "input"; description = "Text to translate"; optional = true; } 
+        { name = "input"; description = "Text to translate"; optional = true; }
         { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 60; }
       ];
       code = ''
-        set +u  
-        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions 
+        set +u
+        ${cmdHelpers} # 🦆 says ⮞load required bash helper functions
         FUZZY_THRESHOLD=$fuzzy
         YO_SPLIT_WORDS="${splitWordsFile}"
         YO_SORRY_PHRASES="${sorryPhrasesFile}"
         YO_FUZZY_INDEX="${fuzzyIndexFlatFile}"
         text="$input"
         INTENT_FILE="${intentDataFile}"
-        
+
         # 🦆 says ⮞ create da stats dirz etc
         mkdir -p "${statsDir}"
         touch "${failedCommandsLog}"
         if [ ! -f "${commandStatsDB}" ]; then
           echo '{"failed_commands": {}, "successful_commands": {}, "fuzzy_matches": {}}' > "${commandStatsDB}"
         fi
-        
-          
- 
+
+
+
         # 🦆 says ⮞ check yo.scripts.do if DEBUG mode yo
         if [ "$VERBOSE" -ge 1 ]; then
           DEBUG=1 YO_SPLIT_WORDS="${splitWordsFile}" YO_SORRY_PHRASES="${sorryPhrasesFile}" YO_INTENT_DATA="$INTENT_FILE" YO_FUZZY_INDEX="$YO_FUZZY_INDEX" yo-do "$input" $FUZZY_THRESHOLD
@@ -737,13 +737,13 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
 
       '';
     };
-    
+
   };
-  # 🦆 says ⮞ SAFETY FIRST! 
+  # 🦆 says ⮞ SAFETY FIRST!
   assertions = [
     {
       assertion = assertionCheckForConflictingSentences.assertion;
       message = assertionCheckForConflictingSentences.message;
-    } # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.    
+    } # 🦆 says ⮞ the duck be stateless, the regex be law, and da shell... is my pond.
   ];}# 🦆 say ⮞ nobody beat diz nlp nao says sir quack a lot NOBODY I SAY!
 # 🦆 says ⮞ QuackHack-McBLindy out!

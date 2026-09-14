@@ -8,11 +8,11 @@
   ...
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -24,8 +24,8 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-  
-in {  
+
+in {
   yo.scripts.tibber = {
     description = "Fetches home electricity price data";
     category = "🛖 Home Automation";
@@ -33,10 +33,10 @@ in {
     runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
     runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
     parameters = [
-      { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "usage";  }         
-      { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }       
-      { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }      
-      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }           
+      { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "usage";  }
+      { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }
+      { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }
+      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ];
@@ -61,7 +61,7 @@ EOF
       TIBBER_TOKEN=$(cat $APIKeyFile)
       HOME_ID=$(cat $homeIDFile)
       SAVE_PATH="$filePath"
-      
+
       if [[ "$mode" == "price" ]]; then
         QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
           --arg q "{
@@ -89,20 +89,20 @@ EOF
           -d "$QUERY_JSON")
 
         dt_debug "$RESPONSE"
-  
+
         TOTAL_RAW=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.data.viewer.home.currentSubscription.priceInfo.current.total')
         TOTAL=$(printf "%.2f" "$TOTAL_RAW")
 
 
         TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
         echo "$TIMESTAMP $TOTAL" >> "$SAVE_PATH"
-  
+
 
         dt_debug "$TOTAL SEK / kWh"
         echo "$TOTAL SEK / kWh"
         mqtt_pub -t "zigduck/tibber/price" -m "{\"current_price\": $TOTAL}"
         yo say --text "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
-      fi  
+      fi
 
       if [[ "$mode" == "history" ]]; then
         QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
@@ -127,15 +127,15 @@ EOF
           -d "$QUERY_JSON")
 
         dt_debug "$RESPONSE"
-  
+
         ${pkgs.jq}/bin/jq -r '.data.viewer.home.consumption.nodes[] |
           "\(.from) \(.consumption)"' <<< "$RESPONSE" | while read -r date kwh; do
             month=$(date -d "$date" +%B) # Converts ISO date to full month name
             printf "%-9s: %s kWh\n" "$month" "$kwh"
         done
-      fi      
-      
-      
+      fi
+
+
       if [[ "$mode" == "usage" ]]; then
         QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
           --arg q "{
@@ -158,7 +158,7 @@ EOF
           -d "$QUERY_JSON")
 
         dt_debug "$RESPONSE"
-  
+
         CURRENT_MONTH=$(date +%Y-%m)
         TOTAL_KWH=$(${pkgs.jq}/bin/jq -r '.data.viewer.home.consumption.nodes[] |
           select(.from | startswith("'"$CURRENT_MONTH"'")) |
@@ -170,7 +170,7 @@ EOF
         echo "$TOTAL_KWH"
         #mqtt_pub -t "zigduck/tibber/usage" -m "{\"monthly_usage\": $TOTAL_KWH}"
         mqtt_pub -t "zigduck/tibber/usage" -m "{\"monthly_usage\": \"$TOTAL_KWH\"}"
-        
+
         QUERY_JSON=$(${pkgs.jq}/bin/jq -n \
           --arg q "{
             viewer {
@@ -197,14 +197,14 @@ EOF
           -d "$QUERY_JSON")
 
         dt_debug "$RESPONSE"
-  
+
         TOTAL_RAW=$(echo "$RESPONSE" | ${pkgs.jq}/bin/jq -r '.data.viewer.home.currentSubscription.priceInfo.current.total')
         TOTAL=$(printf "%.2f" "$TOTAL_RAW")
 
 
         TIMESTAMP=$(date +"%Y-%m-%d %H:%M")
         echo "$TIMESTAMP $TOTAL" >> "$SAVE_PATH"
-  
+
 
         dt_debug "$TOTAL SEK / kWh"
         echo "$TOTAL SEK / kWh"
@@ -212,7 +212,7 @@ EOF
         mqtt_pub -t "zigduck/tibber/energy" -m "{\"current_price\": \"$TOTAL\", \"monthly_usage\": \"$TOTAL_KWH\"}"
 
         yo say --text "Aktuellt elpris är just nu: $TOTAL kronor per kilo watt timme"
-      fi   
+      fi
     '';
     voice = {
       priority = 3;
@@ -220,22 +220,22 @@ EOF
         "vad kostar strömmen"
         "hur mycket kostar strömmen"
         "vad är elpriset just nu"
-      ];         
+      ];
     };
   };
- 
+
   sops.secrets = {
     tibber_id = {
-      sopsFile = ./../../secrets/tibber-id.yaml; 
+      sopsFile = ./../../secrets/tibber-id.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    }; 
+    };
     tibber_key = {
-      sopsFile = ./../../secrets/tibber-key.yaml; 
+      sopsFile = ./../../secrets/tibber-key.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    }; 
-    
+    };
+
   };}

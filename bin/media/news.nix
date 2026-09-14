@@ -7,13 +7,13 @@
   cmdHelpers,
   ...
 } : let
-in {  
+in {
   yo.scripts.news = {
     description = "API caller and playlist manager for latest Swedish news from SR.";
     category = "🎧 Media Management";
     autoStart = false;
     logLevel = "INFO";
-    parameters = [  
+    parameters = [
       { name = "apis"; description = "Comma seperated list of API's to fetch data form."; default = builtins.concatStringsSep "," [
         "http://api.sr.se/api/v2/news/episodes?format=json"           # 🦆 says ⮞ Ekot
         "http://api.sr.se/api/v2/podfiles?programid=178&format=json"  # 🦆 says ⮞ Ekonomiekot
@@ -24,21 +24,21 @@ in {
       { name = "clear"; type = "bool"; description = "Clears the playedFile before playing"; optional = true; }
     ];
     code = ''
-      ${cmdHelpers}     
+      ${cmdHelpers}
       APIS="$apis"
       PLAYED_NEWS_FILE="$XDG_CACHE_HOME/played_news.txt"
       MAX_PLAYED_NEWS_ENTRIES="350"
       PLAYED_NEWS_FILE="$playedFile"
       MAX_PLAYED_NEWS_ENTRIES=350
       PLAYLIST_FILE="/tmp/news_playlist.m3u"
-      
+
       touch "$PLAYED_NEWS_FILE"
-      
-      # 🦆 says ⮞ --clear cleans played news file 
+
+      # 🦆 says ⮞ --clear cleans played news file
       if [ -n "$clear" ]; then
         rm -rf "$playedFile"
       fi
-      
+
       mkdir -p "$(dirname "$PLAYED_NEWS_FILE")"
       touch "$PLAYED_NEWS_FILE"
 
@@ -50,7 +50,7 @@ in {
       new_episodes=()
       while IFS= read -r api; do
         [[ -z "$api" ]] && continue
-        
+
         response=$(curl -f -s "$api") || continue
         episodes=$(echo "$response" | jq -c '.episodes[]?' 2>/dev/null) || continue
 
@@ -92,8 +92,8 @@ in {
       priority = 2;
       sentences = [
         "(senast|senaste) (myt|nyt|nytt|nyheter|nyheterna)"
-        
-      ];  
+
+      ];
     };
-    
-  };}  
+
+  };}

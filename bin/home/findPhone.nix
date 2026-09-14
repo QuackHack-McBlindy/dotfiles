@@ -7,17 +7,17 @@
   cmdHelpers,
   ...
 } : let
-in {  
+in {
   # 🦆 says ⮞ port for stop url
   networking.firewall.allowedTCPPorts = [ 9876 ];
-  
+
   yo.scripts.findPhone = {
     description = "Helper for locating Phone";
     category = "🛖 Home Automation";
     autoStart = false;
     logLevel = "INFO";
     code = ''
-      ${cmdHelpers}     
+      ${cmdHelpers}
       start_time=$(date +%s)
       duration=70
       stopfile="/tmp/findPhoneRunning"
@@ -34,7 +34,7 @@ in {
       ) &
 
       server_pid=$!
- 
+
       while true; do
         current_time=$(date +%s)
         elapsed=$((current_time - start_time))
@@ -42,14 +42,14 @@ in {
           dt_debug "Stopped after 1 minute"
           break
         fi
-        
+
         if [ ! -f "$stopfile" ]; then
           dt_info "Phone found, stopping..."
           break
         fi
 
         yo notify --title "HITTA MIG!" --text "HÄR ÄR JAG!" --level "critical" --url "$stopurl" --sound "minuet"
-        
+
         sleep 7
       done
       kill $server_pid

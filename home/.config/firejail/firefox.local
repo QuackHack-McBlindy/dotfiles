@@ -1,27 +1,3 @@
-# /etc/firejail/firefox.local
-#
-# Local Firejail overrides for Firefox.
-# This file is included by firefox.profile before globals.local.
-# It is the correct place for user-specific customizations.
-#
-# IMPORTANT:
-# - Do NOT put "include /etc/firejail/firefox.local" in this file.
-#   That is only the Nix store stub. Your real file must contain rules.
-# - Comments start with #.
-# - ${HOME}, ${RUNUSER}, etc. are expanded by Firejail.
-#
-# Test with:
-#   firejail --profile=firefox firefox
-#   firejail --debug-firefox firefox
-
-# ---------------------------------------------------------------------
-# Filesystem access
-# ---------------------------------------------------------------------
-
-# Firefox already has whitelisted access to its own config/cache dirs.
-# To let Firefox access other directories, both noblacklist and whitelist.
-# Uncomment the ones you need.
-
 # Downloads
 noblacklist ${HOME}/Downloads
 whitelist ${HOME}/Downloads
@@ -34,15 +10,12 @@ whitelist ${HOME}/Downloads
 # noblacklist ${HOME}/Pictures
 # whitelist ${HOME}/Pictures
 
-# Music/Videos (for uploading media)
+
 # noblacklist ${HOME}/Music
 # whitelist ${HOME}/Music
 # noblacklist ${HOME}/Videos
 # whitelist ${HOME}/Videos
 
-# Trash (so deleted downloads go to trash correctly)
-# noblacklist ${HOME}/.local/share/Trash
-# whitelist ${HOME}/.local/share/Trash
 
 # If you use a custom profile directory:
 # whitelist ${HOME}/.mozilla/firefox/yourprofile.default
@@ -56,13 +29,6 @@ whitelist ${HOME}/Downloads
 # blacklist ${HOME}/.config/keepassxc
 # blacklist ${HOME}/.password-store
 
-# ---------------------------------------------------------------------
-# System files
-# ---------------------------------------------------------------------
-
-# private-etc is already set to "firefox" in firefox.profile.
-# Add more entries by repeating private-etc:
-# private-etc firefox,fonts,resolv.conf,ssl
 
 # Allow access to system fonts, icons, themes:
 # whitelist /usr/share/fonts
@@ -70,9 +36,6 @@ whitelist ${HOME}/Downloads
 # whitelist /usr/share/themes
 # whitelist /usr/share/mime
 
-# ---------------------------------------------------------------------
-# D-Bus
-# ---------------------------------------------------------------------
 
 # The default profile already filters D-Bus and allows org.mozilla.*.
 # Add more rules if needed. For file chooser portals:
@@ -87,10 +50,6 @@ whitelist ${HOME}/Downloads
 # dbus-user.talk org.freedesktop.secrets
 # dbus-user.own org.freedesktop.secrets
 
-# ---------------------------------------------------------------------
-# Network
-# ---------------------------------------------------------------------
-
 # Disable network access entirely (offline mode):
 # net none
 
@@ -98,13 +57,6 @@ whitelist ${HOME}/Downloads
 # net none
 # net enp119s0
 # net enp116s0
-net gluenet
-netfilter /nix/store/ji6dmp0pxpaimrfzsg6kq3zr4sp1ifjx-firefox-proxy.net
-netfilter6 /nix/store/5zrfbf0cvy2rz5dmspzkil25xqn5s3r9-firefox-proxy6.net
-
-# ---------------------------------------------------------------------
-# Sound
-# ---------------------------------------------------------------------
 
 # Disable sound:
 # nosound
@@ -114,18 +66,12 @@ netfilter6 /nix/store/5zrfbf0cvy2rz5dmspzkil25xqn5s3r9-firefox-proxy6.net
 # alsa
 # pulse
 
-# ---------------------------------------------------------------------
-# Binary whitelisting
-# ---------------------------------------------------------------------
 
 # Uncomment to restrict executables Firefox can run.
 # See firefox.profile comments for suggestions.
 # private-bin bash,dbus-launch,dbus-send,env,firefox,sh,which
 # private-bin basename,bash,cat,dirname,expr,false,firefox,firefox-wayland,getenforce,ln,mkdir,pidof,restorecon,rm,rmdir,sed,sh,tclsh,true,uname
 
-# ---------------------------------------------------------------------
-# Hardware
-# ---------------------------------------------------------------------
 
 # Allow a specific USB device (e.g. YubiKey for WebAuthn):
 # usb-device 1050:0407
@@ -138,29 +84,19 @@ netfilter6 /nix/store/5zrfbf0cvy2rz5dmspzkil25xqn5s3r9-firefox-proxy6.net
 # noblacklist /dev/snd/*
 # whitelist /dev/snd/*
 
-# ---------------------------------------------------------------------
-# Resource limits
-# ---------------------------------------------------------------------
 
 # rlimit-as 4G
 # rlimit-nproc 1000
 # rlimit-cpu 3600
 
-# ---------------------------------------------------------------------
-# Seccomp
-# ---------------------------------------------------------------------
 
 # Default seccomp is enabled in globals.local.
 # To drop additional syscalls:
 # seccomp.drop syscall1,syscall2
 
-# ---------------------------------------------------------------------
-# Other
-# ---------------------------------------------------------------------
 
 # Add environment variable:
 # setenv FOO bar
 
 # Include another local file:
 # include /etc/firejail/firefox-extra.local
-

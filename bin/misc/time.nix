@@ -1,5 +1,5 @@
 # dotfiles/bin/misc/time.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Handles time related scripts.  
+{ # 🦆 says ⮞ Handles time related scripts.
   self,
   lib,
   config,
@@ -46,5 +46,5 @@ in {
         "vad är det för datum [idag]"
       ];
     };
-    
+
   };}

@@ -1,10 +1,10 @@
 # ddotfiles/packages/kagi.nix ⮞ https://github.com/QuackHack-McBlindy/dotfiles
-{ 
+{
   self,
   lib,
   stdenv,
   python3,
-} : let 
+} : let
   ducktrace-python = self.inputs.ducktrace-python.packages.${stdenv.system}.default;
 
   # 🦆 says ⮞ python dependencies
@@ -21,7 +21,7 @@ stdenv.mkDerivation {
   buildInputs = [
     pythonEnv
   ];
-  
+
   # 🦆 says ⮞ crucial for runtime dependenciies
   propagatedBuildInputs = [ pythonEnv ];
 
@@ -36,5 +36,5 @@ stdenv.mkDerivation {
   # 🦆 says ⮞ metadata
   meta = {
     description = "Kagi Search using scraping from the web with session token";
-    
+
   };}

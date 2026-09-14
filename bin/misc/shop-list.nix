@@ -8,11 +8,11 @@
   ...
 } : let
   # 🦆 says ⮞ mqtt is used for tracking channel states on devices
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
 #  mqttHost = lib.findSingle (host:
 #      let cfg = self.nixosConfigurations.${host}.config;
 #      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+#    ) null null sysHosts;
   mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
@@ -28,12 +28,12 @@
 
 in {
   yo.scripts.shop-list = {
-    description = "Shopping list management";    
+    description = "Shopping list management";
     category = "🧩 Miscellaneous";
     parameters = [
       { name = "operation"; description = "Possible operation modes: add, remove or clear"; default = "add"; }
       { name = "item"; description = "Item that will be managed"; }
-      { name = "list"; type = "bool"; description = "List items in the shopping list"; default = false; }      
+      { name = "list"; type = "bool"; description = "List items in the shopping list"; default = false; }
       { name = "mqttUser"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "mqttPWFile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ];
@@ -48,47 +48,47 @@ in {
 
       display_shopping_list_table() {
         if [ ! -s "$LIST_FILE" ]; then
-          echo "# 📝 Inköpslista" 
+          echo "# 📝 Inköpslista"
           echo ""
           echo "*Listan är tom*" | ${pkgs.glow}/bin/glow -
           return
         fi
-  
+
         local item_count=$(wc -l < "$LIST_FILE")
-  
+
         markdown_table=$(
-          echo "# 📝 Inköpslista" 
+          echo "# 📝 Inköpslista"
           echo ""
           echo "| Index | Artikel |"
           echo "|-------|---------|"
-    
+
           local index=1
           while IFS= read -r item; do
             echo "| $index | $item |"
             index=$((index + 1))
           done < "$LIST_FILE"
-    
+
           echo ""
           echo "**Totalt:** $item_count artikel$([ $item_count -ne 1 ] && echo "r" || echo "")"
         )
-  
+
         echo "$markdown_table" | ${pkgs.glow}/bin/glow format
       }
-      
+
       speak_shopping_list() {
         if [ ! -s "$LIST_FILE" ]; then
           yo-say "Inköpslistan är tom."
           return
         fi
-        
+
         local items=()
         while IFS= read -r item; do
           items+=("$item")
         done < "$LIST_FILE"
-        
+
         local item_count="''${#items[@]}"
         local speech="Du har $item_count stycken föremål på inköpslistan"
-        
+
         if [ "$item_count" -eq 1 ]; then
           speech="$speech: ''${items[0]}."
         elif [ "$item_count" -eq 2 ]; then
@@ -106,10 +106,10 @@ in {
           done
           speech="$speech och $(($item_count - 3)) fler artiklar."
         fi
-        
+
         yo-say "$speech"
       }
-      
+
       if [ "$list" = "true" ]; then
         if [ ! -s "$LIST_FILE" ]; then
           ${pkgs.glow}/bin/glow - <<EOF
@@ -119,29 +119,29 @@ in {
 EOF
         else
           item_count=$(wc -l < "$LIST_FILE")
-    
+
           markdown_table=$(
             echo "# 📝 Inköpslista"
             echo ""
             echo "| Index | Artikel |"
             echo "|-------|---------|"
-      
+
             index=1
             while IFS= read -r item; do
               echo "| $index | $item |"
               index=$((index + 1))
             done < "$LIST_FILE"
-      
+
             echo ""
             echo "**Totalt:** $item_count artikel$([ $item_count -ne 1 ] && echo "r")"
           )
-    
+
           echo "$markdown_table" | ${pkgs.glow}/bin/glow -
         fi
         speak_shopping_list
         exit 0
       fi
-      
+
       case "$operation" in
         add)
           if [ -z "$item" ]; then
@@ -194,7 +194,7 @@ EOF
         "{operation} [bort] {item} (från|i) listan"
         "{operation} bort {item}"
         "{operation} {item} från listan"
-            
+
         "{list} (inköpslistan|shopping) [listan]"
         "{list} finns på inköpslistan"
         "{list} listan"
@@ -203,14 +203,14 @@ EOF
       lists = {
         operation.values = [
           { "in" = "[lägg]"; out = "add"; }
-          { "in" = "[ta|bort|radera]"; out = "remove"; }  
-          { "in" = "[rensa]"; out = "clear"; }      
+          { "in" = "[ta|bort|radera]"; out = "remove"; }
+          { "in" = "[rensa]"; out = "clear"; }
         ];
         list.values = [
-          { "in" = "[visa|vad]"; out = "--list"; }   
+          { "in" = "[visa|vad]"; out = "--list"; }
         ];
         item.wildcard = true;
       };
-    };  
-    
+    };
+
   };}

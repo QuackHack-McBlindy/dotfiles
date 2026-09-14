@@ -1,15 +1,15 @@
-{ 
+{
   config,
   lib,
   pkgs,
   ...
 } : let
-        
+
   duckEnv1 = ''
     "@DUCKENV1@"
   '';
 
-  duckEnvFile1 = 
+  duckEnvFile1 =
     pkgs.runCommand "duckEnvFile1"
       { preferLocalBuild = true; }
       ''
@@ -17,13 +17,13 @@
 ${duckEnv1}
 EOF
       '';
-      
-      
+
+
   duckEnv2 = ''
     "@DUCKENV2@"
   '';
 
-  duckEnvFile2 = 
+  duckEnvFile2 =
     pkgs.runCommand "duckEnvFile2"
       { preferLocalBuild = true; }
       ''
@@ -31,13 +31,13 @@ EOF
 ${duckEnv2}
 EOF
       '';
-      
+
 
   duckEnv3 = ''
     "@DUCKENV3@"
   '';
 
-  duckEnvFile3 = 
+  duckEnvFile3 =
     pkgs.runCommand "duckEnvFile3"
       { preferLocalBuild = true; }
       ''

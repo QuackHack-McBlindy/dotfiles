@@ -1,17 +1,17 @@
 # dotfiles/bin/voice/kill-mic.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ damn gangsta
-  config, 
+  config,
   lib,
   self,
   pkgs,
-  cmdHelpers, 
-  PythonDuckTrace, 
-  ...         
-} : let 
+  cmdHelpers,
+  PythonDuckTrace,
+  ...
+} : let
 in {
   yo.scripts.kill-mic = {
     description = "Kill mic-stream by port with voice";
-    category = "🗣️ Voice"; 
+    category = "🗣️ Voice";
     logLevel = "INFO";
     code = ''
       yo say "yo peace out yo" --host "desktop"
@@ -25,8 +25,8 @@ in {
       sentences = [
         "(hej|hejdå|avbryt|nej)"
         "[good][ ]bye[ ][bye]"
-        "vi hörs"      
-      ];  
+        "vi hörs"
+      ];
     };
-  
+
   };}

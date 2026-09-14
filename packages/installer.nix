@@ -1,5 +1,5 @@
 # dotfiles/packages/installer.nix
-{ 
+{
   self,
   system,
   lib,

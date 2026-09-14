@@ -3,15 +3,15 @@
   config,
   lib,
   pkgs,
-  ... # 🦆 duck say ⮞ create a file like diz:  file = { ".config/myfile.txt" = "hello world"; };     
+  ... # 🦆 duck say ⮞ create a file like diz:  file = { ".config/myfile.txt" = "hello world"; };
 } : with lib;
 let # 🦆 duck say ⮞ big ducks build their own home
 
   # 🦆 duck say ⮞ Create a file, yo!
   homeBase = config.this.user.me.dotfilesDir + "/home";
-  sanitize = path: 
+  sanitize = path:
     replaceStrings ["/"] ["-"] (removePrefix "/" (removePrefix "./" path));
-  
+
   # 🦆 duck say ⮞ Create a home, yo!
   mkUserLinks = user: baseDir: let
     userHome = config.users.users.${user}.home;
@@ -24,15 +24,15 @@ let # 🦆 duck say ⮞ big ducks build their own home
     find ${storePath} -type f -print0 | while IFS= read -r -d $'\0' src; do
       rel_path="''${src#${storePath}/}"
       target="${userHome}/''${rel_path}"
-    
+
       # 🦆 duck say ⮞ Skip if symlink already correct
       # if [[ -L "$target" && "$(readlink -f "$target")" == "$src" ]]; then
       #  continue
       # fi
-    
+
       echo "🦆 duck say ⮞ Linking: $rel_path"
       mkdir -vp "$(dirname "$target")"
-      
+
       dir="$(dirname "$target")"
       if [[ ! -d "$dir" ]]; then
         chown ${user}:users "$dir"
@@ -45,7 +45,7 @@ let # 🦆 duck say ⮞ big ducks build their own home
     done
   '';
 
-in {  
+in {
 
   options = {
     file = mkOption {
@@ -53,7 +53,7 @@ in {
       default = {};
       description = "Files to create directly under ${homeBase}";
     };
-    
+
     git.subRepo = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
@@ -69,7 +69,7 @@ in {
       default = {};
       description = "${pkgs.git}/bin/git repositories with submodules to clone into home directory";
     };
-    
+
     this.home = mkOption {
       type = types.path;
       description = "Directory to mirror to home directory";
@@ -97,54 +97,54 @@ in {
             chmod 600 "${fullPath}"
             echo "🦆 duck say ⮞ Created file: ${fullPath}"
           '') files);
-        deps = [];  
+        deps = [];
       };
     }
-    
+
     {
      # git.subRepo."no_std_components" = {
      #   url = "https://github.com/quackhack-mcblindy/no_std_components.git";
-     #   rev = "main";       
-     # };      
-      
+     #   rev = "main";
+     # };
+
       file."README.md" = ''
         # 🦆🧑‍🦯 **QuackHack-McBLindy'z ⮞ home directory yay** 🦆🧑‍🦯
 
         > [!CAUTION]
-        > **THIS IS NOT HOME-MANAGER!**  
+        > **THIS IS NOT HOME-MANAGER!**
         > **Ducks don't use home-manager.** 🦆
 
-        **Why?** I don't like it.  
-        
+        **Why?** I don't like it.
+
         **🦆 duck say ⮞ quack - diz iz my directory**
-        **🦆 duck say ⮞ quack - my home my rulez**          
-        **🦆 duck say ⮞ i handle filez**  
-        
+        **🦆 duck say ⮞ quack - my home my rulez**
+        **🦆 duck say ⮞ i handle filez**
+
         ```nix
           file."ducks.md" = "🦆 duck say ⮞ like diz yay";
-          
+
         ```
 
-        **🦆 duck say ⮞ i handle ur ${pkgs.git}/bin/git repoz inside HOME**  
-        **🦆 duck say ⮞ like diz:**  
+        **🦆 duck say ⮞ i handle ur ${pkgs.git}/bin/git repoz inside HOME**
+        **🦆 duck say ⮞ like diz:**
 
         ```nix
           git.subRepo."no_std_components" = {
             url = "https://github.com/quackhack-mcblindy/no_std_components.git";
-            rev = "main";   # or a specific commit hash like "a1b2c3d"           
+            rev = "main";   # or a specific commit hash like "a1b2c3d"
           };
         ```
-                
-                
+
+
 
 
         ## 🦆 ⭐ 🦆 ⭐ 🦆 ⭐
 
         [![Star History](https://api.star-history.com/svg?repos=QuackHack-McBlindy/dotfiles&type=date&legend=top-left)](https://www.star-history.com/#QuackHack-McBlindy/dotfiles&type=date&legend=top-left)
-       
+
       '';
     }
-    
+
     # 🦆 duck say ⮞ symlink the home, yo!
     (mkIf (config.this.home != null) {
       system.activationScripts.home-mirror = {
@@ -156,7 +156,7 @@ in {
         deps = [ "users" ];
       };
 
-      environment.systemPackages = with pkgs; [ git openssh ];      
+      environment.systemPackages = with pkgs; [ git openssh ];
       system.activationScripts.submodule-mirror = {
         deps = [ "home-mirror" ];
         text = let
@@ -167,7 +167,7 @@ in {
           mkRepoScript = name: spec: ''
             echo "🦆 Managing submodule repo: ${name} -> ${spec.url}"
             target="${userHome}/${name}"
-            
+
             # 🦆 Run as user with proper PATH and SSH command
             ${pkgs.sudo}/bin/sudo -u ${userName} ${pkgs.bash}/bin/bash -c "
               export PATH=${gitBin}:${sshBin}:\$PATH
@@ -189,7 +189,7 @@ in {
           '';
         in concatStringsSep "\n" (mapAttrsToList mkRepoScript config.git.subRepo);
       };
-      
+
 
       # 🦆 say ⮞ Set user variiables quack
       environment.variables = {
@@ -212,8 +212,8 @@ in {
         XDG_BIN_HOME = "\${HOME}/dotfiles/home/bin";
         XDG_DATA_HOME = "\${HOME}/.local/share";
         NIX_PATH = lib.mkForce "nixpkgs=flake:nixpkgs";
-        
+
       };
     })
-    
+
   ];}

@@ -123,7 +123,7 @@ impl TestRunner {
     fn expand_optional_words(&self, sentence: &str) -> Vec<String> {
         let tokens: Vec<&str> = sentence.split_whitespace().collect();
         let mut variants = Vec::new();
-        
+
         fn generate_combinations(tokens: &[&str], current: Vec<String>, index: usize, result: &mut Vec<String>) {
             if index >= tokens.len() {
                 let sentence = current.join(" ").trim().to_string();
@@ -140,13 +140,13 @@ impl TestRunner {
             if token.starts_with('(') && token.ends_with(')') {
                 let clean = &token[1..token.len()-1];
                 alternatives.extend(clean.split('|').map(|s| s.to_string()));
-            } 
+            }
             // 🦆 says ⮞ handle [optional|words]
             else if token.starts_with('[') && token.ends_with(']') {
                 let clean = &token[1..token.len()-1];
                 alternatives.extend(clean.split('|').map(|s| s.to_string()));
                 alternatives.push("".to_string());
-            } 
+            }
             // 🦆 says ⮞ regular token
             else { alternatives.push(token.to_string()); }
 
@@ -160,7 +160,7 @@ impl TestRunner {
         }
 
         generate_combinations(&tokens, Vec::new(), 0, &mut variants);
-        
+
         // 🦆 says ⮞ clean and filter
         variants.iter()
             .map(|v| v.replace("  ", " ").trim().to_string())
@@ -171,11 +171,11 @@ impl TestRunner {
     // 🦆 says ⮞ resolve sentence / mimic resolve_sentences
     fn resolve_sentence(&self, script_name: &str, sentence: &str) -> String {
         let mut resolved = sentence.to_string();
-        
+
         // 🦆 says ⮞ extract param like {param}
         let param_pattern = Regex::new(r"\{([^}]+)\}").unwrap();
         let mut params: Vec<String> = Vec::new();
-        
+
         for cap in param_pattern.captures_iter(sentence) {
             if let Some(param) = cap.get(1) {
                 params.push(param.as_str().to_string());
@@ -184,31 +184,31 @@ impl TestRunner {
 
         // 🦆 says ⮞ replace da param with da example values
         for param in params {
-            let replacement = if param.to_lowercase().contains("hour") 
-                || param.to_lowercase().contains("minute") 
+            let replacement = if param.to_lowercase().contains("hour")
+                || param.to_lowercase().contains("minute")
                 || param.to_lowercase().contains("second") {
                 "1".to_string()
-            } else if param.to_lowercase().contains("room") 
+            } else if param.to_lowercase().contains("room")
                 || param.to_lowercase().contains("device") {
                 "livingroom".to_string()
             } else {
                 "test".to_string()
             };
-            
+
             resolved = resolved.replace(&format!("{{{}}}", param), &replacement);
         }
 
         // 🦆 says ⮞ handle alternatives (word1|word2) pick da first yo
         let required_pattern = Regex::new(r"\(([^|)]+)(\|[^)]+)?\)").unwrap();
         resolved = required_pattern.replace_all(&resolved, "$1").to_string();
-        
+
         // 🦆 says ⮞ handle optional words [word] steal da word
         let optional_pattern = Regex::new(r"\[([^]]+)\]").unwrap();
         resolved = optional_pattern.replace_all(&resolved, " $1 ").to_string();
-        
+
         // 🦆 says ⮞ handle vertical bars in da alts
         resolved = resolved.replace(" | ", " ").to_string();
-        
+
         // 🦆 says ⮞ clean da spaces
         resolved = resolved.replace("  ", " ").trim().to_string();
 
@@ -219,10 +219,10 @@ impl TestRunner {
     fn test_exact_match(&self, script_name: &str, input: &str) -> bool {
         if let Some(intent) = self.intent_data.get(script_name) {
             let normalized_input = input.to_lowercase();
-            
+
             for sentence in &intent.sentences {
                 let expanded_variants = self.expand_optional_words(sentence);
-                
+
                 for variant in expanded_variants {
                     // 🦆 says ⮞ build dynamic regex
                     let pattern = self.build_test_regex(&variant);
@@ -261,7 +261,7 @@ impl TestRunner {
                 } else {
                     r"(\b[^ ]+\b)".to_string()
                 };
-                
+
                 regex_parts.push(regex_group);
                 current = after_param.to_string();
             } else {
@@ -307,10 +307,10 @@ impl TestRunner {
         for entry in &self.fuzzy_index {
             let normalized_sentence = entry.sentence.to_lowercase();
             let distance = self.levenshtein_distance(&normalized_input, &normalized_sentence);
-            let max_len = normalized_input.len().max(normalized_sentence.len()); 
+            let max_len = normalized_input.len().max(normalized_sentence.len());
             if max_len == 0 { continue; }
             let score = 100 - (distance * 100 / max_len) as i32;
-    
+
             if score >= 15 && score > best_score {
                 best_score = score;
                 best_match = Some((entry.script.clone(), score));
@@ -374,7 +374,7 @@ impl TestRunner {
 
             for sentence in &intent.sentences {
                 let expanded_variants = self.expand_optional_words(sentence);
-                
+
                 for variant in expanded_variants {
                     let test_sentence = self.resolve_sentence(script_name, &variant);
                     result.total_positive += 1;
@@ -399,7 +399,7 @@ impl TestRunner {
         let negative_cases = vec![
             "make me a sandwich",
             "launch the nuclear torpedos!",
-            "gör mig en macka", 
+            "gör mig en macka",
             "avfyra kärnvapnen!",
             "ducks sure are the best dont you agree",
         ];
@@ -462,7 +462,7 @@ impl TestRunner {
             let phrases: usize = intent.sentences.iter()
                 .map(|s| self.expand_optional_words(s).len())
                 .sum();
-            
+
             let ratio = if patterns > 0 {
                 phrases as f64 / patterns as f64
             } else { 0.0 };
@@ -484,8 +484,8 @@ impl TestRunner {
             } else if ratio > 50.0 {
                 "HIGH RATIO".bright_yellow()
             } else { "OK".green() };
-            
-            println!("{}: patterns={}, phrases={}, ratio={} - {}", 
+
+            println!("{}: patterns={}, phrases={}, ratio={} - {}",
                 name, patterns, phrases, ratio_str, status);
         }
 
@@ -509,7 +509,7 @@ impl TestRunner {
         let (color, duck_report) = if percent >= 80 {
             (Color::Green, "⭐")
         } else if percent >= 60 {
-            (Color::Yellow, "🟢") 
+            (Color::Yellow, "🟢")
         } else {
             (Color::Red, "😭")
         };
@@ -527,7 +527,7 @@ impl TestRunner {
         println!();
         println!("{}", "# ──────⋆⋅☆⋅⋆────── #".color(color));
         println!("{}", "Testing completed!".bold());
-        println!("{} {}", "Positive:".bold(), 
+        println!("{} {}", "Positive:".bold(),
             format!("{}/{}", result.passed_positive, result.total_positive).color(color));
         println!("{} {}", "Negative:".bold(),
             format!("{}/{}", result.passed_negative, result.total_negative).color(color));
@@ -536,8 +536,8 @@ impl TestRunner {
         println!("{} {}", "TOTAL:".bold(),
             format!("{}/{} ({}%)", passed_tests, total_tests, percent).color(color));
         println!("{}", "# ──────⋆⋅☆⋅⋆────── #".color(color));
-        println!("{}", duck_report);   
-        self.quack_info(&format!("Test completed with results: {}/{} {}%", 
+        println!("{}", duck_report);
+        self.quack_info(&format!("Test completed with results: {}/{} {}%",
             passed_tests, total_tests, percent));
     }
 }
@@ -550,11 +550,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         env::set_var("YO_FUZZY_INDEX", "/etc/yo/fuzzy-index.json");
     }
 
-        
+
     let debug = std::env::var("DEBUG").is_ok();
     if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
-    dt_debug!("Started yo-tests!");    
+    dt_debug!("Started yo-tests!");
     let args: Vec<String> = env::args().collect();
     let mut test_runner = TestRunner::new();
     let mut stats_mode = false;
@@ -585,11 +585,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     } else {
         let result = test_runner.run_test_suite();
         test_runner.display_final_report(&result);
-        
-        if result.passed_positive + result.passed_negative + result.passed_boundary 
+
+        if result.passed_positive + result.passed_negative + result.passed_boundary
             != result.total_positive + result.total_negative + result.total_boundary {
             exit(1);
         }
-    } 
+    }
     Ok(())
 }

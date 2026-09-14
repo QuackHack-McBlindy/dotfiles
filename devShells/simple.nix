@@ -1,0 +1,45 @@
+# dotfiles/devShells/simple.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+{ # 🦆 says ⮞ default dev
+  pkgs,
+  system,
+  inputs,
+  self
+} : let # 🦆says⮞ list dependencies
+  myBuildInputs = with pkgs; [
+    git
+    nixpkgs-fmt
+    rustc
+    clang
+    cargo
+    cargo-msrv
+    clippy
+    #esp-generate
+    #rustup
+    #openssl.dev
+    #alsa-lib-with-plugins
+
+  ];
+
+  formatRed = name: "echo - \$'\\e[0;31m'${name}\$'\\e[0m'";
+  formatHeader = text: "echo \$'\\e[1m'${text}\$'\\e[0m'";
+in {
+  buildInputs = myBuildInputs;
+
+  # 🦆 says ⮞ display dependencies when entering shell
+  shellHook = ''
+    export PKG_CONFIG_PATH="${pkgs.alsa-lib.dev}/lib/pkgconfig"
+    export OPENSSL_INCLUDE_DIR=$(nix eval --raw nixpkgs#openssl.dev)/include
+    export OPENSSL_LIB_DIR=$(nix eval --raw nixpkgs#openssl.out)/lib
+    export LIBCLANG_PATH="/nix/store/60y46s779qpjaqqal33yccwadcigscni-rocm-toolchain/lib/libclang.so.22.0"
+    echo "Running on ${system}"
+    echo ""
+    echo "Entering default development shell"
+    echo ""
+    ${formatHeader "Build inputs:"}
+    ${pkgs.lib.concatMapStringsSep "\n" (pkg: "echo - \$'\\e[0;31m'${pkg.name}\$'\\e[0m'") myBuildInputs}
+  '';
+
+
+  CMAKE_POLICY_VERSION_MINIMUM = "3.5";
+  NIX_CONFIG = "system = ${system}";
+}

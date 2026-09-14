@@ -1,6 +1,6 @@
 # dotfiles/modules/networking/pool.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 {  # 🦆 says ⮞ NFS mount /mnt/Pool
-  config,# 🦆 BIND /mnt/Pool ⮞ /Pool 
+  config,# 🦆 BIND /mnt/Pool ⮞ /Pool
   lib,
   pkgs,
   ...
@@ -25,5 +25,5 @@
           options = [ "bind" ];
         };
       };
-      
+
     };}

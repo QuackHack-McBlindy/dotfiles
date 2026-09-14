@@ -157,7 +157,7 @@ fn main() -> Result<()> {
                     print_usage(&args[0]);
                     std::process::exit(1);
                 }
-            }            
+            }
             "--debug" => {
                 debug = true;
                 i += 1;
@@ -498,7 +498,7 @@ fn main() -> Result<()> {
                                 }
                                 receiver_is_transcribing.store(true, Ordering::SeqCst);
 
-                                // 🦆 says ⮞ play detection sound     
+                                // 🦆 says ⮞ play detection sound
                                 let sound_data = receiver_awake_sound.clone();
                                 thread::spawn(move || {
                                     let (_stream, handle) = OutputStream::try_default().unwrap();
@@ -507,7 +507,7 @@ fn main() -> Result<()> {
                                         sink.sleep_until_end();
                                     }
                                 });
-                      
+
                                 // 🦆 says ⮞ execute awake command if provided
                                 if let Some(cmd) = &receiver_awake_cmd {
                                     let cmd = cmd.clone();
@@ -522,7 +522,7 @@ fn main() -> Result<()> {
                                             .status();
                                         match status {
                                             Ok(status) => {
-                                                if status.success() { 
+                                                if status.success() {
                                                     dt_debug!("Awake command executed successfully");
                                                 } else {
                                                     dt_error!("Awake command failed with exit code: {:?}", status.code());
@@ -532,8 +532,8 @@ fn main() -> Result<()> {
                                         }
                                     });
                                 }
-                      
-                                // 🦆 says ⮞ BOOOOM 
+
+                                // 🦆 says ⮞ BOOOOM
                                 let timer = dt_timer("voice pipeline");
                                 dt_info!("💥 DETECTED!");
                                 timer.lap("wake word detected");
@@ -572,7 +572,7 @@ fn main() -> Result<()> {
                                         if len == 0 {
                                             continue;
                                         }
-                                        
+
                                         // 🦆 says ⮞ determine the starting index of the window
                                         let start_idx = if len > window_samples { len - window_samples } else { 0 };
                                         let window = &guard[start_idx..];
@@ -584,11 +584,11 @@ fn main() -> Result<()> {
 
                                     // 🦆 says ⮞ --debug? print RMS
                                     if receiver_debug { dt_debug!("RMS: {:.6}", rms); }
-                                    
+
                                     // 🦆 says ⮞ RMS exceeds configured silence threshold,
                                     // treat this as speech activity and reset the silence timer
                                     if rms > receiver_silence_threshold { last_speech_time = Instant::now(); }
-                                    
+
                                     // 🦆 says ⮞ reached silence timeout - exit loop
                                     if last_speech_time.elapsed() > receiver_silence_timeout { break; }
                                 }
@@ -613,7 +613,7 @@ fn main() -> Result<()> {
                                     if let Err(e) = guard.write_u8(0x02) {
                                         dt_error!("Failed to send transcription type: {}", e);
                                     }
-                                    if let Err(e) = guard.write_u32::<LittleEndian>(resampled_audio.len() as u32) { 
+                                    if let Err(e) = guard.write_u32::<LittleEndian>(resampled_audio.len() as u32) {
                                         dt_error!("Failed to send transcription length: {}", e);
                                     }
                                     let mut bytes = Vec::with_capacity(resampled_audio.len() * 4);
@@ -624,8 +624,8 @@ fn main() -> Result<()> {
                                     if let Err(e) = guard.flush() { dt_error!("Failed to flush: {}", e); }
                                 }
 
-                                //receiver_is_transcribing.store(false, Ordering::SeqCst);                                
-                                
+                                //receiver_is_transcribing.store(false, Ordering::SeqCst);
+
                                 // 🦆 says ⮞ wait for server response
                                 let mut response_buf = [0u8; 1];
                                 let timeout_duration = Duration::from_secs(5);
@@ -678,9 +678,9 @@ fn main() -> Result<()> {
                                                                 Err(e) => dt_error!("Failed to execute done command: {}", e),
                                                             }
                                                         });
-                                                    }                            
+                                                    }
                                                 } // 💩
-                                                0x04 => { 
+                                                0x04 => {
                                                     dt_debug!("Command execution failed – check server logs");
                                                     // 🦆 says ⮞ play fail sound
                                                     let sound_data = receiver_fail_sound.clone();

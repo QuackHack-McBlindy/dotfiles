@@ -8,14 +8,14 @@
   adbkey = ''
     "@ADBKEY@"
   '';
-  adbkeyFile = 
+  adbkeyFile =
     pkgs.runCommand "adbkeyFile"
       { preferLocalBuild = true; }
       ''
         cat > $out <<EOF
 ${adbkey}
 EOF
-      '';    
+      '';
 in {
     config = lib.mkIf (lib.elem "adb" config.this.host.modules.services) {
         environment.systemPackages = [ pkgs.android-tools ];
@@ -38,7 +38,7 @@ in {
                 ConditionPathExists = config.sops.secrets.adbkey.path;
             };
         };
-  
+
         sops.secrets = lib.mkIf (!config.this.installer) {
             adbkey = {
                 sopsFile = ./../../secrets/adbkey.yaml;
@@ -46,5 +46,5 @@ in {
                 group = config.this.user.me.name;
                 mode = "0440";
             };
-        };   
+        };
     };}

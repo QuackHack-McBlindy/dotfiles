@@ -1,33 +1,33 @@
-{ 
+{
   config,
   lib,
   pkgs,
   ...
 } : let
-      
+
     SSLpem = ''
         "@SSLCERT@"
     '';
-    SSLFile = 
+    SSLFile =
         pkgs.runCommand "SSLFile"
             { preferLocalBuild = true; }
             ''
             cat > $out <<EOF
 ${SSLpem}
 EOF
-            '';   
+            '';
     buildKey = ''
         "@BUILDKEY@"
     '';
 
-    buildKeyFile = 
+    buildKeyFile =
         pkgs.runCommand "buildKeyFile"
             { preferLocalBuild = true; }
             ''
             cat > $out <<EOF
 ${buildKey}
 EOF
-            '';   
+            '';
 in {
     config = lib.mkIf (lib.elem "nix" config.this.host.modules.system) {
         documentation.nixos.enable = false;
@@ -102,12 +102,12 @@ in {
                 Type = "oneshot";
                 ExecStart = "${pkgs.systemd}/bin/journalctl --vacuum-time=21d";
             };
-        };    
+        };
         systemd.timers.clear-log = {
             wantedBy = [ "timers.target" ];
             partOf = [ "clear-log.service" ];
             timerConfig.OnCalendar = "weekly UTC";
-        }; 
+        };
 
         systemd.services.build_config = lib.mkIf (!config.this.installer) {
             wantedBy = [ "multi-user.target" ];
@@ -118,7 +118,7 @@ in {
                     r ${config.sops.secrets.id_ed25519_builder.path}
                     d
                 }" ${buildKeyFile} > /root/.ssh/id_ed25519_builder
-                
+
                 mkdir -p /root/.ssh
                 sed -e "/@SSLCERT@/{
                     r ${config.sops.secrets.cache_cert.path}
@@ -151,5 +151,5 @@ in {
                 group = "root";
                 mode = "0440";
             };
-        };    
+        };
     };}

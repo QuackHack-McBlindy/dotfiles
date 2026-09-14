@@ -10,7 +10,7 @@
 .backgroundContainer {
   background-color: rgba(0, 0, 0, 0);
   background-image: url('https://qwackify.duckdns.org/jelly/bg.png');
-  filter: blur(5px); 
+  filter: blur(5px);
   background-size: cover;
 }
 

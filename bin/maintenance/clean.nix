@@ -1,28 +1,28 @@
 # dotfiles/bin/maintenance/clean.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ garbage collection 
+{ # 🦆 says ⮞ garbage collection
   config,
   self,
   pkgs,
   sysHosts,
   cmdHelpers,
   ...
-} : { 
+} : {
     yo.scripts.clean = {
         description = "Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune";
         category = "🧹 Maintenance";
         aliases = [ "gc" ];
         code = ''
-            ${cmdHelpers}   
+            ${cmdHelpers}
             # 1. Nix OS garbage collection
             run_cmd ${pkgs.nix}/bin/nix-collect-garbage -d
             run_cmd sudo ${pkgs.nix}/bin/nix-collect-garbage
-              
+
             # 2. Empty user trash (adjust for each user if needed)
             # run_cmd rm -rf ~/.local/share/Trash/*
-              
+
             # 3. Flush /tmp (be cautious if apps are using it)
             # run_cmd sudo rm -rf /tmp/*
-             
+
             # 4. Wipe Nix store cache
             run_cmd sudo nix-store --gc
             run_cmd sudo nix-store --verify --check-contents --repair # optional but thorough
@@ -39,7 +39,7 @@
             run_cmd echo "Cleaning up dangling images and unused volumes..."
             run_cmd docker image prune -f
             run_cmd docker volume prune -f
-    
+
             # Step 2: Retrieve all image IDs
             all_images=$(docker images -q)
 
@@ -102,7 +102,7 @@
                     fi
                 fi
             done
-            
+
             run_cmd echo "Process completed."
 
             run_cmd echo -e "\nCurrent Docker disk usage:"
@@ -114,10 +114,10 @@
             run_cmd echo "Build cache pruned."
 
             # Run docker system df again to show the new disk usage
-            
+
             run_cmd echo -e "\nUpdated Docker disk usage after pruning:"
             run_cmd docker system df
-            
+
             # Display free space and percentage in /home with color coding
             run_cmd df -h ~ | awk 'NR==2 {
                 free_space=$4;
@@ -134,5 +134,5 @@
                 printf "Free space: %s, Used: %s%s%s\n", free_space, color, $5, reset;
             }'
         '';
-        
-    };}  
+
+    };}

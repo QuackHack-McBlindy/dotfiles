@@ -1,11 +1,11 @@
 # dotfiles/bin/network/speed.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{  # 🐢🦆 SCREAMS ⮞ SPEEEEEEEEEEEEEED🐢🐢🐢🐢🐢 
+{  # 🐢🦆 SCREAMS ⮞ SPEEEEEEEEEEEEEED🐢🐢🐢🐢🐢
   self, # 🦆 say ⮞ test network speed
   config,
   pkgs,
   cmdHelpers,
   ...
-} : {  
+} : {
   yo.scripts.speed = {
     description = "Test internet download speed";
     category = "🌐 Networking";
@@ -15,9 +15,9 @@
       if [[ -f "$SPEED_FILE" ]]; then
         echo -e "\n\033[1mLast 5 Speedtests:\033[0m"
         cat "$SPEED_FILE"
-        awk '{ total += $1 } END { 
+        awk '{ total += $1 } END {
           if (NR > 0) {
-            printf "\n\033[1;36mAverage Speed: %.2f MB/s\033[0m\n", total/NR 
+            printf "\n\033[1;36mAverage Speed: %.2f MB/s\033[0m\n", total/NR
           }
         }' "$SPEED_FILE"
       fi

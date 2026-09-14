@@ -15,7 +15,7 @@
 #            .unwrap_or_else(|_| "/home/${config.this.user.me.name}/.config/duckTrace/".to_string());
 #        let log_level = std::env::var("DT_LOG_LEVEL")
 #            .unwrap_or_else(|_| "INFO".to_string());
-    
+
 #        dt_info(&format!("🚀 Starting yo API server"));
 #        dt_info(&format!("Log file: {}{}", log_path, log_file));
 #        dt_info(&format!("Log Level: {}", log_level));
@@ -72,12 +72,12 @@ in
                     _ => LogLevel::Info,
                 },
             };
-            
+
             let log_file = Self::setup_log_file();
-            
+
             Self { level, log_file, debug_mode }
         }
-        
+
         fn level_from_str(s: &str) -> LogLevel {
             match s.to_uppercase().as_str() {
                 "DEBUG" => LogLevel::Debug,
@@ -88,32 +88,32 @@ in
                 _ => LogLevel::Info,
             }
         }
-        
+
         fn setup_log_file() -> Option<File> {
             let log_path = env::var("DT_LOG_PATH")
                 .unwrap_or_else(|_| "/home/${config.this.user.me.name}/.config/duckTrace".to_string());
-            
+
             std::fs::create_dir_all(&log_path).ok()?;
-            
+
             let log_filename = env::var("DT_LOG_FILE")
                 .unwrap_or_else(|_| "unknown.rs-script.log".to_string());
-            
+
             let full_path = format!("{}{}", log_path, log_filename);
-            
+
             OpenOptions::new()
                 .create(true)
                 .append(true)
                 .open(&full_path)
                 .ok()
         }
-        
+
         fn should_log(&self, msg_level: LogLevel) -> bool {
             if msg_level == LogLevel::Debug && !self.debug_mode {
                 return false;
             }
             msg_level >= self.level
         }
-        
+
         fn get_symbol(&self, level: LogLevel) -> &'static str {
             match level {
                 LogLevel::Debug => "⁉️",
@@ -123,7 +123,7 @@ in
                 LogLevel::Critical => "🚨",
             }
         }
-        
+
         fn format_message(&self, level: LogLevel, message: &str) -> String {
             let timestamp = Local::now().format("%H:%M:%S");
             let symbol = self.get_symbol(level);
@@ -134,11 +134,11 @@ in
                 LogLevel::Error => "ERROR",
                 LogLevel::Critical => "CRITICAL",
             };
-            
-            format!("[🦆📜] [{}] {}{}{} ⮞ {}", 
+
+            format!("[🦆📜] [{}] {}{}{} ⮞ {}",
                 timestamp, symbol, level_str, symbol, message)
         }
-        
+
         fn colorize_console(&self, level: LogLevel, formatted_msg: &str) -> String {
             match level {
                 LogLevel::Debug => formatted_msg.blue().bold().to_string(),
@@ -148,7 +148,7 @@ in
                 LogLevel::Critical => formatted_msg.red().bold().blink().to_string(),
             }
         }
-        
+
         fn add_duck_say(&self, level: LogLevel, message: &str) -> String {
             if matches!(level, LogLevel::Error | LogLevel::Critical) {
                 let duck_say = format!(
@@ -160,22 +160,22 @@ in
                 String::new()
             }
         }
-        
+
         pub fn log(&mut self, level: LogLevel, message: &str) {
             if !self.should_log(level) {
                 return;
             }
-            
+
             let formatted = self.format_message(level, message);
             let console_output = self.colorize_console(level, &formatted);
-            
+
             eprintln!("{}", console_output);
-            
+
             if matches!(level, LogLevel::Error | LogLevel::Critical) {
                 let duck_say = self.add_duck_say(level, message);
                 eprintln!("{}", duck_say);
             }
-            
+
             if let Some(file) = &mut self.log_file {
                 let timestamp = Local::now().format("%H:%M:%S");
                 let level_str = match level {
@@ -185,7 +185,7 @@ in
                     LogLevel::Error => "ERROR",
                     LogLevel::Critical => "CRITICAL",
                 };
-                
+
                 let file_msg = format!("[{}] {} - {}\n", timestamp, level_str, message);
                 let _ = writeln!(file, "{}", file_msg);
             }
@@ -202,7 +202,7 @@ in
             }
         }
     }
-    
+
     pub fn dt_info(msg: &str) {
         unsafe {
             if LOGGER.is_none() {
@@ -213,7 +213,7 @@ in
             }
         }
     }
-    
+
     pub fn dt_warning(msg: &str) {
         unsafe {
             if LOGGER.is_none() {
@@ -224,7 +224,7 @@ in
             }
         }
     }
-    
+
     pub fn dt_error(msg: &str) {
         unsafe {
             if LOGGER.is_none() {
@@ -235,7 +235,7 @@ in
             }
         }
     }
-    
+
     pub fn dt_critical(msg: &str) {
         unsafe {
             if LOGGER.is_none() {
@@ -246,7 +246,7 @@ in
             }
         }
     }
-    
+
     pub fn setup_ducktrace_logging(log_name: Option<&str>, level: Option<&str>) {
         INIT.call_once(|| {
             unsafe {
@@ -254,12 +254,12 @@ in
             }
         });
     }
-    
+
     pub struct TranscriptionTimer {
         operation_name: String,
         start_time: Instant,
     }
-    
+
     impl TranscriptionTimer {
         pub fn new(operation_name: &str) -> Self {
             dt_debug(&format!("Starting {}...", operation_name));
@@ -268,18 +268,18 @@ in
                 start_time: Instant::now(),
             }
         }
-        
+
         pub fn lap(&self, lap_name: &str) {
             let elapsed = self.start_time.elapsed().as_secs_f64();
             dt_debug(&format!("{} - {}: {:.3}s", self.operation_name, lap_name, elapsed));
         }
-        
+
         pub fn complete(self) {
             let elapsed = self.start_time.elapsed().as_secs_f64();
             dt_debug(&format!("Completed {} in {:.3}s", self.operation_name, elapsed));
         }
     }
-    
+
     macro_rules! duck_log {
         (debug: $($arg:tt)*) => {
             dt_debug(&format!($($arg)*));
@@ -296,6 +296,5 @@ in
         (critical: $($arg:tt)*) => {
             dt_critical(&format!($($arg)*));
         };
-    } 
+    }
   ''
-

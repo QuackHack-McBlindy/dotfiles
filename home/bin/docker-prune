@@ -9,7 +9,7 @@
 #
 # Arguments:
 #   - None
-# 
+#
 # Usage:
 #   Run the script as a user with appropriate Docker permissions (e.g., sudo or Docker group membership).
 #   It will automatically clean up dangling images and unused volumes, attempt to remove images
@@ -135,4 +135,3 @@ df -h ~ | awk 'NR==2 {
     # Print free space and used percentage with color
     printf "Free space: %s, Used: %s%s%s\n", free_space, color, $5, reset;
 }'
-

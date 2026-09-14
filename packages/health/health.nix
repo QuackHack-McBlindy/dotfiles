@@ -1,5 +1,5 @@
 # dotfiles/packages/health.nix ⮞ https://github.com/QuackHack-McBlindy/dotfiles
-{ 
+{
   self,
   stdenv,
   lib,
@@ -12,23 +12,23 @@
     ps.uvicorn
     ps.psutil
   ]);
-in # 🦆 says ⮞ source code 
+in # 🦆 says ⮞ source code
 stdenv.mkDerivation {
     name = "health";
     src = ./health;
-    
+
     # 🦆 says ⮞ python dependencies
-    buildInputs = [ 
+    buildInputs = [
       pythonEnv
       pkgs.psutils
       pkgs.smartmontools
       pkgs.gnused
       pkgs.python312Packages.uvicorn
       pkgs.python312Packages.fastapi
-      pkgs.python312Packages.psutil 
+      pkgs.python312Packages.psutil
     ];
     propagatedBuildInputs = [ pythonEnv ];
-    
+
     # 🦆 says ⮞ installer
     installPhase = ''
       mkdir -p $out/bin
@@ -45,5 +45,5 @@ stdenv.mkDerivation {
         disk information, uptime  & remaining space, disk information and memory usage.
       '';
       license = lib.licenses.mit;
-      maintainers = [ "QuackHack-McBlindy" ];    
+      maintainers = [ "QuackHack-McBlindy" ];
     };}

@@ -56,18 +56,18 @@ in {
         export PYTHONSTARTUP="/home/${config.this.user.me.name}/.pythonrc"
         export PYTHONPATH="/home/${config.this.user.me.name}/.shell/python:$PYTHONPATH"
         export PATH="/home/${config.this.user.me.name}/bin:$PATH:$PATH"
-        
-        # 🦆 say ⮞ ensures no old nixstore json files are used for yo  
-        export YO_FUZZY_INDEX="/etc/yo/fuzzy-index.json" 
+
+        # 🦆 say ⮞ ensures no old nixstore json files are used for yo
+        export YO_FUZZY_INDEX="/etc/yo/fuzzy-index.json"
         export YO_FUZZY_ENTITY_DICT="/etc/yo/fuzzy-entity-dict.json"
         export YO_INTENT_DATA="/etc/yo/intent-data.json"
 
-        export HISTFILE="$HOME/.local/share/bash_history" 
+        export HISTFILE="$HOME/.local/share/bash_history"
         HISTSIZE=10000
         HISTFILESIZE=10000
         mkdir -p "$(dirname "$HISTFILE")"
         shopt -s histappend
-        
+
         bind 'set show-all-if-ambiguous on'
         bind 'set completion-ignore-case on'
         shopt -s autocd
@@ -114,13 +114,25 @@ in {
           };
         }
       ];
-    };   
-    
+
+      attributes = ''
+        *.pdf diff=pdf
+        *.png binary
+      '';
+    };
+
+    environment.systemPackages = [
+      pkgs.git
+      pkgs.gh
+      pkgs.prek # pre-commit
+      pkgs.uv   # for prek
+    ];
+
     sops.secrets.crates = {
       sopsFile = ./../../secrets/crates.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # Read-only for owner and group
     };
-    
+
   };}

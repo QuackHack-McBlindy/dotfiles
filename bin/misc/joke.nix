@@ -7,38 +7,38 @@
   cmdHelpers,
   ...
 } : let
-in {  
+in {
   yo.scripts.joke = {
     description = "Duck says s funny joke.";
     category = "🧩 Miscellaneous";
     autoStart = false;
     logLevel = "INFO";
-    parameters = [  
+    parameters = [
       { name = "jokeFile"; description = "A file containing jokes separated by newline."; default = config.sops.secrets.jokes.path; }
     ];
     code = ''
       ${cmdHelpers}
       JOKE_FILE="$jokeFile"
       JOKE=$(shuf -n 1 "$JOKE_FILE")
-      yo say --text "$JOKE" 
+      yo say --text "$JOKE"
       say_duck "$JOKE"
-    '';   
+    '';
     voice = {
       priority = 2;
       sentences = [
         "[få] (berätta|höra|säg) [ett] [roligt] skämt"
         "(gör|få) mig [att] (skratta|glad)"
-      ];      
+      ];
     };
   };
-  
+
   # 🦆 says ⮞ i like dirty jokes!
   sops.secrets = {
     jokes = { # 🦆 says ⮞ hide dem
-      sopsFile = ./../../secrets/jokes.yaml; 
+      sopsFile = ./../../secrets/jokes.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ read-only for owner and group
-    
+
     };
-  };}  
+  };}

@@ -37,10 +37,10 @@ in {
         export RANGE=${cfg.range}
         ${script}/bin/update-sheet
       '';
-      deps = [ "setupSecrets" ];  # Ensure credentials are available      
+      deps = [ "setupSecrets" ];  # Ensure credentials are available
     };
-    
-   
+
+
     services.googleSheets = {
       enable = true;
       spreadsheetId = "your-spreadsheet-id";
@@ -56,5 +56,5 @@ in {
 
 #    age.secrets.google-sheet-credentials.file = ./secrets/google-sheet-credentials.json.age;
   };
-  
+
 }

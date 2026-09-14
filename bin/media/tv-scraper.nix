@@ -1,20 +1,20 @@
 # dotfiles/bin/media/tv-scraper.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ scrapes tv schedule and buuid epg and html (seen in dash 
+{ # 🦆 says ⮞ scrapes tv schedule and buuid epg and html (seen in dash
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
+  ...
 } : let # 🦆 says ⮞ dependencies
-  # 🦆 says ⮞ gen json from `config.house.tv`  
+  # 🦆 says ⮞ gen json from `config.house.tv`
   channelsJson = pkgs.writeText "channels.json" (builtins.toJSON (
     lib.mapAttrs (deviceName: deviceConfig: deviceConfig.channels) config.house.tv
-  ));  
-  
-  # 🦆 says ⮞ mapping of scrape_url 2 channel ID  
+  ));
+
+  # 🦆 says ⮞ mapping of scrape_url 2 channel ID
   urlMappingJson = pkgs.writeText "url-mapping.json" (builtins.toJSON (
-    lib.foldl (acc: device: 
+    lib.foldl (acc: device:
       acc // lib.mapAttrs' (channelId: channel: {
         name = channel.scrape_url;
         value = channelId;
@@ -24,21 +24,21 @@
 
   # 🦆 says ⮞ channel names map
   channelNamesJson = pkgs.writeText "channel-names.json" (builtins.toJSON (
-    lib.foldl (acc: device: 
+    lib.foldl (acc: device:
       acc // lib.mapAttrs (channelId: channel: channel.name) device.channels
     ) {} (lib.attrValues config.house.tv)
   ));
 
-  # 🦆 says ⮞ gen json from `config.house.tv`  
+  # 🦆 says ⮞ gen json from `config.house.tv`
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
   # 🦆 says ⮞ bleh... got 2 advanced 4 bash - lazy py scrapin' .... quack quack
-  pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ps.lxml ]); 
+  pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ps.lxml ]);
   scraper = pkgs.writeScript "tv-scraper.py" ''
     #!${pyEnv}/bin/python
     import os
     import requests
-    import re 
+    import re
     import json
     from datetime import datetime, timedelta
     import xml.etree.ElementTree as ET
@@ -47,7 +47,7 @@
     import tempfile
     import shutil
     from lxml import html
-    
+
     parser = argparse.ArgumentParser()
     parser.add_argument('--xmlPath', type=str, default=os.path.expanduser("~/epg.xml"))
     parser.add_argument('--jsonPath', type=str, default=None)
@@ -55,8 +55,8 @@
     parser.add_argument('--urlMapping', type=str, required=True, help='Path to URL mapping JSON file')
     parser.add_argument('--channelNames', type=str, required=True, help='Path to channel names JSON file')
     parser.add_argument('--debug-dir', type=str, default=None, help='If set, raw HTML files are saved to this directory')
-    args = parser.parse_args()        
-    temp_dir = tempfile.mkdtemp(prefix="tv_scraper_")    
+    args = parser.parse_args()
+    temp_dir = tempfile.mkdtemp(prefix="tv_scraper_")
     logging.basicConfig(
         level=logging.INFO,
         format="[🦆📜] %(levelname)s - %(message)s",
@@ -66,9 +66,9 @@
         ]
     )
     logger = logging.getLogger()
-    
+
     TIME_OFFSET = timedelta(hours=0)
-    
+
     def scrape_schedule(url, channel_id):
         try:
             headers = {
@@ -79,59 +79,59 @@
             logger.info(f"Fetching {url} for channel {channel_id}")
             response = requests.get(url, headers=headers, timeout=10)
             response.raise_for_status()
-    
+
             if args.debug_dir:
                 os.makedirs(args.debug_dir, exist_ok=True)
                 debug_path = os.path.join(args.debug_dir, f"{channel_id}.html")
                 with open(debug_path, "w", encoding="utf-8") as f:
                     f.write(response.text)
                 logger.info(f"Saved debug HTML to {debug_path}")
-    
+
             tree = html.fromstring(response.content)   # bytes avoids encoding issues
-    
+
             schedule = []
             rows = tree.xpath('//table[@id="channel-schedule"]//tr')
             for row in rows:
                 time_el = row.xpath('.//time')
                 title_el = row.xpath('.//a[contains(@class, "program-title")]')
                 desc_el = row.xpath('.//p')
-    
+
                 if not time_el or not title_el:
                     continue
-    
+
                 datetime_attr = time_el[0].get('datetime')
                 if datetime_attr:
                     time_text = datetime_attr
                 else:
                     time_text = time_el[0].text_content().strip()
-    
+
                 title = title_el[0].text_content().strip()
                 description = desc_el[0].text_content().strip() if desc_el else "No description"
-    
+
                 schedule.append({
-                    "time": time_text, 
+                    "time": time_text,
                     "program": title,
                     "description": description
                 })
-    
+
             logger.info(f"Found {len(schedule)} programs for {channel_id}")
             return schedule
-    
+
         except Exception as e:
             logger.error(f"Failed to scrape {url}: {str(e)}", exc_info=True)
             return None
-    
+
     def build_epg(urls, channel_names):
         try:
             xml_tv = ET.Element("tv", attrib={
                 "generator-info-name": "DuckEPG-Generator",
                 "generator-info-url": "https://tv-tabla.se"
-            })      
+            })
             json_data = {
                 "generator": "DuckEPG-Generator",
                 "generator_url": "https://tv-tabla.se",
                 "channels": []
-            }     
+            }
             for url, channel_id in urls.items():
                 schedule = scrape_schedule(url, channel_id)
                 if not schedule:
@@ -145,8 +145,8 @@
                     "id": channel_id,
                     "name": channel_name,
                     "programs": []
-                }      
-                current_date = datetime.now().date()    
+                }
+                current_date = datetime.now().date()
                 for i, entry in enumerate(schedule):
                     try:
                         # Try to parse full ISO datetime first (from datetime attribute)
@@ -170,7 +170,7 @@
                         if not start_dt:
                             logger.warning(f"Could not parse time: {raw_time}")
                             continue
-    
+
                         # Determine stop time: next program's start, else +30 min
                         if i < len(schedule) - 1:
                             next_raw = schedule[i + 1]["time"]
@@ -197,33 +197,33 @@
                                 stop_dt = start_dt + timedelta(minutes=30)
                         else:
                             stop_dt = start_dt + timedelta(minutes=30)
-    
+
                         start = start_dt.strftime("%Y%m%d%H%M%S +0000")
-                        stop = stop_dt.strftime("%Y%m%d%H%M%S +0000")          
+                        stop = stop_dt.strftime("%Y%m%d%H%M%S +0000")
                         programme = ET.SubElement(xml_tv, "programme", start=start, stop=stop, channel=channel_id)
                         title = ET.SubElement(programme, "title", lang="sv")
                         title.text = entry.get("program", "Unknown Program")
                         desc = ET.SubElement(programme, "desc", lang="sv")
-                        desc.text = entry.get("description", "No description") 
+                        desc.text = entry.get("description", "No description")
                         json_program = {
-                            "channel_id": channel_id, 
+                            "channel_id": channel_id,
                             "start": start,
                             "stop": stop,
                             "title": entry.get("program", "Unknown Program"),
-                            "description": entry.get("description", "No description")      
+                            "description": entry.get("description", "No description")
                         }
-                        json_channel["programs"].append(json_program)      
+                        json_channel["programs"].append(json_program)
                     except Exception as e:
                         logger.error(f"Error processing program entry: {str(e)}", exc_info=True)
                 json_data["channels"].append(json_channel)
-                logger.info(f"Added programs for channel {channel_id}")   
+                logger.info(f"Added programs for channel {channel_id}")
             xml_tree = ET.ElementTree(xml_tv)
             xml_tree.write(args.xmlPath, encoding="UTF-8", xml_declaration=True)
-            logger.info(f"EPG XML data written to {args.xmlPath}")      
+            logger.info(f"EPG XML data written to {args.xmlPath}")
             if args.jsonPath:
                 with open(args.jsonPath, 'w', encoding='utf-8') as json_file:
                     json.dump(json_data, json_file, ensure_ascii=False, indent=2)
-                logger.info(f"EPG JSON data written to {args.jsonPath}")        
+                logger.info(f"EPG JSON data written to {args.jsonPath}")
             return json_data
         finally:
             try:
@@ -231,49 +231,49 @@
                 logger.info(f"Cleaned up temporary directory: {temp_dir}")
             except Exception as e:
                 logger.warning(f"Failed to clean up temp directory {temp_dir}: {e}")
-    
+
     # 🦆 says ⮞ load URL
     with open(args.urlMapping, 'r') as f:
         urls = json.load(f)
-    
+
     # 🦆 says ⮞ channel names
     with open(args.channelNames, 'r') as f:
         channel_names = json.load(f)
-    
-    # logger.setLevel(logging.DEBUG) 
+
+    # logger.setLevel(logging.DEBUG)
     build_epg(urls, channel_names)
   '';
 in {
   environment = {
     systemPackages = [ pkgs.xmlstarlet ];
     # 🦆 says ⮞ share the json epg for duckDash
-    etc."epg.json".source = 
-      "/home/pungkula/epg.json"; 
-    etc."tv.html".source =       
+    etc."epg.json".source =
+      "/home/pungkula/epg.json";
+    etc."tv.html".source =
       "/home/pungkula/.config/tv.html";
   };
-  
+
   yo.scripts.tv-scraper = {
     description = "Scrapes web for tv-listing data. Builds EPG and generates HTML.";
     aliases = [ "tvs" ];
     category = "🎧 Media Management";
-    autoStart = false;  
+    autoStart = false;
     runAt = [ "05:00" ]; # 🦆 says ⮞ most tv guides change day around 5ish
     logLevel = "INFO";
     parameters = [
       { name = "epgFilePath"; description = "Path to storage of the xml EPG file"; optional = false; default = "/home/" + config.this.user.me.name + "/tvepg.xml"; }
       { name = "jsonFilePath"; description = "Optional option to write as JSON file in addation to the EPG"; optional = true; default = "/home/" + config.this.user.me.name + "/epg.json"; }
-      { name = "htmlOutPath"; description = "Where to save your new TV-guide html file."; optional = true; default = "/home/" + config.this.user.me.name + "/tv.html"; }      
+      { name = "htmlOutPath"; description = "Where to save your new TV-guide html file."; optional = true; default = "/home/" + config.this.user.me.name + "/tv.html"; }
       { name = "flake"; description = "Path to the directory containing your flake.nix"; default = config.this.user.me.dotfilesDir; }
     ];
     code = ''
       ${cmdHelpers}
       HTML_OUT="$htmlOutPath"
       FLAKE_DIR="$flake"
-      
+
       mkdir -p "$(dirname "$HTML_OUT")"
-      
-      ${scraper} --xmlPath "$epgFilePath" --jsonPath "$jsonFilePath" --urlMapping "${urlMappingJson}" --channelNames "${channelNamesJson}"    
+
+      ${scraper} --xmlPath "$epgFilePath" --jsonPath "$jsonFilePath" --urlMapping "${urlMappingJson}" --channelNames "${channelNamesJson}"
 
       if [ ! -f "$epgFilePath" ]; then
           dt_error "EPG file not found: $epgFilePath"
@@ -305,26 +305,26 @@ in {
           echo "</head>"
           echo "<body>"
 
-          echo "<!-- 🦆 says ⮞ channels by id -->"    
+          echo "<!-- 🦆 says ⮞ channels by id -->"
           xmlstarlet sel -t -m "//channel" -v "@id" -o "|" -v "display-name" -n "$epgFilePath" | sort -n -t'|' -k1 | while IFS='|' read -r channel_id channel_name; do
               echo "<div class=\"channel\">"
-              echo "<div class=\"channel-header\">"    
-  
+              echo "<div class=\"channel-header\">"
+
               icon_found=""
               icon_path="$FLAKE_DIR/modules/themes/icons/tv/$channel_id.png"
               if [ -f "$icon_path" ]; then
                   icon_found="$icon_path"
               fi
-  
+
               if [ -n "$icon_found" ]; then
                   echo "<img class=\"channel-icon\" src=\"file://$icon_found\" alt=\"$channel_name\">"
               else
                   echo "<div class=\"channel-icon\" style=\"background:#ddd;text-align:center;line-height:32px;\">''${channel_id}</div>"
               fi
-  
+
               echo "<span class=\"channel-name\">$channel_name</span>"
-              echo "</div>"        
-              
+              echo "</div>"
+
               echo "<!-- 🦆 says ⮞ channel $channel_id programs -->"
               xmlstarlet sel -t -m "//programme[@channel='$channel_id']" \
                   -v "@start" -o "|" \
@@ -386,5 +386,5 @@ in {
       dt_info "HTML TV-Guide generated: $HTML_OUT"
       echo "HTML TV-Guide generated: $HTML_OUT"
     '';
-    
+
   };}

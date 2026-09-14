@@ -1,4 +1,3 @@
-# https://codeberg.org/wiro/embedded-car/src/branch/main/flake.nix
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?ref=nixos-unstable";

@@ -1,40 +1,40 @@
 # dotfiles/bin/maintenance/duckTrace.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ bringing logs back to da cool table  
+{ # 🦆 says ⮞ bringing logs back to da cool table
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let # 🦆 says ⮞ get hosts 
+  ...
+} : let # 🦆 says ⮞ get hosts
   sysHosts = builtins.attrNames self.nixosConfigurations;
   vmHosts = builtins.filter (host:
     self.nixosConfigurations.${host}.self.config.system.build ? vm
-  ) sysHosts;  
-in {   
+  ) sysHosts;
+in {
   yo.scripts.duckTrace = {
     description = "View duckTrace logs quick and quack, unified logging system";
-    aliases = [ "log" ];    
+    aliases = [ "log" ];
     category = "🧹 Maintenance";
 #    helpFooter = '' # 🦆 says ⮞ display log file in markdown with Glow
 #    '';
-    parameters = [ 
-      { name = "script"; description = "View specified yo scripts logs"; optional = true; } 
-      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }       
+    parameters = [
+      { name = "script"; description = "View specified yo scripts logs"; optional = true; }
+      { name = "host"; description = "Specify optional host to browse the logs from"; optional = true; values = [ "desktop" "homie" "laptop" "nasty" ]; }
       { name = "errors"; type = "bool"; description = "Show error states across hosts"; optional = true; default = false; }
       { name = "monitor"; type = "bool"; description = "Continuously monitor for errors"; optional = true; default = false; }
-    ]; 
+    ];
     code = ''
-      ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
+      ${cmdHelpers} # 🦆 says ⮞ load default helper functions
       DT_MONITOR_HOSTS="desktop,laptop,homie,nasty";
       DT_MONITOR_PORT="9999";
       LOGFILE="$file"
-      unset BOLD ITALIC UNDERLINE    
+      unset BOLD ITALIC UNDERLINE
       PAGER=''${PAGER:-less -R}
-      export GUM_CHOOSE_CURSOR="🦆 ➤ "  
-      export GUM_CHOOSE_CURSOR_FOREGROUND="214" 
-      export GUM_CHOOSE_HEADER="[🦆📜] duckTrace" 
-      
+      export GUM_CHOOSE_CURSOR="🦆 ➤ "
+      export GUM_CHOOSE_CURSOR_FOREGROUND="214"
+      export GUM_CHOOSE_HEADER="[🦆📜] duckTrace"
+
       announce_error() {
         local file="$DT_LOG_PATH/error_state"
         [[ ! -f "$file" ]] && { echo "Filen $file finns inte."; return 1; }
@@ -49,19 +49,19 @@ in {
             LAST_UPDATE) LAST_UPDATE="$value" ;;
           esac
         done < "$file"
-      
+
         # 🦆 says ⮞  convert time to secondz
         local last_epoch
         last_epoch=$(date -d "$LAST_UPDATE" +%s 2>/dev/null)
         local now_epoch
         now_epoch=$(date +%s)
         local diff=$(( now_epoch - last_epoch ))
-        # 🦆 says ⮞ time diff 
+        # 🦆 says ⮞ time diff
         local days=$(( diff / 86400 ))
         local hours=$(( (diff % 86400) / 3600 ))
         local minutes=$(( (diff % 3600) / 60 ))
         local seconds=$(( diff % 60 ))
-      
+
         local elapsed_text=""
         if (( days > 0 )); then
           elapsed_text="''${days} dagar, ''${hours} timmar"
@@ -72,7 +72,7 @@ in {
         else
           elapsed_text="''${seconds} sekunder"
         fi
-      
+
         # 🦆 says ⮞ calc severity
         local severity
         if (( diff < 300 )); then
@@ -82,7 +82,7 @@ in {
         else
           severity="måttlig"
         fi
-      
+
         local text="Varning — ett ''${LEVEL,,} inträffade på värddatorn ''${HOSTNAME}. \
       Vid tidpunkten ''${TIMESTAMP} uppstod felet: ''${MESSAGE}. \
       Det har gått ''${elapsed_text} sedan händelsen. \
@@ -91,7 +91,7 @@ in {
         echo "$text"
         say "$text"
       }
-            
+
       get_service_name() {
         local log_base
         log_base=$(basename "$LOGFILE" .log)
@@ -169,7 +169,7 @@ in {
 
         script_name=''${script_name#yo.scripts.}
         local script_path="$HOME/dotfiles/bin/$script_name.nix"
-        
+
         if [[ -f "$script_path" ]]; then
           ${pkgs.gum}/bin/gum format "# Editing $script_path"
           ${pkgs.vim}/bin/vim "$script_path"
@@ -190,9 +190,9 @@ in {
             "Edit yo script" \
             "🚫 Exit")
          case "$selection" in
-            "View systemd log") systemd_log ;;            
+            "View systemd log") systemd_log ;;
             "Restart service") restart_service ;;
-            "Start service") start_service ;;                 
+            "Start service") start_service ;;
             "Stop service") stop_service ;;
             "Print log") cat "$LOGFILE" ;;
             "Edit yo script") edit_script ;;
@@ -211,7 +211,7 @@ in {
       continuous_monitor() {
         ${pkgs.gum}/bin/gum format --theme=yellow "# Starting Continuous Error Monitoring"
         ${pkgs.gum}/bin/gum format "Press Ctrl+C to stop monitoring"
-    
+
         while true; do
           clear
           dt_monitor_hosts
@@ -256,7 +256,7 @@ in {
           fi
         fi
       fi
-      
+
       if [[ -n "$FILTER" ]]; then
         grep --color=always "$FILTER" "$LOGFILE"
       else
@@ -265,7 +265,7 @@ in {
 
       dt_check_error_state() {
         local host="$1"
-        local error_state_file="$HOME/.config/duckTrace/error_state"  
+        local error_state_file="$HOME/.config/duckTrace/error_state"
         if [[ "$host" == "$(hostname)" ]]; then
           # 🦆 says ⮞ local host
           if [[ -f "$error_state_file" ]]; then
@@ -305,23 +305,23 @@ in {
       dt_monitor_hosts() {
         local hosts=("desktop" "laptop" "homie" "nasty")
         local any_errors=0
-        
+
         echo "🦆 Checking error states across hosts..."
         echo "────────────────────────────────────"
-        
+
         for host in "''${hosts[@]}"; do
           if ! dt_check_error_state "$host"; then
             any_errors=1
           fi
         done
-        
+
         echo "────────────────────────────────────"
         if [[ $any_errors -eq 0 ]]; then
           echo "✅ All hosts are error-free!"
         else
           echo "❌ Some hosts have errors. Check above for details."
         fi
-        
+
         return $any_errors
       }
 
@@ -330,7 +330,7 @@ in {
         local service="$1"
         local host="$2"
         local log_pattern="*error*"
-        
+
         if [[ "$host" == "$(hostname)" ]]; then
           # 🦆 says ⮞ local search
           local log_files=($(find "$DT_LOG_PATH" -name "*$service*" -type f))
@@ -338,7 +338,7 @@ in {
             dt_error "No log files found for service: $service"
             return 1
           fi
-          
+
           for log_file in "''${log_files[@]}"; do
             echo "🔍 Searching $log_file for errors..."
             grep -i -E "error|fail|critical" "$log_file" | head -20
@@ -362,7 +362,7 @@ in {
       continuous_monitor() {
         ${pkgs.gum}/bin/gum format --theme=yellow "# Starting Continuous Error Monitoring"
         ${pkgs.gum}/bin/gum format "Press Ctrl+C to stop monitoring"
-    
+
         while true; do
           clear
           dt_monitor_hosts
@@ -400,14 +400,14 @@ in {
       fi
 
 
-    '';    
+    '';
     voice = {
       enabled = true;
       priority = 5;
       sentences = [
-        "sök [i] {service}[s] [log|loggar|loggen] efter fel på {host}"      
+        "sök [i] {service}[s] [log|loggar|loggen] efter fel på {host}"
         "sök [i] {service}[s] [log|loggar|loggen] efter fel"
-        "sök [efter] error på {host}"        
+        "sök [efter] error på {host}"
         "sök [efter] error"
         "ducktrace {service}"
         "kolla [i] [log|loggen|loggar|loggarna)]"
@@ -424,7 +424,7 @@ in {
           { "in" = "laptop"; out = "laptop"; }
           { "in" = "homie"; out = "homie"; }
         ];
-      };   
-    };  
-    
+      };
+    };
+
   };}

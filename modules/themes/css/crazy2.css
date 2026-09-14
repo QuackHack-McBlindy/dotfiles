@@ -175,4 +175,3 @@ button:hover {
     transform: scale(5) rotate(3600deg) !important;
     transition: all 5s cubic-bezier(0.25, 2.5, 0.5, -5) !important;
 }
-

@@ -22,12 +22,12 @@ in {
           search_clean=$(echo "$search" | tr -d '\n\r' | sed 's/ *$//')
           search_encoded=$(echo -n "$search_clean" | ${pkgs.jq}/bin/jq -s -R -r @uri)
           SEARCH_URL="https://www.hitta.se/s%C3%B6k?vad=$search_encoded"
-          
+
           dt_info "Searching for: $search_clean"
           curl -s -L "$SEARCH_URL" -o /tmp/hitta_response.html
           dt_info "Saved response to /tmp/hitta_response.html"
-  
-          if [ -f /tmp/hitta_response.html ]; then            
+
+          if [ -f /tmp/hitta_response.html ]; then
             ${pkgs.gnugrep}/bin/grep -o '"addressLine":"[^"]*"' /tmp/hitta_response.html | \
               ${pkgs.gnused}/bin/sed 's/"addressLine":"//g; s/"//g' | \
               uniq | head -3 | while read addr; do
@@ -50,5 +50,5 @@ in {
         };
       };
     };
-    
+
   };}

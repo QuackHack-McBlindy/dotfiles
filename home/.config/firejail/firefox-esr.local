@@ -162,4 +162,3 @@ netfilter6 /nix/store/5zrfbf0cvy2rz5dmspzkil25xqn5s3r9-firefox-proxy6.net
 
 # Include another local file:
 # include /etc/firejail/firefox-extra.local
-

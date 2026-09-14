@@ -127,4 +127,3 @@ export GUM_INPUT_HEADER_FOREGROUND="45" # 🦆 says ⮞ Blue-Green header color
 export GUM_INPUT_WIDTH="30" # 🦆 says ⮞ Limit input width for a neat look
 export GUM_INPUT_SHOW_HELP="true" # 🦆 says ⮞ Show help keybinds
 export GUM_INPUT_TIMEOUT="20s" # 🦆 says ⮞ Auto-cancel after 20 seconds
-

@@ -1,5 +1,5 @@
 # dotfiles/modules/programs/proxychains.nix
-{ 
+{
   config,
   self,
   lib,
@@ -19,5 +19,5 @@ in {
         port = 8388;
       };
     };
-  
+
   };}

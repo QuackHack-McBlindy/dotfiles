@@ -2,7 +2,7 @@
 # 🦆 says ⮞ sourced bash functions (mostly junk)
 
 
-# 🦆 ⮞ view & handle user services    
+# 🦆 ⮞ view & handle user services
 service() {
     systemctl --user list-units 'yo-*.service' --type=service --no-legend --no-pager \
     | awk '{print $1}' \
@@ -20,7 +20,7 @@ service() {
           )'
 }
 
-# 🦆 ⮞ sleep $1    
+# 🦆 ⮞ sleep $1
 wait() {
     if [[ "$1" =~ ^[0-9]+$ ]]; then
         gum spin --spinner meter --title "Please wait..." -- sleep "$1"
@@ -29,8 +29,8 @@ wait() {
     fi
 }
 
-# 🦆 ⮞ interactive cd    
-cd() { 
+# 🦆 ⮞ interactive cd
+cd() {
     if [ -z "$1" ]; then
         builtin cd "$(find ~ -type d | fzf)"
     else
@@ -114,15 +114,15 @@ mv() {
 
 
 servicess() {
-    local service=$(systemctl list-units --type=service | fzf --preview="systemctl status {1} | tail -20" | awk '{print $1}' | sed 's/^[* ]*//')     
+    local service=$(systemctl list-units --type=service | fzf --preview="systemctl status {1} | tail -20" | awk '{print $1}' | sed 's/^[* ]*//')
     if [[ -n "$service" ]]; then
-        local logfile=$(mktemp)      
-        journalctl -u "$service" -n 100 --no-pager > "$logfile"       
-        gum pager < "$logfile"       
-        rm "$logfile"        
+        local logfile=$(mktemp)
+        journalctl -u "$service" -n 100 --no-pager > "$logfile"
+        gum pager < "$logfile"
+        rm "$logfile"
         if gum confirm "Are you sure you want to restart the service: $service?"; then
-            echo "Restarting service: $service"            
-            sudo systemctl restart "$service"           
+            echo "Restarting service: $service"
+            sudo systemctl restart "$service"
             wait 15
         else
             echo "Service restart canceled."
@@ -161,7 +161,7 @@ compress() {
     target="$1"
     if [ "$target" == "." ]; then
       target=$(pwd)
-    fi  
+    fi
     case "$2" in
       tar.bz2)  tar cvjf "$target.tar.bz2" "$target"  ;;
       tar.gz)   tar cvzf "$target.tar.gz" "$target"   ;;
@@ -270,7 +270,7 @@ flash() {
 req_sudo() {
   if [ "$EUID" -ne 0 ]; then
     echo -e "\033[1;31m[ERROR]\033[0m YO SUDO PLZ!"
-    return 1  
+    return 1
   fi
 }
 
@@ -306,4 +306,4 @@ encrypt() {
 
 log() {
  journalctl -u $1 -n 200 -f -b --no-pager
-} 
+}

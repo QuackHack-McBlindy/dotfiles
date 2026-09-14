@@ -1,5 +1,5 @@
 # dotfiles/modules/myHouse.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ my house - qwack 
+{ # 🦆 says ⮞ my house - qwack
   config, # 🦆 says ⮞ more info ⮞ https://quackhack-mcblindy.github.io/blog/house/index.html
   lib,
   self,
@@ -15,26 +15,26 @@
 
   # 🦆 says ⮞ load css files
   css = {
-    tv      = builtins.readFile ./themes/css/duckdash/tv.css;  
+    tv      = builtins.readFile ./themes/css/duckdash/tv.css;
     health  = builtins.readFile ./themes/css/duckdash/health.css;
     chat    = builtins.readFile ./themes/css/duckdash/chat.css;
   };
-  
+
   # 🦆 says ⮞ get house.tv configuration with debug info
   tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
-    
+
   # 🦆 says ⮞ generate TV selector options with debug
   tvOptions = let
     tvNames = lib.attrNames tvConfig;
-    options = lib.concatMapStrings (tvName: 
+    options = lib.concatMapStrings (tvName:
       let tv = tvConfig.${tvName};
       in if tv.enable then ''<option value="${tv.ip}">${tvName}</option>'' else ""
     ) tvNames;
   in builtins.trace "TV options: ${options}" options;
 
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
-  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})"; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
+  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
 
   # 🦆 says ⮞ icon map
   icons = {
@@ -71,11 +71,11 @@
   };
 
 
-  Mqtt2jsonHistory = field: file: ''    
+  Mqtt2jsonHistory = field: file: ''
     FILE="/var/lib/zigduck/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
     mkdir -p "$(dirname "$FILE")"
-    
+
     # 🦆 says ⮞ check current value
     if [ -s "$FILE" ]; then
         CURRENT=$(jq ".${field}" "$FILE")
@@ -83,7 +83,7 @@
             exit 0 # 🦆 says ⮞ skip write – value unchanged
         fi
     fi
-    
+
     # 🦆 says ⮞ otherwise, update
     if [ ! -s "$FILE" ]; then
         jq -n --argjson v "$VALUE" \
@@ -112,8 +112,8 @@
        }
      ];
   }) self.nixosConfigurations;
-  
-in { # 🦆 duck say ⮞ house config   
+
+in { # 🦆 duck say ⮞ house config
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
@@ -124,25 +124,25 @@ in { # 🦆 duck say ⮞ house config
       wc.icon         = "mdi:toilet";
       tv-area.icon    = "mdi:television";
       other.icon      = "mdi:misc";
-    };  
-  
+    };
+
     # 🦆 says ⮞ media
     https.media.urlFile = config.sops.secrets.webserver.path;
     media.root = "/Pool";
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
       movies = "/Pool/Movies";
-      tv = "/Pool/TV"; 
-      music = "/Pool/Music"; 
+      tv = "/Pool/TV";
+      music = "/Pool/Music";
       musicVideos = "/Pool/Music_Videos";
-      otherVideos = "/Pool/Other_Videos"; 
+      otherVideos = "/Pool/Other_Videos";
       podcasts = "/Pool/Podcasts";
       audiobooks = "/Pool/Audiobooks";
     };
-    
-    # 🦆 says ⮞ DASHBOARD CONFIOGURATION 
+
+    # 🦆 says ⮞ DASHBOARD CONFIOGURATION
     https.dashboard.urlFile = config.sops.secrets.dashboard.path;
-    dashboard = {   
+    dashboard = {
       # 🦆 says ⮞  home page information cards
       statusCards = {
         calendar = {
@@ -163,9 +163,9 @@ in { # 🦆 duck say ⮞ house config
               type = "shell";
               command = "yo say \"detta är ett ank test - testar ankor ankor anka naka naka ojojojjoj vad många ankor detta blev oj oj\" --host desktop";
             }
-          ];  
+          ];
         };
-            
+
         # 🦆 says ⮞ Monero USD price ticker
         xmr = {
           enable = true;
@@ -205,9 +205,9 @@ in { # 🦆 duck say ⮞ house config
           group = "energy";
           icon = "fas fa-bolt";
           color = "#ffff00";
-          filePath = "/var/lib/zigduck/energy_price.json";          
+          filePath = "/var/lib/zigduck/energy_price.json";
           jsonField = "current_price";
-          format = "{value} SEK/kWh";          
+          format = "{value} SEK/kWh";
           chart = true;
           historyField = "history";
         };
@@ -219,12 +219,12 @@ in { # 🦆 duck say ⮞ house config
           group = "energy";
           icon = "fas fa-bolt";
           color = "#ffff00";
-          filePath = "/var/lib/zigduck/energy_usage.json";          
+          filePath = "/var/lib/zigduck/energy_usage.json";
           jsonField = "monthly_usage";
           format = "{value} kWh";
           chart = true;
           historyField = "history";
-        };  
+        };
 
         # 🦆 says ⮞ show indoor temperature
         temperature = {
@@ -234,18 +234,18 @@ in { # 🦆 duck say ⮞ house config
           icon = "fas fa-thermometer-half";
           color = "#e74c3c";
           theme = "glass";
-          filePath = "/var/lib/zigduck/temperature.json";          
+          filePath = "/var/lib/zigduck/temperature.json";
           jsonField = "temperature";
           format = "{value} °C";
           detailsFormat = "Temperature in Hallway";
           chart = true;
           historyField = "history";
-        };                   
+        };
       };
 
-      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)      
-      pages = {    
-        # 🦆 says ⮞ (TV) remote page 
+      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
+      pages = {
+        # 🦆 says ⮞ (TV) remote page
         "3" = {
           icon = "fas fa-television";
           title = "remote";
@@ -253,8 +253,8 @@ in { # 🦆 duck say ⮞ house config
           files = { tv = "/var/lib/zigduck/tv"; };
           css = css.tv;
           code = pages.remote;
-        };  
-      
+        };
+
         # 🦆 says ⮞ system-wide health monitoring page
         "4" = {
           icon = "fas fa-notes-medical";
@@ -264,7 +264,7 @@ in { # 🦆 duck say ⮞ house config
           css = css.health;
           code = pages.health;
         };
-        
+
         # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
         "5" = {
           icon = "fas fa-comments";
@@ -274,15 +274,15 @@ in { # 🦆 duck say ⮞ house config
           files = { tts = "/var/lib/zigduck/tts"; };
           code = pages.chat;
         };
-      
+
       };
     };
-  
+
 # 🦆 ⮞ ZIGBEE ⮜ 🐝
-    zigbee = {      
+    zigbee = {
       # 🦆 says ⮞ encrypted zigbee network key
       networkKeyFile = config.sops.secrets.z2m_network_key.path;
-      
+
       # 🦆 says ⮞ mosquitto authentication
       mosquitto = {
         host = "192.168.1.211";
@@ -290,24 +290,24 @@ in { # 🦆 duck say ⮞ house config
         passwordFile = config.sops.secrets.mosquitto.path;
         baseTopic = "zigduck";
       };
-      
-      # 🦆 says ⮞ TV light syncin' 
-      hueSyncBox = { 
+
+      # 🦆 says ⮞ TV light syncin'
+      hueSyncBox = {
         enable = true;
         # 🦆 says ⮞ sadly needed (i disable itz internet access - u should too)
-        bridge = { 
+        bridge = {
           ip = "192.168.1.33";
           # 🦆 says ⮞ run the following to get api token:
           # curl -X POST http://192.168.1.33/api -d '{"devicetype":"house#nixos"}'
           passwordFile = config.sops.secrets.hueBridgeAPI.path;
-        }; 
+        };
         syncBox = { # C42996020AAE
           ip = "192.168.1.34";
           passwordFile = config.sops.secrets.hueBridgeAPI.path;
           tv = "shield";
         };
       };
-      
+
       # 🦆says⮞ coordinator configuration
       coordinator = {
         vendorId =  "10c4";
@@ -322,9 +322,9 @@ in { # 🦆 duck say ⮞ house config
         #actions = {
         #  onPress = "on_press_release";
         #  onHold = "on_hold_release";
-        #};  
+        #};
       };
-      
+
       # 🦆 says ⮞ when motion triggers lights
       motion = {
         when.dark.enable = true;
@@ -333,7 +333,7 @@ in { # 🦆 duck say ⮞ house config
           before = 9;
           duration = 700;
           transition = true;
-        };  
+        };
       };
 
       # 🦆 says ⮞ when no motion triggers ALL lights off
@@ -342,12 +342,12 @@ in { # 🦆 duck say ⮞ house config
           enable = true;
           after = 60; # 🦆 says ⮞  min
           exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name, leaves their states as-is)
-        };  
-      };      
-      
-      
+        };
+      };
+
+
   # 🦆 ⮞ AUTOMATIONS ⮜
-      automations = {  
+      automations = {
       # 🦆 says ⮞ there are 6 different automation types
         # 🦆 says ⮞ + a greeting automation
         greeting = {
@@ -357,15 +357,15 @@ in { # 🦆 duck say ⮞ house config
           delay = 10;
           actions = [ "yo say 'Borta bra, hemma bäst. Välkommen idiot!'" ];
         };
-        
+
 
         # 🦆 says ⮞ 1. MQTT triggered automations
-        mqtt_triggered = {      
+        mqtt_triggered = {
           alarm_wakeup = {
             enable = true;
             description = "Time to wake up!";
             topic = "zigduck/alarm/triggered";
-            actions = [ 
+            actions = [
               { type = "snapshot"; snapshot_name = "before_alarm"; }
               # 🦆 says ⮞ max lightz
               { type = "scene"; scene = "max"; }
@@ -377,12 +377,12 @@ in { # 🦆 duck say ⮞ house config
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ FLASH!
               { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 2; } 
-              { type = "scene"; scene = "max"; }              
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }
               # 🦆 ⮞ play sound on bedroom esp32 assistant
               { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }
 
-              { type = "wait"; duration = 2; }     
+              { type = "wait"; duration = 2; }
               # 🦆 says ⮞ ping watch with a ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               # 🦆 says ⮞ gib me a sec pls...
@@ -396,7 +396,7 @@ in { # 🦆 duck say ⮞ house config
                 if [[ "$motion" == "false" ]]; then
                   tv --typ call
                 fi
-              ''; }  
+              ''; }
               { type = "restore"; snapshot_name = "before_alarm"; }
             ];
           };
@@ -404,7 +404,7 @@ in { # 🦆 duck say ⮞ house config
           timer_finish = {
             enable = true;
             description = "a timer is ringing";
-            topic = "zigduck/timer/finished"; 
+            topic = "zigduck/timer/finished";
             actions = [
               { type = "snapshot"; snapshot_name = "before_timer"; }
               { type = "scene"; scene = "max"; }
@@ -413,9 +413,9 @@ in { # 🦆 duck say ⮞ house config
               { type = "wait"; duration = 1; }
               { type = "scene"; scene = "max"; }
               { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "dark-fast"; }              
+              { type = "scene"; scene = "dark-fast"; }
               { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "max"; }              
+              { type = "scene"; scene = "max"; }
               # 🦆 says ⮞ ping watch with ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
@@ -423,20 +423,20 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
-          # 🦆say⮞ crypto tickers 
+          # 🦆say⮞ crypto tickers
           xmr = {
             enable = true;
             description = "Updating XMR price data on dashboard";
             topic = "zigduck/crypto/xmr/price";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "xmr.json"; }];
-          };            
+          };
           btc = {
             enable = true;
             description = "Updating BTC price data on dashboard";
             topic = "zigduck/crypto/btc/price";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "btc.json"; }];
           };
-          # 🦆say⮞ energy tracking 
+          # 🦆say⮞ energy tracking
           energyPrice = {
             enable = true;
             description = "Updating energy data on dashboard";
@@ -448,15 +448,15 @@ in { # 🦆 duck say ⮞ house config
             description = "Updating energy data on dashboard";
             topic = "zigduck/tibber/energy";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "monthly_usage" "energy_usage.json"; }];
-          };   
-          # 🦆say⮞ hallway temperature  
+          };
+          # 🦆say⮞ hallway temperature
           temperature = {
             enable = true;
             description = "Updating temperature data on dashboard";
             topic = "zigduck/Motion Sensor Hall";
             actions = [{ type = "shell"; command = Mqtt2jsonHistory "temperature" "temperature.json"; }];
           };
-          # 🦆say⮞ calendar 
+          # 🦆say⮞ calendar
           calendar = {
             enable = true;
             description = "Updated calendar events";
@@ -473,9 +473,9 @@ in { # 🦆 duck say ⮞ house config
               }
             ];
           };
-          
 
-          # 🦆say⮞ tv control 
+
+          # 🦆say⮞ tv control
           tv_command = {
             enable = true;
             description = "TV command sent";
@@ -507,8 +507,8 @@ in { # 🦆 duck say ⮞ house config
               }
             ];
           }; # 🦆says⮞health checks (from let block)
-        } // health; 
-        
+        } // health;
+
 
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
@@ -516,9 +516,9 @@ in { # 🦆 duck say ⮞ house config
             door_opened = [ "curl http://192.168.1.15/api/settings/speaker/play/ding" ];
             door_closed = [];
           };
-          
 
-          kitchen = { 
+
+          kitchen = {
             motion_not_detected = [
               {
                 type = "shell";
@@ -526,12 +526,12 @@ in { # 🦆 duck say ⮞ house config
                   power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
-                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 300}'
+                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 220}'
                   fi
                 '';
               } # 🦆 says ⮞  slow go light go bye bye
               { type = "scene"; scene = "kitchenFadeOff"; }
-            ];  
+            ];
 
             motion_detected = [
               { type = "scene"; scene = "kitchenInstant"; }
@@ -551,7 +551,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 3. global actions automations  
+        # 🦆 says ⮞ 3. global actions automations
         global_actions = {
           leak_detected = [
             { type = "scene"; scene = "max"; }
@@ -560,7 +560,7 @@ in { # 🦆 duck say ⮞ house config
             "curl http://192.168.1.15/api/settings/speaker/play/ding"
           ];
           smoke_detected = [
-            { type = "scene"; scene = "max"; }          
+            { type = "scene"; scene = "max"; }
             "yo notify '🔥 SMOKE DETECTED!'"
             # 🦆 says ⮞ ping watch with ding
             "curl http://192.168.1.15/api/settings/speaker/play/ding"
@@ -568,7 +568,7 @@ in { # 🦆 duck say ⮞ house config
         };
 
         # 🦆 says ⮞ 4. dimmer actions automations
-        dimmer_actions = {          
+        dimmer_actions = {
           bedroom = {
             off_hold_release = {
               enable = true;
@@ -585,9 +585,9 @@ in { # 🦆 duck say ⮞ house config
                   message = ''{"state":"OFF"}'';
                 }
               ];
-            };   
-          };       
-          
+            };
+          };
+
           kitchen = {
             on_press_release = {
               enable = true;
@@ -600,16 +600,16 @@ in { # 🦆 duck say ⮞ house config
                 }
               ];
               override_actions = [ ];
-            };   
+            };
           };
-        };  
-        
+        };
+
         # 🦆 says ⮞ 5. time based automations
-        time_based = {       
+        time_based = {
           morning_wakeup = {
             enable = true;
             description = "set morning wakeup alarm (dont miss lunch)";
-            # 🦆 says ⮞ 01 AM mon-fri 
+            # 🦆 says ⮞ 01 AM mon-fri
             schedule = {
               start = "01:00";
               days = ["mon" "tue" "wed" "thu" "fri"];
@@ -622,7 +622,7 @@ in { # 🦆 duck say ⮞ house config
           tv_scraping = {
             enable = true;
             description = "Scrape TV-guide";
-            # 🦆 says ⮞ 03:30 AM everyday 
+            # 🦆 says ⮞ 03:30 AM everyday
             schedule = {
               start = "03:30";
               days = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
@@ -631,26 +631,26 @@ in { # 🦆 duck say ⮞ house config
             actions = [ "yo tv-scraper --htmlOutPath /var/lib/zigduck/tv/tv.html" ];
           };
 
-          
+
         };
-        
+
         # 🦆 says ⮞ 6. presence based automations
-        presence_based = {};        
-      };  
+        presence_based = {};
+      };
 
 
-  # 🦆 ⮞ DEVICES ⮜      
-      devices = { 
-        # 🦆 says ⮞ Kitchen   
-        "0x0017880103ca6e95" = { # 🦆 says ⮞ 64bit IEEE adress (this is the unique device ID)  
+  # 🦆 ⮞ DEVICES ⮜
+      devices = {
+        # 🦆 says ⮞ Kitchen
+        "0x0017880103ca6e95" = { # 🦆 says ⮞ 64bit IEEE adress (this is the unique device ID)
           friendly_name = "Dimmer Switch Kök"; # 🦆 says ⮞ simple human readable friendly name
           room = "kitchen"; # 🦆 says ⮞ bind to group
           type = "dimmer"; # 🦆 says ⮞ set a custom device type
           icon = icons.dimmer;
           endpoint = 1; # 🦆 says ⮞ endpoint to call the device on
           batteryType = "CR2450"; # 🦆 says ⮞ optional yo
-        }; 
-        "0x0017880102f0848a" = { 
+        };
+        "0x0017880102f0848a" = {
           friendly_name = "Spotlight kök 1";
           room = "kitchen";
           type = "light";
@@ -661,34 +661,34 @@ in { # 🦆 duck say ⮞ house config
         "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; };
-        "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; }; 
+        "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
         "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1; };
         "0xa4c138b9aab1cf3f" = { friendly_name = "Fläkt"; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         # 🦆 says ⮞ LIVING ROOM
-        "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };    
+        "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
-        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };   
+        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
         "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
-        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };                  
-        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };  
+        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
+        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
         "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };
         "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
         "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
         "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; icon = icons.sensor.water; endpoint = 1; };
         # 🦆 says ⮞ HALLWAY
-        "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆 
+        "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆
         "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1; };
         "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; icon = icons.light.ceiling; supports_color = true; endpoint = 11; };
         "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; icon = icons.light.wall; supports_temperature = true; endpoint = 1; };
         # 🦆 says ⮞ WC
         "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
         "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
-        # 🦆 says ⮞ BEDROOM  
+        # 🦆 says ⮞ BEDROOM
         "0xa4c13832742c96f7" = { friendly_name = "Robot Arm 1"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
         "0xa4c138387966b58d" = { friendly_name = "Robot Arm 2"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
         "0xa4c1380c0a35052e" = { friendly_name = "Robot Arm 3"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
         "0xa4c1381e74b6d2e6" = { friendly_name = "Robot Arm 4"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
-        "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; }; 
+        "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
         "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = icons.light.bulb; endpoint = 11; supports_color = true; };
@@ -708,14 +708,14 @@ in { # 🦆 duck say ⮞ house config
         "0017880109f06a700b" = { friendly_name = "TV Play 2"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 41; };
         "0017880109f06a7c0b" = { friendly_name = "TV Play 3"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 37; };
         "0017880106ff22530b" = { friendly_name = "TV Play 4"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 39; };
-        "001788010985d1820b" = { friendly_name = "Play Top L"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 61; };                        
-        "00178801098d5b320b" = { friendly_name = "Play Top R"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 60; };     
+        "001788010985d1820b" = { friendly_name = "Play Top L"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 61; };
+        "00178801098d5b320b" = { friendly_name = "Play Top R"; room = "tv-area"; type = "hue_light"; icon = icons.light.ambient; endpoint = 1; supports_color = true; hue_id = 60; };
       };
-      
-            
+
+
   # 🦆 ⮞ SCENES ⮜
       scenes = {
-          # 🦆 says ⮞ Scene name    
+          # 🦆 says ⮞ Scene name
           "Chill Scene" = {
               # 🦆 says ⮞ device friendly name & state
               "PC" = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };               # 🦆 says ⮞ Blue Violet
@@ -727,11 +727,11 @@ in { # 🦆 duck say ⮞ house config
               "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#9932CC"; }; };   # 🦆 says ⮞ Dark Orchid
               "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#FFB6C1"; }; };            # 🦆 says ⮞ Light Pink
               "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
-              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
-              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
-              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
-              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine   
-          }; 
+              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine
+              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine
+              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine
+              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };       # 🦆 says ⮞ Aquamarine
+          };
           "Green D" = {
               "PC" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Golvet" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -742,10 +742,10 @@ in { # 🦆 duck say ⮞ house config
               "Taket Sovrum 2" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Bloom" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Sänggavel" = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
-              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
-              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine   
+              "Takkrona 1" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
+              "Takkrona 2" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
+              "Takkrona 3" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
+              "Takkrona 4" = { state = "ON"; brightness = 200; color = { hex = "#7FFFD4"; }; };        # 🦆 says ⮞ Aquamarine
           };
 
           "kitchenInstant" = {
@@ -753,18 +753,18 @@ in { # 🦆 duck say ⮞ house config
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; }; 
+              "Uppe" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
           };
           # 🦆 says ⮞ veeeery slow turn off
           "kitchenFadeOff" = {
-              "Golvet" = { state = "OFF"; transition = 300; };
-              "Kök Bänk Slinga" = { state = "OFF"; transition = 300; };
-              "PC" = { state = "OFF"; transition = 300; };
-              "Spotlight Kök 2" = { state = "OFF"; transition = 300; };
-              "Spotlight kök 1" = { state = "OFF"; transition = 300; };
-              "Uppe" = { state = "OFF"; transition = 300; };
+              "Golvet" = { state = "OFF"; transition = 220; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 220; };
+              "PC" = { state = "OFF"; transition = 220; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 220; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 220; };
+              "Uppe" = { state = "OFF"; transition = 220; };
           };
-          "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!  
+          "dark" = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!
               "Bloom" = { state = "OFF"; transition = 10; };
               "Dörr" = { state = "OFF"; transition = 10; };
               "Golvet" = { state = "OFF"; transition = 10; };
@@ -782,9 +782,9 @@ in { # 🦆 duck say ⮞ house config
               "Vägg" = { state = "OFF"; transition = 10; };
               "WC 1" = { state = "OFF"; transition = 10; };
               "WC 2" = { state = "OFF"; transition = 10; };
-              "Takkrona 1" = { state = "OFF"; transition = 10; };   
+              "Takkrona 1" = { state = "OFF"; transition = 10; };
               "Takkrona 2" = { state = "OFF"; transition = 10; };
-              "Takkrona 3" = { state = "OFF"; transition = 10; };   
+              "Takkrona 3" = { state = "OFF"; transition = 10; };
               "Takkrona 4" = { state = "OFF"; transition = 10; };
               "TV Play Strip" = { state = "OFF"; transition = 150; };
               "TV Play 1" = { state = "OFF"; transition = 150; };
@@ -793,8 +793,8 @@ in { # 🦆 duck say ⮞ house config
               "TV Play 4" = { state = "OFF"; transition = 150; };
               "Play Top L" = { state = "OFF"; transition = 150; };
               "Play Top R" = { state = "OFF"; transition = 150; };
-          };  
-          "dark-fast" = { # 🦆 says ⮞ eat darkness... NAO!  
+          };
+          "dark-fast" = { # 🦆 says ⮞ eat darkness... NAO!
               "Bloom" = { state = "OFF"; };
               "Dörr" = { state = "OFF"; };
               "Golvet" = { state = "OFF"; };
@@ -812,10 +812,10 @@ in { # 🦆 duck say ⮞ house config
               "Vägg" = { state = "OFF"; };
               "WC 1" = { state = "OFF"; };
               "WC 2" = { state = "OFF"; };
-              "Takkrona 1" = { state = "OFF"; };   
+              "Takkrona 1" = { state = "OFF"; };
               "Takkrona 2" = { state = "OFF"; };
               "Takkrona 3" = { state = "OFF"; };
-              "Takkrona 4" = { state = "OFF"; }; 
+              "Takkrona 4" = { state = "OFF"; };
               "TV Play Strip" = { state = "OFF"; };
               "TV Play 1" = { state = "OFF"; };
               "TV Play 2" = { state = "OFF"; };
@@ -842,9 +842,9 @@ in { # 🦆 duck say ⮞ house config
               "Vägg" = { state = "ON"; brightness = 1; }; # 🦆 says ⮞ 1% bright enuff on dis qwackit...
               "WC 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "WC 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Takkrona 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   
+              "Takkrona 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Takkrona 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Takkrona 3" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };   
+              "Takkrona 3" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Takkrona 4" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "TV Play Strip" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
               "TV Play 1" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
@@ -853,7 +853,7 @@ in { # 🦆 duck say ⮞ house config
               "TV Play 4" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
               "Play Top L" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
               "Play Top R" = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
-          };     
+          };
           "tv-area1" = {
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
@@ -881,9 +881,9 @@ in { # 🦆 duck say ⮞ house config
               "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; transition = 15; };
               "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; transition = 15; };
           };
-        };  
+        };
     };
-    
+
     # 🦆 ⮞ TV ⮜
     # 🦆says⮞ configure TV devices with: room, ip, apps & channel information
     tv = {
@@ -895,23 +895,23 @@ in { # 🦆 duck say ⮞ house config
         apps = {
           telenor = "se.telenor.stream/.MainActivity";
           tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
-        };  
-        channels = {     
+        };
+        channels = {
           "1" = {
             name = "SVT1";
             id = 1; # 🦆 says ⮞ adb channel ID
             # 🦆 says ⮞ OR
             # stream_url = "https://url.com/";
             cmd = "open_telenor && wait 5 && start_channel_1";
-            # 🦆 says ⮞ automagi generated tv-guide web & EPG          
+            # 🦆 says ⮞ automagi generated tv-guide web & EPG
             icon = ./themes/icons/tv/1.png;
-            scrape_url = "https://tv-tabla.se/tabla/svt1/";          
+            scrape_url = "https://tv-tabla.se/tabla/svt1/";
           };
           "2" = {
-            id = 2; 
+            id = 2;
             name = "SVT2";
             cmd = "open_telenor && wait 5 && start_channel_2";
-            icon = ./themes/icons/tv/2.png;          
+            icon = ./themes/icons/tv/2.png;
             scrape_url = "https://tv-tabla.se/tabla/svt2/";
           };
           "3" = {
@@ -952,13 +952,13 @@ in { # 🦆 duck say ⮞ house config
           "8" = {
             id = 8;
             name = "TV8";
-            icon = ./themes/icons/tv/8.png;          
+            icon = ./themes/icons/tv/8.png;
             scrape_url = "https://tv-tabla.se/tabla/tv8/";
           };
           "9" = {
             id = 9;
             name = "Kanal 9";
-            icon = ./themes/icons/tv/9.png;          
+            icon = ./themes/icons/tv/9.png;
             scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
           };
           "10" = {
@@ -985,7 +985,7 @@ in { # 🦆 duck say ⮞ house config
             icon = ./themes/icons/tv/13.png;
             cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
             scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
-          };        
+          };
           "14" = {
             id = 14;
             name = "TV4 Sport Live 1";
@@ -997,7 +997,7 @@ in { # 🦆 duck say ⮞ house config
             id = 15;
             name = "TV4 Sport Live 2";
             icon = ./themes/icons/tv/15.png;
-            cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";    
+            cmd = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
             scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
           };
           "16" = {
@@ -1013,7 +1013,7 @@ in { # 🦆 duck say ⮞ house config
             icon = ./themes/icons/tv/17.png;
             cmd = "open_tv4 && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_down && nav_right && nav_right && nav_select";
             scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
-          };       
+          };
         };
       };
       # 🦆 says ⮞ Bedroom
@@ -1023,17 +1023,17 @@ in { # 🦆 duck say ⮞ house config
       #   ip = "192.168.1.153";
       #   apps = config.house.tv.shield.apps;
       #   channels = config.house.tv.shield.channels;
-      # };      
-      
+      # };
+
       # arris = {
       #   enable = true;
       #   room = "bedroom";
-      #   ip = "192.168.1.152"; 
+      #   ip = "192.168.1.152";
       #   apps = {
       #     telenor = "se.telenor.stream/.MainActivity   ";
       #     tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
       #   };
-      #   channels = {     
+      #   channels = {
       #     "1" = {
       #       id = 1;
       #       name = "SVT1";
@@ -1041,7 +1041,7 @@ in { # 🦆 duck say ⮞ house config
       #       scrape_url = "https://tv-tabla.se/tabla/svt1/";
       #     };
       #     "2" = {
-      #       id = 2; 
+      #       id = 2;
       #       name = "SVT2";
       #       icon = ./themes/icons/tv/2.png;
       #       scrape_url = "https://tv-tabla.se/tabla/svt2/";
@@ -1079,13 +1079,13 @@ in { # 🦆 duck say ⮞ house config
       #     "8" = {
       #       id = 8;
       #       name = "TV8";
-      #       icon = ./themes/icons/tv/8.png;          
+      #       icon = ./themes/icons/tv/8.png;
       #       scrape_url = "https://tv-tabla.se/tabla/tv8/";
       #     };
       #     "9" = {
       #       id = 9;
       #       name = "Kanal 9";
-      #       icon = ./themes/icons/tv/9.png;          
+      #       icon = ./themes/icons/tv/9.png;
       #       scrape_url = "https://tv-tabla.se/tabla/kanal_9/";
       #     };
       #     "10" = {
@@ -1110,28 +1110,28 @@ in { # 🦆 duck say ⮞ house config
       #       id = 13;
       #       name = "TV4 Hockey";
       #       icon = ./themes/icons/tv/13.png;
-      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";          
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
       #       scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
-      #     };        
+      #     };
       #     "14" = {
       #       id = 14;
       #       name = "TV4 Sport Live 1";
       #       icon = ./themes/icons/tv/14.png;
-      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";     
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
       #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_1/";
       #     };
       #     "15" = {
       #       id = 15;
       #       name = "TV4 Sport Live 2";
       #       icon = ./themes/icons/tv/15.png;
-      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
       #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_2/";
       #     };
       #     "16" = {
       #       id = 16;
       #       name = "TV4 Sport Live 3";
       #       icon = ./themes/icons/tv/16.png;
-      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";      
+      #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
       #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_3/";
       #     };
       #     "17" = {
@@ -1140,13 +1140,13 @@ in { # 🦆 duck say ⮞ house config
       #       icon = ./themes/icons/tv/17.png;
       #       cmd = "nav_down && nav_down && nav_right && nav_right && nav_center";
       #       scrape_url = "https://tv-tabla.se/tabla/tv4_sport_live_4/";
-      #     };       
+      #     };
       #   };
       # };
     };
   };
-  
-  sops = {  
+
+  sops = {
     secrets =  {
       api = {
         sopsFile = ./../secrets/api.yaml;
@@ -1161,13 +1161,13 @@ in { # 🦆 duck say ⮞ house config
         mode = "0440"; # Read-only for owner and group
       };
       mosquitto = { # 🦆 says ⮞ quack, stupid!
-        sopsFile = ./../secrets/mosquitto.yaml; 
+        sopsFile = ./../secrets/mosquitto.yaml;
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0444"; # 🦆 says ⮞ Read-only for owner and group
       }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
-      z2m_network_key = { 
-        sopsFile = ./../secrets/z2m_network_key.yaml; 
+      z2m_network_key = {
+        sopsFile = ./../secrets/z2m_network_key.yaml;
         owner = "zigbee2mqtt";
         group = "zigbee2mqtt";
         mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
@@ -1177,25 +1177,25 @@ in { # 🦆 duck say ⮞ house config
         owner = config.this.user.me.name;
         group = "zigduck";
         mode = "0440";
-      };  
+      };
       dashboard = { # 🦆 says ⮞ i likez TLS
         sopsFile = ./../secrets/dashboard.yaml;
         owner = config.this.user.me.name;
         group = "zigduck";
         mode = "0440";
       }; # 🦆 says ⮞ required for youtube
-      youtube_api_key = { 
+      youtube_api_key = {
         sopsFile = ./../secrets/youtube.yaml;
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0440";
       };
-      z2m_mosquitto = { 
-        sopsFile = ./../secrets/z2m_mosquitto.yaml; 
+      z2m_mosquitto = {
+        sopsFile = ./../secrets/z2m_mosquitto.yaml;
         owner = "zigbee2mqtt";
         group = "zigbee2mqtt";
         mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
       };
     };
-    
+
   };}

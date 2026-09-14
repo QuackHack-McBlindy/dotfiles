@@ -1,5 +1,5 @@
 # dotfiles/bin/productivity/pr.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   self,
   config,
   pkgs,
@@ -40,7 +40,7 @@
           Do not claim anything that isn't supported by the diff.
 
           ```
-          
+
           "
 
           if git diff --quiet; then
@@ -53,5 +53,5 @@
         '';
       };
     };
-    
+
   };}

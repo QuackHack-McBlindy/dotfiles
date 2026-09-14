@@ -8,7 +8,6 @@
     config = lib.mkIf (lib.elem "i3" config.this.host.modules.programs) {
       services.xserver.windowManager.i3 = {
         enable = true;
-      };     
-      
-    };}
+      };
 
+    };}

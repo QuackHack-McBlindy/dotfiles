@@ -1,14 +1,14 @@
 # dotfiles/bin/config/wake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Configures a wake word which in return triggers audio recording that will get sent for transcription.  
+{ # 🦆 says ⮞ Configures a wake word which in return triggers audio recording that will get sent for transcription.
   self, # 🦆 says ⮞ Define `"wake"` at `ccnfig.this.host.modules.services` to enable, install dependencies & start everything up at boot.
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let 
+  ...
+} : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   transcriptionHost = lib.findFirst
     (host:
       let cfg = self.nixosConfigurations.${host}.config;
@@ -24,7 +24,7 @@
 
   # 🦆 says ⮞ fetchez all host withat runz diz service
   wakeAutoStart = config.yo.scripts.wake.autoStart or false;
-in { 
+in {
   yo.scripts.wake = { # 🦆 says ⮞ dis is where my home at
     description = "Run Wake word detection for audio recording and transcription";
     category = "🗣️ Voice"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
@@ -39,7 +39,7 @@ in {
           then "true"
           else "false"; }
       { name = "redisHost"; description = "Redis host for distributed locking"; default = transcriptionHostIP; }
-      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }      
+      { name = "redis_pwFIle"; description = "File path containing password for redis"; default = config.sops.secrets.redis.path; }
     ]; # 🦆 says ⮞ here we gooooo yo!
     code = ''
       ${cmdHelpers}
@@ -81,9 +81,9 @@ in {
 
       release_lock() {
         ${pkgs.redis}/bin/redis-cli -h "$REDIS_HOST" -a "$REDIS_PASSWORD" EVAL \
-          "if redis.call('GET', KEYS[1]) == ARGV[1] then 
-             return redis.call('DEL', KEYS[1]) 
-           end 
+          "if redis.call('GET', KEYS[1]) == ARGV[1] then
+             return redis.call('DEL', KEYS[1])
+           end
            return 0" \
           1 "$LOCK_KEY" "$LOCK_VALUE" >/dev/null
           dt_debug "Released lock successfully"
@@ -99,8 +99,8 @@ in {
         fi
       }
 
-         
-      # 🦆 says ⮞ startz up a fake satellite as a background process to establish connection to openwakeword 
+
+      # 🦆 says ⮞ startz up a fake satellite as a background process to establish connection to openwakeword
       wakeword_connection() { # 🦆 says ⮞ requred to read da probability threashold
         ${pkgs.wyoming-satellite}/bin/wyoming-satellite \
           --name fakeSat \
@@ -109,25 +109,25 @@ in {
           --mic-command "${pkgs.alsa-utils}/bin/arecord -r 16000 -c 1 -f S16_LE -t raw" \
           --snd-command "${pkgs.alsa-utils}/bin/aplay -r 22050 -c 1 -f S16_LE -t raw" \
           --wake-uri tcp://0.0.0.0:10400 &
-        SATELLITE_PID=$!            
-      }      
+        SATELLITE_PID=$!
+      }
 
       # 🦆 says ⮞ start the connection letz uz read probability yo
       wakeword_connection
-      
+
       # 🦆 says ⮞ monitor da logz for detection yo
       while read -r line; do
-        # 🦆 says ⮞ monitor wake word probability.. 
+        # 🦆 says ⮞ monitor wake word probability..
         if [[ $line =~ probability=([0-9]+\.[0-9]+) ]]; then
               # 🦆 says ⮞ .. check defined threshold
-              probability="''${BASH_REMATCH[1]}"    
+              probability="''${BASH_REMATCH[1]}"
               # 🦆 says ⮞ ... & current time
               current_time=$(${pkgs.coreutils}/bin/date +%s)
               # 🦆 says ⮞ ... calculate time difference between last trigger & current time
               time_diff=$((current_time - LAST_TRIGGER_TIME))
               # 🦆 says ⮞ ... compare threshold and cooldown
               awk_comparison=$(${pkgs.gawk}/bin/awk -v p="$probability" -v t="$WAKE_THRESHOLD" 'BEGIN { print (p > t) ? 1 : 0 }')
-              
+
               # 🦆 says ⮞ all checkz out ok?
               if [[ "$awk_comparison" -eq 1 && "$time_diff" -gt "$WAKE_COOLDOWN" ]]; then
                   dt_debug "Cooldown check: diff=$time_diff, last=$LAST_TRIGGER_TIME, now=$current_time"
@@ -135,25 +135,25 @@ in {
                   # 🦆 says ⮞ set last trigger time to now
                   LAST_TRIGGER_TIME="$current_time"
                   TIME_FORMATTED=$(${pkgs.coreutils}/bin/date +"%H:%M:%S")
-                  
+
                   # 🦆 says ⮞ attempt to acquire distributed lock
                   if acquire_lock; then
-                      # 🦆 says ⮞ put sum duck tracin' in da logz 
+                      # 🦆 says ⮞ put sum duck tracin' in da logz
                       dt_info "⚠️ [Wake Word] Detected! Probability: $probability."
                       current_time=$(${pkgs.coreutils}/bin/date +%s)
                       LAST_TRIGGER_TIME="$current_time"
                       # 🦆 says ⮞ play sound
                       play_wav
-                      
+
                       # 🦆 says ⮞ and lastly we trigger yo-mic so u can say dat intent - yo
                       TRANSCRIPTION=$(yo-mic)
-                    
-                      # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!                 
+
+                      # 🦆 says ⮞ no duckin' way! duckie don't b stoppiin' here dat'z too borin'!
                       if [[ -z "$TRANSCRIPTION" ]]; then
                         dt_debug "Empty transcription"
-                        
+
                       else # 🦆 says ⮞ ELSE WAT?!
-                        # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol          
+                        # 🦆 says ⮞ ... ?? duck not shure waatz to do here lol
                         dt_debug "Transcribed text: $TRANSCRIPTION"
                         export VOICE_MODE=1
                         check_db
@@ -163,29 +163,29 @@ in {
                         current_time=$(${pkgs.coreutils}/bin/date +%s)
                         LAST_TRIGGER_TIME="$current_time"
                       fi
-                      
+
                       # 🦆 says ⮞ release da lock
                       release_lock
                   else
                       dt_info "⚠️ [LOCKED Wake Word] Detected! Probability: $probability."
-                  fi                                                   
+                  fi
               fi
           fi
-      done < <(${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0)  
+      done < <(${pkgs.systemd}/bin/journalctl -u wyoming-openwakeword -f -n 0)
     '';
   };
 
   # 🦆 says ⮞ duckz hatez rulez - but dat firewall rulez iz all good yo
   networking.firewall = lib.mkIf wakeAutoStart { allowedTCPPorts = [ 10400 10700 ]; };
-    
+
   # 🦆 says ⮞ dependencies
   environment.systemPackages = lib.mkIf wakeAutoStart [
     pkgs.wyoming-openwakeword
     pkgs.redis
     pkgs.wyoming-satellite
-    pkgs.alsa-utils  
-  ];  
-  
+    pkgs.alsa-utils
+  ];
+
   services.wyoming.openwakeword = lib.mkIf wakeAutoStart {
     enable = true;
     uri = "tcp://0.0.0.0:10400";
@@ -193,7 +193,7 @@ in {
     customModelsDirectories = [ "/etc/openwakeword" ];
     threshold = 0.8; # 🦆 says ⮞ dooz not really matter since we run fake sat yo
     triggerLevel = 1;
-    extraArgs = [ "--debug" "--debug-probability" ]; # 🦆 says ⮞ ooof.. can't touch diz - we use diz to read dem' values yo 
-  };} # 🦆 says ⮞ sleep tight & wake up wen 🦆 says ⮞ YO BIAAATCH !!111 
+    extraArgs = [ "--debug" "--debug-probability" ]; # 🦆 says ⮞ ooof.. can't touch diz - we use diz to read dem' values yo
+  };} # 🦆 says ⮞ sleep tight & wake up wen 🦆 says ⮞ YO BIAAATCH !!111
 # 🦆 says ⮞ QuackHack-McBLindy out!
 # ... 🛌🦆💤

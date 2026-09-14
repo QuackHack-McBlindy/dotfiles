@@ -1,11 +1,11 @@
 # dotfiles/bin/misc/duckPUCK.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ hockey assistant and analyzer 
+{ # 🦆 says ⮞ hockey assistant and analyzer
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
+  ...
 } : let
   pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
   scraper = pkgs.writeScript "hockey-scraper.py" ''
@@ -20,7 +20,7 @@
     os.makedirs(args.dataDir, exist_ok=True)
     table_path = os.path.join(args.dataDir, "table.json")
     logging.basicConfig(level=logging.INFO, format="[🦆🏒] %(levelname)s - %(message)s")
-    logger = logging.getLogger()       
+    logger = logging.getLogger()
     headers = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Safari/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -32,7 +32,7 @@
         if not html:
             logger.error("Failed to fetch powerplay data")
             return {}
-    
+
         try:
             data = json.loads(html)
             powerplay_dict = {}
@@ -50,7 +50,7 @@
         html = fetch(url)
         if not html:
             logger.error("Failed to fetch boxplay data")
-            return {}    
+            return {}
         try:
             data = json.loads(html)
             boxplay_dict = {}
@@ -79,9 +79,9 @@
         html = fetch(url)
         if not html:
             logger.error("Failed to fetch table")
-            return []   
+            return []
         logger.info("Parsing table data...")
-        table_data = []    
+        table_data = []
         # 🦆 says ⮞ main table come here plx
         table_match = re.search(r'<table[^>]*class="[^"]*table[^"]*"[^>]*>(.*?)</table>', html, re.DOTALL)
         if not table_match:
@@ -90,12 +90,12 @@
 
         if not table_match:
             logger.error("No table found at all")
-            return []    
+            return []
         table_html = table_match.group(1)
         rows = re.findall(r'<tr[^>]*>(.*?)</tr>', table_html, re.DOTALL)
-        logger.info(f"Found {len(rows)} table rows")    
+        logger.info(f"Found {len(rows)} table rows")
         seen_teams = set()  # 🦆 says ⮞ duplicates - no thnx
-        team_count = 0 
+        team_count = 0
         for row in rows:
             cells = re.findall(r'<t[dh][^>]*>(.*?)</t[dh]>', row, re.DOTALL)
             if len(cells) >= 11:
@@ -109,7 +109,7 @@
                     team_name = clean_cells[1]
                     if team_name in seen_teams:
                         continue
-                    seen_teams.add(team_name)    
+                    seen_teams.add(team_name)
                     table_data.append({
                         "position": clean_cells[0],
                         "team": team_name,
@@ -124,7 +124,7 @@
                         "goal_difference": clean_cells[10],
                         "points": clean_cells[11] if len(clean_cells) > 11 else "0"
                     })
-                    team_count += 1        
+                    team_count += 1
                     # 🦆 says ⮞ HA only has 14 teams
                     if team_count >= 14:
                         break
@@ -132,7 +132,7 @@
         return table_data
 
     def main():
-        logger.info("🏒 Starting hockey scraper...")     
+        logger.info("🏒 Starting hockey scraper...")
         logger.info("Scraping league table...")
         table_data = scrape_table()
         logger.info("Fetching special teams statistics...")
@@ -140,7 +140,7 @@
         boxplay_data = fetch_boxplay_data()
         team_name_mapping = {
             "IF Björklöven": "Björklöven",
-            "MoDo Hockey": "MoDo", 
+            "MoDo Hockey": "MoDo",
             "BIK Karlskoga": "Karlskoga",
             "Nybro Vikings IF": "Nybro",
             "Kalmar HC": "Kalmar",
@@ -154,12 +154,12 @@
             "Västerås IK": "Västerås",
             "Vimmerby HC": "Vimmerby"
         }
-    
+
         for team in table_data:
             api_team_name = team_name_mapping.get(team['team'], team['team'])
             team['powerplay'] = powerplay_data.get(api_team_name, '?')
             team['boxplay'] = boxplay_data.get(api_team_name, '?')
-    
+
         if table_data:
             try:
                 with open(table_path, 'w') as f:
@@ -174,7 +174,7 @@
     if __name__ == "__main__":
         main()
   '';
-  
+
   # 🦆 says ⮞ number to text conversion for Swedish
   numberToText = ''
     number_to_text() {
@@ -204,7 +204,7 @@
         *) echo "$num" ;;
       esac
     }
-    
+
     position_to_text() {
       local pos=$1
       case $pos in
@@ -234,12 +234,12 @@
             -H "Accept: application/json; charset=utf-8" \
             -H "User-Agent: HockeyNews/1.0" \
             "https://hockeyallsvenskan.se/api/articles/site-news/list?page=0&pagesize=10&orderByDate=desc")
-      
+
         if [ $? -ne 0 ]; then
             dt_error "Failed to fetch news"
             return 1
         fi
-  
+
         if command -v jq >/dev/null 2>&1; then
             echo "$response" | jq -r '.data.articleItems[] | "\(.header)"' 2>/dev/null | head -5
         else
@@ -254,16 +254,16 @@
     BASE_URL="https://www.hockeyallsvenskan.se/api"
     STATS_BASE="$BASE_URL/statistics-v2/stats-info"
     SSGT_UUID="uy2zvu6xaa"
-    
-    list_teams() {  
+
+    list_teams() {
         local endpoint="$STATS_BASE/teams_powerplay?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
         curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint" | \
         jq -r '.[0].stats[] | "\(.info.siteDisplayName)"' | sort
     }
-    
+
     get_team_powerplay_percentage() {
       local team_name="$1"
-      local endpoint="$STATS_BASE/teams_powerplay?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"  
+      local endpoint="$STATS_BASE/teams_powerplay?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
       local response
       response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
       if [ $? -ne 0 ]; then
@@ -273,10 +273,10 @@
 
       local efficiency
       efficiency=$(echo "$response" | jq -r --arg team "$team_name" '
-        .[0].stats[] | 
-        select(.info.siteDisplayName == $team) | 
+        .[0].stats[] |
+        select(.info.siteDisplayName == $team) |
         .PPPerc')
-  
+
       if [ -n "$efficiency" ] && [ "$efficiency" != "null" ]; then
         echo "$efficiency"
       else
@@ -284,44 +284,44 @@
         return 1
       fi
     }
-    
+
     get_team_powerplay() {
-        local team_name="$1" 
+        local team_name="$1"
         if [ -z "$team_name" ]; then
             dt_error "Please specify a team name"
             return 1
         fi
-    
+
         local endpoint="$STATS_BASE/teams_powerplay?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
-        
+
         local response
         response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-        
+
         if [ $? -ne 0 ]; then
             dt_error "Failed to fetch data from API"
             return 1
         fi
-    
+
         local team_data
         team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-            .[0].stats[] | 
+            .[0].stats[] |
             select(.info.siteDisplayName == $team) |
             "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.PPG)|\(.PPPerc)|\(.PPOpp)|\(.PPSOG)|\(.PPTime)"')
-        
+
         if [ -z "$team_data" ]; then
             team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-                .[0].stats[] | 
+                .[0].stats[] |
                 select(.info.siteDisplayName | test($team; "i")) |
                 "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.PPG)|\(.PPPerc)|\(.PPOpp)|\(.PPSOG)|\(.PPTime)"' | head -1)
         fi
-        
+
         if [ -z "$team_data" ]; then
             dt_error "Team '$team_name' not found"
             return 1
         fi
-        
+
         IFS='|' read -r name rank gp ppg efficiency ppopp ppsog pptime <<< "$team_data"
-        
+
         echo "Rank: $rank"
         echo "Games Played: $gp"
         echo "Power Play Goals: $ppg"
@@ -330,7 +330,7 @@
         echo "Power Play Shots on Goal: $ppsog"
         echo "Power Play Time: $pptime"
     }
-    
+
     if [ "$#" -eq 1 ]; then
         case "$1" in
             "teams"|"list")
@@ -347,46 +347,46 @@
   get_boxplay = ''
     BASE_URL="https://www.hockeyallsvenskan.se/api"
     STATS_BASE="$BASE_URL/statistics-v2/stats-info"
-    SSGT_UUID="uy2zvu6xaa"    
-    list_teams() {  
+    SSGT_UUID="uy2zvu6xaa"
+    list_teams() {
         local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
         curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint" | \
         jq -r '.[0].stats[] | "\(.info.siteDisplayName)"' | sort
-    }    
+    }
     get_team_boxplay() {
-        local team_name="$1"       
+        local team_name="$1"
         if [ -z "$team_name" ]; then
             dt_error "Please specify a team name"
             return 1
         fi
-        local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"    
+        local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
         local response
-        response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint") 
+        response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
         if [ $? -ne 0 ]; then
             dt_error "Failed to fetch data"
             return 1
         fi
-    
+
         local team_data
         team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-            .[0].stats[] | 
+            .[0].stats[] |
             select(.info.siteDisplayName == $team) |
             "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.SHG)|\(.PPGA)|\(.PKOpp)|\(.PKPerc)|\(.PPSOGA)|\(.PKTime)"')
-        
+
         if [ -z "$team_data" ]; then
             team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-                .[0].stats[] | 
+                .[0].stats[] |
                 select(.info.siteDisplayName | test($team; "i")) |
                 "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.SHG)|\(.PPGA)|\(.PKOpp)|\(.PKPerc)|\(.PPSOGA)|\(.PKTime)"' | head -1)
         fi
-    
+
         if [ -z "$team_data" ]; then
             dt_error "Team '$team_name' not found"
             return 1
         fi
-    
+
         IFS='|' read -r name rank gp shg ppga pkopp pkperc ppsoga pktime <<< "$team_data"
-    
+
         echo "$name BoxPlay"
         echo "Rank: $rank"
         echo "Games Played: $gp"
@@ -397,40 +397,40 @@
         echo "Power Play Shots on Goal Against: $ppsoga"
         echo "Boxplay tid: $pktime"
     }
-    
+
     get_boxplay_stats() {
-        local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"  
+        local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
         local response
-        response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")   
+        response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
         if [ $? -ne 0 ]; then
             dt_error "Failed to fetch data"
             return 1
         fi
-        
+
         echo "=== BoxPlay (Penalty Kill) Statistics ==="
         echo "$response" | jq -r '
-        .[0].stats[] | 
-        "\(.Rank) | \(.info.siteDisplayName) | \(.GP) | \(.PPGA) | \(.PKPerc)%"' | 
+        .[0].stats[] |
+        "\(.Rank) | \(.info.siteDisplayName) | \(.GP) | \(.PPGA) | \(.PKPerc)%"' |
         column -t -N "Rank,Team,GP,PPGA,PK%"
     }
-    
+
     get_team_boxplay_percentage() {
         local team_name="$1"
-        local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"        
+        local endpoint="$STATS_BASE/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
         local response
         response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-        
+
         if [ $? -ne 0 ]; then
             echo "ERROR"
             return 1
         fi
-    
+
         local efficiency
         efficiency=$(echo "$response" | jq -r --arg team "$team_name" '
-            .[0].stats[] | 
-            select(.info.siteDisplayName == $team) | 
+            .[0].stats[] |
+            select(.info.siteDisplayName == $team) |
             .PKPerc')
-        
+
         if [ -n "$efficiency" ] && [ "$efficiency" != "null" ]; then
             echo "$efficiency"
         else
@@ -438,7 +438,7 @@
             return 1
         fi
     }
-    
+
     if [ "$#" -eq 1 ]; then
         case "$1" in
             "teams"|"list")
@@ -455,9 +455,9 @@
         get_team_boxplay_percentage "$2"
     fi
   '';
-  
+
   # 🦆 says ⮞ team analysis with text numbers
-  analyzeTeam = '' 
+  analyzeTeam = ''
     analyze_team_with_special_teams() {
       local team_name="$1"
       local table_file="$2"
@@ -473,7 +473,7 @@
         else
           special_teams_analysis+="Powerplayet håller måttet på ''${pp_perc}%. "
         fi
-      fi  
+      fi
       # 🦆 says ⮞ letz analyze da box yo
       if [[ "$pk_perc" =~ ^[0-9.]+$ ]]; then
         if (( $(echo "$pk_perc > 85" | bc -l) )); then
@@ -483,13 +483,13 @@
         else
           special_teams_analysis+="Boxplayet är stabilt på ''${pk_perc}%. "
         fi
-      fi  
+      fi
       echo "$basic_analysis $special_teams_analysis"
     }
-          
+
     analyze_team() {
       local team_name="$1"
-      local table_file="$2"     
+      local table_file="$2"
       dt_debug "Analyzing team: $team_name"
       # 🦆 says ⮞ extract team data
       local team_data=$(jq -r ".[] | select(.team == \"$team_name\")" "$table_file")
@@ -497,7 +497,7 @@
         dt_error "Team '$team_name' not found in table"
         return 1
       fi
-      
+
       # 🦆 says ⮞ parse team stats
       local position=$(echo "$team_data" | jq -r '.position')
       local points=$(echo "$team_data" | jq -r '.points')
@@ -508,7 +508,7 @@
       local goals_against=$(echo "$team_data" | jq -r '.goals_against')
       local goal_diff=$(echo "$team_data" | jq -r '.goal_difference')
       local games_played=$(echo "$team_data" | jq -r '.games_played')
-      
+
       # 🦆 says ⮞ convert numbers to text
       local points_text=$(number_to_text "$points")
       local wins_text=$(number_to_text "$wins")
@@ -519,12 +519,12 @@
       local goal_diff_text=$(number_to_text "$goal_diff")
       local games_played_text=$(number_to_text "$games_played")
       local position_text=$(position_to_text "$position")
-      
+
       # 🦆 says ⮞ find close competitors
       local competitors=$(jq -r ".[] | select(.position | tonumber >= $(($position - 1)) and .position | tonumber <= $(($position + 1)) and .team != \"$team_name\") | .team" "$table_file" | head -2)
-      
+
       # 🦆 says ⮞ generate analysis with text numbers
-      local analysis=""    
+      local analysis=""
       case $position in
         1)
           analysis="Det går jättebra för $team_name just nu! Dom leder serien med $points_text poäng efter $games_played_text matcher. "
@@ -562,33 +562,33 @@
           analysis="$team_name ligger på $position_text plats med $points_text poäng efter $games_played_text matcher."
           ;;
       esac
-      
+
       # 🦆 says ⮞ goal analysis
       if [ "$goal_diff" -gt 15 ]; then
         analysis+=" Dom har en imponerande målskillnad som visar att dom dominerar sina motståndare."
       elif [ "$goal_diff" -lt -10 ]; then
         analysis+=" Den stora negativa målskillnaden visar att dom har svårt att hålla jämna steg med topplagen."
       fi
-      
+
       # 🦆 says ⮞ overtime analysis
       local ot_wins=$(echo "$team_data" | jq -r '.overtime_wins')
       local ot_losses=$(echo "$team_data" | jq -r '.overtime_losses')
       local ot_wins_text=$(number_to_text "$ot_wins")
       local ot_losses_text=$(number_to_text "$ot_losses")
-      
+
       if [ "$ot_wins" -gt 2 ]; then
         analysis+=" Laget är tuffa i övertid med $ot_wins_text övertidsvinster."
       elif [ "$ot_losses" -gt 2 ]; then
         analysis+=" Dom har haft otur i övertid med $ot_losses_text övertidsförluster."
-      fi   
+      fi
       echo "$analysis"
     }
   '';
-  
+
   fuzzyTeamMatch = ''
     fuzzy_match_team() {
       local input_team="$1"
-      local table_file="$2"   
+      local table_file="$2"
       dt_debug "Fuzzy matching team: $input_team"
       # 🦆 says ⮞ first try exact match with voice aliases
       case "$input_team" in
@@ -606,7 +606,7 @@
         *[Tt]roja*|*[Ll]jungby*) echo "IF Troja-Ljungby"; return 0 ;;
         *[Vv]ästerås*|*vasteras*) echo "Västerås IK"; return 0 ;;
         *[Vv]immerby*) echo "Vimmerby HC"; return 0 ;;
-      esac 
+      esac
       # 🦆 says ⮞ get all teams from table
       local -a teams
       mapfile -t teams < <(jq -r '.[].team' "$table_file")
@@ -619,17 +619,17 @@
           echo "$team"
           return 0
         fi
-      
+
         local tri_score=$(trigram_similarity "$normalized_input" "$normalized_team")
         local lev_score=$(levenshtein_similarity "$normalized_input" "$normalized_team")
-      
+
         if (( lev_score > best_score )); then
           best_score=$lev_score
           best_match="$team"
           dt_debug "New best match: $team ($lev_score%)"
         fi
       done
-    
+
       if (( best_score >= 30 )); then
         echo "$best_match"
         return 0
@@ -646,16 +646,16 @@ in {
     description = "[🏒🦆] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates annd numbers.";
     category = "🧩 Miscellaneous";
     aliases = [ "puck" ];
-    autoStart = false;    
+    autoStart = false;
     logLevel = "DEBUG";
     parameters = [
-      { 
+      {
         name = "mode";
-        description = "What to display: 'recent', 'table', or 'upcoming'"; 
-        optional = false; 
+        description = "What to display: 'recent', 'table', or 'upcoming'";
+        optional = false;
         values = [
-          "recent"   
-          "upcoming"   
+          "recent"
+          "upcoming"
           "table"
           "best"
           "worst"
@@ -663,7 +663,7 @@ in {
         default = "table";
       }
       { name = "team"; description = "Team specific search with TTS"; optional = true; }
-      { 
+      {
         name = "stat";
         description = "Search for specific stats.";
         type = "string";
@@ -678,17 +678,17 @@ in {
           "tallest"
           "shortest"
           "heaviest"
-          "lightest"              
+          "lightest"
           "goals"
           "assists"
           "oldest"
           "youngest"
           "shorthanded"
           "icetime"
-          "points"         
-        ];       
+          "points"
+        ];
       }
-      { name = "count"; description = "Optional number to fetch stats for"; optional = true; type = "int"; default = 3; }      
+      { name = "count"; description = "Optional number to fetch stats for"; optional = true; type = "int"; default = 3; }
       { name = "dataDir"; description = "Directory path to save data ."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
     ];
     code = ''
@@ -699,24 +699,24 @@ in {
       ${hockeyNews}
       ${get_boxplay}
       ${get_powerplay}
-     
+
       # 🦆 says ⮞ analyze best/worst special teams
       analyze_special_teams() {
           local query_type="$1"  # "best-powerplay", "worst-powerplay", "best-boxplay", "worst-boxplay"
           local table_file="$2"
-          
+
           if [ ! -f "$table_file" ]; then
               dt_error "Table file not found: $table_file"
               return 1
           fi
-      
+
           case "$query_type" in
               "best-powerplay")
                   local best_team=$(jq -r '[
-                      .[] | select(.powerplay != "?" and .powerplay != null) 
+                      .[] | select(.powerplay != "?" and .powerplay != null)
                       | {team: .team, efficiency: (.powerplay | sub("%"; "") | tonumber)}
                   ] | sort_by(.efficiency) | reverse | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
-                  
+
                   if [ -n "$best_team" ] && [ "$best_team" != "null" ]; then
                       IFS='|' read -r team efficiency <<< "$best_team"
                       echo "$team har ligans bästa powerplay med $efficiency% i effektivitet."
@@ -724,13 +724,13 @@ in {
                       echo "Kunde inte hitta data om powerplay."
                   fi
                   ;;
-                  
+
               "worst-powerplay")
                   local worst_team=$(jq -r '[
-                      .[] | select(.powerplay != "?" and .powerplay != null) 
+                      .[] | select(.powerplay != "?" and .powerplay != null)
                       | {team: .team, efficiency: (.powerplay | sub("%"; "") | tonumber)}
                   ] | sort_by(.efficiency) | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
-                  
+
                   if [ -n "$worst_team" ] && [ "$worst_team" != "null" ]; then
                       IFS='|' read -r team efficiency <<< "$worst_team"
                       echo "$team har ligans sämsta powerplay med bara $efficiency% i effektivitet."
@@ -738,13 +738,13 @@ in {
                       echo "Kunde inte hitta data om powerplay."
                   fi
                   ;;
-                  
+
               "best-boxplay")
                   local best_team=$(jq -r '[
-                      .[] | select(.boxplay != "?" and .boxplay != null) 
+                      .[] | select(.boxplay != "?" and .boxplay != null)
                       | {team: .team, efficiency: (.boxplay | sub("%"; "") | tonumber)}
                   ] | sort_by(.efficiency) | reverse | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
-                  
+
                   if [ -n "$best_team" ] && [ "$best_team" != "null" ]; then
                       IFS='|' read -r team efficiency <<< "$best_team"
                       echo "$team har ligans bästa boxplay med $efficiency% i effektivitet."
@@ -752,13 +752,13 @@ in {
                       echo "Kunde inte hitta data om boxplay."
                   fi
                   ;;
-                  
+
               "worst-boxplay")
                   local worst_team=$(jq -r '[
-                      .[] | select(.boxplay != "?" and .boxplay != null) 
+                      .[] | select(.boxplay != "?" and .boxplay != null)
                       | {team: .team, efficiency: (.boxplay | sub("%"; "") | tonumber)}
                   ] | sort_by(.efficiency) | .[0] | "\(.team)|\(.efficiency)"' "$table_file")
-                  
+
                   if [ -n "$worst_team" ] && [ "$worst_team" != "null" ]; then
                       IFS='|' read -r team efficiency <<< "$worst_team"
                       echo "$team har ligans sämsta boxplay med bara $efficiency% i effektivitet."
@@ -768,26 +768,26 @@ in {
                   ;;
           esac
       }
-      
+
       # 🦆 says ⮞ display table with special teams
       display_table_with_special_teams() {
-          local table_file="$1"    
+          local table_file="$1"
           if [ ! -f "$table_file" ]; then
               dt_error "Table file not found"
               return 1
           fi
-      
+
           markdown_table=$(
-              echo "# 🏆 HOCKEYALLSVENSKAN 25/26" 
+              echo "# 🏆 HOCKEYALLSVENSKAN 25/26"
               echo "| Pos | Lag | M | V | X | F | ÖV | ÖF | + | - | +/- | P | PP | BP |"
               echo "|-----|-----|---|---|---|---|----|----|----|----|-----|---|-----|-----|"
-              
+
               jq -r '.[] | "| \(.position) | \(.team) | \(.games_played) | \(.wins) | \(.ties) | \(.losses) | \(.overtime_wins) | \(.overtime_losses) | \(.goals_for) | \(.goals_against) | \(.goal_difference) | \(.points) | \(.powerplay) | \(.boxplay) |"' "$table_file"
           )
-          
+
           echo "$markdown_table" | ${pkgs.glow}/bin/glow -
       }
-          
+
       # 🦆 says ⮞ team name mapping between table and API
       map_team_to_api() {
         local team="$1"
@@ -809,72 +809,72 @@ in {
           *) echo "$team" ;;
         esac
       }
-      
-      # 🦆 says ⮞ generic player stats fetcher function 
+
+      # 🦆 says ⮞ generic player stats fetcher function
       # 🦆 says ⮞ unified player stats function
       get_player_stats() {
           local stat_type="$1"
           local count="$2"
           local sort_order="$3"  # "desc" or "asc"
-          
+
           dt_debug "Fetching player stats: type=$stat_type, count=$count, order=$sort_order"
-          
+
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
           local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
           local response
           response=$(curl -s "''${endpoint}?''${params}")
-          
+
           if [ $? -ne 0 ]; then
               dt_error "Failed to fetch player data"
               return 1
           fi
-          
+
           case "$stat_type" in
               "tallest"|"shortest")
                   local sort_dir="desc"
                   [ "$stat_type" = "shortest" ] && sort_dir="asc"
-                  
+
                   echo "$response" | jq -r '
-                      .[0].stats | 
+                      .[0].stats |
                       map(select(.info.height.value != null)) |
-                      sort_by(.info.height.value) | 
+                      sort_by(.info.height.value) |
                       '"$( [ "$sort_dir" = "desc" ] && echo "reverse |" )"'
-                      .[0:'$count'] | 
-                      .[] | 
+                      .[0:'$count'] |
+                      .[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Längd: \(.info.height.value) \(.info.height.format)"
                   '
                   ;;
-                  
+
               "heaviest"|"lightest")
                   local sort_dir="desc"
                   [ "$stat_type" = "lightest" ] && sort_dir="asc"
-                  
+
                   echo "$response" | jq -r '
-                      .[0].stats | 
+                      .[0].stats |
                       map(select(.info.weight.value != null)) |
-                      sort_by(.info.weight.value) | 
+                      sort_by(.info.weight.value) |
                       '"$( [ "$sort_dir" = "desc" ] && echo "reverse |" )"'
-                      .[0:'$count'] | 
-                      .[] | 
+                      .[0:'$count'] |
+                      .[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Vikt: \(.info.weight.value) \(.info.weight.format)"
                   '
                   ;;
-                  
+
               "oldest"|"youngest")
                   local sort_dir="asc"
                   [ "$stat_type" = "youngest" ] && sort_dir="desc"
-                  
+
                   echo "$response" | jq -r '
-                      .[0].stats | 
-                      map(select(.info.birthDate != null)) | 
-                      sort_by(.info.birthDate) | 
+                      .[0].stats |
+                      map(select(.info.birthDate != null)) |
+                      sort_by(.info.birthDate) |
                       '"$( [ "$sort_dir" = "desc" ] && echo "reverse |" )"'
-                      .[0:'$count'] | 
-                      .[] | 
+                      .[0:'$count'] |
+                      .[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Född: \(.info.birthDate)"
                   '
                   ;;
-                  
+
               "goals"|"points"|"assists")
                   local sort_key
                   case "$stat_type" in
@@ -882,68 +882,68 @@ in {
                       "points") sort_key="TP" ;;
                       "assists") sort_key="A" ;;
                   esac
-                  
+
                   local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
                   local params="count=$count&sortKey=$sort_key&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
                   local response
                   response=$(curl -s "''${endpoint}?''${params}")
-                  
+
                   echo "$response" | jq -r '
-                      .[0].stats[] | 
+                      .[0].stats[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - '"$stat_type"': \(.[$sort_key])"
                   '
                   ;;
-                  
+
               "icetime")
                   echo "$response" | jq -r '
                       .[0].stats
                       | map(select(.TOI_GP != null))
                       | sort_by(
                           (.TOI_GP | split(":") | (.[0]|tonumber)*60 + (.[1]|tonumber))
-                        ) 
+                        )
                       | reverse |
                       .[0:'$count'] |
                       .[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Istid: \(.TOI_GP) per match"
                   '
                   ;;
-                  
+
               "shorthanded")
                   echo "$response" | jq -r '
-                      .[0].stats | 
-                      sort_by(-.SHTP) | 
-                      .[0:'$count'] | 
-                      .[] | 
+                      .[0].stats |
+                      sort_by(-.SHTP) |
+                      .[0:'$count'] |
+                      .[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Boxplay poäng: \(.SHTP)"
                   '
                   ;;
-                  
+
               *)
                   dt_error "Unknown stat type: $stat_type"
                   return 1
                   ;;
           esac
       }
-           
+
       get_top_goals() {
           local count=''${1}
           get_player_stats "G" "$count" "Mål"
       }
-      
+
       get_top_points() {
           local count=''${1}
           get_player_stats "TP" "$count" "Poäng"
       }
-      
+
       get_top_assists() {
           local count=''${1}
           get_player_stats "A" "$count" "Assists"
       }
-      
+
       # 🦆 says ⮞ physical attributes
       get_tallest_players() {
           local count=''${1}
-          dt_info "Fetching player data for height analysis..."    
+          dt_info "Fetching player data for height analysis..."
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
           local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
           local response
@@ -952,50 +952,50 @@ in {
               dt_error "Failed to fetch player data for height"
               return 1
           fi
-          
+
           echo "$response" | jq -r '
-              .[0].stats | 
+              .[0].stats |
               map(select(.info.height.value != null)) |
-              sort_by(.info.height.value) | reverse | 
-              .[0:'$count'] | 
-              .[] | 
+              sort_by(.info.height.value) | reverse |
+              .[0:'$count'] |
+              .[] |
               "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Längd: \(.info.height.value) \(.info.height.format)"
           '
       }
-      
+
       get_heaviest_players() {
           local count=''${1}
           dt_info "Fetching player data for weight analysis..."
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
           local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
           local response
-          response=$(curl -s "''${endpoint}?''${params}")   
+          response=$(curl -s "''${endpoint}?''${params}")
           if [ $? -ne 0 ]; then
               dt_error "Failed to fetch player data for weight"
               return 1
           fi
-          
+
           echo "$response" | jq -r '
-              .[0].stats | 
+              .[0].stats |
               map(select(.info.weight.value != null)) |
-              sort_by(.info.weight.value) | reverse | 
-              .[0:'$count'] | 
-              .[] | 
+              sort_by(.info.weight.value) | reverse |
+              .[0:'$count'] |
+              .[] |
               "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Vikt: \(.info.weight.value) \(.info.weight.format)"
           '
       }
-      
+
       # 🦆 says ⮞ unified goalie stats func
       get_goalie_stats() {
           local stat_type="$1"
-          local count="$2"    
+          local count="$2"
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/goalkeepers_summary"
           local sort_key="svPct"
           local description="Räddningsprocent"
-    
+
           case "$stat_type" in
-              "save_percentage") 
-                  sort_key="svPct" 
+              "save_percentage")
+                  sort_key="svPct"
                   description="Räddningsprocent"
                   ;;
               "gaa")
@@ -1003,114 +1003,114 @@ in {
                   description="Insläppta mål i snitt"
                   ;;
           esac
-    
+
           local params="count=$count&sortKey=$sort_key&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=goal"
           local response
           response=$(curl -s "''${endpoint}?''${params}")
-    
+
           echo "$response" | jq -r '
-              .[0].stats[] | 
+              .[0].stats[] |
               "\(.Rank). \(.info.fullName) (\(.info.team.name)) - $description: \(.[$sort_key])"
           '
       }
 
-      
+
       get_top_goalies_save_percentage() {
           local count=''${1}
           get_goalie_stats "svPct" "$count" "Räddningsprocent"
       }
-      
+
       get_top_goalies_gaa() {
           local count=''${1}
           get_goalie_stats "GAA" "$count" "Insläppta mål i snitt"
       }
-      
+
       get_best_goalkeeper() {
-          dt_info "Finding best goalkeeper in league..."    
+          dt_info "Finding best goalkeeper in league..."
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/goalkeepers_summary"
-          local params="count=1&sortKey=svPct&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=goal"        
+          local params="count=1&sortKey=svPct&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=goal"
           local response
           response=$(curl -s "''${endpoint}?''${params}")
-          
+
           if [ $? -ne 0 ]; then
               echo "NOT_FOUND"
               return 1
           fi
-          
+
           echo "$response" | jq -r '
               .[0].stats[0] |
               "\(.info.fullName)|\(.info.team.name)|\(.svPct)|\(.GP)|\(.GAA)|\(.SO)"
           '
       }
-      
+
       # 🦆 says ⮞ penalty stats functions
       get_penalty_stats() {
           local sort_key="$1"
           local count="$2"
-          local description="$3"    
+          local description="$3"
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_penalty"
-          local params="count=$count&sortKey=$sort_key&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=penalty"     
+          local params="count=$count&sortKey=$sort_key&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=penalty"
           local response
           response=$(curl -s "''${endpoint}?''${params}")
-          
+
           if [ $? -ne 0 ]; then
               dt_error "Failed to fetch penalty stats"
               return 1
           fi
-          
+
           echo "$response" | jq -r --arg desc "$description" --arg key "$sort_key" '
-              .[0].stats[] | 
+              .[0].stats[] |
               "\(.Rank). \(.info.fullName) (\(.info.team.name)) - \($desc): \(.[$key])"
           '
       }
-      
+
       get_top_penalties() {
           local count=''${1}
           get_penalty_stats "PM" "$count" "Utvisningsminuter"
       }
-      
+
       # 🦆 says ⮞ fun extra stats functions
       get_oldest_player() {
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
-          local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"  
+          local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
           local response
-          response=$(curl -s "''${endpoint}?''${params}")  
+          response=$(curl -s "''${endpoint}?''${params}")
           echo "$response" | jq -r '
-              .[0].stats | 
-              map(select(.info.birthDate != null)) | 
-              sort_by(.info.birthDate) | 
-              .[0] | 
+              .[0].stats |
+              map(select(.info.birthDate != null)) |
+              sort_by(.info.birthDate) |
+              .[0] |
               "Äldst: \(.info.fullName) (\(.info.team.name)) - Född: \(.info.birthDate)"
           '
       }
-      
+
       get_youngest_player() {
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
           local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
           local response
           response=$(curl -s "''${endpoint}?''${params}")
           echo "$response" | jq -r '
-              .[0].stats | 
-              map(select(.info.birthDate != null)) | 
-              sort_by(.info.birthDate) | 
-              .[-1] | 
+              .[0].stats |
+              map(select(.info.birthDate != null)) |
+              sort_by(.info.birthDate) |
+              .[-1] |
               "Yngst: \(.info.fullName) (\(.info.team.name)) - Född: \(.info.birthDate)"
           '
       }
-      
+
       get_most_shorthanded_points() {
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
-          local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point" 
+          local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
           local response
           response=$(curl -s "''${endpoint}?''${params}")
           echo "$response" | jq -r '
-              .[0].stats | 
-              sort_by(-.SHTP) | 
-              .[0] | 
+              .[0].stats |
+              sort_by(-.SHTP) |
+              .[0] |
               "Flest boxplay mål: \(.info.fullName) (\(.info.team.name)) - BP poäng: \(.SHTP)"
           '
       }
-      
+
       get_longest_ice_time() {
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/players_point"
           local params="count=100&sortKey=TP&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=point"
@@ -1121,7 +1121,7 @@ in {
               | map(select(.TOI_GP != null))
               | sort_by(
                   (.TOI_GP | split(":") | (.[0]|tonumber)*60 + (.[1]|tonumber))
-                ) 
+                )
               | .[-1]
               | "Längst istid per match: \(.info.fullName) (\(.info.team.name)) - \(.TOI_GP) per match"
           '
@@ -1132,16 +1132,16 @@ in {
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=result"
           local response
           response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-    
+
           if [ $? -ne 0 ]; then
               dt_error "Failed to fetch boxplay data"
               return 1
           fi
-    
+
           echo "$response" | jq -r '
-              .[0].stats | 
-              sort_by(.SHG|tonumber) | reverse | 
-              .[0] | 
+              .[0].stats |
+              sort_by(.SHG|tonumber) | reverse |
+              .[0] |
               "\(.info.siteDisplayName) - \(.SHG) boxplay mål"
           '
       }
@@ -1152,27 +1152,27 @@ in {
           local endpoint="https://www.hockeyallsvenskan.se/api/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=result"
           local response
           response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-    
+
           if [ $? -ne 0 ]; then
               dt_error "Failed to fetch boxplay data"
               return 1
           fi
-    
+
           echo "$response" | jq -r '
-              .[0].stats | 
-              sort_by(.SHG|tonumber) | reverse | 
-              .[0:'$count'] | 
+              .[0].stats |
+              sort_by(.SHG|tonumber) | reverse |
+              .[0:'$count'] |
               "\(.Rank). \(.info.siteDisplayName) - \(.SHG) boxplay mål"
           '
       }
-                    
-      # 🦆 says ⮞ complete duckPUCK handler for stats     
+
+      # 🦆 says ⮞ complete duckPUCK handler for stats
       handle_player_stat_query() {
           local stat="$1"
           local count="$2"
-          
+
           dt_debug "Processing stat query: stat=$stat, count=$count"
-          
+
           case "$stat" in
               "goals"|"points"|"assists"|"tallest"|"heaviest"|"oldest"|"youngest"|"icetime"|"shorthanded")
                   get_player_stats "$stat" "$count"
@@ -1181,7 +1181,7 @@ in {
                   get_player_stats "shortest" "$count"
                   ;;
               "lightest")
-                  get_player_stats "lightest" "$count"  
+                  get_player_stats "lightest" "$count"
                   ;;
               "save_percentage"|"gaa")
                   get_goalie_stats "$stat" "$count"
@@ -1191,9 +1191,9 @@ in {
                   local params="count=$count&sortKey=PM&ssgtUuid=uy2zvu6xaa&provider=statnet&state=active&moduleType=penalty"
                   local response
                   response=$(curl -s "''${endpoint}?''${params}")
-                  
+
                   echo "$response" | jq -r '
-                      .[0].stats[] | 
+                      .[0].stats[] |
                       "\(.Rank). \(.info.fullName) (\(.info.team.name)) - Utvisningsminuter: \(.PM)"
                   '
                   ;;
@@ -1205,16 +1205,16 @@ in {
                   ;;
           esac
       }
-                 
-      dt_info "[🏒🦆] duckPUCK🏒🦆 hockey scraper!"    
+
+      dt_info "[🏒🦆] duckPUCK🏒🦆 hockey scraper!"
       ${scraper} --dataDir "$dataDir"
-      status=$?     
+      status=$?
       if [ $status -ne 0 ]; then
         dt_error "duck say fuck failed with exit code $status"
         exit $status
-      fi    
-      dt_debug "Scraping done, files updated in $dataDir"      
-      table_file="$dataDir/table.json"     
+      fi
+      dt_debug "Scraping done, files updated in $dataDir"
+      table_file="$dataDir/table.json"
 
       # 🦆 says ⮞ handle player stat queries (BEFORE team-specific queries)
       if [ -n "$stat" ] && [ -z "$team" ]; then
@@ -1269,7 +1269,7 @@ in {
               exit 0
           fi
       fi
-      
+
       # 🦆 says ⮞ handle best/worst special teams queries
       if [ -n "$mode" ] && [ -n "$stat" ] && { [ "$mode" = "best" ] || [ "$mode" = "worst" ]; }; then
           if [ -f "$table_file" ]; then
@@ -1282,27 +1282,27 @@ in {
           fi
           # exit 0
       fi
-      
+
       # 🦆 says ⮞ handle goalkeeper queries
       if [ "$stat" = "goalkeeper" ]; then
           if [ -n "$team" ]; then
               # 🦆 says ⮞ map team name for API calls
               api_team=$(map_team_to_api "$team")
               dt_debug "Goalkeeper query - Team: $team, API Team: $api_team"
-        
+
               if [ "$mode" = "best" ]; then
                   # 🦆 says ⮞ find best goalkeeper in league
                   best_gk_data=$(get_best_goalkeeper)
                   if [ "$best_gk_data" != "NOT_FOUND" ]; then
                       IFS='|' read -r gk_name gk_team gk_save_percent gk_games gk_gaa gk_shutouts <<< "$best_gk_data"
-                
+
                       analysis="Ligans bästa målvakt just nu är $gk_name från $gk_team med $gk_save_percent% i räddningsprocent."
                       analysis+=" Efter $gk_games matcher har $gk_name bara släppt in $gk_gaa mål i genomsnitt och hållit $gk_shutouts nollor."
-                
+
                       if [ "$gk_team" = "$api_team" ]; then
                           analysis+=" DET ÄR EN $team MÅLVAKT SOM LEDER LIGAN! GRATTIS!"
                       fi
-                
+
                       echo "$analysis"
                       yo say --text "$analysis" --silence "0.8"
                   else
@@ -1319,10 +1319,10 @@ in {
           fi
           exit 0
       fi
-                 
+
       # 🦆 says ⮞ handle team analysis
       if [ -n "$team" ]; then
-      
+
         if [ -f "$table_file" ]; then
           # 🦆 says ⮞ fuzzy match team name
           matched_team=$(fuzzy_match_team "$team" "$table_file")
@@ -1332,40 +1332,40 @@ in {
           else
             dt_warning "No fuzzy match found for '$team', using exact match"
           fi
-          
+
           # 🦆 says ⮞ map team name for API calls
           api_team=$(map_team_to_api "$team")
-          dt_debug "API team name: $api_team (from: $team)"     
-          
+          dt_debug "API team name: $api_team (from: $team)"
+
           # 🦆 says ⮞ handle special teams with analysis
           if [ "$stat" = "powerplay" ]; then
-              dt_debug "Stat: $stat & Team: $api_team"  
+              dt_debug "Stat: $stat & Team: $api_team"
               pp_data=$(get_team_powerplay "$api_team")
-              
+
               # 🦆 says ⮞ extract percentage directly from the data instead of separate API call
               pp_perc_line=$(echo "$pp_data" | grep "Power Play Efficiency:")
               pp_perc=$(echo "$pp_perc_line" | awk '{print $4}' | sed 's/%//')
-              
+
               # 🦆 says ⮞ extract other stats for richer analysis
               pp_goals_line=$(echo "$pp_data" | grep "Power Play Goals:")
               pp_goals=$(echo "$pp_goals_line" | awk '{print $4}')
-              
+
               pp_opp_line=$(echo "$pp_data" | grep "Power Play Opportunities:")
               pp_opp=$(echo "$pp_opp_line" | awk '{print $4}')
-              
+
               pp_shots_line=$(echo "$pp_data" | grep "Power Play Shots on Goal:")
               pp_shots=$(echo "$pp_shots_line" | awk '{print $6}')
-              
+
               # 🦆 says ⮞ analyziz pp go!
               echo "$pp_data" && echo ""
-              
+
               # 🦆 says ⮞ get the rank from pp_data for proper analysis
               rank_line=$(echo "$pp_data" | grep "Rank:")
               rank=$(echo "$rank_line" | awk '{print $2}')
-              
+
               if [[ "$pp_perc" =~ ^[0-9.]+$ ]]; then
                   pp_analysis=""
-                  
+
                   # 🦆 says ⮞ rank-based analysis is way more exciting!
                   case "$rank" in
                       1)
@@ -1390,7 +1390,7 @@ in {
                           fi
                           ;;
                   esac
-                  
+
                   # 🦆 says ⮞ add goal and opportunity analysis for richer content
                   pp_analysis+="Dom har gjort $pp_goals mål på $pp_opp powerplaylägen"
                   if [ -n "$pp_shots" ] && [ "$pp_shots" != "0" ]; then
@@ -1399,48 +1399,48 @@ in {
                   else
                       pp_analysis+="."
                   fi
-                  
+
                   # 🦆 says ⮞ spicy comparisons for extreme values
                   if (( $(echo "$pp_perc > 35" | bc -l) )); then
                       pp_analysis+=" Med ''${pp_perc}% är powerplayet RENT AV LÄSKIGT bra!"
                   elif (( $(echo "$pp_perc < 10" | bc -l) )); then
                       pp_analysis+=" Bara ''${pp_perc}% är alarmerande lågt - dom måste lösa detta!"
                   fi
-                  
+
                   dt_info "🏒🦆duckPUCK🏒🦆 POWERPLAY ANALYS:"
                   echo "$pp_analysis"
                   yo say "$pp_analysis" --silence "0.8"
               else
                   dt_warning "Could not extract valid powerplay percentage from data"
               fi
-          
-          elif [ "$stat" = "boxplay" ]; then 
+
+          elif [ "$stat" = "boxplay" ]; then
               dt_debug "Stat: $stat & Team: $api_team"
               bp_data=$(get_team_boxplay "$api_team")
-              
+
               # 🦆 says ⮞ extract percentage and stats directly from displayed data
               bp_perc_line=$(echo "$bp_data" | grep "Boxplay Efficiency:")
               bp_perc=$(echo "$bp_perc_line" | awk '{print $3}' | sed 's/%//')
-              
+
               # 🦆 says ⮞ extract other boxplay stats for richer analysis
               ppga_line=$(echo "$bp_data" | grep "Power Play Goals Against:")
               ppga=$(echo "$ppga_line" | awk '{print $5}')
-              
+
               shg_line=$(echo "$bp_data" | grep "Short-handed Goals:")
               shg=$(echo "$shg_line" | awk '{print $3}')
-              
+
               ppopp_line=$(echo "$bp_data" | grep "Boxplay Opportunities:")
               ppopp=$(echo "$ppopp_line" | awk '{print $3}')
-              
+
               # 🦆 says ⮞ analyziz dat bp go!
               echo "$bp_data"
               echo ""
-              
+
               # 🦆 says ⮞ get rank
               rank_line=$(echo "$bp_data" | grep "Rank:")
-              rank=$(echo "$rank_line" | awk '{print $2}') 
+              rank=$(echo "$rank_line" | awk '{print $2}')
               dt_debug "Boxplay analysis - Team: $team, Rank: $rank, BP_Perc: $bp_perc"
-              
+
               if [[ "$bp_perc" =~ ^[0-9.]+$ ]]; then
                   bp_analysis=""
                   # 🦆 says ⮞ rank based analyziz exciting yo
@@ -1467,7 +1467,7 @@ in {
                           fi
                           ;;
                   esac
-                  
+
                   # 🦆 says ⮞ goals analysis
                   bp_analysis+="Dom har släppt in $ppga mål på $ppopp boxplaylägen"
                   if [ "$shg" != "0" ] && [ -n "$shg" ]; then
@@ -1475,14 +1475,14 @@ in {
                   else
                       bp_analysis+="."
                   fi
-                  
+
                   # 🦆 says ⮞ extreme values
                   if (( $(echo "$bp_perc > 90" | bc -l) )); then
                       bp_analysis+=" Med ''${bp_perc}% i boxplay är dom NÄSTAN OGENOMTRÄNGLIGA!"
                   elif (( $(echo "$bp_perc < 65" | bc -l) )); then
                       bp_analysis+=" Bara ''${bp_perc}% i boxplay är ett ALLVARLIGT problem som måste åtgärdas!"
                   fi
-                  
+
                   dt_info "🏒🦆duckPUCK🏒🦆 BOXPLAY ANALYS:"
                   echo "$bp_analysis"
                   yo say "$bp_analysis" --silence "0.8"
@@ -1491,12 +1491,12 @@ in {
                   dt_debug "BP_Perc line was: $bp_perc_line"
                   dt_debug "Extracted BP_Perc: $bp_perc"
               fi
-          
+
           else
               # 🦆 says ⮞ GENERAL TEAM ANALYSIS
               dt_debug "Doing general team analysis for: $team"
               team_analysis=$(analyze_team "$team" "$table_file")
-        
+
               if [ $? -eq 0 ]; then
                   dt_info "🏒🦆duckPUCK🏒🦆 TEAM ANALYS:"
                   echo "$team_analysis"
@@ -1512,14 +1512,14 @@ in {
         # 🦆 says ⮞ glow table when no team specified
         if [ -f "$table_file" ]; then
           team_count=$(jq length "$table_file" 2>/dev/null || echo "0")
-          dt_debug "Found $team_count teams in table"        
-          
+          dt_debug "Found $team_count teams in table"
+
           # 🦆 says ⮞ display HA news
           echo "" && echo ""
           BOLD=1
-          ${pkgs.gum}/bin/gum format "# 🗞️ **NYHETER**"     
+          ${pkgs.gum}/bin/gum format "# 🗞️ **NYHETER**"
           hockey_news | head -5 && echo "----------------------------" && echo ""
-          
+
           # 🦆 says ⮞ display table with special teams
           display_table_with_special_teams "$table_file"
 
@@ -1528,10 +1528,10 @@ in {
         else
           dt_error "No table data found at $table_file"
         fi
-      fi     
+      fi
     '';
     voice = {
-      enabled = true;															
+      enabled = true;
       priority = 4;
       sentences = [
         # 🦆 says ⮞ no parameters
@@ -1541,7 +1541,7 @@ in {
         "visa allsvenska tabellen"
         "hur ligger lagen till"
         "vad är ställningen i tabellen"
-    
+
         # 🦆 says ⮞ team specific sentences
         "vad ligger {team} i tabellen"
         "visa {team} statistik"
@@ -1564,7 +1564,7 @@ in {
         "analysera {team}s {mode} matcher"
         "hur presterade {team} i {mode} matchen"
         "vilka trender har {team}"
-            
+
         # 🦆 says ⮞ stat specific sentences
         "vad har {team} (för|i) {stat} (statistik|stats)"
         "analysera {team} {stat}"
@@ -1573,12 +1573,12 @@ in {
         "hur ser {team}s {stat} ut"
         "visa {team}s {stat}"
         "analysera {team}s {stat}"
-        "ge en analys av {team}s {stat}"        
+        "ge en analys av {team}s {stat}"
 
         # 🦆 says ⮞ best/worse teams queries
         "vem har [ligan|ligans] {mode} {stat}"
         "vilket lag har [ligan|ligans] {mode} {stat}"
-           
+
         # 🦆 says ⮞ schedule / recent / upcoming
         "visa {mode} matcher"
         "vilka matcher spelas {mode}"
@@ -1587,7 +1587,7 @@ in {
         "vilka möter {team} {mode}"
         "vilka matcher har {team} {mode}"
         "när är {team}s {mode} match"
-        
+
         # 🦆 says ⮞ player stat sentences
         "{count} har {mode} {stat}"
         "visa topp {count} i {stat}"
@@ -1597,18 +1597,18 @@ in {
         "vilket lag har {mode} {stat}"
         "vem har {mode} {stat} i ligan"
         "vilka har {mode} {stat}"
-        "vilket lag har gjort {mode} {stat}"        
+        "vilket lag har gjort {mode} {stat}"
       ];
       lists = {
         mode.values = [
-          { "in" = "[förra|senaste|igår]"; out = "recent"; }   
-          { "in" = "[idag|nästa|kommande|imorgon]"; out = "upcoming"; }   
+          { "in" = "[förra|senaste|igår]"; out = "recent"; }
+          { "in" = "[idag|nästa|kommande|imorgon]"; out = "upcoming"; }
           { "in" = "[tabellen|ställningen|poängställning]"; out = "table"; }
           { "in" = "[bäst|bästa|best|mest|flest]"; out = "best"; }
           { "in" = "[sämst|sämsta|kassast]"; out = "worst"; }
-        ];  
+        ];
         team.values = [
-          { "in" = "[björklöven|björklövens|löven|vi]"; out = "björklöven"; }   
+          { "in" = "[björklöven|björklövens|löven|vi]"; out = "björklöven"; }
           { "in" = "[modo|modos]"; out = "modo"; }  # CHANGED from "MoDo Hockey" to "modo"
           { "in" = "[karlskoga|bik|bofors]"; out = "karlskoga"; }
           { "in" = "[nybro|nybros|vikings]"; out = "nybro"; }
@@ -1633,23 +1633,23 @@ in {
           { "in" = "[längd|längst|lång]"; out = "tallest"; }
           { "in" = "[kort|kortast]"; out = "shortest"; }
           { "in" = "[vikt|tyngst|tung|tjock|tjockast]"; out = "heaviest"; }
-          { "in" = "[lätt|lättast]"; out = "lightest"; }              
+          { "in" = "[lätt|lättast]"; out = "lightest"; }
           { "in" = "[mål|skytter]"; out = "goals"; }
           { "in" = "[assist|passningar]"; out = "assists"; }
           { "in" = "[äldst|äldsta]"; out = "oldest"; }
           { "in" = "[yngst|yngsta]"; out = "youngest"; }
           { "in" = "[underläge|shorthanded|boxmål]"; out = "shorthanded"; }
           { "in" = "[istid|speltid|mest istid]"; out = "icetime"; }
-          { "in" = "[poäng]"; out = "points"; }          
-        ];  
+          { "in" = "[poäng]"; out = "points"; }
+        ];
         count.values = [
           { "in" = "[1|ett|en|bästa|vem]"; out = "1"; }
           { "in" = "[2|två|tvåan|näst]"; out = "2"; }
           { "in" = "[3|tre|vilka]"; out = "3"; }
           { "in" = "[5|fem]"; out = "5"; }
-          { "in" = "[10|tio]"; out = "10"; }                    
+          { "in" = "[10|tio]"; out = "10"; }
         ];
-      };  
+      };
     };
-    
+
   };}

@@ -24,12 +24,12 @@
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
     else "127.0.0.1";
 
-  # 🦆 says ⮞ define Zigbee devices here yo 
+  # 🦆 says ⮞ define Zigbee devices here yo
   zigbeeDevices = config.house.zigbee.devices;
 
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -38,7 +38,7 @@
   # 🦆 says ⮞ Group devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (room: devices: 
+  in lib.mapAttrs (room: devices:
       map (d: d.friendly_name) devices
     ) grouped;
 
@@ -70,16 +70,16 @@ in { # 🦆 says ⮞ Voice Intents
     category = "🛖 Home Automation";
     autoStart = false;
     logLevel = "DEBUG";
-    parameters = [   
+    parameters = [
       { name = "device"; description = "Device to control"; optional = false; }
-      { name = "mode"; description = "Working mode."; default = "click"; values = [ "click" "switch" "program" ]; }     
-      { name = "state"; type = "string"; description = "On/off state of the switch"; default = "ON"; }           
-      { name = "delay"; type = "int"; description = "Sustain time"; default = 3; } 
-      { name = "reverse"; description = "Reverse"; optional = true; type = "bool"; default = false; }    
+      { name = "mode"; description = "Working mode."; default = "click"; values = [ "click" "switch" "program" ]; }
+      { name = "state"; type = "string"; description = "On/off state of the switch"; default = "ON"; }
+      { name = "delay"; type = "int"; description = "Sustain time"; default = 3; }
+      { name = "reverse"; description = "Reverse"; optional = true; type = "bool"; default = false; }
       { name = "lower"; type = "int"; description = "Down movement limit"; default = 100; }
-      { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; default = 50; }          
-      { name = "touch"; type = "bool";  description = "Touch control"; default = false; }                
-      { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }    
+      { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; default = 50; }
+      { name = "touch"; type = "bool";  description = "Touch control"; default = false; }
+      { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }
       { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
     ];
     code = ''
@@ -87,7 +87,7 @@ in { # 🦆 says ⮞ Voice Intents
 
       # 🦆 says ⮞ create case insensitive map of device friendly_name
       declare -A device_map=( ${lib.concatStringsSep "\n" (lib.mapAttrsToList (k: v: "['${lib.toLower k}']='${v}'") normalizedDeviceMap)} )
-      available_devices=( ${toString deviceList} )      
+      available_devices=( ${toString deviceList} )
       DOTFILES="$flake"
       STATE_DIR="${zigduckDir}"
       DEVICE="$device"
@@ -127,6 +127,6 @@ in { # 🦆 says ⮞ Voice Intents
         exit 1
       fi
 
-    ''; 
-    
+    '';
+
   };}

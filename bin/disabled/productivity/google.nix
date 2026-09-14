@@ -7,8 +7,8 @@
   cmdHelpers,
   ...
 } : let
-in {  
-  yo = {   
+in {
+  yo = {
     scripts = {
       google = {
         description = "Perform web search on google";
@@ -25,26 +25,26 @@ in {
           GOOGLE_API_KEY=$(cat $apiKeyFile)
           SEARCH_ENGINE_ID=$(cat $searchIDFile)
           query=$(urlencode $search)
-          
+
           response=$(curl -s "https://www.googleapis.com/customsearch/v1?key=$GOOGLE_API_KEY&cx=$SEARCH_ENGINE_ID&q=$query")
           dt_debug "$response"
-          
+
           error=$(echo "$response" | jq -r '.error.message // empty')
           if [ -n "$error" ]; then
             dt_error "Google search error: $error"
             exit 1
           fi
-          
+
           if [ "$(echo "$response" | jq -r '.items | length')" -eq 0 ]; then
             dt_info "No results found for $search."
             exit 0
           fi
-          
+
           results=()
           while IFS= read -r line; do
             results+=("$line")
           done < <(echo "$response" | jq -c '.items[0:5][]')
-          
+
 
           echo ""
           # 🦆 says ⮞ display
@@ -52,11 +52,11 @@ in {
             echo "Search results for: $search"
             if_voice_say "Hittade dessa resultat när jag ssökte på: $search"
             item="''${results[$i]}"
-            
+
             title=$(echo "$item" | jq -r '.title // "Untitled"' | sed 's/ - Google Search$//')
             link=$(echo "$item" | jq -r '.link // ""')
             snippet=$(echo "$item" | jq -r '.snippet // ""')
-            
+
             # 🦆 says ⮞ 1st result
             if [ $i -eq 0 ]; then
               echo "  ''${title}"
@@ -72,7 +72,7 @@ in {
               echo ""
             fi
           done
-          
+
           # 🦆 says ⮞ interactive mode
           if [ -t 0 ]; then
             echo "———————————————————————————————————————"
@@ -101,13 +101,13 @@ in {
 
           if [ "$VOICE_MODE" = "1" ]; then
             if_voice_say "Hittade $item_count resultat för $search"
-            
+
             for idx in "''${!results[@]}"; do
               item="''${results[$idx]}"
               title=$(echo "$item" | jq -r '.title' | sed 's/ - Google Search$//')
               snippet=$(echo "$item" | jq -r '.snippet')
               link=$(echo "$item" | jq -r '.link')
-              
+
               yo-say "Resultat $((idx+1)): $title. $snippet"
               yo-say "Är detta relevant för dig?"
 
@@ -129,10 +129,10 @@ in {
                     ;;
                 esac
               done
-              
+
               $confirmed && exit 0
             done
-            
+
             if_voice_say "Hittade inga fler matchande resultat"
             exit 0
           fi

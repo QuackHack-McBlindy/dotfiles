@@ -8,11 +8,11 @@
   ...
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
 #  mqttHost = lib.findSingle (host:
 #      let cfg = self.nixosConfigurations.${host}.config;
 #      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+#    ) null null sysHosts;
   mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
@@ -25,13 +25,13 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-in {  
+in {
   yo.scripts.leaving = {
     description = "Run when leaving house to set away state";
     category = "🛖 Home Automation";
     autoStart = false;
-    parameters = [  
-           
+    parameters = [
+
     ];
     logLevel = "INFO";
     code = ''
@@ -43,5 +43,5 @@ in {
       yp tv --typ "off" --device "arris"
       yo notify --text "Left home"
     '';
-    
+
   };}

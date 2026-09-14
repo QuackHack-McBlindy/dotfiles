@@ -28,7 +28,7 @@ rainbow_text() {
     done
     echo -e ""
     echo -e "🌈 "
-    echo -e "$colored_text" 
+    echo -e "$colored_text"
 }
 
 
@@ -45,7 +45,7 @@ hm-logs() {
   log_output=$(sudo journalctl -u "home-manager-${USER}.service" | tail -100)
   conflict_file=$(echo "$log_output" | grep -oP "(?<=Existing file ')[^']+" | tail -n 1)
   if [ -n "$conflict_file" ]; then
-    backup_file="${conflict_file}.bak2"   
+    backup_file="${conflict_file}.bak2"
     echo "Moving file from $conflict_file to $backup_file"
     mv "$conflict_file" "$backup_file"
     if [ $? -eq 0 ]; then
@@ -75,4 +75,3 @@ space() {
 #        command lsd --tree --depth 1 "$@"
 #    fi
 #}
-

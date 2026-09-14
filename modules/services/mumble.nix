@@ -59,7 +59,7 @@ in {
             }
           ];
         };
-  
+
         services.murmur = {
           enable = true;
           bandwidth = 540000;
@@ -73,5 +73,4 @@ in {
         networking.firewall.allowedUDPPorts = [
           64738
         ];
-    };}    
-
+    };}

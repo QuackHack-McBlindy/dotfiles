@@ -1,0 +1,25 @@
+# .pre-commit-config.yaml
+
+exclude: '(^|/)(dump|secrets)(/|$)|(^|/)\.env($|\.)'
+
+repos:
+  - repo: builtin
+    hooks:
+      - id: trailing-whitespace
+        exclude: '^(docs/|dist/|vendor/|.*\.snap$)'
+      - id: end-of-file-fixer
+        exclude: '^(docs/|dist/|vendor/|.*\.snap$)'
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-added-large-files
+        args: [--maxkb=500]
+      - id: check-merge-conflict
+
+  - repo: local
+    hooks:
+      - id: update-readme
+        name: Update README.md
+        entry: bash hooks/update-readme.sh
+        language: system
+        pass_filenames: false
+        always_run: true

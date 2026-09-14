@@ -9,7 +9,7 @@
   --danger: #e74c3c;
   --gray: #95a5a6;
   --transition: all 0.3s ease;
-  
+
   /* ============================================
      COLOR PALETTE
      ============================================ */
@@ -20,7 +20,7 @@
   --lime-green: #00ff00;
   --plasma-purple: #9d00ff;
   --duck-yellow: #ffd700;
-  
+
   /* ============================================
      CARD THEME VARIABLES (with default values matching current styling)
      ============================================ */
@@ -36,7 +36,7 @@
   --card-hover-border-color: var(--duck-yellow);
   --card-hover-shadow: var(--card-glow-default), 0 20px 50px rgba(255, 230, 0, 0.2);
   --card-transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  
+
   /* ============================================
      CARD CONTENT VARIABLES
      ============================================ */
@@ -45,17 +45,17 @@
   --title-color: #fff;
   --title-shadow: 0 2px 10px rgba(255, 230, 0, 0.5);
   --title-letter-spacing: 0.5px;
-  
+
   --value-size: 3.5rem;
   --value-weight: 900;
   --value-color: #fff;
   --value-text-shadow: 0 0 20px currentColor, 0 0 40px rgba(255, 230, 0, 0.3);
-  
+
   --details-bg: rgba(0, 0, 0, 0.3);
   --details-border: 4px solid var(--pond-blue);
   --details-text-color: #aaa;
   --details-font-size: 0.9rem;
-  
+
   /* ============================================
      CHART VARIABLES
      ============================================ */
@@ -64,7 +64,7 @@
   --chart-padding: 15px;
   --chart-canvas-height: 120px;
   --chart-scanline-bg: linear-gradient(90deg, var(--electric-pink), var(--pond-blue));
-  
+
   /* ============================================
      DELTA VARIABLES
      ============================================ */
@@ -73,7 +73,7 @@
   --delta-radius: 20px;
   --delta-font-size: 0.8rem;
   --delta-font-weight: bold;
-  
+
   /* ============================================
      ANIMATION VARIABLES
      ============================================ */
@@ -89,7 +89,7 @@
   --delta-bounce-duration: 1s;
   --gradient-shift-duration: 4s;
   --quack-duration: 2s;
-  
+
   /* ============================================
      ROOM CONTROL VARIABLES
      ============================================ */
@@ -101,7 +101,7 @@
   --accent: #34c759;
   --room-glow: 0 0 20px rgba(52, 199, 89, 0.3);
   --device-glow: 0 0 15px rgba(255, 255, 255, 0.2);
-  
+
   /* ============================================
      ROOM SPECIFIC
      ============================================ */
@@ -114,7 +114,7 @@
   --room-hover-transform: translateY(-5px) rotateX(3deg);
   --room-hover-border-color: var(--duck-yellow);
   --room-hover-shadow: var(--room-glow), 0 15px 50px rgba(255, 230, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  
+
   /* ============================================
      DEVICE SPECIFIC
      ============================================ */
@@ -125,14 +125,14 @@
   --device-padding: 20px;
   --device-hover-transform: translateY(-5px);
   --device-hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.1);
-  
+
   /* ============================================
      UNIFIED STATUS CARD
      ============================================ */
   --unified-bg: linear-gradient(135deg, rgba(46, 204, 113, 0.2), rgba(52, 152, 219, 0.2));
   --unified-border: 2px solid rgba(46, 204, 113, 0.3);
   --unified-hover-border: rgba(46, 204, 113, 0.8);
-  
+
   /* ============================================
      PRIORITY STATUS CARDS
      ============================================ */
@@ -486,7 +486,7 @@ body::before {
 }
 
 /* ==========================================================================
-   ROOM CONTROLS 
+   ROOM CONTROLS
    ========================================================================== */
 
 .room-controls-section {
@@ -502,7 +502,7 @@ body::before {
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 
+  text-shadow:
     0 0 20px var(--neon-yellow),
     0 0 40px rgba(255, 230, 0, 0.3);
   animation: textPulse 2s infinite alternate;
@@ -579,7 +579,7 @@ body::before {
 
 .room.on {
   border-color: var(--room-color);
-  box-shadow: 
+  box-shadow:
     var(--room-glow),
     0 15px 50px var(--room-glow),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -633,7 +633,7 @@ body::before {
 .room-name {
   font-size: 2.3rem;
   text-transform: uppercase;
-  letter-spacing: 0.5px;    
+  letter-spacing: 0.5px;
   font-weight: 600;
 }
 
@@ -648,10 +648,10 @@ body::before {
    ========================================================================== */
 
 .devices {
-  grid-template-columns: 1fr; 
+  grid-template-columns: 1fr;
   gap: 15px;
   margin-top: 20px;
-  width: 100%; 
+  width: 100%;
   display: grid;
 }
 
@@ -694,7 +694,7 @@ body::before {
 
 .device.on {
   border-color: var(--device-color);
-  box-shadow: 
+  box-shadow:
     var(--device-glow),
     0 8px 30px rgba(var(--device-color-rgb), 0.3);
   transform: translateY(-3px);
@@ -808,7 +808,7 @@ body::before {
   background: linear-gradient(135deg, #3a3f45, #2a2f35);
   transition: .4s;
   border-radius: 34px;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.3),
     0 1px 2px rgba(255, 255, 255, 0.1);
 }
@@ -823,7 +823,7 @@ body::before {
   background: linear-gradient(135deg, #ffffff, #f0f0f0);
   transition: .4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
   border-radius: 50%;
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.3),
     0 1px 3px rgba(255, 255, 255, 0.2);
 }
@@ -847,7 +847,7 @@ body::before {
   padding: 0;
   min-width: 32px;
   transition: all 0.3s ease;
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.3),
     inset 0 1px 2px rgba(255, 255, 255, 0.1);
 }
@@ -855,7 +855,7 @@ body::before {
 .color-picker:hover {
   transform: scale(1.1);
   border-color: var(--duck-yellow);
-  box-shadow: 
+  box-shadow:
     0 0 15px rgba(255, 230, 0, 0.3),
     0 2px 8px rgba(0, 0, 0, 0.3);
 }
@@ -891,7 +891,7 @@ input[type="range"] {
   background: linear-gradient(90deg, #30363d, #40464d);
   border-radius: 10px;
   outline: none;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.4),
     0 1px 2px rgba(255, 255, 255, 0.1);
 }
@@ -904,7 +904,7 @@ input[type="range"]::-webkit-slider-thumb {
   background: linear-gradient(135deg, #ffffff, #f0f0f0);
   cursor: pointer;
   border: 2px solid var(--border);
-  box-shadow: 
+  box-shadow:
     0 2px 10px rgba(0, 0, 0, 0.4),
     0 1px 3px rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
@@ -912,7 +912,7 @@ input[type="range"]::-webkit-slider-thumb {
 
 input[type="range"]::-webkit-slider-thumb:hover {
   transform: scale(1.1);
-  box-shadow: 
+  box-shadow:
     0 3px 15px rgba(0, 0, 0, 0.5),
     0 0 10px rgba(255, 255, 255, 0.3);
 }
@@ -924,7 +924,7 @@ input[type="range"]::-moz-range-thumb {
   background: linear-gradient(135deg, #ffffff, #f0f0f0);
   cursor: pointer;
   border: 2px solid var(--border);
-  box-shadow: 
+  box-shadow:
     0 2px 10px rgba(0, 0, 0, 0.4),
     0 1px 3px rgba(255, 255, 255, 0.2);
   transition: all 0.2s ease;
@@ -998,7 +998,7 @@ input[type="range"]::-moz-range-thumb {
 
 .room.all-lights:hover {
   border-color: var(--duck-yellow);
-  box-shadow: 
+  box-shadow:
     0 0 30px rgba(255, 215, 0, 0.3),
     0 15px 50px rgba(255, 215, 0, 0.2);
 }
@@ -1201,13 +1201,13 @@ input[type="range"].brightness-active {
 
 @keyframes valuePulse {
   0% {
-    text-shadow: 
+    text-shadow:
       0 0 10px currentColor,
       0 0 20px rgba(255, 230, 0, 0.3);
     transform: scale(1);
   }
   100% {
-    text-shadow: 
+    text-shadow:
       0 0 30px currentColor,
       0 0 60px rgba(255, 230, 0, 0.5);
     transform: scale(1.05);
@@ -1247,7 +1247,7 @@ input[type="range"].brightness-active {
 }
 
 @keyframes quack {
-  0%, 100% { 
+  0%, 100% {
     transform: rotate(-10deg) scale(1) translateY(0);
   }
   25% {
@@ -1282,13 +1282,13 @@ input[type="range"].brightness-active {
 
 @keyframes textPulse {
   0% {
-    text-shadow: 
+    text-shadow:
       0 0 10px var(--neon-yellow),
       0 0 20px rgba(255, 230, 0, 0.2);
     transform: scale(1);
   }
   100% {
-    text-shadow: 
+    text-shadow:
       0 0 30px var(--neon-yellow),
       0 0 60px rgba(255, 230, 0, 0.4);
     transform: scale(1.05);
@@ -1297,13 +1297,13 @@ input[type="range"].brightness-active {
 
 @keyframes roomPulse {
   0% {
-    box-shadow: 
+    box-shadow:
       var(--room-glow),
       0 15px 40px var(--room-glow),
       inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
   100% {
-    box-shadow: 
+    box-shadow:
       var(--room-glow),
       0 15px 60px var(--room-glow),
       inset 0 1px 0 rgba(255, 255, 255, 0.2);
@@ -1322,11 +1322,11 @@ input[type="range"].brightness-active {
 }
 
 @keyframes successPulse {
-  0%, 100% { 
+  0%, 100% {
     border-color: var(--border);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   }
-  50% { 
+  50% {
     border-color: #2ecc71;
     box-shadow: 0 0 30px rgba(46, 204, 113, 0.5);
   }
@@ -1345,64 +1345,64 @@ input[type="range"].brightness-active {
 }
 
 /* ==========================================================================
-   MEDIA 
+   MEDIA
    ========================================================================== */
 
 @media (max-width: 768px) {
   .page {
     padding: 15px;
   }
-  
+
   .card {
     padding: 12px;
   }
-  
+
   .status-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .card-value {
     font-size: 2.8rem;
   }
-  
+
   .duck-emoji {
     font-size: 2rem;
     top: -10px;
     right: -10px;
   }
-  
+
   .devices {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 15px;
   }
-  
+
   .device {
     padding: 15px;
     min-height: 130px;
   }
-  
+
   .device-icon {
     font-size: 2rem;
     width: 44px;
     height: 44px;
   }
-  
+
   .device-name {
     font-size: 1.3rem;
   }
-  
+
   .room-controls-section {
     padding: 0 15px;
   }
-  
+
   .room {
     padding: 18px 20px;
   }
-  
+
   .room-controls-section h3 {
     font-size: 2.2rem;
   }
-  
+
   .room-controls-section h3::before,
   .room-controls-section h3::after {
     font-size: 1.6rem;
@@ -1415,55 +1415,55 @@ input[type="range"].brightness-active {
   .page {
     padding: 10px;
   }
-  
+
   .nav-tab i {
     font-size: 1.3rem;
   }
-  
+
   .devices {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
-  
+
   .room-controls-section {
     padding: 0 10px;
   }
-  
+
   .room {
     padding: 15px;
   }
-  
+
   .room-icon {
     font-size: 5.0rem;
     width: 36px;
     height: 36px;
   }
-  
+
   .device {
     min-height: 120px;
   }
-  
+
   .device-icon {
     font-size: 1.8rem;
     width: 40px;
     height: 40px;
   }
-  
+
   .device-name {
     font-size: 1.2rem;
   }
-  
+
   .device .switch {
     width: 52px;
     height: 28px;
   }
-  
+
   .device .toggle-slider:before {
     height: 20px;
     width: 20px;
     left: 4px;
     bottom: 4px;
   }
-  
+
   .device input:checked + .toggle-slider:before {
     transform: translateX(24px) scale(1.1);
   }
@@ -1478,12 +1478,12 @@ input[type="range"].brightness-active {
     );
     color: #333;
   }
-  
+
   .card-title {
     color: #222;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+
   .card-value {
     color: #222;
   }
@@ -1837,27 +1837,27 @@ input[type="range"].brightness-active {
   #devicesSlidePanel {
     width: 95%;
   }
-  
+
   .panel-header {
     padding: 20px 15px;
   }
-  
+
   .panel-room-name {
     font-size: 1.8rem;
   }
-  
+
   .panel-device {
     padding: 15px;
   }
-  
+
   .panel-device-name {
     font-size: 1.4rem;
   }
-  
+
   .room-header {
     padding: 10px;
   }
-  
+
   .room-name {
     font-size: 1.8rem;
   }
@@ -1868,11 +1868,11 @@ input[type="range"].brightness-active {
     width: 100%;
     border-left: none;
   }
-  
+
   .panel-room-name {
     font-size: 1.8rem;
   }
-  
+
   .panel-device-controls {
     gap: 12px;
   }
@@ -1953,7 +1953,7 @@ input[type="range"].brightness-active {
   background: linear-gradient(135deg, #721c24, #e74c3c) !important;
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
   border-radius: 34px !important;
-  box-shadow: 
+  box-shadow:
     0 0 20px rgba(231, 76, 60, 0.5), /* Red glow when off */
     inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
@@ -1968,14 +1968,14 @@ input[type="range"].brightness-active {
   background: linear-gradient(135deg, #ffffff, #ffcccc) !important;
   transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
   border-radius: 50% !important;
-  box-shadow: 
+  box-shadow:
     0 3px 12px rgba(0, 0, 0, 0.4),
     0 1px 3px rgba(255, 255, 255, 0.2) !important;
 }
 
 .panel-device-toggle input:checked + .panel-device-toggle-slider {
   background: linear-gradient(135deg, #155724, #2ecc71) !important;
-  box-shadow: 
+  box-shadow:
     0 0 30px rgba(46, 204, 113, 0.8),
     inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
@@ -1983,7 +1983,7 @@ input[type="range"].brightness-active {
 .panel-device-toggle input:checked + .panel-device-toggle-slider:before {
   transform: translateX(34px) scale(1.1) !important;
   background: linear-gradient(135deg, #ffffff, #ccffcc) !important;
-  box-shadow: 
+  box-shadow:
     0 3px 15px rgba(0, 0, 0, 0.5),
     0 0 10px rgba(46, 204, 113, 0.5) !important;
 }
@@ -1993,13 +1993,13 @@ input[type="range"].brightness-active {
 }
 
 .panel-device-toggle:hover input:checked + .panel-device-toggle-slider {
-  box-shadow: 
+  box-shadow:
     0 0 40px rgba(46, 204, 113, 1),
     inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
 
 .panel-device-toggle:hover input:not(:checked) + .panel-device-toggle-slider {
-  box-shadow: 
+  box-shadow:
     0 0 30px rgba(231, 76, 60, 0.8),
     inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
 }
@@ -2018,7 +2018,7 @@ input[type="range"].brightness-active {
 .panel-device.on {
   border-color: rgba(46, 204, 113, 0.4) !important;
   background: linear-gradient(135deg, rgba(46, 204, 113, 0.15), rgba(46, 204, 113, 0.05)) !important;
-  box-shadow: 
+  box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.4),
     0 0 30px rgba(46, 204, 113, 0.3) !important;
 }
@@ -2026,7 +2026,7 @@ input[type="range"].brightness-active {
 .panel-device.off {
   border-color: rgba(231, 76, 60, 0.3) !important;
   background: linear-gradient(135deg, rgba(231, 76, 60, 0.1), rgba(231, 76, 60, 0.05)) !important;
-  box-shadow: 
+  box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.4),
     0 0 20px rgba(231, 76, 60, 0.2) !important;
 }
@@ -2034,7 +2034,7 @@ input[type="range"].brightness-active {
 .panel-device:hover {
   transform: translateY(-5px) !important;
   border-color: var(--duck-yellow) !important;
-  box-shadow: 
+  box-shadow:
     0 15px 40px rgba(0, 0, 0, 0.5),
     0 0 40px rgba(255, 230, 0, 0.3) !important;
 }
@@ -2062,7 +2062,7 @@ input[type="range"].brightness-active {
   cursor: pointer !important;
   padding: 0 !important;
   flex-shrink: 0 !important;
-  box-shadow: 
+  box-shadow:
     0 4px 15px rgba(0, 0, 0, 0.4),
     inset 0 1px 3px rgba(255, 255, 255, 0.2) !important;
   transition: all 0.3s ease !important;
@@ -2071,7 +2071,7 @@ input[type="range"].brightness-active {
 .panel-color-picker:hover {
   transform: scale(1.1) !important;
   border-color: var(--duck-yellow) !important;
-  box-shadow: 
+  box-shadow:
     0 0 25px rgba(255, 230, 0, 0.5),
     0 4px 20px rgba(0, 0, 0, 0.5) !important;
 }
@@ -2114,7 +2114,7 @@ input[type="range"].brightness-active {
   background: linear-gradient(90deg, #e74c3c, #f39c12, #2ecc71) !important;
   border-radius: 10px !important;
   outline: none !important;
-  box-shadow: 
+  box-shadow:
     inset 0 2px 4px rgba(0, 0, 0, 0.4),
     0 1px 2px rgba(255, 255, 255, 0.1) !important;
 }
@@ -2127,7 +2127,7 @@ input[type="range"].brightness-active {
   background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
   cursor: pointer !important;
   border: 3px solid var(--duck-yellow) !important;
-  box-shadow: 
+  box-shadow:
     0 3px 15px rgba(0, 0, 0, 0.5),
     0 0 15px rgba(255, 230, 0, 0.5) !important;
   transition: all 0.2s ease !important;
@@ -2135,7 +2135,7 @@ input[type="range"].brightness-active {
 
 .panel-brightness-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2) !important;
-  box-shadow: 
+  box-shadow:
     0 4px 20px rgba(0, 0, 0, 0.6),
     0 0 20px rgba(255, 230, 0, 0.7) !important;
 }
@@ -2147,7 +2147,7 @@ input[type="range"].brightness-active {
   background: linear-gradient(135deg, #ffffff, #f0f0f0) !important;
   cursor: pointer !important;
   border: 3px solid var(--duck-yellow) !important;
-  box-shadow: 
+  box-shadow:
     0 3px 15px rgba(0, 0, 0, 0.5),
     0 0 15px rgba(255, 230, 0, 0.5) !important;
 }
@@ -2203,25 +2203,25 @@ input[type="range"].brightness-active {
     width: 50px !important;
     height: 50px !important;
   }
-  
+
   .panel-device-name {
     font-size: 1.6rem !important;
   }
-  
+
   .panel-device-toggle {
     width: 60px !important;
     height: 32px !important;
   }
-  
+
   .panel-device-toggle-slider:before {
     height: 24px !important;
     width: 24px !important;
   }
-  
+
   .panel-device-toggle input:checked + .panel-device-toggle-slider:before {
     transform: translateX(28px) scale(1.1) !important;
   }
-  
+
   .panel-color-picker {
     width: 45px !important;
     height: 45px !important;
@@ -2234,21 +2234,21 @@ input[type="range"].brightness-active {
     width: 45px !important;
     height: 45px !important;
   }
-  
+
   .panel-device-name {
     font-size: 1.4rem !important;
   }
-  
+
   .panel-device-toggle {
     width: 55px !important;
     height: 30px !important;
   }
-  
+
   .panel-device-toggle-slider:before {
     height: 22px !important;
     width: 22px !important;
   }
-  
+
   .panel-device-toggle input:checked + .panel-device-toggle-slider:before {
     transform: translateX(25px) scale(1.1) !important;
   }
@@ -2359,15 +2359,15 @@ input[type="range"].brightness-active {
 }
 
 @keyframes chartGlowFixed {
-  0% { 
+  0% {
     filter: drop-shadow(0 0 5px rgba(255, 0, 255, 0.8));
     opacity: 1;
   }
-  50% { 
+  50% {
     filter: drop-shadow(0 0 15px rgba(0, 229, 255, 0.9));
     opacity: 1;
   }
-  100% { 
+  100% {
     filter: drop-shadow(0 0 5px rgba(255, 0, 255, 0.8));
     opacity: 1;
   }
@@ -2379,7 +2379,7 @@ input[type="range"].brightness-active {
 }
 
 .card-chart {
-  background-image: 
+  background-image:
     linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
   background-size: 20px 20px;
@@ -2400,7 +2400,7 @@ input[type="range"].brightness-active {
     padding-bottom: 100px !important;
     min-height: 180px;
   }
-  
+
   .card-chart {
     height: 120px !important;
     bottom: 10px !important;
@@ -2414,7 +2414,7 @@ input[type="range"].brightness-active {
     padding-bottom: 90px !important;
     min-height: 160px;
   }
-  
+
   .card-chart {
     height: 100px !important;
   }
@@ -2434,7 +2434,7 @@ input[type="range"].brightness-active {
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 2px;
-  text-shadow: 
+  text-shadow:
     0 0 20px var(--neon-yellow),
     0 0 40px rgba(255, 230, 0, 0.3);
   animation: textPulse 2s infinite alternate;
@@ -2462,5 +2462,3 @@ input[type="range"].brightness-active {
   font-size: 2rem;
   animation: quack 2s infinite ease-in-out reverse;
 }
-
-

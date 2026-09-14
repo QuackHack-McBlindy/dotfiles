@@ -194,7 +194,7 @@ body, html {
   position: relative;
   overflow: hidden;
   border: 2px solid transparent;
-  box-shadow: 
+  box-shadow:
     0 10px 30px rgba(0, 0, 0, 0.5),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   z-index: 1;
@@ -207,7 +207,7 @@ body, html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
+  background:
     radial-gradient(circle at 10% 20%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 90% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
   z-index: -1;
@@ -216,7 +216,7 @@ body, html {
 
 .page[data-page="1"] .device-controls:hover {
   border-color: #00ffaa;
-  box-shadow: 
+  box-shadow:
     0 15px 40px rgba(0, 255, 170, 0.3),
     0 0 60px rgba(56, 189, 248, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
@@ -301,30 +301,30 @@ body, html {
   transition: all 0.3s ease;
 }
 
-.page[data-page="1"] .lq-bar-mini.good { 
-  height: 100%; 
-  background: linear-gradient(to top, #22c55e, #86efac); 
-  animation: barPulse 2s infinite; 
+.page[data-page="1"] .lq-bar-mini.good {
+  height: 100%;
+  background: linear-gradient(to top, #22c55e, #86efac);
+  animation: barPulse 2s infinite;
 }
 
-.page[data-page="1"] .lq-bar-mini.ok { 
-  height: 75%; 
-  background: linear-gradient(to top, #f59e0b, #fde047); 
+.page[data-page="1"] .lq-bar-mini.ok {
+  height: 75%;
+  background: linear-gradient(to top, #f59e0b, #fde047);
 }
 
-.page[data-page="1"] .lq-bar-mini.bad { 
-  height: 50%; 
-  background: linear-gradient(to top, #ef4444, #fca5a5); 
+.page[data-page="1"] .lq-bar-mini.bad {
+  height: 50%;
+  background: linear-gradient(to top, #ef4444, #fca5a5);
 }
 
-.page[data-page="1"] .lq-bar-mini.terrible { 
-  height: 25%; 
-  background: linear-gradient(to top, #dc2626, #f87171); 
+.page[data-page="1"] .lq-bar-mini.terrible {
+  height: 25%;
+  background: linear-gradient(to top, #dc2626, #f87171);
 }
 
-.page[data-page="1"] .lq-bar-mini.off { 
-  height: 25%; 
-  background: #475569; 
+.page[data-page="1"] .lq-bar-mini.off {
+  height: 25%;
+  background: #475569;
 }
 
 .page[data-page="1"] .lq-value {
@@ -492,7 +492,7 @@ body, html {
   position: relative;
   overflow: hidden;
   width: 90%;
-  max-width: 500px; 
+  max-width: 500px;
 }
 
 .page[data-page="1"] .row.special > * {
@@ -642,18 +642,18 @@ body, html {
   width: 100%;
   height: 25px;
   border-radius: 15px;
-  background: linear-gradient(90deg, 
-    #000000 0%, 
-    #1e3a8a 25%, 
-    #38bdf8 50%, 
-    #facc15 75%, 
+  background: linear-gradient(90deg,
+    #000000 0%,
+    #1e3a8a 25%,
+    #38bdf8 50%,
+    #facc15 75%,
     #ffffff 100%);
   outline: none;
   -webkit-appearance: none;
   cursor: pointer;
   position: relative;
   z-index: 1;
-  box-shadow: 
+  box-shadow:
     0 5px 15px rgba(0, 0, 0, 0.5),
     inset 0 2px 5px rgba(255, 255, 255, 0.1);
 }
@@ -680,7 +680,7 @@ body, html {
   background: radial-gradient(circle, #ffffff, #38bdf8);
   cursor: pointer;
   border: 3px solid #ffffff;
-  box-shadow: 
+  box-shadow:
     0 0 20px #38bdf8,
     0 0 40px #38bdf8,
     0 0 60px #38bdf8;
@@ -690,7 +690,7 @@ body, html {
 
 .page[data-page="1"] .brightness-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
-  box-shadow: 
+  box-shadow:
     0 0 30px #00ffaa,
     0 0 60px #00ffaa,
     0 0 90px #00ffaa;
@@ -715,8 +715,8 @@ body, html {
   left: -50%;
   width: 200%;
   height: 200%;
-  background: conic-gradient(from 0deg, 
-    #ff0000, #ff7f00, #ffff00, #00ff00, 
+  background: conic-gradient(from 0deg,
+    #ff0000, #ff7f00, #ffff00, #00ff00,
     #0000ff, #4b0082, #8b00ff, #ff0000);
   animation: rainbowSpin 10s linear infinite;
   opacity: 0.1;
@@ -741,7 +741,7 @@ body, html {
   height: 45px;
   border-radius: 50%;
   border: 3px solid white;
-  box-shadow: 
+  box-shadow:
     0 4px 12px rgba(0, 0, 0, 0.3),
     0 0 15px currentColor;
   cursor: pointer;
@@ -772,7 +772,7 @@ body, html {
 
 .page[data-page="1"] .color-preset:hover {
   transform: scale(1.3) rotate(15deg);
-  box-shadow: 
+  box-shadow:
     0 8px 25px rgba(0, 0, 0, 0.4),
     0 0 30px currentColor,
     0 0 45px currentColor;
@@ -842,7 +842,7 @@ body, html {
 .page[data-page="1"] .color-picker-btn:hover {
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   transform: translateY(-5px) scale(1.05);
-  box-shadow: 
+  box-shadow:
     0 12px 30px rgba(139, 92, 246, 0.6),
     0 0 40px rgba(139, 92, 246, 0.4);
 }
@@ -854,7 +854,7 @@ body, html {
   border-radius: 20px;
   overflow: hidden;
   background: linear-gradient(135deg, #0f172a, #1e293b);
-  box-shadow: 
+  box-shadow:
     0 0 30px #38bdf8,
     inset 0 0 20px rgba(56, 189, 248, 0.3);
   position: relative;
@@ -885,7 +885,7 @@ body, html {
   background: linear-gradient(90deg, #ef4444, #f97316, #facc15, #22c55e, #38bdf8);
   background-size: 500% 100%;
   animation: batteryGradient 3s linear infinite;
-  box-shadow: 
+  box-shadow:
     0 0 15px currentColor,
     inset 0 0 10px rgba(255, 255, 255, 0.3);
 }
@@ -913,7 +913,7 @@ body, html {
   font-size: 2rem;
   font-weight: 900;
   color: #f8fafc;
-  text-shadow: 
+  text-shadow:
     0 0 10px #38bdf8,
     0 0 20px #38bdf8,
     0 0 30px #38bdf8;
@@ -928,10 +928,10 @@ body, html {
   border-radius: 25px;
   border: 3px solid transparent;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  margin: 20px auto; 
+  margin: 20px auto;
   position: relative;
   overflow: hidden;
-  max-width: 300px; 
+  max-width: 300px;
 }
 
 .page[data-page="1"] .temperature-value {
@@ -962,35 +962,35 @@ body, html {
   animation: temperatureGlow 2s infinite alternate;
 }
 
-.page[data-page="1"] .temperature-value.cold { 
+.page[data-page="1"] .temperature-value.cold {
   background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   text-shadow: 0 0 20px #3b82f6;
 }
 
 .page[data-page="1"] .temperature-value.cold::before { background: radial-gradient(circle at center, #3b82f6, transparent 70%); }
 
-.page[data-page="1"] .temperature-value.good { 
+.page[data-page="1"] .temperature-value.good {
   background: linear-gradient(135deg, #22c55e, #15803d);
   text-shadow: 0 0 20px #22c55e;
 }
 
 .page[data-page="1"] .temperature-value.good::before { background: radial-gradient(circle at center, #22c55e, transparent 70%); }
 
-.page[data-page="1"] .temperature-value.warm { 
+.page[data-page="1"] .temperature-value.warm {
   background: linear-gradient(135deg, #facc15, #d97706);
   text-shadow: 0 0 20px #facc15;
 }
 
 .page[data-page="1"] .temperature-value.warm::before { background: radial-gradient(circle at center, #facc15, transparent 70%); }
 
-.page[data-page="1"] .temperature-value.warmer { 
+.page[data-page="1"] .temperature-value.warmer {
   background: linear-gradient(135deg, #f97316, #ea580c);
   text-shadow: 0 0 20px #f97316;
 }
 
 .page[data-page="1"] .temperature-value.warmer::before { background: radial-gradient(circle at center, #f97316, transparent 70%); }
 
-.page[data-page="1"] .temperature-value.hot { 
+.page[data-page="1"] .temperature-value.hot {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   text-shadow: 0 0 20px #ef4444;
   animation: hotPulse 1s infinite;
@@ -1042,7 +1042,7 @@ body, html {
 .page[data-page="1"] .occupancy-clear {
   background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
-  box-shadow: 
+  box-shadow:
     0 0 30px rgba(34, 197, 94, 0.6),
     0 0 60px rgba(34, 197, 94, 0.3);
   animation: statusPulseSafe 2s infinite;
@@ -1052,7 +1052,7 @@ body, html {
 .page[data-page="1"] .occupancy-detected {
   background: linear-gradient(135deg, #ef4444, #dc2626);
   color: white;
-  box-shadow: 
+  box-shadow:
     0 0 30px rgba(239, 68, 68, 0.6),
     0 0 60px rgba(239, 68, 68, 0.3);
   animation: statusPulseAlert 1s infinite;
@@ -1233,7 +1233,7 @@ body, html {
 
 .page[data-page="1"] .page .pageDevices .device-header .device-panel .device-icon .device-info .device-title .device-controls {
     width: 100%;
-}  
+}
 
 .page[data-page="1"] .device-panel:empty {
     display: flex;
@@ -1259,20 +1259,20 @@ body, html {
         padding: 15px;
         border-radius: 15px;
     }
-    
+
     .page[data-page="1"] .device-header {
         flex-direction: auto;
         width: 100%;
         text-align: center;
         gap: 15px;
     }
-    
+
     .page[data-page="1"] .linkquality-mini {
         position: static;
         margin-top: 10px;
         justify-content: center;
     }
-    
+
     .page[data-page="1"] .row {
         flex-direction: column;
         align-items: flex-start;
@@ -1344,4 +1344,4 @@ body, html {
         max-width: none !important;
         padding: 0 !important;
     }
-}    
+}

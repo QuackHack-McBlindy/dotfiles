@@ -5,7 +5,7 @@
   inputs,
   self
 } : let # 🦆 duck say ⮞ put them python pkgs here yo!
-  pythonPackages = ps: [ 
+  pythonPackages = ps: [
     ps.numpy
     ps.torch
     ps.transformers
@@ -20,7 +20,7 @@
     ps.lxml
     ps.cairosvg
   ];
-  
+
   myPython = pkgs.python3.withPackages pythonPackages;
   actualPythonPkgs = pythonPackages pkgs.python3.pkgs;
 
@@ -28,7 +28,7 @@
     git
     pngquant
     nixpkgs-fmt
-    myPython    
+    myPython
     virtualenv
   ];
 

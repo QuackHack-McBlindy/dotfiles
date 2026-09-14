@@ -6,18 +6,18 @@
   cmdHelpers,
   ...
 } : let
-in { 
-    yo.scripts = {  
+in {
+    yo.scripts = {
       sops = {
         description = "Encrypts a file with sops-nix";
         category = "🔐 Security & Encryption";
         aliases = [ "e" ];
         parameters = [
-          { name = "input"; description = "Input file to encrypt"; optional = false; } 
-          { name = "operation"; description = "Operational mode, encrypt or edit"; default = "encrypt"; }           
+          { name = "input"; description = "Input file to encrypt"; optional = false; }
+          { name = "operation"; description = "Operational mode, encrypt or edit"; default = "encrypt"; }
           { name = "value"; description = "Value to append at the end of file (append mode only)"; optional = true; }
-          { name = "output"; description = "Optional output file path"; optional = true; }          
-          { name = "agePub"; description = "The AGE public key used for encrypting the file"; optional = true; default = config.this.host.keys.publicKeys.age; } 
+          { name = "output"; description = "Optional output file path"; optional = true; }
+          { name = "agePub"; description = "The AGE public key used for encrypting the file"; optional = true; default = config.this.host.keys.publicKeys.age; }
         ];
         code = ''
           ${cmdHelpers}
@@ -34,9 +34,9 @@ in {
             exit 1
           fi
           OPERATION="$operation"
-          
+
           # 🦆 duck say ⮞ ENCRYPT
-          if [[ "$OPERATION" == "encrypt" ]]; then     
+          if [[ "$OPERATION" == "encrypt" ]]; then
             dt_debug "Encrypting '$INPUT_FILE'..."
 #            ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --output "$OUTPUT_FILE" "$INPUT_FILE"
 #            mv "$OUTPUT_FILE" "$INPUT_FILE"
@@ -48,7 +48,7 @@ in {
               dt_info "Encrypted in place: $INPUT_FILE"
             fi
 
-          
+
           # 🦆 duck say ⮞ EDIT
           elif [[ "$OPERATION" == "edit" ]]; then
             if grep -q '^sops:' "$INPUT_FILE"; then
@@ -63,8 +63,8 @@ in {
               ''${EDITOR:-vi} "$TEMP_FILE"
               ${pkgs.sops}/bin/sops --encrypt --age "$agePub" "$TEMP_FILE" > "$INPUT_FILE"
               dt_info "File updated and re-encrypted"
-            fi  
-          
+            fi
+
           # 🦆 duck say ⮞ APPEND
 #          elif [[ "$OPERATION" == "append" ]]; then
 #            if [[ -z "$value" ]]; then
@@ -81,11 +81,11 @@ in {
 #              (.. | select(tag == "!!str" and style == "literal") |= . + "\n'"$value"'" |
 #              (select(tag == "!!seq") |= . + ["'"$value"'"])
 #            ' "$TEMP_FILE"
-  
+
 #            ${pkgs.sops}/bin/sops --encrypt --age "$agePub" --input-type yaml --output-type yaml "$TEMP_FILE" > "$INPUT_FILE"
 #            dt_info "Line appended, File re-encrypted!"
-#            exit 
-          fi  
+#            exit
+          fi
         '';
       };
-    };}  
+    };}

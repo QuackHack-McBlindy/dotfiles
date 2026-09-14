@@ -1,5 +1,5 @@
-{ 
-  self, 
+{
+  self,
   config,
   lib,
   pkgs,
@@ -105,7 +105,7 @@ in {
           Example: `"yo do"`.
         '';
       };
-      
+
       textToSpeechModelPath = mkOption {
         type = types.nullOr types.path;
         default = "${cfg.package}/share/yo-rs/models/tts/en_US-amy-medium.onnx";
@@ -127,7 +127,7 @@ in {
           If `null`, default logging file path is `~/yo-rs-server.log`.
         '';
       };
-      
+
       extraPath = mkOption {
         type = types.listOf types.str;
         default = [ ];
@@ -222,7 +222,7 @@ in {
         default = [ ];
         description = "Extra arguments passed verbatim to the client binary.";
       };
-          
+
       logFile = mkOption {
         type = types.nullOr types.path;
         default = null;
@@ -273,7 +273,7 @@ in {
               PATH = path;
             } // lib.optionalAttrs cfg.server.debug { DEBUG = "1"; };
           in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
-          
+
           ExecStart = lib.escapeShellArgs (
             [ (getExe cfg.package) "--host" cfg.server.host ]
             ++ optionals (cfg.server.wakeWordPath != null)
@@ -318,7 +318,7 @@ yo-rs-client = mkIf cfg.client.enable {
             envVars = {
               DT_LOG_LEVEL = logLevel;
               DT_LOG_FILE = logFile;
-              PATH = path;              
+              PATH = path;
             } // lib.optionalAttrs cfg.client.debug { DEBUG = "1"; };
           in lib.mapAttrsToList (name: value: "${name}=${value}") envVars;
 
@@ -338,5 +338,5 @@ yo-rs-client = mkIf cfg.client.enable {
         };
       };
     };
-   
+
   };}

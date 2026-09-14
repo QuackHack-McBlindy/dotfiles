@@ -1,5 +1,5 @@
 # dotfiles/bin/home/state.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ fetchez the state of specified device 
+{ # 🦆 says ⮞ fetchez the state of specified device
   self,
   lib,
   config,
@@ -27,7 +27,7 @@
   zigbeeDevices = config.house.zigbee.devices;
 
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matchin'
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -36,7 +36,7 @@
   # 🦆 says ⮞ devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (room: devices: 
+  in lib.mapAttrs (room: devices:
       map (d: d.friendly_name) devices
     ) grouped;
 
@@ -60,12 +60,12 @@
 
   # 🦆 says ⮞ all devices as pipe separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-in { 
+in {
   yo.scripts.display = {
-    category = "🛖 Home Automation";     
+    category = "🛖 Home Automation";
     description = "Creates a HTML image that can be displayed on the chat frontend.";
-    parameters = [ 
-      { name = "path"; description = "URL/file path to the image to display."; optional = false; } 
+    parameters = [
+      { name = "path"; description = "URL/file path to the image to display."; optional = false; }
     ];
     code = ''
       ${cmdHelpers}
@@ -79,7 +79,7 @@ in {
       ];
       lists = {
         path.wildcard = true;
-      };  
-    };  
-    
+      };
+    };
+
  };}

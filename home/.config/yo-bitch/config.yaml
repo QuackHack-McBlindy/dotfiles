@@ -48,11 +48,10 @@ commands:
     - match: "datum"
       response: "Idag är det {date:%Y-%m-%d}"
     - match: "veckodag"
-      response: "Det är {weekday:%A}" 
-      
+      response: "Det är {weekday:%A}"
+
 autocorrect:
   "ika": "ica"
   "ikka": "ica"
   "koop": "coop"
   "cop": "coop"
-

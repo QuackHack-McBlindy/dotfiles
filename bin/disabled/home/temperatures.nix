@@ -24,12 +24,12 @@
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
     else "127.0.0.1";
 
-  # 🦆 says ⮞ define Zigbee devices here yo 
+  # 🦆 says ⮞ define Zigbee devices here yo
   zigbeeDevices = config.house.zigbee.devices;
 
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -38,7 +38,7 @@
   # 🦆 says ⮞ Group devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (room: devices: 
+  in lib.mapAttrs (room: devices:
       map (d: d.friendly_name) devices
     ) grouped;
 
@@ -64,10 +64,10 @@
 
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-in { 
+in {
   yo.scripts.temperatures = {
     description = "Get all temperature values from sensors and return a average value.";
-    category = "🛖 Home Automation";     
+    category = "🛖 Home Automation";
     code = ''
       ${cmdHelpers}
       STATE_DIR="${zigduckDir}"
@@ -79,12 +79,11 @@ in {
     '';
     voice = {
       priority = 3;
-      sentences = [ 
+      sentences = [
         "hur varmt är det (inne|inomhus)"
         "vad är det för (temp|temperatur) (inne|inomhus)"
         "hur varmmt är det inne"
-      ];  
+      ];
     };
-    
-  };}  
-    
+
+  };}

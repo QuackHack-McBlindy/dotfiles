@@ -1,22 +1,22 @@
 # dotfiles/bin/home/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # From Quack to Stack: A Declarative Zigbee and home automation system
-  self, # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun! 
-  lib, 
+  self, # 🦆 says ⮞ Welcome to QuackHack-McBLindy'z Quacky Hacky Home of Fun!
+  lib,
   config, # 🦆 says ⮞ duck don't write automations - duck write infra with junkie comments on each line.... quack
   pkgs,
   cmdHelpers, # 🦆 with MQTT dreams and zigbee schemes.
-  ... 
+  ...
 } : let # yo follow 🦆 home ⬇⬇ 🦆 says diz way plz? quack quackz
-  # 🦆 says ⮞ Directpry  for this configuration 
+  # 🦆 says ⮞ Directpry  for this configuration
   zigduckDir = "/var/lib/zigduck";
   # 🦆 says ⮞ don't stick it to the duck - encrypted Zigbee USB coordinator backup filepath
   backupEncryptedFile = "${config.this.user.me.dotfilesDir}/secrets/zigbee_coordinator_backup.json";
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
 #  mqttHost = lib.findSingle (host:
 #      let cfg = self.nixosConfigurations.${host}.config;
 #      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+#    ) null null sysHosts;
   mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
@@ -29,10 +29,10 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-   
-  # 🦆 says ⮞ define Zigbee devices here yo 
+
+  # 🦆 says ⮞ define Zigbee devices here yo
   zigbeeDevices = config.house.zigbee.devices;
-  
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -52,9 +52,9 @@
       // (if temp != null then { color_temp = temp; } else {});
 
   # 🎨 Scenes  🦆 YELLS ⮞ SCENES!!!!!!!!!!!!!!!11
-  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!   
+  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!
 
-  # 🦆 says ⮞ Generate scene commands    
+  # 🦆 says ⮞ Generate scene commands
   makeCommand = device: settings:
     let
       json = builtins.toJSON settings;
@@ -62,11 +62,11 @@
       ''
       mqtt_pub -t "zigbee2mqtt/${device}/set" -m '${json}'
       '';
-      
+
   sceneCommands = lib.mapAttrs
     (sceneName: sceneDevices:
       lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
-    ) scenes;  
+    ) scenes;
 
   # 🦆 says ⮞ Filter devices by rooms
   byRoom = lib.foldlAttrs (acc: id: dev:
@@ -85,14 +85,14 @@
     name = room;
     value = {
       friendly_name = room;
-      devices = map (id: 
+      devices = map (id:
         let dev = zigbeeDevices.${id};
         in "${id}/${toString dev.endpoint}"
       ) ids;
     };
   }) byRoom;
 
-  # 🦆 says ⮞ gen json from `config.house.tv`  
+  # 🦆 says ⮞ gen json from `config.house.tv`
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
   # 🦆 says ⮞ dis creates device configuration for Z2M yo
@@ -130,7 +130,7 @@ in {
     #autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     #aliases = [ "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
-    helpFooter = '' 
+    helpFooter = ''
       # 🦆 says ⮞ TODO - TUI/GUI Group Control within help command  # 🦆 says ⮜ dis coold be cool yeah?!
       STATE_DIR=/var/lib/zigbee
       STATE_FILE="state.json"
@@ -161,7 +161,7 @@ EOF
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
-      ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
+      ${cmdHelpers} # 🦆 says ⮞ load default helper functions
       DEBUG_MODE=DEBUG # 🦆 says ⮞ if true, duck logs flood
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}" && dt_debug "$MQTT_BROKER"
@@ -169,7 +169,7 @@ EOF
       MQTT_PASSWORD=$(cat "$pwfile")
       STATE_DIR="${zigduckDir}"
       STATE_FILE="$STATE_DIR/state.json"
-      TIMER_DIR="$STATE_DIR/timers" 
+      TIMER_DIR="$STATE_DIR/timers"
       BACKUP_ID=""
       BACKUP_TMP_FILE=""
 
@@ -179,34 +179,34 @@ EOF
       if [ ! -f "$STATE_FILE" ]; then
         echo "{}" > "$STATE_FILE"
         chmod 600 "$STATE_FILE"
-      fi   
+      fi
 
       update_device_state() {
         local device="$1"
         local key="$2"
-        local value="$3"  
+        local value="$3"
         local tmpfile
         tmpfile=$(mktemp 2>/dev/null || echo "/tmp/tmp.XXXXXX")
         tmpfile=$(mktemp 2>/dev/null || echo "$STATE_DIR/tmp.XXXXXX")
-  
+
         if [ $? -ne 0 ]; then
           tmpfile="$STATE_DIR/tmp.$$.$RANDOM"
         fi
-  
+
         touch "$tmpfile" 2>/dev/null || {
           dt_error "Cannot create temp file: $tmpfile"
           return 1
-        }  
-        chmod 600 "$tmpfile" 2>/dev/null  
+        }
+        chmod 600 "$tmpfile" 2>/dev/null
         dt_debug "Updating state: $device.$key = $value"
-  
+
         if [ -f "$STATE_FILE" ]; then
           ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
             '.[$dev][$key] = $val' "$STATE_FILE" > "$tmpfile" 2>/dev/null
         else
           echo "{}" | ${pkgs.jq}/bin/jq --arg dev "$device" --arg key "$key" --arg val "$value" \
             '.[$dev][$key] = $val' > "$tmpfile" 2>/dev/null
-        fi  
+        fi
         if [ $? -eq 0 ]; then
           mv "$tmpfile" "$STATE_FILE" 2>/dev/null && \
           chmod 644 "$STATE_FILE" 2>/dev/null
@@ -216,8 +216,8 @@ EOF
           rm -f "$tmpfile" 2>/dev/null
           return 1
         fi
-      }      
-      
+      }
+
       if [ ! -f "$LARMED_FILE" ]; then
         echo '{"larmed":false}' > "$LARMED_FILE"
       fi
@@ -226,7 +226,7 @@ EOF
         local state="$1"
         jq -n --argjson val "$state" '{larmed: $val}' > "$LARMED_FILE"
         mqtt_pub -t "zigbee2mqtt/security/state" -m "$(cat "$LARMED_FILE")"
-        
+
         if [ "$state" = "true" ]; then
           dt_warning "🛡️ Security system ARMED"
           yo notify "🛡️ Security armed"
@@ -239,12 +239,12 @@ EOF
         local device="$1"
         local key="$2"
         ${pkgs.jq}/bin/jq -r ".\"$device\".\"$key\" // empty" "$STATE_FILE"
-      }      
+      }
       get_larmed() {
         ${pkgs.jq}/bin/jq -r '.larmed' "$LARMED_FILE"
       }
       # 🦆 says ⮞ device parser for zigduck
-      device_check() { 
+      device_check() {
         linkquality=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.linkquality // empty') && dt_debug "linkquality: $linkquality"
         last_seen=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.last_seen // empty') && dt_debug "last_seen: $last_seen"
         occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy // empty') && dt_debug "occupancy: $occupancy"
@@ -262,13 +262,13 @@ EOF
         battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
         tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
         smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
-                
+
         device_name="''${topic#zigbee2mqtt/}" && dt_debug "device_name: $device_name"
         dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
-        dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
-        dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
+        dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"
+        dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"
         room="''${dev_room//\"/}"
-      
+
         should_update() {
           case "$device_name" in
             */set|*/availability)
@@ -277,7 +277,7 @@ EOF
             ;;
             *)
               dt_debug "Will update state for device: $device_name"
-              return 0  
+              return 0
             ;;
           esac
         }
@@ -287,21 +287,21 @@ EOF
           [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
           [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
           [ -n "$brightness" ] && update_device_state "$device_name" "brightness" "$brightness"
-          [ -n "$color" ] && update_device_state "$device_name" "color" "$color"        
+          [ -n "$color" ] && update_device_state "$device_name" "color" "$color"
           [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
           [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
           [ -n "$tamper" ] && update_device_state "$device_name" "tamper" "$tamper"
           [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
           [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"
           [ -n "$occupancy" ] && update_device_state "$device_name" "occupancy" "$occupancy"
-         
-          [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"        
-          [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"       
+
+          [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"
+          [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"
         else
           dt_debug "Skipped state update for device: $device_name"
         fi
       }
-  
+
       # 🦆 says ⮞ zigbee coordinator backup function
       perform_zigbee_backup() {
         BACKUP_ID="zigbee_backup_$(${pkgs.coreutils}/bin/date +%Y%m%d_%H%M%S)"
@@ -312,15 +312,15 @@ EOF
       # 🦆 says ⮞ handle backup response function
       handle_backup_response() {
         local line="$1"
-        local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')        
+        local backup_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.id')
         if [ "$backup_id" != "$BACKUP_ID" ]; then
           dt_info "ignoring backup response for ID: $backup_id (waiting for $BACKUP_ID)"
           return
-        fi      
+        fi
         local status=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.status')
         if [ "$status" = "ok" ]; then
           echo "$line" | ${pkgs.jq}/bin/jq -r '.data.backup' > "$BACKUP_TMP_FILE"
-          dt_debug "Encrypting Zigbee coordinator backup with sops..."   
+          dt_debug "Encrypting Zigbee coordinator backup with sops..."
           if "''${config.pkgs.yo}/bin/yo-sops" "$BACKUP_TMP_FILE" > "${backupEncryptedFile}"; then
             dt_info "Backup saved to: ${backupEncryptedFile}"
           else
@@ -332,36 +332,36 @@ EOF
           local error_msg=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.error')
           say_duck "❌ Backup failed: $error_msg"
           dt_critical "Backup failed: $error_msg"
-        fi    
+        fi
         # 🦆 says ⮞ reset states
         BACKUP_ID=""
         BACKUP_TMP_FILE=""
-      }  
-      # 🦆 says ⮞ main loop - ducks can't listen but mosquitto's can apparently    
+      }
+      # 🦆 says ⮞ main loop - ducks can't listen but mosquitto's can apparently
       start_listening() {
         echo "$ZIGBEE_DEVICES" | ${pkgs.jq}/bin/jq 'map({(.id): .}) | add' > $STATE_DIR/zigbee_devices.json
         ${pkgs.jq}/bin/jq 'map(select(.friendly_name != null) | {(.friendly_name): .}) | add' $STATE_DIR/zigbee_devices.json \
           > $STATE_DIR/zigbee_devices_by_friendly_name.json
         # 🦆 says ⮞ last echo
-        echo "[🦆🏡] ⮞ Welcome Home" 
-        
+        echo "[🦆🏡] ⮞ Welcome Home"
+
         # 🦆 says ⮞ performance tracking
         declare -A processing_times
         declare -A message_counts
         local total_messages=0
-        local slow_threshold=100 # 🦆 says ⮞ ms        
-        
+        local slow_threshold=100 # 🦆 says ⮞ ms
+
         # 🦆 says ⮞ Subscribe and split topic and payload
         mqtt_sub "zigbee2mqtt/#" | while IFS='|' read -r topic line; do
-          dt_debug "TOPIC: 
-          $topic" && dt_debug "PAYLOAD: 
-          $line"         
+          dt_debug "TOPIC:
+          $topic" && dt_debug "PAYLOAD:
+          $line"
           # 🦆 says ⮞ backup handling
-          if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi          
+          if [ "$topic" = "zigbee2mqtt/bridge/response/backup" ]; then handle_backup_response "$line"; fi
           # 🦆 says ⮞ trigger backup from MQTT
           if [ "$topic" = "zigbee2mqtt/backup/request" ]; then perform_zigbee_backup; fi
 
-          # 🦆 says ⮞ TV  DEVICES CHANNEL STATE 
+          # 🦆 says ⮞ TV  DEVICES CHANNEL STATE
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("tvChannel")' > /dev/null; then
               channel=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tvChannel')
               ip=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.ip // "192.168.1.223"')
@@ -381,7 +381,7 @@ EOF
               continue
           fi
 
-          # 🦆 says ⮞ TV CHANNEL STATE UPDATES          
+          # 🦆 says ⮞ TV CHANNEL STATE UPDATES
           if [[ "$topic" == zigbee2mqtt/tv/*/channel ]]; then
               device_ip=$(echo "$topic" | cut -d'/' -f3)
               channel_id=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.channel_id')
@@ -397,12 +397,12 @@ EOF
               fi
               continue
           fi
-          
+
           # 🦆 says ⮞ ENERGY CONSUMPTION & PRICE
           if [ "$topic" = "zigbee2mqtt/tibber/price" ]; then
               current_price=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.current_price')
               if [ -n "$current_price" ]; then
-  
+
                 update_device_state "tibber" "current_price" "$current_price"
                   dt_info "Energy price updated: $current_price SEK/kWh"
               fi
@@ -419,13 +419,13 @@ EOF
           fi
 
           # 🦆 says ⮞ 🚨 alarm
-          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("security")' > /dev/null; then 
+          if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("security")' > /dev/null; then
             if [ "$LARMED" = "true" ]; then
               dt_info "Larmed apartment"
               yo notify "Larm på"
             fi
           fi
-          
+
           # 🦆 says ⮞ 🔋 battery
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("battery")' > /dev/null; then
             device_check
@@ -444,37 +444,37 @@ EOF
               dt_info "🌡️ Temperature update for $device_name: ''${prev_temp}°C > ''${temperature}°C"
             fi
           fi
-         
+
           # 🦆 says ⮞ left home yo
           # call with: mosquitto_pub -h IP -t "zigbee2mqtt/leaving_home" -m "LEFT"
           if [ "$line" = "LEFT" ]; then
-            set_larmed true            
+            set_larmed true
           fi
           # 🦆 says ⮞ returned homez
-          # calll mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/returning_home" -m "RETURN" 
+          # calll mosquitto_pub -h "${mqttHostip}" -t "zigbee2mqtt/returning_home" -m "RETURN"
           if [ "$line" = "RETURN" ]; then
             set_larmed false
           fi
 
           # 🦆 says ⮞ ❤️‍🔥 SMOKE SMOKE SMOKE
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("smoke")' > /dev/null; then
-            device_check            
+            device_check
             if [ "$smoke" = "true" ]; then
               yo notify "❤️‍🔥❤️‍🔥❤️‍🔥 FIRE !!! ❤️‍🔥❤️‍🔥❤️‍🔥"
               echo "❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥❤️‍🔥"
               dt_critical "❤️‍🔥❤️‍🔥 SMOKE! in in $device_name $dev_room"
             fi
           fi
-          
+
           # 🦆 says ⮞ 🕵️ quick quack motion detect
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("occupancy")' > /dev/null; then
-            device_check   
-            dt_info "🕵️ Occupancy update for $device_name: $occupancy (prev: $(get_state "$device_name" "occupancy"))"  
+            device_check
+            dt_info "🕵️ Occupancy update for $device_name: $occupancy (prev: $(get_state "$device_name" "occupancy"))"
             if [ "$occupancy" = "true" ]; then
               # 🦆 says ⮞ save for easy user localisation
               echo "{\"last_active_room\": \$dev_room\, \"timestamp\": \"$(${pkgs.coreutils}/bin/date -Iseconds)\"}" > "$STATE_DIR/last_motion.json"
               dt_info "🕵️ Motion in $device_name $dev_room"
-              # 🦆 says ⮞ track last motion time 
+              # 🦆 says ⮞ track last motion time
               update_device_state "apartment" "last_motion" "$(${pkgs.coreutils}/bin/date +%s)"
               # 🦆 says ⮞ If current time is within motion > light timeframe - turn on lights
               if is_dark_time; then
@@ -484,14 +484,14 @@ EOF
                 dt_debug "❌ Daytime - no lights activated by motion."
               fi
             else
-              dt_debug "🛑 No more motion in $device_name $dev_room"    
+              dt_debug "🛑 No more motion in $device_name $dev_room"
               update_device_state "$device_name" "occupancy" "false"
             fi
           fi
 
           # 🦆 says ⮞ 💧 water sensor
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("water_leak")' > /dev/null; then
-            device_check            
+            device_check
             if [[ "$water_leak" == "true" || "$waterleak" == "true" ]]; then
               dt_critical "💧 WATER LEAK DETECTED in $dev_room on $device_name"
               yo notify "💧 WATER LEAK DETECTED in $dev_room on $device_name"
@@ -499,8 +499,8 @@ EOF
               yo notify "WATER LEAK DETECTED in $dev_room on $device_name"
             fi
           fi
-          
-          # 🦆 says ⮞ 🚪 door and window sensor yo 
+
+          # 🦆 says ⮞ 🚪 door and window sensor yo
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("contact")' > /dev/null; then
             device_check
             dt_info "🚪 Door open in $dev_room ($device_name)"
@@ -509,53 +509,53 @@ EOF
             time_diff=$((current_time - last_motion))
             dt_debug "TIME: $current_time | LAST MOTION: $last_motion | TIME DIFF: $time_diff"
             # 🦆 says ⮞ diz iz a fun one - if i've been gone for >2 hours
-            if [ $time_diff -gt 7200 ]; then 
+            if [ $time_diff -gt 7200 ]; then
               dt_info "Welcoming you home! (no motion for 2 hours, door opened"
               # 🦆 says ⮞ then greet me welcome home - so i can say "quack? thanx yo!"
               sleep 5 && yo say --text "Välkommen hem!" --host "desktop"
             else
               dt_info "🛑 NOT WELCOMING:🛑 only $((time_diff/60)) minutes since last motion"
             fi
-          fi       
+          fi
 
           # 🦆 says ⮞ 🪟 BLIND & shaderz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("position")' > /dev/null; then
             device_check
-            if [ "$dev_type" = "blind" ]; then 
+            if [ "$dev_type" = "blind" ]; then
               if [ "$position" = "0" ]; then
                 dt_info "🪟 Rolled DOWN $device_name in $dev_room"
-              fi     
+              fi
               if [ "$position" = "100" ]; then
                 dt_info "🪟 Rolled UP $device_name in $dev_room"
               fi
-            fi  
-          fi  
+            fi
+          fi
 
           # 🦆 says ⮞ 🔌 power plugz & energy meterz
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("state")' > /dev/null; then
-            device_check     
+            device_check
             if [[ "$dev_type" == "plug" || "$dev_type" == "power" || "$dev_type" == "outlet" ]]; then
-              if [ "$state" = "ON" ]; then      
+              if [ "$state" = "ON" ]; then
                 dt_info "🔌 $device_name Turned ON in $dev_room"
-              fi       
+              fi
               if [ "$state" = "OFF" ]; then
                 dt_info "🔌 $device_name Turned OFF in $dev_room"
-              fi  
-            else  
+              fi
+            else
 
-          # 🦆 says ⮞ 💡 state change (debug)      
+          # 🦆 says ⮞ 💡 state change (debug)
               if [ "$state" = "OFF" ]; then
                 dt_debug "💡 $device_name Turned OFF in $dev_room"
-              fi  
+              fi
               if [ "$state" = "ON" ]; then
                 dt_debug "💡 $device_name Turned ON in $dev_room"
-              fi                
-            fi  
-          fi 
+              fi
+            fi
+          fi
 
           # 🦆 says ⮞ 🎚 Dimmer Switch actions
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("action")' > /dev/null; then
-            device_check       
+            device_check
             if [ "$action" == "on_press_release" ]; then
               # 🦆 says ⮞ turn on all lights in the room
               room_lights_on "$room"
@@ -584,12 +584,12 @@ EOF
             if [ "$action" == "off_press_release" ]; then room_lights_off "$room"; fi
             if [ "$action" == "off_hold_release" ]; then scene "dark" && dt_debug "DARKNESS ON"; fi
           fi
-          
+
           # 🦆 says ⮞ 🛒 shopping list functionality
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("shopping_action")' > /dev/null; then
             shopping_action=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.shopping_action')
-            item=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.item // ""')  
-            SHOPPING_LIST_FILE="$STATE_DIR/shopping_list.txt"  
+            item=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.item // ""')
+            SHOPPING_LIST_FILE="$STATE_DIR/shopping_list.txt"
             case "$shopping_action" in
               "add")
                 if [ -n "$item" ]; then
@@ -624,7 +624,7 @@ EOF
             esac
             continue
           fi
-          
+
           # 🦆 says ⮞ 🤖 yo do commands
           if echo "$line" | ${pkgs.jq}/bin/jq -e 'has("command")' > /dev/null; then
             command=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.command')
@@ -645,20 +645,20 @@ EOF
             fi
             continue
           fi
-          
+
           local end_time=$(date +%s%N)
           local duration=$(( (end_time - start_time) / 1000000 ))
-        
+
           # 🦆 says ⮞ update MA for this topic type
           local current_avg=''${processing_times["$topic"]:-0}
           processing_times["$topic"]=$(( (current_avg + duration) / 2 ))
           message_counts["$topic"]=$(( ''${message_counts["$topic"]:-0} + 1 ))
-        
+
           # 🦆 says ⮞ slow? log it
           if [ $duration -gt $slow_threshold ]; then
             dt_warning "Slow processing: $topic took ''${duration}ms"
           fi
-        
+
           # 🦆 says ⮞ log performance every 100 messages
           if [ $((total_messages % 100)) -eq 0 ]; then
             dt_info "[🦆📶] - Total messages: $total_messages"
@@ -668,34 +668,34 @@ EOF
               dt_debug "  $topic_type: avg ''${avg_time}ms, count $count"
             done
           fi
-             
+
         done
       }
-            
+
       # 🦆 says ⮞ ran diz thang
-      dt_info "🚀 Starting zigduck automation system"  
+      dt_info "🚀 Starting zigduck automation system"
       say_duck "🚀 quack to the moon yo!"
       dt_info "📡 Listening to all Zigbee events..."
-      start_listening             
+      start_listening
     '';
   };
-   
+
   # 🦆 says ⮞ how does ducks say ssschh?
   sops.secrets = {
     mosquitto = { # 🦆 says ⮞ quack, stupid!
-      sopsFile = ./../../secrets/mosquitto.yaml; 
+      sopsFile = ./../../secrets/mosquitto.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     }; # 🦆 says ⮞ Z2MQTT encryption key - if changed needs re-pairing devices
-    z2m_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
-      sopsFile = ./../../secrets/z2m_network_key.yaml; 
+    z2m_network_key = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+      sopsFile = ./../../secrets/z2m_network_key.yaml;
       owner = "zigbee2mqtt";
       group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
     };
-    z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) { 
-      sopsFile = ./../../secrets/z2m_mosquitto.yaml; 
+    z2m_mosquitto = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) {
+      sopsFile = ./../../secrets/z2m_mosquitto.yaml;
       owner = "zigbee2mqtt";
       group = "zigbee2mqtt";
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
@@ -704,10 +704,10 @@ EOF
 
   environment.systemPackages = [
     pkgs.clang
-    # 🦆 says ⮞ Dependencies 
+    # 🦆 says ⮞ Dependencies
     pkgs.mosquitto
     pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
-    # 🦆 says ⮞ scene fireworks  
+    # 🦆 says ⮞ scene fireworks
     (pkgs.writeScriptBin "scene-roll" ''
       ${cmdHelpers}
       MQTT_BROKER="${mqttHostip}"
@@ -721,11 +721,11 @@ EOF
       MQTT_BROKER="${mqttHostip}"
       MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
       MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}")
-      SCENE="$1"      
+      SCENE="$1"
       # 🦆 says ⮞ no scene == random scene
       if [ -z "$SCENE" ]; then
         SCENE=$(shuf -n 1 -e ${lib.concatStringsSep " " (lib.map (name: "\"${name}\"") (lib.attrNames sceneCommands))})
-      fi      
+      fi
       case "$SCENE" in
       ${
         lib.concatStringsSep "\n" (
@@ -744,7 +744,7 @@ EOF
         exit 1
         ;;
       esac
-    '')     
+    '')
     # 🦆 says ⮞ activate a scene yo
     (pkgs.writeScriptBin "zig" ''
       ${cmdHelpers}
@@ -755,22 +755,22 @@ EOF
       )
       available_devices=(
         ${toString deviceList}
-      )    
-      DEVICE="$1" # 🦆 says ⮞ device to control      
-      STATE="''${2:-}" # 🦆 says ⮞ state change        
+      )
+      DEVICE="$1" # 🦆 says ⮞ device to control
+      STATE="''${2:-}" # 🦆 says ⮞ state change
       BRIGHTNESS="''${3:-100}"
       COLOR="''${4:-}"
       TEMP="''${5:-}"
       ZIGBEE_DEVICES='${deviceMeta}'
       MQTT_BROKER="${mqttHostip}"
       MQTT_USER=$(nix eval "${config.this.user.me.dotfilesDir}#nixosConfigurations.${config.this.host.hostname}.config.yo.scripts.zigduck.parameters" --json | ${pkgs.jq}/bin/jq -r '.[] | select(.name == "user") | .default')
-      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file 
+      MQTT_PASSWORD=$(cat "${config.sops.secrets.mosquitto.path}") # ⮜ 🦆 says password file
       # 🦆 says ⮞ Zigbee coordinator backup
       if [[ "$DEVICE" == "backup" ]]; then
         mqtt_pub -t "zigbee2mqtt/backup/request" -m '{"action":"backup"}'
         say_duck "Zigbee coordinator backup requested! - processing on server..."
         exit 0
-      fi         
+      fi
       # 🦆 says ⮞ validate device
       input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
       exact_name=''${device_map["$input_lower"]}
@@ -791,19 +791,19 @@ EOF
         mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
         say_duck " turned off $DEVICE"
         exit 0
-      fi    
+      fi
       # 🦆 says ⮞ turn down the device brightness
       if [[ "$STATE" == "down" ]]; then
         say_duck "🔻 Decreasing $light_id in $clean_room"
         mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":-50,"transition":3.5}'
         exit 0
-      fi      
+      fi
       # 🦆 says ⮞ turn up the device brightness
       if [[ "$STATE" == "up" ]]; then
         say_duck "🔺 Increasing brightness on $light_id in $clean_room"
         mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":50,"transition":3.5}'
         exit 0
-      fi      
+      fi
       # 🦆 says ⮞ construct payload
       PAYLOAD="{\"state\":\"ON\""
       [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"
@@ -811,9 +811,9 @@ EOF
       PAYLOAD+="}"
       # 🦆 says ⮞ publish payload
       mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
-      say_duck "$PAYLOAD"   
-    '') 
-  ];  
+      say_duck "$PAYLOAD"
+    '')
+  ];
 
   systemd.services.zigduck = {
     serviceConfig = {
@@ -828,7 +828,7 @@ EOF
         chown ${config.this.user.me.name}:${config.this.user.me.name} "${zigduckDir}/state.json"
         chmod 644 "${zigduckDir}/state.json"
       fi
-    
+
       mkdir -p "${zigduckDir}/timers"
       chown ${config.this.user.me.name}:${config.this.user.me.name} "${zigduckDir}/timers"
       chmod 755 "${zigduckDir}/timers"
@@ -849,12 +849,12 @@ EOF
 #    wantedBy = [ "multi-user.target" ];
 #    after = [ "sops-nix.service" "network.target" ];
 #    environment.ZIGBEE2MQTT_DATA = "/var/lib/zigbee";
-#    preStart = '' 
-#      mkdir -p ${config.services.zigbee2mqtt.dataDir}    
+#    preStart = ''
+#      mkdir -p ${config.services.zigbee2mqtt.dataDir}
       # 🦆 says ⮞ our real mosquitto password quack quack
-#      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path}) 
+#      mosquitto_password=$(cat ${config.sops.secrets.z2m_mosquitto.path})
       # 🦆 says ⮞ Injecting password into config...
-#      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml  
+#      sed -i "s|/run/secrets/mosquitto|$mosquitto_password|" ${config.services.zigbee2mqtt.dataDir}/configuration.yaml
       # 🦆 says ⮞ da real zigbee network key boom boom quack quack yo yo
 #      TMPFILE="${config.services.zigbee2mqtt.dataDir}/tmp.yaml"
 #      CFGFILE="${config.services.zigbee2mqtt.dataDir}/configuration.yaml"
@@ -877,7 +877,7 @@ EOF
 #            for (i = 2; i <= NR; i++) print lines[i]
 #          }
 #        }
-#      ' "$CFGFILE" > "$TMPFILE"      
+#      ' "$CFGFILE" > "$TMPFILE"
 #      mv "$TMPFILE" "$CFGFILE"
 #    ''; # 🦆 says ⮞ thnx fo quackin' along!
   }#;} # 🦆 says ⮞ sleep tight!

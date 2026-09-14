@@ -8,12 +8,12 @@
 let
   cfg = config.this.host.modules.programs;
   user = config.this.user.me.name;
-  themeCSS = builtins.readFile config.this.theme.styles;  
-  vesktopThemeDir = "/home/${config.this.user.me.name}/.config/vesktop/themes";  
+  themeCSS = builtins.readFile config.this.theme.styles;
+  vesktopThemeDir = "/home/${config.this.user.me.name}/.config/vesktop/themes";
 in {
   config = lib.mkIf (lib.elem "vesktop" cfg) {
 #    file.".config/vesktop/themes/globalTheme.css" = themeCSS:
-  
+
     systemd.services.vesktop-profile = {
       wantedBy = [ "default.target" ];
       serviceConfig = {
@@ -30,10 +30,10 @@ EOF
           '';
         in "${script}/bin/vesktop-init";
       };
-    }; 
-  
+    };
+
     environment.systemPackages = [
-      pkgs.vesktop  
+      pkgs.vesktop
     ];
 
   };}

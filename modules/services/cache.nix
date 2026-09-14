@@ -43,7 +43,7 @@ in {
 
     networking.firewall.allowedTCPPorts = [ 80 443 cfg.port ];
 
-    system.activationScripts.generateSSLCert = lib.mkIf (!config.this.installer) (let 
+    system.activationScripts.generateSSLCert = lib.mkIf (!config.this.installer) (let
       certDir = "/etc/nginx/ssl";
       certPath = "${certDir}/cert.pem";
       keyPath = "${certDir}/key.pem";
@@ -72,7 +72,7 @@ in {
         enableACME = false;
         sslCertificate = "/etc/nginx/ssl/cert.pem";
         sslCertificateKey = "/etc/nginx/ssl/key.pem";
-        locations."/".proxyPass = 
+        locations."/".proxyPass =
           "http://${config.services.nix-serve.bindAddress}:${toString config.services.nix-serve.port}";
       };
     };
@@ -104,5 +104,5 @@ in {
       after = [ "nix-serve.service" ];
       requires = [ "nix-serve.service" ];
     };
-    
+
   };}

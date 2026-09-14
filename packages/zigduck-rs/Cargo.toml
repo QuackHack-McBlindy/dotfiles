@@ -8,7 +8,7 @@ ducktrace-logger = "0.1.4"
 tokio = { version = "1.0", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-rand = "0.8"    
+rand = "0.8"
 chrono = { version = "0.4", features = ["serde"] }
 clap = { version = "4.4", features = ["derive", "env"] }
 rumqttc = "0.22"
@@ -28,4 +28,3 @@ path = "src/zigduck-cli.rs"
 [[bin]]
 name = "zigduck-api"
 path = "src/api.rs"
-

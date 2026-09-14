@@ -5,14 +5,14 @@
   pkgs,
   self,
   ...
-} : let # 🦆 duck say ⮞ get'z all potential servers 
+} : let # 🦆 duck say ⮞ get'z all potential servers
   potentialServers = lib.filter (cfg:
     lib.elem "wg-server" (cfg.config.this.host.modules.networking or [])
   ) (lib.attrValues self.nixosConfigurations);
 
   # 🦆 duck say ⮞ select'z first found server with safety check
-  wgServer = if potentialServers != [] 
-    then lib.head potentialServers 
+  wgServer = if potentialServers != []
+    then lib.head potentialServers
     else throw "No WireGuard server configuration found";
 
   # 🦆 duck say ⮞ helper functionz
@@ -32,11 +32,11 @@ in { # 🦆 duck say ⮞ activate client service by exposing `"wg-client"` at `c
       group = "wgUser";
       mode = "0440";
     };
-    
+
     # 🦆 duck say ⮞ network keepin'
     networking.wireguard.interfaces.wg0 = {
       ips = [ "${clientWgIP}/24" ];
-      privateKeyFile = config.sops.secrets.${clientPrivateKeySecret}.path;      
+      privateKeyFile = config.sops.secrets.${clientPrivateKeySecret}.path;
       peers = [
         {
           publicKey = serverPublicKey;
@@ -46,7 +46,7 @@ in { # 🦆 duck say ⮞ activate client service by exposing `"wg-client"` at `c
         }
       ];
     };
-    # 🦆 duck say ⮞ NixOS user configuration 
+    # 🦆 duck say ⮞ NixOS user configuration
     users.users.wgUser = {
       group = "wgUser";
       home = "/home/wgUser";

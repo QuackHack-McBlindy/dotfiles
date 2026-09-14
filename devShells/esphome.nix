@@ -1,14 +1,14 @@
 # dotfiles/devShells/python.nix
-{ 
+{
   pkgs,
   system,
   inputs,
   self
 } : let # 🦆 duck say ⮞ put them python pkgs here yo!
-  pythonPackages = ps: [ 
+  pythonPackages = ps: [
 #    ps.numpy
     ps.pip
-    ps.requests   
+    ps.requests
 #    ps.lz4
 #    ps.python-dotenv
 #    ps.noisereduce
@@ -21,7 +21,7 @@
 #    ps.tflite-runtime
 #    ps.openwakeword
   ];
-  
+
   myPython = pkgs.python3.withPackages pythonPackages;
   actualPythonPkgs = pythonPackages pkgs.python3.pkgs;
 
@@ -37,7 +37,7 @@
     cmake
     ncurses5
     ninja
-    myPython    
+    myPython
     virtualenv
   ];
 
@@ -68,9 +68,8 @@ in {
       else
         . $IDF_PYTHON_ENV_PATH/bin/activate
       fi
-    fi  
+    fi
   '';
 
   NIX_CONFIG = "system = ${system}";
 }
-

@@ -1,7 +1,7 @@
 # dotfiles/bin/system/reboot.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, sysHosts, cmdHelpers, ... }:
 {
-    yo.scripts = { 
+    yo.scripts = {
       reboot = {
         description = "Force reboot and wait for host";
         category = "🖥️ System Management";
@@ -27,23 +27,23 @@
           ssh "$host" 'sudo reboot -f'
           sleep 1
           wait_for_host $host
-        '';    
+        '';
         voice = {
           enabled = true;
           priority = 5;
           fuzzy.enable = false;
           sentences = [
             "starta om {host} [dator|datorn]"
-            "starta om {host} [server|servern]"          
+            "starta om {host} [server|servern]"
           ];
           lists = {
             host.values = [
               { "in" = "[desktop|vatten]"; out = "desktop"; }
-              { "in" = "[homie|hem|hemserver]"; out = "homie"; }  
+              { "in" = "[homie|hem|hemserver]"; out = "homie"; }
               { "in" = "[nasty|nas|nasen]"; out = "nasty"; }
-              { "in" = "[laptop|laptoppen]"; out = "laptop"; }            
+              { "in" = "[laptop|laptoppen]"; out = "laptop"; }
             ];
           };
-        };  
+        };
       };
-    };}  
+    };}

@@ -1,9 +1,9 @@
 // dotfiles/home/sketchbook/boards/esp32s3-twatch.ino ⮞ https://github.com/quackhack-mcblindy/dotfiles
-// 🦆 duck say ⮞ quacktastic ESP Nixifier magic for the T-Watch 
+// 🦆 duck say ⮞ quacktastic ESP Nixifier magic for the T-Watch
 // Button: Top Left Button
-//      GPIO0	
+//      GPIO0
 // Button: Mute
-//      GPIO1	
+//      GPIO1
 // SPI
 //    clk_pin: GPIO7
 //    mosi_pin: GPIO6
@@ -14,7 +14,7 @@
 // Remote Receiver (IR67-21C/TR8)
 //    GPIO38
 // Remote Transmitter (IRM-H638T)
-//    GPIO39 
+//    GPIO39
 // LED backlight output
 //    GPIO47
 // 🦆 says ⮞  libs
@@ -90,17 +90,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x00178801001ecdaa" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x00178801001ecdaa">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x00178801001ecdaa" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x00178801001ecdaa" value="#ffffff">
@@ -118,17 +118,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103c7467d" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c7467d">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c7467d" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103c7467d" value="#ffffff">
@@ -146,17 +146,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103f44b5f" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103f44b5f">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103f44b5f" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103f44b5f" value="#ffffff">
@@ -174,17 +174,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880104051a86" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880104051a86">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880104051a86" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880104051a86" value="#ffffff">
@@ -202,17 +202,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880106156cb0" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880106156cb0">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880106156cb0" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880106156cb0" value="#ffffff">
@@ -230,17 +230,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880109ac14f3" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880109ac14f3">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880109ac14f3" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880109ac14f3" value="#ffffff">
@@ -267,14 +267,14 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x000b57fffe0e2a04" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x000b57fffe0e2a04">
     </div>
-   
-    
+
+
   </div>
 </div>
 <div class="device" data-id="0x0017880103eafdd6">
@@ -287,17 +287,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103eafdd6" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103eafdd6">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103eafdd6" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103eafdd6" value="#ffffff">
@@ -324,14 +324,14 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880102f0848a" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102f0848a">
     </div>
-   
-    
+
+
   </div>
 </div>
 <div class="device" data-id="0x0017880102f08526">
@@ -344,14 +344,14 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880102f08526" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102f08526">
     </div>
-   
-    
+
+
   </div>
 </div>
 <div class="device" data-id="0x0017880103a0d280">
@@ -364,17 +364,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103a0d280" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103a0d280">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103a0d280" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103a0d280" value="#ffffff">
@@ -392,17 +392,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103e0add1" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103e0add1">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103e0add1" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103e0add1" value="#ffffff">
@@ -420,14 +420,14 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0xa4c13873044cb7ea" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0xa4c13873044cb7ea">
     </div>
-   
-    
+
+
   </div>
 </div>
 
@@ -449,17 +449,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880102de8570" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880102de8570">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880102de8570" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880102de8570" value="#ffffff">
@@ -477,17 +477,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x00178801037e754e" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x00178801037e754e">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x00178801037e754e" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x00178801037e754e" value="#ffffff">
@@ -505,17 +505,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103c73f85" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c73f85">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c73f85" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103c73f85" value="#ffffff">
@@ -533,17 +533,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103c753b8" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103c753b8">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103c753b8" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103c753b8" value="#ffffff">
@@ -561,17 +561,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103f94041" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103f94041">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880103f94041" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880103f94041" value="#ffffff">
@@ -589,17 +589,17 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880104540411" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880104540411">
     </div>
-   
+
     <div class="control-row">
   <label>Color:</label>
   <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="0x0017880104540411" oninput="updateRGBColor(this)">
-</div>        
+</div>
 
 <div class="control-row">
   <input type="color" class="color-picker" data-device="0x0017880104540411" value="#ffffff">
@@ -626,14 +626,14 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x0017880103406f41" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x0017880103406f41">
     </div>
-   
-    
+
+
   </div>
 </div>
 <div class="device" data-id="0x001788010361b842">
@@ -646,14 +646,14 @@ String zigbeeDevicesHTML = R"rawliteral(<div class="room-section">
       <span class="slider"></span>
     </label>
   </div>
-  
+
   <div class="device-controls" id="controls-0x001788010361b842" style="display:none">
     <div class="control-row">
       <label>Brightness:</label>
       <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="0x001788010361b842">
     </div>
-   
-    
+
+
   </div>
 </div>
 
@@ -688,12 +688,12 @@ bool checkTouch() {
   Wire.beginTransmission(touchAddress);
   Wire.write(0x00);  // Status register
   byte error = Wire.endTransmission(false);
-  
+
   if (error != 0) {
     Serial.printf("I2C error: %d\n", error);
     return false;
   }
-  
+
   uint8_t bytesReceived = Wire.requestFrom(touchAddress, 1);
   if (bytesReceived == 1) {
     return (Wire.read() & 0x80) != 0;
@@ -704,9 +704,9 @@ bool checkTouch() {
 void updateTouchState() {
   if (millis() - lastTouchCheck < TOUCH_CHECK_INTERVAL) return;
   lastTouchCheck = millis();
-  
+
   bool currentTouch = checkTouch();
-  
+
   if (currentTouch && !touchActive) {
     // plz touch ⮞ 🦆
     touchActive = true;
@@ -736,13 +736,13 @@ void recordError(String message, String details) {
 
 void startRecording() {
   if (isRecording) return;
-  
+
   Serial.println("Recording started (touch detected)");
   digitalWrite(TFT_BL, HIGH);
   isRecording = true;
-  
+
   // 🦆 says ⮞ start da http connection
-  audioClient.setInsecure(); // 🦆 TODO ⮞ not suitable for prod yo 
+  audioClient.setInsecure(); // 🦆 TODO ⮞ not suitable for prod yo
   if (audioHttp.begin(audioClient, apiEndpoint)) {
     audioHttp.addHeader("Content-Type", "application/octet-stream");
     httpInitialized = true;
@@ -750,18 +750,18 @@ void startRecording() {
     recordError("HTTP Begin Failed", "Could not connect to: " + String(apiEndpoint));
     httpInitialized = false;
   }
-  
+
   i2s_start(I2S_NUM_0);
 }
 
 void stopRecording() {
   if (!isRecording) return;
-  
+
   Serial.println("Recording stopped (touch released)");
   isRecording = false;
-  
+
   i2s_stop(I2S_NUM_0);
-  
+
   if (httpInitialized) {
     audioHttp.end();
     httpInitialized = false;
@@ -803,26 +803,26 @@ String mqttStateToString(int state) {
 
 void streamAudio() {
   if (!isRecording || !httpInitialized) return;
-  
+
   static uint8_t audioBuffer[BUFFER_SIZE * 2];
   size_t bytesRead = 0;
-  
+
   // 🦆 says ⮞ read audio data
   esp_err_t err = i2s_read(I2S_NUM_0, audioBuffer, sizeof(audioBuffer), &bytesRead, 0);
   if (err != ESP_OK) {
     recordError("I2S Read Error", "Error code: " + String(err));
     return;
   }
-  
+
   if (bytesRead > 0) {
     // 🦆 says ⮞ quacky hacky stream da data
     int httpCode = audioHttp.POST(audioBuffer, bytesRead);
-    
+
     if (httpCode != HTTP_CODE_OK) {
       String errorDetails = "HTTP Code: " + String(httpCode) + "\n";
       errorDetails += "Error: " + audioHttp.errorToString(httpCode);
       recordError("Audio Upload Failed", errorDetails);
-      
+
       stopRecording();
     }
   }
@@ -832,7 +832,7 @@ void reconnectMQTT() {
   while (!mqttClient.connected()) {
     String errorDetails = "Attempting MQTT connection to ";
     errorDetails += String(mqtt_server) + "...";
-    
+
     if (mqttClient.connect("ESP32Client", mqtt_user, mqtt_password)) {
       errorDetails += "connected";
     } else {
@@ -840,9 +840,9 @@ void reconnectMQTT() {
       errorDetails += String(mqttClient.state());
       errorDetails += " - " + mqttStateToString(mqttClient.state());
     }
-    
+
     recordError("MQTT Connection", errorDetails);
-    
+
     if (!mqttClient.connected()) {
       delay(5000);
     }
@@ -856,15 +856,15 @@ float getBatteryVoltage() {
   int raw = analogRead(BATTERY_ADC_PIN);
   const float refVoltage = 3.3;
   const int maxADC = 4095;
-  const float dividerRatio = 2.0;  
+  const float dividerRatio = 2.0;
   return (raw * refVoltage / maxADC) * dividerRatio;
 }
 
 int getBatteryPercentage() {
   float voltage = getBatteryVoltage();
-  int percentage = (voltage - BATTERY_MIN_VOLTAGE) * 100 / 
+  int percentage = (voltage - BATTERY_MIN_VOLTAGE) * 100 /
                   (BATTERY_MAX_VOLTAGE - BATTERY_MIN_VOLTAGE);
-  
+
   percentage = constrain(percentage, 0, 100);
   return percentage;
 }
@@ -875,15 +875,15 @@ int getBatteryPercentage() {
 void fetchZigbeeDevices() {
   HTTPClient http;
   http.begin(zigbeeEndpoint);
-  int httpCode = http.GET();  
+  int httpCode = http.GET();
   if (httpCode == HTTP_CODE_OK) {
     String payload = http.getString();
     DynamicJsonDocument doc(4096);
     deserializeJson(doc, payload);
     JsonObject devices = doc.as<JsonObject>();
-    
+
     std::map<String, String> roomSections;
-    
+
     for (JsonPair kv : devices) {
       const char* id = kv.key().c_str();
       JsonObject device = kv.value().as<JsonObject>();
@@ -924,7 +924,7 @@ void fetchZigbeeDevices() {
         }
 
         deviceHTML += "</div></div>"; // 🦆 says ⮞ close controls
-        
+
         if (roomSections.find(room) == roomSections.end()) {
           roomSections[room] = "";
         }
@@ -939,7 +939,7 @@ void fetchZigbeeDevices() {
       if (iconIt != roomIcons.end()) {
         icon = iconIt->second;
       }
-  
+
       zigbeeDevicesHTML += "<div class=\"room-section\">";
       zigbeeDevicesHTML += "<h4 style=\"margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0;\">";
       zigbeeDevicesHTML += icon + " " + room.first;
@@ -955,17 +955,17 @@ void fetchZigbeeDevices() {
 void handleZigbeeColor() {
   String id = server.arg("id");
   String hexColor = server.arg("color");
-  
+
   long rgb = strtol(hexColor.c_str(), NULL, 16);
   int r = (rgb >> 16) & 0xFF;
   int g = (rgb >> 8) & 0xFF;
   int b = rgb & 0xFF;
 
   String topic = "zigbee2mqtt/" + id + "/set";
-  String payload = "{\"color\":{\"r\":" + String(r) + 
-                   ",\"g\":" + String(g) + 
+  String payload = "{\"color\":{\"r\":" + String(r) +
+                   ",\"g\":" + String(g) +
                    ",\"b\":" + String(b) + "}}";
-  
+
   if (mqttClient.publish(topic.c_str(), payload.c_str())) {
     server.send(200, "text/plain", "OK");
   } else {
@@ -976,10 +976,10 @@ void handleZigbeeColor() {
 void handleZigbeeBrightness() {
   String id = server.arg("id");
   String brightness = server.arg("brightness");
-  
+
   String topic = "zigbee2mqtt/" + id + "/set";
   String payload = "{\"brightness\":" + brightness + "}";
-  
+
   if (mqttClient.publish(topic.c_str(), payload.c_str())) {
     server.send(200, "text/plain", "OK");
   } else {
@@ -994,7 +994,7 @@ void es7210_init() {
   Wire.write(0x00); Wire.write(0x80);  // Reset chip
   Wire.endTransmission();
   delay(10);
-  
+
   Wire.beginTransmission(ES7210_ADDR);
   Wire.write(0x00); Wire.write(0x00);  // Power up
   Wire.write(0x01); Wire.write(0x22);  // OSR=64
@@ -1031,19 +1031,19 @@ void initI2S() {
     .data_out_num = I2S_PIN_NO_CHANGE,
     .data_in_num = I2S_SDIN
   };
-  
+
   // 🦆 says ⮞ install & start I2S driver
   i2s_driver_install(I2S_NUM_0, &i2s_config, 0, NULL);
   i2s_set_pin(I2S_NUM_0, &pin_config);
-  
+
   // 🦆 says ⮞ ES7210 ADC
   es7210_init();
 }
 
 void handleRFSend() {
   String code = server.arg("code");
-  Serial.println("Received RF code: " + code);  
-  // 🦆 TODO ⮞ logic lol 
+  Serial.println("Received RF code: " + code);
+  // 🦆 TODO ⮞ logic lol
   server.send(200, "text/plain", "RF code sent: " + code);
 }
 
@@ -1070,20 +1070,20 @@ static const char* jsCode PROGMEM = R"=====(
       .then(res => {
         if (!res.ok) alert("Toggle failed");
       });
-  } 
+  }
   function setDeviceBrightness(deviceId, brightness) {
     fetch(`/zigbee/brightness?id=${encodeURIComponent(deviceId)}&brightness=${brightness}`)
       .then(res => {
         if (!res.ok) alert(`Set brightness failed for ${deviceId}`);
       });
-  }  
+  }
   function setDeviceColor(deviceId, color) {
     const hexColor = color.substring(1);  // Remove # from hex color
     fetch(`/zigbee/color?id=${encodeURIComponent(deviceId)}&color=${hexColor}`)
       .then(res => {
         if (!res.ok) alert(`Set color failed for ${deviceId}`);
       });
-  }  
+  }
   document.addEventListener('input', function(event) {
     if (event.target.classList.contains('brightness-slider')) {
       const deviceId = event.target.dataset.device;
@@ -1106,11 +1106,11 @@ static const char* jsCode PROGMEM = R"=====(
       .then(res => {
         if (!res.ok) alert(`Set color failed for ${deviceId}`);
       });
-  } 
+  }
   function toggleDeviceControls(deviceId) {
     const controls = document.getElementById(`controls-${deviceId}`);
     controls.style.display = controls.style.display === 'none' ? 'block' : 'none';
-  }  
+  }
   document.addEventListener('input', function(event) {
     if (event.target.classList.contains('brightness-slider')) {
       const deviceId = event.target.dataset.device;
@@ -1148,7 +1148,7 @@ void handleRoot() {
 
   // 🦆 says ⮞ add da cool JS functions
   html += jsCode;
-  
+
   // 🦆 says ⮞ error handler
   html += R"(
   function showErrorDetails() {
@@ -1164,7 +1164,7 @@ void handleRoot() {
     document.getElementById('errorModal').style.display = 'block';
   }
   )";
-  
+
   html += R"rawliteral(
   </script>
 </head>
@@ -1208,7 +1208,7 @@ void handleRoot() {
   html += R"rawliteral(</div>
         </div>
       </div>
-  
+
       <!-- 🦆 says ⮞ ERROR LOG DETAILS -->
       <div id="errorModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;">
         <div style="background:white;margin:10% auto;padding:20px;width:80%;border-radius:8px;">
@@ -1219,7 +1219,7 @@ void handleRoot() {
           <button onclick="document.getElementById('errorModal').style.display='none'">Close</button>
         </div>
       </div>
-  
+
       // 🦆 says ⮞ BATTERY VOLTAGE
       <div class="status-item"><div class="status-icon">🔋</div><div class="status-content"><div class="status-label">Battery Voltage</div><div class="status-value">)rawliteral";
   html += String(batteryVoltage, 2);
@@ -1314,12 +1314,12 @@ void handleRecord() {
 void handleZigbeeControl() {
   String id = server.arg("id");
   String state = server.arg("state");
-  
+
   String topic = "zigbee2mqtt/" + id + "/set";
   String payload = "{\"state\":\"";
   payload += (state == "on" ? "ON" : "OFF");
   payload += "\"}";
-  
+
   if (mqttClient.publish(topic.c_str(), payload.c_str())) {
     Serial.printf("MQTT command sent: %s = %s\n", topic.c_str(), payload.c_str());
     server.send(200, "text/plain", "OK");
@@ -1335,23 +1335,23 @@ void handleZigbeeControl() {
 void tt21100_init() {
   Serial.println("Initializing TT21100...");
   bool found = false;
-  const uint8_t addresses[] = {0x38, 0x24, 0x25, 0x4A, 0x5A};  
+  const uint8_t addresses[] = {0x38, 0x24, 0x25, 0x4A, 0x5A};
   for (int i = 0; i < sizeof(addresses)/sizeof(addresses[0]); i++) {
     Wire.beginTransmission(addresses[i]);
-    byte error = Wire.endTransmission();    
+    byte error = Wire.endTransmission();
     if (error == 0) {
       Serial.printf("Found device at 0x%02X\n", addresses[i]);
       touchAddress = addresses[i];
       found = true;
       break;
     }
-  }  
+  }
   if (!found) {
     Serial.println("TT21100 not found. Touch functionality disabled.");
     touchControllerAvailable = false;
     return;
   }
-  
+
   touchControllerAvailable = true;
   Serial.println("TT21100 initialized");
 }
@@ -1366,29 +1366,29 @@ void setup() {
   Serial.begin(115200);
   delay(1000);
   mqttClient.setServer(mqtt_server, 1883);
-  
+
   pinMode(PA_PIN, OUTPUT);
   pinMode(MUTE_PIN, INPUT_PULLUP);
   pinMode(TFT_BL, OUTPUT);
   pinMode(TFT_RST, OUTPUT);
   pinMode(BATTERY_ADC_PIN, INPUT);
-  
+
   Wire.begin(I2C_SDA, I2C_SCL);
-  
+
   es7210_init();
-  
+
   initI2S();
 
   // 🦆 says ⮞ touch init
-  tt21100_init();  
+  tt21100_init();
   if (touchControllerAvailable) {
     pinMode(TOUCH_INT_PIN, INPUT_PULLUP);
     attachInterrupt(digitalPinToInterrupt(TOUCH_INT_PIN), touchISR, FALLING);
   }
-  
+
   // 🦆 says ⮞ connect to da wifi
   WiFi.begin(ssid, password);
-  Serial.print("Connecting to WiFi");  
+  Serial.print("Connecting to WiFi");
   unsigned long wifiTimeout = millis() + 30000; // 30s timeout
   while (WiFi.status() != WL_CONNECTED && millis() < wifiTimeout) {
     delay(500);
@@ -1399,7 +1399,7 @@ void setup() {
     String errorDetails = "Failed to connect to WiFi\n";
     errorDetails += "SSID: " + String(ssid) + "\n";
     errorDetails += "Status: " + String(WiFi.status()) + " - ";
-    
+
     switch(WiFi.status()) {
       case WL_IDLE_STATUS: errorDetails += "Idle"; break;
       case WL_NO_SSID_AVAIL: errorDetails += "SSID not available"; break;
@@ -1409,39 +1409,39 @@ void setup() {
       case WL_DISCONNECTED: errorDetails += "Disconnected"; break;
       default: errorDetails += "Unknown error";
     }
-    
+
     recordError("WiFi Connection Failed", errorDetails);
   } else {
     recordError("WiFi Connected", "IP: " + WiFi.localIP().toString());
     Serial.println("MAC Address:");
   }
-  
- 
+
+
   server.on("/", handleRoot);
   server.on("/record", handleRecord);
   server.on("/zigbee/control", handleZigbeeControl);
   server.on("/zigbee/color", handleZigbeeColor);
   server.on("/zigbee/brightness", handleZigbeeBrightness);
   server.begin();
-  
+
   pinMode(TOUCH_INT_PIN, INPUT_PULLUP);
-  attachInterrupt(digitalPinToInterrupt(TOUCH_INT_PIN), touchISR, FALLING);  
+  attachInterrupt(digitalPinToInterrupt(TOUCH_INT_PIN), touchISR, FALLING);
   fetchZigbeeDevices();
-  digitalWrite(PA_PIN, HIGH);    
+  digitalWrite(PA_PIN, HIGH);
 }
 
 
 // ===========================================
 // 🦆 says ⮞ DA LOOP YO
 void loop() {
-  server.handleClient();  
+  server.handleClient();
   if (touchControllerAvailable) {
     if (touchDetected) {
       touchDetected = false;
       updateTouchState();
     }
   }
-  
+
   if (!mqttClient.connected()) {
     reconnectMQTT();
   }
@@ -1451,7 +1451,7 @@ void loop() {
     fetchZigbeeDevices();
     lastZigbeeFetch = millis();
   }
-  
+
   if (isRecording) {
     streamAudio();
   }

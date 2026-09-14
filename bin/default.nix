@@ -8,7 +8,7 @@
 } : let # 🦆 duck say ⮞ grabbin' some of dat sweet sweet nix option for fancy fancy configz
   inherit (lib) types mkOption mkEnableOption mkMerge;
   # 🦆 duck say ⮞ recursive nix importer — let'z waddle throu' them dirz through the reeds
-  importModulesRecursive = dir: 
+  importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;# 🦆 duck say ⮞ read all files & subfolders in dir i say no duck left behind
       modules = lib.attrsets.mapAttrsToList (name: type: # 🦆 duck say ⮞ map over entries, check if directory or nix file
@@ -25,13 +25,13 @@
   # 🦆 duck say ⮞ list all hostz — all ducks in the pond
   sysHosts = lib.attrNames self.nixosConfigurations;
   # 🦆 duck say ⮞ list all devShells — ducklingz ready to hatch dem dev env
-  sysDevShells = lib.attrNames self.devShells; 
-  
+  sysDevShells = lib.attrNames self.devShells;
+
   # 🦆 duck say ⮞ stash house for massive amounts of helper functions for yo scripts
   cmdHelpers = import ./helpers.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
   };
-  
+
   # 🦆BEtracin'⮞RUST'logggin'DUCK'pleasin'
   RustDuckTrace = import ./DuckTrace/rust.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
@@ -39,12 +39,12 @@
   PythonDuckTrace = import ./DuckTrace/python.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
   };
-  
+
   # 🦆 says ⮞ dis fetch what host has Mosquitto
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -55,7 +55,7 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})"; 
+  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
   mqttBroker =
     if mqttHostip == config.this.host.ip
     then "localhost"
@@ -70,10 +70,10 @@ in { # 🦆 duck say ⮞ import everythang in defined directories
         importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./maintenance ++ # 🦆 duck say ⮞ +++++ plus plus plus rots of duck's give lot'z of luck
-        importModulesRecursive ./phone ++        
+        importModulesRecursive ./phone ++
         importModulesRecursive ./productivity ++
         importModulesRecursive ./network ++
         importModulesRecursive ./media ++
         importModulesRecursive ./files ++
-        importModulesRecursive ./misc # 🦆 duck say ⮞ enuff enuff dis iz last you have ducks word on dat        
+        importModulesRecursive ./misc # 🦆 duck say ⮞ enuff enuff dis iz last you have ducks word on dat
     );} # 🦆 duck say ⮞ bye!

@@ -7,23 +7,23 @@
   ...
 }: let
   cfg = config.services.sops-yubikey;
-  
+
   # 🦆 says ⮞ get the encrypted key path based on hostname
-  encryptedKeyPath = 
+  encryptedKeyPath =
     if builtins.isPath cfg.encryptedKeyDir
     then cfg.encryptedKeyDir + "/${config.networking.hostName}/age.key"
     else builtins.toPath "${cfg.encryptedKeyDir}/${config.networking.hostName}/age.key";
-    
+
 in {
   options.services.sops-yubikey = {
     enable = lib.mkEnableOption "YubiKey SOPS decryption";
-    
+
     encryptedKeyDir = lib.mkOption {
       type = lib.types.path;
       default = ./../secrets/hosts;
       description = "Directory containing encrypted age keys per host";
     };
-    
+
     ensureDecrypted = lib.mkOption {
       type = lib.types.bool;
       default = true;
@@ -37,7 +37,7 @@ in {
       age-plugin-yubikey
       yubioath-flutter
       yubikey-agent
-      yubikey-personalization    
+      yubikey-personalization
       yubikey-manager
       pam_u2f
       libu2f-host
@@ -57,10 +57,10 @@ in {
     system.activationScripts.yubikeyDecrypt = {
       text = ''
         echo "Checking for YubiKey-decrypted SOPS age key..."
-        
+
         SOPS_KEYFILE="${config.sops.age.keyFile}"
         ENCRYPTED_KEY="${encryptedKeyPath}"
-        
+
         # 🦆 says ⮞ check if the decrypted key already exists and is valid
         if [ -f "$SOPS_KEYFILE" ]; then
           echo "SOPS age key already exists at $SOPS_KEYFILE"
@@ -72,7 +72,7 @@ in {
             echo "⚠️  Key exists but doesn't look valid, will re-decrypt"
           fi
         fi
-        
+
         echo ""
         echo "❌ SOPS age key not found or invalid at: $SOPS_KEYFILE"
         echo "🔑 Encrypted key location: $ENCRYPTED_KEY"
@@ -84,14 +84,14 @@ in {
         echo ""
         echo "Decrypting now..."
         echo ""
-        
+
         # 🦆 says ⮞ create directory for key if it doesn't exist
         mkdir -p "$(dirname "$SOPS_KEYFILE")"
-        
+
         # 🦆 says ⮞ temporary identity file
         IDENTITY_TMP="$(mktemp)"
         trap 'rm -f "$IDENTITY_TMP"' EXIT
-        
+
         # 🦆 says ⮞ get identity from YubiKey
         if ! age-plugin-yubikey --identity --slot 1 > "$IDENTITY_TMP" 2>/dev/null; then
           echo ""
@@ -103,7 +103,7 @@ in {
           echo ""
           exit 1
         fi
-        
+
         # 🦆 says ⮞ decrypt the age key
         if ! rage -d -i "$IDENTITY_TMP" -o "$SOPS_KEYFILE" "$ENCRYPTED_KEY"; then
           echo ""
@@ -114,20 +114,20 @@ in {
           echo "   - Encrypted file doesn't match this YubiKey"
           exit 1
         fi
-        
+
         # 🦆 says ⮞ set secure permissions
         chmod 0400 "$SOPS_KEYFILE"
         chown root:root "$SOPS_KEYFILE"
-        
+
         echo ""
         echo "Successfully decrypted SOPS age key!"
         echo "   Key saved to: $SOPS_KEYFILE"
       '';
-      
+
       # 🦆 says ⮞ run this BEFORE sops activation scripts
       deps = [ "users" "groups" "etc" ];
     };
-    
+
     # 🦆 says ⮞ make sure sops activation runs AFTER our decryption
     system.activationScripts.sops.deps = [ "yubikeyDecrypt" ];
     system.activationScripts.sops.text = " ";

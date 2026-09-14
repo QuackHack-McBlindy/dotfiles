@@ -4,7 +4,7 @@ use std::{ // 🦆 says ⮞ zigduck-cli is a command line device controller for 
     path::PathBuf,
     time::Duration,
     collections::HashMap,
-};    
+};
 use clap::{
     Parser,
     ValueEnum,
@@ -19,7 +19,7 @@ use rumqttc::{Client, MqttOptions, QoS};
 use anyhow::{Result, Context};
 use colored::*;
 use reqwest::blocking::Client as HttpClient;
- 
+
 #[derive(Debug, Deserialize, Clone)]
 struct CliConfig {
     mosquitto: Option<MosquittoConfig>,
@@ -251,7 +251,7 @@ impl ZigduckController {
 	    user: String,
 	    password: String,
 	    hue_bridge_ip: Option<String>,
-	    hue_api_key: Option<String>,    
+	    hue_api_key: Option<String>,
 	    devices_config: Option<PathBuf>,
 	    scenes_config: Option<PathBuf>,
 	    verbose: bool,
@@ -259,15 +259,15 @@ impl ZigduckController {
 	    let mut mqttoptions = MqttOptions::new("zigduck-cli", &broker, 1883);
 	    mqttoptions.set_credentials(&user, &password);
 	    mqttoptions.set_keep_alive(Duration::from_secs(5));
-	    
+
 	    let hue_client = if let (Some(ip), Some(key)) = (hue_bridge_ip, hue_api_key) {
 	        Some(HueClient::new(&ip, &key)?)
 	    } else {
 	        None
 	    };
-	    
+
 	    let (mqtt_client, mut connection) = Client::new(mqttoptions, 10);
-	    
+
 	    let mqtt_client_clone = mqtt_client.clone();
 	    std::thread::spawn(move || {
 	        for notification in connection.iter() {
@@ -280,12 +280,12 @@ impl ZigduckController {
 	            }
 	        }
 	    });
-	    
+
 	    std::thread::sleep(Duration::from_millis(100));
-	    
+
 	    let devices = Self::load_devices(devices_config)?;
 	    let scenes = Self::load_scenes(scenes_config)?;
-	    
+
 	    if verbose {
 	        println!("{} Connected to MQTT broker: {}", "✅".green(), broker);
 	        println!("{} Loaded {} devices", "📱".blue(), devices.len());
@@ -294,7 +294,7 @@ impl ZigduckController {
 	            println!("{} Hue Bridge connected", "💡".yellow());
 	        }
 	    }
-	    
+
 	    Ok(Self {
 	        mqtt_client: mqtt_client_clone,
 	        hue_client,
@@ -303,44 +303,44 @@ impl ZigduckController {
 	        verbose,
 	    })
 	}
-	
+
 	fn load_devices(config_path: Option<PathBuf>) -> Result<HashMap<String, DeviceConfig>> {
 	    let config_path = config_path.ok_or_else(|| anyhow::anyhow!("No devices config provided"))?;
-	    
+
 	    if !config_path.exists() {
 	        println!("{} No devices config found, using empty list", "⚠️".yellow());
 	        return Ok(HashMap::new());
 	    }
-	    
+
 	    let devices_json = fs::read_to_string(config_path)
 	        .context("Failed to read devices config file")?;
-	    
+
 	    let devices: HashMap<String, DeviceConfig> = serde_json::from_str(&devices_json)
 	        .map_err(|e| anyhow::anyhow!("Failed to parse devices JSON: {}", e))?;
-	    
+
 	    Ok(devices)
 	}
-	
+
 	fn load_scenes(config_path: Option<PathBuf>) -> Result<HashMap<String, SceneConfig>> {
 	    let config_path = config_path.ok_or_else(|| anyhow::anyhow!("No scenes config provided"))?;
-	    
+
 	    if !config_path.exists() {
 	        println!("{} No scenes config found, using empty list", "⚠️".yellow());
 	        return Ok(HashMap::new());
 	    }
-	    
+
 	    let scenes_json = fs::read_to_string(config_path)
 	        .context("Failed to read scenes config file")?;
-	    
+
 	    let scenes: HashMap<String, SceneConfig> = serde_json::from_str(&scenes_json)
 	        .map_err(|e| anyhow::anyhow!("Failed to parse scenes JSON: {}", e))?;
-	    
+
 	    Ok(scenes)
 	}
-	
+
 	fn color_name_to_hue_sat(&self, color_name: &str) -> Result<(u16, u8)> {
 	    let mut rng = rand::thread_rng();
-	    
+
 	    match color_name.to_lowercase().as_str() {
 	        "red" => Ok((rng.gen_range(0..6000), 254)),
 	        "orange" => Ok((rng.gen_range(6000..10000), 254)),
@@ -358,39 +358,39 @@ impl ZigduckController {
 	        _ => anyhow::bail!("Unknown color: {}", color_name),
 	    }
 	}
-	
+
 	fn hex_to_xy(&self, hex: &str) -> Result<(f32, f32)> {
 	    let hex = hex.trim_start_matches('#');
 	    if hex.len() != 6 {
 	        anyhow::bail!("Invalid hex color: {}", hex);
 	    }
-	    
+
 	    let r = u8::from_str_radix(&hex[0..2], 16)? as f32 / 255.0;
 	    let g = u8::from_str_radix(&hex[2..4], 16)? as f32 / 255.0;
 	    let b = u8::from_str_radix(&hex[4..6], 16)? as f32 / 255.0;
-	    
+
 	    let r = if r > 0.04045 {
 	        ((r + 0.055) / 1.055).powf(2.4)
 	    } else {
 	        r / 12.92
 	    };
-	    
+
 	    let g = if g > 0.04045 {
 	        ((g + 0.055) / 1.055).powf(2.4)
 	    } else {
 	        g / 12.92
 	    };
-	    
+
 	    let b = if b > 0.04045 {
 	        ((b + 0.055) / 1.055).powf(2.4)
 	    } else {
 	        b / 12.92
 	    };
-	    
+
 	    let x = r * 0.649926 + g * 0.103455 + b * 0.197109;
 	    let y = r * 0.234327 + g * 0.743075 + b * 0.022598;
 	    let z = r * 0.000000 + g * 0.053077 + b * 1.035763;
-	    
+
 	    let sum = x + y + z;
 	    if sum == 0.0 {
 	        Ok((0.5, 0.4))
@@ -398,7 +398,7 @@ impl ZigduckController {
 	        Ok((x / sum, y / sum))
 	    }
 	}
-	
+
 fn color_name_to_hex(&self, color_name: &str) -> Result<String> {
  let hex = match color_name.to_lowercase().as_str() {
      "red" => "#FF0000".to_string(),
@@ -436,22 +436,22 @@ fn color_name_to_hex(&self, color_name: &str) -> Result<String> {
 
  Ok(hex)
 }
-	
+
 	fn publish_mqtt(&mut self, topic: &str, payload: serde_json::Value) -> Result<()> {
 	    let payload_str = serde_json::to_string(&payload)?;
-	    
+
 	    if self.verbose {
 	        println!("{} {} → {}", "🦆 MQTT".cyan(), topic.blue(), payload_str.yellow());
 	    }
-	    
+
 	    self.mqtt_client
 	        .publish(topic, QoS::AtMostOnce, false, payload_str)
 	        .map_err(|e| anyhow::anyhow!("Failed to publish MQTT message: {}", e))?;
-	    
+
 	    std::thread::sleep(Duration::from_millis(50));
 	    Ok(())
 	}
-	
+
 fn find_device(&self, query: &str) -> Result<DeviceConfig> {
  let query_lower = query.to_lowercase();
 
@@ -470,11 +470,11 @@ fn find_device(&self, query: &str) -> Result<DeviceConfig> {
  anyhow::bail!("Device not found: {}", query)
 }
 
-	
+
 	fn is_hue_device(&self, device: &DeviceConfig) -> bool {
 	    device.hue_id.is_some() && (device.device_type == "light" || device.device_type == "hue_light")
 	}
-	
+
 fn control_device_with_params(
  &mut self,
  device_name: &str,
@@ -492,7 +492,7 @@ fn control_device_with_params(
      self.control_zigbee_device(&device.friendly_name, state, brightness, color, temperature, transition)
  }
 }
-	
+
 	fn control_hue_device(
 	    &mut self,
 	    device: &DeviceConfig,
@@ -505,13 +505,13 @@ fn control_device_with_params(
 	    let hue_id = device.hue_id.unwrap();
 	    let hue_client = self.hue_client.as_ref()
 	        .context("Hue client not initialized")?;
-	    
+
 	    let mut payload = serde_json::Map::new();
-	    
+
 	    match state {
 	        DeviceState::On => {
 	            payload.insert("on".to_string(), serde_json::Value::Bool(true));
-	            
+
 	            if let Some(bri) = brightness {
 	                if !(1..=100).contains(&bri) {
 	                    anyhow::bail!("Brightness must be between 1-100");
@@ -521,7 +521,7 @@ fn control_device_with_params(
 	                    payload.insert("bri".to_string(), serde_json::Value::Number(hue_bri.into()));
 	                }
 	            }
-	            
+
 	            if let Some(color_val) = &color {
 	                if let Some(temp_val) = temperature {
 	                    payload.insert("ct".to_string(), serde_json::Value::Number(temp_val.into()));
@@ -539,7 +539,7 @@ fn control_device_with_params(
 	                        payload.insert("xy".to_string(), serde_json::json!([xy.0, xy.1]));
 	                        (0, 0)
 	                    };
-	                    
+
 	                    if hue > 0 || sat > 0 {
 	                        payload.insert("hue".to_string(), serde_json::Value::Number(hue.into()));
 	                        payload.insert("sat".to_string(), serde_json::Value::Number(sat.into()));
@@ -548,7 +548,7 @@ fn control_device_with_params(
 	            } else if let Some(temp_val) = temperature {
 	                payload.insert("ct".to_string(), serde_json::Value::Number(temp_val.into()));
 	            }
-	            
+
 	            if let Some(trans) = transition {
 	                let trans_time = (trans * 10.0).round() as u16;
 	                payload.insert("transitiontime".to_string(), serde_json::Value::Number(trans_time.into()));
@@ -563,21 +563,21 @@ fn control_device_with_params(
 	                .and_then(|s| s.get("on"))
 	                .and_then(|o| o.as_bool())
 	                .unwrap_or(false);
-	            
+
 	            payload.insert("on".to_string(), serde_json::Value::Bool(!is_on));
 	        }
 	    }
-	    
+
 	    let payload_json = serde_json::Value::Object(payload);
-	    
+
 	    if self.verbose {
-	        println!("{} Hue Light {} (ID: {}) → {}", "💡".yellow(), 
+	        println!("{} Hue Light {} (ID: {}) → {}", "💡".yellow(),
 	            device.friendly_name, hue_id, payload_json.to_string());
 	    }
-	    
+
 	    hue_client.set_light_state(hue_id, payload_json)
 	}
-	
+
 	fn control_zigbee_device(
 	    &mut self,
 	    device_name: &str,
@@ -588,11 +588,11 @@ fn control_device_with_params(
 	    transition: Option<f32>,
 	) -> Result<()> {
 	    let mut payload = serde_json::Map::new();
-	    
+
 	    match state {
 	        DeviceState::On => {
 	            payload.insert("state".to_string(), "ON".into());
-	            
+
 	            if let Some(bri) = brightness {
 	                if !(1..=100).contains(&bri) {
 	                    anyhow::bail!("Brightness must be between 1-100");
@@ -600,17 +600,17 @@ fn control_device_with_params(
 	                let mqtt_bri = (bri as f32 * 2.54).round() as u8;
 	                payload.insert("brightness".to_string(), mqtt_bri.into());
 	            }
-	            
+
 	            if let Some(color_val) = &color {
 	                let hex = self.color_name_to_hex(color_val)?;
-	                payload.insert("color".to_string(), 
+	                payload.insert("color".to_string(),
 	                    serde_json::json!({"hex": hex}));
 	            }
-	            
+
 	            if let Some(temp_val) = temperature {
 	                payload.insert("color_temp".to_string(), temp_val.into());
 	            }
-	            
+
 	            if let Some(trans) = transition {
 	                payload.insert("transition".to_string(), trans.into());
 	            }
@@ -622,11 +622,11 @@ fn control_device_with_params(
 	            payload.insert("state".to_string(), "TOGGLE".into());
 	        }
 	    }
-	    
+
 	    let topic = format!("zigbee2mqtt/{}/set", device_name);
 	    self.publish_mqtt(&topic, serde_json::Value::Object(payload))
 	}
-	
+
 
 fn control_device_with_json(
  &mut self,
@@ -654,25 +654,25 @@ fn control_device_with_json(
      }
  }
 }
-	
+
 	fn control_hue_with_json(&mut self, device: &DeviceConfig, payload: serde_json::Value) -> Result<()> {
 	    let hue_id = device.hue_id.unwrap();
 	    let hue_client = self.hue_client.as_ref()
 	        .context("Hue client not initialized")?;
-	    
+
 	    if self.verbose {
-	        println!("{} Hue Light {} (ID: {}) → {}", "💡".yellow(), 
+	        println!("{} Hue Light {} (ID: {}) → {}", "💡".yellow(),
 	            device.friendly_name, hue_id, payload.to_string());
 	    }
-	    
+
 	    hue_client.set_light_state(hue_id, payload)
 	}
-	
+
 	fn control_zigbee_with_json(&mut self, device_name: &str, payload: serde_json::Value) -> Result<()> {
 	    let topic = format!("zigbee2mqtt/{}/set", device_name);
 	    self.publish_mqtt(&topic, payload)
 	}
-	
+
 	fn control_room(
 	    &mut self,
 	    room_name: &str,
@@ -683,7 +683,7 @@ fn control_device_with_json(
 	) -> Result<()> {
 	    let device_names: Vec<String> = self.devices
 	        .values()
-	        .filter(|d| d.room.to_lowercase() == room_name.to_lowercase() && 
+	        .filter(|d| d.room.to_lowercase() == room_name.to_lowercase() &&
 	                  (d.device_type == "light" || d.device_type == "hue_light"))
 	        .map(|d| d.friendly_name.clone())
 	        .collect();
@@ -692,7 +692,7 @@ fn control_device_with_json(
 	        anyhow::bail!("No lights found in room: {}", room_name);
 	    }
 
-	    println!("{} Controlling {} lights in {}", 
+	    println!("{} Controlling {} lights in {}",
 	        "💡".green(), device_names.len(), room_name.bold());
 
 	    for device_name in device_names {
@@ -709,7 +709,7 @@ fn control_device_with_json(
 
 	    Ok(())
 	}
-	
+
 fn activate_scene(&mut self, scene_name: &str, random: bool, room_filter: Option<&str>) -> Result<()> {
     let scene_to_activate = if random {
         let scene_names: Vec<String> = self.scenes.keys().cloned().collect();
@@ -753,7 +753,7 @@ fn activate_scene(&mut self, scene_name: &str, random: bool, room_filter: Option
     }
 
     if self.verbose {
-        println!("{} Scene '{}' has {} devices (filtered to {})", 
+        println!("{} Scene '{}' has {} devices (filtered to {})",
             "🔍".cyan(), scene_to_activate, scene.devices.len(), devices.len());
     }
 
@@ -768,7 +768,7 @@ fn activate_scene(&mut self, scene_name: &str, random: bool, room_filter: Option
                     let hue_payload = self.convert_to_hue_payload(&settings)?;
 
                     if self.verbose {
-                        println!("{} Hue {} (ID: {}) → {}", "💡".yellow(), 
+                        println!("{} Hue {} (ID: {}) → {}", "💡".yellow(),
                             device_name, hue_id, hue_payload.to_string());
                     }
 
@@ -792,7 +792,7 @@ fn activate_scene(&mut self, scene_name: &str, random: bool, room_filter: Option
         std::thread::sleep(Duration::from_millis(10));
     }
 
-    println!("{} Scene '{}' activated ({} Hue, {} Zigbee)", 
+    println!("{} Scene '{}' activated ({} Hue, {} Zigbee)",
         "✅".green(), scene_to_activate, hue_count, zigbee_count);
     Ok(())
 }
@@ -855,17 +855,17 @@ if let Some(t) = transition.as_f64() {
 
 Ok(serde_json::Value::Object(payload))
 }
-	
+
 	fn enter_pairing_mode(&mut self, duration: u16, watch: bool) -> Result<()> {
 	    println!("{} Entering pairing mode for {} seconds...", "📡".blue(), duration);
-	    
+
 	    let enable_payload = serde_json::json!({
 	        "value": true,
 	        "time": duration
 	    });
-	    
+
 	    self.publish_mqtt("zigbee2mqtt/bridge/request/permit_join", enable_payload)?;
-	    
+
 	    if watch {
 	        println!("{} Watching for new devices...", "👀".cyan());
 	        println!("{} Put your device in pairing mode now!", "👉".yellow());
@@ -874,17 +874,17 @@ Ok(serde_json::Value::Object(payload))
 	        println!("{} Pairing mode active for {} seconds", "⏰".yellow(), duration);
 	        std::thread::sleep(Duration::from_secs(duration as u64));
 	    }
-	    
+
 	    let disable_payload = serde_json::json!({
 	        "value": false
 	    });
-	    
+
 	    self.publish_mqtt("zigbee2mqtt/bridge/request/permit_join", disable_payload)?;
-	    
+
 	    println!("{} Pairing mode finished", "✅".green());
 	    Ok(())
 	}
-	
+
 	fn control_all_lights(&mut self, state: &DeviceState, brightness: Option<u8>, color: Option<String>) -> Result<()> {
 	    let device_names: Vec<String> = self.devices
 	        .values()
@@ -904,26 +904,26 @@ Ok(serde_json::Value::Object(payload))
 	            None,
 	        )?;
 	        std::thread::sleep(Duration::from_millis(50));
-	    }    
+	    }
 	    Ok(())
 	}
-	
+
 	fn cheap_mode(&mut self, room: &str, delay: u64) -> Result<()> {
-	    println!("{} Energy saving mode for {} ({} seconds delay)", 
+	    println!("{} Energy saving mode for {} ({} seconds delay)",
 	        "💰".green(), room, delay);
-	    
+
 	    self.control_room(room, &DeviceState::On, Some(50), None, None)?;
-	    
+
 	    println!("{} Lights on, will turn off in {} seconds...", "⏰".yellow(), delay);
-	    
+
 	    std::thread::sleep(Duration::from_secs(delay));
-	    
-	    self.control_room(room, &DeviceState::Off, None, None, None)?;            
+
+	    self.control_room(room, &DeviceState::Off, None, None, None)?;
 	    println!("{} Lights turned off for energy saving", "✅".green());
-	    
+
 	    Ok(())
 	}
-	
+
 	fn list_items(&self, what: &ListType, json: bool) -> Result<()> {
 	    match what {
 	        ListType::Devices => {
@@ -938,9 +938,9 @@ Ok(serde_json::Value::Object(payload))
 	                    } else {
 	                        "".to_string()
 	                    };
-	                    println!("  • {} [{}]{}{}", 
-	                        device.friendly_name.bold(), 
-	                        device.room, 
+	                    println!("  • {} [{}]{}{}",
+	                        device.friendly_name.bold(),
+	                        device.room,
 	                        hue_info,
 	                        if device.supports_color.unwrap_or(false) { " 🎨" } else { "" });
 	                }
@@ -951,7 +951,7 @@ Ok(serde_json::Value::Object(payload))
 	            for device in self.devices.values() {
 	                *rooms.entry(&device.room).or_insert(0) += 1;
 	            }
-	            
+
 	            if json {
 	                println!("{}", serde_json::to_string_pretty(&rooms)?);
 	            } else {
@@ -978,7 +978,7 @@ Ok(serde_json::Value::Object(payload))
 	            let lights: Vec<_> = self.devices.values()
 	                .filter(|d| d.device_type == "light" || d.device_type == "hue_light")
 	                .collect();
-	            
+
 	            if json {
 	                println!("{}", serde_json::to_string_pretty(&lights)?);
 	            } else {
@@ -993,11 +993,11 @@ Ok(serde_json::Value::Object(payload))
 	        }
 	        ListType::Sensors => {
 	            let sensors: Vec<_> = self.devices.values()
-	                .filter(|d| d.device_type.contains("sensor") || 
-	                           d.device_type.contains("motion") || 
+	                .filter(|d| d.device_type.contains("sensor") ||
+	                           d.device_type.contains("motion") ||
 	                           d.device_type.contains("contact"))
 	                .collect();
-	            
+
 	            if json {
 	                println!("{}", serde_json::to_string_pretty(&sensors)?);
 	            } else {
@@ -1008,7 +1008,7 @@ Ok(serde_json::Value::Object(payload))
 	            }
 	        }
 	    }
-	    
+
 	    Ok(())
 	}
 }
@@ -1017,10 +1017,10 @@ fn main() -> Result<()> {
     let debug = std::env::var("DEBUG").is_ok();
     if debug { std::env::set_var("DT_LOG_LEVEL", "DEBUG"); }
     dt_setup(None, None);
-    dt_debug!("Started zigduck-cli!");    
+    dt_debug!("Started zigduck-cli!");
 
 	let mut cli = Cli::parse();
-	
+
     // 🦆 says ⮞ load default config from /etc/zigduck/config.json
     let default_config_path = PathBuf::from("/etc/zigduck/config.json");
     let config: Option<CliConfig> = if default_config_path.exists() {

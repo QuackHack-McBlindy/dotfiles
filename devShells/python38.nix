@@ -6,13 +6,13 @@
   self
 } : let
   # 🦆 duck say ⮞ put them python pkgs here yo!
-  pythonPackages = ps: [ 
+  pythonPackages = ps: [
     #ps.numpy
     ps.pip
-    ps.requests   
+    ps.requests
    # ps.lz4
  #   ps.flask
-    
+
 #    ps.python-dotenv
 #    ps.noisereduce
 #    ps.pytickersymbols
@@ -29,7 +29,7 @@
   myBuildInputs = with pkgs; [
     git
     nixpkgs-fmt
-    myPython    
+    myPython
     virtualenv
   ];
 
@@ -60,4 +60,3 @@ in {
 
   NIX_CONFIG = "system = ${system}";
 }
-

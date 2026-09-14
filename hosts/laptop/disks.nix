@@ -8,7 +8,7 @@
       content = {
         type = "gpt";
         partitions = {
-        
+
           boot = {
             name = "BOOT";
             size = "512M";
@@ -19,7 +19,7 @@
               mountpoint = "/boot";
             };
           };
-          
+
           swap = {
             name = "SWAP";
             size = "8G";
@@ -28,7 +28,7 @@
               type = "swap";
             };
           };
-          
+
           root = {
             name = "NIXOS";
             size = "100%";
@@ -38,10 +38,10 @@
               mountpoint = "/";
             };
           };
-          
+
           persist = {
             name = "PERSIST";
-            size = "1G";  
+            size = "1G";
             type = "8300";
             content = {
               type = "filesystem";
@@ -49,9 +49,9 @@
               mountpoint = "/persist";
             };
           };
-          
+
         };
       };
     };
   };
-}  
+}

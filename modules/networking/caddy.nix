@@ -1,5 +1,5 @@
 # dotfiles/modules/networking/caddy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 say ⮞ Reverse proxy configuration - keeping my domain names hidden 
+{ # 🦆 say ⮞ Reverse proxy configuration - keeping my domain names hidden
   config,
   lib,
   pkgs,
@@ -10,7 +10,7 @@
     caddyConfig = ''
         "@CADDYFILE@"
     '';
-    caddyFile = 
+    caddyFile =
         pkgs.runCommand "caddyFile"
             { preferLocalBuild = true; }
             ''
@@ -56,7 +56,7 @@ in {
                 AmbientCapabilities = "cap_net_bind_service";
             };
         };
-        
+
 
         users.users.caddy = {
             isSystemUser = true;

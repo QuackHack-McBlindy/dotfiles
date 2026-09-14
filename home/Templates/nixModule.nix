@@ -1,9 +1,9 @@
-{ 
-    config, 
-    lib, 
-    pkgs, 
-    ... 
-} : let 
+{
+    config,
+    lib,
+    pkgs,
+    ...
+} : let
     TextToBeWritten = ''
       here goes text
     '';
@@ -12,10 +12,10 @@
         name = "TextFile";
         text = TextToBeWritten;
     };
-in { 
+in {
 #°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°°•°
-#°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°  
- 
+#°✶.•°••─→ SERVICE ←──  •°•.✶°°✶.•°•.•°•.•°•.✶°°✶.•°•.•°•.•°•.✶°
+
     system.activationScripts.sshConfig = {
         text = ''
            # mkdir -p /home/

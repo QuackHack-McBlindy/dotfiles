@@ -1,5 +1,5 @@
 # dotfiles/modules/services/yo-rs.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 say ⮞ voice assistant configuration 
+{ # 🦆 say ⮞ voice assistant configuration
   config,
   lib,
   pkgs,
@@ -17,48 +17,48 @@ in {
       openFirewall = true;
       server = {
         enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
-        language = "english";
-        whisper = "tiny";
+        language = "swedish";
+        whisper = "base";
         ttsSpeed = "1.3";
-        shellTranslate = true;        
-        threshold = 0.6;  
+        shellTranslate = true;
+        threshold = 0.6;
         beamSize = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
         temperature = 0.0; # 🦆 says ⮞ no more LSD plx
         threads = 8;
         logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
       };
-        
+
       client = {
         enable = true;
         logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
         uri = "192.168.1.111:12345";
-        room = 
+        room =
           if config.this.host.hostname == "homie" then "livingroom"
           else if config.this.host.hostname == "desktop" then "local"
           else if config.this.host.hostname == "nasty" then "bedroom"
           else "";
-            
+
         silenceThreshold = 0.03;
-        silenceTimeout = 0.8;
-        maxDuration = 2.0;
+        silenceTimeout = 1.3;
+        maxDuration = 4.0;
         awakeCmd =
-          if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state on --brightness 50 --color blue" 
-          else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state on --brightness 50 --color blue"            
+          if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state on --brightness 50 --color blue"
+          else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state on --brightness 50 --color blue"
           else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/ding"
           else "";
 
-        doneCmd = 
+        doneCmd =
           if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state off"
           else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state off"
           else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/done"
           else "";
 
-        failCmd = 
+        failCmd =
           if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state off"
           else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state off"
           else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/fail"
           else "";
-      };   
+      };
     };
 
     yo = {
@@ -69,12 +69,12 @@ in {
         conflict.detection = false;
         conflict.threshold = 70;
       };
-      splitWords = [ "samt" ];      
+      splitWords = [ "samt" ];
       sorryPhrases = [
         "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
         "Vad fan säger du för något?"
         "Prata som en människa snälla"
       ];
     };
-       
+
   }];}

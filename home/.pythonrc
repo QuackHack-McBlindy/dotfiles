@@ -94,7 +94,7 @@ def rainbow_text(text):
         "\033[38;5;99m",   # Purple
         "\033[0m"          # Reset color
     ]
-    
+
     # Iterate over the text and assign each character a color
     colored_text = ""
     color_index = 0

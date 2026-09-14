@@ -7,13 +7,13 @@
   cmdHelpers,
   ...
 } : let
-in {  
+in {
   yo.scripts.post = {
     description = "Check for the next postal delivery day. (Sweden)";
     category = "🧩 Miscellaneous";
-    parameters = [  
-      { name = "postalCodeFile"; description = "Path to a file containing the postal code to search for"; default = config.sops.secrets.zipcode.path;  }   
-      { name = "postalCode"; description = "Postal code to search for";  }       
+    parameters = [
+      { name = "postalCodeFile"; description = "Path to a file containing the postal code to search for"; default = config.sops.secrets.zipcode.path;  }
+      { name = "postalCode"; description = "Postal code to search for";  }
     ];
     code = ''
       ${cmdHelpers}
@@ -24,7 +24,7 @@ in {
       else
         POSTAL_CODE="$POSTALCODE"
       fi
-      
+
       JSON=$(curl -s "https://portal.postnord.com/api/sendoutarrival/closest?postalCode=''${POSTAL_CODE}")
       DELIVERY=$(jq -r '.delivery' <<<"$JSON" | tr '[:upper:]' '[:lower:]' | tr -d ',')
       UPCOMING=$(jq -r '.upcoming' <<<"$JSON" | tr '[:upper:]' '[:lower:]' | tr -d ',')
@@ -68,15 +68,15 @@ in {
       sentences = [
         "när kommer [nästa] (post|posten) [leverans|leveransen]"
         "vilken dag kommer posten"
-      ];       
+      ];
     };
   };
- 
+
   sops.secrets = {
     zipcode = { # 🦆 says ⮞ quack, stupid!
-      sopsFile = ./../../secrets/zipcode.yaml; 
+      sopsFile = ./../../secrets/zipcode.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440"; # 🦆 says ⮞ Read-only for owner and group
-    }; 
+    };
   };}

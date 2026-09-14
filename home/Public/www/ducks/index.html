@@ -118,7 +118,7 @@
     <script>
         const emojis = ['🦆', '🦆', '🦆', '🦆', '❤️']; // 🦆 says ⮞ duck, duck, duck, duck, heart
 
-        // 🦆 says ⮞  200 fallin' wat i said above 
+        // 🦆 says ⮞  200 fallin' wat i said above
         for (let i = 0; i < 200; i++) {
             let emoji = document.createElement('div');
             emoji.classList.add('emoji');
@@ -149,7 +149,7 @@
                 let randomY = (Math.random() - 0.5) * 2000;
                 emoji.style.setProperty('--x', `${randomX}px`);
                 emoji.style.setProperty('--y', `${randomY}px`);
-                
+
                 emoji.style.animation = 'flyAway 1.5s forwards';
             });
             this.style.display = 'none';
@@ -173,7 +173,7 @@
 
             dialogueElement.style.display = 'block';
             let index = 0;
-            
+
             function typeLine() {
                 if (index < dialogue.length) {
                     let text = dialogue[index];

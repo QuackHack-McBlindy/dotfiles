@@ -1,5 +1,5 @@
 # dotfiles/modules/themes/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 duck say ⮞ declarative global theme settings 
+{ # 🦆 duck say ⮞ declarative global theme settings
   lib,
   config,
   pkgs,
@@ -15,7 +15,7 @@ in {
       default = "crazy.css"; # 🦆 duck say ⮞ duckz idea of a good joke... lol
       description = "Active theme file name";
       apply = v:
-        if ! builtins.pathExists (./css + "/${v}") 
+        if ! builtins.pathExists (./css + "/${v}")
         then throw "Theme ${v} not found in ${toString ./css}"
         else v;
     };
@@ -113,7 +113,7 @@ in {
       # 🦆 duck say ⮞ Required for dconf theming
       programs.dconf.enable = true;
     }
-    
+
     (mkIf (cfg.iconTheme != {}) {
       # 🦆 duck say ⮞ Icon theme configuration
       environment.systemPackages = [ cfg.iconTheme.package ];
@@ -125,7 +125,7 @@ in {
         };
       }];
     })
-    
+
     (mkIf (cfg.cursorTheme != {}) {
       # 🦆 duck say ⮞ Cursor theme configuration
       environment.systemPackages = [ cfg.cursorTheme.package ];

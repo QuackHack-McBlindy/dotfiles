@@ -1,14 +1,14 @@
-{ 
+{
   self,
   lib,
   config,
   pkgs,
   ...
-} : let 
+} : let
   zigbeeDevices = config.house.zigbee.devices;
   scenes = config.house.zigbee.scenes;
   sceneNames = builtins.attrNames scenes;
- 
+
   swedishNumbers = [
     "noll" "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
     "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton"
@@ -31,11 +31,11 @@
     builtins.attrNames config.house.rooms
   else
     lib.unique (map (d: d.room) (lib.attrValues zigbeeDevices));
-  
+
 
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -44,7 +44,7 @@
   # 🦆 says ⮞ Group devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (room: devices: 
+  in lib.mapAttrs (room: devices:
       map (d: d.friendly_name) devices
     ) grouped;
 
@@ -61,7 +61,7 @@
 
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-  
+
 in {
   yo.scripts.house = {
     description = "High-performance unified CLI for controlling all smart home devices.";
@@ -69,14 +69,14 @@ in {
     autoStart = false;
     logLevel = "DEBUG";
 
-    parameters = [   
+    parameters = [
       { name = "device"; description = "Device to control"; optional = true; values = deviceNames; }
-      { name = "state"; type = "string"; description = "State of the device or group"; values = [ "ON" "OFF" ]; } 
+      { name = "state"; type = "string"; description = "State of the device or group"; values = [ "ON" "OFF" ]; }
       { name = "brightness"; description = "Brightness value (1-100)"; optional = true; type = "string"; values = brightnessValues; }
-      { name = "color"; description = "Color name or hex code"; optional = true; }    
-      { name = "temperature"; description = "Light color temperature (153-500)"; optional = true; }          
+      { name = "color"; description = "Color name or hex code"; optional = true; }
+      { name = "temperature"; description = "Light color temperature (153-500)"; optional = true; }
       { name = "scene"; description = "Activate a predefined scene"; optional = true; values = sceneNames; }
-      { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }        
+      { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }
       { name = "room"; description = "Room to target"; optional = true; values = roomNames; }
       { name = "blinds"; description = "Control all blinds (up/down/open/close)"; optional = true; }
       { name = "get-temp"; description = "Fetch temperature in a room"; type = "bool"; optional = true; }
@@ -89,7 +89,7 @@ in {
       fuzzy = {
         enable = true;
         threshold = 0.5;
-      };  
+      };
       sentences = [
         # 🦆 says ⮞ multi taskerz
         "{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
@@ -105,7 +105,7 @@ in {
         #"{scene} alla lampor"
         "{scene} (belysning|belysningen)"
         "{state} [av] {all-lights} (lampor|lamporna)"
-        "{state} {device} (lampor|igen)"   
+        "{state} {device} (lampor|igen)"
         "{state} [alla|allt] (lampor|lamporna|ljus) i {room}"
         "{state} (lamporna|ljusen) [i] {room}"
         "{state} {room}"
@@ -135,7 +135,7 @@ in {
         # 🦆 says ⮞ contorl all blinds
         "(hissa|dra|veva|ta) {blinds} (persienner|persiennerna)"
         "{state} {all-lights} (lampor|lamporna)"
-      ];        
+      ];
       lists = {
         state.values = [
           { "in" = "tänd|sätt på|slå på|starta|aktivera|på"; out = "ON"; }
@@ -152,30 +152,30 @@ in {
           reservedNames = [ "hall" "kitchen" "bedroom" "bathroom" "wc" "livingroom" "switch" "all" "every" ];
           sanitize = str:
             lib.replaceStrings [ "/" " " ] [ "" "_" ] str;
-    
+
           # 🦆 says ⮞ natural Swedish patterns
           swedishPatterns = base: baseRaw: [
             # 🦆 says ⮞ base name
-            base      
+            base
             # 🦆 says ⮞ definite form (the X)
             "${baseRaw}n"           # 🦆says⮞ en-words
-            "${baseRaw}t"           # 🦆says⮞ ett-words  
+            "${baseRaw}t"           # 🦆says⮞ ett-words
             "${baseRaw}en"
-            "${baseRaw}et"   
+            "${baseRaw}et"
             # 🦆says⮞ plural forms
             "${baseRaw}ar"
             "${baseRaw}or"
             "${baseRaw}er"
             "${baseRaw}na"          # 🦆says⮞ plural definite
             "${baseRaw}orna"
-            "${baseRaw}erna" 
+            "${baseRaw}erna"
             # 🦆says⮞ common Swedish light/lamp patterns
             "${baseRaw}lampan"
             "${baseRaw}lampor"
             "${baseRaw}lamporna"
             "${baseRaw}ljus"
             "${baseRaw}lamp"
-          ];   
+          ];
         in lib.filter (x: x != null) (
           lib.mapAttrsToList (_: device:
             let
@@ -183,13 +183,13 @@ in {
               base = sanitize baseRaw;
               baseWords = lib.splitString " " base;
               isAmbiguous = lib.any (word: lib.elem word reservedNames) baseWords;
-    
+
               # 🦆says⮞ gen Swedish variations
               swedishVariations = lib.unique (swedishPatterns base baseRaw);
-    
+
               # 🦆says⮞ English as fallback
               englishVariants = [ "${base}s" "${base} light" ];
-    
+
               variations = lib.unique (
                 [
                   base
@@ -203,7 +203,7 @@ in {
             }
           ) zigbeeDevices
         );
-  
+
         color.values = [
           { "in" = "röd|rött|röda"; out = "red"; }
           { "in" = "grön|grönt|gröna"; out = "green"; }
@@ -230,24 +230,24 @@ in {
           { "in" = "silver|silverfärgad"; out = "silver"; }
           { "in" = "slumpmässig|random|valfri färg"; out = "random"; }
         ];
-        
+
         temperature.values = builtins.genList (i: {
           "in" = toString (i + 153);
           out = toString (i + 153);
         }) 347; # 153-500
-        
+
         scene.values = let
           reservedSceneNames = [ "max" "dark" "off" "on" "all" "every" ];
           sanitizeScene = str:
             lib.toLower (lib.replaceStrings [ " " "-" "_" ] [ "" "" "" ] str);
-            
+
           # 🦆 says ⮞ natural Swedish scene patterns
           swedishScenePatterns = base: baseRaw: [
             # 🦆 says ⮞ base scene name
             base
             # 🦆 says ⮞ definite form
             "${baseRaw}n"
-            "${baseRaw}t" 
+            "${baseRaw}t"
             "${baseRaw}en"
             "${baseRaw}et"
             # 🦆 says ⮞ common scene patterns
@@ -255,12 +255,12 @@ in {
             "${baseRaw} scenen"
             "${baseRaw} läge"
             "${baseRaw} läget"
-          ];      
+          ];
         in [
           # 🦆 says ⮞ scenes
           { "in" = "tänd||tänk|max|maxa|maxxa|maxad|maximum"; out = "max"; }
           { "in" = "på|tänd|aktiv"; out = "max"; }
-          
+
           { "in" = "mörk|mörker|mörkt|släckt|avstängd"; out = "dark"; }
           { "in" = "av|släck|släckt|stängd|stäng"; out = "dark"; }
 
@@ -272,10 +272,10 @@ in {
             base = sanitizeScene baseRaw;
             baseWords = lib.splitString " " base;
             isAmbiguous = lib.any (word: lib.elem word reservedSceneNames) baseWords;
-    
+
             # 🦆 says ⮞ generate Swedish variations
             swedishVariations = if isAmbiguous then [] else lib.unique (swedishScenePatterns base baseRaw);
-    
+
             variations = lib.unique (
               [
                 base
@@ -289,7 +289,7 @@ in {
             out = sceneId;
           }
         ) scenes);
-        
+
         #pair.values = [
         #  { "in" = "[para|paras]"; out = "true"; }
         #];
@@ -297,34 +297,33 @@ in {
         all-lights.values = [
           { "in" = "all|alla|allt"; out = "true"; }
         ];
-        
+
         room.values = [
           { "in" = "kök|köket|kitchen"; out = "kitchen"; }
           { "in" = "vardagsrum|vardagsrummet"; out = "livingroom"; }
           { "in" = "sovrum|sovrummet|bedroom"; out = "bedroom"; }
           { "in" = "badrum|badrummet|wc|toilet"; out = "WC"; }
           { "in" = "hall|hallen|hallway"; out = "hallway"; }
-        ];  
-        
-        
+        ];
+
+
         blinds.values = [
           { "in" = "up|upp"; out = "up"; }
           { "in" = "ner|ned"; out = "down"; }
 
           { "in" = "öppna"; out = "open"; }
-          { "in" = "stäng"; out = "close"; }  
+          { "in" = "stäng"; out = "close"; }
         ];
         get-temp.values = [
           { "in" = "temp|temperatur|grader"; out = "true"; }
-          { "in" = "varm|varmt|kall|kallt"; out = "true"; }      
+          { "in" = "varm|varmt|kall|kallt"; out = "true"; }
         ];
         get-bat.values = [
           { "in" = "batteri|battery|batteriet"; out = "true"; }
           { "in" = "batterinivå|batterinivån"; out = "true"; }
-          
+
         ];
       };
     };
 
   };}
-

@@ -28,11 +28,11 @@ in
     NC='\033[0m'
     RESET='\033[0m'
     GRAY="\033[38;5;244m"
-    # 🦆 says ⮞ duck say stylez 
-    DSAY="\033[3m\033[38;2;0;150;150m"   
-    bold() { # 🦆 says ⮞ function to make input text bold   
+    # 🦆 says ⮞ duck say stylez
+    DSAY="\033[3m\033[38;2;0;150;150m"
+    bold() { # 🦆 says ⮞ function to make input text bold
       echo -e "\033[1m$1\033[0m"
-    }  
+    }
     # 🦆 says ⮞ DUCK TRACE YO
     # 🦆 says ⮞ convert string levels to numbers
     declare -A DT_LEVEL_MAP=( [DEBUG]=0 [INFO]=1 [WARNING]=2 [ERROR]=3 [CRITICAL]=4 )
@@ -56,13 +56,13 @@ in
       local blink_code=""
       [[ "$blink" == "true" ]] && blink_code="$BLINK"
       local level_num="''${DT_LEVEL_MAP[$level]:-0}"
-      (( level_num < DT_LOG_LEVEL_NUM )) && return      
-      local max_size=1048576 # 1MB     
+      (( level_num < DT_LOG_LEVEL_NUM )) && return
+      local max_size=1048576 # 1MB
       # 🦆 says ⮞ rorate logs
       if [[ -f "$log_path" && $(stat -c%s "$log_path") -gt $max_size ]]; then mv "$log_path" "$log_path.old"; fi
       # 🦆 says ⮞ format output
       local output="''${color}''${BOLD}''${blink_code}[🦆📜] [''${timestamp}] ''${symbol}''${level}''${symbol} ⮞ ''${message}''${RESET}"
-      echo -e "$output" 
+      echo -e "$output"
       if [[ "$level" == "error" ]]; then
         echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m fuck ❌ ''${message}\e[0m}"
       fi
@@ -77,7 +77,7 @@ in
       local timestamp=$(date +"%H:%M:%S")
       local last_update=$(date -Iseconds)
       local hostname=$(hostname)
-      mkdir -p "$(dirname "$error_state_file")"     
+      mkdir -p "$(dirname "$error_state_file")"
       cat > "$error_state_file" << EOF
 ERROR_STATE=1
 LEVEL=$level
@@ -124,8 +124,8 @@ EOF
       _dt_log "SUCCESS" "✅" "$GREEN" "$1" >&2
       clear_error_state
     }
-    # 🦆 says ⮞ END OF DUCK TRACE ='( 
-    parse_flags() { # 🦆 says ⮞ quite self explained  
+    # 🦆 says ⮞ END OF DUCK TRACE ='(
+    parse_flags() { # 🦆 says ⮞ quite self explained
       VERBOSE=0
       DRY_RUN=false
       HOST=""
@@ -138,7 +138,7 @@ EOF
       done
       FLAGS=()
       (( VERBOSE > 0 )) && FLAGS+=(--show-trace "-v''${VERBOSE/#0/}")
-    }        
+    }
     color2hex() { # 🦆 duck say ⮞ outputs random hex within color range from plain text color names
       local color="$1"
       declare -A color_ranges=(
@@ -192,7 +192,7 @@ EOF
         "''${@}"
       fi
     }
-    say_duck() { # 🦆 duck say ⮞ diis need explaination? 
+    say_duck() { # 🦆 duck say ⮞ diis need explaination?
       echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
     }
     type fail >/dev/null 2>&1 || fail() { # 🦆 duck say ⮞ fail? duck's usually don't yo?
@@ -203,7 +203,7 @@ EOF
       verbosity_level=$(grep -o '?' <<< "$@" | wc -l)
       DRY_RUN=$(grep -q '!' <<< "$@" && echo true || echo false)
     }
-  
+
     # 🦆 duck say ⮞ failed rebuilds . duck say fuck
     play_fail() {
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail.wav" >/dev/null 2>&1
@@ -212,7 +212,7 @@ EOF
     play_fail2() {
       mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail2.mp3" >/dev/null 2>&1
     }
-    # 🦆 says⮞ fail, fail, fail  - duck get insane 
+    # 🦆 says⮞ fail, fail, fail  - duck get insane
     play_fail3() {
       mpg123 -q "${config.this.user.me.dotfilesDir}/modules/themes/sounds/fail3.mp3" >/dev/null 2>&1
     }
@@ -224,13 +224,13 @@ EOF
     # 🦆 duck say ⮞ validate json input before process
     is_valid_json() {
       echo "$1" | ${pkgs.jq}/bin/jq -e . >/dev/null 2>&1
-    }    
+    }
     play_win() { # 🦆 duck say ⮞ plays winning sound
       aplay "${config.this.user.me.dotfilesDir}/modules/themes/sounds/win.wav" >/dev/null 2>&1
     }
     mic_input() { # 🦆 duck say ⮞ Prompt for input by voice
       yo-mic | ${pkgs.jq}/bin/jq -r '.transcription // empty'
-    } 
+    }
     validate_host() { # 🦆 duck say ⮞ validate host, yo!
       if [[ ! " ${lib.escapeShellArg (toString sysHosts)} " =~ " $host " ]]; then
         echo -e "\033[1;31m❌ $1\033[0m Unknown host: $host" >&2
@@ -239,23 +239,23 @@ EOF
       fi
     }
     # 🦆 says ⮞ resets timer set for motion triggering lights off
-    reset_room_timer() { 
+    reset_room_timer() {
       local room="$1"
       local timer_file="''$TIMER_DIR/''${room// /_}"
       if [ -f "$timer_file" ]; then
         kill $(cat "$timer_file") 2>/dev/null
         rm -f "$timer_file"
-      fi  
+      fi
       ( # 🦆 says ⮞ Time til' lights turn off after motion trigger activation
         sleep ${toString config.house.zigbee.motion.trigger.lights.duration} # 🦆 says ⮞ in seconds
         room_lights_off "$room"
         rm -f "$timer_file"
-      ) & 
+      ) &
       echo $! > "$timer_file"
       dt_debug "Reset timer for $room (PID: $!)"
     }
     # 🦆 says ⮞ Time window of day that allow motion triggering lights on
-    room_detect() {    
+    room_detect() {
       ssh homie 'cat /var/lib/zigduck/state.json /var/lib/zigduck/zigbee_devices.json' | jq -s -r '
         .[0] as $state |
         .[1] as $devices |
@@ -291,7 +291,7 @@ EOF
       ${pkgs.mosquitto}/bin/mosquitto_sub -F '%t|%p' -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" -t "$@"
     }
     # 🦆 says ⮞ device parser for zigduck
-    device_check() { 
+    device_check() {
       linkquality=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.linkquality // empty') && dt_debug "linkquality: $linkquality"
       last_seen=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.last_seen // empty') && dt_debug "last_seen: $last_seen"
       occupancy=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.occupancy // empty') && dt_debug "occupancy: $occupancy"
@@ -309,13 +309,13 @@ EOF
       battery_state=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.battery_state // empty') && dt_debug "battery state: $battery_state"
       tamper=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.tamper // empty') && dt_debug "Tamper: $tamper"
       smoke=$(echo "$line" | ${pkgs.jq}/bin/jq -r '.smoke // empty') && dt_debug "Smoke: $smoke"
-                
+
       device_name="''${topic#zigduck/}" && dt_debug "device_name: $device_name"
       dev_room=$(${pkgs.jq}/bin/jq ".\"$device_name\".room" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_room: $dev_room"
-      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"     
-      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"  
+      dev_type=$(${pkgs.jq}/bin/jq ".\"$device_name\".type" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_type: $dev_type"
+      dev_id=$(${pkgs.jq}/bin/jq ".\"$device_name\".id" $STATE_DIR/zigbee_devices.json) && dt_debug "dev_id: $dev_id"
       room="''${dev_room//\"/}"
-      
+
       should_update() {
         case "$device_name" in
           */set|*/availability)
@@ -324,7 +324,7 @@ EOF
           ;;
           *)
             dt_debug "Will update state for device: $device_name"
-            return 0  
+            return 0
           ;;
         esac
       }
@@ -334,40 +334,40 @@ EOF
         [ -n "$temperature" ] && update_device_state "$device_name" "temperature" "$temperature"
         [ -n "$state" ] && update_device_state "$device_name" "state" "$state"
         [ -n "$brightness" ] && update_device_state "$device_name" "brightness" "$brightness"
-        [ -n "$color" ] && update_device_state "$device_name" "color" "$color"        
+        [ -n "$color" ] && update_device_state "$device_name" "color" "$color"
         [ -n "$position" ] && update_device_state "$device_name" "position" "$position"
         [ -n "$contact" ] && update_device_state "$device_name" "contact" "$contact"
         [ -n "$tamper" ] && update_device_state "$device_name" "tamper" "$tamper"
         [ -n "$smoke" ] && update_device_state "$device_name" "smoke" "$smoke"
         [ -n "$battery_state" ] && update_device_state "$device_name" "Battery state" "$battery_state"
         [ -n "$occupancy" ] && update_device_state "$device_name" "occupancy" "$occupancy"
-        
-        [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"        
-        [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"       
+
+        [ -n "$last_seen" ] && update_device_state "$device_name" "last_seen" "$last_seen"
+        [ -n "$linkquality" ] && update_device_state "$device_name" "linkquality" "$linkquality"
       else
         dt_debug "Skipped state update for device: $device_name"
       fi
     }
 
     # 🦆 says ⮞ turn on specified room
-    room_lights_on() { 
+    room_lights_on() {
       local clean_room=$(echo "$1" | sed 's/"//g')
       ${pkgs.jq}/bin/jq -r --arg room "$clean_room" \
         'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
         $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
           mqtt_pub -t "zigduck/$light_id/set" -m '{"state":"ON"}'
-        done      
+        done
     }
     # 🦆 says ⮞ turn off specified room
-    room_lights_off() { 
+    room_lights_off() {
       local clean_room=$(echo "$1" | sed 's/"//g')
       ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
           mqtt_pub -t "zigduck/$light_id/set" -m '{"state":"OFF"}'
-        done    
+        done
     }
-    
+
     trigram_similarity() {
       local str1="$1"
       local str2="$2"
@@ -385,26 +385,26 @@ EOF
       local total=$(( ''${#tri1[@]} + ''${#tri2[@]} ))
       (( total == 0 )) && echo 0 && return
       echo $(( 100 * 2 * matches / total ))
-    }       
-     
+    }
+
     levenshtein_similarity() {
       local a="$1" b="$2"
       local len_a=''${#a} len_b=''${#b}
-      local max_len=$(( len_a > len_b ? len_a : len_b ))   
-      (( max_len == 0 )) && echo 100 && return     
+      local max_len=$(( len_a > len_b ? len_a : len_b ))
+      (( max_len == 0 )) && echo 100 && return
       local dist=$(levenshtein "$a" "$b")
-      local score=$(( 100 - (dist * 100 / max_len) ))         
+      local score=$(( 100 - (dist * 100 / max_len) ))
       [[ "''${a:0:1}" == "''${b:0:1}" ]] && score=$(( score + 10 ))
       echo $(( score > 100 ? 100 : score ))
     }
-    
+
     levenshtein() {
       local a="$1" b="$2"
       local len_a=''${#a} len_b=''${#b}
       [ "$len_a" -eq 0 ] && echo "$len_b" && return
       [ "$len_b" -eq 0 ] && echo "$len_a" && return
       local i j cost
-      local -a d  
+      local -a d
       for ((i=0; i<=len_a; i++)); do
           d[i*len_b+0]=$i
       done
@@ -417,7 +417,7 @@ EOF
               del=$(( d[(i-1)*len_b+j] + 1 ))
               ins=$(( d[i*len_b+j-1] + 1 ))
               alt=$(( d[(i-1)*len_b+j-1] + cost ))
-              
+
               min=$del
               [ $ins -lt $min ] && min=$ins
               [ $alt -lt $min ] && min=$alt
@@ -427,13 +427,13 @@ EOF
       echo ''${d[len_a*len_b+len_b]}
     }
     normalize_string() {
-      echo "$1" | 
-        iconv -f utf-8 -t ascii//TRANSLIT | 
-        tr '[:upper:]' '[:lower:]' |         
-        tr -d '[:punct:]' |          
+      echo "$1" |
+        iconv -f utf-8 -t ascii//TRANSLIT |
+        tr '[:upper:]' '[:lower:]' |
+        tr -d '[:punct:]' |
         sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |
         sed -e 's/[[:space:]]+/ /g'
-    } 
+    }
     find_best_fuzzy_match() {
       local input="$1"
       local best_score=0
@@ -447,7 +447,7 @@ EOF
         local norm_sentence=$(echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]')
         local tri_score=$(trigram_similarity "$normalized" "$norm_sentence")
         (( tri_score < 30 )) && continue
-        local score=$(levenshtein_similarity "$normalized" "$norm_sentence")  
+        local score=$(levenshtein_similarity "$normalized" "$norm_sentence")
         if (( score > best_score )); then
           best_score=$score
           best_match="$script:$sentence"
@@ -471,9 +471,9 @@ EOF
       if [[ "$has_lists" != "true" ]]; then
         echo -n "$text"
         echo "|declare -A substitutions=()"  # 🦆 says ⮞ empty substitutions
-        sleep 0.1           
-      fi                    
-      # 🦆 says ⮞ dis is our quacktionary yo 
+        sleep 0.1
+      fi
+      # 🦆 says ⮞ dis is our quacktionary yo
       replacements=$(jq -r '.["'"$script"'"].substitutions[] | "\(.pattern)|\(.value)"' "$intent_data_file")
       while IFS="|" read -r pattern out; do
         if [[ -n "$pattern" && "$text" =~ $pattern ]]; then
@@ -481,12 +481,12 @@ EOF
           [[ -z "''$original" ]] && continue # 🦆 says ⮞ duck no like empty string
           substitutions["''$original"]="$out"
           substitution_applied=true # 🦆 says ⮞ rack if any substitution was applied
-          text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script 
+          text=$(echo "$text" | sed -E "s/\\b$pattern\\b/$out/g") # 🦆 says ⮞ swap the word, flip the script
         fi
-      done <<< "$replacements"      
+      done <<< "$replacements"
       echo -n "$text"
-      echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole 
-    } # 🦆 says ⮞ process sentence to replace {parameters} with real wordz yo   
+      echo "|$(declare -p substitutions)" # 🦆 says ⮞ returning da remixed sentence + da whole
+    } # 🦆 says ⮞ process sentence to replace {parameters} with real wordz yo
     min3() {
       printf "%s\n" "$@" | sort -n | head -n1
     }
@@ -504,14 +504,14 @@ EOF
       local index=$((RANDOM % ''${#responses[@]}))
       say "''${responses[$index]}"
       say_duck "''${responses[$index]}"
-      
+
     }
-    tts() {    
+    tts() {
       yo-say --text "$1"
     }
-    if_voice_say() { 
+    if_voice_say() {
       if [ "$VOICE_MODE" = "1" ]; then yo-say --text "$@"; fi
-    }    
+    }
     confirm() {
       local question="$1"
       yo-say --text "$question Säg: ja eller nej."
@@ -525,12 +525,12 @@ EOF
         yo-say "Ogiltigt svar brosh. Försök igen."
         confirm "$question"
       fi
-    } 
+    }
     urlencode() {
         local string="$1"
         local strlen=''${#string}
         local encoded=""
-        local pos c o    
+        local pos c o
         for (( pos=0; pos<strlen; pos++ )); do
             c=''${string:$pos:1}
             case "$c" in
@@ -550,9 +550,9 @@ EOF
       touch "$sentencefile" "$wordfile"  # Ensure files exist
       # 🦆 says ⮞ if failed sentence in sentence file
       if grep -qF -- "$sentence" "$sentencefile" 2>/dev/null; then
-        awk -v s="$sentence" -F '\t' 'BEGIN {OFS=FS} 
+        awk -v s="$sentence" -F '\t' 'BEGIN {OFS=FS}
           $1 == s {$2 += 1} {print}
-          ENDFILE {if (!found) print s, 1}' "$sentencefile" > "$sentencefile.tmp" 
+          ENDFILE {if (!found) print s, 1}' "$sentencefile" > "$sentencefile.tmp"
         mv "$sentencefile.tmp" "$sentencefile"
       else
         echo -e "$sentence\t1" >> "$sentencefile"
@@ -561,12 +561,12 @@ EOF
       echo "$sentence" | tr '[:upper:]' '[:lower:]' | tr -d '[:punct:]' | grep -o '\w\+' |
       while IFS= read -r word; do
         if grep -qF -- "$word" "$wordfile" 2>/dev/null; then
-          awk -v w="$word" -F '\t' 'BEGIN {OFS=FS} 
+          awk -v w="$word" -F '\t' 'BEGIN {OFS=FS}
               $1 == w {$2 += 1} {print}' "$wordfile" > "$wordfile.tmp"
           mv "$wordfile.tmp" "$wordfile"
         else
           echo -e "$word\t1" >> "$wordfile"
         fi
       done
-    }    
+    }
   ''

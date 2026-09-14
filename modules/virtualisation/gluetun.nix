@@ -23,10 +23,10 @@
         PUID="2000"
         PGID="2000"
         VPN_PORT_FORWARDING="on"
-        PORT_FORWARD_ONLY="on"  
+        PORT_FORWARD_ONLY="on"
         TRANS="@TRANS@"
     '';
-    
+
 in {
     config = lib.mkIf (lib.elem "arr" config.this.host.modules.virtualisation) {
         networking.firewall.allowedTCPPorts = [ 8388 ];
@@ -152,5 +152,5 @@ in {
                 chmod -R 700 /docker/gluetun/logs
             '';
         };
-        
+
     };}

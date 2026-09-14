@@ -1,5 +1,5 @@
 # dotfiles/modules/services/duckdns.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   config,
   lib,
   pkgs,
@@ -16,7 +16,7 @@
     nasty   = config.sops.secrets.duckdns-x-token.path;
     desktop = config.sops.secrets.duckdns-gh-pungkula-token.path;
   }.${config.this.host.hostname};
-    
+
 in {
   config = lib.mkIf (lib.elem "duckdns" config.this.host.modules.services) {
 
@@ -45,7 +45,7 @@ in {
         owner = "duckdns";
         group = "duckdns";
         mode = "0660";
-      };      
+      };
       duckdns-gh-pungkula = {
         sopsFile = ./../../secrets/duckdns-gh-pungkula.yaml;
         owner = "duckdns";
@@ -57,7 +57,7 @@ in {
         owner = "duckdns";
         group = "duckdns";
         mode = "0660";
-      };      
+      };
       duckdns-gh-quackhack = {
         sopsFile = ./../../secrets/duckdns-gh-quackhack.yaml;
         owner = "duckdns";
@@ -69,7 +69,7 @@ in {
         owner = "duckdns";
         group = "duckdns";
         mode = "0660";
-      };      
+      };
     };
-        
+
   };}

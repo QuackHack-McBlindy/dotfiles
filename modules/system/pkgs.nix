@@ -12,10 +12,11 @@
 
         environment.systemPackages = lib.mkMerge [
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
-            (lib.mkIf (config.networking.hostName == "desktop") [ 
+            (lib.mkIf (config.networking.hostName == "desktop") [
                 pkgs.nix-prefetch-github
                 pkgs.element-desktop
                 pkgs.cargo
+                pkgs.python314
                 pkgs.piper-phonemize
                 pkgs.openssl.dev
                 pkgs.pkg-config
@@ -27,19 +28,18 @@
                 pkgs.jellyfin-web
                 pkgs.jellycli
                 pkgs.kanata
-                pkgs.gh
                 pkgs.xclip
-                
+
             ])
-        # 🦆 says⮞ NASTY        
+        # 🦆 says⮞ NASTY
             (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
-        # 🦆 says⮞ laptop            
+        # 🦆 says⮞ laptop
             (lib.mkIf (config.networking.hostName == "laptop") [ pkgs.hello ])
-        # 🦆 says⮞ homie            
+        # 🦆 says⮞ homie
             (lib.mkIf (config.networking.hostName == "homie") [ pkgs.pairdrop ])
-            
+
         # 🦆 says⮞ INSTALLED ON ALL HOSTS
-            [             
+            [
                 pkgs.npth
                 pkgs.kagi
 
@@ -50,7 +50,6 @@
                 pkgs.ghostty
                 pkgs.imagemagick
                 pkgs.smartmontools
-                pkgs.xoscope
                 pkgs.mdns
                 pkgs.nssmdns
                 pkgs.telegraf
@@ -73,8 +72,6 @@
                 pkgs.mpg123
                 pkgs.gnuplot
                 pkgs.sunwait
-               # vaultwarden-postgressql
-                #pkgs.neofetch UNMAINTAINED?
                 pkgs.rsync
                 pkgs.android-tools
                 pkgs.libnotify
@@ -92,7 +89,6 @@
                 pkgs.dialog
                 pkgs.wget
                 pkgs.curl
-                pkgs.git
                 pkgs.unzip
                 pkgs.dunst
                 pkgs.sox
@@ -111,8 +107,6 @@
                 pkgs.vscodium
                 pkgs.transmission_4-qt
                 pkgs.file
-                pkgs.chromium 	       # yuck
-                pkgs.neovim
                 #pkgs.libsForQt5.qt5.qtwayland
                 pkgs.jellyfin-ffmpeg   # transcoding
                 pkgs.drawing 	       # simple image editing
@@ -130,7 +124,7 @@
                 pkgs.keepass		# password management
                 pkgs.gnome-terminal
                 pkgs.gnome-text-editor
-                pkgs.you-have-mail-cli   
+                pkgs.you-have-mail-cli
                 pkgs.bat
                 pkgs.ripgrep
                 pkgs.vim
@@ -147,8 +141,8 @@
                 pkgs.jq
                 pkgs.atuin
                 pkgs.direnv
-                pkgs.nix-direnv 
-                pkgs.sops 
+                pkgs.nix-direnv
+                pkgs.sops
                 pkgs.age
                 pkgs.rage
                 pkgs.syslogng
@@ -164,7 +158,7 @@
                 pkgs.nixos-anywhere
                 pkgs.piper-tts
                 pkgs.keyd
-            ]     
+            ]
         ];
-        
-    };}   
+
+    };}

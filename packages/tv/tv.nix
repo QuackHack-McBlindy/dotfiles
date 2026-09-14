@@ -1,5 +1,5 @@
 # ddotfiles/packages/tv.nix ⮞ https://github.com/QuackHack-McBlindy/dotfiles
-{ 
+{
   self,
   stdenv,
   lib,
@@ -33,4 +33,3 @@ stdenv.mkDerivation {
       license = lib.licenses.mit;
       maintainers = [ "QuackHack-McBlindy" ];
     };}
-

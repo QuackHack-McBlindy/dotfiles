@@ -1,33 +1,33 @@
 # dotfiles/modules/dashboard.nix.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ custom dashboard pages
-  lib, 
+  lib,
   config,
   pkgs,
   ...
-}: let 
+}: let
 
   # 🦆 says ⮞ get house.tv configuration with debug info
   tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
-    
+
   # 🦆 says ⮞ generate TV selector options with debug
   tvOptions = let
     tvNames = lib.attrNames tvConfig;
-    options = lib.concatMapStrings (tvName: 
+    options = lib.concatMapStrings (tvName:
       let tv = tvConfig.${tvName};
       in if tv.enable then ''<option value="${tv.ip}">${tvName}</option>'' else ""
     ) tvNames;
   in builtins.trace "TV options: ${options}" options;
 
 
-  pages = {    
-    remote = ''    
+  pages = {
+    remote = ''
       <div class="tv-selector-container">
           <select id="targetTV" class="tv-selector">
               <option value="">🦆 says ▶ pick a TV source</option>
               ${tvOptions}
           </select>
       </div>
-      
+
       <!-- 🦆 says ⮞ TV channel display -->
       <div class="tv-channel-display" id="tvChannelDisplay" style="display: none;">
           <div class="channel-info">
@@ -43,7 +43,7 @@
           </div>
       </div
 
-  
+
       <div class="tv-controls-grid">
           <!-- 🦆 says ⮞ ROW 1 -->
           <div class="tv-control-row">
@@ -103,7 +103,7 @@
               <i class="mdi mdi-apps"></i>
             </button>
           </div>
-          
+
           <!-- 🦆 says ⮞ ROW 6 -->
           <div class="tv-control-row">
               <button class="tv-control-btn playback" onclick="sendTVCommand('previous')">
@@ -118,27 +118,27 @@
           </div>
       </div>
 
-      <script>             
+      <script>
           // 🦆 says ⮞ TV control function
           window.sendTVCommand = function(command) {
-              console.log('🦆 TV command triggered:', command);       
+              console.log('🦆 TV command triggered:', command);
               const targetTV = document.getElementById('targetTV');
               console.log('🦆 TV selector element:', targetTV);
-              
-              const ip = targetTV.value;   
+
+              const ip = targetTV.value;
               console.log('🦆 Selected TV IP:', ip);
-                                  
+
               if (!ip) {
                   console.warn('🦆 No TV selected, showing error notification');
                   showNotification('Please select a TV first', 'error');
                   return;
-              }   
+              }
               const payload = {
                   tvCommand: command,
                   ip: ip
-              };      
+              };
               console.log('MQTT payload:', payload);
-              console.log('MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');     
+              console.log('MQTT client status:', client ? (client.connected ? 'connected' : 'disconnected') : 'null');
               if (client && client.connected) {
                   console.log('Publishing to topic: zigbee2mqtt/tvCommand');
                   client.publish('zigbee2mqtt/tvCommand', JSON.stringify(payload), function(err) {
@@ -201,10 +201,10 @@
               if (!timestamp) return '--';
               try {
                   const date = new Date(timestamp);
-                  return date.toLocaleTimeString('sv-SE', { 
-                      hour: '2-digit', 
+                  return date.toLocaleTimeString('sv-SE', {
+                      hour: '2-digit',
                       minute: '2-digit',
-                      hour12: false 
+                      hour12: false
                   });
               } catch (e) {
                   return '--';
@@ -220,9 +220,9 @@
                           if (key.startsWith('tv_') && data.current_channel) {
                               const tvName = key.replace('tv_', "");
                               const tvConfig = ${builtins.toJSON config.house.tv};
-                              const tvDevice = Object.values(tvConfig).find(tv => 
+                              const tvDevice = Object.values(tvConfig).find(tv =>
                                   tv.room.toLowerCase().includes(tvName.toLowerCase())
-                              );																			
+                              );
                               if (tvDevice) {
                                   updateTVChannelDisplay(tvDevice.ip, {
                                      channel_id: data.current_channel,
@@ -267,7 +267,7 @@
                       console.log('EPG data not available:', error);
                   });
           }
-          
+
           function updateChannelIcon(channelId) {
               console.log('🦆 updateChannelIcon called with channelId:', channelId);
               const iconElement = document.getElementById('currentChannelIcon');
@@ -288,15 +288,15 @@
                   iconElement.style.backgroundSize = 'cover';
                   iconElement.style.backgroundPosition = 'center';
                   iconElement.style.backgroundRepeat = 'no-repeat';
-  
+
                   iconElement.style.backgroundColor = "";
                   iconElement.style.border = '2px solid rgba(255, 255, 255, 0.4)';
-  
+
                   if (fallbackElement) {
                       fallbackElement.textContent = channelId;
                       fallbackElement.style.display = 'none'; // Hide fallback initially
                   }
-  
+
                   const img = new Image();
                   img.onload = function() {
                       console.log('🦆 Channel icon loaded successfully:', iconPath);
@@ -305,11 +305,11 @@
                       iconElement.style.display = 'none';
                       iconElement.offsetHeight;
                       iconElement.style.display = 'flex';
-      
+
                       if (fallbackElement) {
                           fallbackElement.style.display = 'none';
                       }
-      
+
                       console.log('Final backgroundImage:', iconElement.style.backgroundImage);
                   };
                   img.onerror = function() {
@@ -331,33 +331,33 @@
                   }
               }
           }
-     
+
           // 🦆 says ⮞ update TV display with EPG information
           function updateTVWithEPG(deviceIp) {
               if (!window.epgData || !window.epgData.channels) return;
               const tvConfig = ${builtins.toJSON config.house.tv};
-              const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+              const tvDevice = Object.entries(tvConfig).find(([name, config]) =>
                   config.ip === deviceIp
-              );   
+              );
               if (!tvDevice) {
                   console.log('No TV config found for IP:', deviceIp);
                   return;
-              }    
+              }
               const tvName = tvDevice[0];
               const tvKey = `tv_''${tvName}`;
               const tvState = devices[tvKey];
               if (!tvState || !tvState.current_channel) {
                   console.log('No TV state found for:', tvKey, tvState);
                   return;
-              }  
+              }
               const channelId = tvState.current_channel.toString();
-              console.log('🦆 Found TV channel:', channelId, 'for device:', deviceIp, 'name:', tvName);   
+              console.log('🦆 Found TV channel:', channelId, 'for device:', deviceIp, 'name:', tvName);
               updateChannelIcon(channelId);
-              const channel = window.epgData.channels.find(ch => ch.id === channelId);  
+              const channel = window.epgData.channels.find(ch => ch.id === channelId);
               if (!channel || !channel.programs) {
                   console.log('No EPG data for channel:', channelId);
                   return;
-              }   
+              }
               const now = new Date();
               const currentProgram = findCurrentProgram(channel.programs, now);
               if (currentProgram) {
@@ -474,13 +474,13 @@
               if (selectedTV && channelDisplay) {
                   channelDisplay.style.display = 'block';
                   const tvConfig = ${builtins.toJSON config.house.tv};
-                  const tvDevice = Object.entries(tvConfig).find(([name, config]) => 
+                  const tvDevice = Object.entries(tvConfig).find(([name, config]) =>
                       config.ip === selectedTV
-                  );       
+                  );
                   if (tvDevice) {
                       const tvName = tvDevice[0];
                       const tvKey = `tv_''${tvName}`;
-                      const tvState = devices[tvKey];   
+                      const tvState = devices[tvKey];
                       if (tvState) {
                           updateTVChannelDisplay(selectedTV, tvState);
                       } else {
@@ -511,7 +511,7 @@
           // 🦆 says ⮞ load initial TV channel state
           loadInitialTVState();
 
-      </script>    
+      </script>
 
     '';
 
@@ -541,17 +541,17 @@
 
           } catch (error) {
             console.error('🦆 Error loading health data:', error);
-            document.getElementById('healthContainer').innerHTML = 
+            document.getElementById('healthContainer').innerHTML =
               '<div class="error">Failed to fetch data: ' + error.message + '</div>';
           }
         }
-        
+
         function createHealthCard(data, container) {
           const card = document.createElement('div');
           card.className = 'health-card';
-          
+
           const status = calculateOverallStatus(data);
-          
+
           card.innerHTML = `
             <div class="health-card-header">
               <div class="health-hostname"><strong><h1>''${data.hostname}</h1></strong></div><br>
@@ -574,35 +574,35 @@
               ''${createDiskTempHTML(data.disk_temperature)}
             </div>
           `;
-          
+
           container.appendChild(card);
         }
-        
+
         function calculateOverallStatus(data) {
           if (data.cpu_usage > 90 || data.memory_usage > 90) return 'critical';
           if (data.cpu_usage > 80 || data.memory_usage > 80) return 'warning';
           return 'good';
         }
-        
+
         function getCPUStatusClass(usage) {
           if (usage > 80) return 'status-critical';
           if (usage > 60) return 'status-warning';
           return 'status-good';
         }
-        
+
         function getMemoryStatusClass(usage) {
           if (usage > 90) return 'status-critical';
           if (usage > 75) return 'status-warning';
           return 'status-good';
         }
-        
+
         function getTempStatusClass(temp) {
           const tempValue = parseFloat(temp);
           if (tempValue > 70) return 'status-critical';
           if (tempValue > 60) return 'status-warning';
           return 'status-good';
         }
-        
+
         function createDiskUsageHTML(diskUsage) {
           if (!diskUsage) return "";
           return Object.entries(diskUsage).map(([device, usage]) => `
@@ -612,7 +612,7 @@
             </div>
           `).join("");
         }
-        
+
         function createDiskTempHTML(diskTemp) {
           if (!diskTemp) return "";
           return Object.entries(diskTemp).map(([device, temp]) => `
@@ -622,40 +622,40 @@
             </div>
           `).join("");
         }
-        
+
         function getDiskStatusClass(usage) {
           const usageValue = parseFloat(usage);
           if (usageValue > 90) return 'status-critical';
           if (usageValue > 80) return 'status-warning';
           return 'status-good';
         }
-        
+
         document.addEventListener('DOMContentLoaded', function() {
           if (document.getElementById('healthContainer')) {
             loadHealthData();
             setInterval(loadHealthData, 30000);
           }
         });
-      </script>    
-      
+      </script>
+
     '';
-      
+
 
 
     chat = ''
-      <div id="chat-container">            
+      <div id="chat-container">
           <div id="chat">
 
           </div>
           <div id="input-container">
-              <button id="attachment-button" title="Attach file">📎</button>                
+              <button id="attachment-button" title="Attach file">📎</button>
               <input type="text" id="prompt" placeholder="Qwack something ... ">
               <input type="file" id="file-input" style="display: none;" multiple>
               <button id="send-button">🦆⮞</button>
           </div>
           <div id="file-preview" style="display: none;"></div>
       </div>
-      
+
       <script>
           function fixViewportHeight() {
               const vh = window.innerHeight * 0.01;
@@ -671,24 +671,24 @@
           window.addEventListener('load', fixViewportHeight);
           window.addEventListener('resize', fixViewportHeight);
           window.addEventListener('orientationchange', fixViewportHeight);
-          
+
           // 🦆 says ⮞ click handler 4 fullscreen bubble
           document.addEventListener('click', function(e) {
             const bubble = e.target.closest('.chat-bubble');
-            
+
             if (!bubble) return;
-            if (e.target.closest('button') || 
-                e.target.closest('a') || 
+            if (e.target.closest('button') ||
+                e.target.closest('a') ||
                 e.target.closest('input') ||
                 e.target.closest('video') ||
                 e.target.closest('.remove-file-btn') ||
                 e.target.closest('.playlist-controls')) {
               return;
             }
-            
+
             // 🦆 says ⮞toggle fullscreen
             bubble.classList.toggle('fullscreen');
-            
+
             if (bubble.classList.contains('fullscreen')) {
               const handleEscape = (event) => {
                 if (event.key === 'Escape') {
@@ -702,18 +702,18 @@
                   const rect = bubble.getBoundingClientRect();
                   const x = event.clientX;
                   const y = event.clientY;
-                  
+
                   if (x > rect.right - 60 && y < rect.top + 60) {
                     bubble.classList.remove('fullscreen');
                     document.removeEventListener('keydown', handleEscape);
                   }
                 }
               };
-              
+
               bubble.addEventListener('click', closeHandler, { once: true });
             }
           });
-                 
+
           // 🦆 says ⮞ message history
           let messageHistory = [];
           let historyIndex = -1;
@@ -761,7 +761,7 @@
                   promptInput.value = messageHistory[historyIndex];
               }
           }
- 
+
           const AUDIO_CONFIG = {
               enabled: true,
               volume: 0.8
@@ -771,8 +771,8 @@
             host: '${config.house.zigbee.mosquitto.host}',
             port: '${toString config.services.zigduck.dashboard.port}',
             baseUrl: 'http://${config.house.zigbee.mosquitto.host}:${toString config.services.zigduck.dashboard.port}'
-          };       
- 
+          };
+
           function getAuthToken() {
             function getCookie(name) {
               const value = `; ''${document.cookie}`;
@@ -791,8 +791,8 @@
             const cookiePassword = getCookie('api_password');
             if (cookiePassword) return cookiePassword;
 
-            return localStorage.getItem('mqttPassword') || 
-                   localStorage.getItem('dashboardPassword') || 
+            return localStorage.getItem('mqttPassword') ||
+                   localStorage.getItem('dashboardPassword') ||
                    "";
           }
 
@@ -831,7 +831,7 @@
                   notification.style.transform = 'translateY(-20px)';
               }, 3000);
           }
-                
+
           let isFirstMessage = true;
           let apiConnected = false;
           let selectedFiles = [];
@@ -846,11 +846,11 @@
               const attachmentButton = document.getElementById('attachment-button');
               const fileInput = document.getElementById('file-input');
               const filePreview = document.getElementById('file-preview');
-              
+
               attachmentButton.addEventListener('click', () => {
                   fileInput.click();
               });
-              
+
               fileInput.addEventListener('change', (event) => {
                   selectedFiles = Array.from(event.target.files);
                   updateFilePreview();
@@ -864,23 +864,23 @@
                   if (line.trim().startsWith('|') && line.includes('|') && line.split('|').length > 2) {
                       pipeCount++;
                   }
-              }             
+              }
           }
 
           function convertMarkdownTableToHTML(text) {
-              const lines = text.split('\n').filter(line => 
+              const lines = text.split('\n').filter(line =>
                   line.trim().startsWith('|') && line.trim().endsWith('|')
               );
 
               if (lines.length < 2) return text;
 
-              const tableData = lines.map(line => 
+              const tableData = lines.map(line =>
                   line.split('|')
                       .slice(1, -1)
                       .map(cell => cell.trim())
               );
 
-              const isSecondRowSeparator = tableData[1] && tableData[1].every(cell => 
+              const isSecondRowSeparator = tableData[1] && tableData[1].every(cell =>
                   /^:?-+:?$/.test(cell)
               );
 
@@ -910,17 +910,17 @@
 
               return html;
           }
-                                   
+
           function updateFilePreview() {
-              const filePreview = document.getElementById('file-preview');              
+              const filePreview = document.getElementById('file-preview');
               if (selectedFiles.length === 0) {
                   filePreview.style.display = 'none';
                   filePreview.innerHTML = "";
                   return;
               }
-              
+
               filePreview.style.display = 'block';
-              filePreview.innerHTML = '<strong>Attached files:</strong><br>';           
+              filePreview.innerHTML = '<strong>Attached files:</strong><br>';
               selectedFiles.forEach((file, index) => {
                   const fileElement = document.createElement('div');
                   fileElement.className = 'file-preview-item';
@@ -931,13 +931,13 @@
                   filePreview.appendChild(fileElement);
               });
           }
-          
+
           function removeFile(index) {
               selectedFiles.splice(index, 1);
-              updateFilePreview();          
+              updateFilePreview();
               document.getElementById('file-input').value = "";
           }
-          
+
           function formatFileSize(bytes) {
               if (bytes === 0) return '0 Bytes';
               const k = 1024;
@@ -945,12 +945,12 @@
               const i = Math.floor(Math.log(bytes) / Math.log(k));
               return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
           }
-          
+
           async function uploadFiles() {
-              if (selectedFiles.length === 0) return true;    
+              if (selectedFiles.length === 0) return true;
               showTypingIndicator();
               try {
-                  const password = getAuthToken();        
+                  const password = getAuthToken();
                   for (const file of selectedFiles) {
                       const formData = new FormData();
                       formData.append('file', file);
@@ -966,7 +966,7 @@
                           const errorText = await response.text();
                           throw new Error(`Upload failed: ''${response.status} - ''${errorText}`);
                       }
-      
+
                       const result = await response.json();
                       addAIMessage(`🦆 say ⮞ Quack safe backed up: ''${file.name} (''${formatFileSize(file.size)})`);
                   }
@@ -980,7 +980,7 @@
                   return false;
               }
           }
-          
+
           function extractOutputFromResponse(responseText) {
               try {
                   const data = JSON.parse(responseText);
@@ -989,22 +989,22 @@
                   }
               } catch (e) {
                   console.log('JSON parse failed, trying regex');
-              }         
+              }
               const outputMatch = responseText.match(/"output":"([\s\S]*?)"(?=,|\})/);
               if (outputMatch && outputMatch[1]) {
                   return outputMatch[1];
               }
-              
+
               return responseText;
           }
-          
+
           function cleanAPIResponse(output) {
-              if (!output) return "Command executed!";         
+              if (!output) return "Command executed!";
               let cleaned = output.replace(/\u001b\[[0-9;]*m/g, "");
-              cleaned = cleaned.replace(/\\n/g, '\n');         
+              cleaned = cleaned.replace(/\\n/g, '\n');
               return cleaned;
           }
-          
+
           async function checkAPIHealth() {
               try {
                   const response = await fetch(API_CONFIG.baseUrl + '/health');
@@ -1021,7 +1021,7 @@
               apiConnected = false;
               return false;
           }
-          
+
 
 
           function enhanceContent(content) {
@@ -1032,7 +1032,7 @@
                   .join('\n');
 
               const noAnsi = cleaned.replace(/\x1b\[[0-9;]*m/g, "");
-              const isTerminalOutput = noAnsi.includes('│') || noAnsi.includes('┌') || 
+              const isTerminalOutput = noAnsi.includes('│') || noAnsi.includes('┌') ||
                                        noAnsi.includes('─') || noAnsi.includes('└');
               if (isTerminalOutput) {
                   return {
@@ -1047,14 +1047,14 @@
                       .replace(/### (.*)/g, '<h5 style="color: #2196F3; margin: 12px 0 6px 0; font-weight: bold;">$1</h5>')
                       .replace(/## (.*)/g, '<h4 style="color: #FF9800; margin: 14px 0 7px 0; font-weight: bold;">$1</h4>')
                       .replace(/# (.*)/g, '<h3 style="color: #4CAF50; margin: 16px 0 8px 0; font-size: 1.3em; font-weight: bold;">$1</h3>')
-                      .replace(/\n/g, '<br>');        
+                      .replace(/\n/g, '<br>');
                   return {
                       type: 'html',
                       content: html
                   };
               }
           }
-      
+
           // 🦆 says ⮞ let'z make chat handle video/music playlists yo
           function extractVideoUrls(text) {
               const urlRegex = /https?:\/\/[^\s]+/g;
@@ -1065,15 +1065,15 @@
                       const pathname = urlObj.pathname.toLowerCase();
                       const videoExtensions = ['.mp4', '.webm', '.avi', '.mov', '.mkv', '.flv', '.wmv'];
                       const playlistExtensions = ['.m3u', '.m3u8'];
-                      
+
                       if (videoExtensions.some(ext => pathname.endsWith(ext))) {
                           return true;
                       }
-                      
+
                       if (playlistExtensions.some(ext => pathname.endsWith(ext))) {
                           return true;
                       }
-                      
+
                       const streamingKeywords = ['stream', 'hls', 'live', 'm3u8', 'playlist'];
                       const urlLower = url.toLowerCase();
                       return streamingKeywords.some(keyword => urlLower.includes(keyword));
@@ -1082,16 +1082,16 @@
                   }
               });
           }
-          
+
           function getVideoMimeType(url) {
               try {
                   const urlObj = new URL(url);
                   const pathname = urlObj.pathname.toLowerCase();
                   const extension = pathname.includes('.') ? pathname.split('.').pop() : "";
-                  
+
                   const searchParams = new URLSearchParams(urlObj.search);
                   const formatParam = searchParams.get('format') || "";
-                  
+
                   switch(true) {
                       case extension === 'mp4' || formatParam.includes('mp4'):
                           return 'video/mp4';
@@ -1103,7 +1103,7 @@
                       case extension === 'mov':
                           return 'video/quicktime';
                       case extension === 'mkv':
-                          return "";                      
+                          return "";
                       //    return 'video/x-matroska';
                       case extension === 'flv':
                           return 'video/x-flv';
@@ -1124,7 +1124,7 @@
 
           let hlsJsLoaded = false;
           let hlsJsLoading = false;
-          
+
           function loadHlsJs() {
               return new Promise((resolve, reject) => {
                   if (typeof Hls !== 'undefined' && Hls.isSupported()) {
@@ -1132,7 +1132,7 @@
                       resolve(true);
                       return;
                   }
-                  
+
                   if (hlsJsLoading) {
                       const checkInterval = setInterval(() => {
                           if (typeof Hls !== 'undefined') {
@@ -1143,7 +1143,7 @@
                       }, 100);
                       return;
                   }
-                  
+
                   hlsJsLoading = true;
                   const script = document.createElement('script');
                   script.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.4.10/dist/hls.min.js';
@@ -1166,14 +1166,14 @@
                   document.head.appendChild(script);
               });
           }
-          
+
           // 🦆 says ⮞ playlist?
           function isPlaylistUrl(url) {
               try {
                   const urlObj = new URL(url);
                   const pathname = urlObj.pathname.toLowerCase();
-                  return pathname.endsWith('.m3u') || 
-                         pathname.endsWith('.m3u8') || 
+                  return pathname.endsWith('.m3u') ||
+                         pathname.endsWith('.m3u8') ||
                          url.toLowerCase().includes('m3u8') ||
                          url.toLowerCase().includes('/hls/') ||
                          url.toLowerCase().includes('playlist');
@@ -1181,7 +1181,7 @@
                   return false;
               }
           }
-          
+
           // 🦆says⮞ m3u ?
           async function isSimpleM3U(url) {
               try {
@@ -1193,7 +1193,7 @@
                   return false;
               }
           }
-     
+
           // 🦆 says ⮞ create HLS video player
           function createHlsPlayer(videoUrl, container) {
               const video = document.createElement('video');
@@ -1202,30 +1202,30 @@
               video.style.borderRadius = '8px';
               video.style.background = '#000';
               video.style.marginBottom = '10px';
-              
+
               const statusDiv = document.createElement('div');
               statusDiv.className = 'hls-status';
               statusDiv.style.fontSize = '0.9em';
               statusDiv.style.color = '#666';
               statusDiv.style.marginTop = '5px';
               statusDiv.textContent = 'Loading HLS stream...';
-              
+
               const errorDiv = document.createElement('div');
               errorDiv.className = 'hls-error';
               errorDiv.style.fontSize = '0.9em';
               errorDiv.style.color = '#ff4444';
               errorDiv.style.marginTop = '5px';
               errorDiv.style.display = 'none';
-              
+
               const source = document.createElement('source');
               source.src = videoUrl;
               source.type = 'application/vnd.apple.mpegurl';
               video.appendChild(source);
-              
+
               container.appendChild(video);
               container.appendChild(statusDiv);
               container.appendChild(errorDiv);
-              
+
               loadHlsJs().then(hlsAvailable => {
                   if (hlsAvailable && Hls.isSupported()) {
                       const hls = new Hls({
@@ -1234,10 +1234,10 @@
                           lowLatencyMode: true,
                           backBufferLength: 90
                       });
-                      
+
                       hls.loadSource(videoUrl);
                       hls.attachMedia(video);
-                      
+
                       hls.on(Hls.Events.MANIFEST_PARSED, function() {
                           statusDiv.textContent = 'HLS stream ready';
                           statusDiv.style.color = '#4CAF50';
@@ -1246,7 +1246,7 @@
                               statusDiv.textContent = 'Click play to start stream';
                           });
                       });
-                      
+
                       hls.on(Hls.Events.ERROR, function(event, data) {
                           console.warn('🦆 HLS error:', data);
                           if (data.fatal) {
@@ -1278,7 +1278,7 @@
                       statusDiv.style.color = '#ff4444';
                       errorDiv.textContent = 'For HLS streams, use Chrome/Firefox or Safari on Apple devices';
                       errorDiv.style.display = 'block';
-                      
+
                       const link = document.createElement('a');
                       link.href = videoUrl;
                       link.target = '_blank';
@@ -1289,10 +1289,10 @@
                       errorDiv.appendChild(link);
                   }
               });
-              
+
               return video;
           }
-          
+
           // 🦆 says ⮞ create a player that cycles a playlist
           function createPlaylistPlayer(videoUrls, container, isLocalFile) {
               const video = document.createElement('video');
@@ -1316,12 +1316,12 @@
                   if (index < 0 || index >= videoUrls.length) return;
                   currentIndex = index;
                   const currentUrl = videoUrls[currentIndex];
-  
+
                   video.src = currentUrl;
                   video.load();
-  
+
                   updateControls();
-  
+
                   if (isPlaying) {
                       video.play().catch(e => {
                           console.log('Auto-play prevented:', e);
@@ -1337,7 +1337,7 @@
                           <span>''${currentIndex + 1}/''${videoUrls.length}: ''${videoUrls[currentIndex].split('/').pop() || 'Video'}</span>
                       </div>
                       <div>
-                          <button onclick="playPrev()" style="margin-right: 10px; background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">◀ Prev</button> <button onclick="playNext()" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Next ▶</button>                            
+                          <button onclick="playPrev()" style="margin-right: 10px; background: #2196F3; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">◀ Prev</button> <button onclick="playNext()" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Next ▶</button>
                       </div>
                   `;
               }
@@ -1377,7 +1377,7 @@
 
               return video;
           }
-          
+
           function createRegularVideoPlayer(videoUrl, container) {
               const video = document.createElement('video');
               video.controls = true;
@@ -1392,13 +1392,13 @@
               source.src = videoUrl;
               source.type = getVideoMimeType(videoUrl);
               video.appendChild(source);
-              
+
               const fallback = document.createElement('p');
               fallback.textContent = 'Your browser does not support this video format. ';
               fallback.style.color = '#666';
               fallback.style.fontSize = '0.9em';
               fallback.style.marginTop = '5px';
-              
+
               const downloadLink = document.createElement('a');
               downloadLink.href = videoUrl;
               downloadLink.target = '_blank';
@@ -1406,32 +1406,32 @@
               downloadLink.style.color = '#2196F3';
               downloadLink.style.textDecoration = 'none';
               downloadLink.style.marginLeft = '5px';
-              
+
               fallback.appendChild(downloadLink);
               video.appendChild(fallback);
-              
+
               container.appendChild(video);
               return video;
           }
-                   
+
           function addAIMessage(content, options = {}) {
               const chatContainer = document.getElementById('chat');
               const typingIndicator = document.querySelector('.typing-indicator');
               if (typingIndicator) {
                   chatContainer.removeChild(typingIndicator);
               }
-              
+
               const videoUrls = extractVideoUrls(content);
               let textContent = content;
-              
+
               videoUrls.forEach(url => {
                   textContent = textContent.replace(url, "").trim();
               });
-              
+
               const enhanced = enhanceContent(textContent);
               const aiBubble = document.createElement('div');
               aiBubble.className = 'chat-bubble ai-bubble';
-              
+
               if (enhanced.type === 'terminal') {
                   const pre = document.createElement('pre');
                   pre.style.cssText = `
@@ -1454,18 +1454,18 @@
               } else if (textContent.trim()) {
                   aiBubble.innerHTML = enhanced.content;
               }
-              
+
               if (videoUrls.length > 0) {
                   if (textContent.trim()) {
                       const separator = document.createElement('div');
                       separator.style.height = '20px';
                       aiBubble.appendChild(separator);
                   }
-                  
+
                   videoUrls.forEach((videoUrl, index) => {
                       const videoContainer = document.createElement('div');
                       videoContainer.className = 'video-container';
-                      
+
                       const title = document.createElement('div');
                       title.className = 'video-title';
                       title.textContent = `Media: ''${videoUrl.split('/').pop() || 'Stream'}`;
@@ -1473,7 +1473,7 @@
                       title.style.marginBottom = '10px';
                       title.style.color = '#2196F3';
                       videoContainer.appendChild(title);
-                      
+
                       const isLocalFile = videoUrl.startsWith('file://') || videoUrl.startsWith('/');
                       const isPlaylist = isPlaylistUrl(videoUrl);
 
@@ -1502,20 +1502,20 @@
                       } else {
                           createRegularVideoPlayer(videoUrl, videoContainer, isLocalFile);
                       }
-                      
+
                       const infoDiv = document.createElement('div');
                       infoDiv.style.marginTop = '8px';
                       infoDiv.style.fontSize = '0.85em';
                       infoDiv.style.color = '#666';
-                                                  
+
                       videoContainer.appendChild(infoDiv);
                       aiBubble.appendChild(videoContainer);
                   });
               }
-              
+
               chatContainer.appendChild(aiBubble);
               chatContainer.scrollTop = chatContainer.scrollHeight;
-              
+
               const playTTSAudio = async () => {
                   try {
                       const response = await fetch('/tts/tts.wav', { method: 'HEAD' });
@@ -1523,7 +1523,7 @@
                       const lastModified = new Date(response.headers.get('Last-Modified')).getTime();
                       const now = Date.now();
                       const lastCheck = window.lastTtsCheck || 0;
-                      
+
                       if (lastModified > lastCheck && (now - lastModified) < 30000) {
                           const cacheBuster = Date.now();
                           const audio = new Audio(`/tts/tts.wav?cb=''${cacheBuster}`);
@@ -1541,7 +1541,7 @@
                   playTTSAudio().catch(console.error);
               }, 500);
           }
-          
+
           function createStreamingPlayer(videoUrl, container, isLocalFile) {
               const video = document.createElement('video');
               video.controls = true;
@@ -1550,33 +1550,33 @@
               video.style.background = '#000';
               video.style.marginBottom = '10px';
               video.preload = 'auto';
-              
+
               const statusDiv = document.createElement('div');
               statusDiv.className = 'stream-status';
               statusDiv.style.fontSize = '0.9em';
               statusDiv.style.color = '#666';
               statusDiv.style.marginTop = '5px';
               statusDiv.textContent = 'Testing stream accessibility...';
-              
+
               const errorDiv = document.createElement('div');
               errorDiv.className = 'stream-error';
               errorDiv.style.fontSize = '0.9em';
               errorDiv.style.color = '#ff4444';
               errorDiv.style.marginTop = '5px';
               errorDiv.style.display = 'none';
-              
+
               container.appendChild(video);
               container.appendChild(statusDiv);
               container.appendChild(errorDiv);
-              
+
               testStreamAccessibility(videoUrl).then(accessible => {
                   if (!accessible) {
                       statusDiv.textContent = 'Stream not accessible (CORS/network issue)';
                       statusDiv.style.color = '#ff9800';
                       return;
                   }
-                  
-                  statusDiv.textContent = 'Stream accessible, loading player...';   
+
+                  statusDiv.textContent = 'Stream accessible, loading player...';
                   loadHlsJs().then(hlsAvailable => {
                       if (hlsAvailable && Hls.isSupported()) {
                           const hls = new Hls({
@@ -1587,10 +1587,10 @@
                                   xhr.withCredentials = false;
                               }
                           });
-                          
+
                           hls.loadSource(videoUrl);
                           hls.attachMedia(video);
-                          
+
                           hls.on(Hls.Events.MANIFEST_PARSED, function() {
                               statusDiv.textContent = 'Stream ready - click play';
                               statusDiv.style.color = '#4CAF50';
@@ -1598,14 +1598,14 @@
                                   console.log('Auto-play prevented, waiting for user interaction');
                               });
                           });
-                          
+
                           hls.on(Hls.Events.ERROR, function(event, data) {
                               console.warn('Stream error:', data);
                               if (data.fatal) {
                                   hls.destroy();
                                   statusDiv.textContent = 'HLS playback failed';
                                   statusDiv.style.color = '#ff4444';
-                                                                         
+
                                   if (video.canPlayType('application/vnd.apple.mpegurl')) {
                                       video.src = videoUrl;
                                       video.load();
@@ -1628,7 +1628,7 @@
                   errorDiv.style.display = 'block';
               });
           }
-          
+
           async function testStreamAccessibility(url) {
               try {
                   const response = await fetch(url, {
@@ -1638,10 +1638,10 @@
                   });
                   return response.ok;
               } catch (headError) {
-                  console.log('HEAD failed, trying GET with timeout:', headError);        
+                  console.log('HEAD failed, trying GET with timeout:', headError);
                   try {
                       const controller = new AbortController();
-                      const timeoutId = setTimeout(() => controller.abort(), 5000);       
+                      const timeoutId = setTimeout(() => controller.abort(), 5000);
                       const response = await fetch(url, {
                           method: 'GET',
                           mode: 'cors',
@@ -1651,7 +1651,7 @@
                               'Range': 'bytes=0-100'
                           }
                       });
-                      
+
                       clearTimeout(timeoutId);
                       return response.ok;
                   } catch (getError) {
@@ -1660,7 +1660,7 @@
                   }
               }
           }
-                        
+
           // 🦆 says ⮞ FUCK!
           function addErrorMessage(text) {
               const chatContainer = document.getElementById('chat');
@@ -1704,7 +1704,7 @@
                       <div class="suggestion-header">Did you mean?</div>
                   `;
                   chatContainer.appendChild(suggestionBubble);
-  
+
                   matches.forEach(match => {
                       const matchBubble = document.createElement('div');
                       matchBubble.className = 'chat-bubble suggestion-match-bubble';
@@ -1763,35 +1763,35 @@
 
             return html;
           }
-          
+
           function showTypingIndicator() {
               const chatContainer = document.getElementById('chat');
               const existingIndicator = document.querySelector('.typing-indicator');
               if (existingIndicator) {
                   chatContainer.removeChild(existingIndicator);
               }
-          
+
               const typingIndicator = document.createElement('div');
               typingIndicator.className = 'typing-indicator';
               typingIndicator.innerHTML = '<div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>';
               chatContainer.appendChild(typingIndicator);
               chatContainer.scrollTop = chatContainer.scrollHeight;
           }
-          
+
           async function sendCommandToAPI(command) {
               if (!apiConnected) {
                   addErrorMessage("Not connected to API. Check if the API server is running.");
                   return false;
               }
-          
+
               const uploadSuccess = await uploadFiles();
               if (!uploadSuccess) {
                   return false;
               }
-          
-              showTypingIndicator(); 
+
+              showTypingIndicator();
               try {
-                  const lowerCommand = command.toLowerCase();                    
+                  const lowerCommand = command.toLowerCase();
                   if (lowerCommand.startsWith('do ')) {
                       const naturalLanguageCommand = command.substring(3);
                       return await sendNaturalLanguageCommand(naturalLanguageCommand);
@@ -1814,7 +1814,7 @@
                   return false;
               }
           }
-          
+
           async function sendNaturalLanguageCommand(command) {
             try {
               const password = getAuthToken();
@@ -1823,17 +1823,17 @@
                   'Authorization': `Bearer ''${password}`
                 }
               });
-              console.error(response); 
+              console.error(response);
               if (response.ok) {
                 let responseText = await response.text();
-                console.error(responseText); 
+                console.error(responseText);
                 const rawOutput = extractOutputFromResponse(responseText);
                 console.error(rawOutput);
                 const cleanOutput = cleanAPIResponse(rawOutput);
                 console.error(cleanOutput);
                 const isError = cleanOutput.match(/(No matching command found|System rebuild failed)/);
 
-                if (isError) {   
+                if (isError) {
                   addErrorMessage(cleanOutput);
                 } else {
                   addAIMessage(cleanOutput);
@@ -1854,7 +1854,7 @@
               const promptInput = document.getElementById('prompt');
               const prompt = promptInput.value.trim();
               const chatContainer = document.getElementById('chat');
-          
+
               if (prompt === "" && selectedFiles.length === 0) return;
               if (prompt !== "") {
                   const userBubble = document.createElement('div');
@@ -1862,20 +1862,20 @@
                   userBubble.textContent = prompt;
                   chatContainer.appendChild(userBubble);
                   addToHistory(prompt);
-              }             
+              }
               promptInput.value = "";
               historyIndex = messageHistory.length;
-              chatContainer.scrollTop = chatContainer.scrollHeight;          
-              sendCommandToAPI(prompt);         
+              chatContainer.scrollTop = chatContainer.scrollHeight;
+              sendCommandToAPI(prompt);
               isFirstMessage = false;
           }
-          
+
           function sendSuggestion(element) {
               const text = element.textContent;
               document.getElementById('prompt').value = text;
               sendMessage();
           }
-          
+
           function checkEnter(event) {
               if (event.key === 'Enter') {
                   sendMessage();
@@ -1887,25 +1887,25 @@
                   navigateHistory('down');
               }
           }
-         
+
           setupFileUpload();
-          checkAPIHealth();     
+          checkAPIHealth();
           document.getElementById('prompt').addEventListener('keydown', checkEnter);
-          document.getElementById('send-button').addEventListener('click', sendMessage);        
+          document.getElementById('send-button').addEventListener('click', sendMessage);
           document.querySelectorAll('.suggestion-bubble').forEach(bubble => {
               bubble.addEventListener('click', function() {
                   sendSuggestion(this);
               });
-          });            
+          });
           setTimeout(() => {
               if (isFirstMessage) {
                   addAIMessage("Quack quack! I'm a 🦆 here to help! Qwack me a question yo!");
               }
           }, 2000);
-          
+
           setInterval(checkAPIHealth, 30000);
-      </script>  
-      
+      </script>
+
     '';
   };
 

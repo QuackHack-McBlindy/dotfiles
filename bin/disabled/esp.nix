@@ -8,11 +8,11 @@
   ...
 }: let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -33,7 +33,7 @@
   transcriptionHostIP = if transcriptionHost != null then
     self.nixosConfigurations.${transcriptionHost}.config.this.host.ip
   else
-    "0.0.0.0"; 
+    "0.0.0.0";
 
  # 🦆 says ⮞ get house.esp
   espDevices = lib.filterAttrs (_: cfg: cfg.enable) config.house.esp;
@@ -45,11 +45,11 @@
     name = name;
     value = room.icon;
   }) config.house.rooms;
-  
+
   devicesWithId = lib.mapAttrsToList (id: value: { inherit id; } // value) lightDevices;
   devicesByRoom = lib.groupBy (device: device.room) devicesWithId;
   sortedRooms = lib.sort (a: b: a < b) (lib.attrNames devicesByRoom);
-  # 🦆 says ⮞ generate html for frontend zigbee control features 
+  # 🦆 says ⮞ generate html for frontend zigbee control features
   roomSections = lib.concatMapStrings (room: ''
     <div class="room-section">
       <h4 style="margin-top: 20px; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid #e2e8f0; color: #2b6cb0; cursor: pointer;" onclick="toggleRoom('${room}')">
@@ -61,7 +61,7 @@
       </div>
     </div>
   '') sortedRooms;
-  
+
 
   deviceEntry = device: ''
     <div class="device" data-id="${device.id}">
@@ -74,19 +74,19 @@
           <span class="slider"></span>
         </label>
       </div>
-      
+
       <div class="device-controls" id="controls-${device.id}" style="display:none">
         <div class="control-row">
           <label>Brightness:</label>
           <input type="range" min="1" max="254" value="254" class="brightness-slider" data-device="${device.id}">
         </div>
-       
-        ${lib.optionalString (device.supports_color or false) ''          
+
+        ${lib.optionalString (device.supports_color or false) ''
           <div class="control-row">
             <label>Color:</label>
             <input type="range" min="0" max="360" value="0" class="rgb-slider" data-device="${device.id}" oninput="updateRGBColor(this)">
-          </div>        
-          
+          </div>
+
           <div class="control-row">
             <input type="color" class="color-picker" data-device="${device.id}" value="#ffffff">
           </div>
@@ -101,10 +101,10 @@
   nixBoxSketch = let
     placeholders = [
       "ZIGBEEDEVICESHERE"
-    ];  
+    ];
     replacements = [
       "String zigbeeDevicesHTML = R\"rawliteral(${roomSections})rawliteral\";"
-    ];  
+    ];
   in lib.replaceStrings placeholders replacements boxSketchContent;
 
   # 🦆 says ⮞ write zigbee devices to watch
@@ -113,7 +113,7 @@
     watchPlaceholder = "ZIGBEEDEVICESHERE";
     watchReplacement = "String zigbeeDevicesHTML = R\"rawliteral(${roomSections})rawliteral\";";
   in lib.replaceStrings [watchPlaceholder] [watchReplacement] watchSketchContent;
-  
+
 in { # 🦆 says ⮞ my microcontrollerz yo
   house.esp = {
     box = { # 🦆 says ⮞ dope dev toolboxin'z crazy
@@ -121,34 +121,34 @@ in { # 🦆 says ⮞ my microcontrollerz yo
       type = "esp32s3box";
       ip = "192.168.1.13";
       mac = "30:30:f9:5a:ba:d0";
-    };    
+    };
     watch = { # 🦆 says ⮞ yo cool watch - cat!
       enable = false;
       type = "esp32s3-twatch";
-      mac = "30:30:f9:5a:bb:d0";      
+      mac = "30:30:f9:5a:bb:d0";
       ip = "192.168.1.101";
     };
   };
-  
-  yo.scripts = { 
-    esp = { # 🦆 says ⮞ quackin' flashin' helpin' scriptin' - yo 
+
+  yo.scripts = {
+    esp = { # 🦆 says ⮞ quackin' flashin' helpin' scriptin' - yo
       description = "Declarative firmware deployment tool for ESP32 boards with built-in version control.";
       category = "🖥️ System Management";
       logLevel = "DEBUG";
       parameters = [
-        { name = "device"; description = "Target device name to flash"; default = "box"; }           
+        { name = "device"; description = "Target device name to flash"; default = "box"; }
         { name = "serialPort"; description = "Serial port used to flash"; default = "/dev/ttyACM0"; }
         { name = "ota"; description = "Use OTA update"; default = "false"; }
         { name = "otaPort"; description = "OTA port"; default = "3232"; }
-        { name = "OTAPwFile"; description = "File path containing the password for Over The Air updates"; default = config.sops.secrets.ota.path; }             
-        { name = "wifiSSID"; description = "WiFi SSID to connect device to"; default = "pungkula2"; }     
-        { name = "wifiPwFile"; description = "File path containing the password to WiFi"; default = config.sops.secrets.wifi.path; }     
-        { name = "mqttHost"; description = "Mosquitto host IP"; default = mqttHostip; }             
-        { name = "mqttUser"; description = "User that runs Mosquitto"; default = "mqtt"; }     
-        { name = "mqttPwFile"; description = "File path containing the password to WiFi"; default = config.sops.secrets.mosquitto.path; }          
-        { name = "transcriptionHostIP"; description = "IP of machine that has whisperd"; default = transcriptionHostIP; }        
+        { name = "OTAPwFile"; description = "File path containing the password for Over The Air updates"; default = config.sops.secrets.ota.path; }
+        { name = "wifiSSID"; description = "WiFi SSID to connect device to"; default = "pungkula2"; }
+        { name = "wifiPwFile"; description = "File path containing the password to WiFi"; default = config.sops.secrets.wifi.path; }
+        { name = "mqttHost"; description = "Mosquitto host IP"; default = mqttHostip; }
+        { name = "mqttUser"; description = "User that runs Mosquitto"; default = "mqtt"; }
+        { name = "mqttPwFile"; description = "File path containing the password to WiFi"; default = config.sops.secrets.mosquitto.path; }
+        { name = "transcriptionHostIP"; description = "IP of machine that has whisperd"; default = transcriptionHostIP; }
       ];
-      code = let 
+      code = let
         deviceConfig = lib.mapAttrs (name: cfg: ''
           "${name}")
             board="${cfg.board}"
@@ -157,7 +157,7 @@ in { # 🦆 says ⮞ my microcontrollerz yo
             deviceIP="${cfg.ip}"
             ;;
         '') espDevices;
-      in ''   
+      in ''
         ${cmdHelpers}
         if [ -z "$device" ]; then
           dt_error "Device name must be specified. Available devices:"
@@ -221,11 +221,11 @@ in { # 🦆 says ⮞ my microcontrollerz yo
         WIFIPASSWORD="$(tr -d '\n' < "$wifiPwFile")"
         MQTTPASSWORD="$(tr -d '\n' < "$mqttPwFile")"
         OTAPASSWORD="$(tr -d '\n' < "$OTAPwFile")"
-        
+
         tmpDir=$(mktemp -d)
         trap 'rm -rf "$tmpDir"' EXIT
         mkdir -p "$tmpDir/sketch"
-          
+
         cp "${config.this.user.me.dotfilesDir}/home/sketchbook/devices/$sketch" "$tmpDir/sketch/sketch.ino"
 
         # 🦆 says ⮞ cya here's sed
@@ -261,8 +261,8 @@ in { # 🦆 says ⮞ my microcontrollerz yo
           if [[ "$answer" =~ ^[Yy]$ ]]; then
             dump_sketch_safe
           fi
-          exit 1          
-        fi 
+          exit 1
+        fi
 
         # 🦆 says ⮞ and upload quack
         if ! arduino-cli upload -p "$actualPort" $extraFlags --fqbn "$board" "$tmpDir/sketch"; then
@@ -271,13 +271,13 @@ in { # 🦆 says ⮞ my microcontrollerz yo
           play_fail
           exit 1
         else
-          # 🦆 says ⮞ sucess? cool save dat code 
+          # 🦆 says ⮞ sucess? cool save dat code
           play_win
           version_control "$device"
-        fi        
+        fi
       '';
-    };  
-  };  
+    };
+  };
 
   file = { # 🦆 says ⮞ let'z make dem' .nixino files cool huh
     "sketchbook/devices/esp32s3box.ino" = nixBoxSketch;
@@ -285,8 +285,8 @@ in { # 🦆 says ⮞ my microcontrollerz yo
   };
 
   # 🦆 says ⮞ auto updates comin' flyin'
-  yo.scripts = { 
-    espOTA = { # 🦆 says ⮞ quackin' flashin' helpin' scriptin' - yo 
+  yo.scripts = {
+    espOTA = { # 🦆 says ⮞ quackin' flashin' helpin' scriptin' - yo
       description = "Updates ESP32 devices over the air.";
       category = "🖥️ System Management";
       logLevel = "INFO";
@@ -295,7 +295,7 @@ in { # 🦆 says ⮞ my microcontrollerz yo
         yo-esp --ota
       '';
     };
-  };  
+  };
 
   sops.secrets = {
     wifi = { # 🦆 says ⮞ don't tell anyone ok?
@@ -309,6 +309,6 @@ in { # 🦆 says ⮞ my microcontrollerz yo
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440";
-    };  # 🦆 says ⮞ quack hack   
+    };  # 🦆 says ⮞ quack hack
   };} # 🦆 says ⮞ blind duck
 # 🦆 says ⮞ bye bye sup

@@ -1,6 +1,6 @@
 
 # dotfiles/bin/home/timer.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ timer management - ised when cooking or whatever  
+{ # 🦆 says ⮞ timer management - ised when cooking or whatever
   self,
   lib,
   config,
@@ -19,13 +19,13 @@
   ];
   # 🦆 says ⮞ get dat number yo
   swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
-  
+
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
 #  mqttHost = lib.findSingle (host:
 #      let cfg = self.nixosConfigurations.${host}.config;
 #      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+#    ) null null sysHosts;
   mqttHost = "homie";
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
@@ -38,16 +38,16 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-    
-in {  
+
+in {
   yo.scripts.timer = {
     description = "Set a timer";
     category = "🛖 Home Automation";
-    parameters = [  
-      { name = "minutes"; type = "int"; description = "Minutes to set the timer on"; default = "0";  }     
-      { name = "seconds"; type = "int"; description = "Seconds to set the timer on"; default = "0"; }     
+    parameters = [
+      { name = "minutes"; type = "int"; description = "Minutes to set the timer on"; default = "0";  }
+      { name = "seconds"; type = "int"; description = "Seconds to set the timer on"; default = "0"; }
       { name = "hours"; type = "int"; description = "Hours to set the timer on"; default = "0"; }
-      { name = "list"; type = "bool"; description = "Lists active timers"; default = false;  }      
+      { name = "list"; type = "bool"; description = "Lists active timers"; default = false;  }
       { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
     code = ''
@@ -93,14 +93,14 @@ in {
         fi
         exit 0
       fi
-      
+
 
       TIMER_TOTAL=$((HOURS * 3600 + MINUTES * 60 + SECONDS))
       DURATION=$TIMER_TOTAL
       TIMER_MINUTES=$((DURATION / 60))
       dt_info "Setting timer on $TIMER_MINUTES minutes ..."
       say "OKej kompis! Jag Ställde en timer på $TIMER_MINUTES minuter"
-      
+
       if [ "$(hostname)" != "$mqttHost" ]; then
         dt_info "Setting timer on $TIMER_MINUTES minutes on $mqttHost ..."
         ssh $mqttHost "yo timer --minutes $TIMER_MINUTES"
@@ -144,20 +144,20 @@ in {
       sentences = [
         "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {hours} (timme|timmar) {minutes} (minut|minuter) {seconds} (sekund|sekunder)"
         "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter) [och] {seconds} (sekund|sekunder)"
-        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter)"                     
-        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {seconds} sekunder"      
-        
+        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {minutes} (minut|minuter)"
+        "(skapa|ställ|sätt|starta) [en] (time|timer|timern) [på] {seconds} sekunder"
+
         "hur {list} är det kvar på (time|timer|timern)"
         "tid {list} på (time|timer|timern)"
         "när {list} (time|timer|timern)"
-      ];        
+      ];
       lists = {
         list.values = [
           { "in" = "[länge|kvar]"; out = "true"; }
         ];
         seconds.values = builtins.concatLists (builtins.genList (
                 i: let n = i + 1; in [
-                  { "in" = toString n; out = toString n; }     
+                  { "in" = toString n; out = toString n; }
                   { "in" = swedishNumber n; out = toString n; }
                 ]
               ) 60);
@@ -174,7 +174,7 @@ in {
                 ]
               ) 24);
         };
-      }; 
+      };
     };
-    
+
   }

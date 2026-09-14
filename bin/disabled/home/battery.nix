@@ -24,12 +24,12 @@
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
     else "127.0.0.1";
 
-  # 🦆 says ⮞ define Zigbee devices here yo 
+  # 🦆 says ⮞ define Zigbee devices here yo
   zigbeeDevices = config.house.zigbee.devices;
 
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -38,7 +38,7 @@
   # 🦆 says ⮞ Group devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (room: devices: 
+  in lib.mapAttrs (room: devices:
       map (d: d.friendly_name) devices
     ) grouped;
 
@@ -64,41 +64,41 @@
 
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-in { 
+in {
   yo.scripts.battery = {
     description = "Fetch battery level for specified device.";
-    category = "🛖 Home Automation";     
+    category = "🛖 Home Automation";
     logLevel = "INFO";
-    parameters = [   
+    parameters = [
       { name = "device"; description = "Device to fetch battery level for"; default = "Dimmer Switch Kök"; }
-    ];      
+    ];
     code = ''
       ${cmdHelpers}
       STATE_FILE="/var/lib/zigduck/state.json"
       MQTT_HOST="${mqttHost}"
-	
+
       available_devices=(
         ${lib.concatStringsSep "\n        " (map (d: "\"${d}\"") allDevicesList)}
       )
-      
+
       dt_debug "Available devices count: ''${#available_devices[@]}"
       dt_debug "Available devices: ''${available_devices[*]}"
-      
+
       trigram_similarity() {
         local str1="$1"
         local str2="$2"
         local str1_lower="''${str1,,}"
         local str2_lower="''${str2,,}"
         declare -a tri1 tri2
-        
+
         for ((i=0; i<''${#str1_lower}-2; i++)); do
           tri1+=( "''${str1_lower:i:3}" )
         done
-        
+
         for ((i=0; i<''${#str2_lower}-2; i++)); do
           tri2+=( "''${str2_lower:i:3}" )
         done
-        
+
         local matches=0
         for t in "''${tri1[@]}"; do
           for t2 in "''${tri2[@]}"; do
@@ -108,64 +108,64 @@ in {
             fi
           done
         done
-        
+
         local total=$(( ''${#tri1[@]} + ''${#tri2[@]} ))
         (( total == 0 )) && echo 0 && return
         echo $(( 100 * 2 * matches / total ))
       }
-      
+
       levenshtein() {
         local a="$1" b="$2"
         local len_a=''${#a} len_b=''${#b}
-        
+
         [ "$len_a" -eq 0 ] && echo "$len_b" && return
         [ "$len_b" -eq 0 ] && echo "$len_a" && return
-        
+
         local i j cost del ins alt min
         local -a d
-        
+
         for ((i=0; i<=len_a; i++)); do
             d[i*((len_b+1))+0]=$i
         done
         for ((j=0; j<=len_b; j++)); do
             d[0*((len_b+1))+j]=$j
         done
-        
+
         for ((i=1; i<=len_a; i++)); do
             for ((j=1; j<=len_b; j++)); do
                 [ "''${a:i-1:1}" = "''${b:j-1:1}" ] && cost=0 || cost=1
                 del=$(( d[(i-1)*((len_b+1))+j] + 1 ))
                 ins=$(( d[i*((len_b+1))+j-1] + 1 ))
                 alt=$(( d[(i-1)*((len_b+1))+j-1] + cost ))
-                
+
                 min=$del
                 [ $ins -lt $min ] && min=$ins
                 [ $alt -lt $min ] && min=$alt
                 d[i*((len_b+1))+j]=$min
             done
         done
-        
+
         echo ''${d[len_a*((len_b+1))+len_b]}
       }
-      
+
       levenshtein_similarity() {
         local a="$1" b="$2"
         local len_a=''${#a} len_b=''${#b}
         local max_len=$(( len_a > len_b ? len_a : len_b ))
-        (( max_len == 0 )) && echo 100 && return 
+        (( max_len == 0 )) && echo 100 && return
         local dist=$(levenshtein "$a" "$b")
         local score=$(( 100 - (dist * 100 / max_len) ))
-        [ "''${a:0:1}" = "''${b:0:1}" ] && score=$(( score + 10 ))  
+        [ "''${a:0:1}" = "''${b:0:1}" ] && score=$(( score + 10 ))
         echo $(( score > 100 ? 100 : score ))
       }
-      
+
       normalize_string() {
-        echo "$1" | 
+        echo "$1" |
           tr '[:upper:]' '[:lower:]' |
           sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' |
           sed -e 's/[[:space:]]\+/ /g'
       }
-      
+
       fuzzy_find_device() {
         local search_term="$1"
         shift
@@ -173,19 +173,19 @@ in {
         local best_match=""
         local best_score=0
         local normalized_search=$(normalize_string "$search_term")
-        
+
         dt_debug "Searching for: '$normalized_search' in ''${#devices[@]} devices"
-        
+
         for device in "''${devices[@]}"; do
           local normalized_device=$(normalize_string "$device")
           local current_score=0
-          
+
           if [ "$normalized_search" = "$normalized_device" ]; then
             dt_debug "Exact match: '$device' (score: 100)"
             echo "$device"
             return 0
           fi
-          
+
           local all_words_match=1
           local search_words=($normalized_search)
           local device_words=($normalized_device)
@@ -202,22 +202,22 @@ in {
               break
             fi
           done
-          
+
           if [ $all_words_match -eq 1 ]; then
             current_score=$(( 80 + (''${#search_words[@]} * 5) )) # Base 80 + bonus for more words
             dt_debug "All words match: '$device' (score: $current_score)"
           fi
-          
+
           if [ $current_score -eq 0 ] && [[ "$normalized_device" == *"$normalized_search"* ]]; then
             current_score=75
             dt_debug "Substring match: '$device' (score: $current_score)"
           fi
-          
+
           if [ $current_score -eq 0 ] && [[ "$normalized_search" == *"$normalized_device"* ]]; then
             current_score=70
             dt_debug "Reverse substring match: '$device' (score: $current_score)"
           fi
-          
+
           if [ $current_score -eq 0 ]; then
             local trigram_score=$(trigram_similarity "$normalized_search" "$normalized_device")
             local levenshtein_score=$(levenshtein_similarity "$normalized_search" "$normalized_device")
@@ -234,18 +234,18 @@ in {
             if [ $shared_words -gt 0 ]; then
               current_score=$(( current_score + (shared_words * 10) ))
             fi
-            
+
             current_score=$(( current_score > 100 ? 100 : current_score ))
-            
+
             dt_debug "Device: '$device' - Trigram: $trigram_score%, Levenshtein: $levenshtein_score%, Combined: $current_score%"
           fi
-          
+
           if [ $current_score -gt $best_score ]; then
             best_score=$current_score
             best_match="$device"
           fi
         done
-        
+
         if [ $best_score -ge 50 ]; then
           dt_debug "Best match: '$best_match' (score: $best_score%)"
           echo "$best_match"
@@ -255,65 +255,65 @@ in {
           return 1
         fi
       }
-      
+
       dt_debug "MQTT_HOST: $MQTT_HOST"
       dt_debug "Input device: $device"
-    
+
       matched_device=$(fuzzy_find_device "$device" "''${available_devices[@]}")
-      
+
       if [ $? -ne 0 ] || [ -z "$matched_device" ]; then
         dt_error "Could not find device matching '$device'"
         exit 1
       fi
-      
+
       dt_info "Using device: $matched_device"
-      
+
       password_file="${config.services.zigduck.dashboard.passwordFile}"
       if [ ! -f "$password_file" ]; then
         dt_error "Password file not found: $password_file"
         exit 1
       fi
-      
+
       password=$(cat "$password_file" | tr -d '[:space:]')
-      
+
       if [ -z "$password" ]; then
         dt_error "Password is empty or could not be read"
         exit 1
       fi
-      
+
       # 🦆 says ⮞ URL encode
       encoded_device=$(printf "%s" "$matched_device" | ${pkgs.jq}/bin/jq -sRr @uri)
-      
+
       # 🦆 says ⮞ call API to get device state
       api_url="http://${mqttHostIp}:9815/state/$encoded_device"
-      
+
       dt_debug "Calling API: $api_url"
-      
+
       response=$(curl -s -H "Authorization: Bearer $password" "$api_url")
-      
+
       if [ $? -ne 0 ]; then
         dt_error "Failed to call API for device: $matched_device"
         exit 1
       fi
-      
+
       # 🦆 says ⮞ check if response contains error
       if echo "$response" | ${pkgs.jq}/bin/jq -e 'has("error")' >/dev/null 2>&1; then
         error_msg=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.error // "Unknown error"')
         dt_error "API returned error: $error_msg"
         exit 1
       fi
-      
+
       # 🦆 says ⮞ extract battery and last_seen from API response
       battery=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.battery // "N/A"')
       last_seen=$(echo "$response" | ${pkgs.jq}/bin/jq -r '.last_seen // empty')
-      
+
       if [ "$battery" = "null" ] || [ -z "$battery" ]; then
         battery="N/A"
         dt_warn "No battery data available for $matched_device"
       fi
-      
+
       dt_debug "Battery: $battery"
-      
+
       if [ "$last_seen" != "null" ] && [ -n "$last_seen" ]; then
         formatted_last_seen=$(
           ${pkgs.coreutils}/bin/date -d "$last_seen" '+%A den %d %B %Y, klockan %H:%M:%S' --locale=sv_SE.UTF-8 2>/dev/null ||
@@ -323,15 +323,15 @@ in {
       else
         formatted_last_seen=""
       fi
-      
+
       if [ "$formatted_last_seen" != "null" ] && [ -n "$formatted_last_seen" ] && [ "$formatted_last_seen" != "Unknown" ]; then
         updated="Senast uppdaterad den $formatted_last_seen"
       else
         updated=""
       fi
-      
+
       echo "Battery: $battery% $updated"
-      
+
       if [ "$battery" != "N/A" ]; then
         if_voice_say "$matched_device har $battery procent batteri . $updated"
       else
@@ -339,9 +339,9 @@ in {
       fi
     '';
     voice = {
-      enabled = true;	
+      enabled = true;
       priority = 3;
-      sentences = [ 
+      sentences = [
         "hur mycket batteri har {device} [kvar]"
         "batteri nivå [på] {device}"
         "vad är (batteri|batteronivån) [nivån] [på] {device}"
@@ -361,7 +361,7 @@ in {
                 baseWords = lib.splitString " " base;
                 isAmbiguous = lib.any (word: lib.elem word reservedNames) baseWords;
                 hasLampSuffix = lib.hasSuffix "lampa" base;
-                lampanVariant = if hasLampSuffix then [ "${base}n" ] else [];  
+                lampanVariant = if hasLampSuffix then [ "${base}n" ] else [];
                 enVariant = [ "${base}en" ];
                 variations = lib.unique ([
                   base
@@ -375,5 +375,5 @@ in {
           );
       };
     };
-    
+
   };}

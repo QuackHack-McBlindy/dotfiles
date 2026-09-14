@@ -2,12 +2,12 @@
 {
     description = "❄️🦆 ⮞ QuackHack-McBLindy's NixOS flake";
     inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";        
+        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
         sops-nix.url = "github:Mic92/sops-nix";
-        sops-nix.inputs.nixpkgs.follows = "nixpkgs";  
+        sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        yo.url = "github:QuackHack-McBlindy/yo";
-        zigduck.url = "github:QuackHack-McBlindy/zigduck";
+        yo.url = "github:QuackHack-McBlindy/yo?ref=dev";
+        zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
         #yo.url = "path:/home/pungkula/new/yo";
         #zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
@@ -21,15 +21,15 @@
     };
     outputs = inputs @ { self, systems, nixpkgs, mobile-pkgs, mobile-nixos, ... }:
         let
-            lib = import ./lib { 
+            lib = import ./lib {
                 inherit self inputs;
-                lib = nixpkgs.lib;      
-            };             
+                lib = nixpkgs.lib;
+            };
         in lib.makeFlake {
             systems = [ "x86_64-linux" "aarch64-linux" ];
             overlays = lib.mapOverlays ./overlays { inherit lib self inputs; };
             hosts = lib.mapHosts ./hosts;
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
             packages = lib.mapModules ./packages import;
-            devShells = lib.mapModules ./devShells (path: import path);     
+            devShells = lib.mapModules ./devShells (path: import path);
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'

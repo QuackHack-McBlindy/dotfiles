@@ -1,4 +1,4 @@
-{ 
+{
   self,
   config,
   lib,
@@ -22,13 +22,13 @@ in {
   yo.scripts.tv = {
     description = "Android TV controller.";
     category = "Home Automation";
-    logLevel = "INFO";    
+    logLevel = "INFO";
     binary = /run/current-system/sw/bin/tv;
     parameters = [
       { name = "typ"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; values = [ "on" "off" "up" "down" "next" "prev" "call" "favorites" "add" "tv" "movie" "livetv" "podcast" "news" "music" "song" "musicvideo" "jukebox" "othervideo" "youtube" "nav_up" "nav_down" "nav_left" "nav_right" "nav_select" "nav_menu" "nav_back" "channel_up" "channel_down" ]; }
       { name = "search"; type = "string"; description = "Media to search"; optional = true; }
       { name = "device"; description = "Device IP to play on"; optional = true; }
-      { name = "room"; description = "Room name of the device to control"; optional = true; }      
+      { name = "room"; description = "Room name of the device to control"; optional = true; }
       { name = "season"; type = "string"; description = "Specific season to play"; optional = true; }
     ];
 
@@ -37,8 +37,8 @@ in {
       fuzzy = {
         enable = true;
         threshold = 0.4;
-      };       
-      sentences = [    
+      };
+      sentences = [
         # season specific search
         "[I] (play|play|run|start|start) [up|on] {typ} {search} (season|season) {season} on {device}"
         "I want to watch {typ} {search} (season|season) {season} on {device}"
@@ -65,7 +65,7 @@ in {
         "call {typ}"
         "find {typ}"
       ];
-      
+
       # lists are in word > out word
       lists = {
         typ.values = [
@@ -82,10 +82,10 @@ in {
           { "in" = "[channel]"; out = "livetv"; }
           { "in" = "[youtube|you-tube|you|yt|tube]"; out = "youtube"; }
           { "in" = "[news]"; out = "news"; }
-      
+
           # heart currently playing
           { "in" = "[playlist|playlist]"; out = "favorites"; }
-      
+
           # playback
           { "in" = "[pause|quiet|silence|mute|stop]"; out = "pause"; }
           { "in" = "[play|continue|okay]"; out = "play"; }
@@ -93,28 +93,28 @@ in {
           { "in" = "[lower|down]"; out = "down"; }
           { "in" = "[next|forward]"; out = "next"; }
           { "in" = "[previous|back]"; out = "previous"; }
-      
+
           # add to playlist
           { "in" = "[save|add]"; out = "add"; }
           { "in" = "[favorite|favorites|best]"; out = "add"; }
-      
+
           # on/off
           { "in" = "[off|turn off]"; out = "off"; }
           { "in" = "on"; out = "on"; }
-      
+
           # calls remote
           { "in" = "[the remote|remote control|the remote control]"; out = "call"; }
         ];
-      
+
         # search can be anything
         search.wildcard = true;
-      
+
         # hardcoded device names
         #device.values = [
         #  { "in" = "[bedroom|the bedroom]"; out = "192.168.1.153"; }
         #  { "in" = "[living room|the living room]"; out = "192.168.1.223"; }
         #];
-      
+
         # or use device name from Nix config
         device.values = let
           devices = lib.attrValues config.house.tv;
@@ -129,7 +129,7 @@ in {
           "in" = "[${room.room}|${lib.head (lib.splitString "." room.ip)}]";
           out = room.room;
         }) rooms;
-      
+
         season.values = builtins.concatLists (builtins.genList (
           i: let n = i + 1; in [
             { "in" = toString n; out = toString n; }
@@ -138,5 +138,5 @@ in {
         ) 60);
       };
     };
-    
+
   };}

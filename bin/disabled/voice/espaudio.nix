@@ -1,16 +1,16 @@
 # dotfiles/bin/config/espaudio.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ WIP dev  
-  self, # 🦆 says ⮞ 
+{ # 🦆 says ⮞ WIP dev
+  self, # 🦆 says ⮞
   lib,
   config,
   pkgs,
   cmdHelpers,
   PythonDuckTrace,
-  ... 
+  ...
 } : let
   transcriptionAutoStart = config.yo.scripts.transcribe.autoStart or false;
-  # 🦆 says ⮞ dependencies  
-  environment.systemPackages = [ pkgs.alsa-utils pkgs.whisper-cpp ];  
+  # 🦆 says ⮞ dependencies
+  environment.systemPackages = [ pkgs.alsa-utils pkgs.whisper-cpp ];
   pyEnv = pkgs.python3.withPackages (ps: [
     ps.fastapi
     ps.pyaudio
@@ -21,11 +21,11 @@
     ps.soundfile
     ps.python-multipart
     ps.noisereduce
-  ]); # 🦆 TODO ⮞ merge 
+  ]); # 🦆 TODO ⮞ merge
   # test with: arecord -f S16_LE -r 16000 -d 10 -c 1 -t raw | curl -X POST -H "Content-Type: application/octet-stream" --data-binary @- http://192.168.1.111:8111/upload_audio
-    
+
   espserver = pkgs.writeScript "whisperd-server.py" ''
-    #!${pyEnv}/bin/python      
+    #!${pyEnv}/bin/python
     from flask import Flask, request
     import subprocess
     import numpy as np
@@ -61,17 +61,17 @@
         app.run(host='0.0.0.0', port=8111)
   '';
 
-in { # 🦆 says ⮞ yo yo yo yo  
+in { # 🦆 says ⮞ yo yo yo yo
 
   yo.scripts.espaudio = {
     description = "WIP! ESP32 audio development";
-    category = "🗣️ Voice"; 
+    category = "🗣️ Voice";
     logLevel = "DEBUG";
     autoStart = false;
     code = ''
-      ${cmdHelpers}    
+      ${cmdHelpers}
       ${espserver}
       dt_info "Started ESPAudio sucessfully"
     '';
-    
-  };}  
+
+  };}

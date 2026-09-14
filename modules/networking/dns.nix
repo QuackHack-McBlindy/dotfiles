@@ -1,5 +1,5 @@
 # dotfiles/modules/networking/dns.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   config,
   lib,
   pkgs,
@@ -24,7 +24,7 @@
                     use-caps-for-id = false;
                     prefetch = true;
                     edns-buffer-size = 1232;
-                    hide-identity = true;      
+                    hide-identity = true;
                     hide-version = true;
 
                     local-zone = [

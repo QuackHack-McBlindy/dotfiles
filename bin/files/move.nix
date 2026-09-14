@@ -1,15 +1,15 @@
 # dotfiles/bin/files/move.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ move files and directories 
+{ # 🦆 says ⮞ move files and directories
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let # 🦆 says ⮞     
+  ...
+} : let # 🦆 says ⮞
 
-in {   
-   
+in {
+
   yo.scripts.move = {
     description = "Move a file or directory to a new location";
     category = "📁 File Operations";
@@ -18,10 +18,10 @@ in {
     logLevel = "INFO";
     parameters = [
       { name = "from"; type = "path"; description = "Current path"; optional = false; }
-      { name = "to"; type = "path"; description = "New location"; optional = false; }  
+      { name = "to"; type = "path"; description = "New location"; optional = false; }
     ];
     code = ''
-      ${cmdHelpers}    
+      ${cmdHelpers}
       from="$from"
       to="$to"
 
@@ -29,12 +29,12 @@ in {
         dt_error "Source '$from' does not exist"
         exit 1
       fi
-      
+
       if [ "$(realpath "$from")" = "$(realpath "$to" 2>/dev/null || echo "$to")" ]; then
         dt_error "Source and destination are the same"
         exit 1
       fi
-      
+
       if [ -e "$to" ]; then
         dt_warning "Target '$to' already exists"
         if ! log::confirm "Overwrite?"; then
@@ -43,11 +43,11 @@ in {
         fi
         rm -rf -- "$to"
       fi
-      
+
       mkdir -p "$(dirname "$to")"
       dt_info "Moving '$from' to '$to'"
       mv -- "$from" "$to"
-      
+
       dt_success "Move completed successfully"
     '';
     voice = {
@@ -58,11 +58,11 @@ in {
         # 🦆 says ⮞ simple sentence definitions
         "(move|mv|flytta) {from} (till|to) {to}"
 
-      ];        
+      ];
       lists = {
         from.wildcard = true;
         to.wildcard = true;
       };
-    };  
-    
+    };
+
   };}

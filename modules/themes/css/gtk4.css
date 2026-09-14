@@ -207,7 +207,7 @@ titlebar:focus, titlebar:active {
 }
 
 /* Window Title Bar */
-titlebar { 
+titlebar {
   background-color: #2a2a2a;  /* Dark gray background */
   color: #D3D3D3;  /* Light gray text for contrast */
   font-size: 18px;
@@ -288,4 +288,3 @@ menuitem:hover, menuitem:active {
   background-color: #009900 !important;
   color: #000000 !important;
 }
-

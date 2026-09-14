@@ -1,17 +1,17 @@
 # dotfiles/modules/services/www.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 duck say ⮞ file-server
   config,
-  lib,       
-  pkgs,   
+  lib,
+  pkgs,
   ...
 } : with lib;
-let 
+let
   cfg = config.services.file-server;
   # 🦆 says ⮞ default index.html file for the file server
   index = config.this.user.me.dotfilesDir + "/modules/services/file-server/browse.html";
   # 🦆 says ⮞ directory to share - default's to `~/Public`
   publicPath = "/home/" + config.this.user.me.name + "/Public";
-  
+
   # 🦆 says ⮞ detect caddy
   caddyHost = lib.elem "caddy" config.this.host.modules.networking;
   caddyUser = if caddyHost then config.systemd.services.caddy.serviceConfig.User or "caddy" else "nobody";
@@ -104,36 +104,36 @@ in {
         echo "Setting up file-server for Caddy..."
         mkdir -p "${cfg.root}"
         mkdir -p "${caddyTemplateDir}"
-        
+
         # 🦆 duck say ⮞ copy template 2 template dir
         cp "${index}" "${caddyTemplateDir}/browse.html"
         chown ${caddyUser}:${caddyUser} "${caddyTemplateDir}/browse.html"
         chmod 644 "${caddyTemplateDir}/browse.html"
-        
+
         # 🦆 duck say ⮞ permissionz
         chown -R ${caddyUser}:${caddyUser} "${cfg.root}" || true
         chmod -R 755 "${cfg.root}"
-        
+
         # 🦆 duck say ⮞ remove existing index.html
         rm -f "${cfg.root}/index.html"
 
         # 🦆 duck say ⮞ mkSure publicPath symlinkz yo
         echo "Copying Public files to file-server directory..."
         mkdir -p "${cfg.root}/public"
-    
+
         # 🦆 duck say ⮞ copy files only if they don't already exist
         if [ -d "${cfg.publicPath}" ]; then
           ${pkgs.rsync}/bin/rsync -av --ignore-existing "${cfg.publicPath}/" "${cfg.root}/public/" || echo "rsync failed, trying cp..."
-      
+
           if [ ! "$(ls -A "${cfg.root}/public")" ]; then
             cp -r "${cfg.publicPath}"/* "${cfg.root}/public/" 2>/dev/null || true
           fi
-      
+
           echo "Public files copied to: ${cfg.root}/public"
         else
           echo "Warning: Public path ${cfg.publicPath} does not exist"
         fi
-    
+
         chown -R ${caddyUser}:${caddyUser} "${cfg.root}/public" || true
         chmod -R 644 "${cfg.root}/public" || true
         find "${cfg.root}/public" -type d -exec chmod 755 {} \; || true
@@ -152,11 +152,11 @@ in {
         cat "${index}" > "${cfg.root}/index.html"
         chown ${cfg.user}:${cfg.group} "${cfg.root}/index.html"
         chmod 644 "${cfg.root}/index.html"
-        
+
         # 🦆 duck say ⮞ mkSure publiivPath iz copied yo
         echo "Copying Public files to file-server directory..."
         mkdir -p "${cfg.root}/public"
-    
+
         if [ -d "${cfg.publicPath}" ]; then
           ${pkgs.rsync}/bin/rsync -av --ignore-existing "${cfg.publicPath}/" "${cfg.root}/public/" || echo "rsync failed, trying cp..."
           if [ ! "$(ls -A "${cfg.root}/public")" ]; then
@@ -164,7 +164,7 @@ in {
           fi
           echo "Public files copied to: ${cfg.root}/public"
         fi
-    
+
         chown -R ${cfg.user}:${cfg.group} "${cfg.root}/public" || true
         chmod -R 644 "${cfg.root}/public" || true
         find "${cfg.root}/public" -type d -exec chmod 755 {} \; || true
@@ -175,8 +175,8 @@ in {
           chown ${caddyUser}:${caddyUser} "${cfg.root}/README.md" 2>/dev/null || true
           chmod 644 "${cfg.root}/README.md" 2>/dev/null || true
         fi
-      fi  
-  
+      fi
+
       # 🦆 duck say ⮞ verify public directory
       if [ -d "${cfg.root}/public" ] && [ "$(ls -A "${cfg.root}/public")" ]; then
         echo "Public directory verified with $(find "${cfg.root}/public" -type f | wc -l) files"
@@ -184,7 +184,7 @@ in {
         echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m fuck ❌ Public directory empty/missing: ${cfg.root}/public\e[0m"
       fi
     '';
-    
+
     # 🦆 duck say ⮞ python http.server (if not usin' caddy)
     systemd.services.file-server = {
       description = "Python file-server";
@@ -199,5 +199,5 @@ in {
         Restart = "on-failure";
       };
     };
-    
+
   };}

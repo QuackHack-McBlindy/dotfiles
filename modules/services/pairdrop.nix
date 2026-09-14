@@ -40,7 +40,7 @@ in {
         Group = "pairdrop";
         WorkingDirectory = "/var/lib/pairdrop";
         StateDirectory = "pairdrop";
-        Environment = 
+        Environment =
           (lib.mapAttrsToList (name: value: "${name}=${value}") config.services.pairdropp.extraEnv)
           ++ [ "PORT=${toString config.services.pairdropp.port}" ];
       };
@@ -55,7 +55,7 @@ in {
 
     users.groups.pairdrop = { };
 
-    networking.firewall.allowedTCPPorts = 
+    networking.firewall.allowedTCPPorts =
       lib.mkIf config.services.pairdropp.openFirewall [ config.services.pairdrop.port ];
 
     environment.systemPackages = [ config.services.pairdropp.package ];

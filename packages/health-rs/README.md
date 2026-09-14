@@ -1,9 +1,9 @@
 # **health-rs**
 
-Simple system health reporting in JSON.  
-  
-  
-**Example output:**  
+Simple system health reporting in JSON.
+
+
+**Example output:**
 
 
 ```bash
@@ -22,4 +22,3 @@ Simple system health reporting in JSON.
   }
 }
 ```
-

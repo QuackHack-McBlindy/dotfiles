@@ -8,11 +8,11 @@
   ...
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -24,15 +24,15 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-  
+
 in {
   yo.scripts.btc = {
     description = "Crypto currency BTC price tracker";
     category = "🧩 Miscellaneous";
     runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
     runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
-    parameters = [ 
-      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/btc_data.txt";  }           
+    parameters = [
+      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/btc_data.txt";  }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ];
@@ -56,7 +56,7 @@ EOF
       MQTT_PASSWORD=$(cat "$pwfile")
       SAVE_PATH="$filePath"
 
-            
+
       format_change() {
         local change=$1
         if [ "$(echo "$change > 0" | bc -l)" -eq 1 ]; then
@@ -95,15 +95,15 @@ EOF
 
       echo "Bitcoin $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
       dt_info "₿ $BTC_PRICE$  24h: $BTC_24H_FORMATTED  (7d: $BTC_7D_FORMATTED)"
-      
+
       if_voice_say "Bitcoin kostar $BTC_PRICE dollar, $BTC_24H_VOICE_DIR $BTC_24H_FORMATTED idag och $BTC_7D_VOICE_DIR $BTC_7D_FORMATTED den senaste veckan"
     '';
     voice = {
       enabled = true;
-      priority = 3;    
+      priority = 3;
       sentences = [
         "(va|vad|hur) [mycket|är] (priset|kostar) [på] [en] (bitcoin|btc)"
       ];
     };
-    
+
   };}

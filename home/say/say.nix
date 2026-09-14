@@ -1,5 +1,5 @@
 # ddotfiles/packages/say.nix ⮞ https://github.com/QuackHack-McBlindy/dotfiles
-{ 
+{
   self,
   lib,
   stdenv,
@@ -24,7 +24,7 @@ stdenv.mkDerivation {
     pythonEnv
     piper-tts
   ];
-  
+
   # 🦆 says ⮞ crucial for runtime dependenciies
   propagatedBuildInputs = [ pythonEnv ];
 

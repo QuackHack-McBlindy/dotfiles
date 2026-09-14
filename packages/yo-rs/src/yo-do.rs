@@ -42,12 +42,12 @@ impl TranscriptionClient {
     async fn new(nlp_processor: Arc<YoDo>) -> Result<Self, Box<dyn std::error::Error>> {
         let (ws_stream, _) = connect_async("ws://localhost:8765").await?;
         let (ws, mut read) = ws_stream.split();
-        
+
         let client = TranscriptionClient {
             ws: Some(ws),
             nlp_processor: nlp_processor.clone(),
         };
-        
+
         // 🦆 says ⮞ start message processing
         tokio::spawn(async move {
             while let Some(message) = read.next().await {
@@ -65,10 +65,10 @@ impl TranscriptionClient {
                 }
             }
         });
-        
+
         Ok(client)
     }
-    
+
     async fn send_audio_chunk(&mut self, chunk: &[u8], is_final: bool) -> Result<(), Box<dyn std::error::Error>> {
         if let Some(ws) = &mut self.ws {
             let message = serde_json::json!({
@@ -78,7 +78,7 @@ impl TranscriptionClient {
                 "timestamp": chrono::Utc::now().timestamp_millis(),
                 "reduce_noise": true
             });
-            
+
             ws.send(Message::Text(message.to_string())).await?;
         }
         Ok(())
@@ -171,7 +171,7 @@ struct EntityValue {
     out: String,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)] 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct EntityList {
     wildcard: Option<bool>,
     values: Vec<EntityValue>,
@@ -189,7 +189,7 @@ struct ScriptIntentData {
     sentences: Vec<String>,
     // 🦆 says ⮞ voice data for entity resolution
     voice_data: Option<HashMap<String, VoiceData>>,
-}  
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct ListValue {
@@ -201,7 +201,7 @@ struct ListValue {
 struct IntentData {
     substitutions: Vec<Substitution>,
     sentences: Vec<String>,
-    lists: HashMap<String, ListConfig>,  
+    lists: HashMap<String, ListConfig>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -234,7 +234,7 @@ struct MatchResult {
     processing_time: std::time::Duration,
 }
 
-#[derive(Clone)]     
+#[derive(Clone)]
 struct YoDo {
     scripts: HashMap<String, ScriptConfig>,
     intent_data: HashMap<String, IntentData>,
@@ -243,7 +243,7 @@ struct YoDo {
     processing_order: Vec<ScriptPriority>,
     fuzzy_threshold: i32,
     debug: bool,
-    memory_data: MemoryData,  
+    memory_data: MemoryData,
     split_words: Vec<String>,
     sorry_phrases: Vec<String>,
 }
@@ -269,7 +269,7 @@ impl YoDo {
                 },
             }
         });
-    
+
         Self {
             scripts: HashMap::new(),
             intent_data: HashMap::new(),
@@ -340,7 +340,7 @@ impl YoDo {
     // 🦆 says ⮞ memory loader (from files)
     fn load_memory_data() -> Result<MemoryData, Box<dyn std::error::Error>> {
         let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
-    
+
         // 🦆 says ⮞ load da context
         let context_path = format!("{}/current_context.json", stats_dir);
         let context: MemoryContext = if let Ok(file) = std::fs::File::open(&context_path) {
@@ -358,7 +358,7 @@ impl YoDo {
                 user_preferences: HashMap::new(),
             }
         };
-    
+
         // 🦆 says ⮞ load da command history
         let history_path = format!("{}/command_history.json", stats_dir);
         let history: CommandHistory = if let Ok(file) = std::fs::File::open(&history_path) {
@@ -371,7 +371,7 @@ impl YoDo {
                 recent_commands: Vec::new(),
                 confirmed_matches: HashMap::new(),
             }
-        }; 
+        };
         Ok(MemoryData { context, history })
     }
 
@@ -379,7 +379,7 @@ impl YoDo {
 
     async fn process_transcription(&self, text: &str) -> Result<(), Box<dyn std::error::Error>> {
         dt_info(&format!("Real-time transcription: {}", text));
-        
+
         if let Some(match_result) = self.exact_match(text) {
             self.execute_script(&match_result)?;
         } else if let Some(match_result) = self.fuzzy_match(text) {
@@ -387,15 +387,15 @@ impl YoDo {
         } else {
             dt_debug(&format!("No command found for: {}", text));
         }
-        
+
         Ok(())
     }
-    
+
     // 🦆 says ⮞ Real-time mode
     pub async fn run_realtime(&mut self) -> Result<(), Box<dyn std::error::Error>> {
         let client = TranscriptionClient::new(Arc::new(self.clone())).await?;
         dt_info("🦆 Real-time NLP mode activated - listening for transcriptions...");
-        
+
         // 🦆 says ⮞ Keep alive
         tokio::time::sleep(tokio::time::Duration::from_secs(3600)).await;
         Ok(())
@@ -405,62 +405,20 @@ impl YoDo {
     fn log_failed_command(&self, input: &str, fuzzy_candidates: &[(String, String, i32)]) -> Result<(), Box<dyn std::error::Error>> {
         let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
         let _ = std::fs::create_dir_all(&stats_dir);
-        
+
         let log_file = format!("{}/failed_commands.log", stats_dir);
         let stats_file = format!("{}/command_stats.json", stats_dir);
-        
+
         // 🦆 says ⮞ log to text file
         let timestamp = chrono::Local::now().format("%Y-%m-%d %H:%M:%S");
         let log_entry = format!("[{}] FAILED: '{}'\n", timestamp, input);
-        
+
         if let Ok(mut file) = std::fs::OpenOptions::new().create(true).append(true).open(&log_file) {
             use std::io::Write;
             let _ = file.write_all(log_entry.as_bytes());
         }
-        
+
         // 🦆 says ⮞ update stats
-        let mut stats: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&stats_file) {
-            serde_json::from_str(&content).unwrap_or_else(|_| {
-                serde_json::json!({
-                    "failed_commands": {},
-                    "successful_commands": {},
-                    "fuzzy_matches": {}
-                })
-            })
-        } else {
-            serde_json::json!({
-                "failed_commands": {},
-                "successful_commands": {}, 
-                "fuzzy_matches": {}
-            })
-        };
-        
-        // 🦆 says ⮞ increment failed command count
-        if let Some(failed_commands) = stats.get_mut("failed_commands").and_then(|v| v.as_object_mut()) {
-            let count = failed_commands.get(input).and_then(|v| v.as_u64()).unwrap_or(0);
-            failed_commands.insert(input.to_string(), serde_json::Value::from(count + 1));
-        }
-        
-        // 🦆 says ⮞ write back updated stats
-        if let Ok(content) = serde_json::to_string_pretty(&stats) {
-            let _ = std::fs::write(&stats_file, content);
-        }
-        
-        // 🦆 says ⮞ log fuzzy matchin' candidates for analysis
-        if !fuzzy_candidates.is_empty() {
-            dt_debug(&format!("Fuzzy candidates for '{}':", input));
-            for (script, sentence, score) in fuzzy_candidates {
-                dt_debug(&format!("  {}%: {} -> {}", score, sentence, script));
-            }
-        }        
-        Ok(())
-    }
-
-
-    // 🦆 says ⮞ log successful command execution
-    fn log_successful_command(&self, script_name: &str, args: &[String], processing_time: std::time::Duration) -> Result<(), Box<dyn std::error::Error>> {
-        let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
-        let stats_file = format!("{}/command_stats.json", stats_dir);  
         let mut stats: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&stats_file) {
             serde_json::from_str(&content).unwrap_or_else(|_| {
                 serde_json::json!({
@@ -475,15 +433,57 @@ impl YoDo {
                 "successful_commands": {},
                 "fuzzy_matches": {}
             })
-        }; 
+        };
+
+        // 🦆 says ⮞ increment failed command count
+        if let Some(failed_commands) = stats.get_mut("failed_commands").and_then(|v| v.as_object_mut()) {
+            let count = failed_commands.get(input).and_then(|v| v.as_u64()).unwrap_or(0);
+            failed_commands.insert(input.to_string(), serde_json::Value::from(count + 1));
+        }
+
+        // 🦆 says ⮞ write back updated stats
+        if let Ok(content) = serde_json::to_string_pretty(&stats) {
+            let _ = std::fs::write(&stats_file, content);
+        }
+
+        // 🦆 says ⮞ log fuzzy matchin' candidates for analysis
+        if !fuzzy_candidates.is_empty() {
+            dt_debug(&format!("Fuzzy candidates for '{}':", input));
+            for (script, sentence, score) in fuzzy_candidates {
+                dt_debug(&format!("  {}%: {} -> {}", score, sentence, script));
+            }
+        }
+        Ok(())
+    }
+
+
+    // 🦆 says ⮞ log successful command execution
+    fn log_successful_command(&self, script_name: &str, args: &[String], processing_time: std::time::Duration) -> Result<(), Box<dyn std::error::Error>> {
+        let stats_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string()) + "/.local/share/yo/stats";
+        let stats_file = format!("{}/command_stats.json", stats_dir);
+        let mut stats: serde_json::Value = if let Ok(content) = std::fs::read_to_string(&stats_file) {
+            serde_json::from_str(&content).unwrap_or_else(|_| {
+                serde_json::json!({
+                    "failed_commands": {},
+                    "successful_commands": {},
+                    "fuzzy_matches": {}
+                })
+            })
+        } else {
+            serde_json::json!({
+                "failed_commands": {},
+                "successful_commands": {},
+                "fuzzy_matches": {}
+            })
+        };
         if let Some(successful_commands) = stats.get_mut("successful_commands").and_then(|v| v.as_object_mut()) {
             let count = successful_commands.get(script_name).and_then(|v| v.as_u64()).unwrap_or(0);
             successful_commands.insert(script_name.to_string(), serde_json::Value::from(count + 1));
         }
-        
+
         if let Ok(content) = serde_json::to_string_pretty(&stats) {
             let _ = std::fs::write(&stats_file, content);
-        }     
+        }
         Ok(())
     }
 
@@ -501,12 +501,12 @@ impl YoDo {
         dt_debug(&format!("🦆 Loaded {} fuzzy index entries", self.fuzzy_index.len()));
         Ok(())
     }
-    
+
     // 🦆 says ⮞ OPTIONAL WORD EXPANDER - make all the combinations!
     fn expand_optional_words(&self, sentence: &str) -> Vec<String> {
         let tokens: Vec<&str> = sentence.split_whitespace().collect();
         let mut variants = Vec::new();
-        
+
         // 🦆 says ⮞ recursive combination generator
         fn generate_combinations(tokens: &[&str], current: Vec<String>, index: usize, result: &mut Vec<String>) {
             if index >= tokens.len() {
@@ -524,13 +524,13 @@ impl YoDo {
             if token.starts_with('(') && token.ends_with(')') {
                 let clean = &token[1..token.len()-1];
                 alternatives.extend(clean.split('|').map(|s| s.to_string()));
-            } 
+            }
             // 🦆 says ⮞ handle [optional|words]
             else if token.starts_with('[') && token.ends_with(']') {
                 let clean = &token[1..token.len()-1];
                 alternatives.extend(clean.split('|').map(|s| s.to_string()));
                 alternatives.push("".to_string()); // 🦆 says ⮞ empty for optional
-            } 
+            }
             // 🦆 says ⮞ regular token
             else {
                 alternatives.push(token.to_string());
@@ -546,7 +546,7 @@ impl YoDo {
         }
 
         generate_combinations(&tokens, Vec::new(), 0, &mut variants);
-        
+
         // 🦆 says ⮞ YO! clean up da mezz and filter
         variants.iter()
             .map(|v| v.replace("  ", " ").trim().to_string())
@@ -561,7 +561,7 @@ impl YoDo {
         }
         if let Some(intent) = self.intent_data.get(script_name) {
             let normalized_input = param_value.to_lowercase();
-            
+
             // 1. 🦆 lists ⮞ substitutions from 'values'
             for sub in &intent.substitutions {
                 let pattern = sub.pattern.to_lowercase();
@@ -611,16 +611,16 @@ impl YoDo {
             }
             dt_debug(&format!("      No entity match found for '{}'", param_value));
         }
-       
+
         // 🦆 fuzzy fallback if nothing matched
         if let Some(fuzzy_result) = self.fuzzy_resolve_entity(script_name, param_name, param_value, 70) {
             return fuzzy_result;
         }
-        
-        // 🦆 say ⮞ ultimate fallback 
+
+        // 🦆 say ⮞ ultimate fallback
         param_value.to_string()
     }
-  
+
     // 🦆 says ⮞ DYNAMIC REGEX BUILDER - quacky pattern magic!
     fn build_pattern_matcher(&self, script_name: &str, sentence: &str) -> Option<(Regex, Vec<String>)> {
         let start_time = Instant::now();
@@ -687,11 +687,11 @@ impl YoDo {
         }
 
         let regex_pattern = format!("^{}$", regex_parts.join(""));
-        
+
         let build_time = start_time.elapsed();
         dt_debug(&format!("      Final regex: {}", regex_pattern));
         dt_debug(&format!("      Parameter names: {:?}", param_names));
-        dt_debug(&format!("      Regex build time: {:?}", build_time));  
+        dt_debug(&format!("      Regex build time: {:?}", build_time));
         match Regex::new(&regex_pattern) {
             Ok(re) => {
                 dt_debug("      Regex compiled successfully");
@@ -704,19 +704,19 @@ impl YoDo {
         }
     }
 
-    // 🦆 says ⮞ MEMORIZATION PRIORITY PROCESSIN' SYSTEM 
+    // 🦆 says ⮞ MEMORIZATION PRIORITY PROCESSIN' SYSTEM
     fn calculate_processing_order(&mut self) {
-        let mut script_priorities = Vec::new();    
+        let mut script_priorities = Vec::new();
         for (script_name, intent) in &self.intent_data {
             // 🦆 says ⮞ start wit base priority from voice config
             let base_priority = 3; // 🦆 says ⮞ TODO: from voice config
             // 🦆be⮞debuggin'
-            dt_debug(&format!("Memory context: last_action={}, recent_commands={}", 
-                self.memory_data.context.last_action, 
+            dt_debug(&format!("Memory context: last_action={}, recent_commands={}",
+                self.memory_data.context.last_action,
                 self.memory_data.history.recent_commands.len()));
-    
+
             // 🦆 says ⮞ memorization booztz adjust da priority based on usage
-            let mut adjusted_priority = base_priority;      
+            let mut adjusted_priority = base_priority;
             // 🦆 says ⮞ booztz for recent usage scriptz
             let recent_usage = self.memory_data.history.recent_commands
                 .iter()
@@ -727,7 +727,7 @@ impl YoDo {
             if self.memory_data.context.last_action == *script_name {
                 adjusted_priority -= 2; // Big boost for context continuity
                 dt_debug(&format!("  Context boost applied for {} (last action)", script_name));
-            }        
+            }
             // 🦆says⮞ b(.)(.)bs for confirmed patterns
             let confirmation_key = format!("{}:", script_name);
             let confirmation_count = self.memory_data.history.confirmed_matches
@@ -739,7 +739,7 @@ impl YoDo {
                 dt_debug(&format!("  Confirmation boost: {} patterns confirmed", confirmation_count));
             }
             // 🦆says⮞priority? don't u dare go below da zero
-            adjusted_priority = adjusted_priority.max(0);  
+            adjusted_priority = adjusted_priority.max(0);
             // 🦆says⮞bootz complex patterns
             let has_complex_patterns = intent.sentences.iter().any(|s| {
                 s.contains('{') || s.contains('[') || s.contains('(')
@@ -750,8 +750,8 @@ impl YoDo {
                 priority: adjusted_priority,
                 has_complex_patterns,
             });
-    
-            dt_debug(&format!("MEMORY ADJUSTMENT: {}: base={} → adjusted={} (uses={}, confirms={}, context={})", 
+
+            dt_debug(&format!("MEMORY ADJUSTMENT: {}: base={} → adjusted={} (uses={}, confirms={}, context={})",
                 script_name, base_priority, adjusted_priority, recent_usage, confirmation_count,
                 if self.memory_data.context.last_action == *script_name { "YES" } else { "NO" }));
         }
@@ -764,7 +764,7 @@ impl YoDo {
         });
 
         self.processing_order = script_priorities;
-        dt_debug(&format!("Final processing order with memory: {:?}", 
+        dt_debug(&format!("Final processing order with memory: {:?}",
             self.processing_order.iter().map(|s| format!("{}[{}]", s.name, s.priority)).collect::<Vec<_>>()));
     }
 
@@ -790,15 +790,15 @@ impl YoDo {
         (resolved_text, substitutions)
     }
 
-    // 🦆 says ⮞ EXACT MATCHIN'        
+    // 🦆 says ⮞ EXACT MATCHIN'
     fn exact_match(&self, text: &str) -> Option<MatchResult> {
         let global_start = Instant::now();
-        let text = text.to_lowercase();     
+        let text = text.to_lowercase();
         dt_debug(&format!("Starting EXACT match for: '{}'", text));
-    
+
         for (script_index, script_priority) in self.processing_order.iter().enumerate() {
-            let script_name = &script_priority.name; 
-            dt_debug(&format!("Trying script [{}/{}]: {}", 
+            let script_name = &script_priority.name;
+            dt_debug(&format!("Trying script [{}/{}]: {}",
                 script_index + 1, self.processing_order.len(), script_name));
             // 🦆 says ⮞ go real-time substitutions i choose u!
             let (resolved_text, substitutions) = self.apply_real_time_substitutions(script_name, &text);
@@ -806,11 +806,11 @@ impl YoDo {
             if let Some(intent) = self.intent_data.get(script_name) {
                 for sentence in &intent.sentences {
                     let expanded_variants = self.expand_optional_words(sentence);
-                    
+
                     for variant in expanded_variants {
                         if let Some((regex, param_names)) = self.build_pattern_matcher(script_name, &variant) {
                             if let Some(captures) = regex.captures(&resolved_text) {
-                                let mut args = Vec::new();      
+                                let mut args = Vec::new();
                                 // 🦆 says ⮞ process da param
                                 for i in 1..captures.len() {
                                     if let Some(matched) = captures.get(i) {
@@ -820,29 +820,29 @@ impl YoDo {
                                         } else {
                                             "param"
                                         };
-                    
-                                        let mut param_value = matched.as_str().to_string();     
+
+                                        let mut param_value = matched.as_str().to_string();
                                         // 🦆 says ⮞ go entity resolution i choose u!
                                         dt_debug(&format!("Before entity resolution: --{} {}", param_name, param_value));
-                                        
+
                                         let entity_resolved = self.resolve_entity(script_name, param_name, &param_value);
                                         if entity_resolved != param_value {
-                                            dt_debug(&format!("      Entity resolution: --{} {} → {}", 
+                                            dt_debug(&format!("      Entity resolution: --{} {} → {}",
                                                 param_name, param_value, entity_resolved));
                                             param_value = entity_resolved;
                                         }
-                                        
+
                                         if let Some(sub) = substitutions.get(&param_value) {
                                             dt_debug(&format!("      Substitution: {} → {}", param_value, sub));
                                             param_value = sub.clone();
                                         }
-                                        
+
                                         dt_debug(&format!("      Final argument: --{} {}", param_name, param_value));
                                         args.push(format!("--{}", param_name));
                                         args.push(param_value);
                                     }
                                 }
-                                
+
                                 return Some(MatchResult {
                                     script_name: script_name.clone(),
                                     args,
@@ -854,11 +854,11 @@ impl YoDo {
                     }
                 }
             }
-        }          
+        }
         None
     }
 
-             
+
     // 🦆 says ⮞ fallback yo! FUZZY MATCHIN' 2 teh moon!
     fn levenshtein_distance(&self, a: &str, b: &str) -> usize {
         let a_chars: Vec<char> = a.chars().collect();
@@ -892,15 +892,15 @@ impl YoDo {
         dt_debug(&format!("Fuzzy matching against {} entries", self.fuzzy_index.len()));
 
         for entry in &self.fuzzy_index {
-            let normalized_sentence = entry.sentence.to_lowercase();            
+            let normalized_sentence = entry.sentence.to_lowercase();
             let distance = self.levenshtein_distance(&normalized_input, &normalized_sentence);
             let max_len = normalized_input.len().max(normalized_sentence.len());
-    
-            if max_len == 0 { continue; }      
+
+            if max_len == 0 { continue; }
             let score = 100 - (distance * 100 / max_len) as i32;
-    
+
             dt_debug(&format!("  '{}' vs '{}' -> {}%", normalized_input, normalized_sentence, score));
-    
+
             if score >= self.fuzzy_threshold {
                 if score > best_score {
                     best_score = score;
@@ -915,7 +915,7 @@ impl YoDo {
     // 🦆 says ⮞ fuzzy permission check
     fn is_fuzzy_allowed(&self, script_name: &str) -> bool {
         self.fuzzy_index.iter().any(|entry| entry.script == script_name)
-    }    
+    }
 
     fn fuzzy_match(&self, text: &str) -> Option<MatchResult> {
         dt_debug(&format!("Starting FUZZY match for: '{}'", text));
@@ -926,12 +926,12 @@ impl YoDo {
                 dt_debug(&format!("Fuzzy matching disabled for script: {}", script_name));
                 return None;
             }
-            dt_info(&format!("Fuzzy match: {} (score: {}%)", script_name, score)); 
+            dt_info(&format!("Fuzzy match: {} (score: {}%)", script_name, score));
             // 🦆 says ⮞ TODO parameter extraction for fuzzy matches
             let input_words: Vec<&str> = text.split_whitespace().collect();
-            let sentence_words: Vec<&str> = sentence.split_whitespace().collect();     
+            let sentence_words: Vec<&str> = sentence.split_whitespace().collect();
             let mut args = Vec::new();
-            let mut param_index = 0;  
+            let mut param_index = 0;
             // 🦆 says ⮞ extract parameter names from sentence
             let mut param_names = Vec::new();
             let mut current = sentence.clone();
@@ -942,25 +942,25 @@ impl YoDo {
                     current = current[end+1..].to_string();
                 } else { break; }
             }
-            
+
             for (i, word) in sentence_words.iter().enumerate() {
                 if word.starts_with('{') && word.ends_with('}') {
                     if i < input_words.len() && param_index < param_names.len() {
                         let param_name = &param_names[param_index];
                         let param_value = input_words[i];
-                        
+
                         // 🦆 says ⮞ go entity resolution i choose u!
                         let resolved_value = self.resolve_entity(&script_name, param_name, param_value);
-                        
+
                         args.push(format!("--{}", param_name));
                         args.push(resolved_value);
                         param_index += 1;
-                        
+
                         dt_debug(&format!("      Fuzzy argument: --{} {}", param_name, param_value));
                     }
                 }
             }
-            
+
             Some(MatchResult {
                 script_name,
                 args,
@@ -1003,17 +1003,17 @@ impl YoDo {
 
         // 🦆says⮞save da updated context
         let context_json = serde_json::to_string_pretty(&context)?;
-        std::fs::write(&context_path, context_json)?;    
-        dt_debug(&format!("Updated memory context: last_action={}, environment={}", 
-            context.last_action, context.environment));    
+        std::fs::write(&context_path, context_json)?;
+        dt_debug(&format!("Updated memory context: last_action={}, environment={}",
+            context.last_action, context.environment));
         Ok(())
-    }    
+    }
 
     // 🦆 says ⮞ YO waz qwackin' yo?!
-    // 🦆 says ⮞ here comez da executta 
+    // 🦆 says ⮞ here comez da executta
     fn execute_script(&self, result: &MatchResult) -> Result<(), Box<dyn std::error::Error>> {
-        dt_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));  
-        
+        dt_debug(&format!("Executing: yo {} {}", result.script_name, result.args.join(" ")));
+
         // 🦆 says ⮞ update yo memory
         //eprintln!("🦆MEMORY:SCRIPT:{}", result.script_name);
         //eprintln!("🦆MEMORY:ARGS:{}", result.args.join(" "));
@@ -1028,10 +1028,10 @@ impl YoDo {
         if let Err(e) = self.update_memory_context(&result.script_name, &result.args) {
             dt_debug(&format!("Failed to update memory context: {}", e));
         }
-               
+
         // 🦆 says ⮞ execution duck tree climber
         println!("   ┌─(yo-{})", result.script_name);
-        println!("   │🦆 qwack!? {}", result.matched_sentence);       
+        println!("   │🦆 qwack!? {}", result.matched_sentence);
         if result.args.is_empty() {
             println!("   └─🦆 says ⮞ no parameters yo");
         } else {
@@ -1040,16 +1040,16 @@ impl YoDo {
                     println!("   └─⮞ {} {}", chunk[0], chunk[1]);
                 }
             }
-        }      
+        }
         println!("   └─⏰ do took {:?}", result.processing_time);
 
         // 🦆 says ⮞ EXECUTION
         let status = Command::new(format!("yo-{}", result.script_name))
             .args(&result.args)
-            .status()?;          
+            .status()?;
         if !status.success() {
             eprintln!("🦆 says ⮞ fuck ❌ Script execution failed with status: {}", status);
-        }     
+        }
         Ok(())
     }
     // 🦆 says ⮞ TTS
@@ -1066,10 +1066,10 @@ impl YoDo {
             self.say(response);
         }
     }
-    
+
     // 🦆 says ⮞ go MAIN RUNNER i choose u! - quack 2 da attack!
     pub fn run(&mut self, input: &str, fuzzy_threshold: i32) -> Result<(), Box<dyn std::error::Error>> {
-        let total_start = Instant::now(); 
+        let total_start = Instant::now();
         self.fuzzy_threshold = fuzzy_threshold;
 
         // 🦆say⮞reload-memory! (duck wish dis easy irl....)
@@ -1079,8 +1079,8 @@ impl YoDo {
         } else { dt_debug("🦆 Using default memory data"); }
 
         self.calculate_processing_order();
-        
-        // 🦆 says ⮞ MULTIPLE COMMANDS - input has any `config.yo.SplitWords` 
+
+        // 🦆 says ⮞ MULTIPLE COMMANDS - input has any `config.yo.SplitWords`
         let parts: Vec<&str> = {
             let mut found = false;
             for word in &self.split_words {
@@ -1097,16 +1097,16 @@ impl YoDo {
                     .collect()
             } else { vec![input] }
         };
-        
-        // 🦆 says ⮞ 2>partz? process dem all 
+
+        // 🦆 says ⮞ 2>partz? process dem all
         if parts.len() > 1 {
             dt_debug(&format!("Found {} parts to process: {:?}", parts.len(), parts));
             let mut all_successful = true;
             let mut processed_count = 0;
-            
+
             for (index, part) in parts.iter().enumerate() {
                 dt_info(&format!("Processing part {}/{}: '{}'", index + 1, parts.len(), part));
-                
+
                 // 🦆 says ⮞ process each part individually 🦆 say ⮞ dat iz eazier 2 say in swe qwack
                 match self.process_single_input(part, total_start) {
                     Ok(_) => {
@@ -1136,11 +1136,11 @@ impl YoDo {
             self.process_single_input(parts[0], total_start)
         }
     }
-    
+
     // 🦆 says ⮞ process command
     fn process_single_input(&self, input: &str, total_start: Instant) -> Result<(), Box<dyn std::error::Error>> {
         let part_start = Instant::now();
-        
+
         // 🦆 says ⮞ collect fuzzy candidates for logging
         let fuzzy_candidates: Vec<(String, String, i32)> = self.fuzzy_index.iter()
             .filter_map(|entry| {
@@ -1157,22 +1157,22 @@ impl YoDo {
                 }
             })
             .collect();
-               
+
         // 🦆 says ⮞ exact matchin'
         if let Some(match_result) = self.exact_match(input) {
             let part_elapsed = part_start.elapsed();
             dt_debug(&format!("Exact match found: {}", match_result.script_name));
-            let _ = self.log_successful_command(&match_result.script_name, &match_result.args, part_elapsed);    
+            let _ = self.log_successful_command(&match_result.script_name, &match_result.args, part_elapsed);
             let final_result = MatchResult {
                 script_name: match_result.script_name,
                 args: match_result.args,
                 matched_sentence: match_result.matched_sentence,
                 processing_time: part_elapsed,
-            };    
+            };
             self.execute_script(&final_result)?;
             return Ok(());
         }
-    
+
         // 🦆 says ⮞ fallback yo go fuzzy matchin' i choose u!
         if let Some(match_result) = self.fuzzy_match(input) {
             let part_elapsed = part_start.elapsed();
@@ -1182,39 +1182,39 @@ impl YoDo {
                 args: match_result.args,
                 matched_sentence: match_result.matched_sentence,
                 processing_time: part_elapsed,
-            };    
-            let _ = self.log_successful_command(&final_result.script_name, &final_result.args, final_result.processing_time); 
+            };
+            let _ = self.log_successful_command(&final_result.script_name, &final_result.args, final_result.processing_time);
             self.execute_script(&final_result)?;
             return Ok(());
         }
-        
+
         // 🦆 says ⮞ NO MATCH
         let part_elapsed = part_start.elapsed();
         println!("   ┌─(yo-do)");
         println!("   │🦆 qwack! {}", input);
         println!("   │🦆 says ⮞ fuck ❌ no match!");
-    
+
         if !fuzzy_candidates.is_empty() {
             let top_candidates: Vec<_> = fuzzy_candidates.iter()
                 .filter(|(_, _, score)| *score >= 50)
                 .take(3)
                 .collect();
-    
+
             for (script, sentence, score) in top_candidates {
                 println!("   │   {}%: '{}' -> yo {}", score, sentence, script);
             }
         }
         println!("   └─⏰ do took {:?}", part_elapsed);
-        
+
         // 🦆 says ⮞ speak no match
         self.say_no_match();
-        
+
         // 🦆 says ⮞ log failed command with analysis data
         dt_debug("No match found for part, logging statistics...");
         let _ = self.log_failed_command(input, &fuzzy_candidates);
         Err("No match found for this part".into())
     }
-    
+
 }
 
 fn load_split_words() -> Vec<String> {
@@ -1332,4 +1332,3 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         yo_do.run(&input, cli.fuzzy)
     }
 }
-

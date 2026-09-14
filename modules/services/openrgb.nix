@@ -6,7 +6,7 @@
   self,
   ...
 } : let
- 
+
 in {
     config = lib.mkIf (lib.elem "openrgb" config.this.host.modules.services) {
         environment.systemPackages = [ pkgs.openrgb ];
@@ -22,5 +22,5 @@ in {
             startupProfile = null;
             motherboard = "intel";
         };
-    
+
     };}

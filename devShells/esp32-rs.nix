@@ -11,18 +11,18 @@
     rustc
     cargo
     clippy
-    rustfmt    
+    rustfmt
     #rust-bin.stable.latest.default
     cmake
     ninja
-    pkg-config  
+    pkg-config
     # 🦆 says ⮞ ESP tools
     espflash
-    cargo-generate            
+    cargo-generate
     ldproxy
     espup
     # 🦆 says ⮞ serial tools
-    minicom    
+    minicom
   ];
 
   formatRed = name: "echo - \$'\\e[0;31m'${name}\$'\\e[0m'";
@@ -39,27 +39,27 @@ in {
       echo "Installing esp-rs toolchain via espup..."
       espup install
     fi
-            
+
     export LIBCLANG_PATH="~/.rustup/toolchains/esp/xtensa-esp32-elf-clang/esp-20.1.1_20250829/esp-clang/lib"
     export PATH="~/.rustup/toolchains/esp/xtensa-esp-elf/esp-15.2.0_20250920/xtensa-esp-elf/bin:$PATH"
     export CROSS_COMPILE=xtensa-esp32s3-elf
-    export CFLAGS=-mlongcalls     
-      
+    export CFLAGS=-mlongcalls
+
     # 🦆 says ⮞ New project?
     choice=$(gum choose "New project" "No")
     if [ "$choice" = "New project" ]; then
       cargo generate --git https://github.com/esp-rs/esp-idf-template cargo
     fi
-            
-    rustup target add xtensa-esp32s3-espidf   
+
+    rustup target add xtensa-esp32s3-espidf
 
     # 🦆 says ⮞ display dependencies when entering shell
     echo "Running on ${system}"
-    echo "Entering Rust ESP32 dev shell"    
+    echo "Entering Rust ESP32 dev shell"
     echo ""
     ${formatHeader "Build inputs:"}
     ${pkgs.lib.concatMapStringsSep "\n" (pkg: "echo - \$'\\e[0;31m'${pkg.name}\$'\\e[0m'") myBuildInputs}
   '';
-  
+
   NIX_CONFIG = "system = ${system}";
 }

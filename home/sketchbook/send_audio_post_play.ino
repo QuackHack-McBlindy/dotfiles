@@ -14,7 +14,7 @@ const int bufferSize = sampleRate * recordDuration * sizeof(int16_t);
 uint8_t* audioBuffer = NULL;
 
 
-#define I2S_WS   42 
+#define I2S_WS   42
 #define I2S_SD   41
 #define I2S_SCK  40
 

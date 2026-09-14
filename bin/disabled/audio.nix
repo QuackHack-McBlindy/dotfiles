@@ -8,19 +8,19 @@
 } : let
 
 in {
-  yo.scripts = { 
+  yo.scripts = {
     audio = {
       description = "Time based volume control";
       category = "🖥️ System Management";
       runEvery = lib.mkIf (config.this.host.hostname == "desktop") "05";
       parameters = [
-        { name = "auto"; type = "bool"; description = "Auto adjust volume based on time"; optional = true; }     
+        { name = "auto"; type = "bool"; description = "Auto adjust volume based on time"; optional = true; }
         { name = "up"; type = "bool"; description = "Increase volume with 10%"; optional = true; }
         { name = "down"; type = "bool"; description = "Decrease volume with 10%"; optional = true; }
         { name = "mute"; type = "bool"; description = "Toggle mute"; optional = true; }
         { name = "get"; type = "bool"; description = "Print current volume"; optional = true; }
       ];
-      code = ''   
+      code = ''
         ${cmdHelpers}
         sink="@DEFAULT_AUDIO_SINK@"
 
@@ -75,5 +75,5 @@ in {
         exit 0
       '';
     };
-    
+
   };}

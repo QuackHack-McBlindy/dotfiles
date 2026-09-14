@@ -4,7 +4,7 @@
   lib,
   pkgs,
   ...
-} : let 
+} : let
   cfg = config.this.theme;
   username = config.this.user.me.name;
   userHome = config.users.users.${username}.home;
@@ -17,12 +17,12 @@
     file:///home/${username}/projects 💡 ⮞ 𝙋𝙧𝙤𝙟𝙚𝙘𝙩𝙨
     file:///home/${username}/Downloads 📥 ⮞ 𝘿𝙤𝙬𝙣𝙡𝙤𝙖𝙙𝙨
     file:///home/${username}/Public 📤 ⮞ 𝙋𝙪𝙗𝙡𝙞𝙘
-    file:///home/${username}/blog 📝 ⮞ 𝗕𝗹𝗼𝗴    
+    file:///home/${username}/blog 📝 ⮞ 𝗕𝗹𝗼𝗴
     file:///Pool 💾 ⮞ 𝙋𝙤𝙤𝙡
     file:///Files 🛡️ ⮞ 𝙁𝙞𝙡𝙚 𝙑𝙖𝙪𝙡𝙩
   '';
- 
-in {  
+
+in {
   options.this.theme = {
     enable = lib.mkEnableOption "GTK theme configuration";
     gtkSettings = lib.mkOption {
@@ -80,5 +80,5 @@ in {
         elementary-xfce-icon-theme
       ];
     })
-    
+
   ];}

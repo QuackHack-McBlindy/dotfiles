@@ -8,7 +8,7 @@
   ...
 } : let
 
-in  
+in
 rustPlatform.buildRustPackage {
   pname = "zigduck-rs";
   version = "0.1.1";
@@ -29,7 +29,7 @@ rustPlatform.buildRustPackage {
     rustPlatform.bindgenHook
   ];
 
-  buildInputs = [ 
+  buildInputs = [
     pkgs.openssl.dev
     pkgs.mosquitto
     pkgs.zigbee2mqtt
@@ -43,5 +43,5 @@ rustPlatform.buildRustPackage {
     license = licenses.mit;
     maintainers = [ "QuackHack-McBlindy" ];
     mainProgram = "zigduck-rs";
-    
+
   };}

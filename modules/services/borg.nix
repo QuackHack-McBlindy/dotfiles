@@ -1,11 +1,11 @@
-{ 
-    config, 
-    lib, 
-    pkgs, 
-    ... 
-} : let 
+{
+    config,
+    lib,
+    pkgs,
+    ...
+} : let
 #    pubkey = import ./../../hosts/pubkeys.nix;
-in { 
+in {
     config = lib.mkIf (lib.elem "borg" config.this.host.modules.services) {
         services.borgbackup.repos.backups = {
             user = "borg";
@@ -13,13 +13,13 @@ in {
             path = "/backup/backups";
             authorizedKeys = [ config.this.host.keys.publicKeys.borg ];
             allowSubRepos = true;
-        };    
+        };
 
         services.openssh.settings = {
-            AllowUsers = [ "borg" ];  
+            AllowUsers = [ "borg" ];
             KbdInteractiveAuthentication = false;
         };
-    
+
         users = {
             groups.borg = { };
             users.borg = {
@@ -30,7 +30,6 @@ in {
                 createHome = false;
                 description = "borg Server";
                 group = "borg";
-            };  
+            };
         };
-    };}    
-    
+    };}

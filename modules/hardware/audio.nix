@@ -1,4 +1,4 @@
-{ 
+{
   config,
   lib,
   pkgs,
@@ -6,14 +6,14 @@
 } : {
     config = lib.mkIf (lib.elem "audio" config.this.host.modules.hardware) {
         hardware.enableAllFirmware = true;
-        
+
         environment.systemPackages = with pkgs; [
             alsa-utils
             pipewire
             wireplumber
             pavucontrol
         ];
-  
+
         services.pulseaudio.enable = false;
         security.rtkit.enable = true;
         services.pipewire = {
@@ -28,7 +28,5 @@
             # no need to redefine it in your config for now)
             #media-session.enable = true;
         };
-        
-    };}    
 
-
+    };}

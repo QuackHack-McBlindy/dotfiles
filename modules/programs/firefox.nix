@@ -4,14 +4,14 @@
   self,
   lib,
   pkgs,
-  ...  
+  ...
 } : let
   # 🦆 says ⮞ dis fetch what host has Docker services configued
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   arrHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in lib.lists.elem "arr" cfg.this.host.modules.virtualisation
-    ) null null sysHosts;    
+    ) null null sysHosts;
   arrHostIP = if arrHost != null then
     self.nixosConfigurations.${arrHost}.config.this.host.ip or (
       let
@@ -23,7 +23,7 @@
     )
   else
     throw "No host found with the 'arr' virtualisation module configured";
-     
+
   # 🦆 duck say ⮞  configuration options
   cfg = config.this.host.modules.programs;
   themeCSS = builtins.readFile config.this.theme.styles; # 🦆 duck say ⮞ reads NixOS module theme and applies it to firefox
@@ -31,9 +31,9 @@
   firefoxProfileDir = "${homeDir}/.mozilla/firefox/default"; # 🦆 duck say ⮞ default profiles directory
   backupPath = "${firefoxProfileDir}/bookmarkbackups"; # 🦆 duck say ⮞ firefox default bookmarks directory
   pythonEnv = pkgs.python3.withPackages (ps: [ ps.lz4 ]); # 🦆 duck say ⮞ required dependencies for encoding firefox data
-#  firefoxProfileDir = "/home/${config.this.user.me.name}/.mozilla/firefox/default"; 
-#  backupPath = "${config.users.users.${config.this.user.me.name}.home}/.mozilla/firefox/default/bookmarkbackups"; 
-  
+#  firefoxProfileDir = "/home/${config.this.user.me.name}/.mozilla/firefox/default";
+#  backupPath = "${config.users.users.${config.this.user.me.name}.home}/.mozilla/firefox/default/bookmarkbackups";
+
   # 🦆 duck say ⮞ Dynamically imports from Firefox Bookmarks Backups to auto detect new bookmarks
   bookmarkScript = pkgs.writeScript "generate-bookmarks.py" ''
     #!${pythonEnv}/bin/python
@@ -74,57 +74,57 @@
     if __name__ == "__main__":
         backup_dir = Path(sys.argv[1])
         output_file = Path(sys.argv[2])
-        
+
         if not backup_dir.exists():
             print(f"Backup directory {backup_dir} does not exist")
             sys.exit(0)
-            
+
         try:
             backup_file = find_latest_backup_file(backup_dir)
             print(f"Processing: {backup_file}")
             data = read_jsonlz4(backup_file)
             bookmarks = extract_bookmarks(data)
             output_file.parent.mkdir(parents=True, exist_ok=True)
-            
+
             with open(output_file, "w") as f:
                 f.write("[\n")
                 for b in bookmarks:
                     f.write(f'  {{ Title = "{b["Title"]}"; URL = "{b["URL"]}"; Placement = "{b["Placement"]}"; }}\n')
                 f.write("]\n")
-               
+
         except Exception as e:
             print(f"Error generating bookmarks: {e}")
             sys.exit(1)
   '';
 
-  # 🦆 duck say ⮞ Static Default Bookmarks 
+  # 🦆 duck say ⮞ Static Default Bookmarks
   defaultBookmarks = [
-    { Title = ""; URL = "http://192.168.1.28:8989"; Placement = "toolbar"; }  
+    { Title = ""; URL = "http://192.168.1.28:8989"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.181:3000"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.28:7777"; Placement = "toolbar"; }
     { Title = ""; URL = "http://192.168.1.181:8124"; Placement = "toolbar"; }
     # 🦆 duck say ⮞ forums
     { Title = "Hacker News"; URL = "https://news.ycombinator.com"; Placement = "toolbar"; }
     { Title = "NixOS Discourse"; URL = "https://discourse.nixos.org"; Placement = "toolbar"; }
-    { Title = "Lobsters"; URL = "https://lobste.rs"; Placement = "toolbar"; }   
+    { Title = "Lobsters"; URL = "https://lobste.rs"; Placement = "toolbar"; }
     # 🦆 duck say ⮞ mail
     { Title = ""; URL = "https://account.proton.me/login"; Favicon = "https://proton.me/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.outlook.com"; Favicon = "https://outlook.live.com/owa/favicon.ico"; Placement = "toolbar"; }
-    # 🦆 duck say ⮞ other links    
+    # 🦆 duck say ⮞ other links
     { Title = ""; URL = "https://www.github.com"; Favicon = "https://github.githubassets.com/favicons/favicon.ico"; Placement = "toolbar"; }
     { Title = ""; URL = "https://www.pastebin.org"; Favicon = "https://pastebin.com/favicon.ico"; Placement = "toolbar"; }
-    { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; } 
+    { Title = ""; URL = "https://www.chatgpt.com"; Favicon = "https://openai.com/favicon.ico"; Placement = "toolbar"; }
     # 🦆 duck say ⮞ servarr
-    { Title = "Transmission"; URL = "http://${arrHostIP}:9091"; Favicon = "http://${arrHostIP}:9091/favicon.ico"; Placement = "toolbar"; }    
+    { Title = "Transmission"; URL = "http://${arrHostIP}:9091"; Favicon = "http://${arrHostIP}:9091/favicon.ico"; Placement = "toolbar"; }
     { Title = "Radarr"; URL = "http://${arrHostIP}:7878"; Favicon = "http://${arrHostIP}:7878/favicon.ico"; Placement = "toolbar"; }
     { Title = "Sonarr"; URL = "http://${arrHostIP}:8989"; Favicon = "http://${arrHostIP}:8989/favicon.ico"; Placement = "toolbar"; }
     { Title = "Lidarr"; URL = "http://${arrHostIP}:8686"; Favicon = "http://${arrHostIP}:8686/favicon.ico"; Placement = "toolbar"; }
     { Title = "Readarr"; URL = "http://${arrHostIP}:8787"; Favicon = "http://${arrHostIP}:8787/favicon.ico"; Placement = "toolbar"; }
     { Title = "Bazarr"; URL = "http://${arrHostIP}:6767"; Favicon = "http://${arrHostIP}:6767/favicon.ico"; Placement = "toolbar"; }
     { Title = "Prowlarr"; URL = "http://${arrHostIP}:9696"; Favicon = "http://${arrHostIP}:9696/favicon.ico"; Placement = "toolbar"; }
-    { Title = "Jellyseer"; URL = "http://${arrHostIP}:5055"; Favicon = "http://${arrHostIP}:5055/favicon.ico"; Placement = "toolbar"; }    
-    { Title = "Requesterr"; URL = "http://${arrHostIP}:4545"; Favicon = "http://${arrHostIP}:4545/favicon.ico"; Placement = "toolbar"; }    
-    { Title = "Navidrome"; URL = "http://${arrHostIP}:4533"; Favicon = "http://${arrHostIP}:4533/favicon.ico"; Placement = "toolbar"; }  
+    { Title = "Jellyseer"; URL = "http://${arrHostIP}:5055"; Favicon = "http://${arrHostIP}:5055/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Requesterr"; URL = "http://${arrHostIP}:4545"; Favicon = "http://${arrHostIP}:4545/favicon.ico"; Placement = "toolbar"; }
+    { Title = "Navidrome"; URL = "http://${arrHostIP}:4533"; Favicon = "http://${arrHostIP}:4533/favicon.ico"; Placement = "toolbar"; }
   ];
 
   # 🦆 duck say ⮞ Create bookmarks JSON from lz4
@@ -142,13 +142,13 @@
       }
     fi
   '';
- 
-# 🦆 duck say ⮞ SEARCH ENGINES =====================================#       
+
+# 🦆 duck say ⮞ SEARCH ENGINES =====================================#
   searchJson = builtins.toJSON {
     "metaData" = { # 🦆 duck say ⮞ default search engine
       "searchDefault" = "ddg";
       "current" = "ddg";
-      "useSavedOrder" = true; 
+      "useSavedOrder" = true;
     }; # 🦆 duck say ⮞ all search engines
     "engines" = [
       { # 🦆 duck say ⮞ QUACK QUACK LET'z GOO!
@@ -158,7 +158,7 @@
         "_metaData" = { "order" = 0; };
         "_definedAliases" = [ "ddg" ];
       }
-      { # 🦆 duck say ⮞ Search Nix Packages 
+      { # 🦆 duck say ⮞ Search Nix Packages
         "_name" = "Nix Packages";
         "_shortName" = "np";
         "_loadPath" = "[other]/nixpkgs.xml";
@@ -171,7 +171,7 @@
           ];
         }];
         "_iconURL" = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-        "_definedAliases" = [ "@np" ]; 
+        "_definedAliases" = [ "@np" ];
       }
       { # 🦆 duck say ⮞ Search NixOS Options
         "_name" = "NixOS Options";
@@ -186,8 +186,8 @@
           ];
         }];
         "_iconURL" = "https://search.nixos.org/favicon.ico";
-        "_definedAliases" = [ "@no" ]; 
-      }      
+        "_definedAliases" = [ "@no" ];
+      }
       { # 🦆 duck say ⮞ Search NixOS Wiki
         "_name" = "NixOS Wiki";
         "_shortName" = "nw";
@@ -259,10 +259,10 @@
         "_metaData" = {
           "hidden" = true;
         };
-      }        
+      }
     ];
-  };  
-  
+  };
+
 in {
   # 🦆 duck say ⮞ enabled by exposing `"firefox"` in `this.host.modules.programs`
   config = lib.mkIf (lib.elem "firefox" cfg) {
@@ -273,13 +273,13 @@ in {
 
 # 🦆 duck say ⮞ PREFERENCES ==========
       preferences = {
-        # 🦆 duck say ⮞ USER AGENT 
-        # FIXME - BREAKKING logins with common services - like Google 
+        # 🦆 duck say ⮞ USER AGENT
+        # FIXME - BREAKKING logins with common services - like Google
         # https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
         "general.useragent.locale" = "en-GB";
-        "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";      
+        "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
         # 🦆 duck say ⮞ Homepage
-        "browser.startup.homepage" = "http://localhost:3001"; 
+        "browser.startup.homepage" = "http://localhost:3001";
         "browser.search.region" = "GB";
         "browser.search.isUS" = false;
         "distribution.searchplugins.defaultLocale" = "en-GB";
@@ -372,7 +372,7 @@ in {
         "extensions.formautofill.available" = "off";
         "extensions.formautofill.creditCards.available" = false;
         "extensions.formautofill.creditCards.enabled" = false;
-        "extensions.formautofill.heuristics.enabled" = false;   
+        "extensions.formautofill.heuristics.enabled" = false;
         "zoom.maxPercent" = 400;
         "zoom.minPercent" = 40;
       };
@@ -382,10 +382,10 @@ in {
         NoDefaultBookmarks = true; # 🦆 duck say ⮞ i prefer duckiez bookmarkz
         DisableTelemetry = true; # 🦆 duck say ⮞ eeeehh...
         DisablePocket = true; # 🦆 duck say ⮞ Pocket & Bucket - who namez theze stuffz..?
-        DisableFirefoxAccounts = true; 
+        DisableFirefoxAccounts = true;
         DisableAccounts = true;
-       
-# 🦆 duck say ⮞ BOOKMARKS ==============================#       
+
+# 🦆 duck say ⮞ BOOKMARKS ==============================#
         Bookmarks =  lib.mkMerge [
           (lib.mkIf (builtins.pathExists generatedBookmarks) {
             __content = builtins.fromJSON (builtins.readFile generatedBookmarks);
@@ -396,7 +396,7 @@ in {
           }
         ];
 
-# 🦆 duck say ⮞ AddOns - Extensions =====================#       
+# 🦆 duck say ⮞ AddOns - Extensions =====================#
         ExtensionSettings = {
           "*".installation_mode = "blocked"; # blocks all addons except the ones specified below
           # 🦆 duck say ⮞ Super Dark Mode
@@ -424,22 +424,22 @@ in {
           "keepasshttp-connector@addons.brandt.tech" = {
             install_url = "https://addons.mozilla.org/firefox/downloads/file/4273043/keepasshttp_connector-1.0.12resigned1.xpi";
             installation_mode = "force_installed";
-          };      
+          };
         };
       };
     };
 
 # 🦆 duck say ⮞ SEARCH ENGINES ==========
-    # 🦆 duck say ⮞ Create profile.ini 
+    # 🦆 duck say ⮞ Create profile.ini
     systemd.services.firefox-profile = {
       wantedBy = [ "default.target" ];
-      serviceConfig = {   
+      serviceConfig = {
         Type = "oneshot";
         User = config.this.user.me.name;
         ExecStart = let
           script = pkgs.writeShellScriptBin "firefox-init" ''
             mkdir -p "${firefoxProfileDir}/chrome"
-        
+
             cat > "${firefoxProfileDir}/../profiles.ini" <<EOF
 [Profile0]
 Name=default
@@ -451,27 +451,27 @@ Default=1
 StartWithLastProfile=1
 Version=2
 EOF
-        
+
             # 🦆 duck say ⮞ Compress search.json to mozlz4 format
             echo '${searchJson}' | ${pkgs.mozlz4a}/bin/mozlz4a - > "${firefoxProfileDir}/search.json.mozlz4"
-        
-# 🦆 duck say ⮞ USERCHROME.CSS STYLE =====================#        
+
+# 🦆 duck say ⮞ USERCHROME.CSS STYLE =====================#
             # 🦆 duck say ⮞ Create userChrome.css
             cat > "${firefoxProfileDir}/chrome/userChrome.css" <<EOF
             ${themeCSS}
             EOF
-        
+
             # 🦆 duck say ⮞ Merge generated bookmarks
             echo "Linking generated bookmarks..."
             ln -sf ${generatedBookmarks} ${firefoxProfileDir}/generated-bookmarks.nix
-        
+
             # 🦆 duck say ⮞ Seed initial backup if none exists
             if [ ! -d "${backupPath}" ] || [ -z "$(ls -A "${backupPath}")" ]; then
               mkdir -p "${backupPath}"
               echo '${builtins.toJSON defaultBookmarks}' | ${pkgs.mozlz4a}/bin/mozlz4a - > \
                 "${backupPath}/bookmarks-$(date +%s).jsonlz4"
-            fi      
-        
+            fi
+
             chown -R ${config.this.user.me.name}:users "/home/${config.this.user.me.name}/.mozilla"
             chmod 700 "${firefoxProfileDir}"
             chmod 600 "${firefoxProfileDir}/../profiles.ini"
@@ -479,15 +479,15 @@ EOF
         in "${script}/bin/firefox-init";
       };
     };
-    
+
     # 🦆 duck say ⮞ dependencies
     environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr pkgs.python312Packages.lz4 ];
-    environment.sessionVariables = { MOZ_USE_XINPUT2 = "1"; };    
-    
+    environment.sessionVariables = { MOZ_USE_XINPUT2 = "1"; };
+
     # 🦆 duck say ⮞ Allow access to Firefox backup directory
     nix.settings.allowed-uris = [
       "file://${config.users.users.${config.this.user.me.name}.home}/.mozilla"
     ];
   };} # 🦆 duck say ⮞ dat'z it, yo!
-# 🦆 duck say ⮞ dat wasn't so bad, huh?  
+# 🦆 duck say ⮞ dat wasn't so bad, huh?
 # 🦆 duck say ⮞ catch u laterz, aligatorz!

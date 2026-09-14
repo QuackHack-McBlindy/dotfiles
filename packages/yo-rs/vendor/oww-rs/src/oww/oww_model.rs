@@ -98,7 +98,7 @@ impl OwwModel {
     pub fn new(model_type: SpeechUnlockType, threshold: f32) -> Result<OwwModel, String> {
         let model_data = match model_type {
             SpeechUnlockType::OpenWakeWordAlexa => &crate::oww::oww_model::SpeechModels::get("alexa.onnx").unwrap().data,
-            
+
             SpeechUnlockType::Custom(_) => unreachable!("Use OwwModel::from_path for custom models"),
         };
 
@@ -146,7 +146,7 @@ impl OwwModel {
             model_unlock_word: "Custom".to_string(),
         })
     }
-    
+
     // 🦆 ⮞ load a wake word model from an in‑memory byte slice
     pub fn from_bytes(model_bytes: &[u8], threshold: f32) -> Result<Self, String> {
         let detections_buffer = CircularBuffer::<DETECTION_BUFFER_SIZE, f32>::new();

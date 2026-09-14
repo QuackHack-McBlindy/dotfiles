@@ -579,7 +579,7 @@ fn generate_yo_wrapper(bin_dir: &Path, scripts: &HashMap<String, Script>) -> Str
     content.push_str("| Command Syntax               | Aliases    | Description |\n");
     content.push_str("|------------------------------|------------|-------------|\n");
 
-    // build table rows 
+    // build table rows
     for (name, script) in scripts {
         if !script.visible_in_readme {
             continue;

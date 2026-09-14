@@ -23,13 +23,13 @@ def get_disk_temperature(disk: str):
                                   stderr=subprocess.PIPE,
                                   text=True,
                                   timeout=5)
-            
+
             if result.returncode != 0:
                 return "failed"
-            
+
             match = re.search(r'Temperature Sensor 1\s*:\s*(\d+)\s*°C', result.stdout)
             return f"{match.group(1)}°C" if match else "N/A"
-        
+
         else:
             cmd = ['sudo', 'smartctl', '-a', disk]
             result = subprocess.run(cmd,
@@ -37,16 +37,16 @@ def get_disk_temperature(disk: str):
                                   stderr=subprocess.PIPE,
                                   text=True,
                                   timeout=5)
-            
+
             if result.returncode != 0:
                 return "failed"
-            
+
             for line in result.stdout.split('\n'):
                 if 'Temperature_Celsius' in line:
                     parts = line.split()
                     return f"{parts[9]}°C" if len(parts) >= 10 else "N/A"
             return "N/A"
-            
+
     except Exception as e:
         logger.error(f"Temperature error: {str(e)}")
         return "failed"
@@ -71,7 +71,7 @@ def get_system_stats():
 
     disk_temp_cache = {}
     partitions = psutil.disk_partitions()
-    
+
     lsblk_output = subprocess.check_output(
         ['lsblk', '-d', '-n', '-o', 'NAME'],
         text=True
@@ -85,13 +85,13 @@ def get_system_stats():
     for partition in partitions:
         try:
             stats["disk_usage"][partition.device] = f"{psutil.disk_usage(partition.mountpoint).percent}%"
-            
+
             real_device = os.path.realpath(partition.device)
             parent = subprocess.check_output(
                 ['lsblk', '-no', 'pkname', real_device],
                 text=True
             ).strip()
-            
+
             if parent:
                 parent_disk = f"/dev/{parent}"
                 if parent_disk not in shown_disks:

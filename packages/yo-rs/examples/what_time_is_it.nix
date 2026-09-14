@@ -1,6 +1,6 @@
 # dotfiles/packages/yo-rs/examples/what_time_is_it.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { # 🦆 says ⮞ simple example of a yo script with TTS
-  self,# 🦆 ⮞ & defined sentences (for shell translation) 
+  self,# 🦆 ⮞ & defined sentences (for shell translation)
   lib,
   config,
   pkgs,
@@ -39,5 +39,5 @@ in {
         "what (time|day|week|date) is it [now|today]"
       ];
     };
-    
+
   };}

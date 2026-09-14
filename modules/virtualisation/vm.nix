@@ -4,7 +4,7 @@
   lib,
   pkgs,
   ...
-} : let 
+} : let
   user = config.this.user.me.name;
 in {
     config = lib.mkIf (lib.elem "vm" config.this.host.modules.virtualisation) {
@@ -35,5 +35,5 @@ in {
             spiceUSBRedirection.enable = true;
         };
         services.spice-vdagentd.enable = true;
-        
+
     };}

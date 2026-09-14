@@ -16,10 +16,10 @@ in {
                 pkgs.gnome-terminal
                 pkgs.gnome-tweaks
                 pkgs.nixos-icons
-                pkgs.gnome-screenshot    
+                pkgs.gnome-screenshot
                 pkgs.gnome-shell
-                pkgs.gnome-system-monitor 
-    
+                pkgs.gnome-system-monitor
+
                 pkgs.gnomeExtensions.rclone-manager
                 gnomeExtensions.gsconnect
                 pkgs.gnomeExtensions.docker
@@ -33,7 +33,7 @@ in {
                 pkgs.gnomeExtensions.todotxt
                 pkgs.gnomeExtensions.space-bar
                 pkgs.gnomeExtensions.vitals
-                pkgs.gnomeExtensions.appindicator 
+                pkgs.gnomeExtensions.appindicator
                 pkgs.gnomeExtensions.systemd-manager
                 pkgs.dconf2nix # dconf2nix -i dconf.settings -o output/dconf.nix
                 pkgs.dconf-editor
@@ -47,7 +47,7 @@ in {
             services.udev.packages = [ pkgs.gnome-settings-daemon ];
             services.gnome.at-spi2-core.enable = true;
 
-            environment.gnome.excludePackages = 
+            environment.gnome.excludePackages =
                 (with pkgs; [
                     gnome-tour
                     gnome-maps
@@ -71,8 +71,8 @@ in {
                     pkgs.yelp
                     pkgs.gnome-clocks
                     pkgs.gnome-contacts
-                ]);   
-        
+                ]);
+
 #            services.xserver.desktopManager.gnome.extraGSettingsOverrides = ''
 #                [org.gnome.desktop.background]
 #                picture-uri='file://${cfg.background}'
@@ -95,18 +95,18 @@ in {
                 enable = true;
                 user = config.this.user.me.name;
             };
-        
+
             fonts = {
                 enableDefaultFonts = true;
                 fontDir.enable = true;
                 packages = builtins.filter lib.attrsets.isDerivation (builtins.attrValues pkgs.nerd-fonts);
-                fonts = with pkgs; [          
+                fonts = with pkgs; [
                     fira-mono
                     libertine
                     open-sans
                     twemoji-color-font
                     liberation_ttf
-                    font-awesome 
+                    font-awesome
                     jetbrains-mono
                 ];
 
@@ -120,15 +120,15 @@ in {
                         emoji = [ "Twitter Color Emoji" ];
                     };
                 };
-            };  
-   
-   
+            };
+
+
             programs.dconf.enable = true;
             programs.dconf.profiles.user.databases = [{
               settings = {
                 "org/gnome/desktop/a11y/applications" = {
                   # 🦆 says⮞ THANKZ!
-                  screen-magnifier-enabled = lib.gvariant.mkBoolean true; 
+                  screen-magnifier-enabled = lib.gvariant.mkBoolean true;
                   screen-reader-enabled = lib.gvariant.mkBoolean false;
                 };
 
@@ -391,13 +391,13 @@ in {
                 };
               };
             }];
-    
+
         })
 
-        
+
         (lib.mkIf (config.this.host.hostname == "desktop") {
-          environment.systemPackages = with pkgs; [ 
-            dconf 
+          environment.systemPackages = with pkgs; [
+            dconf
             procps # Required for pgrep
           ];
           programs.dconf.enable = true;
@@ -420,31 +420,31 @@ in {
                   keyboard-brightness-up = ["<Primary>KP_Add"];
                   keyboard-brightness-down = ["<Primary>KP_Subtract"];
                 };
-        
+
                 "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom1" = {
                   name = "terminal";
                   command = "bash -c 'if ! pgrep gnome-terminal-server >/dev/null; then gnome-terminal; else gnome-terminal --tab; fi'";
                   binding = "section";
                 };
-        
+
                 "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2" = {
                   name = "Gedit New Window";
                   command = "/etc/profiles/per-user/pungkula/bin/gedit --new-window";
                   binding = "<Primary>e";
                 };
-        
+
                 "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3" = {
                   name = "File Manager dotfiles";
                   command = "thunar /home/pungkula/dotfiles";
                   binding = "<Primary><Shift>d";
                 };
-        
+
                 "org/gnome/terminal/legacy/keybindings" = {
                   copy = ["<Primary>c"];
                   paste = ["<Primary>v"];
                   select-all = ["<Primary>a"];
                 };
-        
+
                 "org/gnome/desktop/wm/keybindings" = {
                   close = ["<Control>q"];
                   switch-applications = ["<Super>Tab" "<Alt>Tab"];
@@ -459,19 +459,19 @@ in {
                   switch-to-workspace-3 = ["<Control>3"];
                   switch-to-workspace-4 = ["<Control>4"];
                 };
-        
+
                 "org/gnome/shell/keybindings" = {
                   screenshot = ["<Shift>Print"];
                   screenshot-window = ["<Alt>Print"];
                   show-screenshot-ui = ["Print"];
                 };
-              };        
+              };
             }
           ];
         })
-        
-      
-  
+
+
+
         (lib.mkIf (config.this.host.hostname == "laptop") {
             environment.systemPackages = with pkgs; [ dconf ];
             programs.dconf.enable = true;
@@ -532,9 +532,8 @@ in {
                             screenshot-window = ["<Alt>Print"];
                             show-screenshot-ui = ["Print"];
                         };
-                    };        
+                    };
                 }
             ];
         })
-    ];} 
-
+    ];}

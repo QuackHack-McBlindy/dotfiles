@@ -20,7 +20,7 @@ from pathlib import Path
 def ensure_dotenv_exists(dotenv_path):
     if not os.path.exists(dotenv_path):
         os.makedirs(os.path.dirname(dotenv_path), exist_ok=True)
-        
+
         env_content = """YOUTUBE_API_KEY="XXXXXXXXXXXXXXXXXX"
 INTRO_URL="https://example.mydomain.org/intro.mp4"
 WEBSERVER="https://example.mydomain.org"
@@ -39,7 +39,7 @@ NEWS_API_LIST='["http://api.sr.se/api/v2/news/episodes?format=json", "http://api
 
 CORRECTIONS='{"2,5 men": "two and a half men", "2,5 m": "two and a half men", "två och en halv män": "two and a half men", "test": "House", "2 och en halv män": "two and a half men", "oss": "Oz", "lag och ordning": "Law & Order - Special Victims Unit", "law and order": "Law & Order - Special Victims Unit", "Haus": "House", "haus": "House", "bajskorv": "House", "hus": "House", "färska prinsen": "The Fresh Prince of Bel-Air (1990)", "Pokémon": "Pokémon (1997)", "löven 1": "sport 1", "löven 2": "sport 2", "löven 3": "sport 3", "löven 4": "sport 4", "löven 5": "tv4 hockey", "löven 6": "sportkanalen", "ett": "1", "två": "2", "tre": "3", "fyra": "4", "fem": "5", "sex": "6", "sju": "7", "åtta": "8", "nio": "9", "tio": "10", "elva": "11", "tolv": "12"}'
 """
-        
+
 
         with open(dotenv_path, 'w') as env_file:
             env_file.write(env_content)
@@ -70,7 +70,7 @@ YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 DEVICE_MAP = json.loads(os.getenv("DEVICE_MAP", "{}"))
 
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def is_valid_ip(address):
     """Check if the input is a valid IP address."""
     ip_pattern = re.compile(r"^\d{1,3}(\.\d{1,3}){3}$")
@@ -113,7 +113,7 @@ def adb_connect(device_ip):
     command = f"adb connect {resolved_ip}"
     logging.info(f"Executing: {command}")  # Forced logging
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    
+
     if result.returncode != 0:
         logging.error(f"Failed to connect to {resolved_ip}: {result.stderr.strip()}")
         return None
@@ -130,18 +130,18 @@ def adb_disconnect(device_ip):
     command = f"adb disconnect {resolved_ip}"
     logging.info(f"Executing: {command}")  # Forced logging
     result = subprocess.run(command, shell=True, capture_output=True, text=True)
-    
+
     if result.returncode != 0:
         logging.error(f"Failed to disconnect from {resolved_ip}: {result.stderr.strip()}")
         return None
     return result.stdout.strip()
 
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def get_current_playing(ip_address):
     try:
         command = f"timeout 1s adb -s {ip_address} logcat | grep -m 1 'Fetching media from mrl' | awk -F 'mrl: ' '{{print $2}}'"
         result = subprocess.check_output(command, shell=True, text=True).strip()
-        
+
         if result:
 
             print(parse_and_format_response(result))
@@ -199,7 +199,7 @@ def wait(seconds):
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def adb_command(device_ip, command):
     """
-    
+
     """
     result = subprocess.run(["adb", "-s", device_ip, "shell", command], capture_output=True, text=True)
     if result.returncode != 0:
@@ -214,9 +214,9 @@ def get_current_playing_song(device_ip):
         return None
     return result.stdout.strip()
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-def find_remote():   
+def find_remote():
     adb_command(device_ip, "am start -a android.intent.action.VIEW-d-n com.nvidia.remotelocator/.ShieldRemoteLocatorActivity")
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 def add_song_to_playlist(device_ip):
     song_url = get_current_playing_song(device_ip)
     if song_url:
@@ -272,7 +272,7 @@ def save_media_content_urls(media_content_urls):
         file.write(INTRO_URL + '\n')
         for url in media_content_urls:
             file.write(url + '\n')
-    
+
     print(f"Playlist saved to {PLAYLIST_SAVE_PATH}")
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 # DIFFLIB
@@ -287,14 +287,14 @@ def find_closest_directory(query, directories):
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
         temp_file.write("\n".join(directories))
         temp_file_path = temp_file.name
-    
+
     fzf_command = f'fzf --filter="{query}" < {temp_file_path}'
     result = subprocess.run(fzf_command, shell=True, stdout=subprocess.PIPE, text=True)
-    
+
     os.remove(temp_file_path)
-    
+
     closest_match = result.stdout.strip().split(os.linesep)
-    
+
     if closest_match:
         return closest_match[0]  # Return the top match
     return None
@@ -319,22 +319,22 @@ def find_closest_files(query, directory, n=5):
     for root, _, files in os.walk(directory):
         for file in files:
             all_files.append(os.path.join(root, file))
-    
+
     # Use a temporary file to store the list of files
     with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
         temp_file.write("\n".join(all_files))
         temp_file_path = temp_file.name
-    
+
     # Use fzf to filter the files based on the query, reading from the temp file
     fzf_command = f'fzf --filter="{query}" < {temp_file_path}'
     result = subprocess.run(fzf_command, shell=True, stdout=subprocess.PIPE, text=True)
-    
+
     # Clean up the temporary file
     os.remove(temp_file_path)
-    
+
     # Split the result to get the top n matches
     closest_matches = result.stdout.strip().split(os.linesep)[:n]
-    
+
     return closest_matches
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
@@ -380,7 +380,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
         media_content_urls = template_directory_path(files, "music")
         save_media_content_urls(media_content_urls)
         send_mp3playlist_call(device_ip)
-    
+
     elif type_or_entity_id == "movie":
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
 #        wait(3)
@@ -393,7 +393,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
             send_mp3playlist_call(device_ip)
         else:
             print("No matching movie found.")
-    
+
     elif type_or_entity_id == "tv":
         #adb_connect(device_ip)
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
@@ -408,7 +408,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
             send_mp3playlist_call(device_ip)
         else:
             print("No matching TV show found.")
-    
+
     elif type_or_entity_id == "music":
 #        wait(6)
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
@@ -447,7 +447,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
             send_mp3playlist_call(device_ip)
         else:
             print("No matching podcast found.")
-    
+
     elif type_or_entity_id == "musicvideo":
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
         wait(3)
@@ -460,7 +460,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
             send_mp3playlist_call(device_ip)
         else:
             print("No matching music video found.")
-    
+
     elif type_or_entity_id == "audiobooks":
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
 #        wait(3)
@@ -473,7 +473,7 @@ def play_media_content(type_or_entity_id, query_or_file, device_ip):
             send_mp3playlist_call(device_ip)
         else:
             print("No matching audiobook found.")
-    
+
     elif type_or_entity_id == "othervideos":
         adb_command(device_ip, "input keyevent KEYCODE_WAKEUP")
 #        wait(3)
@@ -559,7 +559,7 @@ if __name__ == "__main__":
         print("🚀🚀 🦆📺❗DUCK-TV❗🦆📺  🚀🚀")
         print("If isssues arise edit config file at /home/pungkula/.dotenv/tv")
         print("🦆📺 USAGE: tv <device> <search> <media type>")
-        
+
         sys.exit(1)
 
     device_ip = sys.argv[1]
@@ -576,7 +576,7 @@ if __name__ == "__main__":
         sys.exit(1)
 
     print(f"Playing playlist on device IP: {device_ip}")
-    
+
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     if type_or_entity_id == "whats":
@@ -584,66 +584,66 @@ if __name__ == "__main__":
 
     elif type_or_entity_id == "news":
         mainnews(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "livetv":
         if query_or_file in livetv_channels:
             playlist_url = livetv_channels[query_or_file]
             send_mp3playlist_call(device_ip)
         else:
             print("Live-TV channel not found.")
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "playlist":
         send_mp3playlist_call(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "add":
         add_song_to_playlist(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id in SEARCH_FOLDERS or type_or_entity_id == "song":
         adb_connect(device_ip)
         play_media_content(type_or_entity_id, query_or_file, device_ip)
         play_media_content(type_or_entity_id, query_or_file, device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "youtube":
         video_url, video_title = search_youtube(query_or_file)
         if video_url:
             print(f"Playing YouTube video: {video_title}")
             play_youtube_video(device_ip, video_url)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "play":
         call_media_play_pause_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "pause":
         call_media_play_pause_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "next":
         call_media_next_track_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "previous":
         call_media_previous_track_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "up":
         call_volume_up_service(device_ip)
         call_volume_up_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "down":
         call_volume_down_service(device_ip)
         call_volume_down_service(device_ip)
         call_volume_down_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "find":
         find_remote()
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#  
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "connect":
         adb_connect(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#          
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "disconnect":
-        adb_disconnect(device_ip)        
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#   
+        adb_disconnect(device_ip)
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "on":
         call_power_on_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     elif type_or_entity_id == "off":
         call_power_off_service(device_ip)
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#    
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
     else:
         print("Invalid command.")

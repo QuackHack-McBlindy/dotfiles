@@ -3,7 +3,7 @@
   disko.devices = {
     disk.main = {
       type = "disk";
-      device = "/dev/sda"; 
+      device = "/dev/sda";
       content = {
         type = "gpt";
         partitions = {
@@ -19,7 +19,7 @@
           };
 
           swap = {
-            size = "2G"; 
+            size = "2G";
             label = "swap";
             content = {
               type = "swap";
@@ -27,7 +27,7 @@
           };
 
           root = {
-            size = "100%"; 
+            size = "100%";
             label = "nixos";
             content = {
               type = "filesystem";
@@ -39,7 +39,7 @@
       };
     };
   };}
-  
+
 #      media1 = {
 #        type = "disk";
 #        device = "/dev/disk/by-label/media1";

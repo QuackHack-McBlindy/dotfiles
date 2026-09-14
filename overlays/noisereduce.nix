@@ -5,7 +5,7 @@ let
 in {
   python3 = python3.override {
     packageOverrides = pySelf: pySuper: {
-      
+
       # NOISEREDUCE
       noisereduce = pySuper.buildPythonPackage rec {
         pname = "noisereduce";
@@ -17,7 +17,7 @@ in {
           sha256 = "ff64a28fb92e3c81f153cf29550e5c2db56b2523afa8f56f5e03c177cc5e918f";
         };
 
-        nativeBuildInputs = with pySuper; [ setuptools ]; 
+        nativeBuildInputs = with pySuper; [ setuptools ];
         propagatedBuildInputs = with pySuper; [ numpy matplotlib scipy librosa tqdm ];
 
         meta = {
@@ -28,6 +28,5 @@ in {
         doCheck = false;
       };
     };
-    
-  };}
 
+  };}

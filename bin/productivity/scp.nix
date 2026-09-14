@@ -6,12 +6,12 @@
       description = "Move files between hosts interactively";
       category = "⚡ Productivity";
       aliases = [ ];
-      parameters = [ 
-        { name = "host"; description = "Hostname of the machine to download from"; optional = false; } 
-        { name = "path"; description = "Directory/file path to download"; optional = true; default = config.this.user.me.dotfilesDir; } 
-        { name = "username"; description = "Username to download from"; optional = true; default = config.this.user.me.name; } 
-        { name = "downloadPath"; description = "Local directory path to save the downloads"; optional = false; default = "/home/pungkula/scp"; } 
-             
+      parameters = [
+        { name = "host"; description = "Hostname of the machine to download from"; optional = false; }
+        { name = "path"; description = "Directory/file path to download"; optional = true; default = config.this.user.me.dotfilesDir; }
+        { name = "username"; description = "Username to download from"; optional = true; default = config.this.user.me.name; }
+        { name = "downloadPath"; description = "Local directory path to save the downloads"; optional = false; default = "/home/pungkula/scp"; }
+
       ];
       code = ''
         ${cmdHelpers}
@@ -76,7 +76,7 @@
             fi
         }
         navigate_directory "~"
-          
+
       '';
     };
   };}

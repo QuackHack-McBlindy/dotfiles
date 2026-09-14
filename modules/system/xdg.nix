@@ -16,10 +16,10 @@
                 };
             };
         };
-        
+
         xdg.mime.enable = true;
-  
-        # 🦆 says⮞ Added Associations 
+
+        # 🦆 says⮞ Added Associations
         xdg.mime.addedAssociations = {
             "text/plain" = "org.gnome.TextEditor.desktop";
             "x-scheme-handler/http" = "firefox-esr.desktop";
@@ -43,12 +43,12 @@
                 "com.github.maoschanz.drawing.desktop"
             ];
         };
-  
+
         xdg.mime.removedAssociations = { };
-  
+
         # 🦆 says⮞ Default Applications
         xdg.mime.defaultApplications = {
-            "x-scheme-handler/terminal" = "ghostty.desktop"; 
+            "x-scheme-handler/terminal" = "ghostty.desktop";
             "application/illustrator" = "org.gnome.Evince.desktop";
             "application/mxf" = "mpv.desktop";
             "application/ogg" = "mpv.desktop";
@@ -257,6 +257,6 @@
             "application/x-trash" = "org.gnome.TextEditor.desktop";
             "application/vnd.ms-publisher" = "org.gnome.TextEditor.desktop";
             "application/octet-stream" = "org.gnome.TextEditor.desktop";
-        };  
-        
+        };
+
     };}

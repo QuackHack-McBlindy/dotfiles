@@ -1,13 +1,13 @@
 # dotfiles/bin/maintenance/health.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 { self, config, pkgs, cmdHelpers, ... }:
-{  
+{
   yo.scripts.dev = {
     description = "Start development enviorment";
     category = "🖥️ System Management";
 #    aliases = [ "" ];
     parameters = [
       { name = "devShell"; description = "Development enviorment to open"; optional = false; default = "python"; }
-      { name = "list"; description = "List all dev shells"; optional = true; type = "bool"; }      
+      { name = "list"; description = "List all dev shells"; optional = true; type = "bool"; }
     ];
     code = ''
       ${cmdHelpers}
@@ -87,4 +87,3 @@ EOF
 
 
   };}
-     

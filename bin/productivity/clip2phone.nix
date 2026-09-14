@@ -7,10 +7,10 @@
   cmdHelpers,
   ...
 } : let
-in {  
+in {
   # 🦆 says ⮞ port for stop url
   networking.firewall.allowedTCPPorts = [ 9876 ];
-  
+
   yo.scripts.clip2phone = {
     description = "Send clipboard to an iPhone, for quick copy paste";
     category = "⚡ Productivity";
@@ -18,7 +18,7 @@ in {
     logLevel = "INFO";
     parameters = [
       { name = "copy"; description = "Value to send to phone clipboard"; optional = false; }
-    ];  
+    ];
     code = ''
       ${cmdHelpers}
       COPY=$copy

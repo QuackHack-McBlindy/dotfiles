@@ -1,5 +1,5 @@
 # dotfiles/bin/productivity/release.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   self,
   config,
   pkgs,
@@ -12,12 +12,12 @@
         description = "Bumps project version & commit, tag, and push to Git.";
         category = "⚡ Productivity";
         parameters = [
-          { name = "confirm"; description = "Rquire confirmation"; optional = false; default = true; type = "bool"; } 
+          { name = "confirm"; description = "Rquire confirmation"; optional = false; default = true; type = "bool"; }
         ];
         code = ''
           ${cmdHelpers}
           CONFIRM="$confirm"
-          
+
           # get info from /.git.
           # ...
 
@@ -102,9 +102,9 @@
 #git push origin main --tags
 
 #echo "Released version $new_version"
-          
+
           # if $CONFIRM == true prompt user for confirmation
-              
+
           # 🦆 says ⮞ success message displaying version
 #          echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
 #          echo -e "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
@@ -114,5 +114,5 @@
         '';
       };
     };
-    
+
   };}

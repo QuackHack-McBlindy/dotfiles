@@ -10,7 +10,7 @@
             nixpkgs.config.packageOverrides = pkgs: {
               vaapiIntel = pkgs.vaapiIntel.override { enableHybridCodec = true; };
             };
-            
+
             hardware = {
               cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
               opengl = {
@@ -26,6 +26,6 @@
                   # intel-media-sdk # QSV up to 11th gen
                 ];
             };
-           
-        };}) 
+
+        };})
     ];}

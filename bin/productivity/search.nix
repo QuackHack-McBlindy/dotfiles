@@ -7,8 +7,8 @@
   cmdHelpers,
   ...
 } : let
-in {  
-  yo = {   
+in {
+  yo = {
     scripts = {
       search = {
         description = "Perform web search using Kagi with Quick Answer";
@@ -56,5 +56,5 @@ in {
       group = config.this.user.me.name;
       mode = "0440";
     };
-    
+
   };}

@@ -18,20 +18,20 @@ let
   englishNumber = n: builtins.elemAt englishNumbers n;
   hoursValues = builtins.map (n: toString n) (lib.range 1 12);
   minutesValues = builtins.map (n: toString n) (lib.range 0 59);
-   
+
 in {
 
   yo.scripts.alarm = {
     description = "Control user alarms.";
     category = "Home Automation";
     logLevel = "INFO";
-    parameters = [   
-      { name = "hours"; type = "int"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; values = hoursValues;  }     
+    parameters = [
+      { name = "hours"; type = "int"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; values = hoursValues;  }
       { name = "minutes"; type = "int"; description = "Clock to sewt the alarm for, MM format"; optional = false; values = minutesValues; }
-      { name = "ampm"; description = "AM or PM"; optional = false; values = [ "am" "pm" ]; }      
-      { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }      
+      { name = "ampm"; description = "AM or PM"; optional = false; values = [ "am" "pm" ]; }
+      { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }
     ];
-    
+
     code = ''
       if [ "$list" = "true" ] || [ "$list" = "1" ]; then
         zigduck-cli alarm list
@@ -56,16 +56,16 @@ in {
       fi
 
       name="alarm-$hours-$minutes"
-      zigduck-cli alarm add --hours "$hours" --minutes "$minutes" --name "$name"    
+      zigduck-cli alarm add --hours "$hours" --minutes "$minutes" --name "$name"
     '';
     voice = {
       priority = 1;
       fuzzy = {
         enable = true;
         threshold = 0.4;
-      };  
+      };
     };
-  };  
+  };
 
   yo.scripts.alarm.voice.sentences = [
     # wake-up alarm commands

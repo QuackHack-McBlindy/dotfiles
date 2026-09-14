@@ -9,21 +9,21 @@
     inherit program;
     type = "app";
   };
-  
+
   # 🦆 says ⮞ big thing dat make flakes small
   makeFlakeInternal = { # 🦆 sayz ⮞ give it - and you shall receive!
-    systems, 
-    hosts ? {}, 
-    modules ? [], 
-    overlays ? [], 
-    packages ? {}, 
-    apps ? {}, 
-    devShells ? {}, 
-    ... 
+    systems,
+    hosts ? {},
+    modules ? [],
+    overlays ? [],
+    packages ? {},
+    apps ? {},
+    devShells ? {},
+    ...
   } @ flake: # 🦆 say ⮞ thx
     let
       # 🦆 say ⮞ first we load all da machines by mapping hosts directory
-      hosts = dirMap.mapHosts ../hosts;        
+      hosts = dirMap.mapHosts ../hosts;
 
       # 🦆 say⮞helper dat init nixpkgs with system and overlays - allowing unfree
       makePkgs = system: pkgs: overlays: import pkgs {
@@ -52,7 +52,7 @@
               modules = lib.filterAttrs (_: v: v ? nixosModules) inputs;
             };
           };
-          modules = 
+          modules =
             lib.optionals (isMobileHost hostConfig) [
               { # 🦆 says ⮞ mobile has it's own nixpkgs
                 nix.nixPath = [
@@ -74,13 +74,13 @@
             ];
         }
       ) hosts;
-      
+
       # 🦆 duck say ⮞ for each system build packages, apps & devShells
       perSystem = system: let # 🦆 duck say ⮞ init dis system with nixpkgs & overlays
-        pkgs = makePkgs system inputs.nixpkgs flake.overlays; 
+        pkgs = makePkgs system inputs.nixpkgs flake.overlays;
       in {
         # 🦆 duck say ⮞ build packages calling nixpkgs.callPackage on each package
-        packages = lib.mapAttrs (_: v: 
+        packages = lib.mapAttrs (_: v:
           (makePkgs system inputs.nixpkgs flake.overlays).callPackage v {
             inherit self;
             lib = inputs.nixpkgs.lib.extend (final: prev: {
@@ -88,7 +88,7 @@
             });
           }
         ) packages;
-        
+
         # 🦆 duck say ⮞ apply makeApp to da apps
         apps = lib.mapAttrs (_: v:
           let
@@ -99,7 +99,7 @@
         # 🦆 duck say ⮞ build devShells for dis system
         devShells = lib.mapAttrs (name: v:
           let
-            shellArgs = v { 
+            shellArgs = v {
               inherit pkgs system self inputs;
             };
             # 🦆 duck say ⮞ sanitize arguments for mkShell
@@ -119,17 +119,25 @@
               '';
             })
         ) devShells;
-      };      
-    in { 
+      };
+    in {
       # 🦆 duck say ⮞ export nixosConfigurations to Nix
       inherit nixosConfigurations;
-      
-      # 🦆 duck say ⮞ build per system packages, apps & devShells attributes  
+
+      # 🦆 duck say ⮞ build per system packages, apps & devShells attributes
       packages = lib.genAttrs systems (system:
         lib.filterAttrs (_: pkg: pkg != null) (perSystem system).packages
       );
       apps = lib.genAttrs systems (system: (perSystem system).apps);
-      devShells = lib.genAttrs systems (system: (perSystem system).devShells);
+
+      # 🦆 duck say ⮞ build devShells for dis system
+      devShells = lib.genAttrs systems (system:
+        let shells = (perSystem system).devShells;
+        in shells // {
+          default = shells.simple or shells.${lib.head (lib.attrNames shells)};
+        }
+      );
+
       # 🦆 duck say ⮞ show overlays in nix flake show
       overlays = lib.mapAttrs'
         (name: _: lib.nameValuePair (lib.removeSuffix ".nix" name)
@@ -139,6 +147,5 @@
     };
 in { # 🦆 says ⮞ expose makeApp & makeFlake for use in flake
   inherit makeApp;
-  makeFlake = args: makeFlakeInternal args;  
+  makeFlake = args: makeFlakeInternal args;
   } # 🦆 says ⮞ da end
-

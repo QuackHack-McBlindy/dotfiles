@@ -139,7 +139,7 @@ const DEFAULT_WAKE_MODEL: &[u8] = include_bytes!("./../models/wake-words/yo_bitc
 const ESP_SILENCE_THRESHOLD: f32 = 0.005;
 const ESP_SILENCE_TIMEOUT_SECS: f64 = 1.2;
 const ESP_MAX_DURATION_SECS: f64 = 5.0;
-const COOLDOWN_SECS: f64 = 10.0;  
+const COOLDOWN_SECS: f64 = 10.0;
 
 fn reset_wake_model(model: &mut OwwModel, chunks_to_flush: usize) {
     let zero_chunk = vec![0.0; OWW_MODEL_CHUNK_SIZE];
@@ -164,7 +164,7 @@ fn handle_client(
     exec_command: Option<String>,
     translate_to_shell: bool,
     room: String,
-) -> Result<()> {  
+) -> Result<()> {
     let mut last_detection: Option<Instant> = None;
 
     loop {
@@ -275,7 +275,7 @@ fn handle_client(
                 }
             };
 
-            
+
             let perf_start = if debug { Some(Instant::now()) } else { None };
 
             // 🦆 says ⮞ Transcribe
@@ -283,9 +283,9 @@ fn handle_client(
                 SamplingStrategy::BeamSearch { beam_size, patience: 1.0 }
             // 🦆 says ⮞ beam_size == 0 -> greedy decoding with best_of = 1
             } else { SamplingStrategy::Greedy { best_of: 1 } };
-            
+
             let mut whisper_params = FullParams::new(sampling_strategy);
- 
+
             whisper_params.set_n_threads(threads);
             whisper_params.set_translate(false);
             whisper_params.set_language(language.as_deref());
@@ -308,7 +308,7 @@ fn handle_client(
                     let segment = state.full_get_segment_text(i as i32)?;
                     transcription.push_str(&segment);
                 }
-                dt_info!("[{}] Transcription: {}", client_id, transcription);                
+                dt_info!("[{}] Transcription: {}", client_id, transcription);
 
                 // 🦆 says ⮞ if --debug
                 if debug { // 🦆 says ⮞ print transcription timer
@@ -323,7 +323,7 @@ fn handle_client(
 
                 // 🦆 says ⮞ translate transcribed text to shell command and execute
                 let mut command_succeeded = false;
-                
+
                 if translate_to_shell {
                     if normalized.is_empty() {
                         if debug { dt_error!("[{}] Normalized text is empty, nothing to translate.", client_id); }
@@ -333,7 +333,7 @@ fn handle_client(
                         if !room.is_empty() { cmd.arg("--room").arg(&room); }
                         cmd.arg(&normalized).env("VOICE_MODE", "1");
                         let status = cmd.status();
-                
+
                         match status {
                             Ok(status) => {
                                 if status.success() {
@@ -348,7 +348,7 @@ fn handle_client(
                         }
                     }
                 }
-                
+
                 if let Some(ref cmd_str) = exec_command {
                     if !translate_to_shell {
                         if normalized.is_empty() {
@@ -360,7 +360,7 @@ fn handle_client(
                                 for arg in parts { command.arg(arg); }
                                 command.arg(&normalized);
                                 command.env("VOICE_MODE", "1");
-                
+
                                 match command.status() {
                                     Ok(status) => {
                                         if status.success() {
@@ -376,9 +376,9 @@ fn handle_client(
                         }
                     }
                 }
-                
+
                 // 🦆 says ⮞ Play done sound locally on success
-                if command_succeeded { play_done_sound(done_sound_data.clone(), client_id.clone(), debug); }                
+                if command_succeeded { play_done_sound(done_sound_data.clone(), client_id.clone(), debug); }
                 // send to client
                 // 0x03 = WIN 🎉 0x04 = FAIL! 💩
                 let notification_byte = if command_succeeded { 0x03 } else { 0x04 };
@@ -388,9 +388,9 @@ fn handle_client(
                 if let Err(e) = stream.flush() {
                     dt_error!("[{}] Failed to flush after notification: {}", client_id, e);
                 }
-                
 
-                // 🦆 says ⮞ if no exec command, do nothing                 
+
+                // 🦆 says ⮞ if no exec command, do nothing
             }
             last_detection = Some(Instant::now());
         } else if debug && detection.probability > 0.0 {
@@ -772,7 +772,7 @@ fn main() -> Result<()> {
 
     let args: Vec<String> = env::args().collect();
 
-    // 🦆 says ⮞ --help ? 
+    // 🦆 says ⮞ --help ?
     if args.len() > 1 && (args[1] == "--help" || args[1] == "-h") {
         print_usage(&args[0]);
         return Ok(());
@@ -784,7 +784,7 @@ fn main() -> Result<()> {
     let mut sound_path: Option<String> = None;
     let mut done_sound_path: Option<String> = None;
     let mut wake_word_path = String::new();
-    let mut custom_wake_word_provided = false;  
+    let mut custom_wake_word_provided = false;
     let mut threshold = 0.5;
     let mut whisper_model_path = "./models/stt/ggml-tiny.bin".to_string();
     let mut cooldown_secs = 10;
@@ -891,7 +891,7 @@ fn main() -> Result<()> {
                     dt_error!("Missing value for --cooldown");
                     std::process::exit(1);
                 }
-            }       
+            }
             "--temperature" => {
                 if i + 1 < args.len() {
                     temperature = args[i + 1].parse().unwrap_or_else(|_| {
@@ -972,7 +972,7 @@ fn main() -> Result<()> {
         }
     } else {
         DONE_WAV.to_vec()
-    };    
+    };
     // awake sound
     let sound_data = if let Some(ref path) = sound_path {
         match std::fs::read(&path) {
@@ -988,7 +988,7 @@ fn main() -> Result<()> {
     } else { DING_WAV.to_vec() };
 
     let listener = TcpListener::bind(&host)?;
-    
+
     // 🦆 says ⮞ Print current settings
     let done_sound_display = done_sound_path.as_deref().unwrap_or("done.wav (embedded)");
     let awake_sound_display = sound_path.as_deref().unwrap_or("ding.wav (embedded)");
@@ -1004,12 +1004,12 @@ fn main() -> Result<()> {
       Wake word:      {}
       Threshold:      {}
       Whisper model:  {}
-      TTS model:      {} 
+      TTS model:      {}
       Temperature:    {}
       Language:       {}
       Threads:        {}
       Awake sound:    {}
-      Done sound:     {}   
+      Done sound:     {}
       Exec command:   {}
       Translate to shell: {}"#,
         host,
@@ -1028,9 +1028,9 @@ fn main() -> Result<()> {
     );
 
     let whisper_ctx = Arc::new(WhisperContext::new(&whisper_model_path)?);
-  
-    let client_registry = Arc::new(Mutex::new(ClientRegistry::new()));  
-  
+
+    let client_registry = Arc::new(Mutex::new(ClientRegistry::new()));
+
     for stream in listener.incoming() {
         match stream {
             Ok(mut stream) => {
@@ -1038,7 +1038,7 @@ fn main() -> Result<()> {
                     Ok(addr) => addr.to_string(),
                     Err(_) => "unknown".to_string(),
                 };
-    
+
                 // 🦆 says ⮞ get room by client
                 let room_len = match stream.read_u32::<LittleEndian>() {
                     Ok(len) => len as usize,
@@ -1058,7 +1058,7 @@ fn main() -> Result<()> {
                 } else {
                     String::new()
                 };
-    
+
                 // 🦆 says ⮞ create client id
                 let client_id = if room.is_empty() {
                     format!("client @ {}", peer_addr)
@@ -1080,7 +1080,7 @@ fn main() -> Result<()> {
                 let sound_data = sound_data.clone();
                 let done_sound_data = done_sound_data.clone();
                 let exec_command = exec_command.clone();
-    
+
                 let wake_model = if custom_wake_word_provided {
                     match OwwModel::from_path(&wake_word_path, threshold) {
                         Ok(m) => m,
@@ -1098,7 +1098,7 @@ fn main() -> Result<()> {
                         }
                     }
                 };
-    
+
                 let whisper_ctx = Arc::clone(&whisper_ctx);
                 let language = language.clone();
 
@@ -1140,12 +1140,12 @@ fn main() -> Result<()> {
                             room,
                         )
                     };
-                    
+
                     { // unreg client
                         let mut reg = registry_clone.lock().unwrap();
                         reg.remove(&client_id_clone, &peer_addr_clone);
-                    }          
-                    
+                    }
+
                     if let Err(e) = result {
                         dt_error!("Error in client handler: {}", e);
                     }
@@ -1153,6 +1153,6 @@ fn main() -> Result<()> {
             }
             Err(e) => dt_error!("❌ 🚫 Connection failed: {}", e),
         }
-    }    
+    }
     Ok(())
 }

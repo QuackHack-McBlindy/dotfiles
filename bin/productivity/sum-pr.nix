@@ -1,5 +1,5 @@
 # dotfiles/bin/productivity/pr.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   self,
   config,
   pkgs,
@@ -16,11 +16,14 @@
           prompt_file="/home/pungkula/sum_pr.txt"
           change_log="./CHANGELOG.md"
 
-          if git diff --quiet; then
-              diff=$(git diff --cached --color=never)
-          else
-              diff=$(git diff --color=never)
+          branch=$(git branch --show-current)
+
+          if [ -z "$branch" ]; then
+              echo "Not on a branch." >&2
+              exit 1
           fi
+
+          diff=$(git diff "origin/main...origin/$branch" --color=never)
 
           {
             cat "$prompt_file"
@@ -32,5 +35,5 @@
         '';
       };
     };
-    
+
   };}

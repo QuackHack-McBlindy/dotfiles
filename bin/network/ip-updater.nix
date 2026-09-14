@@ -1,11 +1,11 @@
 # dotfiles/bin/network/ip-updater.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
-  self, 
-  lib, 
+{
+  self,
+  lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
+  ...
 } : let
 
 in {
@@ -17,14 +17,14 @@ in {
 #    autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    aliases = [ "zigb" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!
-#    helpFooter = '' 
+#    helpFooter = ''
 ## ──────⋆⋅☆⋅⋆────── ##
 #    '';
     logLevel = "INFO";
     parameters = [ # 🦆 says ⮞ set your mosquitto user & password
       { name = "token1"; description = "API token file"; optional = false; default = config.sops.secrets.duckdnsEnv-gh-quackhack.path; }
       { name = "token2"; description = "API token file"; optional = false; default = config.sops.secrets.duckdnsEnv-gh-pungkula.path; }
-      { name = "token3"; description = "API token file"; optional = false; default = config.sops.secrets.duckdnsEnv-x.path; }                  
+      { name = "token3"; description = "API token file"; optional = false; default = config.sops.secrets.duckdnsEnv-x.path; }
     ]; # 🦆 says ⮞ Script entrypoint yo
     code = ''
       ${cmdHelpers}
@@ -55,8 +55,8 @@ in {
 
       update_duckdns "$duckdns1domains" "$duckdns1Token" "$ip_var"
       update_duckdns "$duckdns2domains" "$duckdns2Token" "$ip_var"
-      update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"  
-    '';    
+      update_duckdns "$duckdns3domains" "$duckdns3Token" "$ip_var"
+    '';
     voice = {
       priority = 5;
       sentences = [
@@ -64,7 +64,7 @@ in {
         "uppdatera [mitt] [duck]dns ip"
       ];
     };
-  };  
+  };
   sops.secrets = {
     duckdnsEnv-x = {
       sopsFile = ./../../secrets/duckdnsEnv-x.yaml;
@@ -84,5 +84,5 @@ in {
       group = config.this.user.me.name;
       mode = "0660";
     };
-    
+
   };}

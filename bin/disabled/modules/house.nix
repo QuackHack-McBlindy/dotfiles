@@ -1,12 +1,12 @@
 # dotfiles/modules/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ here we define options that help us control our house yo 
+{ # 🦆 says ⮞ here we define options that help us control our house yo
   self,
   config,
   lib,
   pkgs,
   ...
 } : let
-  inherit (lib) types mkOption mkEnableOption mkMerge;  
+  inherit (lib) types mkOption mkEnableOption mkMerge;
   format = pkgs.formats.yaml { };
   configFile = format.generate "zigbee2mqtt.yaml" config.house.zigbee.settings;
 
@@ -23,7 +23,7 @@
     # 🦆 duck say ⮞ diis need explaination?!
     say_duck() {
       echo -e "\e[3m\e[38;2;0;150;150m🦆 duck say \e[1m\e[38;2;255;255;0m⮞\e[0m\e[3m\e[38;2;0;150;150m $1\e[0m"
-    }  
+    }
     # 🦆 says ⮞ publish Mosquitto msgz
     mqtt_pub() {
       ${pkgs.mosquitto}/bin/mosquitto_pub -h "$MQTT_BROKER" -u "$MQTT_USER" -P "$MQTT_PASSWORD" "$@"
@@ -90,41 +90,41 @@
         IFS=':' read -r min_range max_range <<< "''${color_ranges[$color]}"
         IFS=',' read -r min_x min_y <<< "$min_range"
         IFS=',' read -r max_x max_y <<< "$max_range"
-        
+
         x=$(LC_ALL=C awk -v min="$min_x" -v max="$max_x" -v seed=$RANDOM 'BEGIN {srand(seed); printf "%.4f\n", min + rand() * (max - min)}')
         y=$(LC_ALL=C awk -v min="$min_y" -v max="$max_y" -v seed=$RANDOM 'BEGIN {srand(seed); printf "%.4f\n", min + rand() * (max - min)}')
       fi
-      
+
       LC_ALL=C awk -v x="$x" -v y="$y" 'BEGIN {printf "[%.4f,%.4f]\n", x, y}'
-    }    
-    
+    }
+
     # 🦆 says ⮞ hex to xy converter
     hex_to_xy() {
       local hex="$1"
-      local r g b 
+      local r g b
       hex=$(echo "$hex" | sed 's/^#//')
       [[ ''${#hex} -eq 6 ]] || { echo "0.5 0.4"; return 1; }
-  
+
       r=$((16#''${hex:0:2}))
       g=$((16#''${hex:2:2}))
       b=$((16#''${hex:4:2}))
-  
+
       local r_cor g_cor b_cor
       r_cor=$(echo "scale=4; $r / 255" | bc -l)
       g_cor=$(echo "scale=4; $g / 255" | bc -l)
       b_cor=$(echo "scale=4; $b / 255" | bc -l)
-  
+
       r_cor=$(echo "scale=4; if ($r_cor > 0.04045) { e(2.4 * l($r_cor / 1.055 + 0.055)) } else { $r_cor / 12.92 }" | bc -l)
       g_cor=$(echo "scale=4; if ($g_cor > 0.04045) { e(2.4 * l($g_cor / 1.055 + 0.055)) } else { $g_cor / 12.92 }" | bc -l)
       b_cor=$(echo "scale=4; if ($b_cor > 0.04045) { e(2.4 * l($b_cor / 1.055 + 0.055)) } else { $b_cor / 12.92 }" | bc -l)
-  
+
       local x y z
       x=$(echo "scale=4; ($r_cor * 0.649926 + $g_cor * 0.103455 + $b_cor * 0.197109)" | bc -l)
       y=$(echo "scale=4; ($r_cor * 0.234327 + $g_cor * 0.743075 + $b_cor * 0.022598)" | bc -l)
       z=$(echo "scale=4; ($r_cor * 0.000000 + $g_cor * 0.053077 + $b_cor * 1.035763)" | bc -l)
-  
+
       local total
-      total=$(echo "scale=4; $x + $y + $z" | bc -l)  
+      total=$(echo "scale=4; $x + $y + $z" | bc -l)
       if [[ $(echo "$total == 0" | bc -l) -eq 1 ]]; then
         echo "0.5 0.4"
       else
@@ -136,11 +136,11 @@
     }
   '';
 
-  getAllMotionSensors = 
+  getAllMotionSensors =
     let devices = config.house.zigbee.devices or {};
     in lib.filterAttrs (_: device: device.type == "motion") devices;
 
-  getMotionSensorNames = 
+  getMotionSensorNames =
     let motionSensors = getAllMotionSensors;
     in lib.mapAttrsToList (_: device: device.friendly_name) motionSensors;
 
@@ -151,7 +151,7 @@
         description = "Material Design (mdi) icon representing the room.";
       };
     };
-  }; 
+  };
 
   # 🦆 says ⮞ color conversion helper function
   colorToHex = color:
@@ -165,7 +165,7 @@
         g = lib.clamp 0 255 (lib.toInt ((-0.9689 * x + 1.8758 * y + 0.0415 * (1 - x - y)) * 255));
         b = lib.clamp 0 255 (lib.toInt ((0.0557 * x - 0.2040 * y + 1.0570 * (1 - x - y)) * 255));
       in
-      "#" + 
+      "#" +
       (lib.fixedWidthString 2 "0" (lib.toHexString r)) +
       (lib.fixedWidthString 2 "0" (lib.toHexString g)) +
       (lib.fixedWidthString 2 "0" (lib.toHexString b))
@@ -179,25 +179,25 @@
         h_prime = hue_deg / 60.0;
         x = c * (1 - lib.abs((builtins.mod h_prime 2) - 1));
         m = 1 - c;
-      
+
         # Determine RGB based on hue sector
-        rgb1 = 
+        rgb1 =
           if h_prime < 1 then [c x 0]
           else if h_prime < 2 then [x c 0]
           else if h_prime < 3 then [0 c x]
           else if h_prime < 4 then [0 x c]
           else if h_prime < 5 then [x 0 c]
           else [c 0 x];
-      
+
         r1 = lib.elemAt rgb1 0;
         g1 = lib.elemAt rgb1 1;
         b1 = lib.elemAt rgb1 2;
-      
+
         r = lib.clamp 0 255 (lib.toInt ((r1 + m) * 255));
         g = lib.clamp 0 255 (lib.toInt ((g1 + m) * 255));
         b = lib.clamp 0 255 (lib.toInt ((b1 + m) * 255));
       in
-      "#" + 
+      "#" +
       (lib.fixedWidthString 2 "0" (lib.toHexString r)) +
       (lib.fixedWidthString 2 "0" (lib.toHexString g)) +
       (lib.fixedWidthString 2 "0" (lib.toHexString b))
@@ -272,11 +272,11 @@
     };
   };
 
-  getAllFriendlyNames = 
+  getAllFriendlyNames =
     let devices = config.house.zigbee.devices or {};
     in lib.mapAttrsToList (_: device: device.friendly_name) devices;
 
-  friendlyNamesSet = 
+  friendlyNamesSet =
     let names = getAllFriendlyNames;
     in builtins.listToAttrs (map (name: { inherit name; value = true; }) names);
 
@@ -286,14 +286,14 @@
   roomExists = roomName:
     builtins.hasAttr roomName (config.house.rooms or {});
 
-  isValidHexColor = color: 
+  isValidHexColor = color:
     let cleanColor = lib.removePrefix "#" color;
     in lib.strings.match "[0-9A-Fa-f]{6}" cleanColor != null;
 
-  isValidBrightness = brightness: 
+  isValidBrightness = brightness:
     brightness >= 0 && brightness <= 254;
 
-  isValidState = state: 
+  isValidState = state:
     builtins.elem state ["ON" "OFF"];
 
   validateScene = sceneName: sceneDevices:
@@ -320,7 +320,7 @@
             (settings.color ? hex && isValidHexColor settings.color.hex) ||
             # 🦆says⮞ xy coordinates validation
             (settings.color ? xy && lib.isList settings.color.xy && lib.length settings.color.xy == 2) ||
-            # 🦆says⮞ hue/saturation validation  
+            # 🦆says⮞ hue/saturation validation
             (settings.color ? hue && settings.color ? saturation && lib.isInt settings.color.hue && lib.isInt settings.color.saturation) ||
             # 🦆says⮞ color temperature validation
             (settings.color ? ct && lib.isInt settings.color.ct)
@@ -362,13 +362,13 @@
   );
 
   motionSensorValidations = lib.flatten (
-    lib.mapAttrsToList (name: automation: 
+    lib.mapAttrsToList (name: automation:
       validateMotionSensors name (automation.motion_sensors or [])
     ) (config.house.zigbee.automations.presence_based or {})
   );
 
   # 🦆 says ⮞ duplicate friendly names
-  duplicateFriendlyNameValidation = 
+  duplicateFriendlyNameValidation =
     let
       friendlyNames = getAllFriendlyNames;
       uniqueNames = lib.unique friendlyNames;
@@ -378,8 +378,8 @@
       message = "🦆 duck say ⮞ fuck ❌ Duplicate friendly names found: ${toString (lib.subtractLists uniqueNames friendlyNames)}";
     }];
 
-  isMqttEnabled = config.house.zigbee.mosquitto != null && 
-                  (config.house.zigbee.mosquitto.username != null || 
+  isMqttEnabled = config.house.zigbee.mosquitto != null &&
+                  (config.house.zigbee.mosquitto.username != null ||
                    config.house.zigbee.mosquitto.passwordFile != null);
 
   # 🦆 says ⮞ validate MQTT triggered automations
@@ -407,12 +407,12 @@
   # 🦆 says ⮞ validation for MQTT configuration
   mqttValidations = [
     {
-      assertion = config.house.zigbee.mosquitto != null -> 
+      assertion = config.house.zigbee.mosquitto != null ->
         (config.house.zigbee.mosquitto.username != null) == (config.house.zigbee.mosquitto.passwordFile != null);
       message = "🦆 duck say ⮞ fuck ❌ MQTT authentication requires both username and passwordFile to be set together";
     }
     {
-      assertion = config.house.zigbee.mosquitto != null && config.house.zigbee.mosquitto.ssl.enable -> 
+      assertion = config.house.zigbee.mosquitto != null && config.house.zigbee.mosquitto.ssl.enable ->
         (config.house.zigbee.mosquitto.ssl.clientCertFile != null) == (config.house.zigbee.mosquitto.ssl.clientKeyFile != null);
       message = "🦆 duck say ⮞ fuck ❌ MQTT SSL client authentication requires both clientCertFile and clientKeyFile";
     }
@@ -420,9 +420,9 @@
 
   # 🦆 says ⮞ validation for syncBox TV
   syncBoxTvValidation = {
-    assertion = config.house.zigbee.hueSyncBox != null && 
-                config.house.zigbee.hueSyncBox.enable && 
-                config.house.zigbee.hueSyncBox.syncBox.tv != "" -> 
+    assertion = config.house.zigbee.hueSyncBox != null &&
+                config.house.zigbee.hueSyncBox.enable &&
+                config.house.zigbee.hueSyncBox.syncBox.tv != "" ->
                 builtins.hasAttr config.house.zigbee.hueSyncBox.syncBox.tv config.house.tv;
     message = let
       syncBox = config.house.zigbee.hueSyncBox;
@@ -432,9 +432,9 @@
   };
 
 
-  # 🦆 says ⮞ define Zigbee devices here yo 
+  # 🦆 says ⮞ define Zigbee devices here yo
   zigbeeDevices = config.house.zigbee.devices;
-  
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -455,7 +455,7 @@
   sceneLight = {state, brightness ? null, hex ? null, temp ? null, hue ? null, sat ? null, xy ? null, ct ? null, effect ? "none", alert ? "none", transition ? null}:
     let
       # Determine color mode based on what's provided
-      colorValue = if hex != null then { inherit hex; } 
+      colorValue = if hex != null then { inherit hex; }
         else if xy != null then { inherit xy; }
         else if hue != null && sat != null then { inherit hue sat; }
         else if ct != null then { inherit ct; }
@@ -472,9 +472,9 @@
 
 
   # 🎨 Scenes  🦆 YELLS ⮞ SCENES!!!!!!!!!!!!!!!11
-  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!   
+  scenes = config.house.zigbee.scenes; # 🦆 says ⮞ Declare light states, quack dat's a scene yo!
 
-  # 🦆 says ⮞ Generate scene commands    
+  # 🦆 says ⮞ Generate scene commands
   makeCommand = device: settings:
     let
       json = builtins.toJSON settings;
@@ -482,11 +482,11 @@
       ''
       yo mqtt_pub --topic "zigbee2mqtt/${device}/set" .-message '${json}'
       '';
-      
+
   sceneCommands = lib.mapAttrs
     (sceneName: sceneDevices:
       lib.mapAttrs (device: settings: makeCommand device settings) sceneDevices
-    ) scenes;  
+    ) scenes;
 
   # 🦆 says ⮞ Filter devices by rooms
   byRoom = lib.foldlAttrs (acc: id: dev:
@@ -505,14 +505,14 @@
     name = room;
     value = {
       friendly_name = room;
-      devices = map (id: 
+      devices = map (id:
         let dev = zigbeeDevices.${id};
         in "${id}/${toString dev.endpoint}"
       ) ids;
     };
   }) byRoom;
 
-  # 🦆 says ⮞ gen json from `config.house.tv`  
+  # 🦆 says ⮞ gen json from `config.house.tv`
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
   # 🦆 says ⮞ dis creates device configuration for Z2M yo
@@ -559,65 +559,65 @@
         default = "default";
         example = "sensors";
         description = "Status cards are ordered by it's group name";
-      };        
+      };
       # 🦆 says ⮞ for custom cards
       source = mkOption {
         type = enum [ "file" ];
         default = "file";
-      };      
+      };
       # 🦆 says ⮞ file source options
-      filePath = mkOption { 
-        type = str; 
-        default = ""; 
+      filePath = mkOption {
+        type = str;
+        default = "";
         description = "Path to JSON file for file source";
-      };    
+      };
       # 🦆 says ⮞ MAIN value configuration
-      jsonField = mkOption { 
-        type = str; 
-        default = ""; 
+      jsonField = mkOption {
+        type = str;
+        default = "";
         description = "JSON field to extract from file for main value";
-      };    
-      detailsJsonField = mkOption { 
-        type = nullOr str; 
+      };
+      detailsJsonField = mkOption {
+        type = nullOr str;
         default = null;
         description = "JSON field to extract from file for details (optional)";
-      };   
+      };
       # 🦆 says ⮞ display configuration
-      format = mkOption { 
-        type = str; 
-        default = "{value}"; 
+      format = mkOption {
+        type = str;
+        default = "{value}";
         description = "Format string for main value. Use {value} placeholder";
-      };   
-      detailsFormat = mkOption { 
-        type = str; 
-        default = "{value}"; 
+      };
+      detailsFormat = mkOption {
+        type = str;
+        default = "{value}";
         description = "Format string for details value. Use {value} placeholder";
       };
-      chart = mkOption { 
-        type = bool; 
-        default = false; 
+      chart = mkOption {
+        type = bool;
+        default = false;
         description = "Wether to show a history chart in the status card";
       };
-      historyField = mkOption { 
-        type = str; 
-        default = "history"; 
+      historyField = mkOption {
+        type = str;
+        default = "history";
         description = "JSON field to extract history data from for the chart";
       };
 
       # 🦆 says ⮞ automate clickable actions
-      on_click_action = mkOption { 
+      on_click_action = mkOption {
         type = lib.types.listOf automationActionType;
         default = [];
         description = "Actions to perform when clicking this status card";
-      };    
-  
+      };
+
       # 🦆 says ⮞ fallback values
       defaultValue = mkOption { type = str; default = ""; };
-      defaultDetails = mkOption { type = str; default = ""; };   
+      defaultDetails = mkOption { type = str; default = ""; };
       # 🦆 says ⮞ legacy support - will be used if detailsJsonField is null
-      details = mkOption { 
-        type = str; 
-        default = ""; 
+      details = mkOption {
+        type = str;
+        default = "";
         description = "Static details text (used if detailsJsonField is not set)";
       };
 
@@ -645,7 +645,7 @@ in { # 🦆 says ⮞ Options for da house
           '';
           default = "";
         };
-      };  
+      };
       # 🦆 says ⮞ set media root & the rest is overrides
       media = with lib; {
         root = mkOption {
@@ -683,8 +683,8 @@ in { # 🦆 says ⮞ Options for da house
           type = types.path;
           description = "Podcasts directory";
         };
-      };    
-    
+      };
+
       # 🦆 says ⮞ hostname to play sounds on (TTS, timers, alarms etc)
       soundHost = lib.mkOption {
         type = lib.types.str;
@@ -692,7 +692,7 @@ in { # 🦆 says ⮞ Options for da house
         default = "";
         example = "desktop";
       };
-      
+
       # 🦆 says ⮞ dashboard configuraiton
       dashboard = {
         passwordFile = lib.mkOption {
@@ -700,7 +700,7 @@ in { # 🦆 says ⮞ Options for da house
           description = "Passwordfile for the dashboard API";
           default = "";
         };
-      
+
         pages = lib.mkOption {
           type = lib.types.attrsOf (lib.types.submodule {
             options = {
@@ -728,25 +728,25 @@ in { # 🦆 says ⮞ Options for da house
                 type = lib.types.str;
                 default = "";
                 description = "Additional CSS for this page";
-              };              
+              };
             };
           });
           default = {};
           description = "Custom pages for the dashboard";
         };
 
-        # 🦆 says ⮞ junk card TODO remove   
+        # 🦆 says ⮞ junk card TODO remove
         betaCard = {
           enable = (mkEnableOption "the beta card") // { default = false; };
         };
-        
+
         statusCards = lib.mkOption {
           type = lib.types.attrsOf statusCardType;
           default = {};
           description = "Configurable status cards for the dashboard";
         };
       };
-      
+
       # 🦆 duck say ⮞ set house rooms
       rooms = mkOption {
         type = types.attrsOf roomType;
@@ -791,7 +791,7 @@ in { # 🦆 says ⮞ Options for da house
 #                };
 #              };
 #            };
-      
+
             zigduck-rs = {
               enable = lib.mkEnableOption "Enable the Zigduck Rust service (home automation)" // {
                 default = false;
@@ -869,7 +869,7 @@ in { # 🦆 says ⮞ Options for da house
                 description = "SSL/TLS configuration for Zigduck Rust service";
               };
             };
-      
+
             api-rs = {
               enable = lib.mkEnableOption "Enable the API Rust service" // {
                 default = false;
@@ -947,7 +947,7 @@ in { # 🦆 says ⮞ Options for da house
                 description = "SSL/TLS configuration for API Rust service";
               };
             };
-      
+
             duckdash = {
               enable = lib.mkEnableOption "Enable the DuckDash web dashboard" // {
                 default = false;
@@ -1037,8 +1037,8 @@ in { # 🦆 says ⮞ Options for da house
         default = {};
         description = "House service configurations for Zigduck Rust Automation System, Rust REST API Endpoints, DuckDash Generates HTML/JS/CSS from Nix house configuration";
       };
-      
-      
+
+
       # 🦆 duck say ⮞ set our esp device info
       tv = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule {
@@ -1062,7 +1062,7 @@ in { # 🦆 says ⮞ Options for da house
                 tv4 = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
               };
             };
-            
+
             # 🦆 duck say ⮞ TV channel definitions
             channels = lib.mkOption {
               type = lib.types.attrsOf (lib.types.submodule {
@@ -1075,7 +1075,7 @@ in { # 🦆 says ⮞ Options for da house
                     type = types.nullOr types.path;
                     description = "Optional file path for channel icon used for the generated TV-guide web frontend";
                     default = null;
-                  };                  
+                  };
                   id = lib.mkOption {
                     type = lib.types.nullOr lib.types.int;
                     default = null;
@@ -1085,7 +1085,7 @@ in { # 🦆 says ⮞ Options for da house
                     type = lib.types.str;
                     description = "Sequence of ADB commands to launch channel. Seperated with && (Overrides ID)";
                     default = "";
-                  };     
+                  };
                   stream_url = lib.mkOption {
                     type = lib.types.str;
                     description = "Stream URL to send to device. (Overrides ID)";
@@ -1095,7 +1095,7 @@ in { # 🦆 says ⮞ Options for da house
                     type = lib.types.str;
                     description = "Scrape URL for TV-Guide";
                     default = "";
-                  };      
+                  };
                 };
               });
               description = "TV channel options";
@@ -1104,7 +1104,7 @@ in { # 🦆 says ⮞ Options for da house
         });
         default = {};
       };
-      
+
       # 🦆 says ⮞ set our esp device info
       esp = lib.mkOption {
         type = lib.types.attrsOf (lib.types.submodule ({ name, ... }: {
@@ -1133,8 +1133,8 @@ in { # 🦆 says ⮞ Options for da house
               default = "";
               description = "Human-readable device description";
             };
-        
-            # 🦆 duck say ⮞ internal  
+
+            # 🦆 duck say ⮞ internal
             board = lib.mkOption {
               type = lib.types.str;
               internal = true;
@@ -1146,7 +1146,7 @@ in { # 🦆 says ⮞ Options for da house
               readOnly = true;
             };
           };
-      
+
           config = let
             type = config.type or "esp32s3box";
             boardInfo = supportedBoards.${type};
@@ -1160,7 +1160,7 @@ in { # 🦆 says ⮞ Options for da house
       };
 
       zigbee = {
-      
+
         enable = lib.mkEnableOption "zigbee2mqtt service";
 
         #package = lib.mkPackageOption pkgs "zigbee2mqtt" { };
@@ -1190,8 +1190,8 @@ in { # 🦆 says ⮞ Options for da house
           '';
         };
 
-      
-      
+
+
         networkKeyFile = mkOption {
           type = types.path;
           description = "Path to the Zigbee network key file.";
@@ -1206,12 +1206,12 @@ in { # 🦆 says ⮞ Options for da house
               default = null;
               description = "IP address of the host running Mosquitto";
               example = "192.168.1.211";
-            };  
+            };
             username = mkOption {
               type = types.nullOr types.str;
               default = null;
               description = "MQTT username for authentication";
-            };  
+            };
             passwordFile = mkOption {
               type = types.nullOr types.path;
               default = null;
@@ -1219,17 +1219,17 @@ in { # 🦆 says ⮞ Options for da house
             };
             # 🦆 says ⮞ SSL/TLS options for secure MQTT connections
             ssl = {
-              enable = mkEnableOption "Enable SSL/TLS for MQTT connection";    
+              enable = mkEnableOption "Enable SSL/TLS for MQTT connection";
               caCertFile = mkOption {
                 type = types.nullOr types.path;
                 default = null;
                 description = "Path to CA certificate file";
-              };    
+              };
               clientCertFile = mkOption {
                 type = types.nullOr types.path;
                 default = null;
                 description = "Path to client certificate file";
-              };    
+              };
               clientKeyFile = mkOption {
                 type = types.nullOr types.path;
                 default = null;
@@ -1240,7 +1240,7 @@ in { # 🦆 says ⮞ Options for da house
         });
       };
 
-      
+
       zigbee.coordinator = mkOption {
         type = types.nullOr (types.submodule {
           options = {
@@ -1272,7 +1272,7 @@ in { # 🦆 says ⮞ Options for da house
       zigbee.hueSyncBox = mkOption {
         type = types.nullOr (types.submodule {
           options = {
-            enable = mkEnableOption "Enable Philips Hue Bridge & Sync Box integration";      
+            enable = mkEnableOption "Enable Philips Hue Bridge & Sync Box integration";
             # 🦆 says ⮞ Hue Bridge configuration (sadly must have for sync - i block it's internet access)
             bridge = {
               ip = mkOption {
@@ -1283,7 +1283,7 @@ in { # 🦆 says ⮞ Options for da house
                 type = types.path;
                 description = "File containing the Hue Bridge API key (username)";
               };
-            };      
+            };
             # 🦆 says ⮞ Hue Sync Box configuration
             syncBox = {
               ip = mkOption {
@@ -1304,7 +1304,7 @@ in { # 🦆 says ⮞ Options for da house
                   else if builtins.hasAttr tvName config.house.tv then tvName
                   else throw "TV '${tvName}' is not defined in house.tv. Available: ${lib.concatStringsSep ", " (lib.attrNames config.house.tv)}";
               };
-            };      
+            };
             insecure = mkOption {
               type = types.bool;
               default = false;
@@ -1321,7 +1321,7 @@ in { # 🦆 says ⮞ Options for da house
         description = "Philips Hue Bridge & Sync Box configuration for TV to lights syncing";
       };
 
-      # 🦆 says ⮞ dimmer coniguration      
+      # 🦆 says ⮞ dimmer coniguration
       zigbee.dimmer = lib.mkOption {
         type = types.submodule {
           options = {
@@ -1379,8 +1379,8 @@ in { # 🦆 says ⮞ Options for da house
               default = null;
               description = "Timeout for double‑click detection in milliseconds (defaults to 300).";
             };
-          };  
-        };    
+          };
+        };
         default = {
           message = "action";
           actions = {
@@ -1407,56 +1407,56 @@ in { # 🦆 says ⮞ Options for da house
               description = "A human-readable device name.";
               example = "Kitchen Dimmer";
             };
-            room = lib.mkOption { 
+            room = lib.mkOption {
               type = lib.types.strMatching (lib.concatStringsSep "|" (lib.attrNames config.house.rooms));
               description = "The room this device belongs to.";
               example = "kitchen";
             };
-            type = lib.mkOption { 
+            type = lib.mkOption {
               type = lib.types.enum [ "light" "hue_light" "dimmer" "sensor" "motion" "outlet" "remote" "pusher" "blind" ];
               description = "The type of device (e.g., light, dimmer, sensor, motion, outlet, remote, pusher, blind, hue_light).";
               example = "light";
             };
-            icon = lib.mkOption { 
+            icon = lib.mkOption {
               type = lib.types.str;
               description = "Material Design icon name representing this device.";
               default = "mdi:monitor-shimmer";
               example = "mdi:cancel";
             };
-            
+
             batteryType = mkOption {
               type = types.nullOr (types.enum ["CR2032" "CR2450" "CR02" "AAA" "AA"]);
               default = null;
               description = "Optional type of battery the device uses, if applicable.";
               example = "CR2032";
             };
-            
+
             supports_color = mkOption {
               type = types.bool;
               default = false;
               description = "Whether the light device supports setting color.";
               example = true;
             };
-            
+
             supports_temperature = mkOption {
               type = types.bool;
               default = false;
               description = "Whether the light device supports setting temperature.";
               example = true;
             };
-            
-            endpoint = lib.mkOption { 
+
+            endpoint = lib.mkOption {
               type = lib.types.int;
               description = "The Zigbee endpoint to control this device.";
               example = 11;
             };
-            
-            hue_id = lib.mkOption { 
+
+            hue_id = lib.mkOption {
               type = types.nullOr types.int;
               description = "The light_id for the device. Integrates Philips Hue paired devices. Configuring this option will NOT insert the device into the Zigbee2MQTT configuration file.";
               example = 11;
               default = null;
-            };            
+            };
           };
         });
         default = {};
@@ -1471,22 +1471,22 @@ in { # 🦆 says ⮞ Options for da house
               batteryType = "CR3032";
               supports_color = false;
             };
-          };    
+          };
         };
-        
+
         zigbee.scenes = lib.mkOption {
           type = lib.types.attrsOf (lib.types.attrsOf (lib.types.attrs));
           default = {};
           description = "Scenes for Zigbee devices";
         };
-           
-        # 🦆 TODO ⮞ REMOVE   
+
+        # 🦆 TODO ⮞ REMOVE
         zigbee.darkTime = lib.mkOption {
           type = lib.types.submodule {
             options = { # 🦆 duck say ⮞ used with Zigduck Bash
               enable = mkEnableOption "Enable dark time automations" // {
                 default = true;
-              };              
+              };
               start = lib.mkOption {
                 type = lib.types.str;
                 default = "18:00";
@@ -1506,18 +1506,18 @@ in { # 🦆 says ⮞ Options for da house
                 type = lib.types.int;
                 default = 9;
                 description = "End time of dark time range (HH format)";
-              }; 
+              };
               duration = lib.mkOption {
                 type = lib.types.int;
                 default = 900; # 🦆 duck say ⮞ 15 minutes
                 description = "Number of seconds to wait before turning the lights off after motion is detected in dark time";
-              };              
+              };
             };
           };
           default = {};
           description = "Time range when it's considered dark (HH:MM format)";
         };
- 
+
         zigbee.motion = lib.mkOption {
           type = lib.types.submodule {
             options = {
@@ -1558,13 +1558,13 @@ in { # 🦆 says ⮞ Options for da house
             };
           };
           default = {};
-        }; 
- 
+        };
+
         # 🦆 says ⮞ automations configuration
         zigbee.automations = mkOption {
           type = types.submodule {
-            options = {        
-           
+            options = {
+
               # 🦆 says ⮞ MQTT triggered automations
               mqtt_triggered = mkOption {
                 type = types.attrsOf (types.submodule {
@@ -1645,7 +1645,7 @@ in { # 🦆 says ⮞ Options for da house
                   };
                 };
               };
-                       
+
               # 🦆 says ⮞ time based automations
               time_based = mkOption {
                 type = types.attrsOf (types.submodule {
@@ -1743,7 +1743,7 @@ in { # 🦆 says ⮞ Options for da house
                   };
                 };
               };
-        
+
               # 🦆 says ⮞ presence based automations
               presence_based = mkOption {
                 type = types.attrsOf (types.submodule {
@@ -1763,7 +1763,7 @@ in { # 🦆 says ⮞ Options for da house
                       default = 300;
                       description = "Seconds without motion before triggering";
                     };
-        
+
                     conditions = mkOption {
                       type = types.listOf (types.submodule {
                         options = {
@@ -1801,7 +1801,7 @@ in { # 🦆 says ⮞ Options for da house
                 default = {};
                 description = "Presence/motion-based automations";
               };
-  
+
               # 🦆 says ⮞ Welcome Home Automation
               greeting = mkOption {
                 type = types.submodule {
@@ -1812,7 +1812,7 @@ in { # 🦆 says ⮞ Options for da house
                       type = types.int;
                       default = 7200;
                       description = "Time in seconds to be concidered away from home (default 7200)";
-                    };                    
+                    };
                     delay = mkOption {
                       type = types.int;
                       default = 10;
@@ -1828,7 +1828,7 @@ in { # 🦆 says ⮞ Options for da house
                 default = {};
                 description = "Greeting automation configuration";
               };
-            
+
               # 🦆 says ⮞ Per-room dimmer switch actions
               dimmer_actions = mkOption {
                 type = types.attrsOf (types.submodule {
@@ -1919,19 +1919,19 @@ in { # 🦆 says ⮞ Options for da house
                     down_hold_release = {
                       enable = true;
                       description = "Default: no default actions";
-                    };   
+                    };
                     off_press_release = {
                       enable = true;
                       description = "Default: turn off room lights";
-                    };                      
+                    };
                     off_hold_release = {
                       enable = true;
                       description = "Default: turn off all lights";
-                    };                    
+                    };
                   };
                 };
               };
-        
+
               # 🦆 says ⮞ Room-specific automations
               room_actions = mkOption {
                 type = types.attrsOf (types.attrsOf (types.listOf automationActionType));
@@ -1983,12 +1983,12 @@ in { # 🦆 says ⮞ Options for da house
           description = "Modular automation configurations";
         };
       };
-  
+
 
     # 🔧 🦆 says ⮞  User Configuration
     config = lib.mkMerge [
       {
-        assertions = sceneValidations ++ deviceValidations ++ 
+        assertions = sceneValidations ++ deviceValidations ++
                      duplicateFriendlyNameValidation ++ motionSensorValidations ++
                      mqttValidations ++ mqttTriggeredValidations ++
                      [syncBoxTvValidation];
@@ -1998,9 +1998,9 @@ in { # 🦆 says ⮞ Options for da house
           DARK_TIME_ENABLED="${if config.house.zigbee.darkTime.enable then "1" else "0"}"
           DARK_TIME_START="${config.house.zigbee.darkTime.start}"
           DARK_TIME_END="${config.house.zigbee.darkTime.end}"
-        '';    
+        '';
       }
-        
+
       (lib.mkIf (config.house.media.root != null) (let
         defaults = defaultPaths config.house.media.root;
       in {
@@ -2013,36 +2013,36 @@ in { # 🦆 says ⮞ Options for da house
           podcasts = lib.mkIf (!(lib.hasAttr "podcasts" config.house.media)) (lib.mkDefault defaults.podcasts);
         };
       }))
-        
+
       {
         environment.systemPackages = [
           pkgs.clang
-          # 🦆 says ⮞ Dependencies 
+          # 🦆 says ⮞ Dependencies
           pkgs.mosquitto
           pkgs.zigbee2mqtt # 🦆 says ⮞ wat? dat's all?
-          
-          # 🦆 says ⮞ scene fireworks  
+
+          # 🦆 says ⮞ scene fireworks
           (pkgs.writeScriptBin "scene-roll" ''
             ${cmdHelpers}
             ${lib.concatStringsSep "\n" (lib.flatten (lib.mapAttrsToList (_: cmds: lib.mapAttrsToList (_: cmd: cmd) cmds) sceneCommands))}
           '')
-          
+
           # 🦆 says ⮞ activate a scene yo
           (pkgs.writeScriptBin "scene" ''
             ${cmdHelpers}
             MQTT_BROKER="${config.house.zigbee.mosquitto.host}"
             MQTT_USER="${config.house.zigbee.mosquitto.username}"
             MQTT_PASSWORD=$(cat "${config.house.zigbee.mosquitto.passwordFile}") # ⮜ 🦆 says password file
-            SCENE="$1"      
+            SCENE="$1"
             # 🦆 says ⮞ convert to lowercase
             SCENE_LOWER=$(echo "$SCENE" | tr '[:upper:]' '[:lower:]')
-      
+
             # 🦆 says ⮞ no scene == random scene
             if [ -z "$SCENE" ]; then
               SCENE=$(shuf -n 1 -e ${lib.concatStringsSep " " (lib.map (name: "\"${name}\"") (lib.attrNames sceneCommands))})
               SCENE_LOWER=$(echo "$SCENE" | tr '[:upper:]' '[:lower:]')
             fi
-      
+
             # 🦆 says ⮞ create lowercase scene names
             case "$SCENE_LOWER" in
             ${
@@ -2063,8 +2063,8 @@ in { # 🦆 says ⮞ Options for da house
               exit 1
               ;;
             esac
-          '')  
-          
+          '')
+
           # 🦆 says ⮞ helper function 4 controlling zingle device
           (pkgs.writeScriptBin "zig" ''
             ${cmdHelpers}
@@ -2075,9 +2075,9 @@ in { # 🦆 says ⮞ Options for da house
             )
             available_devices=(
               ${toString deviceList}
-            )    
-            DEVICE="$1" # 🦆 says ⮞ device to control      
-            STATE="''${2:-}" # 🦆 says ⮞ state change        
+            )
+            DEVICE="$1" # 🦆 says ⮞ device to control
+            STATE="''${2:-}" # 🦆 says ⮞ state change
             BRIGHTNESS="''${3:-100}"
             COLOR="''${4:-}"
             TEMP="''${5:-}"
@@ -2091,7 +2091,7 @@ in { # 🦆 says ⮞ Options for da house
               mqtt_pub -t "zigbee2mqtt/backup/request" -m '{"action":"backup"}'
               say_duck "Zigbee coordinator backup requested! - processing on server..."
               exit 0
-            fi         
+            fi
             # 🦆 says ⮞ validate device
             input_lower=$(echo "$DEVICE" | tr '[:upper:]' '[:lower:]')
             exact_name=''${device_map["$input_lower"]}
@@ -2112,20 +2112,20 @@ in { # 🦆 says ⮞ Options for da house
               mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"state":"OFF"}'
               say_duck " turned off $DEVICE"
               exit 0
-            fi    
+            fi
             # 🦆 says ⮞ turn down the device brightness
             if [[ "$STATE" == "down" ]]; then
               say_duck "🔻 Decreasing $light_id in $clean_room"
               mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":-50,"transition":3.5}'
               exit 0
-            fi      
+            fi
             # 🦆 says ⮞ turn up the device brightness
             if [[ "$STATE" == "up" ]]; then
               say_duck "🔺 Increasing brightness on $light_id in $clean_room"
               mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m '{"brightness_step":50,"transition":3.5}'
               exit 0
-            fi      
-                        
+            fi
+
             # 🦆 says ⮞ construct payload
             PAYLOAD="{\"state\":\"ON\""
             [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"brightness\":$BRIGHTNESS"
@@ -2133,32 +2133,32 @@ in { # 🦆 says ⮞ Options for da house
             PAYLOAD+="}"
             # 🦆 says ⮞ publish payload
             mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
-            say_duck "$PAYLOAD" 
-     
-     
-     
-            # 🦆TODO⮞ BRIDGED PAYLOAD 
+            say_duck "$PAYLOAD"
+
+
+
+            # 🦆TODO⮞ BRIDGED PAYLOAD
             PAYLOAD="{\"state\":\"true\""
             [[ -n "$BRIGHTNESS" ]] && PAYLOAD+=", \"bri\":$BRIGHTNESS"
             [[ -n "$COLOR" ]] && PAYLOAD+=", \"color\":{\"hex\":\"$COLOR\"}"
             PAYLOAD+="}"
             # 🦆 says ⮞ publish payload
             mqtt_pub -t "zigbee2mqtt/$exact_name/set" -m "$PAYLOAD"
-            say_duck "$PAYLOAD" 
-            
-               
-     
-     
-     
-            
-            
+            say_duck "$PAYLOAD"
+
+
+
+
+
+
+
           '')
-          
+
           # 🦆 says ⮞ Philips Hue Sync Box control
           ( pkgs.writeScriptBin "hue" ''
             ${cmdHelpers}
             # set -euo pipefail
-          
+
             # 🦆 says ⮞ configuration loaded at build time
             if [ "${if config.house.zigbee.hueSyncBox != null && config.house.zigbee.hueSyncBox.enable then "1" else "0"}" = "1" ]; then
               HUE_BRIDGE_IP="${config.house.zigbee.hueSyncBox.bridge.ip}"
@@ -2167,7 +2167,7 @@ in { # 🦆 says ⮞ Options for da house
               HUE_SYNC_BOX_API_KEY="$(cat "${config.house.zigbee.hueSyncBox.syncBox.passwordFile}" 2>/dev/null || echo "")"
               HUE_INSECURE="${toString config.house.zigbee.hueSyncBox.insecure}"
               HUE_SKIP_CERT_CHECK="${toString config.house.zigbee.hueSyncBox.skipCertCheck}"
-              
+
               # 🦆 says ⮞ build-time device mapping (keyed by friendly_name)
               HUE_DEVICE_MAP='${builtins.toJSON (
                 let
@@ -2198,8 +2198,8 @@ in { # 🦆 says ⮞ Options for da house
                 in
                   hueDeviceMapping
               )}'
-              
-              
+
+
               # 🦆 says ⮞ Nix scenes
               HUE_NIX_SCENES='${builtins.toJSON config.house.zigbee.scenes}'
             else
@@ -2212,14 +2212,14 @@ in { # 🦆 says ⮞ Options for da house
               HUE_DEVICE_MAP='{}'
               HUE_NIX_SCENES='{}'
             fi
-          
+
             # 🦆 says ⮞ fetch hue states and update global state.json
             update_state_file() {
               STATE_FILE="/var/lib/zigduck/state.json"
               HUE_JSON="$(hue bridge lights)"
               NOW_ISO="$(date --iso-8601=seconds)"
               NOW_EPOCH="$(date +%s)"
-              
+
               jq \
                 --argjson hue "$HUE_JSON" \
                 --arg now_iso "$NOW_ISO" \
@@ -2247,20 +2247,20 @@ in { # 🦆 says ⮞ Options for da house
                       )
                   )
                 )
-              ' "$STATE_FILE" > "''${STATE_FILE}.tmp"      
-              mv "''${STATE_FILE}.tmp" "$STATE_FILE" 
+              ' "$STATE_FILE" > "''${STATE_FILE}.tmp"
+              mv "''${STATE_FILE}.tmp" "$STATE_FILE"
             }
 
             # 🦆 says ⮞ helpers
             load_device_map() {
               echo "$HUE_DEVICE_MAP" | ${pkgs.jq}/bin/jq '.'
             }
-            
-          
+
+
             load_nix_scenes() {
               echo "$HUE_NIX_SCENES" | ${pkgs.jq}/bin/jq '.'
             }
-          
+
             get_hue_id() {
               local friendly_name="$1"
               local device_map
@@ -2269,7 +2269,7 @@ in { # 🦆 says ⮞ Options for da house
                 if .[$name] then .[$name].hue_id else null end
               '
             }
-          
+
             get_device_info() {
               local friendly_name="$1"
               local device_map
@@ -2278,25 +2278,25 @@ in { # 🦆 says ⮞ Options for da house
                 if .[$name] then .[$name] else null end
               '
             }
-          
+
             list_hue_devices() {
               local device_map
               device_map=$(load_device_map)
               echo "$device_map" | ${pkgs.jq}/bin/jq -r '
-                to_entries[] | 
+                to_entries[] |
                 "\(.key) (hue_id: \(.value.hue_id), room: \(.value.room), type: \(.value.type))"
               '
             }
-          
+
             list_nix_scenes() {
               local nix_scenes
               nix_scenes=$(load_nix_scenes)
               echo "$nix_scenes" | ${pkgs.jq}/bin/jq -r '
-                to_entries[] | 
+                to_entries[] |
                 .key
               '
             }
-          
+
             get_nix_scene_info() {
               local scene_name="$1"
               local nix_scenes
@@ -2305,10 +2305,10 @@ in { # 🦆 says ⮞ Options for da house
                 if .[$scene] then .[$scene] else null end
               '
             }
-          
+
             hue_api() {
               local target="$1" method="$2" endpoint="$3" data="$4"
-              local ip key base curl_opts=""  
+              local ip key base curl_opts=""
               case "$target" in
                 bridge)
                   ip="$HUE_BRIDGE_IP"
@@ -2327,7 +2327,7 @@ in { # 🦆 says ⮞ Options for da house
                   say_duck "Use: \"bridge\" or \"sync\""
                   exit 1
                   ;;
-              esac      
+              esac
               [[ -z "$ip" || -z "$key" ]] && {
                 say_duck "fuck ❌ $target not configured or API key missing"
                 exit 1
@@ -2340,7 +2340,7 @@ in { # 🦆 says ⮞ Options for da house
                 curl $curl_opts -X "$method" "$base$endpoint" 2>/dev/null || { say_duck "$target API call failed"; exit 1; }
               fi
             }
-          
+
             # 🦆 says ⮞ ACTIVATE NIX SCENE ON HUE DEVICES
             apply_nix_scene() {
               local scene_name="$1"
@@ -2348,54 +2348,54 @@ in { # 🦆 says ⮞ Options for da house
               nix_scenes=$(load_nix_scenes)
               local scene_def
               scene_def=$(echo "$nix_scenes" | ${pkgs.jq}/bin/jq -r --arg scene "$scene_name" '.[$scene]')
-              
+
               if [ -z "$scene_def" ] || [ "$scene_def" = "null" ]; then
                 say_duck "fuck ❌ No Nix scene found: $scene_name"
                 say_duck "Available Nix scenes:"
                 list_nix_scenes | sed 's/^/  /'
                 exit 1
               fi
-              
+
               say_duck "Applying Nix scene: $scene_name"
               local applied_count=0
               local skipped_count=0
-              
+
               local device_names
               device_names=$(echo "$scene_def" | ${pkgs.jq}/bin/jq -r 'keys[]')
-              
+
               while IFS= read -r friendly_name; do
                 local hue_id
                 hue_id=$(get_hue_id "$friendly_name")
-                
+
                 if [ -z "$hue_id" ] || [ "$hue_id" = "null" ]; then
                   say_duck "⚠️ Skipping $friendly_name: no hue_id"
                   skipped_count=$((skipped_count + 1))
                   continue
                 fi
-                
+
                 local device_state
                 device_state=$(echo "$scene_def" | ${pkgs.jq}/bin/jq -c --arg name "$friendly_name" '.[$name]')
-                
+
                 # 🦆says⮞ STATE BUILD
                 local state
                 state=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.state // "ON"')
-                
+
                 local update_json="{\"on\":"
                 if [ "$state" = "ON" ]; then
                   update_json="''${update_json}true"
-  
+
                   # 🦆says⮞ brightness
                   if [ "$brightness" != "null" ] && [ "$brightness" != "" ]; then
                     update_json="''${update_json}, \"bri\":$brightness"
                   fi
-  
+
                   # 🦆says⮞  color (supports all Hue formats)
                   local xy_json hue_val sat_val ct_val
                   xy_json=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.color.xy')
                   hue_val=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.color.hue')
                   sat_val=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.color.saturation')
                   ct_val=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.color.ct // .color.temp')
-  
+
                   if [ "$xy_json" != "null" ] && [ "$xy_json" != "" ]; then
                     # 🦆says⮞  xy color
                     update_json="''${update_json}, \"xy\":$xy_json"
@@ -2421,14 +2421,14 @@ in { # 🦆 says ⮞ Options for da house
                       fi
                     fi
                   fi
-  
+
                   # 🦆says⮞ effect
                   local effect_val
                   effect_val=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.effect')
                   if [ "$effect_val" != "null" ] && [ "$effect_val" != "" ] && [ "$effect_val" != "none" ]; then
                     update_json="''${update_json}, \"effect\":\"$effect_val\""
                   fi
-  
+
                   # 🦆says⮞ alert
                   local alert_val
                   alert_val=$(echo "$device_state" | ${pkgs.jq}/bin/jq -r '.alert')
@@ -2438,9 +2438,9 @@ in { # 🦆 says ⮞ Options for da house
                 else
                   update_json="''${update_json}false"
                 fi
-                
+
                 update_json="''${update_json}}"
-                
+
                 hue_api bridge PUT "/lights/$hue_id/state" "$update_json" > /dev/null 2>&1
                 if [ $? -eq 0 ]; then
                   say_duck "$friendly_name (hue_id: $hue_id): $state"
@@ -2448,15 +2448,15 @@ in { # 🦆 says ⮞ Options for da house
                 else
                   say_duck "fuck  ❌ Failed to update $friendly_name"
                 fi
-                
+
                 # 🦆says⮞tiny delay - safety first!
                 sleep 0.1
               done <<< "$device_names"
-              
+
               say_duck "Scene '$scene_name' applied! ($applied_count hue devices, $skipped_count non-hue devices skipped)"
               update_state_file
             }
-          
+
             # 🦆 says ⮞ routing
             case "$1" in
               # 🦆 says ⮞ bridge
@@ -2492,7 +2492,7 @@ in { # 🦆 says ⮞ Options for da house
                     friendly_name="$3"
                     action="$4"
                     value="''${5:-}"
-                    
+
                     # 🦆 says ⮞ get hue_id from friendly_name
                     hue_id=$(get_hue_id "$friendly_name")
                     if [ -z "$hue_id" ] || [ "$hue_id" = "null" ]; then
@@ -2501,7 +2501,7 @@ in { # 🦆 says ⮞ Options for da house
                       list_hue_devices | sed 's/^/  /'
                       exit 1
                     fi
-                    
+
                     case "$action" in
                       on)
                         hue_api bridge PUT "/lights/$hue_id/state" '{"on":true}'
@@ -2612,7 +2612,7 @@ in { # 🦆 says ⮞ Options for da house
             apply-scene <name>    Apply a Nix-defined scene to hue devices
             group <id> <action>   Control a group
                 Actions: on, off, brightness <0-254>
-          
+
           Examples:
             hue bridge devices
             hue bridge nix-scenes
@@ -2630,8 +2630,8 @@ in { # 🦆 says ⮞ Options for da house
                     exit 1
                     ;;
                 esac
-                ;;            
-              
+                ;;
+
               # 🦆 says ⮞ syncBox
               sync)
                 case "$2" in
@@ -2706,17 +2706,17 @@ in { # 🦆 says ⮞ Options for da house
                     ;;
                 esac
                 ;;
-              
+
               # 🦆 says ⮞ help
               help|--help|-h)
                 cat <<EOF
           🦆 Philips Hue Control Script
-          
+
           Usage:
             hue bridge <command> [args...]    Control Hue Bridge
             hue sync <command> [args...]      Control Hue Sync Box
             hue help                         Show this help
-          
+
           Quick Examples:
             hue bridge nix-scenes             # List all Nix scenes
             hue bridge apply-scene backlit    # Apply Nix "backlit" scene to hue devices
@@ -2725,10 +2725,10 @@ in { # 🦆 says ⮞ Options for da house
             hue bridge light "TV Play 1" on  # Turn on a light by name
             hue sync on                       # Turn on sync box
             hue sync mode video              # Set sync mode to video
-          
+
           Use 'hue bridge help' or 'hue sync help' for more detailed help.
           EOF
-                ;;         
+                ;;
               *)
                 say_duck "fuck ❌ Unknown command: $1"
                 say_duck "Use: \"bridge\", \"sync\", or \"help\""
@@ -2736,9 +2736,9 @@ in { # 🦆 says ⮞ Options for da house
                 ;;
             esac
           '')
-        ];        
+        ];
       }
-            
+
       {
         services.udev.extraRules = let
           port = config.house.zigbee.coordinator;
@@ -2747,18 +2747,18 @@ in { # 🦆 says ⮞ Options for da house
             SUBSYSTEM=="tty", ATTRS{idVendor}=="${port.vendorId}", ATTRS{idProduct}=="${port.productId}", SYMLINK+="${port.symlink}"
           '';
       }
-      
+
       {
           users.users.zigbee2mqtt = {
             isSystemUser = true;
             group = "zigbee2mqtt";
             home = "/var/lib/zigbee";
             createHome = true;
-          }; 
+          };
           users.groups.zigbee2mqtt = {};
-      }    
-      
-      {      
+      }
+
+      {
           environment.etc."zigduck/api.json".source = apiConfigFile;
       }
 

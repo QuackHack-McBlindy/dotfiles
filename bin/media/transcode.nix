@@ -1,12 +1,12 @@
 # dotfiles/bin/media/transcode.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Fancy markdown & Text-To-Speech EPG in da terminal! 
+{ # 🦆 says ⮞ Fancy markdown & Text-To-Speech EPG in da terminal!
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let # 🦆 says ⮞ yo    
+  ...
+} : let # 🦆 says ⮞ yo
 in {
   yo.scripts.transcode = {
     description = "Transcode media files";
@@ -17,11 +17,11 @@ in {
 #    helpFooter = '' # 🦆 says ⮞ TODO Show what is on da TVB usin' glow
 #    '';
     parameters = [
-      { name = "directory"; description = "Directory path to look for media that shall be transcoded"; default = "/Pool/TV/House"; }  
+      { name = "directory"; description = "Directory path to look for media that shall be transcoded"; default = "/Pool/TV/House"; }
     ];
     code = ''
       ${cmdHelpers}
-      SEARCH_DIR="$directory" 
+      SEARCH_DIR="$directory"
       counter=1
       dt_info "Transcoding Process Started"
       find "$SEARCH_DIR" -type f -iname "*.mkv" | while read -r file; do
@@ -41,5 +41,5 @@ in {
         fi
       done
       dt_info "Transcoding Process Completed"
-    '';   
+    '';
   };}

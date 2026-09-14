@@ -1,5 +1,5 @@
 # modules/networking/ss.nix
-{ 
+{
   config,
   lib,
   pkgs,
@@ -8,7 +8,7 @@
 let
   cfg = config.services.shadowsocks-client;
   proxyUser = "ssclient";
-  
+
 in {
   options.services.shadowsocks-client = {
     enable = mkEnableOption "Shadowsocks client service";
@@ -56,7 +56,7 @@ in {
       description = "Shadowsocks Client Service";
       after = [ "network.target" ];
       wantedBy = [ "multi-user.target" ];
-      
+
       serviceConfig = {
         User = proxyUser;
         Group = proxyUser;
@@ -69,10 +69,10 @@ in {
       preStart = ''
         mkdir -p /run/shadowsocks
         chown ${proxyUser}:${proxyUser} /run/shadowsocks
-        
+
         # Read password from secure file
         password=$(cat "${cfg.passwordFile}")
-        
+
         cat > /run/shadowsocks/client.json <<EOF
         {
           "server": "${cfg.server}",
@@ -95,17 +95,17 @@ in {
 
         chain output {
           type filter hook output priority 0; policy drop;
-          
+
           # Allow loopback
           oifname "lo" accept
-          
+
           # Allow established connections
           ct state established,related accept
-          
+
           # Allow Shadowsocks server
           ip daddr ${cfg.server} tcp dport ${toString cfg.server_port} accept
           ip daddr ${cfg.server} udp dport ${toString cfg.server_port} accept
-          
+
           # Allow local proxy
           ip daddr 127.0.0.1 tcp dport ${toString cfg.local_port} accept
           ip daddr 127.0.0.1 udp dport ${toString cfg.local_port} accept

@@ -1,9 +1,9 @@
-{ 
-    config, 
-    lib, 
-    pkgs, 
-    ... 
-} : { 
+{
+    config,
+    lib,
+    pkgs,
+    ...
+} : {
 
     services.navidrome = lib.mkIf (lib.elem "navidrome" config.this.host.modules.services) {
         enable = true;
@@ -19,7 +19,7 @@
         };
         openFirewall = true;
 #    };
-            
+
 #    services.nginx = {
 #        enable = true;
 #        recommendedProxySettings = true;
@@ -29,4 +29,3 @@
 #            };
 #        };
     };}
-

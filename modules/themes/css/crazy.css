@@ -1,6 +1,6 @@
 #PersonalToolbar { visibility: visible !important; }
 #TabsToolbar { visibility: collapse !important; background: #ff0000 !important; }
-            
+
 /* Personal Toolbar (Bookmarks Bar) */
 #PersonalToolbar {
     visibility: visible !important;
@@ -62,7 +62,7 @@
 window {
     border: 5px solid #ff00ff !important;
 }
-            
+
 /* 3D ROTATING UI ELEMENTS */
 #navigator-toolbox {
     transform: rotate3d(1, 1, 1, 15deg) !important;

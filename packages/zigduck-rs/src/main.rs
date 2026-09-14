@@ -34,7 +34,7 @@ struct HouseConfig {
     dimmer: DimmerConfig,
     dark_time: DarkTimeConfig,
     //greeting: GreetingConfig,
-    double_click_timeout_ms: Option<u64>,    
+    double_click_timeout_ms: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -208,7 +208,7 @@ struct ZigduckState {
     devices: HashMap<String, Device>,
     scene_config: SceneConfig,
     room_scenes: HashMap<String, Vec<String>>,
-    scene_index: Arc<RwLock<HashMap<String, usize>>>,    
+    scene_index: Arc<RwLock<HashMap<String, usize>>>,
     automations: AutomationConfig,
     motion_tracker: MotionTracker,
     motion_timers: HashMap<String, tokio::task::JoinHandle<()>>,
@@ -235,7 +235,7 @@ impl Clone for ZigduckState {
             devices: self.devices.clone(),
             scene_config: self.scene_config.clone(),
             room_scenes: self.room_scenes.clone(),
-            scene_index: self.scene_index.clone(),            
+            scene_index: self.scene_index.clone(),
             automations: self.automations.clone(),
             motion_tracker: self.motion_tracker.clone(),
             motion_timers: HashMap::new(),

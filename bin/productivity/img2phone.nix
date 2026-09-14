@@ -7,10 +7,10 @@
   cmdHelpers,
   ...
 } : let
-in {  
+in {
   # 🦆 says ⮞ port for stop url
   networking.firewall.allowedTCPPorts = [ 9876 ];
-  
+
   yo.scripts.img2phone = {
     description = "Send images to an iPhone";
     category = "⚡ Productivity";
@@ -18,11 +18,11 @@ in {
     logLevel = "INFO";
     parameters = [
       { name = "image"; type = "path"; description = "File path to the image to send"; optional = false; }
-    ];  
+    ];
     code = ''
-      ${cmdHelpers}     
+      ${cmdHelpers}
       IMAGE_PATH="$image"
-      
+
       start_time=$(date +%s)
       duration=60
       stopfile="/tmp/img2phoneRunning"
@@ -30,7 +30,7 @@ in {
       port=9876
       image_url="http://$localip:$port/image"
       stopurl="http://$localip:$port/stop"
-      
+
       echo "1" > "$stopfile"
 
       trap 'rm -f "$stopfile"; kill $server_pid 2>/dev/null' EXIT
@@ -70,7 +70,7 @@ in {
           dt_debug "Stopped after 1 minute"
           break
         fi
-        
+
         if [ ! -f "$stopfile" ]; then
           dt_info "Notification clicked, keeping image server running for 30 seconds..."
           sleep 15
@@ -78,7 +78,7 @@ in {
           break
         fi
 
-        yo notify --title "📸 Image" --text "Tap to view image" --url "$image_url" --level "info"   
+        yo notify --title "📸 Image" --text "Tap to view image" --url "$image_url" --level "info"
         sleep 10
       done
       kill $server_pid 2>/dev/null

@@ -18,7 +18,7 @@
     # Disable kernel-param editing on boot
     loader.systemd-boot.editor = false;
 
-    # 🦆 duck say ⮞ kernel security, can't make joke bout' dat.. 
+    # 🦆 duck say ⮞ kernel security, can't make joke bout' dat..
     kernel.sysctl = {
       # Magic SysRq key -> allows performing low-level commands.
       "kernel.sysrq" = 0;
@@ -65,13 +65,13 @@
     # Prevent replacing the running kernel w/o reboot
     protectKernelImage = true;
     acme.acceptTerms = true;
-    
+
     # Allows unautherized applications -> send unautherization request
     # polkit.enable = true;
   };
-    
+
   services.gnome.gnome-keyring.enable = true;
-  services.gvfs.enable = true; 
+  services.gvfs.enable = true;
   networking.firewall.logRefusedConnections = true;
 
   # 🦆 duck say ⮞ sops configurationz
@@ -90,18 +90,18 @@
         group = config.this.user.me.name;
         mode = "0440"; # Read-only for owner and group
       };
-    };  
+    };
   };
 
-  # 🦆 duck say ⮞ quacky hacky with no passy    
+  # 🦆 duck say ⮞ quacky hacky with no passy
   security.sudo.extraConfig = ''
     pungkula ALL=(ALL) NOPASSWD: /run/current-system/sw/bin/systemctl restart yo-wake
   '';
 
   # 🦆 says ⮞ ensures sops required keys are properly decrypted before building
-#  services.sops-yubikey.enable = true;  
-    
-  security.sudo.extraRules = [  
+#  services.sops-yubikey.enable = true;
+
+  security.sudo.extraRules = [
     {
       users = [ "pungkula" ];
       commands = [
@@ -120,7 +120,7 @@
        # {
       #    command = "${self.packages.${pkgs.system}.health}/bin/health";
       #    options = [ "NOPASSWD" ];
-     #   }     
+     #   }
      #   {
      #     command = "/run/current-system/sw/bin/health";
     #     options = [ "NOPASSWD" ];
@@ -144,5 +144,5 @@
         }
       ];
     }
-    
+
   ];}

@@ -916,49 +916,49 @@
   .page[data-page="0"] .status-cards {
     grid-template-columns: 1fr;
   }
-  
+
   .page[data-page="0"] .card-value {
     font-size: 2.8rem;
   }
-  
+
   .page[data-page="0"] .duck-emoji {
     font-size: 2rem;
     top: -10px;
     right: -10px;
   }
-  
+
   .page[data-page="0"] .devices {
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 15px;
   }
-  
+
   .page[data-page="0"] .device {
     padding: 15px;
     min-height: 130px;
   }
-  
+
   .page[data-page="0"] .device-icon {
     font-size: 2rem;
     width: 44px;
     height: 44px;
   }
-  
+
   .page[data-page="0"] .device-name {
     font-size: 1.3rem;
   }
-  
+
   .page[data-page="0"] .room-controls-section {
     padding: 0 15px;
   }
-  
+
   .page[data-page="0"] .room {
     padding: 18px 20px;
   }
-  
+
   .page[data-page="0"] .room-controls-section h3 {
     font-size: 2.2rem;
   }
-  
+
   .page[data-page="0"] .room-controls-section h3::before,
   .page[data-page="0"] .room-controls-section h3::after {
     font-size: 1.6rem;
@@ -971,47 +971,47 @@
   .page[data-page="0"] .devices {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
-  
+
   .page[data-page="0"] .room-controls-section {
     padding: 0 10px;
   }
-  
+
   .page[data-page="0"] .room {
     padding: 15px;
   }
-  
+
   .page[data-page="0"] .room-icon {
     font-size: 5.0rem;
     width: 36px;
     height: 36px;
   }
-  
+
   .page[data-page="0"] .device {
     min-height: 120px;
   }
-  
+
   .page[data-page="0"] .device-icon {
     font-size: 1.8rem;
     width: 40px;
     height: 40px;
   }
-  
+
   .page[data-page="0"] .device-name {
     font-size: 1.2rem;
   }
-  
+
   .page[data-page="0"] .device .switch {
     width: 52px;
     height: 28px;
   }
-  
+
   .page[data-page="0"] .device .toggle-slider:before {
     height: 20px;
     width: 20px;
     left: 4px;
     bottom: 4px;
   }
-  
+
   .page[data-page="0"] .device input:checked + .toggle-slider:before {
     transform: translateX(24px) scale(1.1);
   }
@@ -1023,12 +1023,12 @@
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 240, 240, 0.8));
     color: #333;
   }
-  
+
   .page[data-page="0"] .card-title {
     color: #222;
     text-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   }
-  
+
   .page[data-page="0"] .card-value {
     color: #222;
   }

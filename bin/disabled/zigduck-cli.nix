@@ -1,4 +1,4 @@
-{ 
+{
   self,
   config,
   lib,
@@ -14,16 +14,16 @@ in {
     description = "Control smart home devices.";
     category = "Home Automation";
     logLevel = "INFO";
-    parameters = [   
+    parameters = [
       { name = "device"; description = "Device to control"; optional = true; }
-      { name = "state"; type = "string"; description = "State of the device or group"; } 
-      { name = "brightness"; description = "Brightness value (1-100)"; optional = true; type = "int"; }    
-      { name = "color"; description = "Color name or hex code"; optional = true; }    
-      { name = "temperature"; description = "Light color temperature (153-500)"; optional = true; }          
-      { name = "scene"; description = "Activate a predefined scene"; optional = true; }     
-      { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }        
+      { name = "state"; type = "string"; description = "State of the device or group"; }
+      { name = "brightness"; description = "Brightness value (1-100)"; optional = true; type = "int"; }
+      { name = "color"; description = "Color name or hex code"; optional = true; }
+      { name = "temperature"; description = "Light color temperature (153-500)"; optional = true; }
+      { name = "scene"; description = "Activate a predefined scene"; optional = true; }
+      { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }
       { name = "room"; description = "Room to target"; optional = true; }
-      { name = "blinds"; description = "Control all blinds (up/down/open/close)"; optional = true; }      
+      { name = "blinds"; description = "Control all blinds (up/down/open/close)"; optional = true; }
       { name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; default = false; }
     ];
     code = ''
@@ -34,7 +34,7 @@ in {
       fuzzy = {
         enable = true;
         threshold = 0.4;
-      };  
+      };
     };
   };
 
@@ -203,7 +203,7 @@ in {
       { "in" = "[down]"; out = "down"; }
 
       { "in" = "[open]"; out = "open"; }
-      { "in" = "[close]"; out = "close"; }  
+      { "in" = "[close]"; out = "close"; }
     ];
 
   };}

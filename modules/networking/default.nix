@@ -1,5 +1,5 @@
 # dotfiles/modules/networking/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 say ⮞ default networking 
+{ # 🦆 say ⮞ default networking
   config,
   self,
   lib,
@@ -13,18 +13,18 @@
             ) self.nixosConfigurations
         )
     );
-    
+
     currentInterface = "${builtins.elemAt config.this.host.interface 0}";
-    currentIp = "${config.this.host.ip}";    
-    currentHost = "${config.this.host.hostname}";    
-    
+    currentIp = "${config.this.host.ip}";
+    currentHost = "${config.this.host.hostname}";
+
     defaultNetworking = {
         services.resolved = {
             enable = false;
             domains = [ "~." ];
             fallbackDns = [ ]; # Empty to prevent bypass
             dnsovertls = "true";
-            
+
             # github.com/systemd/systemd/issues/10579
             # dnssec = "allow-downgrade";
             dnssec = "false";
@@ -46,8 +46,8 @@
                 # 🦆 say ⮞ TV devices
                 "192.169.1.224" = [ "shield.lan" "shield.local" "shield" ];
                 "192.169.1.152" = [ "arris.lan" "arris.local" "arris" ];
-            };                                                                                        
-            
+            };
+
             defaultGateway = {
                 address = "192.168.1.1";
                 interface = currentInterface;
@@ -79,13 +79,13 @@
 
             nameservers =
                 if builtins.elem "dns" (config.this.host.modules.networking or [])
-                then [ "127.0.0.1" ]  
-                else designatedDNSHost;  
+                then [ "127.0.0.1" ]
+                else designatedDNSHost;
             firewall = {
                 enable = true;
                 logRefusedConnections = true;
 
-                allowedUDPPorts = 
+                allowedUDPPorts =
                     if builtins.elem "wg-server" (config.this.host.modules.networking or [])
                     then [51820]
                     else  [6222 443 53];
@@ -97,7 +97,7 @@
             dhcpcd.extraConfig = "nohook resolv.conf";
         };
     };
-    
+
   wirelessNetworking = lib.mkIf (!config.this.installer) {
     networking.networkmanager.enable = lib.mkForce false;
 
@@ -111,10 +111,10 @@
 in {
     config = lib.mkMerge [
         (lib.mkIf (lib.elem "default" config.this.host.modules.networking) defaultNetworking)
-    
+
         (lib.mkIf (lib.elem "wireless" config.this.host.modules.networking) (lib.mkMerge [
             #defaultNetworking
             wirelessNetworking
         ]))
-        
+
     ];}

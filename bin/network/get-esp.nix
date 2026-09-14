@@ -1,11 +1,11 @@
 # dotfiles/bin/network/get-esp.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{  # 🦆  ⮞ control ESP32-rs devices through their GET API 
+{  # 🦆  ⮞ control ESP32-rs devices through their GET API
   self, # 🦆 say ⮞ test network speed
   config,
   pkgs,
   cmdHelpers,
   ...
-} : {  
+} : {
   yo.scripts.esp-get = {
     description = "Microcontroller control script - enabling full device configuration on the fly with voice commands.";
     category = "🌐 Networking";

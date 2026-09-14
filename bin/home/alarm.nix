@@ -1,5 +1,5 @@
 # dotfiles/bin/home/alarm.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ alarms - takin' care of wakeup - forcefully getting me out of bed 
+{ # 🦆 says ⮞ alarms - takin' care of wakeup - forcefully getting me out of bed
   self,
   lib,
   config,
@@ -20,22 +20,22 @@
   ];
   # 🦆 says ⮞ get dat number yo
   swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
-  
+
 
   hoursValues = builtins.map (n: toString n) (lib.range 1 12);
   minutesValues = builtins.map (n: toString n) (lib.range 0 59);
- 
 
-in {   
+
+in {
 
    yo.scripts.alarm = {
     description = "Set an alarm for a specified time";
-    category = "🛖 Home Automation";  
+    category = "🛖 Home Automation";
     aliases = [ "wakeup" ];
-    parameters = [     
-      { name = "hours"; type = "string"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; values = hoursValues;  }     
+    parameters = [
+      { name = "hours"; type = "string"; description = "Clock to sewt the alarm for, HH 24 format"; optional = false; values = hoursValues;  }
       { name = "minutes"; type = "string"; description = "Clock to sewt the alarm for, MM format"; optional = false; values = minutesValues; }
-      { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }          
+      { name = "list"; type = "bool"; description = "Lists active alarms"; default = false; }
       { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
     code = ''
@@ -55,22 +55,22 @@ in {
       fi
 
       name="alarm-$hours-$minutes"
-      ${zigduck-cli}/bin/zigduck-cli alarm add --hours "$hours" --minutes "$minutes" --name "$name"    
+      ${zigduck-cli}/bin/zigduck-cli alarm add --hours "$hours" --minutes "$minutes" --name "$name"
     '';
     voice = {
       priority = 5;
       fuzzy = {
         enable = true;
         threshold = 0.9;
-      };  
+      };
       sentences = [
         "(ställ|sätt|starta) [en] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"
-        
+
         "väck mig [klocka|klockan] {hours} [och] {minutes}"
-        
+
         "när ska jag {list} [upp]"
         "när {list} min väckarklocka"
-      ];        
+      ];
       lists = {
         list.values = [
           { "in" = "[stiga|vakna|ringer]"; out = "true"; }
@@ -80,7 +80,7 @@ in {
             { "in" = toString n; out = toString n; }
             { "in" = swedishNumber n; out = toString n; }
           ]
-        ) 24);   
+        ) 24);
         minutes.values = builtins.concatLists (builtins.genList (
           i: let n = i + 1; in [
             { "in" = toString n; out = toString n; }

@@ -8,12 +8,12 @@
   ...
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = "homie";
 #  mqttHost = lib.findSingle (host:
 #      let cfg = self.nixosConfigurations.${host}.config;
 #      in cfg.services.mosquitto.enable or false
-#    ) null null sysHosts;    
+#    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -25,7 +25,7 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-   
+
 in {
   environment.systemPackages = [ pkgs.at ]; # 🦆 says ⮞ when at wat
   # 🦆 says ⮞ dat
@@ -37,7 +37,7 @@ in {
     logLevel = "DEBUG";
     parameters = [
       { name = "about"; description = "What to be reminded about"; optional = true; }
-      { name = "list"; type = "bool"; description = "Flag for listing all reminders"; optional = true; default = false; }            
+      { name = "list"; type = "bool"; description = "Flag for listing all reminders"; optional = true; default = false; }
       { name = "clear"; type = "bool"; description = "Clear all reminders"; optional = true; default = false; }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
@@ -58,7 +58,7 @@ in {
         local action="$1"
         local id="$2"
         local text="$3"
-        
+
         local payload
         payload=$(jq -n \
           --arg action "$action" \
@@ -73,13 +73,13 @@ in {
               timestamp: $timestamp
             }
           }')
-        
+
         ${pkgs.mosquitto}/bin/mosquitto_pub -h ${mqttHostip} -t "zigbee2mqtt/reminders" -m "$payload" ${mqttAuth}
       }
 
       publish_reminder_list() {
         local reminders=()
-        
+
         if [ "$(ls -A "$REMINDER_DIR")" ]; then
           for file in "$REMINDER_DIR"/*; do
             if [ -f "$file" ]; then
@@ -89,7 +89,7 @@ in {
             fi
           done
         fi
-        
+
         local reminder_list=$(printf '%s\n' "''${reminders[@]}" | jq -s '.')
         local payload
         payload=$(jq -n \
@@ -98,10 +98,10 @@ in {
             action: "list",
             reminders: $reminders
           }')
-        
+
         ${pkgs.mosquitto}/bin/mosquitto_pub -h ${mqttHostip} -t "zigbee2mqtt/reminders" -m "$payload" ${mqttAuth}
       }
-  
+
       list_reminders() {
         if [ "$(ls -A "$REMINDER_DIR")" ]; then
           dt_info "Current reminders:"
@@ -117,18 +117,18 @@ in {
           publish_reminder_list
         fi
       }
-  
+
       add_reminder() {
         local id
         id=$(date +%s)
         echo "$about" > "$REMINDER_DIR/$id"
         dt_info "Reminder added: $about"
         publish_reminder "add" "$id" "$about"
-        
+
         # 🦆 says ⮞ schedule automatic removal after 24 hours
         echo "rm '$REMINDER_DIR/$id'" | at now + 24 hours 2>/dev/null || true
       }
-      
+
       clear_reminders() {
         if [ "$(ls -A "$REMINDER_DIR")" ]; then
           rm -f "$REMINDER_DIR"/*
@@ -138,7 +138,7 @@ in {
           dt_info "No reminders to clear"
         fi
       }
-  
+
       if [[ "$clear" == "true" ]]; then
         clear_reminders
       elif [[ -n "$about" ]]; then
@@ -156,12 +156,12 @@ in {
       lists = {
         about.wildcard = true;
         list.values = [
-          { "in" = "[visa]"; out = "true"; }        
+          { "in" = "[visa]"; out = "true"; }
         ];
         clear.values = [
           { "in" = "[rensa]"; out = "true"; }
         ];
       };
     };
- 
+
   };}

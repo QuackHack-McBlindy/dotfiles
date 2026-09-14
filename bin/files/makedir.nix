@@ -1,15 +1,15 @@
 # dotfiles/bin/files/makedir.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ create directories 
+{ # 🦆 says ⮞ create directories
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let # 🦆 says ⮞     
+  ...
+} : let # 🦆 says ⮞
 
-in {   
-   
+in {
+
   yo.scripts.makedir = {
     description = "Create a new directory with parents if needed";
     category = "📁 File Operations";
@@ -20,7 +20,7 @@ in {
       { name = "path"; type = "path"; description = "Directory path to create"; optional = false; }
     ];
     code = ''
-      ${cmdHelpers}    
+      ${cmdHelpers}
       path="$path"
       parents="''${parents:-false}"
 
@@ -33,7 +33,7 @@ in {
           exit 1
         fi
       fi
-      
+
       if [ "$parents" = "true" ]; then
         dt_info "Creating directory with parents: '$path'"
         mkdir -p -- "$path"
@@ -41,7 +41,7 @@ in {
         dt_info "Creating directory: '$path'"
         mkdir -- "$path"
       fi
-      
+
       if [ -d "$path" ]; then
         dt_success "Directory created successfully"
       else
@@ -58,10 +58,10 @@ in {
         "(create|make) directory {path}"
         "mkdir {path}"
 
-      ];        
+      ];
       lists = {
         path.wildcard = true;
       };
-    };  
-    
+    };
+
   };}

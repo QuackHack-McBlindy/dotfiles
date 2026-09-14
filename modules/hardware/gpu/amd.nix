@@ -1,5 +1,5 @@
 # dotfiles/modules/hardware/gpu/amd.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   config,
   lib,
   pkgs,
@@ -10,9 +10,9 @@ in {
     config = lib.mkIf (lib.elem "gpu/amd" config.this.host.modules.hardware) {
         boot.initrd.kernelModules = [ "amdgpu" ];
         services.xserver.videoDrivers = [ "amdgpu" ];
-        
+
         hardware.amdgpu = {
-            opencl.enable = true; 
+            opencl.enable = true;
             # removed
 #            amdvlk = {
 #                enable = true;
@@ -29,6 +29,6 @@ in {
 #                    ShaderCacheMaxSize = 512;
 #                };
 #            };
-        
+
         };
     };}

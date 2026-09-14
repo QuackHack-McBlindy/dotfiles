@@ -1,24 +1,24 @@
 # dotfiles/bin/media/vlc.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ playlist management 
+{ # 🦆 says ⮞ playlist management
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let # 🦆 says ⮞ yo    
-  # 🦆 says ⮞ gen json from `config.house.tv`  
+  ...
+} : let # 🦆 says ⮞ yo
+  # 🦆 says ⮞ gen json from `config.house.tv`
   channelsJson = pkgs.writeText "channels.json" (builtins.toJSON (
     lib.mapAttrs (deviceName: deviceConfig: deviceConfig.channels) config.house.tv
-  ));  
+  ));
   tvDevicesJson = pkgs.writeText "tv-devices.json" (builtins.toJSON config.house.tv);
 
   # 🦆 says ⮞ mqtt is used for tracking channel states on devices
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -31,8 +31,8 @@
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
 
-in {   
-   
+in {
+
   yo.scripts.vlc = {
     description = "Playlist management for the local machine";
     category = "🎧 Media Management";
@@ -51,7 +51,7 @@ in {
       ${cmdHelpers}
       dt_debug "Add: $add     Add Folder: $addDir"
       playlist="$playlist"
-      
+
       # 🦆 says ⮞ --clear? clear the entire playlist
       if [ "$clear" = "true" ]; then
         dt_debug "Clearing playlist"
@@ -60,8 +60,8 @@ in {
         exit 0
       fi
       touch "$playlist"
-      
-      # 🦆 says ⮞ --list? return json playlist      
+
+      # 🦆 says ⮞ --list? return json playlist
       if [ "$list" = "true" ]; then
         # 🦆 says ⮞ read lines and filter em'
         playlist_items=$(grep -vE '^\s*#' "$playlist" | grep -vE '^\s*$')
@@ -95,7 +95,7 @@ in {
         dt_info "Removed '$target_path' from playlist"
         exit 0
       fi
-      
+
       # 🦆 says ⮞ --add? add file to playlist
       if [ -n "$add" ]; then
         if [ ! -e "$add" ]; then
@@ -108,7 +108,7 @@ in {
         echo "$real_path" >> "$playlist"
         dt_info "Added '$real_path' to playlist"
       fi
-      
+
       # 🦆 says ⮞ --addDir? add directory contents to playlist
       if [ -n "$addDir" ]; then
         if [ ! -d "$addDir" ]; then
@@ -117,7 +117,7 @@ in {
         fi
         real_dir=$(realpath -s "$addDir" 2>/dev/null || echo "$addDir")
         dt_debug "Adding directory: $real_dir"
-        
+
         while IFS= read -r -d "" file; do
           file_path=$(realpath -s "$file" 2>/dev/null || echo "$file")
           echo "$file_path" >> "$playlist"
@@ -133,10 +133,10 @@ in {
           -name "*.mkv" -o \
           -name "*.mov" -o \
           -name "*.wmv" \) -print0 2>/dev/null || true)
-        
+
         dt_info "Added media files from '$real_dir' to playlist"
       fi
-      
+
       # 🦆 says ⮞ --shuffle? shuffle the playlist
       if [ "$shuffle" = "true" ]; then
         dt_debug "Shuffling playlist"
@@ -144,16 +144,16 @@ in {
           dt_warn "Playlist is empty, nothing to shuffle"
           exit 0
         fi
-        
+
         playlist_content=$(grep -vE '^\s*#' "$playlist" | grep -vE '^\s*$')
-        
+
         if [ -n "$playlist_content" ]; then
           if command -v shuf >/dev/null 2>&1; then
             shuffled_content=$(echo "$playlist_content" | shuf)
           else
             shuffled_content=$(echo "$playlist_content" | sort -R)
           fi
-          
+
           temp_file=$(mktemp -p "$(dirname "$playlist")")
           echo "$shuffled_content" > "$temp_file"
           mv "$temp_file" "$playlist"
@@ -164,7 +164,7 @@ in {
       fi
     '';
   };
-    
+
   sops.secrets = {
     webserver = { # 🦆 says ⮞ https required
       sopsFile = ../../secrets/webserver.yaml;
@@ -172,11 +172,11 @@ in {
       group = "zigduck";
       mode = "0440";
     }; # 🦆 says ⮞ required for youtube
-    youtube_api_key = { 
+    youtube_api_key = {
       sopsFile = ../../secrets/youtube.yaml;
       owner = config.this.user.me.name;
       group = config.this.user.me.name;
       mode = "0440";
     };
-    
+
   };}

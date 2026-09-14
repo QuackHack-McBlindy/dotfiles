@@ -8,12 +8,12 @@
 } : let
   user = config.this.user.me.name;
   allHosts = self.nixosConfigurations;
-  
+
   # 🦆 duck say ⮞ filter out current host
   otherHosts = lib.filterAttrs (name: _: name != config.networking.hostName) allHosts;
 
   # 🦆 duck say ⮞ generate knownHosts for all other hostz
-  knownHostsEntries = lib.filterAttrs (_: v: v.publicKey != null) (lib.mapAttrs' (hostName: hostCfg: 
+  knownHostsEntries = lib.filterAttrs (_: v: v.publicKey != null) (lib.mapAttrs' (hostName: hostCfg:
     lib.nameValuePair hostName {
       extraHostNames = [ hostCfg.config.networking.hostName ];
       publicKey = hostCfg.config.this.host.keys.publicKeys.host or null;
@@ -35,12 +35,12 @@
     ];
   in hostKeys ++ extraKeys;
 
-  lanHosts = lib.concatStringsSep "\n" (  
-    lib.flatten (  
-      lib.mapAttrsToList (ip: names:  
-        lib.concatStringsSep "\n" (map (name: "Host ${name}\n    Port 2222\n    UseRoaming no") names)  
-      ) config.networking.hosts  
-    )  
+  lanHosts = lib.concatStringsSep "\n" (
+    lib.flatten (
+      lib.mapAttrsToList (ip: names:
+        lib.concatStringsSep "\n" (map (name: "Host ${name}\n    Port 2222\n    UseRoaming no") names)
+      ) config.networking.hosts
+    )
   );
 
   sshConfigText = ''
@@ -55,11 +55,11 @@
     name = "ssh-config";
     text = sshConfigText;
   };
-  
+
   sshUserKey = ''
       "@SSHUSERKEY@"
   '';
-  sshUserKeyFile = 
+  sshUserKeyFile =
       pkgs.runCommand "sshUserKeyFile"
           { preferLocalBuild = true; }
           ''
@@ -109,7 +109,7 @@ in {
         { addr = "[::]"; port = 2222; }
       ];
     };
-    
+
     systemd.services.userkey = lib.mkIf (!config.this.installer) {
       wantedBy = [ "multi-user.target" ];
 
@@ -135,11 +135,11 @@ in {
 
     sops.secrets = lib.mkIf (!config.this.installer) {
       "users/${config.this.user.me.name}/ssh_ed25519" = {
-        sopsFile = ./../../secrets/users/${config.this.user.me.name}/ssh_ed25519.yaml; 
+        sopsFile = ./../../secrets/users/${config.this.user.me.name}/ssh_ed25519.yaml;
         owner = config.this.user.me.name;
         group = config.this.user.me.name;
         mode = "0400"; # Read-only for owner and group
-      };    
+      };
     };
-    
+
   };}

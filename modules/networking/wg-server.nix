@@ -4,25 +4,25 @@
   lib,
   pkgs,
   self,
-  ...  
+  ...
 } : let
-# 🦆 says ⮞ Place your encrypted private keys in `dotfiles/secrets/hosts/<device>/<device>_wireguard_private.yaml` 
-# 🦆 says ⮞ Define your NIxOS clients like so: 
+# 🦆 says ⮞ Place your encrypted private keys in `dotfiles/secrets/hosts/<device>/<device>_wireguard_private.yaml`
+# 🦆 says ⮞ Define your NIxOS clients like so:
 # config.this.host.wgip = "<ip>";
 # config.this.host.keys.publicKeys = { wireguard = "<pubkey>": };
-# 🦆 says ⮞ Define your mobile device clients like this: 
+# 🦆 says ⮞ Define your mobile device clients like this:
 # config.this.user.me.mobileDevices = { <device> = { wgip = "<ip>"; pubkey = "<pubkey>"; }; };
 
   # 🦆 says ⮞ WireGuard™ User home directory
   wgUserHome = "/home/wgUser";
-  
+
   # 🦆 says ⮞ WireGuard™ tunnel'z allowed IP'z
   defaultAllowedIPs = [ "10.0.0.0/24" "192.168.1.0/24" ];
   # 🦆 says ⮞ can also be defined per device at `config.this.user.me.mobileDevices.<device.allowedIPs` but this is optional
-  
+
   # 🦆 says ⮞ Server configuration
   serverCfg = config.this.host;
-  
+
   # 🦆 says ⮞ Get NixOS host peers
   peerHosts = lib.filterAttrs (_: cfg:
     lib.elem "wg-client" (cfg.config.this.host.modules.networking or [])
@@ -52,7 +52,7 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
       (lib.listToAttrs (map (d: lib.nameValuePair "${d}_wireguard_private" (mkSopsSecret d)) (lib.attrNames mobileDevices)))
       //
       { # 🦆 says ⮞ domain/ip to run da server on
-        domain = { 
+        domain = {
           sopsFile = ../../secrets/domain.yaml;
           owner = "wgUser";
           group = "wgUser";
@@ -60,16 +60,16 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
         };
       }
     );
-   
-    # 🦆 says ⮞ network configuration 
+
+    # 🦆 says ⮞ network configuration
     networking = { # 🦆 says ⮞ open UDP firewall port
       firewall.allowedUDPPorts = [ 51820 ];
-      # 🦆 says ⮞ WireGuard™ interface config 
+      # 🦆 says ⮞ WireGuard™ interface config
       wireguard.interfaces.wg0 = {
         ips = [ "${serverCfg.wgip}/24" ];
         listenPort = 51820;
         privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
-        peers = 
+        peers =
           # 🦆 says ⮞ NixOS host peers
           (lib.mapAttrsToList (_: host: {
             publicKey = peerPublicKey host;
@@ -84,7 +84,7 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
       };
     };
 
-    # 🦆 says ⮞ secret readin' before yo! 
+    # 🦆 says ⮞ secret readin' before yo!
     systemd.services.wireguard-wg0.after = [ "sops-nix.service" ];
 
     # 🦆 says ⮞ systemd service dat generates random colored quacky QR codez for mobile devicez yo
@@ -128,10 +128,10 @@ EOF
           rm -rf "$TEMP_DIR" # 🦆 says ⮞ cleanup
         '';
       in ''
-        mkdir -p "${wgUserHome}"        
+        mkdir -p "${wgUserHome}"
         ${deleteOld}
         ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}
-      '';   
+      '';
       after = [ "sops-nix.service" ];
       wantedBy = [ "multi-user.target" ];
     });
@@ -145,6 +145,6 @@ EOF
         createHome = true;
         isSystemUser = true;
       };
-    }; 
+    };
   };} # 🦆 says ⮞ zimple az dat, yo!
 # 🦆 says ⮞ QuackHack-McBlindy out!

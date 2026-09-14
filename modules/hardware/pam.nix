@@ -1,5 +1,5 @@
 # https://joinemm.dev/blog/yubikey-nixos-guide
-# In depth setup guide: 
+# In depth setup guide:
 # https://github.com/drduh/YubiKey-Guide/
 
 # For secure setup enviorment, use:

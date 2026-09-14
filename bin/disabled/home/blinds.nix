@@ -24,12 +24,12 @@
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or "127.0.0.1"
     else "127.0.0.1";
 
-  # 🦆 says ⮞ define Zigbee devices here yo 
+  # 🦆 says ⮞ define Zigbee devices here yo
   zigbeeDevices = config.house.zigbee.devices;
 
   # 🦆 says ⮞ Filter to only include light devices
   lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
- 
+
   # 🦆 says ⮞ case-insensitive device matching
   normalizedDeviceMap = lib.mapAttrs' (id: device:
     lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
@@ -38,7 +38,7 @@
   # 🦆 says ⮞ Group devices by room
   roomDevicesMap = let
     grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (room: devices: 
+  in lib.mapAttrs (room: devices:
       map (d: d.friendly_name) devices
     ) grouped;
 
@@ -64,13 +64,13 @@
 
   # 🦆 says ⮞ All devices as a pipe-separated string
   allDevicesStr = lib.concatStringsSep "|" allDevicesList;
-in { 
+in {
   yo.scripts.blinds = {
     description = "Turn blinds up/down";
-    category = "🛖 Home Automation";  
-    parameters = [    
-      { name = "state"; description = "State of the blinds"; default = "on"; }     
-    ];      
+    category = "🛖 Home Automation";
+    parameters = [
+      { name = "state"; description = "State of the blinds"; default = "on"; }
+    ];
     code = ''
       ${cmdHelpers}
       case "$state" in
@@ -84,16 +84,15 @@ in {
     '';
     voice = {
       sentences = [
-        "(persienner|persiennerna) {state}" 
+        "(persienner|persiennerna) {state}"
         "(blind|blinds) {state}"
       ];
       lists = {
         state.values = [
-          { "in" = "[upp|uppe]"; out = "ON"; }             
-          { "in" = "[ned|ner]"; out = "OFF"; } 
+          { "in" = "[upp|uppe]"; out = "ON"; }
+          { "in" = "[ned|ner]"; out = "OFF"; }
         ];
-      };  
+      };
     };
-    
-  };}
 
+  };}

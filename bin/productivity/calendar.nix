@@ -15,7 +15,7 @@
         aliases = [ "kal" ];
         runEvery = lib.mkIf (config.this.host.hostname == "homie") "05";
         helpFooter = ''
-          ${cmdHelpers}        
+          ${cmdHelpers}
           echo "## ──────⋆⋅☆⋅⋆────── ##"
           echo "## Calendar" && echo ""
           echo "This calendar has 4 modes."
@@ -31,11 +31,11 @@
           echo "  R - Remove event from selected day"
           echo "  E - Edit events on selected day"
           echo "  Q - Quit"
-          echo "## ──────⋆⋅☆⋅⋆────── ##" 
+          echo "## ──────⋆⋅☆⋅⋆────── ##"
         '';
         parameters = [
           { name = "operation"; description = "Supported values: add, remove, list, show"; optional = false; default = "list"; }
-          { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/Downloads/basic.ics"; }       
+          { name = "calenders"; description = "Supported formats: local filepath and url, comma separated list."; default = config.this.user.me.dotfilesDir + "/home/björklöven.ics,/home/pungkula/Downloads/basic.ics"; }
         ];
         code = ''
           ${cmdHelpers}
@@ -47,17 +47,17 @@
           publish_to_mqtt() {
             local date="$1"
             local events="$2"
-            
+
             local json_payload
             json_payload=$(jq -n \
               --arg today_date "$date" \
               --arg today_events "$events" \
               '{today_date: $today_date, today_events: $today_events}' 2>/dev/null)
-            
+
             if [ -z "$json_payload" ]; then
               json_payload="{\"today_date\":\"$date\",\"today_events\":\"$events\"}"
             fi
-            
+
             if command -v mosquitto_pub >/dev/null 2>&1; then
               yo mqtt_pub --topic "zigduck/calendar" .-message "$json_payload" 2>/dev/null || true
               echo "Published to MQTT: $json_payload"
@@ -66,11 +66,11 @@
             fi
           }
 
-          
-          
+
+
           get_todays_events() {
             local today=$(date +%Y%m%d)
-          
+
             local events=$(
               for file in "''${ICS_FILES[@]}"; do
                 [[ -f "$file" ]] && \
@@ -93,16 +93,16 @@
                 ' "$file"
               done
             )
-          
+
             if [ -z "$events" ]; then
               echo "Nothing today..."
             else
               echo "$events" | paste -sd ", " -
             fi
           }
-          
-          
-          
+
+
+
 
 
           list_calendar_events() {
@@ -129,7 +129,7 @@
           show_upcoming() {
             local today=$(date +%Y%m%d)
             local next_week=$(date -d "+7 days" +%Y%m%d)
-  
+
             for file in "''${ICS_FILES[@]}"; do
               [[ -f "$file" ]] && \
               awk -v today="$today" -v next_week="$next_week" '
@@ -152,7 +152,7 @@
                 }' "$file"
             done | sort
           }
-          
+
           downloaded_files=()
           for i in "''${!ICS_FILES[@]}"; do
             file="''${ICS_FILES[$i]}"
@@ -164,9 +164,9 @@
               downloaded_files+=("$file")
             fi
           done
-          
+
           ICS_FILES=("''${downloaded_files[@]}")
-          
+
           show_calendar() {
             TEMP_EVENTS_FILE="$TEMP_DIR/calendar_events.tmp"
             RED="\033[1;31m"
@@ -176,10 +176,10 @@
             CYAN="\033[1;36m"
             MAGENTA="\033[1;35m"
             RESET="\033[0m"
-            
+
             selected_date=$(date +%Y-%m-%d)
             declare -A events
-            
+
             load_events() {
               rm -f "$TEMP_EVENTS_FILE"
               for file in "''${ICS_FILES[@]}"; do
@@ -213,17 +213,17 @@
               local month=$(date -d "$selected_date" +%m)
               local day=$(date -d "$selected_date" +%d)
               local today=$(date +%d)
-              
+
               month=$((10#$month))
               day=$((10#$day))
               today=$((10#$today))
-              
+
               local first_dow=$(date -d "$year-$month-01" +%u)
               local days_in_month=$(date -d "$year-$month-01 +1 month -1 day" +%d)
               days_in_month=$((10#$days_in_month))
-              
+
               local pad=$((first_dow - 1))
-              
+
               local star_day=0
               if (( days_in_month >= 25 )); then
                 local dow_25=$(date -d "$year-$month-25" +%u)  # 1-7 (Mon-Sun)
@@ -236,14 +236,14 @@
 
               echo -e "''${CYAN}$(date -d "$year-$month-01" "+%B %Y")''${RESET}"
               echo -e "Mo Tu We Th Fr ''${RED}Sa''${RESET} ''${RED}Su''${RESET}"
-              
+
               for ((i=0; i<$pad; i++)); do echo -n "   "; done
-              
+
               for ((d=1; d<=$days_in_month; d++)); do
                 printf -v date_str "%d-%02d-%02d" $year $month $d
-                
+
                 local dow=$(date -d "$date_str" +%u)
-                
+
                 local display_num=$d
                 if [[ $d -eq $star_day ]]; then
                   display_num="💫"
@@ -254,40 +254,40 @@
                 elif [[ $dow -eq 6 || $dow -eq 7 ]]; then  # Saturday or Sunday
                   echo -ne "''${RED}"
                 fi
-                
+
                 [[ -n "''${events[$date_str]}" ]] && echo -ne "''${YELLOW}"
-                
+
                 if [[ "$display_num" == "💫" ]]; then
                   printf "%-2s" "$display_num"
                 else
                   printf "%2d" "$d"
                 fi
                 echo -ne "''${RESET} "
-                
+
                 if [[ $dow -eq 7 ]]; then
                   echo
                 fi
               done
               echo
-              
+
               echo -e "\n''${MAGENTA}Controls:''${RESET} Arrow Keys=Navigate  ''${GREEN}Enter/A''${RESET}=Add  ''${RED}R''${RESET}=Remove  ''${YELLOW}E''${RESET}=Edit  ''${CYAN}Q''${RESET}=Quit"
             }
 
             show_events() {
               local date_str=$(date -d "$selected_date" +%Y-%m-%d)
               local event_str="''${events[$date_str]}"
-              
+
               if [[ -z "$event_str" || "$event_str" == "|" ]]; then
                 echo -e "\nEvents for $(date -d "$selected_date" +%F):"
                 echo "  No events"
                 return
               fi
-              
+
               local IFS='|'
               local event_list=($event_str)
-              
+
               echo -e "\nCalendar events for $(date -d "$selected_date" +%F):"
-              
+
               for i in "''${!event_list[@]}"; do
                 local event="''${event_list[$i]}"
                 [[ -z "$event" ]] && continue
@@ -298,23 +298,23 @@
             add_event() {
               local date_str=$1
               local desc=$2
-    
+
               if [[ -z "$desc" ]]; then
                 echo -n "Enter event description: "
                 read -r desc
                 [[ -z "$desc" ]] && { echo "Event creation cancelled."; return 1; }
               fi
-    
+
               local ics_date=$(date -d "$date_str" +%Y%m%d)
               local uid="''${ics_date}-$(uuidgen | cut -c1-8)"
               local ics_file="''${ICS_FILES[0]}"
-    
+
               if [[ -z "''${events[$date_str]}" ]]; then
                 events["$date_str"]="$desc"
               else
                 events["$date_str"]+="|$desc"
               fi
-    
+
               # 🦆 says ⮞ rebuild ics file
               rebuild_ics
               echo "Event added: $date_str - $desc"
@@ -323,16 +323,16 @@
             remove_event() {
               local date_str=$1
               local desc=$2
-    
+
               if [[ -z "''${events[$date_str]}" ]]; then
                 echo "No events found for $date_str"
                 return 1
               fi
-    
+
               local IFS='|'
               local event_list=("''${events[$date_str]//|/ }")
               event_list=(''${events[$date_str]//|/ })
-              
+
               if [[ -z "$desc" ]]; then
                 # 🦆 says ⮞ interactive removal
                 echo "Select event to remove:"
@@ -341,18 +341,18 @@
                 done
                 echo -n "Enter event number: "
                 read -r choice
-                
+
                 if [[ ! "$choice" =~ ^[0-9]+$ ]] || (( choice < 1 || choice > ''${#event_list[@]} )); then
                   echo "Invalid selection."
                   return 1
                 fi
-                
+
                 desc="''${event_list[$((choice-1))]}"
               fi
-    
+
               local new_events=()
               local found=0
-    
+
               for event in "''${event_list[@]}"; do
                 if [[ "$event" == "$desc" ]]; then
                   found=1
@@ -360,47 +360,47 @@
                   new_events+=("$event")
                 fi
               done
-    
+
               if [[ $found -eq 0 ]]; then
                 echo "Event not found: $desc"
                 return 1
               fi
-    
+
               if [ ''${#new_events[@]} -eq 0 ]; then
                 unset events["$date_str"]
               else
                 events["$date_str"]=$(IFS='|'; echo "''${new_events[*]}")
               fi
-    
+
               rebuild_ics
               echo "Event removed: $date_str - $desc"
             }
 
             edit_events() {
               local date_str=$1
-              
+
               if [[ -z "''${events[$date_str]}" ]]; then
                 echo "No events found for $date_str"
                 return 1
               fi
-    
+
               local IFS='|'
               local event_list=(''${events[$date_str]//|/ })
-              
+
               echo "Current events for $date_str:"
               for i in "''${!event_list[@]}"; do
                 echo "  $((i+1)). ''${event_list[$i]}"
               done
-              
+
               echo -e "\nOptions:"
               echo "  1. Edit an event"
               echo "  2. Add another event"
               echo "  3. Remove an event"
               echo "  4. Cancel"
-              
+
               echo -n "Select option: "
               read -r option
-              
+
               case "$option" in
                 1)
                   echo -n "Enter event number to edit: "
@@ -409,11 +409,11 @@
                     echo "Invalid selection."
                     return 1
                   fi
-                  
+
                   local old_event="''${event_list[$((choice-1))]}"
                   echo -n "Enter new description [''${old_event}]: "
                   read -r new_desc
-                  
+
                   if [[ -n "$new_desc" ]]; then
                     event_list[$((choice-1))]="$new_desc"
                     events["$date_str"]=$(IFS='|'; echo "''${event_list[*]}")
@@ -443,7 +443,7 @@
                 # Convert YYYYMMDD to YYYY-MM-DD
                 date="''${date:0:4}-''${date:4:2}-''${date:6:2}"
               fi
-              
+
               if ! date -d "$date" >/dev/null 2>&1; then
                 dt_error "Error: Invalid date format: $date. Use YYYY-MM-DD or YYYYMMDD"
                 return 1
@@ -467,14 +467,14 @@
 
             rebuild_ics() {
               for file in "''${ICS_FILES[@]}"; do
-                # 🦆 says ⮞ only rebuild the first ics file 
+                # 🦆 says ⮞ only rebuild the first ics file
                 if [[ "$file" == "''${ICS_FILES[0]}" ]]; then
                   cp "$file" "$file.bak" 2>/dev/null || true
-                  
+
                   echo "BEGIN:VCALENDAR" > "$file"
                   echo "VERSION:2.0" >> "$file"
                   echo "CALSCALE:GREGORIAN" >> "$file"
-                  
+
                   for date_str in "''${!events[@]}"; do
                     IFS='|' read -ra event_list <<< "''${events[$date_str]}"
                     for event in "''${event_list[@]}"; do
@@ -488,7 +488,7 @@
                       echo "END:VEVENT" >> "$file"
                     done
                   done
-                  
+
                   echo "END:VCALENDAR" >> "$file"
                 fi
               done
@@ -498,7 +498,7 @@
             while true; do
               draw_calendar
               show_events
-              
+
               read -rsn1 key
               case "$key" in
                 $'\x1b') # 🦆 says ⮞ escape sequence
@@ -546,7 +546,7 @@
               esac
             done
           }
-          
+
           case "$operation" in
             show)
               show_calendar
@@ -587,7 +587,7 @@
             *)
               show_calendar
               ;;
-          esac          
+          esac
         '';
         voice = {
           sentences = [
@@ -599,8 +599,8 @@
             "visa [min] kalender [för] [idag]"
             "kalender [händelser] [idag]"
           ];
-        };  
+        };
       };
     };
-    
+
   };}

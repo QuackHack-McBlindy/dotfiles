@@ -1,24 +1,24 @@
 # dotfiles/bin/config/say.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ TTS with built in language detection and automatic model downloading.  
+{ # 🦆 says ⮞ TTS with built in language detection and automatic model downloading.
   self,
   lib,
   config,
   pkgs,
   cmdHelpers,
-  ... 
-} : let # 🦆 says ⮞ quack quack quack  
-  environment.systemPackages = [ pkgs.alsa-utils pkgs.pipertts ];  
-in { # 🦆 says ⮞ yo yo yo yo  
+  ...
+} : let # 🦆 says ⮞ quack quack quack
+  environment.systemPackages = [ pkgs.alsa-utils pkgs.pipertts ];
+in { # 🦆 says ⮞ yo yo yo yo
   yo.scripts.say = {
     description = "Text to speech with built in language detection and automatic model downloading";
     category = "🗣️ Voice";
     autoStart = false;
     logLevel = "WARNING";
     parameters = [ # 🦆 says ⮞ server api configuration goez here yo
-      { name = "text"; description = "Input text that should be spoken"; optional = false; }      
+      { name = "text"; description = "Input text that should be spoken"; optional = false; }
       { name = "model"; description = "File name of the model"; default = "sv_SE-lisa-medium.onnx"; } # 🦆 says ⮞ lisa sounds hot - bet she likez ducks
       { name = "modelDir"; description = "Path to the directory containing model"; default = "/home/" + config.this.user.me.name + "/.local/share/piper"; }
-      { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; } 
+      { name = "silence"; description = "Number of seconds of silence between sentences"; default = "0.2"; }
       { name = "host"; description = "Host to play the audio on"; default = config.this.host.hostname; }
       { name = "blocking"; type = "bool"; description = "Wait for TTS playback to finish"; default = false; }
       { name = "file"; description = "Specify a file path, and the content of the file will be read. Using this option will activate language detection."; default = "false"; }
@@ -26,14 +26,14 @@ in { # 🦆 says ⮞ yo yo yo yo
       { name = "web"; type = "bool"; description = "Generate for web and output HTTP URL"; default = false; }
     ];
     code = ''
-      ${cmdHelpers} # 🦆 says ⮞ load default helper functions 
+      ${cmdHelpers} # 🦆 says ⮞ load default helper functions
       INPUT="$text"
       MODEL_DIR="$modelDir"
       MODEL="$model"
       HOST="$host"
       MODEL_PATH="$MODEL_DIR/$MODEL"
       BLOCKING="$blocking"
-      SENTENCE_SILENCE="$silence" 
+      SENTENCE_SILENCE="$silence"
       CURRENT_HOST=$(hostname)
       CAF_OUTPUT="$caf"
       WEB="$web"
@@ -44,7 +44,7 @@ in { # 🦆 says ⮞ yo yo yo yo
       # 🦆 says ⮞ Web mode - always run on mqttHost
       if [ "$WEB" = "true" ]; then
         FIXED_WAV="/var/lib/zigduck/tts/tts.wav"
-        
+
         if [ "$CURRENT_HOST" = "homie" ]; then
           mkdir -p "/var/lib/zigduck/tts"
           echo "$INPUT" | piper -m "$MODEL_PATH" -f "$FIXED_WAV" --sentence-silence "$SENTENCE_SILENCE" >/dev/null 2>&1
@@ -56,17 +56,17 @@ in { # 🦆 says ⮞ yo yo yo yo
           ARGS="$ARGS --silence \"$SENTENCE_SILENCE\""
           ARGS="$ARGS --host \"$HOST\""
           ARGS="$ARGS --web true"
-          
+
           if [ "$BLOCKING" = "true" ]; then
             ARGS="$ARGS --blocking true"
           fi
-          
+
           if [ -n "$CAF_OUTPUT" ]; then
             ARGS="$ARGS --caf \"$CAF_OUTPUT\""
           fi
-          
+
           SSH_CMD="yo say $ARGS"
-          
+
           ${pkgs.openssh}/bin/ssh homie "$SSH_CMD"
         fi
         exit 0
@@ -79,7 +79,7 @@ in { # 🦆 says ⮞ yo yo yo yo
           dt_error "Model not found: $MODEL_PATH"
           exit 1
         fi
-        
+
         if [ "$BLOCKING" = "true" ]; then
           TMP_WAV=$(mktemp --suffix=.wav)
           trap 'rm -f "$TMP_WAV"' EXIT
@@ -95,7 +95,7 @@ in { # 🦆 says ⮞ yo yo yo yo
             TMP_WAV=$(mktemp --suffix=.wav)
             trap 'rm -f "$TMP_WAV"' EXIT
             echo "$INPUT" | piper -m "$MODEL_PATH" -f "$TMP_WAV" --sentence-silence "$SENTENCE_SILENCE" >/dev/null 2>&1
-            
+
             if [ -n "$CAF_OUTPUT" ]; then
               ${pkgs.ffmpeg}/bin/ffmpeg -y -loglevel error -i "$TMP_WAV" "$CAF_OUTPUT"
             else
@@ -111,21 +111,21 @@ in { # 🦆 says ⮞ yo yo yo yo
         ARGS="$ARGS --silence \"$SENTENCE_SILENCE\""
         ARGS="$ARGS --host \"$HOST\""
         ARGS="$ARGS --web false"
-        
+
         if [ "$BLOCKING" = "true" ]; then
           ARGS="$ARGS --blocking true"
         fi
-        
+
         if [ -n "$CAF_OUTPUT" ]; then
           ARGS="$ARGS --caf \"$CAF_OUTPUT\""
         fi
-        
+
         SSH_CMD="yo say $ARGS"
 
         ${pkgs.openssh}/bin/ssh "$HOST" "$SSH_CMD"
       fi
 
-    ''; # 🦆 says ⮞ quack quack quack   
+    ''; # 🦆 says ⮞ quack quack quack
     voice = {
       enabled = true;
       priority = 5;
@@ -134,8 +134,8 @@ in { # 🦆 says ⮞ yo yo yo yo
       ];
       lists = {
         text.wildcard = true;
-      };  
+      };
     };
 
   };} # 🦆 says ⮞ duckie duck duck
-# 🦆 says ⮞ QuackHack-McBLindy out - peace!  
+# 🦆 says ⮞ QuackHack-McBLindy out - peace!

@@ -1,11 +1,11 @@
 # dotfiles/bin/network/invokeai.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ 
+{
   self,
   config,
   pkgs,
   cmdHelpers,
   ...
-} : {  
+} : {
   yo.scripts.invokeai = {
     description = "AI generated images powered by InvokeAI";
     category = "🧩 Miscellaneous";
@@ -13,15 +13,15 @@
 #    helpFooter = ''
 #    '';
     parameters = [
-      { name = "prompt"; description = "Prompt for image generation"; optional = false; }    
-      { name = "host"; description = "API host"; default = "localhost"; }    
-      { name = "port"; description = "API port"; default = "9090"; }    
-      { name = "outputDir"; description = "Output directory"; default = "/home/" + config.this.user.me.name + "/invokeai-data/images"; }    
-      { name = "width"; description = "Image width"; default = "512"; }    
-      { name = "height"; description = "Image height"; default = "512"; }    
-      { name = "steps"; description = "Number of steps"; default = "20"; }    
-      { name = "cfgScale"; description = "CFG scale"; default = "7.5"; }         
-      { name = "seed"; description = "Random seed"; default = "-1"; }  
+      { name = "prompt"; description = "Prompt for image generation"; optional = false; }
+      { name = "host"; description = "API host"; default = "localhost"; }
+      { name = "port"; description = "API port"; default = "9090"; }
+      { name = "outputDir"; description = "Output directory"; default = "/home/" + config.this.user.me.name + "/invokeai-data/images"; }
+      { name = "width"; description = "Image width"; default = "512"; }
+      { name = "height"; description = "Image height"; default = "512"; }
+      { name = "steps"; description = "Number of steps"; default = "20"; }
+      { name = "cfgScale"; description = "CFG scale"; default = "7.5"; }
+      { name = "seed"; description = "Random seed"; default = "-1"; }
       { name = "model"; description = "Model to use"; default = "sd-1.5"; }
     ];
     code = ''
@@ -64,13 +64,13 @@
     "batch_size": $BATCH_SIZE
 }
 EOF
-      )      
+      )
 
       filename="$OUTPUT_DIR/invokeai_$TIMESTAMP.png"
       dt_info "Generating image $filename with prompt: $prompt"
 
       response=$(curl -s -w "%{http_code}" -X POST -H "Content-Type: application/json" -d "$json_payload" "$API_URL/api/v1/generate")
-      
+
       http_code=''${response: -3}
       response_body=''${response:0: -3}
       dt_info "HTTP Status Code: $http_code"
@@ -84,7 +84,7 @@ EOF
         "gör en {style} bild på {prompt}"
         "fixa en {style} bild av {prompt}"
         "rita en {style} illustration av {prompt}"
-      ];        
+      ];
       lists = {
         style.values = [
           { "in" = "realistisk"; out = "realistic"; }
@@ -106,6 +106,6 @@ EOF
         ];
         prompt.wildcard = true;
       };
-    };    
-    
+    };
+
   };}

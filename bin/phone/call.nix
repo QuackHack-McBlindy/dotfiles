@@ -5,7 +5,7 @@
   pkgs,
   cmdHelpers,
   ...
-} : {  
+} : {
   yo.scripts.call = {
     description = "Calls phone number from contact list";
     category = "☎️ Phone";
@@ -13,9 +13,9 @@
     parameters = [
       { name = "contactName"; type = "string"; description = "Contact name to call"; optional = false; }
       { name = "contactFile"; type = "string"; description = "Contact file to load"; optional = false; }
-    ];  
+    ];
     code = ''
-      # 🦆 says ⮞ todo .. 
+      # 🦆 says ⮞ todo ..
     '';
     voice = {
       priority = 5;
@@ -23,9 +23,9 @@
         "ring [till] {contact}"
       ];
       lists = {
-        contact.wildcard = true;          
+        contact.wildcard = true;
       };
-          # 🦆 says ⮞ media 
+          # 🦆 says ⮞ media
 #            { "in" = "[serie|serien|tvserien|tv-serien]"; out = "tv"; }
     };
 

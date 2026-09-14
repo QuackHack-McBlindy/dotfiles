@@ -54,5 +54,3 @@ case "$INPUT" in
 esac
 
 exec 3>&-
-
-

@@ -6,7 +6,7 @@
   pkgs,
   cmdHelpers,
   ...
-} : with lib; let 
+} : with lib; let
 
   cfg = config.yo;
   # 🦆 says ⮞ generator
@@ -16,26 +16,37 @@
       voiceReady = script.voiceReady or false;
       voice = script.voice or null;
     }) cfg.scripts;
-    
+
     voiceStats = {
       generatedPatterns = cfg.generatedPatterns;
       understandsPhrases = cfg.understandsPhrases;
     };
-    
+
     # 🦆 says ⮞ smart home configuration
     smartHome = {
       devices = config.house.zigbee.devices;
       scenes = config.house.zigbee.scenes;
       tvs = config.house.tv;
+      totalChannels =
+        builtins.foldl'
+          (acc: tv: acc + builtins.length (builtins.attrNames (tv.channels or {})))
+          0
+          (builtins.attrValues config.house.tv);
+
     };
-    
+
+    hosts = builtins.length (builtins.attrNames self.nixosConfigurations);
+
+    secrets = builtins.length (builtins.attrNames (config.sops.secrets   or {}));
+
+    packages = builtins.length config.environment.systemPackages;
 
     # 🦆 says ⮞ user, host, and theme configs
     userConfig = config.this.user.me;
     hostConfig = config.this.host;
     themeConfig = config.this.theme;
-    
-    
+
+
     # 🦆 says ⮞ flake information
     flakePath = "${config.this.user.me.dotfilesDir}/flake.nix";
   });
@@ -53,31 +64,31 @@
   in
     lib.foldl (acc: r: replaceStrings [ (builtins.elemAt r 0) ] [ (builtins.elemAt r 1) ] acc) str replacements;
 
-  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links 
+  # 🦆 duck say ⮞ we build da scripts again but diz time for the READNE and diz time script names > links
   helpTextFile = pkgs.writeText "yo-helptext.md" helpText;
   # 🦆 duck say ⮞ markdown help text
-  helpText = let 
+  helpText = let
     # 🦆 duck say ⮞ URL escape helper for GitHub links
     escapeURL = str: builtins.replaceStrings [" "] ["%20"] str;
-  
+
     # 🦆 duck say ⮞ categorize scripts
     visibleScripts = lib.filterAttrs (_: script: script.visibleInReadme) cfg.scripts;
     groupedScripts = lib.groupBy (script: script.category) (lib.attrValues visibleScripts);
-    sortedCategories = lib.sort (a: b: 
+    sortedCategories = lib.sort (a: b:
       # 🦆 duck wants ⮞ system management to be listed first yo
       if a == "🖥️ System Management" then true
       else if b == "🖥️ System Management" then false
       else a < b # 🦆 duck say ⮞ after dat everything else quack quack
     ) (lib.attrNames groupedScripts);
-  
-    # 🦆 duck say ⮞ create table rows with category separatorz 
+
+    # 🦆 duck say ⮞ create table rows with category separatorz
     rows = lib.concatMap (category:
-      let # 🦆 duck say ⮞ sort from A to Ö  
+      let # 🦆 duck say ⮞ sort from A to Ö
         scripts = lib.sort (a: b: a.name < b.name) groupedScripts.${category};
       in
         [ # 🦆 duck say ⮞ add **BOLD** header table row for category
           "| **${escapeMD category}** | | | |"
-        ] 
+        ]
         # 🦆 duck say ⮞ each yo script goes into a table row
         ++ (map (script:
           let  # 🦆 duck say ⮞ format list of aliases
@@ -91,15 +102,15 @@
               else "--${param.name}"
             ) script.parameters);
             # 🦆 duck say ⮞ render yo script name as link + parameters as plain text
-            syntax = 
+            syntax =
               if githubBaseUrl != "" then
                 "[yo ${escapeMD script.name}](${githubBaseUrl}/${escapeURL script.filePath}) ${paramHint}"
               else
                 "yo ${escapeMD script.name} ${paramHint}";
-              
+
             # 🦆 duck say ⮞ add voice ready indicator
             voiceIndicator = if script.voiceReady then "✅" else "📛";
-          in 
+          in
             # 🦆 duck say ⮞ voice indicator to the row
             "| ${syntax} | ${aliasList} | ${escapeMD script.description} | ${voiceIndicator} |"
         ) scripts)
@@ -107,7 +118,7 @@
 
   in concatStringsSep "\n" rows;
 
-  # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo` 
+  # 🦆 duck say ⮞ constructs GitHub "blob" URL based on `config.this.user.me.repo`
   githubBaseUrl = let # 🦆 duck say ⮞ pattern match to extract username and repo name
     matches = builtins.match ".*github.com[:/]([^/]+)/([^/\\.]+).*" config.this.user.me.repo;
   in if matches != null then # 🦆 duck say ⮞ if match - construct
@@ -118,9 +129,9 @@
 
   makeTemplate = config: pkgs.writeText "README-template.md" ''
     # ${config.title}
-    
+
     ${config.badges}
-    
+
     ## 📊 Stats
     <!-- SCRIPT_STATS_START -->
     <!-- SCRIPT_STATS_END -->
@@ -129,35 +140,35 @@
     <!-- DUCKS_START -->
     <!-- DUCKS_END -->
 
-    
+
     ## 🚀 yo CLI Reference
     <!-- YO_DOCS_START -->
     <!-- YO_DOCS_END -->
-    
+
     ## 🏠 Smart Home Configuration
     <!-- DEVICES_SCENES_START -->
     <!-- DEVICES_SCENES_END -->
-    
+
     ## ⚙️ User Configuration
     <!-- USER_START -->
     <!-- USER_END -->
-    
+
     ## 🖥️ Host Configuration
     <!-- HOST_START -->
     <!-- HOST_END -->
-    
+
     ## 🎨 Theme Configuration
     <!-- THEME_START -->
     <!-- THEME_END -->
-    
+
     ## 📦 Flake Structure
     <!-- FLAKE_START -->
     <!-- FLAKE_END -->
-    
+
     ## 🔌 Flake.nix
     <!-- FLAKE_NIX_START -->
     <!-- FLAKE_NIX_END -->
-    
+
     ## 📞 Contact
     <!-- CONTACT_START -->
     <!-- CONTACT_END -->
@@ -165,18 +176,22 @@
 
 in {
 
+  environment.etc = {
+    "readme-config.json".source = readmeConfig;
+  };
+
   yo.scripts.update-readme = {
     description = "Updates documentation in README.md with current system state (uses build-time config)";
     category = "⚡ Productivity";
     logLevel = "INFO";
     parameters = [
       { name = "readmePath"; description = "Path to README.md file"; type = "path"; optional = false; default = config.this.user.me.dotfilesDir + "/README.md"; }
-    ]; 
+    ];
     code = ''
       ${cmdHelpers}
-      
+
       dt_info "Starting README update..."
-      
+
       README_PATH="$readmePath"
       dt_debug "README.md Path: $README_PATH"
       CONFIG_FILE="${readmeConfig}"
@@ -185,24 +200,24 @@ in {
         dt_error "README file not found: $README_PATH"
         exit 1
       fi
-      
+
       if [ ! -f "$CONFIG_FILE" ]; then
         dt_error "Config file not found: $CONFIG_FILE"
         exit 1
       fi
-      
+
       # 🦆 says ⮞ parse da build-time JSON config
       dt_debug "Loading build-time configuration..."
       CONFIG_DATA=$(cat "$CONFIG_FILE")
-      
+
       get_config_value() {
         echo "$CONFIG_DATA" | ${pkgs.jq}/bin/jq -r "$1"
       }
-      
+
       # 🦆 says ⮞ create temp files
       TEMP_README=$(mktemp)
       trap 'rm -f "$TEMP_README"' EXIT
-      
+
       # 🦆 says ⮞ Get system versions safely
       get_version() {
         case "$1" in
@@ -220,13 +235,13 @@ in {
             ;;
           gnome)
             gnome-shell --version 2>/dev/null | awk '{print $3}' || echo "unknown"
-            ;;   
+            ;;
           python)
             python3 --version 2>/dev/null | awk '{print $2}' || echo "unknown"
             ;;
           rust)
             rustc --version 2>/dev/null | awk '{print $2}' || echo "unknown"
-            ;;  
+            ;;
           mqtt)
             mosquitto -h 2>/dev/null | awk '/^mosquitto version/{print $3}' || echo "unknown"
             ;;
@@ -238,15 +253,15 @@ in {
             ;;
         esac
       }
-      
+
       update_badges() {
         local file="$1"
         dt_debug "File: $file"
         dt_debug "Permissions: $(ls -la "$file" 2>/dev/null || echo "File not found")"
         dt_debug "Current user: $(whoami)"
-  
+
         local temp_file=$(mktemp)
-        
+
         # 🦆 duck say ⮞ extract versions
         nixos_version=$(nixos-version | cut -d. -f1-2)
         kernel_version=$(uname -r | cut -d'-' -f1)
@@ -258,7 +273,7 @@ in {
         #rustc_version=$(rustc --version 2>/dev/null | awk '{print $2}' || echo "unknown")
         rustc_version="1.97.1"
         mosquitto_version=$(mosquitto -h 2>&1 | awk '/^mosquitto version/{print $3}' || echo "unknown")
-  
+
         # 🦆 duck say ⮞ construct badge URLs
         nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
         linux_badge="https://img.shields.io/badge/Linux-''${kernel_version}-red?style=flat-square\\&logo=linux\\&logoColor=white"
@@ -268,7 +283,7 @@ in {
         python_badge="https://img.shields.io/badge/Python-''${python_version}-%23FFD43B?style=flat-square\\&logo=python\\&logoColor=white"
         rust_badge="https://img.shields.io/badge/Rust-''${rustc_version}-orange?style=flat-square\\&logo=rust\\&logoColor=white"
         mosquitto_badge="https://img.shields.io/badge/Mosquitto-''${mosquitto_version}-yellow?style=flat-square\\&logo=eclipsemosquitto\\&logoColor=white"
-  
+
         # 🦆 duck say ⮞ use sed yo
         ${pkgs.gnused}/bin/sed \
           -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
@@ -283,13 +298,13 @@ in {
       }
 
 
-      
+
       # 🦆say⮞replaces <!-- sections -->
       replace_section() {
         local marker="$1"
         local content_file="$2"
         local target_file="$3"
-        
+
         ${pkgs.gawk}/bin/awk -v marker="$marker" -v content_file="$content_file" '
           BEGIN {
             while ((getline line < content_file) > 0) {
@@ -298,47 +313,47 @@ in {
             close(content_file)
             in_section = 0
           }
-          
+
           $0 ~ "<!-- " marker "_START -->" {
             in_section = 1
             print
             print content
             next
           }
-          
+
           $0 ~ "<!-- " marker "_END -->" {
             in_section = 0
             print
             next
           }
-          
+
           !in_section {
             print
           }
         ' "$target_file" > "$TEMP_README" && mv "$TEMP_README" "$target_file"
       }
-      
+
       generate_section() {
         local section="$1"
         local temp_file=$(mktemp)
-        
+
         case "$section" in
           YO_DOCS)
             # 🦆 duck say ⮞  get generated help text
             HELP_CONTENT=$(<${helpTextFile})
-          
+
             cat << 'EOF' > "$temp_file"
 ## 🚀 **yo CLI 🦆**
-The \`yo\` CLI is a framework designed to execute scripts defined in the \`./bin\` directory.  
-It provides a unified interface for script execution, centralizes all help commands, and automatically validates parametrs and updates the documentation.  
+The \`yo\` CLI is a framework designed to execute scripts defined in the \`./bin\` directory.
+It provides a unified interface for script execution, centralizes all help commands, and automatically validates parametrs and updates the documentation.
 
-**Usage:** \`yo <command> [arguments]\`  
+**Usage:** \`yo <command> [arguments]\`
 
-### **Usage Examples:**  
-The yo CLI supports flexible parameter parsing through two primary mechanisms:  
+### **Usage Examples:**
+The yo CLI supports flexible parameter parsing through two primary mechanisms:
 
 ```bash
-# Named Parameters  
+# Named Parameters
 $ yo deploy --host pinephone --flake /home/pungkula/dotfiles
 
 # Positional Parameters
@@ -354,19 +369,19 @@ $ yo-rs
 ```
 
 ### ✨ Available Commands
-Set default values for your parameters to have them marked [optional]  
-Add \`?\` to any command to run it in DEBUG mode  
+Set default values for your parameters to have them marked [optional]
+Add \`?\` to any command to run it in DEBUG mode
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 ${helpText}
 ### ❓ Detailed Help
-For specific command help: 
+For specific command help:
 \`yo <command> --help\`
 \`yo <command> -h\`
 EOF
             ;;
-  
-  
+
+
           TREE)
             local flake_path="${config.this.user.me.dotfilesDir}"
             echo '```nix' > "$temp_file"
@@ -387,44 +402,8 @@ EOF
             else
               echo "/* Smart home configuration not found */" > "$temp_file"
             fi
-            ;;  
-  
-          SCRIPT_STATS)
-              # 🦆 says ⮞ extract stats from config
-              local total_scripts=$(get_config_value '.scriptCount')
-              local voice_scripts=$(get_config_value '[.scripts[] | select(.voiceReady == true)] | length')
-              local total_patterns=$(get_config_value '.voiceStats.generatedPatterns')
-              local total_phrases=$(get_config_value '.voiceStats.understandsPhrases')
-              local total_devices=$(get_config_value '.smartHome.devices | length')
-              local total_scenes=$(get_config_value '.smartHome.scenes | length')
-              local total_tvs=$(get_config_value '.smartHome.tvs | length')
-    
-              cat << EOF > "$temp_file"
-- __$total_scripts qwacktastic scripts in /bin - $voice_scripts scripts have voice commands.__ <br>
-- __$total_patterns dynamically generated regex patterns - makes $total_phrases phrases available as commands.__ <br>
-- __Smart Home Nix Fu - Managing $total_tvs TV's, $total_devices devices & $total_scenes scenes.__ <br>
-- __Natural Language DevOps support with complete voice pipeline__ <br>
-- __Infra as everyday accessibility__ <br>
-- __Yubikey encrypted deployment system__ <br>
-- __Version controlled ESP32 firmware management__ <br>      
-- __Self Documenting__ <br>
-EOF
-              ;;
-           DUCKS)
-            # 🦆 says ⮞ count dem ducks
-            local total_ducks=0
-            if [ -d "${config.this.user.me.dotfilesDir}" ]; then
-              total_ducks=$(grep -ro '🦆' --include='*.nix' --include='*.sh' --include='*.html' "${config.this.user.me.dotfilesDir}" 2>/dev/null | wc -l || echo 0)
-            fi
-            dt_info "Counting number of 🦆...."
-            dt_info "$total_ducks 🦆's !!" 
-      
-            cat << EOF > "$temp_file"
-I have hidden some ducks in the .nix files in this repository. <br>
-Let's see if you can find all $total_ducks ducks? <br>
-EOF
             ;;
-                      
+
           USER)
             get_config_value '.userConfig' | ${pkgs.jq}/bin/jq -r '
               def to_nix($indent):
@@ -451,7 +430,7 @@ EOF
               "```nix\n" + to_nix(0) + "\n```"
             ' > "$temp_file" 2>/dev/null || echo "```nix\n/* Error loading user config */\n```" > "$temp_file"
             ;;
-            
+
           HOST)
             get_config_value '.hostConfig' | ${pkgs.jq}/bin/jq -r '
               def to_nix($indent):
@@ -490,7 +469,7 @@ EOF
             fi
             ;;
 
-  
+
           THEME)
             get_config_value '.themeConfig' | ${pkgs.jq}/bin/jq -r '
               def to_nix($indent):
@@ -516,8 +495,8 @@ EOF
                 end;
               "```nix\n" + to_nix(0) + "\n```"
             ' > "$temp_file" 2>/dev/null || echo "```nix\n/* Error loading theme config */\n```" > "$temp_file"
-            ;;  
-  
+            ;;
+
           FLAKE_NIX)
             local flake_path=$(get_config_value '.flakePath')
             if [ -f "$flake_path" ]; then
@@ -528,35 +507,35 @@ EOF
               echo "```nix\n/* flake.nix not found */\n```" > "$temp_file"
             fi
             ;;
-            
+
           DEVICES_SCENES)
             cat << 'EOF' > "$temp_file"
 ### 📡 Zigbee Devices
 EOF
-            
+
             get_config_value '.smartHome.devices[] | "  - \(.name) (\(.type))"' 2>/dev/null | while read -r device; do
               echo "$device" >> "$temp_file"
             done || true
-            
+
             cat << 'EOF' >> "$temp_file"
 
 ### 🎭 Scenes
 EOF
-            
+
             get_config_value '.smartHome.scenes[] | "  - \(.name)"' 2>/dev/null | while read -r scene; do
               echo "$scene" >> "$temp_file"
             done || true
-            
+
             cat << 'EOF' >> "$temp_file"
 
 ### 📺 TV Configuration
 EOF
-            
+
             get_config_value '.smartHome.tvs[] | "  - \(.name) (\(.type)) - IP: \(.ip)"' 2>/dev/null | while read -r tv; do
               echo "$tv" >> "$temp_file"
             done || true
             ;;
-            
+
           CONTACT)
             cat << EOF > "$temp_file"
 $(
@@ -569,21 +548,18 @@ local email=$(get_config_value '.userConfig.email // ""')
 [ -n "$email" ] && echo "[![Email](https://img.shields.io/badge/Email-Contact-6D4AFF?style=flat-square&logo=protonmail&logoColor=white)](mailto:$email)"
 )
 EOF
-            ;;           
+            ;;
           *)
             echo "<!-- No content for section: $section -->" > "$temp_file"
             ;;
         esac
-        
+
         echo "$temp_file"
       }
-      
-      dt_info "Updating badges..."
-      update_badges "$README_PATH"
-      
+
       dt_info "Updating sections..."
-      
-      for section in YO_DOCS SCRIPT_STATS DUCKS USER HOST THEME DEVICES_SCENES SMARTHOME TREE FLAKE CONTACT; do
+
+      for section in YO_DOCS USER HOST THEME DEVICES_SCENES SMARTHOME TREE FLAKE CONTACT; do
         dt_debug "Updating section: $section..."
         content_file=$(generate_section "$section")
         if [ -f "$content_file" ]; then
@@ -591,8 +567,8 @@ EOF
           rm "$content_file"
         fi
       done
-  
-      
+
+
       size=$(wc -c < "$README_PATH")
 
       if (( size > 20 * 1024 )); then
@@ -601,7 +577,7 @@ EOF
         dt_error   "⚠️🚫 README UPDATE FAILED! ⚠️🚫"
         dt_warning "⚠️ README.md EXPECTEED BROKEN! Verify file content!"
       fi
-      
+
       # 🦆 says ⮞ show diff
       if git diff --quiet "$README_PATH" 2>/dev/null; then
         dt_debug "No changes to commit"
@@ -609,7 +585,7 @@ EOF
         dt_debug "Changes detected:"
         git diff --stat "$README_PATH" 2>/dev/null || true
       fi
-      
+
     '';
 
   };}

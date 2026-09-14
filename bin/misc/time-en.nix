@@ -1,5 +1,5 @@
 # dotfiles/bin/misc/time.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ Handles time related scripts.  
+{ # 🦆 says ⮞ Handles time related scripts.
   self,
   lib,
   config,
@@ -45,5 +45,5 @@ in {
         "(what|whats) date is it"
       ];
     };
-    
+
   };}

@@ -1,8 +1,8 @@
 # **yo-rs**
 
-**yo-rs** is a multi-client microphone audio streaming service with wake-word detection and transcription with shell command translation and execution.  
-All communication is over TCP with a simple binary protocol, using RMS based VAD.  
-**yo-rs** can be used as a full-stack voice assistant - as it has all the required components.  
+**yo-rs** is a multi-client microphone audio streaming service with wake-word detection and transcription with shell command translation and execution.
+All communication is over TCP with a simple binary protocol, using RMS based VAD.
+**yo-rs** can be used as a full-stack voice assistant - as it has all the required components.
 
 # **This package includes four binaries:**
 
@@ -18,8 +18,8 @@ All communication is over TCP with a simple binary protocol, using RMS based VAD
 - **Text-to-speech generator (Piper ONNX)**
 - **Speech-to-text (Whisper GGML)**
 - **Shell command translator (Nix defined sentences)**
-  
-Everything neatly handled on a aingle port.   
+
+Everything neatly handled on a aingle port.
 
 
 Options:
@@ -44,13 +44,13 @@ Options:
 
 ## **yo-client**
 
-1. **Streams microphone audio to the server for wake‑word detection** 
+1. **Streams microphone audio to the server for wake‑word detection**
 2. **On detection, records audio until silence (RMS‑based) or a maximum duration**
 3. **Sends the recorded audio to the server for transcription**
 4. **Waits for server response (success/failure), plays sounds and executes optional commands**
-5. **Streams microphone audio for wake‑word detection again** 
- 
- 
+5. **Streams microphone audio for wake‑word detection again**
+
+
 Options:
 
 ```
@@ -71,28 +71,28 @@ Options:
 
 ## **yo-do**
 
-The natural language shell translator can also be used as a standalone executable:  
- 
-**Example usage:**  
+The natural language shell translator can also be used as a standalone executable:
+
+**Example usage:**
 
 ```bash
 yo do "i want to watch show seinfeld in bedroom" 50
 ```
 
-This will run the translator with a fuzzy matching threshold of 50 and would translate and execute:    
+This will run the translator with a fuzzy matching threshold of 50 and would translate and execute:
 
 ```bash
-yo tv --type "tv" --search "seinfeld" --device "192.168.1.153" 
+yo tv --type "tv" --search "seinfeld" --device "192.168.1.153"
 ```
 
 
 ## **NixOS Modules**
 
-  
+
 [Full yo module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo.nix)
-  
-  
-  
+
+
+
 <details><summary><strong>
 Defining shell scripts that can be executed:
 </strong></summary>
@@ -105,14 +105,14 @@ Defining shell scripts that can be executed:
 - **Wildcard:** will match anything
 
 
-Running `yo tests` will do extensive tests on all user defined sentences for conflicts and misconfigurations that would make the shell translator have issues translating.  
-Running `yo --help` will display markdown rendered help for all yo scripts.  
+Running `yo tests` will do extensive tests on all user defined sentences for conflicts and misconfigurations that would make the shell translator have issues translating.
+Running `yo --help` will display markdown rendered help for all yo scripts.
 
 
 **Example yo script with sentences:**
 
 ```nix
-  yo.scripts = {   
+  yo.scripts = {
     tv = {
       description = "Example script controlling a TV.";
       parameters = [
@@ -127,30 +127,30 @@ Running `yo --help` will display markdown rendered help for all yo scripts.
       voice = {
         fuzzy.enable = true;
         fuzzy.threshold = 0.85;
-        sentences = [     
+        sentences = [
           # non‑default device control
           "[I] (play|start|run|launch) [up|started] {type} {search} on {device}"
-          "I want to watch {type} {search} (on|in) {device}"    
+          "I want to watch {type} {search} (on|in) {device}"
           "I want to listen to {type} on {device}"
           "I want to hear {type} {search} on {device}"
-          "{type} (volume|episode|track|thing) on {device}"          
+          "{type} (volume|episode|track|thing) on {device}"
           "tv {type} on {device}"
           # default player
           "[I] (play|start|run|launch) [up|started] {type} {search}"
-          "I want to watch {type} {search}"    
+          "I want to watch {type} {search}"
           "I want to listen to [my] {type}"
           "I want to hear [my] {type}"
-          "{type} (volume|episode|track|thing)"       
+          "{type} (volume|episode|track|thing)"
           "tv {type}"
           # append to favorites playlist
           "save to {type}"
           "add this [song] to {type}"
           # find remote
           "call {type}"
-          "find {type}"            
+          "find {type}"
         ]; # lists are in‑word → out‑word
         lists = {
-          type.values = [          
+          type.values = [
             { "in" = "[show|series|the series|tv series|the tv series]"; out = "tv"; }
             { "in" = "[pod|podcast|the podcast]"; out = "podcast"; }
             { "in" = "[random|shuffle|music|mix]"; out = "jukebox"; }
@@ -161,33 +161,33 @@ Running `yo --help` will display markdown rendered help for all yo scripts.
             { "in" = "[video|the video]"; out = "othervideo"; }
             { "in" = "[music video|musicvideo]"; out = "musicvideo"; }
             { "in" = "[channel|the channel]"; out = "livetv"; }
-            { "in" = "[youtube|yt|y.t]"; out = "youtube"; }     
-            { "in" = "[news|latest news]"; out = "news"; }                          
-            { "in" = "[playlist|the playlist|favorites]"; out = "favorites"; } 
+            { "in" = "[youtube|yt|y.t]"; out = "youtube"; }
+            { "in" = "[news|latest news]"; out = "news"; }
+            { "in" = "[playlist|the playlist|favorites]"; out = "favorites"; }
             { "in" = "[pause|stop|mute]"; out = "pause"; }
             { "in" = "[play|continue|ok]"; out = "play"; }
             { "in" = "[volume up|raise|increase]"; out = "up"; }
             { "in" = "[volume down|lower|decrease]"; out = "down"; }
             { "in" = "[next|skip|forward]"; out = "next"; }
-            { "in" = "[previous|back|prev]"; out = "previous"; }                   
+            { "in" = "[previous|back|prev]"; out = "previous"; }
             { "in" = "[save|add|append]"; out = "add"; }
-            { "in" = "[favorite|favorites]"; out = "add"; }     
-            { "in" = "[off|turn off]"; out = "off"; }            
-            { "in" = "on"; out = "on"; }                         
-            { "in" = "[remote|the remote]"; out = "call"; }               
-          ]; # wildcard can be anything            
+            { "in" = "[favorite|favorites]"; out = "add"; }
+            { "in" = "[off|turn off]"; out = "off"; }
+            { "in" = "on"; out = "on"; }
+            { "in" = "[remote|the remote]"; out = "call"; }
+          ]; # wildcard can be anything
           search.wildcard = true;
           device.values = [
             { "in" = "[bedroom|the bedroom]"; out = "192.168.1.153"; }
-            { "in" = "[living room|the living room|livingroom]"; out = "192.168.1.223"; }    
+            { "in" = "[living room|the living room|livingroom]"; out = "192.168.1.223"; }
           ];
         };
       };
 ```
 
 
-Go nuts if you want.    
-  
+Go nuts if you want.
+
 <details><summary><strong>
 🦆 Ducks are not FBI! Anything is allowed..
 </strong></summary>
@@ -459,7 +459,7 @@ voice = {
 };
 ```
 
-  
+
 </details>
 
 
@@ -483,24 +483,24 @@ voice = {
         else null
       ) scripts;
       actualRunAtErrors = lib.filter (e: e != null) runAtErrors;
-            
-      # 🦆 duck say ⮞ quackin' flappin' mappin' aliasez ⮞ script dat belong to it 
+
+      # 🦆 duck say ⮞ quackin' flappin' mappin' aliasez ⮞ script dat belong to it
       aliasMap = lib.foldl' (acc: script:
         lib.foldl' (acc': alias:
-          acc' // { 
+          acc' // {
             ${alias} = (acc'.${alias} or []) ++ [script.name]; # 🦆 duck say ⮞ mmerge or start a list yo
           }
         ) acc script.aliases
       ) {} (attrValues scripts);
       # 🦆 duck say ⮞ find conflicts between script names & script aliases
-      scriptNameConflicts = lib.filterAttrs (alias: _: lib.elem alias scriptNames) aliasMap;  
-      # 🦆 duck say ⮞ find dem' double aliasez 
+      scriptNameConflicts = lib.filterAttrs (alias: _: lib.elem alias scriptNames) aliasMap;
+      # 🦆 duck say ⮞ find dem' double aliasez
       duplicateAliases = lib.filterAttrs (_: scripts: lib.length scripts > 1) aliasMap;
       # 🦆 duck say ⮞ build da alias conflict error msg
-      formatConflict = alias: scripts: 
-        "Alias '${alias}' conflicts with script name (used by: ${lib.concatStringsSep ", " scripts})";       
+      formatConflict = alias: scripts:
+        "Alias '${alias}' conflicts with script name (used by: ${lib.concatStringsSep ", " scripts})";
       # 🦆 duck say ⮞ build da double rainbowz error msg yo
-      formatDuplicate = alias: scripts: 
+      formatDuplicate = alias: scripts:
         "Alias '${alias}' used by multiple scripts: ${lib.concatStringsSep ", " scripts}";
       # 🦆 duck say ⮞ find auto-start scriptz - if i find i make sure it haz default values for all required paramz
       autoStartErrors = lib.mapAttrsToList (name: script:
@@ -513,8 +513,8 @@ voice = {
               lib.concatMapStringsSep ", " (p: p.name) missingParams
             else null
         else null
-      ) scripts;    
-      
+      ) scripts;
+
       nonInteractiveErrors = lib.mapAttrsToList (name: script:
         if script.autoStart || script.runEvery != null then
           let
@@ -525,9 +525,9 @@ voice = {
               lib.concatMapStringsSep ", " (p: p.name) missingParams
             else null
         else null
-      ) scripts;      
+      ) scripts;
       # 🦆 duck say ⮞ clean out dem' nullz! no nullz in ma ASSertionthz! ... quack
-      actualAutoStartErrors = lib.filter (e: e != null) autoStartErrors;   
+      actualAutoStartErrors = lib.filter (e: e != null) autoStartErrors;
       # 🦆 duck say ⮞ Validate da shit out of 'value' option quack! only allowed wit string type yo!
       valueTypeErrors = lib.concatMap (script:
         lib.concatMap (param:
@@ -537,7 +537,7 @@ voice = {
         ) script.parameters
       ) (lib.attrValues scripts);
     in [
-      { # 🦆 duck say ⮞ assert no alias name cpmflict with script name 
+      { # 🦆 duck say ⮞ assert no alias name cpmflict with script name
         assertion = scriptNameConflicts == {};
         message = "🦆 duck say ⮞ fuck ❌ Alias/script name conflicts:\n" +
           lib.concatStringsSep "\n" (lib.mapAttrsToList formatConflict scriptNameConflicts);
@@ -550,13 +550,13 @@ voice = {
       { # 🦆 duck say ⮞ autoStart scriptz must be fully configured of course!
         assertion = actualAutoStartErrors == [];
         message = "Auto-start errors:\n" + lib.concatStringsSep "\n" actualAutoStartErrors;
-      }  
+      }
       { # 🦆 duck say ⮞ runAt script fully configured?
         assertion = actualRunAtErrors == [];
         message = "runAt scheduling errors:\n" + lib.concatStringsSep "\n" actualRunAtErrors;
-      }      
+      }
       { # 🦆 duck say ⮞ runEvery OR runAt NOT BOTH
-        assertion = lib.all (script: 
+        assertion = lib.all (script:
           !(script.runEvery != null && script.runAt != null)
         ) (lib.attrValues scripts);
         message = "🦆 duck say ⮞ fuck ❌ Script cannot have both runEvery and runAt set";
@@ -570,24 +570,24 @@ voice = {
 
 **He usually makes me feel safe**
 
-  
-</details>
-  
-  
-  
-See `examples/` for more example usage.  
 
-  
 </details>
-     
+
+
+
+See `examples/` for more example usage.
+
+
+</details>
+
 
 <br><br><br>
-    
+
 
 [Standalone service module](https://github.com/QuackHack-McBlindy/dotfiles/tree/main/modules/yo-rs.nix)
 
-The standalone module can be used if user does not want the yo script framework.  
-This way the server/client can still be utilized and an optional --exec-command can be used for a external intent handler.  
+The standalone module can be used if user does not want the yo script framework.
+This way the server/client can still be utilized and an optional --exec-command can be used for a external intent handler.
 
 **Minimal service configuration:**
 
@@ -595,14 +595,14 @@ This way the server/client can still be utilized and an optional --exec-command 
       services.yo-rs = {
         server = {
           enable = true;
-        };        
+        };
         client = {
           enable = true;
-        };        
-      };   
+        };
+      };
 ```
-  
-  
+
+
 <details><summary><strong>
 Full service configuration:
 </strong></summary>
@@ -615,10 +615,10 @@ Full service configuration:
           host = "0.0.0.0:12345";
           shellTranslate = true;
           wakeWordPath = "/home/pungkula/dotfiles/home/.config/models/yo_bitch.onnx";
-          threshold = 0.8; 
+          threshold = 0.8;
           awakeSound = "/path/to/custom/awake.wav";
           doneSound = "/path/to/custom/done.wav";
-          failSound = "/path/to/custom/fail.wav";        
+          failSound = "/path/to/custom/fail.wav";
           whisperModelPath = "/home/pungkula/models/stt/ggml-small.bin";
           textToSpeechModelPath = "/home/pungkula/models/tts/lisa_svSE-medium.onnx";
           language = "sv";
@@ -629,7 +629,7 @@ Full service configuration:
           debug = true;
           logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
         };
-        
+
         client = {
           enable = true;
           uri = "192.168.1.111:12345";
@@ -637,18 +637,18 @@ Full service configuration:
           doneSound = "/path/to/custom/done.wav";
           failSound = "/path/to/custom/fail.wav";
           awakeCmd = "notify-send 'Wake word detected'";
-          doneCmd = "mpg123 /path/to/success.mp3"; 
+          doneCmd = "mpg123 /path/to/success.mp3";
           silenceThreshold = 0.03;
-          silenceTimeout = 0.9; 
+          silenceTimeout = 0.9;
           debug = true;
-          logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";          
-        };        
-      };   
+          logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
+        };
+      };
 ```
 
 </details>
 
-  
+
 ## **Protocol**
 
 1. Wake‑word chunks – Client sends `[length (u32)] + [f32 samples]` repeatedly.
@@ -662,4 +662,3 @@ Full service configuration:
 5. Failure notification – server sends `0x04` if the command fails.
 
 6. Discard – Any other message type causes the server to discard the following chunk (used to skip pending wake chunks).
-

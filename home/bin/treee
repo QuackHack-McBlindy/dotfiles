@@ -11,7 +11,7 @@ def print_directory_tree(root_dir, print_files=True, print_folders=True, indent_
 
     # Prepare the new prefix and indent for subdirectories and files
     new_prefix = prefix + ("    " if is_last else "│   ")
-    
+
     try:
         entries = sorted(os.scandir(root_dir), key=lambda e: (e.is_file(), e.name.lower()))
         count = len(entries)
@@ -32,7 +32,7 @@ def get_user_choice():
     print("1. Files only")
     print("2. Folders only")
     print("3. Both files and folders")
-    
+
     while True:
         try:
             choice = int(input("Enter your choice (1, 2, or 3): "))
@@ -63,4 +63,3 @@ if __name__ == "__main__":
 
     # Print the directory tree based on user choice
     print_directory_tree(current_directory, print_files=print_files, print_folders=print_folders)
-

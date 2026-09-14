@@ -1,4 +1,4 @@
-{ 
+{
   pkgs,
   system,
   inputs,
@@ -20,6 +20,6 @@ in {
     ${formatHeader "Build inputs:"}
     ${pkgs.lib.concatMapStringsSep "\n" (pkg: "echo - \$'\\e[0;31m'${pkg.name}\$'\\e[0m'") myBuildInputs}
   '';
-  
+
   NIX_CONFIG = "system = ${system}";
 }

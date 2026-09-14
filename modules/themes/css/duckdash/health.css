@@ -17,14 +17,14 @@
               margin: 0 auto;
               padding: 20px;
             }
-            
+
             .health-grid {
               display: grid;
               grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
               gap: 15px;
               justify-items: center;
             }
-            
+
             .health-card {
               background: var(--card-bg);
               border-radius: 12px;
@@ -32,7 +32,7 @@
               box-shadow: var(--card-shadow);
               width: 100%;
               max-width: 350px;
-            }     
+            }
             .health-card-header {
               display: flex;
               justify-content: space-between;
@@ -48,38 +48,38 @@
               font-size: 1.2rem;
               font-weight: bold;
               color: var(--primary);
-            }     
+            }
             .health-status {
               display: grid;
               gap: 8px;
-            }    
+            }
             .health-item {
               display: flex;
               justify-content: space-between;
               align-items: center;
-            }   
+            }
             .health-label {
               color: var(--gray);
               font-size: 0.9rem;
-            }        
+            }
             .health-value {
               font-weight: 600;
-            } 
+            }
             .status-good { color: #2ecc71; }
             .status-warning { color: #f39c12; }
             .status-critical { color: #e74c3c; }
-            
+
             @media (max-width: 768px) {
               .health-page {
                 padding: 10px;
               }
-              
+
               .health-grid {
                 grid-template-columns: 1fr;
                 gap: 10px;
               }
-              
+
               .health-card {
                 max-width: 100%;
               }
-            }   
+            }

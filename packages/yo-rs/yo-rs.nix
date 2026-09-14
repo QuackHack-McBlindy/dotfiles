@@ -22,14 +22,14 @@
     url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/sv/sv_SE/lisa/medium/sv_SE-lisa-medium.onnx";
     sha256 = "sha256-lMrpErMdbpFA0/UWDxgVlRWIYAx6nkPVOboegaEQ0TE=";
   };
-  
+
   # 🦆 says ⮞ default voice
   amy_enUS = pkgs.fetchurl {
     url = "https://huggingface.co/rhasspy/piper-voices/resolve/main/en/en_US/amy/medium/en_US-amy-medium.onnx";
     sha256 = "sha256-s6bke1e4x/vmoM4lGBYaUPWanN2KUINcAssCvdYgbBg=";
   };
 
-in  
+in
 rustPlatform.buildRustPackage {
   pname = "yo-rs";
   version = "0.1.4";
@@ -52,7 +52,7 @@ rustPlatform.buildRustPackage {
   ];
 
 
-  buildInputs = [ 
+  buildInputs = [
     pkgs.openssl.dev
     pkgs.alsa-lib-with-plugins
     pkgs.piper
@@ -70,11 +70,11 @@ rustPlatform.buildRustPackage {
     # 🦆 says ⮞ install small Whisper model
     mkdir -p $out/share/yo-rs/models/stt
     cp ${smallWhisper} $out/share/yo-rs/models/stt/ggml-small.bin
-    
+
     # 🦆 says ⮞ install TTTS models
     mkdir -p $out/share/yo-rs/models/tts
     cp ${amy_enUS} $out/share/yo-rs/models/tts/en_US-amy-medium.onnx
-    cp ${lisa_svSE} $out/share/yo-rs/models/tts/sv_SE-lisa-medium.onnx        
+    cp ${lisa_svSE} $out/share/yo-rs/models/tts/sv_SE-lisa-medium.onnx
   '';
 
   meta = with lib; {
@@ -82,5 +82,5 @@ rustPlatform.buildRustPackage {
     license = licenses.mit;
     maintainers = [ "QuackHack-McBlindy" ];
     mainProgram = "yo-rs";
-    
+
   };}

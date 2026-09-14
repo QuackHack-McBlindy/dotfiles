@@ -20,3 +20,7 @@ jobs:
 
       - name: Build flake
         run: nix flake check --system x86_64-linux
+
+      - name: Install omnix
+        run: nix profile install nixpkgs#omnix
+      - run: om ci

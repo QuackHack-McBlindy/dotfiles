@@ -37,8 +37,8 @@ in {
     ${formatHeader "Build inputs:"}
     ${pkgs.lib.concatMapStringsSep "\n" (pkg: "echo - \$'\\e[0;31m'${pkg.name}\$'\\e[0m'") myBuildInputs}
   '';
-  
-  
+
+
   CMAKE_POLICY_VERSION_MINIMUM = "3.5";
   NIX_CONFIG = "system = ${system}";
 }

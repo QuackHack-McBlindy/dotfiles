@@ -24,7 +24,7 @@
             </button>
         </div>
     </div>
-    
+
 
     <div class="toc-container">
         <details class="toc-details">
@@ -62,49 +62,49 @@
             </div>
         </details>
     </div>
-    
-  
+
+
     <div class="content">
         <header class="category-title">
             <h1>Defining Your Home</h1>
             <p class="subtitle">The module I am configuring today is: <a href="https://github.com/QuackHack-McBlindy/dotfiles/blob/main/modules/house.nix">modules/house.nix</a><br></p>
         </header>
 
-        
+
         <div class="duck-comment">
             <p># 🦆 says ⮞ I use 20x magnification when I code and debug. I use emoji to simplify logs for myself. If you can't handle my code style you can disable most of it on this website by toggling the button in the navbar. Shall duck continue? </p>
         </div>
-        
+
         <p>
             Main content goes here. Add paragraphs, sections, code examples, and duck comments.
         </p>
-        
+
         <h2 class="section-title">First Section</h2>
-        
+
         <p>
             Section content goes here.
         </p>
-        
+
         <div class="duck-comment">
             <p># 🦆 says ⮞ Your duck commentary here!</p>
         </div>
-        
+
         <p>
             More content...
         </p>
-        
+
         <div class="callout">
             <p>
                 Important callout content goes here.
             </p>
         </div>
-        
+
         <h2 class="section-title">Code Examples</h2>
-        
+
         <p>
             When adding code examples, use the following structure:
         </p>
-        
+
         <div class="code-block-container">
             <div class="code-header">
                 <div class="code-lang">Language Name</div>
@@ -122,46 +122,46 @@ function example() {
 </span></pre>
             </div>
         </div>
-        
+
         <div class="duck-comment">
             <p># 🦆 says ⮞ Code explanation here</p>
         </div>
-        
+
         <h2 class="section-title">Key Features</h2>
-        
+
         <div class="key-features">
             <div class="feature-card">
                 <h3>Feature One</h3>
                 <p>Description of feature one.</p>
             </div>
-            
+
             <div class="feature-card">
                 <h3>Feature Two</h3>
                 <p>Description of feature two.</p>
             </div>
-            
+
             <div class="feature-card">
                 <h3>Feature Three</h3>
                 <p>Description of feature three.</p>
             </div>
         </div>
-        
+
         <p>
             Cconclusion goes here.
-            
+
             <div class="duck-comment">
                 <p># 🦆 says ⮞ Final duck thought</p>
             </div>
-            
+
             Final thoughts...
-            
+
             <a href="https://github.com/your-repo" class="source-link">
               View source code on GitHub
             </a><br>
 
             <section id="comments">
               <h2>Comments on this blog post</h2>
-              <script 
+              <script
                 src="https://utteranc.es/client.js"
                 repo="QuackHack-McBlindy/blog"
                 issue-term="pathname"
@@ -176,7 +176,7 @@ function example() {
 
 
     </div>
-    
+
     <footer>
         <p>All thoughts are my own and should not be considered advice of any kind. More likely the opposite.</p>
     </footer>
@@ -187,14 +187,14 @@ function example() {
             const tocHeader = document.querySelector('.toc-header');
             tocHeader.addEventListener('click', function() {
                 const isOpening = !tocDetails.open;
-        
+
                 if (isOpening) {
                     tocDetails.style.maxHeight = tocDetails.scrollHeight + 'px';
                 } else {
                     tocDetails.style.maxHeight = '60px'; // Approximate header height
                 }
             });
-    
+
             tocDetails.addEventListener('toggle', function() {
                 if (tocDetails.open) {
                     tocDetails.style.maxHeight = tocDetails.scrollHeight + 'px';
@@ -205,38 +205,38 @@ function example() {
                 }
             });
         });
-    
+
         document.addEventListener('DOMContentLoaded', function() {
             const duckToggle = document.getElementById('duckToggle');
             let ducksHidden = false;
-            
+
             function toggleCodeDucks() {
                 ducksHidden = !ducksHidden;
-                
+
                 const duckComments = document.querySelectorAll('.duck-comment');
-                
+
                 duckComments.forEach(comment => {
                     comment.style.display = ducksHidden ? 'none' : 'block';
                 });
-                
-                duckToggle.innerHTML = ducksHidden ? 
-                    '<span class="duck-icon">🦆</span> Show 🦆 commentary' : 
+
+                duckToggle.innerHTML = ducksHidden ?
+                    '<span class="duck-icon">🦆</span> Show 🦆 commentary' :
                     '<span class="duck-icon">🦆</span> Hide 🦆 commentary';
-                    
+
                 const duckIcon = duckToggle.querySelector('.duck-icon');
                 duckIcon.style.transform = 'scale(1.2)';
                 setTimeout(() => {
                     duckIcon.style.transform = 'scale(1)';
                 }, 300);
             }
-            
+
             duckToggle.addEventListener('click', toggleCodeDucks);
         });
-        
+
         // Scroll animation for images
         document.addEventListener('DOMContentLoaded', function() {
             const scrollImages = document.querySelectorAll('.scroll-image');
-    
+
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -246,7 +246,7 @@ function example() {
             }, {
                 threshold: 0.1
             });
-    
+
             scrollImages.forEach(image => {
                 observer.observe(image);
             });

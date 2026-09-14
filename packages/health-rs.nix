@@ -8,7 +8,7 @@
   ...
 } : let
 
-in  
+in
 rustPlatform.buildRustPackage {
   pname = "health-rs";
   version = "0.1.0";
@@ -31,5 +31,5 @@ rustPlatform.buildRustPackage {
     license = licenses.mit;
     maintainers = [ "QuackHack-McBlindy" ];
     mainProgram = "health-rs";
-    
+
   };}

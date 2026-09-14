@@ -10,12 +10,12 @@
         programs.xfconf.enable = true;
         programs.thunar.enable = true;
         services.gvfs.enable = true; # 🦆says⮞ mount, trash, etc.
-        services.tumbler.enable = true; # 🦆says⮞ thumbnail support   
+        services.tumbler.enable = true; # 🦆says⮞ thumbnail support
         programs.thunar.plugins = with pkgs.xfce; [
             thunar-archive-plugin
             thunar-volman
         ];
-        
+
         file.".config/xfce4/xfconf/xfce-perchannel-xml/thunar.xml" = ''
           <?xml version="1.1" encoding="UTF-8"?>
 
@@ -30,8 +30,7 @@
             <property name="last-window-width" type="int" value="717"/>
             <property name="last-window-height" type="int" value="526"/>
             <property name="last-show-hidden" type="bool" value="true"/>
-          </channel>        
+          </channel>
         '';
-        
-    };}
 
+    };}

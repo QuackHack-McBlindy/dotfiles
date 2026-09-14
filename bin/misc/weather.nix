@@ -5,7 +5,7 @@
   pkgs,
   cmdHelpers,
   ...
-} : let  
+} : let
   WEATHER_CODES = {
     "113" = "☀️";  "116" = "⛅";  "119" = "☁️";  "122" = "☁️";  "143" = "☁️";
     "176" = "🌧️";  "179" = "🌧️";  "182" = "🌧️";  "185" = "🌧️";  "200" = "⛈️";
@@ -18,7 +18,7 @@
     "368" = "🌧️";  "371" = "❄️";  "374" = "🌨️";  "377" = "🌨️";  "386" = "🌨️";
     "389" = "🌨️";  "392" = "🌧️";  "395" = "❄️";
   };
-  
+
 in {
   yo.scripts.weather = {
     description = "Weather Assistant. Ask anything weather related (3 day forecast)";
@@ -27,9 +27,9 @@ in {
     parameters = [
       { name = "location"; description = "Location to check (City, Country). Not required if using locationPath"; optional = true; }
       { name = "day"; description = "Search weather for a specified day"; optional = true; }
-      { name = "condition"; description = "Check for a specific weather condition"; optional = true; }   
-      { name = "locationPath"; description = "File path contianing location to check (City, Country)"; default = config.sops.secrets."users/pungkula/homeCityCountry".path; }      
-    ]; 
+      { name = "condition"; description = "Check for a specific weather condition"; optional = true; }
+      { name = "locationPath"; description = "File path contianing location to check (City, Country)"; default = config.sops.secrets."users/pungkula/homeCityCountry".path; }
+    ];
     code = ''
       ${cmdHelpers}
       if [ -n "$location" ]; then
@@ -40,9 +40,9 @@ in {
         dt_error "Error: No location is provided."
         exit 1
       fi
-      # 🦆 says ⮞ get 3-day forecast    
+      # 🦆 says ⮞ get 3-day forecast
       weather_file="/home/pungkula/weather.json"
-      cache_age=1800   
+      cache_age=1800
       refresh_cache=true
       if [ -f "$weather_file" ]; then
         current_time=$(date +%s)
@@ -55,7 +55,7 @@ in {
         curl -s "https://wttr.in/$location_param?format=j1" -o "$weather_file"
       fi
       weather=$(cat "$weather_file")
-       
+
       declare -A WEATHER_CODES=(
         ["113"]="☀️"  ["116"]="⛅"  ["119"]="☁️"  ["122"]="☁️"  ["143"]="☁️"
         ["176"]="🌧️"  ["179"]="🌧️"  ["182"]="🌧️"  ["185"]="🌧️"  ["200"]="⛈️"
@@ -83,7 +83,7 @@ in {
         ["thunderstorm"]="200"
         ["fog"]="248 260"
       )
-      
+
       # 🦆 says ⮞ map condition > Swedish names
       declare -A CONDITION_SWEDISH=(
         ["sunny"]="soligt"
@@ -102,7 +102,7 @@ in {
         ["Clear"]="klart väder"
         ["Sunny"]="soligt"
         ["Partly Cloudy"]="delvis molnigt"
-        ["partly cloudy"]="delvis molnigt"        
+        ["partly cloudy"]="delvis molnigt"
         ["Patchy rain nearby"]="delvis regn i närheten"
         ["cloudy"]="molnigt"
         ["Overcast"]="mulet"
@@ -116,7 +116,7 @@ in {
         local day_index=$(date -d "@$epoch" +%w)  # +%w returns 0-6 (Sun-Sat)
         echo "''${days_sv[$day_index]}"
       }
-  
+
       location_param=""
       if [ -n "$location" ]; then
           location_param="$location"
@@ -133,7 +133,7 @@ in {
           local day_index=$(date -d "today + $offset days" +%w)
           echo "''${days_sv[$day_index]}"
       }
-      
+
       # 🦆 says ⮞ find day offset
       get_day_offset() {
           case "$1" in
@@ -151,22 +151,22 @@ in {
                   ;;
           esac
       }
-      
+
       # 🦆 says ⮞ display weather in a table
       display_weather_table() {
         local processed_data=$1
         local title=$2
-  
+
         markdown_table=$(
-          echo "# Weather" 
+          echo "# Weather"
           echo "| Day | Min/Max | Wind | Precip | Conditions |"
           echo "|-----|---------|------|--------|------------|"
-    
+
           local day_count=$(echo "$processed_data" | jq length)
-    
+
           for ((i=0; i<day_count; i++)); do
             day_data=$(echo "$processed_data" | jq -r ".[$i]")
-      
+
             date_epoch=$(date -d "$(echo "$day_data" | jq -r '.date')" +%s)
             day_name=$(get_day_name_from_epoch "$date_epoch")
             mintempC=$(echo "$day_data" | jq -r '.mintempC')
@@ -176,18 +176,18 @@ in {
             condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc')
             wind=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
             precip=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
-      
+
             echo "| $day_name | $mintempC-$maxtempC°C | $wind km/h | $precip mm | $condition_emoji $condition_text |"
           done
         )
-  
+
         echo "$markdown_table" | ${pkgs.glow}/bin/glow -
       }
-      
+
       # 🦆 says ⮞ display specific day forecast
       show_day_forecast() {
         local offset=$1
-        
+
         local processed=$(jq --argjson offset "$offset" \
           '[.weather[$offset] | {
             date,
@@ -201,7 +201,7 @@ in {
               precipMM
             })
           }]' "$weather_file")
-        
+
         case $offset in
             0) display_name="Idag" ;;
             1) display_name="Imorgon" ;;
@@ -214,8 +214,8 @@ in {
         condition_emoji="''${WEATHER_CODES[$weather_code]:-❓}"
         condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc')
         mintempC=$(echo "$day_data" | jq -r '.mintempC')
-        maxtempC=$(echo "$day_data" | jq -r '.maxtempC')        
-        display_weather_table "$processed" "Weather Forecast for $location_param ($display_name)"       
+        maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
+        display_weather_table "$processed" "Weather Forecast for $location_param ($display_name)"
         lookup_key=$(echo "$condition_text" | sed 's/.*/\L&/; s/\b\(.\)/\u\1/g')  # lowercase all, then capitalize first letters
         precipMM=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
         lookup_key=$(echo "$condition_text" | sed -E 's/(^| )([a-z])/\1\u\2/g')
@@ -229,7 +229,7 @@ in {
         yo-say "$display_name: $swedish_condition. Min $mintempC grader, max $maxtempC grader$precip_text."
 
       }
-      
+
       # 🦆 says ⮞ display 3-day forecast
       show_5day_forecast() {
         local processed=$(jq '[.weather[] | {
@@ -244,7 +244,7 @@ in {
             precipMM
           })
         }]' "$weather_file")
-        
+
         display_weather_table "$processed" "$location_param"
       }
 
@@ -263,14 +263,14 @@ in {
                   FeelsLikeC
               })
           }]' "$weather_file")
-          
+
           local summary="Väderöversikt för nästa tre dagar. "
-          
+
           for i in 0 1 2; do
               local day_data=$(echo "$processed" | jq -r ".[$i]")
               local date_epoch=$(date -d "$(echo "$day_data" | jq -r '.date')" +%s)
               local day_name=$(get_day_name_from_epoch "$date_epoch")
-              
+
               local mintempC=$(echo "$day_data" | jq -r '.mintempC')
               local maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
               local weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
@@ -278,19 +278,19 @@ in {
               local precipMM=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
               local chance_of_rain=$(echo "$day_data" | jq -r '.noonWeather.chanceofrain')
               local wind_speed=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
-              
+
               local lookup_key=$(echo "$condition_text" | sed -E 's/(^| )([a-z])/\1\u\2/g')
               local swedish_condition="''${WEATHER_SWEDISH_DESC[$lookup_key]:-''${condition_text,,}}"
-              
+
               case $i in
                   0) day_desc="Idag" ;;
                   1) day_desc="Imorgon" ;;
                   2) day_desc="I övermorgon" ;;
                   *) day_desc="På $day_name" ;;
               esac
-              
+
               local temp_desc="mellan $mintempC och $maxtempC grader"
-              
+
               local wind_desc=""
               if (( wind_speed > 20 )); then
                   local ms_speed=$(kmh_to_ms "$wind_speed")
@@ -298,7 +298,7 @@ in {
               elif (( wind_speed > 10 )); then
                   wind_desc=", lätt bris på $wind_speed kilometer per timme"
               fi
-              
+
               local precip_desc=""
               if (( $(echo "$precipMM > 0" | bc -l) )); then
                   if (( $(echo "$precipMM < 1" | bc -l) )); then
@@ -308,12 +308,12 @@ in {
                   else
                       precip_desc=", kraftig nederbörd på $precipMM millimeter"
                   fi
-                  
+
                   if [ -n "$chance_of_rain" ] && [ "$chance_of_rain" != "null" ] && [ "$chance_of_rain" != "0" ]; then
                       precip_desc="$precip_desc med $chance_of_rain procents risk"
                   fi
               fi
-              
+
               local humidity=$(echo "$day_data" | jq -r '.noonWeather.humidity')
               local humidity_desc=""
               if [ -n "$humidity" ] && [ "$humidity" != "null" ]; then
@@ -323,7 +323,7 @@ in {
                       humidity_desc=", torrt med $humidity procent luftfuktighet"
                   fi
               fi
-              
+
               local feels_like=$(echo "$day_data" | jq -r '.noonWeather.FeelsLikeC')
               local feels_desc=""
               if [ -n "$feels_like" ] && [ "$feels_like" != "null" ] && [ "$feels_like" != "maxtempC" ]; then
@@ -334,45 +334,45 @@ in {
                       feels_desc=", känns som $feels_like grader på grund av vinden"
                   fi
               fi
-              
+
               summary="$summary $day_desc: $swedish_condition, $temp_desc$precip_desc$wind_desc$humidity_desc$feels_desc. "
           done
-          
+
           local general_advice=""
           local first_day=$(echo "$processed" | jq -r '.[0]')
           local max_temp1=$(echo "$first_day" | jq -r '.maxtempC | tonumber')
           local precip1=$(echo "$first_day" | jq -r '.noonWeather.precipMM | tonumber')
           local wind1=$(echo "$first_day" | jq -r '.noonWeather.windspeedKmph | tonumber')
-          
+
           if (( max_temp1 > 25 )); then
               general_advice=" Kom ihåg att dricka mycket vatten och skydda dig mot solen."
           elif (( max_temp1 < 5 )); then
               general_advice=" Se till att klä dig varmt."
           fi
-          
+
           if (( $(echo "$precip1 > 5" | bc -l) )); then
               general_advice="$general_advice Ta med paraply eller regnkläder."
           fi
-          
+
           if (( wind1 > 15 )); then
               general_advice="$general_advice Var försiktig ute i stark vinden."
           fi
-          
-          summary="$summary$general_advice"          
+
+          summary="$summary$general_advice"
           echo "$summary"
       }
-      
+
       speak_weather_summary() {
           local summary=$(generate_tts_summary)
-          summary=$(echo "$summary" | sed 's/  / /g' | sed 's/\. \././g')    
+          summary=$(echo "$summary" | sed 's/  / /g' | sed 's/\. \././g')
           dt_debug "TTS Summary: $summary"
           yo-say "$summary"
-      }      
+      }
 
       # 🦆 says ⮞ check for specific condition
       check_condition() {
           local condition="$1"
-          local offset="$2"     
+          local offset="$2"
           local day_data=$(jq --argjson offset "$offset" \
             '.weather[$offset] | {
               mintempC: .mintempC,
@@ -387,7 +387,7 @@ in {
                 FeelsLikeC
               })
             }' "$weather_file")
-          
+
           local weather_code=$(echo "$day_data" | jq -r '.noonWeather.weatherCode')
           local condition_text=$(echo "$day_data" | jq -r '.noonWeather.weatherDesc' | tr '[:upper:]' '[:lower:]')
           local wind_speed=$(echo "$day_data" | jq -r '.noonWeather.windspeedKmph')
@@ -395,14 +395,14 @@ in {
           local maxtempC=$(echo "$day_data" | jq -r '.maxtempC')
           local precipMM=$(echo "$day_data" | jq -r '.noonWeather.precipMM')
           local chance_of_rain=$(echo "$day_data" | jq -r '.noonWeather.chanceofrain')
-          
+
           case $offset in
               0) display_name="idag" ;;
               1) display_name="imorgon" ;;
               2) display_name="i övermorgon" ;;
               *) display_name="$(get_day_name $offset)" ;;
-          esac  
-          local swedish_condition="''${CONDITION_SWEDISH[$condition]}"      
+          esac
+          local swedish_condition="''${CONDITION_SWEDISH[$condition]}"
           case "$condition" in
             sunny|partly\ cloudy|cloudy|rain|sleet|snow|thunderstorm|fog)
                 local codes="''${CONDITION_CODES[$condition]}"
@@ -473,19 +473,19 @@ in {
                     return 1
                 fi
                 ;;
-        
+
             *)
                 dt_info "Okänd väderförhållande: $condition"
                 return 1
                 ;;
         esac
       }
-      
+
       if [ -n "$condition_param" ]; then
           if [ -z "$day_param" ]; then
               day_param="idag"
           fi
-          offset=$(get_day_offset "$day_param")       
+          offset=$(get_day_offset "$day_param")
           check_condition "$condition_param" "$offset"
       elif [ -n "$day_param" ]; then
           offset=$(get_day_offset "$day_param")
@@ -498,7 +498,7 @@ in {
     voice = {
       enabled = true;
       priority = 2;
-      sentences = [ 
+      sentences = [
         # 🦆 says ⮞ 3 day weather cast
         "(vad|hur) (är|blir) [det] [för] (vädret|väder)"
         "vädret"
@@ -510,24 +510,24 @@ in {
         "hur {condition} (är|blir) det på {day}"
         "(kommer|blir) det [att] {condition} [på] {day}"
         "hur {condition} är det"
-        "kommer det att {condition} [på] {day}" 
+        "kommer det att {condition} [på] {day}"
       ];
       lists = {
         day.values = [
           { "in" = "[ida|idag]"; out = "idag"; }
-          { "in" = "imorgon"; out = "imorgon"; }  
-          { "in" = "i morgon"; out = "imorgon"; }  
+          { "in" = "imorgon"; out = "imorgon"; }
+          { "in" = "i morgon"; out = "imorgon"; }
           { "in" = "i övermorgon"; out = "i övermorgon"; }
-          { "in" = "övermorgon"; out = "i övermorgon"; } 
+          { "in" = "övermorgon"; out = "i övermorgon"; }
           # 🦆 says ⮞ dayz
           { "in" = "måndag"; out = "måndag"; }
-          { "in" = "tisdag"; out = "tisdag"; }  
-          { "in" = "onsdag"; out = "onsdag"; }      
+          { "in" = "tisdag"; out = "tisdag"; }
+          { "in" = "onsdag"; out = "onsdag"; }
           { "in" = "torsdag"; out = "torsdag"; }
-          { "in" = "fredag"; out = "fredag"; }  
-          { "in" = "lördag"; out = "lördag"; }      
-          { "in" = "söndag"; out = "söndag"; }      
-        ];  
+          { "in" = "fredag"; out = "fredag"; }
+          { "in" = "lördag"; out = "lördag"; }
+          { "in" = "söndag"; out = "söndag"; }
+        ];
         condition.values = [
           # ☀️ Sunny / Clear
           { "in" = "[sol|soligt|klart]"; out = "sunny"; }
@@ -543,7 +543,7 @@ in {
           { "in" = "[snö|snöa|snöar|snöfall]"; out = "snow"; }
           # ⛈️ Thunderstorm
           { "in" = "[åska|åskväder|åskregn|blixt]"; out = "thunderstorm"; }
-                                                  # 🌫️ Fog / Mist (not emoji-mapped but common)
+          # 🌫️ Fog / Mist
           { "in" = "[dimma|dis|töcken]"; out = "fog"; }
           # 🌬️ Windy
           { "in" = "[blås|blåsa|blåsigt|vind|vindigt]"; out = "windy"; }
@@ -551,11 +551,11 @@ in {
           { "in" = "[varm|varmt|hett|värme]"; out = "varmt"; }
           # ❄️ Cold
           { "in" = "[kallt|kyla|frost]"; out = "kallt"; }
-        ];  
+        ];
       };
     };
   };
-  
+
   sops.secrets."users/pungkula/homeCityCountry" = {
     sopsFile = ./../../secrets/users/pungkula/homeCityCountry.yaml;
     owner = config.this.user.me.name;

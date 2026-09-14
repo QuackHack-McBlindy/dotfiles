@@ -5393,7 +5393,7 @@ ${mountName} = Element("${el.id}")`;
     Return a cursor that iterates over the given range of lines,
     _without_ returning the line breaks between, and yielding empty
     strings for empty lines.
-    
+
     When `from` and `to` are given, they should be 1-based line numbers.
     */
     iterLines(from, to) {
@@ -5971,7 +5971,7 @@ ${mountName} = Element("${el.id}")`;
     `fromA`/`toA` provides the extent of the change in the starting
     document, `fromB`/`toB` the extent of the replacement in the
     changed document.
-    
+
     When `individual` is true, adjacent changes (which are kept
     separate for [position mapping](https://codemirror.net/6/docs/ref/#state.ChangeDesc.mapPos)) are
     reported separately.
@@ -6133,7 +6133,7 @@ ${mountName} = Element("${el.id}")`;
     applied to the document produced by applying `other`. When
     `before` is `true`, order changes as if `this` comes before
     `other`, otherwise (the default) treat `other` as coming first.
-    
+
     Given two changes `A` and `B`, `A.compose(B.map(A))` and
     `B.compose(A.map(B, true))` will produce the same document. This
     provides a basic form of [operational
@@ -6148,7 +6148,7 @@ ${mountName} = Element("${el.id}")`;
     each, with the range in the original document (`fromA`-`toA`)
     and the range that replaces it in the new document
     (`fromB`-`toB`).
-    
+
     When `individual` is true, adjacent changes are reported
     separately.
     */
@@ -6753,7 +6753,7 @@ ${mountName} = Element("${el.id}")`;
     state. You must take care to declare the parts of the state that
     this value depends on, since your function is only called again
     for a new state when one of those parts changed.
-    
+
     In cases where your value depends only on a single field, you'll
     want to use the [`from`](https://codemirror.net/6/docs/ref/#state.Facet.from) method instead.
     */
@@ -7733,7 +7733,7 @@ ${mountName} = Element("${el.id}")`;
     Look up a translation for the given phrase (via the
     [`phrases`](https://codemirror.net/6/docs/ref/#state.EditorState^phrases) facet), or return the
     original string if no translation is found.
-    
+
     If additional arguments are passed, they will be inserted in
     place of markers like `$1` (for the first value) and `$2`, etc.
     A single `$` is equivalent to `$1`, and `$$` will produce a
@@ -7757,9 +7757,9 @@ ${mountName} = Element("${el.id}")`;
     /**
     Find the values for a given language data field, provided by the
     the [`languageData`](https://codemirror.net/6/docs/ref/#state.EditorState^languageData) facet.
-    
+
     Examples of language data fields are...
-    
+
     - [`"commentTokens"`](https://codemirror.net/6/docs/ref/#commands.CommentTokens) for specifying
       comment syntax.
     - [`"autocomplete"`](https://codemirror.net/6/docs/ref/#autocomplete.autocompletion^config.override)
@@ -7784,7 +7784,7 @@ ${mountName} = Element("${el.id}")`;
     Return a function that can categorize strings (expected to
     represent a single [grapheme cluster](https://codemirror.net/6/docs/ref/#state.findClusterBreak))
     into one of:
-    
+
      - Word (contains an alphanumeric character or a character
        explicitly listed in the local language's `"wordChars"`
        language data, which should be a string)
@@ -7997,7 +7997,7 @@ ${mountName} = Element("${el.id}")`;
     /**
     Update the range set, optionally adding new ranges or filtering
     out existing ones.
-    
+
     (Note: The type parameter is just there as a kludge to work
     around TypeScript variance issues that prevented `RangeSet<X>`
     from being a subtype of `RangeSet<Y>` when `X` is a subtype of
@@ -15203,7 +15203,7 @@ ${mountName} = Element("${el.id}")`;
     When the start position was the last one on the line, the
     returned position will be across the line break. If there is no
     further line, the original position is returned.
-    
+
     By default, this method moves over a single cluster. The
     optional `by` argument can be used to move across more. It will
     be called with the first cluster as argument, and should return
@@ -15236,7 +15236,7 @@ ${mountName} = Element("${el.id}")`;
     it defaults to moving to the next line (including wrapped
     lines). Otherwise, `distance` should provide a positive distance
     in pixels.
-    
+
     When `start` has a
     [`goalColumn`](https://codemirror.net/6/docs/ref/#state.SelectionRange.goalColumn), the vertical
     motion will use that as a target horizontal position. Otherwise,
@@ -15251,7 +15251,7 @@ ${mountName} = Element("${el.id}")`;
     Find the DOM parent node and offset (child offset if `node` is
     an element, character offset when it is a text node) at the
     given document position.
-    
+
     Note that for positions that aren't currently in
     `visibleRanges`, the resulting DOM position isn't necessarily
     meaningful (it may just point before or after a placeholder
@@ -15427,14 +15427,14 @@ ${mountName} = Element("${el.id}")`;
     [`style-mod`](https://github.com/marijnh/style-mod#documentation)
     style spec providing the styles for the theme. These will be
     prefixed with a generated class for the style.
-    
+
     Because the selectors will be prefixed with a scope class, rule
     that directly match the editor's [wrapper
     element](https://codemirror.net/6/docs/ref/#view.EditorView.dom)—to which the scope class will be
     added—need to be explicitly differentiated by adding an `&` to
     the selector for that element—for example
     `&.cm-focused`.
-    
+
     When `dark` is set to true, the theme will be marked as dark,
     which will cause the `&dark` rules from [base
     themes](https://codemirror.net/6/docs/ref/#view.EditorView^baseTheme) to be used (as opposed to
@@ -19835,7 +19835,7 @@ ${mountName} = Element("${el.id}")`;
     asynchronously loading a nested parser. It'll skip its input and
     mark it as not-really-parsed, so that the next update will parse
     it again.
-    
+
     When `until` is given, a reparse will be scheduled when that
     promise resolves.
     */
@@ -20638,7 +20638,7 @@ ${mountName} = Element("${el.id}")`;
     that rely on external styling), or a
     [`style-mod`](https://github.com/marijnh/style-mod#documentation)-style
     set of CSS properties (which define the styling for those tags).
-    
+
     The CSS rules created for a highlighter will be emitted in the
     order of the spec's properties. That means that for elements that
     have multiple tags associated with them, styles defined further
@@ -22038,12 +22038,12 @@ ${mountName} = Element("${el.id}")`;
     /**
     Create a text cursor. The query is the search string, `from` to
     `to` provides the region to search.
-    
+
     When `normalize` is given, it will be called, on both the query
     string and the content it is matched against, before comparing.
     You can, for example, create a case-insensitive search by
     passing `s => s.toLowerCase()`.
-    
+
     Text is always normalized with
     [`.normalize("NFKD")`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/normalize)
     (when supported).

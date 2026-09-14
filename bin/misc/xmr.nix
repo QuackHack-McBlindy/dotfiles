@@ -8,11 +8,11 @@
   ...
 } : let
   # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations; 
+  sysHosts = lib.attrNames self.nixosConfigurations;
   mqttHost = lib.findSingle (host:
       let cfg = self.nixosConfigurations.${host}.config;
       in cfg.services.mosquitto.enable or false
-    ) null null sysHosts;    
+    ) null null sysHosts;
   mqttHostip = if mqttHost != null
     then self.nixosConfigurations.${mqttHost}.config.this.host.ip or (
       let
@@ -24,15 +24,15 @@
     )
     else (throw "No Mosquitto host found in configuration");
   mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
-  
+
 in {
   yo.scripts.xmr = {
     description = "Crypto currency XMR price tracker";
     category = "🧩 Miscellaneous";
     runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
     runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
-    parameters = [ 
-      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/xmr_data.txt";  }           
+    parameters = [
+      { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/xmr_data.txt";  }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
       { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
     ]; # 🦆 says ⮞ show graph when calling --help
@@ -50,7 +50,7 @@ EOF
     '';
     code = ''
       ${cmdHelpers}
-            
+
       MQTT_BROKER="${mqttHostip}"
       MQTT_USER="$user"
       MQTT_PASSWORD=$(cat "$pwfile")
@@ -95,15 +95,15 @@ EOF
 
       echo "Monero: $XMR_PRICE$  24h: $XMR_24H_FORMATTED  (7d: $XMR_7D_FORMATTED)"
       dt_info "Monero: $XMR_PRICE$  24h: $XMR_24H_FORMATTED  (7d: $XMR_7D_FORMATTED)"
-      
+
       if_voice_say "Monero kostar $XMR_PRICE dollar, $XMR_24H_VOICE_DIR $XMR_24H_FORMATTED idag och $XMR_7D_VOICE_DIR $XMR_7D_FORMATTED den senaste veckan"
     '';
     voice = {
       enabled = true;
-      priority = 3;    
+      priority = 3;
       sentences = [
         "(va|vad|hur) [mycket|är] (priset|kostar) [på] [en] (xmr|monero)"
       ];
     };
-    
+
   };}
