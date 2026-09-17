@@ -13,12 +13,11 @@
     cargo
     cargo-msrv
     clippy
-    #esp-generate
-    #rustup
-    #openssl.dev
-    #alsa-lib-with-plugins
-    rustfmt
-    #SDL2
+    pkg-config        # or: pkgconf
+    dbus              # provides dbus-1.pc
+    pipewire          # provides libpipewire-0.3.pc and libspa-0.2.pc
+    libclang          # for bindgen (libspa-sys / pipewire-sys)
+    alsa-lib          # keep, since you were already using it
   ];
 
   formatRed = name: "echo - \$'\\e[0;31m'${name}\$'\\e[0m'";
@@ -31,7 +30,8 @@ in {
     export PKG_CONFIG_PATH="${pkgs.alsa-lib.dev}/lib/pkgconfig"
     export OPENSSL_INCLUDE_DIR=$(nix eval --raw nixpkgs#openssl.dev)/include
     export OPENSSL_LIB_DIR=$(nix eval --raw nixpkgs#openssl.out)/lib
-    export LIBCLANG_PATH="/nix/store/60y46s779qpjaqqal33yccwadcigscni-rocm-toolchain/lib/libclang.so.22.0"
+    #export LIBCLANG_PATH="/nix/store/60y46s779qpjaqqal33yccwadcigscni-rocm-toolchain/lib/libclang.so.22.0"
+    export LIBCLANG_PATH="${pkgs.libclang.lib}/lib"
     echo "Running on ${system}"
     echo ""
     ${formatHeader "Build inputs:"}

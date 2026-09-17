@@ -29,6 +29,8 @@
                 pkgs.jellycli
                 pkgs.kanata
                 pkgs.xclip
+                pkgs.terraform
+                pkgs.terraformer
 
             ])
         # 🦆 says⮞ NASTY

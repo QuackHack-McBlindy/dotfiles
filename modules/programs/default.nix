@@ -16,7 +16,6 @@ in {
         d = "cd ${config.this.user.me.dotfilesDir}";
         mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
         psx = "ps aux | fzf --preview 'echo {} | awk '\\''{print $2}'\\'' | xargs -I {} ps --pid {}'";
-        ls = "lsd --tree --depth 1";
         ls2 = "lsd --tree --depth 2";
         ls3 = "lsd --tree --depth 3";
         ls4 = "lsd --tree --depth 4";
@@ -108,6 +107,10 @@ in {
           gc.auto = 256;
           pack.threads = 1;
           pull.rebase = true;
+
+          alias = {
+            sync = "!git fetch origin && git checkout dev && git reset --hard origin/dev && git log -1 --oneline";
+          };
 
           url."git@github.com:" = {
             insteadOf = "https://github.com/";

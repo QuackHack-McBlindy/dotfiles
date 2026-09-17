@@ -7,6 +7,14 @@
   ...
 } : {
 
+    nixpkgs.overlays = [
+      (final: prev: {
+        buildGo125Module = prev.buildGoModule.override {
+          go = prev.go_1_26;
+        };
+      })
+    ];
+
     boot = {
         loader = {
             systemd-boot.enable = true;

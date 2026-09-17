@@ -1,4 +1,5 @@
 # dotfiles/modules/home.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 duck say ⮞ if u expect home man - you are out of duck
   config,
   lib,

@@ -16,7 +16,7 @@ in { # 🦆 says ⮞ yo
     logLevel = "DEBUG";
     parameters = [
       { name = "search"; description = "TV show to search for"; optional = true; }
-      { name = "channel"; description = "TV show to search for"; optional = true; }
+      { name = "channel"; description = "TV channel to list currently playing on"; optional = true; }
       { name = "jsonFilePath"; description = "Optional option to write as JSON file in addation to the EPG"; optional = true; default = "/home/" + config.this.user.me.name + "/epg.json"; }
     ];
     code = ''

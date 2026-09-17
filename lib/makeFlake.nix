@@ -1,4 +1,5 @@
 # dotfiles/lib/makeFlake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 duck say ⮞ dis iz pure tool buildin' stuffz yo
   self,
   lib,

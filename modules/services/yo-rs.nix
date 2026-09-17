@@ -25,22 +25,23 @@ in {
         beamSize = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
         temperature = 0.0; # 🦆 says ⮞ no more LSD plx
         threads = 8;
+        debug = false;
         logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
       };
 
       client = {
         enable = true;
-        logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
         uri = "192.168.1.111:12345";
+        silenceThreshold = 0.03;
+        silenceTimeout = 1.3;
+        maxDuration = 4.0;
+
         room =
           if config.this.host.hostname == "homie" then "livingroom"
           else if config.this.host.hostname == "desktop" then "local"
           else if config.this.host.hostname == "nasty" then "bedroom"
           else "";
 
-        silenceThreshold = 0.03;
-        silenceTimeout = 1.3;
-        maxDuration = 4.0;
         awakeCmd =
           if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state on --brightness 50 --color blue"
           else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state on --brightness 50 --color blue"
@@ -58,6 +59,9 @@ in {
           else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state off"
           else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/fail"
           else "";
+
+        debug = false;
+        logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
       };
     };
 

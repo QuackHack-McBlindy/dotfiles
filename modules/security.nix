@@ -1,4 +1,5 @@
 # dotfiles/modules/security.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 # 🦆 says ⮞ SECURITY?! WAT THE QUACK IS DAT?!
 {
   self,

@@ -1,4 +1,5 @@
 # dotfiles/flake.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 {
     description = "❄️🦆 ⮞ QuackHack-McBLindy's NixOS flake";
     inputs = {

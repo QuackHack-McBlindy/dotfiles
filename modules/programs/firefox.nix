@@ -1,4 +1,13 @@
 # dotfiles/modules/programs/firefox.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
+# ★ ─────────────────────────────────────────────────────────────────────── ★
+# ★ SUMMARY:
+# ★ A complete firefox configuration that extends beyond preferences and addons.
+# ★ This configuration handles firefox, network, sandboxing, builds a start webpage and much more.
+# ★
+# ★ run:`bm URL`   to save URL to the bookmarks on the custom start page
+# ★ run: `foxytor` to browse anonymously
+# ★ ─────────────────────────────────────────────────────────────────────── ★
 { # 🦆 duck say ⮞ diz iz my 🦊 even tho i be a 🦆
   config,
   self,
@@ -6,6 +15,20 @@
   pkgs,
   ...
 } : let
+  # 🦆 says ⮞ meta fox
+  firefoxIcon = "${self}/modules/themes/icons/firefox.png";
+  torfoxDesktopEntry = pkgs.writeText "torfox.desktop" ''
+    [Desktop Entry]
+    Type=Application
+    Name=Firefox (Tor)
+    Comment=Firefox running over Tor
+    Exec=torfox %u
+    Icon=${firefoxIcon}
+    Terminal=false
+    Categories=Network;WebBrowser;
+    MimeType=text/html;text/xml;application/xhtml+xml;
+  '';
+
   # 🦆 says ⮞ dis fetch what host has Docker services configued
   sysHosts = lib.attrNames self.nixosConfigurations;
   arrHost = lib.findSingle (host:
@@ -263,6 +286,114 @@
     ];
   };
 
+
+  # 🦆 duck say ⮞ start-page bookmarkz from sibling woo
+  bmData    = import ./../../home/bookmarks.nix;
+  bmMeta    = bmData.categories;
+  bmAll     = bmData.bookmarks;
+
+  # 🦆 duck say ⮞ group by categoriiii
+  bmGrouped = builtins.foldl' (acc: bm:
+    let cat = bm.category or "Other";
+    in acc // { ${cat} = (acc.${cat} or []) ++ [ bm ]; }
+  ) {} bmAll;
+
+  # 🦆 duck say ⮞ category order: first-seen order, "Other" forced last
+  bmSeen = builtins.foldl' (acc: bm:
+    let cat = bm.category or "Other";
+    in if builtins.elem cat acc then acc else acc ++ [ cat ]
+  ) [] bmAll;
+  bmOrdered =
+    (builtins.filter (c: c != "Other") bmSeen)
+    ++ lib.optionals (builtins.elem "Other" bmSeen) [ "Other" ];
+
+  bmRender = bm: ''
+    <a class="link" href="${bm.url}">
+      <span class="link-icon">${bm.icon or "◇"}</span>
+      <span class="link-name">${bm.title or bm.url}</span>
+    </a>
+  '';
+
+  bmRenderCat = cat:
+    let
+      meta = bmMeta.${cat} or { icon = "◆"; description = ""; };
+      bms  = bmGrouped.${cat} or [];
+    in ''
+      <section class="category">
+        <button class="category-header" type="button" aria-expanded="false">
+          <span class="category-icon">${meta.icon}</span>
+          <span>
+            <span class="category-name">${cat}</span>
+            <span class="category-description">${meta.description}</span>
+          </span>
+          <span class="chevron">⌄</span>
+        </button>
+        <div class="links">
+          <div class="links-inner">
+            ${lib.concatMapStrings bmRender bms}
+          </div>
+        </div>
+      </section>
+    '';
+
+  categoriesHtml = lib.concatMapStrings bmRenderCat bmOrdered;
+
+  # 🦆 duck say ⮞ quickly add a new bookmark in terminal with: "bm URL"
+  bookmarksFile = config.this.user.me.dotfilesDir + "/home/bookmarks.nix";
+  bmScript = pkgs.writeShellScriptBin "bm" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    BOOKMARKS_FILE="''${BOOKMARKS_FILE:-${bookmarksFile}}"
+    MARKER="# 🦆 say ⮞ new bookmarkz added here by a quick-scriopt"
+
+    usage() {
+      echo "usage: bm <url> [title] [category] [icon]" >&2
+      echo "  bm https://example.com" >&2
+      echo "  bm https://example.com 'Example' Work '◈'" >&2
+      exit 1
+    }
+    [ $# -ge 1 ] || usage
+    url="$1"
+    title="''${2:-}"
+    category="''${3:-}"
+    icon="''${4:-}"
+    if [ ! -f "$BOOKMARKS_FILE" ]; then
+      echo "BOOKMARKS: bookmarks file not found: $BOOKMARKS_FILE" >&2
+      exit 1
+    fi
+    if grep -qF "url = \"$url\"" "$BOOKMARKS_FILE"; then
+      echo "BOOKMARK: '$url' already present — skipping" >&2
+      exit 0
+    fi
+    if ! grep -qF "$MARKER" "$BOOKMARKS_FILE"; then
+      echo "BOOKMARK: marker '$MARKER' not found in $BOOKMARKS_FILE" >&2
+      exit 1
+    fi
+    entry="    { "
+    [ -n "$title" ]    && entry+="title = \"$title\"; "
+    entry+="url = \"$url\";"
+    [ -n "$category" ] && entry+=" category = \"$category\";"
+    [ -n "$icon" ]     && entry+=" icon = \"$icon\";"
+    entry+=" }"
+    tmp="$(mktemp)"
+    awk -v entry="$entry" -v marker="$MARKER" '
+      !done && index($0, marker) { print entry; done=1 }
+      { print }
+    ' "$BOOKMARKS_FILE" > "$tmp"
+    mv "$tmp" "$BOOKMARKS_FILE"
+    echo "BOOKMARK ADDED: $url"
+  '';
+
+  # 🦆 duck say ⮞ quickly browse with Tor using command: "foxytor"
+  anonBrowsing = pkgs.writeShellScriptBin "foxytor" ''
+    #!/usr/bin/env bash
+    set -euo pipefail
+    firejail --net=tornet --profile=~/.config/firejail/firefox.local torfox
+  '';
+
+  homepage.js   = builtins.readFile ./../themes/js/homepage.js;
+  homepage.css  = builtins.readFile ./../themes/css/homepage.css;
 in {
   # 🦆 duck say ⮞ enabled by exposing `"firefox"` in `this.host.modules.programs`
   config = lib.mkIf (lib.elem "firefox" cfg) {
@@ -278,8 +409,8 @@ in {
         # https://explore.whatismybrowser.com/useragents/explore/operating_system_name/
         "general.useragent.locale" = "en-GB";
         "general.useragent.override" = "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36";
-        # 🦆 duck say ⮞ Homepage
-        "browser.startup.homepage" = "http://localhost:3001";
+        # 🦆 duck say ⮞ HOMEPAGE / STARTPAGE / MY PAGE (we create diz down below yo yeeah)
+        "browser.startup.homepage" = "file:///etc/homepage/homepage.html";
         "browser.search.region" = "GB";
         "browser.search.isUS" = false;
         "distribution.searchplugins.defaultLocale" = "en-GB";
@@ -481,13 +612,203 @@ EOF
     };
 
     # 🦆 duck say ⮞ dependencies
-    environment.systemPackages = [ pkgs.mozlz4a pkgs.firefox-esr pkgs.python312Packages.lz4 ];
+    environment.systemPackages = [
+      pkgs.mozlz4a
+      pkgs.firefox-esr
+      pkgs.python312Packages.lz4
+      anonBrowsing
+      bmScript
+    ];
+
     environment.sessionVariables = { MOZ_USE_XINPUT2 = "1"; };
 
     # 🦆 duck say ⮞ Allow access to Firefox backup directory
     nix.settings.allowed-uris = [
       "file://${config.users.users.${config.this.user.me.name}.home}/.mozilla"
     ];
+
+
+    # 🦆 duck say ⮞ create da start page yay
+    environment.etc."homepage/homepage.html".text = ''
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+          <!-- META -->
+          <meta charset="UTF-8">
+          <title>Homepage » </title>
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;800;900&display=swap" rel="stylesheet">
+          <meta name="apple-mobile-web-app-capable" content="yes">
+          <meta name="apple-mobile-web-app-status-bar-style" content="default">
+          <meta name="apple-mobile-web-app-title" content="🦯🦆">
+          <link rel="icon" href="/etc/homepage/favicon.ico" sizes="any">
+          <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+          <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+          <meta name="theme-color" content="#050707">
+          <script src="/home/pungkula/dotfiles/modules/themes/js/homepage.js" defer></script>
+          <!-- <link rel="stylesheet" href="/home/pungkula/dotfiles/modules/themes/css/homepage.css">  -->
+          <style>
+              ${homepage.css}
+          </style>
+
+      </head>
+      <body>
+      <header>
+          <img src="/home/pungkula/dotfiles/modules/themes/images/banner.png" alt="" style="display: block; margin: 1rem auto; width: min(600px, 80vw); height: auto;">
+
+      </header>
+
+      <main>
+
+          <div class="ip">
+              <span class="ip-light"></span>
+              <span>PUBLIC IP</span>
+              <span id="ip-address">loading...</span>
+          </div>
+          <div class="clock-wrapper">
+              <div class="clock" id="clock">
+                  00<span class="colon">:</span>00<span class="colon">:</span>00
+              </div>
+              <div class="date" id="date">
+                  Wednesday · 16 September 2026
+              </div>
+          </div>
+
+          <div class="section-label">
+              bookmarks
+          </div>
+
+          <!--🦆 duck say ⮞ insert ma bookmark -->
+          <div class="categories">
+              ${categoriesHtml}
+          </div>
+
+          <div class="search">
+              <input
+                  id="search"
+                  type="text"
+                  placeholder="Search the web..."
+                  autocomplete="off"
+                  spellcheck="false"
+              >
+              <span class="search-icon">⌕</span>
+          </div>
+
+          <footer>
+              <span class="diamond">◆</span>
+              QuackHack-McBLindy
+              <span class="diamond">◆</span>
+          </footer>
+      </main>
+      </body>
+      </html>
+    '';
+
+    # 🦆 duck say ⮞ create da homepage in da dedicated & secured dir
+    environment.etc."homepage/favicon.ico".source                = ./../themes/icons/favicons/duckdash/favicon.ico;
+    environment.etc."homepage/favicon-16x16.png".source           = ./../themes/icons/favicons/duckdash/favicon-16x16.png;
+    environment.etc."homepage/favicon-32x32.png".source          = ./../themes/icons/favicons/duckdash/favicon-32x32.png;
+    environment.etc."homepage/apple-touch-icon.png".source       = ./../themes/icons/favicons/duckdash/apple-touch-icon.png;
+    environment.etc."homepage/android-chrome-192x192.png".source = ./../themes/icons/favicons/duckdash/android-chrome-192x192.png;
+    environment.etc."homepage/android-chrome-512x512.png".source = ./../themes/icons/favicons/duckdash/android-chrome-512x512.png;
+
+
+    # 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+    # POOL IS CLOSED DUE TO AIDS
+    # 🦆 duck say ⮞ LETZZ GO ANONYMOUS
+    # 🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆🦆
+    programs.firejail = {
+      enable = true;
+      wrappedBinaries = {
+        torfox = {
+          executable = "${pkgs.firefox-esr}/bin/firefox-esr";
+          profile = "${pkgs.firejail}/etc/firejail/firefox.profile";
+          desktop = torfoxDesktopEntry;
+          extraArgs = [
+            "--ignore=private-dev"
+            "--env=GTK_THEME=Adwaita:dark"
+            "--dbus-user.talk=org.freedesktop.Notifications"
+            "--net=tornet"
+            "--dns=46.182.19.48"
+          ];
+        };
+      };
+    };
+
+    services.tor = {
+      enable = true;
+      openFirewall = true;
+      settings = {
+        TransPort = [ 9040 ];
+        DNSPort = 5353;
+        VirtualAddrNetworkIPv4 = "172.30.0.0/16";
+      };
+    };
+
+    networking = {
+      networkmanager = {
+        enable = true;
+        ensureProfiles.profiles = {
+          tornet = {
+            connection = {
+              id = "tornet";
+              type = "bridge";
+              interface-name = "tornet";
+              autoconnect = true;
+            };
+            bridge = {
+              stp = false;
+            };
+            ipv4 = {
+              method = "manual";
+              address1 = "10.100.100.1/24";
+            };
+            ipv6 = {
+              method = "disabled";
+            };
+          };
+        };
+      };
+
+      nftables = {
+        enable = true;
+        ruleset = ''
+          table ip nat {
+            chain PREROUTING {
+              type nat hook prerouting priority dstnat; policy accept;
+              iifname "tornet" meta l4proto tcp dnat to 127.0.0.1:9040
+              iifname "tornet" udp dport 53 dnat to 127.0.0.1:5353
+            }
+          }
+        '';
+      };
+
+      nat = {
+        internalInterfaces = [ "tornet" ];
+        forwardPorts = [
+          {
+            destination = "127.0.0.1:5353";
+            proto = "udp";
+            sourcePort = 53;
+          }
+        ];
+      };
+
+      firewall = {
+        enable = true;
+        interfaces.tornet = {
+          allowedTCPPorts = [ 9040 ];
+          allowedUDPPorts = [ 5353 ];
+        };
+      };
+    };
+
+    boot.kernel.sysctl = {
+      "net.ipv4.conf.tornet.route_localnet" = 1;
+    };
+
   };} # 🦆 duck say ⮞ dat'z it, yo!
 # 🦆 duck say ⮞ dat wasn't so bad, huh?
 # 🦆 duck say ⮞ catch u laterz, aligatorz!

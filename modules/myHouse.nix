@@ -1,4 +1,5 @@
 # dotfiles/modules/myHouse.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 says ⮞ my house - qwack
   config, # 🦆 says ⮞ more info ⮞ https://quackhack-mcblindy.github.io/blog/house/index.html
   lib,

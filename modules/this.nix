@@ -1,4 +1,5 @@
 # dotfiles/modules/this.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 # 🦆 duck say ⮞ dis module is designed to define both user and host configurations
 # 🦆 duck say ⮞ so dat modules can dynamically adapt
 {

@@ -1,4 +1,5 @@
 # dotfiles/bin/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 duck say ⮞ dis file just sets simple helpers, loads loggers and auto imports all scripts
     self,
     config,

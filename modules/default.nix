@@ -1,4 +1,5 @@
 # dotfiles/modules/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 duck say ⮞ module importer
   config,
   lib,

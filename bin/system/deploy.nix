@@ -1,4 +1,5 @@
 # dotfiles/bin/system/deploy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 duck say ⮞ yubikey encrypted deployment yystem - built by ducks for ducks
   self,
   config,

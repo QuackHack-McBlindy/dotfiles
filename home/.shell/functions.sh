@@ -2,6 +2,80 @@
 # 🦆 says ⮞ sourced bash functions (mostly junk)
 
 
+ls() {
+    local -A dims
+    local max=0 f name w h
+    local files=( ./*.png )
+
+    if [[ -e "${files[0]}" ]]; then
+        while read -r name w h; do
+            [[ -z "$name" ]] && continue
+            dims["$name"]="${w}x${h}"
+            (( ${#name} > max )) && max=${#name}
+        done < <(identify -format '%f %w %h\n' "${files[@]}" 2>/dev/null)
+    fi
+
+    lsd --tree --depth 1 --icon always --color always |
+    while IFS= read -r line; do
+        local clean
+        clean=$(printf '%s' "$line" | sed -E 's/\x1B\[[0-9;]*[a-zA-Z]//g')
+
+        local target="${clean##* }"
+        target="${target##*─ }"
+
+        if [[ -n "${dims[$target]+_}" ]]; then
+            local pad=$(( max - ${#target} + 2 ))
+            printf '%s%*s\033[90m[%s]\033[0m\n' "$line" "$pad" '' "${dims[$target]}"
+        else
+            printf '%s\n' "$line"
+        fi
+    done
+}
+
+####### IMAGEMAGICK ##########
+
+
+scale() {
+    [[ $# -eq 2 ]] || return 1
+
+    input="$1"
+    scale="$2"
+
+    [[ -f "$input" ]] || {
+        echo "Error: file not found: $input" >&2
+        return 1
+    }
+
+    if [[ ! "$scale" =~ ^([+-])([0-9]+)%$ ]]; then
+        echo "Error: scale must look like +33% or -50%" >&2
+        return 1
+    fi
+
+    sign="${BASH_REMATCH[1]}"
+    percent="${BASH_REMATCH[2]}"
+
+    case "$sign" in
+        -)
+            resize_percent=$((100 - percent))
+            (( resize_percent > 0 )) || return 1
+            ;;
+        +)
+            resize_percent=$((100 + percent))
+            ;;
+    esac
+
+    extension="${input##*.}"
+    basename="${input%.*}"
+    output="${basename}_${resize_percent}pct.${extension}"
+
+    magick "$input" -resize "${resize_percent}%" "$output"
+
+    echo "$output"
+}
+
+
+######################
+
 # 🦆 ⮞ view & handle user services
 service() {
     systemctl --user list-units 'yo-*.service' --type=service --no-legend --no-pager \

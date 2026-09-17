@@ -1,4 +1,5 @@
 # dotfiles/bin/system/switch.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 {
   self,
   config,

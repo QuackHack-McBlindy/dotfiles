@@ -1,4 +1,5 @@
 # dotfiles/lib/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
 {
   self,
   lib,

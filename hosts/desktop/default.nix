@@ -9,7 +9,15 @@
 
     services.orca.enable = false;
 
+
+
     nixpkgs.overlays = [
+      (final: prev: {
+        buildGo125Module = prev.buildGoModule.override {
+          go = prev.go_1_26;
+        };
+      })
+
       (final: prev: {
         python313Packages = prev.python313Packages.overrideScope (
           pyfinal: pyprev: {
