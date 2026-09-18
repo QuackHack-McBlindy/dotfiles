@@ -11,7 +11,7 @@
 ![Python](https://img.shields.io/badge/Python-3.14.7-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.98.1-orange?style=plastic-square&logo=rust&logoColor=white)
 ![yo](https://img.shields.io/badge/💬%20yo-0.2.7-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.4-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.5-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -1487,7 +1487,7 @@ View Flake Outputs
 
   <!-- TREE_START -->
 ```nix
-git+file:///home/pungkula/dotfiles?ref=refs/heads/main&rev=54148a19e5fd830dcc786dcab012eeb26f574644
+git+file:///home/pungkula/dotfiles
 ├───devShells
 │   ├───aarch64-linux
 │   │   ├───android omitted (use '--all-systems' to show)
