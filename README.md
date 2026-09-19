@@ -1447,9 +1447,9 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        yo.url = "github:QuackHack-McBlindy/yo?ref=dev";
+        #yo.url = "github:QuackHack-McBlindy/yo?ref=dev";
         zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
-        #yo.url = "path:/home/pungkula/new/yo";
+        yo.url = "path:/home/pungkula/new/yo";
         #zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";

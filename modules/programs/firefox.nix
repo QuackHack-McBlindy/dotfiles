@@ -394,6 +394,8 @@
 
   homepage.js   = builtins.readFile ./../themes/js/homepage.js;
   homepage.css  = builtins.readFile ./../themes/css/homepage.css;
+
+
 in {
   # 🦆 duck say ⮞ enabled by exposing `"firefox"` in `this.host.modules.programs`
   config = lib.mkIf (lib.elem "firefox" cfg) {
