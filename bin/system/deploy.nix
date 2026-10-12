@@ -1,6 +1,6 @@
 # dotfiles/bin/system/deploy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # » ★ QuackHack-McBLindy.com ★ «
-{ # 🦆 duck say ⮞ yubikey encrypted deployment yystem - built by ducks for ducks
+{ # 🦆 duck say ⮞ yubikey encrypted deployment system - test deployments are verified by ssh connection after deployment. if the ssh connection verification fails the deployed system will reboot after some time resulting in a rollback to the last working generation
   self,
   config,
   pkgs,
@@ -23,9 +23,12 @@ in {
        { name = "repo"; type = "string"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }
        { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
        { name = "test"; type = "bool"; description = "Test deployment, does NOT save system generation, no git push, reboot to revert"; default = false; }
+       { name = "all"; type = "bool"; description = "Build all - deploy all"; default = false; }
      ];
      code = ''
        ${cmdHelpers}
+       TEST_UNIT="nixos-test-watchdog-$$"
+       TEST_DELAY="5min"
 
        # 🦆 duck say ⮞ validate host exist
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
@@ -45,6 +48,16 @@ in {
        # 🦆 duck say ⮞ validate host connectivity
        if ! ssh -p "$port" -o ConnectTimeout=5 "$user@$host" true; then
          dt_error "❌ Cannot connect to $host via SSH."
+       fi
+
+       # 🦆 duck say ⮞ TEST SAFETY NET: arm a self-reboot watchdog on the receiver
+       if $DRY_RUN; then
+         echo "🛡️  Arming rollback watchdog on $host (auto-reboot in $TEST_DELAY)"
+         if ! ssh -ttq -p "$port" "$user@$host" \
+              "sudo systemd-run --collect --on-active=$TEST_DELAY --unit='$TEST_UNIT' systemctl reboot"; then
+           dt_error "❌ Failed to arm rollback watchdog on $host — refusing to test-deploy"
+           exit 1
+         fi
        fi
 
        # 🦆 duck say ⮞ safety first
@@ -102,12 +115,15 @@ in {
 
        echo "👤 SSH User: ''$user"
        echo "🌐 SSH Host: ''$host"
-       echo "❄️ Nix flake: ''$flake"
+       echo "❄️  Nix flake: ''$flake"
        echo "🚀 Deploying ''$flake#nixosConfigurations.''$host"
        if $bootstrap_mode; then
          echo "🔨 Building on the remote machine..."
        else
          echo "🔨 Building locally and activating remotely..."
+       fi
+       if $DRY_RUN; then
+         echo "🛡️  Watchdog: $TEST_UNIT — reboot in $TEST_DELAY unless cancelled"
        fi
 
        export NIX_SSHOPTS="-p $port"
@@ -134,8 +150,20 @@ in {
 
        if "''${cmd[@]}"; then
          if $DRY_RUN; then
-           say_duck " ⚠️ Test deployment completed - No system generation saved!"
-           play_win
+           # 🦆 duck say ⮞ give the receiver a beat, then verify we still reach it
+           sleep 6
+           if ssh -p "$port" -o ConnectTimeout=10 -o BatchMode=yes "$user@$host" true 2>/dev/null; then
+             echo "✅ Link alive — cancelling rollback watchdog"
+             ssh -ttq -p "$port" "$user@$host" \
+               "sudo systemctl stop '$TEST_UNIT.timer' 2>/dev/null || true"
+             say_duck "✅ Test deploy verified — rollback watchdog cancelled"
+             play_win
+           else
+             say_duck "❌ Lost contact with $host — receiver will self-reboot in $TEST_DELAY"
+             dt_error "❌ Connection to $host lost after test deploy. Receiver will reboot automatically."
+             play_fail
+             exit 1
+           fi
          else
            say_duck " ✅ Created new system generation!"
            play_win
@@ -197,5 +225,14 @@ in {
        };
      };
     };
+  };
 
-  };}
+  # 🦆 duck say ⮞ no sudo pass for reboot timer plix
+  security.sudo.extraRules = [{
+    users = [ "pungkula" ];
+    commands = [
+      { command = "/run/current-system/sw/bin/systemd-run"; options = [ "NOPASSWD" ]; }
+      { command = "/run/current-system/sw/bin/systemctl stop nixos-test-watchdog-*"; options = [ "NOPASSWD" ]; }
+    ];
+
+  }];}

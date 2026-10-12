@@ -362,14 +362,34 @@ in { # 🦆 duck say ⮞ house config
 
         # 🦆 says ⮞ 1. MQTT triggered automations
         mqtt_triggered = {
+
+          flash_lights = {
+            enable = true;
+            description = "Flash lights";
+            topic = "zigduck/effects/flash";
+            actions = [
+              { type = "snapshot"; snapshot_name = "before_timer"; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "restore"; snapshot_name = "before_timer"; }
+            ];
+          };
+
+
           alarm_wakeup = {
             enable = true;
             description = "Time to wake up!";
             topic = "zigduck/alarm/triggered";
             actions = [
-              { type = "snapshot"; snapshot_name = "before_alarm"; }
-              # 🦆 says ⮞ max lightz
-              { type = "scene"; scene = "max"; }
+              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 says ⮞ TTS time to wake up
               { type = "shell"; command = "yo say 'wakieee wakiee dags att vaknaaaaaaa'"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
@@ -377,9 +397,7 @@ in { # 🦆 duck say ⮞ house config
               { type = "mqtt"; topic = "zigduck/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ FLASH!
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 2; }
-              { type = "scene"; scene = "max"; }
+              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 ⮞ play sound on bedroom esp32 assistant
               { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }
 
@@ -398,7 +416,6 @@ in { # 🦆 duck say ⮞ house config
                   tv --typ call
                 fi
               ''; }
-              { type = "restore"; snapshot_name = "before_alarm"; }
             ];
           };
 
@@ -407,20 +424,10 @@ in { # 🦆 duck say ⮞ house config
             description = "a timer is ringing";
             topic = "zigduck/timer/finished";
             actions = [
-              { type = "snapshot"; snapshot_name = "before_timer"; }
-              { type = "scene"; scene = "max"; }
-              { type = "wait"; duration = 2; }
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "max"; }
-              { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "max"; }
+              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 says ⮞ ping watch with ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
-              { type = "restore"; snapshot_name = "before_timer"; }
             ];
           };
 

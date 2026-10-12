@@ -1,6 +1,10 @@
 # dotfiles/home/.shell/functions.sh ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # 🦆 says ⮞ sourced bash functions (mostly junk)
 
+hidden() {
+    firejail --net=tornet bash -c "$*";
+}
+
 
 ls() {
     local -A dims

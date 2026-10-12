@@ -7,6 +7,25 @@
   cmdHelpers,
   ...
 }: let
+
+  # 🦆 says ⮞ league-specific API identifiers
+  leagues = {
+    shl = {
+      host        = "https://www.shl.se";
+      seasonUuid  = "ndcf81nlb3";
+      seriesUuid  = "qQ9-bb0bzEWUk";
+      gameTypeUuid = "qQ9-af37Ti40B";
+    };
+    ha = {
+      host        = "https://www.hockeyallsvenskan.se";
+      seasonUuid  = "xs4m9qupsi";
+      seriesUuid  = "qQ9-594cW8OWD";
+      gameTypeUuid = "qQ9-af37Ti40B";
+    };
+  };
+
+  leagueConfig = league: leagues.${league} or leagues.ha;
+
   # 🦆 says ⮞ game analyzer yo
   analyzeGame = ''
     analyze_game() {
@@ -405,6 +424,7 @@ in {
     parameters = [
       { name = "type"; type = "string"; description = "Game type: recent or upcoming"; optional = true; default = "upcoming"; }
       { name = "days"; type = "int"; description = "Number of past days to show"; optional = true; default = 2; }
+      { name = "league"; type = "string"; description = "League name"; optional = false; default = "shl"; values = [ "shl" "ha" ]; }
       { name = "team"; type = "string"; description = "Filter games for specific team"; optional = true; }
       { name = "dataDir"; type = "path"; description = "Directory path to save data in."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
       { name = "debug"; type = "bool"; description = "Enable debug mode for API calls"; optional = true; default = false; }
@@ -417,23 +437,37 @@ in {
       ${analyzeRecentGames}
       ${analyzeUpcomingGame}
 
+
       fetch_games() {
-        local url="https://www.hockeyallsvenskan.se/api/sports-v2/game-schedule?seasonUuid=xs4m9qupsi&seriesUuid=qQ9-594cW8OWD&gameTypeUuid=qQ9-af37Ti40B&gamePlace=all&played=all"
-        dt_debug "Fetching $type games..."
-        # 🦆 says ⮞ determine state filter based on type
+        local cfg_host cfg_season cfg_series cfg_game_type
+        if [ "$league" = "shl" ]; then
+          cfg_host="${leagues.shl.host}"
+          cfg_season="${leagues.shl.seasonUuid}"
+          cfg_series="${leagues.shl.seriesUuid}"
+          cfg_game_type="${leagues.shl.gameTypeUuid}"
+        else
+          cfg_host="${leagues.ha.host}"
+          cfg_season="${leagues.ha.seasonUuid}"
+          cfg_series="${leagues.ha.seriesUuid}"
+          cfg_game_type="${leagues.ha.gameTypeUuid}"
+        fi
+
+        local url="$cfg_host/api/sports-v2/game-schedule?seasonUuid=$cfg_season&seriesUuid=$cfg_series&gameTypeUuid=$cfg_game_type&gamePlace=all&played=all"
+        dt_debug "Fetching $league $type games from $url"
+
         local state_filter="post-game"
         if [ "$type" = "upcoming" ]; then
           state_filter="pre-game"
         fi
 
-        curl -s -H "User-Agent: Mozilla/5.0" "$url" | \
+        curl -sL -H "User-Agent: Mozilla/5.0" "$url" | \
         jq --arg state "$state_filter" '
           [.gameInfo[] |
             select(.state == $state) |
             {
               date: (.rawStartDateTime | sub("T.*"; "")),
-              home_team: .homeTeamInfo.names.short,
-              away_team: .awayTeamInfo.names.short,
+              home_team: (.homeTeamInfo.names.short | sub("\\s+$"; "")),
+              away_team: (.awayTeamInfo.names.short | sub("\\s+$"; "")),
               result: "\(.homeTeamInfo.score)-\(.awayTeamInfo.score)",
               overtime: (if .shootout then "SO" elif .overtime then "OT" else "" end),
               home_score: .homeTeamInfo.score,
@@ -447,10 +481,17 @@ in {
       }
 
       # 🦆 says ⮞ fetch PP/PK stats for each finished game
+
       fetch_team_stats() {
         local game_uuid="$1"
-        local url="https://www.hockeyallsvenskan.se/api/gameday/team-stats?gameUuid=$game_uuid"
-        curl -s -H "User-Agent: Mozilla/5.0" "$url" | jq '{
+        local cfg_host
+        if [ "$league" = "shl" ]; then
+          cfg_host="${leagues.shl.host}"
+        else
+          cfg_host="${leagues.ha.host}"
+        fi
+        local url="$cfg_host/api/gameday/team-stats?gameUuid=$game_uuid"
+        curl -sL -H "User-Agent: Mozilla/5.0" "$url" | jq '{
           home_team: .homeTeam.names.short,
           away_team: .awayTeam.names.short,
           home_power_play: (.homeTeamStats.powerPlayGoals|tostring + "/" + (.homeTeamStats.powerPlayOpportunities|tostring) + " (" + (.homeTeamStats.powerPlayPercentage|tostring) + "%)"),
@@ -459,6 +500,7 @@ in {
           away_penalty_kill: (.awayTeamStats.penaltyKillPercentage|tostring + "%")
         }'
       }
+
 
       filter_games_by_days() {
         local games_data="$1"
@@ -485,7 +527,7 @@ in {
         '
       }
       mkdir -p "$dataDir"
-      games_file="$dataDir/recent_games.json"
+      games_file="$dataDir/''${league}_games.json"
       dt_debug "🏒🦆says⮞ PUCK!"
       games_data=$(fetch_games)
       if [ -z "$games_data" ] || [ "$games_data" = "null" ] || [ "$games_data" = "[]" ]; then
@@ -562,9 +604,20 @@ in {
           { "in" = "[mora]"; out = "Mora IK"; }
           { "in" = "[södertälje]"; out = "Södertälje SK"; }
           { "in" = "[östersund]"; out = "Östersunds IK"; }
-          { "in" = "[troja]"; out = "IF Troja-Ljungby"; }
           { "in" = "[västerås]"; out = "Västerås IK"; }
           { "in" = "[vimmerby]"; out = "Vimmerby HC"; }
+
+          { "in" = "[färjestad|farjestad|fbk]"; out = "Färjestad"; }
+          { "in" = "[rögle|rogle]"; out = "Rögle"; }
+          { "in" = "[djurgården|djurgarden|dif]"; out = "Djurgården"; }
+          { "in" = "[växjö|vaxjo|lakers]"; out = "Växjö"; }
+          { "in" = "[skellefteå|skelleftea|saik]"; out = "Skellefteå"; }
+          { "in" = "[örebro|orebro]"; out = "Örebro"; }
+          { "in" = "[luleå|lulea|lhf]"; out = "Luleå"; }
+          { "in" = "[frölunda|frolunda|fhc]"; out = "Frölunda"; }
+          { "in" = "[brynäs|brynas]"; out = "Brynäs"; }
+          { "in" = "[linköping|linkoping|lhc]"; out = "Linköping"; }
+          { "in" = "[hv71|hv]"; out = "HV71"; }
         ];
       };
     };

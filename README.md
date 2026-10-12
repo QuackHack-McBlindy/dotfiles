@@ -10,7 +10,7 @@
 ![Bash](https://img.shields.io/badge/bash-5.3.15-red?style=plastic-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14.7-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.98.1-orange?style=plastic-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/💬%20yo-0.2.7-black?style=plastic)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.8-black?style=plastic)
 ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.5-black?style=plastic)
 
 
@@ -59,22 +59,22 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)
 ![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)
 ![ESP32](https://img.shields.io/badge/ESP32-2-E7352C?style=plastic&logo=espressif&logoColor=white)
-![Packages](https://img.shields.io/badge/📦_Packages-492-f97316?style=plastic)
+![Packages](https://img.shields.io/badge/📦_Packages-493-f97316?style=plastic)
 ![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)
 ![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)
 ![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)
 
-![Scripts](https://img.shields.io/badge/📜_Scripts-85-7c3aed?style=plastic)
-![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-54-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-2614-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-308894708-7c3aed?style=plastic)
+![Scripts](https://img.shields.io/badge/📜_Scripts-87-7c3aed?style=plastic)
+![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-55-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-2711-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-308903829-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
 ![Devices](https://img.shields.io/badge/🐝_Devices-48-0891b2?style=plastic)
 ![Scenes](https://img.shields.io/badge/🎨_Scenes-10-0891b2?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4529-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4559-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -587,14 +587,34 @@ in { # 🦆 duck say ⮞ house config
 
         # 🦆 says ⮞ 1. MQTT triggered automations
         mqtt_triggered = {
+        
+          flash_lights = {
+            enable = true;
+            description = "Flash lights";
+            topic = "zigduck/effects/flash";
+            actions = [
+              { type = "snapshot"; snapshot_name = "before_timer"; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "dark-fast"; }
+              { type = "wait"; duration = 2; }
+              { type = "scene"; scene = "max"; }
+              { type = "wait"; duration = 2; }
+              { type = "restore"; snapshot_name = "before_timer"; }
+            ];
+          };
+
+        
           alarm_wakeup = {
             enable = true;
             description = "Time to wake up!";
             topic = "zigduck/alarm/triggered";
             actions = [
-              { type = "snapshot"; snapshot_name = "before_alarm"; }
-              # 🦆 says ⮞ max lightz
-              { type = "scene"; scene = "max"; }
+              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 says ⮞ TTS time to wake up
               { type = "shell"; command = "yo say 'wakieee wakiee dags att vaknaaaaaaa'"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
@@ -602,9 +622,7 @@ in { # 🦆 duck say ⮞ house config
               { type = "mqtt"; topic = "zigduck/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ FLASH!
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 2; }
-              { type = "scene"; scene = "max"; }
+              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 ⮞ play sound on bedroom esp32 assistant
               { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }
 
@@ -623,7 +641,6 @@ in { # 🦆 duck say ⮞ house config
                   tv --typ call
                 fi
               ''; }
-              { type = "restore"; snapshot_name = "before_alarm"; }
             ];
           };
 
@@ -632,20 +649,10 @@ in { # 🦆 duck say ⮞ house config
             description = "a timer is ringing";
             topic = "zigduck/timer/finished";
             actions = [
-              { type = "snapshot"; snapshot_name = "before_timer"; }
-              { type = "scene"; scene = "max"; }
-              { type = "wait"; duration = 2; }
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "max"; }
-              { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "dark-fast"; }
-              { type = "wait"; duration = 1; }
-              { type = "scene"; scene = "max"; }
+              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 says ⮞ ping watch with ding
               { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
-              { type = "restore"; snapshot_name = "before_timer"; }
             ];
           };
 
@@ -1603,9 +1610,10 @@ Add \`?\` to any command to run it in DEBUG mode
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 | **🖥️ System Management** | | | |
-| [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] [--test] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | ✅ |
+| [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] [--test] [--all] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | ✅ |
 | [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] [--list] |  | Start development enviorment | 📛 |
 | [yo dry](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dry.nix)  |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | 📛 |
+| [yo pkgs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/pkgs.nix) [--host] --pkgs [--file] |  | Add system package to specified hosts nixosConfiguration. | 📛 |
 | [yo reboot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) [--host] | restart | Force reboot and wait for host | ✅ |
 | [yo rollback](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/rollback.nix) --host [--flake] [--user] |  | Rollback a host to a previous NixOS generation. Fetches Git tags and reverts system+config to a synced, tagged state. | 📛 |
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
@@ -1683,8 +1691,9 @@ Add \`?\` to any command to run it in DEBUG mode
 | **🧩 Miscellaneous** | | | |
 | [yo btc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/btc.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency BTC price tracker | ✅ |
 | [yo chat](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chat.nix) --text |  | No fwendz? Let's chat yo! | ✅ |
-| [yo duckPUCK](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates annd numbers. | ✅ |
-| [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--team] [--dataDir] [--debug] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
+| [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates annd numbers. | ✅ |
+| [yo duckPUCK-shl](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-shl.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck, shl | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
+| [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--dataDir] [--debug] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Duck says s funny joke. | ✅ |
 | [yo post](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/post.nix) [--postalCodeFile] [--postalCode] |  | Check for the next postal delivery day. (Sweden) | ✅ |

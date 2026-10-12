@@ -32,6 +32,7 @@
                 pkgs.terraform
                 pkgs.terraformer
 
+                pkgs.krita
             ])
         # 🦆 says⮞ NASTY
             (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
@@ -44,7 +45,7 @@
             [
                 pkgs.npth
                 pkgs.kagi
-
+                pkgs.sunshine
                 pkgs.qrencode
                 pkgs.age-plugin-yubikey
                 pkgs.ntfy-sh
