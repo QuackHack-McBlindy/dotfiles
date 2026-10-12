@@ -59,7 +59,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)
 ![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)
 ![ESP32](https://img.shields.io/badge/ESP32-2-E7352C?style=plastic&logo=espressif&logoColor=white)
-![Packages](https://img.shields.io/badge/📦_Packages-493-f97316?style=plastic)
+![Packages](https://img.shields.io/badge/📦_Packages-492-f97316?style=plastic)
 ![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)
 ![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)
 ![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)
@@ -188,13 +188,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/w4p3i58sdz7d93q9lhd5x2sm4i8z2vyf-bibata-cursors-2.0.7";
+    package = "/nix/store/6w992i1fpdh3cx8czrn2dqihgm0h7h0p-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/v96hbp6xar39yv5j0f3k5dpqdp1bipa1-fira-code-6.2" ];
+    packages = [ "/nix/store/mj2spr08a286hbid9qrwzqiqjyqm0yix-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -204,7 +204,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/qy8fcjb1p782r87jikqxvfzpfh17yk1d-papirus-icon-theme-20260801"
+    package = "/nix/store/h9l0dm241pwxkbna3n1987nw1q8wwr4x-papirus-icon-theme-20260801"
   };
   name = "gtk3.css";
   styles = "/nix/store/wg23gpsvsws9j5r5r1v9369pa4vfyv15-gtk3.css"
@@ -587,7 +587,7 @@ in { # 🦆 duck say ⮞ house config
 
         # 🦆 says ⮞ 1. MQTT triggered automations
         mqtt_triggered = {
-        
+
           flash_lights = {
             enable = true;
             description = "Flash lights";
@@ -608,7 +608,7 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
-        
+
           alarm_wakeup = {
             enable = true;
             description = "Time to wake up!";
@@ -1454,9 +1454,9 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        #yo.url = "github:QuackHack-McBlindy/yo?ref=dev";
+        yo.url = "github:QuackHack-McBlindy/yo?ref=dev";
         zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
-        yo.url = "path:/home/pungkula/new/yo";
+        #yo.url = "path:/home/pungkula/new/yo";
         #zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";

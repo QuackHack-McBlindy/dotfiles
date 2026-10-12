@@ -17,7 +17,6 @@
                 pkgs.element-desktop
                 pkgs.cargo
                 pkgs.python314
-                pkgs.piper-phonemize
                 pkgs.openssl.dev
                 pkgs.pkg-config
                 pkgs.alsa-ucm-conf

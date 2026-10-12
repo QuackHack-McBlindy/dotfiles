@@ -250,11 +250,11 @@
     },
     "nixpkgs_4": {
       "locked": {
-        "lastModified": 1789921291,
-        "narHash": "sha256-Ft/BRnIqw1MywFoXydKobjjWmDFgDdYtSpJliE8+yUw=",
+        "lastModified": 1791594108,
+        "narHash": "sha256-XK4KceonkwD8LuMAt/vNrz982mXJM5jeHAxMwsUXXAQ=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "44a91898084f46797b5fac650c7e8c9ac38c43d4",
+        "rev": "6510408d147d8c5e6d76043e899e9251756f6a75",
         "type": "github"
       },
       "original": {
@@ -374,11 +374,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1789890976,
-        "narHash": "sha256-GKwH3zpy7tartuJMG0Rv/xUsdetG1QLmTVv8UKgJLmA=",
+        "lastModified": 1791710405,
+        "narHash": "sha256-mVD4XIc5JkqMW2K04IkFUzHgHmyJZlzw5ktfgMDCbKU=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "7214124c20c1542c90deb54af50e2f53ae02711f",
+        "rev": "ee48786c6f9160d2c1a084aac841f68195b8420c",
         "type": "github"
       },
       "original": {
@@ -419,11 +419,11 @@
     },
     "systems_3": {
       "locked": {
-        "lastModified": 1681028828,
-        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "lastModified": 1791244623,
+        "narHash": "sha256-uuanbkFk8a313Zfrxdcz8Us/yQtaxNnKJtX8v0ZPpd8=",
         "owner": "nix-systems",
         "repo": "default",
-        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
+        "rev": "d36eeed142f88b5a636f2e3856a53c61654cf29b",
         "type": "github"
       },
       "original": {
@@ -473,14 +473,18 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1790074349,
-        "narHash": "sha256-mFsFx+q3LWXj/mEVAO7o9kG0CGUS3TjsO50pi5bLIUU=",
-        "path": "/home/pungkula/new/yo",
-        "type": "path"
+        "lastModified": 1789726689,
+        "narHash": "sha256-aaCngDUD+MYS4lqOk+ydtl3xuZ0BrKnkGq6F/u60hTM=",
+        "owner": "QuackHack-McBlindy",
+        "repo": "yo",
+        "rev": "e9dc8568e47413d0cd69bb71e88eb1f0414a3eb4",
+        "type": "github"
       },
       "original": {
-        "path": "/home/pungkula/new/yo",
-        "type": "path"
+        "owner": "QuackHack-McBlindy",
+        "ref": "dev",
+        "repo": "yo",
+        "type": "github"
       }
     },
     "zigduck": {

@@ -10,12 +10,16 @@
     services.orca.enable = false;
 
 
-
     nixpkgs.overlays = [
       (final: prev: {
         buildGo125Module = prev.buildGoModule.override {
           go = prev.go_1_26;
         };
+      })
+      (final: prev: {
+        piper-phonemize = prev.piper-phonemize.overrideAttrs (old: {
+          cmakeFlags = (old.cmakeFlags or []) ++ [ "-DBUILD_TESTING=OFF" ];
+        });
       })
 
       (final: prev: {
