@@ -99,8 +99,7 @@
                 pkgs.nix-serve
                 pkgs.dconf
                 pkgs.nvme-cli
-               # inputs.say.packages.x86_64-linux.say
-               # self.packages.${pkgs.system}.health
+                pkgs.health-rs
                 pkgs.nix-index
                 pkgs.rich-cli
                 pkgs.lsd

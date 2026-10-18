@@ -6,9 +6,83 @@
     config,
     lib,
     pkgs,
+    self,
     ...
 } : let
   inherit (lib) types mkOption mkEnableOption mkMerge;
+
+  # beep when touch is required
+  touchBeeper = pkgs.writeText "yubikey-beep.py" ''
+    import math
+    import os
+    import shutil
+    import socket
+    import struct
+    import subprocess
+    import time
+    import wave
+
+    runtime = os.environ["XDG_RUNTIME_DIR"]
+    sockpath = os.path.join(runtime, "yubikey-touch-detector.socket")
+    wavpath = os.path.join(runtime, "yubikey-beep.wav")
+
+    rate = 44100
+    with wave.open(wavpath, "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(rate)
+        samples = (
+            int(10000 * math.sin(2 * math.pi * 880 * i / rate))
+            for i in range(int(rate * 0.12))
+        )
+        wav.writeframes(b"".join(struct.pack("<h", s) for s in samples))
+
+    player = shutil.which("pw-play") or shutil.which("paplay")
+    if not player:
+        raise SystemExit("Install pw-play or paplay first")
+
+    print("Listening for YubiKey touch requests...", flush=True)
+
+    while True:
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.connect(sockpath)
+                s.settimeout(0.5)
+                buf = b""
+                pending = False
+                next_beep = 0.0
+
+                while True:
+                    try:
+                        data = s.recv(256)
+                        if not data:
+                            break
+                        buf += data
+                    except socket.timeout:
+                        pass
+
+                    while len(buf) >= 5:
+                        event, buf = buf[:5], buf[5:]
+
+                        if event == b"U2F_1":
+                            pending = True
+                            next_beep = 0.0
+                        elif event == b"U2F_0":
+                            pending = False
+
+                    if pending and time.monotonic() >= next_beep:
+                        subprocess.Popen(
+                            [player, wavpath],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                        )
+                        next_beep = time.monotonic() + 2.0
+
+        except (OSError, ConnectionError) as e:
+            print(f"Detector socket unavailable: {e}", flush=True)
+            time.sleep(1)
+  '';
+
 in {
     options.this = {
 #=== 🦆 duck say ⮞ TODO Remove =========================#
@@ -263,6 +337,7 @@ in {
                     yubikey-agent
                     yubikey-personalization
                     yubikey-manager
+                    yubikey-touch-detector
                     pam_u2f
                     libu2f-host
                     libykclient
@@ -317,6 +392,25 @@ in {
                     ENV{ID_VENDOR}=="Yubico",\
                     RUN+="${pkgs.systemd}/bin/loginctl lock-sessions"
                 '';
+
+                systemd.user.services.yubikey-beep = {
+                  description = "Beep while waiting for YubiKey touch";
+                  wantedBy = [ "default.target" ];
+                  after = [ "yubikey-touch-detector.service" ];
+                  wants = [ "yubikey-touch-detector.service" ];
+
+                  serviceConfig = {
+                    Type = "simple";
+                    ExecStart = "${pkgs.python3}/bin/python ${touchBeeper}";
+                    Restart = "always";
+                    RestartSec = "2s";
+                  };
+                  path = [
+                    pkgs.pipewire
+                    pkgs.pulseaudio
+                  ];
+                };
+
             })
             (lib.mkIf config.this.user.builder.enable {
                 security.sudo = {
@@ -367,6 +461,10 @@ in {
                 mkModule = moduleType: name: config:
                     lib.mkIf (lib.elem name config.this.host.modules.${moduleType}) config;
             };
+            _module.args.hosts = lib.genAttrs (builtins.attrNames self.nixosConfigurations) (name:
+                self.nixosConfigurations.${name}.config.this.host
+            );
+            _module.args.me = { config, ... }: config.this.user.me;
         }
 
     ];}

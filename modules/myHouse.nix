@@ -1,29 +1,26 @@
 # dotfiles/modules/myHouse.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 says ⮞ my house - qwack
-  config, # 🦆 says ⮞ more info ⮞ https://quackhack-mcblindy.github.io/blog/house/index.html
+  config,
   lib,
   self,
+  hosts,
   pkgs,
   ...
 } : let # 🦆 say ⮞ load dash pages css files
   strip = text:
     builtins.replaceStrings [ "/*" "*/" ] [ "" "" ] text;
-
   # 🦆 says ⮞ load custom pages 4 dashboard
   customPages = import ./dashboard.nix { inherit lib config pkgs; };
   pages = customPages.pages;
-
   # 🦆 says ⮞ load css files
   css = {
     tv      = builtins.readFile ./themes/css/duckdash/tv.css;
-    health  = builtins.readFile ./themes/css/duckdash/health.css;
     chat    = builtins.readFile ./themes/css/duckdash/chat.css;
   };
 
   # 🦆 says ⮞ get house.tv configuration with debug info
   tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
-
   # 🦆 says ⮞ generate TV selector options with debug
   tvOptions = let
     tvNames = lib.attrNames tvConfig;
@@ -33,12 +30,11 @@
     ) tvNames;
   in builtins.trace "TV options: ${options}" options;
 
-  # 🦆 says ⮞ dis fetch what host has Mosquitto
-  sysHosts = lib.attrNames self.nixosConfigurations;
-  mqttAuth = "-u ${config.house.zigbee.mosquitto.username} -P $(cat ${config.house.zigbee.mosquitto.passwordFile})";
-
   # 🦆 says ⮞ icon map
   icons = {
+    nas     = "mdi:nas";
+    desktop = "mdi:desktop-tower";
+    laptop  = "mdi:laptop";
     light = {
       ceiling         = "mdi:ceiling-light";
       strip           = "mdi:led-strip";
@@ -71,7 +67,6 @@
     blinds            = "mdi:blinds";
   };
 
-
   Mqtt2jsonHistory = field: file: ''
     FILE="/var/lib/zigduck/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
@@ -98,22 +93,6 @@
     fi
   '';
 
-  health = lib.mapAttrs (hostName: _: {
-    enable = true;
-    description = "Health Check: ${hostName}";
-    topic = "zigduck/health/${hostName}";
-    actions = [
-      {
-         type = "shell";
-         command = ''
-           mkdir -p /var/lib/zigduck/health
-           touch /var/lib/zigduck/health/${hostName}.json
-           echo "$MQTT_PAYLOAD" > /var/lib/zigduck/health/${hostName}.json
-        '';
-       }
-     ];
-  }) self.nixosConfigurations;
-
 in { # 🦆 duck say ⮞ house config
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
@@ -123,8 +102,11 @@ in { # 🦆 duck say ⮞ house config
       kitchen.icon    = "mdi:food-fork-drink";
       livingroom.icon = "mdi:sofa";
       wc.icon         = "mdi:toilet";
-      tv-area.icon    = "mdi:television";
-      other.icon      = "mdi:misc";
+      tv-area = {
+        entertainment = true;
+        icon          = "mdi:television";
+      };
+      other.icon      = "mdi:dots-horizontal";
     };
 
     # 🦆 says ⮞ media
@@ -141,141 +123,37 @@ in { # 🦆 duck say ⮞ house config
       audiobooks = "/Pool/Audiobooks";
     };
 
-    # 🦆 says ⮞ DASHBOARD CONFIOGURATION
-    https.dashboard.urlFile = config.sops.secrets.dashboard.path;
-    dashboard = {
-      # 🦆 says ⮞  home page information cards
-      statusCards = {
-        calendar = {
-          enable = true;
-          title = "𝑪𝑨𝑳𝑬𝑵𝑫𝑨𝑹";
-          group = "1";
-          icon = "fas fa-calendar";
-          color = "#ff0000";
-          theme = "glass";
-          filePath = "/var/lib/zigduck/calendar.json";
-          jsonField = "today_date";
-          format = "{value}";
-          detailsJsonField = "today_events";
-          detailsFormat = "{value}";
-          chart = false;
-          on_click_action = [
-            {
-              type = "shell";
-              command = "yo say \"detta är ett ank test - testar ankor ankor anka naka naka ojojojjoj vad många ankor detta blev oj oj\" --host desktop";
-            }
-          ];
-        };
-
-        # 🦆 says ⮞ Monero USD price ticker
-        xmr = {
-          enable = true;
-          title = "𝑿𝑴𝑹";
-          group = "tickers";
-          icon = "fab fa-monero";
-          color = "#a78bfa";
-          theme = "colorful";
-          filePath = "/var/lib/zigduck/xmr.json";
-          jsonField = "current_price";
-          format = "{value}";
-          detailsJsonField = "7d_change";
-          detailsFormat = "7d: {value}%";
-          chart = true;
-        };
-
-        # 🦆 says ⮞ Bitcoin USD price ticker
-        btc = {
-          enable = true;
-          title = "𝑩𝑻𝑪";
-          group = "tickers";
-          icon = "fab fa-bitcoin";
-          color = "#ff6600";
-          filePath = "/var/lib/zigduck/btc.json";
-          jsonField = "current_price";
-          format = "{value}";
-          detailsJsonField = "7d_change";
-          detailsFormat = "7d: {value}%";
-          chart = true;
-          historyField = "history";
-        };
-
-        # 🦆 says ⮞ kWh/price chart card
-        energyPrice = {
-          enable = true;
-          title = "𝑷𝑹𝑰𝑪𝑬";
-          group = "energy";
-          icon = "fas fa-bolt";
-          color = "#ffff00";
-          filePath = "/var/lib/zigduck/energy_price.json";
-          jsonField = "current_price";
-          format = "{value} SEK/kWh";
-          chart = true;
-          historyField = "history";
-        };
-
-        # 🦆 says ⮞ energy usage card
-        energyUsage = {
-          enable = true;
-          title = "USAGE";
-          group = "energy";
-          icon = "fas fa-bolt";
-          color = "#ffff00";
-          filePath = "/var/lib/zigduck/energy_usage.json";
-          jsonField = "monthly_usage";
-          format = "{value} kWh";
-          chart = true;
-          historyField = "history";
-        };
-
-        # 🦆 says ⮞ show indoor temperature
-        temperature = {
-          enable = true;
-          title = "TEMPERATURE C";
-          group = "sensors";
-          icon = "fas fa-thermometer-half";
-          color = "#e74c3c";
-          theme = "glass";
-          filePath = "/var/lib/zigduck/temperature.json";
-          jsonField = "temperature";
-          format = "{value} °C";
-          detailsFormat = "Temperature in Hallway";
-          chart = true;
-          historyField = "history";
-        };
+# 🦆 ⮞ DEVICES ⮜
+    devices = {
+      "desktop" = {
+        enable = true;
+        room   = "other";
+        icon   = icons.desktop;
+        ip     = hosts.desktop.ip;
       };
-
-      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
-      pages = {
-        # 🦆 says ⮞ (TV) remote page
-        "3" = {
-          icon = "fas fa-television";
-          title = "remote";
-          # 🦆 says ⮞ symlink epg to webserver
-          files = { tv = "/var/lib/zigduck/tv"; };
-          css = css.tv;
-          code = pages.remote;
-        };
-
-        # 🦆 says ⮞ system-wide health monitoring page
-        "4" = {
-          icon = "fas fa-notes-medical";
-          title = "health";
-          # 🦆 says ⮞ symlink directory to webserver
-          files = { health = "/var/lib/zigduck/health"; };
-          css = css.health;
-          code = pages.health;
-        };
-
-        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
-        "5" = {
-          icon = "fas fa-comments";
-          title = "chat";
-          css = css.chat;
-          # 🦆 says ⮞ symlink TTS audio to frontend webserver
-          files = { tts = "/var/lib/zigduck/tts"; };
-          code = pages.chat;
-        };
-
+      "homie" = {
+        enable = true;
+        room   = "other";
+        icon   = icons.desktop;
+        ip     = hosts.homie.ip;
+      };
+      "nasty" = {
+        enable = true;
+        room   = "other";
+        icon   = icons.desktop;
+        ip     = hosts.nasty.ip;
+      };
+      "watch" = {
+        enable = true;
+        room   = "other";
+        icon   = "mdi:watch";
+        ip     = "192.168.1.182";
+      };
+      "box" = {
+        enable = true;
+        room   = "other";
+        icon   = "mdi:microphone";
+        ip     = "192.168.1.14";
       };
     };
 
@@ -286,7 +164,10 @@ in { # 🦆 duck say ⮞ house config
 
       # 🦆 says ⮞ mosquitto authentication
       mosquitto = {
-        host = "192.168.1.211";
+        host = (lib.findFirst
+              (h: lib.elem "zigduck" h.modules.services)
+              (throw "NO ZIGDUCK HOST")
+              (lib.attrValues hosts)).ip;
         username = "mqtt";
         passwordFile = config.sops.secrets.mosquitto.path;
         baseTopic = "zigduck";
@@ -304,7 +185,9 @@ in { # 🦆 duck say ⮞ house config
         };
         syncBox = { # C42996020AAE
           ip = "192.168.1.34";
-          passwordFile = config.sops.secrets.hueBridgeAPI.path;
+          # 🦆 says ⮞ run the following to get api token for the sync box:
+          # curl -k -sS -X POST "https://192.168.1.34/api/v1/registrations" -H "Content-Type: application/json" -d '{"appName": "zigduck", "instanceName": "zigduck"}'
+          passwordFile = config.sops.secrets.hueSyncAPI.path;
           tv = "shield";
         };
       };
@@ -341,7 +224,7 @@ in { # 🦆 duck say ⮞ house config
       no.motion.trigger = {
         all.lights.off = {
           enable = true;
-          after = 60; # 🦆 says ⮞  min
+          after = 90; # 🦆 says ⮞  min
           exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name, leaves their states as-is)
         };
       };
@@ -356,7 +239,7 @@ in { # 🦆 duck say ⮞ house config
           awayDuration = 7200;
           door = "Door Sensor Hall";
           delay = 10;
-          actions = [ "yo say 'Borta bra, hemma bäst. Välkommen idiot!'" ];
+          actions = [ { type = "shell"; command = "zigduck-cli --notify '🚪 Welcome back!'"; } ];
         };
 
 
@@ -383,12 +266,13 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
-
           alarm_wakeup = {
             enable = true;
             description = "Time to wake up!";
             topic = "zigduck/alarm/triggered";
-            actions = [
+            actions = [ # 🦆 say ⮞ START WITH A NOTIFY
+              { type = "shell"; command = "zigduck-cli --notify '⏰ ALARM: Wake up!'"; }
+              # 🦆 SCREAMS ⮞ FLASH LIGHTS!
               { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 says ⮞ TTS time to wake up
               { type = "shell"; command = "yo say 'wakieee wakiee dags att vaknaaaaaaa'"; }
@@ -399,11 +283,10 @@ in { # 🦆 duck say ⮞ house config
               # 🦆 says ⮞ FLASH!
               { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 ⮞ play sound on bedroom esp32 assistant
-              { type = "shell"; command = "curl http://192.168.1.13/api/settings/speaker/play/ding"; }
-
+              { type = "shell"; command = "curl http://{config.house.devices.box.ip}/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 2; }
               # 🦆 says ⮞ ping watch with a ding
-              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+              { type = "shell"; command = "curl http://{config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
               # 🦆 says ⮞ gib me a sec pls...
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ roll up da blindz let da sun come in
@@ -423,14 +306,18 @@ in { # 🦆 duck say ⮞ house config
             enable = true;
             description = "a timer is ringing";
             topic = "zigduck/timer/finished";
-            actions = [
+            actions = [ # 🦆 says ⮞ notify
+              { type = "shell"; command = "zigduck-cli --notify '⏰ TIMER finish!'"; }
+              # 🦆 says ⮞ FLASH!
               { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
               # 🦆 says ⮞ ping watch with ding
-              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+              { type = "shell"; command = "curl http://${config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
             ];
           };
 
+      # 🦆 says ⮞ below are used to create cards
+      # 🦆 says ⮞ cards are read & displayed by the frontend
           # 🦆say⮞ crypto tickers
           xmr = {
             enable = true;
@@ -470,8 +357,7 @@ in { # 🦆 duck say ⮞ house config
             description = "Updated calendar events";
             topic = "zigduck/calendar";
             actions = [
-              {
-                type = "shell";
+              { type = "shell";
                 command = ''
                   iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
                   formatted_date=$(date -d "$iso_date" +"%b %d")
@@ -481,50 +367,18 @@ in { # 🦆 duck say ⮞ house config
               }
             ];
           };
-
-
-          # 🦆say⮞ tv control
-          tv_command = {
-            enable = true;
-            description = "TV command sent";
-            topic = "zigduck/tvCommand";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  tv_command=$(echo "$MQTT_PAYLOAD" | jq -r '.tvCommand')
-                  ip=$(echo "$MQTT_PAYLOAD" | jq -r '.ip // "192.168.1.223"')
-                  yo tv --typ "$tv_command" --device "$ip"
-                  echo "TV command received! Command: $tv_command. IP: $ip"
-                '';
-              }
-            ];
-          };
-          tv_channel_change = {
-            enable = true;
-            description = "Change TV channel via yo command";
-            topic = "zigduck/tvChannelCommand";
-            actions = [
-              {
-                type = "shell";
-                command = ''
-                  channel=$(echo "$MQTT_PAYLOAD" | jq -r '.tvChannel')
-                  ip=$(echo "$MQTT_PAYLOAD" | jq -r '.ip // "192.168.1.223"')
-                  yo tv --typ livetv --device "$ip" --search "$channel"
-                '';
-              }
-            ];
-          }; # 🦆says⮞health checks (from let block)
-        } // health;
-
+        };
 
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
-          hallway = {  # 🦆 says ⮞ ping watch
-            door_opened = [ "curl http://192.168.1.15/api/settings/speaker/play/ding" ];
+          hallway = {
+            door_opened = [
+              { type = "shell"; command = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
+              # 🦆 says ⮞ ping watch & send notification
+              { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            ];
             door_closed = [];
           };
-
 
           kitchen = {
             motion_not_detected = [
@@ -543,8 +397,7 @@ in { # 🦆 duck say ⮞ house config
 
             motion_detected = [
               { type = "scene"; scene = "kitchenInstant"; }
-              {
-                type = "shell";
+              { type = "shell";
                 command = ''
                   # 🦆 says ⮞ cancel any pending countdown
                   zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 0}'
@@ -561,17 +414,25 @@ in { # 🦆 duck say ⮞ house config
 
         # 🦆 says ⮞ 3. global actions automations
         global_actions = {
-          leak_detected = [
+          leak_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
+            { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+            # 🦆 LIGHT⮞FAST⮞HELP⮞SEE⮞THEN⮞NOTIFY
             { type = "scene"; scene = "max"; }
-            "yo notify '🚨 WATER LEAK DETECTED!'"
+            { type = "shell"; command = "zigduck-cli --notify '💧 🚨 WATER LEAK DETECTED!'"; }
             # 🦆 says ⮞ ping watch with ding
-            "curl http://192.168.1.15/api/settings/speaker/play/ding"
+            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            # 🦆SAY⮞CALM⮞DOWN⮞itz⮞juzt⮞water
+            { type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
-          smoke_detected = [
+          smoke_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
+            { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+            # 🦆 LIGHT⮞FAST⮞HELP⮞SEE
             { type = "scene"; scene = "max"; }
-            "yo notify '🔥 SMOKE DETECTED!'"
+            { type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
             # 🦆 says ⮞ ping watch with ding
-            "curl http://192.168.1.15/api/settings/speaker/play/ding"
+            { type = "shell"; command = "curl http://192.168.1.15/api/settings/speaker/play/ding"; }
+            # 🦆SAY⮞FIRE
+            { type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
         };
 
@@ -583,15 +444,8 @@ in { # 🦆 duck say ⮞ house config
               description = "Turn off all configured light devices";
               extra_actions = [];
               override_actions = [
-                {
-                  type = "scene";
-                  scene = "dark";
-                }
-                {
-                  type = "mqtt";
-                  topic = "zigduck/Fläkt/set";
-                  message = ''{"state":"OFF"}'';
-                }
+                { type = "scene"; scene = "dark"; }
+                { type = "mqtt"; topic = "zigduck/Fläkt/set"; message = ''{"state":"OFF"}''; }
               ];
             };
           };
@@ -638,8 +492,6 @@ in { # 🦆 duck say ⮞ house config
             # 🦆 says ⮞ scrape & save so dashboard can read
             actions = [ "yo tv-scraper --htmlOutPath /var/lib/zigduck/tv/tv.html" ];
           };
-
-
         };
 
         # 🦆 says ⮞ 6. presence based automations
@@ -647,7 +499,7 @@ in { # 🦆 duck say ⮞ house config
       };
 
 
-  # 🦆 ⮞ DEVICES ⮜
+# 🦆 ⮞ DEVICES ⮜
       devices = {
         # 🦆 says ⮞ Kitchen
         "0x0017880103ca6e95" = { # 🦆 says ⮞ 64bit IEEE adress (this is the unique device ID)
@@ -686,7 +538,7 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ HALLWAY
         "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆
         "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1; };
-        "0x0017880103eafdd6" = { friendly_name = "Tak Hall";  room = "hallway"; type = "light"; icon = icons.light.ceiling; supports_color = true; endpoint = 11; };
+        "0x0017880109ac14f3" = { friendly_name = "Tak Hall"; room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; room = "hallway"; type = "light"; icon = icons.light.wall; supports_temperature = true; supports_color = false; endpoint = 1; };
         # 🦆 says ⮞ WC
         "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
@@ -699,11 +551,10 @@ in { # 🦆 duck say ⮞ house config
         "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
         "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
-        "0x0017880109ac14f3" = { friendly_name = "Sänglampa"; room = "bedroom"; type = "light"; icon = icons.light.bulb; endpoint = 11; supports_color = true; };
         "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
         "0x0017880103f44b5f" = { friendly_name = "Dörr"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
-        "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = "./themes/icons/zigbee/bloom.png"; endpoint = 11; supports_color = true; };
+        "0x00178801001ecdaa" = { friendly_name = "Bloom"; room = "bedroom"; type = "light"; icon = icons.light.desk; endpoint = 11; supports_color = true; };
         # 🦆 says ⮞ MISCELLANEOUS
         "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
         "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; };
@@ -782,7 +633,6 @@ in { # 🦆 duck say ⮞ house config
               "Spotlight Kök 2" = { state = "OFF"; transition = 10; };
               "Spotlight kök 1" = { state = "OFF"; transition = 10; };
               "Sänggavel" = { state = "OFF"; transition = 10; };
-              "Sänglampa" = { state = "OFF"; transition = 10; };
               "Tak Hall" = { state = "OFF"; transition = 10; };
               "Taket Sovrum 1" = { state = "OFF"; transition = 10; };
               "Taket Sovrum 2" = { state = "OFF"; transition = 10; };
@@ -812,7 +662,6 @@ in { # 🦆 duck say ⮞ house config
               "Spotlight Kök 2" = { state = "OFF"; };
               "Spotlight kök 1" = { state = "OFF"; };
               "Sänggavel" = { state = "OFF"; };
-              "Sänglampa" = { state = "OFF"; };
               "Tak Hall" = { state = "OFF"; };
               "Taket Sovrum 1" = { state = "OFF"; };
               "Taket Sovrum 2" = { state = "OFF"; };
@@ -842,7 +691,6 @@ in { # 🦆 duck say ⮞ house config
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight kök 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Sänggavel" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Sänglampa" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Tak Hall" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Taket Sovrum 1" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Taket Sovrum 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -898,7 +746,7 @@ in { # 🦆 duck say ⮞ house config
       # 🦆 says ⮞ Livingroom
       shield = {
         enable = true;
-        room = "livingroom";
+        room = "tv-area";
         ip = "192.168.1.224";
         apps = {
           telenor = "se.telenor.stream/.MainActivity";
@@ -1152,6 +1000,135 @@ in { # 🦆 duck say ⮞ house config
       #   };
       # };
     };
+
+
+# 🦆 says ⮞ DASHBOARD CONFIOGURATION
+    https.dashboard.urlFile = config.sops.secrets.dashboard.path;
+    dashboard = {
+      # 🦆 says ⮞  home page information cards
+      statusCards = {
+        calendar = {
+          enable = true;
+          title = "𝑪𝑨𝑳𝑬𝑵𝑫𝑨𝑹";
+          group = "1";
+          icon = "fas fa-calendar";
+          color = "#ff0000";
+          theme = "glass";
+          filePath = "/var/lib/zigduck/calendar.json";
+          jsonField = "today_date";
+          format = "{value}";
+          detailsJsonField = "today_events";
+          detailsFormat = "{value}";
+          chart = false;
+          on_click_action = [
+            {
+              type = "shell";
+              command = "yo say \"detta är ett ank test - testar ankor ankor anka naka naka ojojojjoj vad många ankor detta blev oj oj\" --host desktop";
+            }
+          ];
+        };
+
+        # 🦆 says ⮞ Monero USD price ticker
+        xmr = {
+          enable = true;
+          title = "𝑿𝑴𝑹";
+          group = "tickers";
+          icon = "fab fa-monero";
+          color = "#a78bfa";
+          theme = "colorful";
+          filePath = "/var/lib/zigduck/xmr.json";
+          jsonField = "current_price";
+          format = "{value}";
+          detailsJsonField = "7d_change";
+          detailsFormat = "7d: {value}%";
+          chart = true;
+          historyField = "history";
+        };
+
+        # 🦆 says ⮞ Bitcoin USD price ticker
+        btc = {
+          enable = true;
+          title = "𝑩𝑻𝑪";
+          group = "tickers";
+          icon = "fab fa-bitcoin";
+          color = "#ff6600";
+          filePath = "/var/lib/zigduck/btc.json";
+          jsonField = "current_price";
+          format = "{value}";
+          detailsJsonField = "7d_change";
+          detailsFormat = "7d: {value}%";
+          chart = true;
+          historyField = "history";
+        };
+
+        # 🦆 says ⮞ kWh/price chart card
+        energyPrice = {
+          enable = true;
+          title = "𝑷𝑹𝑰𝑪𝑬";
+          group = "energy";
+          icon = "fas fa-bolt";
+          color = "#ffff00";
+          filePath = "/var/lib/zigduck/energy_price.json";
+          jsonField = "current_price";
+          format = "{value} SEK/kWh";
+          chart = true;
+          historyField = "history";
+        };
+
+        # 🦆 says ⮞ energy usage card
+        energyUsage = {
+          enable = true;
+          title = "USAGE";
+          group = "energy";
+          icon = "fas fa-bolt";
+          color = "#ffff00";
+          filePath = "/var/lib/zigduck/energy_usage.json";
+          jsonField = "monthly_usage";
+          format = "{value} kWh";
+          chart = true;
+          historyField = "history";
+        };
+
+        # 🦆 says ⮞ show indoor temperature
+        temperature = {
+          enable = true;
+          title = "TEMPERATURE C";
+          group = "sensors";
+          icon = "fas fa-thermometer-half";
+          color = "#e74c3c";
+          theme = "glass";
+          filePath = "/var/lib/zigduck/temperature.json";
+          jsonField = "temperature";
+          format = "{value} °C";
+          detailsFormat = "Temperature in Hallway";
+          chart = true;
+          historyField = "history";
+        };
+      };
+
+      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
+      pages = {
+        # 🦆 says ⮞ (TV) remote page
+        "3" = {
+          icon = "fas fa-television";
+          title = "remote";
+          # 🦆 says ⮞ symlink epg to webserver
+          files = { tv = "/var/lib/zigduck/tv"; };
+          css = css.tv;
+          code = pages.remote;
+        };
+
+        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
+        "4" = {
+          icon = "fas fa-comments";
+          title = "chat";
+          css = css.chat;
+          # 🦆 says ⮞ symlink TTS audio to frontend webserver
+          files = { tts = "/var/lib/zigduck/tts"; };
+          code = pages.chat;
+        };
+      };
+    };
   };
 
   sops = {
@@ -1164,6 +1141,12 @@ in { # 🦆 duck say ⮞ house config
       };
       hueBridgeAPI = {
         sopsFile = ./../secrets/hueBridgeAPI.yaml;
+        owner = "zigduck";
+        group = "zigduck";
+        mode = "0440"; # Read-only for owner and group
+      };
+      hueSyncAPI = {
+        sopsFile = ./../secrets/hueSyncAPI.yaml;
         owner = "zigduck";
         group = "zigduck";
         mode = "0440"; # Read-only for owner and group

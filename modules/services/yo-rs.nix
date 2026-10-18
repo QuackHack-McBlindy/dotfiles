@@ -4,9 +4,38 @@
   lib,
   pkgs,
   self,
+  hosts,
   ...
 } : let
   cfg = config.services.yo-rs;
+  host = config.this.host.hostname;
+
+  # 🦆 say ⮞ client configuration
+  clients = {
+    homie   = {
+      room     = "livingroom";
+      gain     = 1.0;
+      awakeCmd = "zigduck-cli --device PC --state on --brightness 50 --color blue";
+      doneCmd  = "zigduck-cli --device PC --state off";
+      failCmd  = "zigduck-cli --device PC --state off";
+    };
+    desktop = {
+      room     = "local";
+      gain     = 1.0;
+      awakeCmd = "zigduck-cli --device PC --state on --brightness 50 --color blue";
+      doneCmd  = "zigduck-cli --device PC --state off";
+      failCmd  = "zigduck-cli --device PC --state off";
+    };
+    nasty   = {
+      room     = "bedroom";
+      gain     = 0.7;
+      awakeCmd = "curl http://192.168.1.13/api/ding";
+      doneCmd  = "curl http://192.168.1.13/api/done";
+      failCmd  = "curl http://192.168.1.13/api/fail";
+    };
+  };
+
+  h = clients.${host} or { room = ""; awakeCmd = ""; doneCmd = ""; failCmd = ""; };
 in {
   config = lib.mkMerge [{
 
@@ -21,7 +50,7 @@ in {
         whisper = "base";
         ttsSpeed = "1.3";
         shellTranslate = true;
-        threshold = 0.6;
+        threshold = 0.7;
         beamSize = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
         temperature = 0.0; # 🦆 says ⮞ no more LSD plx
         threads = 8;
@@ -31,37 +60,20 @@ in {
 
       client = {
         enable = true;
-        uri = "192.168.1.111:12345";
+        uri    = (lib.findFirst
+          (h: lib.elem "yo" h.modules.services)
+          (throw "YO HOST PLS")
+          (lib.attrValues hosts)).ip + ":12345";
+        room   = h.room;
+        gain   = h.gain;
         silenceThreshold = 0.03;
-        silenceTimeout = 1.3;
-        maxDuration = 4.0;
-
-        room =
-          if config.this.host.hostname == "homie" then "livingroom"
-          else if config.this.host.hostname == "desktop" then "local"
-          else if config.this.host.hostname == "nasty" then "bedroom"
-          else "";
-
-        awakeCmd =
-          if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state on --brightness 50 --color blue"
-          else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state on --brightness 50 --color blue"
-          else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/ding"
-          else "";
-
-        doneCmd =
-          if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state off"
-          else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state off"
-          else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/done"
-          else "";
-
-        failCmd =
-          if config.this.host.hostname == "homie" then "zigduck-cli --device PC --state off"
-          else if config.this.host.hostname == "desktop" then "zigduck-cli --device PC --state off"
-          else if config.this.host.hostname == "nasty" then "curl http://192.168.1.13/api/fail"
-          else "";
-
-        debug = false;
-        logFile = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
+        silenceTimeout   = 1.3;
+        maxDuration      = 4.0;
+        awakeCmd = h.awakeCmd;
+        doneCmd  = h.doneCmd;
+        failCmd  = h.failCmd;
+        debug    = false;
+        logFile  = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
       };
     };
 

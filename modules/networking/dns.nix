@@ -78,14 +78,14 @@
 
         services.adguardhome = {
             enable = true;
-            host = "0.0.0.0";
+            host = "127.0.0.1";
             port = 3005;
             mutableSettings = true;
             openFirewall = true;
             settings = {
-                http = {
-                    address = "127.0.0.1:3005";
-                };
+                #http = {
+                #    address = "127.0.0.1:3005";
+                #};
                 dns = {
                     bind_host = "0.0.0.0";
                     bind_port = 53;

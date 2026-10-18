@@ -1,5 +1,6 @@
 # dotfiles/modules/services/zigduck.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 say ⮞ enables zigduck service
+# » ★ QuackHack-McBLindy.com ★ «
+{ # 🦆 say ⮞ enables zigduck services
   config,
   lib,
   pkgs,
@@ -13,6 +14,7 @@ in {
       services.zigduck = {
         enable = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         cli.enable = true;
+        gnomeExtension.enable = lib.mkIf (lib.elem "gnome" config.this.host.modules.system) true;
         dashboard.enable = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         dashboard.port = 13337;
         dashboard.openFirewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
@@ -20,9 +22,6 @@ in {
         dashboard.secure = true;
         ##extraEnv.PATH =
         #  "/run/current-system/sw/bin:"
-        #  + "/run/wrappers/bin:"
-        #  + "/nix/var/nix/profiles/default/bin:"
-        #  + "/nix/var/nix/profiles/default/sbin:"
         #  + "/run/current-system/sw/sbin";
       };
     }

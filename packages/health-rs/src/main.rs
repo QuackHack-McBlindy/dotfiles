@@ -9,16 +9,44 @@ use serde::Serialize;
 #[derive(Debug, Serialize)]
 struct SystemStats {
     hostname: String,
+    local_ip: String,
     uptime: String,
     cpu_usage: String,
     cpu_temperature: String,
     memory_usage: String,
     disk_usage: HashMap<String, String>,
     disk_temperature: HashMap<String, String>,
+    last_seen: String,
+}
+
+fn now_iso8601_millis() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let d = SystemTime::now().duration_since(UNIX_EPOCH).unwrap();
+    let secs = d.as_secs() as i64;
+    let millis = d.subsec_millis();
+
+    let days = secs.div_euclid(86_400);
+    let sod  = secs.rem_euclid(86_400);
+    let z    = days + 719_468;
+    let era  = z.div_euclid(146_097);
+    let doe  = z - era * 146_097;
+    let yoe  = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let y    = yoe + era * 400;
+    let doy  = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp   = (5 * doy + 2) / 153;
+    let dd   = doy - (153 * mp + 2) / 5 + 1;
+    let mm   = if mp < 10 { mp + 3 } else { mp - 9 };
+    let yy   = if mm <= 2 { y + 1 } else { y };
+
+    let (h, mi, s) = (sod / 3600, (sod % 3600) / 60, sod % 60);
+    format!("{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}Z",
+            yy, mm, dd, h, mi, s, millis)
 }
 
 fn get_system_stats() -> SystemStats {
+    let last_seen = now_iso8601_millis();
     let hostname = get_hostname().unwrap_or_else(|_| "unknown".to_string());
+    let local_ip = get_local_ip();
     let uptime = get_uptime();
     let cpu_usage = format_cpu_usage(get_cpu_usage());
     let cpu_temperature = get_cpu_temperature();
@@ -59,12 +87,14 @@ fn get_system_stats() -> SystemStats {
 
     SystemStats {
         hostname,
+        local_ip,
         uptime,
         cpu_usage,
         cpu_temperature,
         memory_usage,
         disk_usage,
         disk_temperature,
+        last_seen,
     }
 }
 
@@ -81,6 +111,16 @@ fn get_hostname() -> Result<String> {
     hostname::get()
         .map(|h| h.to_string_lossy().into_owned())
         .map_err(Into::into)
+}
+
+fn get_local_ip() -> String {
+    use std::net::UdpSocket;
+    (|| -> anyhow::Result<String> {
+        let socket = UdpSocket::bind("0.0.0.0:0")?;
+        socket.connect("8.8.8.8:80")?;
+        Ok(socket.local_addr()?.ip().to_string())
+    })()
+    .unwrap_or_else(|_| "N/A".to_string())
 }
 
 fn get_uptime() -> String {

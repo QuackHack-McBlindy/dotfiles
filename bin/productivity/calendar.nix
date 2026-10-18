@@ -59,14 +59,12 @@
             fi
 
             if command -v mosquitto_pub >/dev/null 2>&1; then
-              yo mqtt_pub --topic "zigduck/calendar" .-message "$json_payload" 2>/dev/null || true
+              zigduck-cli --publish --topic "zigduck/calendar" .-payload "$json_payload" 2>/dev/null || true
               echo "Published to MQTT: $json_payload"
             else
               echo "Warning: mosquitto_pub not found. Install mosquitto-clients to enable MQTT publishing."
             fi
           }
-
-
 
           get_todays_events() {
             local today=$(date +%Y%m%d)

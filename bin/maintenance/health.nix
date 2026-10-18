@@ -23,35 +23,50 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.house.mosquitto.passwordFile})";
 
 in { # 🦆 says ⮞
   yo.scripts.health = {
-    description = "Check system health status across your machines. Returns JSON structured responses.";
+    description = "Check system health report for tihs host & ESP32 devices. Returns JSON structured response and forwards to zigduck.";
     category = "🧹 Maintenance";
     aliases = [ "hc" ];
     runEvery = "15";
     code = ''
       ${cmdHelpers}
-      HC="$(health 2>/dev/null | sed -n '/^{/,$p' | jq -c .)"
-      yo mqtt_pub --topic "zigduck/health/${config.this.host.hostname}" --message "$HC"
+      HC="$(health-rs 2>/dev/null | sed -n '/^{/,$p' | jq -c .)"
+      zigduck-cli --publish --topic "zigduck/${config.this.host.hostname}" --payload "$HC"
+      echo "$HC"
+
+      # 🦆 says ⮞ ESP32 devices
+      if [[ "{config.this.host.hostname}" == "homie" ]]; then
+        WATCH=$(curl -s ${config.house.devices.watch.ip}/api/sensors \
+          | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
+               '. + {last_seen: $ts}')
+        zigduck-cli --publish --topic "zigduck/watch" --payload "$WATCH"
+
+
+        BOX=$(curl -s ${config.house.devices.box.ip}/api/sensors \
+          | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
+               '. + {last_seen: $ts}')
+        zigduck-cli --publish --topic "zigduck/box" --payload "$BOX"
+      fi
     '';
     voice = {
       priority = 4;
       sentences = [
-        "kolla hälsan på {host}"
-        "hur mår {host}"
-        "mår {host} okej"
-        "visa status för {host}"
+        "hälsocheck"
+        "health"
+        "health check"
+        "hc"
+        "hur mår [min] (dator|datorn|server)"
       ];
-      lists = {
-        host.values = [
-          { "in" = "[desktop|datorn]"; out = "desktop"; }
-          { "in" = "nas"; out = "nasty"; }
-          { "in" = "laptop"; out = "laptop"; }
-          { "in" = "homie"; out = "homie"; }
-        ];
-      };
+      #lists = {
+        #host.values = [
+        #  { "in" = "[desktop|datorn]"; out = "desktop"; }
+        #  { "in" = "nas"; out = "nasty"; }
+        #  { "in" = "laptop"; out = "laptop"; }
+        #  { "in" = "homie"; out = "homie"; }
+        #];
+       #};
     };
 
   };}

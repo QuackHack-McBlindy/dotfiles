@@ -1,25 +1,94 @@
-# https://joinemm.dev/blog/yubikey-nixos-guide
-# In depth setup guide:
-# https://github.com/drduh/YubiKey-Guide/
+# dotfiles/modules/hardware/pam.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
+{ # 🦆 says ⮞ yubikey configuration - qwack
+  config,
+  inputs,
+  pkgs,
+  lib,
+  ...
+} : let
+  user = config.this.user.me.name;
 
-# For secure setup enviorment, use:
-# dotfiles/modules/nixos/images/yubikey-env.nix
+  # beep when touch is required
+  touchBeeper = pkgs.writeText "yubikey-beep.py" ''
+    import math
+    import os
+    import shutil
+    import socket
+    import struct
+    import subprocess
+    import time
+    import wave
 
-# yubikey-agent --generate
-# age-plugin-yubikey --generate
+    runtime = os.environ["XDG_RUNTIME_DIR"]
+    sockpath = os.path.join(runtime, "yubikey-touch-detector.socket")
+    wavpath = os.path.join(runtime, "yubikey-beep.wav")
 
-{ config, inputs, pkgs, lib, ... }:
-let
-  user = "pungkula";
-in
-{
+    rate = 44100
+    with wave.open(wavpath, "wb") as wav:
+        wav.setnchannels(1)
+        wav.setsampwidth(2)
+        wav.setframerate(rate)
+        samples = (
+            int(10000 * math.sin(2 * math.pi * 880 * i / rate))
+            for i in range(int(rate * 0.12))
+        )
+        wav.writeframes(b"".join(struct.pack("<h", s) for s in samples))
+
+    player = shutil.which("pw-play") or shutil.which("paplay")
+    if not player:
+        raise SystemExit("Install pw-play or paplay first")
+
+    print("Listening for YubiKey touch requests...", flush=True)
+
+    while True:
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_STREAM) as s:
+                s.connect(sockpath)
+                s.settimeout(0.5)
+                buf = b""
+                pending = False
+                next_beep = 0.0
+
+                while True:
+                    try:
+                        data = s.recv(256)
+                        if not data:
+                            break
+                        buf += data
+                    except socket.timeout:
+                        pass
+
+                    while len(buf) >= 5:
+                        event, buf = buf[:5], buf[5:]
+
+                        if event == b"U2F_1":
+                            pending = True
+                            next_beep = 0.0
+                        elif event == b"U2F_0":
+                            pending = False
+
+                    if pending and time.monotonic() >= next_beep:
+                        subprocess.Popen(
+                            [player, wavpath],
+                            stdout=subprocess.DEVNULL,
+                            stderr=subprocess.DEVNULL,
+                        )
+                        next_beep = time.monotonic() + 2.0
+
+        except (OSError, ConnectionError) as e:
+            print(f"Detector socket unavailable: {e}", flush=True)
+            time.sleep(1)
+  '';
+
+in {
     config = lib.mkIf (lib.elem "pam" config.this.host.modules.hardware) {
       environment.systemPackages = with pkgs; [
         age-plugin-yubikey
         yubioath-flutter
         yubikey-agent
         #yubikey-manager-qt
-      #  yubikey-touch-detector
+        yubikey-touch-detector
         yubikey-personalization
         yubikey-manager
         pam_u2f
@@ -35,7 +104,7 @@ in
       ];
 
 
-    ###################
+    # ───────────────────────────────────────────────────────────────────────
     # > YUBIKEY-AGENT
     # Sets SSH_AUTH_SOCK to point at yubikey-agent.
     # Note that yubikey-agent will use whatever pinentry is specified in programs.gnupg.agent.pinentryPackage.
@@ -48,14 +117,14 @@ in
         u2f_keys = {
           sopsFile = ./../../secrets/u2f_keys.yaml;
           owner = config.my.users.me.name;
-          group = config.my.users.me.name;
+          group = config.this.user.me.name;
           mode = "0440"; # Read-only for owner and group
         };
       };
 
 
 
-    ###################
+    # ───────────────────────────────────────────────────────────────────────
     # > PAM
 
       security.pam.u2f = {
@@ -76,7 +145,7 @@ in
 
       security.pam.yubico = {
         enable = true;
-        debug = true;
+        debug = false;
         mode = "challenge-response";
         id = [ "16644366" "16038710" ];
       };
@@ -100,43 +169,39 @@ in
     #     { domain = "@users"; item = "rtprio"; type = "-"; value = 1; }
     # ];
 
-    ###################
+    # ───────────────────────────────────────────────────────────────────────
     # GPG
     #  services = {
     #    pcscd.enable = true;
      #   udev.packages = [ pkgs.yubikey-personalization ];
      # };
-    ###################
+    # ───────────────────────────────────────────────────────────────────────
     # Touch Detector
-      # Enable the yubikey-touch-detector service
+
       programs.yubikey-touch-detector = {
         enable = true;
         unixSocket = true;
         libnotify = true;
         verbose = true;
       };
-      # Install the yubikey-touch-detector package
-    #  systemd.packages = [ pkgs.yubikey-touch-detector ];
 
-      # Configure the systemd user service for yubikey-touch-detector
-    #  systemd.user.services.yubikey-touch-detector = {
-    #    description = "YubiKey Touch Detector";
-    #    path = [ pkgs.gnupg ]; # Include dependencies, such as gnupg
-    #    wantedBy = [ "graphical-session.target" ]; # Start the service when the graphical session is up
-    #    serviceConfig = {
-    #      ExecStart = "${pkgs.yubikey-touch-detector}/bin/yubikey-touch-detector"; # Path to the executable
-    #      Restart = "always"; # Ensure the service restarts if it crashes
-    #    };
-    #  };
+      systemd.user.services.yubikey-beep = {
+        description = "Beep while waiting for YubiKey touch";
+        wantedBy = [ "default.target" ];
+        after = [ "yubikey-touch-detector.service" ];
+        wants = [ "yubikey-touch-detector.service" ];
 
-      # Configure the systemd user socket for yubikey-touch-detector
-     # systemd.user.sockets.yubikey-touch-detector = {
-    #    description = "YubiKey Touch Detector Socket";
-     #   wantedBy = [ "sockets.target" ]; # Start the socket when the systemd socket target is reached
-    #  };
+        serviceConfig = {
+          Type = "simple";
+          ExecStart = "${pkgs.python3}/bin/python ${touchBeeper}";
+          Restart = "always";
+          RestartSec = "2s";
+        };
 
-      # Optionally, ensure `gnupg` is installed
-     # environment.systemPackages = [ pkgs.gnupg ];
-
+        path = [
+          pkgs.pipewire
+          pkgs.pulseaudio
+        ];
+      };
 
     };}

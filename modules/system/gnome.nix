@@ -20,6 +20,7 @@ in {
                 pkgs.gnome-shell
                 pkgs.gnome-system-monitor
 
+                pkgs.gnomeExtensions.notification-timeout
                 pkgs.gnomeExtensions.rclone-manager
                 gnomeExtensions.gsconnect
                 pkgs.gnomeExtensions.docker
@@ -216,6 +217,7 @@ in {
 
                 "org/gnome/shell" = {
                   enabled-extensions = [
+                    "zigduck@quackhack-mcblindy.com"
                     "emoji-copy@felipeftn"
                     "openbar@neuromorph"
                     "space-bar@luchrioh"

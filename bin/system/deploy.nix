@@ -1,9 +1,9 @@
 # dotfiles/bin/system/deploy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # » ★ QuackHack-McBLindy.com ★ «
-{ # 🦆 duck say ⮞ yubikey encrypted deployment system - test deployments are verified by ssh connection after deployment. if the ssh connection verification fails the deployed system will reboot after some time resulting in a rollback to the last working generation
-  self,
-  config,
-  pkgs,
+{ # 🦆 duck say ⮞ yubikey encrypted deployment & bootstrap system
+  self,# 🦆 say ⮞ test configuration before creating a new system configuration:
+  config,#🦆TEST⮞`yo deploy <host> !`
+  pkgs,#🦆 says ⮞ if SSH connection is broken the host will automatically reboot into previous system generation
   cmdHelpers,
   ...
 } : let
@@ -23,12 +23,14 @@ in {
        { name = "repo"; type = "string"; description = "Repository containing containing your NixOS configuration files"; optional = true; default = config.this.user.me.repo; }
        { name = "port"; type = "int"; description = "SSH port"; optional = true; default = 2222; }
        { name = "test"; type = "bool"; description = "Test deployment, does NOT save system generation, no git push, reboot to revert"; default = false; }
+       { name = "watchdog"; type = "bool"; description = "Wether to activate watchdog timer on target"; default = false; }
+       { name = "watchdog-timer"; type = "int"; description = "Minutes on watchdog-timer."; default = 5; }
        { name = "all"; type = "bool"; description = "Build all - deploy all"; default = false; }
      ];
      code = ''
        ${cmdHelpers}
        TEST_UNIT="nixos-test-watchdog-$$"
-       TEST_DELAY="5min"
+       TEST_DELAY="''${watchdog-timer}min"
 
        # 🦆 duck say ⮞ validate host exist
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
@@ -51,7 +53,7 @@ in {
        fi
 
        # 🦆 duck say ⮞ TEST SAFETY NET: arm a self-reboot watchdog on the receiver
-       if $DRY_RUN; then
+       if $DRY_RUN && $watchdog; then
          echo "🛡️  Arming rollback watchdog on $host (auto-reboot in $TEST_DELAY)"
          if ! ssh -ttq -p "$port" "$user@$host" \
               "sudo systemd-run --collect --on-active=$TEST_DELAY --unit='$TEST_UNIT' systemctl reboot"; then
@@ -122,7 +124,7 @@ in {
        else
          echo "🔨 Building locally and activating remotely..."
        fi
-       if $DRY_RUN; then
+       if $DRY_RUN && $watchdog; then
          echo "🛡️  Watchdog: $TEST_UNIT — reboot in $TEST_DELAY unless cancelled"
        fi
 
