@@ -4,6 +4,7 @@
     config,
     lib,
     pkgs,
+    zigduck,
     sysHosts,
     sysDevShells,
     ...
@@ -113,7 +114,7 @@ EOF
     dt_error() {
       _dt_log "ERROR" "❌" "$RED" "$1" true >&2
       create_error_state "$1" "ERROR"
-      zigduck-cli --publish --topic "zigduck/logging/${config.this.host.hostname}/error" --message "$1"
+      zigduck-cli --publish --topic "${zigduck.baseTopic}/logging/${config.this.host.hostname}/error" --message "$1"
     }
     dt_critical() {
       _dt_log "CRITICAL" "🚨" "$RED" "$1" true >&2
@@ -356,7 +357,7 @@ EOF
         'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' \
         $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
-          mqtt_pub -t "zigduck/$light_id/set" -m '{"state":"ON"}'
+          mqtt_pub -t "${zigduck.baseTopic}/$light_id/set" -m '{"state":"ON"}'
         done
     }
     # 🦆 says ⮞ turn off specified room
@@ -364,7 +365,7 @@ EOF
       local clean_room=$(echo "$1" | sed 's/"//g')
       ${pkgs.jq}/bin/jq -r --arg room "$clean_room" 'to_entries | map(select(.value.room == $room and .value.type == "light")) | .[].value.id' $STATE_DIR/zigbee_devices.json |
         while read -r light_id; do
-          mqtt_pub -t "zigduck/$light_id/set" -m '{"state":"OFF"}'
+          mqtt_pub -t "${zigduck.baseTopic}/$light_id/set" -m '{"state":"OFF"}'
         done
     }
 

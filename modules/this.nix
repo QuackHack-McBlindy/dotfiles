@@ -464,7 +464,83 @@ in {
             _module.args.hosts = lib.genAttrs (builtins.attrNames self.nixosConfigurations) (name:
                 self.nixosConfigurations.${name}.config.this.host
             );
+            _module.args.zigduck = {
+                inherit (config.services.zigduck) stateDir;
+                inherit (config.house.zigbee.mosquitto) baseTopic;
+            };
+            _module.args.icons = {
+                nas     = "mdi:nas";
+                desktop = "mdi:desktop-tower";
+                laptop  = "mdi:laptop";
+                remote  = "mdi:remote";
+                outlet  = "mdi:power-socket-eu";
+                dimmer  = "mdi:toggle-switch";
+                pusher  = "mdi:gesture-tap-button";
+                blinds  = "mdi:blinds";
+                watch          = "mdi:watch";
+                tv             = "mdi:television";
+                microphone     = "mdi:microphone";
+                brightness     = "mdi:brightness-6";
+                battery        = "mdi:battery";
+                wifi           = "mdi:wifi";
+                display        = "mdi:monitor";
+                display_page   = "mdi:monitor-dashboard";
+                mic_off        = "mdi:microphone-off";
+                volume         = "mdi:volume-high";
+                mute           = "mdi:volume-off";
+                amplifier      = "mdi:amplifier";
+                speaker        = "mdi:speaker";
+                cast           = "mdi:cast-audio";
+                play_pause     = "mdi:play-pause";
+                cpu            = "mdi:cpu-64-bit";
+                power_sleep    = "mdi:power-sleep";
+                console        = "mdi:console";
+                vpn            = "mdi:vpn";
+                bell           = "mdi:bell-ring";
+                check          = "mdi:check-circle";
+                skip_prev      = "mdi:skip-previous";
+                skip_next      = "mdi:skip-next";
+                heart          = "mdi:heart";
+                playlist_remove = "mdi:playlist-remove";
+                voice           = "mdi:account-voice";
+                wakeword        = "mdi:ear-hearing";
+                intercom        = "mdi:phone-in-talk";
+                light = {
+                    ceiling    = "mdi:ceiling-light";
+                    strip      = "mdi:led-strip";
+                    spotlight  = "mdi:spotlight";
+                    bulb       = "mdi:lightbulb";
+                    bulb_color = "mdi:lightbulb-multiple";
+                    desk       = "mdi:desk-lamp";
+                    floor      = "mdi:floor-lamp";
+                    wall       = "mdi:wall-sconce-round";
+                    chandelier = "mdi:chandelier";
+                    pendant    = "mdi:vanity-light";
+                    nightlight = "mdi:lightbulb-night";
+                    strip_rgb  = "mdi:led-strip-variant";
+                    reading    = "mdi:book-open-variant";
+                    candle     = "mdi:candle";
+                    ambient    = "mdi:weather-night";
+                };
+                sensor = {
+                    motion      = "mdi:motion-sensor";
+                    smoke       = "mdi:smoke-detector";
+                    water       = "mdi:water";
+                    contact     = "mdi:door";
+                    temperature = "mdi:thermometer";
+                    humidity    = "mdi:water-percent";
+                };
+                room = {
+                    bedroom    = "mdi:bed";
+                    hallway    = "mdi:door";
+                    kitchen    = "mdi:food-fork-drink";
+                    livingroom = "mdi:sofa";
+                    wc         = "mdi:toilet";
+                    other      = "mdi:dots-horizontal";
+                };
+            };
             _module.args.me = { config, ... }: config.this.user.me;
+            _module.args.devices  = config.house.devices;
         }
 
     ];}

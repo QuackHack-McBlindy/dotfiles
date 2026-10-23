@@ -4,6 +4,8 @@
   lib,
   config,
   pkgs,
+  zigduck,
+  devices,
   cmdHelpers,
   ...
 } : let
@@ -33,24 +35,24 @@ in { # 🦆 says ⮞
     code = ''
       ${cmdHelpers}
       HC="$(health-rs 2>/dev/null | sed -n '/^{/,$p' | jq -c .)"
-      zigduck-cli --publish --topic "zigduck/${config.this.host.hostname}" --payload "$HC"
+      zigduck-cli --publish --topic "${zigduck.baseTopic}/${config.this.host.hostname}" --payload "$HC"
       echo "$HC"
 
       # 🦆 says ⮞ ESP32 devices
       if [[ "${config.this.host.hostname}" == "desktop" ]]; then
-        WATCH=$(curl -s ${config.house.devices.watch.ip}/api/sensors \
+        WATCH=$(curl -s ${devices.watch.ip}/api/sensors \
           | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
                '. + {last_seen: $ts}')
-        zigduck-cli --publish --topic "zigduck/watch" --payload "$WATCH"
+        zigduck-cli --publish --topic "${zigduck.baseTopic}/watch" --payload "$WATCH"
         echo "" && echo "WATCH:"
         echo "$WATCH"
 
 
 
-        BOX=$(curl -s ${config.house.devices.ESP32-S3-BOX3.ip}/api/sensors \
+        BOX=$(curl -s ${devices.ESP32-S3-BOX-3.ip}/api/sensors \
           | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
                '. + {last_seen: $ts}')
-        zigduck-cli --publish --topic "zigduck/ESP32-S3-BOX3" --payload "$BOX"
+        zigduck-cli --publish --topic "${zigduck.baseTopic}/ESP32-S3-BOX-3" --payload "$BOX"
         echo "" && echo "BOX:"
         echo "$BOX"
       fi

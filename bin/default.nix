@@ -28,9 +28,17 @@
   # 🦆 duck say ⮞ list all devShells — ducklingz ready to hatch dem dev env
   sysDevShells = lib.attrNames self.devShells;
 
+  # 🦆 says ⮞ shortcutz
+  zigduck = {
+    inherit (config.services.zigduck) stateDir;
+    inherit (config.house.zigbee.mosquitto) baseTopic;
+  };
+  devices = config.house.devices;
+
   # 🦆 duck say ⮞ stash house for massive amounts of helper functions for yo scripts
   cmdHelpers = import ./helpers.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
+    inherit zigduck devices;
   };
 
   # 🦆BEtracin'⮞RUST'logggin'DUCK'pleasin'
@@ -65,8 +73,8 @@
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
         inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace pkgs sysHosts mqttHostip;
+        inherit zigduck devices;
     }) (
-#        importModulesRecursive ./voice ++   # 🦆 duck say ⮞ ++
         importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++

@@ -5,7 +5,10 @@
   config,
   lib,
   self,
+  zigduck,
   hosts,
+  devices,
+  icons,
   pkgs,
   ...
 } : let # 🦆 say ⮞ load dash pages css files
@@ -22,46 +25,9 @@
     chat      = builtins.readFile ./themes/css/duckdash/chat.css;
   };
 
-  # 🦆 says ⮞ icon map
-  icons = {
-    nas     = "mdi:nas";
-    desktop = "mdi:desktop-tower";
-    laptop  = "mdi:laptop";
-    light = {
-      ceiling         = "mdi:ceiling-light";
-      strip           = "mdi:led-strip";
-      spotlight       = "mdi:spotlight";
-      bulb            = "mdi:lightbulb";
-      bulb_color      = "mdi:lightbulb-multiple";
-      desk            = "mdi:desk-lamp";
-      floor           = "mdi:floor-lamp";
-      wall            = "mdi:wall-sconce-round";
-      chandelier      = "mdi:chandelier";
-      pendant         = "mdi:vanity-light";
-      nightlight      = "mdi:lightbulb-night";
-      strip_rgb       = "mdi:led-strip-variant";
-      reading         = "mdi:book-open-variant";
-      candle          = "mdi:candle";
-      ambient         = "mdi:weather-night";
-    };
-    sensor = {
-      motion          = "mdi:motion-sensor";
-      smoke           = "mdi:smoke-detector";
-      water           = "mdi:water";
-      contact         = "mdi:door";
-      temperature     = "mdi:thermometer";
-      humidity        = "mdi:water-percent";
-    };
-    remote            = "mdi:remote";
-    outlet            = "mdi:power-socket-eu";
-    dimmer            = "mdi:toggle-switch";
-    pusher            = "mdi:gesture-tap-button";
-    blinds            = "mdi:blinds";
-  };
-
   # 🦆 says ⮞
   Mqtt2jsonHistory = field: file: ''
-    FILE="${config.services.zigduck.stateDir}/${file}"
+    FILE="${zigduck.stateDir}/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
     mkdir -p "$(dirname "$FILE")"
 
@@ -106,16 +72,16 @@ in { # 🦆 duck say ⮞ house config
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
-      bedroom.icon    = "mdi:bed";
-      hallway.icon    = "mdi:door";
-      kitchen.icon    = "mdi:food-fork-drink";
-      livingroom.icon = "mdi:sofa";
-      wc.icon         = "mdi:toilet";
+      bedroom.icon    = icons.room.bedroom;
+      hallway.icon    = icons.room.hallway;
+      kitchen.icon    = icons.room.kitchen;
+      livingroom.icon = icons.room.livingroom;
+      wc.icon         = icons.room.wc;
       tv-area = {
         entertainment = true;
-        icon          = "mdi:television";
+        icon          = icons.tv;
       };
-      other.icon      = "mdi:dots-horizontal";
+      other.icon      = icons.room.other;
     };
 
     # 🦆 says ⮞ media
@@ -123,13 +89,13 @@ in { # 🦆 duck say ⮞ house config
     media.root                = "/Pool";
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
-      movies      = "/Pool/Movies";
-      tv          = "/Pool/TV";
-      music       = "/Pool/Music";
-      musicVideos = "/Pool/Music_Videos";
-      otherVideos = "/Pool/Other_Videos";
-      podcasts    = "/Pool/Podcasts";
-      audiobooks  = "/Pool/Audiobooks";
+      movies      = "${config.house.media.root}/Movies";
+      tv          = "${config.house.media.root}/TV";
+      music       = "${config.house.media.root}/Music";
+      musicVideos = "${config.house.media.root}/Music_Videos";
+      otherVideos = "${config.house.media.root}/Other_Videos";
+      podcasts    = "${config.house.media.root}/Podcasts";
+      audiobooks  = "${config.house.media.root}/Audiobooks";
     };
 
 # 🦆 ⮞ DEVICES ⮜
@@ -158,15 +124,15 @@ in { # 🦆 duck say ⮞ house config
       "watch"   = {
         enable  = true;
         room    = "other";
-        icon    = "mdi:watch";
+        icon    = icons.watch;
         ip      = "192.168.1.182";
         stateEndpoint = "/api/sensors"; # ⮜ 🦆 says ⮞ refresh device states from this endpoint
 
         # 🦆 ⮞ create action controls for automations / frontend control
         controls = { # 🦆 ⮞ publish your devices payload @ "zigduck/watch" to show in frontend
-            brightness  = { # 🦆 ⮞ if u interact with da "brightness" slider it will publish @ "zigduck/watch/set"
+          brightness    = { # 🦆 ⮞ if u interact with da "brightness" slider it will publish @ "zigduck/watch/set"
             type        = "slider"; # 🦆 ⮞ which then will run the corresponding defined action
-            icon        = "mdi:brightness-6";
+            icon        = icons.brightness;
             min         = 0;
             max         = 100;
             description = "Controls the display backlight brightness level";
@@ -175,23 +141,23 @@ in { # 🦆 duck say ⮞ house config
           battery_percent = {
             description   = "Displays the battery percentage on the watch.";
             type          = "sensor";
-            icon          = "mdi:battery";
+            icon          = icons.battery;
           };
           rssi          = {
             description = "Displays the current RSSI on the watch.";
             type        = "sensor";
-            icon        = "mdi:wifi";
+            icon        = icons.wifi;
           };
           display_state = {
             description = "Toggles the state of the display.";
             type        = "bool";
-            icon        = "mdi:monitor";
+            icon        = icons.display;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/display/state/toggle"; }];
           };
           display_timeout = {
             description   = "Configure the idle time in seconds before the display turns off.";
             type          = "slider";
-            icon          = "mdi:monitor";
+            icon          = icons.display;
             min           = 0;
             max           = 300;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/display/timeout/$VALUE"; }];
@@ -199,7 +165,7 @@ in { # 🦆 duck say ⮞ house config
           mic_volume    = {
             description = "Configure the microphone gain.";
             type        = "slider";
-            icon        = "mdi:microphone";
+            icon        = icons.microphone;
             min         = 0;
             max         = 100;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/mic/volume/$VALUE"; }];
@@ -207,13 +173,13 @@ in { # 🦆 duck say ⮞ house config
           mic_muted     = {
             description = "Mute the microphone";
             type        = "bool";
-            icon        = "mdi:microphone-off";
+            icon        = icons.mic_off;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/mic/mute/toggle"; }];
           };
           speaker_volume = {
             description  = "Change the watch speaker volume.";
             type         = "slider";
-            icon         = "mdi:volume-high";
+            icon         = icons.volume;
             min          = 0;
             max          = 100;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/volume/$VALUE"; }];
@@ -221,31 +187,31 @@ in { # 🦆 duck say ⮞ house config
           speaker_muted = {
             description = "Mute the speaker on the watch";
             type        = "bool";
-            icon        = "mdi:volume-off";
+            icon        = icons.mute;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/mute/toggle"; }];
           };
           amplifier_state = {
             description   = "Turn the amplifier state on/off.";
             type          = "bool";
-            icon          = "mdi:amplifier";
+            icon          = icons.amplifier;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/amp/toggle"; }];
           };
           speaker_task_state  = {
             description       = "Turn the speaker task on the watch on/off.";
             type              = "bool";
-            icon              = "mdi:speaker";
+            icon              = icons.speaker;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/toggle"; }];
           };
           speaker_allow_streaming = {
             description = "Enabling this allows the watch to playback audio sent over LAN.";
             type        = "bool";
-            icon        = "mdi:cast-audio";
+            icon        = icons.cast;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/stream/toggle"; }];
           };
           play_ding = {
             description = "Play ding sound on the watch.";
             type        = "bool";
-            icon        = "mdi:speaker";
+            icon        = icons.speaker;
             actions = [{
               type      = "shell";
               command   = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/settings/speaker/play/ding"; fi'';
@@ -254,7 +220,7 @@ in { # 🦆 duck say ⮞ house config
           media_play_pause = {
             description    = "Toggles the media player state on the watch between play/pause.";
             type           = "bool";
-            icon           = "mdi:play-pause";
+            icon           = icons.play_pause;
             actions = [{
               type         = "shell";
               command      = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/media/play_pause"; fi'';
@@ -263,36 +229,36 @@ in { # 🦆 duck say ⮞ house config
           cpu_freq = {
             description = "Change clock frequency on the watch.";
             type        = "slider";
-            icon        = "mdi:cpu-64-bit";
+            icon        = icons.cpu;
             values      = [ "80" "160" "240" ];
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/cpu/$VALUE"; }];
           };
           low_power_mode = {
             description  = "Toggles low power mode on/off, turning off basically every task that draws battery.";
             type         = "bool";
-            icon         = "mdi:power-sleep";
+            icon         = icons.power_sleep;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/power/low/toggle"; }];
           };
           ssh_state     = {
             description = "Toggle SSHd on/off.";
             type        = "bool";
-            icon        = "mdi:console";
+            icon        = icons.console;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/ssh/toggle"; }];
           };
           vpn_state     = {
             description = "Toggle VPN on/off.";
             type        = "bool";
-            icon        = "mdi:vpn";
+            icon        = icons.vpn;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/vpn/toggle"; }];
           };
         };
       };
 
       # 🦆 ⮞ ★ ESP32-S3-BOX-3-rs ★ » https://github.com/QuackHack-McBlindy/ESP32-S3-BOX-3-rs
-      "ESP32-S3-BOX3" = {
+      "ESP32-S3-BOX-3" = {
         enable = true;
         room   = "other";
-        icon   = "mdi:microphone";
+        icon   = icons.microphone;
         ip     = "192.168.1.16";
         stateEndpoint = "/api/sensors";
 
@@ -300,17 +266,17 @@ in { # 🦆 duck say ⮞ house config
           battery_percent = {
             description   = "Displays the battery percentage.";
             type          = "sensor";
-            icon          = "mdi:battery";
+            icon          = icons.battery;
           };
           rssi          = {
             description = "Displays the current RSSI.";
             type        = "sensor";
-            icon        = "mdi:wifi";
+            icon        = icons.wifi;
           };
           brightness    = {
             description = "Controls the display backlight brightness level";
             type        = "slider";
-            icon        = "mdi:brightness-6";
+            icon        = icons.brightness;
             min         = 0;
             max         = 100;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/display/brightness/$VALUE"; }];
@@ -318,13 +284,13 @@ in { # 🦆 duck say ⮞ house config
           display_state = {
             description = "Toggles the state of the display.";
             type        = "bool";
-            icon        = "mdi:monitor";
+            icon        = icons.display;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/display/state/toggle"; }];
           };
           display_timeout = {
             description   = "Idle seconds before display turns off.";
             type          = "slider";
-            icon          = "mdi:monitor";
+            icon          = icons.display;
             min           = 0;
             max           = 300;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/display/timeout/$VALUE"; }];
@@ -332,14 +298,14 @@ in { # 🦆 duck say ⮞ house config
           display_page  = {
             description = "Change display page.";
             type        = "slider";
-            icon        = "mdi:monitor-dashboard";
+            icon        = icons.display_page;
             values      = [ "0" "1" "2" "10" ];
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/display/page/$VALUE"; }];
           };
           mic_volume    = {
             description = "Configure the microphone gain.";
             type        = "slider";
-            icon        = "mdi:microphone";
+            icon        = icons.microphone;
             min         = 0;
             max         = 100;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/mic/volume/$VALUE"; }];
@@ -347,13 +313,13 @@ in { # 🦆 duck say ⮞ house config
           mic_muted     = {
             description = "Mute the microphone.";
             type        = "bool";
-            icon        = "mdi:microphone-off";
+            icon        = icons.mic_off;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/mic/mute/toggle"; }];
           };
           speaker_volume = {
             description  = "Change the speaker volume.";
             type         = "slider";
-            icon         = "mdi:volume-high";
+            icon         = icons.volume;
             min          = 0;
             max          = 100;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/volume/$VALUE"; }];
@@ -361,31 +327,31 @@ in { # 🦆 duck say ⮞ house config
           speaker_muted = {
             description = "Mute the speaker.";
             type        = "bool";
-            icon        = "mdi:volume-off";
+            icon        = icons.mute;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/mute/toggle"; }];
           };
           amplifier_state = {
             description   = "Turn the amplifier on/off.";
             type          = "bool";
-            icon          = "mdi:amplifier";
+            icon          = icons.amplifier;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/amp/toggle"; }];
           };
           speaker_task_state = {
             description      = "Turn the speaker task on/off.";
             type             = "bool";
-            icon             = "mdi:speaker";
+            icon             = icons.speaker;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/toggle"; }];
           };
           speaker_allow_streaming = {
             description = "Allow playback of audio sent over LAN.";
             type        = "bool";
-            icon        = "mdi:cast-audio";
+            icon        = icons.cast;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/speaker/stream/toggle"; }];
           };
           play_ding     = {
             description = "Play test ding sound.";
             type        = "bool";
-            icon        = "mdi:speaker";
+            icon        = icons.speaker;
             actions = [{
               type      = "shell";
               command   = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/settings/speaker/play/ding"; fi'';
@@ -394,20 +360,20 @@ in { # 🦆 duck say ⮞ house config
           ding          = {
             description = "Play awake sound and light up display.";
             type        = "bool";
-            icon        = "mdi:bell-ring";
+            icon        = icons.bell;
             actions = [{ type = "shell"; command = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/ding"; fi''; }];
           };
           done          = {
             description = "Play done sound and dim display.";
             type        = "bool";
-            icon        = "mdi:check-circle";
+            icon        = icons.check;
             actions = [{ type = "shell"; command = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/done"; fi''; }];
           };
 
           media_play_pause = {
             description    = "Toggle media play/pause.";
             type           = "bool";
-            icon           = "mdi:play-pause";
+            icon           = icons.play_pause;
             actions = [{
               type         = "shell";
               command      = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/media/play_pause"; fi'';
@@ -416,7 +382,7 @@ in { # 🦆 duck say ⮞ house config
           media_prev    = {
             description = "Previous track.";
             type        = "bool";
-            icon        = "mdi:skip-previous";
+            icon        = icons.skip_prev;
             actions = [{
               type      = "shell";
               command   = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/media/prev"; fi'';
@@ -425,7 +391,7 @@ in { # 🦆 duck say ⮞ house config
           media_next    = {
             description = "Next track.";
             type        = "bool";
-            icon        = "mdi:skip-next";
+            icon        = icons.skip_next;
             actions = [{
               type      = "shell";
               command   = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/media/next"; fi'';
@@ -434,7 +400,7 @@ in { # 🦆 duck say ⮞ house config
           media_heart   = {
             description = "Save current track to favourites.";
             type        = "bool";
-            icon        = "mdi:heart";
+            icon        = icons.heart;
             actions = [{
               type      = "shell";
               command   = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/media/heart"; fi'';
@@ -443,7 +409,7 @@ in { # 🦆 duck say ⮞ house config
           media_playlist_clear = {
             description = "Clear the temporary playlist.";
             type        = "bool";
-            icon        = "mdi:playlist-remove";
+            icon        = icons.playlist_remove;
             actions = [{
               type      = "shell";
               command   = ''if [ "$VALUE" = "true" ]; then curl -s "http://$IP/api/media/playlist/clear"; fi'';
@@ -452,44 +418,44 @@ in { # 🦆 duck say ⮞ house config
           voice_state   = {
             description = "Toggle the entire voice pipeline.";
             type        = "bool";
-            icon        = "mdi:account-voice";
+            icon        = icons.voice;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/voice/toggle"; }];
           };
           wakeword_state = {
             description  = "Toggle wake-word streaming.";
             type         = "bool";
-            icon         = "mdi:ear-hearing";
+            icon         = icons.wakeword;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/voice/wakeword/toggle"; }];
           };
           intercom_state = {
             description  = "Toggle intercom mode.";
             type         = "bool";
-            icon         = "mdi:phone-in-talk";
+            icon         = icons.intercom;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/voice/intercom/toggle"; }];
           };
           cpu_freq      = {
             description = "Change clock frequency.";
             type        = "slider";
-            icon        = "mdi:cpu-64-bit";
+            icon        = icons.cpu;
             values      = [ "80" "160" "240" ];
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/cpu/$VALUE"; }];
           };
           low_power_mode = {
             description  = "Toggle low power mode.";
             type         = "bool";
-            icon         = "mdi:power-sleep";
+            icon         = icons.power_sleep;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/power/low/toggle"; }];
           };
           ssh_state     = {
             description = "Toggle SSHd.";
             type        = "bool";
-            icon        = "mdi:console";
+            icon        = icons.console;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/ssh/toggle"; }];
           };
           vpn_state     = {
             description = "Toggle VPN.";
             type        = "bool";
-            icon        = "mdi:vpn";
+            icon        = icons.vpn;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/vpn/toggle"; }];
           };
         };
@@ -584,7 +550,7 @@ in { # 🦆 duck say ⮞ house config
           flash_lights  = {
             enable      = true;
             description = "Flash lights";
-            topic       = "zigduck/effects/flash";
+            topic       = "${zigduck.baseTopic}/effects/flash";
             actions  = [
               { type = "snapshot"; snapshot_name = "before_timer"; }
               { type = "scene"; scene = "max"; }
@@ -604,31 +570,31 @@ in { # 🦆 duck say ⮞ house config
           alarm_wakeup  = {
             enable      = true;
             description = "Time to wake up!";
-            topic       = "zigduck/alarm/triggered";
+            topic       = "${zigduck.baseTopic}/alarm/triggered";
             actions  = [ # 🦆 say ⮞ START WITH A NOTIFY
               { type = "shell"; command = "zigduck-cli --notify '⏰ ALARM: Wake up!'"; }
               # 🦆 SCREAMS ⮞ FLASH LIGHTS!
-              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+              { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
               # 🦆 says ⮞ TTS time to wake up
               { type = "shell"; command = "yo say 'wakieee wakiee dags att vaknaaaaaaa'"; }
               # 🦆 says ⮞ fuck up bed (neck up + feet up)
-              { type = "mqtt"; topic = "zigduck/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
-              { type = "mqtt"; topic = "zigduck/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
+              { type = "mqtt"; topic = "${zigduck.baseTopic}/Robot Arm 3/set"; message = ''{"state":"OFF"}''; }
+              { type = "mqtt"; topic = "${zigduck.baseTopic}/Robot Arm 4/set"; message = ''{"state":"OFF"}''; }
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ FLASH!
-              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+              { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
               # 🦆 ⮞ play sound on bedroom esp32 assistant
-              { type = "shell"; command = "curl http://${config.house.devices.ESP32-S3-BOX3.ip}/api/settings/speaker/play/ding"; }
+              { type = "shell"; command = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 2; }
               # 🦆 says ⮞ ping watch with a ding
-              { type = "shell"; command = "curl http://${config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
+              { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
               # 🦆 says ⮞ gib me a sec pls...
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ roll up da blindz let da sun come in
-              { type = "mqtt"; topic = "zigduck/Roller Shade/set"; message = ''{"state":"ON"}''; }
+              { type = "mqtt"; topic = "${zigduck.baseTopic}/Roller Shade/set"; message = ''{"state":"ON"}''; }
               # 🦆 says ⮞ check if im up yet....
               { type = "shell"; command = ''
-                motion=$(jq -r '."Motion Sensor Sovrum".occupancy' ${config.services.zigduck.stateDir}/state.json)
+                motion=$(jq -r '."Motion Sensor Sovrum".occupancy' ${zigduck.stateDir}/state.json)
                 # 🦆 says ⮞  if my lazy ass is still in bed, try calling the TV remote!
                 if [[ "$motion" == "false" ]]; then
                   tv --typ call
@@ -640,13 +606,13 @@ in { # 🦆 duck say ⮞ house config
           timer_finish  = {
             enable      = true;
             description = "a timer is ringing";
-            topic       = "zigduck/timer/finished";
+            topic       = "${zigduck.baseTopic}/timer/finished";
             actions  = [ # 🦆 says ⮞ notify
               { type = "shell"; command = "zigduck-cli --notify '⏰ TIMER finish!'"; }
               # 🦆 says ⮞ FLASH!
-              { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+              { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
               # 🦆 says ⮞ ping watch with ding
-              { type = "shell"; command = "curl http://${config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
+              { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
               { type = "wait"; duration = 7; }
             ];
           };
@@ -657,47 +623,47 @@ in { # 🦆 duck say ⮞ house config
           xmr           = {
             enable      = true;
             description = "Updating XMR price data on dashboard";
-            topic       = "zigduck/crypto/xmr/price";
+            topic       = "${zigduck.baseTopic}/crypto/xmr/price";
             actions     = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "xmr.json"; }];
           };
           btc           = {
             enable      = true;
             description = "Updating BTC price data on dashboard";
-            topic       = "zigduck/crypto/btc/price";
+            topic       = "${zigduck.baseTopic}/crypto/btc/price";
             actions     = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "btc.json"; }];
           };
           # 🦆say⮞ energy tracking
           energyPrice   = {
             enable      = true;
             description = "Updating energy data on dashboard";
-            topic       = "zigduck/tibber/energy";
+            topic       = "${zigduck.baseTopic}/tibber/energy";
             actions     = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "energy_price.json"; }];
           };
           energyUsage   = {
             enable      = true;
             description = "Updating energy data on dashboard";
-            topic       = "zigduck/tibber/energy";
+            topic       = "${zigduck.baseTopic}/tibber/energy";
             actions     = [{ type = "shell"; command = Mqtt2jsonHistory "monthly_usage" "energy_usage.json"; }];
           };
           # 🦆say⮞ hallway temperature
           temperature   = {
             enable      = true;
             description = "Updating temperature data on dashboard";
-            topic       = "zigduck/Motion Sensor Hall";
+            topic       = "${zigduck.baseTopic}/Motion Sensor Hall";
             actions     = [{ type = "shell"; command = Mqtt2jsonHistory "temperature" "temperature.json"; }];
           };
           # 🦆say⮞ calendar
           calendar      = {
             enable      = true;
             description = "Updated calendar events";
-            topic       = "zigduck/calendar";
+            topic       = "${zigduck.baseTopic}/calendar";
             actions = [
               { type    = "shell";
                 command = ''
                   iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
                   formatted_date=$(date -d "$iso_date" +"%b %d")
                   MQTT_PAYLOAD=$(echo "$MQTT_PAYLOAD" | jq --arg d "$formatted_date" '.today_date = $d')
-                  echo "$MQTT_PAYLOAD" > ${config.services.zigduck.stateDir}/calendar.json
+                  echo "$MQTT_PAYLOAD" > ${zigduck.stateDir}/calendar.json
                 '';
               }
             ];
@@ -709,7 +675,7 @@ in { # 🦆 duck say ⮞ house config
           hallway = {
             door_opened = [ # 🦆 says ⮞ ping watch & send notification
               { type = "shell"; command = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
-              { type = "shell"; command = "curl http://${config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
+              { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             ];
             door_closed = [];
           };
@@ -719,10 +685,10 @@ in { # 🦆 duck say ⮞ house config
               {
                 type = "shell";
                 command = ''
-                  power=$(jq -r '."Fläkt".power' ${config.services.zigduck.stateDir}/state.json)
+                  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
-                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 180}'
+                    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
                   fi
                 '';
               } # 🦆 says ⮞  slow go light go bye bye
@@ -734,10 +700,10 @@ in { # 🦆 duck say ⮞ house config
               { type = "shell";
                 command = ''
                   # 🦆 says ⮞ cancel any pending countdown
-                  zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 0}'
+                  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
 
                   # 🦆 says ⮞ if fan is off - start it
-                  STATE=$(jq -r '."Fläkt".state' ${config.services.zigduck.stateDir}/state.json)
+                  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
                   if [ "$STATE" = "OFF" ]; then
                     zigduck-cli --device "Fläkt" --state on
                   fi
@@ -750,7 +716,7 @@ in { # 🦆 duck say ⮞ house config
                            ((.start | epoch) <= $now)
                            and ((.stop  | epoch) >  $now)
                            and (.title | ascii_downcase | contains("björklöven")))
-                     ' "${config.services.zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
+                     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
                     zigduck-cli --scene "kitchenGreenInstant"
                   fi
                 '';
@@ -762,23 +728,23 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 3. global actions automations
         global_actions  = {
           leak_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
-            { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+            { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
             # 🦆 LIGHT⮞FAST⮞HELP⮞SEE⮞THEN⮞NOTIFY
             { type = "scene"; scene = "max"; }
             { type = "shell"; command = "zigduck-cli --notify '💧 🚨 WATER LEAK DETECTED!'"; }
             # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://${config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
+            { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             # 🦆SAY⮞CALM⮞DOWN⮞itz⮞juzt⮞water
             { type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
 
           smoke_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
-            { type = "mqtt"; topic = "zigduck/effects/flash"; message = " "; }
+            { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
             # 🦆 LIGHT⮞FAST⮞HELP⮞SEE
             { type = "scene"; scene = "max"; }
             { type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
             # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://${config.house.devices.watch.ip}/api/settings/speaker/play/ding"; }
+            { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             # 🦆SAY⮞FIRE
             { type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
@@ -793,7 +759,7 @@ in { # 🦆 duck say ⮞ house config
               extra_actions    = [];
               override_actions = [
                 { type = "scene"; scene = "dark"; }
-                { type = "mqtt"; topic = "zigduck/Fläkt/set"; message = ''{"state":"OFF"}''; }
+                { type = "mqtt"; topic = "${zigduck.baseTopic}/Fläkt/set"; message = ''{"state":"OFF"}''; }
               ];
             };
           };
@@ -805,7 +771,7 @@ in { # 🦆 duck say ⮞ house config
               extra_actions  = [
                 {
                   type       = "mqtt";
-                  topic      = "zigduck/Fläkt/set";
+                  topic      = "${zigduck.baseTopic}/Fläkt/set";
                   message    = ''{"state":"ON"}'';
                 }
               ];
@@ -838,7 +804,7 @@ in { # 🦆 duck say ⮞ house config
               days      = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
             };
             # 🦆 says ⮞ scrape & save so dashboard can read
-            actions  = [ "tv-scraper --json-out ${config.services.zigduck.stateDir}/epg.json --html-out ${config.services.zigduck.stateDir}/tv.html --xml-out ${config.services.zigduck.stateDir}/epg.xml" ];
+            actions  = [ "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml" ];
           };
         };
 
@@ -1273,7 +1239,7 @@ in { # 🦆 duck say ⮞ house config
           icon             = "fas fa-calendar";
           color            = "#ff0000";
           theme            = "glass";
-          filePath         = "${config.services.zigduck.stateDir}/calendar.json";
+          filePath         = "${zigduck.stateDir}/calendar.json";
           jsonField        = "today_date";
           format           = "{value}";
           detailsJsonField = "today_events";
@@ -1295,7 +1261,7 @@ in { # 🦆 duck say ⮞ house config
           icon             = "fab fa-monero";
           color            = "#a78bfa";
           theme            = "colorful";
-          filePath         = "${config.services.zigduck.stateDir}/xmr.json";
+          filePath         = "${zigduck.stateDir}/xmr.json";
           jsonField        = "current_price";
           format           = "{value}";
           detailsJsonField = "7d_change";
@@ -1311,7 +1277,7 @@ in { # 🦆 duck say ⮞ house config
           group            = "tickers";
           icon             = "fab fa-bitcoin";
           color            = "#ff6600";
-          filePath         = "${config.services.zigduck.stateDir}/btc.json";
+          filePath         = "${zigduck.stateDir}/btc.json";
           jsonField        = "current_price";
           format           = "{value}";
           detailsJsonField = "7d_change";
@@ -1327,7 +1293,7 @@ in { # 🦆 duck say ⮞ house config
           group        = "energy";
           icon         = "fas fa-bolt";
           color        = "#ffff00";
-          filePath     = "${config.services.zigduck.stateDir}/energy_price.json";
+          filePath     = "${zigduck.stateDir}/energy_price.json";
           jsonField    = "current_price";
           format       = "{value} SEK/kWh";
           chart        = true;
@@ -1341,7 +1307,7 @@ in { # 🦆 duck say ⮞ house config
           group        = "energy";
           icon         = "fas fa-bolt";
           color        = "#ffff00";
-          filePath     = "${config.services.zigduck.stateDir}/energy_usage.json";
+          filePath     = "${zigduck.stateDir}/energy_usage.json";
           jsonField    = "monthly_usage";
           format       = "{value} kWh";
           chart        = true;
@@ -1356,7 +1322,7 @@ in { # 🦆 duck say ⮞ house config
           icon          = "fas fa-thermometer-half";
           color         = "#e74c3c";
           theme         = "glass";
-          filePath      = "${config.services.zigduck.stateDir}/temperature.json";
+          filePath      = "${zigduck.stateDir}/temperature.json";
           jsonField     = "temperature";
           format        = "{value} °C";
           detailsFormat = "Temperature in Hallway";
@@ -1372,7 +1338,7 @@ in { # 🦆 duck say ⮞ house config
           icon  = "fas fa-television";
           title = "remote";
           # 🦆 says ⮞ symlink epg to webserver
-          files = { tv = "${config.services.zigduck.stateDir}/tv"; };
+          files = { tv = "${zigduck.stateDir}/tv"; };
           css   = css.tv;
           code  = pages.remote;
         };
@@ -1383,7 +1349,7 @@ in { # 🦆 duck say ⮞ house config
           title = "chat";
           css   = css.chat;
           # 🦆 says ⮞ symlink TTS audio to frontend webserver
-          files = { tts = "${config.services.zigduck.stateDir}/tts"; };
+          files = { tts = "${zigduck.stateDir}/tts"; };
           code  = pages.chat;
         };
       };

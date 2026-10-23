@@ -5,6 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
+  zigduck,
   ...
 } : {
   yo = {
@@ -57,14 +58,14 @@
               }
 
             if command -v zigduck-cli >/dev/null 2>&1; then
-              if zigduck-cli --publish --topic "zigduck/calendar" --payload "$json_payload"; then
+              if zigduck-cli --publish --topic "${zigduck.baseTopic}/calendar" --payload "$json_payload"; then
                 echo "Published to MQTT: $json_payload"
               else
                 echo "Error: zigduck-cli publish failed" >&2
                 return 1
               fi
             elif command -v mosquitto_pub >/dev/null 2>&1; then
-              mosquitto_pub -t "zigduck/calendar" -m "$json_payload" && \
+              mosquitto_pub -t "${zigduck.baseTopic}/calendar" -m "$json_payload" && \
                 echo "Published to MQTT (mosquitto_pub): $json_payload"
             else
               echo "Warning: no MQTT publisher found (need zigduck-cli or mosquitto-clients)" >&2
