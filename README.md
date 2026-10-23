@@ -10,7 +10,7 @@
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.99.0-orange?style=plastic-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/💬%20yo-0.2.9-black?style=plastic)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.10-black?style=plastic)
 ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.7-black?style=plastic)
 
 
@@ -1356,8 +1356,6 @@ in { # 🦆 duck say ⮞ house config
           time_formats             = [ "%H:%M" "%H.%M" ];
           time_strip_pattern       = ''[^\d:\.]'';
           default_duration_minutes = 30;
-          # FIXME: winter-time     = -1;
-          # FIXME: summer-time     = -2;     
           timezone_offset_hours    = timezone_offset_hours;
           pm_heuristic_after_hour  = null;
         };

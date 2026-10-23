@@ -1131,8 +1131,6 @@ in { # 🦆 duck say ⮞ house config
           time_formats             = [ "%H:%M" "%H.%M" ];
           time_strip_pattern       = ''[^\d:\.]'';
           default_duration_minutes = 30;
-          # FIXME: winter-time     = -1;
-          # FIXME: summer-time     = -2;
           timezone_offset_hours    = timezone_offset_hours;
           pm_heuristic_after_hour  = null;
         };
