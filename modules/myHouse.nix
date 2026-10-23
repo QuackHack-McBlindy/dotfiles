@@ -61,7 +61,7 @@
 
   # 🦆 says ⮞
   Mqtt2jsonHistory = field: file: ''
-    FILE="/var/lib/zigduck/${file}"
+    FILE="${config.services.zigduck.stateDir}/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
     mkdir -p "$(dirname "$FILE")"
 
@@ -628,7 +628,7 @@ in { # 🦆 duck say ⮞ house config
               { type = "mqtt"; topic = "zigduck/Roller Shade/set"; message = ''{"state":"ON"}''; }
               # 🦆 says ⮞ check if im up yet....
               { type = "shell"; command = ''
-                motion=$(jq -r '."Motion Sensor Sovrum".occupancy' /var/lib/zigduck/state.json)
+                motion=$(jq -r '."Motion Sensor Sovrum".occupancy' ${config.services.zigduck.stateDir}/state.json)
                 # 🦆 says ⮞  if my lazy ass is still in bed, try calling the TV remote!
                 if [[ "$motion" == "false" ]]; then
                   tv --typ call
@@ -697,7 +697,7 @@ in { # 🦆 duck say ⮞ house config
                   iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
                   formatted_date=$(date -d "$iso_date" +"%b %d")
                   MQTT_PAYLOAD=$(echo "$MQTT_PAYLOAD" | jq --arg d "$formatted_date" '.today_date = $d')
-                  echo "$MQTT_PAYLOAD" > /var/lib/zigduck/calendar.json
+                  echo "$MQTT_PAYLOAD" > ${config.services.zigduck.stateDir}/calendar.json
                 '';
               }
             ];
@@ -719,7 +719,7 @@ in { # 🦆 duck say ⮞ house config
               {
                 type = "shell";
                 command = ''
-                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+                  power=$(jq -r '."Fläkt".power' ${config.services.zigduck.stateDir}/state.json)
                   # 🦆 says ⮞ no need 2 turn off if it'z not on
                   if (( power > 20 )); then
                     zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 180}'
@@ -737,7 +737,7 @@ in { # 🦆 duck say ⮞ house config
                   zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 0}'
 
                   # 🦆 says ⮞ if fan is off - start it
-                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+                  STATE=$(jq -r '."Fläkt".state' ${config.services.zigduck.stateDir}/state.json)
                   if [ "$STATE" = "OFF" ]; then
                     zigduck-cli --device "Fläkt" --state on
                   fi
@@ -750,7 +750,7 @@ in { # 🦆 duck say ⮞ house config
                            ((.start | epoch) <= $now)
                            and ((.stop  | epoch) >  $now)
                            and (.title | ascii_downcase | contains("björklöven")))
-                     ' "/var/lib/zigduck/epg.json" > /dev/null 2>&1; then
+                     ' "${config.services.zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
                     zigduck-cli --scene "kitchenGreenInstant"
                   fi
                 '';
@@ -838,7 +838,7 @@ in { # 🦆 duck say ⮞ house config
               days      = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
             };
             # 🦆 says ⮞ scrape & save so dashboard can read
-            actions  = [ "tv-scraper --json-out /var/lib/zigduck/epg.json --html-out /var/lib/zigduck/tv.html --xml-out /var/lib/zigduck/epg.xml" ];
+            actions  = [ "tv-scraper --json-out ${config.services.zigduck.stateDir}/epg.json --html-out ${config.services.zigduck.stateDir}/tv.html --xml-out ${config.services.zigduck.stateDir}/epg.xml" ];
           };
         };
 
@@ -1272,8 +1272,8 @@ in { # 🦆 duck say ⮞ house config
           group            = "1";
           icon             = "fas fa-calendar";
           color            = "#ff0000";
-          #theme            = "glass";
-          filePath         = "/var/lib/zigduck/calendar.json";
+          theme            = "glass";
+          filePath         = "${config.services.zigduck.stateDir}/calendar.json";
           jsonField        = "today_date";
           format           = "{value}";
           detailsJsonField = "today_events";
@@ -1294,8 +1294,8 @@ in { # 🦆 duck say ⮞ house config
           group            = "tickers";
           icon             = "fab fa-monero";
           color            = "#a78bfa";
-          #theme            = "colorful";
-          filePath         = "/var/lib/zigduck/xmr.json";
+          theme            = "colorful";
+          filePath         = "${config.services.zigduck.stateDir}/xmr.json";
           jsonField        = "current_price";
           format           = "{value}";
           detailsJsonField = "7d_change";
@@ -1311,7 +1311,7 @@ in { # 🦆 duck say ⮞ house config
           group            = "tickers";
           icon             = "fab fa-bitcoin";
           color            = "#ff6600";
-          filePath         = "/var/lib/zigduck/btc.json";
+          filePath         = "${config.services.zigduck.stateDir}/btc.json";
           jsonField        = "current_price";
           format           = "{value}";
           detailsJsonField = "7d_change";
@@ -1327,7 +1327,7 @@ in { # 🦆 duck say ⮞ house config
           group        = "energy";
           icon         = "fas fa-bolt";
           color        = "#ffff00";
-          filePath     = "/var/lib/zigduck/energy_price.json";
+          filePath     = "${config.services.zigduck.stateDir}/energy_price.json";
           jsonField    = "current_price";
           format       = "{value} SEK/kWh";
           chart        = true;
@@ -1341,7 +1341,7 @@ in { # 🦆 duck say ⮞ house config
           group        = "energy";
           icon         = "fas fa-bolt";
           color        = "#ffff00";
-          filePath     = "/var/lib/zigduck/energy_usage.json";
+          filePath     = "${config.services.zigduck.stateDir}/energy_usage.json";
           jsonField    = "monthly_usage";
           format       = "{value} kWh";
           chart        = true;
@@ -1356,7 +1356,7 @@ in { # 🦆 duck say ⮞ house config
           icon          = "fas fa-thermometer-half";
           color         = "#e74c3c";
           theme         = "glass";
-          filePath      = "/var/lib/zigduck/temperature.json";
+          filePath      = "${config.services.zigduck.stateDir}/temperature.json";
           jsonField     = "temperature";
           format        = "{value} °C";
           detailsFormat = "Temperature in Hallway";
@@ -1372,7 +1372,7 @@ in { # 🦆 duck say ⮞ house config
           icon  = "fas fa-television";
           title = "remote";
           # 🦆 says ⮞ symlink epg to webserver
-          files = { tv = "/var/lib/zigduck/tv"; };
+          files = { tv = "${config.services.zigduck.stateDir}/tv"; };
           css   = css.tv;
           code  = pages.remote;
         };
@@ -1383,7 +1383,7 @@ in { # 🦆 duck say ⮞ house config
           title = "chat";
           css   = css.chat;
           # 🦆 says ⮞ symlink TTS audio to frontend webserver
-          files = { tts = "/var/lib/zigduck/tts"; };
+          files = { tts = "${config.services.zigduck.stateDir}/tts"; };
           code  = pages.chat;
         };
       };
