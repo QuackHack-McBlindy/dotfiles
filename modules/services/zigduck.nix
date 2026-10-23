@@ -20,9 +20,6 @@ in {
         dashboard.openFirewall = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) true;
         dashboard.passwordFile = config.sops.secrets.api.path;
         dashboard.secure = true;
-        ##extraEnv.PATH =
-        #  "/run/current-system/sw/bin:"
-        #  + "/run/current-system/sw/sbin";
       };
     }
 

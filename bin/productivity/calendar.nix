@@ -52,17 +52,23 @@
             json_payload=$(jq -n \
               --arg today_date "$date" \
               --arg today_events "$events" \
-              '{today_date: $today_date, today_events: $today_events}' 2>/dev/null)
+              '{today_date: $today_date, today_events: $today_events}' 2>/dev/null) || {
+                json_payload="{\"today_date\":\"$date\",\"today_events\":\"$events\"}"
+              }
 
-            if [ -z "$json_payload" ]; then
-              json_payload="{\"today_date\":\"$date\",\"today_events\":\"$events\"}"
-            fi
-
-            if command -v mosquitto_pub >/dev/null 2>&1; then
-              zigduck-cli --publish --topic "zigduck/calendar" .-payload "$json_payload" 2>/dev/null || true
-              echo "Published to MQTT: $json_payload"
+            if command -v zigduck-cli >/dev/null 2>&1; then
+              if zigduck-cli --publish --topic "zigduck/calendar" --payload "$json_payload"; then
+                echo "Published to MQTT: $json_payload"
+              else
+                echo "Error: zigduck-cli publish failed" >&2
+                return 1
+              fi
+            elif command -v mosquitto_pub >/dev/null 2>&1; then
+              mosquitto_pub -t "zigduck/calendar" -m "$json_payload" && \
+                echo "Published to MQTT (mosquitto_pub): $json_payload"
             else
-              echo "Warning: mosquitto_pub not found. Install mosquitto-clients to enable MQTT publishing."
+              echo "Warning: no MQTT publisher found (need zigduck-cli or mosquitto-clients)" >&2
+              return 1
             fi
           }
 

@@ -37,17 +37,22 @@ in { # 🦆 says ⮞
       echo "$HC"
 
       # 🦆 says ⮞ ESP32 devices
-      if [[ "{config.this.host.hostname}" == "homie" ]]; then
+      if [[ "${config.this.host.hostname}" == "desktop" ]]; then
         WATCH=$(curl -s ${config.house.devices.watch.ip}/api/sensors \
           | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
                '. + {last_seen: $ts}')
         zigduck-cli --publish --topic "zigduck/watch" --payload "$WATCH"
+        echo "" && echo "WATCH:"
+        echo "$WATCH"
 
 
-        BOX=$(curl -s ${config.house.devices.box.ip}/api/sensors \
+
+        BOX=$(curl -s ${config.house.devices.ESP32-S3-BOX3.ip}/api/sensors \
           | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
                '. + {last_seen: $ts}')
-        zigduck-cli --publish --topic "zigduck/box" --payload "$BOX"
+        zigduck-cli --publish --topic "zigduck/ESP32-S3-BOX3" --payload "$BOX"
+        echo "" && echo "BOX:"
+        echo "$BOX"
       fi
     '';
     voice = {

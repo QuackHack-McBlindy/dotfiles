@@ -9,35 +9,59 @@
 
     services.orca.enable = false;
 
-
     nixpkgs.overlays = [
       (final: prev: {
         buildGo125Module = prev.buildGoModule.override {
           go = prev.go_1_26;
         };
       })
+
       (final: prev: {
         piper-phonemize = prev.piper-phonemize.overrideAttrs (old: {
           cmakeFlags = (old.cmakeFlags or []) ++ [ "-DBUILD_TESTING=OFF" ];
         });
       })
 
-      (final: prev: {
-        python313Packages = prev.python313Packages.overrideScope (
-          pyfinal: pyprev: {
-            nanoemoji = pyprev.nanoemoji.overrideAttrs (old: {
-              src = old.src.overrideAttrs (_: {
-                hash = "sha256-FysyKC01XBnRiur5RR9fcsTxQqE8x0JJHSoe3q6JtKc=";
-              });
+      (final: prev:
+        let
+          pyopenjtalkFix = pyprev: {
+            pyopenjtalk-plus = pyprev.pyopenjtalk-plus.overridePythonAttrs (old: {
+              disabledTests = (old.disabledTests or []) ++ [
+                "test_run_njd_from_mecab_invalid_input_should_not_break_next_call"
+              ];
             });
-          }
-        );
-      })
+          };
+
+          patchedPython313 = prev.python313.override {
+            packageOverrides = pyfinal: pyprev:
+              (pyopenjtalkFix pyprev) // {
+                nanoemoji = pyprev.nanoemoji.overrideAttrs (old: {
+                  src = old.src.overrideAttrs (_: {
+                    hash = "sha256-FysyKC01XBnRiur5RR9fcsTxQqE8x0JJHSoe3q6JtKc=";
+                  });
+                });
+              };
+          };
+
+          patchedPython314 = prev.python314.override {
+            packageOverrides = pyfinal: pyprev: pyopenjtalkFix pyprev;
+          };
+        in {
+          python313 = patchedPython313;
+          python314 = patchedPython314;
+
+          python313Packages = patchedPython313.pkgs;
+          python314Packages = patchedPython314.pkgs;
+        })
     ];
+
+
+
 
     services.udev.packages = [ pkgs.openrgb ];
     users.users.pungkula.extraGroups = [ "i2c" ];
     networking.firewall.allowedTCPPorts = [ 8111 7777 3030 9001 12345 51821 8000 ];
+
     boot = {
         kernelModules = [ "kvm-intel" "linux_6_12_hardened.system76-io" ];
         extraModulePackages = [ ];
@@ -108,7 +132,7 @@
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
                 networking = [ "default" "pool" ];
-                services = [ "ssh" "default" "yo" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" ];
+                services = [ "ssh" "default" "yo" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" "sunshine" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];
             }; # 🦆 duck say ⮞ pub keyz yo

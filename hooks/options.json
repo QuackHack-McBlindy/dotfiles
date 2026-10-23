@@ -1,0 +1,5349 @@
+{
+  "house.dashboard": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Dashboard configuration",
+    "loc": [
+      "house",
+      "dashboard"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.dashboard.pages": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Custom pages for the dashboard",
+    "loc": [
+      "house",
+      "dashboard",
+      "pages"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.dashboard.pages.<name>.code": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "HTML and JavaScript code for the page",
+    "loc": [
+      "house",
+      "dashboard",
+      "pages",
+      "<name>",
+      "code"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.pages.<name>.css": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "Additional CSS for this page",
+    "loc": [
+      "house",
+      "dashboard",
+      "pages",
+      "<name>",
+      "css"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.pages.<name>.files": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Files to be symlinked to the http server for this page",
+    "loc": [
+      "house",
+      "dashboard",
+      "pages",
+      "<name>",
+      "files"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (absolute path or string)"
+  },
+  "house.dashboard.pages.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"fas fa-question\""
+    },
+    "description": "Icon for the tab (FontAwesome class, MDI class, or image URL)",
+    "loc": [
+      "house",
+      "dashboard",
+      "pages",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.pages.<name>.title": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "Title for the page (optional)",
+    "loc": [
+      "house",
+      "dashboard",
+      "pages",
+      "<name>",
+      "title"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Configurable status cards for the dashboard",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.dashboard.statusCards.<name>.chart": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Wether to show a history chart in the status card",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "chart"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.dashboard.statusCards.<name>.color": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"#2ecc71\""
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "color"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.defaultDetails": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "defaultDetails"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.defaultValue": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "defaultValue"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.details": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "Static details text (used if detailsJsonField is not set)",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "details"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.detailsFormat": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"{value}\""
+    },
+    "description": "Format string for details value. Use {value} placeholder",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "detailsFormat"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.detailsJsonField": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "JSON field to extract from file for details (optional)",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "detailsJsonField"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.dashboard.statusCards.<name>.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable this status card.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.dashboard.statusCards.<name>.filePath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "Path to JSON file for file source",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "filePath"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.format": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"{value}\""
+    },
+    "description": "Format string for main value. Use {value} placeholder",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "format"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.group": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"default\""
+    },
+    "description": "Status cards are ordered by it's group name",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"sensors\""
+    },
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "group"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.historyField": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"history\""
+    },
+    "description": "JSON field to extract history data from for the chart",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "historyField"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.jsonField": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "JSON field to extract from file for main value",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "jsonField"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.on_click_action": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Actions to perform when clicking this status card",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "on_click_action"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.dashboard.statusCards.<name>.source": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"file\""
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "source"
+    ],
+    "readOnly": false,
+    "type": "value \"file\" (singular enum)"
+  },
+  "house.dashboard.statusCards.<name>.theme": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"neon\""
+    },
+    "description": "Theme for this card (neon, minimal, dark, glass, colorful)",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "theme"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.dashboard.statusCards.<name>.title": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/dashboard.nix"
+    ],
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "dashboard",
+      "statusCards",
+      "<name>",
+      "title"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.devices": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "devices"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.devices.<name>.controls": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Define custom controls surfaced as widgets in the GNOME panel detail view.\nEach key is a field name present in the state JSON file.\n",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.devices.<name>.controls.<name>.endpoint": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "HTTP path to control the device.\nTrailing `/` appends the control's value.\n\nFor sensors: if set, the extension fetches this URL for the current\nvalue. If it ends with `/`, the field name (control key) is appended.\nIf unset, the sensor reads its value from `stateEndpoint`.\n",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls",
+      "<name>",
+      "endpoint"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.devices.<name>.controls.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"mdi:duck\""
+    },
+    "description": "Material Design icon name representing this state/value.",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.devices.<name>.controls.<name>.max": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "100"
+    },
+    "description": "Maximum value",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls",
+      "<name>",
+      "max"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.devices.<name>.controls.<name>.min": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "0"
+    },
+    "description": "Minimum value",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls",
+      "<name>",
+      "min"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.devices.<name>.controls.<name>.type": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "description": "Widget type rendered in the frontend.",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls",
+      "<name>",
+      "type"
+    ],
+    "readOnly": false,
+    "type": "one of \"bool\", \"slider\", \"sensor\""
+  },
+  "house.devices.<name>.controls.<name>.values": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Allowed values",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "controls",
+      "<name>",
+      "values"
+    ],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "house.devices.<name>.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "description": "Enables this device to be monitored.",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.devices.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"mdi:duck\""
+    },
+    "description": "Material Design icon name representing this device.",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.devices.<name>.ip": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "description": "Device IP address",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "ip"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.devices.<name>.room": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "description": "Room where this device is located",
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "room"
+    ],
+    "readOnly": false,
+    "type": "one of \"bedroom\", \"hallway\", \"kitchen\", \"livingroom\", \"other\", \"tv-area\", \"wc\""
+  },
+  "house.devices.<name>.stateEndpoint": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "State JSON endpoint — extension refetches this after every control\naction so the pill/slider reflects the new value immediately\nwithout waiting for the next MQTT publish.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/api/sensors\""
+    },
+    "loc": [
+      "house",
+      "devices",
+      "<name>",
+      "stateEndpoint"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.https": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "HTTPS configuration for the media library",
+    "loc": [
+      "house",
+      "https"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.https.dashboard": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "HTTPS configuration for the dashboard.",
+    "loc": [
+      "house",
+      "https",
+      "dashboard"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.https.dashboard.url": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Public HTTPS URL used to access the dashboard.\nThis url is used for a secure API connection.\n\nDomain does not need to be publicly accessable, as long as the certificate is valid. \n\nYou need a domain name with a valid TLS certificate. \nA free dynamic DNS provider such as DuckDNS can be used if you do not already have a domain.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"https://dashboard.my-domain.org\""
+    },
+    "loc": [
+      "house",
+      "https",
+      "dashboard",
+      "url"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.https.dashboard.urlFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to a file containing the public HTTPS URL used to\naccess the dashboard.\nThis url is used for a secure API connection.\n\nDomain does not need to be publicly accessable, as long as the certificate is valid. \n\nYou need a domain name with a valid TLS certificate. \nA free dynamic DNS provider such as DuckDNS can be used if you do not already have a domain.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/run/secrets/dashboard-url\""
+    },
+    "loc": [
+      "house",
+      "https",
+      "dashboard",
+      "urlFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.https.media": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "HTTPS configuration for the media library.",
+    "loc": [
+      "house",
+      "https",
+      "media"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.https.media.url": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Public HTTPS URL used to access the media library.\n\nThe URL must use HTTPS and should point to the web server\nthat serves `house.media.root`.\n\nThis is required by some media clients, such as Android TV,\nwhen accessing external `.m3u` playlists.\n\nDomain does not need to be publicly accessable, as long as the certificate is valid. \n\nYou need a domain name with a valid TLS certificate. \nA free dynamic DNS provider such as DuckDNS can be used if you do not already have a domain.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"https://media.my-domain.org\""
+    },
+    "loc": [
+      "house",
+      "https",
+      "media",
+      "url"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.https.media.urlFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/https.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to a file containing the public HTTPS URL used to\naccess the media library.\n\nThe URL must use HTTPS and should point to the web server\nthat serves `house.media.root`.\n\nThis is required by some media clients, such as Android TV,\nwhen accessing external `.m3u` playlists.\n\nDomain does not need to be publicly accessable, as long as the certificate is valid. \n\nYou need a domain name with a valid TLS certificate. \nA free dynamic DNS provider such as DuckDNS can be used if you do not already have a domain.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/run/secrets/media-url\""
+    },
+    "loc": [
+      "house",
+      "https",
+      "media",
+      "urlFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.media": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Media library configuration",
+    "loc": [
+      "house",
+      "media"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.media.audiobooks": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/Audiobooks\""
+    },
+    "description": "Directory containing audiobook folders.\nEach audiobook should be in its own subdirectory.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/Audiobooks\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "audiobooks"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.favouritesFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/favourites.m3u\""
+    },
+    "description": "File path where the playlist for starred media will be written.\nThis is a Persistent playlist for the users favourite tracks.\nIt must be writable by the user executing the tv command.\nShould be inside a directory exposed by the web server.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/favourites.m3u\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "favouritesFile"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.movies": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/Movies\""
+    },
+    "description": "Directory containing movie folders.\nEach movie should be in its own subdirectory, e.g.:\n  Movies/Some Movie (2020)/movie.mkv\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/Movies\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "movies"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.music": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/Music\""
+    },
+    "description": "Directory containing music. Can be flat or hierarchical.\n\nFor artist/album search (typ = \"music\"), each artist or album\nshould be in its own subdirectory.\n\nFor song search (typ = \"song\"), files are searched recursively\nby filename with extensions: mp3, flac, m4a, wav.\n\nFor jukebox (typ = \"jukebox\"), all files under this directory\nare shuffled and played.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/Music\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "music"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.musicVideos": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/Music_Videos\""
+    },
+    "description": "Directory containing music video folders.\nEach music video should be in its own subdirectory.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/MusicVideos\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "musicVideos"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.otherVideos": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/Other_Videos\""
+    },
+    "description": "Directory containing miscellaneous video files.\nVideos are searched recursively by filename with extensions:\n  mp4, mkv, avi, mov\nNo folder structure requirement beyond being under this path.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/Videos\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "otherVideos"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.playlistFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/playlist.m3u\""
+    },
+    "description": "File path where the generated playlist will be written.\nThis file is overwritten each time the TV controller creates a new playlist.\nIt must be writable by the user executing the tv command.\nShould be inside a directory exposed by the web server.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/playlist.m3u\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "playlistFile"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.podcasts": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/Podcasts\""
+    },
+    "description": "Directory containing podcast folders.\nEach podcast should be in its own subdirectory.\nEpisodes are files inside those folders.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/Podcasts\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "podcasts"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.root": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Media\""
+    },
+    "description": "Absolute path to the root media directory.\nAll other media directories should be subdirectories of this path.\nThe URL configured at `config.house.https.urlFile` should point to this directory as the root of a file server.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "root"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.tv": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/Pool/TV\""
+    },
+    "description": "Directory containing TV show folders.\nEach show should be in its own subdirectory.\nInside each show folder, seasons are expected in folders like:\n  \"Season 1\", \"Season 01\", \"S01\", \"s01\"\nEpisode files go inside those season folders.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/Media/TV\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "tv"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.media.youtubePasswordFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/media.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to a file containing a YouTube Data API v3 key.\nThe file should contain only the API key string (no extra whitespace).\n\nTo obtain a key:\n  1. Go to https://console.cloud.google.com/apis/credentials\n  2. Create a new API key.\n  4. Save the key to a file.\n\nIf set to null, YouTube playback is disabled.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"/run/secrets/youtube_api_key\""
+    },
+    "loc": [
+      "house",
+      "media",
+      "youtubePasswordFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.rooms": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/rooms.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{\n  bedroom = {\n    icon = \"mdi:bedroom\";\n  };\n  hallway = {\n    icon = \"mdi:hallway\";\n  };\n  kitchen = {\n    icon = \"mdi:sofa\";\n  };\n  livingroom = {\n    icon = \"mdi:toilet\";\n  };\n  wc = {\n    icon = \"mdi:toilet\";\n  };\n}"
+    },
+    "description": "A set of rooms in the house with their attributes.",
+    "loc": [
+      "house",
+      "rooms"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.rooms.<name>.entertainment": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/rooms.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "When set to true this room is an entertainment area within the Philips Hue Play HDMI Sync Box integration.",
+    "loc": [
+      "house",
+      "rooms",
+      "<name>",
+      "entertainment"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.rooms.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/rooms.nix"
+    ],
+    "description": "Material Design (mdi) icon representing the room.",
+    "loc": [
+      "house",
+      "rooms",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "tv"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.tv.<name>.apps": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "App package names and activities for this TV device",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  telenor = \"se.telenor.stream/.MainActivity\";\n  tv4 = \"se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity\";\n}"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "apps"
+    ],
+    "readOnly": false,
+    "type": "attribute set of string"
+  },
+  "house.tv.<name>.channels": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "TV channel options",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.tv.<name>.channels.<name>.cmd": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "Sequence of ADB commands to launch the channel, separated by `&&`. Overrides `stream_url` and `id`.",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "cmd"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.channels.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Optional file path for channel icon used on dashboard frontend",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.tv.<name>.channels.<name>.id": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Numeric channel ID used when no `cmd` or `stream_url` is provided.",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "id"
+    ],
+    "readOnly": false,
+    "type": "null or signed integer"
+  },
+  "house.tv.<name>.channels.<name>.name": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "description": "Channel display name",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "name"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.channels.<name>.scrape_url": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "URL used by tv-scraper to fetch TV guide data for this channel.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scrape_url"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.channels.<name>.scraper": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Per-channel scraper overrides, layered on top of the\ndevice-level `scraper` and the scraper's built-in\ndefaults.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.tv.<name>.channels.<name>.scraper.default_duration_minutes": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Fallback duration when the next entry's start time can't be\nparsed. Scraper default: 30.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "default_duration_minutes"
+    ],
+    "readOnly": false,
+    "type": "null or (positive integer, meaning >0)"
+  },
+  "house.tv.<name>.channels.<name>.scraper.desc_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath relative to a row, locating the description element.\nSet to \"\" to disable descriptions.\nScraper default: './/p'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\".//div[@class='synopsis']\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "desc_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.channels.<name>.scraper.pm_heuristic_after_hour": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Only relevant for 12-hour formats that lack an explicit AM/PM\nmarker. Once the previous programme reached or passed this hour,\nlater ambiguous AM hours are promoted to PM. null disables.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "12"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "pm_heuristic_after_hour"
+    ],
+    "readOnly": false,
+    "type": "null or integer between 0 and 23 (both inclusive)"
+  },
+  "house.tv.<name>.channels.<name>.scraper.row_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath selecting each programme row.\nScraper default: '//table[@id=\"channel-schedule\"]//tr'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"//div[contains(@class,'programme-row')]\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "row_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.channels.<name>.scraper.time_attr": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Attribute of the time element to read. Set to \"\" to always use\nthe element's text content. Scraper default: \"datetime\".\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"data-start\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "time_attr"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.channels.<name>.scraper.time_formats": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "strptime formats tried in order, after ISO 8601 is attempted.\nScraper default: [ \"%H:%M\" \"%H.%M\" ].\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"%I:%M %p\"\n  \"%I:%M%p\"\n  \"%H:%M\"\n]"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "time_formats"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "house.tv.<name>.channels.<name>.scraper.time_strip_pattern": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Regex applied to the raw time string before strptime. Set to \"\"\nto disable stripping — required when the format keeps a literal\nAM/PM marker. Scraper default: \"[^\\\\d:\\\\.]\".\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"[^\\\\d:\\\\.APM ]\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "time_strip_pattern"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.channels.<name>.scraper.time_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath relative to a row, locating the element containing the\nstart time. Scraper default: './/time'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\".//span[@class='airtime']\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "time_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.channels.<name>.scraper.timezone_offset_hours": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Fixed offset applied to every parsed time, in hours. May be fractional\n(e.g. 5.5). null = use the scraper's built-in global TIME_OFFSET.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "2"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "timezone_offset_hours"
+    ],
+    "readOnly": false,
+    "type": "null or signed integer or floating point number"
+  },
+  "house.tv.<name>.channels.<name>.scraper.title_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath relative to a row, locating the title element.\nScraper default: './/a[contains(@class, \"program-title\")]'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\".//h3\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "scraper",
+      "title_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.channels.<name>.stream_url": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "Direct stream URL to play on the device. Used when `cmd` is empty, overrides `id`.",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "channels",
+      "<name>",
+      "stream_url"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "description": "Whether to enable communication with this TV via ADB.\nThis requires that network debugging is turned on in the TV's developer options.\nIt is also strongly recommended to install the VLC Media Player application on the device.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.tv.<name>.ip": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "description": "TV's static IP address",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "ip"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.isDefault": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether this TV is the default device when multiple TVs are defined\nand no specific room or IP is requested.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "isDefault"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.tv.<name>.keymap": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Mapping of logical actions to Android keycodes",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.tv.<name>.keymap.channel_down": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_CHANNEL_DOWN\""
+    },
+    "description": "Android Keycode for channel down",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "channel_down"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.channel_up": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_CHANNEL_UP\""
+    },
+    "description": "Android Keycode for channel up",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "channel_up"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_back": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_BACK\""
+    },
+    "description": "Android Keycode for back navigation",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_back"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_down": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_DPAD_DOWN\""
+    },
+    "description": "Android Keycode for navigation down",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_down"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_home": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_HOME\""
+    },
+    "description": "Android Keycode for home",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_home"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_left": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_DPAD_LEFT\""
+    },
+    "description": "Android Keycode for navigation left",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_left"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_menu": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_MENU\""
+    },
+    "description": "Android Keycode for menu",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_menu"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_recents": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_APP_SWITCH\""
+    },
+    "description": "Android Keycode for recent apps",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_recents"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_right": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_DPAD_RIGHT\""
+    },
+    "description": "Android Keycode for navigation right",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_right"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_select": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_DPAD_CENTER\""
+    },
+    "description": "Android Keycode for navigation select/enter",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_select"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.nav_up": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_DPAD_UP\""
+    },
+    "description": "Android Keycode for navigation up",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "nav_up"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.next": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_MEDIA_NEXT\""
+    },
+    "description": "Android Keycode for next media",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "next"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.play_pause": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_MEDIA_PLAY_PAUSE\""
+    },
+    "description": "Android Keycode for play/pause",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "play_pause"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.power_off": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_SLEEP\""
+    },
+    "description": "Android Keycode for turning the TV off",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "power_off"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.power_on": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_WAKEUP\""
+    },
+    "description": "Android Keycode for turning the TV on",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "power_on"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.previous": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_MEDIA_PREVIOUS\""
+    },
+    "description": "Android Keycode for previous media",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "previous"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.volume_down": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_VOLUME_DOWN\""
+    },
+    "description": "Android Keycode for volume down",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "volume_down"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.keymap.volume_up": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"KEYCODE_VOLUME_UP\""
+    },
+    "description": "Android Keycode for volume up",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "keymap",
+      "volume_up"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.tv.<name>.room": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "description": "Room where the TV is located",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "room"
+    ],
+    "readOnly": false,
+    "type": "one of \"bedroom\", \"hallway\", \"kitchen\", \"livingroom\", \"other\", \"tv-area\", \"wc\""
+  },
+  "house.tv.<name>.scraper": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Scraper tunables applied to every channel on this device.\nAny subset may be overridden per channel via\n`channels.<name>.scraper`.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.tv.<name>.scraper.default_duration_minutes": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Fallback duration when the next entry's start time can't be\nparsed. Scraper default: 30.\n",
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "default_duration_minutes"
+    ],
+    "readOnly": false,
+    "type": "null or (positive integer, meaning >0)"
+  },
+  "house.tv.<name>.scraper.desc_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath relative to a row, locating the description element.\nSet to \"\" to disable descriptions.\nScraper default: './/p'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\".//div[@class='synopsis']\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "desc_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.scraper.pm_heuristic_after_hour": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Only relevant for 12-hour formats that lack an explicit AM/PM\nmarker. Once the previous programme reached or passed this hour,\nlater ambiguous AM hours are promoted to PM. null disables.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "12"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "pm_heuristic_after_hour"
+    ],
+    "readOnly": false,
+    "type": "null or integer between 0 and 23 (both inclusive)"
+  },
+  "house.tv.<name>.scraper.row_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath selecting each programme row.\nScraper default: '//table[@id=\"channel-schedule\"]//tr'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"//div[contains(@class,'programme-row')]\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "row_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.scraper.time_attr": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Attribute of the time element to read. Set to \"\" to always use\nthe element's text content. Scraper default: \"datetime\".\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"data-start\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "time_attr"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.scraper.time_formats": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "strptime formats tried in order, after ISO 8601 is attempted.\nScraper default: [ \"%H:%M\" \"%H.%M\" ].\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"%I:%M %p\"\n  \"%I:%M%p\"\n  \"%H:%M\"\n]"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "time_formats"
+    ],
+    "readOnly": false,
+    "type": "null or (list of string)"
+  },
+  "house.tv.<name>.scraper.time_strip_pattern": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Regex applied to the raw time string before strptime. Set to \"\"\nto disable stripping — required when the format keeps a literal\nAM/PM marker. Scraper default: \"[^\\\\d:\\\\.]\".\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"[^\\\\d:\\\\.APM ]\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "time_strip_pattern"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.scraper.time_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath relative to a row, locating the element containing the\nstart time. Scraper default: './/time'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\".//span[@class='airtime']\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "time_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.tv.<name>.scraper.timezone_offset_hours": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Fixed offset applied to every parsed time, in hours. May be fractional\n(e.g. 5.5). null = use the scraper's built-in global TIME_OFFSET.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "2"
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "timezone_offset_hours"
+    ],
+    "readOnly": false,
+    "type": "null or signed integer or floating point number"
+  },
+  "house.tv.<name>.scraper.title_xpath": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/tv.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "XPath relative to a row, locating the title element.\nScraper default: './/a[contains(@class, \"program-title\")]'.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\".//h3\""
+    },
+    "loc": [
+      "house",
+      "tv",
+      "<name>",
+      "scraper",
+      "title_xpath"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.automations": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Modular automation configurations",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.automations.dimmer_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Per-room configuration for dimmer switch actions",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  _default = {\n    down_hold_release = {\n      description = \"Default: no default actions\";\n      enable = true;\n    };\n    down_press_release = {\n      description = \"Default: dim down room lights\";\n      enable = true;\n    };\n    off_hold_release = {\n      description = \"Default: turn off all lights\";\n      enable = true;\n    };\n    off_press_release = {\n      description = \"Default: turn off room lights\";\n      enable = true;\n    };\n    on_hold_release = {\n      description = \"Default: turn on all lights at maximum brightness\";\n      enable = true;\n    };\n    on_press_release = {\n      description = \"Default: turn on room lights\";\n      enable = true;\n    };\n    up_hold_release = {\n      description = \"Default: no default actions\";\n      enable = true;\n    };\n    up_press_release = {\n      description = \"Default: dim up room lights\";\n      enable = true;\n    };\n  };\n  kitchen = {\n    off_press_release = {\n      description = \"Turn off kitchen lights only\";\n      enable = true;\n    };\n    on_press_release = {\n      description = \"Turn on kitchen lights and fan\";\n      enable = true;\n      extra_actions = [\n        {\n          message = \"{\\\"state\\\":\\\"ON\\\"}\";\n          topic = \"zigbee2mqtt/Fläkt/set\";\n          type = \"mqtt\";\n        }\n      ];\n    };\n  };\n}"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_hold_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for down button hold and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_hold_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_hold_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_hold_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_hold_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_hold_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_hold_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_hold_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_hold_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_hold_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_press_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for down button press and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_press_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_press_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_press_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_press_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_press_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_press_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_press_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.down_press_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "down_press_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_hold_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for off button hold and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_hold_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_hold_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_hold_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_hold_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_hold_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_hold_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_hold_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_hold_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_hold_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_press_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for off button press and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_press_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_press_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_press_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_press_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_press_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_press_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_press_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.off_press_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "off_press_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_hold_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for on button hold and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_hold_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_hold_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_hold_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_hold_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_hold_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_hold_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_hold_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_hold_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_hold_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_press_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for on button press and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_press_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_press_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_press_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_press_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_press_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_press_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_press_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.on_press_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "on_press_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_hold_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for up button hold and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_hold_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_hold_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_hold_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_hold_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_hold_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_hold_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_hold_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_hold_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_hold_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_press_release": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Action for up button press and release",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_press_release"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_press_release.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of this action",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_press_release",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_press_release.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this dimmer action.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_press_release",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_press_release.extra_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Additional actions to perform when this dimmer action triggers",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_press_release",
+      "extra_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.dimmer_actions.<name>.up_press_release.override_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "If defined, replaces default behavior with these actions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "dimmer_actions",
+      "<name>",
+      "up_press_release",
+      "override_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.global_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Global automation actions not tied to specific rooms",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  all_lights_on = [\n    \"echo 'All lights turned on'\"\n    {\n      scene = \"max\";\n      type = \"scene\";\n    }\n  ];\n  security_armed = [\n    \"echo 'Security system armed'\"\n    {\n      message = \"{\\\"armed\\\":true}\";\n      topic = \"zigbee2mqtt/security/state\";\n      type = \"mqtt\";\n    }\n  ];\n}"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "global_actions"
+    ],
+    "readOnly": false,
+    "type": "attribute set of list of (string or (submodule))"
+  },
+  "house.zigbee.automations.greeting": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Greeting automation configuration",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.automations.greeting.actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[\n  \"echo 'Welcome home!'\"\n]"
+    },
+    "description": "Action to perform for greeting",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting",
+      "actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.greeting.awayDuration": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "7200"
+    },
+    "description": "Time in seconds to be considered away from home (default 7200)",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting",
+      "awayDuration"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.automations.greeting.delay": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "10"
+    },
+    "description": "Delay in seconds before triggering greeting",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting",
+      "delay"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.automations.greeting.door": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Device friendly name of the door sensor. Required if enable is true.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"door sensor hallway\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting",
+      "door"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.greeting.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable greeting automation.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.greeting.message": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"contact\""
+    },
+    "description": "MQTT field name that should turn false (open).",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "greeting",
+      "message"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.mqtt_triggered": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "MQTT-triggered automations",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  button_single_press = {\n    actions = [\n      {\n        message = \"{\\\"state\\\":\\\"TOGGLE\\\"}\";\n        topic = \"zigbee2mqtt/living_room_lights/set\";\n        type = \"mqtt\";\n      }\n    ];\n    description = \"Toggle living room lights on button single press\";\n    enable = true;\n    message = \"single\";\n    topic = \"zigbee2mqtt/living_room_button/action\";\n  };\n  motion_alert = {\n    actions = [\n      \"echo 'Motion detected outside!' | wall\"\n      {\n        command = \"/nix/store/9yrxszw0fbyx68dbr4nbcnb408vqxgya-libnotify-0.8.8/bin/notify-send 'Security' 'Motion detected outside'\";\n        type = \"shell\";\n      }\n    ];\n    description = \"Send notification on motion detected\";\n    enable = true;\n    message = \"true\";\n    topic = \"zigbee2mqtt/outdoor_motion/occupancy\";\n  };\n}"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Actions to perform when MQTT message is received",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.conditions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Conditions that must be met",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "conditions"
+    ],
+    "readOnly": false,
+    "type": "list of (submodule)"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.conditions.*.room": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Room for room-specific conditions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "conditions",
+      "*",
+      "room"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.conditions.*.type": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Condition type",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "conditions",
+      "*",
+      "type"
+    ],
+    "readOnly": false,
+    "type": "one of \"dark_time\", \"someone_home\", \"room_occupied\""
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.conditions.*.value": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Expected condition value",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "conditions",
+      "*",
+      "value"
+    ],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of what this automation does",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this MQTT-triggered automation.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.message": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Specific message value to match (if any)",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"single\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "message"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.automations.mqtt_triggered.<name>.topic": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "MQTT topic to subscribe to",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"zigbee2mqtt/button/action\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "mqtt_triggered",
+      "<name>",
+      "topic"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.presence_based": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Presence/motion-based automations",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.zigbee.automations.presence_based.<name>.actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Actions to perform when no motion is detected",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.presence_based.<name>.conditions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Conditions that must be met",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "conditions"
+    ],
+    "readOnly": false,
+    "type": "list of (submodule)"
+  },
+  "house.zigbee.automations.presence_based.<name>.conditions.*.room": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Room for room-specific conditions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "conditions",
+      "*",
+      "room"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.automations.presence_based.<name>.conditions.*.type": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Condition type",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "conditions",
+      "*",
+      "type"
+    ],
+    "readOnly": false,
+    "type": "one of \"dark_time\", \"room_occupied\", \"lights_on\""
+  },
+  "house.zigbee.automations.presence_based.<name>.conditions.*.value": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Expected condition value",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "conditions",
+      "*",
+      "value"
+    ],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "house.zigbee.automations.presence_based.<name>.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of what this automation does",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.presence_based.<name>.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this presence-based automation.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.presence_based.<name>.motion_restored_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Actions to perform when motion is detected again",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "motion_restored_actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.presence_based.<name>.motion_sensors": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "List of motion sensor friendly names to monitor",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"Hallway Motion\"\n  \"Living Room Motion\"\n]"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "motion_sensors"
+    ],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "house.zigbee.automations.presence_based.<name>.no_motion_duration": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "300"
+    },
+    "description": "Seconds without motion before triggering",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "presence_based",
+      "<name>",
+      "no_motion_duration"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.automations.room_actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Room-specific automation actions",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  kitchen = {\n    lights_turned_on = [\n      \"echo 'Kitchen lights activated'\"\n    ];\n    motion_detected = [\n      \"echo 'Motion in kitchen'\"\n      {\n        message = \"{\\\"state\\\":\\\"ON\\\"}\";\n        topic = \"zigbee2mqtt/Fläkt/set\";\n        type = \"mqtt\";\n      }\n    ];\n  };\n}"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "room_actions"
+    ],
+    "readOnly": false,
+    "type": "attribute set of attribute set of list of (string or (submodule))"
+  },
+  "house.zigbee.automations.time_based": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Time-based automations",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  bedtime = {\n    actions = [\n      {\n        scene = \"night\";\n        type = \"scene\";\n      }\n    ];\n    description = \"Prepare for bed\";\n    enable = true;\n    schedule = \"0 22 * * *\";\n  };\n  morning_wakeup = {\n    actions = [\n      {\n        scene = \"morning\";\n        type = \"scene\";\n      }\n      \"echo 'Good morning!'\"\n    ];\n    conditions = [\n      {\n        type = \"someone_home\";\n        value = true;\n      }\n    ];\n    description = \"Gentle morning lights\";\n    enable = true;\n    schedule = {\n      days = [\n        \"mon\"\n        \"tue\"\n        \"wed\"\n        \"thu\"\n        \"fri\"\n      ];\n      end = \"07:00\";\n      start = \"06:30\";\n    };\n  };\n}"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.zigbee.automations.time_based.<name>.actions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Actions to perform",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "actions"
+    ],
+    "readOnly": false,
+    "type": "list of (string or (submodule))"
+  },
+  "house.zigbee.automations.time_based.<name>.conditions": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "Conditions that must be met",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "conditions"
+    ],
+    "readOnly": false,
+    "type": "list of (submodule)"
+  },
+  "house.zigbee.automations.time_based.<name>.conditions.*.room": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Room for room-specific conditions",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "conditions",
+      "*",
+      "room"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.automations.time_based.<name>.conditions.*.type": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Condition type",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "conditions",
+      "*",
+      "type"
+    ],
+    "readOnly": false,
+    "type": "one of \"dark_time\", \"someone_home\", \"room_occupied\""
+  },
+  "house.zigbee.automations.time_based.<name>.conditions.*.value": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Expected condition value",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "conditions",
+      "*",
+      "value"
+    ],
+    "readOnly": false,
+    "type": "null or boolean"
+  },
+  "house.zigbee.automations.time_based.<name>.description": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Description of what this automation does",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "description"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.automations.time_based.<name>.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable this time-based automation.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.automations.time_based.<name>.schedule": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/automations.nix"
+    ],
+    "description": "Schedule configuration (cron string or structured)",
+    "loc": [
+      "house",
+      "zigbee",
+      "automations",
+      "time_based",
+      "<name>",
+      "schedule"
+    ],
+    "readOnly": false,
+    "type": "string or (submodule)"
+  },
+  "house.zigbee.coordinator": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/coordinator.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Serial port device mapping by USB IDs",
+    "loc": [
+      "house",
+      "zigbee",
+      "coordinator"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.coordinator.adapter": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/coordinator.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"zstack\""
+    },
+    "description": "Zigbee2MQTT adapter type used to communicate with the coordinator.\n\nFor Zigbee2MQTT 2.x and newer, this should normally be set to\nthe adapter type expected by your coordinator. Common values\ninclude \"zstack\" for Texas Instruments coordinators.\n\nIf you are unsure, leave the default value unchanged.\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "coordinator",
+      "adapter"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.coordinator.productId": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/coordinator.nix"
+    ],
+    "description": "USB product ID of the Zigbee coordinator, in hexadecimal.\n\nYou can find this with `lsusb`. For example, if it reports\n`ID 10c3:ea61`, the product ID is `ea61`.\n\nTogether with `vendorId`, this identifies the coordinator USB\ndevice.\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "coordinator",
+      "productId"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.coordinator.symlink": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/coordinator.nix"
+    ],
+    "description": "Name of the stable symlink to create under /dev.\n\nFor example, setting this to \"zigbee\" creates /dev/zigbee,\nwhich can then be used as the serial device for Zigbee2MQTT.\n\nUsing a symlink avoids depending on unstable device names such\nas /dev/ttyUSB0, which can change when USB devices are plugged\nin or removed.\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "coordinator",
+      "symlink"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.coordinator.vendorId": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/coordinator.nix"
+    ],
+    "description": "USB vendor ID of the Zigbee coordinator, in hexadecimal.\n\nYou can find this with `lsusb`. For example, if it reports\n`ID 10c3:ea61`, the vendor ID is `10c3`.\n\nThis is used together with `productId` to identify the correct\nUSB device, regardless of which /dev/ttyUSB* or /dev/ttyACM*\ndevice name Linux assigns to it.\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "coordinator",
+      "vendorId"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dataDir": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/zigbee.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/var/lib/zigbee\""
+    },
+    "description": "Zigbee2mqtt data directory",
+    "loc": [
+      "house",
+      "zigbee",
+      "dataDir"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.zigbee.devices": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Zigbee device definitions keyed by device ID.",
+    "loc": [
+      "house",
+      "zigbee",
+      "devices"
+    ],
+    "readOnly": false,
+    "type": "attribute set of (submodule)"
+  },
+  "house.zigbee.devices.<name>.batteryType": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Optional type of battery the device uses.",
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "batteryType"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.devices.<name>.endpoint": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "description": "The Zigbee endpoint to control this device.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "11"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "endpoint"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.devices.<name>.friendly_name": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "description": "A human-readable device name.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"Kitchen Dimmer\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "friendly_name"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.devices.<name>.hue_id": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "The light_id for the device (Hue integration).",
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "hue_id"
+    ],
+    "readOnly": false,
+    "type": "null or signed integer"
+  },
+  "house.zigbee.devices.<name>.icon": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"mdi:duck\""
+    },
+    "description": "Material Design icon name representing this device.",
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "icon"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.devices.<name>.room": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "description": "The room this device belongs to.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"kitchen\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "room"
+    ],
+    "readOnly": false,
+    "type": "string matching the pattern bedroom|hallway|kitchen|livingroom|other|tv-area|wc"
+  },
+  "house.zigbee.devices.<name>.supports_color": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether the light supports color.",
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "supports_color"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.devices.<name>.supports_temperature": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether the light supports temperature.",
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "supports_temperature"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.devices.<name>.type": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/devices.nix"
+    ],
+    "description": "The type of device.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"light\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "devices",
+      "<name>",
+      "type"
+    ],
+    "readOnly": false,
+    "type": "one of \"light\", \"hue_light\", \"dimmer\", \"sensor\", \"motion\", \"outlet\", \"remote\", \"pusher\", \"blind\", \"custom\""
+  },
+  "house.zigbee.dimmer": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{\n  actions = {\n    downHold = \"down_hold_release\";\n    downPress = \"down_press_release\";\n    offHold = \"off_hold_release\";\n    offPress = \"off_press_release\";\n    onHold = \"on_hold_release\";\n    onPress = \"on_press_release\";\n    upHold = \"up_hold_release\";\n    upPress = \"up_press_release\";\n  };\n  message = \"action\";\n}"
+    },
+    "description": "Configuration for dimmer switches. Default configuration is for the Philips Hue Dimmer Switch. You can check the message for your specific dimmer at zigbee2MQTT documentation.",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.dimmer.actions.downHold": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"down_hold_release\""
+    },
+    "description": "Action for holding DOWN button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "downHold"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.downPress": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"down_press_release\""
+    },
+    "description": "Action for single press of DOWN button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "downPress"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.offHold": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"off_hold_release\""
+    },
+    "description": "Action for holding OFF button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "offHold"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.offPress": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"off_press_release\""
+    },
+    "description": "Action for single press of OFF button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "offPress"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.onHold": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"on_hold_release\""
+    },
+    "description": "Action for holding ON button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "onHold"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.onPress": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"on_press_release\""
+    },
+    "description": "Action for single press of ON button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "onPress"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.upHold": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"up_hold_release\""
+    },
+    "description": "Action for holding UP button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "upHold"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.actions.upPress": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"up_press_release\""
+    },
+    "description": "Action for single press of UP button",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "actions",
+      "upPress"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.dimmer.doubleClickTimeout": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Timeout for double‑click detection in milliseconds (defaults to 300).",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "doubleClickTimeout"
+    ],
+    "readOnly": false,
+    "type": "null or signed integer"
+  },
+  "house.zigbee.dimmer.message": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/dimmer.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"action\""
+    },
+    "description": "MQTT field name containing dimmer action",
+    "loc": [
+      "house",
+      "zigbee",
+      "dimmer",
+      "message"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/zigbee.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable zigbee2mqtt service.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.hueSyncBox": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Philips Hue Bridge & Sync Box configuration for TV to lights syncing",
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.hueSyncBox.bridge.ip": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "description": "IP address of the Philips Hue Bridge",
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox",
+      "bridge",
+      "ip"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.hueSyncBox.bridge.passwordFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "description": "Path to a file containing the Hue Bridge API key (username).\nTo get a key, press the physical button on your Hue Bridge, then run:\n  curl -X POST http://<bridge-ip>/api -d '{\"devicetype\":\"house#nixos\"}'\nThe response will contain a `username` field – save that string in this file.\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox",
+      "bridge",
+      "passwordFile"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.zigbee.hueSyncBox.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable Philips Hue Bridge & Sync Box integration.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.hueSyncBox.syncBox.ip": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "description": "IP address of the Philips Hue Sync Box",
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox",
+      "syncBox",
+      "ip"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.hueSyncBox.syncBox.passwordFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "description": "Path to a file containing the Hue Sync Box API token.\nTo get a token, run the following command:\n  curl -k -sS -X POST \"https://<SYNC_BOX_IP>/api/v1/registrations\" -H \"Content-Type: application/json\" -d '{\"appName\": \"zigduck\", \"instanceName\": \"zigduck\"}'\nThen press and hold the physical button on the Sync Box until the LED turns green, then send the command again.\nThe resposne will contain the API token.\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox",
+      "syncBox",
+      "passwordFile"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.zigbee.hueSyncBox.syncBox.tv": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/hue-sync-box.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"\""
+    },
+    "description": "What TV should syncBox syncronize the lights to. Available TVs: shield",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"shield\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "hueSyncBox",
+      "syncBox",
+      "tv"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.mosquitto": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto"
+    ],
+    "readOnly": false,
+    "type": "null or (submodule)"
+  },
+  "house.zigbee.mosquitto.baseTopic": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"zigbee2mqtt\""
+    },
+    "description": "MQTT base topic used by Zigbee2mqtt and the zigduck runtime.",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "baseTopic"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.mosquitto.host": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "IP address of the host running Mosquitto",
+    "example": {
+      "_type": "literalExpression",
+      "text": "\"192.168.1.211\""
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "host"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.mosquitto.passwordFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to file containing MQTT password",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "passwordFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.zigbee.mosquitto.ssl.caCertFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to CA certificate file",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "ssl",
+      "caCertFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.zigbee.mosquitto.ssl.clientCertFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to client certificate file",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "ssl",
+      "clientCertFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.zigbee.mosquitto.ssl.clientKeyFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to client private key file",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "ssl",
+      "clientKeyFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "house.zigbee.mosquitto.ssl.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable SSL/TLS for MQTT connection.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "ssl",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.mosquitto.username": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "MQTT username for authentication",
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "username"
+    ],
+    "readOnly": false,
+    "type": "null or string"
+  },
+  "house.zigbee.mosquitto.whitelist": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/mosquitto.nix"
+    ],
+    "description": "Optional list of additional json fields that should be included in the `states.json`",
+    "example": {
+      "_type": "literalExpression",
+      "text": "[\n  \"special_key\"\n  \"device_state\"\n]"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "mosquitto",
+      "whitelist"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "house.zigbee.motion": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.motion.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "description": "Whether to enable Enable Zigbee motion handling.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.motion.trigger": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "trigger"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.motion.trigger.lights": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Motion-triggered lighting behavior",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "trigger",
+      "lights"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.motion.trigger.lights.after": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "16"
+    },
+    "description": "Lights activate only after this hour (24h)",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "trigger",
+      "lights",
+      "after"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.motion.trigger.lights.before": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "9"
+    },
+    "description": "Lights activate only before this hour (24h)",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "trigger",
+      "lights",
+      "before"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.motion.trigger.lights.duration": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "900"
+    },
+    "description": "Seconds to keep lights on after motion",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "trigger",
+      "lights",
+      "duration"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.motion.trigger.lights.transition": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Wether to fade out the lights for the configured duration, instead of waiting for it.",
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "trigger",
+      "lights",
+      "transition"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.motion.when.dark.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "description": "Whether to enable Enable Zigbee motion handling.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "motion",
+      "when",
+      "dark",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.networkKeyFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/zigbee.nix"
+    ],
+    "description": "Path to a file containing the Zigbee network key used by\nZigbee2MQTT (`network_key`).\n\nThe network key identifies and secures the Zigbee network. Keep\nthis key stable: changing or losing it will require Zigbee devices\nto be paired with the network again.\n\nThe file should contain the key in the following format:\n```\n- 86\n- 208\n...\n```\n",
+    "loc": [
+      "house",
+      "zigbee",
+      "networkKeyFile"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  },
+  "house.zigbee.no.motion": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/no-motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "zigbee",
+      "no",
+      "motion"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.no.motion.trigger.all": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/no-motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "This option has no description.",
+    "loc": [
+      "house",
+      "zigbee",
+      "no",
+      "motion",
+      "trigger",
+      "all"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.no.motion.trigger.all.lights.off": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/no-motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "No motion-triggered lighting behavior",
+    "loc": [
+      "house",
+      "zigbee",
+      "no",
+      "motion",
+      "trigger",
+      "all",
+      "lights",
+      "off"
+    ],
+    "readOnly": false,
+    "type": "submodule"
+  },
+  "house.zigbee.no.motion.trigger.all.lights.off.after": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/no-motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "180"
+    },
+    "description": "Time in minutes without motion that trigger all lights off.",
+    "loc": [
+      "house",
+      "zigbee",
+      "no",
+      "motion",
+      "trigger",
+      "all",
+      "lights",
+      "off",
+      "after"
+    ],
+    "readOnly": false,
+    "type": "signed integer"
+  },
+  "house.zigbee.no.motion.trigger.all.lights.off.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/no-motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Enable Zigbee motion handling.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "no",
+      "motion",
+      "trigger",
+      "all",
+      "lights",
+      "off",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "house.zigbee.no.motion.trigger.all.lights.off.exclude": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/no-motion.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "[ ]"
+    },
+    "description": "List of devices (strings) to exclude, leaving them in current state.",
+    "loc": [
+      "house",
+      "zigbee",
+      "no",
+      "motion",
+      "trigger",
+      "all",
+      "lights",
+      "off",
+      "exclude"
+    ],
+    "readOnly": false,
+    "type": "list of string"
+  },
+  "house.zigbee.scenes": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/scenes.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Scenes for Zigbee devices",
+    "loc": [
+      "house",
+      "zigbee",
+      "scenes"
+    ],
+    "readOnly": false,
+    "type": "attribute set of attribute set of (attribute set)"
+  },
+  "house.zigbee.settings": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/zigbee/zigbee.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Please note that this flake already handles the configuration of Zigbee2MQTT internally.\nThese would be overrides.\nYour configuration.yaml as a Nix attribute set.\nCheck the [documentation](https://www.zigbee2mqtt.io/information/configuration.html) for possible options.\n",
+    "example": {
+      "_type": "literalExpression",
+      "text": "{\n  homeassistant.enabled = config.services.home-assistant.enable;\n  permit_join = true;\n  serial = {\n    port = \"/dev/ttyACM1\";\n  };\n}\n"
+    },
+    "loc": [
+      "house",
+      "zigbee",
+      "settings"
+    ],
+    "readOnly": false,
+    "type": "YAML 1.1 value"
+  },
+  "services.zigduck.broker": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"127.0.0.1\""
+    },
+    "description": "MQTT broker hostname or IP address",
+    "loc": [
+      "services",
+      "zigduck",
+      "broker"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "services.zigduck.cli.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "description": "Whether to install zigduck-cli package.",
+    "loc": [
+      "services",
+      "zigduck",
+      "cli",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.dashboard.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Zigduck dashboard service.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "services",
+      "zigduck",
+      "dashboard",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.dashboard.host": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"0.0.0.0\""
+    },
+    "description": "Host to bind the webserver to",
+    "loc": [
+      "services",
+      "zigduck",
+      "dashboard",
+      "host"
+    ],
+    "readOnly": false,
+    "type": "string"
+  },
+  "services.zigduck.dashboard.openFirewall": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to open the firewall for the specified port.",
+    "loc": [
+      "services",
+      "zigduck",
+      "dashboard",
+      "openFirewall"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.dashboard.passwordFile": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "null"
+    },
+    "description": "Path to password file for API authentication (API_PASSWORD_FILE)",
+    "loc": [
+      "services",
+      "zigduck",
+      "dashboard",
+      "passwordFile"
+    ],
+    "readOnly": false,
+    "type": "null or absolute path"
+  },
+  "services.zigduck.dashboard.port": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "13336"
+    },
+    "description": "Port for the dashboard",
+    "loc": [
+      "services",
+      "zigduck",
+      "dashboard",
+      "port"
+    ],
+    "readOnly": false,
+    "type": "16 bit unsigned integer; between 0 and 65535 (both inclusive)"
+  },
+  "services.zigduck.dashboard.secure": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "description": "Whether to set the Secure flag on authentication cookies. Set to false when serving over plain HTTP.",
+    "loc": [
+      "services",
+      "zigduck",
+      "dashboard",
+      "secure"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.debug": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Enable debug logging (sets DEBUG=1)",
+    "loc": [
+      "services",
+      "zigduck",
+      "debug"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to enable Zigduck.",
+    "example": {
+      "_type": "literalExpression",
+      "text": "true"
+    },
+    "loc": [
+      "services",
+      "zigduck",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.extraEnv": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "{ }"
+    },
+    "description": "Extra environment variables to pass to the service",
+    "loc": [
+      "services",
+      "zigduck",
+      "extraEnv"
+    ],
+    "readOnly": false,
+    "type": "attribute set of string"
+  },
+  "services.zigduck.gnomeExtension.enable": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "false"
+    },
+    "description": "Whether to install gnome-shell-extension zigduck package.",
+    "loc": [
+      "services",
+      "zigduck",
+      "gnomeExtension",
+      "enable"
+    ],
+    "readOnly": false,
+    "type": "boolean"
+  },
+  "services.zigduck.stateDir": {
+    "declarations": [
+      "/nix/store/dz6cd5s12zqmd77iiv2ccqrhzzqg6idh-source/options/service.nix"
+    ],
+    "default": {
+      "_type": "literalExpression",
+      "text": "\"/var/lib/zigduck\""
+    },
+    "description": "Directory for runtime state files",
+    "loc": [
+      "services",
+      "zigduck",
+      "stateDir"
+    ],
+    "readOnly": false,
+    "type": "absolute path"
+  }
+}

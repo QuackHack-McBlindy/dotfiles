@@ -36,7 +36,7 @@ in {
     voice = {
       enabled = true;
       fuzzy.enable = true;
-      fuzzy.threshold = 0.3;
+      fuzzy.threshold = 0.4;
       priority = 1;
       sentences = [
         "(va|vad|vart) är (klocka|klockan)"

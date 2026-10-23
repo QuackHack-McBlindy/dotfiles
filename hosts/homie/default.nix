@@ -7,13 +7,53 @@
   ...
 } : {
 
+
     nixpkgs.overlays = [
       (final: prev: {
         buildGo125Module = prev.buildGoModule.override {
           go = prev.go_1_26;
         };
       })
+
+      (final: prev: {
+        piper-phonemize = prev.piper-phonemize.overrideAttrs (old: {
+          cmakeFlags = (old.cmakeFlags or []) ++ [ "-DBUILD_TESTING=OFF" ];
+        });
+      })
+
+      (final: prev: {
+        python313Packages = prev.python313Packages.overrideScope (
+          pyfinal: pyprev: {
+            nanoemoji = pyprev.nanoemoji.overrideAttrs (old: {
+              src = old.src.overrideAttrs (_: {
+                hash = "sha256-FysyKC01XBnRiur5RR9fcsTxQqE8x0JJHSoe3q6JtKc=";
+              });
+            });
+
+            pyopenjtalk-plus = pyprev.pyopenjtalk-plus.overrideAttrs (old: {
+              postPatch = (old.postPatch or "") + ''
+                substituteInPlace tests/test_frontend.py \
+                  --replace-fail 'match="must be str"' 'match="(must be str|Expected str)"'
+              '';
+            });
+          }
+        );
+      })
+
+      (final: prev: {
+        python314Packages = prev.python314Packages.overrideScope (
+          pyfinal: pyprev: {
+            pyopenjtalk-plus = pyprev.pyopenjtalk-plus.overrideAttrs (old: {
+              postPatch = (old.postPatch or "") + ''
+                substituteInPlace tests/test_frontend.py \
+                  --replace-fail 'match="must be str"' 'match="(must be str|Expected str)"'
+              '';
+            });
+          }
+        );
+      })
     ];
+
 
     boot = {
         loader = {

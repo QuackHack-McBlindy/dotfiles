@@ -21,7 +21,7 @@
     };
     desktop = {
       room     = "local";
-      gain     = 1.0;
+      gain     = 0.0;
       awakeCmd = "zigduck-cli --device PC --state on --brightness 50 --color blue";
       doneCmd  = "zigduck-cli --device PC --state off";
       failCmd  = "zigduck-cli --device PC --state off";
