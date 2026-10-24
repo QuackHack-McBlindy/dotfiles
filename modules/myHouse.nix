@@ -268,6 +268,31 @@ in { # 🦆 duck say ⮞ house config
             type          = "sensor";
             icon          = icons.battery;
           };
+          presence      = {
+            description = "Presence detection.";
+            type        = "sensor";
+            icon        = icons.sensor.motion;
+          };
+          temperature   = {
+            description = "Temperature sensor.";
+            type        = "sensor";
+            icon        = icons.sensor.temperature;
+          };
+          humidity      = {
+            description = "Humidity sensor.";
+            type        = "sensor";
+            icon        = icons.sensor.humidity;
+          };
+          uptime        = {
+            description = "Time since last boot.";
+            type        = "sensor";
+            icon        = icons.uptime;
+          };
+          firmware      = {
+            description = "Displays the currently running firmware version om the device.";
+            type        = "sensor";
+            icon        = icons.battery;
+          };
           rssi          = {
             description = "Displays the current RSSI.";
             type        = "sensor";
@@ -421,7 +446,7 @@ in { # 🦆 duck say ⮞ house config
             icon        = icons.voice;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/voice/toggle"; }];
           };
-          wakeword_state = {
+          wake_word_enabled = {
             description  = "Toggle wake-word streaming.";
             type         = "bool";
             icon         = icons.wakeword;
@@ -445,6 +470,12 @@ in { # 🦆 duck say ⮞ house config
             type         = "bool";
             icon         = icons.power_sleep;
             actions = [{ type = "shell"; command = "curl http://$IP/api/settings/power/low/toggle"; }];
+          };
+          reboot        = {
+            description = "Reboot the device.";
+            type        = "bool";
+            icon        = icons.power_sleep;
+            actions = [{ type = "shell"; command = "curl http://$IP/api/settings/power/reboot"; }];
           };
           ssh_state     = {
             description = "Toggle SSHd.";

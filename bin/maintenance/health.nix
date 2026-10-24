@@ -38,7 +38,7 @@ in { # 🦆 says ⮞
       zigduck-cli --publish --topic "${zigduck.baseTopic}/${config.this.host.hostname}" --payload "$HC"
       echo "$HC"
 
-      # 🦆 says ⮞ ESP32 devices
+      # 🦆 says ⮞ ESP32-S3-WATCH
       if [[ "${config.this.host.hostname}" == "desktop" ]]; then
         WATCH=$(curl -s ${devices.watch.ip}/api/sensors \
           | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
@@ -48,13 +48,17 @@ in { # 🦆 says ⮞
         echo "$WATCH"
 
 
-
-        BOX=$(curl -s ${devices.ESP32-S3-BOX-3.ip}/api/sensors \
-          | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
-               '. + {last_seen: $ts}')
-        zigduck-cli --publish --topic "${zigduck.baseTopic}/ESP32-S3-BOX-3" --payload "$BOX"
-        echo "" && echo "BOX:"
-        echo "$BOX"
+        # 🦆 says ⮞ ESP32-S3-BOX-3
+        if BOX=$(curl -sf --max-time 5 ${devices.ESP32-S3-BOX-3.ip}/api/sensors) && [[ -n "$BOX" ]]; then
+          BOX=$(echo "$BOX" | jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%S.%3NZ)" \
+                '. + {last_seen: $ts}')
+          zigduck-cli --publish --topic "${zigduck.baseTopic}/ESP32-S3-BOX-3" --payload "$BOX"
+          echo "" && echo "BOX:"
+          echo "$BOX"
+        else
+          zigduck-cli --notify "box offline" --tag "box"
+          echo "" && echo "BOX: offline"
+        fi
       fi
     '';
     voice = {

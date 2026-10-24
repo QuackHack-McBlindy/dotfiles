@@ -469,14 +469,14 @@ in {
                 inherit (config.house.zigbee.mosquitto) baseTopic;
             };
             _module.args.icons = {
-                nas     = "mdi:nas";
-                desktop = "mdi:desktop-tower";
-                laptop  = "mdi:laptop";
-                remote  = "mdi:remote";
-                outlet  = "mdi:power-socket-eu";
-                dimmer  = "mdi:toggle-switch";
-                pusher  = "mdi:gesture-tap-button";
-                blinds  = "mdi:blinds";
+                nas            = "mdi:nas";
+                desktop        = "mdi:desktop-tower";
+                laptop         = "mdi:laptop";
+                remote         = "mdi:remote";
+                outlet         = "mdi:power-socket-eu";
+                dimmer         = "mdi:toggle-switch";
+                pusher         = "mdi:gesture-tap-button";
+                blinds         = "mdi:blinds";
                 watch          = "mdi:watch";
                 tv             = "mdi:television";
                 microphone     = "mdi:microphone";
@@ -496,6 +496,7 @@ in {
                 power_sleep    = "mdi:power-sleep";
                 console        = "mdi:console";
                 vpn            = "mdi:vpn";
+                uptime         = "mdi:clock-outline";
                 bell           = "mdi:bell-ring";
                 check          = "mdi:check-circle";
                 skip_prev      = "mdi:skip-previous";
@@ -506,21 +507,21 @@ in {
                 wakeword        = "mdi:ear-hearing";
                 intercom        = "mdi:phone-in-talk";
                 light = {
-                    ceiling    = "mdi:ceiling-light";
-                    strip      = "mdi:led-strip";
-                    spotlight  = "mdi:spotlight";
-                    bulb       = "mdi:lightbulb";
-                    bulb_color = "mdi:lightbulb-multiple";
-                    desk       = "mdi:desk-lamp";
-                    floor      = "mdi:floor-lamp";
-                    wall       = "mdi:wall-sconce-round";
-                    chandelier = "mdi:chandelier";
-                    pendant    = "mdi:vanity-light";
-                    nightlight = "mdi:lightbulb-night";
-                    strip_rgb  = "mdi:led-strip-variant";
-                    reading    = "mdi:book-open-variant";
-                    candle     = "mdi:candle";
-                    ambient    = "mdi:weather-night";
+                    ceiling     = "mdi:ceiling-light";
+                    strip       = "mdi:led-strip";
+                    spotlight   = "mdi:spotlight";
+                    bulb        = "mdi:lightbulb";
+                    bulb_color  = "mdi:lightbulb-multiple";
+                    desk        = "mdi:desk-lamp";
+                    floor       = "mdi:floor-lamp";
+                    wall        = "mdi:wall-sconce-round";
+                    chandelier  = "mdi:chandelier";
+                    pendant     = "mdi:vanity-light";
+                    nightlight  = "mdi:lightbulb-night";
+                    strip_rgb   = "mdi:led-strip-variant";
+                    reading     = "mdi:book-open-variant";
+                    candle      = "mdi:candle";
+                    ambient     = "mdi:weather-night";
                 };
                 sensor = {
                     motion      = "mdi:motion-sensor";
