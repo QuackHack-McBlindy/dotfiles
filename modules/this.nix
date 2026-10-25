@@ -496,7 +496,7 @@ in {
                 power_sleep    = "mdi:power-sleep";
                 console        = "mdi:console";
                 vpn            = "mdi:vpn";
-                uptime         = "mdi:clock-outline";
+                uptime         = "mdi:clock-check";
                 bell           = "mdi:bell-ring";
                 check          = "mdi:check-circle";
                 skip_prev      = "mdi:skip-previous";
@@ -540,7 +540,7 @@ in {
                     other      = "mdi:dots-horizontal";
                 };
             };
-            _module.args.me = { config, ... }: config.this.user.me;
+            _module.args.me       = { config, ... }: config.this.user.me;
             _module.args.devices  = config.house.devices;
         }
 

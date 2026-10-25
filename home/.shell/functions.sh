@@ -36,6 +36,25 @@ hidden() {
 #    done
 #}
 
+# copy files to clipboard
+
+cdir() {
+    find . -type f \
+      -not -path '*/.git/*' \
+      -not -path '*/.github/*' \
+      -not -name '.gitignore' \
+      -print0 \
+    | sort -z \
+    | while IFS= read -r -d '' f; do
+        if file --mime-type -b "$f" | grep -q '^text/'; then
+          printf '===== %s =====\n' "$f"
+          cat "$f"
+          printf '\n\n'
+        fi
+    done \
+    | xclip -selection clipboard
+}
+
 ####### IMAGEMAGICK ##########
 
 

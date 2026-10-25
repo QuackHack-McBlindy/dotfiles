@@ -126,7 +126,8 @@ in { # 🦆 duck say ⮞ house config
         room    = "other";
         icon    = icons.watch;
         ip      = "192.168.1.182";
-        stateEndpoint = "/api/sensors"; # ⮜ 🦆 says ⮞ refresh device states from this endpoint
+        state.endpoint = "/api/sensors"; # ⮜ 🦆 says ⮞ refresh device states from this endpoint
+        state.refresh  = null; # ⮜ 🦆 every x sec (null = only on demand)
 
         # 🦆 ⮞ create action controls for automations / frontend control
         controls = { # 🦆 ⮞ publish your devices payload @ "zigduck/watch" to show in frontend
@@ -260,7 +261,8 @@ in { # 🦆 duck say ⮞ house config
         room   = "other";
         icon   = icons.microphone;
         ip     = "192.168.1.16";
-        stateEndpoint = "/api/sensors";
+        state.endpoint = "/api/sensors";
+        state.refresh  = 60;
 
         controls = {
           battery_percent = {
@@ -1364,16 +1366,6 @@ in { # 🦆 duck say ⮞ house config
 
       # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
       pages  = {
-        # 🦆 says ⮞ (TV) remote page
-        "3"     = {
-          icon  = "fas fa-television";
-          title = "remote";
-          # 🦆 says ⮞ symlink epg to webserver
-          files = { tv = "${zigduck.stateDir}/tv"; };
-          css   = css.tv;
-          code  = pages.remote;
-        };
-
         # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
         "4"     = {
           icon  = "fas fa-comments";

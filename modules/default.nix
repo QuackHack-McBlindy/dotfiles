@@ -21,7 +21,7 @@
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
 in {
-    imports = [ ./security.nix ./this.nix ./myHouse.nix ] ++
+    imports = [ ./security.nix ./this.nix ./myHouse.nix ./pokemon.nix ] ++
         # 🦆 duck say ⮞ dynamically load and evaluate all modules in these directories on each host
         (importModulesRecursive ./hardware) ++
         (importModulesRecursive ./system) ++

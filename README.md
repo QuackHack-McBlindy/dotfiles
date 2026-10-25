@@ -5,13 +5,13 @@
 ![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=plastic-square&logo=NixOS&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=plastic-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.57-red?style=plastic-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.58-red?style=plastic-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=plastic-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.99.0-orange?style=plastic-square&logo=rust&logoColor=white)
 ![yo](https://img.shields.io/badge/💬%20yo-0.2.10-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.7-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.8-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -74,7 +74,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)
 ![Scenes](https://img.shields.io/badge/🎨_Scenes-11-0891b2?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4577-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4540-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -188,7 +188,7 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/wckw2g9hasp07bkavqi30v2p11zi7q5r-bibata-cursors-2.0.7";
+    package = "/nix/store/y0sdbvmrkqaia8vwsq0dxps6fxp72wkn-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
@@ -204,7 +204,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/7gj0b31divibykx10s799nlpgwsdxyyi-papirus-icon-theme-20260801"
+    package = "/nix/store/k6afm6silmlq8dbzxc55gwqnijs9rwc4-papirus-icon-theme-20260801"
   };
   name = "gtk3.css";
   styles = "/nix/store/wg23gpsvsws9j5r5r1v9369pa4vfyv15-gtk3.css"
@@ -351,7 +351,8 @@ in { # 🦆 duck say ⮞ house config
         room    = "other";
         icon    = icons.watch;
         ip      = "192.168.1.182";
-        stateEndpoint = "/api/sensors"; # ⮜ 🦆 says ⮞ refresh device states from this endpoint
+        state.endpoint = "/api/sensors"; # ⮜ 🦆 says ⮞ refresh device states from this endpoint
+        state.refresh  = null; # ⮜ 🦆 every x sec (null = only on demand)      
 
         # 🦆 ⮞ create action controls for automations / frontend control
         controls = { # 🦆 ⮞ publish your devices payload @ "zigduck/watch" to show in frontend
@@ -484,9 +485,10 @@ in { # 🦆 duck say ⮞ house config
         enable = true;
         room   = "other";
         icon   = icons.microphone;
-        ip     = "192.168.1.16";
-        stateEndpoint = "/api/sensors";
-
+        ip     = "192.168.1.16";        
+        state.endpoint = "/api/sensors";
+        state.refresh  = 60;
+        
         controls = {
           battery_percent = {
             description   = "Displays the battery percentage.";
@@ -512,7 +514,7 @@ in { # 🦆 duck say ⮞ house config
             description = "Time since last boot.";
             type        = "sensor";
             icon        = icons.uptime;
-          };          
+          };
           firmware      = {
             description = "Displays the currently running firmware version om the device.";
             type        = "sensor";
@@ -1589,16 +1591,6 @@ in { # 🦆 duck say ⮞ house config
 
       # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
       pages  = {
-        # 🦆 says ⮞ (TV) remote page
-        "3"     = {
-          icon  = "fas fa-television";
-          title = "remote";
-          # 🦆 says ⮞ symlink epg to webserver
-          files = { tv = "${zigduck.stateDir}/tv"; };
-          css   = css.tv;
-          code  = pages.remote;
-        };
-
         # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
         "4"     = {
           icon  = "fas fa-comments";
@@ -1689,14 +1681,15 @@ I like my flakes tiny & ny modules dynamically loaded,
 {
     description = "❄️🦆 ⮞ QuackHack-McBLindy's NixOS flake";
     inputs = {
-        nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+        nixpkgs.url  = "github:nixos/nixpkgs/nixos-unstable";
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        yo.url = "github:QuackHack-McBlindy/yo?ref=dev";
+        yo.url      = "github:QuackHack-McBlindy/yo?ref=dev";
         zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        pokenix.url = "github:QuackHack-McBlindy/pokenix";
         #yo.url = "path:/home/pungkula/new/yo";
-        #zigduck.url = "path:/home/pungkula/Zigduck2mqttnix";
+        #zigduck.url = "path:/home/pungkula/zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs

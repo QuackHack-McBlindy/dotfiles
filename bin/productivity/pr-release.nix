@@ -163,6 +163,14 @@
 
         echo "version ✅"
 
+        git fetch origin main
+        if ! git merge-tree --write-tree HEAD origin/main >/dev/null 2>&1; then
+          echo "error: dev has conflicts with main — release PR would be unmergeable" >&2
+          echo "resolve with: git merge origin/main   (then re-run)" >&2
+          play_fail
+          exit 1
+        fi
+
         body=$(mktemp)
         trap 'rm -f "$body"' EXIT
 
@@ -203,6 +211,17 @@
         echo "waiting for CI checks to pass..."
         if ! gh pr checks "$pr_url" --watch --fail-fast; then
           echo "error: ci FAILED! — PR left open" >&2
+          exit 1
+        fi
+
+        for _ in {1..15}; do
+          mergeable=$(gh pr view "$pr_url" --json mergeable --jq '.mergeable')
+          [[ "$mergeable" != "UNKNOWN" ]] && break
+          sleep 2
+        done
+        if [[ "$mergeable" != "MERGEABLE" ]]; then
+          echo "error: PR is not mergeable ($mergeable) — inspect $pr_url" >&2
+          play_fail
           exit 1
         fi
 
