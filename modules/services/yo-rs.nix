@@ -85,7 +85,7 @@ in {
         conflict.detection = false;
         conflict.threshold = 70;
       };
-      splitWords = [ "samt" ];
+      splitWords = [ ];
       sorryPhrases = [
         "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
         "Vad fan säger du för något?"

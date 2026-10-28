@@ -9,6 +9,16 @@
 } : with lib; let
 
   cfg = config.yo;
+
+  # 🦆 duck say ⮞ total pokemon (events + specials + shiny + breedables)
+  pokenixTotal = let
+    p     = config.pokenix or null;
+    stats = p.stats or null;
+  in
+    if stats == null then 0
+    else stats.ballCaptures + stats.eventCount + stats.specialsCount + stats.shinyOwned;
+
+
   # 🦆 says ⮞ generator
   readmeConfig = pkgs.writeText "readme-config.json" (builtins.toJSON {
     scriptCount = builtins.length (builtins.attrNames cfg.scripts);
@@ -40,6 +50,8 @@
     secrets = builtins.length (builtins.attrNames (config.sops.secrets   or {}));
 
     packages = builtins.length config.environment.systemPackages;
+
+   pokemonTotal = pokenixTotal;
 
     # 🦆 says ⮞ user, host, and theme configs
     userConfig = config.this.user.me;
@@ -252,6 +264,22 @@ in {
             echo "unknown"
             ;;
         esac
+      }
+
+      update_pokemon_badge() {
+        local file="$1"
+        local total
+        total=$(get_config_value '.pokemonTotal')
+        dt_debug "Pokémon total: $total"
+        if [ -z "$total" ] || [ "$total" = "null" ]; then
+          dt_warning "pokemonTotal missing from config — skipping badge update"
+          return 0
+        fi
+        local tmp
+        tmp=$(mktemp)
+        ${pkgs.gnused}/bin/sed \
+          -e "s|Pokémon-[0-9]*-e63946|Pokémon-''${total}-e63946|g" \
+          "$file" > "$tmp" && mv "$tmp" "$file"
       }
 
       update_badges() {
@@ -568,7 +596,8 @@ EOF
         fi
       done
 
-
+      dt_info "Updating badges..."
+      update_pokemon_badge "$README_PATH"
       size=$(wc -c < "$README_PATH")
 
       if (( size > 20 * 1024 )); then

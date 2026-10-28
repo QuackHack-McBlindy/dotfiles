@@ -156,6 +156,10 @@
         };
     };
 
+    environment.sessionVariables = {
+      LIBVA_DRIVER_NAME = "iHD";
+    };
+
     fileSystems."/" =
         { device = "/dev/disk/by-label/nixos";
           fsType = "ext4";

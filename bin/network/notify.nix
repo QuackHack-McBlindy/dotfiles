@@ -1,103 +1,95 @@
-# dotfiles/bin/network/notify.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ send customized iOS push notifications
+# dotfiles/bin/system/notify.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+#  » ★ QuackHack-McBLindy.com ★ «
+{
   self,
   lib,
   config,
   pkgs,
-  cmdHelpers,
   ...
 } : let
+  zigbeeDevices = config.house.zigbee.devices;
+  scenes = config.house.zigbee.scenes;
+  sceneNames = builtins.attrNames scenes;
+
+  swedishNumbers = [
+    "noll" "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
+    "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton"
+    "tjugo" "tjugoett" "tjugotvå" "tjugotre" "tjugofyra" "tjugofem" "tjugosex" "tjugosju" "tjugoåtta" "tjugonio"
+    "trettio" "trettioett" "trettiotvå" "trettiotre" "trettiofyra" "trettiofem" "trettiosex" "trettiosju" "trettioåtta" "trettionio"
+    "fyrtio" "fyrtioett" "fyrtiotvå" "fyrtiotre" "fyrtiofyra" "fyrtiofem" "fyrtiosex" "fyrtiosju" "fyrtioåtta" "fyrtionio"
+    "femtio" "femtioett" "femtiotvå" "femtiotre" "femtiofyra" "femtiofem" "femtiosex" "femtiosju" "femtioåtta" "femtionio"
+    "sextio" "sextioett" "sextiotvå" "sextiotre" "sextiofyra" "sextiofem" "sextiosex" "sextiosju" "sextioåtta" "sextionio"
+    "sjuttio" "sjuttioett" "sjuttiotvå" "sjuttiotre" "sjuttiofyra" "sjuttiofem" "sjuttiosex" "sjuttiosju" "sjuttioåtta" "sjuttionio"
+    "åttio" "åttioett" "åttiotvå" "åttiotre" "åttiofyra" "åttiofem" "åttiosex" "åttiosju" "åttioåtta" "åttionio"
+    "nittio" "nittioett" "nittiotvå" "nittiotre" "nittiofyra" "nittiofem" "nittiosex" "nittiosju" "nittioåtta" "nittionio"
+    "etthundra"
+  ];
+
+  swedishNumber = n: builtins.elemAt swedishNumbers n;
+  brightnessValues = builtins.map (n: toString n) (lib.range 0 100);
+
+  deviceNames = map (d: d.friendly_name) (lib.attrValues zigbeeDevices);
+  roomNames = if (builtins.hasAttr "rooms" config.house) then
+    builtins.attrNames config.house.rooms
+  else
+    lib.unique (map (d: d.room) (lib.attrValues zigbeeDevices));
+
+
+  # 🦆 says ⮞ Filter to only include light devices
+  lightDevices = lib.filterAttrs (_: device: device.type == "light") zigbeeDevices;
+
+  # 🦆 says ⮞ case-insensitive device matching
+  normalizedDeviceMap = lib.mapAttrs' (id: device:
+    lib.nameValuePair (lib.toLower device.friendly_name) device.friendly_name
+  ) zigbeeDevices;
+
+  # 🦆 says ⮞ Group devices by room
+  roomDevicesMap = let
+    grouped = lib.groupBy (device: device.room) (lib.attrValues zigbeeDevices);
+  in lib.mapAttrs (room: devices:
+      map (d: d.friendly_name) devices
+    ) grouped;
+
+  # 🦆 says ⮞ All devices list for 'all' area
+  allDevicesList = lib.attrValues normalizedDeviceMap;
+
+  # 🦆 says ⮞ device validation list
+  deviceList = builtins.attrNames normalizedDeviceMap;
+
+  # 🦆 says ⮞ Room bash map with only lights, using | as separator
+  roomBashMap = lib.mapAttrs' (room: devices:
+    lib.nameValuePair room (lib.concatStringsSep "|" devices)
+  ) roomDevicesMap;
+
+  # 🦆 says ⮞ All devices as a pipe-separated string
+  allDevicesStr = lib.concatStringsSep "|" allDevicesList;
+
 in {
+
+
   yo.scripts.notify = {
-    description = "Send custom push to iOS devices";
-    category = "🌐 Networking";
-    autoStart = false;
-    logLevel = "DEBUG";
+    description = "Send a desktop notification.";
+    category = "🛖 Home Automation";
     parameters = [
-      { name = "text"; description = "Notification content"; }
-      { name = "title"; description = "Topic to publish to"; default = "Yo! Notis!"; }
-      { name = "icon"; description = "Push image icon"; default = "https://avatars.githubusercontent.com/u/175031622?s=96&v=4"; }
-      { name = "url"; description = "Optional URL to open on tap"; optional = true; }
-      { name = "group"; description = "Notification group/channel"; default = "default"; }
-      { name = "sound"; description = "Notification sound. Available sounds: minuet, electronic, horn, bark, bell, chime, glass, healthnotification."; default = "minuet"; }
-      { name = "volume"; description = "Set volume level for the notification sound. 1 (lowest) - 10 (highest)."; default = "5"; }
-      { name = "copy"; description = "Value to copy to device."; optional = true; }
-      { name = "autoCopy"; description = "Must be 1 to copy"; default = "0"; }
-      { name = "level"; description = "Notification level. Available values are: info, critical, error."; default = "info"; }
-      { name = "encrypt"; description = "Set to 1 to encrypt the notification"; default = "0"; }
-      { name = "base_urlFile"; description = "File path containing a HTTPS domain"; default = config.sops.secrets.ntfy-url.path; }
-      { name = "deviceKeyFile"; description = "The receiving devices key file"; default = config.sops.secrets.bark_key.path; }
-    ]; # 🦆 says ⮞ call diz like dat: `yo notify this is my message`
+      { name = "message"; description = "message"; type = "string"; }
+      { name = "tag"; description = "tag"; optional = true; }
+    ];
     code = ''
-      ${cmdHelpers}
-      DEVICE_KEY=$(cat $deviceKeyFile)
-      if [ -z "$DEVICE_KEY" ]; then
-        dt_error "Sending push notification requires a receiver!" >&2
-        exit 1
+      if [ -n "''${tag:-}" ]; then
+        zigduck-cli --notify "$message" --tag "$tag"
+      else
+        zigduck-cli --notify "$message"
       fi
-      BASE_URL=$(cat $base_urlFile)
-      if [ -z "$BASE_URL" ]; then
-        dt_error "Cannot run without base URL!" >&2
-        exit 1
-      fi
-
-      JSON=$(jq -n \
-        --arg body "$text" \
-        --arg device_key "$DEVICE_KEY" \
-        --arg title "$title" \
-        --arg icon "$icon" \
-        --arg sound "$sound" \
-        --arg volume "$volume" \
-        --arg group "$group" \
-        --arg level "$level" \
-        --arg url "$url" \
-        --arg copy "$copy" \
-        --argjson automaticallyCopy "$( [ -n "$copy" ] && echo 1 || echo 0 )" \
-        '{
-          body: $body,
-          device_key: $device_key,
-          title: $title,
-          badge: 1,
-          sound: $sound,
-          volume: $volume,
-          icon: $icon,
-          group: $group,
-          level: $level,
-          url: $url,
-          automaticallyCopy: $automaticallyCopy
-        } + (if $copy != "" then {copy: $copy} else {} end)'
-      )
-
-      if [ "$encrypt" = "1" ]; then
-        NONCE=$(${pkgs.openssl}/bin/openssl rand -hex 12)
-        KEY=$(echo -n "$DEVICE_KEY" | ${pkgs.xxd}/bin/xxd -p | tr -d '\n' | head -c 64 | awk '{ printf "%-64s", $1 }' | tr ' ' '0')
-        CIPHERTEXT_TAG_BIN=$(echo -n "$text" | ${pkgs.openssl}/bin/openssl enc -aes-256-gcm -e -K "$KEY" -iv "$NONCE" 2>/dev/null)
-        NONCE_BIN=$(echo -n "$NONCE" | ${pkgs.xxd}/bin/xxd -r -p)
-        BLOB="$NONCE_BIN$CIPHERTEXT_TAG_BIN"
-        CIPHERTEXT_BASE64=$(echo -n "$BLOB" | ${pkgs.coreutils}/bin/base64 -w0)
-
-        JSON=$(echo "$JSON" | jq \
-          --arg ciphertext "$CIPHERTEXT_BASE64" \
-          '. + {ciphertext: $ciphertext, isArchive: "1"} | del(.body)')
-      fi
-
-      ${pkgs.curl}/bin/curl -X POST "$BASE_URL/push" \
-        -H 'Content-Type: application/json' \
-        -d "$JSON"
     '';
-  };
+    voice = {
+      priority = 3;
+      sentences = [
+        "notifiera {message}"
+        "meddela {message}"
+        "skicka notis {message}"
+      ];
+      lists.message = { wildcard = true; values = []; };
+      lists.tag = { wildcard = true; values = []; };
+    };
 
-  sops.secrets = {
-    ntfy-url = {
-      sopsFile = ./../../secrets/ntfy-url.yaml;
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
-      mode = "0440";
-    };
-    bark_key = {
-      sopsFile = ./../../secrets/hosts/iphone/bark_key.yaml;
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
-      mode = "0440";
-    };
   };}

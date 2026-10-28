@@ -62,19 +62,21 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Packages](https://img.shields.io/badge/📦_Packages-497-f97316?style=plastic)
 ![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)
 ![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)
-![Secrets](https://img.shields.io/badge/🔒_Secrets-41-dc2626?style=plastic)
+![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)
 
-![Scripts](https://img.shields.io/badge/📜_Scripts-87-7c3aed?style=plastic)
-![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-56-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-2859-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-308057149-7c3aed?style=plastic)
+![Scripts](https://img.shields.io/badge/📜_Scripts-97-7c3aed?style=plastic)
+![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-67-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-2929-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-308060999-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
 ![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)
 ![Scenes](https://img.shields.io/badge/🎨_Scenes-11-0891b2?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4540-eab308?style=plastic)
+![Pokémon](https://img.shields.io/badge/🔴_Pokémon-6079-e63946?style=plastic)
+
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4604-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -352,7 +354,7 @@ in { # 🦆 duck say ⮞ house config
         icon    = icons.watch;
         ip      = "192.168.1.182";
         state.endpoint = "/api/sensors"; # ⮜ 🦆 says ⮞ refresh device states from this endpoint
-        state.refresh  = null; # ⮜ 🦆 every x sec (null = only on demand)      
+        state.refresh  = null; # ⮜ 🦆 every x sec (null = only on demand)
 
         # 🦆 ⮞ create action controls for automations / frontend control
         controls = { # 🦆 ⮞ publish your devices payload @ "zigduck/watch" to show in frontend
@@ -485,10 +487,10 @@ in { # 🦆 duck say ⮞ house config
         enable = true;
         room   = "other";
         icon   = icons.microphone;
-        ip     = "192.168.1.16";        
+        ip     = "192.168.1.16";
         state.endpoint = "/api/sensors";
         state.refresh  = 60;
-        
+
         controls = {
           battery_percent = {
             description   = "Displays the battery percentage.";
@@ -741,17 +743,17 @@ in { # 🦆 duck say ⮞ house config
         enable   = true;
         # 🦆 says ⮞ sadly needed (i disable itz internet access - u should too)
         bridge   = {
+          passwordFile = config.sops.secrets.hueBridgeAPI.path;
           # 🦆 says ⮞ run the following to get api token:
           # curl -X POST http://192.168.1.33/api -d '{"devicetype":"house#nixos"}'
           ip           = "192.168.1.33";
-          passwordFile = config.sops.secrets.hueBridgeAPI.path;
         };
         syncBox = { # C42996020AAE
           # 🦆 says ⮞ run the following to get api token for the sync box:
           # curl -k -sS -X POST "https://192.168.1.34/api/v1/registrations" -H "Content-Type: application/json" -d '{"appName": "zigduck", "instanceName": "zigduck"}'
-          ip           = "192.168.1.34";
           passwordFile = config.sops.secrets.hueSyncAPI.path;
-          tv           = "shield";
+          ip           = "192.168.1.34";
+          tv           = "shield";         
         };
       };
 
@@ -850,6 +852,7 @@ in { # 🦆 duck say ⮞ house config
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ roll up da blindz let da sun come in
               { type = "mqtt"; topic = "${zigduck.baseTopic}/Roller Shade/set"; message = ''{"state":"ON"}''; }
+              { type = "shell"; command = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/settings/speaker/play/ding"; }
               # 🦆 says ⮞ check if im up yet....
               { type = "shell"; command = ''
                 motion=$(jq -r '."Motion Sensor Sovrum".occupancy' ${zigduck.stateDir}/state.json)
@@ -916,14 +919,12 @@ in { # 🦆 duck say ⮞ house config
             description = "Updated calendar events";
             topic       = "${zigduck.baseTopic}/calendar";
             actions = [
-              { type    = "shell";
-                command = ''
-                  iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
-                  formatted_date=$(date -d "$iso_date" +"%b %d")
-                  MQTT_PAYLOAD=$(echo "$MQTT_PAYLOAD" | jq --arg d "$formatted_date" '.today_date = $d')
-                  echo "$MQTT_PAYLOAD" > ${zigduck.stateDir}/calendar.json
-                '';
-              }
+              { type    = "shell"; command = ''
+                iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
+                formatted_date=$(date -d "$iso_date" +"%b %d")
+                MQTT_PAYLOAD=$(echo "$MQTT_PAYLOAD" | jq --arg d "$formatted_date" '.today_date = $d')
+                echo "$MQTT_PAYLOAD" > ${zigduck.stateDir}/calendar.json
+              ''; }
             ];
           };
         };
@@ -931,55 +932,56 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = {
-            door_opened = [ # 🦆 says ⮞ ping watch & send notification
-              { type = "shell"; command = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
-              { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
+            door_opened = [ # 🦆 says ⮞ play ding ESP32-S3-BOX-3 & wait 30 & while door open play ding again every 15 sec         
+              #{ type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
+              "yo do 'plinga boxen samt vänta trettio sekunder'"
+              "yo do 'medan ytterdörren är öppen gör plinga boxen samt vänta femton sekunder'"
             ];
             door_closed = [];
           };
 
           kitchen = {
             motion_not_detected = [
-              {
-                type = "shell";
-                command = ''
-                  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
-                  # 🦆 says ⮞ no need 2 turn off if it'z not on
-                  if (( power > 20 )); then
-                    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
-                  fi
-                '';
-              } # 🦆 says ⮞  slow go light go bye bye
-              { type = "scene"; scene = "kitchenFadeOff"; }
+              #{ type = "shell"; command = ''
+              #  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
+              #  # 🦆 says ⮞ no need 2 turn off if it'z not on
+              #  if (( power > 20 )); then
+              #    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
+              #  fi
+              #''; } # 🦆 says ⮞  slow go light go bye bye
+              #{ type = "scene"; scene = "kitchenFadeOff"; }
+              "yo do 'om fläkten drar mer än 20 watt så sätt 180 sekunders countdown på fläkten samt aktivera scen kitchenFadeOff'"
             ];
 
-            motion_detected = [
-              { type = "scene"; scene = "kitchenInstant"; }
-              { type = "shell";
-                command = ''
-                  # 🦆 says ⮞ cancel any pending countdown
-                  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
 
-                  # 🦆 says ⮞ if fan is off - start it
-                  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
-                  if [ "$STATE" = "OFF" ]; then
-                    zigduck-cli --device "Fläkt" --state on
-                  fi
-
-                  # 🦆 says ⮞ if my team is playing NOW - go green!!
-                  if jq -e '
-                       def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
-                       now as $now
-                       | any(.channels[].programs[];
-                           ((.start | epoch) <= $now)
-                           and ((.stop  | epoch) >  $now)
-                           and (.title | ascii_downcase | contains("björklöven")))
-                     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
-                    zigduck-cli --scene "kitchenGreenInstant"
-                  fi
-                '';
-              }
+            motion_detected = [ 
+              { type = "scene"; scene = "kitchenInstant"; } # 🦆 says ⮞ x ms win.. here worth it
+              "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
             ];
+             #{ type = "scene"; scene = "kitchenInstant"; }
+              #{ type = "shell"; command = ''
+              #  # 🦆 says ⮞ cancel any pending countdown
+              #  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
+
+                # 🦆 says ⮞ if fan is off - start it
+              #  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
+              #  if [ "$STATE" = "OFF" ]; then
+              #    zigduck-cli --device "Fläkt" --state on
+              #  fi
+
+                # 🦆 says ⮞ if my team is playing NOW - go green!!
+              #  if jq -e '
+              #       def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
+              #       now as $now
+              #       | any(.channels[].programs[];
+              #           ((.start | epoch) <= $now)
+              #           and ((.stop  | epoch) >  $now)
+              #           and (.title | ascii_downcase | contains("björklöven")))
+              #     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
+              #    zigduck-cli --scene "kitchenGreenInstant"
+              #  fi
+              #''; }
+           # ];
           };
         };
 
@@ -997,14 +999,15 @@ in { # 🦆 duck say ⮞ house config
           ];
 
           smoke_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
-            { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
+            "yo do 'flasha ljusen samt aktivera scen max samt notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt säg eld eld eld'"
+            #{ type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
             # 🦆 LIGHT⮞FAST⮞HELP⮞SEE
-            { type = "scene"; scene = "max"; }
-            { type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
+            #{ type = "shell"; scene = "max"; }
+            #{ type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
             # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
+            #{ type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             # 🦆SAY⮞FIRE
-            { type = "shell"; command = "yo say 'eld eld eld'"; }
+            #{ type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
         };
 
@@ -1016,8 +1019,8 @@ in { # 🦆 duck say ⮞ house config
               description      = "Turn off all configured light devices";
               extra_actions    = [];
               override_actions = [
-                { type = "scene"; scene = "dark"; }
-                { type = "mqtt"; topic = "${zigduck.baseTopic}/Fläkt/set"; message = ''{"state":"OFF"}''; }
+                { type = "scene"; scene   = "dark"; }
+                { type = "shell"; command = "yo do stäng av fläkten"; }
               ];
             };
           };
@@ -1026,13 +1029,7 @@ in { # 🦆 duck say ⮞ house config
             on_press_release = {
               enable         = true;
               description    = "Turn on kitchen fan (+ lights)";
-              extra_actions  = [
-                {
-                  type       = "mqtt";
-                  topic      = "${zigduck.baseTopic}/Fläkt/set";
-                  message    = ''{"state":"ON"}'';
-                }
-              ];
+              extra_actions  = [ "starta fläkten" ];
               override_actions = [ ];
             };
           };
@@ -1048,8 +1045,8 @@ in { # 🦆 duck say ⮞ house config
               start      = "01:00";
               days       = ["mon" "tue" "wed" "thu" "fri"];
             };
-            # 🦆 says ⮞ 11 AM (i like to sleep in)
-            actions      = [ "zigduck-cli alarm add --hours 10 --minutes 45 --name vakna" ];
+            # 🦆 says ⮞ 11.30 AM (i like to sleep in)
+            actions      = [ "yo do 'väck mig klockan elva och trettio'" ];
           };
 
           # 🦆 says ⮞ daily tv scraper
@@ -1878,7 +1875,6 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo block](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) --url [--blocklist] | ad | Block URLs using DNS | 📛 |
 | [yo esp-get](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/esp-get.nix)  | get-esp | Microcontroller control script - enabling full device configuration on the fly with voice commands. | 📛 |
 | [yo ip-updater](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/ip-updater.nix) [--token1] [--token2] [--token3] |  | DDNS updater | ✅ |
-| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify.nix) [--text] [--title] [--icon] [--url] [--group] [--sound] [--volume] [--copy] [--autoCopy] [--level] [--encrypt] [--base_urlFile] [--deviceKeyFile] |  | Send custom push to iOS devices | 📛 |
 | [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] [--dataDir] |  | Notification server for iOS devices | 📛 |
 | [yo shareWiFi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/shareWiFi.nix) [--ssidFile] [--passwordFile] |  | creates a QR code of guest WiFi and push image to iPhone | ✅ |
 | [yo speed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix)  | st | Test internet download speed | ✅ |
@@ -1908,23 +1904,35 @@ Add \`?\` to any command to run it in DEBUG mode
 | **🛖 Home Automation** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
+| [yo chain](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chain.nix) [--a] [--b] |  | Chain commands with 'samt'. Splits and dispatches each part sequentially. | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
+| [yo countdown](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/countdown.nix) [--device] [--seconds] |  | Set a countdown on a Zigbee device (turns off after N seconds). | ✅ |
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--blinds] [--get-temp] [--get-bat] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--blinds] [--get-temp] [--get-bat] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/if.nix) --condition --then [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false (e.g. 'kolla om ytterdörren är öppen'). | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
+| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/notify.nix) [--message] [--tag] |  | Send a desktop notification. | ✅ |
+| [yo ping](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/ping.nix) [--device] |  | Turns kitchen fan on/off | ✅ |
+| [yo power](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/power.nix) [--device] [--above] [--below] |  | Check whether a device's power is above or below a threshold. Returns true/false. | ✅ |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
+| [yo scene](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/scene.nix) [--name] |  | Activate a scene by name. | ✅ |
+| [yo state](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/state.nix) [--device] [--room] [--state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
+| [yo until](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/until.nix) [--condition] [--body] [--every] |  | Repeat a command until a condition becomes true. | ✅ |
+| [yo while](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/while.nix) [--condition] [--body] [--every] |  | Repeat a command while a condition holds. | ✅ |
+| [yo yo](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/yo.nix) --phrase |  | say after me | ✅ |
 | **🧩 Miscellaneous** | | | |
 | [yo btc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/btc.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency BTC price tracker | ✅ |
 | [yo chat](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chat.nix) --text |  | No fwendz? Let's chat yo! | ✅ |
 | [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates annd numbers. | ✅ |
 | [yo duckPUCK-shl](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-shl.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck, shl | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
-| [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--dataDir] [--debug] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
+| [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Duck says s funny joke. | ✅ |
 | [yo post](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/post.nix) [--postalCodeFile] [--postalCode] |  | Check for the next postal delivery day. (Sweden) | ✅ |
@@ -1933,7 +1941,6 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo shop-list](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shop-list.nix) [--operation] [--item] [--list] [--mqttUser] [--mqttPWFile] |  | Shopping list management | ✅ |
 | [yo suno](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) --prompt [--genre] | mg | AI generated lyrics and music files powered by Suno | ✅ |
 | [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
-| [yo time-en](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time-en.nix)  |  | Tells time, day, date & week | ✅ |
 | [yo wait](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/wait.nix) [--duration] |  | Sleep before continue. | ✅ |
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | **🧹 Maintenance** | | | |

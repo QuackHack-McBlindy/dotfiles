@@ -414,6 +414,26 @@
     }
   '';
 
+  # 🦆 says ⮞ filter for live games (wall-clock, since API has no "live" state)
+  filterLiveGames = ''
+    filter_live_games() {
+      local games_data="$1"
+      local now_epoch
+      now_epoch=$(${pkgs.coreutils}/bin/date +%s)
+
+      # 🦆 says ⮞ 3h30m = 12600s covers regulation + OT/SO + ceremonies
+      # 🦆 says ⮞ lower bound: game start (puck drop). upper bound: safety net
+      echo "$games_data" | jq -c '.[]' | while IFS= read -r g; do
+        local st se
+        st=$(echo "$g" | jq -r '.start_time')
+        se=$(${pkgs.coreutils}/bin/date -d "$st" +%s 2>/dev/null) || continue
+        if [ "$now_epoch" -ge "$se" ] && [ "$now_epoch" -lt "$((se + 12600))" ]; then
+          echo "$g"
+        fi
+      done | jq -s '.'
+    }
+  '';
+
 in {
   yo.scripts.hockeyGames = {
     description = "Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS).";
@@ -422,14 +442,20 @@ in {
     autoStart = false;
     logLevel = "INFO";
     parameters = [
-      { name = "type"; type = "string"; description = "Game type: recent or upcoming"; optional = true; default = "upcoming"; }
-      { name = "days"; type = "int"; description = "Number of past days to show"; optional = true; default = 2; }
-      { name = "league"; type = "string"; description = "League name"; optional = false; default = "shl"; values = [ "shl" "ha" ]; }
+      { name = "type"; type = "string"; description = "Game type: recent, upcoming or live"; optional = true; default = "upcoming";
+        values = [ "recent" "upcoming" "live" ];
+      }
+      { name   = "days"; type = "int"; description = "Number of past days to show"; optional = true; default = 2; }
+      { name   = "league"; type = "string"; description = "League name"; optional = false; default = "shl";
+        values = [ "shl" "ha" ];
+      }
       { name = "team"; type = "string"; description = "Filter games for specific team"; optional = true; }
       { name = "home"; type = "string"; description = "Filter games where this team is the home team"; optional = true; }
       { name = "away"; type = "string"; description = "Filter games where this team is the away team"; optional = true; }
+      { name = "json"; type = "bool"; description = "Machine-readable JSON output; exit 0 if games found, 1 if not."; optional = true; default = false; }
       { name = "dataDir"; type = "path"; description = "Directory path to save data in."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
       { name = "debug"; type = "bool"; description = "Enable debug mode for API calls"; optional = true; default = false; }
+      { name = "check"; type = "bool"; description = "Silent true/false if any game matches (for scripting/voice)"; optional = true; default = false; }
     ];
     code = ''
       ${cmdHelpers}
@@ -438,6 +464,7 @@ in {
       ${analyzeGame}
       ${analyzeRecentGames}
       ${analyzeUpcomingGame}
+      ${filterLiveGames}
 
 
       fetch_games() {
@@ -457,26 +484,30 @@ in {
         local url="$cfg_host/api/sports-v2/game-schedule?seasonUuid=$cfg_season&seriesUuid=$cfg_series&gameTypeUuid=$cfg_game_type&gamePlace=all&played=all"
         dt_debug "Fetching $league $type games from $url"
 
-        local state_filter="post-game"
-        if [ "$type" = "upcoming" ]; then
-          state_filter="pre-game"
-        fi
+        local state_filter
+        case "$type" in
+          recent)   state_filter="post-game" ;;
+          upcoming) state_filter="pre-game"  ;;
+          live)     state_filter="pre-game"  ;;   # only pre-game exists; time-window does the rest
+        esac
 
         curl -sL -H "User-Agent: Mozilla/5.0" "$url" | \
         jq --arg state "$state_filter" '
           [.gameInfo[] |
             select(.state == $state) |
             {
-              date: (.rawStartDateTime | sub("T.*"; "")),
-              home_team: (.homeTeamInfo.names.short | sub("\\s+$"; "")),
-              away_team: (.awayTeamInfo.names.short | sub("\\s+$"; "")),
-              result: "\(.homeTeamInfo.score)-\(.awayTeamInfo.score)",
-              overtime: (if .shootout then "SO" elif .overtime then "OT" else "" end),
+              date:       (.rawStartDateTime | sub("T.*"; "")),
+              start_time: .rawStartDateTime,          # NEW — keep full UTC ISO
+              state:      .state,                      # NEW — "pre-game" | "post-game"
+              home_team:  (.homeTeamInfo.names.short | sub("\\s+$"; "")),
+              away_team:  (.awayTeamInfo.names.short | sub("\\s+$"; "")),
+              result:     "\(.homeTeamInfo.score)-\(.awayTeamInfo.score)",
+              overtime:   (if .shootout then "SO" elif .overtime then "OT" else "" end),
               home_score: .homeTeamInfo.score,
               away_score: .awayTeamInfo.score,
               home_status: .homeTeamInfo.status,
               away_status: .awayTeamInfo.status,
-              venue: .venueInfo.name
+              venue:      .venueInfo.name
             }
           ]
         '
@@ -618,9 +649,65 @@ in {
         days=365
       fi
 
-      filtered_games=$(filter_games_by_days "$games_data" "$days" "$type")
+      # 🦆 says ⮞ days filter is meaningless for `live` — game is in the past few hours
+      if [ "$type" = "live" ]; then
+        filtered_games="$games_data"
+      else
+        filtered_games=$(filter_games_by_days "$games_data" "$days" "$type")
+      fi
+
       filtered_games=$(filter_games_by_matchup "$filtered_games" "$home" "$away")
+
+      if [ "$type" = "live" ]; then
+        filtered_games=$(filter_live_games "$filtered_games")
+      fi
+
+      # 🦆 says ⮞ filter to specific team (either side)
+      if [ -n "$team" ]; then
+        filtered_games=$(echo "$filtered_games" | jq --arg t "$team" '
+          [.[] | select(
+            (.home_team | ascii_downcase | contains($t | ascii_downcase)) or
+            (.away_team | ascii_downcase | contains($t | ascii_downcase))
+          )]')
+      fi
+
       games_count=$(echo "$filtered_games" | jq length)
+
+      # 🦆 says ⮞ silent boolean — forced for live games unless --json
+      if [ "$check" = "true" ] || { [ "$type" = "live" ] && [ "$json" != "true" ]; }; then
+        if [ "$games_count" -gt 0 ]; then
+          echo "true"
+        else
+          echo "false"
+        fi
+        exit 0
+      fi
+
+      # 🦆 says ⮞ machine-consumable exit path — no TTS, no analysis, no spam
+      if [ "$json" = "true" ]; then
+        now_epoch=$(${pkgs.coreutils}/bin/date +%s)
+        echo "$filtered_games" | jq -c \
+          --argjson now "$now_epoch" --argjson n "$games_count" '
+            def start_epoch: (.start_time | sub("\\.[0-9]+"; "") | fromdateiso8601);
+            {
+              playing: ($n > 0),
+              count:   $n,
+              games: [.[] | {
+                home:  .home_team,
+                away:  .away_team,
+                start: .start_time,
+                venue: .venue,
+                state: (
+                  if .state == "pre-game"
+                     and $now >= start_epoch
+                     and $now < (start_epoch + 12600)
+                  then "live" else .state end
+                )
+              }]
+            }
+          '
+        if [ "$games_count" -gt 0 ]; then exit 0; else exit 1; fi
+      fi
 
       if [ "$games_count" -eq 0 ]; then
         dt_error "No games found for the specified criteria"
@@ -660,7 +747,7 @@ in {
     '';
     # 🦆 says ⮞ vwe'll wanna quack diz with voice yo
     voice = {
-      priority =  2;
+      priority = 2;
       sentences = [
         # 🦆 says ⮞ game results patterns
         "(vad|hur) (hände|gick) [det|matchen] (för|med) {team} (senast|igår)"
@@ -677,94 +764,100 @@ in {
         "när [möter|spelar|är] [det] {home} [emot|mot|vs] {away}"
         "vilken dag [möter|spelar|är] [det] {home} [emot|mot|vs] {away}"
         "hur länge [kvar] (till|tills) {home} [möter|spelar] [emot|mot|vs] {away}"
+        # 🦆 says ⮞ team live RIGHT NOW? (true/false)
+        "spelar {team} {type} (nu|ikväll)"
+        "kolla om {team} spelar {type} (nu|ikväll)"
+        "kolla om {team} {type} match (nu|ikväll)"
       ];
       lists = {
         type.values = [
-          { "in" = "[kommande|nästa]"; out = "upcoming"; }
-          { "in" = "[senaste|förra]"; out = "recent"; }
+          { "in" = "kommande|nästa"; out = "upcoming"; }
+          { "in" = "senaste|förra";  out = "recent"; }
+          { "in" = "just|live|spelar";      out = "live"; }
         ];
-        team.values = [
-          { "in" = "[björklöven|björklövens|löven|vi]"; out = "IF Björklöven"; }
-          { "in" = "[modo|modos]"; out = "MoDo Hockey"; }
-          { "in" = "[karlskoga|bik|bofors]"; out = "BIK Karlskoga"; }
-          { "in" = "[nybro|nybros|vikings]"; out = "Nybro Vikings IF"; }
-          { "in" = "[kalmar|kalmars]"; out = "Kalmar HC"; }
-          { "in" = "[oskarshamn]"; out = "IK Oskarshamn"; }
-          { "in" = "[almtuna]"; out = "Almtuna IS"; }
-          { "in" = "[aik|aiks]"; out = "AIK"; }
-          { "in" = "[mora]"; out = "Mora IK"; }
-          { "in" = "[södertälje]"; out = "Södertälje SK"; }
-          { "in" = "[östersund]"; out = "Östersunds IK"; }
-          { "in" = "[västerås]"; out = "Västerås IK"; }
-          { "in" = "[vimmerby]"; out = "Vimmerby HC"; }
 
-          { "in" = "[färjestad|farjestad|fbk]"; out = "Färjestad"; }
-          { "in" = "[rögle|rogle]"; out = "Rögle"; }
-          { "in" = "[djurgården|djurgarden|dif]"; out = "Djurgården"; }
-          { "in" = "[växjö|vaxjo|lakers]"; out = "Växjö"; }
-          { "in" = "[skellefteå|skelleftea|saik]"; out = "Skellefteå"; }
-          { "in" = "[örebro|orebro]"; out = "Örebro"; }
-          { "in" = "[luleå|lulea|lhf]"; out = "Luleå"; }
-          { "in" = "[frölunda|frolunda|fhc]"; out = "Frölunda"; }
-          { "in" = "[brynäs|brynas]"; out = "Brynäs"; }
-          { "in" = "[linköping|linkoping|lhc]"; out = "Linköping"; }
-          { "in" = "[hv71|hv]"; out = "HV71"; }
+        team.values = [
+          { "in" = "björklöven|björklövens|löven|vi"; out = "IF Björklöven"; }
+          { "in" = "modo|modos";                      out = "MoDo Hockey"; }
+          { "in" = "karlskoga|bik|bofors";            out = "BIK Karlskoga"; }
+          { "in" = "nybro|nybros|vikings";            out = "Nybro Vikings IF"; }
+          { "in" = "kalmar|kalmars";                  out = "Kalmar HC"; }
+          { "in" = "oskarshamn";                      out = "IK Oskarshamn"; }
+          { "in" = "almtuna";                         out = "Almtuna IS"; }
+          { "in" = "aik|aiks";                        out = "AIK"; }
+          { "in" = "mora";                            out = "Mora IK"; }
+          { "in" = "södertälje";                      out = "Södertälje SK"; }
+          { "in" = "östersund";                       out = "Östersunds IK"; }
+          { "in" = "västerås";                        out = "Västerås IK"; }
+          { "in" = "vimmerby";                        out = "Vimmerby HC"; }
+
+          { "in" = "färjestad|farjestad|fbk";         out = "Färjestad"; }
+          { "in" = "rögle|rogle";                     out = "Rögle"; }
+          { "in" = "djurgården|djurgarden|dif";       out = "Djurgården"; }
+          { "in" = "växjö|vaxjo|lakers";              out = "Växjö"; }
+          { "in" = "skellefteå|skelleftea|saik";      out = "Skellefteå"; }
+          { "in" = "örebro|orebro";                   out = "Örebro"; }
+          { "in" = "luleå|lulea|lhf";                 out = "Luleå"; }
+          { "in" = "frölunda|frolunda|fhc";           out = "Frölunda"; }
+          { "in" = "brynäs|brynas";                   out = "Brynäs"; }
+          { "in" = "linköping|linkoping|lhc";         out = "Linköping"; }
+          { "in" = "hv71|hv";                         out = "HV71"; }
         ];
 
         home.values = [
-          { "in" = "[björklöven|björklövens|löven|vi]"; out = "Björklöven"; }
-          { "in" = "[modo|modos]"; out = "MoDo"; }
-          { "in" = "[karlskoga|bik|bofors]"; out = "Karlskoga"; }
-          { "in" = "[nybro|nybros|vikings]"; out = "Nybro"; }
-          { "in" = "[kalmar|kalmars]"; out = "Kalmar"; }
-          { "in" = "[oskarshamn]"; out = "Oskarshamn"; }
-          { "in" = "[almtuna]"; out = "Almtuna IS"; }
-          { "in" = "[aik|aiks]"; out = "AIK"; }
-          { "in" = "[mora]"; out = "Mora"; }
-          { "in" = "[södertälje]"; out = "Södertälje"; }
-          { "in" = "[östersund]"; out = "Östersunds"; }
-          { "in" = "[västerås]"; out = "Västerås"; }
-          { "in" = "[vimmerby]"; out = "Vimmerby"; }
+          { "in" = "björklöven|björklövens|löven|vi"; out = "Björklöven"; }
+          { "in" = "modo|modos";                      out = "MoDo"; }
+          { "in" = "karlskoga|bik|bofors";            out = "Karlskoga"; }
+          { "in" = "nybro|nybros|vikings";            out = "Nybro"; }
+          { "in" = "kalmar|kalmars";                  out = "Kalmar"; }
+          { "in" = "oskarshamn";                      out = "Oskarshamn"; }
+          { "in" = "almtuna";                         out = "Almtuna IS"; }
+          { "in" = "aik|aiks";                        out = "AIK"; }
+          { "in" = "mora";                            out = "Mora"; }
+          { "in" = "södertälje";                      out = "Södertälje"; }
+          { "in" = "östersund";                       out = "Östersunds"; }
+          { "in" = "västerås";                        out = "Västerås"; }
+          { "in" = "vimmerby";                        out = "Vimmerby"; }
 
-          { "in" = "[färjestad|farjestad|fbk]"; out = "Färjestad"; }
-          { "in" = "[rögle|rogle]"; out = "Rögle"; }
-          { "in" = "[djurgården|djurgarden|dif]"; out = "Djurgården"; }
-          { "in" = "[växjö|vaxjo|lakers]"; out = "Växjö"; }
-          { "in" = "[skellefteå|skelleftea|saik]"; out = "Skellefteå"; }
-          { "in" = "[örebro|orebro]"; out = "Örebro"; }
-          { "in" = "[luleå|lulea|lhf]"; out = "Luleå"; }
-          { "in" = "[frölunda|frolunda|fhc]"; out = "Frölunda"; }
-          { "in" = "[brynäs|brynas]"; out = "Brynäs"; }
-          { "in" = "[linköping|linkoping|lhc]"; out = "Linköping"; }
-          { "in" = "[hv71|hv]"; out = "HV71"; }
+          { "in" = "färjestad|farjestad|fbk";         out = "Färjestad"; }
+          { "in" = "rögle|rogle";                     out = "Rögle"; }
+          { "in" = "djurgården|djurgarden|dif";       out = "Djurgården"; }
+          { "in" = "växjö|vaxjo|lakers";              out = "Växjö"; }
+          { "in" = "skellefteå|skelleftea|saik";      out = "Skellefteå"; }
+          { "in" = "örebro|orebro";                   out = "Örebro"; }
+          { "in" = "luleå|lulea|lhf";                 out = "Luleå"; }
+          { "in" = "frölunda|frolunda|fhc";           out = "Frölunda"; }
+          { "in" = "brynäs|brynas";                   out = "Brynäs"; }
+          { "in" = "linköping|linkoping|lhc";         out = "Linköping"; }
+          { "in" = "hv71|hv";                         out = "HV71"; }
         ];
 
         away.values = [
-          { "in" = "[björklöven|björklövens|löven|vi]"; out = "Björklöven"; }
-          { "in" = "[modo|modos]"; out = "MoDo Hockey"; }
-          { "in" = "[karlskoga|bik|bofors]"; out = "Karlskoga"; }
-          { "in" = "[nybro|nybros|vikings]"; out = "Nybro"; }
-          { "in" = "[kalmar|kalmars]"; out = "Kalmar"; }
-          { "in" = "[oskarshamn]"; out = "IK Oskarshamn"; }
-          { "in" = "[almtuna]"; out = "Almtuna"; }
-          { "in" = "[aik|aiks]"; out = "AIK"; }
-          { "in" = "[mora]"; out = "Mora"; }
-          { "in" = "[södertälje]"; out = "Södertälje"; }
-          { "in" = "[östersund]"; out = "Östersunds"; }
-          { "in" = "[västerås]"; out = "Västerås"; }
-          { "in" = "[vimmerby]"; out = "Vimmerby"; }
+          { "in" = "björklöven|björklövens|löven|vi"; out = "Björklöven"; }
+          { "in" = "modo|modos";                      out = "MoDo Hockey"; }
+          { "in" = "karlskoga|bik|bofors";            out = "Karlskoga"; }
+          { "in" = "nybro|nybros|vikings";            out = "Nybro"; }
+          { "in" = "kalmar|kalmars";                  out = "Kalmar"; }
+          { "in" = "oskarshamn";                      out = "IK Oskarshamn"; }
+          { "in" = "almtuna";                         out = "Almtuna"; }
+          { "in" = "aik|aiks";                        out = "AIK"; }
+          { "in" = "mora";                            out = "Mora"; }
+          { "in" = "södertälje";                      out = "Södertälje"; }
+          { "in" = "östersund";                       out = "Östersunds"; }
+          { "in" = "västerås";                        out = "Västerås"; }
+          { "in" = "vimmerby";                        out = "Vimmerby"; }
 
-          { "in" = "[färjestad|farjestad|fbk]"; out = "Färjestad"; }
-          { "in" = "[rögle|rogle]"; out = "Rögle"; }
-          { "in" = "[djurgården|djurgarden|dif]"; out = "Djurgården"; }
-          { "in" = "[växjö|vaxjo|lakers]"; out = "Växjö"; }
-          { "in" = "[skellefteå|skelleftea|saik]"; out = "Skellefteå"; }
-          { "in" = "[örebro|orebro]"; out = "Örebro"; }
-          { "in" = "[luleå|lulea|lhf]"; out = "Luleå"; }
-          { "in" = "[frölunda|frolunda|fhc]"; out = "Frölunda"; }
-          { "in" = "[brynäs|brynas]"; out = "Brynäs"; }
-          { "in" = "[linköping|linkoping|lhc]"; out = "Linköping"; }
-          { "in" = "[hv71|hv]"; out = "HV71"; }
+          { "in" = "färjestad|farjestad|fbk";         out = "Färjestad"; }
+          { "in" = "rögle|rogle";                     out = "Rögle"; }
+          { "in" = "djurgården|djurgarden|dif";       out = "Djurgården"; }
+          { "in" = "växjö|vaxjo|lakers";              out = "Växjö"; }
+          { "in" = "skellefteå|skelleftea|saik";      out = "Skellefteå"; }
+          { "in" = "örebro|orebro";                   out = "Örebro"; }
+          { "in" = "luleå|lulea|lhf";                 out = "Luleå"; }
+          { "in" = "frölunda|frolunda|fhc";           out = "Frölunda"; }
+          { "in" = "brynäs|brynas";                   out = "Brynäs"; }
+          { "in" = "linköping|linkoping|lhc";         out = "Linköping"; }
+          { "in" = "hv71|hv";                         out = "HV71"; }
         ];
       };
     };

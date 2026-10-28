@@ -516,16 +516,16 @@ in { # 🦆 duck say ⮞ house config
         enable   = true;
         # 🦆 says ⮞ sadly needed (i disable itz internet access - u should too)
         bridge   = {
+          passwordFile = config.sops.secrets.hueBridgeAPI.path;
           # 🦆 says ⮞ run the following to get api token:
           # curl -X POST http://192.168.1.33/api -d '{"devicetype":"house#nixos"}'
           ip           = "192.168.1.33";
-          passwordFile = config.sops.secrets.hueBridgeAPI.path;
         };
         syncBox = { # C42996020AAE
           # 🦆 says ⮞ run the following to get api token for the sync box:
           # curl -k -sS -X POST "https://192.168.1.34/api/v1/registrations" -H "Content-Type: application/json" -d '{"appName": "zigduck", "instanceName": "zigduck"}'
-          ip           = "192.168.1.34";
           passwordFile = config.sops.secrets.hueSyncAPI.path;
+          ip           = "192.168.1.34";
           tv           = "shield";
         };
       };
@@ -625,6 +625,7 @@ in { # 🦆 duck say ⮞ house config
               { type = "wait"; duration = 10; }
               # 🦆 says ⮞ roll up da blindz let da sun come in
               { type = "mqtt"; topic = "${zigduck.baseTopic}/Roller Shade/set"; message = ''{"state":"ON"}''; }
+              { type = "shell"; command = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/settings/speaker/play/ding"; }
               # 🦆 says ⮞ check if im up yet....
               { type = "shell"; command = ''
                 motion=$(jq -r '."Motion Sensor Sovrum".occupancy' ${zigduck.stateDir}/state.json)
@@ -691,14 +692,12 @@ in { # 🦆 duck say ⮞ house config
             description = "Updated calendar events";
             topic       = "${zigduck.baseTopic}/calendar";
             actions = [
-              { type    = "shell";
-                command = ''
-                  iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
-                  formatted_date=$(date -d "$iso_date" +"%b %d")
-                  MQTT_PAYLOAD=$(echo "$MQTT_PAYLOAD" | jq --arg d "$formatted_date" '.today_date = $d')
-                  echo "$MQTT_PAYLOAD" > ${zigduck.stateDir}/calendar.json
-                '';
-              }
+              { type    = "shell"; command = ''
+                iso_date=$(echo "$MQTT_PAYLOAD" | jq -r '.today_date')
+                formatted_date=$(date -d "$iso_date" +"%b %d")
+                MQTT_PAYLOAD=$(echo "$MQTT_PAYLOAD" | jq --arg d "$formatted_date" '.today_date = $d')
+                echo "$MQTT_PAYLOAD" > ${zigduck.stateDir}/calendar.json
+              ''; }
             ];
           };
         };
@@ -706,55 +705,56 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = {
-            door_opened = [ # 🦆 says ⮞ ping watch & send notification
-              { type = "shell"; command = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
-              { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
+            door_opened = [ # 🦆 says ⮞ play ding ESP32-S3-BOX-3 & wait 30 & while door open play ding again every 15 sec
+              #{ type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
+              "yo do 'plinga boxen samt vänta trettio sekunder'"
+              "yo do 'medan ytterdörren är öppen gör plinga boxen samt vänta femton sekunder'"
             ];
             door_closed = [];
           };
 
           kitchen = {
             motion_not_detected = [
-              {
-                type = "shell";
-                command = ''
-                  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
-                  # 🦆 says ⮞ no need 2 turn off if it'z not on
-                  if (( power > 20 )); then
-                    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
-                  fi
-                '';
-              } # 🦆 says ⮞  slow go light go bye bye
-              { type = "scene"; scene = "kitchenFadeOff"; }
+              #{ type = "shell"; command = ''
+              #  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
+              #  # 🦆 says ⮞ no need 2 turn off if it'z not on
+              #  if (( power > 20 )); then
+              #    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
+              #  fi
+              #''; } # 🦆 says ⮞  slow go light go bye bye
+              #{ type = "scene"; scene = "kitchenFadeOff"; }
+              "yo do 'om fläkten drar mer än 20 watt så sätt 180 sekunders countdown på fläkten samt aktivera scen kitchenFadeOff'"
             ];
+
 
             motion_detected = [
-              { type = "scene"; scene = "kitchenInstant"; }
-              { type = "shell";
-                command = ''
-                  # 🦆 says ⮞ cancel any pending countdown
-                  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
-
-                  # 🦆 says ⮞ if fan is off - start it
-                  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
-                  if [ "$STATE" = "OFF" ]; then
-                    zigduck-cli --device "Fläkt" --state on
-                  fi
-
-                  # 🦆 says ⮞ if my team is playing NOW - go green!!
-                  if jq -e '
-                       def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
-                       now as $now
-                       | any(.channels[].programs[];
-                           ((.start | epoch) <= $now)
-                           and ((.stop  | epoch) >  $now)
-                           and (.title | ascii_downcase | contains("björklöven")))
-                     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
-                    zigduck-cli --scene "kitchenGreenInstant"
-                  fi
-                '';
-              }
+              { type = "scene"; scene = "kitchenInstant"; } # 🦆 says ⮞ x ms win.. here worth it
+              "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
             ];
+             #{ type = "scene"; scene = "kitchenInstant"; }
+              #{ type = "shell"; command = ''
+              #  # 🦆 says ⮞ cancel any pending countdown
+              #  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
+
+                # 🦆 says ⮞ if fan is off - start it
+              #  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
+              #  if [ "$STATE" = "OFF" ]; then
+              #    zigduck-cli --device "Fläkt" --state on
+              #  fi
+
+                # 🦆 says ⮞ if my team is playing NOW - go green!!
+              #  if jq -e '
+              #       def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
+              #       now as $now
+              #       | any(.channels[].programs[];
+              #           ((.start | epoch) <= $now)
+              #           and ((.stop  | epoch) >  $now)
+              #           and (.title | ascii_downcase | contains("björklöven")))
+              #     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
+              #    zigduck-cli --scene "kitchenGreenInstant"
+              #  fi
+              #''; }
+           # ];
           };
         };
 
@@ -772,14 +772,15 @@ in { # 🦆 duck say ⮞ house config
           ];
 
           smoke_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
-            { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
+            "yo do 'flasha ljusen samt aktivera scen max samt notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt säg eld eld eld'"
+            #{ type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
             # 🦆 LIGHT⮞FAST⮞HELP⮞SEE
-            { type = "scene"; scene = "max"; }
-            { type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
+            #{ type = "shell"; scene = "max"; }
+            #{ type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
             # 🦆 says ⮞ ping watch with ding
-            { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
+            #{ type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             # 🦆SAY⮞FIRE
-            { type = "shell"; command = "yo say 'eld eld eld'"; }
+            #{ type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
         };
 
@@ -791,8 +792,8 @@ in { # 🦆 duck say ⮞ house config
               description      = "Turn off all configured light devices";
               extra_actions    = [];
               override_actions = [
-                { type = "scene"; scene = "dark"; }
-                { type = "mqtt"; topic = "${zigduck.baseTopic}/Fläkt/set"; message = ''{"state":"OFF"}''; }
+                { type = "scene"; scene   = "dark"; }
+                { type = "shell"; command = "yo do stäng av fläkten"; }
               ];
             };
           };
@@ -801,13 +802,7 @@ in { # 🦆 duck say ⮞ house config
             on_press_release = {
               enable         = true;
               description    = "Turn on kitchen fan (+ lights)";
-              extra_actions  = [
-                {
-                  type       = "mqtt";
-                  topic      = "${zigduck.baseTopic}/Fläkt/set";
-                  message    = ''{"state":"ON"}'';
-                }
-              ];
+              extra_actions  = [ "starta fläkten" ];
               override_actions = [ ];
             };
           };
@@ -823,8 +818,8 @@ in { # 🦆 duck say ⮞ house config
               start      = "01:00";
               days       = ["mon" "tue" "wed" "thu" "fri"];
             };
-            # 🦆 says ⮞ 11 AM (i like to sleep in)
-            actions      = [ "zigduck-cli alarm add --hours 10 --minutes 45 --name vakna" ];
+            # 🦆 says ⮞ 11.30 AM (i like to sleep in)
+            actions      = [ "yo do 'väck mig klockan elva och trettio'" ];
           };
 
           # 🦆 says ⮞ daily tv scraper

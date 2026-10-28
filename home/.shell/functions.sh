@@ -42,7 +42,14 @@ cdir() {
     find . -type f \
       -not -path '*/.git/*' \
       -not -path '*/.github/*' \
+      -not -path '*/hooks/*' \
+      -not -path '*/images/*' \
+      -not -path '*/sprites/*' \
       -not -name '.gitignore' \
+      -not -name '.pre-commit-config.yaml' \
+      -not -name 'CHANGELOG.md' \
+      -not -name 'flake.lock' \
+      -not -name 'LICENSE' \
       -print0 \
     | sort -z \
     | while IFS= read -r -d '' f; do

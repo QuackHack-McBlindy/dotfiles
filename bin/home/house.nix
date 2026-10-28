@@ -1,4 +1,7 @@
-{
+# dotfiles/bin/home/house.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+#  » ★ QuackHack-McBLindy.com ★ «
+# 🦆 ⮞ my house - qwack! u wanna copy pasta?
+{ #  » ★ github.com/QuackHack-McBlindy/zigduck ★ «
   self,
   lib,
   config,
@@ -81,6 +84,7 @@ in {
       { name = "blinds"; description = "Control all blinds (up/down/open/close)"; optional = true; }
       { name = "get-temp"; description = "Fetch temperature in a room"; type = "bool"; optional = true; }
       { name = "get-bat"; description = "Fetch battery status for a device"; type = "bool"; optional = true; }
+      { name = "get-state"; type = "bool"; description = "Fetch current on/off state of a device"; optional = true; }
       #{ name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; optional = true; }
     ];
     binary = self.inputs.zigduck.packages.x86_64-linux.zigduck-cli + "/bin/zigduck-cli";

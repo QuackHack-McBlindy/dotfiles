@@ -13,6 +13,9 @@
         environment.systemPackages = lib.mkMerge [
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [
+                pkgs.intel-vaapi-driver
+                pkgs.libva-utils
+
                 pkgs.nix-prefetch-github
                 pkgs.element-desktop
                 pkgs.cargo
@@ -125,7 +128,6 @@
                 pkgs.keepass		# password management
                 pkgs.gnome-terminal
                 pkgs.gnome-text-editor
-                pkgs.you-have-mail-cli
                 pkgs.bat
                 pkgs.ripgrep
                 pkgs.vim

@@ -55,6 +55,12 @@ in {
       description = "Files to create directly under ${homeBase}";
     };
 
+    link = mkOption {
+      type = types.attrsOf types.path;
+      default = {};
+      description = "Files/directories to symlink under ${homeBase} (paths or store paths)";
+    };
+
     git.subRepo = mkOption {
       type = types.attrsOf (types.submodule {
         options = {
@@ -100,6 +106,29 @@ in {
           '') files);
         deps = [];
       };
+
+
+      system.activationScripts.simpleLinks = let
+        username = config.this.user.me.name;
+        mkLink = path: source:
+          let
+            fullPath = "${homeBase}/${path}";
+            dir = dirOf fullPath;
+          in ''
+            mkdir -p "${dir}"
+            if [[ -e "${fullPath}" && ! -L "${fullPath}" ]]; then
+              mv -f "${fullPath}" "${fullPath}.backup"
+            fi
+            ln -vsfn "${toString source}" "${fullPath}"
+            chown -h "${username}:users" "${fullPath}"
+            echo "🦆 duck say ⮞ Linked: ${fullPath} → ${toString source}"
+          '';
+      in {
+        text = concatStringsSep "\n" (mapAttrsToList mkLink config.link);
+        deps = [];
+      };
+
+
     }
 
     {
