@@ -5,6 +5,7 @@
   pkgs,
   self,
   hosts,
+  devices,
   ...
 } : let
   cfg = config.services.yo-rs;
@@ -29,9 +30,9 @@
     nasty   = {
       room     = "bedroom";
       gain     = 0.7;
-      awakeCmd = "curl http://192.168.1.13/api/ding";
-      doneCmd  = "curl http://192.168.1.13/api/done";
-      failCmd  = "curl http://192.168.1.13/api/fail";
+      awakeCmd = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/ding";
+      doneCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/done";
+      failCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/fail";
     };
   };
 
@@ -83,7 +84,7 @@ in {
       fuzzy = {
         threshold = 0.6;
         conflict.detection = false;
-        conflict.threshold = 70;
+        conflict.threshold = 80;
       };
       splitWords = [ ];
       sorryPhrases = [

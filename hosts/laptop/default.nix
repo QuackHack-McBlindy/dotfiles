@@ -38,7 +38,7 @@
                 "virtio_scsi"
                 "xhci_pci"
             ];
-            systemd.enable = true;
+            #systemd.enable = true;
         };
         kernelPackages = pkgs.linuxPackages_6_1;
 #        extraModulePackages = [

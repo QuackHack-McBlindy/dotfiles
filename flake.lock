@@ -349,11 +349,11 @@
         "nixpkgs": "nixpkgs_5"
       },
       "locked": {
-        "lastModified": 1793208014,
-        "narHash": "sha256-Nmq3oUax8ImhQuI9AhK2LfIQyO/kn4LzEoHtRqVVVm0=",
+        "lastModified": 1793237745,
+        "narHash": "sha256-8AjBMhysuZDQcYX0i3xGSkjGoU1AqwEKdlfu7lsxcF4=",
         "owner": "QuackHack-McBlindy",
         "repo": "pokenix",
-        "rev": "3a0c0682e54c051632f508761e20cb9edd9c3994",
+        "rev": "dc18b5fb922f7d630646e3739c32aa3d08d279c3",
         "type": "github"
       },
       "original": {

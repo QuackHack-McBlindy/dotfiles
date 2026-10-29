@@ -52,7 +52,7 @@
     fi
   '';
 
-  # 🦆 says ⮞ detect summer/winter time (for EPG)
+  # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
     if self ? lastModified then toString self.lastModified
     else throw "flake has no lastModified — needs to be a git-backed flake";
@@ -706,55 +706,54 @@ in { # 🦆 duck say ⮞ house config
         room_actions = {
           hallway = {
             door_opened = [ # 🦆 says ⮞ play ding ESP32-S3-BOX-3 & wait 30 & while door open play ding again every 15 sec
-              #{ type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
-              "yo do 'plinga boxen samt vänta trettio sekunder'"
-              "yo do 'medan ytterdörren är öppen gör plinga boxen samt vänta femton sekunder'"
+              { type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
+              #"yo do 'notifiera 💧 🚨 WATER LEAK DETECTED!'"
+              #"yo do 'plinga boxen samt vänta trettio sekunder'"
+              #"yo do 'medan ytterdörren är öppen gör plinga boxen samt vänta femton sekunder'"
             ];
             door_closed = [];
           };
 
           kitchen = {
             motion_not_detected = [
-              #{ type = "shell"; command = ''
-              #  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
-              #  # 🦆 says ⮞ no need 2 turn off if it'z not on
-              #  if (( power > 20 )); then
-              #    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
-              #  fi
-              #''; } # 🦆 says ⮞  slow go light go bye bye
-              #{ type = "scene"; scene = "kitchenFadeOff"; }
-              "yo do 'om fläkten drar mer än 20 watt så sätt 180 sekunders countdown på fläkten samt aktivera scen kitchenFadeOff'"
+              { type = "shell"; command = ''
+                power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
+                # 🦆 says ⮞ no need 2 turn off if it'z not on
+                if (( power > 20 )); then
+                  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
+                fi
+              ''; } # 🦆 says ⮞  slow go light go bye bye
+              { type = "scene"; scene = "kitchenFadeOff"; }
+              #"yo do 'om fläkten drar mer än 20 watt så sätt 180 sekunders countdown på fläkten samt aktivera scen kitchenFadeOff'"
             ];
 
 
             motion_detected = [
-              { type = "scene"; scene = "kitchenInstant"; } # 🦆 says ⮞ x ms win.. here worth it
-              "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
-            ];
-             #{ type = "scene"; scene = "kitchenInstant"; }
-              #{ type = "shell"; command = ''
-              #  # 🦆 says ⮞ cancel any pending countdown
-              #  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
+              # "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
+              { type = "scene"; scene = "kitchenInstant"; }
+              { type = "shell"; command = ''
+                # 🦆 says ⮞ cancel any pending countdown
+                zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
 
                 # 🦆 says ⮞ if fan is off - start it
-              #  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
-              #  if [ "$STATE" = "OFF" ]; then
-              #    zigduck-cli --device "Fläkt" --state on
-              #  fi
+                STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
+                if [ "$STATE" = "OFF" ]; then
+                  zigduck-cli --device "Fläkt" --state on
+                fi
 
                 # 🦆 says ⮞ if my team is playing NOW - go green!!
-              #  if jq -e '
-              #       def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
-              #       now as $now
-              #       | any(.channels[].programs[];
-              #           ((.start | epoch) <= $now)
-              #           and ((.stop  | epoch) >  $now)
-              #           and (.title | ascii_downcase | contains("björklöven")))
-              #     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
-              #    zigduck-cli --scene "kitchenGreenInstant"
-              #  fi
-              #''; }
-           # ];
+                if jq -e '
+                     def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
+                     now as $now
+                     | any(.channels[].programs[];
+                         ((.start | epoch) <= $now)
+                         and ((.stop  | epoch) >  $now)
+                         and (.title | ascii_downcase | contains("björklöven")))
+                   ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
+                  zigduck-cli --scene "kitchenGreenInstant"
+                fi
+              ''; }
+            ];
           };
         };
 
@@ -772,15 +771,15 @@ in { # 🦆 duck say ⮞ house config
           ];
 
           smoke_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
-            "yo do 'flasha ljusen samt aktivera scen max samt notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt säg eld eld eld'"
-            #{ type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
+            #"yo do 'flasha ljusen samt aktivera scen max samt notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt säg eld eld eld'"
+            { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
             # 🦆 LIGHT⮞FAST⮞HELP⮞SEE
-            #{ type = "shell"; scene = "max"; }
-            #{ type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
+            { type = "shell"; scene = "max"; }
+            { type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
             # 🦆 says ⮞ ping watch with ding
-            #{ type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
+            { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             # 🦆SAY⮞FIRE
-            #{ type = "shell"; command = "yo say 'eld eld eld'"; }
+            { type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
         };
 

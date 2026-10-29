@@ -5,7 +5,7 @@
 ![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=plastic-square&logo=NixOS&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=plastic-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.58-red?style=plastic-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.59-red?style=plastic-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=plastic-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
@@ -66,17 +66,17 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Scripts](https://img.shields.io/badge/📜_Scripts-97-7c3aed?style=plastic)
 ![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-67-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-2929-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-308060999-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-3934-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-309762812-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
 ![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)
 ![Scenes](https://img.shields.io/badge/🎨_Scenes-11-0891b2?style=plastic)
 
-![Pokémon](https://img.shields.io/badge/🔴_Pokémon-6079-e63946?style=plastic)
+![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5321-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4604-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4616-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -93,7 +93,7 @@ _"What makes this configuration common?_" <br>
 - 🔒[sops-nix](https://github.com/Mic92/sops-nix) - awesome secret keepin'.
 - 🗣️[yo](https://github.com/QuackHack-McBlindy/yo) - holds my scripts and my grammar and runs voice pipeline.
 - 🦆[zigduck](https://github.com/QuackHack-McBlindy/zigduck) - automates my house.
-
+- 🔴[PokéNix](https://github.com/QuackHack-McBlindy/pokenix) - builds & deploy <a href="https://quackhack-mcblindy.github.io/pokenix/">my Pokémon collection</a>.
 
 
 <br>
@@ -279,7 +279,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
     fi
   '';
 
-  # 🦆 says ⮞ detect summer/winter time (for EPG)
+  # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
     if self ? lastModified then toString self.lastModified
     else throw "flake has no lastModified — needs to be a git-backed flake";
@@ -933,55 +933,54 @@ in { # 🦆 duck say ⮞ house config
         room_actions = {
           hallway = {
             door_opened = [ # 🦆 says ⮞ play ding ESP32-S3-BOX-3 & wait 30 & while door open play ding again every 15 sec         
-              #{ type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
-              "yo do 'plinga boxen samt vänta trettio sekunder'"
-              "yo do 'medan ytterdörren är öppen gör plinga boxen samt vänta femton sekunder'"
+              { type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
+              #"yo do 'notifiera 💧 🚨 WATER LEAK DETECTED!'"
+              #"yo do 'plinga boxen samt vänta trettio sekunder'"
+              #"yo do 'medan ytterdörren är öppen gör plinga boxen samt vänta femton sekunder'"
             ];
             door_closed = [];
           };
 
           kitchen = {
             motion_not_detected = [
-              #{ type = "shell"; command = ''
-              #  power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
-              #  # 🦆 says ⮞ no need 2 turn off if it'z not on
-              #  if (( power > 20 )); then
-              #    zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
-              #  fi
-              #''; } # 🦆 says ⮞  slow go light go bye bye
-              #{ type = "scene"; scene = "kitchenFadeOff"; }
-              "yo do 'om fläkten drar mer än 20 watt så sätt 180 sekunders countdown på fläkten samt aktivera scen kitchenFadeOff'"
+              { type = "shell"; command = ''
+                power=$(jq -r '."Fläkt".power' ${zigduck.stateDir}/state.json)
+                # 🦆 says ⮞ no need 2 turn off if it'z not on
+                if (( power > 20 )); then
+                  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 180}'
+                fi
+              ''; } # 🦆 says ⮞  slow go light go bye bye
+              { type = "scene"; scene = "kitchenFadeOff"; }
+              #"yo do 'om fläkten drar mer än 20 watt så sätt 180 sekunders countdown på fläkten samt aktivera scen kitchenFadeOff'"
             ];
 
 
             motion_detected = [ 
-              { type = "scene"; scene = "kitchenInstant"; } # 🦆 says ⮞ x ms win.. here worth it
-              "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
-            ];
-             #{ type = "scene"; scene = "kitchenInstant"; }
-              #{ type = "shell"; command = ''
-              #  # 🦆 says ⮞ cancel any pending countdown
-              #  zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
+              # "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
+              { type = "scene"; scene = "kitchenInstant"; }
+              { type = "shell"; command = ''
+                # 🦆 says ⮞ cancel any pending countdown
+                zigduck-cli --publish --topic "${zigduck.baseTopic}/Fläkt/set" --payload '{"countdown": 0}'
 
                 # 🦆 says ⮞ if fan is off - start it
-              #  STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
-              #  if [ "$STATE" = "OFF" ]; then
-              #    zigduck-cli --device "Fläkt" --state on
-              #  fi
+                STATE=$(jq -r '."Fläkt".state' ${zigduck.stateDir}/state.json)
+                if [ "$STATE" = "OFF" ]; then
+                  zigduck-cli --device "Fläkt" --state on
+                fi
 
                 # 🦆 says ⮞ if my team is playing NOW - go green!!
-              #  if jq -e '
-              #       def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
-              #       now as $now
-              #       | any(.channels[].programs[];
-              #           ((.start | epoch) <= $now)
-              #           and ((.stop  | epoch) >  $now)
-              #           and (.title | ascii_downcase | contains("björklöven")))
-              #     ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
-              #    zigduck-cli --scene "kitchenGreenInstant"
-              #  fi
-              #''; }
-           # ];
+                if jq -e '
+                     def epoch: (strptime("%Y%m%d%H%M%S +0000") | mktime);
+                     now as $now
+                     | any(.channels[].programs[];
+                         ((.start | epoch) <= $now)
+                         and ((.stop  | epoch) >  $now)
+                         and (.title | ascii_downcase | contains("björklöven")))
+                   ' "${zigduck.stateDir}/epg.json" > /dev/null 2>&1; then
+                  zigduck-cli --scene "kitchenGreenInstant"
+                fi
+              ''; }
+            ];
           };
         };
 
@@ -999,15 +998,15 @@ in { # 🦆 duck say ⮞ house config
           ];
 
           smoke_detected = [ # 🦆 QUICK ⮞ FLASH FOR DA NOTICE
-            "yo do 'flasha ljusen samt aktivera scen max samt notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt säg eld eld eld'"
-            #{ type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
+            #"yo do 'flasha ljusen samt aktivera scen max samt notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt säg eld eld eld'"
+            { type = "mqtt"; topic = "${zigduck.baseTopic}/effects/flash"; message = " "; }
             # 🦆 LIGHT⮞FAST⮞HELP⮞SEE
-            #{ type = "shell"; scene = "max"; }
-            #{ type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
+            { type = "shell"; scene = "max"; }
+            { type = "shell"; command = "zigduck-cli --notify '🔥 FIRE/SMOKE DETECTED!' --tag critical"; }
             # 🦆 says ⮞ ping watch with ding
-            #{ type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
+            { type = "shell"; command = "curl http://${devices.watch.ip}/api/settings/speaker/play/ding"; }
             # 🦆SAY⮞FIRE
-            #{ type = "shell"; command = "yo say 'eld eld eld'"; }
+            { type = "shell"; command = "yo say 'eld eld eld'"; }
           ];
         };
 
@@ -1902,7 +1901,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--room] |  | do is a natural language to shell script translator thIt runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with baked in model and full duplex audio streaming | 📛 |
 | **🛖 Home Automation** | | | |
-| [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) --hours --minutes [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
+| [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--minuteWord] [--prep] [--list] [--sound] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
 | [yo chain](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chain.nix) [--a] [--b] |  | Chain commands with 'samt'. Splits and dispatches each part sequentially. | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
@@ -1930,7 +1929,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | **🧩 Miscellaneous** | | | |
 | [yo btc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/btc.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency BTC price tracker | ✅ |
 | [yo chat](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chat.nix) --text |  | No fwendz? Let's chat yo! | ✅ |
-| [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates annd numbers. | ✅ |
+| [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
 | [yo duckPUCK-shl](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-shl.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck, shl | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
 | [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
