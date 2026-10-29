@@ -76,7 +76,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5321-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4616-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4618-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -295,6 +295,18 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
     "+0100" = -1;
     "+0200" = -2;
   }.${tzOffset} or (throw "unexpected TZ offset from tzdata: ${tzOffset}");
+
+  # 🦆 says ⮞ now we can stream tts yo - from zigduck yo
+  yoClientsJson = pkgs.writeText "yo-clients.json" (builtins.toJSON (
+    map (c: c // { connected_at = 0; })
+    [
+      #{ room = "bedroom";    ip = hosts.nasty.ip;               gain = 1.0; }
+      { room = "livingroom"; ip = hosts.desktop.ip;               gain = 1.0; }
+      { room = "esp";        ip = devices.ESP32-S3-BOX-3.ip;    gain = 1.0; }
+      # { room = "esp";      ip = devices.watch.ip;             gain = 1.0; }
+    ]
+  ));
+
 in { # 🦆 duck say ⮞ house config
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
@@ -753,7 +765,7 @@ in { # 🦆 duck say ⮞ house config
           # curl -k -sS -X POST "https://192.168.1.34/api/v1/registrations" -H "Content-Type: application/json" -d '{"appName": "zigduck", "instanceName": "zigduck"}'
           passwordFile = config.sops.secrets.hueSyncAPI.path;
           ip           = "192.168.1.34";
-          tv           = "shield";         
+          tv           = "shield";
         };
       };
 
@@ -932,7 +944,7 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = {
-            door_opened = [ # 🦆 says ⮞ play ding ESP32-S3-BOX-3 & wait 30 & while door open play ding again every 15 sec         
+            door_opened = [ # 🦆 says ⮞ play ding ESP32-S3-BOX-3 & wait 30 & while door open play ding again every 15 sec
               { type = "shell"; command  = "zigduck-cli --notify '🚪 DOOR OPEN!'"; }
               #"yo do 'notifiera 💧 🚨 WATER LEAK DETECTED!'"
               #"yo do 'plinga boxen samt vänta trettio sekunder'"
@@ -955,7 +967,7 @@ in { # 🦆 duck say ⮞ house config
             ];
 
 
-            motion_detected = [ 
+            motion_detected = [
               # "yo do 'sätt countdown noll på fläkten samt om fläkten är av så sätt på fläkten samt om björklöven spelar just nu så aktivera scen kök grön direkt'"
               { type = "scene"; scene = "kitchenInstant"; }
               { type = "shell"; command = ''
@@ -1599,6 +1611,11 @@ in { # 🦆 duck say ⮞ house config
       };
     };
   };
+
+  systemd.tmpfiles.rules = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) [
+    "d  ${zigduck.stateDir}/.config/yo             0700 zigduck zigduck - -"
+    "C  ${zigduck.stateDir}/.config/yo/clients.json 0600 zigduck zigduck - ${yoClientsJson}"
+  ];
 
   sops = {
     secrets =  {

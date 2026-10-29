@@ -68,6 +68,18 @@
     "+0100" = -1;
     "+0200" = -2;
   }.${tzOffset} or (throw "unexpected TZ offset from tzdata: ${tzOffset}");
+
+  # 🦆 says ⮞ now we can stream tts yo - from zigduck yo
+  yoClientsJson = pkgs.writeText "yo-clients.json" (builtins.toJSON (
+    map (c: c // { connected_at = 0; })
+    [
+      #{ room = "bedroom";    ip = hosts.nasty.ip;               gain = 1.0; }
+      { room = "livingroom"; ip = hosts.desktop.ip;               gain = 1.0; }
+      { room = "esp";        ip = devices.ESP32-S3-BOX-3.ip;    gain = 1.0; }
+      # { room = "esp";      ip = devices.watch.ip;             gain = 1.0; }
+    ]
+  ));
+
 in { # 🦆 duck say ⮞ house config
   house = {
     # 🦆 says ⮞ ROOM CONFIGURATION
@@ -1372,6 +1384,11 @@ in { # 🦆 duck say ⮞ house config
       };
     };
   };
+
+  systemd.tmpfiles.rules = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) [
+    "d  ${zigduck.stateDir}/.config/yo             0700 zigduck zigduck - -"
+    "C  ${zigduck.stateDir}/.config/yo/clients.json 0600 zigduck zigduck - ${yoClientsJson}"
+  ];
 
   sops = {
     secrets =  {

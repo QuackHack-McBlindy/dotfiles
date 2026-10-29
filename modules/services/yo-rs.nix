@@ -35,10 +35,18 @@
       failCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/fail";
     };
   };
-
+  # 🦆 duck say ⮞ fake clients for yo-say when no server is running
+  yoClientsJson = pkgs.writeText "yo-clients.json" (builtins.toJSON [
+    { room = "bedroom";    ip = hosts.nasty.ip;  connected_at = 0; gain = 1.0; }
+    { room = "livingroom"; ip = hosts.desktop.ip; connected_at = 0; gain = 1.0; }
+    { room = "esp";        ip = devices.ESP32-S3-BOX-3.ip;  connected_at = 0; gain = 1.0; }
+  ]);
   h = clients.${host} or { room = ""; awakeCmd = ""; doneCmd = ""; failCmd = ""; };
 in {
   config = lib.mkMerge [{
+    link.".config/yo/clients.json" = lib.mkIf
+      (!(lib.elem "yo" config.this.host.modules.services))
+      yoClientsJson;
 
     environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
     networking.firewall.allowedTCPPorts = [ 12345 ];
