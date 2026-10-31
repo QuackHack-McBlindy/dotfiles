@@ -66,13 +66,13 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Scripts](https://img.shields.io/badge/📜_Scripts-98-7c3aed?style=plastic)
 ![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-68-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6314-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390392811-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6312-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390394626-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
 ![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)
-![Scenes](https://img.shields.io/badge/🎨_Scenes-11-0891b2?style=plastic)
+![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5320-e63946?style=plastic)
 
@@ -311,18 +311,18 @@ in { # 🦆 duck say ⮞ house config
       bedroom    = {
         icon     = icons.room.bedroom;
         aliases  = [ "sovrum" "sovrummet" ];
-      };  
+      };
       hallway    = {
         icon     = icons.room.hallway;
-        aliases  = [ "hall" "hallen" "entren" ];      
+        aliases  = [ "hall" "hallen" "entren" ];
       };
       kitchen    = {
         icon     = icons.room.kitchen;
-        aliases  = [ "kök" "köket" "matsalen" ];      
+        aliases  = [ "kök" "köket" "matsal" "matsalen" ];
       };
       livingroom = {
         icon     = icons.room.livingroom;
-        aliases  = [ "vardagsrum" "vardagsrummet" ];      
+        aliases  = [ "vardagsrum" "vardagsrummet" ];
       };
       wc         = {
         icon     = icons.room.wc;
@@ -334,14 +334,14 @@ in { # 🦆 duck say ⮞ house config
       };
       other.icon      = icons.room.other;
     };
-    
+
     # 🦆 says ⮞ presence (home/away) state
     presence = {
       probes      = [ devices.iphone.ip ];
-      homeActions = [ ];
-      awayActions = [ "släck alla lampor" ];
+      homeActions = [ "skicka en notis om 🏠 ☑️ BACK HOME!" ];
+      awayActions = [ "skicka en notis om 🏠 ❌ LEFT HOME! samt släck alla lampor" ];
     };
-    
+
     # 🦆 says ⮞ media
     https.media.urlFile       = config.sops.secrets.webserver.path;
     media.root                = "/Pool";
@@ -363,7 +363,7 @@ in { # 🦆 duck say ⮞ house config
     zigbee = {
       # 🦆 ⮞ DEVICES (loaded from devices.nix) ⮜
       devices = myZigbeeDevices;
-       
+
       # 🦆 says ⮞ encrypted zigbee network key
       networkKeyFile = config.sops.secrets.z2m_network_key.path;
 
@@ -430,10 +430,10 @@ in { # 🦆 duck say ⮞ house config
 
 
   # 🦆 ⮞ AUTOMATIONS ⮜
-      automations = { # 🦆 says ⮞ i natural language diz home-auto yo 
+      automations = { # 🦆 says ⮞ i natural language diz home-auto yo
         string.prefix = "yo do";
         # 🦆 says ⮞ there are 6 different automation types
-        # 🦆 ⮞ + a greeting automation        
+        # 🦆 ⮞ + a greeting automation
         greeting  = {
           enable       = true;
           awayDuration = 7200;
@@ -458,6 +458,17 @@ in { # 🦆 duck say ⮞ house config
               "tänd allt samt vänta fem sekunder och slutligen återställ systemet till innan flashen"
             ];
           };
+          
+          living_cealing = {
+            enable       = true;
+            description  = "Give the cealing life. Life in colors.";
+            topic        = "${zigduck.baseTopic}/effects/living/cealing";
+            actions  = [
+              "aktivera scen levandde tak ett samt vänta femton sekunder"
+              "aktivera scen levandde tak två samt vänta femton sekunder"
+              "aktivera scen levandde tak tre samt vänta tolv sekunder"
+            ];
+          };
 
           alarm_wakeup  = {
             enable      = true;
@@ -467,9 +478,9 @@ in { # 🦆 duck say ⮞ house config
             actions  = [ # 🦆 say ⮞ GOOD LUCK STAYING IN BED
               "skicka en notis om ⏰ ALARM: Wake up! samt flasha ljuset"
               "säg UPP MED DIG LATMASK!!! sedan styr sängens fötter upp samt styr sängens huvud uppåt"
-              "vänta tio sekunder sedan blinkepartaj" 
+              "vänta tio sekunder sedan blinkepartaj"
               "pinga boxen samt pinga klockan sedan vänta tio sekunder"
-              "rulla upp persiennerna samt pinga boxen" 
+              "rulla upp persiennerna samt pinga boxen"
               "om det inte är någon i sovrummet så ring fjärrkontrollen"
             ];
           };
@@ -544,12 +555,12 @@ in { # 🦆 duck say ⮞ house config
           };
 
           kitchen = { # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
-            motion_not_detected = [ 
+            motion_not_detected = [
               "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
             ];
-            # 🦆 ⮞ 1: start lights. 2: cancel the off-countdown on fan. 3. if my team is playing right now activate scene.
+            # 🦆 ⮞ 1: start lights. 2: cancel the off-countdown on fan. 3. if my team is playin' right NOW activate scene.
             motion_detected = [
-              # 🦆 ⮞ "big" 20ms win - worth it here 
+              # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
               "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
               "om björklöven spelar just nu så aktivera scen green devils"
@@ -560,12 +571,12 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 3. global actions automations
         global_actions  = {
           leak_detected = [
-            "flasha ljuset samt vänta sju sekunder samt tänd alla lampor" 
+            "flasha ljuset samt vänta sju sekunder samt tänd alla lampor"
             "notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt plinga boxen"
             "säg VATTEN VATTEN VATTEN VATTEN samt vänta femton sekunder sedan säg VATTEN VATTEN VATTEN!"
           ];
           smoke_detected = [
-            "flasha ljuset samt vänta sju sekunder samt tänd alla lampor" 
+            "flasha ljuset samt vänta sju sekunder samt tänd alla lampor"
             "notifiera 🔥 🔥 FIRE DETECTED! 🔥 🔥 samt plinga klockan samt plinga boxen"
             "säg ELD ELD ELD ELD samt vänta femton sekunder sedan säg ELD ELD ELD ELD!"
           ];
@@ -590,7 +601,7 @@ in { # 🦆 duck say ⮞ house config
               override_actions = [ ];
             };
           };
-          
+
           livingroom = {
             on_press_release   = {
               enable           = true;
@@ -626,7 +637,7 @@ in { # 🦆 duck say ⮞ house config
               days      = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
             };
             # 🦆 says ⮞ scrape & save so dashboard can read
-            actions  = [ 
+            actions  = [
               "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml"
             ];
           };
@@ -699,33 +710,33 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "dark"                = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!
-              "Bloom"           = { state = "OFF"; transition = 10; };
-              "Dörr"            = { state = "OFF"; transition = 10; };
-              "Golvet"          = { state = "OFF"; transition = 10; };
-              "Kök Bänk Slinga" = { state = "OFF"; transition = 10; };
-              "PC"              = { state = "OFF"; transition = 10; };
-              "Rustning"        = { state = "OFF"; transition = 10; };
-              "Spotlight Kök 2" = { state = "OFF"; transition = 10; };
-              "Spotlight kök 1" = { state = "OFF"; transition = 10; };
-              "Sänggavel"       = { state = "OFF"; transition = 10; };
-              "Tak Hall"        = { state = "OFF"; transition = 10; };
-              "Taket Sovrum 1"  = { state = "OFF"; transition = 10; };
-              "Taket Sovrum 2"  = { state = "OFF"; transition = 10; };
-              "Uppe"            = { state = "OFF"; transition = 10; };
-              "Vägg"            = { state = "OFF"; transition = 10; };
-              "WC 1"            = { state = "OFF"; transition = 10; };
-              "WC 2"            = { state = "OFF"; transition = 10; };
-              "Takkrona 1"      = { state = "OFF"; transition = 10; };
-              "Takkrona 2"      = { state = "OFF"; transition = 10; };
-              "Takkrona 3"      = { state = "OFF"; transition = 10; };
-              "Takkrona 4"      = { state = "OFF"; transition = 10; };
-              "TV Play Strip"   = { state = "OFF"; transition = 150; };
-              "TV Play 1"       = { state = "OFF"; transition = 150; };
-              "TV Play 2"       = { state = "OFF"; transition = 150; };
-              "TV Play 3"       = { state = "OFF"; transition = 150; };
-              "TV Play 4"       = { state = "OFF"; transition = 150; };
-              "Play Top L"      = { state = "OFF"; transition = 150; };
-              "Play Top R"      = { state = "OFF"; transition = 150; };
+              "Bloom"           = { state = "OFF"; transition = 13; };
+              "Dörr"            = { state = "OFF"; transition = 13; };
+              "Golvet"          = { state = "OFF"; transition = 13; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 13; };
+              "PC"              = { state = "OFF"; transition = 13; };
+              "Rustning"        = { state = "OFF"; transition = 13; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 13; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 13; };
+              "Sänggavel"       = { state = "OFF"; transition = 13; };
+              "Tak Hall"        = { state = "OFF"; transition = 13; };
+              "Taket Sovrum 1"  = { state = "OFF"; transition = 13; };
+              "Taket Sovrum 2"  = { state = "OFF"; transition = 13; };
+              "Uppe"            = { state = "OFF"; transition = 13; };
+              "Vägg"            = { state = "OFF"; transition = 13; };
+              "WC 1"            = { state = "OFF"; transition = 13; };
+              "WC 2"            = { state = "OFF"; transition = 13; };
+              "Takkrona 1"      = { state = "OFF"; transition = 13; };
+              "Takkrona 2"      = { state = "OFF"; transition = 13; };
+              "Takkrona 3"      = { state = "OFF"; transition = 13; };
+              "Takkrona 4"      = { state = "OFF"; transition = 13; };
+              "TV Play Strip"   = { state = "OFF"; transition = 13; };
+              "TV Play 1"       = { state = "OFF"; transition = 13; };
+              "TV Play 2"       = { state = "OFF"; transition = 13; };
+              "TV Play 3"       = { state = "OFF"; transition = 13; };
+              "TV Play 4"       = { state = "OFF"; transition = 13; };
+              "Play Top L"      = { state = "OFF"; transition = 13; };
+              "Play Top R"      = { state = "OFF"; transition = 13; };
           };
 
           "dark-fast"           = { # 🦆 says ⮞ eat darkness... NAO!
@@ -788,6 +799,105 @@ in { # 🦆 duck say ⮞ house config
               "Play Top R"      = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
           };
 
+          "Living Cealing 1"    = { # 🦆 says ⮞ makin' living scene dat eazy ?!       
+              "Takkrona 1"      = { state = "ON"; brightness = 240; transition = 12; color = { hex = "#FF1744"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 17; color = { hex = "#FFEA00"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 200; transition = 22; color = { hex = "#00E676"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 180; transition = 27; color = { hex = "#2979FF"; }; };          
+          };
+          "Living Cealing 2"    = { # 🦆⮞call "Living Cealing 1", sleep 15, "Living Cealing 2", sleep 15. "Living Cealing 3"        
+              "Takkrona 1"      = { state = "ON"; brightness = 182; transition = 9; color = { hex = "#2979FF"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 200; transition = 11; color = { hex = "#00E676"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 220; transition = 18; color = { hex = "#FFEA00"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 240; transition = 26; color = { hex = "#FF1744"; }; };          
+          };
+          "Living Cealing 3"    = {
+              "Takkrona 1"      = { state = "ON"; brightness = 200; transition =  8; color = { hex = "#B71C1C"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 14; color = { hex = "#1B5E20"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 240; transition = 20; color = { hex = "#0D47A1"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 200; transition = 26; color = { hex = "#4A148C"; }; };
+          };          
+          
+          "Rainforest"          = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
+              "Dörr"            = { state = "ON"; brightness = 180; color = { hex = "#2E7D32"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#1B5E20"; }; };
+              "PC"              = { state = "ON"; brightness = 220; color = { hex = "#00ACC1"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FF6D00"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 254; color = { hex = "#FF4081"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 160; color = { hex = "#2E7D32"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 120; color = { hex = "#1B5E20"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFD54F"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 220; color = { hex = "#81C784"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 200; color = { hex = "#66BB6A"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 180; color = { hex = "#43A047"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 160; color = { hex = "#2E7D32"; }; };
+          };
+          
+          "Galaxy"              = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FFD54F"; }; };
+              "Dörr"            = { state = "ON"; brightness = 140; color = { hex = "#4A148C"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#12002B"; }; };
+              "PC"              = { state = "ON"; brightness = 200; color = { hex = "#7B1FA2"; }; };
+              "Rustning"        = { state = "ON"; brightness = 120; color = { hex = "#0D47A1"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 220; color = { hex = "#FF80AB"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 120; color = { hex = "#4A148C"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 100; color = { hex = "#311B92"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#E1BEE7"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 200; color = { hex = "#7B1FA2"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 180; color = { hex = "#6A1B9A"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 160; color = { hex = "#4A148C"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 140; color = { hex = "#311B92"; }; };
+          };
+          
+          "Festival"            = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
+              "Dörr"            = { state = "ON"; brightness = 254; color = { hex = "#FF9100"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#FFEA00"; }; };
+              "PC"              = { state = "ON"; brightness = 254; color = { hex = "#00E676"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#00E5FF"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 254; color = { hex = "#D500F9"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 220; color = { hex = "#FF1744"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 220; color = { hex = "#FF9100"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFEA00"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 254; color = { hex = "#651FFF"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 254; color = { hex = "#D500F9"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 254; color = { hex = "#F50057"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
+          };
+         
+          "Sunset"              = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF3D00"; }; };
+              "Dörr"            = { state = "ON"; brightness = 200; color = { hex = "#FF6E40"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#4E342E"; }; };
+              "PC"              = { state = "ON"; brightness = 240; color = { hex = "#FFAB40"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FFC107"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 254; color = { hex = "#FF4081"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 160; color = { hex = "#7E57C2"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 120; color = { hex = "#3F51B5"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFD180"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 240; color = { hex = "#FF8A80"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 220; color = { hex = "#FF80AB"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 200; color = { hex = "#CE93D8"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 180; color = { hex = "#9FA8DA"; }; };
+          };
+
+          "Underwater"          = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF6E40"; }; };
+              "Dörr"            = { state = "ON"; brightness = 160; color = { hex = "#006064"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#002F4A"; }; };
+              "PC"              = { state = "ON"; brightness = 220; color = { hex = "#0091EA"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#18FFFF"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 240; color = { hex = "#64FFDA"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 140; color = { hex = "#01579B"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 110; color = { hex = "#003366"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#84FFFF"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 220; color = { hex = "#00ACC1"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 200; color = { hex = "#00838F"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 180; color = { hex = "#00695C"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 160; color = { hex = "#26A69A"; }; };
+          };         
+         
           "tv-area1"          = {
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
@@ -809,13 +919,13 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area3"          = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; transition = 15; };
-              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; transition = 15; };
-              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; transition = 15; };
-              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; transition = 15; };
-              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; transition = 15; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; transition = 15; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; transition = 15; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; color = { xy = [ 0.7006 0.2993 ]; }; transition =  2; };
+              "TV Play 1"     = { state = "ON"; brightness = 210; color = { xy = [ 0.5530 0.4100 ]; }; transition =  4; };
+              "TV Play 2"     = { state = "ON"; brightness = 254; color = { xy = [ 0.4432 0.5151 ]; }; transition =  6; };
+              "TV Play 3"     = { state = "ON"; brightness = 200; color = { xy = [ 0.1700 0.7000 ]; }; transition =  8; };
+              "TV Play 4"     = { state = "ON"; brightness = 254; color = { xy = [ 0.1700 0.3400 ]; }; transition = 10; };
+              "Play Top L"    = { state = "ON"; brightness = 220; color = { xy = [ 0.1350 0.0400 ]; }; transition = 12; };
+              "Play Top R"    = { state = "ON"; brightness = 254; color = { xy = [ 0.2654 0.1080 ]; }; transition = 14; };
           };
         };
     };
@@ -1174,22 +1284,20 @@ I like my flakes tiny & ny modules dynamically loaded,
 {
     description = "❄️🦆 ⮞ QuackHack-McBLindy's NixOS flake";
     inputs = {
-        nixpkgs.url  = "github:nixos/nixpkgs/nixos-unstable";
-        sops-nix.url = "github:Mic92/sops-nix";
+        nixpkgs.url                     = "github:nixos/nixpkgs/nixos-unstable";
+        sops-nix.url                    = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        yo.url      = "github:QuackHack-McBlindy/yo?ref=dev";
-        zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
-        pokenix.url = "github:QuackHack-McBlindy/pokenix";
-        #yo.url = "path:/home/pungkula/new/yo";
-        #zigduck.url = "path:/home/pungkula/zigduck2mqttnix";
-        caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
-        installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
+        yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
+        zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        pokenix.url          = "github:QuackHack-McBlindy/pokenix";
+        caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
+        installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs
-        mobile-pkgs.url = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
+        mobile-pkgs.url      = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
         mobile-nixos = {
-          url = "github:nixos/mobile-nixos/efbe2c3c5409c868309ae0770852638e623690b5";
-          flake = false;
+          url        = "github:nixos/mobile-nixos/efbe2c3c5409c868309ae0770852638e623690b5";
+          flake      = false;
         };
     };
     outputs = inputs @ { self, systems, nixpkgs, mobile-pkgs, mobile-nixos, ... }:
@@ -1199,12 +1307,12 @@ I like my flakes tiny & ny modules dynamically loaded,
                 lib = nixpkgs.lib;
             };
         in lib.makeFlake {
-            systems = [ "x86_64-linux" "aarch64-linux" ];
-            overlays = lib.mapOverlays ./overlays { inherit lib self inputs; };
-            hosts = lib.mapHosts ./hosts;
-            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
-            packages = lib.mapModules ./packages import;
-            devShells = lib.mapModules ./devShells (path: import path);
+            systems     = [ "x86_64-linux" "aarch64-linux" ];
+            overlays    = lib.mapOverlays ./overlays { inherit lib self inputs; };
+            hosts       = lib.mapHosts ./hosts;
+            packages    = lib.mapModules ./packages import;
+            devShells   = lib.mapModules ./devShells (path: import path);
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };            
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'
 ```
 
@@ -1336,7 +1444,7 @@ Add \`?\` to any command to run it in DEBUG mode
 |------------------------------|------------|-------------|--|
 | **🖥️ System Management** | | | |
 | [yo deploy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/deploy.nix) --host [--flake] [--user] [--repo] [--port] [--test] [--watchdog] [--watchdog-timer] [--all] |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | ✅ |
-| [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] [--list] |  | Start development enviorment | 📛 |
+| [yo dev](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dev.nix) [--devShell] [--list] |  | Start development enviorment with local flake inputs | 📛 |
 | [yo dry](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/dry.nix)  |  | Build and deploy a NixOS configuration to a remote host. Bootstraps, builds locally, activates remotely, and auto-tags the generation. | 📛 |
 | [yo pkgs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/pkgs.nix) [--host] --pkgs [--file] |  | Add system package to specified hosts nixosConfiguration. | 📛 |
 | [yo reboot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/reboot.nix) [--host] | restart | Force reboot and wait for host | ✅ |

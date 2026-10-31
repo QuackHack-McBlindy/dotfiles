@@ -72,9 +72,6 @@ in {
         condition = { wildcard = true; values = []; };
         "then"    = { wildcard = true; values = []; };
         annars    = { wildcard = true; values = []; };
-        #reverse.values = [
-        #  { "in" = "inte"; out = "true"; }
-       # ];
       };
     };
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# scripts/update-readme.sh
+# hooks/update-readme.sh
 
 set -euo pipefail
 

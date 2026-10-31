@@ -91,7 +91,7 @@ in { # 🦆 duck say ⮞ house config
       };
       kitchen    = {
         icon     = icons.room.kitchen;
-        aliases  = [ "kök" "köket" "matsalen" ];
+        aliases  = [ "kök" "köket" "matsal" "matsalen" ];
       };
       livingroom = {
         icon     = icons.room.livingroom;
@@ -111,8 +111,8 @@ in { # 🦆 duck say ⮞ house config
     # 🦆 says ⮞ presence (home/away) state
     presence = {
       probes      = [ devices.iphone.ip ];
-      homeActions = [ ];
-      awayActions = [ "släck alla lampor" ];
+      homeActions = [ "skicka en notis om 🏠 ☑️ BACK HOME!" ];
+      awayActions = [ "skicka en notis om 🏠 ❌ LEFT HOME! samt släck alla lampor" ];
     };
 
     # 🦆 says ⮞ media
@@ -232,6 +232,17 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
+          living_cealing = {
+            enable       = true;
+            description  = "Give the cealing life. Life in colors.";
+            topic        = "${zigduck.baseTopic}/effects/living/cealing";
+            actions  = [
+              "aktivera scen levandde tak ett samt vänta femton sekunder"
+              "aktivera scen levandde tak två samt vänta femton sekunder"
+              "aktivera scen levandde tak tre samt vänta tolv sekunder"
+            ];
+          };
+
           alarm_wakeup  = {
             enable      = true;
             description = "Time to wake up!";
@@ -320,7 +331,7 @@ in { # 🦆 duck say ⮞ house config
             motion_not_detected = [
               "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
             ];
-            # 🦆 ⮞ 1: start lights. 2: cancel the off-countdown on fan. 3. if my team is playing right now activate scene.
+            # 🦆 ⮞ 1: start lights. 2: cancel the off-countdown on fan. 3. if my team is playin' right NOW activate scene.
             motion_detected = [
               # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
@@ -472,33 +483,33 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "dark"                = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!
-              "Bloom"           = { state = "OFF"; transition = 10; };
-              "Dörr"            = { state = "OFF"; transition = 10; };
-              "Golvet"          = { state = "OFF"; transition = 10; };
-              "Kök Bänk Slinga" = { state = "OFF"; transition = 10; };
-              "PC"              = { state = "OFF"; transition = 10; };
-              "Rustning"        = { state = "OFF"; transition = 10; };
-              "Spotlight Kök 2" = { state = "OFF"; transition = 10; };
-              "Spotlight kök 1" = { state = "OFF"; transition = 10; };
-              "Sänggavel"       = { state = "OFF"; transition = 10; };
-              "Tak Hall"        = { state = "OFF"; transition = 10; };
-              "Taket Sovrum 1"  = { state = "OFF"; transition = 10; };
-              "Taket Sovrum 2"  = { state = "OFF"; transition = 10; };
-              "Uppe"            = { state = "OFF"; transition = 10; };
-              "Vägg"            = { state = "OFF"; transition = 10; };
-              "WC 1"            = { state = "OFF"; transition = 10; };
-              "WC 2"            = { state = "OFF"; transition = 10; };
-              "Takkrona 1"      = { state = "OFF"; transition = 10; };
-              "Takkrona 2"      = { state = "OFF"; transition = 10; };
-              "Takkrona 3"      = { state = "OFF"; transition = 10; };
-              "Takkrona 4"      = { state = "OFF"; transition = 10; };
-              "TV Play Strip"   = { state = "OFF"; transition = 150; };
-              "TV Play 1"       = { state = "OFF"; transition = 150; };
-              "TV Play 2"       = { state = "OFF"; transition = 150; };
-              "TV Play 3"       = { state = "OFF"; transition = 150; };
-              "TV Play 4"       = { state = "OFF"; transition = 150; };
-              "Play Top L"      = { state = "OFF"; transition = 150; };
-              "Play Top R"      = { state = "OFF"; transition = 150; };
+              "Bloom"           = { state = "OFF"; transition = 13; };
+              "Dörr"            = { state = "OFF"; transition = 13; };
+              "Golvet"          = { state = "OFF"; transition = 13; };
+              "Kök Bänk Slinga" = { state = "OFF"; transition = 13; };
+              "PC"              = { state = "OFF"; transition = 13; };
+              "Rustning"        = { state = "OFF"; transition = 13; };
+              "Spotlight Kök 2" = { state = "OFF"; transition = 13; };
+              "Spotlight kök 1" = { state = "OFF"; transition = 13; };
+              "Sänggavel"       = { state = "OFF"; transition = 13; };
+              "Tak Hall"        = { state = "OFF"; transition = 13; };
+              "Taket Sovrum 1"  = { state = "OFF"; transition = 13; };
+              "Taket Sovrum 2"  = { state = "OFF"; transition = 13; };
+              "Uppe"            = { state = "OFF"; transition = 13; };
+              "Vägg"            = { state = "OFF"; transition = 13; };
+              "WC 1"            = { state = "OFF"; transition = 13; };
+              "WC 2"            = { state = "OFF"; transition = 13; };
+              "Takkrona 1"      = { state = "OFF"; transition = 13; };
+              "Takkrona 2"      = { state = "OFF"; transition = 13; };
+              "Takkrona 3"      = { state = "OFF"; transition = 13; };
+              "Takkrona 4"      = { state = "OFF"; transition = 13; };
+              "TV Play Strip"   = { state = "OFF"; transition = 13; };
+              "TV Play 1"       = { state = "OFF"; transition = 13; };
+              "TV Play 2"       = { state = "OFF"; transition = 13; };
+              "TV Play 3"       = { state = "OFF"; transition = 13; };
+              "TV Play 4"       = { state = "OFF"; transition = 13; };
+              "Play Top L"      = { state = "OFF"; transition = 13; };
+              "Play Top R"      = { state = "OFF"; transition = 13; };
           };
 
           "dark-fast"           = { # 🦆 says ⮞ eat darkness... NAO!
@@ -561,6 +572,105 @@ in { # 🦆 duck say ⮞ house config
               "Play Top R"      = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
           };
 
+          "Living Cealing 1"    = { # 🦆 says ⮞ makin' living scene dat eazy ?!
+              "Takkrona 1"      = { state = "ON"; brightness = 240; transition = 12; color = { hex = "#FF1744"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 17; color = { hex = "#FFEA00"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 200; transition = 22; color = { hex = "#00E676"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 180; transition = 27; color = { hex = "#2979FF"; }; };
+          };
+          "Living Cealing 2"    = { # 🦆⮞call "Living Cealing 1", sleep 15, "Living Cealing 2", sleep 15. "Living Cealing 3"
+              "Takkrona 1"      = { state = "ON"; brightness = 182; transition = 9; color = { hex = "#2979FF"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 200; transition = 11; color = { hex = "#00E676"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 220; transition = 18; color = { hex = "#FFEA00"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 240; transition = 26; color = { hex = "#FF1744"; }; };
+          };
+          "Living Cealing 3"    = {
+              "Takkrona 1"      = { state = "ON"; brightness = 200; transition =  8; color = { hex = "#B71C1C"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 14; color = { hex = "#1B5E20"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 240; transition = 20; color = { hex = "#0D47A1"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 200; transition = 26; color = { hex = "#4A148C"; }; };
+          };
+
+          "Rainforest"          = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
+              "Dörr"            = { state = "ON"; brightness = 180; color = { hex = "#2E7D32"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#1B5E20"; }; };
+              "PC"              = { state = "ON"; brightness = 220; color = { hex = "#00ACC1"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FF6D00"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 254; color = { hex = "#FF4081"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 160; color = { hex = "#2E7D32"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 120; color = { hex = "#1B5E20"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFD54F"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 220; color = { hex = "#81C784"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 200; color = { hex = "#66BB6A"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 180; color = { hex = "#43A047"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 160; color = { hex = "#2E7D32"; }; };
+          };
+
+          "Galaxy"              = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FFD54F"; }; };
+              "Dörr"            = { state = "ON"; brightness = 140; color = { hex = "#4A148C"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#12002B"; }; };
+              "PC"              = { state = "ON"; brightness = 200; color = { hex = "#7B1FA2"; }; };
+              "Rustning"        = { state = "ON"; brightness = 120; color = { hex = "#0D47A1"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 220; color = { hex = "#FF80AB"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 120; color = { hex = "#4A148C"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 100; color = { hex = "#311B92"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#E1BEE7"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 200; color = { hex = "#7B1FA2"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 180; color = { hex = "#6A1B9A"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 160; color = { hex = "#4A148C"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 140; color = { hex = "#311B92"; }; };
+          };
+
+          "Festival"            = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
+              "Dörr"            = { state = "ON"; brightness = 254; color = { hex = "#FF9100"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#FFEA00"; }; };
+              "PC"              = { state = "ON"; brightness = 254; color = { hex = "#00E676"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#00E5FF"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 254; color = { hex = "#D500F9"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 220; color = { hex = "#FF1744"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 220; color = { hex = "#FF9100"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFEA00"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 254; color = { hex = "#651FFF"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 254; color = { hex = "#D500F9"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 254; color = { hex = "#F50057"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
+          };
+
+          "Sunset"              = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF3D00"; }; };
+              "Dörr"            = { state = "ON"; brightness = 200; color = { hex = "#FF6E40"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#4E342E"; }; };
+              "PC"              = { state = "ON"; brightness = 240; color = { hex = "#FFAB40"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FFC107"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 254; color = { hex = "#FF4081"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 160; color = { hex = "#7E57C2"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 120; color = { hex = "#3F51B5"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFD180"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 240; color = { hex = "#FF8A80"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 220; color = { hex = "#FF80AB"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 200; color = { hex = "#CE93D8"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 180; color = { hex = "#9FA8DA"; }; };
+          };
+
+          "Underwater"          = {
+              "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF6E40"; }; };
+              "Dörr"            = { state = "ON"; brightness = 160; color = { hex = "#006064"; }; };
+              "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#002F4A"; }; };
+              "PC"              = { state = "ON"; brightness = 220; color = { hex = "#0091EA"; }; };
+              "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#18FFFF"; }; };
+              "Sänggavel"       = { state = "ON"; brightness = 240; color = { hex = "#64FFDA"; }; };
+              "Taket Sovrum 1"  = { state = "ON"; brightness = 140; color = { hex = "#01579B"; }; };
+              "Taket Sovrum 2"  = { state = "ON"; brightness = 110; color = { hex = "#003366"; }; };
+              "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#84FFFF"; }; };
+              "Takkrona 1"      = { state = "ON"; brightness = 220; color = { hex = "#00ACC1"; }; };
+              "Takkrona 2"      = { state = "ON"; brightness = 200; color = { hex = "#00838F"; }; };
+              "Takkrona 3"      = { state = "ON"; brightness = 180; color = { hex = "#00695C"; }; };
+              "Takkrona 4"      = { state = "ON"; brightness = 160; color = { hex = "#26A69A"; }; };
+          };
+
           "tv-area1"          = {
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
@@ -582,13 +692,13 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area3"          = {
-              "TV Play Strip" = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.5128 0.4147 ]; }; transition = 15; };
-              "TV Play 1"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5752 0.3850 ]; }; transition = 15; };
-              "TV Play 2"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.4597 0.4106 ]; }; transition = 15; };
-              "TV Play 3"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.3690 0.3576 ]; }; transition = 15; };
-              "TV Play 4"     = { state = "ON"; brightness = 230; hue = 12750; sat = 200; color = { xy = [ 0.5016 0.4400 ]; }; transition = 15; };
-              "Play Top L"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4448 0.4066 ]; }; transition = 15; };
-              "Play Top R"    = { state = "ON"; brightness = 254; hue = 12750; sat = 200; color = { xy = [ 0.4020 0.3810 ]; }; transition = 15; };
+              "TV Play Strip" = { state = "ON"; brightness = 254; color = { xy = [ 0.7006 0.2993 ]; }; transition =  2; };
+              "TV Play 1"     = { state = "ON"; brightness = 210; color = { xy = [ 0.5530 0.4100 ]; }; transition =  4; };
+              "TV Play 2"     = { state = "ON"; brightness = 254; color = { xy = [ 0.4432 0.5151 ]; }; transition =  6; };
+              "TV Play 3"     = { state = "ON"; brightness = 200; color = { xy = [ 0.1700 0.7000 ]; }; transition =  8; };
+              "TV Play 4"     = { state = "ON"; brightness = 254; color = { xy = [ 0.1700 0.3400 ]; }; transition = 10; };
+              "Play Top L"    = { state = "ON"; brightness = 220; color = { xy = [ 0.1350 0.0400 ]; }; transition = 12; };
+              "Play Top R"    = { state = "ON"; brightness = 254; color = { xy = [ 0.2654 0.1080 ]; }; transition = 14; };
           };
         };
     };

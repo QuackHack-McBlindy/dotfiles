@@ -426,6 +426,8 @@ in {
         "extensions.formautofill.heuristics.enabled" = false;
         "zoom.maxPercent" = 400;
         "zoom.minPercent" = 40;
+        "accessibility.browsewithcaret" = true;
+        "accessibility.force_disabled"  = -1;
       };
 
 # 🦆 duck say ⮞ POLICIES ====================#

@@ -535,19 +535,22 @@ in {
       }
 
 
+
       filter_games_by_matchup() {
         local games_data="$1"
         local home_filter="$2"
         local away_filter="$3"
+        local team_filter="$4"
 
-        if [ -z "$home_filter" ] && [ -z "$away_filter" ]; then
+        if [ -z "$home_filter" ] && [ -z "$away_filter" ] && [ -z "$team_filter" ]; then
           echo "$games_data"
           return 0
         fi
 
         echo "$games_data" | jq \
           --arg home "$home_filter" \
-          --arg away "$away_filter" '
+          --arg away "$away_filter" \
+          --arg team "$team_filter" '
 
           def fold:
             gsub("å";"a") | gsub("ä";"a") | gsub("ö";"o")
@@ -555,7 +558,6 @@ in {
             | gsub("[^a-z0-9 ]"; " ")
             | gsub("\\s+"; " ")
             | sub("^ +"; "") | sub(" +$"; "");
-
 
           def club_word:
             . == "if"  or . == "ik"  or . == "hc"  or . == "sk"
@@ -579,7 +581,6 @@ in {
                   ($a == $f)
                   or ($a | contains($f))
                   or ($f | contains($a))
-
                   or (
                     (if ($f | length) <= ($a | length) then $f else $a end) as $shorter
                     | (if ($f | length) <= ($a | length) then $a else $f end) as $longer
@@ -599,8 +600,15 @@ in {
                 end
             end;
 
+          def team_matches_either($g; $t):
+            $t == "" or matches($g.home_team; $t) or matches($g.away_team; $t);
+
           [.[]
-            | select(matches(.home_team; $home) and matches(.away_team; $away))]
+            | select(
+                matches(.home_team; $home)
+                and matches(.away_team; $away)
+                and team_matches_either(.; $team)
+              )]
         '
       }
 
@@ -656,24 +664,14 @@ in {
         filtered_games=$(filter_games_by_days "$games_data" "$days" "$type")
       fi
 
-      filtered_games=$(filter_games_by_matchup "$filtered_games" "$home" "$away")
+      filtered_games=$(filter_games_by_matchup "$filtered_games" "$home" "$away" "$team")
 
       if [ "$type" = "live" ]; then
         filtered_games=$(filter_live_games "$filtered_games")
       fi
 
-      # 🦆 says ⮞ filter to specific team (either side)
-      if [ -n "$team" ]; then
-        filtered_games=$(echo "$filtered_games" | jq --arg t "$team" '
-          [.[] | select(
-            (.home_team | ascii_downcase | contains($t | ascii_downcase)) or
-            (.away_team | ascii_downcase | contains($t | ascii_downcase))
-          )]')
-      fi
-
       games_count=$(echo "$filtered_games" | jq length)
 
-      # 🦆 says ⮞ silent boolean — forced for live games unless --json
       if [ "$check" = "true" ] || { [ "$type" = "live" ] && [ "$json" != "true" ]; }; then
         if [ "$games_count" -gt 0 ]; then
           echo "true"
@@ -768,6 +766,7 @@ in {
         "spelar {team} {type} (nu|ikväll)"
         "kolla om {team} spelar {type} (nu|ikväll)"
         "kolla om {team} {type} match (nu|ikväll)"
+        "{team} spelar {type} nu"
       ];
       lists = {
         type.values = [

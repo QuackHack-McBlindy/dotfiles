@@ -37,6 +37,13 @@
         builtins.elem "pinephone"
           (hostConfig.host.modules.hardware or []);
 
+      allOverlays = lib.mapAttrs'
+        (name: _: lib.nameValuePair (lib.removeSuffix ".nix" name)
+          (final: prev: (import (./../overlays + "/${name}") { inherit lib; }) final prev))
+        (lib.filterAttrs (name: type: lib.hasSuffix ".nix" name)
+          (builtins.readDir ./../overlays));
+
+
       # 🦆 says ⮞ builds nixosConfiguration for each host
       nixosConfigurations = lib.mapAttrs (hostName: hostConfig:
         let
