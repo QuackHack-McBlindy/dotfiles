@@ -88,7 +88,8 @@ in {
         { "in" = "kitchen fade off|kök tona ut"; out = "kitchenFadeOff"; }
         { "in" = "kitchen green instant|kök grön direkt"; out = "kitchenGreenInstant"; }
         { "in" = "chill"; out = "Chill Scene"; }
-        { "in" = "green d"; out = "Green D"; }
+        { "in" = "green devil|green devils"; out = "Green D"; }
+        { "in" = "löven"; out = "Green D"; }
         { "in" = "tv area 1|tv1"; out = "tv-area1"; }
         { "in" = "tv area 2|tv2"; out = "tv-area2"; }
         { "in" = "tv area 3|tv3"; out = "tv-area3"; }

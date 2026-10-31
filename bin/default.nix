@@ -41,6 +41,8 @@
     inherit zigduck devices;
   };
 
+  sweSpeech = import ./lib.nix { inherit config lib pkgs; };
+
   # 🦆BEtracin'⮞RUST'logggin'DUCK'pleasin'
   RustDuckTrace = import ./DuckTrace/rust.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
@@ -73,7 +75,7 @@
 in { # 🦆 duck say ⮞ import everythang in defined directories
     imports = builtins.map (file: import file {
         inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace pkgs sysHosts mqttHostip;
-        inherit zigduck devices;
+        inherit zigduck devices sweSpeech;
     }) (
         importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++
         importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++

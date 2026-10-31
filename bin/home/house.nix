@@ -96,6 +96,7 @@ in {
       };
       sentences = [
         # 🦆 says ⮞ multi taskerz
+        "{device} {state} i {room} [{when}] och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
         "{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
         "{state} {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"
         "{state} {room} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"
@@ -108,7 +109,9 @@ in {
         "{brightness} procent [ljusstyrka] i {room}"
         #"{scene} alla lampor"
         "{scene} (belysning|belysningen)"
-        "{state} [av] {all-lights} (lampor|lamporna)"
+        "{scene} (lamp|lampor|lamporna|allt|ljus|ljuset)"
+        "släck (lamp|lampor|lamporna|allt|ljus|ljuset) [igen] {scene} [som] [fan] [utav] [helvete]"
+        #"{state} [av] {all-lights} (lampor|lamporna)"
         "{state} {device} (lampor|igen)"
         "{state} [alla|allt] (lampor|lamporna|ljus) i {room}"
         "{state} (lamporna|ljusen) [i] {room}"
@@ -138,7 +141,10 @@ in {
         "vad har {device} för {get-bat} [nivå|procent]"
         # 🦆 says ⮞ contorl all blinds
         "(hissa|dra|veva|ta) {blinds} (persienner|persiennerna)"
-        "{state} {all-lights} (lampor|lamporna)"
+        "{scene} [alla] (lampor|lamporna|ljuset|ljusen)"
+        "(långsam|långsamt|sakta|slowly) släck [i] {scene}"
+        "(släck|stäng) {scene} (långsam|långsamt|sakta)"
+        #"{state} {all-lights} (lampor|lamporna)"
       ];
       lists = {
         state.values = [
@@ -265,9 +271,11 @@ in {
           { "in" = "tänd||tänk|max|maxa|maxxa|maxad|maximum"; out = "max"; }
           { "in" = "på|tänd|aktiv"; out = "max"; }
 
+
           { "in" = "mörk|mörker|mörkt|släckt|avstängd"; out = "dark"; }
           { "in" = "av|släck|släckt|stängd|stäng"; out = "dark"; }
-
+          { "in" = "fort"; out = "dark-fast"; }
+          { "in" = "kök|köket"; out = "kitchenFadeOff"; }
           { "in" = "mys|myspys|mysig|chill|chilla"; out = "Chill Scene"; }
         ] ++
         (lib.mapAttrsToList (sceneId: sceneConfig:
@@ -310,7 +318,6 @@ in {
           { "in" = "hall|hallen|hallway"; out = "hallway"; }
         ];
 
-
         blinds.values = [
           { "in" = "up|upp"; out = "up"; }
           { "in" = "ner|ned"; out = "down"; }
@@ -325,7 +332,6 @@ in {
         get-bat.values = [
           { "in" = "batteri|battery|batteriet"; out = "true"; }
           { "in" = "batterinivå|batterinivån"; out = "true"; }
-
         ];
       };
     };

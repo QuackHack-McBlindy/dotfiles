@@ -2,6 +2,18 @@
 # 🦆 says ⮞ sourced bash aliases (mostly junk)
 
 
+t() {
+  local -a args=()
+  for arg in "$@"; do
+    if [[ "$arg" == -* ]]; then
+      args+=("$arg")
+    else
+      args+=("$(realpath -m -- "$arg")")
+    fi
+  done
+  gnome-text-editor "${args[@]}" >/dev/null 2>&1 &
+}
+
 # 🦆 ⮞ pip
 pip3() {
     PIP_REQUIRE_VIRTUALENV="" pip3 "$@"

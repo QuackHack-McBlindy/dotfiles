@@ -11,8 +11,8 @@
 
 in {
   yo.scripts.yo = {
-    description = "say after me";
-    category = "🛖 Home Automation";
+    description = "Say after me";
+    category = "🧩 Miscellaneous";
     autoStart = false;
     logLevel = "WARNING";
     parameters = [
@@ -32,7 +32,7 @@ in {
       ];
 
       lists = {
-        phrase = { wildcard = true; values = []; };
+        phrase = { wildcard = true; };
       };
     };
 

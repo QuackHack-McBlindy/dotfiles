@@ -11,7 +11,7 @@
 
 in {
   yo.scripts."if" = {
-    description = "Run a command when a condition holds. Condition is any natural-language query that returns true/false (e.g. 'kolla om ytterdörren är öppen').";
+    description = "Run a command when a condition holds. Condition is any natural-language query that returns true/false.";
     category = "🛖 Home Automation";
     autoStart = false;
     logLevel = "WARNING";
@@ -20,27 +20,31 @@ in {
       { name = "condition"; description = "Query that returns true/false"; optional = false; }
       { name = "then";      description = "Command to run when condition is true"; optional = false; }
       { name = "annars";    description = "Command to run when condition is false"; optional = true; }
+      #{ name = "reverse";    description = "Reverse the result"; type = "bool"; optional = true; }
+
     ];
 
     code = ''
-      COND="''${condition:-}"
-      THEN_CMD="''${then:-}"
-      ELSE_CMD="''${annars:-}"
+      COND="$condition"
+      THEN_CMD="$then"
+      ELSE_CMD="$annars"
 
-      COND="''${COND#kolla om }"
-      COND="''${COND#kontrollera om }"
+      [ -z "$COND" ]     && exit 1
+      [ -z "$THEN_CMD" ] && exit 1
 
-      QUERY="kolla om $COND"
-      RESULT=$(yo do "$QUERY" 2>/dev/null | tail -1 | tr -d '[:space:]')
+      if ! RESULT=$(yo do "$COND" 2>/dev/null); then
+        echo "[if] condition '$COND' failed" >&2
+        exit 1
+      fi
 
-      case "$RESULT" in
-        true|false) ;;
-        *) RESULT=$(yo do "$COND" 2>/dev/null | tail -1 | tr -d '[:space:]') ;;
-      esac
-
-      case "$RESULT" in
-        true|True|TRUE)  STATE=true ;;
-        *)               STATE=false ;;
+      RESULT_LAST=$(printf '%s\n' "$RESULT" | tail -n1 | tr -d '[:space:]')
+      case "$RESULT_LAST" in
+        true|True|TRUE) STATE=true ;;
+        false|False|FALSE) STATE=false ;;
+        *)
+          echo "[if] condition '$COND' returned non-boolean: '$RESULT_LAST'" >&2
+          exit 1
+          ;;
       esac
 
       if [ "$STATE" = "true" ]; then
@@ -60,12 +64,17 @@ in {
         "om {condition} gör {then}"
         "om {condition} så {then} annars {annars}"
         "kolla om {condition} isåfall {then}"
+        "(varna|larma) mig om {condition} så {then} annars {annars}"
+        "(varna|larma) mig om {condition} så {then}"
       ];
 
       lists = {
         condition = { wildcard = true; values = []; };
         "then"    = { wildcard = true; values = []; };
         annars    = { wildcard = true; values = []; };
+        #reverse.values = [
+        #  { "in" = "inte"; out = "true"; }
+       # ];
       };
     };
 

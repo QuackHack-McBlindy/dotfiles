@@ -5,6 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
+  sweSpeech,
   ...
 } : let
 
@@ -72,29 +73,11 @@ in {
         "när {list} (time|timer|timern)"
       ];
       lists = {
-        list.values = [
-          { "in" = "[länge|kvar]"; out = "true"; }
-        ];
-        seconds.values = builtins.concatLists (builtins.genList (
-                i: let n = i + 1; in [
-                  { "in" = toString n; out = toString n; }
-                  { "in" = swedishNumber n; out = toString n; }
-                ]
-              ) 59);
-              minutes.values = builtins.concatLists (builtins.genList (
-                i: let n = i + 1; in [
-                  { "in" = toString n; out = toString n; }
-                  { "in" = swedishNumber n; out = toString n; }
-                ]
-              ) 59);
-              hours.values = builtins.concatLists (builtins.genList (
-                i: let n = i + 1; in [
-                  { "in" = toString n; out = toString n; }
-                  { "in" = swedishNumber n; out = toString n; }
-                ]
-              ) 24);
-        };
+        list.values    = sweSpeech.timerListValues;
+        seconds.values = sweSpeech.numberValuesOneBased 59;
+        minutes.values = sweSpeech.numberValuesOneBased 59;
+        hours.values   = sweSpeech.numberValuesOneBased 24;
       };
     };
 
-  }
+  };}

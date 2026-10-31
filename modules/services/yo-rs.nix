@@ -94,7 +94,7 @@ in {
         conflict.detection = false;
         conflict.threshold = 80;
       };
-      splitWords = [ ];
+      splitWords = [ "sedan" "och därefter" "ooh utöver det så" "och slutligen" ];
       sorryPhrases = [
         "Det låter som du har en köttebulle i käften. Ät klart middagen och försök sedan igen."
         "Vad fan säger du för något?"
