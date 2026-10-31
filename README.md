@@ -76,7 +76,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5320-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4575-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4574-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -599,7 +599,6 @@ in { # 🦆 duck say ⮞ house config
               override_actions = [];
             };
           };
-          
         };
 
         # 🦆 says ⮞ 5. time based automations
@@ -1179,12 +1178,11 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        #yo.url      = "github:QuackHack-McBlindy/yo?ref=dev";
-        #zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
-        #pokenix.url = "github:QuackHack-McBlindy/pokenix";
-        pokenix.url = "path:/home/pungkula/new/pokenix";
-        yo.url = "path:/home/pungkula/new/yo";
-        zigduck.url = "path:/home/pungkula/zigduck2mqttnix";
+        yo.url      = "github:QuackHack-McBlindy/yo?ref=dev";
+        zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        pokenix.url = "github:QuackHack-McBlindy/pokenix";
+        #yo.url = "path:/home/pungkula/new/yo";
+        #zigduck.url = "path:/home/pungkula/zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs

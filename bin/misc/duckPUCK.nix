@@ -45,22 +45,21 @@ let
   };
 
 
-
   leagues = {
     ha = {
       key         = "ha";
       name        = "HockeyAllsvenskan";
       displayName = "Hockey Allsvenskan (SWE)";
       title       = "HOCKEYALLSVENSKAN";
-      speakLeague = "allsvenskan";           # spoken name used in analysis strings
+      speakLeague = "allsvenskan";
       apiBase     = "https://www.hockeyallsvenskan.se/api";
-      siteHost    = "hockeyallsvenskan.se";   # news host (no www.)
+      siteHost    = "hockeyallsvenskan.se";
       ssgtUuid    = "uy2zvu6xaa";
       tableUrl    = "https://sportstatistik.nu/hockey/hockeyallsvenskan/tabell";
       dataDirName = "hockey";
       logLevel    = "DEBUG";
       aliases     = [ "puck-ha" ];
-      voicePrefix = "hockey allsvenskan";     # 2 tokens — see comment above
+      voicePrefix = "hockey allsvenskan";
       teams       = teamsByLeague.ha;
     };
     shl = {
@@ -76,7 +75,7 @@ let
       dataDirName = "hockey-shl";
       logLevel    = "INFO";
       aliases     = [ "puck" "shl" ];
-      voicePrefix = "svenska hockeyligan";     # 2 tokens — see comment above
+      voicePrefix = "svenska hockeyligan";
       teams       = teamsByLeague.shl;
     };
   };
@@ -311,7 +310,6 @@ let
     }) league.teams;
 
 
-
   sharedSentenceBodies = [
     # generic table
     "tabellen"
@@ -383,7 +381,6 @@ let
   ];
 
 
-
   mkDuckPUCKConfig = leagueKey: league:
     let
       scraper        = mkScraper league;
@@ -398,9 +395,7 @@ let
       logLevel    = league.logLevel;
 
       parameters = [
-        {
-          name        = "mode";
-          description = "What to display: 'recent', 'table', 'upcoming', or best/worst analysis";
+        { name        = "mode"; description = "What to display: 'recent', 'table', 'upcoming', or best/worst analysis";
           optional    = false;
           values      = [
             "recent" "upcoming" "table"
@@ -408,10 +403,8 @@ let
           ];
           default     = "table";
         }
-        { name = "team";    description = "Team specific search with TTS";                       optional = true; }
-        {
-          name        = "stat";
-          description = "Search for specific stats.";
+        { name = "team"; description = "Team specific search with TTS";                       optional = true; }
+        { name = "stat"; description = "Search for specific stats.";
           type        = "string";
           optional    = true;
           values      = [
@@ -424,8 +417,8 @@ let
             "goals" "assists" "points"
           ];
         }
-        { name = "count";   description = "Optional number to fetch stats for";                  optional = true; type = "int"; default = 3; }
-        { name = "dataDir"; description = "Directory path to save data.";                        optional = false;
+        { name = "count";   description = "Optional number to fetch stats for"; optional = true; type = "int"; default = 3; }
+        { name = "dataDir"; description = "Directory path to save data."; optional = false;
           default = "/home/" + config.this.user.me.name + "/.config/yo/${league.dataDirName}"; }
       ];
 
@@ -1027,7 +1020,7 @@ let
             hockey_news | head -5 && echo "----------------------------" && echo ""
             display_table_with_special_teams "$table_file"
             echo ""
-            # 🦆 says ⮞ NOTE: original HA file had a typo `--leauge`; fixing to `--league`
+
             yo hockeyGames --league ${leagueKey}
           else
             dt_error "No table data found at $table_file"

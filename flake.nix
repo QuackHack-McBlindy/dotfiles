@@ -7,12 +7,11 @@
         sops-nix.url = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        #yo.url      = "github:QuackHack-McBlindy/yo?ref=dev";
-        #zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
-        #pokenix.url = "github:QuackHack-McBlindy/pokenix";
-        pokenix.url = "path:/home/pungkula/new/pokenix";
-        yo.url = "path:/home/pungkula/new/yo";
-        zigduck.url = "path:/home/pungkula/zigduck2mqttnix";
+        yo.url      = "github:QuackHack-McBlindy/yo?ref=dev";
+        zigduck.url = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        pokenix.url = "github:QuackHack-McBlindy/pokenix";
+        #yo.url = "path:/home/pungkula/new/yo";
+        #zigduck.url = "path:/home/pungkula/zigduck2mqttnix";
         caddy-duckdns.url = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url = "github:QuackHack-McBlindy/auto-installer-nixos";
         # 🦆 ⮞ mobile specific inputs

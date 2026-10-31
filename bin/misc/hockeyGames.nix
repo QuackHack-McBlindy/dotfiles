@@ -352,16 +352,16 @@
         [ -z "$date" ] && continue
         local swedish_date=$(format_swedish_date "$date")
 
-        # 🦆 says ⮞ head
-        BOLD=1
-        ${pkgs.gum}/bin/gum format "# 🗓️  **$swedish_date:**"
+        # 🦆 says ⮞ head — shield gum from inherited BOLD env var
+        ( unset BOLD; ${pkgs.gum}/bin/gum format "# 🗓️  **$swedish_date:**" )
         echo "----------------------------"
-        # 🦆 says ⮞ filter games for this date AND team
+        # 🦆 says ⮞ filter games for this date AND team, include local start time
         echo "$games_json" | jq -r --arg date "$date" '
-          [.[] | select(.date == $date)] | .[] |
-          "  \(.home_team) - \(.away_team)"
-        ' | while IFS= read -r matchup; do
-          echo "  • $matchup"
+          [.[] | select(.date == $date)] | sort_by(.start_time) | .[] |
+          "\(.start_time)|\(.home_team) - \(.away_team)"
+        ' | while IFS='|' read -r start_time matchup; do
+          local_time=$(TZ=Europe/Stockholm ${pkgs.coreutils}/bin/date -d "$start_time" "+%H:%M" 2>/dev/null || echo "??:??")
+          echo "  • $local_time   $matchup"
         done
         echo ""
       done <<< "$dates"
@@ -771,9 +771,9 @@ in {
       ];
       lists = {
         type.values = [
-          { "in" = "kommande|nästa"; out = "upcoming"; }
-          { "in" = "senaste|förra";  out = "recent"; }
-          { "in" = "just|live|spelar";      out = "live"; }
+          { "in" = "kommande|nästa";   out = "upcoming"; }
+          { "in" = "senaste|förra";    out = "recent"; }
+          { "in" = "just|live|spelar"; out = "live"; }
         ];
 
         team.values = [

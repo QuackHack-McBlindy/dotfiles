@@ -44,6 +44,7 @@
           # 🦆 says ⮞ validate generation format
           if ! [[ "$GENERATION" =~ ^[0-9]+$ ]]; then
             echo -e "\033[1;31m❌ Invalid generation: $GENERATION\033[0m"
+            play_fail
             exit 1
           fi
 
@@ -63,6 +64,7 @@
             GEN_NUMBER="$GENERATION"
           else
             echo -e "\033[1;31m❌ Invalid or missing generation number passed to push!\033[0m"
+            play_fail
             exit 1
           fi
 
@@ -71,19 +73,16 @@
           # 🦆 says ⮞ validate hostname
           if [[ -z "$HOSTNAME" ]]; then
             echo -e "\033[1;31m❌ Hostname not specified!\033[0m"
+            play_fail
             exit 1
           fi
 
           # 🦆 says ⮞ Validate generation
           if ! [[ "$GEN_NUMBER" =~ ^[0-9]+$ ]]; then
             echo -e "\033[1;31m❌ Invalid generation: $GEN_NUMBER\033[0m"
+            play_fail
             exit 1
           fi
-
-#          if [[ ! "$HOSTNAME" =~ ^[a-zA-Z0-9._-]+$ ]]; then
-#            echo -e "\033[1;31m❌ Invalid hostname: '$HOSTNAME'\033[0m"
-#            exit 1
-#          fi
 
           TAG_NAME="$HOSTNAME-generation-$GEN_NUMBER"
 
@@ -110,6 +109,7 @@
           if ! git rev-parse --verify HEAD >/dev/null 2>&1; then
             if [ -z "$(git status --porcelain)" ]; then
               echo -e "\033[1;31m❌ Error: No files to commit in new repository\033[0m"
+              play_fail
               exit 1
             fi
             echo -e "\033[1;33m✨ Creating initial commit\033[0m"
@@ -155,6 +155,7 @@
           echo -e "╚══════════════════════════════════════╝\033[0m"
           echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"
+          play_relax
         '';
       };
     };

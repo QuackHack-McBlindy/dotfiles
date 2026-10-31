@@ -15,7 +15,29 @@
 # changelog empty? ──yes──► EXIT
 #    │no
 #    ▼
-# push dev, create PR, merge into main (CI will release)
+#   CI take over
+#
+# dev push    ──► BUILD               ┐
+# PR dev→main ──► BUILD               ├── CI only
+#                                     ┘
+# merge dev -► main ──► BUILD ──► RELEASE
+#                               │
+#                               ├── latest tag:       v0.3.0
+#                               ├── expected next:    v0.3.1
+#                               ├── package majority: MUST be 0.3.1
+#                               ├── CHANGELOG [Unreleased] → [0.3.1]
+#                               ├── commit changelog
+#                               ├── tag               v0.3.1
+#                               ├── GitHub Release    v0.3.1
+#                               │
+#                               ▼
+#                         sync dev ← main
+#                               │
+#                               ▼
+#                  local: git merge --ff-only origin/dev
+#                               │
+#                               ▼
+#                          released
 {
   self,
   config,

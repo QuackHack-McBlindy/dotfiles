@@ -372,7 +372,6 @@ in { # 🦆 duck say ⮞ house config
               override_actions = [];
             };
           };
-
         };
 
         # 🦆 says ⮞ 5. time based automations
