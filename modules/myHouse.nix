@@ -336,7 +336,7 @@ in { # 🦆 duck say ⮞ house config
               # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
               "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
-              "om björklöven spelar just nu så aktivera scen green devils"
+              "om björklöven spelar just nu så aktivera scenen löven"
             ];
           };
         };

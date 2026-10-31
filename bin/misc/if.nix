@@ -69,9 +69,9 @@ in {
       ];
 
       lists = {
-        condition = { wildcard = true; values = []; };
-        "then"    = { wildcard = true; values = []; };
-        annars    = { wildcard = true; values = []; };
+        condition = { wildcard = true; };
+        "then"    = { wildcard = true; };
+        annars    = { wildcard = true; };
       };
     };
 

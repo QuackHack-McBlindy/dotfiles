@@ -75,7 +75,8 @@ in {
     voice = {
       priority = 2;
       sentences = [
-        "aktivera|sätt|kör|tänd) scen[en] {name}"
+        "(aktivera|sätt|kör|tänd) scen {name}"
+        "(aktivera|sätt|kör|tänd) scenen {name}"
       ];
       lists.name.values = [
         { "in" = "max|allt|allt på";  out = "max"; }

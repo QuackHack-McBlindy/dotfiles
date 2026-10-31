@@ -66,8 +66,8 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Scripts](https://img.shields.io/badge/📜_Scripts-98-7c3aed?style=plastic)
 ![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-68-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6312-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390394626-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6319-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390394731-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
@@ -563,7 +563,7 @@ in { # 🦆 duck say ⮞ house config
               # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
               "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
-              "om björklöven spelar just nu så aktivera scen green devils"
+              "om björklöven spelar just nu så aktivera scenen löven"
             ];
           };
         };
@@ -1312,7 +1312,7 @@ I like my flakes tiny & ny modules dynamically loaded,
             hosts       = lib.mapHosts ./hosts;
             packages    = lib.mapModules ./packages import;
             devShells   = lib.mapModules ./devShells (path: import path);
-            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };            
+            specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'
 ```
 
