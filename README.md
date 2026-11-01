@@ -1292,12 +1292,12 @@ I like my flakes tiny & ny modules dynamically loaded,
         yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
         zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
-        magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";         
+        magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
         #yo.url              = "path:/home/pungkula/new/yo";
         #zigduck.url         = "path:/home/pungkula/zigduck2mqttnix";
-        #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";             
+        #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
         mobile-pkgs.url      = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
         mobile-nixos = {
