@@ -21,17 +21,7 @@
         exit 0
       fi
 
-      override_flags=()
-      [[ -d /home/pungkula/new/pokenix        ]] && override_flags+=(--override-input pokenix  "path:/home/pungkula/new/pokenix")
-      [[ -d /home/pungkula/new/yo             ]] && override_flags+=(--override-input yo       "path:/home/pungkula/new/yo")
-      [[ -d /home/pungkula/zigduck2mqttnix    ]] && override_flags+=(--override-input zigduck  "path:/home/pungkula/zigduck2mqttnix")
-
-
-      if [ "$devShell" = "esp32-rs" ]; then
-        nix develop "''${override_flags[@]}"
-      else
-        nix develop ${config.this.user.me.dotfilesDir}#"$devShell" "''${override_flags[@]}"
-      fi
+      nix develop ${config.this.user.me.dotfilesDir}#"$devShell"
     '';
 
   };}

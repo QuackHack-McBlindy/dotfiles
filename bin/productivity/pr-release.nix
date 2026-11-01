@@ -1,5 +1,7 @@
 # dotfiles/bin/productivity/pr-release.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # » ★ QuackHack-McBLindy.com ★ «
+
+# REMEMBER TO COMMIT _BEFORE_ RUNNING `yo pr-release`!
 # confirm?  ──no──► EXIT!
 #    │yes
 #    ▼
@@ -86,7 +88,7 @@
 
         if [[ "''${confirm}" == "true" ]]; then
           echo "SENDING PR TO RELEASE ''${PWD##*/}"
-          read -rp "continue? [y/N] " ans
+          read -rp "HAVE YOU COMMITED THE WORD? continue? [y/N] " ans
           [[ "$ans" =~ ^[Yy]$ ]] || { echo "aborted." >&2; exit 1; }
         fi
 

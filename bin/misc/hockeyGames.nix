@@ -453,7 +453,7 @@ in {
       { name = "home"; type = "string"; description = "Filter games where this team is the home team"; optional = true; }
       { name = "away"; type = "string"; description = "Filter games where this team is the away team"; optional = true; }
       { name = "json"; type = "bool"; description = "Machine-readable JSON output; exit 0 if games found, 1 if not."; optional = true; default = false; }
-      { name = "dataDir"; type = "path"; description = "Directory path to save data in."; optional = false; default = "/home/" + config.this.user.me.name + "/.config/yo/hockey"; }
+      { name = "dataDir"; type = "path"; description = "Directory path to save data in."; optional = true; default = ""; }
       { name = "debug"; type = "bool"; description = "Enable debug mode for API calls"; optional = true; default = false; }
       { name = "check"; type = "bool"; description = "Silent true/false if any game matches (for scripting/voice)"; optional = true; default = false; }
     ];
@@ -637,7 +637,17 @@ in {
           if $type == "recent" then reverse else . end
         '
       }
-      mkdir -p "$dataDir"
+      if [ -z "${dataDir:-}" ]; then
+        user_home="$(getent passwd "$(id -u)" 2>/dev/null | cut -d: -f6)"
+        [ -n "$user_home" ] || user_home="${HOME:-/tmp}"
+        dataDir="''${XDG_STATE_HOME:-$user_home/.local/state}/yo/hockey"
+      fi
+
+      mkdir -p "$dataDir" 2>/dev/null || {
+        dataDir="/tmp/yo-hockey-$(id -u)"
+        mkdir -p "$dataDir"
+      }
+
       games_file="$dataDir/''${league}_games.json"
       dt_debug "🏒🦆says⮞ PUCK!"
       games_data=$(fetch_games)

@@ -19,7 +19,7 @@ in {
     logLevel = "WARNING";
 
     parameters = [
-      { name = "device"; description = "Device to check"; values = sweSpeech.deviceValuesFlat; }
+      { name = "device"; description = "Device to check"; }
       { name = "above";  description = "Return true if power > this many watts"; optional = true; }
       { name = "below";  description = "Return true if power < this many watts"; optional = true; }
     ];

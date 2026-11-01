@@ -77,21 +77,23 @@ in {
       sentences = [
         "(aktivera|sätt|kör|tänd) scen {name}"
         "(aktivera|sätt|kör|tänd) scenen {name}"
+        "(aktivera|sätt|kör|tänd) scen levande tak {name}"
+        "(aktivera|sätt|kör|tänd) scenen levande tak {name}"
+        "(aktivera|sätt|kör|tänd) scen green {name}"
+        "(aktivera|sätt|kör|tänd) scenen green {name}"
+        "(aktivera|sätt|kör|tänd) scen köket {name}"
+        "(aktivera|sätt|kör|tänd) scenen {name} köket"
       ];
       lists.name.values = [
-        { "in" = "max|allt|allt på";  out = "max"; }
-        { "in" = "dark|mörkt|släckt"; out = "dark"; }
-        { "in" = "dark fast|snabb släckt"; out = "dark-fast"; }
-        { "in" = "kitchen instant|kök direkt"; out = "kitchenInstant"; }
-        { "in" = "kitchen fade off|kök tona ut"; out = "kitchenFadeOff"; }
-        { "in" = "kitchen green instant|kök grön direkt"; out = "kitchenGreenInstant"; }
+        { "in" = "instant|direkt"; out = "kitchenInstant"; }
+        { "in" = "fade|tona"; out = "kitchenFadeOff"; }
         { "in" = "chill"; out = "Chill Scene"; }
-        { "in" = "green devil|green devils|green d"; out = "Green D"; }
+        { "in" = "devil|devils"; out = "Green D"; }
         { "in" = "löven"; out = "Green D"; }
 
-        { "in" = "levande tak 1|levande tak ett"; out = "Living Cealing 1"; }
-        { "in" = "levande tak 2|levande tak två"; out = "Living Cealing 2"; }
-        { "in" = "levande tak 3|levande tak tre"; out = "Living Cealing 3"; }
+        { "in" = "ett"; out = "Living Cealing 1"; }
+        { "in" = "två"; out = "Living Cealing 2"; }
+        { "in" = "tre"; out = "Living Cealing 3"; }
 
         { "in" = "tv area 1|tv1"; out = "tv-area1"; }
         { "in" = "tv area 2|tv2"; out = "tv-area2"; }

@@ -15,7 +15,7 @@
             (lib.mkIf (config.networking.hostName == "desktop") [
                 pkgs.intel-vaapi-driver
                 pkgs.libva-utils
-
+                inputs.magnixify.packages.${pkgs.system}.default
                 pkgs.nix-prefetch-github
                 pkgs.element-desktop
                 pkgs.cargo

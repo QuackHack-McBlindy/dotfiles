@@ -84,9 +84,8 @@ in {
     voice = {
       priority = 3;
       sentences = [
-        "notifiera [om] {message}"
-        "meddela [om] {message}"
-        "skicka [en] notis [om] {message}"
+        "(notifiera|meddela) [mig] [om] [att] {message}"
+        "skicka [en] notis [om] [att] {message}"
       ];
       lists.message = { wildcard = true; values = []; };
       lists.tag = { wildcard = true; values = []; };

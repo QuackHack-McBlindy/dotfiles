@@ -218,6 +218,7 @@ in {
                 "org/gnome/shell" = {
                   enabled-extensions = [
                     "zigduck@quackhack-mcblindy.com"
+                    "magnixify@quackhack-mcblindy.com"
                     "emoji-copy@felipeftn"
                     "openbar@neuromorph"
                     "space-bar@luchrioh"
@@ -227,9 +228,6 @@ in {
                     "windowsNavigator@gnome-shell-extensions.gcampax.github.com"
                     "gnome-wireguard-extension@SJBERTRAND.github.com"
                     "docker@stickman_0x00.com"
-                    "gsconnect@andyholmes.github.io"
-                    "system-monitor@gnome-shell-extensions.gcampax.github.com"
-                    "rclone-manager@germanztz.com"
                   ];
                   favorite-apps = [
                     "firefox-esr.desktop"
@@ -412,9 +410,9 @@ in {
                     "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom2/"
                     "/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom3/"
                   ];
-                  magnifier-zoom-in = ["KP_Add"];
-                  magnifier-zoom-out = ["KP_Subtract"];
-                  screenreader = ["KP_Divide"];
+                  #magnifier-zoom-in = ["KP_Add"];
+                  #magnifier-zoom-out = ["KP_Subtract"];
+                  #screenreader = ["KP_Divide"];
                   screensaver = ["<Super>l"];
                   www = ["<Control>w"];
                   screen-brightness-up = [""];
@@ -440,6 +438,12 @@ in {
                   command = "thunar /home/pungkula/dotfiles";
                   binding = "<Primary><Shift>d";
                 };
+
+              #  "org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/custom4" = {
+              #    name = "Toggle Zoom (magnixify)";
+             #     command = "bash /home/pungkula/dotfiles/home/bin/zoom-toggle.sh";
+              #    binding = "<Primary><Shift>d";
+              #  };
 
                 "org/gnome/terminal/legacy/keybindings" = {
                   copy = ["<Primary>c"];
@@ -475,15 +479,15 @@ in {
 
 
         (lib.mkIf (config.this.host.hostname == "laptop") {
-            environment.systemPackages = with pkgs; [ dconf ];
+            environment.systemPackages = [ pkgs.dconf ];
             programs.dconf.enable = true;
             programs.dconf.profiles.user.databases = [
                 {
                     settings = {
                         "org/gnome/settings-daemon/plugins/media-keys" = {
-                            magnifier-zoom-in = ["KP_Add"];
-                            magnifier-zoom-out = ["KP_Subtract"];
-                            screenreader = ["KP_Divide"];
+                            #magnifier-zoom-in = ["KP_Add"];
+                            #magnifier-zoom-out = ["KP_Subtract"];
+                            #screenreader = ["KP_Divide"];
                             screensaver = ["<Super>l"];
                             www = ["<Control>w"];
                             screen-brightness-up = [""];

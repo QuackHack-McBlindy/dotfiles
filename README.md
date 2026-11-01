@@ -11,7 +11,7 @@
 ![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.99.0-orange?style=plastic-square&logo=rust&logoColor=white)
 ![yo](https://img.shields.io/badge/💬%20yo-0.2.11-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.9-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.10-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -59,15 +59,15 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)
 ![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)
 ![ESP32](https://img.shields.io/badge/ESP32-2-E7352C?style=plastic&logo=espressif&logoColor=white)
-![Packages](https://img.shields.io/badge/📦_Packages-497-f97316?style=plastic)
+![Packages](https://img.shields.io/badge/📦_Packages-498-f97316?style=plastic)
 ![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)
 ![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)
 ![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)
 
-![Scripts](https://img.shields.io/badge/📜_Scripts-98-7c3aed?style=plastic)
-![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-68-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6319-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390394731-7c3aed?style=plastic)
+![Scripts](https://img.shields.io/badge/📜_Scripts-99-7c3aed?style=plastic)
+![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-69-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6366-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390394984-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
@@ -76,7 +76,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5320-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4574-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4575-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -458,15 +458,15 @@ in { # 🦆 duck say ⮞ house config
               "tänd allt samt vänta fem sekunder och slutligen återställ systemet till innan flashen"
             ];
           };
-          
+
           living_cealing = {
             enable       = true;
             description  = "Give the cealing life. Life in colors.";
             topic        = "${zigduck.baseTopic}/effects/living/cealing";
             actions  = [
-              "aktivera scen levandde tak ett samt vänta femton sekunder"
-              "aktivera scen levandde tak två samt vänta femton sekunder"
-              "aktivera scen levandde tak tre samt vänta tolv sekunder"
+              "aktivera scen levande tak ett samt vänta fem sekunder"
+              "aktivera scen levande tak två samt vänta sex sekunder"
+              "aktivera scen levande tak tre samt vänta fem sekunder"
             ];
           };
 
@@ -550,7 +550,7 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = { # 🦆 says ⮞ while door is open say something fun until door closes.
-            door_opened = [ "medans dörren är öppen så säg tittut! tittut!" ];
+            door_opened = [ "skicka en notis om 🚪 DÖRR ÖPPEN! sedan medans dörren är öppen så säg tittut! tittut!" ];
             door_closed = [];
           };
 
@@ -576,7 +576,7 @@ in { # 🦆 duck say ⮞ house config
             "säg VATTEN VATTEN VATTEN VATTEN samt vänta femton sekunder sedan säg VATTEN VATTEN VATTEN!"
           ];
           smoke_detected = [
-            "flasha ljuset samt vänta sju sekunder samt tänd alla lampor"
+            "flasha ljuset sedan vänta sju sekunder samt tänd alla lampor"
             "notifiera 🔥 🔥 FIRE DETECTED! 🔥 🔥 samt plinga klockan samt plinga boxen"
             "säg ELD ELD ELD ELD samt vänta femton sekunder sedan säg ELD ELD ELD ELD!"
           ];
@@ -589,7 +589,7 @@ in { # 🦆 duck say ⮞ house config
               enable           = true;
               description      = "Turn off all configured light devices";
               extra_actions    = [];
-              override_actions = [ "släck alla lampor samt stäng av fläkten" ];
+              override_actions = [ "släck alla lampor sedan stäng av fläkten" ];
             };
           };
 
@@ -711,7 +711,7 @@ in { # 🦆 duck say ⮞ house config
 
           "dark"                = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!
               "Bloom"           = { state = "OFF"; transition = 13; };
-              "Dörr"            = { state = "OFF"; transition = 13; };
+              "Dörrslinga"      = { state = "OFF"; transition = 13; };
               "Golvet"          = { state = "OFF"; transition = 13; };
               "Kök Bänk Slinga" = { state = "OFF"; transition = 13; };
               "PC"              = { state = "OFF"; transition = 13; };
@@ -741,7 +741,7 @@ in { # 🦆 duck say ⮞ house config
 
           "dark-fast"           = { # 🦆 says ⮞ eat darkness... NAO!
               "Bloom"           = { state = "OFF"; };
-              "Dörr"            = { state = "OFF"; };
+              "Dörrslinga"      = { state = "OFF"; };
               "Golvet"          = { state = "OFF"; };
               "Kök Bänk Slinga" = { state = "OFF"; };
               "PC"              = { state = "OFF"; };
@@ -770,8 +770,9 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "max"                 = { # 🦆 says ⮞ let there be light
+              _aliases          = [ "maxa" ];
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Dörr"            = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "PC"              = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -799,28 +800,28 @@ in { # 🦆 duck say ⮞ house config
               "Play Top R"      = { state = "ON"; brightness = 254; color = { xy = [ 0.3127 0.3290 ]; }; };
           };
 
-          "Living Cealing 1"    = { # 🦆 says ⮞ makin' living scene dat eazy ?!       
+          "Living Cealing 1"    = { # 🦆 says ⮞ makin' living scene dat eazy ?!
               "Takkrona 1"      = { state = "ON"; brightness = 240; transition = 12; color = { hex = "#FF1744"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 17; color = { hex = "#FFEA00"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 200; transition = 22; color = { hex = "#00E676"; }; };
-              "Takkrona 4"      = { state = "ON"; brightness = 180; transition = 27; color = { hex = "#2979FF"; }; };          
+              "Takkrona 4"      = { state = "ON"; brightness = 180; transition = 27; color = { hex = "#2979FF"; }; };
           };
-          "Living Cealing 2"    = { # 🦆⮞call "Living Cealing 1", sleep 15, "Living Cealing 2", sleep 15. "Living Cealing 3"        
+          "Living Cealing 2"    = { # 🦆⮞call "Living Cealing 1", sleep 15, "Living Cealing 2", sleep 15. "Living Cealing 3"
               "Takkrona 1"      = { state = "ON"; brightness = 182; transition = 9; color = { hex = "#2979FF"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 200; transition = 11; color = { hex = "#00E676"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 220; transition = 18; color = { hex = "#FFEA00"; }; };
-              "Takkrona 4"      = { state = "ON"; brightness = 240; transition = 26; color = { hex = "#FF1744"; }; };          
+              "Takkrona 4"      = { state = "ON"; brightness = 240; transition = 26; color = { hex = "#FF1744"; }; };
           };
           "Living Cealing 3"    = {
               "Takkrona 1"      = { state = "ON"; brightness = 200; transition =  8; color = { hex = "#B71C1C"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 14; color = { hex = "#1B5E20"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 240; transition = 20; color = { hex = "#0D47A1"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 200; transition = 26; color = { hex = "#4A148C"; }; };
-          };          
-          
+          };
+
           "Rainforest"          = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
-              "Dörr"            = { state = "ON"; brightness = 180; color = { hex = "#2E7D32"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 180; color = { hex = "#2E7D32"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#1B5E20"; }; };
               "PC"              = { state = "ON"; brightness = 220; color = { hex = "#00ACC1"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FF6D00"; }; };
@@ -833,10 +834,10 @@ in { # 🦆 duck say ⮞ house config
               "Takkrona 3"      = { state = "ON"; brightness = 180; color = { hex = "#43A047"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 160; color = { hex = "#2E7D32"; }; };
           };
-          
+
           "Galaxy"              = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FFD54F"; }; };
-              "Dörr"            = { state = "ON"; brightness = 140; color = { hex = "#4A148C"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 140; color = { hex = "#4A148C"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#12002B"; }; };
               "PC"              = { state = "ON"; brightness = 200; color = { hex = "#7B1FA2"; }; };
               "Rustning"        = { state = "ON"; brightness = 120; color = { hex = "#0D47A1"; }; };
@@ -849,10 +850,10 @@ in { # 🦆 duck say ⮞ house config
               "Takkrona 3"      = { state = "ON"; brightness = 160; color = { hex = "#4A148C"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 140; color = { hex = "#311B92"; }; };
           };
-          
+
           "Festival"            = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
-              "Dörr"            = { state = "ON"; brightness = 254; color = { hex = "#FF9100"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 254; color = { hex = "#FF9100"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#FFEA00"; }; };
               "PC"              = { state = "ON"; brightness = 254; color = { hex = "#00E676"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#00E5FF"; }; };
@@ -865,10 +866,10 @@ in { # 🦆 duck say ⮞ house config
               "Takkrona 3"      = { state = "ON"; brightness = 254; color = { hex = "#F50057"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
           };
-         
+
           "Sunset"              = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF3D00"; }; };
-              "Dörr"            = { state = "ON"; brightness = 200; color = { hex = "#FF6E40"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 200; color = { hex = "#FF6E40"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#4E342E"; }; };
               "PC"              = { state = "ON"; brightness = 240; color = { hex = "#FFAB40"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FFC107"; }; };
@@ -884,7 +885,7 @@ in { # 🦆 duck say ⮞ house config
 
           "Underwater"          = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF6E40"; }; };
-              "Dörr"            = { state = "ON"; brightness = 160; color = { hex = "#006064"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 160; color = { hex = "#006064"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#002F4A"; }; };
               "PC"              = { state = "ON"; brightness = 220; color = { hex = "#0091EA"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#18FFFF"; }; };
@@ -896,8 +897,8 @@ in { # 🦆 duck say ⮞ house config
               "Takkrona 2"      = { state = "ON"; brightness = 200; color = { hex = "#00838F"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 180; color = { hex = "#00695C"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 160; color = { hex = "#26A69A"; }; };
-          };         
-         
+          };
+
           "tv-area1"          = {
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
@@ -1291,8 +1292,12 @@ I like my flakes tiny & ny modules dynamically loaded,
         yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
         zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
+        magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";         
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
+        #yo.url              = "path:/home/pungkula/new/yo";
+        #zigduck.url         = "path:/home/pungkula/zigduck2mqttnix";
+        #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";             
         # 🦆 ⮞ mobile specific inputs
         mobile-pkgs.url      = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
         mobile-nixos = {
@@ -1452,6 +1457,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo services](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/services.nix) --operation --service --host [--user] [--port] [--!] |  | Systemd service handler. | ✅ |
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch Nix OS system configuration. ('!' to test) | ✅ |
 | [yo watch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/watch.nix) [--device] --setting [--value] |  | API controller for ESP32-S3-WATCH-rs. | ✅ |
+| [yo zoom](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/zoom.nix) [--action] |  | Magnify the display enough even a blind duck can see a little.. | ✅ |
 | **☎️ Phone** | | | |
 | [yo call](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/call.nix) --contactName --contactFile |  | Calls phone number from contact list | ✅ |
 | [yo text](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/text.nix) --contactName --contactFile |  | Text message a phone number from contact list | ✅ |

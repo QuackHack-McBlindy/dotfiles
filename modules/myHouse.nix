@@ -237,9 +237,9 @@ in { # 🦆 duck say ⮞ house config
             description  = "Give the cealing life. Life in colors.";
             topic        = "${zigduck.baseTopic}/effects/living/cealing";
             actions  = [
-              "aktivera scen levandde tak ett samt vänta femton sekunder"
-              "aktivera scen levandde tak två samt vänta femton sekunder"
-              "aktivera scen levandde tak tre samt vänta tolv sekunder"
+              "aktivera scen levande tak ett samt vänta fem sekunder"
+              "aktivera scen levande tak två samt vänta sex sekunder"
+              "aktivera scen levande tak tre samt vänta fem sekunder"
             ];
           };
 
@@ -323,7 +323,7 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 2. room action automations
         room_actions = {
           hallway = { # 🦆 says ⮞ while door is open say something fun until door closes.
-            door_opened = [ "medans dörren är öppen så säg tittut! tittut!" ];
+            door_opened = [ "skicka en notis om 🚪 DÖRR ÖPPEN! sedan medans dörren är öppen så säg tittut! tittut!" ];
             door_closed = [];
           };
 
@@ -349,7 +349,7 @@ in { # 🦆 duck say ⮞ house config
             "säg VATTEN VATTEN VATTEN VATTEN samt vänta femton sekunder sedan säg VATTEN VATTEN VATTEN!"
           ];
           smoke_detected = [
-            "flasha ljuset samt vänta sju sekunder samt tänd alla lampor"
+            "flasha ljuset sedan vänta sju sekunder samt tänd alla lampor"
             "notifiera 🔥 🔥 FIRE DETECTED! 🔥 🔥 samt plinga klockan samt plinga boxen"
             "säg ELD ELD ELD ELD samt vänta femton sekunder sedan säg ELD ELD ELD ELD!"
           ];
@@ -362,7 +362,7 @@ in { # 🦆 duck say ⮞ house config
               enable           = true;
               description      = "Turn off all configured light devices";
               extra_actions    = [];
-              override_actions = [ "släck alla lampor samt stäng av fläkten" ];
+              override_actions = [ "släck alla lampor sedan stäng av fläkten" ];
             };
           };
 
@@ -484,7 +484,7 @@ in { # 🦆 duck say ⮞ house config
 
           "dark"                = { # 🦆 says ⮞ eat darkness... lol YO! You're as blind as me now! HA HA!
               "Bloom"           = { state = "OFF"; transition = 13; };
-              "Dörr"            = { state = "OFF"; transition = 13; };
+              "Dörrslinga"      = { state = "OFF"; transition = 13; };
               "Golvet"          = { state = "OFF"; transition = 13; };
               "Kök Bänk Slinga" = { state = "OFF"; transition = 13; };
               "PC"              = { state = "OFF"; transition = 13; };
@@ -514,7 +514,7 @@ in { # 🦆 duck say ⮞ house config
 
           "dark-fast"           = { # 🦆 says ⮞ eat darkness... NAO!
               "Bloom"           = { state = "OFF"; };
-              "Dörr"            = { state = "OFF"; };
+              "Dörrslinga"      = { state = "OFF"; };
               "Golvet"          = { state = "OFF"; };
               "Kök Bänk Slinga" = { state = "OFF"; };
               "PC"              = { state = "OFF"; };
@@ -543,8 +543,9 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "max"                 = { # 🦆 says ⮞ let there be light
+              _aliases          = [ "maxa" ];
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
-              "Dörr"            = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "PC"              = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -593,7 +594,7 @@ in { # 🦆 duck say ⮞ house config
 
           "Rainforest"          = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
-              "Dörr"            = { state = "ON"; brightness = 180; color = { hex = "#2E7D32"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 180; color = { hex = "#2E7D32"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#1B5E20"; }; };
               "PC"              = { state = "ON"; brightness = 220; color = { hex = "#00ACC1"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FF6D00"; }; };
@@ -609,7 +610,7 @@ in { # 🦆 duck say ⮞ house config
 
           "Galaxy"              = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FFD54F"; }; };
-              "Dörr"            = { state = "ON"; brightness = 140; color = { hex = "#4A148C"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 140; color = { hex = "#4A148C"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#12002B"; }; };
               "PC"              = { state = "ON"; brightness = 200; color = { hex = "#7B1FA2"; }; };
               "Rustning"        = { state = "ON"; brightness = 120; color = { hex = "#0D47A1"; }; };
@@ -625,7 +626,7 @@ in { # 🦆 duck say ⮞ house config
 
           "Festival"            = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF1744"; }; };
-              "Dörr"            = { state = "ON"; brightness = 254; color = { hex = "#FF9100"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 254; color = { hex = "#FF9100"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#FFEA00"; }; };
               "PC"              = { state = "ON"; brightness = 254; color = { hex = "#00E676"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#00E5FF"; }; };
@@ -641,7 +642,7 @@ in { # 🦆 duck say ⮞ house config
 
           "Sunset"              = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF3D00"; }; };
-              "Dörr"            = { state = "ON"; brightness = 200; color = { hex = "#FF6E40"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 200; color = { hex = "#FF6E40"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#4E342E"; }; };
               "PC"              = { state = "ON"; brightness = 240; color = { hex = "#FFAB40"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#FFC107"; }; };
@@ -657,7 +658,7 @@ in { # 🦆 duck say ⮞ house config
 
           "Underwater"          = {
               "Bloom"           = { state = "ON"; brightness = 254; color = { hex = "#FF6E40"; }; };
-              "Dörr"            = { state = "ON"; brightness = 160; color = { hex = "#006064"; }; };
+              "Dörrslinga"      = { state = "ON"; brightness = 160; color = { hex = "#006064"; }; };
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#002F4A"; }; };
               "PC"              = { state = "ON"; brightness = 220; color = { hex = "#0091EA"; }; };
               "Rustning"        = { state = "ON"; brightness = 254; color = { hex = "#18FFFF"; }; };

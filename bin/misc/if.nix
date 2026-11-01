@@ -37,15 +37,19 @@ in {
         exit 1
       fi
 
-      RESULT_LAST=$(printf '%s\n' "$RESULT" | tail -n1 | tr -d '[:space:]')
-      case "$RESULT_LAST" in
-        true|True|TRUE) STATE=true ;;
-        false|False|FALSE) STATE=false ;;
-        *)
-          echo "[if] condition '$COND' returned non-boolean: '$RESULT_LAST'" >&2
-          exit 1
-          ;;
-      esac
+      RESULT_BOOL=$(printf '%s\n' "$RESULT" \
+        | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+        | grep -iE '^(true|false)$' \
+        | tail -n1 \
+        | tr '[:upper:]' '[:lower:]')
+
+      if [ -z "$RESULT_BOOL" ]; then
+        LAST_RAW=$(printf '%s\n' "$RESULT" | tail -n1 | tr -d '[:space:]')
+        echo "[if] condition '$COND' returned no boolean (last line: '$LAST_RAW')" >&2
+        exit 1
+      fi
+
+      STATE="$RESULT_BOOL"
 
       if [ "$STATE" = "true" ]; then
         yo do "$THEN_CMD"

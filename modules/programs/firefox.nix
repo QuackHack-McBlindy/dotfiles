@@ -340,7 +340,7 @@ in {
         "browser.translations.automaticallyPopup" = false;
         "ui.systemUsesDarkTheme" = 1; # 🦆 duck say ⮞ Darkmode
         "devtools.theme" = "dark";
-        "mousewheel.min_line_scroll_amount" = 4;
+        "mousewheel.min_line_scroll_amount" = 2;
         "privacy.purge_trackers.enabled" = true;
         "privacy.resistFingerprinting" = true;
         "privacy.trackingprotection.enabled" = true;
