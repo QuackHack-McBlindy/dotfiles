@@ -10,7 +10,6 @@ in {
     config = lib.mkMerge [
         (lib.mkIf (lib.elem "gnome" config.this.host.modules.system) {
             environment.systemPackages = with pkgs; [
-                pkgs.gtk2
                 pkgs.gtk3
                 pkgs.gtk4
                 pkgs.gnome-terminal
@@ -18,24 +17,14 @@ in {
                 pkgs.nixos-icons
                 pkgs.gnome-screenshot
                 pkgs.gnome-shell
-                pkgs.gnome-system-monitor
-
-                pkgs.gnomeExtensions.notification-timeout
-                pkgs.gnomeExtensions.rclone-manager
-                gnomeExtensions.gsconnect
                 pkgs.gnomeExtensions.docker
-                pkgs.gnomeExtensions.proton-vpn-button
+
                 pkgs.gnomeExtensions.wireguard-vpn-extension
-                pkgs.gnomeExtensions.gsconnect
-                pkgs.gnomeExtensions.open-bar
-                #pkgs.gnomeExtensions.dashbar
-                #pkgs.gnomeExtensions.task-up
+
                 pkgs.gnomeExtensions.emoji-copy
-                pkgs.gnomeExtensions.todotxt
                 pkgs.gnomeExtensions.space-bar
-                pkgs.gnomeExtensions.vitals
+
                 pkgs.gnomeExtensions.appindicator
-                pkgs.gnomeExtensions.systemd-manager
                 pkgs.dconf2nix # dconf2nix -i dconf.settings -o output/dconf.nix
                 pkgs.dconf-editor
                 pkgs.dconf
