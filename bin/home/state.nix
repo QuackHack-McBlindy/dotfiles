@@ -19,7 +19,7 @@ in {
 
     parameters = [
       { name = "device"; description = "Device to control"; optional = true; }
-      { name = "room"; description = "Room to target"; optional = true; values = sweSpeech.roomNames; }
+      { name = "room"; description = "Room to target"; optional = true; }
       { name = "state"; description = "State to verify (returns true/false)"; optional = true;
         values = [ "öppen" "stängd" "tänd" "släckt" "open" "closed" "on" "off" "rörelse" "motion" "aktiv" ]; }
       { name = "reverse"; description = "Invert the result"; type = "bool"; optional = true; }
@@ -29,8 +29,9 @@ in {
       DEVICE="''${device:-}"
       INPUT_LOWER=$(printf '%s' "$DEVICE" | tr '[:upper:]' '[:lower:]')
 
-      ${sweSpeech.mkBashMap "ROOM_ALIAS_MAP" sweSpeech.roomAliasMap}
-      ${sweSpeech.mkBashMap "DEVICE_MAP"     sweSpeech.devicePatternMap}
+      ${sweSpeech.mkBashMap "ROOM_ALIAS_MAP" sweSpeech.roomMap}
+      ${sweSpeech.mkBashMap "DEVICE_MAP"     sweSpeech.deviceMap}
+      DEVICE_MAP["shield"]="shield"
       ${sweSpeech.mkBashMap "ROOM_MAP"       sweSpeech.roomBashMap}
       ${sweSpeech.mkBashMap "TYPE_MAP"       sweSpeech.typeMap}
 
@@ -89,7 +90,7 @@ in {
         if [ -n "$RESOLVED_ROOM" ]; then
           CANDIDATES="''${ROOM_MAP[$RESOLVED_ROOM]}"
         else
-          CANDIDATES="${sweSpeech.allDevicesStr}"
+          CANDIDATES="${sweSpeech.allDevicesStr}|shield"
         fi
 
         MATCHED=""
@@ -160,7 +161,7 @@ in {
       HEADER=""
       if [ -z "$INPUT_LOWER" ] || [ "$INPUT_LOWER" = "all" ] || [ "$INPUT_LOWER" = "every" ] \
          || [ "$INPUT_LOWER" = "alla" ] || [ "$INPUT_LOWER" = "allt" ]; then
-        TARGET_LIST="${sweSpeech.allDevicesStr}"
+        TARGET_LIST="${sweSpeech.allDevicesStr}|shield"
         HEADER="Alla enheter"
       elif [ -n "''${ROOM_MAP[$INPUT_LOWER]+x}" ]; then
         TARGET_LIST="''${ROOM_MAP[$INPUT_LOWER]}"
@@ -315,9 +316,17 @@ in {
         "[är] {device} [är] {state}"
       ];
       lists = {
-        state.values  = sweSpeech.queryStateValues;
-        device.values = sweSpeech.deviceValues;
-        room.values   = sweSpeech.roomValues;
+        state.values  = [
+          { "in" = "öppen|öppet|oppen|open";                   out = "öppen"; }
+          { "in" = "stängd|stängt|stangd|closed";              out = "stängd"; }
+          { "in" = "tänd|tänt|tand|on|på|pa";                  out = "tänd"; }
+          { "in" = "släckt|släkt|slackt|off|av";               out = "släckt"; }
+          { "in" = "rörelse|rörelser|motion|rörlig|aktiv|någon|nån|nått|några|folk|person|personer"; out = "rörelse"; }
+        ];
+        device.values = sweSpeech.devices ++ [
+          { "in" = "tv|tvn|teven|shield|sköld|skölden|sjöld"; out = "shield"; }
+        ];
+        room.values   = sweSpeech.rooms;
         reverse.values = [
           { "in" = "inte"; out = "true"; }
         ];

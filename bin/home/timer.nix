@@ -8,34 +8,18 @@
   sweSpeech,
   ...
 } : let
-
   zigduck-cli = self.inputs.zigduck.packages.${pkgs.stdenv.hostPlatform.system}.zigduck-cli;
-
-  # 🦆 says ⮞ sweeedish number words 1-60
-  swedishNumbers = [
-    "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
-    "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton" "tjugo"
-    "tjugoett" "tjugotvå" "tjugotre" "tjugofyra" "tjugofem" "tjugosex" "tjugosju" "tjugoåtta" "tjugonio" "trettio"
-    "trettioett" "trettiotvå" "trettiotre" "trettiofyra" "trettiofem" "trettiosex" "trettiosju" "trettioåtta" "trettionio" "fyrtio"
-    "fyrtioett" "fyrtiotvå" "fyrtiotre" "fyrtiofyra" "fyrtiofem" "fyrtiosex" "fyrtiosju" "fyrtioåtta" "fyrtionio" "femtio"
-    "femtioett" "femtiotvå" "femtiotre" "femtiofyra" "femtiofem" "femtiosex" "femtiosju" "femtioåtta" "femtionio"
-  ];
-
-
-
-  swedishNumber = n: builtins.elemAt swedishNumbers (n - 1);
-  timerValues = builtins.map (n: toString n) (lib.range 0 59);
-
-
-
 in {
   yo.scripts.timer = {
     description = "Set a timer";
     category = "🛖 Home Automation";
     parameters = [
-      { name = "minutes"; type = "string"; description = "Minutes to set the timer on"; default = "0"; values = timerValues; }
-      { name = "seconds"; type = "string"; description = "Seconds to set the timer on"; default = "0"; values = timerValues; }
-      { name = "hours"; type = "string"; description = "Hours to set the timer on"; default = "0"; values = timerValues; }
+      { name = "minutes"; type = "string"; description = "Minutes to set the timer on"; default = "0";
+        values = sweSpeech.paramFrom sweSpeech.clock.minutes; }
+      { name = "seconds"; type = "string"; description = "Seconds to set the timer on"; default = "0";
+        values = sweSpeech.paramFrom sweSpeech.clock.seconds; }
+      { name = "hours"; type = "string"; description = "Hours to set the timer on"; default = "0";
+        values = sweSpeech.paramFrom sweSpeech.clock.hours; }
       { name = "list"; type = "bool"; description = "Lists active timers"; default = false;  }
       { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
@@ -73,10 +57,12 @@ in {
         "när {list} (time|timer|timern)"
       ];
       lists = {
-        list.values    = sweSpeech.timerListValues;
-        seconds.values = sweSpeech.numberValuesOneBased 59;
-        minutes.values = sweSpeech.numberValuesOneBased 59;
-        hours.values   = sweSpeech.numberValuesOneBased 24;
+        list.values    = [
+          { "in" = "länge|kvar"; out = "true"; }
+        ];
+        seconds.values = sweSpeech.clock.seconds;
+        minutes.values = sweSpeech.clock.minutes;
+        hours.values   = sweSpeech.clock.hours;
       };
     };
 

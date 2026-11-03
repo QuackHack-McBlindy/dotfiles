@@ -67,9 +67,9 @@ in {
     specials."zapdos-1"   = { species = "zapdos"; ball = "fast"; selfObtained = true; ability = "Pressure"; region = "ENG"; };
     specials."zapdos-2"   = { species = "zapdos"; ball = "fast"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Max Lair - Fast ball"; };
     specials."moltres-1"  = { species = "moltres"; ball = "poke"; selfObtained = true; ability = "Pressure"; region = "ENG"; };
-    specials."moltres-2"  = { species = "moltres"; ball = "safari"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Nax Lair"; };
-    specials."mewtwo-1"   = { species = "mewtwo"; ball = "poke"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Nax Lair"; };
-    specials."mewtwo-2"   = { species = "mewtwo"; ball = "beast"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Nax Lair"; };
+    specials."moltres-2"  = { species = "moltres"; ball = "safari"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Max Lair"; };
+    specials."mewtwo-1"   = { species = "mewtwo"; ball = "poke"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Max Lair"; };
+    specials."mewtwo-2"   = { species = "mewtwo"; ball = "beast"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Max Lair"; };
     specials."mewtwo-3"   = { species = "mewtwo"; ball = "cherish"; shiny = true; selfObtained = false; ability = "Unnerve"; region = "ENG"; notes = "Play 2016"; };
     specials."mew-1"      = { species = "mew"; ball = "poke"; selfObtained = false; ability = "Synchronize"; region = "ENG"; };
     specials."mew-2"      = { species = "mew"; ball = "poke"; shiny = true; selfObtained = false; ability = "Synchronize"; region = "JPN"; };
@@ -100,14 +100,14 @@ in {
     specials."deoxys-1"    = { species = "deoxys"; ball = "poke"; shiny = true; selfObtained = false; ability = "Pressure"; region = "ENG"; };
 
     # » GENERATION 4
-    specials."uxie-1"     = { species = "uxie"; ball = "moon"; selfObtained = true; ability = "Levitate"; region = "ENG"; notes = "Nax Lair (decent attack)"; };
+    specials."uxie-1"     = { species = "uxie"; ball = "moon"; selfObtained = true; ability = "Levitate"; region = "ENG"; notes = "Max Lair (decent attack)"; };
     specials."uxie-2"     = { species = "uxie"; ball = "poke"; selfObtained = false; };
     specials."mesprit-1"  = { species = "mesprit"; ball = "poke"; selfObtained = false; ability = "Levitate"; notes = "gts"; };
-    specials."mesprit-2"  = { species = "mesprit"; ball = "moon"; selfObtained = true; ability = "Levitate"; region = "ENG"; notes = "Nax Lair"; };
+    specials."mesprit-2"  = { species = "mesprit"; ball = "moon"; selfObtained = true; ability = "Levitate"; region = "ENG"; notes = "Max Lair"; };
     specials."mesprit-3"  = { species = "mesprit"; ball = "poke"; selfObtained = false; };
-    specials."azelf-1"    = { species = "azelf"; ball = "moon"; selfObtained = true; ability = "Levitate"; notes = "Nax Lair"; };
+    specials."azelf-1"    = { species = "azelf"; ball = "moon"; selfObtained = true; ability = "Levitate"; notes = "Max Lair"; };
     specials."azelf-2"    = { species = "azelf"; ball = "poke"; selfObtained = false; };
-    specials."dialga-1"   = { species = "dialga"; ball = "heavy"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Nax Lair"; };
+    specials."dialga-1"   = { species = "dialga"; ball = "heavy"; selfObtained = true; ability = "Pressure"; region = "ENG"; notes = "Max Lair"; };
     specials."dialga-2"   = { species = "dialga"; ball = "cherish"; shiny = true; selfObtained = false; ability = "Pressure"; region = "ENG"; notes = "SUM2013 2020/08/24"; };
     specials."palkia-1"   = { species = "palkia"; ball = "cherish"; shiny = true; selfObtained = false; ability = "Pressure"; region = "ENG"; notes = "SUM2013 2020/08/24"; };
     specials."heatran-1"  = { species = "heatran"; ball = "safari"; selfObtained = true; notes = "Max Lair"; };
@@ -125,7 +125,10 @@ in {
     specials."victini-1"  = { species = "victini"; ball = "cherish"; selfObtained = false; ability = "Victory Star"; region = "ENG"; notes = "Movie DIstribution"; };
 
     # » GENERATION 5
-    specials."ducklett-the-driven-1" = { species = "ducklett"; ball = "luxury"; selfObtained = true; notes = "Pumped-Up Mark 2023/09/23"; };
+    specials."ducklett-the-driven-1" = {
+      species = "ducklett"; ball = "luxury"; selfObtained = true;
+      marks = [ "Pumped-Up Mark" ]; notes = "Pumped-Up Mark 2023/09/23";
+    };
     specials."cobalion-1"  = { species = "cobalion"; ball = "ultra"; selfObtained = false; ability = "Justified"; region = "ENG"; notes = "2020/08/16"; };
     specials."cobalion-2"  = { species = "cobalion"; ball = "moon"; shiny = true; selfObtained = false; ability = "Justified"; region = "ENG"; notes = "2020/08/16"; };
     specials."terrakion-1" = { species = "terrakion"; ball = "ultra"; selfObtained = false; ability = "Justified"; region = "ENG"; };
@@ -182,7 +185,10 @@ in {
     specials."necrozma-2"  = { species = "necrozma"; ball = "cherish"; shiny = true; selfObtained = false; ability = "Prism Armor"; region = "JPN"; notes = "event"; };
     specials."magearna-1"  = { species = "magearna"; ball = "cherish"; selfObtained = false; ability = "Soul-Heart"; region = "ENG"; };
     specials."marshadow-1" = { species = "marshadow"; ball = "cherish"; selfObtained = false; ability = "Technician"; region = "ENG"; notes = "Mt Tenei"; };
-    specials."poipole-1"   = { species = "poipole"; ball = "beast"; selfObtained = true; ability = "Beast Boost"; region = "ENG"; notes = "0 speed 2021/02/26"; };
+    specials."poipole-1"   = {
+      species = "poipole"; ball = "beast"; selfObtained = true; region = "ENG";
+      ivs.spe = 0; ability = "Beast Boost"; notes = "0 speed 2021/02/26";
+    };
     specials."poipole-2"   = { species = "poipole"; ball = "poke"; shiny = true; selfObtained = false; ability = "Beast Boost"; region = "SPA"; notes = "GTS"; };
     specials."naganadel-1" = { species = "naganadel"; ball = "poke"; selfObtained = false; ability = "Beast Boost"; region = "ENG"; notes = "GTS"; };
     specials."stakataka-1" = { species = "stakataka"; ball = "beast"; selfObtained = false; ability = "Beast Boost"; notes = "GTS"; };
@@ -192,16 +198,28 @@ in {
     specials."meltan-1"    = { species = "meltan"; ball = "ultra"; selfObtained = false; ability = "Magnet Pull"; region = "ENG"; notes = "got from OT 2020/10/11"; };
     specials."melmetal-1"  = { species = "melmetal"; ball = "premier"; selfObtained = false; ability = "Iron Fist"; region = "ENG"; notes = "got from OT 2020/08/25"; };
     specials."melmetal-2"  = { species = "melmetal"; ball = "poke"; shiny = true; selfObtained = false; region = "ENG"; notes = "2020/12/25 hc 700479142096797797"; };
-    specials."melmetal-3"  = { species = "melmetal"; ball = "cherish"; selfObtained = true; ability = "Iron Fist"; region = "ENG"; notes = "OT 2020/11/19 (0 speed)"; };
+    specials."melmetal-3"  = {
+      species = "melmetal"; ball = "cherish"; selfObtained = true;
+      ivs.spe = 0; ability = "Iron Fist"; region = "ENG"; notes = "OT 2020/11/19 (0 speed)";
+    };
 
     # » GENERATION 8
     specials."zacian-1"     = { species = "zacian"; ball = "beast"; selfObtained = true; ability = "Intrepid Sword"; region = "ENG"; ot = "pungkula"; id = "996385"; notes = "caught 2021/03/02 31 beast balls"; };
     specials."zamazenta-1"  = { species = "zamazenta"; ball = "beast"; selfObtained = true; ability = "Dauntless Shield"; region = "ENG"; ot = "pungkula"; id = "384971"; notes = "caught 2021/02/28 29 beast balls"; };
     specials."eternatus-1"  = { species = "eternatus"; ball = "beast"; selfObtained = true; ability = "Pressure"; region = "ENG"; ot = "pungkula"; id = "384971"; notes = "14 attack caught 2021/02/28"; };
-    specials."eternatus-2"  = { species = "eternatus"; ball = "beast"; selfObtained = true; ability = "Pressure"; region = "ENG"; ot = "pungkula"; id = "996385"; notes = "1 attack caught 2021/03/01"; };
+    specials."eternatus-2"  = {
+      species = "eternatus"; ball = "beast"; selfObtained = true; region = "ENG"; ot = "pungkula"; id = "996385";
+      ability = "Pressure"; notes = "1 attack caught 2021/03/01";
+    };
     specials."eternatus-3"  = { species = "eternatus"; ball = "luxury"; selfObtained = true; ability = "Pressure"; region = "ENG"; };
-    specials."kubfu-1"      = { species = "kubfu"; name = "Pungfu"; ball = "poke"; selfObtained = true; ability = "Inner Focus"; region = "ENG"; notes = "2021-02-26 0 speed"; };
-    specials."urshifu-1"    = { species = "urshifu"; ball = "poke"; selfObtained = true; ability = "Unseen Fist"; region = "ENG"; notes = "0 speed (Single Strike)"; };
+    specials."kubfu-1"      = {
+      species = "kubfu"; name = "Pungfu"; ball = "poke"; selfObtained = true; region = "ENG";
+      ivs.spe = 0; ability = "Inner Focus"; notes = "2021-02-26 0 speed";
+    };
+    specials."urshifu-1"    = {
+      species = "urshifu"; ball = "poke"; selfObtained = true; region = "ENG";
+      ivs.spe = 0; ability = "Unseen Fist"; notes = "0 speed (Single Strike)";
+    };
     specials."urshifu-2"    = { species = "urshifu"; ball = "poke"; selfObtained = true; ability = "Unseen Fist"; region = "ENG"; notes = "Rapid Strike"; };
     specials."zarude-1"     = { species = "zarude"; ball = "cherish"; selfObtained = false; ability = "Leaf Guard"; region = "ENG"; notes = "2020-09-26"; };
     specials."zarude-dada-1"= { species = "zarude"; ball = "cherish"; selfObtained = false; notes = "Dada form"; };
@@ -234,6 +252,7 @@ in {
     specials."munkidori-1"   = { species = "munkidori"; ball = "poke"; selfObtained = false; };
     specials."fezandipiti-1" = { species = "fezandipiti"; ball = "poke"; selfObtained = false; };
     specials."ogerpon-1"     = { species = "ogerpon"; ball = "beast"; selfObtained = true; notes = "2023/09/23"; };
+
 
 
     # 🦆 ⮞ EVENT POKÉMON

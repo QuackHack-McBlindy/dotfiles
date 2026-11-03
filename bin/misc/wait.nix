@@ -27,10 +27,10 @@ in {
       fuzzy.enable = false;
       priority = 3;
       sentences = [
-        "vänta [i] {duration} [sec|sekunder]"
+        "vänta [i] {duration} [sec|sek|sekund|sekunder]"
       ];
       lists = {
-        duration.values = sweSpeech.numberValuesOneBased 59;
+        duration.values = sweSpeech.numberFromOneTo 200;
       };
     };
 

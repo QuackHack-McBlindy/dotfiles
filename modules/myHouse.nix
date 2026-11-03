@@ -24,7 +24,7 @@
   css.tv     = builtins.readFile ./themes/css/duckdash/tv.css;
   css.chat   = builtins.readFile ./themes/css/duckdash/chat.css;
 
-  # 🦆 says ⮞
+  # 🦆 says ⮞ mqtt message to json history helper!
   Mqtt2jsonHistory = field: file: ''
     FILE="${zigduck.stateDir}/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
@@ -108,7 +108,8 @@ in { # 🦆 duck say ⮞ house config
       other.icon      = icons.room.other;
     };
 
-    # 🦆 says ⮞ presence (home/away) state
+    # 🦆 says ⮞ presence home/away state
+    # 🦆 ⮞ collected in various ways for successful detection
     presence = {
       probes      = [ devices.iphone.ip ];
       homeActions = [ "skicka en notis om 🏠 ☑️ BACK HOME!" ];
@@ -117,7 +118,7 @@ in { # 🦆 duck say ⮞ house config
 
     # 🦆 says ⮞ media
     https.media.urlFile       = config.sops.secrets.webserver.path;
-    media.root                = "/Pool";
+    media.root                = "/Pool"; # 🦆 ⮞ i like pools!
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
       movies      = "${config.house.media.root}/Movies";
@@ -179,9 +180,10 @@ in { # 🦆 duck say ⮞ house config
 
       # 🦆 says ⮞ optional dimmer config
       dimmer.message            = "action";
+      # 🦆 ⮞ clickin' fast cyclez scnes in da dimmers room!
       dimmer.doubleClickTimeout = 500;
 
-      # 🦆 says ⮞ when motion triggers lights
+      # 🦆 says ⮞ when motion triggers lights on
       motion = {
         when.dark.enable = true;
         trigger.lights = {
@@ -196,8 +198,8 @@ in { # 🦆 duck say ⮞ house config
       no.motion.trigger = {
         all.lights.off  = {
           enable  = true;
-          after   = 90; # 🦆 says ⮞  min
-          exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name, leaves their states as-is)
+          after   = 90;  # 🦆 says ⮞ min
+          exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name/alias, leaves their states as-is)
         };
       };
 
@@ -211,7 +213,7 @@ in { # 🦆 duck say ⮞ house config
           enable       = true;
           awayDuration = 7200;
           door         = "Door Sensor Hall";
-          delay        = 10; #🦆⮞i zet da prefix
+          delay        = 10; # 🦆 ⮞ welcome back home idiot
           actions = [ "säg välkommen hem idiot" ];
         };
 
@@ -223,6 +225,11 @@ in { # 🦆 duck say ⮞ house config
             description = "Flash lights";
             topic       = "${zigduck.baseTopic}/effects/flash";
             actions  = [
+              # 🦆 ⮞ create a state snapshot and name it before flash & wait two seconds
+              # 🦆 ⮞ activate different color rich slow transition scene & wait seven seconds
+              # 🦆 ⮞ turn on all lights & wait four seconds & turn off all lights quickly as fuck & wait three secs
+              # 🦆 ⮞ turn on all lights & wait four secs & turn off all lights again quick af & wait three secs
+              # 🦆 ⮞ turn lights back on again & sleep five sec and finally restore system state to before flash
               "skapa en snapshot och döp den till innan flashen samt vänta två sekunder"
               "tänd alla lampor samt vänta fyra sekunder"
               "släck alla lampor fort som fan samt vänta tre sekunder"
@@ -237,9 +244,12 @@ in { # 🦆 duck say ⮞ house config
             description  = "Give the cealing life. Life in colors.";
             topic        = "${zigduck.baseTopic}/effects/living/cealing";
             actions  = [
+              # 🦆 ⮞ activate color rich slow transition scene & wait five seconds
+              # 🦆 ⮞ activate different color rich slow transition scene & wait seven seconds
+              # 🦆 ⮞ activate different color rich slow transition scene & wait eleven seconds
               "aktivera scen levande tak ett samt vänta fem sekunder"
-              "aktivera scen levande tak två samt vänta sex sekunder"
-              "aktivera scen levande tak tre samt vänta fem sekunder"
+              "aktivera scen levande tak två samt vänta sju sekunder"
+              "aktivera scen levande tak tre samt vänta elva sekunder"
             ];
           };
 
@@ -249,6 +259,9 @@ in { # 🦆 duck say ⮞ house config
             conditions  = [ { type = "someone_home"; } ];
             topic       = "${zigduck.baseTopic}/alarm/triggered";
             actions  = [ # 🦆 say ⮞ GOOD LUCK STAYING IN BED
+              # 🦆 ⮞ notify, flash lights, TTS scream, raise the beds head & feet parts upwards at max
+              # 🦆 ⮞ wait then start blinking lights like raveparty, play sounds on all ESP32,
+              # 🦆 ⮞ wait & roll up blindz & play sum moar sounds, check motion sensors & if no motion - call the TV remote!
               "skicka en notis om ⏰ ALARM: Wake up! samt flasha ljuset"
               "säg UPP MED DIG LATMASK!!! sedan styr sängens fötter upp samt styr sängens huvud uppåt"
               "vänta tio sekunder sedan blinkepartaj"
@@ -263,7 +276,7 @@ in { # 🦆 duck say ⮞ house config
             description = "a timer is ringing";
             conditions  = [ { type = "someone_home"; } ];
             topic       = "${zigduck.baseTopic}/timer/finished";
-            actions  = [ # 🦆 says ⮞ notify
+            actions  = [ # 🦆 says ⮞ notify, flash lights, TTS, wait and play sound on ESP32
               "skicka en notis om ⏰ TIMER finish!! samt flasha ljuset"
               "säg timern ringer!! timern ringer!! sedan vänta sju sekunder samt pinga boxen"
             ];
@@ -327,16 +340,21 @@ in { # 🦆 duck say ⮞ house config
             door_closed = [];
           };
 
-          kitchen = { # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
+          kitchen = {
             motion_not_detected = [
+              # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
               "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
             ];
-            # 🦆 ⮞ 1: start lights. 2: cancel the off-countdown on fan. 3. if my team is playin' right NOW activate scene.
+
+
             motion_detected = [
               # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
+              # 🦆 ⮞ 1: start lights.
+              # 🦆 ⮞ 2: cancel the off-countdown on fan.
+              # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
               "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
-              "om björklöven spelar just nu så aktivera scenen löven"
+              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan plus säg nu börjar match klant"
             ];
           };
         };
@@ -344,6 +362,7 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 3. global actions automations
         global_actions  = {
           leak_detected = [
+            # 🦆 ⮞ flash lights, notify and TTS and pling all devices with sound
             "flasha ljuset samt vänta sju sekunder samt tänd alla lampor"
             "notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt plinga boxen"
             "säg VATTEN VATTEN VATTEN VATTEN samt vänta femton sekunder sedan säg VATTEN VATTEN VATTEN!"
@@ -360,7 +379,7 @@ in { # 🦆 duck say ⮞ house config
           bedroom      = {
             off_hold_release   = {
               enable           = true;
-              description      = "Turn off all configured light devices";
+              description      = "Turn off all configured light devices and turn of kitchen fan";
               extra_actions    = [];
               override_actions = [ "släck alla lampor sedan stäng av fläkten" ];
             };
@@ -391,11 +410,11 @@ in { # 🦆 duck say ⮞ house config
             enable       = true;
             description  = "set morning wakeup alarm (dont miss lunch)";
             conditions  = [ { type = "someone_home"; } ];
-            # 🦆 says ⮞ 01 AM mon-fri
+            # 🦆 says ⮞ create da alarm at 01 AM mon-fri
             schedule     = {
               start      = "01:00";
               days       = ["mon" "tue" "wed" "thu" "fri"];
-            };
+            }; #  🦆  ⮞ but we set da alarm to:
             # 🦆 says ⮞ 11.30 AM (i like to sleep in)
             actions      = [ "väck mig klockan elva och trettio'" ];
           };
@@ -409,7 +428,7 @@ in { # 🦆 duck say ⮞ house config
               start     = "03:30";
               days      = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
             };
-            # 🦆 says ⮞ scrape & save so dashboard can read
+            # 🦆 says ⮞ scrape & save so frontend can read it (from zigduck user)
             actions  = [
               "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml"
             ];
@@ -421,10 +440,13 @@ in { # 🦆 duck say ⮞ house config
       };
 
 
+
   # 🦆 ⮞ SCENES ⮜
       scenes = {
           # 🦆 says ⮞ Scene name
           "Chill Scene"         = {
+              # 🦆 says ⮞ alternative wordz for da scene
+              _aliases          = [ "chill" ];
               # 🦆 says ⮞ device friendly name & state
               "PC"              = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };
               "Golvet"          = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };
@@ -442,6 +464,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "Green D"             = {
+              _aliases        = [ "devil" "devils" "löven" ];
               "Golvet"          = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Uppe"            = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Spotlight kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -457,6 +480,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "kitchenInstant"      = {
+              _aliases          = [ "instant" "direkt" ];
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -472,8 +496,9 @@ in { # 🦆 duck say ⮞ house config
               "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
           };
 
-          # 🦆 says ⮞ veeeery slow turn off
+          # 🦆 says ⮞ veeeery slow turn off kitchen
           "kitchenFadeOff"      = {
+              _aliases          = [ "fade" "tona" ];
               "Golvet"          = { state = "OFF"; transition = 180; };
               "Kök Bänk Slinga" = { state = "OFF"; transition = 180; };
               "PC"              = { state = "OFF"; transition = 180; };
@@ -574,18 +599,21 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "Living Cealing 1"    = { # 🦆 says ⮞ makin' living scene dat eazy ?!
+              _aliases        = [ "ett" ];
               "Takkrona 1"      = { state = "ON"; brightness = 240; transition = 12; color = { hex = "#FF1744"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 17; color = { hex = "#FFEA00"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 200; transition = 22; color = { hex = "#00E676"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 180; transition = 27; color = { hex = "#2979FF"; }; };
           };
           "Living Cealing 2"    = { # 🦆⮞call "Living Cealing 1", sleep 15, "Living Cealing 2", sleep 15. "Living Cealing 3"
+              _aliases        = [ "två" ];
               "Takkrona 1"      = { state = "ON"; brightness = 182; transition = 9; color = { hex = "#2979FF"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 200; transition = 11; color = { hex = "#00E676"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 220; transition = 18; color = { hex = "#FFEA00"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 240; transition = 26; color = { hex = "#FF1744"; }; };
           };
           "Living Cealing 3"    = {
+              _aliases        = [ "tre" ];
               "Takkrona 1"      = { state = "ON"; brightness = 200; transition =  8; color = { hex = "#B71C1C"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 14; color = { hex = "#1B5E20"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 240; transition = 20; color = { hex = "#0D47A1"; }; };
@@ -673,6 +701,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area1"          = {
+              _aliases        = [ "tv1" "tv area 1" "tv area ett" ];
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
               "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; transition = 15; };
@@ -683,6 +712,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area2"          = {
+              _aliases        = [ "tv2" "tv area 2" "tv area två" ];
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; transition = 15; };
               "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; transition = 15; };
@@ -693,6 +723,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area3"          = {
+              _aliases        = [ "tv3" "tv area 3" "tv area tre" ];
               "TV Play Strip" = { state = "ON"; brightness = 254; color = { xy = [ 0.7006 0.2993 ]; }; transition =  2; };
               "TV Play 1"     = { state = "ON"; brightness = 210; color = { xy = [ 0.5530 0.4100 ]; }; transition =  4; };
               "TV Play 2"     = { state = "ON"; brightness = 254; color = { xy = [ 0.4432 0.5151 ]; }; transition =  6; };
@@ -717,7 +748,7 @@ in { # 🦆 duck say ⮞ house config
           tv4     = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
         };
 
-        # 🦆 says ⮞ EPG collector (can be overridden per-channel)
+        # 🦆 says ⮞ EPG scraper/builder (can be overridden per-channel too)
         scraper   = {
           row_xpath                = ''//table[@id="channel-schedule"]//tr'';
           time_xpath               = ".//time";
@@ -731,12 +762,14 @@ in { # 🦆 duck say ⮞ house config
           pm_heuristic_after_hour  = null;
         };
 
+        # 🦆 says ⮞ channels on diz TV!
         channels       = {
           "1"          = {
             name       = "SVT1";
             id         = 1; # 🦆 says ⮞ adb channel ID
             # 🦆 says ⮞ OR
             # stream_url = "https://url.com/";
+            # 🦆 ⮞ commandz to start this channel!
             cmd        = "open_telenor && wait 5 && start_channel_1";
             # 🦆 says ⮞ automagi generated tv-guide web & EPG
             icon       = ./themes/icons/tv/1.png;
@@ -981,6 +1014,7 @@ in { # 🦆 duck say ⮞ house config
     "C  ${zigduck.stateDir}/.config/yo/clients.json 0600 zigduck zigduck - ${yoClientsJson}"
   ];
 
+  # 🦆 says ⮞ hush little duckie don't say a word....
   sops = {
     secrets =  {
       api = {
@@ -1038,5 +1072,5 @@ in { # 🦆 duck say ⮞ house config
         mode     = "0440"; # 🦆 says ⮞ Read-only for owner and group
       };
     };
-
+  # 🦆 says ⮞ BYEEEEEEEEE
   };}

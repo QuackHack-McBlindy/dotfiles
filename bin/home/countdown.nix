@@ -44,8 +44,8 @@ in {
         "avbryt (nedräkning|countdown) på {device}"
       ];
       lists = {
-        device.values  = sweSpeech.deviceValues;
-        seconds.values = sweSpeech.numberValues 300;
+        device.values  = sweSpeech.devices;
+        seconds.values = sweSpeech.numberFromZeroTo 300;
       };
     };
 

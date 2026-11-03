@@ -24,7 +24,7 @@ in {
       { name = "below";  description = "Return true if power < this many watts"; optional = true; }
     ];
     code = ''
-      ${sweSpeech.mkBashMap "DEVICE_LOOKUP" sweSpeech.devicePatternMap}
+      ${sweSpeech.mkBashMap "DEVICE_LOOKUP" sweSpeech.deviceMap}
 
       D="''${device:-}"
       [ -z "$D" ] && { echo "false"; echo "❌ --device krävs" >&2; exit 1; }
@@ -73,8 +73,8 @@ in {
         "{device} (drar|använder|är) (mindre|under) [än] {below} watt"
       ];
       lists = {
-        device.values = sweSpeech.deviceValues;
-        above.values  = sweSpeech.numberValuesOneBased 100 ++ [
+        device.values = sweSpeech.devices;
+        above.values  = sweSpeech.numberFromOneTo 100 ++ [
           { "in" = "150|hundrafemtio|etthundrafemtio"; out = "150"; }
           { "in" = "200|tvåhundra";                     out = "200"; }
           { "in" = "250|tvåhundrafemtio";               out = "250"; }
@@ -87,7 +87,7 @@ in {
           { "in" = "2000|tvåtusen";                     out = "2000"; }
           { "in" = "3000|tretusen";                     out = "3000"; }
         ];
-        below.values  = sweSpeech.numberValuesOneBased 100;
+        below.values  = sweSpeech.numberFromOneTo 100;
       };
     };
 

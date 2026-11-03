@@ -190,9 +190,16 @@ in { # 🦆 says ⮞ yo
               current_epoch=$(date +%s)
               found_current=false
 
+              airing_now=false
+              while IFS='|' read -r _chan _title _start _stop _desc; do
+                  if is_program_current "$_start" "$_stop"; then
+                      airing_now=true
+                      break
+                  fi
+              done <<< "$results"
+
               dt_debug "Program som matchar $search"
               while IFS='|' read -r chan_id title start_time end_time description; do
-                  # 🦆 says ⮞ clean title
                   cleaned_title=$(clean_title "$title")
                   cleaned_desc=$(clean_title "$description")
 
@@ -200,25 +207,22 @@ in { # 🦆 says ⮞ yo
                   start_formatted=$(extract_epg_time "$start_time")
                   channel_name=$(get_channel_name "$chan_id")
 
-                  # 🦆 says ⮞ airing now?
                   if is_program_current "$start_time" "$end_time"; then
                       progress_bar=$(get_progress_bar "$start_time" "$end_time")
                       display_channel_info "$chan_id" "$cleaned_title" "$start_time" "$end_time" "$progress_bar"
                       if [ "$found_current" = "false" ]; then
                           dt_info "Startar aktuellt program: $cleaned_title"
-                          yo tv --typ livetv --search "$chan_id" --device "$DEVICE"
+                          yo tv --typ livetv --search "$chan_id"
                           found_current=true
                       fi
                   else
-                      # 🦆 says ⮞ airing later? scheduling info
                       echo -e "\n\033[33m[KOMMER] $start_formatted - $channel_name\033[0m"
                       echo -e "  $cleaned_title"
                       if [ -n "$cleaned_desc" ] && [ "$cleaned_desc" != "No description" ]; then
                           echo -e "  \033[90m$cleaned_desc\033[0m"
                       fi
 
-                      # 🦆 says ⮞ schedule channel change
-                      if [ "$start_epoch" -gt "$current_epoch" ]; then
+                      if [ "$airing_now" = "false" ] && [ "$start_epoch" -gt "$current_epoch" ]; then
                           schedule_future_program "$chan_id" "$start_epoch" "$cleaned_title" "$start_time"
                       fi
                   fi
@@ -263,7 +267,7 @@ in { # 🦆 says ⮞ yo
       sentences = [
         # 🦆 says ⮞ program search sentences
         "vilken kanal (spela|spelas|sänds|går|är) {search} på"
-
+        "släng igång (live|livetv|live-tv|lajv|lajvtv) [tv]  {search} [för|fort] [som] [fan]"
         # 🦆 says ⮞ channel specific sentences
         "vad (sänds|visas|spelas|går) på [kanal] {channel} [just nu]"
 

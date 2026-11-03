@@ -12,15 +12,16 @@
 } : let
   zigduck-cli = self.inputs.zigduck.packages.${pkgs.stdenv.hostPlatform.system}.zigduck-cli;
 
-  hoursValues = builtins.map (n: toString n) (lib.range 0 23);
 in {
   yo.scripts.alarm = {
     description = "Set an alarm for a specified time";
     category = "🛖 Home Automation";
     aliases = [ "wakeup" ];
     parameters = [
-      { name = "hours";      type = "string"; description = "Clock hour, 24h format"; default = "0"; values = hoursValues; optional = false; }
-      { name = "minutes";    type = "string"; description = "Clock minute"; default = "0"; values = sweSpeech.timerParamValues; }
+      { name = "hours";      type = "string"; description = "Clock hour, 24h format"; default = "0"; optional = false;
+        values = sweSpeech.param.hours; }
+      { name = "minutes";    type = "string"; description = "Clock minute"; default = "0";
+        values = sweSpeech.param.minutes; }
       { name = "minuteWord"; type = "string"; description = "Minute phrase part (fem, kvart, …)"; default = ""; }
       { name = "prep";       type = "string"; description = "Direction: över / i / halv"; default = ""; }
       { name = "list";       type = "bool";   description = "Lists active alarms"; default = false; }
@@ -122,11 +123,11 @@ in {
         "när {list} min väckarklocka"
       ];
       lists = {
-        list.values        = [ { "in" = "[stiga|vakna|ringer]"; out = "true"; } ];
-        prep.values        = sweSpeech.clockPrepValues;
-        minuteWord.values  = sweSpeech.clockMinuteWordValues;
-        hours.values       = sweSpeech.clockHourValues;
-        minutes.values     = sweSpeech.numberValuesOneBased 59;
+        list.values        = [{ "in" = "stiga|vakna|ringer"; out = "true"; }];
+        prep.values        = sweSpeech.clock.preps;
+        minuteWord.values  = sweSpeech.clock.minuteWords;
+        hours.values       = sweSpeech.clock.hours;
+        minutes.values     = sweSpeech.numberFromZeroTo 59;
       };
 
     };

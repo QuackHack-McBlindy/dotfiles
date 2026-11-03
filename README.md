@@ -5,13 +5,13 @@
 ![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=plastic-square&logo=NixOS&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=plastic-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.59-red?style=plastic-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.60-red?style=plastic-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=plastic-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.99.0-orange?style=plastic-square&logo=rust&logoColor=white)
 ![yo](https://img.shields.io/badge/💬%20yo-0.2.11-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.10-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.11-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -64,10 +64,10 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)
 ![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)
 
-![Scripts](https://img.shields.io/badge/📜_Scripts-99-7c3aed?style=plastic)
-![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-69-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-6366-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-390394984-7c3aed?style=plastic)
+![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)
+![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7179-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-407139841-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
@@ -76,7 +76,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5320-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4575-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4608-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -91,6 +91,7 @@ _"What makes this configuration common?_" <br>
 
 **honorable mentions in my flake inputs:**
 - 🔒[sops-nix](https://github.com/Mic92/sops-nix) - awesome secret keepin'.
+- 🔍[magnixify](https://github.com/QuackHack-McBlindy/magnixify-gnome-shell-extension) - makes me see screen.
 - 🗣️[yo](https://github.com/QuackHack-McBlindy/yo) - holds my scripts and my grammar and runs voice pipeline.
 - 🦆[zigduck](https://github.com/QuackHack-McBlindy/zigduck) - automates my house.
 - 🔴[PokéNix](https://github.com/QuackHack-McBlindy/pokenix) - builds & deploy <a href="https://quackhack-mcblindy.github.io/pokenix/">my Pokémon collection</a>.
@@ -251,7 +252,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   css.tv     = builtins.readFile ./themes/css/duckdash/tv.css;
   css.chat   = builtins.readFile ./themes/css/duckdash/chat.css;
 
-  # 🦆 says ⮞
+  # 🦆 says ⮞ mqtt message to json history helper!
   Mqtt2jsonHistory = field: file: ''
     FILE="${zigduck.stateDir}/${file}"
     VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
@@ -335,7 +336,8 @@ in { # 🦆 duck say ⮞ house config
       other.icon      = icons.room.other;
     };
 
-    # 🦆 says ⮞ presence (home/away) state
+    # 🦆 says ⮞ presence home/away state
+    # 🦆 ⮞ collected in various ways for successful detection
     presence = {
       probes      = [ devices.iphone.ip ];
       homeActions = [ "skicka en notis om 🏠 ☑️ BACK HOME!" ];
@@ -344,7 +346,7 @@ in { # 🦆 duck say ⮞ house config
 
     # 🦆 says ⮞ media
     https.media.urlFile       = config.sops.secrets.webserver.path;
-    media.root                = "/Pool";
+    media.root                = "/Pool"; # 🦆 ⮞ i like pools!
     media.youtubePasswordFile = config.sops.secrets.youtube_api_key.path;
     media = {
       movies      = "${config.house.media.root}/Movies";
@@ -406,9 +408,10 @@ in { # 🦆 duck say ⮞ house config
 
       # 🦆 says ⮞ optional dimmer config
       dimmer.message            = "action";
+      # 🦆 ⮞ clickin' fast cyclez scnes in da dimmers room!
       dimmer.doubleClickTimeout = 500;
 
-      # 🦆 says ⮞ when motion triggers lights
+      # 🦆 says ⮞ when motion triggers lights on
       motion = {
         when.dark.enable = true;
         trigger.lights = {
@@ -423,8 +426,8 @@ in { # 🦆 duck say ⮞ house config
       no.motion.trigger = {
         all.lights.off  = {
           enable  = true;
-          after   = 90; # 🦆 says ⮞  min
-          exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name, leaves their states as-is)
+          after   = 90;  # 🦆 says ⮞ min
+          exclude = [ ]; # 🦆 says ⮞ list of strings, devices to exclude (friendly name/alias, leaves their states as-is)
         };
       };
 
@@ -438,7 +441,7 @@ in { # 🦆 duck say ⮞ house config
           enable       = true;
           awayDuration = 7200;
           door         = "Door Sensor Hall";
-          delay        = 10; #🦆⮞i zet da prefix
+          delay        = 10; # 🦆 ⮞ welcome back home idiot
           actions = [ "säg välkommen hem idiot" ];
         };
 
@@ -450,6 +453,11 @@ in { # 🦆 duck say ⮞ house config
             description = "Flash lights";
             topic       = "${zigduck.baseTopic}/effects/flash";
             actions  = [
+              # 🦆 ⮞ create a state snapshot and name it before flash & wait two seconds
+              # 🦆 ⮞ activate different color rich slow transition scene & wait seven seconds
+              # 🦆 ⮞ turn on all lights & wait four seconds & turn off all lights quickly as fuck & wait three secs
+              # 🦆 ⮞ turn on all lights & wait four secs & turn off all lights again quick af & wait three secs
+              # 🦆 ⮞ turn lights back on again & sleep five sec and finally restore system state to before flash
               "skapa en snapshot och döp den till innan flashen samt vänta två sekunder"
               "tänd alla lampor samt vänta fyra sekunder"
               "släck alla lampor fort som fan samt vänta tre sekunder"
@@ -464,9 +472,12 @@ in { # 🦆 duck say ⮞ house config
             description  = "Give the cealing life. Life in colors.";
             topic        = "${zigduck.baseTopic}/effects/living/cealing";
             actions  = [
+              # 🦆 ⮞ activate color rich slow transition scene & wait five seconds
+              # 🦆 ⮞ activate different color rich slow transition scene & wait seven seconds
+              # 🦆 ⮞ activate different color rich slow transition scene & wait eleven seconds
               "aktivera scen levande tak ett samt vänta fem sekunder"
-              "aktivera scen levande tak två samt vänta sex sekunder"
-              "aktivera scen levande tak tre samt vänta fem sekunder"
+              "aktivera scen levande tak två samt vänta sju sekunder"
+              "aktivera scen levande tak tre samt vänta elva sekunder"
             ];
           };
 
@@ -476,6 +487,9 @@ in { # 🦆 duck say ⮞ house config
             conditions  = [ { type = "someone_home"; } ];
             topic       = "${zigduck.baseTopic}/alarm/triggered";
             actions  = [ # 🦆 say ⮞ GOOD LUCK STAYING IN BED
+              # 🦆 ⮞ notify, flash lights, TTS scream, raise the beds head & feet parts upwards at max
+              # 🦆 ⮞ wait then start blinking lights like raveparty, play sounds on all ESP32,
+              # 🦆 ⮞ wait & roll up blindz & play sum moar sounds, check motion sensors & if no motion - call the TV remote!
               "skicka en notis om ⏰ ALARM: Wake up! samt flasha ljuset"
               "säg UPP MED DIG LATMASK!!! sedan styr sängens fötter upp samt styr sängens huvud uppåt"
               "vänta tio sekunder sedan blinkepartaj"
@@ -490,7 +504,7 @@ in { # 🦆 duck say ⮞ house config
             description = "a timer is ringing";
             conditions  = [ { type = "someone_home"; } ];
             topic       = "${zigduck.baseTopic}/timer/finished";
-            actions  = [ # 🦆 says ⮞ notify
+            actions  = [ # 🦆 says ⮞ notify, flash lights, TTS, wait and play sound on ESP32
               "skicka en notis om ⏰ TIMER finish!! samt flasha ljuset"
               "säg timern ringer!! timern ringer!! sedan vänta sju sekunder samt pinga boxen"
             ];
@@ -554,16 +568,21 @@ in { # 🦆 duck say ⮞ house config
             door_closed = [];
           };
 
-          kitchen = { # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
+          kitchen = {
             motion_not_detected = [
+              # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
               "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
             ];
-            # 🦆 ⮞ 1: start lights. 2: cancel the off-countdown on fan. 3. if my team is playin' right NOW activate scene.
+
+
             motion_detected = [
               # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
+              # 🦆 ⮞ 1: start lights.
+              # 🦆 ⮞ 2: cancel the off-countdown on fan.
+              # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
               "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
-              "om björklöven spelar just nu så aktivera scenen löven"
+              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan plus säg nu börjar match klant"
             ];
           };
         };
@@ -571,6 +590,7 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 3. global actions automations
         global_actions  = {
           leak_detected = [
+            # 🦆 ⮞ flash lights, notify and TTS and pling all devices with sound
             "flasha ljuset samt vänta sju sekunder samt tänd alla lampor"
             "notifiera 💧 🚨 WATER LEAK DETECTED! samt plinga klockan samt plinga boxen"
             "säg VATTEN VATTEN VATTEN VATTEN samt vänta femton sekunder sedan säg VATTEN VATTEN VATTEN!"
@@ -587,7 +607,7 @@ in { # 🦆 duck say ⮞ house config
           bedroom      = {
             off_hold_release   = {
               enable           = true;
-              description      = "Turn off all configured light devices";
+              description      = "Turn off all configured light devices and turn of kitchen fan";
               extra_actions    = [];
               override_actions = [ "släck alla lampor sedan stäng av fläkten" ];
             };
@@ -618,11 +638,11 @@ in { # 🦆 duck say ⮞ house config
             enable       = true;
             description  = "set morning wakeup alarm (dont miss lunch)";
             conditions  = [ { type = "someone_home"; } ];
-            # 🦆 says ⮞ 01 AM mon-fri
+            # 🦆 says ⮞ create da alarm at 01 AM mon-fri
             schedule     = {
               start      = "01:00";
               days       = ["mon" "tue" "wed" "thu" "fri"];
-            };
+            }; #  🦆  ⮞ but we set da alarm to:
             # 🦆 says ⮞ 11.30 AM (i like to sleep in)
             actions      = [ "väck mig klockan elva och trettio'" ];
           };
@@ -636,7 +656,7 @@ in { # 🦆 duck say ⮞ house config
               start     = "03:30";
               days      = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
             };
-            # 🦆 says ⮞ scrape & save so dashboard can read
+            # 🦆 says ⮞ scrape & save so frontend can read it (from zigduck user)
             actions  = [
               "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml"
             ];
@@ -648,10 +668,13 @@ in { # 🦆 duck say ⮞ house config
       };
 
 
+
   # 🦆 ⮞ SCENES ⮜
       scenes = {
           # 🦆 says ⮞ Scene name
           "Chill Scene"         = {
+              # 🦆 says ⮞ alternative wordz for da scene
+              _aliases          = [ "chill" ];
               # 🦆 says ⮞ device friendly name & state
               "PC"              = { state = "ON"; brightness = 200; color = { hex = "#8A2BE2"; }; };
               "Golvet"          = { state = "ON"; brightness = 200; color = { hex = "#40E0D0"; }; };
@@ -669,6 +692,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "Green D"             = {
+              _aliases        = [ "devil" "devils" "löven" ];
               "Golvet"          = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Uppe"            = { state = "ON"; brightness = 200; color = { hex = "#00FF00"; }; };
               "Spotlight kök 1" = { state = "OFF"; brightness = 200; color = { hex = "#00FF00"; }; };
@@ -684,6 +708,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "kitchenInstant"      = {
+              _aliases          = [ "instant" "direkt" ];
               "Golvet"          = { state = "ON"; brightness = 124; color = { hex = "#7852A9"; }; };
               "Kök Bänk Slinga" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
               "Spotlight Kök 2" = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
@@ -699,8 +724,9 @@ in { # 🦆 duck say ⮞ house config
               "Uppe"            = { state = "ON"; brightness = 254; color = { hex = "#FFFFFF"; }; };
           };
 
-          # 🦆 says ⮞ veeeery slow turn off
+          # 🦆 says ⮞ veeeery slow turn off kitchen
           "kitchenFadeOff"      = {
+              _aliases          = [ "fade" "tona" ];
               "Golvet"          = { state = "OFF"; transition = 180; };
               "Kök Bänk Slinga" = { state = "OFF"; transition = 180; };
               "PC"              = { state = "OFF"; transition = 180; };
@@ -801,18 +827,21 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "Living Cealing 1"    = { # 🦆 says ⮞ makin' living scene dat eazy ?!
+              _aliases        = [ "ett" ];
               "Takkrona 1"      = { state = "ON"; brightness = 240; transition = 12; color = { hex = "#FF1744"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 17; color = { hex = "#FFEA00"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 200; transition = 22; color = { hex = "#00E676"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 180; transition = 27; color = { hex = "#2979FF"; }; };
           };
           "Living Cealing 2"    = { # 🦆⮞call "Living Cealing 1", sleep 15, "Living Cealing 2", sleep 15. "Living Cealing 3"
+              _aliases        = [ "två" ];
               "Takkrona 1"      = { state = "ON"; brightness = 182; transition = 9; color = { hex = "#2979FF"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 200; transition = 11; color = { hex = "#00E676"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 220; transition = 18; color = { hex = "#FFEA00"; }; };
               "Takkrona 4"      = { state = "ON"; brightness = 240; transition = 26; color = { hex = "#FF1744"; }; };
           };
           "Living Cealing 3"    = {
+              _aliases        = [ "tre" ];
               "Takkrona 1"      = { state = "ON"; brightness = 200; transition =  8; color = { hex = "#B71C1C"; }; };
               "Takkrona 2"      = { state = "ON"; brightness = 220; transition = 14; color = { hex = "#1B5E20"; }; };
               "Takkrona 3"      = { state = "ON"; brightness = 240; transition = 20; color = { hex = "#0D47A1"; }; };
@@ -900,6 +929,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area1"          = {
+              _aliases        = [ "tv1" "tv area 1" "tv area ett" ];
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.6321 0.2678 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.1491 0.3012 ]; }; transition = 15; };
               "TV Play 2"     = { state = "ON"; brightness = 254; hue = 49460; sat = 242; color = { xy = [ 0.2654 0.6680 ]; }; transition = 15; };
@@ -910,6 +940,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area2"          = {
+              _aliases        = [ "tv2" "tv area 2" "tv area två" ];
               "TV Play Strip" = { state = "ON"; brightness = 254; hue = 56100; sat = 250; color = { xy = [ 0.3824 0.1600 ]; }; transition = 15; };
               "TV Play 1"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1682 0.0410 ]; }; transition = 15; };
               "TV Play 2"     = { state = "ON"; brightness = 240; hue = 56100; sat = 250; color = { xy = [ 0.1532 0.0475 ]; }; transition = 15; };
@@ -920,6 +951,7 @@ in { # 🦆 duck say ⮞ house config
           };
 
           "tv-area3"          = {
+              _aliases        = [ "tv3" "tv area 3" "tv area tre" ];
               "TV Play Strip" = { state = "ON"; brightness = 254; color = { xy = [ 0.7006 0.2993 ]; }; transition =  2; };
               "TV Play 1"     = { state = "ON"; brightness = 210; color = { xy = [ 0.5530 0.4100 ]; }; transition =  4; };
               "TV Play 2"     = { state = "ON"; brightness = 254; color = { xy = [ 0.4432 0.5151 ]; }; transition =  6; };
@@ -944,7 +976,7 @@ in { # 🦆 duck say ⮞ house config
           tv4     = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
         };
 
-        # 🦆 says ⮞ EPG collector (can be overridden per-channel)
+        # 🦆 says ⮞ EPG scraper/builder (can be overridden per-channel too)
         scraper   = {
           row_xpath                = ''//table[@id="channel-schedule"]//tr'';
           time_xpath               = ".//time";
@@ -958,12 +990,14 @@ in { # 🦆 duck say ⮞ house config
           pm_heuristic_after_hour  = null;
         };
 
+        # 🦆 says ⮞ channels on diz TV!
         channels       = {
           "1"          = {
             name       = "SVT1";
             id         = 1; # 🦆 says ⮞ adb channel ID
             # 🦆 says ⮞ OR
             # stream_url = "https://url.com/";
+            # 🦆 ⮞ commandz to start this channel!
             cmd        = "open_telenor && wait 5 && start_channel_1";
             # 🦆 says ⮞ automagi generated tv-guide web & EPG
             icon       = ./themes/icons/tv/1.png;
@@ -1208,6 +1242,7 @@ in { # 🦆 duck say ⮞ house config
     "C  ${zigduck.stateDir}/.config/yo/clients.json 0600 zigduck zigduck - ${yoClientsJson}"
   ];
 
+  # 🦆 says ⮞ hush little duckie don't say a word....
   sops = {
     secrets =  {
       api = {
@@ -1265,7 +1300,7 @@ in { # 🦆 duck say ⮞ house config
         mode     = "0440"; # 🦆 says ⮞ Read-only for owner and group
       };
     };
-
+  # 🦆 says ⮞ BYEEEEEEEEE
   };}
 ```
 
@@ -1297,6 +1332,7 @@ I like my flakes tiny & ny modules dynamically loaded,
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
         #yo.url              = "path:/home/pungkula/new/yo";
         #zigduck.url         = "path:/home/pungkula/zigduck2mqttnix";
+        #pokenix.url         = "path:/home/pungkula/new/pokenix";
         #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
         mobile-pkgs.url      = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
@@ -1520,7 +1556,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
 | [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--blinds] [--get-temp] [--get-bat] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
-| [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/if.nix) --condition --then [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false. | ✅ |
+| [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/if.nix) --condition --then [--efter] [--plus] [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/notify.nix) [--message] [--tag] |  | Send a desktop notification. | ✅ |
@@ -1543,6 +1579,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Duck says s funny joke. | ✅ |
+| [yo pokemon](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/pokemon.nix) [--pokemon] [--ball] [--dex] [--iv] [--ev] [--stats] [--many] [--question] [--ribbon] [--eggMoves] [--moves] [--ability] [--shiny] [--ha] [--em] [--ribbons] [--listMissing] [--shinyLeft] |  | Search user defined Pokémon using PokéNix. | ✅ |
 | [yo post](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/post.nix) [--postalCodeFile] [--postalCode] |  | Check for the next postal delivery day. (Sweden) | ✅ |
 | [yo qr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/qr.nix) --input [--icon] [--output] |  | Create fun randomized QR codes from input. | 📛 |
 | [yo reminder](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/reminder.nix) [--about] [--list] [--clear] [--user] [--pwfile] | remind | Reminder Assistant | ✅ |

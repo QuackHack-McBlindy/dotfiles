@@ -1042,10 +1042,10 @@ let
           ];
           team.values = voiceTeamVals;
           stat.values = [
-            { "in" = "[power|powerplay|pp|överläge|numerärt överläge]";  out = "powerplay";       }
+            { "in" = "[power|powerplay|pp|överläge|numerärt överläge]";       out = "powerplay";       }
             { "in" = "[box|boxplay|bp|box play|undertal|numerärt underläge]"; out = "boxplay";  }
-            { "in" = "[underläge|shorthanded|boxmål|boxplay mål]";       out = "shorthanded_goals"; }
-            { "in" = "[målvakt|målvakten|målvakter|goalie|goalkeeper]";  out = "goalkeeper";      }
+            { "in" = "[underläge|shorthanded|boxmål|boxplay mål]";            out = "shorthanded_goals"; }
+            { "in" = "[målvakt|målvakten|målvakter|goalie|goalkeeper]";       out = "goalkeeper";      }
             { "in" = "[räddningsprocent|räddningar|save percentage]";    out = "save_percentage"; }
             { "in" = "[straff|utvisning|penalty|pim]";                   out = "penalty";         }
             { "in" = "[längd|längst|lång]";                              out = "tallest";         }

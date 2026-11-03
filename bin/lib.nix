@@ -1,14 +1,18 @@
 # dotfiles/bin/lib.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 #  » ★ QuackHack-McBLindy.com ★ «
-{
+{ # 🦆 says ⮞ voice helperz
   config,
   lib,
   pkgs,
   ...
 } : let
   zigbeeDevices = config.house.zigbee.devices or {};
-  scenes        = config.house.zigbee.scenes or {};
+  zigbeeScenes  = config.house.zigbee.scenes or {};
+  zigbeeRooms   = config.house.rooms or {};
 
+  asList = v: if v == null then [] else v;
+
+  # 🦆 says ⮞ HELPERS
   swedishNumbers = [
     "noll" "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
     "elva" "tolv" "tretton" "fjorton" "femton" "sexton" "sjutton" "arton" "nitton"
@@ -42,8 +46,7 @@
         + (if rest == 0 then "" else builtins.elemAt swedishNumbers rest)
     else toString n;
 
-
-  numberValues = max:
+  numberFromZeroTo = max:
     builtins.concatLists (builtins.genList
       (i: [
         { "in" = toString i;      out = toString i; }
@@ -51,7 +54,7 @@
       ])
       (max + 1));
 
-  numberValuesOneBased = max:
+  numberFromOneTo = max:
     builtins.concatLists (builtins.genList
       (i: let n = i + 1; in [
         { "in" = toString n;      out = toString n; }
@@ -59,146 +62,45 @@
       ])
       max);
 
-  deviceAliases = lib.listToAttrs (lib.concatMap (device:
-    let
-      fn      = device.friendly_name;
-      aliases = lib.optionals (device.aliases != null) device.aliases;
-    in if aliases == [] then [] else [
-      (lib.nameValuePair fn aliases)
-    ]
-  ) (lib.attrValues zigbeeDevices));
+  #  🦆 says ⮞ READS VOICE LISTS OUT VALUES
+  paramFrom = vs: lib.unique (map (v: v.out) vs);
 
-  roomAliases = lib.mapAttrsToList (roomName: roomCfg:
+  # 🦆 says ⮞ HOUSE LISTS
+  devices = lib.mapAttrsToList (_: d:
     let
-      aliases  = lib.optionals (roomCfg.aliases != null) roomCfg.aliases;
-      allNames = lib.unique ([ roomName ] ++ aliases);
+      names = lib.unique (map lib.toLower (
+        [ d.friendly_name ] ++ asList (d.aliases or null)
+      ));
     in {
-      aliases   = lib.concatStringsSep "|" allNames;
-      canonical = roomName;
+      "in" = lib.concatStringsSep "|" names;
+      out  = d.friendly_name;
     }
-  ) (config.house.rooms or {});
-
-  roomAliasMap = lib.foldl' (acc: entry:
-    let ins = lib.splitString "|" entry.aliases;
-    in lib.foldl' (a: i: a // { "${lib.toLower i}" = entry.canonical; }) acc ins
-  ) {} roomAliases;
-
-  roomValues = map (r: { "in" = r.aliases; out = r.canonical; }) roomAliases;
-  roomValuesFlat = lib.unique (
-    lib.concatMap (entry: lib.splitString "|" entry."in") roomValues
-  );
-
-  normalizedDeviceMap = lib.mapAttrs' (_id: d:
-    lib.nameValuePair (lib.toLower d.friendly_name) d.friendly_name
   ) zigbeeDevices;
 
-  roomDevicesMap = let
-    grouped = lib.groupBy (d: d.room) (lib.attrValues zigbeeDevices);
-  in lib.mapAttrs (_room: devs: map (d: d.friendly_name) devs) grouped;
-
-  roomBashMap = lib.mapAttrs (_room: devs: lib.concatStringsSep "|" devs) roomDevicesMap;
-
-  typeMap = lib.mapAttrs' (_id: d:
-    lib.nameValuePair (lib.toLower d.friendly_name) (d.type or "unknown")
-  ) zigbeeDevices;
-
-  allDevicesList = lib.attrValues normalizedDeviceMap;
-  allDevicesStr  = lib.concatStringsSep "|" allDevicesList;
-
-  deviceNames = lib.sort (a: b: a < b)
-    (map (d: d.friendly_name) (lib.attrValues zigbeeDevices));
-
-  roomNames = if (builtins.hasAttr "rooms" config.house) then
-    builtins.attrNames config.house.rooms
-  else
-    lib.unique (map (d: d.room) (lib.attrValues zigbeeDevices));
-
-  sceneNames = builtins.attrNames scenes;
-
-  deviceValues = let
-    reservedNames = [ "hall" "kitchen" "bedroom" "bathroom" "wc" "livingroom" "switch" "all" "every" ];
-    sanitize = str: lib.replaceStrings [ "/" " " ] [ "" "_" ] str;
-
-    swedishPatterns = base: baseRaw: [
-      base
-      "${baseRaw}n" "${baseRaw}t" "${baseRaw}en" "${baseRaw}et"
-      "${baseRaw}ar" "${baseRaw}or" "${baseRaw}er"
-      "${baseRaw}na" "${baseRaw}orna" "${baseRaw}erna"
-      "${baseRaw}lampan" "${baseRaw}lampor" "${baseRaw}lamporna"
-      "${baseRaw}ljus" "${baseRaw}lamp"
-    ];
-
-    buildVariants = raw:
-      let
-        baseRaw    = lib.toLower raw;
-        base       = sanitize baseRaw;
-        baseWords  = lib.splitString " " base;
-        isAmbiguous = lib.any (w: lib.elem w reservedNames) baseWords;
-        variants = lib.unique (
-          [ base
-            (sanitize (lib.replaceStrings [ " " ] [ "" ] base))
-            (lib.replaceStrings [ "_" ] [ " " ] base)
-          ] ++ lib.unique (swedishPatterns base baseRaw)
-            ++ [ "${base}s" "${base} light" ]
-        );
-      in { inherit isAmbiguous variants; };
-  in lib.filter (x: x != null) (
-    lib.mapAttrsToList (_: device:
-      let
-        aliases    = deviceAliases.${device.friendly_name} or [];
-        main       = buildVariants device.friendly_name;
-        aliasPats  = map buildVariants aliases;
-        valid      = lib.filter (p: !p.isAmbiguous) ([ main ] ++ aliasPats);
-        variations = lib.unique (lib.concatMap (p: p.variants) valid);
-      in if variations == [] then null else {
-        "in" = lib.concatStringsSep "|" variations;
-        out  = device.friendly_name;
-      }
-    ) zigbeeDevices
-  );
-
-  deviceValuesFlat = lib.unique (
-    lib.concatMap (entry: lib.splitString "|" entry."in") deviceValues
-  );
-
-  sceneValues = let
-    reservedSceneNames = [ "max" "dark" "off" "on" "all" "every" ];
-    sanitizeScene = str:
-      lib.toLower (lib.replaceStrings [ " " "-" "_" ] [ "" "" "" ] str);
-
-    swedishScenePatterns = base: baseRaw: [
-      base
-      "${baseRaw}n" "${baseRaw}t" "${baseRaw}en" "${baseRaw}et"
-      "${baseRaw} scen" "${baseRaw} scenen"
-      "${baseRaw} läge" "${baseRaw} läget"
-    ];
-  in [
-    { "in" = "tänd|tänk|max|maxa|maxxa|maxad|maximum";    out = "max"; }
-    { "in" = "på|tänd|aktiv";                              out = "max"; }
-    { "in" = "mörk|mörker|mörkt|släckt|avstängd";          out = "dark"; }
-    { "in" = "av|släck|släckt|stängd|stäng";               out = "dark"; }
-    { "in" = "mys|myspys|mysig|chill|chilla";              out = "Chill Scene"; }
-  ] ++ (lib.mapAttrsToList (sceneId: sceneConfig:
+  rooms = lib.mapAttrsToList (name: cfg:
     let
-      baseRaw     = lib.toLower (sceneConfig.friendly_name or sceneId);
-      base        = sanitizeScene baseRaw;
-      baseWords   = lib.splitString " " base;
-      isAmbiguous = lib.any (w: lib.elem w reservedSceneNames) baseWords;
-      swedishVar  = if isAmbiguous then [] else lib.unique (swedishScenePatterns base baseRaw);
-      variations  = lib.unique (
-        [ base
-          (sanitizeScene (lib.replaceStrings [ " " ] [ "" ] base))
-          (lib.replaceStrings [ "_" "-" ] [ " " " " ] base)
-          sceneId
-        ] ++ swedishVar
-      );
+      names = lib.unique (map lib.toLower (
+        [ name ] ++ asList (cfg.aliases or null)
+      ));
     in {
-      "in" = lib.concatStringsSep "|" variations;
-      out  = sceneId;
+      "in" = lib.concatStringsSep "|" names;
+      out  = name;
     }
-  ) scenes);
+  ) zigbeeRooms;
 
-  colorValues = [
+  scenes = lib.mapAttrsToList (sceneName: cfg:
+    let
+      names = lib.unique (map lib.toLower (
+        [ sceneName ] ++ asList (cfg._aliases or null)
+      ));
+    in {
+      "in" = lib.concatStringsSep "|" names;
+      out  = sceneName;
+    }
+  ) zigbeeScenes;
+
+  # 🦆 says ⮞ VOICE LISTS
+  colors = [
     { "in" = "röd|rött|röda";                out = "red"; }
     { "in" = "grön|grönt|gröna";             out = "green"; }
     { "in" = "blå|blått|blåa";               out = "blue"; }
@@ -222,59 +124,12 @@
     { "in" = "korall|korallröd";             out = "coral"; }
     { "in" = "guld|guldfärgad";              out = "gold"; }
     { "in" = "silver|silverfärgad";          out = "silver"; }
-    { "in" = "slumpmässig|random|valfri färg"; out = "random"; }
+    { "in" = "slumpmässig|random|valfri";    out = "random"; }
   ];
 
-  temperatureValues = builtins.genList (i: {
-    "in" = toString (i + 153);
-    out  = toString (i + 153);
-  }) 347;
+  brightness = numberFromOneTo 100;
 
-  brightnessParamValues = builtins.map (n: toString n) (lib.range 0 100);
-  brightnessVoiceValues = numberValuesOneBased 100;
-
-  switchStateValues = [
-    { "in" = "tänd|sätt på|slå på|starta|aktivera|på";      out = "ON"; }
-    { "in" = "släck|stäng av|slå av|avaktivera|stäng|av";   out = "OFF"; }
-  ];
-
-  queryStateValues = [
-    { "in" = "öppen|öppet|oppen|open";                   out = "öppen"; }
-    { "in" = "stängd|stängt|stangd|closed";              out = "stängd"; }
-    { "in" = "tänd|tänt|tand|on|på|pa";                  out = "tänd"; }
-    { "in" = "släckt|släkt|slackt|off|av";               out = "släckt"; }
-    { "in" = "rörelse|rörelser|motion|rörlig|aktiv|någon|nån|nått|några|folk|person|personer"; out = "rörelse"; }
-  ];
-
-
-  blindsValues = [
-    { "in" = "up|upp";     out = "up"; }
-    { "in" = "ner|ned";    out = "down"; }
-    { "in" = "öppna";      out = "open"; }
-    { "in" = "stäng";      out = "close"; }
-  ];
-
-  allLightsValues = [
-    { "in" = "all|alla|allt"; out = "true"; }
-  ];
-
-  getTempValues = [
-    { "in" = "temp|temperatur|grader"; out = "true"; }
-    { "in" = "varm|varmt|kall|kallt";  out = "true"; }
-  ];
-
-  getBatValues = [
-    { "in" = "batteri|battery|batteriet";     out = "true"; }
-    { "in" = "batterinivå|batterinivån";      out = "true"; }
-  ];
-
-  timerParamValues = builtins.map (n: toString n) (lib.range 0 59);
-
-  timerListValues = [
-    { "in" = "länge|kvar"; out = "true"; }
-  ];
-
-  durationValues = [
+  durations = [
     { "in" = "120|två minuter|2 minuter";                    out = "120"; }
     { "in" = "180|tre minuter|3 minuter";                    out = "180"; }
     { "in" = "300|fem minuter|5 minuter";                    out = "300"; }
@@ -286,6 +141,70 @@
     { "in" = "3600|sextio minuter|60 minuter|en timme";      out = "3600"; }
   ];
 
+  clock = {
+    preps = [
+      { "in" = "över"; out = "över"; }
+      { "in" = "i";    out = "i"; }
+      { "in" = "halv"; out = "halv"; }
+    ];
+    minuteWords = [ { "in" = "kvart"; out = "15"; } ] ++ numberFromOneTo 29;
+    hours       = numberFromOneTo 23
+                  ++ [ { "in" = "noll|midnatt"; out = "0"; } ];
+    minutes     = numberFromZeroTo 59;
+    seconds     = numberFromZeroTo 59;
+  };
+
+  temperature = builtins.genList (i: {
+    "in" = toString (i + 153);
+    out  = toString (i + 153);
+  }) 347;
+
+  # 🦆 says ⮞ PARAMETER VALIDATION (derived)
+  param = {
+    hours      = paramFrom clock.hours;
+    minutes    = paramFrom clock.minutes;
+    seconds    = paramFrom clock.seconds;
+    brightness = paramFrom brightness;
+  };
+
+  # 🦆 says ⮞ LOOKUPS
+  deviceMap = lib.listToAttrs (lib.concatMap (entry:
+    map (pat: lib.nameValuePair pat entry.out)
+      (lib.splitString "|" entry."in")
+  ) devices);
+
+  roomMap = lib.foldl' (acc: entry:
+    let pats = lib.splitString "|" entry."in";
+    in lib.foldl' (a: p: a // { "${p}" = entry.out; }) acc pats
+  ) {} rooms;
+
+  normalizedDeviceMap = lib.mapAttrs' (_id: d:
+    lib.nameValuePair (lib.toLower d.friendly_name) d.friendly_name
+  ) zigbeeDevices;
+
+  typeMap = lib.mapAttrs' (_id: d:
+    lib.nameValuePair (lib.toLower d.friendly_name) (d.type or "unknown")
+  ) zigbeeDevices;
+
+  deviceNames = lib.sort (a: b: a < b)
+    (map (d: d.friendly_name) (lib.attrValues zigbeeDevices));
+
+  roomNames = if zigbeeRooms != {} then
+    builtins.attrNames zigbeeRooms
+  else
+    lib.unique (map (d: d.room) (lib.attrValues zigbeeDevices));
+
+  sceneNames = builtins.attrNames zigbeeScenes;
+
+  roomDevices = let
+    grouped = lib.groupBy (d: d.room) (lib.attrValues zigbeeDevices);
+  in lib.mapAttrs (_room: devs: map (d: d.friendly_name) devs) grouped;
+
+  roomBashMap = lib.mapAttrs (_room: devs: lib.concatStringsSep "|" devs) roomDevices;
+
+  allDevicesStr = lib.concatStringsSep "|" (lib.attrValues normalizedDeviceMap);
+
+  # 🦆 says ⮞ BASH HELPER
   mkBashMap = name: attrs:
     let
       entries = lib.mapAttrsToList (k: v:
@@ -296,56 +215,22 @@
       )
     '';
 
-  clockPrepValues = [
-    { "in" = "över"; out = "över"; }
-    { "in" = "i";    out = "i"; }
-    { "in" = "halv"; out = "halv"; }
-  ];
-
-  clockMinuteWordValues =
-    [ { "in" = "kvart"; out = "15"; } ]
-    ++ numberValuesOneBased 29;
-
-  clockHourValues = numberValuesOneBased 23
-    ++ [ { "in" = "noll|midnatt"; out = "0"; } ];
-
-  hoursParamValues = builtins.map (n: toString n) (lib.range 0 23);
-
-  wildcard = { wildcard = true; values = []; };
-
-  everyValues = [
-    { "in" = "1|en";       out = "1"; }
-    { "in" = "5|fem";      out = "5"; }
-    { "in" = "10|tio";     out = "10"; }
-    { "in" = "15|femton";  out = "15"; }
-    { "in" = "30|trettio"; out = "30"; }
-    { "in" = "60|sextio";  out = "60"; }
-  ];
-
-  devicePatternMap = lib.listToAttrs (lib.concatMap (entry:
-    map (pat: lib.nameValuePair pat entry.out)
-      (lib.splitString "|" entry."in")
-  ) deviceValues);
-
 in {
   inherit
-    devicePatternMap
-    wildcard everyValues
-    clockPrepValues clockMinuteWordValues clockHourValues hoursParamValues
-    swedishNumbers swedishNumber
-    numberValues numberValuesOneBased
-    deviceAliases deviceNames deviceValues deviceValuesFlat
-    roomAliases roomNames roomValues roomValuesFlat roomAliasMap
-    roomDevicesMap roomBashMap
-    sceneNames sceneValues
-    colorValues temperatureValues
-    brightnessParamValues brightnessVoiceValues
-    switchStateValues queryStateValues
-    blindsValues allLightsValues getTempValues getBatValues
-    timerParamValues timerListValues
-    durationValues
-    normalizedDeviceMap typeMap
-    allDevicesList allDevicesStr
-    mkBashMap;
+    # 🦆 ⮞ voice lists (in/out)
+    devices rooms scenes
+    colors brightness durations clock temperature
 
+    # 🦆 ⮞ param validation (plain strings)
+    param
+
+    # 🦆 ⮞ helpers
+    numberFromZeroTo numberFromOneTo paramFrom
+
+    # 🦆 ⮞ lookups
+    deviceMap roomMap roomBashMap typeMap allDevicesStr
+    deviceNames roomNames sceneNames roomDevices
+
+    # 🦆 ⮞ bash
+    mkBashMap;
 }

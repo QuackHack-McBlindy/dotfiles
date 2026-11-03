@@ -65,10 +65,10 @@ in {
       ];
 
       lists = {
-        condition   = sweSpeech.wildcard;
-        body        = sweSpeech.wildcard;
-        every.values = sweSpeech.everyValues;
-        max_minutes.values = sweSpeech.everyValues;   # reuse: 1, 5, 10, 15, 30, 60 min ceiling
+        condition.wildcard = true;
+        body.wildcard      = true;
+        every.values       = sweSpeech.numberFromOneTo 59;
+        max_minutes.values = sweSpeech.numberFromOneTo 59;
       };
     };
 

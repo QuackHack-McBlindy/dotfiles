@@ -9,6 +9,10 @@
 
     services.orca.enable = false;
 
+    nixpkgs.config.problems.handlers = {
+      "gtk+".broken = "warn"; # or "ignore"
+    };
+
     nixpkgs.overlays = [
       (final: prev: {
         buildGo125Module = prev.buildGoModule.override {
