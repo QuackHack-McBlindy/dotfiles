@@ -5,7 +5,7 @@
   lib,
   pkgs,
   cmdHelpers,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -67,8 +67,8 @@ in {
       lists = {
         condition.wildcard = true;
         body.wildcard      = true;
-        every.values       = sweSpeech.numberFromOneTo 59;
-        max_minutes.values = sweSpeech.numberFromOneTo 59;
+        every.values       = swe.numberFromOneTo 59;
+        max_minutes.values = swe.numberFromOneTo 59;
       };
     };
 

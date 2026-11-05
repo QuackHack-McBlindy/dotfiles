@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 # hooks/check-secrets.sh
-
 set -euo pipefail
 
 [ -d secrets ] || { echo "No secrets/ directory — nothing to check."; exit 0; }

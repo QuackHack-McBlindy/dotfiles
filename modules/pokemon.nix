@@ -2538,7 +2538,7 @@ in {
       };
       mudkip          = { ball = "love";    ot = true; selfObtained = true; level = 100; nature = "Adamant"; ability = "Torrent"; teraType = "Water"; style = "star"; egg = false; notes = ""; };
       marshtomp       = { ball = "love";    ot = true; selfObtained = true; level = 100; nature = "Adamant"; ability = "Torrent"; teraType = "Water"; style = "star"; egg = false; notes = ""; };
-      Swampert = {
+      swampert = {
         ball = "love"; ot = true; selfObtained = true; level = 100;
         nature = "Adamant"; ability = "Torrent"; teraType = "Ground";
         heldItem = "Leftovers";

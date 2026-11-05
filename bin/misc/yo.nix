@@ -32,7 +32,7 @@ in {
       ];
 
       lists = {
-        phrase = { wildcard = true; };
+        phrase.wildcard = true;
       };
     };
 

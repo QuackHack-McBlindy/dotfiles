@@ -476,7 +476,10 @@
         "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆
         "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; aliases = [ "dörr" "dörren" "ytterdörren" ]; room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1; };
         "0x0017880109ac14f3" = { friendly_name = "Tak Hall"; room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
-        "0x000b57fffe0e2a04" = { friendly_name = "Vägg"; aliases = [ "väggen" ]; room = "hallway"; type = "light"; icon = icons.light.wall; supports_temperature = true; supports_color = false; endpoint = 1; };
+        "0x000b57fffe0e2a04" = {
+          friendly_name = "Vägg"; aliases = [ "väggen" ]; room = "hallway"; type = "light";
+          icon = icons.light.wall; supports_temperature = true; supports_color = false; endpoint = 1;
+        };
 
         # 🦆 says ⮞ WC
         "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };

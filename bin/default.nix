@@ -41,8 +41,6 @@
     inherit zigduck devices;
   };
 
-  sweSpeech = import ./lib.nix { inherit config lib pkgs; };
-
   # 🦆BEtracin'⮞RUST'logggin'DUCK'pleasin'
   RustDuckTrace = import ./DuckTrace/rust.nix {
     inherit config lib pkgs self sysHosts sysDevShells;
@@ -72,19 +70,31 @@
     then "localhost"
     else mqttHostip;
 
-in { # 🦆 duck say ⮞ import everythang in defined directories
-    imports = builtins.map (file: import file {
-        inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace pkgs sysHosts mqttHostip;
-        inherit zigduck devices sweSpeech;
-    }) (
-        importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++
-        importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++
-        importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++
-        importModulesRecursive ./maintenance ++ # 🦆 duck say ⮞ +++++ plus plus plus rots of duck's give lot'z of luck
-        importModulesRecursive ./phone ++
-        importModulesRecursive ./productivity ++
-        importModulesRecursive ./network ++
-        importModulesRecursive ./media ++
-        importModulesRecursive ./files ++
-        importModulesRecursive ./misc # 🦆 duck say ⮞ enuff enuff dis iz last you have ducks word on dat
-    );} # 🦆 duck say ⮞ bye!
+  # 🦆 says ⮞ one swe per script — dis lil' duck knowz ITS OWN name,
+  sweFor = scriptName:
+    import ./lib.nix { inherit config lib pkgs; inherit scriptName; };
+  # 🦆 says ⮞ da generic swe — no name, no voice.lists lookup, just house helpers
+  swe = import ./lib.nix { inherit config lib pkgs; };
+in { # 🦆 says ⮞ waddle every script file in, one ducky at a time, handin' it a swe
+  # 🦆 ⮞ that already knowz which voice.lists belong to it (filename == script name)
+  imports = builtins.map (file:
+    let scriptName = lib.removeSuffix ".nix" (baseNameOf (toString file));
+        # 🦆 says ⮞ hand dis ducky its own swe, preloaded wit' da right script name
+        swe' = sweFor scriptName;
+    in import file {
+      inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace
+              pkgs sysHosts mqttHostip zigduck devices;
+      # 🦆 says ⮞ swe' shadows da generic swe in da script — script getz da personal one
+      swe = swe';
+    } # 🦆 duck say ⮞ import everythang in defined directories
+  ) (importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++
+      importModulesRecursive ./home ++    # 🦆 duck say ⮞ ++
+      importModulesRecursive ./security ++   # 🦆 duck say ⮞ ++
+      importModulesRecursive ./maintenance ++ # 🦆 duck say ⮞ +++++ plus plus plus rots of duck's give lot'z of luck
+      importModulesRecursive ./phone ++
+      importModulesRecursive ./productivity ++
+      importModulesRecursive ./network ++
+      importModulesRecursive ./media ++
+      importModulesRecursive ./files ++
+      importModulesRecursive ./misc # 🦆 duck say ⮞ enuff enuff dis iz last you have ducks word on dat
+  );} # 🦆 duck say ⮞ bye!

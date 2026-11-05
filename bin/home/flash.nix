@@ -6,7 +6,7 @@
   lib,
   config,
   pkgs,
-  sweSpeech,
+  swe,
   ...
 } : let
 

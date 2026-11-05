@@ -132,10 +132,6 @@ in {
     }
 
     {
-     # git.subRepo."no_std_components" = {
-     #   url = "https://github.com/quackhack-mcblindy/no_std_components.git";
-     #   rev = "main";
-     # };
 
       file."README.md" = ''
         # 🦆🧑‍🦯 **QuackHack-McBLindy'z ⮞ home directory yay** 🦆🧑‍🦯
@@ -148,29 +144,22 @@ in {
 
         **🦆 duck say ⮞ quack - diz iz my directory**
         **🦆 duck say ⮞ quack - my home my rulez**
-        **🦆 duck say ⮞ i handle filez**
+        **🦆 duck say ⮞ i create filez**
 
         ```nix
           file."ducks.md" = "🦆 duck say ⮞ like diz yay";
-
         ```
 
-        **🦆 duck say ⮞ i handle ur ${pkgs.git}/bin/git repoz inside HOME**
-        **🦆 duck say ⮞ like diz:**
+        **🦆 duck say ⮞ i symlink pathz**
 
         ```nix
-          git.subRepo."no_std_components" = {
-            url = "https://github.com/quackhack-mcblindy/no_std_components.git";
-            rev = "main";   # or a specific commit hash like "a1b2c3d"
-          };
+          link".config/myapp" = pkgs.somePackage;
         ```
-
-
 
 
         ## 🦆 ⭐ 🦆 ⭐ 🦆 ⭐
 
-        [![Star History](https://api.star-history.com/svg?repos=QuackHack-McBlindy/dotfiles&type=date&legend=top-left)](https://www.star-history.com/#QuackHack-McBlindy/dotfiles&type=date&legend=top-left)
+        [![Star History](total-stars.svg)](https://github.com/QuackHack-McBlindy/)
 
       '';
     }

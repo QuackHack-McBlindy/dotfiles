@@ -7,7 +7,7 @@
   config,
   pkgs,
   cmdHelpers,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -30,7 +30,7 @@ in {
         "vänta [i] {duration} [sec|sek|sekund|sekunder]"
       ];
       lists = {
-        duration.values = sweSpeech.numberFromOneTo 200;
+        duration.values = swe.numberFromOneTo 200;
       };
     };
 

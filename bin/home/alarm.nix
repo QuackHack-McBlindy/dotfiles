@@ -7,7 +7,7 @@
   config,
   pkgs,
   cmdHelpers,
-  sweSpeech,
+  swe,
   ...
 } : let
   zigduck-cli = self.inputs.zigduck.packages.${pkgs.stdenv.hostPlatform.system}.zigduck-cli;
@@ -19,9 +19,9 @@ in {
     aliases = [ "wakeup" ];
     parameters = [
       { name = "hours";      type = "string"; description = "Clock hour, 24h format"; default = "0"; optional = false;
-        values = sweSpeech.param.hours; }
+        values = swe.allowFrom "hours"; }
       { name = "minutes";    type = "string"; description = "Clock minute"; default = "0";
-        values = sweSpeech.param.minutes; }
+        values = swe.allowFrom "minutes"; }
       { name = "minuteWord"; type = "string"; description = "Minute phrase part (fem, kvart, …)"; default = ""; }
       { name = "prep";       type = "string"; description = "Direction: över / i / halv"; default = ""; }
       { name = "list";       type = "bool";   description = "Lists active alarms"; default = false; }
@@ -124,10 +124,10 @@ in {
       ];
       lists = {
         list.values        = [{ "in" = "stiga|vakna|ringer"; out = "true"; }];
-        prep.values        = sweSpeech.clock.preps;
-        minuteWord.values  = sweSpeech.clock.minuteWords;
-        hours.values       = sweSpeech.clock.hours;
-        minutes.values     = sweSpeech.numberFromZeroTo 59;
+        prep.values        = swe.clock.preps;
+        minuteWord.values  = swe.clock.minuteWords;
+        hours.values       = swe.clock.hours;
+        minutes.values     = swe.numberFromZeroTo 59;
       };
 
     };

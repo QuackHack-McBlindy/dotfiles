@@ -6,7 +6,7 @@
   lib,
   config,
   pkgs,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -29,7 +29,7 @@ in {
         "(aktivera|sätt|kör|tänd) scen köket {name}"
         "(aktivera|sätt|kör|tänd) scenen {name} köket"
       ];
-      lists.name.values = sweSpeech.scenes;
+      lists.name.values = swe.scenes;
     };
 
   };}

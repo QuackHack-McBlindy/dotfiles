@@ -6,7 +6,7 @@
   lib,
   config,
   pkgs,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -29,11 +29,11 @@ in {
       DEVICE="''${device:-}"
       INPUT_LOWER=$(printf '%s' "$DEVICE" | tr '[:upper:]' '[:lower:]')
 
-      ${sweSpeech.mkBashMap "ROOM_ALIAS_MAP" sweSpeech.roomMap}
-      ${sweSpeech.mkBashMap "DEVICE_MAP"     sweSpeech.deviceMap}
+      ${swe.mkBashMap "ROOM_ALIAS_MAP" swe.roomMap}
+      ${swe.mkBashMap "DEVICE_MAP"     swe.deviceMap}
       DEVICE_MAP["shield"]="shield"
-      ${sweSpeech.mkBashMap "ROOM_MAP"       sweSpeech.roomBashMap}
-      ${sweSpeech.mkBashMap "TYPE_MAP"       sweSpeech.typeMap}
+      ${swe.mkBashMap "ROOM_MAP"       swe.roomBashMap}
+      ${swe.mkBashMap "TYPE_MAP"       swe.typeMap}
 
       STATE_JSON=$(zigduck-cli --state-json 2>/dev/null)
       if [ -z "$STATE_JSON" ] || ! printf '%s' "$STATE_JSON" | jq -e . >/dev/null 2>&1; then
@@ -90,7 +90,7 @@ in {
         if [ -n "$RESOLVED_ROOM" ]; then
           CANDIDATES="''${ROOM_MAP[$RESOLVED_ROOM]}"
         else
-          CANDIDATES="${sweSpeech.allDevicesStr}|shield"
+          CANDIDATES="${swe.allDevicesStr}|shield"
         fi
 
         MATCHED=""
@@ -161,7 +161,7 @@ in {
       HEADER=""
       if [ -z "$INPUT_LOWER" ] || [ "$INPUT_LOWER" = "all" ] || [ "$INPUT_LOWER" = "every" ] \
          || [ "$INPUT_LOWER" = "alla" ] || [ "$INPUT_LOWER" = "allt" ]; then
-        TARGET_LIST="${sweSpeech.allDevicesStr}|shield"
+        TARGET_LIST="${swe.allDevicesStr}|shield"
         HEADER="Alla enheter"
       elif [ -n "''${ROOM_MAP[$INPUT_LOWER]+x}" ]; then
         TARGET_LIST="''${ROOM_MAP[$INPUT_LOWER]}"
@@ -323,10 +323,10 @@ in {
           { "in" = "släckt|släkt|slackt|off|av";               out = "släckt"; }
           { "in" = "rörelse|rörelser|motion|rörlig|aktiv|någon|nån|nått|några|folk|person|personer"; out = "rörelse"; }
         ];
-        device.values = sweSpeech.devices ++ [
+        device.values = swe.devices ++ [
           { "in" = "tv|tvn|teven|shield|sköld|skölden|sjöld"; out = "shield"; }
         ];
-        room.values   = sweSpeech.rooms;
+        room.values   = swe.rooms;
         reverse.values = [
           { "in" = "inte"; out = "true"; }
         ];

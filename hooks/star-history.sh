@@ -208,7 +208,7 @@ cat > "$OUTPUT" <<SVG
         font-family="sans-serif"
         font-size="18"
         font-weight="600">
-    Total GitHub Stars
+    🦆 ⭐ QuackHack-McBLindy Stars
   </text>
 
   <text x="$((WIDTH - RIGHT))" y="30"

@@ -159,7 +159,8 @@ in {
           { "in" = "[visa]"; out = "true"; }
         ];
         clear.values = [
-          { "in" = "[rensa]"; out = "true"; }
+          { "in" = "rensa"; out = "true"; }
+          { "in" = "rensar"; out = "true"; }
         ];
       };
     };

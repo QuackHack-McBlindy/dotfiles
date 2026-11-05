@@ -4,6 +4,9 @@
   config,
   lib,
   pkgs,
+  scriptName
+  ?
+  null,
   ...
 } : let
   zigbeeDevices = config.house.zigbee.devices or {};
@@ -31,6 +34,12 @@
     if h == 1 then "etthundra"
     else if h == 2 then "tvåhundra"
     else if h == 3 then "trehundra"
+    else if h == 4 then "fyrahundra"
+    else if h == 5 then "femhundra"
+    else if h == 6 then "sexhundra"
+    else if h == 7 then "sjuhundra"
+    else if h == 8 then "åttahundra"
+    else if h == 9 then "niohundra"
     else null;
 
   swedishNumber = n:
@@ -64,6 +73,14 @@
 
   #  🦆 says ⮞ READS VOICE LISTS OUT VALUES
   paramFrom = vs: lib.unique (map (v: v.out) vs);
+
+  allowFrom = listName:
+    let def =
+      if scriptName == null then {}
+      else config.yo.scripts.${scriptName}.voice.lists.${listName} or {};
+    in if (def.wildcard or false) then []
+       else lib.unique (map (v: v.out) (def.values or []));
+
 
   # 🦆 says ⮞ HOUSE LISTS
   devices = lib.mapAttrsToList (_: d:
@@ -214,15 +231,15 @@
       ${lib.concatStringsSep "\n" entries}
       )
     '';
-
 in {
   inherit
     # 🦆 ⮞ voice lists (in/out)
     devices rooms scenes
     colors brightness durations clock temperature
 
-    # 🦆 ⮞ param validation (plain strings)
-    param
+    # 🦆 ⮞ param validation
+    allowFrom # 🦆 ⮞ extracted from voice lists "out" values
+    param     # 🦆 ⮞ plain strings
 
     # 🦆 ⮞ helpers
     numberFromZeroTo numberFromOneTo paramFrom

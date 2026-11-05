@@ -17,6 +17,7 @@ in {
         hide = "firejail --net=tornet bash";
         mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
         psx = "ps aux | fzf --preview 'echo {} | awk '\\''{print $2}'\\'' | xargs -I {} ps --pid {}'";
+        ls = "lsd --tree --depth 1";
         ls2 = "lsd --tree --depth 2";
         ls3 = "lsd --tree --depth 3";
         ls4 = "lsd --tree --depth 4";

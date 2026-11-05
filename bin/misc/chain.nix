@@ -5,7 +5,7 @@
   lib,
   pkgs,
   cmdHelpers,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -18,25 +18,28 @@ in {
     parameters = [
       { name = "a"; description = "First command"; type = "string"; optional = false; }
       { name = "b"; description = "Second command"; type = "string"; optional = false; }
+      { name = "c"; description = "Optional third command"; type = "string"; optional = true; }
+      { name = "d"; description = "Optional fourth command"; type = "string"; optional = true; }
     ];
     code = ''
-      A="''${a:-}"
-      B="''${b:-}"
-
-      yo do "$A"
-      yo do "$B"
+      for part in "''${a:-}" "''${b:-}" "''${c:-}" "''${d:-}"; do
+        [ -n "$part" ] && yo do "$part"
+      done
     '';
-
     voice = {
       priority = 5;
       fuzzy.enable = true;
       fuzzy.threshold = 0.5;
       sentences = [
+        "{a} samt {b} samt {c} samt {d}"
+        "{a} samt {b} samt {c}"
         "{a} samt {b}"
       ];
       lists = {
-        a = { wildcard = true; };
-        b = { wildcard = true; };
+        a.wildcard = true;
+        b.wildcard = true;
+        c.wildcard = true;
+        d.wildcard = true;
       };
     };
 

@@ -6,7 +6,7 @@
   lib,
   config,
   pkgs,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -19,12 +19,13 @@ in {
     logLevel = "WARNING";
 
     parameters = [
-      { name = "device"; description = "Device to check"; }
+      { name = "device"; description = "Device to check";
+        values = swe.allowFrom "device"; }
       { name = "above";  description = "Return true if power > this many watts"; optional = true; }
       { name = "below";  description = "Return true if power < this many watts"; optional = true; }
     ];
     code = ''
-      ${sweSpeech.mkBashMap "DEVICE_LOOKUP" sweSpeech.deviceMap}
+      ${swe.mkBashMap "DEVICE_LOOKUP" swe.deviceMap}
 
       D="''${device:-}"
       [ -z "$D" ] && { echo "false"; echo "❌ --device krävs" >&2; exit 1; }
@@ -73,8 +74,8 @@ in {
         "{device} (drar|använder|är) (mindre|under) [än] {below} watt"
       ];
       lists = {
-        device.values = sweSpeech.devices;
-        above.values  = sweSpeech.numberFromOneTo 100 ++ [
+        device.values = swe.devices;
+        above.values  = swe.numberFromOneTo 100 ++ [
           { "in" = "150|hundrafemtio|etthundrafemtio"; out = "150"; }
           { "in" = "200|tvåhundra";                     out = "200"; }
           { "in" = "250|tvåhundrafemtio";               out = "250"; }
@@ -87,7 +88,7 @@ in {
           { "in" = "2000|tvåtusen";                     out = "2000"; }
           { "in" = "3000|tretusen";                     out = "3000"; }
         ];
-        below.values  = sweSpeech.numberFromOneTo 100;
+        below.values  = swe.numberFromOneTo 100;
       };
     };
 

@@ -59,24 +59,24 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)
 ![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)
 ![ESP32](https://img.shields.io/badge/ESP32-2-E7352C?style=plastic&logo=espressif&logoColor=white)
-![Packages](https://img.shields.io/badge/📦_Packages-498-f97316?style=plastic)
+![Packages](https://img.shields.io/badge/📦_Packages-487-f97316?style=plastic)
 ![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)
 ![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)
 ![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)
 
 ![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)
 ![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7179-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-407139841-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7409-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-528435771-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
 ![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)
 ![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)
 
-![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5320-e63946?style=plastic)
+![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4608-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4616-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -1572,14 +1572,14 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
 | **🧩 Miscellaneous** | | | |
 | [yo btc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/btc.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency BTC price tracker | ✅ |
-| [yo chain](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chain.nix) --a --b |  | Chain commands with 'samt'. Splits and dispatches each part sequentially. | ✅ |
+| [yo chain](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chain.nix) --a --b [--c] [--d] |  | Chain commands with 'samt'. Splits and dispatches each part sequentially. | ✅ |
 | [yo chat](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chat.nix) --text |  | No fwendz? Let's chat yo! | ✅ |
 | [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
 | [yo duckPUCK-shl](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-shl.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck, shl | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
 | [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Duck says s funny joke. | ✅ |
-| [yo pokemon](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/pokemon.nix) [--pokemon] [--ball] [--dex] [--iv] [--ev] [--stats] [--many] [--question] [--ribbon] [--eggMoves] [--moves] [--ability] [--shiny] [--ha] [--em] [--ribbons] [--listMissing] [--shinyLeft] |  | Search user defined Pokémon using PokéNix. | ✅ |
+| [yo pokemon](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/pokemon.nix) [--pokemon] [--ball] [--dex] [--iv] [--ev] [--stats] [--level] [--many] [--question] [--ribbon] [--eggMoves] [--move] [--ability] [--shiny] [--ha] [--em] [--ribbons] [--listMissing] [--shinyLeft] [--speak] |  | Search user defined Pokémon using PokéNix. | ✅ |
 | [yo post](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/post.nix) [--postalCodeFile] [--postalCode] |  | Check for the next postal delivery day. (Sweden) | ✅ |
 | [yo qr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/qr.nix) --input [--icon] [--output] |  | Create fun randomized QR codes from input. | 📛 |
 | [yo reminder](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/reminder.nix) [--about] [--list] [--clear] [--user] [--pwfile] | remind | Reminder Assistant | ✅ |

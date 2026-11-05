@@ -6,7 +6,7 @@
   config, # 🦆 ⮞ "do i have bulbasaur in beast ball"
   pkgs, # 🦆 ⮞ "do i have bulbasaur in beast ball with egg moves"
   cmdHelpers, # 🦆 ⮞ "how many shinies do i have left"
-  sweSpeech, # 🦆 ⮞ "do i have bulbasaur with zero attack"
+  swe, # 🦆 ⮞ "do i have bulbasaur with zero attack"
   ... # 🦆 ⮞ and so on....
 } : let # 🦆 says ⮞ SLICK RIGHT?!
 
@@ -112,6 +112,44 @@
             '.pokemon[$pokemon].evolutionSteps[].species'
     }
 
+
+    pokedex_happiness() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].baseHappiness // "unknown"'
+    }
+
+    pokedex_hatch_cycles() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].hatchCounter // "unknown"'
+    }
+
+    pokedex_flavor() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].flavorText // "unknown"'
+    }
+
+    pokedex_locations_url() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].locationAreaEncounters // "unknown"'
+    }
+
+    pokedex_evolves_from() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].evolvesFromSpecies // "none"'
+    }
+
+    pokedex_generation() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].generation // "unknown"'
+    }
+
+    pokedex_genera() {
+        _pokedex_json | jq -r --arg pokemon "$1" \
+            '.pokemon[$pokemon].genera // "unknown"'
+    }
+
+
+
     pokedex_evo_chain_json() {
         local pokemon="$1"
         if [[ -z "$pokemon" ]]; then
@@ -175,29 +213,37 @@ in {
     autoStart = false;
     logLevel = "WARNING";
     parameters = [
-      { name = "pokemon";    type = "string"; description = "Subject Pokémon"; }
-      { name = "ball";       type = "string"; description = "Specific ball"; }
-      { name = "dex";        type = "string"; description = "Pokédex number"; }
-      { name = "iv";         type = "string"; description = "IV value 0–31"; }
-      { name = "ev";         type = "string"; description = "EV value 0–252"; }
-      { name = "stats";      type = "string"; description = "Stat name";
-        values = [ "atk" "spa" "hp" "def" "spd" "spe" ]; }
-      { name = "many";       type = "string"; description = "Count target";
-        values = [ "shiny" "events" "aprimons" "ribbons" "legendary" "mythical" ]; }
-      { name = "question";   type = "string"; description = "Info query";
-        values = [ "cry" "evolve" "ability" "type" "move" "egggroup" "learnset"
-                   "ribbons" "legendary" "mythical" "hidden" "info" "event"
-                   "special" "bollar" "weight" "height" "color" "happiness" "catchrate" ]; }
-      { name = "ribbon";     type = "string"; description = "Specific ribbon"; }
-      { name = "eggMoves";   type = "string"; description = "Egg moves flag"; }
-      { name = "moves";      type = "string"; description = "Move name"; }
-      { name = "ability";    type = "string"; description = "Ability name"; }
-      { name = "shiny";      type = "bool";   description = "Shiny search"; }
-      { name = "ha";         type = "bool";   description = "Hidden ability search"; }
-      { name = "em";         type = "bool";   description = "Egg-move-complete search"; }
-      { name = "ribbons";    type = "bool";   description = "List mons with ribbons"; }
+      { name = "pokemon";    type = "string"; description = "Subject Pokémon";
+        values = swe.allowFrom "pokemon"; }
+      { name = "ball";       type = "string"; description = "Specific ball";
+        values = swe.allowFrom "ball"; }
+      { name = "dex";        type = "string"; description = "Pokédex number";
+        values = swe.allowFrom "dex"; }
+      { name = "iv";          type = "string"; description = "IV value 0–31";
+        values = swe.allowFrom "iv"; }
+      { name = "ev";          type = "string"; description = "EV value 0–252";
+        values = swe.allowFrom "ev"; }
+      { name = "stats";       type = "string"; description = "Stat name";
+        values = swe.allowFrom "stats"; }
+      { name = "level";       type = "string"; description = "Level";
+        values = swe.allowFrom "level"; }
+      { name = "many";        type = "string"; description = "Count target";
+        values = swe.allowFrom "many"; }
+      { name = "question";    type = "string"; description = "Info query";
+        values = swe.allowFrom "question"; }
+      { name = "ribbon";      type = "string"; description = "Specific ribbon"; }
+      { name = "eggMoves";    type = "string"; description = "Egg moves flag"; }
+      { name = "move";        type = "string"; description = "Move name";
+        values = swe.allowFrom "move"; }
+      { name = "ability";     type = "string"; description = "Ability name";
+        values = swe.allowFrom "ability"; }
+      { name = "shiny";       type = "bool";   description = "Shiny search"; }
+      { name = "ha";          type = "bool";   description = "Hidden ability search"; }
+      { name = "em";          type = "bool";   description = "Egg-move-complete search"; }
+      { name = "ribbons";     type = "bool";   description = "List mons with ribbons"; }
       { name = "listMissing"; type = "bool";  description = "List missing shinies"; }
-      { name = "shinyLeft";  type = "bool";   description = "Remaining shiny count"; }
+      { name = "shinyLeft";   type = "bool";   description = "Remaining shiny count"; }
+      { name = "speak";       type = "bool";   description = "Speak the response via text-to-speechy"; default = false; }
     ];
     code = ''
       POKEDEX_FLAKE="/home/pungkula/dotfiles"
@@ -214,7 +260,7 @@ in {
         local f="$CACHE/$a.json"
         if [ ! -f "$f" ] || [ -n "$(find "$f" -mmin +5 2>/dev/null)" ]; then
           if ! nix eval "$FLAKE.$path" --json 2>"$CACHE/$a.err" > "$f.tmp"; then
-            echo "⚠ fetch failed: $FLAKE.$path" >&2
+            echo "fetch failed: $FLAKE.$path" >&2
             head -3 "$CACHE/$a.err" >&2
             rm -f "$f.tmp"
             return 1
@@ -235,399 +281,497 @@ in {
         esac
       }
 
-      if [ -n "$many" ]; then
-        case "$many" in
-          shiny)
-            fetch shiny
-            T=$(jq 'length' "$CACHE/shiny.json")
-            O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
-            echo "You have $O of $T shinies — $((T-O)) left."
-            ;;
-          events)
-            fetch events
-            echo "You have $(jq 'length' "$CACHE/events.json") events."
-            ;;
-          aprimons)
-            fetch breedables
-            T=$(jq 'length' "$CACHE/breedables.json")
-            O=$(jq '[.[] | [.[] | select(type == "object") | select(.ball == true)] | length > 0] | length' "$CACHE/breedables.json")
-            B=$(jq '[.[] | .[] | select(type == "object") | select(.ball == true)] | length' "$CACHE/breedables.json")
-            echo "You have $O of $T species, with $B balls captured."
-            ;;
-          ribbons)
-            fetch shiny; fetch specials
-            N=$(jq '[.[] | select((.ribbons // []) | length > 0)] | length' "$CACHE/specials.json")
-            M=$(jq '[.[] | select((.ribbons // []) | length > 0)] | length' "$CACHE/shiny.json")
-            echo "$((N+M)) Pokémon have ribbons — $N in specials and $M in shinies."
-            ;;
-          legendary|mythical)
-            F=$([ "$many" = "legendary" ] && echo isLegendary || echo isMythical)
-            N=$(_pokedex_json | jq --arg f "$F" '[.pokemon | .[] | select(.[$f] == true)] | length')
-            echo "There are $N $many species."
-            ;;
-          *) echo "Unknown many=$many" ;;
-        esac
-        exit 0
-      fi
+      _pokenix_main() {
 
-      if [ "$shinyLeft" = "true" ]; then
-        fetch shiny
-        T=$(jq 'length' "$CACHE/shiny.json")
-        O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
-        echo "You have $O of $T shinies — $((T-O)) left."
-        exit 0
-      fi
+        if [ -n "$many" ]; then
+          case "$many" in
+            shiny)
+              fetch shiny
+              T=$(jq 'length' "$CACHE/shiny.json")
+              O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
+              echo "You have $O of $T shinies — $((T-O)) left."
+              ;;
+            events)
+              fetch events
+              echo "You have $(jq 'length' "$CACHE/events.json") events."
+              ;;
+            aprimons)
+              fetch breedables
+              T=$(jq 'length' "$CACHE/breedables.json")
+              O=$(jq '[.[] | [.[] | select(type == "object") | select(.ball == true)] | length > 0] | length' "$CACHE/breedables.json")
+              B=$(jq '[.[] | .[] | select(type == "object") | select(.ball == true)] | length' "$CACHE/breedables.json")
+              echo "You have $O of $T species, with $B balls captured."
+              ;;
+            ribbons)
+              fetch shiny; fetch specials
+              N=$(jq '[.[] | select((.ribbons // []) | length > 0)] | length' "$CACHE/specials.json")
+              M=$(jq '[.[] | select((.ribbons // []) | length > 0)] | length' "$CACHE/shiny.json")
+              echo "$((N+M)) Pokémon have ribbons — $N in specials and $M in shinies."
+              ;;
+            legendary|mythical)
+              F=$([ "$many" = "legendary" ] && echo isLegendary || echo isMythical)
+              N=$(_pokedex_json | jq --arg f "$F" '[.pokemon | .[] | select(.[$f] == true)] | length')
+              echo "There are $N $many species."
+              ;;
+            *) echo "Unknown many=$many" ;;
+          esac
+          exit 0
+        fi
 
-      if [ "$listMissing" = "true" ]; then
-        fetch shiny
-        T=$(jq 'length' "$CACHE/shiny.json")
-        O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
-        MISSING=$(jq -r 'to_entries[] | select(.value.ball == null) | .key' "$CACHE/shiny.json" | join_words)
-        echo "You're missing $((T-O)) shinies: $MISSING."
-        exit 0
-      fi
+        if [ "$shinyLeft" = "true" ]; then
+          fetch shiny
+          T=$(jq 'length' "$CACHE/shiny.json")
+          O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
+          echo "You have $O of $T shinies — $((T-O)) left."
+          exit 0
+        fi
 
-      if [ -n "$dex" ]; then
-        fetch breedables
-        fetch debug-shiny debug.shiny
-        fetch debug-events debug.events
-        fetch specials
+        if [ "$listMissing" = "true" ]; then
+          fetch shiny
+          T=$(jq 'length' "$CACHE/shiny.json")
+          O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
+          MISSING=$(jq -r 'to_entries[] | select(.value.ball == null) | .key' "$CACHE/shiny.json" | join_words)
+          echo "You're missing $((T-O)) shinies: $MISSING."
+          exit 0
+        fi
 
-        NAME=$(_pokedex_json | jq -r --argjson d "$dex" '
-          [.pokemon | to_entries[] | select(.value.dexNumber == $d) | .key] | .[0] // empty')
-        [ -z "$NAME" ] && NAME=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d) | .key] | .[0] // empty' "$CACHE/breedables.json")
+        if [ -n "$dex" ]; then
+          fetch breedables
+          fetch debug-shiny debug.shiny
+          fetch debug-events debug.events
+          fetch specials
 
-        SHINY=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d) | .key] | join("\n")' "$CACHE/debug-shiny.json" | join_words)
-        EVENTS=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d)] | length' "$CACHE/debug-events.json")
-        SPECIALS=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d)] | length' "$CACHE/specials.json")
+          NAME=$(_pokedex_json | jq -r --argjson d "$dex" '
+            [.pokemon | to_entries[] | select(.value.dexNumber == $d) | .key] | .[0] // empty')
+          [ -z "$NAME" ] && NAME=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d) | .key] | .[0] // empty' "$CACHE/breedables.json")
 
-        OUT="Number $dex is $NAME."
-        [ -n "$SHINY" ] && OUT+=" You have shiny $SHINY." || OUT+=" No shiny."
-        [ "$EVENTS" != "0" ] && OUT+=" $EVENTS event(s)." || OUT+=" No events."
-        [ "$SPECIALS" != "0" ] && OUT+=" $SPECIALS special(s)." || OUT+=" No specials."
-        echo "$OUT"
-        exit 0
-      fi
+          SHINY=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d) | .key] | join("\n")' "$CACHE/debug-shiny.json" | join_words)
+          EVENTS=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d)] | length' "$CACHE/debug-events.json")
+          SPECIALS=$(jq -r --argjson d "$dex" '[to_entries[] | select(.value.dex == $d)] | length' "$CACHE/specials.json")
 
-      if [ -n "$iv" ] && [ -n "$stats" ]; then
-        case "$stats" in att|attack) STAT="atk" ;; *) STAT="$stats" ;; esac
-        STAT_NAME=$(stat_name "$STAT")
-        fetch shiny; fetch specials; fetch events; fetch breedables
+          OUT="Number $dex is $NAME."
+          [ -n "$SHINY" ] && OUT+=" You have shiny $SHINY." || OUT+=" No shiny."
+          [ "$EVENTS" != "0" ] && OUT+=" $EVENTS event(s)." || OUT+=" No events."
+          [ "$SPECIALS" != "0" ] && OUT+=" $SPECIALS special(s)." || OUT+=" No specials."
+          echo "$OUT"
+          exit 0
+        fi
 
-        matches_for() {
-          local target="$1"
-          jq -r --arg p "$target" --arg s "$STAT" --argjson v "$iv" '
-            to_entries[]
-            | select(.key == $p or (.key | startswith($p + "-")))
-            | select(.value.ball != null)
-            | select(.value.ivs[$s] == $v)
-            | .key' "$CACHE/shiny.json"
-          jq -r --arg p "$target" --arg s "$STAT" --argjson v "$iv" '
-            to_entries[]
-            | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-")))
-            | select(.value.ivs[$s] == $v)
-            | .key' "$CACHE/specials.json"
-        }
+        if [ -n "$iv" ] && [ -n "$stats" ]; then
+          case "$stats" in att|attack) STAT="atk" ;; *) STAT="$stats" ;; esac
+          STAT_NAME=$(stat_name "$STAT")
+          fetch shiny; fetch specials; fetch events; fetch breedables
 
-        exists_for() {
-          local target="$1"
-          local out=""
-          local s1=$(jq -r --arg p "$target" '
-            [to_entries[] | select(.key == $p or (.key | startswith($p + "-"))) | select(.value.ball != null) | .key]
-            | if length > 0 then "shiny (\(join(", ")))" else "" end' "$CACHE/shiny.json")
-          [ -n "$s1" ] && out+="$s1, "
-          local s2=$(jq -r --arg p "$target" '
-            [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
-            | if length > 0 then "special (\(join(", ")))" else "" end' "$CACHE/specials.json")
-          [ -n "$s2" ] && out+="$s2, "
-          local s3=$(jq -r --arg p "$target" '
-            [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
-            | if length > 0 then "event (\(join(", ")))" else "" end' "$CACHE/events.json")
-          [ -n "$s3" ] && out+="$s3, "
-          local s4=$(jq -r --arg p "$target" '
-            [.[$p] // {} | to_entries[] | select(.value | type == "object") | select(.value.ball == true) | .key]
-            | if length > 0 then "breedable (\(join(", ")))" else "" end' "$CACHE/breedables.json")
-          [ -n "$s4" ] && out+="$s4, "
-          echo "$out" | sed 's/, $//'
-        }
+          matches_for() {
+            local target="$1"
+            jq -r --arg p "$target" --arg s "$STAT" --argjson v "$iv" '
+              to_entries[]
+              | select(.key == $p or (.key | startswith($p + "-")))
+              | select(.value.ball != null)
+              | select(.value.ivs[$s] == $v)
+              | .key' "$CACHE/shiny.json"
+            jq -r --arg p "$target" --arg s "$STAT" --argjson v "$iv" '
+              to_entries[]
+              | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-")))
+              | select(.value.ivs[$s] == $v)
+              | .key' "$CACHE/specials.json"
+          }
 
-        if [ -z "$POKEMON" ]; then
-          ALL=$( { jq -r --arg s "$STAT" --argjson v "$iv" 'to_entries[] | select(.value.ivs[$s] == $v) | .key' "$CACHE/shiny.json"
-                   jq -r --arg s "$STAT" --argjson v "$iv" 'to_entries[] | select(.value.ivs[$s] == $v) | .key' "$CACHE/specials.json"; } )
-          COUNT=$(echo "$ALL" | grep -c .)
-          if [ "$COUNT" = "0" ]; then
-            echo "No Pokémon have $iv $STAT_NAME IV."
+          exists_for() {
+            local target="$1"
+            local out=""
+            local s1=$(jq -r --arg p "$target" '
+              [to_entries[] | select(.key == $p or (.key | startswith($p + "-"))) | select(.value.ball != null) | .key]
+              | if length > 0 then "shiny (\(join(", ")))" else "" end' "$CACHE/shiny.json")
+            [ -n "$s1" ] && out+="$s1, "
+            local s2=$(jq -r --arg p "$target" '
+              [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
+              | if length > 0 then "special (\(join(", ")))" else "" end' "$CACHE/specials.json")
+            [ -n "$s2" ] && out+="$s2, "
+            local s3=$(jq -r --arg p "$target" '
+              [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
+              | if length > 0 then "event (\(join(", ")))" else "" end' "$CACHE/events.json")
+            [ -n "$s3" ] && out+="$s3, "
+            local s4=$(jq -r --arg p "$target" '
+              [.[$p] // {} | to_entries[] | select(.value | type == "object") | select(.value.ball == true) | .key]
+              | if length > 0 then "breedable (\(join(", ")))" else "" end' "$CACHE/breedables.json")
+            [ -n "$s4" ] && out+="$s4, "
+            echo "$out" | sed 's/, $//'
+          }
+
+          if [ -z "$POKEMON" ]; then
+            ALL=$( { jq -r --arg s "$STAT" --argjson v "$iv" 'to_entries[] | select(.value.ivs[$s] == $v) | .key' "$CACHE/shiny.json"
+                     jq -r --arg s "$STAT" --argjson v "$iv" 'to_entries[] | select(.value.ivs[$s] == $v) | .key' "$CACHE/specials.json"; } )
+            COUNT=$(echo "$ALL" | grep -c .)
+            if [ "$COUNT" = "0" ]; then
+              echo "No Pokémon have $iv $STAT_NAME IV."
+            else
+              NAMES=$(echo "$ALL" | join_words)
+              echo "Yes, $COUNT Pokémon have $iv $STAT_NAME IV: $NAMES."
+            fi
+            exit 0
+          fi
+
+          DIRECT=$(matches_for "$POKEMON")
+          if [ -n "$DIRECT" ]; then
+            COUNT=$(echo "$DIRECT" | grep -c .)
+            [ "$COUNT" = "1" ] && echo "Yes, your $DIRECT has $iv $STAT_NAME IV." \
+                              || { NAMES=$(echo "$DIRECT" | join_words); echo "Yes, $NAMES have $iv $STAT_NAME IV."; }
+            exit 0
+          fi
+
+          EVO_MATCH=""
+          for REL in $(evo_relatives "$POKEMON"); do
+            M=$(matches_for "$REL")
+            if [ -n "$M" ]; then
+              EVO_MATCH="$M"
+              break
+            fi
+          done
+          if [ -n "$EVO_MATCH" ]; then
+            COUNT=$(echo "$EVO_MATCH" | grep -c .)
+            [ "$COUNT" = "1" ] && echo "Yes, your $EVO_MATCH has $iv $STAT_NAME IV — it's an evolution of $POKEMON." \
+                              || { NAMES=$(echo "$EVO_MATCH" | join_words); echo "Yes, $NAMES have $iv $STAT_NAME IV — evolutions of $POKEMON."; }
+            exit 0
+          fi
+
+          EXISTS=$(exists_for "$POKEMON")
+          if [ -n "$EXISTS" ]; then
+            echo "No $POKEMON with $iv $STAT_NAME IV. You have: $EXISTS."
           else
-            NAMES=$(echo "$ALL" | join_words)
-            echo "Yes, $COUNT Pokémon have $iv $STAT_NAME IV: $NAMES."
+            echo "No $POKEMON with $iv $STAT_NAME IV, and $POKEMON isn't in your collection."
           fi
           exit 0
         fi
 
-        DIRECT=$(matches_for "$POKEMON")
-        if [ -n "$DIRECT" ]; then
-          COUNT=$(echo "$DIRECT" | grep -c .)
-          [ "$COUNT" = "1" ] && echo "Yes, your $DIRECT has $iv $STAT_NAME IV." \
-                            || { NAMES=$(echo "$DIRECT" | join_words); echo "Yes, $NAMES have $iv $STAT_NAME IV."; }
+        if [ -n "$ribbon" ]; then
+          fetch shiny; fetch specials
+          S=$(jq -r --arg r "$ribbon" 'to_entries[] | select((.value.ribbons // []) | map(ascii_downcase) | index($r | ascii_downcase)) | .key' "$CACHE/shiny.json")
+          SP=$(jq -r --arg r "$ribbon" 'to_entries[] | select((.value.ribbons // []) | map(ascii_downcase) | index($r | ascii_downcase)) | .key' "$CACHE/specials.json")
+          ALL=$( { echo "$S"; echo "$SP"; } | grep -v '^$' )
+          if [ -z "$ALL" ]; then echo "No Pokémon have $ribbon."
+          else NAMES=$(echo "$ALL" | join_words); echo "Yes, $NAMES have $ribbon."; fi
           exit 0
         fi
 
-        EVO_MATCH=""
-        for REL in $(evo_relatives "$POKEMON"); do
-          M=$(matches_for "$REL")
-          if [ -n "$M" ]; then
-            EVO_MATCH="$M"
-            break
+        if [ -n "$question" ]; then
+          case "$question" in
+            happiness)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_happiness "$POKEMON")
+              if [ -z "$V" ] || [ "$V" = "unknown" ] || [ "$V" = "null" ]; then
+                echo "No happiness data for $POKEMON."
+              else
+                echo "$POKEMON has base happiness $V."
+              fi
+              ;;
+            catchrate)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_catch_rate "$POKEMON")
+              if [ -z "$V" ] || [ "$V" = "null" ] || [ "$V" = "unknown" ]; then
+                echo "No catch rate data for $POKEMON."
+              else
+                echo "$POKEMON has catch rate $V (out of 255)."
+              fi
+              ;;
+            hatch)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_hatch_cycles "$POKEMON")
+              if [ -z "$V" ] || [ "$V" = "unknown" ] || [ "$V" = "null" ]; then
+                echo "No hatch data for $POKEMON."
+              else
+                STEPS=$(( V * 255 ))
+                echo "$POKEMON hatches in $V cycles (~$STEPS steps)."
+              fi
+              ;;
+            flavor)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_flavor "$POKEMON")
+              if [ -z "$V" ] || [ "$V" = "unknown" ] || [ "$V" = "null" ]; then
+                echo "No flavor text for $POKEMON."
+              else
+                echo "$POKEMON: $V"
+              fi
+              ;;
+            locations)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_locations_url "$POKEMON")
+              if [ -z "$V" ] || [ "$V" = "unknown" ] || [ "$V" = "null" ]; then
+                echo "No location data for $POKEMON."
+              else
+                echo "$POKEMON locations: $V"
+              fi
+              ;;
+            evolvesfrom)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_evolves_from "$POKEMON")
+              if [ -z "$V" ] || [ "$V" = "none" ] || [ "$V" = "null" ]; then
+                echo "$POKEMON doesn't evolve from anything — it's a base form."
+              else
+                echo "$POKEMON evolves from $V."
+              fi
+              ;;
+            generation)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_generation "$POKEMON")
+              [ -z "$V" ] || [ "$V" = "unknown" ] \
+                && echo "No generation data for $POKEMON." \
+                || echo "$POKEMON was introduced in $V."
+              ;;
+            genera)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              V=$(pokedex_genera "$POKEMON")
+              [ -z "$V" ] || [ "$V" = "unknown" ] \
+                && echo "No species data for $POKEMON." \
+                || echo "$POKEMON is the $V."
+              ;;
+            cry)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              URL=$(pokedex_cry "$POKEMON" latest)
+              if [ -z "$URL" ] || [ "$URL" = "null" ]; then
+                echo "No cry for $POKEMON."
+              else
+                play_cry "$URL" && echo "♪ $POKEMON"
+              fi
+              ;;
+            evolve)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              EVO=$(pokedex_evo_chain "$POKEMON")
+              [ -z "$EVO" ] && echo "$POKEMON doesn't evolve." \
+                            || { NAMES=$(echo "$EVO" | join_words); echo "$POKEMON evolves into $NAMES."; }
+              ;;
+            ability|hidden)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              HA=$(pokedex_hidden_ability "$POKEMON")
+              [ -z "$HA" ] && echo "$POKEMON has no hidden ability." \
+                           || echo "$POKEMON's hidden ability is $HA."
+              ;;
+            type)
+              if [ -n "$move" ] && [ -z "$POKEMON" ]; then
+                T=$(pokedex_move_type "$move")
+                if [ -z "$T" ] || [ "$T" = "null" ]; then
+                  echo "No type data for $move."
+                else
+                  echo "$move is $T type."
+                fi
+                exit 0
+              fi
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              T=$(pokedex_types "$POKEMON")
+              if [ -z "$T" ]; then echo "No type data for $POKEMON."
+              else NAMES=$(echo "$T" | join_words); echo "$POKEMON is $NAMES."; fi
+              ;;
+            egggroup)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              G=$(pokedex_egg_groups "$POKEMON")
+              if [ -z "$G" ]; then echo "No egg group data for $POKEMON."
+              else NAMES=$(echo "$G" | join_words); echo "$POKEMON is in the $NAMES egg groups."; fi
+              ;;
+            weight)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              W=$(pokedex_weight_kg "$POKEMON")
+              if [ -z "$W" ] || [ "$W" = "unknown" ] || [ "$W" = "null" ]; then
+                echo "No weight data for $POKEMON."
+              else
+                echo "$POKEMON weighs $W."
+              fi
+              ;;
+            height)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              H=$(pokedex_height_cm "$POKEMON")
+              if [ -z "$H" ] || [ "$H" = "unknown" ] || [ "$H" = "null" ]; then
+                echo "No height data for $POKEMON."
+              else
+                echo "$POKEMON is $H tall."
+              fi
+              ;;
+            color)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              C=$(pokedex_color "$POKEMON")
+              if [ -z "$C" ] || [ "$C" = "unknown" ] || [ "$C" = "null" ]; then
+                echo "No color data for $POKEMON."
+              else
+                echo "$POKEMON is $C."
+              fi
+              ;;
+            learnset)
+              [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
+              if [ -n "$move" ]; then
+                L=$(pokedex_learn_level "$POKEMON" "$move" | jq -r 'map(tostring) | join(" and ")')
+                [ -z "$L" ] && echo "$POKEMON doesn't learn $moves by level." \
+                            || echo "$POKEMON learns $moves at level $L."
+              else
+                _pokedex_json | jq --arg p "$POKEMON" '.pokemon[$p].learnset'
+              fi
+              ;;
+            move)
+              [ -z "$move" ] && { echo "Which move?"; exit 0; }
+              M=$(pokedex_move "$move")
+              if [ -z "$M" ] || [ "$M" = "null" ]; then echo "No data for $moves."
+              else
+                echo "$M" | jq -r '
+                  "\(.name // "?") is \(.type // "?") \(.damageClass // "?")"
+                  + (if .power then ", \(.power) power" else "" end)
+                  + (if .accuracy then ", \(.accuracy)% accuracy" else "" end)
+                  + (if .pp then ", \(.pp) PP" else "" end) + "."
+                '
+              fi
+              ;;
+            ribbons)
+              fetch shiny; fetch specials
+              if [ -n "$POKEMON" ]; then
+                R=$( { jq -r --arg p "$POKEMON" '.[$p].ribbons // [] | join(", ")' "$CACHE/shiny.json"
+                       jq -r --arg p "$POKEMON" '.[$p].ribbons // [] | join(", ")' "$CACHE/specials.json"; } \
+                     | grep -v '^$' | head -1 )
+                if [ -z "$R" ]; then echo "$POKEMON has no ribbons."
+                else echo "$POKEMON has: $R."; fi
+                exit 0
+              fi
+              ALL=$( { jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/specials.json"
+                       jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/shiny.json"; } | grep -v '^$' )
+              if [ -z "$ALL" ]; then echo "No Pokémon have ribbons."
+              else NAMES=$(echo "$ALL" | join_words); echo "Yes, $NAMES."; fi
+              ;;
+            legendary|mythical)
+              F=$([ "$question" = "legendary" ] && echo isLegendary || echo isMythical)
+              N=$(_pokedex_json | jq --arg f "$F" '[.pokemon | .[] | select(.[$f] == true)] | length')
+              echo "There are $N $question species."
+              ;;
+            info)
+              fetch shiny
+              BALL=$(jq -r --arg p "$POKEMON" '.[$p].ball // "not owned"' "$CACHE/shiny.json")
+              if [ "$BALL" = "not owned" ] || [ "$BALL" = "null" ]; then
+                echo "No shiny entry for $POKEMON."
+              else
+                STYLE=$(jq -r --arg p "$POKEMON" '.[$p].style // "star"' "$CACHE/shiny.json")
+                NATURE=$(jq -r --arg p "$POKEMON" '.[$p].nature // "—"' "$CACHE/shiny.json")
+                echo "$POKEMON: shiny in $BALL ball, $STYLE style, nature $NATURE."
+              fi
+              ;;
+            event)
+              fetch events
+              M=$(jq -r --arg s "$POKEMON" '
+                [to_entries[] | select((.value.species? // "") == $s or ((.value.species? // "") | startswith($s + "-")))
+                 | "\(.key)\(if .value.year then " (\(.value.year))" else "" end)"]
+                | join(" and ")' "$CACHE/events.json")
+              if [ -z "$M" ] || [ "$M" = "" ]; then echo "No events for $POKEMON."
+              else echo "Yes, $POKEMON has events: $M."; fi
+              ;;
+            special)
+              fetch specials
+              M=$(jq -r --arg s "$POKEMON" '
+                [to_entries[] | select((.value.species? // "") == $s or ((.value.species? // "") | startswith($s + "-")))
+                 | "\(.key)\(if .value.level then " (Lv \(.value.level))" else "" end)"]
+                | join(" and ")' "$CACHE/specials.json")
+              if [ -z "$M" ] || [ "$M" = "" ]; then echo "No specials for $POKEMON."
+              else echo "Yes, $POKEMON has specials: $M."; fi
+              ;;
+            bollar)
+              fetch breedables
+              O=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.ball == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
+              M=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.possible == true and .value.ball != true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
+              if [ -z "$O" ]; then echo "$POKEMON isn't in your breedables collection."
+              else
+                OUT="You have $POKEMON in $O"
+                [ -n "$M" ] && OUT+=", missing $M"
+                echo "$OUT."
+              fi
+              ;;
+            *) echo "Unknown question=$question" ;;
+          esac
+          exit 0
+        fi
+
+        [ -z "$POKEMON" ] && { echo "No Pokémon specified."; exit 0; }
+
+        if [ -n "$ribbons" ] && [ "$ribbons" != "false" ]; then
+          fetch shiny; fetch specials
+          ALL=$( { jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/specials.json"
+                   jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/shiny.json"; } | grep -v '^$' )
+          if [ -z "$ALL" ]; then echo "No Pokémon have ribbons."
+          else NAMES=$(echo "$ALL" | join_words); echo "Yes, $NAMES."; fi
+          exit 0
+        fi
+
+        if [ -n "$shiny" ] && [ "$shiny" != "false" ]; then
+          fetch shiny
+          B=$(jq -r --arg p "$POKEMON" '
+            [to_entries[] | select(.key == $p or (.key | startswith($p + "-"))) | select(.value.ball != null)
+             | "\(.key) (\(.value.ball) ball)"]
+            | join(" and ")' "$CACHE/shiny.json")
+          [ -n "$B" ] && echo "Yes, you have shiny $B." \
+                      || echo "No, you don't have shiny $POKEMON."
+          exit 0
+        fi
+
+        if [ -n "$ha" ] && [ "$ha" != "false" ]; then
+          fetch breedables
+          if [ -n "$ball" ]; then
+            V=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].ha // false' "$CACHE/breedables.json")
+            [ "$V" = "true" ] && echo "Yes, HA $POKEMON in $ball." || echo "No HA $POKEMON in $ball."
+          else
+            H=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.ha == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
+            [ -n "$H" ] && echo "You have HA $POKEMON in $H." || echo "No $POKEMON with HA."
           fi
-        done
-        if [ -n "$EVO_MATCH" ]; then
-          COUNT=$(echo "$EVO_MATCH" | grep -c .)
-          [ "$COUNT" = "1" ] && echo "Yes, your $EVO_MATCH has $iv $STAT_NAME IV — it's an evolution of $POKEMON." \
-                            || { NAMES=$(echo "$EVO_MATCH" | join_words); echo "Yes, $NAMES have $iv $STAT_NAME IV — evolutions of $POKEMON."; }
           exit 0
         fi
 
-        EXISTS=$(exists_for "$POKEMON")
-        if [ -n "$EXISTS" ]; then
-          echo "No $POKEMON with $iv $STAT_NAME IV. You have: $EXISTS."
-        else
-          echo "No $POKEMON with $iv $STAT_NAME IV, and $POKEMON isn't in your collection."
+        if [ -n "$em" ] && [ "$em" != "false" ] && [ -z "$ball" ]; then
+          fetch breedables
+          EGGS=$(_pokedex_json | jq -r --arg p "$POKEMON" '.pokemon[$p].eggMoves // [] | join("\n")' | join_words)
+          H=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.eggMoves == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
+          [ -z "$EGGS" ] && echo "$POKEMON has no egg moves." || echo "$POKEMON's egg moves are $EGGS."
+          [ -n "$H" ] && echo "You have egg-move-complete specimens in $H."
+          exit 0
         fi
-        exit 0
-      fi
 
-      if [ -n "$ribbon" ]; then
-        fetch shiny; fetch specials
-        S=$(jq -r --arg r "$ribbon" 'to_entries[] | select((.value.ribbons // []) | map(ascii_downcase) | index($r | ascii_downcase)) | .key' "$CACHE/shiny.json")
-        SP=$(jq -r --arg r "$ribbon" 'to_entries[] | select((.value.ribbons // []) | map(ascii_downcase) | index($r | ascii_downcase)) | .key' "$CACHE/specials.json")
-        ALL=$( { echo "$S"; echo "$SP"; } | grep -v '^$' )
-        if [ -z "$ALL" ]; then echo "No Pokémon have $ribbon."
-        else NAMES=$(echo "$ALL" | join_words); echo "Yes, $NAMES have $ribbon."; fi
-        exit 0
-      fi
+        if [ -n "$ball" ]; then
+          fetch breedables
+          P=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].possible // false' "$CACHE/breedables.json")
+          if [ "$P" != "true" ]; then echo "No, $POKEMON can't be in a $ball ball."; exit 0; fi
+          O=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].ball // false' "$CACHE/breedables.json")
+          if [ "$O" != "true" ]; then echo "No, you don't have $POKEMON in a $ball ball."; exit 0; fi
+          if [ "$em" = "true" ]; then
+            E=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].eggMoves // false' "$CACHE/breedables.json")
+            [ "$E" = "true" ] && echo "Yes, your $POKEMON in $ball ball has all egg moves." \
+                              || echo "You have $POKEMON in $ball, but not with egg moves."
+          else
+            echo "Yes, you have $POKEMON in a $ball ball."
+          fi
+          exit 0
+        fi
 
-      if [ -n "$question" ]; then
-        case "$question" in
-          cry)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            URL=$(pokedex_cry "$POKEMON" latest)
-            if [ -z "$URL" ] || [ "$URL" = "null" ]; then
-              echo "No cry for $POKEMON."
-            else
-              play_cry "$URL" && echo "♪ $POKEMON"
-            fi
-            ;;
-          evolve)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            EVO=$(pokedex_evo_chain "$POKEMON")
-            [ -z "$EVO" ] && echo "$POKEMON doesn't evolve." \
-                          || { NAMES=$(echo "$EVO" | join_words); echo "$POKEMON evolves into $NAMES."; }
-            ;;
-          ability|hidden)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            HA=$(pokedex_hidden_ability "$POKEMON")
-            [ -z "$HA" ] && echo "$POKEMON has no hidden ability." \
-                         || echo "$POKEMON's hidden ability is $HA."
-            ;;
-          type)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            T=$(pokedex_types "$POKEMON")
-            if [ -z "$T" ]; then echo "No type data for $POKEMON."
-            else NAMES=$(echo "$T" | join_words); echo "$POKEMON is $NAMES."; fi
-            ;;
-          egggroup)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            G=$(pokedex_egg_groups "$POKEMON")
-            if [ -z "$G" ]; then echo "No egg group data for $POKEMON."
-            else NAMES=$(echo "$G" | join_words); echo "$POKEMON is in the $NAMES egg groups."; fi
-            ;;
-          weight)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            W=$(pokedex_weight_kg "$POKEMON")
-            if [ -z "$W" ] || [ "$W" = "unknown" ] || [ "$W" = "null" ]; then
-              echo "No weight data for $POKEMON."
-            else
-              echo "$POKEMON weighs $W."
-            fi
-            ;;
-          height)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            H=$(pokedex_height_cm "$POKEMON")
-            if [ -z "$H" ] || [ "$H" = "unknown" ] || [ "$H" = "null" ]; then
-              echo "No height data for $POKEMON."
-            else
-              echo "$POKEMON is $H tall."
-            fi
-            ;;
-          color)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            C=$(pokedex_color "$POKEMON")
-            if [ -z "$C" ] || [ "$C" = "unknown" ] || [ "$C" = "null" ]; then
-              echo "No color data for $POKEMON."
-            else
-              echo "$POKEMON is $C."
-            fi
-            ;;
-          learnset)
-            [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
-            if [ -n "$moves" ]; then
-              L=$(pokedex_learn_level "$POKEMON" "$moves" | jq -r 'map(tostring) | join(" and ")')
-              [ -z "$L" ] && echo "$POKEMON doesn't learn $moves by level." \
-                          || echo "$POKEMON learns $moves at level $L."
-            else
-              _pokedex_json | jq --arg p "$POKEMON" '.pokemon[$p].learnset'
-            fi
-            ;;
-          move)
-            [ -z "$moves" ] && { echo "Which move?"; exit 0; }
-            M=$(pokedex_move "$moves")
-            if [ -z "$M" ] || [ "$M" = "null" ]; then echo "No data for $moves."
-            else
-              echo "$M" | jq -r '
-                "\(.name // "?") is \(.type // "?") \(.damageClass // "?")"
-                + (if .power then ", \(.power) power" else "" end)
-                + (if .accuracy then ", \(.accuracy)% accuracy" else "" end)
-                + (if .pp then ", \(.pp) PP" else "" end) + "."
-              '
-            fi
-            ;;
-          ribbons)
-            fetch shiny; fetch specials
-            ALL=$( { jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/specials.json"
-                     jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/shiny.json"; } | grep -v '^$' )
-            if [ -z "$ALL" ]; then echo "No Pokémon have ribbons."
-            else NAMES=$(echo "$ALL" | join_words); echo "Yes, $NAMES."; fi
-            ;;
-          legendary|mythical)
-            F=$([ "$question" = "legendary" ] && echo isLegendary || echo isMythical)
-            N=$(_pokedex_json | jq --arg f "$F" '[.pokemon | .[] | select(.[$f] == true)] | length')
-            echo "There are $N $question species."
-            ;;
-          info)
-            fetch shiny
-            BALL=$(jq -r --arg p "$POKEMON" '.[$p].ball // "not owned"' "$CACHE/shiny.json")
-            if [ "$BALL" = "not owned" ] || [ "$BALL" = "null" ]; then
-              echo "No shiny entry for $POKEMON."
-            else
-              STYLE=$(jq -r --arg p "$POKEMON" '.[$p].style // "star"' "$CACHE/shiny.json")
-              NATURE=$(jq -r --arg p "$POKEMON" '.[$p].nature // "—"' "$CACHE/shiny.json")
-              echo "$POKEMON: shiny in $BALL ball, $STYLE style, nature $NATURE."
-            fi
-            ;;
-          event)
-            fetch events
-            M=$(jq -r --arg s "$POKEMON" '
-              [to_entries[] | select((.value.species? // "") == $s or ((.value.species? // "") | startswith($s + "-")))
-               | "\(.key)\(if .value.year then " (\(.value.year))" else "" end)"]
-              | join(" and ")' "$CACHE/events.json")
-            if [ -z "$M" ] || [ "$M" = "" ]; then echo "No events for $POKEMON."
-            else echo "Yes, $POKEMON has events: $M."; fi
-            ;;
-          special)
-            fetch specials
-            M=$(jq -r --arg s "$POKEMON" '
-              [to_entries[] | select((.value.species? // "") == $s or ((.value.species? // "") | startswith($s + "-")))
-               | "\(.key)\(if .value.level then " (Lv \(.value.level))" else "" end)"]
-              | join(" and ")' "$CACHE/specials.json")
-            if [ -z "$M" ] || [ "$M" = "" ]; then echo "No specials for $POKEMON."
-            else echo "Yes, $POKEMON has specials: $M."; fi
-            ;;
-          bollar)
-            fetch breedables
-            O=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.ball == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
-            M=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.possible == true and .value.ball != true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
-            if [ -z "$O" ]; then echo "$POKEMON isn't in your breedables collection."
-            else
-              OUT="You have $POKEMON in $O"
-              [ -n "$M" ] && OUT+=", missing $M"
-              echo "$OUT."
-            fi
-            ;;
-          *) echo "Unknown question=$question" ;;
-        esac
-        exit 0
-      fi
-
-      [ -z "$POKEMON" ] && { echo "No Pokémon specified."; exit 0; }
-
-      if [ -n "$ribbons" ] && [ "$ribbons" != "false" ]; then
-        fetch shiny; fetch specials
-        ALL=$( { jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/specials.json"
-                 jq -r 'to_entries[] | select((.value.ribbons // []) | length > 0) | "\(.key) (\(.value.ribbons | join(", ")))"' "$CACHE/shiny.json"; } | grep -v '^$' )
-        if [ -z "$ALL" ]; then echo "No Pokémon have ribbons."
-        else NAMES=$(echo "$ALL" | join_words); echo "Yes, $NAMES."; fi
-        exit 0
-      fi
-
-      if [ -n "$shiny" ] && [ "$shiny" != "false" ]; then
-        fetch shiny
-        B=$(jq -r --arg p "$POKEMON" '
+        fetch shiny; fetch breedables; fetch specials; fetch events
+        SHINY=$(jq -r --arg p "$POKEMON" '
           [to_entries[] | select(.key == $p or (.key | startswith($p + "-"))) | select(.value.ball != null)
            | "\(.key) (\(.value.ball) ball)"]
           | join(" and ")' "$CACHE/shiny.json")
-        [ -n "$B" ] && echo "Yes, you have shiny $B." \
-                    || echo "No, you don't have shiny $POKEMON."
-        exit 0
+        O=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.ball == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
+        M=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.possible == true and .value.ball != true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
+        SPECIALS=$(jq -r --arg p "$POKEMON" '
+          [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
+          | join("\n")' "$CACHE/specials.json" | join_words)
+        EVENTS=$(jq -r --arg p "$POKEMON" '
+          [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
+          | join("\n")' "$CACHE/events.json" | join_words)
+
+        OUT="$POKEMON: "
+        [ -n "$SHINY" ] && OUT+="shiny $SHINY. " || OUT+="no shiny. "
+        [ -n "$O" ] && OUT+="In your collection: $O. " || OUT+="Not in your collection. "
+        [ -n "$SPECIALS" ] && OUT+="Specials: $SPECIALS. "
+        [ -n "$EVENTS" ] && OUT+="Events: $EVENTS. "
+        [ -n "$M" ] && OUT+="Missing: $M."
+        echo "$OUT"
+
+      }
+
+      RESPONSE=$(_pokenix_main)
+
+      if [ "$speak" = "true" ] && [ -n "$RESPONSE" ]; then
+        yo say "$RESPONSE"
+      else
+        echo "$RESPONSE"
       fi
-
-      if [ -n "$ha" ] && [ "$ha" != "false" ]; then
-        fetch breedables
-        if [ -n "$ball" ]; then
-          V=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].ha // false' "$CACHE/breedables.json")
-          [ "$V" = "true" ] && echo "Yes, HA $POKEMON in $ball." || echo "No HA $POKEMON in $ball."
-        else
-          H=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.ha == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
-          [ -n "$H" ] && echo "You have HA $POKEMON in $H." || echo "No $POKEMON with HA."
-        fi
-        exit 0
-      fi
-
-      if [ -n "$em" ] && [ "$em" != "false" ] && [ -z "$ball" ]; then
-        fetch breedables
-        EGGS=$(_pokedex_json | jq -r --arg p "$POKEMON" '.pokemon[$p].eggMoves // [] | join("\n")' | join_words)
-        H=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.eggMoves == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
-        [ -z "$EGGS" ] && echo "$POKEMON has no egg moves." || echo "$POKEMON's egg moves are $EGGS."
-        [ -n "$H" ] && echo "You have egg-move-complete specimens in $H."
-        exit 0
-      fi
-
-      if [ -n "$ball" ]; then
-        fetch breedables
-        P=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].possible // false' "$CACHE/breedables.json")
-        if [ "$P" != "true" ]; then echo "No, $POKEMON can't be in a $ball ball."; exit 0; fi
-        O=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].ball // false' "$CACHE/breedables.json")
-        if [ "$O" != "true" ]; then echo "No, you don't have $POKEMON in a $ball ball."; exit 0; fi
-        if [ -n "$eggMoves" ] && [ "$eggMoves" != "false" ]; then
-          E=$(jq -r --arg p "$POKEMON" --arg b "$ball" '.[$p][$b].eggMoves // false' "$CACHE/breedables.json")
-          [ "$E" = "true" ] && echo "Yes, your $POKEMON in $ball ball has all egg moves." \
-                            || echo "You have $POKEMON in $ball, but not with egg moves."
-        else
-          echo "Yes, you have $POKEMON in a $ball ball."
-        fi
-        exit 0
-      fi
-
-      fetch shiny; fetch breedables; fetch specials; fetch events
-      SHINY=$(jq -r --arg p "$POKEMON" '
-        [to_entries[] | select(.key == $p or (.key | startswith($p + "-"))) | select(.value.ball != null)
-         | "\(.key) (\(.value.ball) ball)"]
-        | join(" and ")' "$CACHE/shiny.json")
-      O=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.ball == true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
-      M=$(jq -r --arg p "$POKEMON" '.[$p] // {} | [to_entries[] | select(.value | type == "object") | select(.value.possible == true and .value.ball != true) | .key] | join("\n")' "$CACHE/breedables.json" | join_words)
-      SPECIALS=$(jq -r --arg p "$POKEMON" '
-        [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
-        | join("\n")' "$CACHE/specials.json" | join_words)
-      EVENTS=$(jq -r --arg p "$POKEMON" '
-        [to_entries[] | select((.value.species? // "") == $p or ((.value.species? // "") | startswith($p + "-"))) | .key]
-        | join("\n")' "$CACHE/events.json" | join_words)
-
-      OUT="$POKEMON: "
-      [ -n "$SHINY" ] && OUT+="shiny $SHINY. " || OUT+="no shiny. "
-      [ -n "$O" ] && OUT+="In your collection: $O. " || OUT+="Not in your collection. "
-      [ -n "$SPECIALS" ] && OUT+="Specials: $SPECIALS. "
-      [ -n "$EVENTS" ] && OUT+="Events: $EVENTS. "
-      [ -n "$M" ] && OUT+="Missing: $M."
-      echo "$OUT"
     '';
     voice = {
       priority = 5;
@@ -635,44 +779,49 @@ in {
       fuzzy.threshold = 0.5;
 
       sentences = [
-        "har (ja|jag) [någon|nån] {pokemon} [i] [en] {ball} [ball] (me|med) egg {eggMoves} och {ha}"
-        "har (ja|jag) [någon|nån] {pokemon} [i] [en] {ball} [ball] (me|med) {ha} och {eggMoves}"
+        "har (ja|jag) [någon|nån|en] {pokemon} [i] [en] {ball} [ball] (me|med) egg {em} och {ha}"
+        "har (ja|jag) [någon|nån|en] {pokemon} [i] [en] {ball} [ball] (me|med) {ha} och egg {em}"
 
-        "har (ja|jag) [någon|nån] {pokemon} [i] [en] {ball} [ball] (me|med) egg {eggMoves}"
-        "har (ja|jag) [någon|nån] {pokemon} [i] [en] {ball} [ball] (me|med) {ha}"
-        "har (ja|jag) [någon|nån] {pokemon} [i] [en] {ball} [ball]"
-        "har (ja|jag) [någon|nån] {pokemon} [i] [en] {ball}"
+        "har (ja|jag) [någon|nån] {pokemon} i {ball} [ball] med egg [{em}] [och] {ha}"
+        "har (ja|jag) [någon|nån] {pokemon} i {ball} [ball] med {ha} [och] egg [{em}]"
+
+        "har (ja|jag) [någon|nån|en] {pokemon} [i] [en] {ball} [ball] (me|med) egg {em}"
+        "har (ja|jag) [någon|nån|en] {pokemon} [i] [en] {ball} [ball] (me|med) {ha}"
+        "har (ja|jag) [någon|nån|en] {pokemon} [i] [en] {ball} [ball]"
+        "har (ja|jag) [någon|nån|en] {pokemon} [i] [en] {ball}"
 
         "har (ja|jag) [någon|nån] {pokemon} [med] {iv} [i] {stats}"
         "har (ja|jag) [någon|nån] [med] {iv} [i] {stats}"
-
         "har (ja|jag) [någon|nån] {pokemon} [med] {ha}"
-
         "har (ja|jag) [någon|nån] {pokemon} {shiny}"
-        "har (ja|jag) [någon|nån] {shiny} {pokemon}"
+        "har (ja|jag) [någon|nån|en] {shiny} {pokemon}"
 
-        "vilken pokemon [har|är] [nummer] {dex}"
-
+        "vilken pokemon [har|är] nummer {dex}"
         "vilka [egg] {em} har {pokemon}"
 
-        "har (ja|jag) [någon|nån] [pokemon] [med] {ribbon} [ribbon]"
+        "har (ja|jag) [någon|nån] pokemon med {ribbons}"
+        "har (ja|jag) [någon|nån] pokemon med {ribbon} ribbon"
 
         "hur många {many} [har|äger] (ja|jag)"
         "hur många {many} finns det"
 
-        "vilken {question} är {pokemon}"
-        "vilken {question} är {move}"
+        "(vilken|vilket) {question} [är|har] {pokemon}"
+        "(vilken|vilket) {question} är {move}"
+        "vad [är] {pokemon} för {question}"
+
+        "(var|vart) {question} [är] {pokemon}"
+
+        "vad (utvecklas|envolvar|envolve|evolve) {pokemon} [till] {question}"
+        "(vilken|vad) {question} (utvecklas|evolvesfrom) {pokemon}"   # vilken från utvecklas ivysaur
 
         "hur [lätt|mycket] {question} [är] [en] {pokemon} [egentligen]"
         "vad {question} [en] {pokemon}"
         "när {question} [en] {pokemon}"
-        "i vilken level {question} [sig] [en] {pokemon} [moves]"
-        "vilken {question} [är|har] {pokemon}"
+        "i vilken level {question} [sig] [en] {pokemon} {move}"
         "vilka [egg] {question} [är|har] {pokemon} [i]"
         "vad har {pokemon} för {question} [ability]"
 
         "har (ja|jag) [någon|nån|några] [pokemon] [med] {question}"
-
         "har (ja|jag) [någon|nån] {pokemon}"
       ];
 
@@ -693,34 +842,34 @@ in {
           (builtins.attrNames config.pokenix.pokedex.moves);
 
         eggMoves.wildcard = true;
-        ribbon.wildcard   = true;
-        iv.values         = sweSpeech.numberFromZeroTo 31;
-        ev.values         = sweSpeech.numberFromZeroTo 252;
-        dex.values        = sweSpeech.numberFromZeroTo 1025;
-        level.values      = sweSpeech.numberFromOneTo 100;
-        shiny.values   = [{ "in" = "shiny|shinie"; out = "true"; }];
-        em.values      = [{ "in" = "move|moves";   out = "true"; }];
-        events.values  = [{ "in" = "events";       out = "true"; }];
-        ha.values      = [{ "in" = "ha|hidden|gömd"; out = "true"; }];
-        ribbons.values = [{ "in" = "ribbons";      out = "true"; }];
+        iv.values         = swe.numberFromZeroTo 31;
+        ev.values         = swe.numberFromZeroTo 252;
+        dex.values        = swe.numberFromZeroTo 1025;
+        level.values      = swe.numberFromOneTo 100;
+        shiny.values   = [{ "in" = "shiny|shinie|gläns";   out = "true"; }];
+        em.values      = [{ "in" = "move|moves|egg|ägg|egg moves|egg move"; out = "true"; }];
+        events.values  = [{ "in" = "events";               out = "true"; }];
+        ha.values      = [{ "in" = "ha|hidden|gömd";       out = "true"; }];
+        ribbons.values = [{ "in" = "ribbons";              out = "true"; }];
         many.values = [
-          { "in" = "shiny";     out = "shiny"; }
-          { "in" = "events";    out = "events"; }
-          { "in" = "aprimons";  out = "aprimons"; }
-          { "in" = "ribbons";   out = "ribbons"; }
-          { "in" = "legendary"; out = "legendary"; }
-          { "in" = "mythical";  out = "mythical"; }
+          { "in" = "shiny|shinies|shinys"; out = "shiny"; }
+          { "in" = "events";               out = "events"; }
+          { "in" = "aprimons";             out = "aprimons"; }
+          { "in" = "ribbons";              out = "ribbons"; }
+          { "in" = "legendary";            out = "legendary"; }
+          { "in" = "mythical";             out = "mythical"; }
         ];
         question.values = [
           { "in" = "låter|gråter|cry|sound";         out = "cry"; }
-          { "in" = "evolvar|evolve|evolution";       out = "evolve"; }
           { "in" = "typ|types|type";                 out = "type"; }
           { "in" = "grupp|grouper|egggroup";         out = "egggroup"; }
+          { "in" = "egggrupper|egggroups|group";     out = "egggroup"; }
           { "in" = "learnset|learnable|inlärning";   out = "learnset"; }
           { "in" = "ribbons";                        out = "ribbons"; }
           { "in" = "legendary";                      out = "legendary"; }
-          { "in" = "mythical";                       out = "mythical"; }
-          { "in" = "hidden|gömd";                    out = "hidden"; }
+          { "in" = "mythical|mystic|mystik";         out = "mythical"; }
+          { "in" = "hidden ability|gömd ability";    out = "hidden"; }
+          { "in" = "ability|förmåga|hidden|gömd";    out = "hidden"; }
           { "in" = "info|detaljer";                  out = "info"; }
           { "in" = "events";                         out = "event"; }
           { "in" = "specials";                       out = "special"; }
@@ -731,6 +880,17 @@ in {
           { "in" = "färg|color";                     out = "color"; }
           { "in" = "lycklig|happy";                  out = "happiness"; }
           { "in" = "fånga|fångad|catch";             out = "catchrate"; }
+          { "in" = "lever|bor|finns|hitta|platser";  out = "locations"; }
+          { "in" = "generation|gen";                 out = "generation"; }
+          { "in" = "kläck|kläckning|hatch|steps";    out = "hatch"; }
+          { "in" = "beskriv|dextext|beskrivning";    out = "flavor"; }
+          { "in" = "till|evolve|evolution|evo";      out = "evolve"; }
+          { "in" = "från|evolvesfrom|evolves-from";  out = "evolvesfrom"; }
+          { "in" = "art|kategori|species|genera";    out = "genera"; }
+          { "in" = "lär|får|inlärning|learn";        out = "learnset"; }
+          #{ "in" = "evolvar|evolvas|evolve|evolution";       out = "evolve"; }
+          # json field: pastTypes
+          # json field: locationAreaEncounters
         ];
         stats.values = [
           { "in" = "attack";                          out = "atk"; }
@@ -741,17 +901,22 @@ in {
           { "in" = "speed|fart";                      out = "spe"; }
         ];
         ball.values = [
-          { "in" = "safari"; out = "safari"; }
-          { "in" = "sport";  out = "sport"; }
-          { "in" = "fast";   out = "fast"; }
-          { "in" = "friend"; out = "friend"; }
-          { "in" = "heavy";  out = "heavy"; }
-          { "in" = "level";  out = "level"; }
-          { "in" = "lure";   out = "lure"; }
-          { "in" = "dream";  out = "dream"; }
-          { "in" = "moon";   out = "moon"; }
-          { "in" = "beast";  out = "beast"; }
-          { "in" = "love";   out = "love"; }
+          { "in" = "safari";                out = "safari"; }
+          { "in" = "sport|idrott";          out = "sport"; }
+          { "in" = "fast|snabb";            out = "fast"; }
+          { "in" = "friend|vän";            out = "friend"; }
+          { "in" = "heavy|tung";            out = "heavy"; }
+          { "in" = "level|nivå";            out = "level"; }
+          { "in" = "lure";                  out = "lure"; }
+          { "in" = "dream";                 out = "dream"; }
+          { "in" = "moon|måne";             out = "moon"; }
+          { "in" = "beast";                 out = "beast"; }
+          { "in" = "love|kärlek|kärleks";   out = "love"; }
+        ];
+        ribbon.values = [
+          { "in" = "effort";                out = "effort"; }
+          { "in" = "master|master rank";    out = "master rank"; }
+          { "in" = "cool|beauty|cute|smart|tough"; out = "";  }  # if you want names that never match
         ];
       };
     };

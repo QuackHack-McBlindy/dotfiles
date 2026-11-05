@@ -5,7 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
-  sweSpeech,
+  swe,
   ...
 } : let
   zigduck-cli = self.inputs.zigduck.packages.${pkgs.stdenv.hostPlatform.system}.zigduck-cli;
@@ -15,11 +15,11 @@ in {
     category = "🛖 Home Automation";
     parameters = [
       { name = "minutes"; type = "string"; description = "Minutes to set the timer on"; default = "0";
-        values = sweSpeech.paramFrom sweSpeech.clock.minutes; }
+        values = swe.allowFrom "minutes"; }
       { name = "seconds"; type = "string"; description = "Seconds to set the timer on"; default = "0";
-        values = sweSpeech.paramFrom sweSpeech.clock.seconds; }
+        values = swe.allowFrom "seconds"; }
       { name = "hours"; type = "string"; description = "Hours to set the timer on"; default = "0";
-        values = sweSpeech.paramFrom sweSpeech.clock.hours; }
+        values = swe.allowFrom "hours"; }
       { name = "list"; type = "bool"; description = "Lists active timers"; default = false;  }
       { name = "sound"; type = "path"; description = "Soundfile to be played on finished timer"; default = /home/pungkula/dotfiles/modules/themes/sounds/finished.wav; }
     ];
@@ -60,9 +60,9 @@ in {
         list.values    = [
           { "in" = "länge|kvar"; out = "true"; }
         ];
-        seconds.values = sweSpeech.clock.seconds;
-        minutes.values = sweSpeech.clock.minutes;
-        hours.values   = sweSpeech.clock.hours;
+        seconds.values = swe.clock.seconds;
+        minutes.values = swe.clock.minutes;
+        hours.values   = swe.clock.hours;
       };
     };
 

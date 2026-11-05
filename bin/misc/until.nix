@@ -5,7 +5,7 @@
   config,
   pkgs,
   cmdHelpers,
-  sweSpeech,
+  swe,
   ...
 } : let
 

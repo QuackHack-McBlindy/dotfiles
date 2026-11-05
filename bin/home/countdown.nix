@@ -7,7 +7,7 @@
   config,
   pkgs,
   zigduck,
-  sweSpeech,
+  swe,
   ...
 } : let
 
@@ -44,8 +44,8 @@ in {
         "avbryt (nedräkning|countdown) på {device}"
       ];
       lists = {
-        device.values  = sweSpeech.devices;
-        seconds.values = sweSpeech.numberFromZeroTo 300;
+        device.values  = swe.devices;
+        seconds.values = swe.numberFromZeroTo 300;
       };
     };
 
