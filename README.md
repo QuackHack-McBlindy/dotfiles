@@ -10,7 +10,7 @@
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.99.0-orange?style=plastic-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/💬%20yo-0.2.11-black?style=plastic)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.12-black?style=plastic)
 ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.11-black?style=plastic)
 
 
@@ -67,7 +67,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 ![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)
 ![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)
 ![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7409-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-528435771-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-572061631-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
@@ -76,7 +76,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4616-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4593-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -1555,7 +1555,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--all-lights] [--room] [--blinds] [--get-temp] [--get-bat] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--blinds] [--all-lights] [--get-temp] [--get-bat] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/if.nix) --condition --then [--efter] [--plus] [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
