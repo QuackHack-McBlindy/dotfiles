@@ -35,8 +35,6 @@ in {
       { name = "blinds"; description = "Control all blinds (up/down/open/close)"; optional = true;
           values = swe.allowFrom "blinds"; }
       { name = "all-lights"; description = "Control all lights"; type = "bool"; optional = false; default = false; }
-      { name = "get-temp"; description = "Fetch temperature in a room"; type = "bool"; optional = true; }
-      { name = "get-bat"; description = "Fetch battery status for a device"; type = "bool"; optional = true; }
       { name = "get-state"; type = "bool"; description = "Fetch current on/off state of a device"; optional = true; }
       #{ name = "pair"; type = "bool"; description = "Activate zigbee2mqtt pairing and start searching for new devices"; optional = true; }
     ];
@@ -47,11 +45,11 @@ in {
       fuzzy.threshold = 0.5;
       sentences       = [
           # 🦆 says ⮞ multi taskerz
-          "{device} {state} i {room} [{when}] och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
-          "{device} {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
-          "{state} {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"
-          "{state} {room} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"
-          "{state} {room} och [ljusstyrka|ljusstyrkan] {brightness} procent"
+          "{device} [sätt|slå|stäng] {state} i {room} [{when}] och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
+          "{device} [sätt|slå|stäng] {state} i {room} och [ändra] färg[en] [till] {color} [och] ljusstyrka[n] [till] {brightness} procent"
+          "[sätt|slå|stäng] {state} {device} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"
+          "[sätt|slå|stäng] {state} {room} [till] {color} [färg] [och] {brightness} procent [ljusstyrka]"
+          "[sätt|slå|stäng] {state} {room} och [ljusstyrka|ljusstyrkan] {brightness} procent"
           "(sätt|ställ|ändra|justera) {device} till {brightness} procent"
           "(sätt|ställ|ändra|justera) ljusstyrkan [på] {device} till {brightness} procent"
           "(gör|ställ) {device} (ljusare|mörkare)"
@@ -63,14 +61,14 @@ in {
           "{scene} (lamp|lampor|lamporna|allt|ljus|ljuset)"
           "släck (lamp|lampor|lamporna|allt|ljus|ljuset) [igen] {scene} [som] [fan] [utav] [helvete]"
           #"{state} [av] {all-lights} (lampor|lamporna)"
-          "{state} {device} (lampor|igen)"
-          "{state} [alla|allt] (lampor|lamporna|ljus) i {room}"
-          "{state} (lamporna|ljusen) [i] {room}"
-          "{state} {room}"
-          "{state} belysningen i {room}"
-          "{state} [på|av] i {room}"
-          "{state} [alla|allt] (lampor|lamporna|ljus) i {room}"
-          "{state} {device}"
+          "[sätt|slå|stäng] {state} {device} (lampor|igen)"
+          "[sätt|slå|stäng] {state} [alla|allt] (lampor|lamporna|ljus) i {room}"
+          "[sätt|slå|stäng] {state} (lamporna|ljusen) [i] {room}"
+          "[sätt|slå|stäng] {state} {room}"
+          "[sätt|slå|stäng] {state} belysningen i {room}"
+          "[sätt|slå|stäng] {state} [på|av] i {room}"
+          "[sätt|slå|stäng] {state} [alla|allt] (lampor|lamporna|ljus) i {room}"
+          "[sätt|slå|stäng] {state} {device}"
 
           # 🦆 says ⮞ color control
           "(ändra|gör) färgen [på|i] {device} till {color}"
@@ -90,11 +88,11 @@ in {
           "hur {get-temp} är det i {room} [just] [nu]"
 
           # 🦆 says ⮞ fetch battery
-          "hur mycket {get-bat} återstår (på|i) {device}"
-          "hur mycket {get-bat} är det kvar (på|i) {device}"
+          #"hur mycket {get-bat} återstår (på|i) {device}"
+          #"hur mycket {get-bat} är det kvar (på|i) {device}"
           #"har {device} lite {get-bat} [kvar]"
-          "är det mycket {get-bat} kvar på {device}"
-          "vad har {device} för {get-bat} [nivå|procent]"
+          #"är det mycket {get-bat} kvar på {device}"
+          #"vad har {device} för {get-bat} [nivå|procent]"
 
           # 🦆 says ⮞ contorl all blinds
           "(hissa|dra|veva|ta) {blinds} (persienner|persiennerna)"
@@ -109,8 +107,8 @@ in {
         temperature.values = swe.temperature;
         brightness.values  = swe.brightness;
         state.values       = [
-            { "in" = "tänd|sätt på|slå på|starta|aktivera|på";    out = "ON"; }
-            { "in" = "släck|stäng av|slå av|avaktivera|stäng|av"; out = "OFF"; }
+            { "in" = "tänd|på|starta|aktivera";    out = "ON"; }
+            { "in" = "släck|av|avaktivera|stäng|av"; out = "OFF"; }
         ];
         scene.values = swe.scenes ++ [
             { "in" = "tänd||tänk|max|maxa|maxxa|maxad|maximum"; out = "max"; }
@@ -129,14 +127,6 @@ in {
             { "in" = "ner|ned";  out = "down"; }
             { "in" = "öppna";    out = "open"; }
             { "in" = "stäng";    out = "close"; }
-        ];
-        get-temp.values   = [
-            { "in" = "temp|temperatur|grader";  out = "true"; }
-            { "in" = "varm|varmt|kall|kallt";   out = "true"; }
-        ];
-        get-bat.values    = [
-            { "in" = "batteri|battery|batteriet"; out = "true"; }
-            { "in" = "batterinivå|batterinivån";  out = "true"; }
         ];
         #pair.values      = [
         #   { "in" = "[para|paras]"; out = "true"; }

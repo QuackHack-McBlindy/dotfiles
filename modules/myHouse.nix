@@ -433,6 +433,16 @@ in { # 🦆 duck say ⮞ house config
               "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml"
             ];
           };
+
+          battery_check = {
+            enable      = true;
+            description = "Check battery driven devices and send notification if any is really low.";
+            schedule    = {
+              start     = "12:30";
+              days      = ["mon" "wed" "sat" ];
+            }; # 🦆 says ⮞ if any battery driven device has less battery than six send a notification
+            actions  = [ "om någon batteridriven enhet har mindre batteri än sex så skicka en notis om 🪫 BATTERY!!" ];
+          };
         };
 
         # 🦆 says ⮞ 6. presence based automations

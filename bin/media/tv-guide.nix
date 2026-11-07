@@ -273,7 +273,8 @@ in { # 🦆 says ⮞ yo
 
         # 🦆 says ⮞ show all currently airing programs
         "(tv-guide|tvguide)"
-        "visa [mig] [tv] (tv-tablå|tv-tablån|tv-guide|tv-guiden|tv tablån|guide|guiden|tablån)"
+        "visa [mig] [tv] (tv-tablå|tv-tablån|tv-guide|tv-guiden|guide|guiden|tablån)"
+        "visa [mig] tv tablån"
         "vad (visa|visas|går|sänds|spelas) på tv [just] [nu]"
       ];
       lists = {

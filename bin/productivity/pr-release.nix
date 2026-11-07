@@ -1,45 +1,51 @@
 # dotfiles/bin/productivity/pr-release.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # » ★ QuackHack-McBLindy.com ★ «
 
+
 # REMEMBER TO COMMIT _BEFORE_ RUNNING `yo pr-release`!
-# confirm?  ──no──► EXIT!
+# confirm?  ── no ──► EXIT!
 #    │yes
 #    ▼
-# on dev? ──no──► EXIT
+#  on dev? ── no ──► EXIT
 #    │yes
 #    ▼
-# version bumped?  ──no──► EXIT
+# version bumped?  ── no ──► EXIT
 #    │yes
 #    ▼
 # version == latest+1? ──no──► EXIT
 #    │yes
 #    ▼
-# changelog empty? ──yes──► EXIT
+# changelog empty? ── yes ──► EXIT
 #    │no
 #    ▼
 #   CI take over
 #
-# dev push    ──► BUILD               ┐
-# PR dev→main ──► BUILD               ├── CI only
-#                                     ┘
-# merge dev -► main ──► BUILD ──► RELEASE
-#                               │
-#                               ├── latest tag:       v0.3.0
-#                               ├── expected next:    v0.3.1
-#                               ├── package majority: MUST be 0.3.1
-#                               ├── CHANGELOG [Unreleased] → [0.3.1]
-#                               ├── commit changelog
-#                               ├── tag               v0.3.1
-#                               ├── GitHub Release    v0.3.1
-#                               │
-#                               ▼
-#                         sync dev ← main
-#                               │
-#                               ▼
-#                  local: git merge --ff-only origin/dev
-#                               │
-#                               ▼
-#                          released
+#  dev push   ──► BUILD ──► DOCS ──► hooks/get-options.sh ──► commit back to dev ┐
+#                           │        hooks/build-docs.py                         │
+#                           └── CI only                                          │
+#                                                                                │
+# PR dev -> main ──► BUILD                                                          ┘
+#                  │
+#                  ▼
+# merge dev ──► main ──► BUILD ──► RELEASE
+#                                   │
+#                                   ├── latest tag:       v0.3.0
+#                                   ├── expected next:    v0.3.1
+#                                   ├── package majority: MUST be 0.3.1
+#                                   ├── CHANGELOG [Unreleased] --> [0.3.1]
+#                                   ├── commit changelog
+#                                   ├── tag               v0.3.1
+#                                   ├── GitHub Release    v0.3.1
+#                                   │
+#                                   ▼
+#                             sync dev  <-- MAIN   (push dev: BUILD -> DOCS again)
+#                                   │
+#                                   ▼
+#                      local: git fetch origin --tags
+#                             git merge --ff-only origin/dev
+#                                   │
+#                                   ▼
+#                                released
 {
   self,
   config,
@@ -206,6 +212,9 @@
           exit 1
         fi
 
+        if [[ "$(git rev-parse HEAD)" == "$(git rev-parse origin/dev)" ]]; then
+          git commit --allow-empty -m "chore: trigger release CI"
+        fi
         git push origin dev
 
         pr_url=$(

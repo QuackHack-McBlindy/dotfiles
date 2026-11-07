@@ -18,10 +18,12 @@ in {
     logLevel = "DEBUG";
 
     parameters = [
-      { name = "device"; description = "Device to control"; optional = true; }
-      { name = "room"; description = "Room to target"; optional = true; }
+      { name = "device"; description = "Device to control"; optional = true;
+          values = swe.allowFrom "device"; }
+      { name = "room"; description = "Room to target"; optional = true;
+          values = swe.allowFrom "room"; }
       { name = "state"; description = "State to verify (returns true/false)"; optional = true;
-        values = [ "öppen" "stängd" "tänd" "släckt" "open" "closed" "on" "off" "rörelse" "motion" "aktiv" ]; }
+          values = swe.allowFrom "state"; }
       { name = "reverse"; description = "Invert the result"; type = "bool"; optional = true; }
     ];
 
@@ -35,7 +37,8 @@ in {
       ${swe.mkBashMap "ROOM_MAP"       swe.roomBashMap}
       ${swe.mkBashMap "TYPE_MAP"       swe.typeMap}
 
-      STATE_JSON=$(zigduck-cli --state-json 2>/dev/null)
+
+      STATE_JSON=$(zigduck-cli --state-json 2>/dev/null | jq -c 'with_entries(.key |= ascii_downcase)')
       if [ -z "$STATE_JSON" ] || ! printf '%s' "$STATE_JSON" | jq -e . >/dev/null 2>&1; then
         echo "⚠️ Kunde inte hämta status från zigduck"
         exit 1
@@ -108,6 +111,17 @@ in {
           done
         fi
         [ -z "$MATCHED" ] && { echo "false"; echo "❌ Ingen enhet matchar '$DEVICE'" >&2; exit 1; }
+
+        case "$STATE_LOWER" in
+          batteri|battery|batterinivå|batterilevel)
+            BAT=$(zigduck-cli --get-bat true --device "$MATCHED" 2>/dev/null)
+            if [ -z "$BAT" ]; then
+              echo "false"; echo "❌ Kunde inte hämta batteri för $MATCHED" >&2; exit 1
+            fi
+            echo "$BAT"
+            exit 0
+            ;;
+        esac
 
         IFS='|' read -r _name dstate dcontact dpos dbri docc < <(
           printf '%s' "$STATE_JSON" | jq -r --arg n "$MATCHED" '
@@ -311,21 +325,14 @@ in {
         "status [för] (alla|allt|all) (enheter|lampor)"
         "vilket läge är {device} i"
         "vilket tillstånd har {device}"
-        "hur mycket batteri har {device}"
+        "hur mycket {state} har {device}"
+        "vilken {state} har {device}"
         "vilken position har {device}"
         "[är] {device} [är] {state}"
       ];
       lists = {
-        state.values  = [
-          { "in" = "öppen|öppet|oppen|open";                   out = "öppen"; }
-          { "in" = "stängd|stängt|stangd|closed";              out = "stängd"; }
-          { "in" = "tänd|tänt|tand|on|på|pa";                  out = "tänd"; }
-          { "in" = "släckt|släkt|slackt|off|av";               out = "släckt"; }
-          { "in" = "rörelse|rörelser|motion|rörlig|aktiv|någon|nån|nått|några|folk|person|personer"; out = "rörelse"; }
-        ];
-        device.values = swe.devices ++ [
-          { "in" = "tv|tvn|teven|shield|sköld|skölden|sjöld"; out = "shield"; }
-        ];
+        state.values  = swe.states;
+        device.values = swe.devices;
         room.values   = swe.rooms;
         reverse.values = [
           { "in" = "inte"; out = "true"; }

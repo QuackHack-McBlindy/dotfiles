@@ -66,8 +66,8 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)
 ![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)
-![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7409-7c3aed?style=plastic)
-![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-572061631-7c3aed?style=plastic)
+![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7875-7c3aed?style=plastic)
+![Voice Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1070094747-7c3aed?style=plastic)
 
 ![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)
 ![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)
@@ -76,7 +76,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 
 ![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)
 
-![Ducks](https://img.shields.io/badge/🦆_Ducks-4593-eab308?style=plastic)
+![Ducks](https://img.shields.io/badge/🦆_Ducks-4594-eab308?style=plastic)
 
 ![Auto-docs](https://img.shields.io/badge/Auto--docs-✅-22c55e?style=plastic)
 
@@ -660,6 +660,16 @@ in { # 🦆 duck say ⮞ house config
             actions  = [
               "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml"
             ];
+          };
+          
+          battery_check = {
+            enable      = true;
+            description = "Check battery driven devices and send notification if any is really low.";
+            schedule    = {
+              start     = "12:30";
+              days      = ["mon" "wed" "sat" ];
+            }; # 🦆 says ⮞ if any battery driven device has less battery than six send a notification
+            actions  = [ "om någon batteridriven enhet har mindre batteri än sex så skicka en notis om 🪫 BATTERY!!" ];
           };
         };
 
@@ -1331,7 +1341,7 @@ I like my flakes tiny & ny modules dynamically loaded,
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
         #yo.url              = "path:/home/pungkula/new/yo";
-        #zigduck.url         = "path:/home/pungkula/zigduck2mqttnix";
+        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
         #pokenix.url         = "path:/home/pungkula/new/pokenix";
         #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
@@ -1551,17 +1561,17 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--minuteWord] [--prep] [--list] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
+| [yo compare](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/compare.nix) [--device] [--scope] [--metric] [--above] [--below] |  | Return true/false whether a device's numeric metric (power, battery, temperature, humidity, brightness, signal, lux) is above or below a threshold. | ✅ |
 | [yo countdown](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/countdown.nix) --device [--seconds] |  | Set a (nedräkning|countdown) on a Zigbee device (turns off after N seconds). | ✅ |
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--blinds] [--all-lights] [--get-temp] [--get-bat] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--blinds] [--all-lights] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/if.nix) --condition --then [--efter] [--plus] [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/notify.nix) [--message] [--tag] |  | Send a desktop notification. | ✅ |
 | [yo ping](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/ping.nix) [--device] |  | Turns kitchen fan on/off | ✅ |
-| [yo power](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/power.nix) [--device] [--above] [--below] |  | Check whether a device's power is above or below a threshold. Returns true/false. | ✅ |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
 | [yo scene](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/scene.nix) [--name] |  | Activate a scene by name. | ✅ |

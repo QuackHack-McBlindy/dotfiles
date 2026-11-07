@@ -86,35 +86,64 @@
   devices = lib.mapAttrsToList (_: d:
     let
       names = lib.unique (map lib.toLower (
-        [ d.friendly_name ] ++ asList (d.aliases or null)
+        [ d.friendly_name ]
+        ++ asList (d.aliases  or null)
+        ++ asList (d._aliases or null)
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = d.friendly_name;
+      out  = lib.toLower d.friendly_name;   # ⬅ lowercased
     }
-  ) zigbeeDevices;
+  ) zigbeeDevices
+  ++ [
+    { "in" = "tv|tvn|teven|shield|sköld|skölden|sjöld"; out = "shield"; }
+  ];
 
   rooms = lib.mapAttrsToList (name: cfg:
     let
       names = lib.unique (map lib.toLower (
-        [ name ] ++ asList (cfg.aliases or null)
+        [ name ]
+        ++ asList (cfg.aliases  or null)
+        ++ asList (cfg._aliases or null)
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = name;
+      out  = lib.toLower name;              # ⬅ lowercased
     }
   ) zigbeeRooms;
 
   scenes = lib.mapAttrsToList (sceneName: cfg:
     let
       names = lib.unique (map lib.toLower (
-        [ sceneName ] ++ asList (cfg._aliases or null)
+        [ sceneName ]
+        ++ asList (cfg.aliases  or null)
+        ++ asList (cfg._aliases or null)
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = sceneName;
+      out  = lib.toLower sceneName;         # ⬅ lowercased
     }
   ) zigbeeScenes;
+
+  states = [
+    { "in" = "öppen|öppet|oppen|öppna|open";                       out = "öppen";   }
+    { "in" = "stängd|stängt|stangd|stängda|closed|close";          out = "stängd";  }
+    { "in" = "tänd|tänt|tand|tända|on|på|pa";                      out = "tänd";    }
+    { "in" = "släckt|släkt|slakt|slackt|släckta|off|av";           out = "släckt";  }
+    { "in" = "rörelse|rörelser|motion|rörlig|aktiv|någon|nån|nått|några|folk|person|personer"; out = "rörelse"; }
+    { "in" = "batteri"; out = "batteri"; }
+  ];
+
+  metrics = [
+    { "in" = "effekt|power|watt|w";                       out = "power"; }
+    { "in" = "temperatur|temp|grader|värme|varmt|kallt";  out = "temperature"; }
+    { "in" = "batteri|battery|batteriet|batterinivå";      out = "battery"; }
+    { "in" = "luftfuktighet|fuktighet|fukt|humidity";     out = "humidity"; }
+    { "in" = "ljusstyrka|brightness|styrka";              out = "brightness"; }
+    { "in" = "signal|linkquality|mottagning";             out = "linkquality"; }
+    { "in" = "ljus|lux|illuminance|belysning";            out = "illuminance"; }
+  ];
+
 
   # 🦆 says ⮞ VOICE LISTS
   colors = [
@@ -234,7 +263,7 @@
 in {
   inherit
     # 🦆 ⮞ voice lists (in/out)
-    devices rooms scenes
+    devices rooms scenes states metrics
     colors brightness durations clock temperature
 
     # 🦆 ⮞ param validation
