@@ -80,7 +80,7 @@ in { # 🦆 says ⮞ Voice Intents
       { name = "upper"; type = "int"; description = "Up movement limit"; optional = true; default = 50; }
       { name = "touch"; type = "bool";  description = "Touch control"; default = false; }
       { name = "user"; description = "Mosquitto username to use"; default = "mqtt"; }
-      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.mosquitto.path; }
+      { name = "passwordfile"; description = "File path containing password for Mosquitto user"; default = config.sops.secrets.z2m_mosquitto.path; }
     ];
     code = ''
       ${cmdHelpers}

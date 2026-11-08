@@ -24,7 +24,7 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.z2m_mosquitto.path})";
 
 in {
   yo.scripts.shop-list = {
@@ -35,7 +35,7 @@ in {
       { name = "item"; description = "Item that will be managed"; }
       { name = "list"; type = "bool"; description = "List items in the shopping list"; default = false; }
       { name = "mqttUser"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
-      { name = "mqttPWFile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
+      { name = "mqttPWFile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.z2m_mosquitto.path; }
     ];
     code = ''
       ${cmdHelpers}

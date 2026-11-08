@@ -24,7 +24,7 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.z2m_mosquitto.path})";
 
 in {
   environment.systemPackages = [ pkgs.at ]; # 🦆 says ⮞ when at wat
@@ -40,7 +40,7 @@ in {
       { name = "list"; type = "bool"; description = "Flag for listing all reminders"; optional = true; default = false; }
       { name = "clear"; type = "bool"; description = "Clear all reminders"; optional = true; default = false; }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
-      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
+      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.z2m_mosquitto.path; }
     ];
     code = ''
       ${cmdHelpers}

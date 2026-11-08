@@ -24,7 +24,7 @@ in {
             preStart = ''
                 mkdir -p /home/${config.this.user.me.name}/.android
                 sed -e "/@ADBKEY@/{
-                    r ${config.sops.secrets.adbkey.path}
+                    r ${config.sops.secrets.adb.path}
                     d
                 }" ${adbkeyFile} > /home/${config.this.user.me.name}/.android/adbkey
                 echo '${config.this.host.keys.publicKeys.adb}' > /home/${config.this.user.me.name}/.android/adbkey.pub
@@ -35,16 +35,17 @@ in {
                 RestartSec = "2s";
                 RuntimeDirectory = [ config.this.user.me.name ];
                 User = config.this.user.me.name;
-                ConditionPathExists = config.sops.secrets.adbkey.path;
+                ConditionPathExists = config.sops.secrets.adb.path;
             };
         };
 
         sops.secrets = lib.mkIf (!config.this.installer) {
-            adbkey = {
-                sopsFile = ./../../secrets/adbkey.yaml;
+            adb = {
+                sopsFile = ./../../secrets/adb.yaml;
                 owner = config.this.user.me.name;
-                group = config.this.user.me.name;
+                group = "zigduck";
                 mode = "0440";
             };
         };
+
     };}

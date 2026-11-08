@@ -121,7 +121,7 @@
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = lib.toLower sceneName;         # ⬅ lowercased
+      out  = sceneName;                    # ⬅ original case
     }
   ) zigbeeScenes;
 

@@ -20,14 +20,15 @@ in {
     parameters = [
       { name = "hours";      type = "string"; description = "Clock hour, 24h format"; default = "0"; optional = false;
         values = swe.allowFrom "hours"; }
-      { name = "minutes";    type = "string"; description = "Clock minute"; default = "0";
+      { name = "minutes";    type = "string"; description = "Clock minute";                       default = "0";
         values = swe.allowFrom "minutes"; }
       { name = "minuteWord"; type = "string"; description = "Minute phrase part (fem, kvart, …)"; default = ""; }
-      { name = "prep";       type = "string"; description = "Direction: över / i / halv"; default = ""; }
-      { name = "list";       type = "bool";   description = "Lists active alarms"; default = false; }
+      { name = "prep";       type = "string"; description = "Direction: över / i / halv";         default = ""; }
+      { name = "list";       type = "bool";   description = "Lists active alarms";                default = false; }
+      { name = "cancel";     type = "bool";   description = "Cancel an active alarm";             default = false; }
     ];
     code = ''
-      if [ "$list" = "true" ] || [ "$list" = "1" ]; then
+      if [ "$list" = "true" ]; then
         ${zigduck-cli}/bin/zigduck-cli alarm list
         exit 0
       fi
@@ -97,6 +98,27 @@ in {
       hours=$BEST_H
       minutes=$BEST_M
 
+      alarm_hh=$(printf "%02d" "$hours")
+      alarm_mm=$(printf "%02d" "$minutes")
+
+      if [ "$cancel" = "true" ]; then
+        cancel_failed() {
+          echo "WARNING: FAILED"
+          yo say "Jag misslyckades med att stänga av väckarklockan på $alarm_hh:$alarm_mm"
+          exit 1
+        }
+
+        if ! out=$(${zigduck-cli}/bin/zigduck-cli alarm remove --time "$alarm_hh:$alarm_mm" 2>&1); then
+          echo "$out"
+          cancel_failed
+        fi
+
+        echo "$out"
+        echo "$out" | grep -q '"status": *"ok"' || cancel_failed
+
+        exit 0
+      fi
+
       name="alarm-$hours-$minutes"
       ${zigduck-cli}/bin/zigduck-cli alarm add \
         --hours   "$hours" \
@@ -104,8 +126,11 @@ in {
         --name    "$name"
     '';
     voice = {
-      priority = 5;
-      fuzzy = { enable = true; threshold = 0.9; };
+      fuzzy = {
+        enable    = true;
+        threshold = 0.9;
+      };
+      priority  = 5;
       sentences = [
         "(ställ|sätt|start|starta|skap|skapa|gör|fixa) [en|ett] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {hours} [och] {minutes}"
         "(ställ|sätt|start|starta|skap|skapa|gör|fixa) [en|ett] (väckarklocka|väckarklockan|larm|alarm) [på] [klocka|klockan] {minuteWord} {prep} {hours}"
@@ -119,11 +144,21 @@ in {
         "väck mig {prep} {hours}"
         "jag vill stiga upp {prep} {hours}"
 
+        # 🦆 says ⮞ cancel alarm
+        "jag vill {cancel} stiga upp [klock|klocka|klockan] {hours} [och] {minutes}"
+        "väck {cancel} mig [klocka|klockan] {hours} [och] {minutes}"
+        "väck {cancel} mig {minuteWord} {prep} {hours}"
+        "jag vill {cancel} stiga upp {minuteWord} {prep} {hours}"
+        "väck {cancel} mig {prep} {hours}"
+        "jag vill {cancel} stiga upp {prep} {hours}"
+        "{cancel} alarmet på [klock|klocka|klockan] {hours} [och] {minutes}"
+
         "när ska jag {list} [upp]"
         "när {list} min väckarklocka"
       ];
       lists = {
-        list.values        = [{ "in" = "stiga|vakna|ringer"; out = "true"; }];
+        list.values        = [{ "in" = "stiga|vakna|ringer|kliva"; out = "true"; }];
+        cancel.values      = [{ "in" = "inte|avbryt"; out = "true"; }];
         prep.values        = swe.clock.preps;
         minuteWord.values  = swe.clock.minuteWords;
         hours.values       = swe.clock.hours;

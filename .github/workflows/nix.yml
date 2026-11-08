@@ -6,17 +6,51 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
-  build:
+  discover:
     runs-on: ubuntu-latest
+    outputs:
+      hosts: ${{ steps.hosts.outputs.hosts }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Nix
-        uses: DeterminateSystems/determinate-nix-action@v3
+      - uses: DeterminateSystems/determinate-nix-action@v3
 
-      - name: Check flake
-        uses: DeterminateSystems/flake-checker-action@v9
+      - name: List nixosConfigurations
+        id: hosts
+        run: |
+          HOSTS=$(nix eval --json .#nixosConfigurations --apply builtins.attrNames)
+          echo "hosts=$HOSTS" >> "$GITHUB_OUTPUT"
+          echo "Discovered: $HOSTS"
 
-      - name: Build flake
-        run: nix flake check --system x86_64-linux
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@v3
+
+      - uses: DeterminateSystems/flake-checker-action@v9
+
+      - name: nix flake check
+        run: nix flake check --system x86_64-linux --keep-going
+
+  build:
+    needs: discover
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false                 # one broken host doesn't cancel the others
+      matrix:
+        host: ${{ fromJSON(needs.discover.outputs.hosts) }}
+    name: build ${{ matrix.host }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Build ${{ matrix.host }} toplevel
+        run: |
+          nix build --print-build-logs --no-link \
+            ".#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel"

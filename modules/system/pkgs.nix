@@ -135,7 +135,9 @@
                 pkgs.gedit
                 pkgs.gthumb
                 pkgs.ghostty
-                pkgs.brave
+                #pkgs.brave
+                # TODO: REMOVE when brave is secure
+                pkgs.google-chrome
                 pkgs.systemctl-tui
                 pkgs.cheat
                 pkgs.pkg-config

@@ -1,6 +1,6 @@
 # dotfiles/modules/myHouse.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 #  » ★ QuackHack-McBLindy.com ★ «
-# 🦆 ⮞ my house - qwack! u wanna copy pasta?
+# 🦆 ⮞ my house - qwack! entire home automation in natural language!
 { #  » ★ github.com/QuackHack-McBlindy/zigduck ★ «
   config,
   lib,
@@ -23,33 +23,6 @@
   # 🦆 says ⮞ load css files
   css.tv     = builtins.readFile ./themes/css/duckdash/tv.css;
   css.chat   = builtins.readFile ./themes/css/duckdash/chat.css;
-
-  # 🦆 says ⮞ mqtt message to json history helper!
-  Mqtt2jsonHistory = field: file: ''
-    FILE="${zigduck.stateDir}/${file}"
-    VALUE=$(echo "$MQTT_PAYLOAD" | jq '.${field}')
-    mkdir -p "$(dirname "$FILE")"
-
-    # 🦆 says ⮞ check current value
-    if [ -s "$FILE" ]; then
-        CURRENT=$(jq ".${field}" "$FILE")
-        if [ "$CURRENT" = "$VALUE" ]; then
-            exit 0 # 🦆 says ⮞ skip write – value unchanged
-        fi
-    fi
-
-    # 🦆 says ⮞ otherwise, update
-    if [ ! -s "$FILE" ]; then
-        jq -n --argjson v "$VALUE" \
-            '{ ${field}: $v, history: [$v] }' > "$FILE"
-    else
-        jq --argjson v "$VALUE" '
-            .${field} = $v
-            | .history += [$v]
-            | .history = (.history[-200:])
-        ' "$FILE" > "$FILE.tmp" && mv "$FILE.tmp" "$FILE"
-    fi
-  '';
 
   # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
@@ -205,7 +178,7 @@ in { # 🦆 duck say ⮞ house config
 
 
   # 🦆 ⮞ AUTOMATIONS ⮜
-      automations = { # 🦆 says ⮞ i natural language diz home-auto yo
+      automations = { # 🦆 says ⮞ here we start quackin'
         string.prefix = "yo do";
         # 🦆 says ⮞ there are 6 different automation types
         # 🦆 ⮞ + a greeting automation
@@ -253,6 +226,16 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
+          loop_cealing   = {
+            enable       = true;
+            description  = "Give the cealing life. Life in colors.";
+            topic        = "${zigduck.baseTopic}/effects/living/cealing/loop";
+            actions  = [
+            # 🦆 ⮞ loop living cealing until state changes
+            "loopa levande taket tills den ändrar tillstånd"
+            ];
+          };
+
           alarm_wakeup  = {
             enable      = true;
             description = "Time to wake up!";
@@ -282,6 +265,7 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
+
       # 🦆 says ⮞ below are used to create cards
       # 🦆 says ⮞ cards are read & displayed by the frontend
           # 🦆say⮞ crypto tickers
@@ -289,33 +273,33 @@ in { # 🦆 duck say ⮞ house config
             enable      = true;
             description = "Updating XMR price data on dashboard";
             topic       = "${zigduck.baseTopic}/crypto/xmr/price";
-            actions     = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "xmr.json"; }];
+            actions     = [ "spara current_price i xmr.json" ];
           };
           btc           = {
             enable      = true;
             description = "Updating BTC price data on dashboard";
             topic       = "${zigduck.baseTopic}/crypto/btc/price";
-            actions     = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "btc.json"; }];
+            actions     = [ "spara current_price i btc.json" ];
           };
           # 🦆say⮞ energy tracking
           energyPrice   = {
             enable      = true;
             description = "Updating energy data on dashboard";
             topic       = "${zigduck.baseTopic}/tibber/energy";
-            actions     = [{ type = "shell"; command = Mqtt2jsonHistory "current_price" "energy_price.json"; }];
+            actions     = [ "spara current_price i energy_price.json" ];
           };
           energyUsage   = {
             enable      = true;
             description = "Updating energy data on dashboard";
             topic       = "${zigduck.baseTopic}/tibber/energy";
-            actions     = [{ type = "shell"; command = Mqtt2jsonHistory "monthly_usage" "energy_usage.json"; }];
+            actions     = [ "spara monthly_usage i energy_usage.json" ];
           };
           # 🦆say⮞ hallway temperature
           temperature   = {
             enable      = true;
             description = "Updating temperature data on dashboard";
             topic       = "${zigduck.baseTopic}/Motion Sensor Hall";
-            actions     = [{ type = "shell"; command = Mqtt2jsonHistory "temperature" "temperature.json"; }];
+            actions     = [ "spara temperature i temperature.json" ];
           };
           # 🦆say⮞ calendar
           calendar      = {
@@ -345,7 +329,6 @@ in { # 🦆 duck say ⮞ house config
               # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
               "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
             ];
-
 
             motion_detected = [
               # 🦆 ⮞ "big" 20ms win - worth it here
@@ -399,7 +382,6 @@ in { # 🦆 duck say ⮞ house config
               enable           = true;
               description      = "Turn on kitchen fan (+ lights).";
               extra_actions    = [ "starta fläkten" ];
-              override_actions = [];
             };
           };
         };
@@ -419,6 +401,13 @@ in { # 🦆 duck say ⮞ house config
             actions      = [ "väck mig klockan elva och trettio'" ];
           };
 
+          cacel_weekend  = {
+            enable       = true;
+            description  = "No wakeup on weekends";
+            schedule     = { start = "04:00"; days = ["sat" "sun"]; };
+            actions      = [ "väck mig inte klockan elva och trettio'" ];
+          };
+
           # 🦆 says ⮞ daily tv scraper
           tv_scraping   = {
             enable      = true;
@@ -429,9 +418,7 @@ in { # 🦆 duck say ⮞ house config
               days      = ["mon" "tue" "wed" "thu" "fri" "sat" "sun"];
             };
             # 🦆 says ⮞ scrape & save so frontend can read it (from zigduck user)
-            actions  = [
-              "tv-scraper --json-out ${zigduck.stateDir}/epg.json --html-out ${zigduck.stateDir}/tv.html --xml-out ${zigduck.stateDir}/epg.xml"
-            ];
+            actions  = [ "skrapa webben efter tv guiden och spara i ${zigduck.stateDir}" ];
           };
 
           battery_check = {
@@ -448,7 +435,6 @@ in { # 🦆 duck say ⮞ house config
         # 🦆 says ⮞ 6. presence based automations
         presence_based = {};
       };
-
 
 
   # 🦆 ⮞ SCENES ⮜
@@ -747,19 +733,23 @@ in { # 🦆 duck say ⮞ house config
 
     # 🦆 ⮞ TV ⮜
     # 🦆says⮞ configure TV devices with: room, ip, apps & channel information
-    tv = {
+    tv       = {
+
       # 🦆 says ⮞ Livingroom
-      shield      = {
-        enable    = true;
-        room      = "tv-area";
-        ip        = devices.shield.ip;
-        apps      = {
-          telenor = "se.telenor.stream/.MainActivity";
-          tv4     = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
+      shield = {
+        privateKeyFile = config.sops.secrets.adb.path;
+        publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
+
+        enable       = true;
+        room         = "tv-area";
+        ip           = devices.shield.ip;
+        apps = {
+          telenor    = "se.telenor.stream/.MainActivity";
+          tv4        = "se.tv4.tv4playtab/se.tv4.tv4play.ui.mobile.main.BottomNavigationActivity";
         };
 
         # 🦆 says ⮞ EPG scraper/builder (can be overridden per-channel too)
-        scraper   = {
+        scraper      = {
           row_xpath                = ''//table[@id="channel-schedule"]//tr'';
           time_xpath               = ".//time";
           time_attr                = "datetime";
@@ -863,7 +853,7 @@ in { # 🦆 duck say ⮞ house config
             id         = 13;
             name       = "TV4 Hockey";
             icon       = ./themes/icons/tv/13.png;
-            cmd        = "open_tv4 && nav_select && nav_left && nav_down && nav_doown && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
+            cmd        = "open_tv4 && nav_select && nav_left && nav_down && nav_down && nav_down && nav_select && wait 3 && nav_down && nav_down && nav_down && nav_down && nav_down && nav_select";
             scrape_url = "https://tv-tabla.se/tabla/tv4_hockey/";
           };
           "14"         = {
@@ -918,12 +908,6 @@ in { # 🦆 duck say ⮞ house config
           detailsJsonField = "today_events";
           detailsFormat    = "{value}";
           chart            = false;
-          on_click_action  = [
-            {
-              type    = "shell";
-              command = "yo say \"detta är ett ank test - testar ankor ankor anka naka naka ojojojjoj vad många ankor detta blev oj oj\" --host desktop";
-            }
-          ];
         };
 
         # 🦆 says ⮞ Monero USD price ticker
@@ -1024,6 +1008,8 @@ in { # 🦆 duck say ⮞ house config
     "C  ${zigduck.stateDir}/.config/yo/clients.json 0600 zigduck zigduck - ${yoClientsJson}"
   ];
 
+  users.users.zigduck = { extraGroups = [ "zigbee2mqtt" ]; };
+
   # 🦆 says ⮞ hush little duckie don't say a word....
   sops = {
     secrets =  {
@@ -1072,7 +1058,7 @@ in { # 🦆 duck say ⮞ house config
       youtube_api_key = {
         sopsFile = ./../secrets/youtube.yaml;
         owner    = config.this.user.me.name;
-        group    = config.this.user.me.name;
+        group    = "zigduck";
         mode     = "0440";
       };
       z2m_mosquitto = {

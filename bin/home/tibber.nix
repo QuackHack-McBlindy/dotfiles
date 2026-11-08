@@ -24,7 +24,7 @@
         lib.lists.head (lib.strings.splitString " " (lib.lists.elemAt (lib.strings.splitString "\n" resolved) 0))
     )
     else (throw "No Mosquitto host found in configuration");
-  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.mosquitto.path})";
+  mqttAuth = "-u mqtt -P $(cat ${config.sops.secrets.z2m_mosquitto.path})";
 
 in {
   yo.scripts.tibber = {
@@ -39,7 +39,7 @@ in {
       { name = "APIKeyFile"; description = "File path containing the Tibber API key"; default = config.sops.secrets.tibber_key.path;  }
       { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/tibber_data.txt";  }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }
-      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.mosquitto.path; }
+      { name = "pwfile"; description = "Password file for Mosquitto user"; optional = false; default = config.sops.secrets.z2m_mosquitto.path; }
     ];
     logLevel = "DEBUG";
     helpFooter = ''

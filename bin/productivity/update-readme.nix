@@ -598,6 +598,7 @@ EOF
 
       dt_info "Updating badges..."
       update_pokemon_badge "$README_PATH"
+      update_badges "$README_PATH"
       size=$(wc -c < "$README_PATH")
 
       if (( size > 20 * 1024 )); then

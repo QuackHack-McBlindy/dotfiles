@@ -32,6 +32,28 @@ in {
        TEST_UNIT="nixos-test-watchdog-$$"
        TEST_DELAY="''${watchdog-timer}min"
 
+       fetch_nix_error_log() {
+         local drv_path
+
+         drv_path=$(grep -oE "Cannot build '/nix/store/[^']+\.drv'" \
+           <<< "$BUILD_OUTPUT" \
+           | head -n1 \
+           | sed "s/^Cannot build '//; s/'$//")
+
+         if [[ -n "$drv_path" ]]; then
+           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+           say_duck "❌🦆❌ BUILD ERROR LOG ❌🦆❌"
+           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+           echo "🦆 Failed derivation: $drv_path"
+           echo
+
+           nix log "$drv_path" 2>&1 | tail -n 100
+         else
+           echo "🦆 Could not locate failed derivation."
+         fi
+       }
+
        # 🦆 duck say ⮞ validate host exist
        if [[ ! " ${toString sysHosts} " =~ " $host " ]]; then
          say_duck "fuck ❌ Unknown host: $host" >&2
@@ -150,7 +172,11 @@ in {
          cmd+=( --build-host "$user@$host" )
        fi
 
-       if "''${cmd[@]}"; then
+       BUILD_OUTPUT=$("''${cmd[@]}" 2>&1) && BUILD_STATUS=0 || BUILD_STATUS=$?
+
+       echo "$BUILD_OUTPUT"
+
+       if [[ $BUILD_STATUS -eq 0 ]]; then
          if $DRY_RUN; then
            # 🦆 duck say ⮞ give the receiver a beat, then verify we still reach it
            sleep 6
@@ -167,13 +193,20 @@ in {
              exit 1
            fi
          else
-           say_duck " ✅ Created new system generation!"
+           echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+           echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+           echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+           echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
            play_win
          fi
        else
-         say_duck "fuck ❌ System rebuild failed!"
+         fetch_nix_error_log
          play_fail
-         dt_error "❌ System rebuild failed!"
+         echo "❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌"
+         echo "🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆"
+         say_duck " FUCK!  ❌🦆❌🦆❌🦆❌🦆❌🦆❌"
+         echo "❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌"
+         echo "🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆"
          exit 1
        fi
 

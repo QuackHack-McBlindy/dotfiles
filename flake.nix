@@ -8,13 +8,13 @@
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
-        zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        #zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
         #yo.url              = "path:/home/pungkula/new/yo";
-        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
+        zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
         #pokenix.url         = "path:/home/pungkula/new/pokenix";
         #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
