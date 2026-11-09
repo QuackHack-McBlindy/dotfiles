@@ -22,7 +22,7 @@ in {
       { name = "device"; description = "Device to check"; optional = true;
           values = swe.allowFrom "device"; }
       { name = "scope";  description = "device (default) | any | all | none"; optional = true; default = "device";
-          values = swe.allowFrom "scope"; }
+          values = [ "device" "any" "all" "none" ]; }
       { name = "metric"; description = "Which metric to read"; optional = true; default = "power";
           values = swe.allowFrom "metric"; }
       { name = "above"; description = "Return true if metric > this value"; optional = true; }

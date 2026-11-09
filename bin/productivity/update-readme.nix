@@ -372,7 +372,7 @@ in {
 
             cat << 'EOF' > "$temp_file"
 ## 🚀 **yo CLI 🦆**
-The \`yo\` CLI is a framework designed to execute scripts defined in the \`./bin\` directory.
+The yo CLI is a framework designed to execute scripts defined in the ./bin directory.
 It provides a unified interface for script execution, centralizes all help commands, and automatically validates parametrs and updates the documentation.
 
 **Usage:** \`yo <command> [arguments]\`
@@ -399,9 +399,17 @@ $ yo-rs
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
 Add \`?\` to any command to run it in DEBUG mode
+
+<details><summary><strong>
+View All Scripts
+</strong></summary>
+
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 ${helpText}
+
+</details>
+
 ### ❓ Detailed Help
 For specific command help:
 \`yo <command> --help\`

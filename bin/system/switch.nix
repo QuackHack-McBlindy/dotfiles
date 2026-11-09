@@ -86,8 +86,9 @@ in {
 
           echo
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-          say_duck "     🦆 STARTING REBUILD......"
-          say_duck "⚠️⚠️⚠️⚠️ 🔑 🔑 TOUCH YUBIKEY 🔑 🔑 ⚠️⚠️⚠️⚠️"
+          say_duck "🦆 STARTING REBUILD......"
+          echo "⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️⚠️"
+          say_duck "🔑🔑  TOUCH YUBIKEY  🔑🔑"
           echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           echo
 

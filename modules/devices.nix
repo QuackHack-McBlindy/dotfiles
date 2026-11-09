@@ -452,42 +452,137 @@
           icon               = icons.light.spotlight;
           endpoint           = 11;
         };
-        "0x0017880102f08526" = { friendly_name = "Spotlight Kök 2"; room = "kitchen"; type = "light"; icon = icons.light.spotlight; endpoint = 11; };
-        "0x0017880103a0d280" = { friendly_name = "Uppe"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
-        "0x0017880103e0add1" = { friendly_name = "Golvet"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
-        "0xa4c13873044cb7ea" = { friendly_name = "Kök Bänk Slinga"; room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; };
-        "0x70ac08fffe9fa3d1" = { friendly_name = "Motion Sensor Kök"; room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
-        "0xa4c1380afa9f7f3e" = { friendly_name = "Smoke Alarm Kitchen"; room = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1; };
-        "0xa4c138b9aab1cf3f" = { friendly_name = "Fläkt"; aliases = [ "fläkten" "fläckten" ]; room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
+        "0x0017880102f08526" = {
+          friendly_name = "Spotlight Kök 2";
+          room = "kitchen"; type = "light"; icon = icons.light.spotlight; endpoint = 11;
+        };
+        "0x0017880103a0d280" = {
+          friendly_name = "Uppe";
+          room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11;
+          supports_color = true;
+        };
+        "0x0017880103e0add1" = {
+          friendly_name = "Golvet";
+          room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11;
+          supports_color = true;
+        };
+        "0xa4c13873044cb7ea" = {
+          friendly_name = "Kök Bänk Slinga";
+          room = "kitchen"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11;
+        };
+        "0x70ac08fffe9fa3d1" = {
+          friendly_name = "Motion Sensor Kök";
+          room = "kitchen"; type = "motion"; icon = icons.sensor.motion; endpoint = 1;
+          batteryType = "CR2032";
+        };
+        "0xa4c1380afa9f7f3e" = {
+           friendly_name = "Smoke Alarm Kitchen";
+           enable        = false;
+           room          = "kitchen"; type = "sensor"; icon = icons.sensor.smoke; endpoint = 1;
+        };
+        "0xa4c138b9aab1cf3f" = {
+          friendly_name = "Fläkt"; aliases = [ "fläkten" "fläckten" ];
+          room = "kitchen"; type = "outlet"; icon = icons.outlet; endpoint = 1;
+        };
+
 
         # 🦆 says ⮞ LIVING ROOM
-        "0x0c4314fffe179b05" = { friendly_name = "Larm"; room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
-        "0x0017880104f78065" = { friendly_name = "Dimmer Switch Vardagsrum"; room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
-        "0x00178801037e754e" = { friendly_name = "Takkrona 1"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
-        "0x0017880103c73f85" = { friendly_name = "Takkrona 2"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
-        "0x0017880103f94041" = { friendly_name = "Takkrona 3"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
-        "0x0017880103c753b8" = { friendly_name = "Takkrona 4"; room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1; supports_color = true; supports_temperature = false; };
-        "0x54ef4410003e58e2" = { friendly_name = "Roller Shade"; room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1; };
-        "0x0017880104540411" = { friendly_name = "PC"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
-        "0x0017880102de8570" = { friendly_name = "Rustning"; room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11; supports_color = true; };
-        "0x540f57fffe85c9c3" = { friendly_name = "Water Sensor"; room = "livingroom"; type = "sensor"; icon = icons.sensor.water; endpoint = 1; };
+        "0x0c4314fffe179b05" = {
+          friendly_name = "Larm";
+          room = "livingroom"; type = "outlet"; icon = icons.outlet; endpoint = 1;
+        };
+        "0x0017880104f78065" = {
+          friendly_name = "Dimmer Switch Vardagsrum";
+          room = "livingroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1;
+          batteryType = "CR2450";
+        };
+        "0x00178801037e754e" = {
+          friendly_name = "Takkrona 1";
+          room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1;
+          supports_color = true; supports_temperature = false;
+        };
+        "0x0017880103c73f85" = {
+          friendly_name = "Takkrona 2";
+          room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1;
+          supports_color = true; supports_temperature = false;
+        };
+        "0x0017880103f94041" = {
+          friendly_name = "Takkrona 3";
+          room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1;
+          supports_color = true; supports_temperature = false;
+        };
+        "0x0017880103c753b8" = {
+          friendly_name = "Takkrona 4";
+          room = "livingroom"; type = "light"; icon = icons.light.chandelier; endpoint = 1;
+          supports_color = true; supports_temperature = false;
+        };
+        "0x54ef4410003e58e2" = {
+          friendly_name = "Roller Shade";
+          room = "livingroom"; type = "blind"; icon = icons.blinds; endpoint = 1;
+        };
+        "0x0017880104540411" = {
+          friendly_name = "PC";
+          room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11;
+          supports_color = true;
+        };
+        "0x0017880102de8570" = {
+          friendly_name = "Rustning";
+          room = "livingroom"; type = "light"; icon = icons.light.spotlight; endpoint = 11;
+          supports_color = true;
+        };
+        "0x540f57fffe85c9c3" = {
+          friendly_name = "Water Sensor";
+          room = "livingroom"; type = "sensor"; icon = icons.sensor.water; endpoint = 1;
+        };
+
 
         # 🦆 says ⮞ HALLWAY
-        "0x00178801021311c4" = { friendly_name = "Motion Sensor Hall"; room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "AAA"; };#⮜ AAA-AWESOME 🦆
-        "0x00158d00053ec9b1" = { friendly_name = "Door Sensor Hall"; aliases = [ "dörr" "dörren" "ytterdörren" ]; room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1; };
-        "0x0017880109ac14f3" = { friendly_name = "Tak Hall"; room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
+        "0x00178801021311c4" = {
+          friendly_name = "Motion Sensor Hall";
+          room = "hallway"; type = "motion"; icon = icons.sensor.motion; endpoint = 1;
+          batteryType = "AAA"; #⮜ AAA-AWESOME 🦆
+        };
+        "0x00158d00053ec9b1" = {
+          friendly_name = "Door Sensor Hall"; aliases = [ "dörr" "dörren" "ytterdörren" ];
+          room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1;
+        };
+        "0x0017880109ac14f3" = {
+          friendly_name = "Tak Hall";
+          room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11;
+          supports_color = true;
+        };
         "0x000b57fffe0e2a04" = {
-          friendly_name = "Vägg"; aliases = [ "väggen" ]; room = "hallway"; type = "light";
-          icon = icons.light.wall; supports_temperature = true; supports_color = false; endpoint = 1;
+          friendly_name = "Vägg"; aliases = [ "väggen" "vägglampan" ];
+          enable        = false;
+          room = "hallway"; type = "light"; icon = icons.light.wall; endpoint = 1;
+          supports_temperature = true; supports_color = false;
         };
 
         # 🦆 says ⮞ WC
-        "0x001788010361b842" = { friendly_name = "WC 1"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
-        "0x0017880103406f41" = { friendly_name = "WC 2"; room = "wc"; type = "light"; icon = icons.light.ceiling; supports_temperature = true; endpoint = 11; };
+        "0x001788010361b842" = {
+          friendly_name = "WC 1";
+          room = "wc"; type = "light";
+          icon = icons.light.ceiling; endpoint = 11;
+          supports_temperature = true;
+        };
+        "0x0017880103406f41" = {
+          friendly_name = "WC 2";
+          room = "wc"; type = "light"; icon = icons.light.ceiling; endpoint = 11;
+          supports_temperature = true;
+        };
+
 
         # 🦆 says ⮞ BEDROOM
-        "0xa4c13832742c96f7" = { friendly_name = "Robot Arm 1"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
-        "0xa4c138387966b58d" = { friendly_name = "Robot Arm 2"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
+        "0xa4c13832742c96f7" = {
+          friendly_name = "Robot Arm 1";
+          room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher;
+          batteryType = "CR02";
+        };
+        "0xa4c138387966b58d" = {
+          friendly_name = "Robot Arm 2";
+          room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher;
+          batteryType = "CR02";
+        };
         "0xa4c1380c0a35052e" = { friendly_name = "Robot Arm 3"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
         "0xa4c1381e74b6d2e6" = { friendly_name = "Robot Arm 4"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
         "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };

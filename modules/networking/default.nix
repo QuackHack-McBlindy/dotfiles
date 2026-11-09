@@ -1,8 +1,11 @@
 # dotfiles/modules/networking/default.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+#  » ★ QuackHack-McBLindy.com ★ «
 { # 🦆 say ⮞ default networking
   config,
   self,
   lib,
+  hosts,
+  devices,
   ...
 } : let
 
@@ -19,6 +22,9 @@
     currentHost = "${config.this.host.hostname}";
 
     defaultNetworking = {
+        boot.kernel.sysctl = {
+          "net.ipv4.conf.tornet.route_localnet" = 1;
+        };
         services.resolved = {
             enable = false;
             domains = [ "~." ];
@@ -34,18 +40,69 @@
             networkmanager = {
                 enable = true;
                 dns = lib.mkDefault "none";
+
+                ensureProfiles.profiles = {
+                  tornet = {
+                    connection = {
+                      id = "tornet";
+                      type = "bridge";
+                      interface-name = "tornet";
+                      autoconnect = true;
+                    };
+                    bridge = {
+                      stp = false;
+                    };
+                    ipv4 = {
+                      method = "manual";
+                      address1 = "10.100.100.1/24";
+                    };
+                    ipv6 = {
+                      method = "disabled";
+                    };
+                  };
+                };
             };
+
+            nftables = {
+              enable = true;
+              ruleset = ''
+                table ip nat {
+                  chain PREROUTING {
+                    type nat hook prerouting priority dstnat; policy accept;
+                    iifname "tornet" meta l4proto tcp dnat to 127.0.0.1:9040
+                    iifname "tornet" udp dport 53 dnat to 127.0.0.1:5353
+                  }
+                }
+              '';
+            };
+
+            nat = {
+              internalInterfaces = [ "tornet" ];
+              forwardPorts = [
+                {
+                  destination = "127.0.0.1:5353";
+                  proto = "udp";
+                  sourcePort = 53;
+                }
+              ];
+            };
+
             hosts = {
                 "192.168.1.1" = [ "router.lan" "router.local" "router" ];
                 # 🦆 say ⮞ NixOS hosts
-                "192.168.1.111" = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
-                "192.168.1.211" = [ "homie.lan" "homie.local" "homie" "cache" ];
-                "192.168.1.222" = [ "laptop.lan" "laptop.local" "laptop" ];
-                "192.168.1.28" = [ "nasty.lan" "nasty.local" "nasty" ];
-                "192.168.1.23" = [ "pinephone.lan" "pinephone.local" "pinephone" "phone" ];
-                # 🦆 say ⮞ TV devices
-                "192.169.1.224" = [ "shield.lan" "shield.local" "shield" ];
-                "192.169.1.152" = [ "arris.lan" "arris.local" "arris" ];
+                "${hosts.desktop.ip}"          = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
+                "${hosts.homie.ip}"            = [ "homie.lan" "homie.local" "homie" "cache" ];
+                "${hosts.laptop.ip}"           = [ "laptop.lan" "laptop.local" "laptop" ];
+                "${hosts.nasty.ip}"            = [ "nasty.lan" "nasty.local" "nasty" ];
+                "${hosts.pinephone.ip}"        = [ "pinephone.lan" "pinephone.local" "pinephone" "phone" ];
+                # 🦆 say ⮞ OTHER devices
+                "${devices.iphone.ip}"         = [ "iphone.lan" "iphone.local" "iphone" ];
+                "${devices.ESP32-S3-BOX-3.ip}" = [ "box.lan" "box.local" "box" ];
+                "${devices.watch.ip}"          = [ "watch.lan" "watch.local" "watch" ];
+                "${devices.shield.ip}"         = [ "shield.lan" "shield.local" "shield" ];
+                #"$devices.arris.ip}"          = [ "arris.lan" "arris.local" "arris" ];
+                "${devices.hue-bridge.ip}"     = [ "hue-bridge.lan" "hue-bridge.local" "hue-bridge" ];
+                "${devices.hue-sync.ip}"       = [ "hue-sync.lan" "hue-sync.local" "hue-sync" ];
             };
 
             defaultGateway = {
@@ -84,12 +141,11 @@
             firewall = {
                 enable = true;
                 logRefusedConnections = true;
-
                 allowedUDPPorts =
                     if builtins.elem "wg-server" (config.this.host.modules.networking or [])
                     then [51820]
-                    else  [6222 443 53];
-                allowedTCPPorts = [6262 443 53];
+                    else  [6222 5353 443 53];
+                allowedTCPPorts = [6262 9040 443 53];
             };
             resolvconf = {
                 useLocalResolver = false;

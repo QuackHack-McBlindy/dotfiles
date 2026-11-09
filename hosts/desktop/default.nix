@@ -134,7 +134,7 @@
                 networking = [ "default" "pool" ];
                 services   = [
                   "ssh" "default" "yo" "yo-client" "adb" "openrgb"
-                  "backup" "cache" "keyd" "jelly" "duckdns" "sunshine"
+                  "backup" "cache" "keyd" "jelly" "duckdns" "tor" "sunshine"
                 ];
                 programs       = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [ "docker" "vm" ];

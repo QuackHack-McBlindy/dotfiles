@@ -21,12 +21,3 @@ repos:
         language: system
         pass_filenames: false
         always_run: true
-
-  - repo: local
-    hooks:
-      - id: update-readme
-        name: Update README.md
-        entry: bash hooks/update-readme.sh
-        language: system
-        pass_filenames: false
-        always_run: true

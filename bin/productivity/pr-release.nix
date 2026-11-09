@@ -211,9 +211,17 @@
           exit 1
         fi
 
+        git fetch origin dev
+        if ! git rebase origin/dev; then
+          echo "error: rebase onto origin/dev failed — resolve and rerun" >&2
+          play_fail
+          exit 1
+        fi
+
         if [[ "$(git rev-parse HEAD)" == "$(git rev-parse origin/dev)" ]]; then
           git commit --allow-empty -m "chore: trigger release CI"
         fi
+
         git push origin dev
 
         pr_url=$(
@@ -241,10 +249,33 @@
         fi
         echo ""
         echo "waiting for CI checks to pass..."
+
+        sha=$(git rev-parse HEAD)
+        repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
+
+        registered=false
+        for _ in $(seq 1 60); do
+          n=$(gh api "repos/$repo/commits/$sha/check-runs" \
+                --jq '.total_count' 2>/dev/null || echo 0)
+          if [[ "$n" -gt 0 ]]; then
+            registered=true
+            echo "checks registered: $n on ${sha:0:7}"
+            break
+          fi
+          sleep 5
+        done
+        if ! $registered; then
+          echo "error: no check-runs registered on ${sha:0:7} within 5 min" >&2
+          echo "inspect: $pr_url" >&2
+          play_fail
+          exit 1
+        fi
+
         if ! gh pr checks "$pr_url" --watch --fail-fast; then
           echo "error: ci FAILED! — PR left open" >&2
           exit 1
         fi
+
 
         for _ in {1..15}; do
           mergeable=$(gh pr view "$pr_url" --json mergeable --jq '.mergeable')

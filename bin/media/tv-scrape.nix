@@ -19,9 +19,10 @@ in {
     parameters = [
       { name = "dir"; description = "Output directory (defaults to zigduck state dir)"; optional = true;
           default = defaultDir; }
+      { name = "wildcard"; description = "Nothing to see here...."; type = "string"; optional = true; }
     ];
     code = ''
-      OUT="''${dir:-${defaultDir}}"
+      OUT="$dir"
       mkdir -p "$OUT"
 
       tv-scraper \
@@ -37,7 +38,9 @@ in {
       sentences = [
         "skrapa webben efter tv guiden och spara [den] i {wildcard}"
       ];
+      lists.dir.wildcard = true;
       lists.wildcard.wildcard = true;
+
     };
 
   };}

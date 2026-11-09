@@ -7,8 +7,8 @@
         sops-nix.url                    = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
-        zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        yo.url               = "github:QuackHack-McBlindy/yo";
+        zigduck.url          = "github:QuackHack-McBlindy/zigduck";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";

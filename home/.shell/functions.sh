@@ -45,6 +45,7 @@ cdir() {
       -not -path '*/hooks/*' \
       -not -path '*/images/*' \
       -not -path '*/sprites/*' \
+      -not -path '*/icons/*' \
       -not -name '.gitignore' \
       -not -name '.pre-commit-config.yaml' \
       -not -name 'CHANGELOG.md' \

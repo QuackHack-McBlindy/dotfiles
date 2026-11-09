@@ -26,7 +26,7 @@
   channelNamesJson = pkgs.writeText "channel-names.json" (builtins.toJSON (
     lib.foldl (acc: device:
       acc // lib.mapAttrs (channelId: channel: channel.name) device.channels
-    ) {} (lib.attrValues config.house.tv)
+    ) {} (lib.attrValues (builtins.removeAttrs config.house.tv [ "privateKeyFile" "publicKey" ]))
   ));
 
   # 🦆 says ⮞ gen json from `config.house.tv`

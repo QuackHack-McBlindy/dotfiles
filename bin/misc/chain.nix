@@ -23,8 +23,11 @@ in {
     ];
     code = ''
       for part in "''${a:-}" "''${b:-}" "''${c:-}" "''${d:-}"; do
-        [ -n "$part" ] && yo do "$part"
+        if [ -n "$part" ]; then
+          yo do "$part" || exit $?
+        fi
       done
+      exit 0
     '';
     voice = {
       priority = 5;

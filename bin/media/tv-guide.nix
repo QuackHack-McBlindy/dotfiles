@@ -283,7 +283,7 @@ in { # 🦆 says ⮞ yo
                 "in" = "[${channel.name}|${id}]";
                 out = id;
             }) device.channels
-        ) (lib.attrValues config.house.tv));
+        ) (lib.attrValues (builtins.removeAttrs config.house.tv [ "privateKeyFile" "publicKey" ])));
         search.wildcard = true;
       };
     };

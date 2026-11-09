@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+
+            body { font-family: sans-serif; margin: 20px; }
+            .channel { margin: 10px 0; padding: 10px; border-bottom: 1px solid #ccc; }
+            .channel-header { display: flex; align-items: center; margin-bottom: 10px; }
+            .channel-icon { width: 32px; height: 32px; margin-right: 10px; }
+            .channel-name { font-weight: bold; font-size: 1.2em; }
+            .program { margin: 5px 0; padding: 8px; cursor: pointer; border-radius: 4px; transition: background-color 0.2s; }
+            .program:hover { background-color: #f5f5f5; }
+            .program.ended { background-color: #f8f8f8; color: #999; }
+            .program.current { background-color: #fff3cd; border-left: 4px solid #ffc107; }
+            .program-time { color: #666; font-size: 0.9em; margin-right: 10px; font-family: monospace; }
+            .program-title { font-weight: bold; }
+            .program-description { display: none; margin-top: 8px; padding: 8px; background: #f0f0f0; border-radius: 4px; font-size: 0.9em; color: #555; }
+            .program-description.show { display: block; }
+
+</style>
+</head>
+<body>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/dbipkcc2n4fb3dg62piy6dkings98hmp-1.png" alt="SVT1">
+<span class="channel-name">SVT1</span>
+</div>
+<div class="program" data-start="1794194100" data-end="1794196800" onclick="toggleDescription(this)">
+<span class="program-time">04:15 - 05:00</span>
+<span class="program-title">Landet runt</span>
+<div class="program-description">Den ständiga resan genom Sverige. Människor, möten och höjdpunkter de lokala nyheterna i Sveriges mänskligaste tv-program. Den ständiga resan genom Sverige. Människor, möten och höjdpunkter de lokala nyheterna i Sveriges mänskligaste tv-program. Programledare: Henrik Kruusval.</div>
+</div>
+<div class="program" data-start="1794196800" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 09:00</span>
+<span class="program-title">Morgonstudion</span>
+<div class="program-description">De viktigaste nyheter och analyser med täta uppdateringar. Vi sänder direkt inrikes- och utrikesnyheter inklusive väder, sport, kultur, nöje och lokala nyheter. Dessutom intervjuer med aktuella gäster. Nyhetssammanfattningar varje hel- och halvtimme. Programmet sänds i HD.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794212400" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 09:20</span>
+<span class="program-title">Hemmagympa med Sofia</span>
+<div class="program-description">Sofia Åhman leder SVT:s hemmagympapass. Denna gång fokuserar vi på styrka. Sofia Åhman leder SVT:s hemmagympapass, som denna gång fokuserar på rörlighet.</div>
+</div>
+<div class="program" data-start="1794212400" data-end="1794214200" onclick="toggleDescription(this)">
+<span class="program-time">09:20 - 09:50</span>
+<span class="program-title">Sportspegeln</span>
+<div class="program-description">Veckomagasin med reportage, gäster, fördjupningar och senaste nytt från sportens värld. Veckomagasin med reportage, gäster, fördjupningar och senaste nytt från sportens värld.</div>
+</div>
+<div class="program" data-start="1794214200" data-end="1794216900" onclick="toggleDescription(this)">
+<span class="program-time">09:50 - 10:35</span>
+<span class="program-title">Landet runt</span>
+<div class="program-description">Den ständiga resan genom Sverige. Människor, möten och höjdpunkter de lokala nyheterna i Sveriges mänskligaste tv-program. Den ständiga resan genom Sverige. Människor, möten och höjdpunkter de lokala nyheterna i Sveriges mänskligaste tv-program. Programledare: Henrik Kruusval.</div>
+</div>
+<div class="program" data-start="1794216900" data-end="1794218700" onclick="toggleDescription(this)">
+<span class="program-time">10:35 - 11:05</span>
+<span class="program-title">Svenska nyheter</span>
+<div class="program-description">Satirprogram om aktuella händelser inom politik, ekonomi och media. Skämt, analyser och provokationer presenteras av programledare Messiah Hallberg. Satirprogram om aktuella händelser inom politik, ekonomi och media. Skämt, analyser och provokationer presenteras av programledare Messiah Hallberg.</div>
+</div>
+<div class="program" data-start="1794218700" data-end="1794221700" onclick="toggleDescription(this)">
+<span class="program-time">11:05 - 11:55</span>
+<span class="program-title">Gift vid första ögonkastet XL</span>
+<div class="program-description">Svensk dejtingserie från 2026. Löftesceremonin har tagit en dramatisk vändning för Edin och Julia, och frågan är om detta är slutet på deras kärlekshistoria. Hos Max och Belinda växer frustrationen efter att experterna bett dem dela sina tankar kring relationen. Experimentet går in i nästa fas - Framtidsveckan - och paren utmanas att blicka framåt och se om deras framtidsdrömmar går ihop. Spännande möten väntar när några av deltagarna får träffa sin partners nära och kära.</div>
+</div>
+<div class="program" data-start="1794221700" data-end="1794222000" onclick="toggleDescription(this)">
+<span class="program-time">11:55 - 12:00</span>
+<span class="program-title">Svenska designklassiker</span>
+<div class="program-description">Stig Lindberg var en av våra mest folkkära keramiker. Serien Berså skulle bli som en logotyp för Folkhemssverige. Berättare: Elsa Billgren. Stig Lindberg var en av våra mest folkkära keramiker. Serien Berså skulle bli som en logotyp för Folkhemssverige. Berättare: Elsa Billgren.</div>
+</div>
+<div class="program" data-start="1794222000" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">12:00 - 13:00</span>
+<span class="program-title">Spelet</span>
+<div class="program-description">Ett starkt brödraskap är på väg att spricka och balansen i Sviten rubbas. Ett starkt brödraskap är på väg att spricka och balansen i Sviten rubbas. När Kuben meddelar att lagspelet är över och alla nu spelar som individer sätts gamla allianser på prov - medan andra lever vidare i skymundan. Samtidigt uppstår en ny vänskap som för bara några dagar sedan hade varit otänkbar.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794229200" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 14:00</span>
+<span class="program-title">Det sitter i väggarna</span>
+<div class="program-description">I Stora Skedvi i Dalarna ligger en gammal gård med namnet Hasols. Där bor nu Oscar och Emma med sina två små barn. Varför har gården kallats Hasols. I Stora Skedvi i Dalarna ligger en gammal gård med namnet Hasols. Där bor nu Oscar och Emma med sina två små barn. Varför har gården kallats Hasols? Och vilka är personerna på fotografierna de hittat bland den kvarlämnade bråten? Antikexperten Rickard Thunér får leta på minst sagt ovanliga ställen i jakten på svar och det blir en tårfylld resa i gårdens förflutna som går riktigt långt tillbaka i tiden. Byggnadsantikvarien Erika Åberg hjälper paret att återskapa en schablonmålning som prytt väggarna i husets kapprum.</div>
+</div>
+<div class="program" data-start="1794229200" data-end="1794232800" onclick="toggleDescription(this)">
+<span class="program-time">14:00 - 15:00</span>
+<span class="program-title">Skärgårdsdoktorn</span>
+<div class="program-description">Eva Steen har återvänt från Afrika och hela familjen Steen lever nu tillsammans på Saltö. Svensk dramaserie från 1998. Säsong 2. Den blomstertid nu kommer. Wilma går och läser inför konfirmationen. \"Du ska inte ljuga\" är ett av budorden som ger henne, och andra, ett dilemma. Vad är då en vit lögn? Johans trohet till Eva sätts på prov då förhållandet till Helena Sohlberg utvecklas. Olle Nyholm funderar över hur han ska kunna ta över sin senila tants skärgårdsdshus. Manus: Lars Bill Lundholm och Gunilla Linn Persson. Regi: Martin Asphaug. I rollerna: Samuel Fröler, Ebba Hultkvist, Sten Ljunggren, Helena Brodin, Göran Engman, Gunilla Röör, Lennart Jähkel, Monica Ewardsson, Göran Forsmark, Hanna Alström, Maria Hjalmarson m.fl.</div>
+</div>
+<div class="program" data-start="1794232800" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">15:00 - 17:00</span>
+<span class="program-title">Sverige Live</span>
+<div class="program-description">Dags för veckans avsnitt av Fråga doktorn, där angelägna ämnen tas upp och tittarnas frågor besvaras av doktor Jens Persson och experter. Idag lagas det mat i Umeå. Beppe Starbrink och veckans kock bjuder på inspirerande recept ute i det fria. I studion i Stockholm väntar aktuella gäster i soffan som delar sig med sig av sina erfarenheter. Vi tar tempen på kulturen, möter experter inom olika områden och får nyhetsuppdateringar.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794240840" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 17:14</span>
+<span class="program-title">Rapport</span>
+<div class="program-description">Rapport – Dagliga nyhetsuppdatering från Sverige och världen. Programmet erbjuder aktuella nyheter, djupgående analyser och reportage om samhällsutveckling, politik, ekonomi, kultur och internationella händelser.</div>
+</div>
+<div class="program" data-start="1794240840" data-end="1794241440" onclick="toggleDescription(this)">
+<span class="program-time">17:14 - 17:24</span>
+<span class="program-title">Lokala nyheter</span>
+<div class="program-description">Lokala nyheter är SVT:s regionala nyhetsprogram som bevakar och rapporterar om aktuella händelser i Sveriges olika regioner. Programmet täcker ämnen som politik, samhälle, kultur och sport med fokus på frågor som påverkar lokalsamhället. Med redaktioner och reportrar över hela landet levererar Lokala nyheter dagliga sändningar med uppdaterad och relevant journalistik, där både stora händelser och lokala initiativ lyfts fram.</div>
+</div>
+<div class="program" data-start="1794241440" data-end="1794242040" onclick="toggleDescription(this)">
+<span class="program-time">17:24 - 17:34</span>
+<span class="program-title">Kulturnyheterna</span>
+<div class="program-description">Kulturnyheterna är SVT:s dagliga nyhetsprogram med fokus på kultur, media och underhållning. Programmet rapporterar om aktuella händelser inom film, musik, konst och litteratur samt analyserar kulturpolitiska frågor och trender.</div>
+</div>
+<div class="program" data-start="1794242040" data-end="1794242460" onclick="toggleDescription(this)">
+<span class="program-time">17:34 - 17:41</span>
+<span class="program-title">Sportnytt</span>
+<div class="program-description">Sportnytt – Det senaste från sportvärlden med nyheter, höjdpunkter och analyser. Programmet bevakar stora idrottshändelser, svenska och internationella mästerskap samt ger fördjupningar inom allt från fotboll och ishockey till friidrott och motorsport.</div>
+</div>
+<div class="program" data-start="1794242460" data-end="1794242820" onclick="toggleDescription(this)">
+<span class="program-time">17:41 - 17:47</span>
+<span class="program-title">Sverige idag</span>
+<div class="program-description">Sverige idag är nyhetsprogrammet med de största och intressantaste nyheterna från SVT:s 21 lokala nyhetsprogram. Sverige idag är nyhetsprogrammet med de största och intressantaste nyheterna från SVT:s 21 lokala nyhetsprogram.</div>
+</div>
+<div class="program" data-start="1794242820" data-end="1794245400" onclick="toggleDescription(this)">
+<span class="program-time">17:47 - 18:30</span>
+<span class="program-title">Sverige Live</span>
+<div class="program-description">Dags för veckans avsnitt av Fråga doktorn, där angelägna ämnen tas upp och tittarnas frågor besvaras av doktor Jens Persson och experter. Idag lagas det mat i Umeå. Beppe Starbrink och veckans kock bjuder på inspirerande recept ute i det fria. I studion i Stockholm väntar aktuella gäster i soffan som delar sig med sig av sina erfarenheter. Vi tar tempen på kulturen, möter experter inom olika områden och får nyhetsuppdateringar.</div>
+</div>
+<div class="program" data-start="1794245400" data-end="1794246900" onclick="toggleDescription(this)">
+<span class="program-time">18:30 - 18:55</span>
+<span class="program-title">Rapport</span>
+<div class="program-description">Rapport – Dagliga nyhetsuppdatering från Sverige och världen. Programmet erbjuder aktuella nyheter, djupgående analyser och reportage om samhällsutveckling, politik, ekonomi, kultur och internationella händelser.</div>
+</div>
+<div class="program" data-start="1794246900" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:55 - 19:00</span>
+<span class="program-title">Lokala nyheter</span>
+<div class="program-description">Lokala nyheter är SVT:s regionala nyhetsprogram som bevakar och rapporterar om aktuella händelser i Sveriges olika regioner. Programmet täcker ämnen som politik, samhälle, kultur och sport med fokus på frågor som påverkar lokalsamhället. Med redaktioner och reportrar över hela landet levererar Lokala nyheter dagliga sändningar med uppdaterad och relevant journalistik, där både stora händelser och lokala initiativ lyfts fram.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794249900" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 19:45</span>
+<span class="program-title">Allt för Sverige</span>
+<div class="program-description">Västkusten visar sig från sin mest karga sida när våra deltagare besöker Hönö. Där väcks blandade känslor kring de svenska traditionerna. Resan för våra förväntansfulla svenskamerikaner börjar i Malmö och platsen där många av deras förfäder en gång tog avsked. Genom folk och falafel lär deltagarna känna staden, och längs vägen blir det tydligare varför så många en gång i tiden valde att lämna Sverige. Programledare: Anders Lundin.</div>
+</div>
+<div class="program" data-start="1794249900" data-end="1794251700" onclick="toggleDescription(this)">
+<span class="program-time">19:45 - 20:15</span>
+<span class="program-title">Trion</span>
+<div class="program-description">Svensk dramaserie från 2026. Den medelålders Hugo blir uppsökt av Frances, dottern till hans båda ungdomskärlekar. Hennes pappa dog ung och hennes mamma verkar aldrig ha kommit över Hugo, och nu undrar hon vad det var som hände mellan de tre. Han slungas tillbaka tjugo år i tiden, då han just flyttat upp till Stockholm för att plugga på universitetet. I rollerna: August Wittgenstein, Felix Sandman, Rebecka Harper, Seth Manteus, Nina Zanjani, Eva Röse m.fl.</div>
+</div>
+<div class="program" data-start="1794251700" data-end="1794253500" onclick="toggleDescription(this)">
+<span class="program-time">20:15 - 20:45</span>
+<span class="program-title">Hövdingen</span>
+<div class="program-description">En grupp från en urbefolkning i Kanada anländer till Sollefteå och skapar stor uppståndelse. En grupp från en urbefolkning i Kanada anländer till Sollefteå och skapar stor uppståndelse. De sätter upp sina tipis i skogen och vill lära svenskar att odla grönsaker. Många åker dit och börjar följa stammen. Men en kvinna börjar ana att allt inte står rätt till i lägret.</div>
+</div>
+<div class="program" data-start="1794253500" data-end="1794253800" onclick="toggleDescription(this)">
+<span class="program-time">20:45 - 20:50</span>
+<span class="program-title">Anslagstavlan</span>
+<div class="program-description">Samhällsinformation i kortformat. Samhällsinformation i kortformat.</div>
+</div>
+<div class="program" data-start="1794253800" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:50 - 21:00</span>
+<span class="program-title">Lokala nyheter</span>
+<div class="program-description">Lokala nyheter är SVT:s regionala nyhetsprogram som bevakar och rapporterar om aktuella händelser i Sveriges olika regioner. Programmet täcker ämnen som politik, samhälle, kultur och sport med fokus på frågor som påverkar lokalsamhället. Med redaktioner och reportrar över hela landet levererar Lokala nyheter dagliga sändningar med uppdaterad och relevant journalistik, där både stora händelser och lokala initiativ lyfts fram.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794257100" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 21:45</span>
+<span class="program-title">Fotbollsstudion</span>
+<div class="program-description">Magasinsprogram om Allsvenskan i fotboll, med det bästa från veckans omgång. Programledare: Johan Kücükaslan. Experter: Jonas Eriksson. Magasinsprogram om Allsvenskan i fotboll, med det bästa från veckans omgång. Programledare: Johan Kücükaslan. Experter: Jonas Eriksson, Magnus Eriksson och Therese Strömberg.</div>
+</div>
+<div class="program" data-start="1794257100" data-end="1794257400" onclick="toggleDescription(this)">
+<span class="program-time">21:45 - 21:50</span>
+<span class="program-title">Rapport</span>
+<div class="program-description">Rapport – Dagliga nyhetsuppdatering från Sverige och världen. Programmet erbjuder aktuella nyheter, djupgående analyser och reportage om samhällsutveckling, politik, ekonomi, kultur och internationella händelser.</div>
+</div>
+<div class="program" data-start="1794257400" data-end="1794260400" onclick="toggleDescription(this)">
+<span class="program-time">21:50 - 22:40</span>
+<span class="program-title">Kråkflickan</span>
+<div class="program-description">Sophia genomgår medicinska undersökningar, rädd att någon annans minnen håller på att ta över hennes egna. Jeanette kämpar för att behålla kontrollen över sin utredning. Efter en oroväckande konfrontation ställs Sophia inför polisen och ifrågasätter sina egna minnen. Hon börjar få blackouter och ifrågasätter sin egen mentala hälsa. Jeanette misstänker att någon i skolmiljön kan vara i fara och försöker agera i tid, men hennes privatliv är samtidigt i fritt fall. fl. Del 2 av 6.</div>
+</div>
+<div class="program" data-start="1794260400" data-end="1794260400" onclick="toggleDescription(this)">
+<span class="program-time">22:40 - 22:40</span>
+<span class="program-title">The Survivor</span>
+<div class="program-description">Harry Haft tvingades att slåss mot sina medfångar under sin tid i koncentrationsläger. Harry Haft tvingades att slåss mot sina medfångar under sin tid i koncentrationsläger. Hemsökt av minnen och skuld försöker han nu använda boxningsmatcher för att hitta tillbaka till sig själv igen.</div>
+</div>
+<div class="program" data-start="1794260400" data-end="1794268200" onclick="toggleDescription(this)">
+<span class="program-time">22:40 - 00:50</span>
+<span class="program-title">The Survivor</span>
+<div class="program-description">Harry Haft tvingades att slåss mot sina medfångar under sin tid i koncentrationsläger. Harry Haft tvingades att slåss mot sina medfångar under sin tid i koncentrationsläger. Hemsökt av minnen och skuld försöker han nu använda boxningsmatcher för att hitta tillbaka till sig själv igen.</div>
+</div>
+<div class="program" data-start="1794268200" data-end="1794348900" onclick="toggleDescription(this)">
+<span class="program-time">00:50 - 23:15</span>
+<span class="program-title">Sändningsuppehåll</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794348900" data-end="1794350700" onclick="toggleDescription(this)">
+<span class="program-time">23:15 - 23:45</span>
+<span class="program-title">Kråkflickan</span>
+<div class="program-description">Sophia genomgår medicinska undersökningar, rädd att någon annans minnen håller på att ta över hennes egna. Sophia genomgår medicinska undersökningar, rädd att någon annans minnen håller på att ta över hennes egna. Jeanette och Mike identifierar tidigare okända offer och börjar se ett mönster som sträcker sig långt bakåt i tiden - via skola, omsorgssystem och människor som helst vill att allt ska förbli begravt. Jeanette tvingas inse att hon bara skrapat på ytan av vad som pågår i hennes stad.(g)</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/5yqbinvifckgzyjmd1ws697dmhh32ijz-2.png" alt="SVT2">
+<span class="channel-name">SVT2</span>
+</div>
+<div class="program" data-start="1794196800" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 09:00</span>
+<span class="program-title">Sändningsuppehåll</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 13:00</span>
+<span class="program-title">Sändningsuppehåll</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794227700" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 13:35</span>
+<span class="program-title">Sändningsuppehåll</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794227700" data-end="1794230400" onclick="toggleDescription(this)">
+<span class="program-time">13:35 - 14:20</span>
+<span class="program-title">Gudstjänst</span>
+<div class="program-description">Söndagens gudstjänst kommer från Eskilstuna där S:t Eskilskyrkan och Tunafors församling firar gudstjänst tillsammans. Söndagens gudstjänst kommer från Eskilstuna där S:t Eskilskyrkan och Tunafors församling firar gudstjänst tillsammans. Dagens tema är Förlåtelse utan gräns, och predikar gör Samuel Lindholm, ordförande i S:t Eskilskyrkan. Körerna Con Spirito och Corazon medverkar under ledning av Erika Wistrand och Stefan Silversten.</div>
+</div>
+<div class="program" data-start="1794230400" data-end="1794235500" onclick="toggleDescription(this)">
+<span class="program-time">14:20 - 15:45</span>
+<span class="program-title">The Christmas Charade</span>
+<div class="program-description">Romantisk julkomedi om bibliotekarien Whitney är en försíktig person som ska gå på blind date. Romantisk julkomedi om bibliotekarien Whitney är en försíktig person som ska gå på blind date. Men det sker en förväxling och plötsligt är hon insyltad i FBI-agenten Josh Dawsons undercover-uppdrag.</div>
+</div>
+<div class="program" data-start="1794235500" data-end="1794236700" onclick="toggleDescription(this)">
+<span class="program-time">15:45 - 16:05</span>
+<span class="program-title">15 minuter från Sápmi</span>
+<div class="program-description">Samiskt nyhetsprogram om aktuella och angelägna frågor som berör Sápmi. Fördjupande reportage, politiska debatter och samtal i studion. Samiskt nyhetsprogram om aktuella och angelägna frågor som berör Sápmi. Fördjupande reportage, politiska debatter och samtal i studion.</div>
+</div>
+<div class="program" data-start="1794236700" data-end="1794237600" onclick="toggleDescription(this)">
+<span class="program-time">16:05 - 16:20</span>
+<span class="program-title">15 minuter på teckenspråk</span>
+<div class="program-description">Fler tolkuppdrag genomförs på distans. Regionerna vill öka användningen för att hantera tolkbrist, långa avstånd och sena bokningar. När krisen kommer måste information nå alla direkt. Men många larm och varningar bygger fortfarande på ljud. För döva och teckenspråkiga kan det innebära att livsviktig information kommer för sent, eller inte alls. Hur väl förberett är Sverige?</div>
+</div>
+<div class="program" data-start="1794237600" data-end="1794238200" onclick="toggleDescription(this)">
+<span class="program-time">16:20 - 16:30</span>
+<span class="program-title">Nyhetstecken</span>
+<div class="program-description">Ett nyhetsprogram från SVT på teckenspråk som ger aktuella och lättillgängliga nyheter för teckenspråkiga tittare.</div>
+</div>
+<div class="program" data-start="1794238200" data-end="1794238800" onclick="toggleDescription(this)">
+<span class="program-time">16:30 - 16:40</span>
+<span class="program-title">Oddasat</span>
+<div class="program-description">Oddasat är det dagligt nyhetsprogram på samiska som sänds i Sverige, Norge och Finland. Programmet tar upp aktuella händelser och nyheter som berör det samiska folket och Sápmi-området, med fokus på kultur, politik, samhälle.</div>
+</div>
+<div class="program" data-start="1794238800" data-end="1794239400" onclick="toggleDescription(this)">
+<span class="program-time">16:40 - 16:50</span>
+<span class="program-title">Uutiset</span>
+<div class="program-description">Uutiset är det dagligt nyhetsprogram på finska som sänds av SVT i Sverige. Programmet rapporterar om aktuella händelser med fokus på den finskspråkiga befolkningen i Sverige och täcker ämnen som politik, samhälle, kultur och minoritetsfrågor.</div>
+</div>
+<div class="program" data-start="1794239400" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">16:50 - 17:00</span>
+<span class="program-title">Livet - berättelser från Svenskfinland</span>
+<div class="program-description">80-åriga Sten Haglund jagar det perfekta löpsteget. Han är världsmästare på 800 meter för veteraner. 80-åriga Sten Haglund jagar det perfekta löpsteget. Han är världsmästare på 800 meter för veteraner. Han menar att åldern bara är en siffra och fortsätter finslipa det perfekta löpsteget och siktar nu på veteran-VM i Göteborg.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794240900" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 17:15</span>
+<span class="program-title">Möte med (jiddisch)</span>
+<div class="program-description">Katka Mazurczak är en jiddischprofil från polsk radio som flyttade till Sverige när kärleken slog till. Leyzer Burko är New York-bon som flyttade till Warszawa och gjorde jiddisch till sitt livs stora passion. Han kartlägger jiddischens många dialekter och har upptäckt en särskild skatt i Sverige. Följ med in i en värld av språk, identitet och historia.</div>
+</div>
+<div class="program" data-start="1794240900" data-end="1794241800" onclick="toggleDescription(this)">
+<span class="program-time">17:15 - 17:30</span>
+<span class="program-title">Jiros CI-resa</span>
+<div class="program-description">Jiro åker hem till sina rötter i Härnösand. Han ska berätta för sin mamma om sitt beslut att skaffa CI samt besöka sin gamla dövskola. Jiro åker till Göteborg och träffar fotbollsproffset Kevin Holmén som har en hörselskada, men aldrig låtit det stoppa honom. Jiro bjuder också sin syster på middag och hon är inte så förtjust i tanken på CI.</div>
+</div>
+<div class="program" data-start="1794241800" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">17:30 - 18:00</span>
+<span class="program-title">Finsk förkväll</span>
+<div class="program-description">Laura Sipilä berättar om cosplayvärldens skuggiga sidor och hur hobbyn kan påverka både identitet och gemenskap. Gästar gör också Janne Posti. Maya Winslow och Ella Liuksiala berättar om sin fem veckor långa resa jorden runt. Kvinnoföreningen Rusuvilina gästar med Tarja Rämö Mäkelä, Päivi Heikkilä och Raija Norrby. Programledare: Anu Tolonen.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794244500" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 18:15</span>
+<span class="program-title">Bastudrömmar</span>
+<div class="program-description">Gustav Ovland har precis byggt färdigt en hybridpool till sin gamla potatisstärkelsefabrik i Härnestad, Skåne. Nu är det dags för nästa drömprojekt. Gustav Ovland har precis byggt färdigt en hybridpool till sin gamla potatisstärkelsefabrik i Härnestad, Skåne. Nu är det dags för nästa drömprojekt, en bastu som ska få fabriken att kännas ännu mer som ett drömhem.</div>
+</div>
+<div class="program" data-start="1794244500" data-end="1794245400" onclick="toggleDescription(this)">
+<span class="program-time">18:15 - 18:30</span>
+<span class="program-title">Landsförsvararna</span>
+<div class="program-description">Lari möter en ukrainsk krigsveteran i det krigshärjade Kiev. Eeli lär sig att gräva en fältgrav och att skriva ett avskedsbrev. Eeli ska leda en övning där man skjuter skarpt. Lari tillbringar sin födelsedag i Lviv i Ukraina. Nikki siktar på en harstek.</div>
+</div>
+<div class="program" data-start="1794245400" data-end="1794246300" onclick="toggleDescription(this)">
+<span class="program-time">18:30 - 18:45</span>
+<span class="program-title">Landsförsvararna</span>
+<div class="program-description">Finsk serie från 2025. Eeli ska leda en övning där man skjuter skarpt. Lari tillbringar sin födelsedag i Lviv i Ukraina. Nikki siktar på en harstek.</div>
+</div>
+<div class="program" data-start="1794246300" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:45 - 19:00</span>
+<span class="program-title">Musik från ishotellet i Alta</span>
+<div class="program-description">Musik framförd av samiska multikonstnären och jojkaren Elle Marja Eira i vintrig miljö på ishotellet i Alta i Nordnorge. Musik framförd av samiska multikonstnären och jojkaren Elle Marja Eira i vintrig miljö på ishotellet i Alta i Nordnorge.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 20:00</span>
+<span class="program-title">Vetenskapens värld: Rymdkrig</span>
+<div class="program-description">Rymden håller på att bli ett nytt militärt slagfält. USA, Kina. Rymden håller på att bli ett nytt militärt slagfält. USA, Kina, Ryssland och andra stormakter utvecklar anti-satellitrobotar och andra vapen för att kontrollera satelliterna som styr navigation, kommunikation och modern krigföring. Här får vi se hur en konflikt kan eskalera - och vad den nya kapprustningen betyder för säkerheten på jorden.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794253080" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 20:38</span>
+<span class="program-title">Aktuellt</span>
+<div class="program-description">Aktuellt – Ett fördjupande nyhetsprogram som analyserar och belyser de viktigaste händelserna i Sverige och världen. Med intervjuer, reportage och analyser ger programmet en förståelse av samhällsfrågor, politik, ekonomi och kultur.</div>
+</div>
+<div class="program" data-start="1794253080" data-end="1794253560" onclick="toggleDescription(this)">
+<span class="program-time">20:38 - 20:46</span>
+<span class="program-title">Kulturnyheterna</span>
+<div class="program-description">Kulturnyheterna är SVT:s dagliga nyhetsprogram med fokus på kultur, media och underhållning. Programmet rapporterar om aktuella händelser inom film, musik, konst och litteratur samt analyserar kulturpolitiska frågor och trender.</div>
+</div>
+<div class="program" data-start="1794253560" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:46 - 21:00</span>
+<span class="program-title">Sportnytt</span>
+<div class="program-description">Sportnytt – Det senaste från sportvärlden med nyheter, höjdpunkter och analyser. Programmet bevakar stora idrottshändelser, svenska och internationella mästerskap samt ger fördjupningar inom allt från fotboll och ishockey till friidrott och motorsport.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794256200" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 21:30</span>
+<span class="program-title">Ekonomibyrån</span>
+<div class="program-description">Ekonomimagasin. Programmet som fördjupar och förklarar ekonomi både på makro- och plånboksnivå. Programledaren Malin Lundgren möter experter, entreprenörer och näringslivsprofiler.</div>
+</div>
+<div class="program" data-start="1794256200" data-end="1794257160" onclick="toggleDescription(this)">
+<span class="program-time">21:30 - 21:46</span>
+<span class="program-title">Kulturkvarten på finska</span>
+<div class="program-description">Amorellas pilar - en tripp till sagolandet. Bandet Amorellas pilar består av fem musiker med Finland som gemensam nämnare. Amorellas pilar - en tripp till sagolandet. Bandet Amorellas pilar består av fem musiker med Finland som gemensam nämnare. Deras fjärde spelning tillsammans äger rum på Giellakieli, minoritetsspråksfestivalen i Gällivare. Nu samlas de ett par dagar för att repa, uppträda och fundera på vad det egentligen innebär att vara sverigefinsk.</div>
+</div>
+<div class="program" data-start="1794257160" data-end="1794258060" onclick="toggleDescription(this)">
+<span class="program-time">21:46 - 22:01</span>
+<span class="program-title">Kortfilmsklubben - finska</span>
+<div class="program-description">Päivä ilman kieltoa. Finsk kortfilm. Päivä ilman kieltoa. Finsk kortfilm. Två unga kvinnor bestämmer sig för att trotsa dansförbudet som den finska regeringen har infört genom att arrangera en hemlig avslutningsdans i det krigshärjade Helsingfors år 1944. Innan bästa vännerna Elvi och Irja tar sitt största steg in i vuxenlivet måste de hitta modet att säga farväl till varandra. Regi: Elisa Kujala.</div>
+</div>
+<div class="program" data-start="1794258060" data-end="1794258360" onclick="toggleDescription(this)">
+<span class="program-time">22:01 - 22:06</span>
+<span class="program-title">Kortfilmsklubben - spanska</span>
+<div class="program-description">Estribillo. Spansk kortfilm. Estribillo. Spansk kortfilm. Hon sitter på sitt rum och repar en egen låt när hennes pappa kommer in och har åsikter - särskilt om hur en refräng ska skrivas. Regi: César Tormo.</div>
+</div>
+<div class="program" data-start="1794258360" data-end="1794259800" onclick="toggleDescription(this)">
+<span class="program-time">22:06 - 22:30</span>
+<span class="program-title">Sveriges historia från 1800- till 1900-tal</span>
+<div class="program-description">Sverige under krigen. Under 1900-talet ägde två olika världskrig rum. Även om Sverige förhöll sig neutralt under krigen påverkades också vårt land. Välfärden. Från att ha varit ett land med utbredd fattigdom blev Sverige ett land med kostnadsfri skola och subventionerad sjukvård. Följ med på en resa genom historien och se hur välfärdspolitiken förändrade Sverige.</div>
+</div>
+<div class="program" data-start="1794259800" data-end="1794259800" onclick="toggleDescription(this)">
+<span class="program-time">22:30 - 22:30</span>
+<span class="program-title">Dox: Shoah</span>
+<div class="program-description">Mästerverket om Förintelsen av Claude Lanzmann. Det tog Lanzmann elva år att skapa filmen. Överlevande. Mästerverket om Förintelsen av Claude Lanzmann. Det tog Lanzmann elva år att skapa filmen. Överlevande, vittnen och bödlar tecknar bilden av nazisternas folkmord på sex miljoner judar under andra världskriget. Första delen.</div>
+</div>
+<div class="program" data-start="1794259800" data-end="1794348000" onclick="toggleDescription(this)">
+<span class="program-time">22:30 - 23:00</span>
+<span class="program-title">Dox: Shoah</span>
+<div class="program-description">Mästerverket om Förintelsen av Claude Lanzmann. Det tog Lanzmann elva år att skapa filmen. Överlevande. Mästerverket om Förintelsen av Claude Lanzmann. Det tog Lanzmann elva år att skapa filmen. Överlevande, vittnen och bödlar tecknar bilden av nazisternas folkmord på sex miljoner judar under andra världskriget. Första delen.</div>
+</div>
+<div class="program" data-start="1794348000" data-end="1794349800" onclick="toggleDescription(this)">
+<span class="program-time">23:00 - 23:30</span>
+<span class="program-title">Dox: Shoah</span>
+<div class="program-description">Mästerverket om Förintelsen av Claude Lanzmann. Det tog Lanzmann elva år att skapa filmen. Överlevande. Mästerverket om Förintelsen av Claude Lanzmann. Det tog Lanzmann elva år att skapa filmen. Överlevande, vittnen och bödlar tecknar bilden av nazisternas folkmord på sex miljoner judar under andra världskriget. Första delen.(g)</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/xxjr64z2b55a9pmvkf9pn3q2p3nrabiz-3.png" alt="Kanal 3">
+<span class="channel-name">Kanal 3</span>
+</div>
+<div class="program" data-start="1794193500" data-end="1794196800" onclick="toggleDescription(this)">
+<span class="program-time">04:05 - 05:00</span>
+<span class="program-title">Svenska truckers</span>
+<div class="program-description">Stephanie guidar oss genom svårigheterna som budbilschaufför i Stockholm. Anders ska köra ett stort elhus från Öjebyn till Boliden och det får absolut inte repas. Den flerfaldigtbelönade chauffören i ecodriving, Hans, ska köra magnesium från örnsköldsvik till Piteå, en farlig färd med farlig last. Och Tove kör i dimman och bävar för eventuellt möte i skogen.</div>
+</div>
+<div class="program" data-start="1794196800" data-end="1794198600" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 05:30</span>
+<span class="program-title">Nanny</span>
+<div class="program-description">Fran och hennes mamma Sylvia blir tagna som gisslan vid ett bankrån på Alla hjärtans dag. Fran har tidigare på dagen blivit besviken på Maxwell, men nu erkänner han öppet hur mycket hon betyder för honom.</div>
+</div>
+<div class="program" data-start="1794198600" data-end="1794200700" onclick="toggleDescription(this)">
+<span class="program-time">05:30 - 06:05</span>
+<span class="program-title">Nanny</span>
+<div class="program-description">Maxwell ringer Fran och säger att han gjorde ett stort misstag för några månader sen. Fran blir alldeles till sig och hoppas att han ska förklara sin kärlek till henne. Istället handlar det bara om en skattedetalj. Fran flyttar ut och Sylvia tar över jobbet.</div>
+</div>
+<div class="program" data-start="1794200700" data-end="1794204000" onclick="toggleDescription(this)">
+<span class="program-time">06:05 - 07:00</span>
+<span class="program-title">The real housewives of Beverly Hills</span>
+<div class="program-description">Sutton tar med Garcelle och Kyle för att besöka sitt barndomshem, och gamla sår rivs upp igen. Dorit och PK återförenas, men Erika misstänker att det är en fälla.</div>
+</div>
+<div class="program" data-start="1794204000" data-end="1794207300" onclick="toggleDescription(this)">
+<span class="program-time">07:00 - 07:55</span>
+<span class="program-title">The good doctor</span>
+<div class="program-description">Dr Melendez och Dr Unger upptäcker an en av patienterna inte är helt uppriktigt mot dem. Dr Browne märker att hon måste lära sig att kommunicera med Dr Murphy om deras samarbete ska fungera i framtiden.</div>
+</div>
+<div class="program" data-start="1794207300" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">07:55 - 09:00</span>
+<span class="program-title">The mentalist</span>
+<div class="program-description">CBI utreder mordet på ett mattegeni, som dödats av en skjutgalen clown.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794214800" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 10:00</span>
+<span class="program-title">Brottskod: Försvunnen</span>
+<div class="program-description">Samantha utreder ett fall med en kvinna som lider av minnesförlust och som kanske inte bara är en saknad person, utan även en mördare.</div>
+</div>
+<div class="program" data-start="1794214800" data-end="1794218100" onclick="toggleDescription(this)">
+<span class="program-time">10:00 - 10:55</span>
+<span class="program-title">Stugfixarna Norge</span>
+<div class="program-description">En traditionell stuga omgiven av mossgrön terräng är vad killarna sysslar med den här gången. Gustav bygger ett vildmarksspa, medan Ole bygger bord av flera hundra år gammalt material.</div>
+</div>
+<div class="program" data-start="1794218100" data-end="1794221700" onclick="toggleDescription(this)">
+<span class="program-time">10:55 - 11:55</span>
+<span class="program-title">Lyxfällan</span>
+<div class="program-description">Tvåbarnsmamman Erica jobbar hårt för att få det att gå runt ekonomiskt men trots det får hon inte ihop det. Och nu har till och med Ericas syster Ewa tröttnat på att alltid behöva komma till undsättning och ständigt swisha pengar till Erica, som hon tycker är oansvarig och slösar pengar på totalt onödiga saker.</div>
+</div>
+<div class="program" data-start="1794221700" data-end="1794223800" onclick="toggleDescription(this)">
+<span class="program-time">11:55 - 12:30</span>
+<span class="program-title">Spin city</span>
+<div class="program-description">Mike försöker avråda borgmästaren från att gå med i en herrklubb.</div>
+</div>
+<div class="program" data-start="1794223800" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">12:30 - 13:00</span>
+<span class="program-title">Spin city</span>
+<div class="program-description">Borgmästen tror att han är på väg att bli hörselskadad.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794229200" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 14:00</span>
+<span class="program-title">The good doctor</span>
+<div class="program-description">En man och hustru behöver fatta ett livsavgörande beslut för sitt ofödda barn. Dr Shaun Murphy kämpar med att anpassa sig till sitt nya hem och omgivningar och tar ett stort kliv framåt.</div>
+</div>
+<div class="program" data-start="1794229200" data-end="1794232800" onclick="toggleDescription(this)">
+<span class="program-time">14:00 - 15:00</span>
+<span class="program-title">The mentalist</span>
+<div class="program-description">Patrick återförenas med mediumet Kristina Frye, när CBI-teamet utreder mordet på Hector Brava, toppchefen för en välgörenhetsorganisation.</div>
+</div>
+<div class="program" data-start="1794232800" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">15:00 - 16:00</span>
+<span class="program-title">Brottskod: Försvunnen</span>
+<div class="program-description">En ambulanssjukvårdare försvinner från sjukhuset sekunder efter att ha lyckats rädda en ung brotsling som skjutits i en gängstrid.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 17:00</span>
+<span class="program-title">Stugfixarna Norge</span>
+<div class="program-description">En gammal folkhögskolestuga omvandlas till en familjestuga och killarna kommer göra en drastisk förändring.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794241800" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 17:30</span>
+<span class="program-title">Spin city</span>
+<div class="program-description">Michael, som är livrädd för att vara ensam på Alla hjärtans dag, blir överlycklig då en gammal flickvän kontaktar honom.</div>
+</div>
+<div class="program" data-start="1794241800" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">17:30 - 18:00</span>
+<span class="program-title">Spin city</span>
+<div class="program-description">Då Laurie tackar ja till Mikes frieri, börjar han oroa sig över att dem är för olika.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 19:00</span>
+<span class="program-title">Lyxfällan</span>
+<div class="program-description">Andreas är en härlig kille med många järn i elden som gör allt för sin son och stöttar honom i sin framtida hockeykarriär. Men den havererade ekonomiska situationen ger Andreas panikkänslor och han har ingen aning om hur han ska få ekonomin att gå ihop. Magda tar sig till Enköping för att ta reda på hur det kunde gå så snett.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 20:00</span>
+<span class="program-title">Frusna vägar</span>
+<div class="program-description">Stefan och Kim står inför en stor utmaning när de ska försöka få upp en lastbil med släp ur ett djupt dike. Hogan behöver ta hjälp av Dennis när en förare kört långt ut på en skoterled. Tim är utanför Ludvika där en förare tappat kontrollen över bilen och fastnat i ett vattenfyllt dike.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 21:00</span>
+<span class="program-title">Gruvan</span>
+<div class="program-description">I Enemossens sandmagasin är deponeringsteknikern Olof stressad - ett helt dammbygge behöver vara klart innan semestern. Geologen Peter hittar skatter i Aitiks berg samtidigt som Stefan behöver flytta gruvans största lastare. Tiden är knapp och maskinen blir alldeles för varm. I Zinkgruvan ska Bella ta sig ända ner till smällberget där bergets rörelser gör sig påminda.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794258300" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 22:05</span>
+<span class="program-title">Högspänning</span>
+<div class="program-description">Erik Ekstrand provar på jobbet att styra en tolv ton tung klo på kraftvärmeverket i Västerås, medan driftmästarna hanterar akuta larm. I Mellerud väntar ett spektakulärt uppdrag för linjemontören Christoffer som ska spränga ihop en tung faslina högt uppe i luften. Samtidigt kämpar teknikerna Elin och Simon mot klockan i Abisko. Under extrem kyla och lavinrisk försöker de byta kablar så att frusna hushåll kan få tillbaka strömmen.</div>
+</div>
+<div class="program" data-start="1794258300" data-end="1794261600" onclick="toggleDescription(this)">
+<span class="program-time">22:05 - 23:00</span>
+<span class="program-title">FBI</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794261600" data-end="1794265200" onclick="toggleDescription(this)">
+<span class="program-time">23:00 - 00:00</span>
+<span class="program-title">S.W.A.T.</span>
+<div class="program-description">Teamet åker till Mexiko för att eskortera en rymling tillbaka till USA när saker går snett. Hondo måste rädda ett gammalt vittne som är knutet till fallet.</div>
+</div>
+<div class="program" data-start="1794265200" data-end="1794268800" onclick="toggleDescription(this)">
+<span class="program-time">00:00 - 01:00</span>
+<span class="program-title">NCIS: Los Angeles</span>
+<div class="program-description">Callen försöker med allt när hans pappa grips för att användas i syfte att bytas ut mot fångar i Iran.</div>
+</div>
+<div class="program" data-start="1794268800" data-end="1794272400" onclick="toggleDescription(this)">
+<span class="program-time">01:00 - 02:00</span>
+<span class="program-title">Svenska fall</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794272400" data-end="1794276000" onclick="toggleDescription(this)">
+<span class="program-time">02:00 - 03:00</span>
+<span class="program-title">The real housewives of Atlanta</span>
+<div class="program-description">Porsha återvänder till rampljuset samtidigt som hon hanterar sin tuffa skilsmässa. Drew ställs inför problem i sitt privatliv när rykten om henne och Porshas ex börjar spridas.</div>
+</div>
+<div class="program" data-start="1794276000" data-end="1794277800" onclick="toggleDescription(this)">
+<span class="program-time">03:00 - 03:30</span>
+<span class="program-title">The real housewives of Orange County</span>
+<div class="program-description">Shannon och Vicki åker till St Louis för sin live show-turné. Heather och Alexis deltar i GLAAD Awards. Tamra och Katies döttrar förenas över liknande barndomsupplevelser.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/74ir157a33izprw3r7z2mi26x236fiz3-4.png" alt="TV4">
+<span class="channel-name">TV4</span>
+</div>
+<div class="program" data-start="1794193800" data-end="1794195300" onclick="toggleDescription(this)">
+<span class="program-time">04:10 - 04:35</span>
+<span class="program-title">Hem till gården</span>
+<div class="program-description">Älskad långkörare om livet i den engelska byn Emmerdale. Följ familjerna Sugden, Dingle och Kings levnadsöden på landsbygden. Drama. Älskad långkörare om livet i den engelska byn Emmerdale. Följ familjerna Sugden, Dingle och Kings levnadsöden på landsbygden. Drama, kärlek och intriger utlovas i denna såpaklassiker som gått i rutan sedan 1972.</div>
+</div>
+<div class="program" data-start="1794195300" data-end="1794195900" onclick="toggleDescription(this)">
+<span class="program-time">04:35 - 04:45</span>
+<span class="program-title">Kökets middagstips</span>
+<div class="program-description">Här bjuder Kökets kockar på inspirerande recept. Omtyckta klassiker och snabba vardagsfavoriter varvas med nya spännande och bjudvänliga rätter. Jennie Walldén lagar ragu med svamp, belugalinser, tomat och rött vin som får puttra ihop till en fyllig sås. Tillsammans med tagliatelle, riven parmesan och färsk persilja blir det en härlig middag med italiensk smak. Receptet hittar du köket.se.</div>
+</div>
+<div class="program" data-start="1794195900" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">04:45 - 11:00</span>
+<span class="program-title">Nyhetsmorgon</span>
+<div class="program-description">En omtyckt och inspirerande morgonshow som kombinerar nyheter, aktualiteter och underhållning. Programmet bjuder på djupgående intervjuer, debatter, kulturinslag och livsstilsreportage. Med gäster från olika samhällsområden, experttips och matinspiration är Nyhetsmorgon den perfekta starten på dagen – engagerande, informativt och underhållande.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 16:00</span>
+<span class="program-title">Nyhetsdagen</span>
+<div class="program-description">I Nyhetsdagen följer det du som händer under dagen. Reportrar och människor i händelsernas centrum ger sina berättelser. Nyhetsdagen innehåller också snackisarna inom kultur, TV, film och sociala medier. Programmet leds av Jenny Alversjö, Soraya Lavasani, Thomas Ritter och Jenny Strömstedt. Vardagar 12.00-17.00.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 18:00</span>
+<span class="program-title">Efter fem</span>
+<div class="program-description">Nyfiket aktualitetsprogram från 2026. Valfilmen som skakar USA • Två till misstänkta för könsstympning • Svensk ölnyhet spås bli revolutionerande.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794244800" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 18:20</span>
+<span class="program-title">TV4 Nyheterna</span>
+<div class="program-description">TV4 Nyheterna ger dig senaste nytt, ekonomi, debatter och analyser. Nyheterna sänds varje vardag klockan 12, 19 och 22 samt på helger klockan 19 och 22. Vid större nyhetshändelser sänder TV4 Nyheterna live på TV4 Play, med löpande uppdateringar och fördjupning så länge nyhetsläget utvecklas. Dessutom publiceras nyhetsklipp om dagens mest aktuella händelser samt kontinuerliga väderprognoser.</div>
+</div>
+<div class="program" data-start="1794244800" data-end="1794245400" onclick="toggleDescription(this)">
+<span class="program-time">18:20 - 18:30</span>
+<span class="program-title">TV4 Vädret</span>
+<div class="program-description">TV4 Vädret erbjuder aktuella väderprognoser för hela Sverige. Programmet ger en tydlig översikt av dagens och kommande dagars väder, inklusive temperaturer, nederbörd och vindförhållanden. Perfekt för dig som vill hålla koll på vädret inför veckan eller planera utomhusaktiviteter.</div>
+</div>
+<div class="program" data-start="1794245400" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:30 - 19:00</span>
+<span class="program-title">Robinson</span>
+<div class="program-description">På Pristävlingen dyker ett bekant ansikte upp och det väcker blandade känslor. Den som vinner tävlingen kan få med sig en eftertraktad fördel. Vem eller vilka kan motstå frestelsen, trots att den kan innebära en nackdel för resten av veckan?</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794252600" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 20:30</span>
+<span class="program-title">Grand Designs Sverige</span>
+<div class="program-description">Till Ljunghusen på Falsterbonäset flyttar Erik och Agnes med sina tre barn från Stockholm. Här ska de bygga ett stort och lekfullt hus. 22-årige Matteus Ireblad bygger sitt allra första hus i Bungenäs på norra Gotland. På områdets minsta tomt ska en bunkerdröm i betong växa fram – ett försök att leva minimalistiskt för en person som egentligen är maximalist ut i fingerspetsarna.</div>
+</div>
+<div class="program" data-start="1794252600" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:30 - 21:00</span>
+<span class="program-title">Nyheterna Story</span>
+<div class="program-description">Två av de sjuksköterskor som utsattes för mordförsök berättar nu för första gången själva om förgiftningarna på Akademiska sjukhuset 2025. För första gången berättar de drabbade sjuksköterskorna med egna ord om förgiftningarna på Akademiska sjukhuset i Uppsala hösten 2025. \"Anna\" och \"Linda\" var nära att dö. Totalt fyra kvinnor i personalen utsattes för vad åklagaren menade var mordförsök. Jakten på bevis och en misstänkt väckte stor uppmärksamhet och fallet har varit en gåta. Nu får vi veta vad som hände.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794256800" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 21:40</span>
+<span class="program-title">TV4 Nyheterna</span>
+<div class="program-description">TV4 Nyheterna ger dig senaste nytt, ekonomi, debatter och analyser. Nyheterna sänds varje vardag klockan 12, 19 och 22 samt på helger klockan 19 och 22. Vid större nyhetshändelser sänder TV4 Nyheterna live på TV4 Play, med löpande uppdateringar och fördjupning så länge nyhetsläget utvecklas. Dessutom publiceras nyhetsklipp om dagens mest aktuella händelser samt kontinuerliga väderprognoser.</div>
+</div>
+<div class="program" data-start="1794256800" data-end="1794257700" onclick="toggleDescription(this)">
+<span class="program-time">21:40 - 21:55</span>
+<span class="program-title">Ekonominyheterna</span>
+<div class="program-description">Ger dig dagens stora ekonominyheter och hur de påverkar din plånbok. Ger dig dagens stora ekonominyheter och hur de påverkar din plånbok.</div>
+</div>
+<div class="program" data-start="1794257700" data-end="1794258000" onclick="toggleDescription(this)">
+<span class="program-time">21:55 - 22:00</span>
+<span class="program-title">TV4 Vädret</span>
+<div class="program-description">TV4 Vädret erbjuder aktuella väderprognoser för hela Sverige. Programmet ger en tydlig översikt av dagens och kommande dagars väder, inklusive temperaturer, nederbörd och vindförhållanden. Perfekt för dig som vill hålla koll på vädret inför veckan eller planera utomhusaktiviteter.</div>
+</div>
+<div class="program" data-start="1794258000" data-end="1794261000" onclick="toggleDescription(this)">
+<span class="program-time">22:00 - 22:50</span>
+<span class="program-title">The Rookie</span>
+<div class="program-description">Ett aprilskämt på LAPD:s sociala medie-kanaler orsakar kaos i staden. Efter en maffiarelaterad incident får teamet i uppgift att hålla ställningarna på sjukhuset. Lucy och Celina samarbetar för att hitta de misstänkta bakom attacken. Samtidigt beger sig Tim och Aaron ut på ett uppdrag i tunnelbanan.</div>
+</div>
+<div class="program" data-start="1794261000" data-end="1794264300" onclick="toggleDescription(this)">
+<span class="program-time">22:50 - 23:45</span>
+<span class="program-title">The Rookie</span>
+<div class="program-description">Amerikansk kriminalserie från 2025. Efter en maffiarelaterad incident får teamet i uppgift att hålla ställningarna på sjukhuset. Lucy och Celina samarbetar för att hitta de misstänkta bakom attacken. Samtidigt beger sig Tim och Aaron ut på ett uppdrag i tunnelbanan.</div>
+</div>
+<div class="program" data-start="1794264300" data-end="1794264300" onclick="toggleDescription(this)">
+<span class="program-time">23:45 - 23:45</span>
+<span class="program-title">Elsbeth</span>
+<div class="program-description">Lättsamt amerikanskt krimdrama från 2025. En kvinnotjusande chef mördas brutalt efter en operaföreställning. Elsbeth misstänker att ett besatt opera-fan ligger bakom dådet. Samtidigt måste teamet hantera förändringar på stationen efter Noonans tidigare överträdelse.</div>
+</div>
+<div class="program" data-start="1794264300" data-end="1794267900" onclick="toggleDescription(this)">
+<span class="program-time">23:45 - 00:45</span>
+<span class="program-title">Elsbeth</span>
+<div class="program-description">Lättsamt amerikanskt krimdrama från 2025. En kvinnotjusande chef mördas brutalt efter en operaföreställning. Elsbeth misstänker att ett besatt opera-fan ligger bakom dådet. Samtidigt måste teamet hantera förändringar på stationen efter Noonans tidigare överträdelse.</div>
+</div>
+<div class="program" data-start="1794267900" data-end="1794271500" onclick="toggleDescription(this)">
+<span class="program-time">00:45 - 01:45</span>
+<span class="program-title">The Rookie</span>
+<div class="program-description">Ett aprilskämt på LAPD:s sociala medie-kanaler orsakar kaos i staden. Säsongsavslutning. Sergeant Gray hjälper teamet att förbereda sig för sitt största uppdrag hittills. Samtidigt upptäcker Aaron, Lopez, Celina, Tim och Smitty en överraskande koppling mellan deras fall.</div>
+</div>
+<div class="program" data-start="1794271500" data-end="1794350700" onclick="toggleDescription(this)">
+<span class="program-time">01:45 - 23:45</span>
+<span class="program-title">The Gold</span>
+<div class="program-description">Palmer tas äntligen fast efter hans försök att fly till Brasilien. Polisen får reda på att Cooper och Parry har tvättat Brink's-Mats miljoner. Året är 1983 och sex beväpnade män stjäl guld till ett värde av 26 miljoner pund från Brink's-Mat säkerhetsdepå och påbörjar arbetet med att sälja det vidare. Utredaren Brian Boyce sätter ihop en insatsstyrka för att ta fast dem.</div>
+</div>
+<div class="program" data-start="1794350700" data-end="1794352500" onclick="toggleDescription(this)">
+<span class="program-time">23:45 - 00:15</span>
+<span class="program-title">Elsbeth</span>
+<div class="program-description">Lättsamt amerikanskt krimdrama från 2025. En kvinnotjusande chef mördas brutalt efter en operaföreställning. Elsbeth misstänker att ett besatt opera-fan ligger bakom dådet. Samtidigt måste teamet hantera förändringar på stationen efter Noonans tidigare överträdelse.(g)</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/j742airl32qnczc8mj83clqh2k6p4ixc-5.png" alt="Kanal 5">
+<span class="channel-name">Kanal 5</span>
+</div>
+<div class="program" data-start="1794196800" data-end="1794197400" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 05:10</span>
+<span class="program-title">Gärdsgårdsserien</span>
+<div class="program-description">En 15-årig flicka startade 1977 bruksorten Boda Glasbruks första damlag. Så kom krisen i Glasriket och tog bruket, skolan och butikerna. När herr- och ungdomslagen försvann - stod hon kvar. 57 år ung leder Ann-Louise Ahonen fortfarande laget.</div>
+</div>
+<div class="program" data-start="1794197400" data-end="1794198600" onclick="toggleDescription(this)">
+<span class="program-time">05:10 - 05:30</span>
+<span class="program-title">House Hunters International</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794198600" data-end="1794199800" onclick="toggleDescription(this)">
+<span class="program-time">05:30 - 05:50</span>
+<span class="program-title">House Hunters International</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794199800" data-end="1794202500" onclick="toggleDescription(this)">
+<span class="program-time">05:50 - 06:35</span>
+<span class="program-title">Grey's Anatomy</span>
+<div class="program-description">Det är en tuff dag på Grey Sloan. Teddy och Owen jobbar på sitt äktenskap. Bailey, Blue och Link hjälper en sjukhusanställd.</div>
+</div>
+<div class="program" data-start="1794202500" data-end="1794204900" onclick="toggleDescription(this)">
+<span class="program-time">06:35 - 07:15</span>
+<span class="program-title">Alla mot alla med Filip och Fredrik</span>
+<div class="program-description">Malin Persson Giolito och Ola Söderholm hoppas på att koppla grepp om avancemang. I vägen står Jenny Strömstedt och Ebba de Faire som kämpar för överlevnad.</div>
+</div>
+<div class="program" data-start="1794204900" data-end="1794207900" onclick="toggleDescription(this)">
+<span class="program-time">07:15 - 08:05</span>
+<span class="program-title">Jeopardy!</span>
+<div class="program-description">Författaren Martina Haag, journalisten Ann Söderlund och skådespelaren Claudia Galli vill alla tre ha revansch från tidigare medverkan i en bubblande omgång.</div>
+</div>
+<div class="program" data-start="1794207900" data-end="1794211800" onclick="toggleDescription(this)">
+<span class="program-time">08:05 - 09:10</span>
+<span class="program-title">Gränsbevakarna Sverige</span>
+<div class="program-description">På Arlanda är Olle redo att gripa en efterlyst man som anländer från Istanbul. Vid den danska gränsen stoppar Lisa en skuldsatt herre som riskerar att förlora sin bil.</div>
+</div>
+<div class="program" data-start="1794211800" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">09:10 - 11:00</span>
+<span class="program-title">Switched for Christmas</span>
+<div class="program-description">Tvillingsystrarna Kate och Chris sliter med julförberedelserna och bestämmer sig att byta liv för ett tag och få en paus från vardagen.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794222000" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 12:00</span>
+<span class="program-title">Renoveringsdrömmar</span>
+<div class="program-description">Viktor och Carolina behöver bli klara. Men vad kommer mamma Agneta att tycka om sin bod? Marika och Henrik gjuter ett jättegolv i kraftstationen. Men plötsligt upptäcker de att det läcker betong ner i källaren.</div>
+</div>
+<div class="program" data-start="1794222000" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">12:00 - 13:00</span>
+<span class="program-title">Gränsbevakarna Sverige</span>
+<div class="program-description">Stefan stoppar tre män resandes från Tyskland med bilen full av alkohol och misstänker smuggling. På Arlanda prövas Adams tålamod när en kvinna vägrar inse att lamm är kött.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794231000" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 14:30</span>
+<span class="program-title">Kompani Svan</span>
+<div class="program-description">Nu väntar närstrid på riktigt och det kommer att göra ont. Efter den brutala rekrytfasen får de äntligen släppa all uppdämd aggression. I kompanikampen tar en aspirants resa slut.</div>
+</div>
+<div class="program" data-start="1794231000" data-end="1794234900" onclick="toggleDescription(this)">
+<span class="program-time">14:30 - 15:35</span>
+<span class="program-title">Gunde och Ferry</span>
+<div class="program-description">Det enda som går före renovering av ödehuset är träning. Nu måste Ferry förbereda sig inför VM i timbersport. Marie får försöka stötta Gunde hemma i bygget för att de inte ska halka efter när Ferry är iväg på tävling.</div>
+</div>
+<div class="program" data-start="1794234900" data-end="1794240600" onclick="toggleDescription(this)">
+<span class="program-time">15:35 - 17:10</span>
+<span class="program-title">Över Atlanten</span>
+<div class="program-description">Gänget ombord kämpar för att försöka fånga resans första fisk. Men allting avbryts då en främmande båt dyker upp på radarn. Är det en vän eller en fiende? Det blir ett möte ingen av dem kommer att glömma.</div>
+</div>
+<div class="program" data-start="1794240600" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">17:10 - 18:00</span>
+<span class="program-title">Gränsbevakarna Sverige</span>
+<div class="program-description">På Öresundsbron stoppar gränspolisen Lisa två misstänkta killar och hittar knark i deras packning. I Storlien vid norska gränsen jagar polisen en flyende bil.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 19:00</span>
+<span class="program-title">Här är ditt kylskåp</span>
+<div class="program-description">Fotbollslegendaren Glenn Hysén hoppas på husmanskost utan onödiga krusiduller. Det blir göteborgsvitsar, öl på krogen och selfies med fans. Glenn drar anekdoter från sin karriär och till middagen kommer hans fru Camilla.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 20:00</span>
+<span class="program-title">Polisjakt Sverige</span>
+<div class="program-description">Jonna stoppar en förare som hon tror är narkotikapåverkad. Det är raggarfest i Umeå och polisen har fullt upp med stökiga ungdomar och felbyggda raggarbilar.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794256200" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 21:30</span>
+<span class="program-title">Kompani Svan</span>
+<div class="program-description">Nu vet aspiranterna att varje misstag kan kosta dem platsen. De ställs inför chansen att rädda sig själva på lagets bekostnad och lojaliteten sätts på sitt hårdaste prov. Vem står kvar med gruppen och vem är redo att svika laget för att klara sig själv?</div>
+</div>
+<div class="program" data-start="1794256200" data-end="1794260100" onclick="toggleDescription(this)">
+<span class="program-time">21:30 - 22:35</span>
+<span class="program-title">Här är ditt kylskåp</span>
+<div class="program-description">Fotbollslegendaren Glenn Hysén hoppas på husmanskost utan onödiga krusiduller. Det blir göteborgsvitsar, öl på krogen och selfies med fans. Glenn drar anekdoter från sin karriär och till middagen kommer hans fru Camilla.</div>
+</div>
+<div class="program" data-start="1794260100" data-end="1794265200" onclick="toggleDescription(this)">
+<span class="program-time">22:35 - 00:00</span>
+<span class="program-title">Semestertestarna</span>
+<div class="program-description">Keyyo och Hampus Hedström utforskar Phuket men hittar mest andra svenskar. Sussie Eriksson och Per Andersson vill hitta det genuina Gran Canaria. Henrik Dorsin och Johan Ulveson reser till Dublin för att uppleva St. Patrick's Day.</div>
+</div>
+<div class="program" data-start="1794265200" data-end="1794268800" onclick="toggleDescription(this)">
+<span class="program-time">00:00 - 01:00</span>
+<span class="program-title">Gränsbevakarna Sverige</span>
+<div class="program-description">På Öresundsbron stoppar gränspolisen Lisa två misstänkta killar och hittar knark i deras packning. I Storlien vid norska gränsen jagar polisen en flyende bil.</div>
+</div>
+<div class="program" data-start="1794268800" data-end="1794272400" onclick="toggleDescription(this)">
+<span class="program-time">01:00 - 02:00</span>
+<span class="program-title">Law &amp; Order: Special Victims Unit</span>
+<div class="program-description">Femtonåriga Madison Baker smyger ut ur sin farbrors hem för att möta filmstjärnan Scott Russo, som bjudit henne på fest via sociala medier. Senare på natten hittas Madison våldtagen i en gränd. Benson misstänker att Russo och hans manager är inblandade när övervakningsfilm från festen försvinner.</div>
+</div>
+<div class="program" data-start="1794272400" data-end="1794274200" onclick="toggleDescription(this)">
+<span class="program-time">02:00 - 02:30</span>
+<span class="program-title">Law &amp; Order: Special Victims Unit</span>
+<div class="program-description">Amaros pappa Nicolas ber sin familj, som han inte haft kontakt med på åratal, att vara med på hans bröllop med 28-årige Gabriella Nunez, och trots deras skakiga förflutna tackar alla utom Amaro ja. Men slagsmål bryter ut på bröllopet och Nicolas sätts i handbojor, och Amaro blir vittne i ett mål som kan avslöja familjehemligheter och slita isär familjen.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/cv0xcxp1kcl0789llr79q9cl1qxdf3zz-6.png" alt="Kanal 6">
+<span class="channel-name">Kanal 6</span>
+</div>
+<div class="program" data-start="1794195000" data-end="1794196800" onclick="toggleDescription(this)">
+<span class="program-time">04:30 - 05:00</span>
+<span class="program-title">Family guy</span>
+<div class="program-description">Peter försöker få Joe att skratta när han inser att Joe aldrig har tyckt att han är rolig. Lois är chaperon på Chris och Megs skolresa.</div>
+</div>
+<div class="program" data-start="1794196800" data-end="1794198600" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 05:30</span>
+<span class="program-title">Våra värsta år</span>
+<div class="program-description">Peggy och Marcy övertalar männen att följa med på en konsert istället för att gå till en ny sportbar.</div>
+</div>
+<div class="program" data-start="1794198600" data-end="1794200400" onclick="toggleDescription(this)">
+<span class="program-time">05:30 - 06:00</span>
+<span class="program-title">Våra värsta år</span>
+<div class="program-description">Buck rymmer hemifrån.</div>
+</div>
+<div class="program" data-start="1794200400" data-end="1794202200" onclick="toggleDescription(this)">
+<span class="program-time">06:00 - 06:30</span>
+<span class="program-title">Spin city</span>
+<div class="program-description">Mike och Nikki gör bort sig på borgmästarens nyårsfest.</div>
+</div>
+<div class="program" data-start="1794202200" data-end="1794204000" onclick="toggleDescription(this)">
+<span class="program-time">06:30 - 07:00</span>
+<span class="program-title">Spin city</span>
+<div class="program-description">Mike och Nikki skämmer ut sig på borgmästarens nyårsfest.</div>
+</div>
+<div class="program" data-start="1794204000" data-end="1794205800" onclick="toggleDescription(this)">
+<span class="program-time">07:00 - 07:30</span>
+<span class="program-title">Vänner</span>
+<div class="program-description">Monicas första Thanksgiving-middag till gänget blir bränd när alla springer iväg för att titta på Underdog-ballongen, som flyger iväg från paraden.</div>
+</div>
+<div class="program" data-start="1794205800" data-end="1794207600" onclick="toggleDescription(this)">
+<span class="program-time">07:30 - 08:00</span>
+<span class="program-title">Vänner</span>
+<div class="program-description">Ross skaffar sig apan Marcel för att känna sig mindre ensam hemma. Gänget ingår en pakt, som sen bryts, för att fira nyårsafton utan dejter.</div>
+</div>
+<div class="program" data-start="1794207600" data-end="1794209400" onclick="toggleDescription(this)">
+<span class="program-time">08:00 - 08:30</span>
+<span class="program-title">Simpsons</span>
+<div class="program-description">Lisa måste lösa ”mordet” på en actionfigur värd en miljon dollar som tillhör Comic Book Guy på en popkulturkryssning.</div>
+</div>
+<div class="program" data-start="1794209400" data-end="1794210900" onclick="toggleDescription(this)">
+<span class="program-time">08:30 - 08:55</span>
+<span class="program-title">Simpsons</span>
+<div class="program-description">Homer och Bart blir kungar inom arbetarsporten, men Marge misstänker att det är något oärligt med deras far och son-band.</div>
+</div>
+<div class="program" data-start="1794210900" data-end="1794213000" onclick="toggleDescription(this)">
+<span class="program-time">08:55 - 09:30</span>
+<span class="program-title">Community</span>
+<div class="program-description">Jeff börjar att få narcissistiska tendenser. Samtidigt hjälper gruppen Abed att bli av med sina skulder genom att imitera olika kändisar i en bar.</div>
+</div>
+<div class="program" data-start="1794213000" data-end="1794214800" onclick="toggleDescription(this)">
+<span class="program-time">09:30 - 10:00</span>
+<span class="program-title">Just shoot me</span>
+<div class="program-description">Finchs gamla kompis Bert hälsar på och bjuder på en ordentlig överraskning. Han är nu en kvinna och heter Brandi.</div>
+</div>
+<div class="program" data-start="1794214800" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">10:00 - 11:00</span>
+<span class="program-title">S.W.A.T.</span>
+<div class="program-description">När en serie dödliga explosioner drabbar oljestationer i Los Angeles måste teamet jaga en aktivist som nu börjat med terrorism.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794222000" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 12:00</span>
+<span class="program-title">S.W.A.T.</span>
+<div class="program-description">När Hicks bevittnar mordet på sin långvariga vän försöker gruppen hitta skytten och ta reda på varför han blev måltavla. Luca kämpar med hur han ska hjälpa sin bror efter att han gripits.</div>
+</div>
+<div class="program" data-start="1794222000" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">12:00 - 13:00</span>
+<span class="program-title">Brottskod: Försvunnen</span>
+<div class="program-description">Teamet söker efter en berömd ung man som de misstänker lever ett dubbelliv.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794229200" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 14:00</span>
+<span class="program-title">Unforgettable</span>
+<div class="program-description">Då en kraftig storm är på väg anhåller Carrie och Al en gangster och hans revisor för att ha mördat en flicka.</div>
+</div>
+<div class="program" data-start="1794229200" data-end="1794232800" onclick="toggleDescription(this)">
+<span class="program-time">14:00 - 15:00</span>
+<span class="program-title">Unforgettable</span>
+<div class="program-description">När Carrie utreder mordet på en duktig programmerare avslöjas en framgångsrik affärsmans hemlighet.</div>
+</div>
+<div class="program" data-start="1794232800" data-end="1794234600" onclick="toggleDescription(this)">
+<span class="program-time">15:00 - 15:30</span>
+<span class="program-title">Kung av Queens</span>
+<div class="program-description">Carrie anklagar Doug för att ha en ”ätaffär” med Becky och kräver att han ska sluta äta hennes mat. Först förnekar Doug sin fixering, men kan inte motstå salladen Becky tar med till Carries middagsbjudning, och slitningarna mellan makarna ökar.</div>
+</div>
+<div class="program" data-start="1794234600" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">15:30 - 16:00</span>
+<span class="program-title">Kung av Queens</span>
+<div class="program-description">Doug och Deacon arrangerar en spelresa med jobbet. Carrie skippar sina planer och följer med. Vilken besvikelse när den ende som kommer är en tillfrisknande alkoholist som inte spelar. Och det blir ännu värre när Deacon berättar att Kelly lämnat honom.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794238200" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 16:30</span>
+<span class="program-title">Kung av Queens</span>
+<div class="program-description">Doug använder nyblivne singeln Deacon som en ursäkt för att hänga på nattklubbar till Carries bestörtning. Och Carrie blir förolämpad när folk säger att hon liknar en ny medarbetare som hon tycker är allt annat än attraktiv.</div>
+</div>
+<div class="program" data-start="1794238200" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">16:30 - 17:00</span>
+<span class="program-title">Kung av Queens</span>
+<div class="program-description">Carrie upptäcker att checken på 1 500 dollar de fick i bröllopspresent av Dougs kusiner aldrig löstes in. Kusinerna skriver en ny och vill följa med på resan de ska göra. Doug and Carrie smiter utan dem, men Doug blir nojig och ser kusinerna i varje hörn.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794241800" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 17:30</span>
+<span class="program-title">Vänner</span>
+<div class="program-description">Chandlers mamma, som är bästsäljande författare, kommer till New York för att hälsa på, och Joey kommer på henne när hon kysser Ross.</div>
+</div>
+<div class="program" data-start="1794241800" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">17:30 - 18:00</span>
+<span class="program-title">Vänner</span>
+<div class="program-description">Monica bjuder Paolo på en av de många lasagner hon lagat till sin faster, som inte vill ha dem, för att det är kött i dem.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 19:00</span>
+<span class="program-title">NCIS: Los Angeles</span>
+<div class="program-description">Gruppen måste hitta de angripare som olagligt korsade gränsen och attackerade gränspatrullen och illegala invandrare. Homeland Security skickar Nell´s äldre stöddiga syster för att hjläpa till med uppdraget.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 20:00</span>
+<span class="program-title">Chicago fire</span>
+<div class="program-description">Efter att en förödande brand brutit ut på en vårdcentral försöker Kidd ta reda på den verkliga orsaken. Violet, Novak och Vasquez brottas med föränderliga relationer. Molly’s anordnar sin första frågesportskväll.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794258900" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 22:15</span>
+<span class="program-title">American assassin</span>
+<div class="program-description">Mitch har förlorat sin flickvän i en terrorattack. För att hämnas ger han sig ut på en våldsam människojakt. CIA följer hans framfart och rekryterar honom till ett hemligt program och han måste genomgå stenhård träning hos en före detta elitsoldat.</div>
+</div>
+<div class="program" data-start="1794258900" data-end="1794262200" onclick="toggleDescription(this)">
+<span class="program-time">22:15 - 23:10</span>
+<span class="program-title">SEAL team</span>
+<div class="program-description">Bravo skyndar för att förhindra en terroristattack, samtidigt som de försöker lokalisera och fånga sin fiende.</div>
+</div>
+<div class="program" data-start="1794262200" data-end="1794265200" onclick="toggleDescription(this)">
+<span class="program-time">23:10 - 00:00</span>
+<span class="program-title">Chicago fire</span>
+<div class="program-description">Efter att en förödande brand brutit ut på en vårdcentral försöker Kidd ta reda på den verkliga orsaken. Violet, Novak och Vasquez brottas med föränderliga relationer. Molly’s anordnar sin första frågesportskväll.</div>
+</div>
+<div class="program" data-start="1794265200" data-end="1794268800" onclick="toggleDescription(this)">
+<span class="program-time">00:00 - 01:00</span>
+<span class="program-title">Breaking bad</span>
+<div class="program-description">De har städat upp de sista spåren av bevis som binder dem till metamfetamin-ringens dödliga slut. Därefter vänder sig Walt och Jesse till Mike för att få hjälp att återuppbygga droglabbet.</div>
+</div>
+<div class="program" data-start="1794268800" data-end="1794272700" onclick="toggleDescription(this)">
+<span class="program-time">01:00 - 02:05</span>
+<span class="program-title">Breaking bad</span>
+<div class="program-description">När Walt kommer på en plan för deras nya labb oroar han sig för att deras nya partner Mike kanske utnyttjar honom och Jesse. Samtidigt gör Skylers plötsliga utbrott på jobbet hennes syster Marie orolig.</div>
+</div>
+<div class="program" data-start="1794272700" data-end="1794276000" onclick="toggleDescription(this)">
+<span class="program-time">02:05 - 03:00</span>
+<span class="program-title">The blacklist</span>
+<div class="program-description">När en man påträffas död med hjärtat utskuret ur kroppen måste Keen och Ressler samarbeta med Samar för att avslöja doktor Covington.</div>
+</div>
+<div class="program" data-start="1794276000" data-end="1794277800" onclick="toggleDescription(this)">
+<span class="program-time">03:00 - 03:30</span>
+<span class="program-title">The blacklist</span>
+<div class="program-description">En rad till synes fredliga medborgare blir mördade och Liz tipsas om att ett farligt social-psykologiskt experiment är i görningen. Red pressar Naomi och hennes make att godta hans förslag.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/lv57s8p8ja58aagx1cxw43657f709aj7-7.png" alt="Sjuan">
+<span class="channel-name">Sjuan</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794196800" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 05:00</span>
+<span class="program-title">Trädgårdsmästarna</span>
+<div class="program-description">Kims familj bor över hela världen och när de hälsar på henne undviker de att vistas i den trötta och oälskade lilla trädgården. Nu vill Kim ändra på det och hoppas att Charlie och Flo kan hjälpa till.</div>
+</div>
+<div class="program" data-start="1794196800" data-end="1794200400" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 06:00</span>
+<span class="program-title">Återskaparna England</span>
+<div class="program-description">Jay och Will hjälps åt med en stol som tillverkats särskilt för prinsen av Wales investitur. Steve tar sig an en leksaksbil som betytt mycket för sin ägare. Dom restaurerar en donationslåda från Royal National Lifeboat Institution.</div>
+</div>
+<div class="program" data-start="1794200400" data-end="1794204000" onclick="toggleDescription(this)">
+<span class="program-time">06:00 - 07:00</span>
+<span class="program-title">Bagges hemlösa hundar</span>
+<div class="program-description">Anders tar sig an bästa vännerna Alice och Saga. De är oskiljaktiga så Anders måste lyckas hitta ett hem som kan ta båda två. Sedan träffar han gammelhunden Zeus som akut måste bort från Hundstallet på grund av stress. Han faller också pladask för den vackra men försummade pyrenéerhunden Ingrid.</div>
+</div>
+<div class="program" data-start="1794204000" data-end="1794207600" onclick="toggleDescription(this)">
+<span class="program-time">07:00 - 08:00</span>
+<span class="program-title">Trädgårdsmästarna</span>
+<div class="program-description">Charlie och Lee är i Aylesbury för att skapa en traditionell innergård till en trädgård med turkisk twist. Paret Elaine och Kevin vill att utemiljön ska påminna dem om fina minnen från tiden då de bodde utomlands.</div>
+</div>
+<div class="program" data-start="1794207600" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">08:00 - 09:00</span>
+<span class="program-title">Återskaparna England</span>
+<div class="program-description">Steve har rest hela vägen från Galway på Irland med en biljettmaskin för busskonduktörer som en gång tillhört hans farbror. En viktoriansk speldosa kräver en laginsats och en före detta världsmästare i kickboxning kommer in med en trasig trofé.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 11:00</span>
+<span class="program-title">Sjuksystrarna på Fredenslund</span>
+<div class="program-description">En ensamstående mor och hennes dotter läggs in på Fredenslund med misstanke om förgiftning. Nina och Bent är mitt uppe i bröllopsplaneringen när John öppnar upp sig för Nina. Margrethe släpper allt och låter känslorna flöda.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794220200" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 11:30</span>
+<span class="program-title">Glamour</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794220200" data-end="1794222000" onclick="toggleDescription(this)">
+<span class="program-time">11:30 - 12:00</span>
+<span class="program-title">Hem till gården</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794222000" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">12:00 - 13:00</span>
+<span class="program-title">Chrysalis</span>
+<div class="program-description">Tragedin är ett faktum och såväl Türkan som Nalan tvingas hantera en ny verklighet. Laz Girl överlämnar sig till polisen, omedveten om hur allting slutat.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794229200" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 14:00</span>
+<span class="program-title">En plats i solen</span>
+<div class="program-description">Jasmine Harman går på husjakt i Benidorm tillsammans med Angela och Barry.</div>
+</div>
+<div class="program" data-start="1794229200" data-end="1794232800" onclick="toggleDescription(this)">
+<span class="program-time">14:00 - 15:00</span>
+<span class="program-title">Mord och inga visor</span>
+<div class="program-description">Jessicas semester i Honolulu blir allt annat än rofylld när ett par bröders politiska rivalitet leder till mord.</div>
+</div>
+<div class="program" data-start="1794232800" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">15:00 - 16:00</span>
+<span class="program-title">Det okända</span>
+<div class="program-description">Mediet Camilla Öhrnberg åker till Löberöd på den skånska landsbygden där familjen Persson bor. Familjen har känt av en andlig närvaro i över 20 år som bland annat river ut spisskydd, spelar piano och krossar glas. Dottern Johanna vill nu ta över torpet men först ska spökena bort.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 17:00</span>
+<span class="program-title">Sjuksystrarna på Fredenslund</span>
+<div class="program-description">De manliga sjuksköterskestudenternas utbildning hotas när en ung patient misstolkar Peters omsorg. Anna börjar tvivla på sitt förhållande, och Bent försöker skapa lugn i sin lilla familj, men Nina tänker fortfarande på John.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794241800" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 17:30</span>
+<span class="program-title">Glamour</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794241800" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">17:30 - 18:00</span>
+<span class="program-title">Hem till gården</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 19:00</span>
+<span class="program-title">Mord och inga visor</span>
+<div class="program-description">En kvinna som har en rådgivningsspalt i en tidning tvingas hantera den nya aggressiva tidningsägaren från Australien. Hon blir beskjuten av en okänd man.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 20:00</span>
+<span class="program-title">Julens alla bak</span>
+<div class="program-description">Nu är det jul igen!. Tina beger sig till Johans eget bageri och tillsammans bakar de frukostmuffins, tre sorters pepparkakor, saffranmazariner och annat gott som hör julen till. Johan öppnar upp och berättar om den stroke som drabbade honom nyligen.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 21:00</span>
+<span class="program-title">Trädgårdsmästarna</span>
+<div class="program-description">Charlie och Chris tar sig an Joys slitna och oälskade trädgård som börjar bli farlig att vistas i. Joy vill ha en säker och insynsskyddad utemiljö där hon kan koppla av och umgås med vänner.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794257700" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 21:55</span>
+<span class="program-title">Mord i paradiset</span>
+<div class="program-description">Marlon får ett underligt samtal från sin gamla chef som verkar vara skadad och ber om hjälp. Marlon skyndar till undsättning men hittar chefen död. Marlon är fast besluten att lösa fallet men det visar sig vara lättare sagt än gjort.</div>
+</div>
+<div class="program" data-start="1794257700" data-end="1794264900" onclick="toggleDescription(this)">
+<span class="program-time">21:55 - 23:55</span>
+<span class="program-title">Mord i paradiset</span>
+<div class="program-description">Teamet förbryllas över ett mord i hotellhissen. När teamet börjar utreda fallet framkommer det att offrets familj har en hel del skelett i garderoben. Samtidigt återvänder en gammal bekant till St Marie men möts inte med öppna armar från alla.</div>
+</div>
+<div class="program" data-start="1794264900" data-end="1794270300" onclick="toggleDescription(this)">
+<span class="program-time">23:55 - 01:25</span>
+<span class="program-title">Bonde söker fru</span>
+<div class="program-description">Anders står inför en övernattningsdejt och känner både pirr och press. Hos Daniel vankas det fest, men det visar sig bli svårt att ge tjejerna den bekräftelse de önskar. Oliver fyller år och tjejerna får bekänna färg inför hans nyfikna systrar.</div>
+</div>
+<div class="program" data-start="1794270300" data-end="1794273600" onclick="toggleDescription(this)">
+<span class="program-time">01:25 - 02:20</span>
+<span class="program-title">Det okända</span>
+<div class="program-description">Mediet Terry Evans beger sig till Lillaröd för att hjälpa Sara och Martin som berättar att en närvaro försöker jaga bort dem från deras gård. Den höll till en början till i ladan men till slut tar den mystiska närvaron hela övervåningen i besittning.</div>
+</div>
+<div class="program" data-start="1794273600" data-end="1794277200" onclick="toggleDescription(this)">
+<span class="program-time">02:20 - 03:20</span>
+<span class="program-title">Det okända</span>
+<div class="program-description">Caroline Giertz och mediet Pierre Hesselbrandt hjälper Marie Larsson och hennes mamma Inger som bor i närheten av varandra i Fellingsbro. De verkar dela på mer än kvartersbutiken för de känner båda av en underlig närvaro i sina hem. Frågan är om det är samma ande som besöker dem.</div>
+</div>
+<div class="program" data-start="1794277200" data-end="1794279000" onclick="toggleDescription(this)">
+<span class="program-time">03:20 - 03:50</span>
+<span class="program-title">Hundräddaren</span>
+<div class="program-description">En hund blir tränad till att bli den perfekta hundambassadören till en kvinnas bed-and-breakfast.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/l5jwnjrqgghbmsrh9ny6m2l1ipmy16ci-8.png" alt="TV8">
+<span class="channel-name">TV8</span>
+</div>
+<div class="program" data-start="1794196800" data-end="1794198600" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 05:30</span>
+<span class="program-title">Idas fristelser</span>
+<div class="program-description">Första avsnittet drar igång med buller och bång. Ida bjuder in sina väninnor till sitt födelsedagsfirande. Hon serverar ett av sina finaste bakverk, nämligen Nugatti-tårtan.</div>
+</div>
+<div class="program" data-start="1794198600" data-end="1794202200" onclick="toggleDescription(this)">
+<span class="program-time">05:30 - 06:30</span>
+<span class="program-title">Antiques roadtrip</span>
+<div class="program-description">Roo Irvine och Mark Hill fortsätter sin skotska resa. Det finns hopp om att en naken torso ska locka budgivare, medan mysteriet med indiska soldater i Cairngorms undersöks.</div>
+</div>
+<div class="program" data-start="1794202200" data-end="1794209100" onclick="toggleDescription(this)">
+<span class="program-time">06:30 - 08:25</span>
+<span class="program-title">A Christmas break</span>
+<div class="program-description">Läraren Addison kämpar för att rädda sin skola som hotas av nedläggning. Hon får hjälp av en gammal vän, Danny, som växt upp i småstaden men numera är en känd hollywoodstjärna. Han går med på att regissera den årliga julpjäsen med barnen.</div>
+</div>
+<div class="program" data-start="1794209100" data-end="1794212700" onclick="toggleDescription(this)">
+<span class="program-time">08:25 - 09:25</span>
+<span class="program-title">House of Ali</span>
+<div class="program-description">Alis designkontor exploderar av nytillskott. När Ali får en sällsynt chans att fördubbla sitt kontorsutrymme och expandera verksamheten, hur kan hon då säga nej?</div>
+</div>
+<div class="program" data-start="1794212700" data-end="1794216300" onclick="toggleDescription(this)">
+<span class="program-time">09:25 - 10:25</span>
+<span class="program-title">En plats på landet</span>
+<div class="program-description">Jules Hudson hjälper ett sportigt par att börja ett nytt liv på landsbygden i Cumbria.</div>
+</div>
+<div class="program" data-start="1794216300" data-end="1794220200" onclick="toggleDescription(this)">
+<span class="program-time">10:25 - 11:30</span>
+<span class="program-title">Antiques roadtrip</span>
+<div class="program-description">Roo Irvine och Mark Hill letar efter antikviteter i Highlands och på öarna. En läderväska döljer en hemlighet och avslöjar en vinst för en expert, och lite 1950-talsglädje lockar den andra.</div>
+</div>
+<div class="program" data-start="1794220200" data-end="1794223800" onclick="toggleDescription(this)">
+<span class="program-time">11:30 - 12:30</span>
+<span class="program-title">McLeods döttrar</span>
+<div class="program-description">Tess är nära att bestämma sig för Nick, men hon avbryts när Alex helikopter flyger över Killarney och besprutar med kemikalier. Det hotar den nysådda organiska veteodlingen på Wilgul.</div>
+</div>
+<div class="program" data-start="1794223800" data-end="1794231300" onclick="toggleDescription(this)">
+<span class="program-time">12:30 - 14:35</span>
+<span class="program-title">The Christmas spirit</span>
+<div class="program-description">Charlotte hamnar i koma efter en olycka, men hennes själ är vaken. Inför en omröstning om ett fastighetsprojekt måste hon få sin stad och byggherren att ändra sig, samtidigt som ingen kan se eller höra henne.</div>
+</div>
+<div class="program" data-start="1794231300" data-end="1794235500" onclick="toggleDescription(this)">
+<span class="program-time">14:35 - 15:45</span>
+<span class="program-title">En plats på landet</span>
+<div class="program-description">Denise Nurse hjälper ett par att byta ut det hektiska stadslivet mot vackra vyer och frisk luft i Northumberland.</div>
+</div>
+<div class="program" data-start="1794235500" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">15:45 - 18:00</span>
+<span class="program-title">Morden i Midsomer</span>
+<div class="program-description">Invigningen av en skulpturpark i Angel's Park blir allt annat än fridfull när eldsjälen bakom projektet mördas.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 20:00</span>
+<span class="program-title">A Christmas blessing</span>
+<div class="program-description">Mandy säljer sin avlidna fasters välgörenhetsorganisation. Men Otto, som brukade arbeta som volontär där, vill anordna en sista välgörenhetsjulmiddag.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794258900" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 22:15</span>
+<span class="program-title">The Jane Austen book club</span>
+<div class="program-description">I Kalifornien upptäcker sex kvinnor, som är medlemmar i en bokklubb, att deras liv och förhållanden reflekteras i Jane Austens romaner. Jocelyn försöker få Grigg att bli intresserad av Sylvia, Allegra förälskar sig i en kvinna under ett fallskärmshopp, Prudie överväger att ha en affär och Sylvias före detta är ständigt närvarande.</div>
+</div>
+<div class="program" data-start="1794258900" data-end="1794265800" onclick="toggleDescription(this)">
+<span class="program-time">22:15 - 00:10</span>
+<span class="program-title">Morden i Midsomer</span>
+<div class="program-description">Invigningen av en skulpturpark i Angel's Park blir allt annat än fridfull när eldsjälen bakom projektet mördas.</div>
+</div>
+<div class="program" data-start="1794265800" data-end="1794269400" onclick="toggleDescription(this)">
+<span class="program-time">00:10 - 01:10</span>
+<span class="program-title">McLeods döttrar</span>
+<div class="program-description">Tess är nära att bestämma sig för Nick, men hon avbryts när Alex helikopter flyger över Killarney och besprutar med kemikalier. Det hotar den nysådda organiska veteodlingen på Wilgul.</div>
+</div>
+<div class="program" data-start="1794269400" data-end="1794272700" onclick="toggleDescription(this)">
+<span class="program-time">01:10 - 02:05</span>
+<span class="program-title">Dance moms</span>
+<div class="program-description">Laurieann Gibson är tillbaka och mer fast besluten än någonsin att vinna. Med två duetter och en gruppuppvisning kämpar tjejerna med uthålligheten, samtidigt som Laurieann tappar tålamodet med mammorna under tävlingen i en explosiv konfrontation.</div>
+</div>
+<div class="program" data-start="1794272700" data-end="1794274500" onclick="toggleDescription(this)">
+<span class="program-time">02:05 - 02:35</span>
+<span class="program-title">House of Ali</span>
+<div class="program-description">Alis öga för detaljer sätts på prov när hon anlitas för att förvandla ett klassiskt vitt-på-vitt utrymme till ett fräscht, ljust och spännande hem.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/v7w34qs541liafpwxj4f7i63zhdm8bva-9.png" alt="Kanal 9">
+<span class="channel-name">Kanal 9</span>
+</div>
+<div class="program" data-start="1794196800" data-end="1794197400" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 05:10</span>
+<span class="program-title">Gärdsgårdsserien</span>
+<div class="program-description">Vi träffar Christer Myrnell och Janne Johansson. Varje morgon strax före klockan sju på morgonen står Christer framför kyrkan i Ljungby och vinkar till alla bilar som kör förbi. Janne Marnell är känd i stan, när radion rapporterar att det är en man som cyklar på E4:an, då vet alla i stan att det är Janne Myrnell som är i farten. De är i 70-års åldern och båda har precis börjat spela fotboll.</div>
+</div>
+<div class="program" data-start="1794197400" data-end="1794200100" onclick="toggleDescription(this)">
+<span class="program-time">05:10 - 05:55</span>
+<span class="program-title">Wheeler Dealers</span>
+<div class="program-description">Gänget vill inviga verkstaden i USA med en rostfri GTO, men bilarna är sällsynta och Mike blir tvungen att åka ända till Chicago för att hitta en.</div>
+</div>
+<div class="program" data-start="1794200100" data-end="1794202800" onclick="toggleDescription(this)">
+<span class="program-time">05:55 - 06:40</span>
+<span class="program-title">Wheeler Dealers</span>
+<div class="program-description">Pickupen är en amerikansk ikon, Mike är angelägen att ta sig in på den blomstrande marknaden med klassiska flakbilar och hittar en F1 från 50-talet.</div>
+</div>
+<div class="program" data-start="1794202800" data-end="1794205800" onclick="toggleDescription(this)">
+<span class="program-time">06:40 - 07:30</span>
+<span class="program-title">Salvage Hunters</span>
+<div class="program-description">Teamet hittar förlorade reliker från svunna tider, inklusive pallar gjorda för barnarbetare i ett gammalt hattfärgeri och klassisk nöjesfältskonst.</div>
+</div>
+<div class="program" data-start="1794205800" data-end="1794209100" onclick="toggleDescription(this)">
+<span class="program-time">07:30 - 08:25</span>
+<span class="program-title">Salvage Hunters</span>
+<div class="program-description">Teamet letar efter saker som deras kunder kommer älska. I Lancashire köper Viki en omgång laboratorielampor, Serkan får tag i ett papier-machélejon.</div>
+</div>
+<div class="program" data-start="1794209100" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">08:25 - 09:00</span>
+<span class="program-title">Sommaren med släkten</span>
+<div class="program-description">Äntligen Fotbolls-EM! Men det finns ingen TV i stugan så Jens packar IPAn och smiter in hos Gerd som är bortrest. Det är städdag i samfälligheten med Jocke som anförare och Carros nyinköpta lyxskottkärra kommer på villovägar, liksom Bobo.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794213000" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 09:30</span>
+<span class="program-title">Sommaren med släkten</span>
+<div class="program-description">Jens lär Bobo att fiska och han drar upp den ena fisken efter den andra till Jens stora förtvivlan. Carro upptäcker att Gerd ska parodiera henne på Räknäsrevyn och ger sig in i en förhandling om tomtgränsen för att rädda ansiktet.</div>
+</div>
+<div class="program" data-start="1794213000" data-end="1794214800" onclick="toggleDescription(this)">
+<span class="program-time">09:30 - 10:00</span>
+<span class="program-title">Sommaren med släkten</span>
+<div class="program-description">Ingrid tycker livet är trist och börjar sno saker för att liva upp tillvaron. Det funkar. Jens ljuger om tidtagningen på Lukas simtävling och hamnar i onåd hos mamman till en medtävlande</div>
+</div>
+<div class="program" data-start="1794214800" data-end="1794216900" onclick="toggleDescription(this)">
+<span class="program-time">10:00 - 10:35</span>
+<span class="program-title">Sommaren med släkten</span>
+<div class="program-description">Jens stöter på sin chef Larry vid affären och vips blir han wing man i Larrys otrohetsaffär med en nyanställd receptionist. Nora har kärleksbekymmer och klipper gräsmattan åt Bobo i utbyte mot dejtingråd.</div>
+</div>
+<div class="program" data-start="1794216900" data-end="1794221100" onclick="toggleDescription(this)">
+<span class="program-time">10:35 - 11:45</span>
+<span class="program-title">Fångat på polisens kamera Danmark</span>
+<div class="program-description">På landsvägen nära Randers måste flera poliser samarbeta för att få motorcyklister att sakta ned. Videobilen möter en spökförare i Århus.</div>
+</div>
+<div class="program" data-start="1794221100" data-end="1794225000" onclick="toggleDescription(this)">
+<span class="program-time">11:45 - 12:50</span>
+<span class="program-title">Tunnelbanan</span>
+<div class="program-description">Det kommer ett brådskande larm om en kvinna som ramlat omkull på ett tåg och slagit sig illa i huvudet. En 16-årig berusad kille har råkat hamna på ändstationen Bålsta mitt i natten. Levi och Jörgen försöker hjälpa honom hem, var nu det kan vara.</div>
+</div>
+<div class="program" data-start="1794225000" data-end="1794226800" onclick="toggleDescription(this)">
+<span class="program-time">12:50 - 13:20</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794226800" data-end="1794228900" onclick="toggleDescription(this)">
+<span class="program-time">13:20 - 13:55</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794228900" data-end="1794231000" onclick="toggleDescription(this)">
+<span class="program-time">13:55 - 14:30</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794231000" data-end="1794232800" onclick="toggleDescription(this)">
+<span class="program-time">14:30 - 15:00</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794232800" data-end="1794235200" onclick="toggleDescription(this)">
+<span class="program-time">15:00 - 15:40</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794235200" data-end="1794239700" onclick="toggleDescription(this)">
+<span class="program-time">15:40 - 16:55</span>
+<span class="program-title">Vägens hjältar</span>
+<div class="program-description">Putte och Olle har redan lagt sjutton timmar på att försöka få upp en lastbil med släp ur diket på en smal skogsväg i den snöiga skogen utanför Rättvik i Dalarna. Nu längtar de efter torra kläder och en varm säng - men först ska lastbilen upp.</div>
+</div>
+<div class="program" data-start="1794239700" data-end="1794242700" onclick="toggleDescription(this)">
+<span class="program-time">16:55 - 17:45</span>
+<span class="program-title">Vägens hjältar</span>
+<div class="program-description">En förare har svimmat vid ratten och förlorat kontrollen över sitt fordon mitt på den högtrafikerade E4an i höjd med Haga Norra. Benny är snabbt på plats för att underlätta för räddningstjänsten och hålla koll på den förbirusande trafiken.</div>
+</div>
+<div class="program" data-start="1794242700" data-end="1794246600" onclick="toggleDescription(this)">
+<span class="program-time">17:45 - 18:50</span>
+<span class="program-title">Fångat på polisens kamera</span>
+<div class="program-description">En hetsig biljakt i Götene tar stopp i en trädgård. En fortkörande EPA-traktor tappar ena bakhjulet under förföljandet och en man med automatvapen beskjuter en polispatrull från skogen utanför Alingsås.</div>
+</div>
+<div class="program" data-start="1794246600" data-end="1794248400" onclick="toggleDescription(this)">
+<span class="program-time">18:50 - 19:20</span>
+<span class="program-title">The Big Bang Theory</span>
+<div class="program-description">Sheldon pressar Leonard och Penny att bestämma ett bröllopsdatum, men då får han uppleva stora förändringar i sitt förhållande med Amy.</div>
+</div>
+<div class="program" data-start="1794248400" data-end="1794250500" onclick="toggleDescription(this)">
+<span class="program-time">19:20 - 19:55</span>
+<span class="program-title">The Big Bang Theory</span>
+<div class="program-description">Penny och Leonard ska gifta sig i Las Vegas men Penny kämpar med Leonards bekännelse att han kysste en annan tjej. Sheldon vet inte vad han ska göra när Amy vill ha en paus i deras förhållande.</div>
+</div>
+<div class="program" data-start="1794250500" data-end="1794252300" onclick="toggleDescription(this)">
+<span class="program-time">19:55 - 20:25</span>
+<span class="program-title">Two and a Half Men</span>
+<div class="program-description">Charlie försöker få Herb att anamma hans livsstil och Alan kämpar för att bli fri från Judith.</div>
+</div>
+<div class="program" data-start="1794252300" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:25 - 21:00</span>
+<span class="program-title">Two and a Half Men</span>
+<div class="program-description">Charlies nya flickvän gillar inte att de alltid ska sova över hos honom och försöker få honom att sova över hos henne. Alan försöker hävda sin föräldraauktoritet gentemot sonen.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794261300" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 22:55</span>
+<span class="program-title">Cop Land</span>
+<div class="program-description">Freddy Heflin är sheriff i idylliska småstaden Garrison, New Jersey. Men bakom den fridfulla fasaden döljer sig en värld av korruption, maktmissbruk och mord, styrd med maffiametoder av den hårdföre polisen Ray Donlan. När en av poliserna skjuter ihjäl två svarta ungdomar börjar internutredaren Moe Tilden misstänka att det inte står rätt till i Garrison, och ber Freddy om hjälp.</div>
+</div>
+<div class="program" data-start="1794261300" data-end="1794265200" onclick="toggleDescription(this)">
+<span class="program-time">22:55 - 00:00</span>
+<span class="program-title">Vägens hjältar</span>
+<div class="program-description">Putte och Olle har redan lagt sjutton timmar på att försöka få upp en lastbil med släp ur diket på en smal skogsväg i den snöiga skogen utanför Rättvik i Dalarna. Nu längtar de efter torra kläder och en varm säng - men först ska lastbilen upp.</div>
+</div>
+<div class="program" data-start="1794265200" data-end="1794269100" onclick="toggleDescription(this)">
+<span class="program-time">00:00 - 01:05</span>
+<span class="program-title">Vägens hjältar</span>
+<div class="program-description">En förare har svimmat vid ratten och förlorat kontrollen över sitt fordon mitt på den högtrafikerade E4an i höjd med Haga Norra. Benny är snabbt på plats för att underlätta för räddningstjänsten och hålla koll på den förbirusande trafiken.</div>
+</div>
+<div class="program" data-start="1794269100" data-end="1794270900" onclick="toggleDescription(this)">
+<span class="program-time">01:05 - 01:35</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794270900" data-end="1794273000" onclick="toggleDescription(this)">
+<span class="program-time">01:35 - 02:10</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794273000" data-end="1794274800" onclick="toggleDescription(this)">
+<span class="program-time">02:10 - 02:40</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794274800" data-end="1794276600" onclick="toggleDescription(this)">
+<span class="program-time">02:40 - 03:10</span>
+<span class="program-title">Gränsbevakarna Australien</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/7w4hi6cy3j46lk016ym02qas1h57krqr-10.png" alt="Kanal 10">
+<span class="channel-name">Kanal 10</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794196800" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 05:00</span>
+<span class="program-title">Bilbaronen i Las Vegas</span>
+<div class="program-description">Gitarristen DJ Ashba svänger förbi butiken för att be Danny jobba på hans 100 år gamla Model-T rad rod-bil.</div>
+</div>
+<div class="program" data-start="1794196800" data-end="1794200400" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 06:00</span>
+<span class="program-title">Guldjägarna i Australien</span>
+<div class="program-description">Dirt Dogs-gänget råkar på vad som kan vara deras största fynd någonsin. Henri och Kellie kämpar med såväl tuffa väderförhållanden som varandra och Gold Gypsies-gänget stöter på ett livsfarligt hot.</div>
+</div>
+<div class="program" data-start="1794200400" data-end="1794204000" onclick="toggleDescription(this)">
+<span class="program-time">06:00 - 07:00</span>
+<span class="program-title">Guldjägarna i Australien</span>
+<div class="program-description">Rick Fishers hjälper ett par nybörjare och Ted och Lecky jobbar hårt. När Dirt Dogs-gänget tar några tjuvar på bar gärning blir det som i vilda västern!</div>
+</div>
+<div class="program" data-start="1794204000" data-end="1794205800" onclick="toggleDescription(this)">
+<span class="program-time">07:00 - 07:30</span>
+<span class="program-title">Det stora fyndkriget</span>
+<div class="program-description">Köparna beger sig till San Francisco där Barry hittar en lärling och ett par gamla boxershorts. Jarrod och Brandi upptäcker en topphemlig sak.</div>
+</div>
+<div class="program" data-start="1794205800" data-end="1794207600" onclick="toggleDescription(this)">
+<span class="program-time">07:30 - 08:00</span>
+<span class="program-title">Det stora fyndkriget</span>
+<div class="program-description">Darrel köper en depå baserat på magkänsla, och han hittar något som kan få honom bort från farozonen.</div>
+</div>
+<div class="program" data-start="1794207600" data-end="1794209400" onclick="toggleDescription(this)">
+<span class="program-time">08:00 - 08:30</span>
+<span class="program-title">Superfraktarna</span>
+<div class="program-description">Marc måste transportera något från en klassisk TV-serie, men han tvingas be Jenn om hjälp. Todd och Tamera måste transportera ett fordon för månlandning men stöter på problem med gravitationen.</div>
+</div>
+<div class="program" data-start="1794209400" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">08:30 - 09:00</span>
+<span class="program-title">Superfraktarna</span>
+<div class="program-description">Natasha tar risker när det gäller dimensionerna på ett massivt radiotorn. Dwight och Tyesha är rädda för att bli skurkar när en massa superhjältestatyer blir sönderslagna under deras vakt.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794214800" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 10:00</span>
+<span class="program-title">Svenska truckers</span>
+<div class="program-description">Angelica som är en känd influencer packar sin långtradare för att ge sig ut i natten, men just den här natten är det riktig halt på vägarna. Uppe i Piteå blir det vild diskussion i garaget mellan Erik och Simon. Elin har fått ett tight schema och när hon ska in på ett lager för att hämta upp varor så går det inte alls som planerat. Anders som transporterar tunga transporter hamnar mitt i en mjölkdimma och sikten är lika med noll.</div>
+</div>
+<div class="program" data-start="1794214800" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">10:00 - 11:00</span>
+<span class="program-title">Ice road truckers</span>
+<div class="program-description">Art Burke gör allt för att hålla sig flytande när isen smälter och Alex Debogorski kämpar sig igenom ett lerigt berg.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794222000" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 12:00</span>
+<span class="program-title">American pickers</span>
+<div class="program-description">Mike och Frank är antikjägare som reser runt i landet och bokstavligen skulle åka vart som helst bara för chansen att hitta antikt guld. Med hjälp av Danielle hamnar de ofta i komiska knipor.</div>
+</div>
+<div class="program" data-start="1794222000" data-end="1794225600" onclick="toggleDescription(this)">
+<span class="program-time">12:00 - 13:00</span>
+<span class="program-title">American pickers</span>
+<div class="program-description">Mike och Frank är antikjägare som reser runt i landet och bokstavligen skulle åka vart som helst bara för chansen att hitta antikt guld. Med hjälp av Danielle hamnar de ofta i komiska knipor.</div>
+</div>
+<div class="program" data-start="1794225600" data-end="1794229200" onclick="toggleDescription(this)">
+<span class="program-time">13:00 - 14:00</span>
+<span class="program-title">Tuffa timmerstockar</span>
+<div class="program-description">Kevin och teamet försöker bygga en brygga efter att timmerlastaren går sönder. Och om det inte är nog med motgångar så är det dessutom tjuvar i farten!</div>
+</div>
+<div class="program" data-start="1794229200" data-end="1794232800" onclick="toggleDescription(this)">
+<span class="program-time">14:00 - 15:00</span>
+<span class="program-title">Tuffa timmerstockar</span>
+<div class="program-description">Säsongen börjar lida mot sitt slut och vädret blir allt kallare, vilket motiverar Kevin att hugga så många träd han bara hinner. Motgångarna blir större då en av de anställda säger upp sig.</div>
+</div>
+<div class="program" data-start="1794232800" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">15:00 - 16:00</span>
+<span class="program-title">American pickers</span>
+<div class="program-description">Mike och Frank är antikjägare som reser runt i landet och bokstavligen skulle åka vart som helst bara för chansen att hitta antikt guld. Med hjälp av Danielle hamnar de ofta i komiska knipor.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 17:00</span>
+<span class="program-title">Ice road truckers</span>
+<div class="program-description">De två rivaliserande företagen jobbar tillsammans i en av de största utmaningarna i Ice road truckers historia.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794243600" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 18:00</span>
+<span class="program-title">Guldjägarna i Australien</span>
+<div class="program-description">Alan och Salty åker för att jaga en legend, torka hotar att avsluta säsongen för Shane och Kate, och team Poseidon använder en överdimensionerad metalldetektor för att hitta enorma klimpar.</div>
+</div>
+<div class="program" data-start="1794243600" data-end="1794247200" onclick="toggleDescription(this)">
+<span class="program-time">18:00 - 19:00</span>
+<span class="program-title">American pickers</span>
+<div class="program-description">Mike och Frank är antikjägare som reser runt i landet och bokstavligen skulle åka vart som helst bara för chansen att hitta antikt guld. Med hjälp av Danielle hamnar de ofta i komiska knipor.</div>
+</div>
+<div class="program" data-start="1794247200" data-end="1794249000" onclick="toggleDescription(this)">
+<span class="program-time">19:00 - 19:30</span>
+<span class="program-title">Det stora fyndkriget</span>
+<div class="program-description">Lisa gör sin egen variant på en stranddag när hon åker till Huntington Beach. Darrell ägnar rätt mycket tid åt att gå igenom sitt förråd.</div>
+</div>
+<div class="program" data-start="1794249000" data-end="1794250800" onclick="toggleDescription(this)">
+<span class="program-time">19:30 - 20:00</span>
+<span class="program-title">Det stora fyndkriget</span>
+<div class="program-description">Brandi gör ett köp och det lönar sig, Rene kan inte motstå ett stort mysterium och Barry stjäl från konkurrenterna.</div>
+</div>
+<div class="program" data-start="1794250800" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">20:00 - 21:00</span>
+<span class="program-title">Pawn stars</span>
+<div class="program-description">I en familjeägd pantbank i Las Vegas köper, säljer och värderar tre generationer av män sällsynta och ovanliga föremål – och blandar historia, prutande och humor i varje affär.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794258000" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 22:00</span>
+<span class="program-title">The curse of Oak Island</span>
+<div class="program-description">Spänningen är stor när ny forskning kastar ljus över en möjlig masterplan som skapats med strategiskt placerade stenblock som kan leda teamet direkt till Money Pit-valvet.</div>
+</div>
+<div class="program" data-start="1794258000" data-end="1794259800" onclick="toggleDescription(this)">
+<span class="program-time">22:00 - 22:30</span>
+<span class="program-title">Det stora fyndkriget</span>
+<div class="program-description">Lisa gör sin egen variant på en stranddag när hon åker till Huntington Beach. Darrell ägnar rätt mycket tid åt att gå igenom sitt förråd.</div>
+</div>
+<div class="program" data-start="1794259800" data-end="1794261600" onclick="toggleDescription(this)">
+<span class="program-time">22:30 - 23:00</span>
+<span class="program-title">Det stora fyndkriget</span>
+<div class="program-description">Brandi gör ett köp och det lönar sig, Rene kan inte motstå ett stort mysterium och Barry stjäl från konkurrenterna.</div>
+</div>
+<div class="program" data-start="1794261600" data-end="1794265200" onclick="toggleDescription(this)">
+<span class="program-time">23:00 - 00:00</span>
+<span class="program-title">Pawn stars</span>
+<div class="program-description">I en familjeägd pantbank i Las Vegas köper, säljer och värderar tre generationer av män sällsynta och ovanliga föremål – och blandar historia, prutande och humor i varje affär.</div>
+</div>
+<div class="program" data-start="1794265200" data-end="1794268800" onclick="toggleDescription(this)">
+<span class="program-time">00:00 - 01:00</span>
+<span class="program-title">Bilbaronen i Las Vegas</span>
+<div class="program-description">Efter trettio år bestämmer sig Danny för att det äntligen är dags att restaurera sin avlidne fars sällsynta Mercedes Benz 500 SEC AMG från 1982.</div>
+</div>
+<div class="program" data-start="1794268800" data-end="1794272400" onclick="toggleDescription(this)">
+<span class="program-time">01:00 - 02:00</span>
+<span class="program-title">Bilbaronen i Las Vegas</span>
+<div class="program-description">När Counts Kustoms målarmästare Ryan bestämmer sig för att måla sin egen skåpbil, hamnar hela teamet sig an en skakig resa. Kan teamet hjälpa Ryan att förvandla sin fula lastbil?</div>
+</div>
+<div class="program" data-start="1794272400" data-end="1794276000" onclick="toggleDescription(this)">
+<span class="program-time">02:00 - 03:00</span>
+<span class="program-title">The curse of Oak Island</span>
+<div class="program-description">Teamet blir förbluffat när en teori under utveckling exakt identifierar två anomalier som skapats av människor, och som de tror kan vara landmärken som skapats för att lokalisera Money Pit.</div>
+</div>
+<div class="program" data-start="1794276000" data-end="1794277800" onclick="toggleDescription(this)">
+<span class="program-time">03:00 - 03:30</span>
+<span class="program-title">Guldjägarna i Australien</span>
+<div class="program-description">Alan och Salty åker för att jaga en legend, torka hotar att avsluta säsongen för Shane och Kate, och team Poseidon använder en överdimensionerad metalldetektor för att hitta enorma klimpar.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/xsj0dfmbzrnini45g7rnqjpnz7f5r4v1-12.png" alt="Kanal 12">
+<span class="channel-name">Kanal 12</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794196800" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 05:00</span>
+<span class="program-title">Svenska fall för FBI</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794196800" data-end="1794200400" onclick="toggleDescription(this)">
+<span class="program-time">05:00 - 06:00</span>
+<span class="program-title">Polisens biljakter</span>
+<div class="program-description">Den brittiska polisen samlar styrkorna för att göra en räd hos två män misstänka för att tillverka och sälja en välkända zombiedrog. Samtidigt tar hundföraren Steve hjälp av sin fyrbenta kollega för att lokalisera en man med narkotika i väskan.</div>
+</div>
+<div class="program" data-start="1794200400" data-end="1794204000" onclick="toggleDescription(this)">
+<span class="program-time">06:00 - 07:00</span>
+<span class="program-title">112 – på liv och död</span>
+<div class="program-description">Thomas på Gävlepolisen försöker stoppa en misshandel under en stadsfestival. Brandmannen Kristoffer i Stockholm tröstar och lugnar en ung pojke som varit med om en trafikolycka. Ambulanssjuksköterskan Maria i Uppsala rycker ut till en byggarbetsplats där en man fått ett betongblock över sig.</div>
+</div>
+<div class="program" data-start="1794204000" data-end="1794207600" onclick="toggleDescription(this)">
+<span class="program-time">07:00 - 08:00</span>
+<span class="program-title">112 – på liv och död</span>
+<div class="program-description">Brandmannen Daniel rycker ut på ett larm om en försvunnen person. Polisen Magnus söker efter en beväpnad person i ett bostadsområde i Gävle och ambulanssjuksköterskan Pelle styr upp ambulansens insats vid en olycksplats.</div>
+</div>
+<div class="program" data-start="1794207600" data-end="1794211200" onclick="toggleDescription(this)">
+<span class="program-time">08:00 - 09:00</span>
+<span class="program-title">Svenska fall för FBI</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794211200" data-end="1794214800" onclick="toggleDescription(this)">
+<span class="program-time">09:00 - 10:00</span>
+<span class="program-title">Polisens biljakter</span>
+<div class="program-description">Ben Pearson får sätta foten på gasen för att hinna med en stulen bil som kör i 160 km i timmen. En stor polisinsats sätts igång för att få fatt på en välkänd langare och en bensintjuv gör tillvaron svår för den brittiska polisen.</div>
+</div>
+<div class="program" data-start="1794214800" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">10:00 - 11:00</span>
+<span class="program-title">Polisens biljakter</span>
+<div class="program-description">Den brittiska polisen samlar styrkorna för att göra en räd hos två män misstänka för att tillverka och sälja en välkända zombiedrog. Samtidigt tar hundföraren Steve hjälp av sin fyrbenta kollega för att lokalisera en man med narkotika i väskan.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794222000" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 12:00</span>
+<span class="program-title">Bygglov</span>
+<div class="program-description">Therese, Roger och Matilda bor i en gammal lanthandel i Norrtälje. De har inte haft råd att renovera affärens gamla varumagasin men får nu hjälp av Bygglov. Ett uppdrag som blir tuffare än förväntat för Matte, Wille och Mija.</div>
+</div>
+<div class="program" data-start="1794222000" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">12:00 - 16:00</span>
+<span class="program-title">ATP-touren: Stockholm Open 250</span>
+<div class="program-description">Tennis från Kungliga Tennishallen och den första omgången i Stockholm Open på ATP-touren.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794240000" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 17:00</span>
+<span class="program-title">The rookie</span>
+<div class="program-description">Det är Thorsens första dag efter misshandeln och han måste genomgå en rad stressiga fall för att avgöra om han är redo att gå ut i tjänst igen. Samtidigt utreder teamet ett mord med potentiell anknytning till Pentagrammördaren.</div>
+</div>
+<div class="program" data-start="1794240000" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">17:00 - 21:00</span>
+<span class="program-title">ATP-touren: Stockholm Open 250</span>
+<div class="program-description">Tennis från Kungliga Tennishallen och den första omgången i Stockholm Open på ATP-touren.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794261600" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 23:00</span>
+<span class="program-title">Last seen alive</span>
+<div class="program-description">När Will Spann ska skjutsa sin fru Lisa till hennes föräldrar stannar de för att tanka. Men plötsligt är Lisa spårlöst försvunnen. Will kontaktar polisen men när han själv blir misstänkt tar han saken i egna händer. Desperat ger han sig in i stans undre värld i en nervig kamp mot klockan.</div>
+</div>
+<div class="program" data-start="1794261600" data-end="1794264600" onclick="toggleDescription(this)">
+<span class="program-time">23:00 - 23:50</span>
+<span class="program-title">Citadel</span>
+<div class="program-description">Nadia, Kyle och Carter gör gemensam sak i kampen mot Manticore, men misstankar om ett internt svek leder fram till en explosiv vedergällning. Samtidigt måste Bernard välja mellan att skydda sin familj eller att rädda världen.</div>
+</div>
+<div class="program" data-start="1794264600" data-end="1794268200" onclick="toggleDescription(this)">
+<span class="program-time">23:50 - 00:50</span>
+<span class="program-title">Polisens biljakter</span>
+<div class="program-description">En misstänkt man flyr från en olycksplats i en ambulans med blåljuset på. Hela polisstyrkan involveras, där bland Ben och Bo som försöker få hål på däcken. Polisen Warren attackeras av ett ungdomsgäng och Kev försöker få stopp på en vild bilist.</div>
+</div>
+<div class="program" data-start="1794268200" data-end="1794273600" onclick="toggleDescription(this)">
+<span class="program-time">00:50 - 02:20</span>
+<span class="program-title">Förrädarna</span>
+<div class="program-description">Tyvärr finns ingen tablåinformation för det här programmet.</div>
+</div>
+<div class="program" data-start="1794273600" data-end="1794276900" onclick="toggleDescription(this)">
+<span class="program-time">02:20 - 03:15</span>
+<span class="program-title">The rookie</span>
+<div class="program-description">Nolans och Bailyes smekmånad liknar mer än mardröm än en romantisk vistelse när målet för resan förvandlas till en brottsplats. Samtidigt på hemmaplan blir Tim och Celina nya arbetspartners och deras första fall är att identifiera ett anonymt offer.</div>
+</div>
+<div class="program" data-start="1794276900" data-end="1794278700" onclick="toggleDescription(this)">
+<span class="program-time">03:15 - 03:45</span>
+<span class="program-title">Nyheterna story: Thai-bordellerna</span>
+<div class="program-description">Tv-profilen är åtalad för 31 sexköp och har flytt till Storbritannien. Men i Örebros thaisalonger fortsätter sexhandeln. TV4 Nyheterna story skildrar kvinnornas utsatthet – med skulder, hot och usla villkor.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/k0z84im8xhvdg0dzvb6pffxv9jj47fml-13.png" alt="TV4 Hockey">
+<span class="channel-name">TV4 Hockey</span>
+</div>
+<div class="program" data-start="1794200400" data-end="1794209400" onclick="toggleDescription(this)">
+<span class="program-time">06:00 - 08:30</span>
+<span class="program-title">Leksand - Mora Hockeyallsvenskan</span>
+<div class="program-description">Tegera Arena. Ishockey från Tegera Arena där Leksands IF ställs mot Mora IK i Hockeyallsvenskan. I studion på plats finns Lars Lindberg och Fredrik Söderström.</div>
+</div>
+<div class="program" data-start="1794209400" data-end="1794218400" onclick="toggleDescription(this)">
+<span class="program-time">08:30 - 11:00</span>
+<span class="program-title">Björklöven - Skellefteå SHL</span>
+<div class="program-description">Visionite Arena. Hockeylördag med ishockey från Visionite Arena där IF Björklöven ställs mot Skellefteå AIK i SHL. I studion finns Björn Oldeen, Sanny Lindström och Almen Bibic.</div>
+</div>
+<div class="program" data-start="1794218400" data-end="1794227400" onclick="toggleDescription(this)">
+<span class="program-time">11:00 - 13:30</span>
+<span class="program-title">Leksand - Mora Hockeyallsvenskan</span>
+<div class="program-description">Tegera Arena. Ishockey från Tegera Arena där Leksands IF ställs mot Mora IK i Hockeyallsvenskan. I studion på plats finns Lars Lindberg och Fredrik Söderström.</div>
+</div>
+<div class="program" data-start="1794227400" data-end="1794236400" onclick="toggleDescription(this)">
+<span class="program-time">13:30 - 16:00</span>
+<span class="program-title">Djurgården - Brynäs SHL</span>
+<div class="program-description">Avicii Arena. Hockeylördag med ishockey från Avicii Arena där Djurgårdens IF ställs mot Brynäs IF i SHL. I studion finns Lena Sundqvist, Sanny Lindström och Fredrik Söderström.</div>
+</div>
+<div class="program" data-start="1794236400" data-end="1794245400" onclick="toggleDescription(this)">
+<span class="program-time">16:00 - 18:30</span>
+<span class="program-title">Skellefteå - Björklöven SHL</span>
+<div class="program-description">Skellefteå Kraft Arena. Hockeylördag med ishockey från Skellefteå Kraft Arena där Skellefteå AIK ställs mot IF Björklöven i SHL. I studion finns Lena Sundqvist, Sanny Lindström och Fredrik Söderström.</div>
+</div>
+<div class="program" data-start="1794245400" data-end="1794254400" onclick="toggleDescription(this)">
+<span class="program-time">18:30 - 21:00</span>
+<span class="program-title">Leksand - Mora Hockeyallsvenskan</span>
+<div class="program-description">Tegera Arena. Ishockey från Tegera Arena där Leksands IF ställs mot Mora IK i Hockeyallsvenskan. I studion på plats finns Lars Lindberg och Fredrik Söderström.</div>
+</div>
+<div class="program" data-start="1794254400" data-end="1794263400" onclick="toggleDescription(this)">
+<span class="program-time">21:00 - 23:30</span>
+<span class="program-title">Södertälje - Karlskoga Hockeyallsvenskan</span>
+<div class="program-description">Scaniarinken. Ishockey från Scaniarinken där Södertälje SK ställs mot BIK Karlskoga i Hockeyallsvenskan.</div>
+</div>
+<div class="program" data-start="1794263400" data-end="1794265200" onclick="toggleDescription(this)">
+<span class="program-time">23:30 - 00:00</span>
+<span class="program-title">Timrå - Björklöven SHL</span>
+<div class="program-description">SCA Arena. Hockeylördag med ishockey från SCA Arena där Timrå IK ställs mot IF Björklöven i SHL. I studion finns Lena Sundqvist, Fredrik Söderström och Petter Rönnqvist.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/awj76y1740n2acbpy7dwxmkwkqsii9vm-14.png" alt="TV4 Sport Live 1">
+<span class="channel-name">TV4 Sport Live 1</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794195000" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 04:30</span>
+<span class="program-title">Höjdpunkter</span>
+<div class="program-description">De senaste höjdpunkterna från bland annat SHL, Hockeyallsvenskan, UEFA Champions League, NBA, La Liga och mycket mer.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/b3j8p2s0mvs3z10xm0szalngriw1lpi6-15.png" alt="TV4 Sport Live 2">
+<span class="channel-name">TV4 Sport Live 2</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794195000" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 04:30</span>
+<span class="program-title">Höjdpunkter</span>
+<div class="program-description">De senaste höjdpunkterna från bland annat SHL, Hockeyallsvenskan, UEFA Champions League, NBA, La Liga och mycket mer.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/2mvj01vabb8x16gfdfapvgsgi99333d7-16.png" alt="TV4 Sport Live 3">
+<span class="channel-name">TV4 Sport Live 3</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794195000" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 04:30</span>
+<span class="program-title">Höjdpunkter</span>
+<div class="program-description">De senaste höjdpunkterna från bland annat SHL, Hockeyallsvenskan, UEFA Champions League, NBA, La Liga och mycket mer.</div>
+</div>
+</div>
+<div class="channel">
+<div class="channel-header">
+<img class="channel-icon" src="file:///nix/store/i68lk9nnyqnwa6km9fvjv0n27zkv0cag-17.png" alt="TV4 Sport Live 4">
+<span class="channel-name">TV4 Sport Live 4</span>
+</div>
+<div class="program" data-start="1794193200" data-end="1794195000" onclick="toggleDescription(this)">
+<span class="program-time">04:00 - 04:30</span>
+<span class="program-title">Höjdpunkter</span>
+<div class="program-description">De senaste höjdpunkterna från bland annat SHL, Hockeyallsvenskan, UEFA Champions League, NBA, La Liga och mycket mer.</div>
+</div>
+</div>
+
+        <script>
+        function toggleDescription(element) {
+          const description = element.querySelector('.program-description');
+          description.classList.toggle('show');
+        }
+
+        function updateCurrentPrograms() {
+            const now = Math.floor(Date.now() / 1000);
+            document.querySelectorAll('.program').forEach(program => {
+                const start = parseInt(program.dataset.start);
+                const end = parseInt(program.dataset.end);
+                program.classList.remove('current', 'ended');
+                if (now >= start && now < end) {
+                    program.classList.add('current');
+                } else if (now >= end) {
+                    program.classList.add('ended');
+                }
+            });
+        }
+
+        updateCurrentPrograms();
+        setInterval(updateCurrentPrograms, 60000);
+        </script>
+
+</body>
+</html>

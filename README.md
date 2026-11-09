@@ -3,13 +3,13 @@
 <!-- VERSIONS_START -->
 ![CI](https://github.com/quackhack-mcblindy/dotfiles/actions/workflows/nix.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
-![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=plastic-square&logo=NixOS&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=plastic-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.60-red?style=plastic-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-51.0-purple?style=plastic-square&logo=gnome&logoColor=white)
-![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.14.10-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.99.1-orange?style=plastic-square&logo=rust&logoColor=white)
+![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=flat-square&logo=nixos&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.60-red?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-51.0-purple?style=flat-square&logo=gnome&logoColor=white)
+![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=flat-square&logo=gnubash&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.97.1-orange?style=flat-square&logo=rust&logoColor=white)
 ![yo](https://img.shields.io/badge/💬%20yo-0.2.12-black?style=plastic)
 ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.11-black?style=plastic)
 
@@ -69,13 +69,13 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 <!-- BADGES_START -->
 | **Category** | **Contents** |
 |---|---|
-| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-104-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-74-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-8043-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.07B-7c3aed?style=plastic)](bin/) |
-| 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WireGuard-1-dc2626?style=plastic)](modules/network/wg-server.nix) |
-| 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-489-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
+| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7875-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.07B-7c3aed?style=plastic)](bin/) |
+| 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WG-dc2626?style=plastic)](modules/network/wg-server.nix) |
+| 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-487-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
 | 🏠 **Home Automation** | [![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)](modules/myHouse.nix) [![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)](modules/myHouse.nix) [![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)](modules/devices.nix) [![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)](modules/myHouse.nix) |
 | 🔐 **Security** | [![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)](modules/secrets.nix) [![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)](modules/secrets.nix) |
 | 🚀 **Workflows** | [![Auto--Docs](https://img.shields.io/badge/Auto--Docs-✅-22c55e?style=plastic)](.github/workflows/) [![Auto--Deploy](https://img.shields.io/badge/Auto--Deploy-✅-22c55e?style=plastic)](.github/workflows/) |
-| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4951-eab308?style=plastic)](bin/) |
+| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4594-eab308?style=plastic)](bin/) |
 <!-- BADGES_END -->
 
 _List would get long, very quackly._ <br>
@@ -166,7 +166,7 @@ Define each hosts data at `config.this.host`.
     hardware = [ "cpu/intel" "audio" ];
     networking = [ "default" "pool" ];
     programs = [ "default" "thunar" "firefox" "vesktop" ];
-    services = [ "ssh" "default" "yo" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" "sunshine" ];
+    services = [ "ssh" "default" "yo" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" "tor" "sunshine" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
   };
@@ -312,6 +312,7 @@ in { # 🦆 duck say ⮞ house config
     presence = {
       probes      = [ devices.iphone.ip ];
       homeActions = [ "skicka en notis om 🏠 ☑️ BACK HOME!" ];
+      delay       = 45; # 🦆 ⮞ away 45 min then
       awayActions = [ "skicka en notis om 🏠 ❌ LEFT HOME! samt släck alla lampor" ];
     };
 
@@ -609,6 +610,11 @@ in { # 🦆 duck say ⮞ house config
               description      = "Turn on kitchen fan (+ lights).";
               extra_actions    = [ "starta fläkten" ];
             };
+            off_hold_release   = {
+              enable           = true;
+              description      = "Turn off kitchen fan. (+ all lights)";
+              extra_actions    = [ "stäng av fläkten" ];
+            };            
           };
         };
 
@@ -960,12 +966,10 @@ in { # 🦆 duck say ⮞ house config
     # 🦆 ⮞ TV ⮜
     # 🦆says⮞ configure TV devices with: room, ip, apps & channel information
     tv       = {
-  
+      privateKeyFile = config.sops.secrets.adb.path;
+      publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";  
       # 🦆 says ⮞ Livingroom
-      shield = {
-        #privateKeyFile = config.sops.secrets.adb.path;
-        #publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
-          
+      shield = {          
         enable       = true;
         room         = "tv-area";
         ip           = devices.shield.ip;
@@ -1318,8 +1322,8 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.url                    = "github:Mic92/sops-nix";
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
-        yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
-        zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        yo.url               = "github:QuackHack-McBlindy/yo";
+        zigduck.url          = "github:QuackHack-McBlindy/zigduck";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
@@ -1448,7 +1452,7 @@ $ yo deploy laptop
 
 <!-- YO_DOCS_START -->
 ## 🚀 **yo CLI 🦆**
-The \`yo\` CLI is a framework designed to execute scripts defined in the \`./bin\` directory.
+The yo CLI is a framework designed to execute scripts defined in the ./bin directory.
 It provides a unified interface for script execution, centralizes all help commands, and automatically validates parametrs and updates the documentation.
 
 **Usage:** \`yo <command> [arguments]\`
@@ -1475,6 +1479,11 @@ $ yo-rs
 ### ✨ Available Commands
 Set default values for your parameters to have them marked [optional]
 Add \`?\` to any command to run it in DEBUG mode
+
+<details><summary><strong>
+View All Scripts
+</strong></summary>
+
 | Command Syntax               | Aliases    | Description | VoiceReady |
 |------------------------------|------------|-------------|--|
 | **🖥️ System Management** | | | |
@@ -1527,8 +1536,7 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo tv](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv.nix) [--typ] [--search] [--room] [--season] [--shuffle] |  | Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. | ✅ |
 | [yo tv-guide](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-guide.nix) [--search] [--channel] [--jsonFilePath] | tvg | TV-guide assistant.. | ✅ |
 | [yo tv-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-rs.nix) [--type] [--search] [--dir] [--build] |  | High performance Media Management written in Rust. | 📛 |
-| [yo tv-scrape](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-scrape.nix) [--dir] |  | Scrape the web for TV-guide data and save data for frontend. | ✅ |
-| [yo tv-scraper](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-scraper.nix) [--epgFilePath] [--jsonFilePath] [--htmlOutPath] [--flake] | tvs | Scrapes web for tv-listing data. Builds EPG and generates HTML. | 📛 |
+| [yo tv-scrape](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-scrape.nix) [--dir] [--wildcard] |  | Scrape the web for TV-guide data and save data for frontend. | ✅ |
 | [yo vlc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/vlc.nix) [--add] [--addDir] [--remove] [--list] [--shuffle] [--clear] [--playlist] |  | Playlist management for the local machine | 📛 |
 | **📁 File Operations** | | | |
 | [yo copy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/files/copy.nix) --from --to | cp | Copy a file or directory to a new location | ✅ |
@@ -1593,6 +1601,9 @@ Add \`?\` to any command to run it in DEBUG mode
 | [yo clean](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/clean.nix)  | gc | Run a total garbage collection: Removes old NixOS generations, empty trash, flush tmp files, whipes cache and runs a docker prune | 📛 |
 | [yo duckTrace](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/duckTrace.nix) [--script] [--host] [--errors] [--monitor] | log | View duckTrace logs quick and quack, unified logging system | ✅ |
 | [yo health](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/maintenance/health.nix)  | hc | Check system health report for tihs host & ESP32 devices. Returns JSON structured response and forwards to zigduck. | ✅ |
+
+</details>
+
 ### ❓ Detailed Help
 For specific command help:
 \`yo <command> --help\`

@@ -1,8 +1,11 @@
 # dotfiles/modules/networking/dns.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{
+#  » ★ QuackHack-McBLindy.com ★ «
+{ # 🦆 say ⮞ DNS
   config,
   lib,
   pkgs,
+  hosts,
+  devices,
   ...
 } : {
     config = lib.mkIf (lib.elem "dns" config.this.host.modules.networking) {
@@ -27,20 +30,17 @@
                     hide-identity = true;
                     hide-version = true;
 
-                    local-zone = [
-                        "homie.lan static"
-                        "nasty.lan static"
-                        "desktop.lan static"
-                        "laptop.lan static"
-                    ];
-                    local-data = [
-                        "\"homie.lan 3600 IN A 192.168.1.211\""
-                        "\"*.homie.lan 3600 IN A 192.168.1.211\""
-                        "\"*.nasty.lan 3600 IN A 192.168.1.28\""
-                        "\"*.desktop.lan 3600 IN A 192.168.1.111\""
-                        "\"*.laptop.lan 3600 IN A 192.168.1.222\""
-                    ];
-                };
+                    local-zone = map (name: "${name}.lan static")
+                                    (lib.attrNames (hosts // devices));
+
+                    local-data =
+                      lib.concatMap
+                        (name: let ip = (hosts // devices).${name}.ip; in [
+                          "\"${name}.lan 3600 IN A ${ip}\""
+                          "\"*.${name}.lan 3600 IN A ${ip}\""
+                        ])
+                        (lib.attrNames (hosts // devices));
+                  };
                 forward-zone = [
                     {
                         name = ".";

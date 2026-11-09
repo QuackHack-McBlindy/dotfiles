@@ -15,6 +15,11 @@
 
   asList = v: if v == null then [] else v;
 
+  capitalizeFirst = s:
+    if s == "" then s
+    else lib.toUpper (builtins.substring 0 1 s)
+         + builtins.substring 1 (builtins.stringLength s - 1) s;
+
   # 🦆 says ⮞ HELPERS
   swedishNumbers = [
     "noll" "ett" "två" "tre" "fyra" "fem" "sex" "sju" "åtta" "nio" "tio"
@@ -92,7 +97,7 @@
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = lib.toLower d.friendly_name;   # ⬅ lowercased
+      out  = capitalizeFirst d.friendly_name;
     }
   ) zigbeeDevices
   ++ [
@@ -108,7 +113,7 @@
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = lib.toLower name;              # ⬅ lowercased
+      out  = lib.toLower name;
     }
   ) zigbeeRooms;
 
@@ -121,7 +126,7 @@
       ));
     in {
       "in" = lib.concatStringsSep "|" names;
-      out  = sceneName;                    # ⬅ original case
+      out  = sceneName;
     }
   ) zigbeeScenes;
 

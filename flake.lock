@@ -278,11 +278,11 @@
     },
     "nixpkgs_10": {
       "locked": {
-        "lastModified": 1793341285,
-        "narHash": "sha256-Y1CiZ4SoBUjLQyQM/pY+rS2dXD3CHLPstF0lmOc73D4=",
+        "lastModified": 1794042290,
+        "narHash": "sha256-ziZn2PvCJE5JEEpqTdxXwJpPB+L3YqoCpTAMCzyaP3U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1c89083e451e891152365b799595cf7790a43325",
+        "rev": "f4a03c008967841f2a0b3cb7c436fc6fc31671f6",
         "type": "github"
       },
       "original": {
@@ -294,11 +294,11 @@
     },
     "nixpkgs_11": {
       "locked": {
-        "lastModified": 1793341285,
-        "narHash": "sha256-Y1CiZ4SoBUjLQyQM/pY+rS2dXD3CHLPstF0lmOc73D4=",
+        "lastModified": 1794042290,
+        "narHash": "sha256-ziZn2PvCJE5JEEpqTdxXwJpPB+L3YqoCpTAMCzyaP3U=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "1c89083e451e891152365b799595cf7790a43325",
+        "rev": "f4a03c008967841f2a0b3cb7c436fc6fc31671f6",
         "type": "github"
       },
       "original": {
@@ -624,16 +624,15 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1793980231,
+        "lastModified": 1793980227,
         "narHash": "sha256-hxHvaA29dj69sr9lt+7Eg7LUXFmT/M70oiXFItj1M7g=",
         "owner": "QuackHack-McBlindy",
         "repo": "yo",
-        "rev": "1e0dae7cc55ba2121119806986abd3cde65d3489",
+        "rev": "54f7266b39700d22db04ccc099f6121a01d14197",
         "type": "github"
       },
       "original": {
         "owner": "QuackHack-McBlindy",
-        "ref": "dev",
         "repo": "yo",
         "type": "github"
       }
@@ -644,16 +643,15 @@
         "tinyFlake": "tinyFlake_2"
       },
       "locked": {
-        "lastModified": 1793735072,
-        "narHash": "sha256-E3g9aqlXHGL9UiDz/x+fR10CLmLiLpI1bk4quAKnZyc=",
+        "lastModified": 1794246140,
+        "narHash": "sha256-/SPafDqY7i5SpC03/8/AVOREJ3AoXpYNskvsBckbic8=",
         "owner": "QuackHack-McBlindy",
         "repo": "zigduck",
-        "rev": "0b3234ee8f87facea5d5e5cd19c86270e327bf93",
+        "rev": "3fce4ccf461563bc03bc77e8d1d3184fa88c629f",
         "type": "github"
       },
       "original": {
         "owner": "QuackHack-McBlindy",
-        "ref": "dev",
         "repo": "zigduck",
         "type": "github"
       }
