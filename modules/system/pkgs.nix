@@ -46,6 +46,8 @@
         # 🦆 says⮞ INSTALLED ON ALL HOSTS
             [
                 pkgs.npth
+                pkgs.nix-output-monitor
+
                 pkgs.kagi
                 pkgs.sunshine
                 pkgs.qrencode

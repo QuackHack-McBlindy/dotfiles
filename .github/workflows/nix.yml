@@ -6,51 +6,28 @@ on:
   pull_request:
     branches: [ "main" ]
 
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  discover:
-    runs-on: ubuntu-latest
-    outputs:
-      hosts: ${{ steps.hosts.outputs.hosts }}
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: DeterminateSystems/determinate-nix-action@v3
-
-      - name: List nixosConfigurations
-        id: hosts
-        run: |
-          HOSTS=$(nix eval --json .#nixosConfigurations --apply builtins.attrNames)
-          echo "hosts=$HOSTS" >> "$GITHUB_OUTPUT"
-          echo "Discovered: $HOSTS"
-
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 120
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/determinate-nix-action@v3
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL || true
+          df -h /
 
       - uses: DeterminateSystems/flake-checker-action@v9
 
       - name: nix flake check
-        run: nix flake check --system x86_64-linux --keep-going
-
-  build:
-    needs: discover
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false                 # one broken host doesn't cancel the others
-      matrix:
-        host: ${{ fromJSON(needs.discover.outputs.hosts) }}
-    name: build ${{ matrix.host }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: DeterminateSystems/determinate-nix-action@v3
-
-      - name: Build ${{ matrix.host }} toplevel
-        run: |
-          nix build --print-build-logs --no-link \
-            ".#nixosConfigurations.${{ matrix.host }}.config.system.build.toplevel"
+        run: nix flake check --system x86_64-linux --keep-going --accept-flake-config

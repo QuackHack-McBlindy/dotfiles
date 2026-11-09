@@ -1,7 +1,6 @@
 # dotfiles/bin/productivity/pr-release.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 # » ★ QuackHack-McBLindy.com ★ «
 
-
 # REMEMBER TO COMMIT _BEFORE_ RUNNING `yo pr-release`!
 # confirm?  ── no ──► EXIT!
 #    │yes
@@ -297,9 +296,13 @@
           echo "warning: release finished but local dev could not fast-forward" >&2
           echo "resolve manually: git fetch origin --tags && git merge origin/dev" >&2
         fi
-
+        echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+        echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+        echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+        echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
         play_relax
-        echo "released! ✅"
+
+
       '';
     };
 

@@ -1,5 +1,5 @@
-# dotfiles/bin/system/switch.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-# » ★ QuackHack-McBLindy.com ★ «
+# dotfiles/bin/system/switch.nix
+# » ★ QuackHack-McBlindY.com ★ «
 {
   self,
   config,
@@ -16,11 +16,22 @@ in {
         category = "🖥️ System Management";
         aliases = [ "rb" ];
         parameters = [
-          { name = "flake"; description = "Path to the irectory containing your flake.nix"; optional = false; default = config.this.user.me.dotfilesDir; }
-          { name = "!"; description = "Save a new system generation"; optional = true; }
+          {
+            name = "flake";
+            description = "Path to the directory containing your flake.nix";
+            optional = false;
+            default = config.this.user.me.dotfilesDir;
+          }
+          {
+            name = "!";
+            description = "Save a new system generation";
+            optional = true;
+          }
         ];
+
         code = ''
           ${cmdHelpers}
+
           if $DRY_RUN; then
             echo "❗ Test run: reboot will revert activation"
           fi
@@ -35,7 +46,7 @@ in {
 
             if [[ -n "$drv_path" ]]; then
               echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-              say_duck "❌🦆❌ BUILD ERROR LOG ❌🦆❌"
+              say_duck "BUILD ERROR LOG ❌🦆❌🦆❌🦆❌"
               echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
               echo "🦆 Failed derivation: $drv_path"
@@ -46,7 +57,6 @@ in {
               echo "🦆 Could not locate failed derivation."
             fi
           }
-
 
           FAIL_COUNT_FILE="/tmp/nixos_rebuild_fail_count"
 
@@ -62,44 +72,90 @@ in {
           else
             rebuild_command="test"
           fi
+
           cmd=(
             sudo ${pkgs.nixos-rebuild}/bin/nixos-rebuild
-            $rebuild_command
-              --flake "$flake"
-              --show-trace
+            "$rebuild_command"
+            --flake "$flake"
+            --show-trace
+            --log-format internal-json
+            -v
           )
 
-          BUILD_OUTPUT=$("''${cmd[@]}" 2>&1) && BUILD_STATUS=0 || BUILD_STATUS=$?
+          BUILD_LOG=$(mktemp /tmp/nixos-rebuild.XXXXXX.log)
 
-          echo "$BUILD_OUTPUT"
+          echo
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          say_duck "     🦆 STARTING REBUILD......"
+          say_duck "⚠️⚠️⚠️⚠️ 🔑 🔑 TOUCH YUBIKEY 🔑 🔑 ⚠️⚠️⚠️⚠️"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo
+
+
+          set -o pipefail
+
+          if "''${cmd[@]}" 2>&1 \
+            | tee "$BUILD_LOG" \
+            | ${pkgs.nix-output-monitor}/bin/nom --json
+          then
+            BUILD_STATUS=0
+          else
+            BUILD_STATUS=$?
+          fi
+
+
+          BUILD_OUTPUT=$(cat "$BUILD_LOG")
+          rm -f "$BUILD_LOG"
 
           if [[ $BUILD_STATUS -eq 0 ]]; then
+
             if [[ $FAIL_COUNT -ge 11 ]]; then
-              dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
-              yo audio --up
+              echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+              echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+              echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+              echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+
+              dt_info "🦆🎉 ! Rebuild successful! $FAIL_COUNT noob fails!"
               play_relax
+
             elif [[ $FAIL_COUNT -ge 6 ]]; then
-              dt_info "🦆🎉 ! Rebuild sucessful! $FAIL_COUNT noob fails!"
+              echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+              echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+              echo "🦆⭐🦆⭐🦆⭐🦆🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+              echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+
               play_relax
+
             elif [[ $FAIL_COUNT -ge 4 ]]; then
+              echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+              echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+              echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+              echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+
               dt_info "😅 phew! $FAIL_COUNT noob fails!"
               play_win
+
             else
               if $DRY_RUN; then
                 echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
                 echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
                 echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
                 echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+
               else
                 echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
                 echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
                 echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
                 echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+
                 echo "⚠️⚠️⚠️⚠️⚠️⚠️ NO SYSTEM GENERATION SAVED ⚠️⚠️⚠️⚠️⚠️⚠️"
               fi
+
               play_win
             fi
+
             echo 0 > "$FAIL_COUNT_FILE"
+
           else
             FAIL_COUNT=$((FAIL_COUNT + 1))
             echo "$FAIL_COUNT" > "$FAIL_COUNT_FILE"
@@ -109,22 +165,30 @@ in {
             if [[ $FAIL_COUNT -ge 5 ]]; then
               echo "❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌"
               echo "🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆"
+
               say_duck " FUCK!  ❌🦆❌🦆❌🦆❌🦆"
+
               echo "❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌"
               echo "🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆"
 
               play_fail2
+
             else
               echo "❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌"
               echo "🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆"
-              say_duck " FUCK!  ❌🦆❌🦆❌🦆❌🦆❌🦆❌"
+
+              say_duck " FUCK!  ❌🦆❌🦆❌🦆❌🦆❌🦆"
+
               echo "❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌"
               echo "🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆❌🦆"
+
               play_fail
             fi
+
             exit 1
           fi
         '';
+
         voice = {
           enabled = true;
           priority = 5;

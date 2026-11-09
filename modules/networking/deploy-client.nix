@@ -1,4 +1,4 @@
-# dotfiles/modules/network/deployClient.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/modules/network/deploy-client.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 #  » ★ QuackHack-McBLindy.com ★ «
 {
   config,
@@ -15,15 +15,12 @@
     then lib.head potentialServers
     else throw "No WireGuard server configuration found";
 
-  # 🦆 the fleet-wide builder pubkey — set once, same on every host
   builderPubKey = config.this.host.keys.publicKeys.builder
     or (throw "Set this.host.keys.publicKeys.builder to the pubkey of id_ed25519_builder");
 
   sshPort = config.this.user.me.sshPort or 2222;
 in {
-  config = lib.mkIf (lib.elem "wg-client" config.this.host.modules.networking) {
-    # 🦆 builder user already exists on every host for distributed builds —
-    # give it a command-restricted entry that only starts auto-deploy.service
+  config = lib.mkIf (lib.elem "deploy-client" config.this.host.modules.networking) {
     users.users.builder = {
       isSystemUser = true;
       group = "builder";
@@ -33,7 +30,6 @@ in {
     };
     users.groups.builder = {};
 
-    # 🦆 one NOPASSWD rule, exactly that one command
     security.sudo.extraRules = [{
       users = [ "builder" ];
       commands = [{
@@ -42,6 +38,6 @@ in {
       }];
     }];
 
-    # 🦆 SSH reachable only over wg0
     networking.firewall.interfaces.wg0.allowedTCPPorts = [ sshPort ];
+
   };}

@@ -150,8 +150,13 @@
           git push --force origin "$TAG_NAME"
 
           # 🦆 says ⮞ success message
+          echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+          echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+          echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
+          echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
+          echo ""
           echo -e "\n\033[38;5;213m╔══════════════════════════════════════╗"
-          echo -e "║  🎉  \033[1;32mSuccessfully pushed dotfiles!\033[0m  \033[38;5;213m ║"
+          echo -e "║  🎉  \033[1;32mSUCCESSFULLY PUSHED DOTFILES!\033[0m  \033[38;5;213m ║"
           echo -e "╚══════════════════════════════════════╝\033[0m"
           echo -e "\033[38;5;87m🌍 Repository: $REPO\033[0m"
           echo -e "\033[38;5;154m🌿 Branch: $CURRENT_BRANCH\033[0m\n"

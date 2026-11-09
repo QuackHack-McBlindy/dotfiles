@@ -7,17 +7,16 @@
 }: let
 
   # 🦆 says ⮞ get house.tv configuration with debug info
-  tvConfig = builtins.trace "TV config: ${builtins.toJSON config.house.tv}" config.house.tv;
+  tvConfig = config.house.tv;
 
-  # 🦆 says ⮞ generate TV selector options with debug
+  # 🦆 says ⮞ generate TV selector options
   tvOptions = let
     tvNames = lib.attrNames tvConfig;
     options = lib.concatMapStrings (tvName:
       let tv = tvConfig.${tvName};
       in if tv.enable then ''<option value="${tv.ip}">${tvName}</option>'' else ""
     ) tvNames;
-  in builtins.trace "TV options: ${options}" options;
-
+  in options;
 
   pages = {
     chat = ''

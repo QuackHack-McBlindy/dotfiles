@@ -1,4 +1,4 @@
-# dotfiles/modules/network/deploy.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# dotfiles/modules/network/deploy-server.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
 #  » ★ QuackHack-McBLindy.com ★ «
 
 {
@@ -28,7 +28,7 @@ in
     };
   };
 
-  config = lib.mkIf (cfg.enable && lib.elem "wg-server" serverCfg.modules.networking) {
+  config = lib.mkIf (cfg.enable && lib.elem "deploy-server" serverCfg.modules.networking) {
     sops.secrets = lib.mkIf cfg.enableHmac {
       auto_deploy_webhook_hmac = {
         sopsFile = ./../../secrets/hosts/${config.networking.hostName}/auto_deploy_webhook_hmac.yaml;

@@ -6,10 +6,10 @@
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=plastic-square&logo=NixOS&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=plastic-square&logo=nixos&logoColor=white)
 ![Linux Kernel](https://img.shields.io/badge/Linux-6.18.60-red?style=plastic-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-50.4-purple?style=plastic-square&logo=gnome&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-51.0-purple?style=plastic-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=plastic-square&logo=gnubash&logoColor=white)
-![Python](https://img.shields.io/badge/Python-3.14.8-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
-![Rust](https://img.shields.io/badge/Rust-1.99.0-orange?style=plastic-square&logo=rust&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.14.10-%23FFD43B?style=plastic-square&logo=python&logoColor=white)
+![Rust](https://img.shields.io/badge/Rust-1.99.1-orange?style=plastic-square&logo=rust&logoColor=white)
 ![yo](https://img.shields.io/badge/💬%20yo-0.2.12-black?style=plastic)
 ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.11-black?style=plastic)
 
@@ -40,7 +40,8 @@ _This is a <abbr title="Magically automated with duck-powered quackery">automagi
 > [QuackHack-McBLindy.com](https://QuackHack-McBLindy.com)<br>
 
 
-<img src="modules/themes/images/duck.png" alt="QuackHack-McBlindy" width="240">
+<img src="modules/themes/images/duck.png" alt="QuackHack-McBlindy" width="160px">
+
 
 
 __Here lives all home machines/phone config files,__<br>
@@ -70,11 +71,11 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 |---|---|
 | 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-104-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-74-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-8043-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.07B-7c3aed?style=plastic)](bin/) |
 | 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WireGuard-1-dc2626?style=plastic)](modules/network/wg-server.nix) |
-| 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-488-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
+| 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-489-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
 | 🏠 **Home Automation** | [![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)](modules/myHouse.nix) [![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)](modules/myHouse.nix) [![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)](modules/devices.nix) [![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)](modules/myHouse.nix) |
 | 🔐 **Security** | [![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)](modules/secrets.nix) [![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)](modules/secrets.nix) |
 | 🚀 **Workflows** | [![Auto--Docs](https://img.shields.io/badge/Auto--Docs-✅-22c55e?style=plastic)](.github/workflows/) [![Auto--Deploy](https://img.shields.io/badge/Auto--Deploy-✅-22c55e?style=plastic)](.github/workflows/) |
-| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4857-eab308?style=plastic)](bin/) |
+| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4951-eab308?style=plastic)](bin/) |
 <!-- BADGES_END -->
 
 _List would get long, very quackly._ <br>
@@ -188,13 +189,13 @@ Define any optional theme configuration at `config.this.theme`.
 {
   cursorTheme =   {
     name = "Bibata-Modern-Classic";
-    package = "/nix/store/y0sdbvmrkqaia8vwsq0dxps6fxp72wkn-bibata-cursors-2.0.7";
+    package = "/nix/store/qf0hqvlf7falfxxx8vs67adk6m08qdmd-bibata-cursors-2.0.7";
     size = 32
   };
   enable = false;
   fonts =   {
     monospace = "Fira Code";
-    packages = [ "/nix/store/2ld298l8y0c3dfvk9gnnhzxm6szmcbhz-fira-code-6.2" ];
+    packages = [ "/nix/store/n0x0mrlx0j63ak5slnvp5m21xpb0k50q-fira-code-6.2" ];
     system = "Fira Sans"
   };
   gtkSettings =   {
@@ -204,7 +205,7 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/k6afm6silmlq8dbzxc55gwqnijs9rwc4-papirus-icon-theme-20260801"
+    package = "/nix/store/48m37bqwn88nj55zszg6nla57qqmm07i-papirus-icon-theme-20260801"
   };
   name = "gtk3.css";
   styles = "/nix/store/wg23gpsvsws9j5r5r1v9369pa4vfyv15-gtk3.css"
@@ -962,8 +963,8 @@ in { # 🦆 duck say ⮞ house config
   
       # 🦆 says ⮞ Livingroom
       shield = {
-        privateKeyFile = config.sops.secrets.adb.path;
-        publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
+        #privateKeyFile = config.sops.secrets.adb.path;
+        #publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
           
         enable       = true;
         room         = "tv-area";
@@ -1318,13 +1319,13 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         yo.url               = "github:QuackHack-McBlindy/yo?ref=dev";
-        #zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
+        zigduck.url          = "github:QuackHack-McBlindy/zigduck?ref=dev";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
         #yo.url              = "path:/home/pungkula/new/yo";
-        zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
+        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
         #pokenix.url         = "path:/home/pungkula/new/pokenix";
         #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
