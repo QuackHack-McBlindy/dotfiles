@@ -19,13 +19,19 @@ in {
     logLevel = "WARNING";
 
     parameters = [
-      { name = "device";  description = "Device to set countdown on"; type = "string"; optional = false; }
-      { name = "seconds"; description = "Seconds until device turns off"; default = "0"; }
+      { name   = "device";  description = "Device to set countdown on"; type = "string"; optional = false;
+        values = swe.allowFrom "device"; }
+      { name   = "seconds"; description = "Seconds until device turns off"; default = "0"; }
     ];
 
     code = ''
+      ${swe.mkBashMap "DEVICE_LOOKUP" swe.deviceMap}
+
+      _d=$(printf '%s' "$device" | tr '[:upper:]' '[:lower:]')
+      RESOLVED="''${DEVICE_LOOKUP[$_d]:-$device}"
+
       zigduck-cli --publish \
-        --topic "${zigduck.baseTopic}/''${device}/set" \
+        --topic "${zigduck.baseTopic}/''${RESOLVED}/set" \
         --payload "{\"countdown\": ''${seconds}}"
     '';
 

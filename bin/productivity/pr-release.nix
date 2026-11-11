@@ -45,6 +45,30 @@
 #                                   │
 #                                   ▼
 #                                released
+
+
+
+
+
+
+# dotfiles/bin/productivity/pr-release.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+# » ★ QuackHack-McBLindy.com ★ «
+# confirm?  ──no──► EXIT!
+#    │yes
+#    ▼
+# on dev? ──no──► EXIT
+#    │yes
+#    ▼
+# version bumped?  ──no──► EXIT
+#    │yes
+#    ▼
+# version == latest+1? ──no──► EXIT
+#    │yes
+#    ▼
+# changelog empty? ──yes──► EXIT
+#    │no
+#    ▼
+# push dev, create PR, merge into main (CI will release)
 {
   self,
   config,
@@ -60,40 +84,11 @@
         { name = "confirm"; description = "Rquire confirmation"; optional = false; default = true; type = "bool"; }
       ];
       code = ''
-        ${cmdHelpers}
         set -euo pipefail
-
-        flake_lock="flake.lock"
-        if [[ ! -f "$flake_lock" ]]; then
-          echo "error: $flake_lock not found" >&2
-          play_fail
-          exit 1
-        fi
-
-        lock_mtime=$(git log -1 --format=%ct -- "$flake_lock" 2>/dev/null || true)
-        if [[ -z "$lock_mtime" || "$lock_mtime" == "0" ]]; then
-          echo "error: no commit history for $flake_lock" >&2
-          play_fail
-          exit 1
-        fi
-
-        now=$(date +%s)
-        age_s=$(( now - lock_mtime ))
-        max_age_s=$(( 14 * 24 * 60 * 60 ))
-
-        if (( age_s > max_age_s )); then
-          age_d=$(( age_s / 86400 ))
-          echo "error: flake.lock is $age_d days old (limit: 14)" >&2
-          echo "run 'nix flake update', commit the lock, then retry." >&2
-          play_fail
-          exit 1
-        fi
-
-        echo "flake.lock age: $(( age_s / 86400 )) days ✅"
 
         if [[ "''${confirm}" == "true" ]]; then
           echo "SENDING PR TO RELEASE ''${PWD##*/}"
-          read -rp "HAVE YOU COMMITED THE WORD? continue? [y/N] " ans
+          read -rp "continue? [y/N] " ans
           [[ "$ans" =~ ^[Yy]$ ]] || { echo "aborted." >&2; exit 1; }
         fi
 
@@ -159,21 +154,18 @@
             majority_count="$c"
           elif (( c == majority_count )); then
             echo "error: package versions are tied ($v vs $majority_version)" >&2
-            play_fail
             exit 1
           fi
         done
 
         if (( majority_count * 2 <= ''${#packages[@]} )); then
           echo "error: no majority package version" >&2
-          play_fail
           exit 1
         fi
 
         if [[ "$majority_version" == "$latest_tag" ]]; then
           echo "error: version not bumped — still v$majority_version" >&2
           echo "bump the package version(s) before opening the release PR." >&2
-          play_fail
           exit 1
         fi
 
@@ -182,23 +174,14 @@
 
         if [[ "$majority_version" != "$expected" ]]; then
           echo "error: version will be rejected by CI" >&2
-          echo "latest released: v$latest_tag" >&2
-          echo "CI expects:      $expected" >&2
-          echo "you have:        $majority_version" >&2
+          echo "  latest released: v$latest_tag" >&2
+          echo "  CI expects:      $expected" >&2
+          echo "  you have:        $majority_version" >&2
           echo "" >&2
-          play_fail
           exit 1
         fi
 
         echo "version ✅"
-
-        git fetch origin main
-        if ! git merge-tree --write-tree HEAD origin/main >/dev/null 2>&1; then
-          echo "error: dev has conflicts with main — release PR would be unmergeable" >&2
-          echo "resolve with: git merge origin/main   (then re-run)" >&2
-          play_fail
-          exit 1
-        fi
 
         body=$(mktemp)
         trap 'rm -f "$body"' EXIT
@@ -207,133 +190,34 @@
 
         if ! grep -qE '^\s*[-*+]\s' "$body"; then
           echo "error: [Unreleased] section is empty" >&2
-          play_fail
           exit 1
-        fi
-
-        git fetch origin dev
-        if ! git rebase origin/dev; then
-          echo "error: rebase onto origin/dev failed — resolve and rerun" >&2
-          play_fail
-          exit 1
-        fi
-
-        if [[ "$(git rev-parse HEAD)" == "$(git rev-parse origin/dev)" ]]; then
-          git commit --allow-empty -m "chore: trigger release CI"
         fi
 
         git push origin dev
 
+        title="''${1:-Release}"
         pr_url=$(
-          gh pr list \
-            --head dev \
+          gh pr create \
             --base main \
-            --state open \
-            --json url \
-            --jq '.[0].url // empty'
+            --head dev \
+            --title "$title" \
+            --body-file "$body"
         )
-
-        if [[ -n "$pr_url" ]]; then
-          echo "reusing existing PR: $pr_url"
-          gh pr edit "$pr_url" --body-file "$body"
-        else
-          title="Release"
-          pr_url=$(
-            gh pr create \
-              --base main \
-              --head dev \
-              --title "$title" \
-              --body-file "$body"
-          )
-          echo "PR: $pr_url"
-        fi
+        echo "PR: $pr_url"
         echo ""
         echo "waiting for CI checks to pass..."
-
-        sha=$(git rev-parse HEAD)
-        repo=$(gh repo view --json nameWithOwner --jq .nameWithOwner)
-
-        registered=false
-        for _ in $(seq 1 60); do
-          n=$(gh api "repos/$repo/commits/$sha/check-runs" \
-                --jq '.total_count' 2>/dev/null || echo 0)
-          if [[ "$n" -gt 0 ]]; then
-            registered=true
-            echo "checks registered: $n on ${sha:0:7}"
-            break
-          fi
-          sleep 5
-        done
-        if ! $registered; then
-          echo "error: no check-runs registered on ${sha:0:7} within 5 min" >&2
-          echo "inspect: $pr_url" >&2
-          play_fail
-          exit 1
-        fi
-
         if ! gh pr checks "$pr_url" --watch --fail-fast; then
           echo "error: ci FAILED! — PR left open" >&2
           exit 1
         fi
 
-
-        for _ in {1..15}; do
-          mergeable=$(gh pr view "$pr_url" --json mergeable --jq '.mergeable')
-          [[ "$mergeable" != "UNKNOWN" ]] && break
-          sleep 2
-        done
-        if [[ "$mergeable" != "MERGEABLE" ]]; then
-          echo "error: PR is not mergeable ($mergeable) — inspect $pr_url" >&2
-          play_fail
-          exit 1
-        fi
-
         gh pr merge "$pr_url" --merge
-        echo "PR merged. Waiting for release workflow..."
 
-
-        merge_sha=""
-        run_id=""
-        for _ in {1..12}; do
-          [[ -n "$merge_sha" ]] || \
-            merge_sha=$(gh pr view "$pr_url" --json mergeCommit --jq '.mergeCommit.oid // empty')
-          [[ -z "$merge_sha" ]] && { sleep 5; continue; }
-          run_id=$(
-            gh run list --workflow=CI --commit="$merge_sha" --limit=1 \
-              --json databaseId --jq '.[0].databaseId // empty' 2>/dev/null
-          )
-          [[ -n "$run_id" ]] && break
-          sleep 5
-        done
-
-        if [[ -z "$run_id" ]]; then
-          echo "warning: could not locate release workflow run" >&2
-          echo "once it finishes, sync with:" >&2
-          echo "git fetch origin --tags && git merge --ff-only origin/dev" >&2
-          play_fail
-          exit 0
-        fi
-
-        if ! gh run watch "$run_id" --interval=10; then
-          echo "error: release workflow failed — inspect 'gh run view $run_id'" >&2
-          play_fail
-          exit 1
-        fi
-
-        git fetch origin --tags
-        if git merge --ff-only origin/dev; then
-          echo "local dev synced ✅"
-        else
-          echo "warning: release finished but local dev could not fast-forward" >&2
-          echo "resolve manually: git fetch origin --tags && git merge origin/dev" >&2
-        fi
         echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
         echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
         echo "🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆"
         echo "⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐🦆⭐"
         play_relax
-
-
       '';
     };
 

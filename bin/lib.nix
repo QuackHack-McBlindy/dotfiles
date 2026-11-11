@@ -84,7 +84,9 @@
       if scriptName == null then {}
       else config.yo.scripts.${scriptName}.voice.lists.${listName} or {};
     in if (def.wildcard or false) then []
-       else lib.unique (map (v: v.out) (def.values or []));
+       else lib.unique (lib.concatMap
+         (v: let o = v.out; in [ o (lib.toLower o) ])
+         (def.values or []));
 
 
   # 🦆 says ⮞ HOUSE LISTS

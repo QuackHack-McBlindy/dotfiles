@@ -15,34 +15,55 @@ let # 🦆 duck say ⮞ big ducks build their own home
 
   # 🦆 duck say ⮞ Create a home, yo!
   mkUserLinks = user: baseDir: let
-    userHome = config.users.users.${user}.home;
+    userHome  = config.users.users.${user}.home;
     storePath = builtins.path {
       path = baseDir;
       name = "home-manifest";
     };
+    copy_paths = builtins.attrNames config.copy;
   in ''
     echo "🦆 duck say ⮞ Mirroring home directory for ${user}"
+
+    copy_paths=(${concatStringsSep " " (map (p: ''"${p}"'') copy_paths)})
+
+    should_copy() {
+      local rel="$1"
+      local p
+      for p in "''${copy_paths[@]}"; do
+        [[ -z "$p" ]] && continue
+        [[ "$rel" == "$p" || "$rel" == "$p"/* ]] && return 0
+      done
+      return 1
+    }
+
     find ${storePath} -type f -print0 | while IFS= read -r -d $'\0' src; do
       rel_path="''${src#${storePath}/}"
       target="${userHome}/''${rel_path}"
-
-      # 🦆 duck say ⮞ Skip if symlink already correct
-      # if [[ -L "$target" && "$(readlink -f "$target")" == "$src" ]]; then
-      #  continue
-      # fi
-
-      echo "🦆 duck say ⮞ Linking: $rel_path"
-      mkdir -vp "$(dirname "$target")"
-
       dir="$(dirname "$target")"
-      if [[ ! -d "$dir" ]]; then
-        chown ${user}:users "$dir"
+
+      mkdir -vp "$dir"
+
+      if should_copy "$rel_path"; then
+        rm -rf "$target"
+        cp -afL "$src" "$target"
+        echo "🦆 duck say ⮞ Copied: $rel_path"
+      else
+        [[ -e "$target" && ! -L "$target" ]] && mv -f "$target" "$target.backup"
+        ln -vsfn "$src" "$target"
+        chown -h ${user}:users "$target"
+        echo "🦆 duck say ⮞ Linked: $rel_path"
       fi
+    done
 
-      [[ -e "$target" && ! -L "$target" ]] && mv -f "$target" "$target.backup"
-
-      ln -vsfn "$src" "$target"
-      chown -h ${user}:users "$target"
+    for p in "''${copy_paths[@]}"; do
+      top="''${p%%/*}"
+      [[ -z "$top" ]] && continue
+      target="${userHome}/''${top}"
+      if [[ -e "$target" ]]; then
+        chown -R ${user}:users "$target"
+        chmod -R u+w "$target"
+        echo "🦆 duck say ⮞ Fixed ownership: $top"
+      fi
     done
   '';
 
@@ -50,9 +71,15 @@ in {
 
   options = {
     file = mkOption {
-      type = types.attrsOf types.lines;
+      type = types.attrsOf (types.either types.lines types.path);
       default = {};
-      description = "Files to create directly under ${homeBase}";
+      description = "Files to create directly under ${homeBase} (string content or a store path to copy).";
+    };
+
+    copy = mkOption {
+      type = types.attrsOf (types.either types.lines types.path);
+      default = {};
+      description = "Files to create under ${homeBase} that are COPIED (not symlinked) into the user's home when mirroring. Use for git-tracked dirs pushed to remotes that can't read /nix/store.";
     };
 
     link = mkOption {
@@ -86,22 +113,28 @@ in {
   config = mkMerge [
     # 🦆 duck say ⮞ Create the file, yo!
     {
-      system.activationScripts.simpleFiles = let
-        files = config.file;
 
+
+      system.activationScripts.simpleFiles = let
+        files = config.file // config.copy;
       in {
         text = concatStringsSep "\n" (mapAttrsToList (path: content:
           let
-            storeName = "file-${sanitize path}";
-            storePath = pkgs.writeText storeName content;
             fullPath = "${homeBase}/${path}";
-            dir = dirOf fullPath;
+            dir      = dirOf fullPath;
             username = config.this.user.me.name;
+
+            isStore = builtins.isPath content || builtins.getContext content != {};
+            src     = if isStore
+                      then toString content
+                      else toString (pkgs.writeText "file-${sanitize path}" content);
+            mode    = if isStore then "644" else "600";
           in ''
             mkdir -p "${dir}"
-            cp -f "${storePath}" "${fullPath}"
+            rm -f "${fullPath}"
+            cp -f "${src}" "${fullPath}"
             chown "${username}:users" "${fullPath}"
-            chmod 600 "${fullPath}"
+            chmod ${mode} "${fullPath}"
             echo "🦆 duck say ⮞ Created file: ${fullPath}"
           '') files);
         deps = [];

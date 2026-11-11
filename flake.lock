@@ -502,11 +502,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1793995029,
-        "narHash": "sha256-ZlE4BtMjWhfC6rFXLO9Qimn36Ene1INqCgKDDvazjhc=",
+        "lastModified": 1794261845,
+        "narHash": "sha256-Ivif/kuD68yEOKcZZG3zSwNMFUuIgzUgeJuzcHrQy+8=",
         "owner": "Mic92",
         "repo": "sops-nix",
-        "rev": "89a234ce2daf6e568a7d4b4fe250afdd23d84e20",
+        "rev": "fe7b4228405aeac2ce7192c2049a6e2bc8637082",
         "type": "github"
       },
       "original": {
@@ -624,11 +624,11 @@
         "tinyFlake": "tinyFlake"
       },
       "locked": {
-        "lastModified": 1793980227,
-        "narHash": "sha256-hxHvaA29dj69sr9lt+7Eg7LUXFmT/M70oiXFItj1M7g=",
+        "lastModified": 1794390553,
+        "narHash": "sha256-fDQ1G9OMeCK7CfwyHbkP4SaTjKH3jF+fJF/vUBLB0i0=",
         "owner": "QuackHack-McBlindy",
         "repo": "yo",
-        "rev": "54f7266b39700d22db04ccc099f6121a01d14197",
+        "rev": "4eb505c0f97c4d4a1f98066266f7a2d6fe981bb4",
         "type": "github"
       },
       "original": {

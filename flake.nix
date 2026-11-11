@@ -33,8 +33,8 @@
         in lib.makeFlake {
             systems     = [ "x86_64-linux" "aarch64-linux" ];
             overlays    = lib.mapOverlays ./overlays { inherit lib self inputs; };
-            hosts       = lib.mapHosts ./hosts;
-            packages    = lib.mapModules ./packages import;
-            devShells   = lib.mapModules ./devShells (path: import path);
+            hosts       = lib.mapHosts    ./hosts;
+            packages    = lib.mapModules  ./packages import;
+            devShells   = lib.mapModules  ./devShells (path: import path);
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'

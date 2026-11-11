@@ -49,11 +49,11 @@ in {
         D_LOWER=$(printf '%s' "$D" | tr '[:upper:]' '[:lower:]')
         RESOLVED="''${DEVICE_LOOKUP[$D_LOWER]:-$D_LOWER}"
 
-        EXISTS=$(printf '%s' "$STATE_JSON" | jq -r --arg d "$RESOLVED" '.[$d] != null')
+        EXISTS=$(printf '%s' "$STATE_JSON" | jq -r --arg d "$D_LOWER" '.[$d] != null')
         [ "$EXISTS" != "true" ] && {
           echo "false"; echo "❌ Okänd enhet: '$D'" >&2; exit 1; }
 
-        VALUE=$(printf '%s' "$STATE_JSON" | jq -r --arg d "$RESOLVED" --arg m "$METRIC" '.[$d][$m] // empty' 2>/dev/null)
+        VALUE=$(printf '%s' "$STATE_JSON" | jq -r --arg d "$D_LOWER" --arg m "$METRIC" '.[$d][$m] // empty' 2>/dev/null)
         [ -z "$VALUE" ] && { echo "false"; echo "❌ '$RESOLVED' saknar '$METRIC'" >&2; exit 1; }
         [[ "$VALUE" =~ ^-?[0-9.]+$ ]] || { echo "false"; echo "❌ Icke-numerisk $METRIC: '$VALUE'" >&2; exit 1; }
 

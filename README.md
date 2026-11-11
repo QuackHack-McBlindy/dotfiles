@@ -70,7 +70,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 | **Category** | **Contents** |
 |---|---|
 | 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7875-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.07B-7c3aed?style=plastic)](bin/) |
-| 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WG-dc2626?style=plastic)](modules/network/wg-server.nix) |
+| 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WG-dc2626?style=plastic)](modules/networking/wg-server.nix) |
 | 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-487-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
 | 🏠 **Home Automation** | [![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)](modules/myHouse.nix) [![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)](modules/myHouse.nix) [![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)](modules/devices.nix) [![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)](modules/myHouse.nix) |
 | 🔐 **Security** | [![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)](modules/secrets.nix) [![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)](modules/secrets.nix) |
@@ -1348,9 +1348,9 @@ I like my flakes tiny & ny modules dynamically loaded,
         in lib.makeFlake {
             systems     = [ "x86_64-linux" "aarch64-linux" ];
             overlays    = lib.mapOverlays ./overlays { inherit lib self inputs; };
-            hosts       = lib.mapHosts ./hosts;
-            packages    = lib.mapModules ./packages import;
-            devShells   = lib.mapModules ./devShells (path: import path);
+            hosts       = lib.mapHosts    ./hosts;
+            packages    = lib.mapModules  ./packages import;
+            devShells   = lib.mapModules  ./devShells (path: import path);
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'
 ```

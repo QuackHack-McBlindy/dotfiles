@@ -1,6 +1,6 @@
 { lib, disks, ... }: {
 
-  # Disko configuration (should match your original partitioning scheme)
+
   disko.devices = {
     disk.main = {
       device = lib.mkDefault "/dev/disk/by-id/placeholder";  # Overridden by CLI
@@ -53,5 +53,5 @@
         };
       };
     };
-  };
-}
+
+  };}

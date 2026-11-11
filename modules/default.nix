@@ -21,13 +21,19 @@
     in
       lib.lists.flatten (lib.attrsets.mapAttrsToList processEntry entries);
 in {
-    imports = [ ./security.nix ./this.nix ./myHouse.nix ./pokemon.nix ] ++
-        # 🦆 duck say ⮞ dynamically load and evaluate all modules in these directories on each host
-        (importModulesRecursive ./hardware) ++
-        (importModulesRecursive ./system) ++
-        (importModulesRecursive ./networking) ++
-        (importModulesRecursive ./services) ++
-        (importModulesRecursive ./programs) ++
-        (importModulesRecursive ./themes) ++
-        (importModulesRecursive ./virtualisation);
+    imports = [
+      ./security.nix
+      ./this.nix
+      ./myHouse.nix
+      ./pokemon.nix
+      ./blog.nix
+    ] ++ # 🦆 duck say ⮞ dynamically load and evaluate all modules in these directories on each host
+        (importModulesRecursive ./hardware)       ++
+        (importModulesRecursive ./system)         ++
+        (importModulesRecursive ./networking)     ++
+        (importModulesRecursive ./services)       ++
+        (importModulesRecursive ./programs)       ++
+        (importModulesRecursive ./themes)         ++
+        (importModulesRecursive ./virtualisation) ++
+        (importModulesRecursive ./posts);
         } # 🦆 duck say ⮞ all ducks onboard? letz go!

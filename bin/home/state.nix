@@ -40,7 +40,7 @@ in {
 
       STATE_JSON=$(zigduck-cli --state-json 2>/dev/null | jq -c .)
       if [ -z "$STATE_JSON" ] || ! printf '%s' "$STATE_JSON" | jq -e . >/dev/null 2>&1; then
-        echo "⚠️ Kunde inte hämta status från zigduck"
+        echo "Kunde inte hämta status från zigduck"
         exit 1
       fi
 

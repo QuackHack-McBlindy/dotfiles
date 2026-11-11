@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tor in a Shell — QuackHack-McBlindy.com</title>
+  <meta name="description" content="Every other Tor setup asks you to point something at something. This one asks you to type &lt;code&gt;hide&lt;/code&gt;." />
+
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://quackhack-mcblindy.com/tor-in-a-shell.html" />
+  <meta property="og:title" content="Tor in a Shell — QuackHack-McBlindy.com" />
+  <meta property="og:description" content="Every other Tor setup asks you to point something at something. This one asks you to type &lt;code&gt;hide&lt;/code&gt;." />
+  <meta property="og:image" content="https://quackhack-mcblindy.com/static/img/logo.png" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Tor in a Shell — QuackHack-McBlindy.com" />
+  <meta name="twitter:description" content="Every other Tor setup asks you to point something at something. This one asks you to type &lt;code&gt;hide&lt;/code&gt;." />
+  <meta name="twitter:image" content="https://quackhack-mcblindy.com/static/img/logo.png" />
+
+  <link rel="canonical" href="https://quackhack-mcblindy.com/tor-in-a-shell.html" />
+  <meta name="theme-color" content="#050707" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/static/img/apple-touch-icon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/static/img/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/static/img/favicon-16x16.png" />
+
+  <style>:root {
+  --bg: #050707; --panel: #0b1110; --panel2: #0e1716;
+  --teal: #11e6d2; --teal2: #05a99f;
+  --gold: #f4b52f; --gold2: #ffdc72;
+  --green: #5eea8f; --red: #ff5470; --pink: #ff7ab8;
+  --purple: #b392ff; --blue: #6cb4ff;
+  --text: #f3fffd; --muted: #8ea6a3;
+  --line: rgba(17, 230, 210, .16);
+  --max: 1180px;
+  --frame-header-h: 260px; --frame-bottom-h: 64px;
+  --frame-left-w: 190px; --frame-right-w: 196px;
+  --frame-z: 10000;
+  --mask-left-w: 214px; --mask-right-w: 214px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(0, 221, 204, .10), transparent 34rem),
+    radial-gradient(circle at 90% 45%, rgba(244, 181, 47, .07), transparent 28rem),
+    var(--bg);
+  color: var(--text);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.5;
+  overflow-x: hidden;
+}
+body::before {
+  content: "";
+  position: fixed; inset: 0; z-index: -1;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(17, 230, 210, .08), transparent 40%),
+    radial-gradient(circle at 80% 20%, rgba(244, 181, 47, .08), transparent 40%);
+  animation: aurora 20s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+@keyframes aurora {
+  0%   { opacity: .5; transform: scale(1); }
+  100% { opacity: 1;  transform: scale(1.15); }
+}
+a { color: inherit; text-decoration: none; }
+.wrap { width: min(calc(100vw - var(--mask-left-w) - var(--mask-right-w) - 40px), var(--max)); margin: auto; }
+.gold { color: var(--gold); } .white { color: #fff; } .muted { color: var(--muted); }
+.teal { color: var(--teal); } .green { color: var(--green); } .pink { color: var(--pink); }
+.purple { color: var(--purple); } .red { color: var(--red); } .blue { color: var(--blue); }
+
+.duckhawk-frame {
+  position: fixed; inset: 0; width: 100vw; height: 100vh;
+  z-index: var(--frame-z); pointer-events: none; overflow: hidden; display: none;
+}
+.frame-piece { position: fixed; display: block; pointer-events: none; user-select: none; max-width: none; }
+.frame-header { top: 0; left: 0; width: 100vw; height: var(--frame-header-h); object-fit: fill; }
+.frame-left { top: var(--frame-header-h); left: 0; width: var(--frame-left-w); height: calc(100vh - var(--frame-header-h) - var(--frame-bottom-h)); object-fit: fill; }
+.frame-right { top: var(--frame-header-h); right: 0; width: var(--frame-right-w); height: calc(100vh - var(--frame-header-h) - var(--frame-bottom-h)); object-fit: fill; }
+.frame-bottom { left: 0; bottom: 0; width: 100vw; height: var(--frame-bottom-h); object-fit: fill; }
+
+.frame-navigation {
+  position: fixed; inset: 0 0 auto 0; width: 100vw; height: var(--frame-header-h);
+  z-index: calc(var(--frame-z) + 1); pointer-events: none; display: none;
+}
+.frame-nav-link {
+  position: absolute; pointer-events: auto;
+  display: flex; align-items: center; justify-content: center;
+  padding: 10px 18px; color: #f4df9a;
+  font-family: "Cinzel Decorative", Georgia, serif;
+  font-size: 40px; font-weight: 800; letter-spacing: .13em;
+  text-transform: uppercase; white-space: nowrap;
+  text-shadow: 0 2px 4px rgba(0,0,0,.95), 0 0 12px rgba(17,230,210,.35);
+  transition: color .25s ease, transform .25s ease, text-shadow .25s ease;
+}
+.frame-nav-home     { left: 25%; top: 140px; transform: translate(-50%, -50%); }
+.frame-nav-showcase { left: 75%; top: 140px; transform: translate(-50%, -50%); }
+.frame-nav-link::after {
+  content: ""; position: absolute; left: 15%; right: 15%; bottom: 3px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  opacity: .65; transform: scaleX(.35);
+  transition: transform .25s ease, opacity .25s ease;
+}
+.frame-nav-link:hover {
+  color: #fff5cf; transform: translate(-50%, -50%) translateY(-2px);
+  text-shadow: 0 2px 4px rgba(0,0,0,1), 0 0 18px rgba(17,230,210,.65);
+}
+.frame-nav-link:hover::after { opacity: 1; transform: scaleX(1); }
+
+.mobile-nav {
+  display: none; justify-content: center; gap: 10px;
+  padding: 12px 14px; background: linear-gradient(180deg, #0b1110, #050707);
+  border-bottom: 1px solid var(--line);
+}
+.mobile-nav a {
+  padding: 8px 16px; border-radius: 10px; color: var(--gold);
+  font-family: "Cinzel Decorative", Georgia, serif; font-weight: 700; letter-spacing: .06em;
+}
+.mobile-nav a:hover { background: rgba(17, 230, 210, .1); color: var(--gold2); }
+
+@media (min-width: 1200px) and (min-height: 700px) {
+  .duckhawk-frame, .frame-navigation { display: block; }
+}
+@media (max-width: 1199px), (max-height: 699px), (min-width: 3440px),
+       (min-aspect-ratio: 1/2) and (max-aspect-ratio: 9/16) {
+  .duckhawk-frame, .frame-navigation { display: none; }
+  .mobile-nav { display: flex; }
+  .wrap { width: min(calc(100vw - 40px), var(--max)); }
+  main { padding-top: 20px !important; padding-bottom: 24px !important; }
+}
+
+header { position: relative; min-height: 200px; isolation: isolate; }
+header:before {
+  content: ""; position: absolute; inset: 0; z-index: -2;
+  background:
+    linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,0) 30%, var(--bg) 100%),
+    url("/static/img/logo.png") center top / min(1500px, 100vw) auto no-repeat;
+  filter: saturate(1.04);
+}
+header:after {
+  content: ""; position: absolute; z-index: -1;
+  left: 0; right: 0; bottom: 0; height: 100px;
+  background: linear-gradient(180deg, transparent, var(--bg)); pointer-events: none;
+}
+
+main {
+  padding-top: calc(var(--frame-header-h) + 20px);
+  padding-bottom: calc(var(--frame-bottom-h) + 20px);
+}
+.content-section { padding: 20px 0 50px; }
+
+.reveal { opacity: 0; transform: translateY(22px); transition: .7s ease; }
+.reveal.in { opacity: 1; transform: none; }
+
+footer { padding: 26px 0 34px; border-top: 1px solid var(--line); }
+.footer-row {
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 16px; flex-wrap: wrap; color: var(--muted); font-size: .92rem;
+}
+.footer-links a { color: var(--teal); transition: color .2s ease; }
+.footer-links a:hover { color: var(--gold); }
+
+.glitch { animation: glitch 3s linear infinite; }
+@keyframes glitch {
+  0%, 4%, 8%, 12%, 100% { filter: none; }
+  1%, 5%, 9% { filter: url(#f1); }
+}
+.hue-shift { animation: hueshift 45s ease-in-out infinite; }
+@keyframes hueshift {
+  0%, 50% { filter: hue-rotate(0deg); }
+  60% { filter: hue-rotate(360deg); }
+  70% { filter: hue-rotate(0deg); }
+  80% { filter: hue-rotate(360deg); }
+  90% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+@media (max-width: 850px) {
+  :root {
+    --frame-header-h: 190px; --frame-bottom-h: 48px;
+    --frame-left-w: 105px; --frame-right-w: 108px;
+  }
+  header { min-height: 150px; }
+  .frame-nav-link { font-size: 17px; letter-spacing: .08em; padding: 8px 10px; }
+  .frame-nav-home     { left: 24%; top: 78px; }
+  .frame-nav-showcase { left: 76%; top: 78px; }
+}
+@media (max-width: 560px) {
+  :root {
+    --frame-header-h: 145px; --frame-bottom-h: 38px;
+    --frame-left-w: 72px; --frame-right-w: 74px;
+  }
+  .wrap { width: min(calc(100% - 28px), var(--max)); }
+  header { min-height: 120px; }
+  .frame-nav-link { font-size: 14px; letter-spacing: .06em; padding: 7px 6px; }
+  .frame-nav-home     { left: 23%; top: 61px; }
+  .frame-nav-showcase { left: 77%; top: 61px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  body::before { animation: none; opacity: .6; }
+  .glitch, .hue-shift { animation: none !important; }
+}
+.hero { text-align: center; padding: 30px 0 50px; }
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 6px 16px; background: rgba(17, 230, 210, .06);
+  border: 1px solid rgba(17, 230, 210, .3); border-radius: 999px;
+  font-family: "JetBrains Mono", monospace; font-size: .76rem;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--teal); margin-bottom: 24px;
+}
+.hero-title {
+  font-family: "Cinzel Decorative", Georgia, serif;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  line-height: 1.1; letter-spacing: -.02em; margin: 0 0 22px;
+}
+.hero-sub {
+  font-size: clamp(1.02rem, 1.8vw, 1.15rem);
+  color: var(--muted); max-width: 680px;
+  margin: 0 auto 28px; line-height: 1.65;
+}
+.hero-sub code {
+  color: var(--gold2); background: rgba(244,181,47,.08);
+  padding: 1px 6px; border-radius: 4px;
+  font-family: "JetBrains Mono", monospace; font-size: .9em;
+}
+
+.stat-strip {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px; max-width: 1000px; margin: 0 auto;
+}
+.stat-tile {
+  background: linear-gradient(180deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 22px 16px; text-align: center;
+  transition: border-color .25s ease, transform .25s ease;
+}
+.stat-tile:hover { border-color: rgba(17,230,210,.35); transform: translateY(-2px); }
+.stat-tile strong {
+  display: block; font-family: "Cinzel Decorative", Georgia, serif;
+  font-size: clamp(1.4rem, 3vw, 1.9rem); color: var(--gold2);
+  letter-spacing: -.01em; line-height: 1; margin-bottom: 8px;
+}
+.stat-tile span {
+  color: var(--muted); font-size: .74rem; letter-spacing: .06em;
+  text-transform: uppercase; font-family: "JetBrains Mono", monospace;
+}
+.stat-tile.accent-teal strong   { color: var(--teal); }
+.stat-tile.accent-gold strong   { color: var(--gold); }
+.stat-tile.accent-green strong  { color: var(--green); }
+.stat-tile.accent-pink strong   { color: var(--pink); }
+.stat-tile.accent-purple strong { color: var(--purple); }
+.stat-tile.accent-blue strong   { color: var(--blue); }
+.stat-tile.accent-red strong    { color: var(--red); }
+
+.prose-section { max-width: 720px; margin: 0 auto; }
+.prose-section p {
+  color: #c9dbd8; font-size: 1rem; line-height: 1.75; margin: 0 0 16px;
+}
+.prose-section p:last-child { margin-bottom: 0; }
+.prose-section strong { color: var(--gold2); font-weight: 700; }
+.prose-section em { color: var(--gold2); font-style: italic; }
+.prose-section code {
+  color: var(--gold2); background: rgba(244,181,47,.08);
+  padding: 1px 6px; border-radius: 4px;
+  font-family: "JetBrains Mono", monospace; font-size: .9em;
+}
+.sub-heading {
+  font-family: "Cinzel Decorative", Georgia, serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.4rem); color: var(--teal);
+  margin: 32px 0 14px; letter-spacing: .01em;
+}
+.prose-quote {
+  margin: 24px 0;
+  padding: 14px 20px 14px 24px;
+  border-left: 3px solid var(--teal);
+  background: rgba(17,230,210,.04);
+  border-radius: 0 10px 10px 0;
+  color: #c9dbd8; font-size: 1rem; line-height: 1.7;
+  font-style: italic;
+}
+
+.caveat {
+  max-width: 760px; margin: 0 auto;
+  padding: 18px 22px;
+  background: rgba(255,84,112,.04);
+  border: 1px solid rgba(255,84,112,.2);
+  border-left: 3px solid var(--red);
+  border-radius: 10px;
+  color: #c9dbd8; font-size: .95rem; line-height: 1.7;
+}
+.caveat strong {
+  color: var(--red); font-weight: 700;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.caveat strong::before { content: "⚠"; font-size: 1.05em; }
+.caveat code {
+  color: var(--gold2); background: rgba(244,181,47,.08);
+  padding: 1px 5px; border-radius: 3px;
+  font-family: "JetBrains Mono", monospace; font-size: .9em;
+}
+
+.big-quote {
+  font-family: "Cinzel Decorative", Georgia, serif;
+  font-size: clamp(1.15rem, 2.4vw, 1.4rem); line-height: 1.5;
+  text-align: center; color: var(--gold2);
+  margin: 20px auto; max-width: 700px; padding: 0 20px;
+}
+.big-quote::before, .big-quote::after {
+  content: ""; display: block; width: 60px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal), transparent);
+  margin: 0 auto;
+}
+.big-quote::before { margin-bottom: 20px; }
+.big-quote::after { margin-top: 20px; }
+.big-quote strong { color: var(--teal); font-style: italic; }
+
+.cross-links {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px; max-width: 900px; margin: 0 auto;
+}
+.cross-link {
+  display: flex; align-items: center; gap: 16px;
+  padding: 20px 22px;
+  background: linear-gradient(180deg, var(--panel2), var(--panel));
+  border: 1px solid var(--line); border-radius: 14px;
+  transition: border-color .25s ease, transform .25s ease;
+}
+.cross-link:hover { border-color: rgba(17,230,210,.4); transform: translateY(-2px); }
+.cross-link .cl-icon { font-size: 1.8rem; flex: 0 0 auto; }
+.cross-link .cl-body { flex: 1; min-width: 0; }
+.cross-link .cl-title {
+  font-family: "Cinzel Decorative", Georgia, serif;
+  font-size: 1rem; color: var(--gold2);
+  margin: 0 0 3px; letter-spacing: .02em;
+}
+.cross-link .cl-desc {
+  color: var(--muted); font-size: .85rem;
+  margin: 0; line-height: 1.5;
+}
+.cross-link .cl-desc code {
+  color: var(--gold2); background: rgba(244,181,47,.08);
+  padding: 1px 5px; border-radius: 3px;
+  font-family: "JetBrains Mono", monospace; font-size: .9em;
+}
+.cross-link .cl-arrow {
+  color: var(--teal); font-family: "JetBrains Mono", monospace;
+  font-size: 1.2rem; flex: 0 0 auto;
+  transition: transform .2s ease;
+}
+.cross-link:hover .cl-arrow { transform: translateX(4px); }
+
+.config-block {
+  background: #080d0c; border: 1px solid var(--line);
+  border-radius: 18px; overflow: hidden;
+  box-shadow: 0 22px 70px rgba(0,0,0,.55); margin-bottom: 20px;
+}
+.config-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 16px;
+  background: linear-gradient(180deg, #101a18, #0b1110);
+  border-bottom: 1px solid var(--line);
+}
+.config-bar .dot { width: 12px; height: 12px; border-radius: 50%; flex: 0 0 auto; }
+.config-bar .dot.red    { background: #ff5f57; }
+.config-bar .dot.yellow { background: #febc2e; }
+.config-bar .dot.green  { background: #28c840; }
+.config-bar .config-title {
+  margin-left: 10px; color: var(--muted);
+  font-family: "JetBrains Mono", monospace; font-size: .82rem; flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.config-bar .copy-btn {
+  appearance: none; border: 1px solid var(--line);
+  background: rgba(17,230,210,.07); color: var(--teal);
+  font: inherit; font-size: .78rem; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  padding: 6px 14px; border-radius: 8px; cursor: pointer;
+  transition: background .2s ease, border-color .2s ease;
+}
+.config-bar .copy-btn:hover {
+  background: rgba(17,230,210,.15); border-color: rgba(17,230,210,.4);
+}
+.config-block pre {
+  margin: 0; padding: 22px 24px; overflow-x: auto;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 13px; line-height: 1.6; color: #d9ece9;
+  -webkit-font-smoothing: antialiased;
+}
+.config-block code { font: inherit; color: inherit; }
+
+@media (max-width: 560px) {
+  .config-block pre { padding: 18px 16px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+  <nav class="mobile-nav" aria-label="Main navigation">
+    <a href="/index.html">Me</a>
+    <a href="/work.html">Work</a>
+  </nav>
+
+  <div class="duckhawk-frame" aria-hidden="true">
+    <img class="frame-piece frame-header glitch hue-shift" src="/static/img/frame/header.png" alt="" />
+    <img class="frame-piece frame-left" src="/static/img/frame/left.png" alt="" />
+    <img class="frame-piece frame-right" src="/static/img/frame/right.png" alt="" />
+    <img class="frame-piece frame-bottom" src="/static/img/frame/bottom.png" alt="" />
+  </div>
+
+  <nav class="frame-navigation" aria-label="Main navigation">
+    <a class="frame-nav-link frame-nav-home" href="/index.html">Me</a>
+    <a class="frame-nav-link frame-nav-showcase" href="/work.html">Work</a>
+  </nav>
+
+  <div id="content-glitch">
+    <header id="top"></header>
+
+    <main>
+      <section class="content-section hero">
+        <div class="wrap reveal">
+          <div class="hero-eyebrow">Firejail · nftables · NetworkManager</div>
+
+          <h1 class="hero-title">
+            <span class="gold">Tor</span> <span class="white">in a Shell</span>
+          </h1>
+          <p class="hero-sub">Every other Tor setup asks you to point something at something. This one asks you to type <code>hide</code>.</p>
+
+          <div class="stat-strip">
+  <div class="stat-tile accent-teal">
+  <strong>1</strong>
+  <span>bridge</span>
+</div>
+
+<div class="stat-tile accent-gold">
+  <strong>1</strong>
+  <span>nftables rule</span>
+</div>
+
+<div class="stat-tile accent-green">
+  <strong>1</strong>
+  <span>shell alias</span>
+</div>
+
+<div class="stat-tile accent-pink">
+  <strong>0</strong>
+  <span>daemons</span>
+</div>
+
+</div>
+
+        </div>
+      </section>
+
+      <section class="content-section">
+  <div class="wrap reveal">
+    <div class="prose-section">
+      <p>Every other Tor setup asks you to point something at something.<br>This one asks you to type <code>hide</code>.</p>
+<h3 class="sub-heading">The bridge</h3>
+<p>A NetworkManager bridge called <code>tornet</code> at<br><code>10.100.100.1/24</code>.</p>
+<blockquote class="prose-quote">A SOCKS proxy is a suggestion. A network namespace is a wall.</blockquote>
+    </div>
+  </div>
+</section>
+
+
+      <section class="content-section">
+  <div class="wrap reveal">
+    <div class="config-block">
+  <div class="config-bar">
+    <span class="dot red"></span>
+    <span class="dot yellow"></span>
+    <span class="dot green"></span>
+    <span class="config-title">networking/default.nix · the bridge</span>
+    <button class="copy-btn" type="button">Copy</button>
+  </div>
+  <pre><code class="language-nix">ensureProfiles.profiles.tornet = {
+  connection = { id = &quot;tornet&quot;; type = &quot;bridge&quot;; };
+  ipv4.method = &quot;manual&quot;;
+  ipv4.address1 = &quot;10.100.100.1/24&quot;;
+};
+</code></pre>
+</div>
+
+  </div>
+</section>
+
+      <section class="content-section">
+  <div class="wrap reveal">
+    <div class="caveat">
+      <strong>Heads up.</strong>
+      Tor still won't protect you from logging into the same account you
+logged into yesterday without it. It's the same three hops, the same
+exit nodes, the same limits.
+
+    </div>
+  </div>
+</section>
+
+      <section class="content-section">
+  <div class="wrap reveal">
+    <p class="big-quote">The network is unchanged. <strong>What changed is the ceremony.</strong></p>
+  </div>
+</section>
+
+      <section class="content-section">
+  <div class="wrap reveal">
+    <div class="cross-links">
+      <a class="cross-link" href="/house.html">
+  <span class="cl-icon" aria-hidden="true">🏠</span>
+  <div class="cl-body">
+    <h3 class="cl-title">One house, one file</h3>
+    <p class="cl-desc">The other place where Nix replaces a config file with something you can actually read.</p>
+  </div>
+  <span class="cl-arrow" aria-hidden="true">→</span>
+</a>
+
+    </div>
+  </div>
+</section>
+
+    </main>
+
+    <footer>
+      <div class="wrap footer-row">
+        <div>© <span id="year"></span> <strong style="color:#d7e8e5"><span class="gold">QuackHack-McBlindy.com</span></strong></div>
+        <div class="footer-links">
+          <a href="#top">Top</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <noscript>
+    <style>.reveal { opacity: 1 !important; transform: none !important; }</style>
+  </noscript>
+
+  <script>
+  (function () {
+    'use strict';
+    const yearEl = document.getElementById('year');
+    if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+    if ('IntersectionObserver' in window) {
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('in');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      document.querySelectorAll('.reveal').forEach((el) => io.observe(el));
+    } else {
+      document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
+    }
+
+    document.querySelectorAll('.copy-btn').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const block = btn.closest('.config-block');
+        const code = block ? block.querySelector('pre code') : null;
+        if (!code) return;
+        try {
+          await navigator.clipboard.writeText(code.textContent);
+          btn.textContent = 'Copied ✓';
+          setTimeout(() => { btn.textContent = 'Copy'; }, 1500);
+        } catch (_) {
+          btn.textContent = 'Failed';
+        }
+      });
+    });
+  })();
+  </script>
+</body>
+</html>
