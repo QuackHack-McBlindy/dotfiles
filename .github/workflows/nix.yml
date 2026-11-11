@@ -21,13 +21,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/determinate-nix-action@v3
 
-      - name: Free disk space
-        run: |
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
-                      /opt/hostedtoolcache/CodeQL || true
-          df -h /
-
       - uses: DeterminateSystems/flake-checker-action@v9
 
       - name: nix flake check
-        run: nix flake check --system x86_64-linux --keep-going --accept-flake-config
+        run: nix flake checkg
