@@ -457,7 +457,7 @@ in { # 🦆 duck say ⮞ house config
             enable       = true;
             description  = "Give the cealing life. Life in colors.";
             topic        = "${zigduck.baseTopic}/effects/living/cealing/loop";
-            actions  = [
+            actions  = [ 
             # 🦆 ⮞ loop living cealing until state changes
             "loopa levande taket tills den ändrar tillstånd"
             ];
@@ -614,7 +614,7 @@ in { # 🦆 duck say ⮞ house config
               enable           = true;
               description      = "Turn off kitchen fan. (+ all lights)";
               extra_actions    = [ "stäng av fläkten" ];
-            };
+            };            
           };
         };
 
@@ -967,9 +967,9 @@ in { # 🦆 duck say ⮞ house config
     # 🦆says⮞ configure TV devices with: room, ip, apps & channel information
     tv       = {
       privateKeyFile = config.sops.secrets.adb.path;
-      publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";
+      publicKey      = "QAAAACEJNfsfRV4PQ9Ah87MbTVbMkbXC6CAMDOR+0K6mIpv/4TSzYMkc2qit3Kryc55IVOjwR3fJRjj/uL549gZ7nEemWtcd3AsYQBp0iIEor8nu1L/V6jfsTY6Xe/pl06xoroy6OwZRWuDbZ4wD2xQRRQjfPd+JtYnMAWneM6r1V15uR67w4ITvjk3ckyfgNeLZMUwahMRjC3wSjaU9sAdKNmg8yPd8uHZ+mK6mstxJFAGEpnnm1lE7Z2r0DF6h6MKY1++dwhU+WM5BRDNiBg+D4i6fDW4+Z1I9ENuFnjT17zAxZXch04SNlG3O94BANYP7jmKp60OvtDL6msfphntuIUzMCkndF9De0Kv4lJdQxe1d+wf+AFpmtd/xtrk45YdMV+eWCJf2OkidaHmSj4ffkAobpun0VrkZN2Z1JymmdsvUbyMjAsby3Zun0xr3EocUS8Jy5TcsK/dcpD6CB5dqzlHhsHSAWt2TDwPzZYXgV1xc+q+PqM09OVN1xActJu75UMkg5b84U15hwQvYdwB8UaopMWWk6p064c7gxYSfH7fSxwkW2Jy1CElgJa55Pp4SZG9b/3B+VcNL1WSf6v/lvJqPbrRvBqvS0+e9wcFMNZtQKTX3n5X0wW1/czZPCQX+hmM8Uu1qrtaz4rKViIEGf4YR0/9eUGYQVfuAxAh8ZmsroJlnAAEAAQA= pungkula@desktop";  
       # 🦆 says ⮞ Livingroom
-      shield = {
+      shield = {          
         enable       = true;
         room         = "tv-area";
         ip           = devices.shield.ip;
@@ -1290,6 +1290,12 @@ in { # 🦆 duck say ⮞ house config
         owner    = config.this.user.me.name;
         group    = "zigduck";
         mode     = "0440";
+      };
+      adb = {
+        sopsFile = ./../secrets/adb.yaml;
+        owner = config.this.user.me.name;
+        group = "zigduck";
+        mode = "0440";
       };
       z2m_mosquitto = {
         sopsFile = ./../secrets/z2m_mosquitto.yaml;

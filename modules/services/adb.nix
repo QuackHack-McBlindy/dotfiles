@@ -39,13 +39,4 @@ in {
             };
         };
 
-        sops.secrets = lib.mkIf (!config.this.installer) {
-            adb = {
-                sopsFile = ./../../secrets/adb.yaml;
-                owner = config.this.user.me.name;
-                group = "zigduck";
-                mode = "0440";
-            };
-        };
-
     };}

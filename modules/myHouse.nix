@@ -1065,6 +1065,12 @@ in { # 🦆 duck say ⮞ house config
         group    = "zigduck";
         mode     = "0440";
       };
+      adb = {
+        sopsFile = ./../secrets/adb.yaml;
+        owner = config.this.user.me.name;
+        group = "zigduck";
+        mode = "0440";
+      };
       z2m_mosquitto = {
         sopsFile = ./../secrets/z2m_mosquitto.yaml;
         owner    = "zigbee2mqtt";
