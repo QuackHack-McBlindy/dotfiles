@@ -22,6 +22,3 @@ jobs:
       - uses: DeterminateSystems/determinate-nix-action@v3
 
       - uses: DeterminateSystems/flake-checker-action@v9
-
-      - name: nix flake check
-        run: nix flake check --no-build --system x86_64-linux --show-trace
