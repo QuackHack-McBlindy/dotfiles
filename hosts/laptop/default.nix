@@ -85,7 +85,7 @@
             system = "x86_64-linux";
             hostname = "laptop";
             interface = [ "enp0s25" ];
-            ip = "192.168.1.222";
+            ip = "192.168.1.223";
             wgip = "10.0.0.3";
             modules = {
                 hardware = [ "cpu/intel" "audio" ];

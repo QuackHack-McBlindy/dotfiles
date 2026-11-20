@@ -14,7 +14,7 @@ in {
     description = "Move a file or directory to a new location";
     category = "📁 File Operations";
     aliases = [ "mv" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "from"; type = "path"; description = "Current path"; optional = false; }

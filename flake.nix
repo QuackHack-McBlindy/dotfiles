@@ -8,15 +8,13 @@
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         yo.url               = "github:QuackHack-McBlindy/yo";
+        yo-gnome.url         = "github:quackhack-mcblindy/yo-gnome-shell-extension";
+        zigduck-gnome.url    = "github:quackhack-mcblindy/zigduck-gnome-shell-extension";
         zigduck.url          = "github:QuackHack-McBlindy/zigduck";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
-        #yo.url              = "path:/home/pungkula/new/yo";
-        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
-        #pokenix.url         = "path:/home/pungkula/new/pokenix";
-        #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
         mobile-pkgs.url      = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
         mobile-nixos = {
@@ -36,5 +34,6 @@
             hosts       = lib.mapHosts    ./hosts;
             packages    = lib.mapModules  ./packages import;
             devShells   = lib.mapModules  ./devShells (path: import path);
+            #checks      = lib.mapModules ./tests (path: import path);
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'

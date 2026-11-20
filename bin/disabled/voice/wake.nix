@@ -29,7 +29,7 @@ in {
     description = "Run Wake word detection for audio recording and transcription";
     category = "🗣️ Voice"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
     #autoStart = builtins.elem config.this.host.hostname [ "desktop" "nasty" "homie" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [ # 🦆 says ⮞ Wake word configuration goez down here yo!
       { name = "threshold"; description = "Wake word probability thresholdn"; default = "0.85"; }

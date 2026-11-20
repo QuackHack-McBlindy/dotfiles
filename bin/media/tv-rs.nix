@@ -724,7 +724,7 @@ in {
     tv-rs = {
       description = "High performance Media Management written in Rust.";
       category = "🎧 Media Management";
-      autoStart = false;
+      # autoStart = false;
       logLevel = "INFO";
       parameters = [ # 🦆 says ⮞ set your mosquitto user & password
         { name = "type"; description = "Specify the type of command or the media type to search for. Supported commands: on, off, up, down, call, favorites, add. Media Types: tv, movie, livetv, podcast, news, music, song, musicvideo, jukebox (random music), othervideo, youtube, nav_up, nav_down, nav_left, nav_right, nav_select, nav_menu, nav_back"; default = "tv"; optional = true; values = [ "on" "off" "up" "down" "next" "prev" "call" "favorites" "add" "tv" "movie" "livetv" "podcast" "news" "music" "song" "musicvideo" "jukebox" "othervideo" "youtube" "nav_up" "nav_down" "nav_left" "nav_right" "nav_select" "nav_menu" "nav_back" "channel_up" "channel_down" ]; }

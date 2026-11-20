@@ -31,8 +31,8 @@ in {
     description = "Fetches home electricity price data";
     category = "🛖 Home Automation";
     aliases = ["el"];
-    runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
-    runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
+#    runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
+#    runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
     parameters = [
       { name = "mode"; description = "Operational mode, possible values are: price, usage and history"; default = "usage";  }
       { name = "homeIDFile"; description = "File path containing the Tibber user home ID"; default = config.sops.secrets.tibber_id.path;  }

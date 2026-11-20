@@ -14,7 +14,7 @@ in {
   yo.scripts.clip2phone = {
     description = "Send clipboard to an iPhone, for quick copy paste";
     category = "⚡ Productivity";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "copy"; description = "Value to send to phone clipboard"; optional = false; }

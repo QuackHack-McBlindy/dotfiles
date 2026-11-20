@@ -14,7 +14,7 @@ in {
     description = "Create a new directory with parents if needed";
     category = "📁 File Operations";
     aliases = [ "mkd" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "path"; type = "path"; description = "Directory path to create"; optional = false; }

@@ -98,7 +98,7 @@
       tokens = lib.splitString " " value;
       # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
       isOptional = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
-      # 🦆 says ⮞ now ducklin' expandz each token — either real or optional wit options
+      # 🦆 says ⮞ now ducklin' expandz each token - either real or optional wit options
       expandToken = token:
         if isOptional token then
           let # 🦆 says ⮞ time 2 clean dat square junk up 4 yo bro
@@ -397,7 +397,7 @@
         }) (expandOptionalWords sentence) # 🦆 says ⮞ diz iz where optional wordz becomez reality
       ) data.sentences # 🦆 says ⮞ waddlin' through all yo' sentencez
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
-  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom
+  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture - all yo' intents livez here boom
   fuzzyIndexFile = pkgs.writeText "fuzzy-index.json" (builtins.toJSON fuzzyIndex);
   matcherDir = pkgs.linkFarm "yo-matchers" (
     map (m: { name = "${m.name}.sh"; path = m.value; }) matchers
@@ -1071,7 +1071,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
     tests-rs = { # 🦆 says ⮞ just run yo tests to do an extensive automated test based on your defined sentence data
       description = "Extensive automated sentence testing for the NLP ()";
       category = "🗣️ Voice";
-      autoStart = false;
+      # autoStart = false;
       logLevel = "INFO";
       parameters = [
         { name = "input"; description = "Text to test as a single  sentence test"; optional = true; }

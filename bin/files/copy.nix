@@ -14,7 +14,7 @@ in {
     description = "Copy a file or directory to a new location";
     category = "📁 File Operations";
     aliases = [ "cp" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "from"; type = "path"; description = "Current path"; optional = false; }

@@ -1,3 +1,5 @@
+*.bak
+*.backup
 dump/
 **/dump/
 .env
@@ -6,6 +8,7 @@ target/
 **/target/
 release/
 **/release/
+
 
 ### SECTION 1: OPERATING SYSTEM ARTIFACTS ###
 # macOS

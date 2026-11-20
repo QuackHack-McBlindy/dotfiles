@@ -57,7 +57,7 @@ in {
          echo "🛡️  Arming rollback watchdog on $host (auto-reboot in $TEST_DELAY)"
          if ! ssh -ttq -p "$port" "$user@$host" \
               "sudo systemd-run --collect --on-active=$TEST_DELAY --unit='$TEST_UNIT' systemctl reboot"; then
-           dt_error "❌ Failed to arm rollback watchdog on $host — refusing to test-deploy"
+           dt_error "❌ Failed to arm rollback watchdog on $host - refusing to test-deploy"
            exit 1
          fi
        fi
@@ -125,7 +125,7 @@ in {
          echo "🔨 Building locally and activating remotely..."
        fi
        if $DRY_RUN && $watchdog; then
-         echo "🛡️  Watchdog: $TEST_UNIT — reboot in $TEST_DELAY unless cancelled"
+         echo "🛡️  Watchdog: $TEST_UNIT - reboot in $TEST_DELAY unless cancelled"
        fi
 
        export NIX_SSHOPTS="-p $port"
@@ -155,13 +155,13 @@ in {
            # 🦆 duck say ⮞ give the receiver a beat, then verify we still reach it
            sleep 6
            if ssh -p "$port" -o ConnectTimeout=10 -o BatchMode=yes "$user@$host" true 2>/dev/null; then
-             echo "✅ Link alive — cancelling rollback watchdog"
+             echo "✅ Link alive - cancelling rollback watchdog"
              ssh -ttq -p "$port" "$user@$host" \
                "sudo systemctl stop '$TEST_UNIT.timer' 2>/dev/null || true"
-             say_duck "✅ Test deploy verified — rollback watchdog cancelled"
+             say_duck "✅ Test deploy verified - rollback watchdog cancelled"
              play_win
            else
-             say_duck "❌ Lost contact with $host — receiver will self-reboot in $TEST_DELAY"
+             say_duck "❌ Lost contact with $host - receiver will self-reboot in $TEST_DELAY"
              dt_error "❌ Connection to $host lost after test deploy. Receiver will reboot automatically."
              play_fail
              exit 1

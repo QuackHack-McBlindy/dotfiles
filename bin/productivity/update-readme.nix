@@ -10,6 +10,14 @@
 
   cfg = config.yo;
 
+  allScripts   = lib.attrValues cfg.scripts;
+  voiceScripts = lib.filter (s: s.voiceReady) allScripts;
+
+  totalScripts      = builtins.length allScripts;
+  totalVoiceScripts = builtins.length voiceScripts;
+  totalPatterns     = lib.foldl' (a: s: a + s.voicePatterns) 0 allScripts;
+  totalPhrases      = lib.foldl' (a: s: a + s.voicePhrases)  0 allScripts;
+
   # 🦆 duck say ⮞ total pokemon (events + specials + shiny + breedables)
   pokenixTotal = let
     p     = config.pokenix or null;
@@ -20,42 +28,40 @@
 
 
   # 🦆 says ⮞ generator
-  readmeConfig = pkgs.writeText "readme-config.json" (builtins.toJSON {
-    scriptCount = builtins.length (builtins.attrNames cfg.scripts);
-    scripts = builtins.mapAttrs (name: script: {
+  readmeConfig   = pkgs.writeText "readme-config.json" (builtins.toJSON {
+    scriptCount  = builtins.length (builtins.attrNames cfg.scripts);
+    scripts      = builtins.mapAttrs (name: script: {
       voiceReady = script.voiceReady or false;
-      voice = script.voice or null;
+      voice      = script.voice or null;
     }) cfg.scripts;
 
     voiceStats = {
-      generatedPatterns = cfg.generatedPatterns;
+      scriptCount        = totalVoiceScripts;
+      generatedPatterns  = cfg.generatedPatterns;
       understandsPhrases = cfg.understandsPhrases;
     };
 
     # 🦆 says ⮞ smart home configuration
     smartHome = {
       devices = config.house.zigbee.devices;
-      scenes = config.house.zigbee.scenes;
-      tvs = config.house.tv;
+      scenes  = config.house.zigbee.scenes;
+      tvs     = config.house.tv;
       totalChannels =
         builtins.foldl'
           (acc: tv: acc + builtins.length (builtins.attrNames (tv.channels or {})))
           0
           (builtins.attrValues config.house.tv);
-
     };
 
-    hosts = builtins.length (builtins.attrNames self.nixosConfigurations);
-
-    secrets = builtins.length (builtins.attrNames (config.sops.secrets   or {}));
-
-    packages = builtins.length config.environment.systemPackages;
-
-   pokemonTotal = pokenixTotal;
+    hosts        = builtins.length (builtins.attrNames self.nixosConfigurations);
+    secrets      = builtins.length (builtins.attrNames (config.sops.secrets   or {}));
+    packages     = builtins.length config.environment.systemPackages;
+    totalPosts   = builtins.length (builtins.attrNames config.blog.posts);
+    pokemonTotal = pokenixTotal;
 
     # 🦆 says ⮞ user, host, and theme configs
-    userConfig = config.this.user.me;
-    hostConfig = config.this.host;
+    userConfig  = config.this.user.me;
+    hostConfig  = config.this.host;
     themeConfig = config.this.theme;
 
 
@@ -137,54 +143,6 @@
     "https://github.com/${builtins.elemAt matches 0}/${builtins.elemAt matches 1}/blob/main"
   else ""; # 🦆 duck say ⮞ no match? empty string
 
-  # 🦆 says ⮞ Template function
-
-  makeTemplate = config: pkgs.writeText "README-template.md" ''
-    # ${config.title}
-
-    ${config.badges}
-
-    ## 📊 Stats
-    <!-- SCRIPT_STATS_START -->
-    <!-- SCRIPT_STATS_END -->
-
-    ## 🦆 DUCK CHALLENGE
-    <!-- DUCKS_START -->
-    <!-- DUCKS_END -->
-
-
-    ## 🚀 yo CLI Reference
-    <!-- YO_DOCS_START -->
-    <!-- YO_DOCS_END -->
-
-    ## 🏠 Smart Home Configuration
-    <!-- DEVICES_SCENES_START -->
-    <!-- DEVICES_SCENES_END -->
-
-    ## ⚙️ User Configuration
-    <!-- USER_START -->
-    <!-- USER_END -->
-
-    ## 🖥️ Host Configuration
-    <!-- HOST_START -->
-    <!-- HOST_END -->
-
-    ## 🎨 Theme Configuration
-    <!-- THEME_START -->
-    <!-- THEME_END -->
-
-    ## 📦 Flake Structure
-    <!-- FLAKE_START -->
-    <!-- FLAKE_END -->
-
-    ## 🔌 Flake.nix
-    <!-- FLAKE_NIX_START -->
-    <!-- FLAKE_NIX_END -->
-
-    ## 📞 Contact
-    <!-- CONTACT_START -->
-    <!-- CONTACT_END -->
-  '';
 
 in {
 
@@ -225,6 +183,13 @@ in {
       get_config_value() {
         echo "$CONFIG_DATA" | ${pkgs.jq}/bin/jq -r "$1"
       }
+
+      # 🦆 says ⮞ debug logging: scripts counter, voice scripts, regex patterns, phrases
+      dt_info "Scripts: $(get_config_value '.scriptCount')"
+      dt_info "Voice script: $(get_config_value '[.scripts[] | select(.voiceReady)] | length')"
+      dt_info "Generated regex patterns: $(get_config_value '.voiceStats.generatedPatterns')"
+      dt_info "Understandable phrases: $(get_config_value '.voiceStats.understandsPhrases')"
+
 
       # 🦆 says ⮞ create temp files
       TEMP_README=$(mktemp)
@@ -301,6 +266,10 @@ in {
         #rustc_version=$(rustc --version 2>/dev/null | awk '{print $2}' || echo "unknown")
         rustc_version="1.97.1"
         mosquitto_version=$(mosquitto -h 2>&1 | awk '/^mosquitto version/{print $3}' || echo "unknown")
+        yo_version=$(yo --version 2>/dev/null | awk 'NR==1{print $3}')                 || yo_version="unknown"
+        zigduck_version=$(zigduck-cli --version 2>/dev/null | awk 'NR==1{print $3}')   || zigduck_version="unknown"
+
+        total_posts=$(get_config_value '.totalPosts')
 
         # 🦆 duck say ⮞ construct badge URLs
         nixos_badge="https://img.shields.io/badge/NixOS-''${nixos_version}-blue?style=flat-square\\&logo=NixOS\\&logoColor=white"
@@ -312,6 +281,23 @@ in {
         rust_badge="https://img.shields.io/badge/Rust-''${rustc_version}-orange?style=flat-square\\&logo=rust\\&logoColor=white"
         mosquitto_badge="https://img.shields.io/badge/Mosquitto-''${mosquitto_version}-yellow?style=flat-square\\&logo=eclipsemosquitto\\&logoColor=white"
 
+        local scripts voice_scripts voice_patterns phrases phrases_fmt
+        scripts=$(get_config_value '.scriptCount')
+        voice_scripts=$(get_config_value '.voiceStats.scriptCount')
+        voice_patterns=$(get_config_value '.voiceStats.generatedPatterns')
+        phrases=$(get_config_value '.voiceStats.understandsPhrases')
+
+
+        # 🦆 duck say ⮞ compact big numbers so badges stay readable
+        format_count() {
+          local n="$1"
+          if   [ "$n" -ge 1000000000 ]; then awk -v n="$n" 'BEGIN{printf "%.2fB", n/1e9}'
+          elif [ "$n" -ge 1000000    ]; then awk -v n="$n" 'BEGIN{printf "%.2fM", n/1e6}'
+          elif [ "$n" -ge 1000       ]; then awk -v n="$n" 'BEGIN{printf "%.1fK", n/1e3}'
+          else echo "$n"; fi
+        }
+        phrases_fmt=$(format_count "$phrases")
+
         # 🦆 duck say ⮞ use sed yo
         ${pkgs.gnused}/bin/sed \
           -e "s|https://img.shields.io/badge/NixOS-[^)]*|$nixos_badge|g" \
@@ -322,6 +308,17 @@ in {
           -e "s|https://img.shields.io/badge/Python-[^)]*|$python_badge|g" \
           -e "s|https://img.shields.io/badge/Rust-[^)]*|$rust_badge|g" \
           -e "s|https://img.shields.io/badge/Mosquitto-[^)]*|$mosquitto_badge|g" \
+          -e "s|💬%20yo-[0-9][0-9.]*-black|💬%20yo-$yo_version-black|g" \
+          -e "s|🦆%20zigduck-[0-9][0-9.]*-black|🦆%20zigduck-$zigduck_version-black|g" \
+          -e "s|📜_Scripts-[0-9]*-7c3aed|📜_Scripts-$scripts-7c3aed|g" \
+          -e "s|🎙️_Voice_Scripts-[0-9]*-7c3aed|🎙️_Voice_Scripts-$voice_scripts-7c3aed|g" \
+          -e "s|🎯_Voice_Patterns-[0-9]*-7c3aed|🎯_Voice_Patterns-$voice_patterns-7c3aed|g" \
+          -e "s|💬_Understandable_Phrases-[0-9.]*[BKM]*-7c3aed|💬_Understandable_Phrases-$phrases_fmt-7c3aed|g" \
+          -e "s|🖥️_Hosts-[0-9]*-2563eb|🖥️_Hosts-$(get_config_value '.hosts')-2563eb|g" \
+          -e "s|📦_Packages-[0-9]*-f97316|📦_Packages-$(get_config_value '.packages')-f97316|g" \
+          -e "s|🔒_Secrets-[0-9]*-dc2626|🔒_Secrets-$(get_config_value '.secrets')-dc2626|g" \
+          -e "s|📺_Channels-[0-9]*-0891b2|📺_Channels-$(get_config_value '.smartHome.totalChannels')-0891b2|g" \
+          -e "s|📝_Posts-[0-9]*-[a-fA-F0-9]*|📝_Posts-$total_posts-7c3aed|g" \
           "$file" > "$temp_file" && mv "$temp_file" "$file"
       }
 
@@ -542,34 +539,6 @@ EOF
             else
               echo "```nix\n/* flake.nix not found */\n```" > "$temp_file"
             fi
-            ;;
-
-          DEVICES_SCENES)
-            cat << 'EOF' > "$temp_file"
-### 📡 Zigbee Devices
-EOF
-
-            get_config_value '.smartHome.devices[] | "  - \(.name) (\(.type))"' 2>/dev/null | while read -r device; do
-              echo "$device" >> "$temp_file"
-            done || true
-
-            cat << 'EOF' >> "$temp_file"
-
-### 🎭 Scenes
-EOF
-
-            get_config_value '.smartHome.scenes[] | "  - \(.name)"' 2>/dev/null | while read -r scene; do
-              echo "$scene" >> "$temp_file"
-            done || true
-
-            cat << 'EOF' >> "$temp_file"
-
-### 📺 TV Configuration
-EOF
-
-            get_config_value '.smartHome.tvs[] | "  - \(.name) (\(.type)) - IP: \(.ip)"' 2>/dev/null | while read -r tv; do
-              echo "$tv" >> "$temp_file"
-            done || true
             ;;
 
           CONTACT)

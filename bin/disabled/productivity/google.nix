@@ -75,7 +75,7 @@ in {
 
           # 🦆 says ⮞ interactive mode
           if [ -t 0 ]; then
-            echo "———————————————————————————————————————"
+            echo "---------------------------------------"
             echo "Navigate: [1-5] Open result | [q] Quit"
             while true; do
               read -p "❯ " choice

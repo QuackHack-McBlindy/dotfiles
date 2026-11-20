@@ -80,7 +80,7 @@
     defaultSopsFile = ./../.sops.yaml;
     defaultSopsFormat = "yaml";
     validateSopsFiles = false;
-    age.keyFile = lib.mkDefault "/var/lib/sops-nix/age.age";
+    age.keyFile = lib.mkForce "/var/lib/sops-nix/age.age";
     age.generateKey = lib.mkDefault false; # Only generate keys outside installer
 
     # 🦆 duck say ⮞ sops secrets
@@ -92,6 +92,11 @@
         mode = "0440"; # Read-only for owner and group
       };
     };
+  };
+
+  # 🦆 duck say ⮞ for da sops CLI
+  environment.sessionVariables = {
+    SOPS_AGE_KEY_FILE = config.sops.age.keyFile;
   };
 
   # 🦆 duck say ⮞ quacky hacky with no passy

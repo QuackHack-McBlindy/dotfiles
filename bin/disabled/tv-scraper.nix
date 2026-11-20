@@ -257,7 +257,7 @@ in {
     description = "Scrapes web for tv-listing data. Builds EPG and generates HTML.";
     aliases = [ "tvs" ];
     category = "🎧 Media Management";
-    autoStart = false;
+    # autoStart = false;
     runAt = [ "05:00" ]; # 🦆 says ⮞ most tv guides change day around 5ish
     logLevel = "INFO";
     parameters = [

@@ -13,7 +13,7 @@ in {
   yo.scripts.yo = {
     description = "Say after me";
     category = "🧩 Miscellaneous";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "WARNING";
     parameters = [
       { name = "phrase"; type = "string"; description = "phrase to say"; optional = false; }

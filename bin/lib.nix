@@ -140,6 +140,8 @@
     { "in" = "rörelse|rörelser|motion|rörlig|aktiv|någon|nån|nått|några|folk|person|personer"; out = "rörelse"; }
     { "in" = "batteri"; out = "batteri"; }
   ];
+  statesCase = builtins.listToAttrs (map (s: lib.nameValuePair s.out s."in") states);
+
 
   metrics = [
     { "in" = "effekt|power|watt|w";                       out = "power"; }
@@ -192,6 +194,17 @@
     { "in" = "1800|trettio minuter|30 minuter|en halvtimme"; out = "1800"; }
     { "in" = "2700|fyrtiofem minuter|45 minuter";            out = "2700"; }
     { "in" = "3600|sextio minuter|60 minuter|en timme";      out = "3600"; }
+  ];
+
+
+  weekdays = [
+    { "in" = "monday|mon|mån|månda|måndag";              out = "monday"; }
+    { "in" = "tuesday|tue|tis|tisdag|tisda";        out = "tuesday"; }
+    { "in" = "wednesday|wed|ons|onsdag|onsda";      out = "wednesday"; }
+    { "in" = "thursday|thu|tors|torsdag|torsda"; out = "thursday"; }
+    { "in" = "friday|fri|fre|fredag|freda";              out = "friday"; }
+    { "in" = "saturday|sat|lör|lördag|lörda";            out = "saturday"; }
+    { "in" = "sunday|sun|sön|söndag|sönda";              out = "sunday"; }
   ];
 
   clock = {
@@ -270,8 +283,10 @@
 in {
   inherit
     # 🦆 ⮞ voice lists (in/out)
-    devices rooms scenes states metrics
-    colors brightness durations clock temperature
+    devices rooms scenes
+    states statesCase metrics
+    colors brightness temperature
+    durations clock weekdays
 
     # 🦆 ⮞ param validation
     allowFrom # 🦆 ⮞ extracted from voice lists "out" values

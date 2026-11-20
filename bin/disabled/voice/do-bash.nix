@@ -106,7 +106,7 @@
       tokens = lib.splitString " " value;
       # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
       isOptional = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
-      # 🦆 says ⮞ now ducklin' expandz each token — either real or optional wit options
+      # 🦆 says ⮞ now ducklin' expandz each token - either real or optional wit options
       expandToken = token:
         if isOptional token then
           let # 🦆 says ⮞ time 2 clean dat square junk up 4 yo bro
@@ -380,7 +380,7 @@
         }) (expandOptionalWords sentence) # 🦆 says ⮞ diz iz where optional wordz becomez reality
       ) data.sentences # 🦆 says ⮞ waddlin' through all yo' sentencez
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
-  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom
+  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture - all yo' intents livez here boom
 
   # 🦆 says ⮞ 4 rust version of da nlp
   fuzzyFlatIndex = lib.flatten (lib.mapAttrsToList (scriptName: intent:
@@ -657,7 +657,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       description = "yo let's do it - dynamic regex matching and automatic parameter resolutiion with some fuzzy on top of that. Bash and jq nothing more nothing less.";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       logLevel = "INFO";
-      autoStart = false;
+      # autoStart = false;
       parameters = [
         { name = "input"; description = "Text to parse into a yo command"; optional = false; }
         { name = "fuzzy"; type = "int"; description = "Minimum procentage for considering fuzzy matching sucessful. (1-100)"; default = 15; }

@@ -17,6 +17,7 @@ in {
         hide = "firejail --net=tornet bash";
         mp3 = "find /Pool/Music -type f -name '*.mp3' | fzf | xargs mpg123";
         psx = "ps aux | fzf --preview 'echo {} | awk '\\''{print $2}'\\'' | xargs -I {} ps --pid {}'";
+        "ls --code" = "nix-shell -p eza --run 'eza --code'";
         ls = "lsd --tree --depth 1";
         ls2 = "lsd --tree --depth 2";
         ls3 = "lsd --tree --depth 3";
@@ -25,12 +26,6 @@ in {
         ipnr = "dig +short myip.opendns.com @resolver1.opendns.com";
         localip = "nmcli device show | grep -oP 'IP4.ADDRESS\\[1\\]:\\s+\\K192\\.168\\.1\\.[0-9]+/24'";
         ips = "ifconfig -a | grep -o 'inet6\\? \\(addr:\\)\\?\\s\\?\\(\\(\\([0-9]\\+\\.\\)\\{3\\}[0-9]\\+\\)\\|[a-fA-F0-9:]\\+\\)' | awk '{ sub(/inet6? (addr:)? ?/, \"\"); print }'";
-        sudo = "sudo ";
-        year = "(date +%Y)";
-        week = "date +%V";
-        month = "(date +%m)";
-        #date = "(date +%d)";
-        day_of_week = "(date +%A)";
         clr = "clear";
         clean = "nix-collect-garbage";
         cleand = "nix-collect-garbage -d";

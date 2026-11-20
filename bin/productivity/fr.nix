@@ -22,7 +22,6 @@ in {
     code = ''
       set -euo pipefail
 
-      [[ $# -eq 2 ]] || { echo "usage: $0 <find> <replace>"; exit 1; }
       python3 - "$find" "$replace" <<'PY'
       import pathlib
       import sys

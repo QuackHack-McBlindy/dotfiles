@@ -21,6 +21,8 @@
       tagline = "A gallery of the machines I actually run - past and present. Click any thumbnail to view.";
 
       sections = [
+        { duck = "these are my machines - i like building";}
+
         { html = ''
           <section class="content-section" id="hardware">
             <div class="wrap reveal">
@@ -259,7 +261,6 @@
           font-size: .95rem;
         }
 
-        /* Lightbox */
         .lightbox {
           position: fixed;
           inset: 0;

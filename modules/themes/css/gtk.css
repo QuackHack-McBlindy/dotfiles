@@ -1,0 +1,391 @@
+/* =========================================================================
+   Clean Dark GTK3 Theme
+   Requires GTK 3.20+
+   -------------------------------------------------------------------------
+   Everything visual is driven by the palette below — change these six
+   colours and the whole theme follows.
+   ========================================================================= */
+
+/* ---------- Palette --------------------------------------------------- */
+@define-color bg          #1e1e1e;  /* window / view background        */
+@define-color bg_dark     #161616;  /* sunken areas, inputs            */
+@define-color bg_raised   #2a2a2a;  /* buttons, menus, headerbars      */
+@define-color bg_hover    #333333;  /* hovered surfaces                */
+
+@define-color fg          #dcdcdc;  /* primary text                    */
+@define-color fg_dim      #8a8a8a;  /* secondary / insensitive text    */
+
+@define-color border      #3a3a3a;  /* normal borders                  */
+@define-color border_hi   #4a4a4a;  /* borders on hover                */
+
+@define-color accent      #4a90d9;  /* selection, focus, highlights    */
+@define-color accent_fg   #ffffff;  /* text on top of accent           */
+
+/* ---------- Base ------------------------------------------------------ */
+window {
+  background-color: @bg;
+  color: @fg;
+  font-family: "Cantarell", "DejaVu Sans", sans-serif;
+  font-size: 10pt;
+}
+
+.view,
+textview text,
+iconview {
+  background-color: @bg;
+  color: @fg;
+}
+
+selection,
+*:selected {
+  background-color: @accent;
+  color: @accent_fg;
+}
+
+*:disabled {
+  color: @fg_dim;
+}
+
+separator {
+  background-color: @border;
+  min-width: 1px;
+  min-height: 1px;
+}
+
+/* ---------- Window decoration ----------------------------------------- */
+decoration {
+  border: 1px solid @border;
+  border-radius: 6px 6px 0 0;
+  background-color: @bg_dark;
+}
+
+window:backdrop {
+  color: @fg_dim;
+}
+
+/* ---------- Buttons --------------------------------------------------- */
+button {
+  background-image: none;
+  background-color: @bg_raised;
+  color: @fg;
+  border: 1px solid @border;
+  border-radius: 4px;
+  padding: 6px 12px;
+  box-shadow: none;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+button:hover {
+  background-color: @bg_hover;
+  border-color: @border_hi;
+}
+
+button:active,
+button:checked {
+  background-color: @bg_dark;
+  border-color: @accent;
+}
+
+button:focus {
+  box-shadow: inset 0 0 0 1px @accent;
+}
+
+button:disabled {
+  background-color: @bg;
+  border-color: @border;
+  color: @fg_dim;
+}
+
+/* Flat buttons (toolbars, headerbars) */
+button.flat {
+  background-color: transparent;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+button.flat:hover {
+  background-color: @bg_hover;
+}
+
+/* Semantic buttons */
+button.suggested-action {
+  background-color: @accent;
+  border-color: @accent;
+  color: @accent_fg;
+}
+
+button.destructive-action {
+  background-color: #c0392b;
+  border-color: #c0392b;
+  color: #ffffff;
+}
+
+/* ---------- Entries & text input -------------------------------------- */
+entry,
+spinbutton {
+  background-color: @bg_dark;
+  color: @fg;
+  border: 1px solid @border;
+  border-radius: 4px;
+  padding: 6px 8px;
+  transition: border-color 120ms ease;
+}
+
+entry:hover,
+spinbutton:hover {
+  border-color: @border_hi;
+}
+
+entry:focus,
+spinbutton:focus {
+  border-color: @accent;
+}
+
+entry:disabled {
+  color: @fg_dim;
+}
+
+entry selection,
+textview text selection {
+  background-color: @accent;
+  color: @accent_fg;
+}
+
+/* ---------- Checkboxes / radios / switches ---------------------------- */
+check,
+radio {
+  background-color: @bg_dark;
+  border: 1px solid @border;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+check:checked,
+radio:checked {
+  background-color: @accent;
+  border-color: @accent;
+  color: @accent_fg;
+}
+
+switch {
+  background-color: @bg_dark;
+  border: 1px solid @border;
+  border-radius: 12px;
+}
+
+switch:checked {
+  background-color: @accent;
+  border-color: @accent;
+}
+
+switch slider {
+  background-color: @fg;
+  border-radius: 10px;
+  min-width: 18px;
+  min-height: 18px;
+}
+
+/* ---------- Scrollbars ------------------------------------------------ */
+scrollbar {
+  background-color: transparent;
+  border: none;
+}
+
+scrollbar trough {
+  background-color: @bg_dark;
+  border-radius: 6px;
+}
+
+scrollbar slider {
+  background-color: @border_hi;
+  border-radius: 6px;
+  min-width: 6px;
+  min-height: 6px;
+  margin: 2px;
+}
+
+scrollbar slider:hover {
+  background-color: @fg_dim;
+}
+
+/* ---------- Lists & trees --------------------------------------------- */
+treeview.view,
+list,
+list row {
+  background-color: @bg;
+  color: @fg;
+}
+
+treeview.view:hover,
+list row:hover {
+  background-color: @bg_hover;
+}
+
+treeview.view:selected,
+list row:selected {
+  background-color: @accent;
+  color: @accent_fg;
+}
+
+treeview.view header button {
+  background-color: @bg_raised;
+  border: none;
+  border-bottom: 1px solid @border;
+  border-radius: 0;
+  color: @fg_dim;
+  padding: 6px;
+}
+
+/* ---------- Menus ----------------------------------------------------- */
+menu,
+.menu,
+.context-menu,
+popover.background {
+  background-color: @bg_raised;
+  color: @fg;
+  border: 1px solid @border;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+menuitem {
+  padding: 6px 12px;
+  border-radius: 4px;
+  color: @fg;
+}
+
+menuitem:hover {
+  background-color: @accent;
+  color: @accent_fg;
+}
+
+menuitem:disabled {
+  color: @fg_dim;
+}
+
+menubar {
+  background-color: @bg_dark;
+  color: @fg;
+}
+
+menubar > menuitem {
+  padding: 4px 10px;
+}
+
+/* ---------- Headerbar / titlebar -------------------------------------- */
+headerbar,
+.titlebar {
+  background-color: @bg_dark;
+  background-image: none;
+  color: @fg;
+  border-bottom: 1px solid @border;
+  box-shadow: none;
+  padding: 6px;
+  min-height: 32px;
+}
+
+headerbar:backdrop {
+  color: @fg_dim;
+}
+
+headerbar button {
+  padding: 4px 8px;
+}
+
+/* ---------- Notebooks ------------------------------------------------- */
+notebook > header {
+  background-color: @bg_dark;
+  border-color: @border;
+}
+
+notebook > header tab {
+  color: @fg_dim;
+  padding: 6px 12px;
+  border: none;
+  background-color: transparent;
+}
+
+notebook > header tab:hover {
+  color: @fg;
+}
+
+notebook > header tab:checked {
+  color: @fg;
+  box-shadow: inset 0 -2px @accent;
+}
+
+/* ---------- Frames, panes, toolbars ----------------------------------- */
+frame {
+  border: 1px solid @border;
+  border-radius: 6px;
+}
+
+frame > label {
+  color: @fg_dim;
+}
+
+paned > separator {
+  background-color: @border;
+  min-width: 1px;
+  min-height: 1px;
+}
+
+toolbar {
+  background-color: @bg_dark;
+  border-bottom: 1px solid @border;
+}
+
+/* ---------- Progress, scale, spin ------------------------------------- */
+progressbar trough {
+  background-color: @bg_dark;
+  border-radius: 4px;
+  min-height: 6px;
+}
+
+progressbar progress {
+  background-color: @accent;
+  border-radius: 4px;
+}
+
+scale trough {
+  background-color: @bg_dark;
+  border-radius: 4px;
+  min-height: 4px;
+}
+
+scale highlight {
+  background-color: @accent;
+  border-radius: 4px;
+}
+
+scale slider {
+  background-color: @fg;
+  border: 1px solid @border;
+  border-radius: 50%;
+  min-width: 14px;
+  min-height: 14px;
+}
+
+/* ---------- Tooltips, statusbar, dialogs ------------------------------ */
+tooltip,
+tooltip.background {
+  background-color: @bg_raised;
+  color: @fg;
+  border: 1px solid @border;
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+statusbar {
+  background-color: @bg_dark;
+  color: @fg_dim;
+  border-top: 1px solid @border;
+  padding: 4px 8px;
+  font-size: 9pt;
+}
+
+dialog,
+messagedialog {
+  background-color: @bg;
+  color: @fg;
+}

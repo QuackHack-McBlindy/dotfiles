@@ -30,8 +30,8 @@ in {
   yo.scripts.btc = {
     description = "Crypto currency BTC price tracker";
     category = "🧩 Miscellaneous";
-    runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
-    runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
+#    runAt = lib.mkIf (config.this.host.hostname != "homie") [ "07:00" "18:00" ];
+#    runEvery = lib.mkIf (config.this.host.hostname == "homie") "55";
     parameters = [
       { name = "filePath"; description = "File path to store data"; default = "/home/pungkula/btc_data.txt";  }
       { name = "user"; description = "User which Mosquitto runs on"; default = "mqtt"; optional = false; }

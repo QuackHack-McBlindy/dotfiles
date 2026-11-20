@@ -369,11 +369,21 @@ in {
                         mode = "challenge-response";
                         id = [ "16644366" "16038710" ];
                     };
+                    #rssh = {
+                    #    enable = true;
+                    #    settings = {
+                    #        auth_key_file = "/etc/ssh/sudo_authorized_keys";
+                    #        cue = true;
+                    #    };
+                    #};
                     services = {
                         login.u2fAuth = true;
-                        sudo.u2fAuth = true;
+                        sudo.u2fAuth  = true;
+                        #sudo.rssh     = true;
                     };
                 };
+
+                #services.yubikey-agent.enable = true;
 
                 programs.yubikey-touch-detector = {
                     enable = true;

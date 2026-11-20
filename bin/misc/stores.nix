@@ -10,7 +10,7 @@
     description = "Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours.";
     category = "🌍 Localization";
     aliases = [ "store" "shop" ];
-    autoStart = false;
+    # autoStart = false;
     parameters = [
       { name = "store_name"; description = "Name of store to search for (supports fuzzy matching)"; optional = false; }
       { name = "location"; description = "Filepath containing base location for search, example: City, Country"; default = config.sops.secrets."users/pungkula/homeCity".path; }

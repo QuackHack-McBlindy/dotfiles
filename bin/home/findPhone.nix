@@ -14,7 +14,7 @@ in {
   yo.scripts.findPhone = {
     description = "Helper for locating Phone";
     category = "🛖 Home Automation";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     code = ''
       ${cmdHelpers}

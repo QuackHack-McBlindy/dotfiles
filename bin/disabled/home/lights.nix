@@ -7,7 +7,7 @@ in {
   yo.scripts.lights = {
     description = "Lights toggle";
     category = "🛖 Home Automation";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "state"; type = "string"; description = "On or off"; }

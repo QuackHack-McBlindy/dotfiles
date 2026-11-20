@@ -29,7 +29,7 @@ in {
   yo.scripts.returned = {
     description = "Run when returned home to set home state";
     category = "🛖 Home Automation";
-    autoStart = false;
+    # autoStart = false;
     parameters = [
 
     ];

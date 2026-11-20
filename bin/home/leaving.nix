@@ -29,7 +29,7 @@ in {
   yo.scripts.leaving = {
     description = "Run when leaving house to set away state";
     category = "🛖 Home Automation";
-    autoStart = false;
+    # autoStart = false;
     parameters = [
 
     ];

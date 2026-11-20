@@ -36,7 +36,7 @@ in {
   yo.scripts.vlc = {
     description = "Playlist management for the local machine";
     category = "🎧 Media Management";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "add"; type = "path"; description = "Append file path to playlist"; optional = true; }

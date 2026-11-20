@@ -12,7 +12,7 @@ in {
     description = "Transcode media files";
     aliases = [ "trans" ];
     category = "🎧 Media Management";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
 #    helpFooter = '' # 🦆 says ⮞ TODO Show what is on da TVB usin' glow
 #    '';

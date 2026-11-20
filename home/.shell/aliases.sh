@@ -70,9 +70,13 @@ hm-logs() {
   fi
 }
 
-# 🦆 ⮞ copy $1 to clip
+# 🦆 ⮞ copy pipe or fallback copy $1 to clip
 c() {
-  cat "$1" | xclip -selection clipboard
+  if [ -p /dev/stdin ]; then
+    xclip -selection clipboard
+  else
+    xclip -selection clipboard < "$1"
+  fi
 }
 
 space() {

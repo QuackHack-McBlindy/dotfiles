@@ -128,7 +128,7 @@ in {
   yo.scripts.transcription-ws = {
     description = "WebSocket server for real-time transcription streaming to NLP";
     category = "🗣️ Voice";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     code = ''
       ${cmdHelpers} # 🦆 says ⮞ load default helper functions

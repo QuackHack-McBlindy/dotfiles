@@ -67,7 +67,7 @@ in { # 🦆 says ⮞ yo yo yo yo
     description = "WIP! ESP32 audio development";
     category = "🗣️ Voice";
     logLevel = "DEBUG";
-    autoStart = false;
+    # autoStart = false;
     code = ''
       ${cmdHelpers}
       ${espserver}

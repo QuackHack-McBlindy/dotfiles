@@ -83,7 +83,7 @@ in {
           severity="måttlig"
         fi
 
-        local text="Varning — ett ''${LEVEL,,} inträffade på värddatorn ''${HOSTNAME}. \
+        local text="Varning - ett ''${LEVEL,,} inträffade på värddatorn ''${HOSTNAME}. \
       Vid tidpunkten ''${TIMESTAMP} uppstod felet: ''${MESSAGE}. \
       Det har gått ''${elapsed_text} sedan händelsen. \
       Allvarlighetsgraden bedöms som ''${severity}."

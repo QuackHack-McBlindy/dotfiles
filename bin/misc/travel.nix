@@ -12,7 +12,7 @@ in { # 🦆 says ⮞ voice intents
   yo.scripts.travel = {
     description = "Public transportation helper. Fetches current bus, boat, train and air travel schedules. (Sweden)";
     category = "🌍 Localization";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "to"; description = "Destination stop or city"; optional = false; default = config.sops.secrets."users/pungkula/homeStop".path; }

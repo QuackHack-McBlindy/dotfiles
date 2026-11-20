@@ -4,14 +4,14 @@
 ![CI](https://github.com/quackhack-mcblindy/dotfiles/actions/workflows/nix.yml/badge.svg)
 ![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
-![Nix](https://img.shields.io/badge/Nix-2.34.9-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.60-red?style=flat-square&logo=linux&logoColor=white)
-![GNOME](https://img.shields.io/badge/GNOME-51.0-purple?style=flat-square&logo=gnome&logoColor=white)
+![Nix](https://img.shields.io/badge/Nix-2.35.6-blue?style=flat-square&logo=nixos&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.63-red?style=flat-square&logo=linux&logoColor=white)
+![GNOME](https://img.shields.io/badge/GNOME-51.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.97.1-orange?style=flat-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/💬%20yo-0.2.12-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.11-black?style=plastic)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.14-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.13-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -57,6 +57,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 **Custom everything.**<br>
 
 
+
 | | |
 |---|---|
 | ❌ Home Manager | No ducking way — I just auto-symlink `./home` **--->** `/home` |
@@ -69,13 +70,13 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 <!-- BADGES_START -->
 | **Category** | **Contents** |
 |---|---|
-| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-100-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-70-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-7875-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.07B-7c3aed?style=plastic)](bin/) |
+| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-103-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-74-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-9465-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-121.40B-7c3aed?style=plastic)](bin/) |
 | 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WG-dc2626?style=plastic)](modules/networking/wg-server.nix) |
-| 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-5-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-487-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
+| 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-6-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-491-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
 | 🏠 **Home Automation** | [![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)](modules/myHouse.nix) [![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)](modules/myHouse.nix) [![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)](modules/devices.nix) [![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)](modules/myHouse.nix) |
-| 🔐 **Security** | [![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)](modules/secrets.nix) [![Secrets](https://img.shields.io/badge/🔒_Secrets-40-dc2626?style=plastic)](modules/secrets.nix) |
+| 🔐 **Security** | [![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)](modules/secrets.nix) [![Secrets](https://img.shields.io/badge/🔒_Secrets-42-dc2626?style=plastic)](modules/secrets.nix) |
 | 🚀 **Workflows** | [![Auto--Docs](https://img.shields.io/badge/Auto--Docs-✅-22c55e?style=plastic)](.github/workflows/) [![Auto--Deploy](https://img.shields.io/badge/Auto--Deploy-✅-22c55e?style=plastic)](.github/workflows/) |
-| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4594-eab308?style=plastic)](bin/) |
+| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4594-eab308?style=plastic)](bin/) | [![Posts](https://img.shields.io/badge/📝_Posts-6-7c3aed?style=flat-square)](modules/posts) |
 <!-- BADGES_END -->
 
 _List would get long, very quackly._ <br>
@@ -159,13 +160,14 @@ Define each hosts data at `config.this.host`.
       host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILdwPkRQxlbrbRGwEO5zMJ4m+7QqUQPZg1iqbd5HRP34";
       iPhone = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOMcmr+z7k/yCbrFg+JDgo8JCuWqNVYn10ajRbNTp8fq";
       ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
+      sudo = "ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBPgYvitMqFfGd8i2vv+wOqArNASXUkFTNHPCJ15TZ/pRhlgpJlmOe8E6K0bdgLlHR8jIqgUt6rS7xW7PeLO3GUA= Public key for PIV Authentication";
       wireguard = "Oq0ZaYAnOo5sLpV//OEFwLgjVCxPyeQqf8cZBASluWk="
     }
   };
   modules =   {
     hardware = [ "cpu/intel" "audio" ];
-    networking = [ "default" "pool" ];
-    programs = [ "default" "thunar" "firefox" "vesktop" ];
+    networking = [ "default" "pool" "wg-client" ];
+    programs = [ "default" "thunar" "firefox" "vesktop" "matrix" ];
     services = [ "ssh" "default" "yo" "yo-client" "adb" "openrgb" "backup" "cache" "keyd" "jelly" "duckdns" "tor" "sunshine" ];
     system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
     virtualisation = [ "docker" "vm" ]
@@ -205,10 +207,10 @@ Define any optional theme configuration at `config.this.theme`.
   };
   iconTheme =   {
     name = "Papirus-Dark";
-    package = "/nix/store/48m37bqwn88nj55zszg6nla57qqmm07i-papirus-icon-theme-20260801"
+    package = "/nix/store/amv9cln7a5bf44lbcjndmigcdxpf500z-papirus-icon-theme-20260801"
   };
-  name = "gtk3.css";
-  styles = "/nix/store/wg23gpsvsws9j5r5r1v9369pa4vfyv15-gtk3.css"
+  name = "gtk.css";
+  styles = "/nix/store/n3bncz93i7ksagzf5i95s48ppix5gnmy-gtk.css"
 }
 ```
 
@@ -253,7 +255,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
     if self ? lastModified then toString self.lastModified
-    else throw "flake has no lastModified — needs to be a git-backed flake";
+    else throw "flake has no lastModified - needs to be a git-backed flake";
   tzProbe = pkgs.runCommand "tz-probe" {
     nativeBuildInputs = [ pkgs.tzdata ];
     env.TZDIR = "${pkgs.tzdata}/share/zoneinfo";
@@ -278,6 +280,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
 
 in { # 🦆 duck say ⮞ house config
   house = {
+    languages = [ "sv" "en" ];
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom    = {
@@ -1329,15 +1332,13 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         yo.url               = "github:QuackHack-McBlindy/yo";
+        yo-gnome.url         = "github:quackhack-mcblindy/yo-gnome-shell-extension";
+        zigduck-gnome.url    = "github:quackhack-mcblindy/zigduck-gnome-shell-extension";
         zigduck.url          = "github:QuackHack-McBlindy/zigduck";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
         installer.url        = "github:QuackHack-McBlindy/auto-installer-nixos";
-        #yo.url              = "path:/home/pungkula/new/yo";
-        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
-        #pokenix.url         = "path:/home/pungkula/new/pokenix";
-        #magnixify.url       = "path:/home/pungkula/new/magnixify-gnome-shell-extension";
         # 🦆 ⮞ mobile specific inputs
         mobile-pkgs.url      = "nixpkgs/dfd82985c273aac6eced03625f454b334daae2e8";
         mobile-nixos = {
@@ -1357,6 +1358,7 @@ I like my flakes tiny & ny modules dynamically loaded,
             hosts       = lib.mapHosts    ./hosts;
             packages    = lib.mapModules  ./packages import;
             devShells   = lib.mapModules  ./devShells (path: import path);
+            #checks      = lib.mapModules ./tests (path: import path);
             specialArgs = { pkgs = system: nixpkgs.legacyPackages.${system}; };
         };} # 🦆 duck say ⮞ flakes all set, with no debating — next nix file awaiting, ducks be there waitin'
 ```
@@ -1400,6 +1402,7 @@ git+file:///home/pungkula/dotfiles
 │       └───simple: development environment 'nix-shell'
 ├───nixosConfigurations
 │   ├───desktop: NixOS configuration
+│   ├───fatlap: NixOS configuration
 │   ├───homie: NixOS configuration
 │   ├───laptop: NixOS configuration
 │   ├───nasty: NixOS configuration
@@ -1503,6 +1506,27 @@ View All Scripts
 | [yo switch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/switch.nix) [--flake] [--!] | rb | Rebuild and switch with dry runs as default ('!' to save new system generation) | ✅ |
 | [yo watch](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/watch.nix) [--device] --setting [--value] |  | API controller for ESP32-S3-WATCH-rs. | ✅ |
 | [yo zoom](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/system/zoom.nix) [--action] |  | Magnify the display enough even a blind duck can see a little.. | ✅ |
+| **Core** | | | |
+| [yo automate](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/automate.nix) [--dimmer_gesture] [--dimmer_room] [--door_event] [--door_room] [--motion_room] [--schedule_days] [--schedule_time] [--event] [--topic] --actions |  | Define an automation in natural language. Trigger + actions are compiled to the shared IR and persisted for runtime pickup. | ✅ |
+| [yo chain](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chain.nix) --a --b [--c] [--d] |  | Chain commands.  Splits and dispatches each part sequentially. | ✅ |
+| [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/if.nix) --condition --then [--efter] [--plus] [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false. | ✅ |
+| [yo until](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/until.nix) [--condition] [--body] [--every] [--max_minutes] |  | Repeat a command until a condition becomes true. | ✅ |
+| [yo wait](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/wait.nix) --seconds |  | Wait for x seconds before continue. | ✅ |
+| [yo while](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/while.nix) --condition --body [--every] [--max_minutes] |  | Repeat a command while a condition holds. | ✅ |
+| **Media** | | | |
+| [yo tv](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/tv.nix) [--typ] [--search] [--room] [--season] [--shuffle] |  | Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. | ✅ |
+| [yo tv-guide](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/tv-guide.nix) [--search] [--channel] [--jsonFilePath] |  | Show the current TV-guide with progress bars | ✅ |
+| [yo tv-scrape](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/tv-scrape.nix) [--dir] [--wildcard] |  | Scrape the web for TV-guide data and save data for frontend. | ✅ |
+| **Misc** | | | |
+| [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/alarm.nix) [--hours] [--minutes] [--minuteWord] [--prep] [--list] [--cancel] |  | Set an alarm for a specified time | ✅ |
+| [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
+| **Zigbee** | | | |
+| [yo compare](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/compare.nix) [--device] [--scope] [--metric] [--above] [--below] |  | Return true/false whether a device's numeric metric (power, battery, temperature, humidity, brightness, signal, lux) is above or below a threshold. | ✅ |
+| [yo countdown](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/countdown.nix) --device [--seconds] |  | Set a countdown on a Zigduck device (turns off after N seconds). | ✅ |
+| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--blinds] [--all-lights] [--get-state] [--pair] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
+| [yo scene](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/scene.nix) [--name] |  | Activate a scene by name. | ✅ |
+| [yo snapshot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/snapshot.nix) --action --name |  | Create or restore a named snapshot of the Zigduck light/device states. | ✅ |
+| [yo state](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/state.nix) [--device] [--room] [--state] [--reverse] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | **☎️ Phone** | | | |
 | [yo call](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/call.nix) --contactName --contactFile |  | Calls phone number from contact list | ✅ |
 | [yo text](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/text.nix) --contactName --contactFile |  | Text message a phone number from contact list | ✅ |
@@ -1539,10 +1563,7 @@ View All Scripts
 | [yo hacker-news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/hacker-news.nix) [--show] [--item] [--user] [--clear] [--number] | hn | Hacker news API controller | 📛 |
 | [yo news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/news.nix) [--apis] [--clear] |  | API caller and playlist manager for latest Swedish news from SR. | ✅ |
 | [yo transcode](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/transcode.nix) [--directory] | trans | Transcode media files | 📛 |
-| [yo tv](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv.nix) [--typ] [--search] [--room] [--season] [--shuffle] |  | Android TV Controller. Fuzzy search all media types and creates playlist and serves over webserver for casting. | ✅ |
-| [yo tv-guide](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-guide.nix) [--search] [--channel] [--jsonFilePath] | tvg | TV-guide assistant.. | ✅ |
 | [yo tv-rs](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-rs.nix) [--type] [--search] [--dir] [--build] |  | High performance Media Management written in Rust. | 📛 |
-| [yo tv-scrape](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/tv-scrape.nix) [--dir] [--wildcard] |  | Scrape the web for TV-guide data and save data for frontend. | ✅ |
 | [yo vlc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/vlc.nix) [--add] [--addDir] [--remove] [--list] [--shuffle] [--clear] [--playlist] |  | Playlist management for the local machine | 📛 |
 | **📁 File Operations** | | | |
 | [yo copy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/files/copy.nix) --from --to | cp | Copy a file or directory to a new location | ✅ |
@@ -1558,37 +1579,26 @@ View All Scripts
 | [yo do](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/do.nix) [--input] [--room] |  | do is a natural language to shell script translator that runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution | 📛 |
 | [yo say](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/voice/say.nix) --text [--model] [--blocking] [--path] [--length-scale] |  | Text to speech with baked in model and full duplex audio streaming | 📛 |
 | **🛖 Home Automation** | | | |
-| [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/alarm.nix) [--hours] [--minutes] [--minuteWord] [--prep] [--list] [--cancel] | wakeup | Set an alarm for a specified time | ✅ |
 | [yo bed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/bed.nix) [--part] [--state] |  | Bed controller | ✅ |
 | [yo chair](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/chair.nix) [--part] [--state] |  | Chair controller | ✅ |
-| [yo compare](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/compare.nix) [--device] [--scope] [--metric] [--above] [--below] |  | Return true/false whether a device's numeric metric (power, battery, temperature, humidity, brightness, signal, lux) is above or below a threshold. | ✅ |
-| [yo countdown](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/countdown.nix) --device [--seconds] |  | Set a (nedräkning|countdown) on a Zigbee device (turns off after N seconds). | ✅ |
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
-| [yo house](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/house.nix) [--device] [--state] [--brightness] [--color] [--temperature] [--scene] [--room] [--blinds] [--all-lights] [--get-state] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
-| [yo if](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/if.nix) --condition --then [--efter] [--plus] [--annars] |  | Run a command when a condition holds. Condition is any natural-language query that returns true/false. | ✅ |
 | [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
-| [yo loop](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/loop.nix) [--action] [--name] |  | Handle a configured device loop — repeatedly fires an MQTT topic until the watched device leaves its fingerprint. | ✅ |
 | [yo mqtt2history](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt2history.nix) --field --file |  | Save an MQTT payload field into a JSON history file for the frontend. | ✅ |
 | [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/notify.nix) [--message] [--tag] |  | Send a desktop notification. | ✅ |
 | [yo ping](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/ping.nix) [--device] |  | Turns kitchen fan on/off | ✅ |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
-| [yo scene](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/scene.nix) [--name] |  | Activate a scene by name. | ✅ |
-| [yo snapshot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/snapshot.nix) --action --name |  | Create or restore a named snapshot of the Zigduck light/device states. | ✅ |
-| [yo state](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/state.nix) [--device] [--room] [--state] [--reverse] |  | High-performance unified CLI for controlling all smart home devices. | ✅ |
 | [yo tibber](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/tibber.nix) [--mode] [--homeIDFile] [--APIKeyFile] [--filePath] [--user] [--pwfile] | el | Fetches home electricity price data | ✅ |
-| [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
 | [yo toilet](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/toilet.nix)  |  | Flush the toilet | ✅ |
 | **🧩 Miscellaneous** | | | |
 | [yo btc](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/btc.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency BTC price tracker | ✅ |
-| [yo chain](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chain.nix) --a --b [--c] [--d] |  | Chain commands with 'samt'. Splits and dispatches each part sequentially. | ✅ |
 | [yo chat](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/chat.nix) --text |  | No fwendz? Let's chat yo! | ✅ |
+| [yo duckPUCK-games](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-games.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hockeyGames, hag | Hockey Game Assistant. Fetches game schedule/results from SHL or HockeyAllsvenskan and delivers analyzed natural-language responses (TTS). | ✅ |
 | [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
 | [yo duckPUCK-shl](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-shl.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck, shl | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
-| [yo hockeyGames](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/hockeyGames.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hag | Hockey Assistant. Provides Hockey Allsvenskan data and deliver analyzed natural language responses (TTS). | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Duck says s funny joke. | ✅ |
 | [yo pokemon](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/pokemon.nix) [--pokemon] [--ball] [--dex] [--iv] [--ev] [--stats] [--level] [--many] [--question] [--ribbon] [--eggMoves] [--move] [--ability] [--shiny] [--ha] [--em] [--ribbons] [--listMissing] [--shinyLeft] [--speak] |  | Search user defined Pokémon using PokéNix. | ✅ |
@@ -1598,9 +1608,6 @@ View All Scripts
 | [yo shop-list](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shop-list.nix) [--operation] [--item] [--list] [--mqttUser] [--mqttPWFile] |  | Shopping list management | ✅ |
 | [yo suno](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) --prompt [--genre] | mg | AI generated lyrics and music files powered by Suno | ✅ |
 | [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
-| [yo until](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/until.nix) [--condition] [--body] [--every] [--max_minutes] |  | Repeat a command until a condition becomes true. | ✅ |
-| [yo wait](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/wait.nix) [--duration] |  | Sleep before continue. | ✅ |
-| [yo while](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/while.nix) --condition --body [--every] [--max_minutes] |  | Repeat a command while a condition holds. | ✅ |
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | [yo yo](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/yo.nix) --phrase |  | Say after me | ✅ |
 | **🧹 Maintenance** | | | |

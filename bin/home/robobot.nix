@@ -68,7 +68,7 @@ in { # 🦆 says ⮞ Voice Intents
   yo.scripts.robobot = {
     description = "Designed to simplify configuring the Zigbee Fingerbot Plus";
     category = "🛖 Home Automation";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "device"; description = "Device to control"; optional = false; }

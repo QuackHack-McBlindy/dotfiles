@@ -14,7 +14,7 @@ in {
     description = "Remove files or directories safely";
     category = "📁 File Operations";
     aliases = [ "rm" "delete" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "target"; type = "path"; description = "File or directory to remove"; optional = false; }

@@ -646,7 +646,7 @@ in {
     description = "[🏒🦆] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates annd numbers.";
     category = "🧩 Miscellaneous";
     aliases = [ "puck-ha" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       {

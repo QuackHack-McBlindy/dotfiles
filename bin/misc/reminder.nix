@@ -33,7 +33,7 @@ in {
     description = "Reminder Assistant";
     category = "🧩 Miscellaneous";
     aliases = [ "remind" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "about"; description = "What to be reminded about"; optional = true; }

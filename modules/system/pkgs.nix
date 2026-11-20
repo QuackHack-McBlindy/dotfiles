@@ -13,6 +13,7 @@
         environment.systemPackages = lib.mkMerge [
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [
+                inputs.zigduck-gnome.packages.${pkgs.system}.default
                 pkgs.intel-vaapi-driver
                 pkgs.libva-utils
                 inputs.magnixify.packages.${pkgs.system}.default

@@ -33,6 +33,12 @@
         icon    = icons.desktop;
         ip      = hosts.nasty.ip;
       };
+      "fatlap"   = {
+        enable  = true;
+        room    = "other";
+        icon    = icons.desktop;
+        ip      = hosts.fatlap.ip;
+      };
 
       "iphone" = {
         enable  = false;

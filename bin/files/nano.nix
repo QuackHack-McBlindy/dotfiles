@@ -13,7 +13,7 @@ in {
   yo.scripts.nano = {
     description = "Write content to filepath";
     category = "📁 File Operations";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "file"; type = "path"; description = "File path for the file"; optional = false; }

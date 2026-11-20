@@ -281,7 +281,7 @@
       exit 1
     fi
     if grep -qF "url = \"$url\"" "$BOOKMARKS_FILE"; then
-      echo "BOOKMARK: '$url' already present — skipping" >&2
+      echo "BOOKMARK: '$url' already present - skipping" >&2
       exit 0
     fi
     if ! grep -qF "$MARKER" "$BOOKMARKS_FILE"; then
@@ -505,8 +505,8 @@ EOF
 # 🦆 duck say ⮞ USERCHROME.CSS STYLE =====================#
             # 🦆 duck say ⮞ Create userChrome.css
             cat > "${firefoxProfileDir}/chrome/userChrome.css" <<EOF
-            ${themeCSS}
-            EOF
+${themeCSS}
+EOF
 
             chown -R ${config.this.user.me.name}:users "/home/${config.this.user.me.name}/.mozilla"
             chmod 700 "${firefoxProfileDir}"

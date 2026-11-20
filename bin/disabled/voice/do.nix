@@ -139,7 +139,7 @@
       tokens = lib.splitString " " value;
       # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
       isOptional = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
-      # 🦆 says ⮞ now ducklin' expandz each token — either real or optional wit options
+      # 🦆 says ⮞ now ducklin' expandz each token - either real or optional wit options
       expandToken = token:
         if isOptional token then
           let # 🦆 says ⮞ time 2 clean dat square junk up 4 yo bro
@@ -416,7 +416,7 @@
         }) (expandOptionalWords sentence) # 🦆 says ⮞ diz iz where optional wordz becomez reality
       ) data.sentences # 🦆 says ⮞ waddlin' through all yo' sentencez
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
-  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom
+  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture - all yo' intents livez here boom
 
   # 🦆 says ⮞ fuzzy index only for allowed yo scriptz dat allow dem fuzzy matchin' yo
   scriptsWithFuzzy = lib.filterAttrs (_: script:
@@ -1902,7 +1902,7 @@ in { # 🦆 says ⮞ YOOOOOOOOOOOOOOOOOO
       description = "Brain (do) is a Natural Language to Shell script translator that generates dynamic regex patterns at build time for defined yo.script sentences. It runs exact and fuzzy pattern matching at runtime with automatic parameter resolution and seamless shell script execution";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       aliases = [ "brain" ];
-      autoStart = false;
+      # autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
         echo "[🦆🧠]"

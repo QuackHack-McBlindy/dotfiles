@@ -12,7 +12,7 @@ in { # 🦆 says ⮞ yo
     description = "TV-guide assistant..";
     aliases = [ "tvg" ];
     category = "🎧 Media Management";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "search"; description = "TV show to search for"; optional = true; }

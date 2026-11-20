@@ -12,7 +12,7 @@ in { # 🦆 says ⮞ yo yo yo yo
   yo.scripts.say = {
     description = "Text to speech with built in language detection and automatic model downloading";
     category = "🗣️ Voice";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "WARNING";
     parameters = [ # 🦆 says ⮞ server api configuration goez here yo
       { name = "text"; description = "Input text that should be spoken"; optional = false; }

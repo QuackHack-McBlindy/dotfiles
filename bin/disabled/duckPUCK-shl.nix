@@ -647,7 +647,7 @@ in {
     description = "[🏒🦆] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers.";
     category = "🧩 Miscellaneous";
     aliases = [ "puck" "shl" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       {

@@ -25,7 +25,7 @@ in {
       OUT="$dir"
       mkdir -p "$OUT"
 
-      tv-scraper \
+      zigduck-epg \
         --json-out "$OUT/epg.json" \
         --html-out "$OUT/tv.html" \
         --xml-out  "$OUT/epg.xml"

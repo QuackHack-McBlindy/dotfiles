@@ -22,7 +22,7 @@
 
 in { # 🦆 duck say ⮞ all machines needz some of dis
     imports = [ (modulesPath + "/installer/scan/not-detected.nix")
-        self.inputs.yo.nixosModules.yo
+        #self.inputs.yo.nixosModules.yo
         self.inputs.zigduck.nixosModules.zigduck
         self.inputs.pokenix.nixosModules.pokenix
         ./modules # 🦆 duck say ⮞ load ./modules/default.nix

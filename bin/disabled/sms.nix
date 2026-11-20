@@ -14,7 +14,7 @@ in {
       description = "Stores message history in a clean SMS chat interface and encrypts it";
       category = "⚡ Productivity";
       logLevel = "DEBUG";
-      autoStart = false;
+      # autoStart = false;
       parameters = [
         { name = "text"; type = "string"; description = "Message text recieved/sent"; optional = false; }
         { name = "from"; type = "string"; description = "The senders phone number"; optional = false; }

@@ -19,7 +19,7 @@ in {
       description = "Memory is stats and metrics that acts as contexual awareness for the natural langugage processor. ";
       category = "🗣️ Voice"; # 🦆 says ⮞ duckgorize iz zmart wen u hab many scriptz i'd say!
       aliases = [ "stats" ];
-      autoStart = false;
+      # autoStart = false;
       logLevel = "INFO";
       helpFooter = ''
         echo "[🦆📶] yo memory"

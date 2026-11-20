@@ -13,7 +13,7 @@ in {
   yo.scripts.ip-updater = {
     description = "DDNS updater";
     category = "🌐 Networking";
-    runEvery = "15";
+#    runEvery = "15";
 #    autoStart = config.this.host.hostname == "homie"; # 🦆 says ⮞ dat'z sum conditional quack-fu yo!
 #    aliases = [ "zigb" "hem" ]; # 🦆 says ⮞ and not laughing at me
     # 🦆 says ⮞ run `yo zigduck --help` to display your battery states!

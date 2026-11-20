@@ -14,7 +14,7 @@
         description = "Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice.";
         category = "⚡ Productivity";
         aliases = [ "kal" ];
-        runEvery = lib.mkIf (config.this.host.hostname == "homie") "05";
+#        runEvery = lib.mkIf (config.this.host.hostname == "homie") "05";
         helpFooter = ''
           ${cmdHelpers}
           echo "## ──────⋆⋅☆⋅⋆────── ##"

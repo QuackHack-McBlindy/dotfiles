@@ -12,7 +12,7 @@
   yo.scripts.mqtt2history = {
     description = "Save an MQTT payload field into a JSON history file for the frontend.";
     category    = "🛖 Home Automation";
-    autoStart   = false;
+#    autoStart   = false;
     logLevel    = "WARNING";
 
     parameters = [

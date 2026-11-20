@@ -14,7 +14,7 @@ in {
   yo.scripts.img2phone = {
     description = "Send images to an iPhone";
     category = "⚡ Productivity";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "image"; type = "path"; description = "File path to the image to send"; optional = false; }

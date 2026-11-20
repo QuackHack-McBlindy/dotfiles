@@ -11,7 +11,6 @@ in {
   yo.scripts.news = {
     description = "API caller and playlist manager for latest Swedish news from SR.";
     category = "🎧 Media Management";
-    autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "apis"; description = "Comma seperated list of API's to fetch data form."; default = builtins.concatStringsSep "," [

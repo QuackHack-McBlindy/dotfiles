@@ -11,7 +11,7 @@ in {
   yo.scripts.joke = {
     description = "Duck says s funny joke.";
     category = "🧩 Miscellaneous";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "jokeFile"; description = "A file containing jokes separated by newline."; default = config.sops.secrets.jokes.path; }

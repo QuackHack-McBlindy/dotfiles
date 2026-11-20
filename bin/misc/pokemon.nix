@@ -192,7 +192,7 @@
       elif command -v vlc    >/dev/null 2>&1; then
         cvlc --play-and-exit --quiet "$url" >/dev/null 2>&1 &
       else
-        echo "⚠  No audio player (mpv/ffplay/vlc) — URL: $url" >&2
+        echo "⚠  No audio player (mpv/ffplay/vlc) - URL: $url" >&2
         return 1
       fi
     }
@@ -210,7 +210,7 @@ in {
   yo.scripts.pokemon = {
     description = "Search user defined Pokémon using PokéNix.";
     category = "🧩 Miscellaneous";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "WARNING";
     parameters = [
       { name = "pokemon";    type = "string"; description = "Subject Pokémon";
@@ -289,7 +289,7 @@ in {
               fetch shiny
               T=$(jq 'length' "$CACHE/shiny.json")
               O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
-              echo "You have $O of $T shinies — $((T-O)) left."
+              echo "You have $O of $T shinies - $((T-O)) left."
               ;;
             events)
               fetch events
@@ -306,7 +306,7 @@ in {
               fetch shiny; fetch specials
               N=$(jq '[.[] | select((.ribbons // []) | length > 0)] | length' "$CACHE/specials.json")
               M=$(jq '[.[] | select((.ribbons // []) | length > 0)] | length' "$CACHE/shiny.json")
-              echo "$((N+M)) Pokémon have ribbons — $N in specials and $M in shinies."
+              echo "$((N+M)) Pokémon have ribbons - $N in specials and $M in shinies."
               ;;
             legendary|mythical)
               F=$([ "$many" = "legendary" ] && echo isLegendary || echo isMythical)
@@ -322,7 +322,7 @@ in {
           fetch shiny
           T=$(jq 'length' "$CACHE/shiny.json")
           O=$(jq '[.[] | select(.ball != null)] | length' "$CACHE/shiny.json")
-          echo "You have $O of $T shinies — $((T-O)) left."
+          echo "You have $O of $T shinies - $((T-O)) left."
           exit 0
         fi
 
@@ -430,8 +430,8 @@ in {
           done
           if [ -n "$EVO_MATCH" ]; then
             COUNT=$(echo "$EVO_MATCH" | grep -c .)
-            [ "$COUNT" = "1" ] && echo "Yes, your $EVO_MATCH has $iv $STAT_NAME IV — it's an evolution of $POKEMON." \
-                              || { NAMES=$(echo "$EVO_MATCH" | join_words); echo "Yes, $NAMES have $iv $STAT_NAME IV — evolutions of $POKEMON."; }
+            [ "$COUNT" = "1" ] && echo "Yes, your $EVO_MATCH has $iv $STAT_NAME IV - it's an evolution of $POKEMON." \
+                              || { NAMES=$(echo "$EVO_MATCH" | join_words); echo "Yes, $NAMES have $iv $STAT_NAME IV - evolutions of $POKEMON."; }
             exit 0
           fi
 
@@ -506,7 +506,7 @@ in {
               [ -z "$POKEMON" ] && { echo "Which Pokémon?"; exit 0; }
               V=$(pokedex_evolves_from "$POKEMON")
               if [ -z "$V" ] || [ "$V" = "none" ] || [ "$V" = "null" ]; then
-                echo "$POKEMON doesn't evolve from anything — it's a base form."
+                echo "$POKEMON doesn't evolve from anything - it's a base form."
               else
                 echo "$POKEMON evolves from $V."
               fi
@@ -644,7 +644,7 @@ in {
                 echo "No shiny entry for $POKEMON."
               else
                 STYLE=$(jq -r --arg p "$POKEMON" '.[$p].style // "star"' "$CACHE/shiny.json")
-                NATURE=$(jq -r --arg p "$POKEMON" '.[$p].nature // "—"' "$CACHE/shiny.json")
+                NATURE=$(jq -r --arg p "$POKEMON" '.[$p].nature // "-"' "$CACHE/shiny.json")
                 echo "$POKEMON: shiny in $BALL ball, $STYLE style, nature $NATURE."
               fi
               ;;

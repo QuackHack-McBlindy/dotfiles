@@ -14,7 +14,7 @@ in {
   yo.scripts.shareWiFi = {
     description = "creates a QR code of guest WiFi and push image to iPhone";
     category = "🌐 Networking";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "ssidFile"; description = "File path containing guest WiFi SSID"; default = config.sops.secrets.guest_wifi_ssid.path; }

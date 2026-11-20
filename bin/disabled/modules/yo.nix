@@ -128,7 +128,7 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
       tokens = lib.splitString " " value;
       # 🦆 says ⮞ checkin' if a token be wrapped like [diz] = optional, ya feel?
       isOptional = t: lib.hasPrefix "[" t && lib.hasSuffix "]" t;
-      # 🦆 says ⮞ now ducklin' expandz each token — either real or optional wit options
+      # 🦆 says ⮞ now ducklin' expandz each token - either real or optional wit options
       expandToken = token:
         if isOptional token then
           let # 🦆 says ⮞ time 2 clean dat square junk up 4 yo bro
@@ -405,7 +405,7 @@ let # 🦆 says ⮞ grabbin’ all da scripts for ez listin'
         }) (expandOptionalWords sentence) # 🦆 says ⮞ diz iz where optional wordz becomez reality
       ) data.sentences # 🦆 says ⮞ waddlin' through all yo' sentencez
     ) intent.data # 🦆 says ⮞ scoopin' from every intentz
-  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture — all yo' intents livez here boom
+  ) generatedIntents; # 🦆 says ⮞ diz da sacred duck scripture - all yo' intents livez here boom
 
   # 🦆 says ⮞ fuzzy index only for allowed yo scriptz dat allow dem fuzzy matchin' yo
   scriptsWithFuzzy = lib.filterAttrs (_: script:
@@ -1593,7 +1593,7 @@ in { # 🦆 duck say ⮞ import server/client module
     yo.scripts.say = {
       description = "Text to speech with built in language detection and automatic model downloading";
       category = "🗣️ Voice";
-      autoStart = false;
+      # autoStart = false;
       logLevel = "WARNING";
       parameters = [ # 🦆 says ⮞ server api configuration goez here yo
         { name = "text"; description = "Input text that should be spoken"; optional = false; }

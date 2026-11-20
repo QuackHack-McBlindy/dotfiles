@@ -11,7 +11,7 @@ in {
   yo.scripts.notify = {
     description = "Send custom push to iOS devices";
     category = "🌐 Networking";
-    autoStart = false;
+    # autoStart = false;
     logLevel = "DEBUG";
     parameters = [
       { name = "text"; description = "Notification content"; }

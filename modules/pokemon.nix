@@ -2502,7 +2502,7 @@ in {
 
 
 
-      # GENERATION 3 — HOENN
+      # GENERATION 3 - HOENN
       treecko         = { ball = "safari";  ot = true; selfObtained = true; level = 100; nature = "Timid"; ability = "Overgrow"; teraType = "Grass"; style = "star"; egg = false; notes = ""; };
       grovyle         = { ball = "safari";  ot = true; selfObtained = true; level = 100; nature = "Timid"; ability = "Overgrow"; teraType = "Grass"; style = "star"; egg = false; notes = ""; };
       sceptile = {
@@ -6377,7 +6377,7 @@ in {
       };
 
 
-      # PLA — HISUI
+      # PLA - HISUI
       # wyrdeer         = { ball = "luxury"; ot = true; style = "star"; egg = false; notes = ""; };
       # kleavor         = { ball = "luxury"; ot = true; style = "star"; egg = false; notes = ""; };
       # ursaluna        = { ball = "luxury"; ot = true; style = "star"; egg = false; notes = ""; };

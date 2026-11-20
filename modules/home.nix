@@ -1,40 +1,22 @@
-# dotfiles/modules/home.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-# » ★ QuackHack-McBLindy.com ★ «
-{ # 🦆 duck say ⮞ if u expect home man - you are out of duck
+{
   config,
   lib,
   pkgs,
-  ... # 🦆 duck say ⮞ create a file like diz:  file = { ".config/myfile.txt" = "hello world"; };
+  ...
 } : with lib;
-let # 🦆 duck say ⮞ big ducks build their own home
-
-  # 🦆 duck say ⮞ Create a file, yo!
+let
   homeBase = config.this.user.me.dotfilesDir + "/home";
   sanitize = path:
     replaceStrings ["/"] ["-"] (removePrefix "/" (removePrefix "./" path));
 
-  # 🦆 duck say ⮞ Create a home, yo!
   mkUserLinks = user: baseDir: let
     userHome  = config.users.users.${user}.home;
     storePath = builtins.path {
       path = baseDir;
       name = "home-manifest";
     };
-    copy_paths = builtins.attrNames config.copy;
   in ''
     echo "🦆 duck say ⮞ Mirroring home directory for ${user}"
-
-    copy_paths=(${concatStringsSep " " (map (p: ''"${p}"'') copy_paths)})
-
-    should_copy() {
-      local rel="$1"
-      local p
-      for p in "''${copy_paths[@]}"; do
-        [[ -z "$p" ]] && continue
-        [[ "$rel" == "$p" || "$rel" == "$p"/* ]] && return 0
-      done
-      return 1
-    }
 
     find ${storePath} -type f -print0 | while IFS= read -r -d $'\0' src; do
       rel_path="''${src#${storePath}/}"
@@ -43,27 +25,11 @@ let # 🦆 duck say ⮞ big ducks build their own home
 
       mkdir -vp "$dir"
 
-      if should_copy "$rel_path"; then
-        rm -rf "$target"
-        cp -afL "$src" "$target"
-        echo "🦆 duck say ⮞ Copied: $rel_path"
-      else
-        [[ -e "$target" && ! -L "$target" ]] && mv -f "$target" "$target.backup"
-        ln -vsfn "$src" "$target"
-        chown -h ${user}:users "$target"
-        echo "🦆 duck say ⮞ Linked: $rel_path"
-      fi
-    done
+      [[ -e "$target" && ! -L "$target" ]] && mv -f "$target" "$target.backup"
+      ln -vsfn "$src" "$target"
+      chown -h ${user}:users "$target"
 
-    for p in "''${copy_paths[@]}"; do
-      top="''${p%%/*}"
-      [[ -z "$top" ]] && continue
-      target="${userHome}/''${top}"
-      if [[ -e "$target" ]]; then
-        chown -R ${user}:users "$target"
-        chmod -R u+w "$target"
-        echo "🦆 duck say ⮞ Fixed ownership: $top"
-      fi
+      echo "🦆 duck say ⮞ Linked: $rel_path"
     done
   '';
 
@@ -111,13 +77,9 @@ in {
   };
 
   config = mkMerge [
-    # 🦆 duck say ⮞ Create the file, yo!
+
     {
-
-
-      system.activationScripts.simpleFiles = let
-        files = config.file // config.copy;
-      in {
+      system.activationScripts.simpleFiles = {
         text = concatStringsSep "\n" (mapAttrsToList (path: content:
           let
             fullPath = "${homeBase}/${path}";
@@ -136,7 +98,8 @@ in {
             chown "${username}:users" "${fullPath}"
             chmod ${mode} "${fullPath}"
             echo "🦆 duck say ⮞ Created file: ${fullPath}"
-          '') files);
+          ''
+        ) config.file);
         deps = [];
       };
 
@@ -161,11 +124,9 @@ in {
         deps = [];
       };
 
-
     }
 
     {
-
       file."README.md" = ''
         # 🦆🧑‍🦯 **QuackHack-McBLindy'z ⮞ home directory yay** 🦆🧑‍🦯
 
@@ -197,7 +158,6 @@ in {
       '';
     }
 
-    # 🦆 duck say ⮞ symlink the home, yo!
     (mkIf (config.this.home != null) {
       system.activationScripts.home-mirror = {
         text = ''
@@ -208,7 +168,32 @@ in {
         deps = [ "users" ];
       };
 
+      system.activationScripts.copyFiles = {
+        text = concatStringsSep "\n" (mapAttrsToList (path: content:
+          let
+            fullPath = "${config.users.users.${config.this.user.me.name}.home}/${path}";
+            dir      = dirOf fullPath;
+            username = config.this.user.me.name;
+
+            isStore = builtins.isPath content || builtins.getContext content != {};
+            src     = if isStore
+                      then toString content
+                      else toString (pkgs.writeText "copy-${sanitize path}" content);
+            mode    = if isStore then "644" else "600";
+          in ''
+            mkdir -p "${dir}"
+            rm -f "${fullPath}"
+            cp -fL "${src}" "${fullPath}"
+            chown "${username}:users" "${fullPath}"
+            chmod ${mode} "${fullPath}"
+            echo "🦆 duck say ⮞ Copied directly to home: ${fullPath}"
+          ''
+        ) config.copy);
+        deps = [ "users" ];
+      };
+
       environment.systemPackages = with pkgs; [ git openssh ];
+
       system.activationScripts.submodule-mirror = {
         deps = [ "home-mirror" ];
         text = let
@@ -221,7 +206,7 @@ in {
             target="${userHome}/${name}"
 
             # 🦆 Run as user with proper PATH and SSH command
-            ${pkgs.sudo}/bin/sudo -u ${userName} ${pkgs.bash}/bin/bash -c "
+            ${pkgs.sudo}/bin/sudo -u ${userName} ${pkgs.bash}/bin/bash -c "\
               export PATH=${gitBin}:${sshBin}:\$PATH
               export GIT_SSH_COMMAND=${sshBin}/ssh
               set -e
@@ -242,10 +227,9 @@ in {
         in concatStringsSep "\n" (mapAttrsToList mkRepoScript config.git.subRepo);
       };
 
-
       # 🦆 say ⮞ Set user variiables quack
       environment.variables = {
-        BROWSER = "firefox";
+        BROWSER = "firefox-esr";
         EDITOR = "nano";
         TERMINAL = "ghostty";
         QT_QPA_PLATFORMTHEME = "gtk3";

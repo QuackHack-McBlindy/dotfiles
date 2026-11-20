@@ -12,6 +12,9 @@
 
   cfg = config.blog;
 
+  tagsToKeywords = tags:
+    concatStringsSep ", " (map (t: "\"${t}\"") tags);
+
   esc = s: builtins.replaceStrings
     [ "&" "<" ">" "\"" "'" ]
     [ "&amp;" "&lt;" "&gt;" "&quot;" "&#39;" ]
@@ -37,7 +40,6 @@
                 in wrap captured + go rest
               else first + go rest;
     in go parts;
-
 
   renderInline = s:
     let
@@ -73,18 +75,30 @@
     </div>
   '';
 
+
   renderCodeBlock = c: ''
-    <div class="config-block">
+    <div class="config-block${optionalString c.collapsed " is-collapsed"}">
       <div class="config-bar">
         <span class="dot red"></span>
         <span class="dot yellow"></span>
         <span class="dot green"></span>
+
         <span class="config-title">${esc c.title}</span>
+
+        <button
+          class="collapse-btn"
+          type="button"
+          aria-expanded="${if c.collapsed then "false" else "true"}"
+        >${if c.collapsed then "Expand" else "Collapse"}</button>
+
         <button class="copy-btn" type="button">Copy</button>
       </div>
+
       <pre><code class="language-${esc c.lang}">${esc c.content}</code></pre>
     </div>
   '';
+
+
 
   renderSection = sec:
     if sec.prose != null then ''
@@ -104,26 +118,72 @@
         </div>
       </section>
     ''
+    else if sec.warning != null then ''
+      <section class="content-section">
+        <div class="wrap reveal">
+          ${renderWarning { content = sec.warning; }}
+        </div>
+      </section>
+    ''
+    else if sec.quote != null then ''
+      <section class="content-section">
+        <div class="wrap reveal">
+          ${renderQuote { content = sec.quote; }}
+        </div>
+      </section>
+    ''
+    else if sec.duck != null then ''
+      <section class="content-section">
+        <div class="wrap reveal">
+          ${renderDuck { content = sec.duck; }}
+        </div>
+      </section>
+    ''
+    else if sec.idea != null then ''
+      <section class="content-section">
+        <div class="wrap reveal">
+          <div class="prose-section">
+            ${renderIdea { content = sec.idea; }}
+          </div>
+        </div>
+      </section>
+    ''
     else "";
 
-  renderCaveat = caveat: ''
-    <section class="content-section">
-      <div class="wrap reveal">
-        <div class="caveat">
-          <strong>Heads up.</strong>
-          ${caveat}
-        </div>
+  renderCallout = { className, icon ? "", label ? null, content }:
+    ''
+      <div class="${className}">
+        ${optionalString (label != null) ''<strong>${icon} ${label}</strong>''}
+        ${renderText content}
       </div>
-    </section>
-  '';
+    '';
 
-  renderQuote = quote: ''
-    <section class="content-section">
-      <div class="wrap reveal">
-        <p class="big-quote">${quote}</p>
-      </div>
-    </section>
-  '';
+  renderWarning = section:
+    renderCallout {
+      className = "warning";
+      icon = "";
+      label = "Heads up!";
+      content = section.content;
+    };
+
+  renderDuck = section:
+    renderCallout {
+      className = "duck-comment";
+      content = section.content;
+    };
+
+  renderIdea = section:
+    renderCallout {
+      className = "idea";
+      content = section.content;
+    };
+
+  renderQuote = section:
+    ''
+      <p class="big-quote">${section.content}</p>
+      ${optionalString (section.author or null != null)
+        ''<p class="big-quote-cite">- ${esc section.author}</p>''}
+    '';
 
   renderCrossLinks = links: ''
     <section class="content-section">
@@ -144,32 +204,49 @@
     </section>
   '';
 
+  postDescription = post:
+    if post.description != null then post.description
+    else if post.tagline != "" then post.tagline
+    else "QuackHack-McBLindy.com » Portfolio » I share code, wisdom and tells tales of NixOS flakes.";
+
   renderPage = _name: post: ''
     <!doctype html>
     <html lang="en">
     <head>
       <meta charset="UTF-8">
       <title>QuackHack-McBLindy.com » ${esc post.title} </title>
-      <link rel="canonical" href="https://quackhack-mcblindy.com" />
+      <link rel="canonical" href="${cfg.baseUrl}/posts/${post.filename}" />
 
       <meta name="google-site-verification=nfCO9B-sHuohdde9OLWBELNHyZ9ODlhIl4wC5OkituQ" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
       <link rel="preconnect" href="https://fonts.googleapis.com">
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-      <!-- <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;800;900&display=swap" rel="stylesheet"> -->
       <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&display=swap" rel="stylesheet">
 
       <meta property="og:type" content="website">
-      <meta property="og:url" content="https://quackhack-mcblindy.com/work.html">
-      <meta property="og:title" content="QuackHack-McBLindy.com">
-      <meta property="og:description" content="QuackHack-McBLindy.com » Portfolio » I share code, wisdom and tells tales of NixOS flakes. » I write code related to anything. » I write texts related to tech. » Think Different. Build Bold. Quack Loud.">
-      <meta name="description" content="QuackHack-McBLindy.com » Portfolio » I share code, wisdom and tells tales of NixOS flakes. » I write code related to anything. » I write texts related to tech. » Think Different. Build Bold. Quack Loud.">
+      <meta property="og:url" content="${cfg.baseUrl}/posts/${post.filename}">
+      <meta property="og:title" content="QuackHack-McBLindy.com » ${esc post.title}">
+      <meta property="og:description" content="${esc (postDescription post)}">
+      ${optionalString (post.tags != []) ''
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "${esc post.title}",
+        "url": "${cfg.baseUrl}/posts/${post.filename}",
+        "datePublished": "${post.date}",
+        "keywords": [${tagsToKeywords post.tags}]
+      }
+      </script>
+      ''}
+
+      <meta name="description" content="${esc (postDescription post)}">
       <meta property="og:image" content="https://quackhack-mcblindy.com/static/img/logo.png">
 
       <meta name="twitter:card" content="summary_large_image">
       <meta name="twitter:title" content="QuackHack-McBLindy.com » ${esc post.title}">
-      <meta name="twitter:description" content="QuackHack-McBLindy.com » Portfolio » I share code, wisdom and tells tales of NixOS flakes. » I write code related to anything. » I write texts related to tech. » Think Different. Build Bold. Quack Loud.">
+      <meta name="twitter:description" content="${esc (postDescription post)}">
       <meta name="twitter:image" content="https://quackhack-mcblindy.com/static/img/logo.png">
 
       <meta name="apple-mobile-web-app-capable" content="yes">
@@ -180,19 +257,15 @@
       <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
       <link rel="manifest" href="/site.webmanifest">
 
-
-
-
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
       <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
-
 
       <link rel="stylesheet" href="./../static/css/styles.css" />
       <style>${baseCss}${commonCss}${post.extraCss}</style>
       <link rel="stylesheet" href="./../static/css/viewport.css" />
     </head>
-    <body data-post-link="/${post.filename}">
+    <body data-post-link="/posts/${post.filename}">
 
       <div class="duckhawk-frame" aria-hidden="true">
         <img class="frame-piece frame-header glitch hue-shift" src="./../static/img/frame/header.png" alt="" />
@@ -239,19 +312,42 @@
           ''}
 
           ${concatStringsSep "\n" (map renderSection post.sections)}
-          ${optionalString (post.caveat != null) (renderCaveat post.caveat)}
-          ${optionalString (post.quote != null) (renderQuote post.quote)}
-          ${optionalString (post.crossLinks != []) (renderCrossLinks post.crossLinks)}
-          ${optionalString post.relatedPosts ''
-            <section class="content-section" id="similar-section" hidden>
-              <div class="wrap">
-                <div class="section-head">
-                  <h2><span class="gold">Related</span> <span class="white">posts</span></h2>
-                </div>
-                <div class="cross-links" id="similar-posts"></div>
+          ${optionalString (post.tags != []) ''
+          <section class="content-section">
+            <div class="wrap reveal">
+              <div class="tag-list">
+                ${concatStringsSep " " (map (t: ''<span class="tag">${esc t}</span>'') post.tags)}
               </div>
-            </section>
+            </div>
+          </section>
           ''}
+
+
+          ${optionalString (post.crossLinks != []) (renderCrossLinks post.crossLinks)}
+          ${optionalString (post.relatedPosts && post.tags != [ ]) (
+            let rel = similarPostsFor post; in
+            optionalString (rel != [ ]) ''
+              <section class="content-section">
+                <div class="wrap reveal">
+                  <div class="section-head">
+                    <h2><span class="gold">Related</span> <span class="white">posts</span></h2>
+                  </div>
+                  <div class="cross-links">
+                    ${concatStringsSep "\n" (map (p: ''
+                      <a class="cross-link" href="/posts/${p.filename}">
+                        <span class="cl-icon" aria-hidden="true">🔗</span>
+                        <div class="cl-body">
+                          <h3 class="cl-title">${esc p.title}</h3>
+                          <p class="cl-desc">${esc (if p.description != null then p.description else p.tagline)}</p>
+                        </div>
+                        <span class="cl-arrow" aria-hidden="true">→</span>
+                      </a>
+                    '') rel)}
+                  </div>
+                </div>
+              </section>
+            ''
+          )}
 
         </main>
 
@@ -301,74 +397,6 @@
           document.querySelectorAll('.reveal').forEach((el) => el.classList.add('in'));
         }
 
-        function setupRelatedPosts() {
-          var section = document.getElementById('similar-section');
-          var container = document.getElementById('similar-posts');
-          var myLink = document.body.dataset.postLink;
-          if (!section || !container || !myLink) return;
-
-          function esc(s) {
-            var d = document.createElement('div');
-            d.textContent = s == null ? "" : String(s);
-            return d.innerHTML;
-          }
-
-          fetch('/posts.json')
-            .then(function(r) { return r.ok ? r.json() : null; })
-            .then(function(posts) {
-              if (!Array.isArray(posts)) return;
-
-              var current = null;
-              for (var i = 0; i < posts.length; i++) {
-                try {
-                  if (new URL(posts[i].link, window.location.origin).pathname === myLink) {
-                    current = posts[i];
-                    break;
-                  }
-                } catch (_) { /* skip malformed link */ }
-              }
-
-              if (!current || !Array.isArray(current.tags) || current.tags.length === 0) return;
-
-              var scored = [];
-              for (var j = 0; j < posts.length; j++) {
-                var p = posts[j];
-                if (p.link === current.link) continue;
-                var shared = 0;
-                if (Array.isArray(p.tags)) {
-                  for (var k = 0; k < p.tags.length; k++) {
-                    if (current.tags.indexOf(p.tags[k]) !== -1) shared++;
-                  }
-                }
-                if (shared > 0) scored.push({ post: p, score: shared });
-              }
-
-              scored.sort(function(a, b) { return b.score - a.score; });
-              scored = scored.slice(0, 3);
-              if (scored.length === 0) return;
-
-              var html = "";
-              for (var m = 0; m < scored.length; m++) {
-                var q = scored[m].post;
-                html +=
-                  '<a class="cross-link" href="' + esc(q.link) + '">' +
-                    '<span class="cl-icon" aria-hidden="true">🔗</span>' +
-                    '<div class="cl-body">' +
-                      '<h3 class="cl-title">' + esc(q.title) + '</h3>' +
-                      '<p class="cl-desc">' + esc(q.description || "") + '</p>' +
-                    '</div>' +
-                    '<span class="cl-arrow" aria-hidden="true">→</span>' +
-                  '</a>';
-              }
-
-              container.innerHTML = html;
-              section.hidden = false;
-            })
-            .catch(function() { /* silent */ });
-        }
-
-        setupRelatedPosts();
-
         document.querySelectorAll('.copy-btn').forEach((btn) => {
           btn.addEventListener('click', async () => {
             const block = btn.closest('.config-block');
@@ -383,12 +411,410 @@
             }
           });
         });
+
+        document.querySelectorAll('.config-block').forEach((block) => {
+          const toggle = () => {
+            const collapsed = block.classList.toggle('is-collapsed');
+            const btn = block.querySelector('.collapse-btn');
+
+            if (btn) {
+              btn.setAttribute('aria-expanded', String(!collapsed));
+              btn.textContent = collapsed ? 'Expand' : 'Collapse';
+            }
+          };
+
+          block.addEventListener('click', (e) => {
+            if (e.target.closest('.copy-btn')) return;
+            if (!e.target.closest('.config-bar')) return;   // ← only the header toggles
+            const selection = window.getSelection();
+            if (selection && !selection.isCollapsed) return;
+            toggle();
+          });
+
+        });
+
       })();
       </script>
+
+
+      <script>
+        (function () {
+          'use strict';
+
+          const CORNER_WIDTH    = 170;
+          const CORNER_HEIGHT   = 120;
+          const FRENZY_DURATION = 5200;
+          const MAX_DUCKS       = 190;
+
+          const GLYPHS = ['🦆','🦆','🦆','🦆','🦆','🦆','🦆','🦆','🐤','🪶'];
+          const QUACK_WORDS = ['QUACK!','QUACK!!','QUACK?!','HONK!','QUAAACK!','🦆 QUACK 🦆','QUACK QUACK'];
+
+          const ducks  = [];
+          const timers = new Set();
+
+          let layer         = null;
+          let rafId         = 0;
+          let lastTs        = 0;
+          let frenzyActive  = false;
+          let audioCtx      = null;
+
+          const originalTitle = document.title;
+
+          const rand = (min, max) => min + Math.random() * (max - min);
+          const pick = (arr) => arr[(Math.random() * arr.length) | 0];
+          const calm = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+          function later(fn, ms) {
+            const id = setTimeout(() => { timers.delete(id); fn(); }, ms);
+            timers.add(id);
+            return id;
+          }
+
+          function every(fn, ms) {
+            const id = setInterval(fn, ms);
+            timers.add(id);
+            return id;
+          }
+
+          function stopTimers() {
+            timers.forEach((id) => { clearTimeout(id); clearInterval(id); });
+            timers.clear();
+          }
+
+          function getLayer() {
+            if (!layer || !layer.isConnected) {
+              layer = document.createElement('div');
+              layer.className = 'frenzy-layer';
+              layer.setAttribute('aria-hidden', 'true');
+              document.body.appendChild(layer);
+            }
+            return layer;
+          }
+
+          function spawnDuck(originX, originY) {
+            if (ducks.length >= MAX_DUCKS) return;
+
+            const el = document.createElement('span');
+            el.className = 'frenzy-duck';
+            el.textContent = pick(GLYPHS);
+            el.setAttribute('aria-hidden', 'true');
+
+            const size = rand(16, 66);
+            const x = originX !== undefined
+              ? originX + rand(-110, 110)
+              : rand(-70, window.innerWidth + 70);
+            const y = originY !== undefined
+              ? originY + rand(-40, 40)
+              : rand(-window.innerHeight * 0.6, -30);
+
+            el.style.fontSize = size.toFixed(1) + 'px';
+            el.style.opacity  = (0.5 + Math.min(size, 66) / 66 * 0.5).toFixed(2);
+
+            const d = {
+              el: el,
+              x: x,
+              y: y,
+              vx: rand(-1.4, 1.4),
+              vy: rand(1.8, 5.2) * (0.65 + size / 66),
+              rot: rand(0, 360),
+              vrot: rand(-8, 8),
+              wobbleAmp: rand(0.2, 2.4),
+              wobbleFreq: rand(0.0015, 0.0055),
+              wobblePhase: rand(0, Math.PI * 2)
+            };
+
+            el.style.transform =
+              'translate3d(' + d.x.toFixed(1) + 'px,' + d.y.toFixed(1) + 'px,0) ' +
+              'rotate(' + d.rot.toFixed(1) + 'deg)';
+
+            getLayer().appendChild(el);
+            ducks.push(d);
+            ensureLoop();
+          }
+
+          function ensureLoop() {
+            if (rafId) return;
+            lastTs = performance.now();
+            rafId = requestAnimationFrame(tick);
+          }
+
+          function tick(ts) {
+            rafId = 0;
+
+            const dt = Math.min(3, Math.max(0.2, (ts - lastTs) / 16.667));
+            lastTs = ts;
+
+            for (let i = ducks.length - 1; i >= 0; i--) {
+              const d = ducks[i];
+
+              d.y += d.vy * dt;
+              d.x += (d.vx + Math.sin(d.wobblePhase + ts * d.wobbleFreq) * d.wobbleAmp) * dt;
+              d.rot += d.vrot * dt;
+
+              d.el.style.transform =
+                'translate3d(' + d.x.toFixed(1) + 'px,' + d.y.toFixed(1) + 'px,0) ' +
+                'rotate(' + d.rot.toFixed(1) + 'deg)';
+
+              if (d.y > window.innerHeight + 140 ||
+                  d.x < -260 ||
+                  d.x > window.innerWidth + 260) {
+                d.el.remove();
+                ducks.splice(i, 1);
+              }
+            }
+
+            if (ducks.length || frenzyActive) {
+              rafId = requestAnimationFrame(tick);
+            } else if (layer) {
+              layer.remove();
+              layer = null;
+            }
+          }
+
+          function flash() {
+            const el = document.createElement('div');
+            el.className = 'frenzy-flash';
+            el.setAttribute('aria-hidden', 'true');
+            document.body.appendChild(el);
+            el.addEventListener('animationend', () => el.remove(), { once: true });
+            setTimeout(() => el.remove(), 1500);
+          }
+
+          function shockwave(x, y) {
+            const el = document.createElement('div');
+            el.className = 'frenzy-ring';
+            el.setAttribute('aria-hidden', 'true');
+            el.style.left = x + 'px';
+            el.style.top  = y + 'px';
+            document.body.appendChild(el);
+            el.addEventListener('animationend', () => el.remove(), { once: true });
+            setTimeout(() => el.remove(), 1500);
+          }
+
+          function shake(el, strength) {
+            if (!el || typeof el.animate !== 'function') return;
+            if (calm()) return;
+
+            const frames = [];
+            const steps = 12;
+
+            for (let i = 0; i <= steps; i++) {
+              const decay = Math.pow(1 - i / steps, 2);
+              frames.push({
+                transform:
+                  'translate3d(' +
+                    ((Math.random() * 2 - 1) * strength * decay).toFixed(2) + 'px,' +
+                    ((Math.random() * 2 - 1) * strength * decay).toFixed(2) + 'px,0) ' +
+                  'rotate(' + ((Math.random() * 2 - 1) * 0.8 * decay).toFixed(2) + 'deg)'
+              });
+            }
+            frames.push({ transform: 'translate3d(0,0,0) rotate(0deg)' });
+
+            try {
+              el.animate(frames, { duration: 560, easing: 'linear', composite: 'add' });
+            } catch (err) {
+
+            }
+          }
+
+          function quackText() {
+            const el = document.createElement('div');
+            el.className = 'frenzy-quack';
+            el.textContent = pick(QUACK_WORDS);
+            el.setAttribute('aria-hidden', 'true');
+            el.style.left = rand(6, 94).toFixed(1) + 'vw';
+            el.style.top  = rand(12, 88).toFixed(1) + 'vh';
+            el.style.fontSize = rand(16, 48).toFixed(0) + 'px';
+            el.style.color = Math.random() < 0.5 ? '#ffd75e' : '#00e5d1';
+            el.style.setProperty('--frenzy-rot', rand(-24, 24).toFixed(1) + 'deg');
+            document.body.appendChild(el);
+            el.addEventListener('animationend', () => el.remove(), { once: true });
+            setTimeout(() => el.remove(), 2500);
+          }
+
+          function getAudioCtx() {
+            const AC = window.AudioContext || window.webkitAudioContext;
+            if (!AC) return null;
+            if (!audioCtx) {
+              try { audioCtx = new AC(); } catch (err) { return null; }
+            }
+            if (audioCtx.state === 'suspended') {
+              audioCtx.resume().catch(() => {});
+            }
+            return audioCtx;
+          }
+
+          function playQuack() {
+            const ctx = getAudioCtx();
+            if (!ctx) return;
+
+            const t0   = ctx.currentTime;
+            const base = rand(210, 330);
+
+            const osc  = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+
+            osc.type  = 'sawtooth';
+            osc2.type = 'square';
+
+            osc.frequency.setValueAtTime(base * 3.2, t0);
+            osc.frequency.exponentialRampToValueAtTime(base, t0 + 0.16);
+
+            osc2.frequency.setValueAtTime(base * 1.6, t0);
+            osc2.frequency.exponentialRampToValueAtTime(base * 0.7, t0 + 0.18);
+
+            const filter = ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(1400, t0);
+            filter.frequency.exponentialRampToValueAtTime(700, t0 + 0.2);
+            filter.Q.value = 3.5;
+
+            const gain = ctx.createGain();
+            gain.gain.setValueAtTime(0.0001, t0);
+            gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.012);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.26);
+
+            osc.connect(filter);
+            osc2.connect(filter);
+            filter.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(t0);  osc2.start(t0);
+            osc.stop(t0 + 0.3); osc2.stop(t0 + 0.3);
+          }
+
+          function playQuackBurst(n) {
+            for (let i = 0; i < n; i++) {
+              setTimeout(playQuack, i * 110 + Math.random() * 90);
+            }
+          }
+
+          function isFrameVisible() {
+            const frame = document.querySelector('.duckhawk-frame');
+            if (!frame) return false;
+            if (getComputedStyle(frame).display === 'none') return false;
+
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const pieces = frame.querySelectorAll('.frame-header, .frame-header-standalone');
+
+            for (let i = 0; i < pieces.length; i++) {
+              const el = pieces[i];
+              const cs = getComputedStyle(el);
+
+              if (cs.display === 'none' || cs.visibility === 'hidden') continue;
+              if (parseFloat(cs.opacity) < 0.05) continue;
+
+              const r = el.getBoundingClientRect();
+              if (r.width > 8 && r.height > 8 &&
+                  r.right > 0 && r.left < vw &&
+                  r.bottom > 0 && r.top < vh) {
+                return true;
+              }
+            }
+            return false;
+          }
+
+          function startFrenzy(x, y) {
+            if (frenzyActive) return;
+            frenzyActive = true;
+            const soft = calm();
+            getLayer();
+
+            document.title = '🦆 QUACK FRENZY 🦆';
+
+            if (!soft) {
+              flash();
+              shockwave(x, y);
+              shake(document.getElementById('content-glitch'), 11);
+              shake(document.querySelector('.duckhawk-frame'), 7);
+            }
+
+            playQuackBurst(soft ? 1 : 5);
+
+            const wall = soft ? 10 : 64;
+            for (let i = 0; i < wall; i++) {
+              spawnDuck(undefined, rand(-window.innerHeight * 0.8, -20));
+            }
+
+            const burst = soft ? 4 : 26;
+            for (let i = 0; i < burst; i++) {
+              spawnDuck(x, y);
+            }
+
+            every(() => {
+              const n = soft ? 1 : 3;
+              for (let i = 0; i < n; i++) spawnDuck();
+              if (!soft && Math.random() < 0.14) quackText();
+            }, soft ? 380 : 55);
+
+            if (!soft) {
+              let q = 0;
+              every(() => {
+                quackText();
+                if (q % 2 === 0 && q < 8) playQuack();
+                q++;
+              }, 400);
+            }
+
+            later(() => {
+              frenzyActive = false;
+              stopTimers();
+              document.title = originalTitle;
+
+              if (ducks.length === 0 && layer) {
+                layer.remove();
+                layer = null;
+              }
+            }, soft ? 2400 : FRENZY_DURATION);
+          }
+
+          function inCorner(x, y) {
+            const vw = window.innerWidth;
+            const vh = window.innerHeight;
+            const w = Math.min(CORNER_WIDTH, vw * 0.34);
+            const h = Math.min(CORNER_HEIGHT, vh * 0.22);
+            return x >= vw - w && y <= h;
+          }
+
+
+
+
+          function onPointerDown(e) {
+            if (e.button !== 0) return;
+            if (!inCorner(e.clientX, e.clientY)) return;
+            if (!isFrameVisible()) return;
+
+            const t = e.target;
+            if (t && typeof t.closest === 'function' &&
+                t.closest('a, button, input, textarea, select, summary, [role="button"], [contenteditable]')) {
+              return;
+            }
+
+            if (frenzyActive) {
+              for (let i = 0; i < 18; i++) spawnDuck(e.clientX, e.clientY);
+              playQuack();
+              if (!calm()) shockwave(e.clientX, e.clientY);
+              return;
+            }
+
+            startFrenzy(e.clientX, e.clientY);
+          }
+
+          document.addEventListener('pointerdown', onPointerDown, true);
+
+          try {
+            console.log(
+              '%c🦆 pssst… top-right corner, while the frame is up…',
+              'color:#00e5d1;font-weight:700;font-size:12px;'
+            );
+          } catch (err) { /* ignore */ }
+        })();
+      </script>
+
     </body>
     </html>
   '';
-
 
   baseCss = ''
     :root {
@@ -478,7 +904,6 @@
       100% { filter: hue-rotate(360deg); }
     }
 
-
     @media (max-width: 1199px), (max-height: 699px) {
         main {
             padding-top: calc(var(--frame-header-h, 260px) + 20px) !important;
@@ -494,6 +919,28 @@
         }
     }
 
+    .config-bar button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(17,230,210,.07);
+      color: var(--teal);
+      font: inherit;
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s ease, border-color .2s ease;
+    }
+
+    .config-bar button:hover {
+      background: rgba(17,230,210,.15);
+      border-color: rgba(17,230,210,.4);
+    }
+
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: .001ms !important;
@@ -504,6 +951,159 @@
       .reveal { opacity: 1; transform: none; }
       body::before { animation: none; opacity: .6; }
       .glitch, .hue-shift { animation: none !important; }
+    }
+
+    .frenzy-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .frenzy-duck {
+      position: absolute;
+      top: 0;
+      left: 0;
+      line-height: 1;
+      user-select: none;
+      pointer-events: none;
+      will-change: transform;
+      transform-origin: 50% 50%;
+      text-shadow: 0 0 14px rgba(0, 229, 209, .45);
+    }
+
+    .frenzy-flash {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      pointer-events: none;
+      mix-blend-mode: screen;
+      background:
+        radial-gradient(circle at 85% 0%,
+          rgba(255, 232, 130, .95),
+          rgba(0, 229, 209, .45) 38%,
+          rgba(0, 0, 0, 0) 72%);
+      animation: frenzyFlash .8s ease-out forwards;
+    }
+
+    .frenzy-ring {
+      position: fixed;
+      z-index: 10000;
+      width: 120px;
+      height: 120px;
+      margin: -60px 0 0 -60px;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 214, 90, .9);
+      box-shadow:
+        0 0 44px rgba(0, 229, 209, .75),
+        inset 0 0 44px rgba(255, 214, 90, .55);
+      pointer-events: none;
+      animation: frenzyRing .95s cubic-bezier(.12, .72, .26, 1) forwards;
+    }
+
+    .frenzy-quack {
+      position: fixed;
+      z-index: 10001;
+      pointer-events: none;
+      font-family: 'Orbitron', system-ui, sans-serif;
+      font-weight: 900;
+      letter-spacing: .08em;
+      white-space: nowrap;
+      text-shadow: 0 0 18px currentColor, 0 0 42px currentColor;
+      animation: frenzyQuack 1.15s ease-out forwards;
+    }
+
+    @keyframes frenzyFlash {
+      from { opacity: .95; }
+      to   { opacity: 0; }
+    }
+
+    @keyframes frenzyRing {
+      from { transform: scale(.12); opacity: 1; }
+      to   { transform: scale(10);  opacity: 0; }
+    }
+
+    @keyframes frenzyQuack {
+      0%   { opacity: 0; transform: translate(-50%, -50%)  scale(.30) rotate(var(--frenzy-rot, 0deg)); }
+      18%  { opacity: 1; transform: translate(-50%, -50%)  scale(1.15) rotate(var(--frenzy-rot, 0deg)); }
+      100% { opacity: 0; transform: translate(-50%, -210%) scale(.85) rotate(var(--frenzy-rot, 0deg)); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .frenzy-flash,
+      .frenzy-ring { display: none; }
+      .frenzy-quack { animation-duration: .6s; }
+    }
+
+    .duck-comment,
+    .idea {
+      max-width: 760px;
+      margin: 25px auto;
+    }
+
+    .duck-comment {
+      position: relative;
+      padding: 18px 22px;
+      background: rgba(255, 215, 0, 0.06);
+      border-left: 4px solid var(--gold);
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    }
+    .duck-comment::before {
+      content: "🦆";
+      position: absolute;
+      left: -25px;
+      top: 15px;
+      font-size: 1.8rem;
+      background: var(--panel2);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--gold);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+    .duck-comment p {
+      margin: 10px 0;
+      font-style: italic;
+      color: var(--gold2);
+    }
+
+    .idea {
+      position: relative;
+      padding: 22px 26px;
+      background: rgba(108, 180, 255, 0.06);
+      border-left: 4px solid var(--blue);
+      border-radius: 0 12px 12px 0;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+    }
+    .idea::before {
+      content: "💡";
+      position: absolute;
+      left: -50px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      background: var(--panel2);
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--blue);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+    .idea p {
+      color: #c9dbd8;
+    }
+
+    @media (max-width: 768px) {
+      .duck-comment::before { left: -15px; width: 30px; height: 30px; font-size: 1.2rem; }
+      .idea::before         { left: -35px; width: 40px; height: 40px; font-size: 1.5rem; }
     }
   '';
 
@@ -553,14 +1153,14 @@
       color: var(--muted); font-size: .74rem; letter-spacing: .06em;
       text-transform: uppercase; font-family: "JetBrains Mono", monospace;
     }
-.stat-tile.accent-teal strong   { color: var(--teal); }
-.stat-tile.accent-gold strong   { color: var(--gold); }
-.stat-tile.accent-gold2 strong  { color: var(--gold2); }
-.stat-tile.accent-green strong  { color: var(--green); }
-.stat-tile.accent-pink strong   { color: var(--pink); }
-.stat-tile.accent-purple strong { color: var(--purple); }
-.stat-tile.accent-blue strong   { color: var(--blue); }
-.stat-tile.accent-red strong    { color: var(--red); }
+    .stat-tile.accent-teal strong   { color: var(--teal); }
+    .stat-tile.accent-gold strong   { color: var(--gold); }
+    .stat-tile.accent-gold2 strong  { color: var(--gold2); }
+    .stat-tile.accent-green strong  { color: var(--green); }
+    .stat-tile.accent-pink strong   { color: var(--pink); }
+    .stat-tile.accent-purple strong { color: var(--purple); }
+    .stat-tile.accent-blue strong   { color: var(--blue); }
+    .stat-tile.accent-red strong    { color: var(--red); }
 
     .prose-section { max-width: 720px; margin: 0 auto; }
     .prose-section p {
@@ -589,7 +1189,7 @@
       font-style: italic;
     }
 
-    .caveat {
+    .warning {
       max-width: 760px; margin: 0 auto;
       padding: 18px 22px;
       background: rgba(255,84,112,.04);
@@ -598,12 +1198,12 @@
       border-radius: 10px;
       color: #c9dbd8; font-size: .95rem; line-height: 1.7;
     }
-    .caveat strong {
+    .warning strong {
       color: var(--red); font-weight: 700;
       display: inline-flex; align-items: center; gap: 6px;
     }
-    .caveat strong::before { content: "⚠"; font-size: 1.05em; }
-    .caveat code {
+    .warning strong::before { content: "⚠"; font-size: 1.05em; }
+    .warning code {
       color: var(--gold2); background: rgba(244,181,47,.08);
       padding: 1px 5px; border-radius: 3px;
       font-family: "JetBrains Mono", monospace; font-size: .9em;
@@ -696,6 +1296,9 @@
       font-size: 13px; line-height: 1.6; color: #d9ece9;
       -webkit-font-smoothing: antialiased;
     }
+    .config-block.is-collapsed pre {
+      display: none;
+    }
     .config-block code { font: inherit; color: inherit; }
 
     @media (max-width: 560px) {
@@ -711,6 +1314,29 @@
       font-size: clamp(1.4rem, 3.2vw, 1.9rem);
       margin: 0; letter-spacing: -.01em; text-align: center;
     }
+    .tag-list {
+      display: flex; flex-wrap: wrap; gap: 8px;
+      justify-content: center; max-width: 720px; margin: 0 auto;
+    }
+    .tag-list .tag {
+      font-family: "JetBrains Mono", monospace;
+      font-size: .74rem; letter-spacing: .06em; text-transform: uppercase;
+      color: var(--teal); background: rgba(17,230,210,.08);
+      border: 1px solid rgba(17,230,210,.25);
+      padding: 4px 12px; border-radius: 999px;
+    }
+    .config-bar {
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .config-bar .copy-btn {
+      cursor: pointer;
+    }
+    .prose-section ul,
+    .prose-section ol { color: #c9dbd8; padding-left: 1.4em; margin: 0 0 16px; }
+    .prose-section li { margin: 6px 0; line-height: 1.7; }
+
   '';
 
   postFiles = lib.mapAttrs' (name: post:
@@ -723,23 +1349,40 @@
     else a._name < b._name
   ) (mapAttrsToList (name: p: p // { _name = name; }) cfg.posts);
 
-  postsJson = pkgs.writeText "posts.json" (builtins.toJSON (map (p: {
-    title = p.title;
-    description = if p.description != null then p.description else p.tagline;
-    tags = p.tags;
-    date = p.date;
-    link = "${cfg.baseUrl}/${p.filename}";
-  }) sortedPosts));
+  similarPostsFor = post:
+    let
+      others = filter (p: p.filename != post.filename) sortedPosts;
+      shared = p: lib.length (lib.intersectLists (post.tags or [ ]) (p.tags or [ ]));
+      ranked = sort (a: b:
+        let sa = shared a; sb = shared b; in
+        if sa != sb then sa > sb else a.date > b.date
+      ) (filter (p: shared p > 0) others);
+    in lib.take 3 ranked;
 
+  postsData =
+    if cfg.postsJson != null then cfg.postsJson
+    else
+      (map (p: {
+        title       = p.title;
+        description = if p.description != null then p.description else p.tagline;
+        tags        = p.tags;
+        date        = p.date;
+        link        = "${cfg.baseUrl}/posts/${p.filename}";
+      }) sortedPosts)
+      ++ cfg.extraPosts;
+
+  postsJson = pkgs.runCommand "posts.json" { } ''
+    ${pkgs.jq}/bin/jq . ${pkgs.writeText "posts-raw.json" (builtins.toJSON postsData)} > $out
+  '';
 
   html = pkgs.runCommand "blog-html" { } ''
-    mkdir -p $out
+    mkdir -p $out $out/posts
     ${concatStringsSep "\n" (mapAttrsToList (name: f: "cp ${f} $out/${name}") postFiles)}
     cp ${postsJson} $out/posts.json
+    cp ${postsJson} $out/posts/posts.json
   '';
 
 in {
-
 
   options.blog = {
     enable = mkEnableOption "blog post generator";
@@ -752,7 +1395,7 @@ in {
 
     siteName = mkOption {
       type = types.str;
-      default = "QuackHack-McBlindy.com";
+      default = "QuackHack-McBLindy.com";
       description = "Site name in titles, og:site_name, and footer.";
     };
 
@@ -760,6 +1403,40 @@ in {
       type = types.package;
       readOnly = true;
       description = "Generated site directory (HTML files + posts.json).";
+    };
+
+    postsJson = mkOption {
+      type = types.nullOr (types.listOf (types.submodule {
+        options = {
+          title       = mkOption { type = types.str; };
+          description = mkOption { type = types.str; default = ""; };
+          tags        = mkOption { type = types.listOf types.str; default = []; };
+          date        = mkOption { type = types.str; };
+          link        = mkOption { type = types.str; default = ""; };
+        };
+      }));
+      default = null;
+      description = ''
+        Full override for posts.json. When set, blog.posts is used ONLY for
+        page generation - this list is emitted verbatim as posts.json.
+      '';
+    };
+
+    extraPosts = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          title       = mkOption { type = types.str; };
+          description = mkOption { type = types.str; default = ""; };
+          tags        = mkOption { type = types.listOf types.str; default = []; };
+          date        = mkOption { type = types.str; };
+          link        = mkOption { type = types.str; default = ""; };
+        };
+      });
+      default = [ ];
+      description = ''
+        Extra entries appended to the auto-generated posts.json. Use for
+        external links, placeholders, or anything without a real page.
+      '';
     };
 
     posts = mkOption {
@@ -832,12 +1509,37 @@ in {
               options = {
                 prose = mkOption { type = types.nullOr types.lines; default = null; };
                 html = mkOption { type = types.nullOr types.str; default = null; };
+                warning = mkOption {
+                  type = types.nullOr types.lines;
+                  default = null;
+                  description = "Warning callout. HTML allowed.";
+                };
+                quote = mkOption {
+                  type = types.nullOr types.lines;
+                  default = null;
+                  description = "Quote callout. HTML allowed.";
+                };
+                duck = mkOption {
+                  type = types.nullOr types.lines;
+                  default = null;
+                  description = "Duck comment callout. HTML allowed.";
+                };
+                idea = mkOption {
+                  type = types.nullOr types.lines;
+                  default = null;
+                  description = "Idea callout. HTML allowed.";
+                };
                 code = mkOption {
                   type = types.nullOr (types.submodule {
                     options = {
                       content = mkOption { type = types.lines; };
                       title = mkOption { type = types.str; default = ""; };
                       lang = mkOption { type = types.str; default = "nix"; };
+                      collapsed = mkOption {
+                        type = types.bool;
+                        default = false;
+                        description = "Hide the code block initially; visitors can expand it.";
+                      };
                     };
                   });
                   default = null;
@@ -845,17 +1547,12 @@ in {
               };
             });
             default = [ ];
-            description = "Optional rich sections between text and caveat.";
+            description = "Ordered content sections: prose, HTML, code, warning, quote, duck, and idea. Entries can be repeated.";
           };
-          caveat = mkOption {
+          warning = mkOption {
             type = types.nullOr types.str;
             default = null;
             description = "Warning box (HTML allowed).";
-          };
-          quote = mkOption {
-            type = types.nullOr types.str;
-            default = null;
-            description = "Big closing quote (HTML allowed).";
           };
           crossLinks = mkOption {
             type = types.listOf (types.submodule {
@@ -899,10 +1596,14 @@ in {
   config = mkIf cfg.enable {
     blog.html = html;
     copy =
-      lib.mapAttrs'
+      (lib.mapAttrs'
         (name: post:
           lib.nameValuePair "QuackHack-McBlindy.com/posts/${post.filename}"
             "${config.blog.html}/${post.filename}")
-        config.blog.posts;
+        config.blog.posts)
+      // {
+        "QuackHack-McBlindy.com/posts.json" =
+          "${config.blog.html}/posts.json";
+      };
 
   };}

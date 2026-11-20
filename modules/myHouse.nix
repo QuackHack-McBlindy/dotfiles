@@ -27,7 +27,7 @@
   # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
     if self ? lastModified then toString self.lastModified
-    else throw "flake has no lastModified — needs to be a git-backed flake";
+    else throw "flake has no lastModified - needs to be a git-backed flake";
   tzProbe = pkgs.runCommand "tz-probe" {
     nativeBuildInputs = [ pkgs.tzdata ];
     env.TZDIR = "${pkgs.tzdata}/share/zoneinfo";
@@ -52,6 +52,7 @@
 
 in { # 🦆 duck say ⮞ house config
   house = {
+    languages = [ "sv" "en" ];
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom    = {

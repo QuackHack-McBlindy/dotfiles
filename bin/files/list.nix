@@ -14,7 +14,7 @@ in {
     description = "List directory contents with details";
     category = "📁 File Operations";
     aliases = [ "ls" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "path"; type = "path"; description = "Directory to list"; optional = true; default = "."; }

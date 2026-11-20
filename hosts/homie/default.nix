@@ -104,6 +104,7 @@
                 };
             };
             i18n = "sv_SE.UTF-8";
+            yubikey.enable = false;
         };
         host = {
             system    = "x86_64-linux";

@@ -8,7 +8,7 @@
     ...
 } : let # 🦆 duck say ⮞ grabbin' some of dat sweet sweet nix option for fancy fancy configz
   inherit (lib) types mkOption mkEnableOption mkMerge;
-  # 🦆 duck say ⮞ recursive nix importer — let'z waddle throu' them dirz through the reeds
+  # 🦆 duck say ⮞ recursive nix importer - let'z waddle throu' them dirz through the reeds
   importModulesRecursive = dir:
     let
       entries = builtins.readDir dir;# 🦆 duck say ⮞ read all files & subfolders in dir i say no duck left behind
@@ -23,9 +23,9 @@
       ) entries;
     in lib.flatten modules; # 🦆 duck say ⮞ flatten list of lists go single list - no nested duck nestz here
 
-  # 🦆 duck say ⮞ list all hostz — all ducks in the pond
+  # 🦆 duck say ⮞ list all hostz - all ducks in the pond
   sysHosts = lib.attrNames self.nixosConfigurations;
-  # 🦆 duck say ⮞ list all devShells — ducklingz ready to hatch dem dev env
+  # 🦆 duck say ⮞ list all devShells - ducklingz ready to hatch dem dev env
   sysDevShells = lib.attrNames self.devShells;
 
   # 🦆 says ⮞ shortcutz
@@ -70,10 +70,10 @@
     then "localhost"
     else mqttHostip;
 
-  # 🦆 says ⮞ one swe per script — dis lil' duck knowz ITS OWN name,
+  # 🦆 says ⮞ one swe per script - dis lil' duck knowz ITS OWN name,
   sweFor = scriptName:
     import ./lib.nix { inherit config lib pkgs; inherit scriptName; };
-  # 🦆 says ⮞ da generic swe — no name, no voice.lists lookup, just house helpers
+  # 🦆 says ⮞ da generic swe - no name, no voice.lists lookup, just house helpers
   swe = import ./lib.nix { inherit config lib pkgs; };
 in { # 🦆 says ⮞ waddle every script file in, one ducky at a time, handin' it a swe
   # 🦆 ⮞ that already knowz which voice.lists belong to it (filename == script name)
@@ -84,7 +84,7 @@ in { # 🦆 says ⮞ waddle every script file in, one ducky at a time, handin' i
     in import file {
       inherit self config lib cmdHelpers PythonDuckTrace RustDuckTrace
               pkgs sysHosts mqttHostip zigduck devices;
-      # 🦆 says ⮞ swe' shadows da generic swe in da script — script getz da personal one
+      # 🦆 says ⮞ swe' shadows da generic swe in da script - script getz da personal one
       swe = swe';
     } # 🦆 duck say ⮞ import everythang in defined directories
   ) (importModulesRecursive ./system ++    # 🦆 duck say ⮞ ++

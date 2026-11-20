@@ -143,12 +143,17 @@ in {
 
           And it helps that **${toString totalVoiceScripts} of the ${toString totalScripts} scripts** expose their vocabulary to the voice layer. Those ${toString totalVoiceScripts} are the scripts that can be spoken to, and they're what feeds the phrase count. The other ${toString (totalScripts - totalVoiceScripts)} are infrastructure - hooks, generators, helpers - that nobody needs to say out loud.
         ''; }
+
+        {
+          quote = ''
+            The system is not smart. It's thorough.<br>
+            And thorough, at this scale, is <strong>its own kind of milestone.</strong>
+          '';
+        }
+
       ];
 
-      quote = ''
-        The system is not smart. It's thorough.<br>
-        And thorough, at this scale, is <strong>its own kind of milestone.</strong>
-      '';
+
 
 
       extraCss = ''

@@ -93,6 +93,7 @@
                 "${hosts.desktop.ip}"          = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
                 "${hosts.homie.ip}"            = [ "homie.lan" "homie.local" "homie" "cache" ];
                 "${hosts.laptop.ip}"           = [ "laptop.lan" "laptop.local" "laptop" ];
+                "${hosts.fatlap.ip}"           = [ "fatlap.lan" "fatlap.local" "fatlap" ];
                 "${hosts.nasty.ip}"            = [ "nasty.lan" "nasty.local" "nasty" ];
                 "${hosts.pinephone.ip}"        = [ "pinephone.lan" "pinephone.local" "pinephone" "phone" ];
                 # 🦆 say ⮞ OTHER devices

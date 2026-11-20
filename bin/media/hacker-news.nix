@@ -14,7 +14,7 @@ in {
     description = "Hacker news API controller";
     category = "🎧 Media Management";
     aliases = [ "hn" ];
-    autoStart = false;
+    # autoStart = false;
     logLevel = "INFO";
     parameters = [
       { name = "show"; type = "string"; description = "What stories to read "; optional = true; values = [ "top" "best" "new" "ask" "show" "jobos" ]; }

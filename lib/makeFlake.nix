@@ -14,12 +14,13 @@
   # 🦆 says ⮞ big thing dat make flakes small
   makeFlakeInternal = { # 🦆 sayz ⮞ give it - and you shall receive!
     systems,
-    hosts ? {},
-    modules ? [],
-    overlays ? [],
-    packages ? {},
-    apps ? {},
+    hosts     ? {},
+    modules   ? [],
+    overlays  ? [],
+    packages  ? {},
+    apps      ? {},
     devShells ? {},
+    checks    ? {},
     ...
   } @ flake: # 🦆 say ⮞ thx
     let
@@ -97,6 +98,10 @@
           }
         ) packages;
 
+        checks = lib.mapAttrs (_: v:
+          v { inherit pkgs system self inputs; }
+        ) checks;
+
         # 🦆 duck say ⮞ apply makeApp to da apps
         apps = lib.mapAttrs (_: v:
           let
@@ -144,6 +149,10 @@
         in shells // {
           default = shells.simple or shells.${lib.head (lib.attrNames shells)};
         }
+      );
+
+      checks = lib.genAttrs systems (system:
+        (perSystem system).checks
       );
 
       # 🦆 duck say ⮞ show overlays in nix flake show

@@ -4,10 +4,15 @@
   lib,
   pkgs,
   self,
+  hosts,
   ...
 } : let
   user = config.this.user.me.name;
   allHosts = self.nixosConfigurations;
+
+  # 🦆 duck say ⮞ sudo SSH-agent trusted keys
+  sudoAuthorizedKeys = hosts.desktop.keys.publicKeys.sudo or "";
+
 
   # 🦆 duck say ⮞ filter out current host
   otherHosts = lib.filterAttrs (name: _: name != config.networking.hostName) allHosts;
@@ -108,6 +113,11 @@ in {
         { addr = "0.0.0.0"; port = 2222; }
         { addr = "[::]"; port = 2222; }
       ];
+    };
+
+    environment.etc."ssh/sudo_authorized_keys" = {
+      text = sudoAuthorizedKeys + "\n";
+      mode = "0444";
     };
 
     systemd.services.userkey = lib.mkIf (!config.this.installer) {
