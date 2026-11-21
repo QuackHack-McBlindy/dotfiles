@@ -1,5 +1,5 @@
 # dotfiles/bin/misc/duckPUCK.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
-{ # 🦆 says ⮞ hockey assistant and analyzer - SHL + HockeyAllsvenskan
+{ # 🦆 says ⮞ hockey assistant and analyzer — SHL + HockeyAllsvenskan
   self,
   lib,
   config,
@@ -7,44 +7,42 @@
   cmdHelpers,
   swe,
   ...
-}:
-let
+} : let
+
   teamsByLeague = {
     ha = {
-      "IF Björklöven"     = { apiName = "Björklöven";    aliases = [ "björklöven" "bjorkloven" "löven" "bjk" ]; };
-      "MoDo Hockey"       = { apiName = "MoDo";          aliases = [ "modo" "modos" ]; };
-      "BIK Karlskoga"     = { apiName = "Karlskoga";     aliases = [ "karlskoga" "bik" "bofors" ]; };
-      "Nybro Vikings IF"  = { apiName = "Nybro";         aliases = [ "nybro" "nybros" "vikings" ]; };
-      "Kalmar HC"         = { apiName = "Kalmar";        aliases = [ "kalmar" "kalmars" ]; };
-      "IK Oskarshamn"     = { apiName = "Oskarshamn";    aliases = [ "oskarshamn" ]; };
-      "Almtuna IS"        = { apiName = "Almtuna";       aliases = [ "almtuna" ]; };
-      "AIK"               = { apiName = "AIK";           aliases = [ "aik" "aiks" ]; };
-      "Mora IK"           = { apiName = "Mora";          aliases = [ "mora" ]; };
-      "Södertälje SK"     = { apiName = "Södertälje";    aliases = [ "södertälje" "sodertalje" ]; };
-      "Östersunds IK"     = { apiName = "Östersund";     aliases = [ "östersund" "ostersund" ]; };
-      "IF Troja-Ljungby"  = { apiName = "Troja-Ljungby"; aliases = [ "troja" "ljungby" "troja-ljungby" ]; };
-      "Västerås IK"       = { apiName = "Västerås";      aliases = [ "västerås" "vasteras" ]; };
-      "Vimmerby HC"       = { apiName = "Vimmerby";      aliases = [ "vimmerby" ]; };
+      "AIK"              = { apiName = "AIK";           aliases = [ "aik" "aiks" ]; };
+      "BIK Karlskoga"    = { apiName = "Karlskoga";     aliases = [ "karlskoga" "bik" "bofors" ]; };
+      "Kalmar HC"        = { apiName = "Kalmar";        aliases = [ "kalmar" "kalmars" ]; };
+      "Leksands IF"      = { apiName = "Leksands IF";   aliases = [ "leksand" "leksands" ]; };
+      "Modo Hockey"      = { apiName = "Modo";          aliases = [ "modo" "modos" ]; };
+      "Mora IK"          = { apiName = "Mora";          aliases = [ "mora" ]; };
+      "Nybro Vikings IF" = { apiName = "Nybro";         aliases = [ "nybro" "nybros" "vikings" ]; };
+      "Södertälje SK"    = { apiName = "Södertälje";    aliases = [ "södertälje" "sodertalje" ]; };
+      "Västerås IK"      = { apiName = "Västerås";      aliases = [ "västerås" "vasteras" ]; };
+      "Vimmerby HC"      = { apiName = "Vimmerby";      aliases = [ "vimmerby" ]; };
+      "Visby/Roma HK"    = { apiName = "Visby/Roma";    aliases = [ "visby" "roma" "visbyroma" ]; };
+      "IK Oskarshamn"    = { apiName = "Oskarshamn";    aliases = [ "oskarshamn" ]; };
+      "Almtuna IS"       = { apiName = "Almtuna";       aliases = [ "almtuna" ]; };
+      "Östersunds IK"    = { apiName = "Östersund";     aliases = [ "östersund" "ostersund" ]; };
     };
     shl = {
-      "Djurgårdens IF"    = { apiName = "Djurgårdens IF";   aliases = [ "djurgården" "djurgarden" "djurgårdens" "dif" ]; };
-      "Växjö Lakers"      = { apiName = "Växjö Lakers";     aliases = [ "växjö" "vaxjo" "lakers" ]; };
-      "Rögle BK"          = { apiName = "Rögle BK";         aliases = [ "rögle" "rogle" ]; };
-      "Brynäs IF"         = { apiName = "Brynäs IF";        aliases = [ "brynäs" "brynas" ]; };
-      "Skellefteå AIK"    = { apiName = "Skellefteå AIK";   aliases = [ "skellefteå" "skelleftea" "skellefte" "saik" ]; };
-      "Frölunda HC"       = { apiName = "Frölunda HC";      aliases = [ "frölunda" "frolunda" "fhc" ]; };
-      "Örebro HK"         = { apiName = "Örebro Hockey";    aliases = [ "örebro" "orebro" ]; };
-      "Malmö Redhawks"    = { apiName = "Malmö Redhawks";   aliases = [ "malmö" "malmo" "redhawks" ]; };
-      "Luleå HF"          = { apiName = "Luleå Hockey";     aliases = [ "luleå" "lulea" "lhf" ]; };
-      "Färjestad BK"      = { apiName = "Färjestad BK";     aliases = [ "färjestad" "farjestad" "fbk" ]; };
-      "Linköping HC"      = { apiName = "Linköping HC";     aliases = [ "linköping" "linkoping" "lhc" ]; };
-      "Timrå IK"          = { apiName = "Timrå IK";         aliases = [ "timrå" "timra" ]; };
-      "Leksands IF"       = { apiName = "Leksands IF";      aliases = [ "leksand" "leksands" ]; };
-      "HV71"              = { apiName = "HV71";             aliases = [ "hv71" "hv" ]; };
-      "Modo Hockey"       = { apiName = "Modo Hockey";      aliases = [ "modo" "modos" ]; };
+      "Djurgårdens IF"  = { apiName = "Djurgårdens IF"; aliases = [ "djurgården" "djurgarden" "djurgårdens" "dif" ]; };
+      "Växjö Lakers"    = { apiName = "Växjö Lakers";   aliases = [ "växjö" "vaxjo" "lakers" ]; };
+      "Rögle BK"        = { apiName = "Rögle BK";       aliases = [ "rögle" "rogle" ]; };
+      "Brynäs IF"       = { apiName = "Brynäs IF";      aliases = [ "brynäs" "brynas" ]; };
+      "Skellefteå AIK"  = { apiName = "Skellefteå AIK"; aliases = [ "skellefteå" "skelleftea" "skellefte" "saik" ]; };
+      "Frölunda HC"     = { apiName = "Frölunda HC";    aliases = [ "frölunda" "frolunda" "fhc" ]; };
+      "Örebro HK"       = { apiName = "Örebro Hockey";  aliases = [ "örebro" "orebro" ]; };
+      "Malmö Redhawks"  = { apiName = "Malmö Redhawks"; aliases = [ "malmö" "malmo" "redhawks" ]; };
+      "Luleå HF"        = { apiName = "Luleå Hockey";   aliases = [ "luleå" "lulea" "lhf" ]; };
+      "Färjestad BK"    = { apiName = "Färjestad BK";   aliases = [ "färjestad" "farjestad" "fbk" ]; };
+      "Linköping HC"    = { apiName = "Linköping HC";   aliases = [ "linköping" "linkoping" "lhc" ]; };
+      "Timrå IK"        = { apiName = "Timrå IK";       aliases = [ "timrå" "timra" ]; };
+      "IF Björklöven"   = { apiName = "Björklöven";     aliases = [ "björklöven" "bjorkloven" "löven" "bjk" ]; };
+      "HV71"            = { apiName = "HV71";           aliases = [ "hv71" "hv" ]; };
     };
   };
-
 
   leagues = {
     ha = {
@@ -357,6 +355,8 @@ let
     "visa {team}s {stat}"
     "analysera {team}s {stat}"
     "ge en analys av {team}s {stat}"
+    "{mode} {stat}"
+    "{mode} målvakt"
 
     # heaviest / tallest / other player attributes
     "vem är ligans {stat} spelare"
@@ -947,11 +947,11 @@ let
           if [ "$games_count" -gt 0 ]; then exit 0; else exit 1; fi
         fi
 
-        if [ "$games_count" -eq 0 ]; then
-          dt_error "No games found for the specified criteria"
-          exit 1
-        fi
 
+        if [ "$games_count" -eq 0 ]; then
+          dt_info "No $type games found for the specified criteria"
+          exit 0
+        fi
         echo "$filtered_games" > "$games_file"
         dt_debug "Found $games_count $type games"
 
@@ -985,7 +985,7 @@ let
         priority = 2;
         sentences = [
           "(vad|hur) (hände|gick) [det|matchen] (för|med) {team} (senast|igår)"
-          "(berätta|visa) (om|) {team} (senaste|sista) match"
+          "(berätta|visa) (om) {team} (senaste|sista) match"
           "(vilka|vad) (hände|resultat) (i|) hockyn (igår|senast)"
           "senaste hockymatcherna"
           "allsvenskan matcher"
@@ -1593,20 +1593,20 @@ let
                   if [ $? -eq 0 ] && [ -n "$result" ]; then
                     analysis="$result är laget som gjort mest boxplay mål i $LEAGUE_NAME!"
                     echo "$analysis"
-                    yo say --text "$analysis" --silence "0.8"
+                    yo say --text "$analysis"
                   fi
                 else
                   result=$(get_top_shorthanded_teams 14 | tail -1)
                   if [ $? -eq 0 ] && [ -n "$result" ]; then
                     analysis="$result har gjort minst boxplay mål i $LEAGUE_NAME."
                     echo "$analysis"
-                    yo say --text "$analysis" --silence "0.8"
+                    yo say --text "$analysis"
                   fi
                 fi
               else
                 analysis=$(analyze_special_teams "$mode-$stat" "$table_file")
                 echo "$analysis"
-                yo say --text "$analysis" --silence "0.8"
+                yo say --text "$analysis"
               fi
             else
               dt_error "No table data found for special teams analysis"
@@ -1618,7 +1618,7 @@ let
             if [ $? -eq 0 ] && [ -n "$result" ]; then
               echo "$result"
               speech_result=$(echo "$result" | head -5)
-              yo say --text "$speech_result" --silence "0.8"
+              yo say --text "$speech_result"
             fi
             exit 0
           fi
@@ -1638,7 +1638,7 @@ let
                   analysis+=" DET ÄR EN $team MÅLVAKT SOM LEDER LIGAN! GRATTIS!"
                 fi
                 echo "$analysis"
-                yo say --text "$analysis" --silence "0.8"
+                yo say --text "$analysis"
               fi
             else
               echo "Målvaktsstatistik för $team:"
@@ -1651,7 +1651,7 @@ let
                 IFS='|' read -r gk_name gk_team gk_save_percent gk_games gk_gaa gk_shutouts <<< "$best_gk_data"
                 analysis="$LEAGUE_NAME s bästa målvakt just nu är $gk_name från $gk_team med $gk_save_percent% i räddningsprocent."
                 echo "$analysis"
-                yo say --text "$analysis" --silence "0.8"
+                yo say --text "$analysis"
               fi
             else
               get_goalie_stats "save_percentage" $count
@@ -1686,7 +1686,7 @@ let
                 esac
                 dt_info "🏒🦆duckPUCK🏒🦆 POWERPLAY ANALYS:"
                 echo "$pp_analysis"
-                yo say "$pp_analysis" --silence "0.8"
+                yo say "$pp_analysis"
               fi
 
             elif [ "$stat" = "boxplay" ]; then
@@ -1704,7 +1704,7 @@ let
                 esac
                 dt_info "🏒🦆duckPUCK🏒🦆 BOXPLAY ANALYS:"
                 echo "$bp_analysis"
-                yo say "$bp_analysis" --silence "0.8"
+                yo say "$bp_analysis"
               fi
 
             else
@@ -1712,7 +1712,7 @@ let
               if [ $? -eq 0 ]; then
                 dt_info "🏒🦆duckPUCK🏒🦆 TEAM ANALYS:"
                 echo "$team_analysis"
-                yo say "$team_analysis" --silence "0.8"
+                yo say "$team_analysis"
               fi
             fi
           else
@@ -1728,7 +1728,7 @@ let
             display_table_with_special_teams "$table_file"
             echo ""
 
-            yo duckPUCK-games --league ${leagueKey}
+            yo duckPUCK-games --league ${leagueKey} || true
           else
             dt_error "No table data found at $table_file"
           fi

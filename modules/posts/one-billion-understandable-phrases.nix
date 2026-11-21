@@ -63,7 +63,7 @@ in {
       date        = "2025-01-01";
       title       = "A Unique Milestone Reached";
       tags        = [ "yo" "voice" "nix" "milestone" ];
-      description = "yo crossed one billion generated phrases. ${fmtInt totalPatterns} patterns. ${fmtInt totalPhrases} phrases. ${toString totalScripts} scripts, ${toString totalVoiceScripts} voice-ready. 97 ms average over 1,467 runs.";
+      description = "yo crossed one billion generated phrases. ${fmtInt totalPatterns} patterns. ${fmtInt totalPhrases} phrases. ${toString totalScripts} scripts, ${toString totalVoiceScripts} voice-ready. 37 ms average over 1,467 runs.";
 
       eyebrow = "A unique milestone reached";
       header1 = ''<span style="color:#fff">A Unique Mile</span><span style="color:var(--gold)">stone Reached!</span>'';
@@ -75,7 +75,7 @@ in {
         <p class="milestone-sub">
           From <strong>${fmtInt totalPatterns} patterns</strong>, at a ratio of
           <strong>${fmtInt phrasesPerPattern}</strong> phrases per pattern.
-          All matched at runtime, with <strong>97 ms</strong>
+          All matched at runtime, with <strong>37 ms</strong>
           average execution across <strong>1,467 runs</strong>.
         </p>
       '';
@@ -86,7 +86,7 @@ in {
         { value = fmtInt totalPatterns;       label = "Generated regex patterns"; accent = "teal";  }
         { value = fmtB   totalPhrases;        label = "Understandable phrases";   accent = "green"; }
         { value = fmtK   phrasesPerPattern;   label = "Variations / Pattern";     accent = "pink";  }
-        { value = "97 ms";                    label = "Average on 1,467 executions";  accent = "blue";  }
+        { value = "37 ms";                    label = "Average on 1,467 executions";  accent = "blue";  }
       ];
 
       sections = [
@@ -139,7 +139,7 @@ in {
 
           ${fmtInt totalPatterns} patterns is a lot to hand-write. ${fmtInt phrasesPerPattern} phrases per pattern is a lot of grammar to get right - plural, word order, synonyms, optional words, alternative words. Every new pattern multiplies against every existing parameter list, and every new parameter value multiplies against every existing pattern. The phrase count grows quadratically, initially the work to keep it accurate grew with both sides, that's before I implemented fuzzy sentence conflict detection at compile-time.
 
-          That's what hitting one billion really means: not that the matcher is fast - **97 ms average across 1,467 runs** is nice but cheap - but that the vocabulary underneath it is dense enough. The multiplication naturally clears a billion.
+          That's what hitting one billion really means: not that the matcher is fast - **37 ms average across 1,467 runs** is nice but cheap - but that the vocabulary underneath it is dense enough. The multiplication naturally clears a billion.
 
           And it helps that **${toString totalVoiceScripts} of the ${toString totalScripts} scripts** expose their vocabulary to the voice layer. Those ${toString totalVoiceScripts} are the scripts that can be spoken to, and they're what feeds the phrase count. The other ${toString (totalScripts - totalVoiceScripts)} are infrastructure - hooks, generators, helpers - that nobody needs to say out loud.
         ''; }

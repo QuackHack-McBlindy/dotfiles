@@ -36,7 +36,45 @@ in {
             echo "❗ Test run: reboot will revert activation"
           fi
 
+
           fetch_nix_error_log() {
+            local error_location
+
+            error_location=$(
+              grep -oE 'at «path:[^»]+»/[^:]+:[0-9]+:[0-9]+:' \
+                <<< "$BUILD_OUTPUT" \
+                | head -n1 \
+                | sed -E 's/^at «path:[^»]+»//; s/:$//'
+            )
+
+            if [[ -n "$error_location" ]]; then
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              say_duck "🦆 ERROR LOCATION ❌🦆❌"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+              echo "📍 $error_location"
+              echo
+            else
+              echo "🦆 Could not locate error source."
+            fi
+
+            local drv_path
+
+            drv_path=$(grep -oE "Cannot build '/nix/store/[^']+\.drv'" \
+              <<< "$BUILD_OUTPUT" \
+              | head -n1 \
+              | sed "s/^Cannot build '//; s/'$//")
+
+            if [[ -n "$drv_path" ]]; then
+              echo "🦆 Failed derivation: $drv_path"
+              echo
+              nix log "$drv_path" 2>&1 | tail -n 100
+            fi
+          }
+
+
+
+          fetch_nix_error_log2() {
             local drv_path
 
             drv_path=$(grep -oE "Cannot build '/nix/store/[^']+\.drv'" \

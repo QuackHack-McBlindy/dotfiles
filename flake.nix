@@ -8,9 +8,11 @@
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         yo.url               = "github:QuackHack-McBlindy/yo";
+        #yo.url               = "path:/home/pungkula/new/yo";
         yo-gnome.url         = "github:quackhack-mcblindy/yo-gnome-shell-extension";
         zigduck-gnome.url    = "github:quackhack-mcblindy/zigduck-gnome-shell-extension";
         zigduck.url          = "github:QuackHack-McBlindy/zigduck";
+        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";

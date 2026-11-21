@@ -15,10 +15,65 @@
   tagsToKeywords = tags:
     concatStringsSep ", " (map (t: "\"${t}\"") tags);
 
+
+
+  videoFilter = pkgs.writeText "video-filter.lua" ''
+    function escapeHtml(s)
+      return s:gsub("&", "&amp;")
+              :gsub('"', "&quot;")
+              :gsub("<", "&lt;")
+              :gsub(">", "&gt;")
+    end
+
+    function Link(el)
+      local url = el.target
+      local isGitHubVideo =
+        url:match("^https://github.com/user%-attachments/assets/")
+
+      local lower = url:lower()
+      local isVideo =
+        lower:match("%.mp4$") or
+        lower:match("%.webm$") or
+        lower:match("%.ogg$")
+
+      if isGitHubVideo or isVideo then
+        return pandoc.RawInline("html",
+          '<video controls preload="metadata" playsinline ' ..
+          'style="max-width:100%;height:auto;border-radius:12px;">' ..
+          '<source src="' .. escapeHtml(url) .. '">' ..
+          'Your browser does not support HTML5 video.' ..
+          '</video>'
+        )
+      end
+
+      return el
+    end
+  '';
+
+  renderMarkdown = file:
+    pkgs.runCommand "blog-markdown.html" {
+      nativeBuildInputs = [ pkgs.pandoc ];
+    } ''
+      pandoc \
+        --from=gfm \
+        --to=html5 \
+        --wrap=none \
+        --lua-filter=${videoFilter} \
+        ${file} \
+        --output=$out
+    '';
+
+
   esc = s: builtins.replaceStrings
     [ "&" "<" ">" "\"" "'" ]
     [ "&amp;" "&lt;" "&gt;" "&quot;" "&#39;" ]
     (toString s);
+
+  xmlEsc = s:
+    builtins.replaceStrings
+      [ "&" "<" ">" "\"" "'" ]
+      [ "&amp;" "&lt;" "&gt;" "&quot;" "&apos;" ]
+      (toString s);
 
   wrapMatches = re: wrap: s:
     let
@@ -125,6 +180,15 @@
         </div>
       </section>
     ''
+    else if sec.stats != [] then ''
+      <section class="content-section">
+        <div class="wrap reveal">
+          ${renderStats sec.stats}
+        </div>
+      </section>
+    ''
+    else if sec.button != null then
+      renderButton sec.button
     else if sec.quote != null then ''
       <section class="content-section">
         <div class="wrap reveal">
@@ -182,7 +246,7 @@
     ''
       <p class="big-quote">${section.content}</p>
       ${optionalString (section.author or null != null)
-        ''<p class="big-quote-cite">- ${esc section.author}</p>''}
+        ''<p class="big-quote-cite">— ${esc section.author}</p>''}
     '';
 
   renderCrossLinks = links: ''
@@ -204,6 +268,27 @@
     </section>
   '';
 
+
+
+  renderButton = button: ''
+    <section class="content-section">
+      <div class="wrap reveal">
+        <div class="section-cta">
+          <a
+            class="cta-button"
+            href="${esc button.link}"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            ${esc button.title}
+            <span aria-hidden="true">↗</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  '';
+
+
   postDescription = post:
     if post.description != null then post.description
     else if post.tagline != "" then post.tagline
@@ -217,7 +302,10 @@
       <title>QuackHack-McBLindy.com » ${esc post.title} </title>
       <link rel="canonical" href="${cfg.baseUrl}/posts/${post.filename}" />
 
-      <meta name="google-site-verification=nfCO9B-sHuohdde9OLWBELNHyZ9ODlhIl4wC5OkituQ" />
+      <meta
+        name="google-site-verification"
+        content="nfCO9B-sHuohdde9OLWBELNHyZ9ODlhIl4wC5OkituQ"
+      />
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
       <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -311,6 +399,17 @@
             </section>
           ''}
 
+          ${optionalString (post.markdownFile != null) ''
+            <section class="content-section">
+              <div class="wrap">
+                <div class="prose-section markdown-content">
+                  <!-- BLOG_MARKDOWN_FILE -->
+                </div>
+              </div>
+            </section>
+          ''}
+
+
           ${concatStringsSep "\n" (map renderSection post.sections)}
           ${optionalString (post.tags != []) ''
           <section class="content-section">
@@ -354,6 +453,7 @@
         <footer>
           <div class="wrap footer-row">
             <div>© <span id="year"></span> <strong style="color:#d7e8e5"><span class="gold">${esc cfg.siteName}</span></strong></div>
+
             <div class="footer-links">
               <a href="#top">Top</a>
             </div>
@@ -1105,6 +1205,7 @@
       .duck-comment::before { left: -15px; width: 30px; height: 30px; font-size: 1.2rem; }
       .idea::before         { left: -35px; width: 40px; height: 40px; font-size: 1.5rem; }
     }
+
   '';
 
   commonCss = ''
@@ -1337,11 +1438,304 @@
     .prose-section ol { color: #c9dbd8; padding-left: 1.4em; margin: 0 0 16px; }
     .prose-section li { margin: 6px 0; line-height: 1.7; }
 
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3,
+    .markdown-content h4 {
+      font-family: "Cinzel Decorative", Georgia, serif;
+      color: var(--teal);
+      margin: 32px 0 16px;
+      line-height: 1.35;
+    }
+
+    .markdown-content h1 {
+      font-size: 1.8rem;
+    }
+
+    .markdown-content h2 {
+      font-size: 1.5rem;
+    }
+
+    .markdown-content h3 {
+      font-size: 1.2rem;
+    }
+
+    .markdown-content a {
+      color: var(--teal);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .markdown-content a:hover {
+      color: var(--gold);
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+      color: #c9dbd8;
+      padding-left: 1.6em;
+      margin-bottom: 20px;
+    }
+
+    .markdown-content li {
+      margin: 6px 0;
+      line-height: 1.7;
+    }
+
+    .markdown-content blockquote {
+      border-left: 3px solid var(--teal);
+      background: rgba(17,230,210,.04);
+      padding: 14px 20px;
+      margin: 24px 0;
+      border-radius: 0 10px 10px 0;
+      color: #c9dbd8;
+    }
+
+    .markdown-content pre {
+      background: #080d0c;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 20px;
+      overflow-x: auto;
+      margin: 20px 0;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .markdown-content pre code {
+      background: none;
+      padding: 0;
+      color: #d9ece9;
+    }
+
+    .markdown-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 24px 0;
+      display: block;
+      overflow-x: auto;
+    }
+
+    .markdown-content th,
+    .markdown-content td {
+      border: 1px solid var(--line);
+      padding: 10px 14px;
+      text-align: left;
+    }
+
+    .markdown-content th {
+      color: var(--gold2);
+      background: var(--panel2);
+    }
+
+    .markdown-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    .markdown-content hr {
+      border: 0;
+      border-top: 1px solid var(--line);
+      margin: 32px 0;
+    }
+
+    .markdown-content input[type="checkbox"] {
+      accent-color: var(--teal);
+      margin-right: 8px;
+    }
+
+
+    .section-cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      padding: 16px 30px;
+
+      background: linear-gradient(
+        135deg,
+        rgba(17, 230, 210, .16),
+        rgba(244, 181, 47, .12)
+      );
+
+      border: 1px solid rgba(17, 230, 210, .45);
+      border-radius: 12px;
+
+      color: var(--teal);
+      font-family: "JetBrains Mono", monospace;
+      font-size: .9rem;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .3);
+
+      transition:
+        transform .25s ease,
+        border-color .25s ease,
+        background .25s ease,
+        box-shadow .25s ease;
+    }
+
+    .cta-button span {
+      color: var(--gold);
+      font-size: 1.2rem;
+      transition: transform .25s ease;
+    }
+
+    .cta-button:hover {
+      transform: translateY(-3px);
+      border-color: var(--gold);
+      background: rgba(17, 230, 210, .15);
+      box-shadow: 0 12px 35px rgba(17, 230, 210, .12);
+    }
+
+    .cta-button:hover span {
+      transform: translate(3px, -3px);
+    }
+
+    @media (max-width: 560px) {
+      .cta-button {
+        width: 100%;
+        padding: 15px 20px;
+      }
+    }
+
+    .section-cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 2rem auto;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+
+      padding: 15px 30px;
+      min-width: 190px;
+
+      color: #050707;
+      background: linear-gradient(135deg, #ffd75e, #f4b52f);
+      border: 1px solid #ffe28a;
+      border-radius: 12px;
+
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 900;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      text-decoration: none;
+
+      box-shadow:
+        0 0 8px rgba(244, 181, 47, 0.45),
+        0 0 22px rgba(244, 181, 47, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.35);
+
+      transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        background 0.2s ease,
+        border-color 0.2s ease;
+    }
+
+    .cta-button span {
+      color: #050707;
+      font-size: 1.1rem;
+      transition: transform 0.2s ease;
+    }
+
+    .cta-button:hover {
+      color: #050707;
+      background: linear-gradient(135deg, #ffe994, #ffc52e);
+      border-color: #fff0b5;
+
+      transform: translateY(-3px);
+
+      box-shadow:
+        0 0 12px rgba(244, 181, 47, 0.75),
+        0 0 32px rgba(244, 181, 47, 0.35),
+        0 6px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .cta-button:hover span {
+      transform: translate(3px, -3px);
+    }
+
+    .cta-button:active {
+      transform: translateY(0) scale(0.97);
+    }
+
+    .cta-button:focus-visible {
+      outline: 2px solid #ffe28a;
+      outline-offset: 5px;
+    }
+
+    @media (max-width: 560px) {
+      .cta-button {
+        width: 100%;
+        max-width: 320px;
+        padding: 14px 20px;
+        font-size: 0.8rem;
+      }
+    }
+
   '';
 
+
+
   postFiles = lib.mapAttrs' (name: post:
-    lib.nameValuePair post.filename
-      (pkgs.writeText post.filename (renderPage name post))
+    let
+      template = pkgs.writeText
+        "${post.filename}.template"
+        (renderPage name post);
+
+      page =
+        if post.markdownFile == null then
+          pkgs.writeText post.filename (renderPage name post)
+        else
+          let
+            markdown = renderMarkdown post.markdownFile;
+          in
+            pkgs.runCommand post.filename {
+              nativeBuildInputs = [ pkgs.python3 ];
+            } ''
+              ${pkgs.python3}/bin/python - \
+                "${template}" \
+                "${markdown}" \
+                "$out" <<'PY'
+              import pathlib
+              import sys
+
+              template, markdown, output = map(pathlib.Path, sys.argv[1:])
+
+              html = template.read_text(encoding="utf-8")
+              rendered = markdown.read_text(encoding="utf-8")
+
+              marker = "<!-- BLOG_MARKDOWN_FILE -->"
+
+              if marker not in html:
+                  raise RuntimeError("Markdown insertion point not found")
+
+              html = html.replace(marker, rendered)
+
+              output.write_text(html, encoding="utf-8")
+              PY
+            '';
+    in
+      lib.nameValuePair post.filename page
   ) cfg.posts;
 
   sortedPosts = sort (a: b:
@@ -1375,13 +1769,78 @@
     ${pkgs.jq}/bin/jq . ${pkgs.writeText "posts-raw.json" (builtins.toJSON postsData)} > $out
   '';
 
+
+  atomXml = pkgs.writeText "atom.xml" ''
+    <?xml version="1.0" encoding="utf-8"?>
+    <feed xmlns="http://www.w3.org/2005/Atom">
+
+      <title>${xmlEsc cfg.siteName}</title>
+      <subtitle>Code, wisdom and tales of NixOS flakes.</subtitle>
+
+      <id>${xmlEsc cfg.baseUrl}/</id>
+      <link href="${xmlEsc cfg.baseUrl}/"/>
+      <link
+        href="${xmlEsc cfg.baseUrl}/atom.xml"
+        rel="self"
+        type="application/atom+xml"
+      />
+
+      <updated>${xmlEsc (
+        if cfg.feedUpdated != null then
+          cfg.feedUpdated
+        else if postsData != [] then
+          (lib.head (sort (a: b: a.date > b.date) postsData)).date + "T00:00:00Z"
+        else
+          "1970-01-01T00:00:00Z"
+      )}</updated>
+
+      <author>
+        <name>${xmlEsc cfg.siteName}</name>
+        <uri>${xmlEsc cfg.baseUrl}/</uri>
+      </author>
+
+      ${concatStringsSep "\n" (map (post:
+        let
+          postId =
+            if post.link != "" then
+              post.link
+            else
+              "${cfg.baseUrl}/#${builtins.hashString "sha256" (post.date + ":" + post.title)}";
+        in
+        ''
+          <entry>
+            <title>${xmlEsc post.title}</title>
+            <id>${xmlEsc postId}</id>
+
+            ${lib.optionalString (post.link != "") ''
+              <link href="${xmlEsc post.link}"/>
+            ''}
+
+            <published>${xmlEsc post.date}T00:00:00Z</published>
+            <updated>${xmlEsc post.date}T00:00:00Z</updated>
+
+            <summary type="text">${xmlEsc post.description}</summary>
+
+            ${concatStringsSep "\n" (map (tag: ''
+              <category term="${xmlEsc tag}"/>
+            '') post.tags)}
+          </entry>
+        ''
+      ) postsData)}
+
+    </feed>
+  '';
+
+
+
   html = pkgs.runCommand "blog-html" { } ''
     mkdir -p $out $out/posts
     ${concatStringsSep "\n" (mapAttrsToList (name: f: "cp ${f} $out/${name}") postFiles)}
     cp ${postsJson} $out/posts.json
     cp ${postsJson} $out/posts/posts.json
-  '';
 
+    cp ${atomXml} $out/atom.xml
+  '';
 in {
 
   options.blog = {
@@ -1405,6 +1864,8 @@ in {
       description = "Generated site directory (HTML files + posts.json).";
     };
 
+
+
     postsJson = mkOption {
       type = types.nullOr (types.listOf (types.submodule {
         options = {
@@ -1418,7 +1879,7 @@ in {
       default = null;
       description = ''
         Full override for posts.json. When set, blog.posts is used ONLY for
-        page generation - this list is emitted verbatim as posts.json.
+        page generation — this list is emitted verbatim as posts.json.
       '';
     };
 
@@ -1436,6 +1897,16 @@ in {
       description = ''
         Extra entries appended to the auto-generated posts.json. Use for
         external links, placeholders, or anything without a real page.
+      '';
+    };
+
+    feedUpdated = lib.mkOption {
+      type = lib.types.nullOr lib.types.str;
+      default = null;
+      example = "2026-11-20T14:30:00Z";
+      description = ''
+        Optional ISO 8601 timestamp for the Atom feed's last update.
+        When null, the date of the newest post is used.
       '';
     };
 
@@ -1490,6 +1961,16 @@ in {
               freely.
             '';
           };
+
+          markdownFile = mkOption {
+            type = types.nullOr types.path;
+            default = null;
+            description = ''
+              Optional Markdown file rendered using GitHub Flavored Markdown.
+              When specified, its rendered HTML is inserted after the main text.
+            '';
+          };
+
           stats = mkOption {
             type = types.listOf (types.submodule {
               options = {
@@ -1509,26 +1990,44 @@ in {
               options = {
                 prose = mkOption { type = types.nullOr types.lines; default = null; };
                 html = mkOption { type = types.nullOr types.str; default = null; };
-                warning = mkOption {
-                  type = types.nullOr types.lines;
-                  default = null;
-                  description = "Warning callout. HTML allowed.";
+                warning = mkOption { type = types.nullOr types.lines; default = null; description = "Warning callout. HTML allowed."; };
+                quote = mkOption { type = types.nullOr types.lines; default = null; description = "Quote callout. HTML allowed."; };
+                duck = mkOption { type = types.nullOr types.lines; default = null; description = "Duck comment callout. HTML allowed."; };
+                idea = mkOption { type = types.nullOr types.lines; default = null; description = "Idea callout. HTML allowed."; };
+
+                stats = mkOption {
+                  type = types.listOf (types.submodule {
+                    options = {
+                      value = mkOption { type = types.str; };
+                      label = mkOption { type = types.str; };
+                      accent = mkOption {
+                        type = types.enum [ "teal" "gold" "gold2" "green" "pink" "purple" "blue" "red" ];
+                        default = "teal";
+                      };
+                    };
+                  });
+                  default = [ ];
+                  description = "Optional stat tiles under the hero.";
                 };
-                quote = mkOption {
-                  type = types.nullOr types.lines;
+
+                button = mkOption {
+                  type = types.nullOr (types.submodule {
+                    options = {
+                      title = mkOption {
+                        type = types.str;
+                        description = "Button label.";
+                      };
+
+                      link = mkOption {
+                        type = types.str;
+                        description = "Button destination URL.";
+                      };
+                    };
+                  });
                   default = null;
-                  description = "Quote callout. HTML allowed.";
+                  description = "A call-to-action button.";
                 };
-                duck = mkOption {
-                  type = types.nullOr types.lines;
-                  default = null;
-                  description = "Duck comment callout. HTML allowed.";
-                };
-                idea = mkOption {
-                  type = types.nullOr types.lines;
-                  default = null;
-                  description = "Idea callout. HTML allowed.";
-                };
+
                 code = mkOption {
                   type = types.nullOr (types.submodule {
                     options = {
@@ -1549,11 +2048,7 @@ in {
             default = [ ];
             description = "Ordered content sections: prose, HTML, code, warning, quote, duck, and idea. Entries can be repeated.";
           };
-          warning = mkOption {
-            type = types.nullOr types.str;
-            default = null;
-            description = "Warning box (HTML allowed).";
-          };
+          warning = mkOption { type = types.nullOr types.str; default = null; description = "Warning box (HTML allowed)."; };
           crossLinks = mkOption {
             type = types.listOf (types.submodule {
               options = {
@@ -1602,8 +2097,8 @@ in {
             "${config.blog.html}/${post.filename}")
         config.blog.posts)
       // {
-        "QuackHack-McBlindy.com/posts.json" =
-          "${config.blog.html}/posts.json";
+        "QuackHack-McBlindy.com/posts.json" = "${config.blog.html}/posts.json";
+        "QuackHack-McBlindy.com/atom.xml"   = "${config.blog.html}/atom.xml";
       };
 
   };}

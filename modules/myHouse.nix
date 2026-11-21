@@ -27,7 +27,7 @@
   # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
     if self ? lastModified then toString self.lastModified
-    else throw "flake has no lastModified - needs to be a git-backed flake";
+    else throw "flake has no lastModified — needs to be a git-backed flake";
   tzProbe = pkgs.runCommand "tz-probe" {
     nativeBuildInputs = [ pkgs.tzdata ];
     env.TZDIR = "${pkgs.tzdata}/share/zoneinfo";
@@ -51,8 +51,9 @@
   ));
 
 in { # 🦆 duck say ⮞ house config
+  yo.splitWords = [ ];
   house = {
-    languages = [ "sv" "en" ];
+    languages = [ "sv" ];
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom    = {
@@ -329,7 +330,7 @@ in { # 🦆 duck say ⮞ house config
           kitchen = {
             motion_not_detected = [
               # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
-              "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
+              "om fläkten drar mer än tjugo watt så stäng den om etthundraåttio sekunder sedan släck köket långsamt"
             ];
 
             motion_detected = [
@@ -338,8 +339,8 @@ in { # 🦆 duck say ⮞ house config
               # 🦆 ⮞ 1: start lights.
               # 🦆 ⮞ 2: cancel the off-countdown on fan.
               # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
-              "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
-              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan plus säg nu börjar match klant"
+              "stäng fläkten om noll sekunder samt om fläkten är av så sätt på den"
+              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan sedan säg nu börjar match klant"
             ];
           };
         };
@@ -746,6 +747,7 @@ in { # 🦆 duck say ⮞ house config
       # 🦆 says ⮞ Livingroom
       shield = {
         enable       = true;
+        aliases      = [ "tv" "tvn" "teven" ];
         room         = "tv-area";
         ip           = devices.shield.ip;
         apps = {

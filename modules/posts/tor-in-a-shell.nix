@@ -14,7 +14,7 @@
       date        = "2026-11-09";
       tags        = [ "tor" "privacy" "nixos" ];
       tagline     = "Every other Tor setup asks you to point something at something. This one asks you to type <code>hide</code>.";
-      description = "Every other Tor setup asks you to point something at something. This one asks you to type hide - Firejail, nftables, and a NetworkManager bridge.";
+      description = "Every other Tor setup asks you to point something at something. This one asks you to type hide — Firejail, nftables, and a NetworkManager bridge.";
 
       header1 = "Tor";
       header2 = "in a Shell";
@@ -121,6 +121,8 @@
             '';
           };
         }
+        { duck = "BYEEEE!!!!1"; }
+
         {
           quote = ''
             The network is unchanged. <strong>What changed is the ceremony.</strong>"

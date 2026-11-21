@@ -5,13 +5,13 @@
 ![License](https://img.shields.io/badge/license-MIT-black?style=plastic-square&logo=opensourceinitiative&logoColor=white)
 ![NixOS](https://img.shields.io/badge/NixOS-26.11-blue?style=flat-square&logo=NixOS&logoColor=white)
 ![Nix](https://img.shields.io/badge/Nix-2.35.6-blue?style=flat-square&logo=nixos&logoColor=white)
-![Linux Kernel](https://img.shields.io/badge/Linux-6.18.63-red?style=flat-square&logo=linux&logoColor=white)
+![Linux Kernel](https://img.shields.io/badge/Linux-6.18.64-red?style=flat-square&logo=linux&logoColor=white)
 ![GNOME](https://img.shields.io/badge/GNOME-51.1-purple?style=flat-square&logo=gnome&logoColor=white)
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.97.1-orange?style=flat-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/💬%20yo-0.2.14-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.13-black?style=plastic)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.15-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.15-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -70,13 +70,13 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 <!-- BADGES_START -->
 | **Category** | **Contents** |
 |---|---|
-| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-103-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-74-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-9465-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-121.40B-7c3aed?style=plastic)](bin/) |
+| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-104-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-73-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-8299-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.13B-7c3aed?style=plastic)](bin/) |
 | 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WG-dc2626?style=plastic)](modules/networking/wg-server.nix) |
 | 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-6-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-491-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
 | 🏠 **Home Automation** | [![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)](modules/myHouse.nix) [![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)](modules/myHouse.nix) [![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)](modules/devices.nix) [![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)](modules/myHouse.nix) |
 | 🔐 **Security** | [![Yubikeys](https://img.shields.io/badge/🔑_Yubikeys-2-dc2626?style=plastic)](modules/secrets.nix) [![Secrets](https://img.shields.io/badge/🔒_Secrets-42-dc2626?style=plastic)](modules/secrets.nix) |
 | 🚀 **Workflows** | [![Auto--Docs](https://img.shields.io/badge/Auto--Docs-✅-22c55e?style=plastic)](.github/workflows/) [![Auto--Deploy](https://img.shields.io/badge/Auto--Deploy-✅-22c55e?style=plastic)](.github/workflows/) |
-| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4594-eab308?style=plastic)](bin/) | [![Posts](https://img.shields.io/badge/📝_Posts-6-7c3aed?style=flat-square)](modules/posts) |
+| 🎉 **???** | [![Pokémon](https://img.shields.io/badge/🔴_Pokémon-5204-e63946?style=plastic)](https://github.com/QuackHack-McBlindy/pokenix) [![Ducks](https://img.shields.io/badge/🦆_Ducks-4594-eab308?style=plastic)](bin/) | [![Posts](https://img.shields.io/badge/📝_Posts-9-7c3aed?style=flat-square)](modules/posts) |
 <!-- BADGES_END -->
 
 _List would get long, very quackly._ <br>
@@ -255,7 +255,7 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   # 🦆 says ⮞ auto detect summer/winter time (for EPG)
   flakeEpoch =
     if self ? lastModified then toString self.lastModified
-    else throw "flake has no lastModified - needs to be a git-backed flake";
+    else throw "flake has no lastModified — needs to be a git-backed flake";
   tzProbe = pkgs.runCommand "tz-probe" {
     nativeBuildInputs = [ pkgs.tzdata ];
     env.TZDIR = "${pkgs.tzdata}/share/zoneinfo";
@@ -279,8 +279,9 @@ Define Zigbee-devices, scenes, automations, tv's, channels etc at `config.house`
   ));
 
 in { # 🦆 duck say ⮞ house config
+  yo.splitWords = [ ];
   house = {
-    languages = [ "sv" "en" ];
+    languages = [ "sv" ];
     # 🦆 says ⮞ ROOM CONFIGURATION
     rooms = {
       bedroom    = {
@@ -557,7 +558,7 @@ in { # 🦆 duck say ⮞ house config
           kitchen = {
             motion_not_detected = [
               # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
-              "om fläkten drar mer än tjugo watt så stäng fläkten om etthundraåttio sekunder sedan släck köket långsamt"
+              "om fläkten drar mer än tjugo watt så stäng den om etthundraåttio sekunder sedan släck köket långsamt"
             ];
 
             motion_detected = [
@@ -566,8 +567,8 @@ in { # 🦆 duck say ⮞ house config
               # 🦆 ⮞ 1: start lights.
               # 🦆 ⮞ 2: cancel the off-countdown on fan.
               # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
-              "stäng fläkten om noll sekunder samt om fläkten är av så sätt på fläkten"
-              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan plus säg nu börjar match klant"
+              "stäng fläkten om noll sekunder samt om fläkten är av så sätt på den"
+              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan sedan säg nu börjar match klant"
             ];
           };
         };
@@ -974,6 +975,7 @@ in { # 🦆 duck say ⮞ house config
       # 🦆 says ⮞ Livingroom
       shield = {
         enable       = true;
+        aliases      = [ "tv" "tvn" "teven" ];
         room         = "tv-area";
         ip           = devices.shield.ip;
         apps = {
@@ -1332,9 +1334,11 @@ I like my flakes tiny & ny modules dynamically loaded,
         sops-nix.inputs.nixpkgs.follows = "nixpkgs";
         ducktrace-python.url = "github:QuackHack-McBlindy/ducktrace-python";
         yo.url               = "github:QuackHack-McBlindy/yo";
+        #yo.url               = "path:/home/pungkula/new/yo";
         yo-gnome.url         = "github:quackhack-mcblindy/yo-gnome-shell-extension";
         zigduck-gnome.url    = "github:quackhack-mcblindy/zigduck-gnome-shell-extension";
         zigduck.url          = "github:QuackHack-McBlindy/zigduck";
+        #zigduck.url          = "path:/home/pungkula/zigduck2mqttnix";
         pokenix.url          = "github:QuackHack-McBlindy/pokenix";
         magnixify.url        = "github:QuackHack-McBlindy/magnixify-gnome-shell-extension";
         caddy-duckdns.url    = "github:QuackHack-McBlindy/nix-caddy-duckdns";
@@ -1533,6 +1537,7 @@ View All Scripts
 | **⚡ Productivity** | | | |
 | [yo calculator](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calculator.nix) --expression | calc | Calculate math expressions | ✅ |
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
+| [yo ci-report](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/ci-report.nix) [--running] [--percent] --repo | cir | CI checks check-ups | 📛 |
 | [yo clip2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/clip2phone.nix) --copy |  | Send clipboard to an iPhone, for quick copy paste | ✅ |
 | [yo fr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fr.nix) --find --replace |  | find and replace in .nix files and subdirs | ✅ |
 | [yo fzf](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix)  | f | Interactive fzf search for file content with quick edit & jump to line | 📛 |
@@ -1558,6 +1563,7 @@ View All Scripts
 | [yo notify-me](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/notify-me.nix) [--address] [--port] [--dataDir] |  | Notification server for iOS devices | 📛 |
 | [yo shareWiFi](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/shareWiFi.nix) [--ssidFile] [--passwordFile] |  | creates a QR code of guest WiFi and push image to iPhone | ✅ |
 | [yo speed](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/speed.nix)  | st | Test internet download speed | ✅ |
+| [yo vpn](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/vpn.nix) [--mode] [--type] |  | Toggle WireGuard sate/config. | 📛 |
 | **🎧 Media Management** | | | |
 | [yo call-remote](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/call-remote.nix)  |  | Used to call the tv remote, for easy localization. | ✅ |
 | [yo hacker-news](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/media/hacker-news.nix) [--show] [--item] [--user] [--clear] [--number] | hn | Hacker news API controller | 📛 |
@@ -1584,7 +1590,6 @@ View All Scripts
 | [yo display](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/display.nix) --path |  | Creates a HTML image that can be displayed on the chat frontend. | ✅ |
 | [yo findPhone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/findPhone.nix)  |  | Helper for locating Phone | ✅ |
 | [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
-| [yo kitchenFan](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/kitchenFan.nix) [--state] |  | Turns kitchen fan on/off | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo mqtt2history](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt2history.nix) --field --file |  | Save an MQTT payload field into a JSON history file for the frontend. | ✅ |
 | [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/notify.nix) [--message] [--tag] |  | Send a desktop notification. | ✅ |

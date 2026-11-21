@@ -16,13 +16,7 @@
 
       header1 = "Meanwhile in";
       header2 = "Sweden";
-      eyebrow = "hacking · SHL · HA";
-
-      stats = [
-        { value = "331";     label = "Generated Regex patterns";                  accent = "teal"; }
-        { value = "88,153";  label = "Understandable voice phrases / variations"; accent = "green"; }
-        { value = "266";     label = "Average variations / pattern";              accent = "red"; }
-      ];
+      eyebrow = "hacking · SHL · HA · voice-controlled";
 
       text = ''
         Meanwhile our country is being attacked by unknown forces and food worth
@@ -454,6 +448,14 @@
             collapsed = true;
             content = builtins.readFile ../../bin/misc/duckPUCK.nix;
           };
+        }
+
+        {
+          stats = [
+            { value = "331";     label = "Generated Regex patterns";                  accent = "teal"; }
+            { value = "88,153";  label = "Understandable voice phrases / variations"; accent = "green"; }
+            { value = "266";     label = "Average variations / pattern";              accent = "red"; }
+          ];
         }
 
         {
