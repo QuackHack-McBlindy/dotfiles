@@ -23,7 +23,7 @@
 
   # 🦆 duck say ⮞ client configuration
   clientWgIP = config.this.host.wgip or (throw "Client WireGuard IP not configured");
-  clientPrivateKeySecret = "${config.networking.hostName}_wireguard_private";
+  clientPrivateKeySecret = "${config.this.host.hostname}_wireguard_private";
 
   # 🦆 duck say ⮞ client-side output directory
   wgUserHome = "/home/wgUser";
@@ -32,13 +32,19 @@ in { # 🦆 duck say ⮞ activate client service by exposing `"wg-client"` at `c
     # 🦆 duck say ⮞ secret keepin' (unconditional now)
     sops.secrets = {
       ${clientPrivateKeySecret} = {
-        sopsFile = ../../secrets/hosts/${config.networking.hostName}/${clientPrivateKeySecret}.yaml;
+        sopsFile = ../../secrets/hosts/${config.this.host.hostname}/${clientPrivateKeySecret}.yaml;
         owner = "wgUser";
         group = "wgUser";
         mode = "0440";
       };
       domain = {
         sopsFile = ../../secrets/domain.yaml;
+        owner = "wgUser";
+        group = "wgUser";
+        mode = "0440";
+      };
+      wgproton = {
+        sopsFile = ../../secrets/wgproton.yaml;
         owner = "wgUser";
         group = "wgUser";
         mode = "0440";
@@ -61,7 +67,9 @@ in { # 🦆 duck say ⮞ activate client service by exposing `"wg-client"` at `c
         TEMP_DIR=$(mktemp -d)
         PRIVATE_KEY=$(cat ${config.sops.secrets.${clientPrivateKeySecret}.path})
         ENDPOINT=$(cat ${config.sops.secrets.domain.path})
-        cat > "$TEMP_DIR/${config.networking.hostName}.conf" <<EOF
+        # 🦆 duck say ⮞ copy ProtonVPN config to wgUser home
+        cat ${config.sops.secrets.wgproton.path} > "${wgUserHome}/hide.conf"
+        cat > "$TEMP_DIR/${config.this.host.hostname}.conf" <<EOF
 [Interface]
 PrivateKey = $PRIVATE_KEY
 Address = ${clientWgIP}/24
@@ -73,8 +81,8 @@ AllowedIPs = 10.0.0.0/24, 192.168.1.0/24
 Endpoint = $ENDPOINT:${toString serverPort}
 PersistentKeepalive = 25
 EOF
-        ${pkgs.coreutils}/bin/cp "$TEMP_DIR/${config.networking.hostName}.conf" "${wgUserHome}/${config.networking.hostName}.conf"
-        ${config.yo.pkgs}/bin/yo-qr --input "$TEMP_DIR/${config.networking.hostName}.conf" --output "${wgUserHome}/${config.networking.hostName}.png"
+        ${pkgs.coreutils}/bin/cp "$TEMP_DIR/${config.this.host.hostname}.conf" "${wgUserHome}/${config.this.host.hostname}.conf"
+        ${config.yo.pkgs}/bin/yo-qr --input "$TEMP_DIR/${config.this.host.hostname}.conf" --output "${wgUserHome}/${config.this.host.hostname}.png"
         rm -rf "$TEMP_DIR"
       '';
       after = [ "sops-nix.service" ];

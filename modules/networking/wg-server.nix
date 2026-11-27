@@ -1,11 +1,19 @@
-# dotfiles/modules/networking/wg-server.nix ⮞ https://github.com/quackhack-mcblindy/dotfiles
+
 { # 🦆 say ⮞ A duckz dynamic approach to configuring a WireGuard™ server declaratively
   config,
   lib,
   pkgs,
   self,
+  hosts,
   ...
 } : let
+# 🦆 says ⮞ Generate key-pair:
+# ``
+# umask 077
+# wg genkey | tee private.key | wg pubkey > public.key
+# ```
+# 🦆 says ⮞ SOPS encrypt keys like this:
+# `<host>_wireguard_private: `
 # 🦆 says ⮞ Place your encrypted private keys in `dotfiles/secrets/hosts/<device>/<device>_wireguard_private.yaml`
 # 🦆 says ⮞ Define your NIxOS clients like so:
 # config.this.host.wgip = "<ip>";
@@ -24,16 +32,31 @@
   serverCfg = config.this.host;
 
   # 🦆 says ⮞ Get NixOS host peers
-  peerHosts = lib.filterAttrs (_: cfg:
-    lib.elem "wg-client" (cfg.config.this.host.modules.networking or [])
-  ) self.nixosConfigurations;
+  peerHosts = lib.filterAttrs (name: host:
+    name != config.this.host.hostname
+    && lib.elem "wg-client" host.modules.networking
+  ) hosts;
 
   # 🦆 says ⮞ Mobile devices configuration
   mobileDevices = config.this.user.me.mobileDevices or {};
 
   # 🦆 says ⮞ Helper functions
-  peerPublicKey = host: host.config.this.host.keys.publicKeys.wireguard;
-  peerWgIP = host: host.config.this.host.wgip;
+  peerPublicKey = host: host.keys.publicKeys.wireguard;
+  peerWgIP = host: host.wgip;
+
+  allClients =
+    (lib.mapAttrs' (name: host:
+      lib.nameValuePair name {
+        wgip = peerWgIP host;
+        pubkey = peerPublicKey host;
+        allowedIPs = [ "10.0.0.0/24" "192.168.1.0/24" ];
+      }
+    ) peerHosts)
+    //
+    (lib.mapAttrs (name: cfg: {
+      inherit (cfg) wgip pubkey;
+      allowedIPs = cfg.allowedIPs or defaultAllowedIPs;
+    }) mobileDevices);
 
   # 🦆 says ⮞ SOPS configuration generator
   mkSopsSecret = name: {
@@ -45,7 +68,7 @@
 in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.modules.networking`
   config = lib.mkIf (lib.elem "wg-server" serverCfg.modules.networking) {
     sops.secrets = (
-      { "${config.networking.hostName}_wireguard_private" = mkSopsSecret config.networking.hostName; }
+      { "${config.this.host.hostname}_wireguard_private" = mkSopsSecret config.this.host.hostname; }
       //
       (lib.mapAttrs' (n: _: lib.nameValuePair "${n}_wireguard_private" (mkSopsSecret n)) peerHosts)
       //
@@ -68,7 +91,7 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
       wireguard.interfaces.wg0 = {
         ips = [ "${serverCfg.wgip}/24" ];
         listenPort = 51820;
-        privateKeyFile = config.sops.secrets."${config.networking.hostName}_wireguard_private".path;
+        privateKeyFile = config.sops.secrets."${config.this.host.hostname}_wireguard_private".path;
         peers =
           # 🦆 says ⮞ NixOS host peers
           (lib.mapAttrsToList (_: host: {
@@ -88,7 +111,7 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
     systemd.services.wireguard-wg0.after = [ "sops-nix.service" ];
 
     # 🦆 says ⮞ systemd service dat generates random colored quacky QR codez for mobile devicez yo
-    systemd.services.generate-wg-qr = (let
+    systemd.services.wg-qr-generation = (let
       qrDependencies = with pkgs; [ qrencode imagemagick ];
       path = lib.makeBinPath ([ pkgs.coreutils pkgs.gnused ] ++ qrDependencies);
     in {
@@ -103,18 +126,22 @@ in { # 🦆 says ⮞ choose server host by exposing `"wg-server"` in `this.host.
         # 🦆 says ⮞ removes old QR files
         deleteOld = lib.concatMapStringsSep "\n" (d: ''
           rm -f "${wgUserHome}/${d}.conf" "${wgUserHome}/${d}.png"
-        '') (lib.attrNames mobileDevices);
-        # 🦆 says ⮞ create new QR
+        '') (lib.attrNames allClients);
+
+        # 🦆 says ⮞ create new QR for every client
         generateQR = device: let
-          allowed = lib.concatStringsSep ", " (mobileDevices.${device}.allowedIPs or defaultAllowedIPs);
+          client = allClients.${device};
+          allowed = lib.concatStringsSep ", " client.allowedIPs;
         in ''
           TEMP_DIR=$(mktemp -d)
+          trap 'rm -rf "$TEMP_DIR"' EXIT
+
           PRIVATE_KEY=$(cat ${config.sops.secrets."${device}_wireguard_private".path})
-          # 🦆 says ⮞ insert data into QR
+
           cat > "$TEMP_DIR/${device}.conf" <<EOF
 [Interface]
 PrivateKey = $PRIVATE_KEY
-Address = ${mobileDevices.${device}.wgip}/24
+Address = ${client.wgip}/24
 DNS = ${serverCfg.ip}
 
 [Peer]
@@ -123,14 +150,19 @@ AllowedIPs = ${allowed}
 Endpoint = $(cat ${config.sops.secrets.domain.path}):51820
 PersistentKeepalive = 25
 EOF
+
           ${pkgs.coreutils}/bin/cp "$TEMP_DIR/${device}.conf" "${wgUserHome}/${device}.conf"
-          ${config.yo.pkgs}/bin/yo-qr --input "$TEMP_DIR/${device}.conf" --output "${wgUserHome}/${device}.png"
-          rm -rf "$TEMP_DIR" # 🦆 says ⮞ cleanup
+
+          ${config.yo.pkgs}/bin/yo-qr \
+            --input "$TEMP_DIR/${device}.conf" \
+            --output "${wgUserHome}/${device}.png"
+
+          rm -rf "$TEMP_DIR"
         '';
       in ''
         mkdir -p "${wgUserHome}"
         ${deleteOld}
-        ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames mobileDevices)}
+        ${lib.concatMapStringsSep "\n" generateQR (lib.attrNames allClients)}
       '';
       after = [ "sops-nix.service" ];
       wantedBy = [ "multi-user.target" ];
@@ -146,5 +178,6 @@ EOF
         isSystemUser = true;
       };
     };
-  };} # 🦆 says ⮞ zimple az dat, yo!
+  };
+} # 🦆 says ⮞ zimple az dat, yo!
 # 🦆 says ⮞ QuackHack-McBlindy out!

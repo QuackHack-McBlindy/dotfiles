@@ -261,3 +261,4 @@ SVG
 
 echo "Chart written to $OUTPUT"
 echo "Total stars: $latest"
+git add "$OUTPUT"

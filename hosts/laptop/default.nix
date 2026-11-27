@@ -86,7 +86,7 @@
             hostname = "laptop";
             interface = [ "enp0s25" ];
             ip = "192.168.1.223";
-            wgip = "10.0.0.3";
+            wgip = "10.0.0.6";
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];

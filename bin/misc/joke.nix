@@ -36,8 +36,8 @@ in {
   sops.secrets = {
     jokes = { # 🦆 says ⮞ hide dem
       sopsFile = ./../../secrets/jokes.yaml;
-      owner = config.this.user.me.name;
-      group = config.this.user.me.name;
+      owner = "zigduck";
+      group = "zigduck";
       mode = "0440"; # 🦆 says ⮞ read-only for owner and group
 
     };

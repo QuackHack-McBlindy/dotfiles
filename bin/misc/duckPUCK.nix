@@ -11,21 +11,22 @@
 
   teamsByLeague = {
     ha = {
-      "AIK"              = { apiName = "AIK";           aliases = [ "aik" "aiks" ]; };
-      "BIK Karlskoga"    = { apiName = "Karlskoga";     aliases = [ "karlskoga" "bik" "bofors" ]; };
-      "Kalmar HC"        = { apiName = "Kalmar";        aliases = [ "kalmar" "kalmars" ]; };
-      "Leksands IF"      = { apiName = "Leksands IF";   aliases = [ "leksand" "leksands" ]; };
-      "Modo Hockey"      = { apiName = "Modo";          aliases = [ "modo" "modos" ]; };
-      "Mora IK"          = { apiName = "Mora";          aliases = [ "mora" ]; };
-      "Nybro Vikings IF" = { apiName = "Nybro";         aliases = [ "nybro" "nybros" "vikings" ]; };
-      "Södertälje SK"    = { apiName = "Södertälje";    aliases = [ "södertälje" "sodertalje" ]; };
-      "Västerås IK"      = { apiName = "Västerås";      aliases = [ "västerås" "vasteras" ]; };
-      "Vimmerby HC"      = { apiName = "Vimmerby";      aliases = [ "vimmerby" ]; };
-      "Visby/Roma HK"    = { apiName = "Visby/Roma";    aliases = [ "visby" "roma" "visbyroma" ]; };
-      "IK Oskarshamn"    = { apiName = "Oskarshamn";    aliases = [ "oskarshamn" ]; };
-      "Almtuna IS"       = { apiName = "Almtuna";       aliases = [ "almtuna" ]; };
-      "Östersunds IK"    = { apiName = "Östersund";     aliases = [ "östersund" "ostersund" ]; };
+      "AIK"              = { apiName = "AIK";        code = "AIK";  aliases = [ "aik" "aiks" ]; };
+      "BIK Karlskoga"    = { apiName = "Karlskoga";  code = "BIK";  aliases = [ "karlskoga" "bik" "bofors" ]; };
+      "Kalmar HC"        = { apiName = "Kalmar";     code = "KHC";  aliases = [ "kalmar" "kalmars" ]; };
+      "Leksands IF"      = { apiName = "Leksands IF"; code = "LIF"; aliases = [ "leksand" "leksands" ]; };
+      "Modo Hockey"      = { apiName = "Modo";       code = "MoDo"; aliases = [ "modo" "modos" ]; };
+      "Mora IK"          = { apiName = "Mora";       code = "MORA"; aliases = [ "mora" ]; };
+      "Nybro Vikings IF" = { apiName = "Nybro";      code = "NVIF"; aliases = [ "nybro" "nybros" "vikings" ]; };
+      "Södertälje SK"    = { apiName = "Södertälje"; code = "SSK";  aliases = [ "södertälje" "sodertalje" ]; };
+      "Västerås IK"      = { apiName = "Västerås";   code = "VIK";  aliases = [ "västerås" "vasteras" ]; };
+      "Vimmerby HC"      = { apiName = "Vimmerby";   code = "VHC";  aliases = [ "vimmerby" ]; };
+      "Visby/Roma HK"    = { apiName = "Visby/Roma"; code = "VIS";  aliases = [ "visby" "roma" "visbyroma" ]; };
+      "IK Oskarshamn"    = { apiName = "Oskarshamn"; code = "IKO";  aliases = [ "oskarshamn" ]; };
+      "Almtuna IS"       = { apiName = "Almtuna";    code = "AIS";  aliases = [ "almtuna" ]; };
+      "Östersunds IK"    = { apiName = "Östersund";  code = "ÖIK";  aliases = [ "östersund" "ostersund" ]; };
     };
+
     shl = {
       "Djurgårdens IF"  = { apiName = "Djurgårdens IF"; aliases = [ "djurgården" "djurgarden" "djurgårdens" "dif" ]; };
       "Växjö Lakers"    = { apiName = "Växjö Lakers";   aliases = [ "växjö" "vaxjo" "lakers" ]; };
@@ -51,7 +52,8 @@
       displayName = "Hockey Allsvenskan (SWE)";
       title       = "HOCKEYALLSVENSKAN";
       speakLeague = "allsvenskan";
-      apiBase     = "https://www.hockeyallsvenskan.se/api";
+      apiKind     = "nextjs-alltime";
+      apiBase     = "https://hockeyallsvenskan.se/api";
       siteHost    = "www.hockeyallsvenskan.se";
       ssgtUuid    = "uy2zvu6xaa";
       tableUrl    = "https://sportstatistik.nu/hockey/hockeyallsvenskan/tabell";
@@ -59,7 +61,7 @@
       logLevel    = "DEBUG";
       aliases     = [ "puck-ha" ];
       voicePrefix = "hockey allsvenskan";
-      # 🦆 says ⮞ game-schedule API identifiers (used by duckPUCK-games)
+      apiSeason = "2026";
       seasonUuid   = "xs4m9qupsi";
       seriesUuid   = "qQ9-594cW8OWD";
       gameTypeUuid = "qQ9-af37Ti40B";
@@ -71,6 +73,7 @@
       displayName = "Swedish Hockey League (SHL)";
       title       = "SHL";
       speakLeague = "SHL";
+      apiKind     = "sports-v2";
       apiBase     = "https://www.shl.se/api";
       siteHost    = "www.shl.se";
       ssgtUuid    = "zg0pa4po75";
@@ -79,11 +82,10 @@
       logLevel    = "INFO";
       aliases     = [ "puck" "shl" ];
       voicePrefix = "shl";
-      # 🦆 says ⮞ game-schedule API identifiers (used by duckPUCK-games)
       seasonUuid   = "ndcf81nlb3";
       seriesUuid   = "qQ9-bb0bzEWUk";
       gameTypeUuid = "qQ9-af37Ti40B";
-      teams       = teamsByLeague.shl;
+      teams        = teamsByLeague.shl;
     };
   };
 
@@ -115,10 +117,13 @@
     }
   '';
 
+
   pyEnv = pkgs.python3.withPackages (ps: [ ps.requests ]);
   mkScraper = league:
     let
-      teamMappingJson = builtins.toJSON (lib.mapAttrs (name: team: team.apiName) league.teams);
+      # 🦆 map config-name → API key (HA: code, SHL: apiName)
+      teamMappingJson = builtins.toJSON (lib.mapAttrs (name: team:
+        if team ? code then team.code else team.apiName) league.teams);
     in pkgs.writeScript "hockey-scraper-${league.key}.py" ''
       #!${pyEnv}/bin/python
       import os, re, json, logging, argparse
@@ -137,44 +142,92 @@
           "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
           "Accept-Language": "en-US,en;q=0.5",
       }
+      API_KIND  = "${league.apiKind}"
       SSGT_UUID = "${league.ssgtUuid}"
       API_BASE  = "${league.apiBase}"
       TABLE_URL = "${league.tableUrl}"
+      API_SEASON = "${if league ? apiSeason then league.apiSeason else ""}"
 
       TEAM_MAPPING = ${teamMappingJson}
 
       def fetch(url):
-          logger.info(f"Fetching {url}")
+          logger.info(f"GET {url}")
           try:
               r = requests.get(url, headers=headers, timeout=15)
               r.raise_for_status()
               return r.text
           except Exception as e:
-              logger.error(f"Failed to fetch {url}: {e}")
+              logger.error(f"Failed {url}: {e}")
+              return None
+
+      def post_json(url, body):
+          logger.info(f"POST {url}")
+          try:
+              r = requests.post(url, json=body, headers=headers, timeout=15)
+              r.raise_for_status()
+              return r.json()
+          except Exception as e:
+              logger.error(f"Failed {url}: {e}")
               return None
 
       def fetch_powerplay_data():
-          url = f"{API_BASE}/statistics-v2/stats-info/teams_powerplay?count=25&ssgtUuid={SSGT_UUID}&provider=statnet&state=active&moduleType=result"
-          html = fetch(url)
+          """Returns {team_key: pp_perc_string}"""
+          if API_KIND == "nextjs-alltime":
+              data = post_json(
+                  "https://hockeyallsvenskan.se/api/all-time-teams-stats",
+                  {
+                      "league": "HA", "phase": "HA", "season": API_SEASON,
+                      "categories": "power_play",
+                      "team_side": "all", "team": "all", "against_team": "all",
+                      "all_results": "all", "game_status": "all", "decided_in": "all",
+                  },
+              )
+              if not data or "data" not in data:
+                  return {}
+              return {
+                  row["team_code"]: row.get("PowerPlay", {}).get("PP_perc", "?")
+                  for row in data["data"]
+              }
+          # SHL legacy
+          html = fetch(f"{API_BASE}/statistics-v2/stats-info/teams_powerplay?count=25&ssgtUuid={SSGT_UUID}&provider=statnet&state=active&moduleType=result")
           if not html:
               return {}
           try:
               data = json.loads(html)
-              return {t['info']['siteDisplayName']: t.get('PPPerc', '?') for t in data[0]['stats']}
+              return {t["info"]["siteDisplayName"]: t.get("PPPerc", "?") for t in data[0]["stats"]}
           except Exception as e:
-              logger.error(f"Failed to parse powerplay: {e}")
+              logger.error(f"parse pp: {e}")
               return {}
 
       def fetch_boxplay_data():
-          url = f"{API_BASE}/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid={SSGT_UUID}&provider=statnet&state=active&moduleType=result"
-          html = fetch(url)
+          """Returns {team_key: pk_perc_string}"""
+          if API_KIND == "nextjs-alltime":
+              data = post_json(
+                  "https://hockeyallsvenskan.se/api/all-time-teams-stats",
+                  {
+                      "league": "HA", "phase": "HA", "season": API_SEASON,
+                      "categories": "penalty_kill",
+                      "team_side": "all", "team": "all", "against_team": "all",
+                      "all_results": "all", "game_status": "all", "decided_in": "all",
+                  },
+              )
+              if not data or "data" not in data:
+                  return {}
+              # 🦆 FILL IN after verifying field path from curl
+              # likely: row.get("PenaltyKill", {}).get("PK_perc", "?")
+              return {
+                  row["team_code"]: row.get("PenaltyKill", {}).get("PK_perc", "?")
+                  for row in data["data"]
+              }
+          # SHL legacy
+          html = fetch(f"{API_BASE}/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid={SSGT_UUID}&provider=statnet&state=active&moduleType=result")
           if not html:
               return {}
           try:
               data = json.loads(html)
-              return {t['info']['siteDisplayName']: t.get('PKPerc', '?') for t in data[0]['stats']}
+              return {t["info"]["siteDisplayName"]: t.get("PKPerc", "?") for t in data[0]["stats"]}
           except Exception as e:
-              logger.error(f"Failed to parse boxplay: {e}")
+              logger.error(f"parse bp: {e}")
               return {}
 
       def scrape_table():
@@ -220,26 +273,25 @@
           return table_data
 
       def main():
-          logger.info("🏒 Starting ${league.name} scraper...")
+          logger.info(f"🏒 Starting ${league.name} scraper...")
           table_data = scrape_table()
           pp = fetch_powerplay_data()
           bp = fetch_boxplay_data()
           for team in table_data:
-              api_name = TEAM_MAPPING.get(team['team'], team['team'])
-              team['powerplay'] = pp.get(api_name, '?')
-              team['boxplay']   = bp.get(api_name, '?')
+              key = TEAM_MAPPING.get(team["team"], team["team"])
+              team["powerplay"] = pp.get(key, "?")
+              team["boxplay"]   = bp.get(key, "?")
           if table_data:
-              with open(table_path, 'w') as f:
+              with open(table_path, "w") as f:
                   json.dump(table_data, f, ensure_ascii=False, indent=2)
               logger.info(f"Saved {len(table_data)} teams to {table_path}")
           else:
               logger.warning("No table data to save")
-          logger.info("${league.name} scraping completed!")
+          logger.info("${league.name} scraping done")
 
       if __name__ == "__main__":
           main()
     '';
-
 
 
   mkFuzzyMatch = league:
@@ -293,26 +345,31 @@
 
   mkTeamApiMap = league:
     let
-      cases = lib.concatStringsSep "\n"
+      apiCases = lib.concatStringsSep "\n"
         (lib.mapAttrsToList (name: team:
           "          \"${name}\") echo \"${team.apiName}\" ;;"
+        ) league.teams);
+      codeCases = lib.concatStringsSep "\n"
+        (lib.mapAttrsToList (name: team:
+          "          \"${name}\") echo \"${if team ? code then team.code else team.apiName}\" ;;"
         ) league.teams);
     in ''
       map_team_to_api() {
         local team="$1"
         case "$team" in
-      ${cases}
+      ${apiCases}
+          *) echo "$team" ;;
+        esac
+      }
+
+      map_team_to_code() {
+        local team="$1"
+        case "$team" in
+      ${codeCases}
           *) echo "$team" ;;
         esac
       }
     '';
-
-
-  mkVoiceTeamValues = league:
-    lib.mapAttrsToList (name: team: {
-      "in"  = "[" + lib.concatStringsSep "|" team.aliases + "]";
-      out = name;
-    }) league.teams;
 
 
   sharedSentenceBodies = [
@@ -398,6 +455,11 @@
   mkDuckPUCKGames = args:
     let
       inherit self lib config pkgs cmdHelpers swe;
+
+      gamesVoiceTeam = lib.mapAttrsToList (name: team: {
+        "in"  = "[" + lib.concatStringsSep "|" team.aliases + "]";
+        out = name;
+      }) (teamsByLeague.ha // teamsByLeague.shl);
 
       # 🦆 says ⮞ single-game result analyzer
       analyzeGame = ''
@@ -741,29 +803,23 @@
         ${filterLiveGames}
 
         fetch_games() {
-          local cfg_host cfg_season cfg_series cfg_game_type
-          if [ "$league" = "shl" ]; then
-            cfg_host="https://${leagues.shl.siteHost}"
-            cfg_season="${leagues.shl.seasonUuid}"
-            cfg_series="${leagues.shl.seriesUuid}"
-            cfg_game_type="${leagues.shl.gameTypeUuid}"
-          else
-            cfg_host="https://${leagues.ha.siteHost}"
-            cfg_season="${leagues.ha.seasonUuid}"
-            cfg_series="${leagues.ha.seriesUuid}"
-            cfg_game_type="${leagues.ha.gameTypeUuid}"
-          fi
-
-          local url="$cfg_host/api/sports-v2/game-schedule?seasonUuid=$cfg_season&seriesUuid=$cfg_series&gameTypeUuid=$cfg_game_type&gamePlace=all&played=all"
-          dt_debug "Fetching $league $type games from $url"
-
           local state_filter
           case "$type" in
             recent)   state_filter="post-game" ;;
             upcoming) state_filter="pre-game"  ;;
             live)     state_filter="pre-game"  ;;
           esac
+          if [ "''${league}" = "ha" ]; then
+            fetch_games_ha "$state_filter"
+          else
+            fetch_games_shl "$state_filter"
+          fi
+        }
 
+        fetch_games_shl() {
+          local state_filter="$1"
+          local url="https://${leagues.shl.siteHost}/api/sports-v2/game-schedule?seasonUuid=${leagues.shl.seasonUuid}&seriesUuid=${leagues.shl.seriesUuid}&gameTypeUuid=${leagues.shl.gameTypeUuid}&gamePlace=all&played=all"
+          dt_debug "Fetching shl games from $url"
           curl -sL -H "User-Agent: Mozilla/5.0" "$url" | \
           jq --arg state "$state_filter" '
             [.gameInfo[] |
@@ -785,6 +841,54 @@
             ]
           '
         }
+
+        fetch_games_ha() {
+          local state_filter="$1"
+          local url="https://hockeyallsvenskan.se/api/all-time-games-stats"
+          local all="[]"
+          local page=1
+          local total_pages=1
+          local safety=0
+          while [ "$page" -le "$total_pages" ] && [ "$safety" -lt 20 ]; do
+            local body
+            body=$(printf '{"phase":"HA","team_side":"all","team":"all","against_team":"all","all_results":"all","game_status":"all","decided_in":"all","page":%d,"page_size":100}' "$page")
+            local chunk
+            chunk=$(curl -sS -X POST "$url" -H "Content-Type: application/json" -d "$body")
+            total_pages=$(echo "$chunk" | jq -r '.total_pages // 1')
+            all=$(jq -nc --argjson a "$all" --argjson c "$chunk" '$a + ($c.results // [])')
+            page=$((page + 1))
+            safety=$((safety + 1))
+          done
+          dt_debug "Fetched $((page - 1)) pages of HA games"
+          echo "$all" | jq --arg state "$state_filter" '
+            def team_name($code):
+              {"AIK":"AIK","AIS":"Almtuna IS","BIK":"BIK Karlskoga","IKO":"IK Oskarshamn",
+               "KHC":"Kalmar HC","LIF":"Leksands IF","MoDo":"Modo Hockey","MORA":"Mora IK",
+               "NVIF":"Nybro Vikings IF","ÖIK":"Östersunds IK","SSK":"Södertälje SK",
+               "VHC":"Vimmerby HC","VIK":"Västerås IK","VIS":"Visby/Roma HK"}[$code] // $code;
+            [.[] |
+              {
+                date:       .Date,
+                start_time: (.Date + "T" + .Time + ":00"),
+                state:      (if .GameResult.Home == "" then "pre-game" else "post-game" end),
+                home_team:  team_name(.HomeTeam),
+                away_team:  team_name(.AwayTeam),
+                result:     (if .GameResult.Home == "" then "" else "\(.GameResult.Home)-\(.GameResult.Away)" end),
+                overtime:   (if .decided_in == "OT" then "OT"
+                             elif .decided_in == "SO" or .decided_in == "PS" then "SO"
+                             else "" end),
+                home_score: (.GameResult.Home | if type == "number" then . else 0 end),
+                away_score: (.GameResult.Away | if type == "number" then . else 0 end),
+                home_status: (if .GameResult.Home == "" then ""
+                              elif .GameResult.Home > .GameResult.Away then "WIN" else "LOSE" end),
+                away_status: (if .GameResult.Home == "" then ""
+                              elif .GameResult.Away > .GameResult.Home then "WIN" else "LOSE" end),
+                venue:      .Arena
+              }
+            ] | map(select(.state == $state))
+          '
+        }
+
 
         filter_games_by_matchup() {
           local games_data="$1"
@@ -963,7 +1067,7 @@
           if [ -n "$tts_text" ]; then
             echo "$tts_text" | while IFS= read -r line; do
               if [ -n "$line" ]; then
-                yo say "$line" --blocking "true"
+                yo say --text "$line" --blocking "true"
                 sleep 1
               fi
             done
@@ -1007,84 +1111,9 @@
             { "in" = "senaste|förra";    out = "recent"; }
             { "in" = "just|live|spelar"; out = "live"; }
           ];
-          team.values = [
-            { "in" = "björklöven|björklövens|löven|vi"; out = "IF Björklöven"; }
-            { "in" = "modo|modos";                      out = "MoDo Hockey"; }
-            { "in" = "karlskoga|bik|bofors";            out = "BIK Karlskoga"; }
-            { "in" = "nybro|nybros|vikings";            out = "Nybro Vikings IF"; }
-            { "in" = "kalmar|kalmars";                  out = "Kalmar HC"; }
-            { "in" = "oskarshamn";                      out = "IK Oskarshamn"; }
-            { "in" = "almtuna";                         out = "Almtuna IS"; }
-            { "in" = "aik|aiks";                        out = "AIK"; }
-            { "in" = "mora";                            out = "Mora IK"; }
-            { "in" = "södertälje";                      out = "Södertälje SK"; }
-            { "in" = "östersund";                       out = "Östersunds IK"; }
-            { "in" = "västerås";                        out = "Västerås IK"; }
-            { "in" = "vimmerby";                        out = "Vimmerby HC"; }
-            { "in" = "färjestad|farjestad|fbk";         out = "Färjestad"; }
-            { "in" = "rögle|rogle";                     out = "Rögle"; }
-            { "in" = "djurgården|djurgarden|dif";       out = "Djurgården"; }
-            { "in" = "växjö|vaxjo|lakers";              out = "Växjö"; }
-            { "in" = "skellefteå|skelleftea|saik";      out = "Skellefteå"; }
-            { "in" = "örebro|orebro";                   out = "Örebro"; }
-            { "in" = "luleå|lulea|lhf";                 out = "Luleå"; }
-            { "in" = "frölunda|frolunda|fhc";           out = "Frölunda"; }
-            { "in" = "brynäs|brynas";                   out = "Brynäs"; }
-            { "in" = "linköping|linkoping|lhc";         out = "Linköping"; }
-            { "in" = "hv71|hv";                         out = "HV71"; }
-          ];
-          home.values = [
-            { "in" = "björklöven|björklövens|löven|vi"; out = "Björklöven"; }
-            { "in" = "modo|modos";                      out = "MoDo"; }
-            { "in" = "karlskoga|bik|bofors";            out = "Karlskoga"; }
-            { "in" = "nybro|nybros|vikings";            out = "Nybro"; }
-            { "in" = "kalmar|kalmars";                  out = "Kalmar"; }
-            { "in" = "oskarshamn";                      out = "Oskarshamn"; }
-            { "in" = "almtuna";                         out = "Almtuna IS"; }
-            { "in" = "aik|aiks";                        out = "AIK"; }
-            { "in" = "mora";                            out = "Mora"; }
-            { "in" = "södertälje";                      out = "Södertälje"; }
-            { "in" = "östersund";                       out = "Östersunds"; }
-            { "in" = "västerås";                        out = "Västerås"; }
-            { "in" = "vimmerby";                        out = "Vimmerby"; }
-            { "in" = "färjestad|farjestad|fbk";         out = "Färjestad"; }
-            { "in" = "rögle|rogle";                     out = "Rögle"; }
-            { "in" = "djurgården|djurgarden|dif";       out = "Djurgården"; }
-            { "in" = "växjö|vaxjo|lakers";              out = "Växjö"; }
-            { "in" = "skellefteå|skelleftea|saik";      out = "Skellefteå"; }
-            { "in" = "örebro|orebro";                   out = "Örebro"; }
-            { "in" = "luleå|lulea|lhf";                 out = "Luleå"; }
-            { "in" = "frölunda|frolunda|fhc";           out = "Frölunda"; }
-            { "in" = "brynäs|brynas";                   out = "Brynäs"; }
-            { "in" = "linköping|linkoping|lhc";         out = "Linköping"; }
-            { "in" = "hv71|hv";                         out = "HV71"; }
-          ];
-          away.values = [
-            { "in" = "björklöven|björklövens|löven|vi"; out = "Björklöven"; }
-            { "in" = "modo|modos";                      out = "MoDo Hockey"; }
-            { "in" = "karlskoga|bik|bofors";            out = "Karlskoga"; }
-            { "in" = "nybro|nybros|vikings";            out = "Nybro"; }
-            { "in" = "kalmar|kalmars";                  out = "Kalmar"; }
-            { "in" = "oskarshamn";                      out = "IK Oskarshamn"; }
-            { "in" = "almtuna";                         out = "Almtuna"; }
-            { "in" = "aik|aiks";                        out = "AIK"; }
-            { "in" = "mora";                            out = "Mora"; }
-            { "in" = "södertälje";                      out = "Södertälje"; }
-            { "in" = "östersund";                       out = "Östersunds"; }
-            { "in" = "västerås";                        out = "Västerås"; }
-            { "in" = "vimmerby";                        out = "Vimmerby"; }
-            { "in" = "färjestad|farjestad|fbk";         out = "Färjestad"; }
-            { "in" = "rögle|rogle";                     out = "Rögle"; }
-            { "in" = "djurgården|djurgarden|dif";       out = "Djurgården"; }
-            { "in" = "växjö|vaxjo|lakers";              out = "Växjö"; }
-            { "in" = "skellefteå|skelleftea|saik";      out = "Skellefteå"; }
-            { "in" = "örebro|orebro";                   out = "Örebro"; }
-            { "in" = "luleå|lulea|lhf";                 out = "Luleå"; }
-            { "in" = "frölunda|frolunda|fhc";           out = "Frölunda"; }
-            { "in" = "brynäs|brynas";                   out = "Brynäs"; }
-            { "in" = "linköping|linkoping|lhc";         out = "Linköping"; }
-            { "in" = "hv71|hv";                         out = "HV71"; }
-          ];
+          team.values = gamesVoiceTeam;
+          home.values = gamesVoiceTeam;
+          away.values = gamesVoiceTeam;
         };
       };
     };
@@ -1094,10 +1123,14 @@
     let
       inherit self lib config pkgs cmdHelpers swe;
 
+      voiceTeamVals = lib.mapAttrsToList (name: team: {
+        "in"  = "[" + lib.concatStringsSep "|" team.aliases + "]";
+        out = name;
+      }) (teamsByLeague.ha // teamsByLeague.shl);
+
       scraper       = mkScraper league;
       fuzzyMatch    = mkFuzzyMatch league;
       teamApiMap    = mkTeamApiMap league;
-      voiceTeamVals = mkVoiceTeamValues league;
     in {
       description = "[🏒🦆] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on ${league.displayName}. Analyzing games, scraping scoreboards and keeping track of all dates and numbers.";
       category    = "🧩 Miscellaneous";
@@ -1247,35 +1280,56 @@
           fi
         }
 
+
         get_team_powerplay() {
           local team_name="$1"
           if [ -z "$team_name" ]; then
-            dt_error "Please specify a team name"
-            return 1
+            dt_error "Please specify a team name"; return 1
           fi
+
+          if [ "${league.apiKind}" = "nextjs-alltime" ]; then
+            local code
+            code=$(map_team_to_code "$team_name")
+            local response
+            response=$(curl -sS -X POST "https://hockeyallsvenskan.se/api/all-time-teams-stats" \
+              -H "Content-Type: application/json" \
+              -d "{\"league\":\"HA\",\"phase\":\"HA\",\"season\":\"''${league.apiSeason}\",\"categories\":\"power_play\",\"team_side\":\"all\",\"team\":\"all\",\"against_team\":\"all\",\"all_results\":\"all\",\"game_status\":\"all\",\"decided_in\":\"all\"}")
+            if ! echo "$response" | jq -e '.data' >/dev/null 2>&1; then
+              dt_error "Failed to fetch powerplay data"; return 1
+            fi
+            local row
+            row=$(echo "$response" | jq -r --arg c "$code" '
+              .data[] | select(.team_code == $c) |
+              "\(.rank)|\(.GP)|\(.PowerPlay.PPG)|\(.PowerPlay.PP_perc)|\(.PowerPlay.OPP)|\(.PowerPlay.PPSOG)|\(.PowerPlay.TPP)"')
+            if [ -z "$row" ]; then
+              dt_error "Team '$team_name' (code '$code') not found"; return 1
+            fi
+            IFS='|' read -r rank gp ppg efficiency ppopp ppsog pptime <<< "$row"
+            echo "Rank: $rank"
+            echo "Games Played: $gp"
+            echo "Power Play Goals: $ppg"
+            echo "Power Play Opportunities: $ppopp"
+            echo "Power Play Efficiency: $efficiency%"
+            echo "Power Play Shots on Goal: $ppsog"
+            echo "Power Play Time: $pptime"
+            return 0
+          fi
+
+          # SHL
           local endpoint="$API_BASE/statistics-v2/stats-info/teams_powerplay?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
           local response
           response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-          if [ $? -ne 0 ]; then
-            dt_error "Failed to fetch powerplay data"
-            return 1
-          fi
-
+          if [ $? -ne 0 ]; then dt_error "Failed to fetch powerplay data"; return 1; fi
           local team_data
           team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-            .[0].stats[] |
-            select(.info.siteDisplayName == $team) |
+            .[0].stats[] | select(.info.siteDisplayName == $team) |
             "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.PPG)|\(.PPPerc)|\(.PPOpp)|\(.PPSOG)|\(.PPTime)"')
           if [ -z "$team_data" ]; then
             team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-              .[0].stats[] |
-              select(.info.siteDisplayName | test($team; "i")) |
+              .[0].stats[] | select(.info.siteDisplayName | test($team; "i")) |
               "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.PPG)|\(.PPPerc)|\(.PPOpp)|\(.PPSOG)|\(.PPTime)"' | head -1)
           fi
-          if [ -z "$team_data" ]; then
-            dt_error "Team '$team_name' not found"
-            return 1
-          fi
+          if [ -z "$team_data" ]; then dt_error "Team '$team_name' not found"; return 1; fi
           IFS='|' read -r name rank gp ppg efficiency ppopp ppsog pptime <<< "$team_data"
           echo "Rank: $rank"
           echo "Games Played: $gp"
@@ -1286,36 +1340,56 @@
           echo "Power Play Time: $pptime"
         }
 
-
         get_team_boxplay() {
           local team_name="$1"
           if [ -z "$team_name" ]; then
-            dt_error "Please specify a team name"
-            return 1
+            dt_error "Please specify a team name"; return 1
           fi
+
+          if [ "${league.apiKind}" = "nextjs-alltime" ]; then
+            local code
+            code=$(map_team_to_code "$team_name")
+            local response
+            response=$(curl -sS -X POST "https://hockeyallsvenskan.se/api/all-time-teams-stats" \
+              -H "Content-Type: application/json" \
+              -d "{\"league\":\"HA\",\"phase\":\"HA\",\"season\":\"''${league.apiSeason}\",\"categories\":\"penalty_kill\",\"team_side\":\"all\",\"team\":\"all\",\"against_team\":\"all\",\"all_results\":\"all\",\"game_status\":\"all\",\"decided_in\":\"all\"}")
+            if ! echo "$response" | jq -e '.data' >/dev/null 2>&1; then
+              dt_error "Failed to fetch boxplay data"; return 1
+            fi
+            local row
+            row=$(echo "$response" | jq -r --arg c "$code" '
+              .data[] | select(.team_code == $c) |
+              "\(.rank)|\(.GP)|\(.PenaltyKill.SHGA // "?")|\(.PenaltyKill.PPGA // "?")|\(.PenaltyKill.OPP // "?")|\(.PenaltyKill.PK_perc // "?")|\(.PenaltyKill.TPP // "?")"')
+            if [ -z "$row" ]; then
+              dt_error "Team '$team_name' (code '$code') not found"; return 1
+            fi
+            IFS='|' read -r rank gp shg ppga pkopp pkperc pptime <<< "$row"
+            echo "$team_name BoxPlay"
+            echo "Rank: $rank"
+            echo "Games Played: $gp"
+            echo "Short-handed Goals: $shg"
+            echo "Power Play Goals Against: $ppga"
+            echo "Boxplay Opportunities: $pkopp"
+            echo "Boxplay Efficiency: $pkperc%"
+            echo "Boxplay tid: $pptime"
+            return 0
+          fi
+
+          # SHL
           local endpoint="$API_BASE/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
           local response
           response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-          if [ $? -ne 0 ]; then
-            dt_error "Failed to fetch boxplay data"
-            return 1
-          fi
-
+          if [ $? -ne 0 ]; then dt_error "Failed to fetch boxplay data"; return 1; fi
           local team_data
           team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-            .[0].stats[] |
-            select(.info.siteDisplayName == $team) |
+            .[0].stats[] | select(.info.siteDisplayName == $team) |
             "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.SHG)|\(.PPGA)|\(.PKOpp)|\(.PKPerc)|\(.PPSOGA)|\(.PKTime)"')
           if [ -z "$team_data" ]; then
             team_data=$(echo "$response" | jq -r --arg team "$team_name" '
-              .[0].stats[] |
-              select(.info.siteDisplayName | test($team; "i")) |
+              .[0].stats[] | select(.info.siteDisplayName | test($team; "i")) |
               "\(.info.siteDisplayName)|\(.Rank)|\(.GP)|\(.SHG)|\(.PPGA)|\(.PKOpp)|\(.PKPerc)|\(.PPSOGA)|\(.PKTime)"' | head -1)
           fi
-          if [ -z "$team_data" ]; then
-            dt_error "Team '$team_name' not found"
-            return 1
-          fi
+          if [ -z "$team_data" ]; then dt_error "Team '$team_name' not found"; return 1; fi
           IFS='|' read -r name rank gp shg ppga pkopp pkperc ppsoga pktime <<< "$team_data"
           echo "$name BoxPlay"
           echo "Rank: $rank"
@@ -1332,9 +1406,25 @@
           local query_type="$1"
           local table_file="$2"
           if [ ! -f "$table_file" ]; then
-            dt_error "Table file not found: $table_file"
-            return 1
+            dt_error "Table file not found: $table_file"; return 1
           fi
+
+          local stat_key
+          case "$query_type" in
+            *powerplay) stat_key="powerplay" ;;
+            *boxplay)   stat_key="boxplay"   ;;
+          esac
+          local available
+          available=$(jq --arg k "$stat_key" \
+            '[.[] | select(.[$k] != "?" and .[$k] != null and .[$k] != "")] | length' \
+            "$table_file")
+          if [ "$available" -eq 0 ]; then
+            local label="Powerplay"
+            [ "$stat_key" = "boxplay" ] && label="Boxplay"
+            echo "$label-statistik är inte tillgänglig just nu."
+            return 0
+          fi
+
           case "$query_type" in
             "best-powerplay")
               local row
@@ -1378,7 +1468,7 @@
             return 1
           fi
           {
-            echo "# 🏆 $LEAGUE_TITLE 25/26"
+            echo "# 🏆 $LEAGUE_TITLE"
             echo "| Pos | Lag | M | V | X | F | ÖV | ÖF | + | - | +/- | P | PP | BP |"
             echo "|-----|-----|---|---|---|---|----|----|----|----|-----|---|-----|-----|"
             jq -r '.[] | "| \(.position) | \(.team) | \(.games_played) | \(.wins) | \(.ties) | \(.losses) | \(.overtime_wins) | \(.overtime_losses) | \(.goals_for) | \(.goals_against) | \(.goal_difference) | \(.points) | \(.powerplay) | \(.boxplay) |"' "$table_file"
@@ -1508,14 +1598,12 @@
             "\(.info.fullName)|\(.info.team.name)|\(.SVSPerc)|\(.GP)|\(.GAA)|\(.SO)"'
         }
 
-
         get_most_shorthanded_goals() {
-          local endpoint="$API_BASE/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
           local response
-          response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-          if [ $? -ne 0 ]; then
-            dt_error "Failed to fetch boxplay data"
-            return 1
+          response=$(curl -s -L -H "Accept: application/json" "$API_BASE/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result")
+          if [ -z "$response" ] || ! echo "$response" | jq -e '.[0].stats' >/dev/null 2>&1; then
+            echo "Boxplay-mål statistik är inte tillgänglig just nu."
+            return 0
           fi
           echo "$response" | jq -r '
             .[0].stats |
@@ -1529,9 +1617,9 @@
           local endpoint="$API_BASE/statistics-v2/stats-info/teams_penaltyKilling?count=25&ssgtUuid=$SSGT_UUID&provider=statnet&state=active&moduleType=result"
           local response
           response=$(curl -s -L -H "Accept: application/json; charset=utf-8" -H "User-Agent: HockeyStats/1.0" "$endpoint")
-          if [ $? -ne 0 ]; then
-            dt_error "Failed to fetch boxplay data"
-            return 1
+          if [ -z "$response" ] || ! echo "$response" | jq -e '.[0].stats' >/dev/null 2>&1; then
+            echo "Boxplay-mål statistik är inte tillgänglig just nu."
+            return 0
           fi
           echo "$response" | jq -r '
             .[0].stats |
@@ -1539,7 +1627,6 @@
             .[0:'$count'] |
             "\(.Rank). \(.info.siteDisplayName) - \(.SHG) boxplay mål"'
         }
-
 
         handle_player_stat_query() {
           local stat="$1"
@@ -1582,7 +1669,7 @@
         table_file="$dataDir/table.json"
 
 
-        if [ -n "$stat" ] && [ -z "$team" ]; then
+        if [ -n "$stat" ] && [ -z "$team" ] && [ "$stat" != "goalkeeper" ]; then
           if { [ "$stat" = "powerplay" ] || [ "$stat" = "boxplay" ] || [ "$stat" = "shorthanded_goals" ]; } \
              && { [ "$mode" = "best" ] || [ "$mode" = "worst" ]; }; then
             dt_debug "Handling best/worst team stat query - mode: $mode, stat: $stat"
@@ -1749,23 +1836,24 @@
           ];
           team.values = voiceTeamVals;
           stat.values = [
-            { "in" = "power|powerplay|pp|överläge|numerärt överläge";       out = "powerplay"; }
-            { "in" = "box|boxplay|bp|box play|undertal|numerärt underläge"; out = "boxplay"; }
-            { "in" = "underläge|shorthanded|boxmål|boxplay mål";            out = "shorthanded_goals"; }
-            { "in" = "målvakt|målvakten|målvakter|goalie|goalkeeper";       out = "goalkeeper"; }
-            { "in" = "räddningsprocent|räddningar|save percentage";         out = "save_percentage"; }
-            { "in" = "straff|utvisning|penalty|pim";                        out = "penalty"; }
-            { "in" = "längd|längst|lång";                                   out = "tallest"; }
-            { "in" = "kort|kortast";                                        out = "shortest"; }
-            { "in" = "vikt|tyngst|tung|tjock|tjockast";                     out = "heaviest"; }
-            { "in" = "lätt|lättast";                                        out = "lightest"; }
-            { "in" = "mål|skytter";                                         out = "goals"; }
-            { "in" = "assist|passningar";                                   out = "assists"; }
-            { "in" = "äldst|äldsta";                                        out = "oldest";  }
-            { "in" = "yngst|yngsta";                                        out = "youngest"; }
-            { "in" = "underläge|shorthanded|boxmål";                        out = "shorthanded"; }
-            { "in" = "istid|speltid|mest istid";                            out = "icetime"; }
-            { "in" = "poäng";                                               out = "points"; }
+            { "in" = "power|powerplay|pp|överläge|numerärt överläge";              out = "powerplay"; }
+            { "in" = "box|boxplay|bp|box play|undertal|numerärt underläge";        out = "boxplay"; }
+            { "in" = "underläge|shorthanded|boxmål|boxplay mål";                   out = "shorthanded_goals"; }
+            { "in" = "målvakt|målvakten|målvakter|goalie|goalkeeper";              out = "goalkeeper"; }
+            { "in" = "räddningsprocent|räddningar|save percentage";                out = "save_percentage"; }
+            { "in" = "straff|utvisning|penalty|pim";                               out = "penalty"; }
+            { "in" = "längd|längst|lång";                                          out = "tallest"; }
+            { "in" = "kort|kortast";                                               out = "shortest"; }
+            { "in" = "vikt|tyngst|tung|tjock|tjockast";                            out = "heaviest"; }
+            { "in" = "lätt|lättast";                                               out = "lightest"; }
+            { "in" = "mål|skytter";                                                out = "goals"; }
+            { "in" = "assist|passningar";                                          out = "assists"; }
+            { "in" = "äldst|äldsta";                                               out = "oldest";  }
+            { "in" = "yngst|yngsta";                                               out = "youngest"; }
+            { "in" = "underläge|shorthanded|boxmål";                               out = "shorthanded"; }
+            { "in" = "istid|speltid|mest istid";                                   out = "icetime"; }
+            { "in" = "poäng";                                                      out = "points"; }
+            { "in" = "straff|utvisning|utvisningar|utvisningsminuter|penalty|pim"; out = "penalty"; }
           ];
           count.values = [
             { "in" = "[1|ett|en|bästa|vem|vilken]"; out = "1"; }

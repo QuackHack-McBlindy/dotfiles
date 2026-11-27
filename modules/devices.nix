@@ -553,8 +553,8 @@
           room = "hallway"; type = "sensor"; icon = icons.sensor.contact; endpoint = 1;
         };
         "0x0017880109ac14f3" = {
-          friendly_name = "Tak Hall";
-          room = "hallway"; type = "light"; icon = icons.light.ceiling; endpoint = 11;
+          friendly_name = "Tak Hall"; room = "hallway";
+          type = "light"; icon = icons.light.ceiling; endpoint = 11;
           supports_color = true;
         };
         "0x000b57fffe0e2a04" = {
@@ -589,10 +589,22 @@
           room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher;
           batteryType = "CR02";
         };
-        "0xa4c1380c0a35052e" = { friendly_name = "Robot Arm 3"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
-        "0xa4c1381e74b6d2e6" = { friendly_name = "Robot Arm 4"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher; batteryType = "CR02"; };
-        "0x0017880104f77d61" = { friendly_name = "Dimmer Switch Sovrum"; room = "bedroom"; type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450"; };
-        "0x0017880106156cb0" = { friendly_name = "Taket Sovrum 1"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
+        "0xa4c1380c0a35052e" = {
+          friendly_name = "Robot Arm 3"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher;
+          batteryType = "CR02";
+        };
+        "0xa4c1381e74b6d2e6" = {
+          friendly_name = "Robot Arm 4"; room = "bedroom"; type = "pusher"; endpoint = 11; icon = icons.pusher;
+          batteryType = "CR02";
+        };
+        "0x0017880104f77d61" = {
+          friendly_name = "Dimmer Switch Sovrum"; room = "bedroom";
+          type = "dimmer"; icon = icons.dimmer; endpoint = 1; batteryType = "CR2450";
+        };
+        "0x0017880106156cb0" = {
+          friendly_name = "Taket Sovrum 1"; room = "bedroom";
+          type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true;
+        };
         "0x0017880103c7467d" = { friendly_name = "Taket Sovrum 2"; room = "bedroom"; type = "light"; icon = icons.light.ceiling; endpoint = 11; supports_color = true; };
         "0x0017880104051a86" = { friendly_name = "Sänggavel"; room = "bedroom"; type = "light"; icon = icons.light.strip_rgb; endpoint = 11; supports_color = true; };
         "0xf4b3b1fffeaccb27" = { friendly_name = "Motion Sensor Sovrum"; room = "bedroom"; type = "motion"; icon = icons.sensor.motion; endpoint = 1; batteryType = "CR2032"; };
@@ -601,9 +613,18 @@
 
         # 🦆 says ⮞ MISCELLANEOUS
         "0xa4c1382543627626" = { friendly_name = "Power Plug"; room = "other"; type = "outlet"; icon = icons.outlet; endpoint = 1; };
-        "0x000b57fffe0f0807" = { friendly_name = "IKEA 5 Dimmer"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; };
-        "0x70ac08fffe6497be" = { friendly_name = "On/Off Switch 1"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
-        "0x70ac08fffe65211e" = { friendly_name = "On/Off Switch 2"; room = "other"; type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032"; };
+        "0x000b57fffe0f0807" = {
+          friendly_name = "IKEA 5 Dimmer"; room = "other";
+          type = "remote"; icon = icons.remote; endpoint = 1;
+        };
+        "0x70ac08fffe6497be" = {
+          friendly_name = "On/Off Switch 1"; room = "other";
+          type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032";
+        };
+        "0x70ac08fffe65211e" = {
+          friendly_name = "On/Off Switch 2"; room = "other";
+          type = "remote"; icon = icons.remote; endpoint = 1; batteryType = "CR2032";
+        };
 
         # 🦆 says ⮞ TV-AREA (entertainment area)
         "00178801095f06300b" = { friendly_name = "TV Play Strip"; room = "tv-area"; type = "hue_light"; icon = icons.light.strip_rgb; endpoint = 1; supports_color = true; hue_id = 38; };

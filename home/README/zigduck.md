@@ -20,7 +20,7 @@
 <!-- VERSIONS_START -->
 
   ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
-  ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.15-black?style=flat)
+  ![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.16-black?style=flat)
 
   ![Build](https://github.com/QuackHack-McBlindy/zigduck/actions/workflows/ci.yml/badge.svg)
   ![Docs](https://github.com/QuackHack-McBlindy/zigduck/actions/workflows/wiki.yml/badge.svg)
@@ -659,12 +659,12 @@ For language grammar contributions , see [CONTRIBUTING.md](CONTRIBUTING.md) <br>
 <!-- LANGUAGES_START -->
 | Language | Scripts | Voice scripts | Voice script coverage | Patterns | Phrases |
 |----------|--------:|--------------:|:------------------------|---------:|--------:|
-| 🇸🇪 Swedish | 19 | 19 | `████████████████████░` 100% | 6762 | 292164797 |
-| 🇬🇧 English | 19 | 17 | `█████████████████░░░` 89% | 2565 | 77536805 |
-| 🇩🇪 German | 19 | 3 | `███░░░░░░░░░░░░░░░░░` 15% | 35 | 260 |
-| 🇪🇸 Spanish | 19 | 2 | `██░░░░░░░░░░░░░░░░░░` 10% | 0 | 0 |
-| 🇫🇷 French | 19 | 2 | `██░░░░░░░░░░░░░░░░░░` 10% | 0 | 0 |
-| **Total** | **19** | **43** | | **9362** | **369701862** |
+| 🇸🇪 Swedish | 20 | 20 | `████████████████████░` 100% | 6794 | 292198943 |
+| 🇬🇧 English | 20 | 18 | `██████████████████░░` 90% | 2589 | 77536829 |
+| 🇪🇸 Spanish | 20 | 8 | `████████░░░░░░░░░░░░` 40% | 1854 | 3254206 |
+| 🇩🇪 German | 20 | 15 | `███████████████░░░░░` 75% | 1527 | 2798404 |
+| 🇫🇷 French | 20 | 2 | `██░░░░░░░░░░░░░░░░░░` 10% | 0 | 0 |
+| **Total** | **20** | **63** | | **12764** | **375788382** |
 <!-- LANGUAGES_END -->
 
 <br>

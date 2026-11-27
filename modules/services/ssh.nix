@@ -7,12 +7,31 @@
   hosts,
   ...
 } : let
+# 🦆 say ⮞ generate SSH & host key-pair:
+# ```
+# ssh-keygen -t ed25519 -f ssh_ed25519 -N "" && ssh-keygen -t ed25519 -f ssh_host_ed25519_key -N ""
+# ```
+# 🦆 says ⮞ SOPS encrypt keys like this:
+# hosts/<host>/host_ed25519: |
+#     -----BEGIN OPENSSH PRIVATE KEY-----
+#     ...
+#     ...
+# ```
+# 🦆 says ⮞ Place your encrypted SSH private key in `dotfiles/secrets/users/<user>/ssh_ed25519.yaml`
+# 🦆 says ⮞ Place your encrypted host private key in `dotfiles/secrets/hosts/<hostname>/ssh_host_ed25519_key.yaml`
+# 🦆 says ⮞ Define your NIxOS hosts like so:
+# ```
+# config.this.host.keys.publicKeys = {
+#   host = "ssh-ed25519 AAAA...";
+#   ssh = "ssh-ed25519 AAAA...";
+# };
+# ```
+
   user = config.this.user.me.name;
   allHosts = self.nixosConfigurations;
 
   # 🦆 duck say ⮞ sudo SSH-agent trusted keys
   sudoAuthorizedKeys = hosts.desktop.keys.publicKeys.sudo or "";
-
 
   # 🦆 duck say ⮞ filter out current host
   otherHosts = lib.filterAttrs (name: _: name != config.networking.hostName) allHosts;
@@ -125,7 +144,7 @@ in {
 
       preStart = ''
         sed -e "/@SSHUSERKEY/{
-            r ${config.sops.secrets."users/pungkula/ssh_ed25519".path}
+            r ${config.sops.secrets."users/${config.this.user.me.name}/ssh_ed25519".path}
             d
         }" ${sshUserKeyFile} > ~/.ssh/id_ed25519
         echo '${config.this.host.keys.publicKeys.ssh}' > ~/.ssh/id_ed25519.pub
@@ -150,6 +169,12 @@ in {
         group = config.this.user.me.name;
         mode = "0400"; # Read-only for owner and group
       };
+      #"hosts/${config.this.host.hostname}/ssh_host_ed25519" = {
+      #  sopsFile = ./../../secrets/hosts/${config.this.host.hostname}/ssh_host_ed25519.yaml;
+      #  owner = "root";
+      #  group = "root";
+      #  mode = "0400";
+      #};
     };
 
   };}

@@ -114,7 +114,7 @@ EOF
     dt_error() {
       _dt_log "ERROR" "❌" "$RED" "$1" true >&2
       create_error_state "$1" "ERROR"
-      zigduck-cli --publish --topic "${zigduck.baseTopic}/duckTrace/${config.this.host.hostname}/error" --payload "$1"
+      zigduck-cli --publish --topic "${zigduck.baseTopic}/ducktrace/${config.this.host.hostname}/error" --payload "$1"
     }
     dt_critical() {
       _dt_log "CRITICAL" "🚨" "$RED" "$1" true >&2

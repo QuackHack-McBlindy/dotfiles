@@ -1,9 +1,12 @@
 <div align="center">
 
-<img src="https://github.com/QuackHack-McBlindy/pokenix/blob/main/images/logo.png" alt="Logo" width="240">
+<img
+  src="https://raw.githubusercontent.com/QuackHack-McBlindy/pokenix/main/images/logo-compressed.png"
+  alt="Logo"
+  width="240"
+>
+
 <br>
-
-
 
 ![License](https://img.shields.io/badge/license-MIT-black?style=flat-square&logo=opensourceinitiative&logoColor=white)
 [![Sponsors](https://img.shields.io/github/sponsors/QuackHack-McBlindy?logo=githubsponsors&label=Sponsor&style=flat&labelColor=ff1493&logoColor=fff&color=rgba(234,74,170,0.5) "")](https://github.com/sponsors/QuackHack-McBlindy)

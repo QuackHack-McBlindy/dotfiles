@@ -1,7 +1,7 @@
 
 
 
-.page[data-page="5"]::before {
+.page[data-page=""]::before {
   content: '🦆';
   position: absolute;
   font-size: 4rem;

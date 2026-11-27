@@ -90,12 +90,18 @@
             hosts = {
                 "192.168.1.1" = [ "router.lan" "router.local" "router" ];
                 # 🦆 say ⮞ NixOS hosts
-                "${hosts.desktop.ip}"          = [ "desktop.lan" "desktop.local" "desktop" "vaultwarden.local" ];
+                "${hosts.desktop.ip}"          = [ "desktop.lan" "desktop.local" "desktop" ];
+                "${hosts.desktop.wgip}"        = [ "desktop.wg" ];
                 "${hosts.homie.ip}"            = [ "homie.lan" "homie.local" "homie" "cache" ];
+                "${hosts.homie.wgip}"          = [ "homie.wg" ];
                 "${hosts.laptop.ip}"           = [ "laptop.lan" "laptop.local" "laptop" ];
+                "${hosts.laptop.wgip}"         = [ "desktop.wg" ];
                 "${hosts.fatlap.ip}"           = [ "fatlap.lan" "fatlap.local" "fatlap" ];
+                "${hosts.fatlap.wgip}"         = [ "desktop.wg" ];
                 "${hosts.nasty.ip}"            = [ "nasty.lan" "nasty.local" "nasty" ];
+                "${hosts.nasty.wgip}"          = [ "desktop.wg" ];
                 "${hosts.pinephone.ip}"        = [ "pinephone.lan" "pinephone.local" "pinephone" "phone" ];
+                #"${hosts.pinephone.wgip}"      = [ "desktop.wg" ];
                 # 🦆 say ⮞ OTHER devices
                 "${devices.iphone.ip}"         = [ "iphone.lan" "iphone.local" "iphone" ];
                 "${devices.ESP32-S3-BOX-3.ip}" = [ "box.lan" "box.local" "box" ];

@@ -79,22 +79,22 @@
         host = {
             system = "x86_64-linux";
             hostname = "fatlap";
-            interface = [ "enp0s25" ];
-            ip = "192.168.1.222";
+            interface = [ "enp4s0" ];
+            ip = "192.168.1.254";
             wgip = "10.0.0.3";
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-                networking = [ "default" "pool" ];
+                networking = [ "default" "pool" "wg-client" ];
                 services = [ "ssh" "keyd" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [  ];
             };
             keys.publicKeys = {
-                host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSaGhXOT3kn3dUlZ699qwZShRvjAXXR0SlTulhk+P0W";
+                host = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIFSz6e911QVv8HptH8835tv/2K14ypgdsq7xJmTKZsfr";
                 ssh = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPwZL27kGTQDIlSe03abT9F24nSAizORyjo5cI3BD92s";
                 age = "age16utg7mmk73cn3glrwthtm0p7mf6g3vrd48h3ucpn6wnf28pgxvcsh4rjjp";
-                wireguard = "/n41MVtIQcQ0JuJkuh2SFlYN393KOWed76EwpnSugFk=";
+                wireguard = "rSQ+GbME0xOkNaZ7VK24nPblu5x2JYVT8XPi4ZyzrAs=";
                 builder = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINQ7c/AeIpmJS6cWQkHOe4ZEq3DXVRnjtTWuWfx6L46n";
                 cache = "cache:/pbj1Agw2OoSSDZcClS69RHa1aNcwwTOX3GIEGKYwPc=";
                 borg = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMVYczAOBSeS7WfSvzYDOS4Q9Ss+yxCf2G5MVfAALOx/";
@@ -124,10 +124,7 @@
     hardware.enableAllFirmware = true;
     virtualisation.libvirtd.enable = true;
 
-    environment.systemPackages = with pkgs; [
-      libvirt
-      virt-manager
-    ];
+
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions
     # on your system were taken. It‘s perfectly fine and recommended to leave

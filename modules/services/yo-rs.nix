@@ -6,6 +6,7 @@
   self,
   hosts,
   devices,
+  zigduck,
   ...
 } : let
   cfg = config.services.yo-rs;
@@ -34,6 +35,14 @@
       doneCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/done";
       failCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/fail";
     };
+    fatlap   = {
+      room     = "fatlap";
+      gain     = 0.7;
+      awakeCmd = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/ding";
+      doneCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/done";
+      failCmd  = "curl http://${devices.ESP32-S3-BOX-3.ip}/api/fail";
+    };
+
   };
   # 🦆 duck say ⮞ fake clients for yo-say when no server is running
   yoClientsJson = pkgs.writeText "yo-clients.json" (builtins.toJSON [
@@ -51,20 +60,21 @@ in {
     environment.systemPackages = [ self.inputs.yo.packages.x86_64-linux.yo-rs ];
     networking.firewall.allowedTCPPorts = [ 12345 ];
     services.yo-rs = {
-      port = 12345;
+      port         = 12345;
       openFirewall = true;
-      server = {
-        enable = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
-        language = "swedish";
-        whisper = "base";
-        ttsSpeed = "1.3";
+      server       = {
+        enable         = lib.mkIf (lib.elem "yo" config.this.host.modules.services) true;
+        language       = "swedish";
+        whisper        = "base";
+        ttsSpeed       = "1.3";
+        ttsSavePath    = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) "${zigduck.stateDir}/tts/tts.wav";
         shellTranslate = true;
-        threshold = 0.7;
-        beamSize = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
-        temperature = 0.0; # 🦆 says ⮞ no more LSD plx
-        threads = 8;
-        debug = false;
-        logFile = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
+        threshold      = 0.7;
+        beamSize       = 0; # 🦆 says ⮞ diz iz greedy! but srsly --
+        temperature    = 0.0; # 🦆 says ⮞ no more LSD plx
+        threads        = 8;
+        debug          = false;
+        logFile        = "/home/pungkula/.config/duckTrace/yo-rs-server.log";
       };
 
       client = {
@@ -73,24 +83,24 @@ in {
           (h: lib.elem "yo" h.modules.services)
           (throw "YO HOST PLS")
           (lib.attrValues hosts)).ip + ":12345";
-        room   = h.room;
-        gain   = h.gain;
+        room             = h.room;
+        gain             = h.gain;
         silenceThreshold = 0.03;
         silenceTimeout   = 1.3;
         maxDuration      = 4.0;
-        awakeCmd = h.awakeCmd;
-        doneCmd  = h.doneCmd;
-        failCmd  = h.failCmd;
-        debug    = false;
-        logFile  = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
+        awakeCmd         = h.awakeCmd;
+        doneCmd          = h.doneCmd;
+        failCmd          = h.failCmd;
+        debug            = false;
+        logFile          = "/home/pungkula/.config/duckTrace/yo-rs-client.log";
       };
     };
 
     yo = {
       legacy = false;
       # default fuzzy settings (overridden by per-script configurations)
-      fuzzy = {
-        threshold = 0.6;
+      fuzzy  = {
+        threshold          = 0.6;
         conflict.detection = false;
         conflict.threshold = 80;
       };

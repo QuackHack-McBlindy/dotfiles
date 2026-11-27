@@ -10,8 +10,8 @@
 ![Bash](https://img.shields.io/badge/bash-5.3.20-red?style=flat-square&logo=gnubash&logoColor=white)
 ![Python](https://img.shields.io/badge/Python-3.12-%23FFD43B?style=flat-square&logo=python&logoColor=white)
 ![Rust](https://img.shields.io/badge/Rust-1.97.1-orange?style=flat-square&logo=rust&logoColor=white)
-![yo](https://img.shields.io/badge/💬%20yo-0.2.15-black?style=plastic)
-![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.15-black?style=plastic)
+![yo](https://img.shields.io/badge/💬%20yo-0.2.17-black?style=plastic)
+![zigduck](https://img.shields.io/badge/🦆%20zigduck-0.2.17-black?style=plastic)
 
 
 <!-- VERSIONS_END -->
@@ -70,7 +70,7 @@ __easiy expanded and used to deploy, doc, and duck around__<br>
 <!-- BADGES_START -->
 | **Category** | **Contents** |
 |---|---|
-| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-104-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-73-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-8299-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.13B-7c3aed?style=plastic)](bin/) |
+| 🎙️ **Execution** | [![Scripts](https://img.shields.io/badge/📜_Scripts-107-7c3aed?style=plastic)](bin/) [![Voice Scripts](https://img.shields.io/badge/🎙️_Voice_Scripts-74-7c3aed?style=plastic)](bin/) [![Voice Patterns](https://img.shields.io/badge/🎯_Voice_Patterns-8445-7c3aed?style=plastic)](bin/) [![Phrases](https://img.shields.io/badge/💬_Understandable_Phrases-1.13B-7c3aed?style=plastic)](bin/) |
 | 🌐 **Network** | [![WireGuard](https://img.shields.io/badge/🌐_WG-dc2626?style=plastic)](modules/networking/wg-server.nix) |
 | 🖥️ **Infrastructure** | [![Hosts](https://img.shields.io/badge/🖥️_Hosts-6-2563eb?style=plastic)](hosts/) [![Phones](https://img.shields.io/badge/📲_Phones-1-2563eb?style=plastic)](hosts/pinephone/default.nix) [![ESP32](https://img.shields.io/badge/ESP32-2-2563eb?style=plastic&logo=espressif&logoColor=white)](modules/devices.nix) [![Packages](https://img.shields.io/badge/📦_Packages-491-f97316?style=plastic)](modules/system/pkgs.nix) [![DevShells](https://img.shields.io/badge/🚧_DevShells-11-f97316?style=plastic)](devShells/) |
 | 🏠 **Home Automation** | [![TVs](https://img.shields.io/badge/📺_TVs-1-0891b2?style=plastic)](modules/myHouse.nix) [![Channels](https://img.shields.io/badge/📺_Channels-17-0891b2?style=plastic)](modules/myHouse.nix) [![Devices](https://img.shields.io/badge/🐝_Devices-47-0891b2?style=plastic)](modules/devices.nix) [![Scenes](https://img.shields.io/badge/🎨_Scenes-19-0891b2?style=plastic)](modules/myHouse.nix) |
@@ -393,7 +393,7 @@ in { # 🦆 duck say ⮞ house config
         trigger.lights = {
           after        = 14;
           before       = 9;
-          duration     = 700;
+          duration     = 720;
           transition   = true;
         };
       };
@@ -411,8 +411,8 @@ in { # 🦆 duck say ⮞ house config
   # 🦆 ⮞ AUTOMATIONS ⮜
       automations = { # 🦆 says ⮞ here we start quackin'
         string.prefix = "yo do";
-        # 🦆 says ⮞ there are 6 different automation types
-        # 🦆 ⮞ + a greeting automation
+        # 🦆 says ⮞ there are 8 different automation types
+        # 🦆 ⮞ 1. greeting automation
         greeting  = {
           enable       = true;
           awayDuration = 7200;
@@ -421,7 +421,26 @@ in { # 🦆 duck say ⮞ house config
           actions = [ "säg välkommen hem idiot" ];
         };
 
-        # 🦆 says ⮞ 1. MQTT triggered automations
+        # 🦆 says ⮞ 2. state changed automations
+#        state_changed = {
+#          test_fan_logs_light = {
+#            enable = true;
+#            description = "When kitchen fan turns ON, log it + turn on kitchen light";
+#            device   = "Golvet";
+#            property = "state";
+#            from     = "ON";
+#            to       = "OFF";
+#            actions = [
+#              {
+#                type      = "device";
+#                device    = "Fläkt";
+#                operation = "off";
+#              }
+#            ];
+#          };
+#        };
+
+        # 🦆 says ⮞ 3. MQTT triggered automations
         mqtt_triggered  = {
 
           flash_lights  = {
@@ -496,6 +515,33 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
+          desktop_error  = {
+            enable      = true;
+            description = "Notify about any error logs for desktop";
+            topic       = "${zigduck.baseTopic}/ducktrace/desktop/error";
+            actions  = [ # 🦆 says ⮞ notify if any machine has an error happening
+#              "skicka en notis om [🦆📜] ❌ERROR❌ desktop: $MQTT_PAYLOAD"
+              { type    = "shell"; command = ''
+                HOSTNAME=$(echo "$MQTT_TOPIC" | sed 's|.*/ducktrace/||; s|/error$||')
+                yo do "skicka en notis om [🦆📜] ❌ERROR❌ desktop: $MQTT_PAYLOAD"
+              ''; }
+            ];
+          };
+
+          homie_error  = {
+            enable      = true;
+            description = "Notify about error logs for host homie";
+            topic       = "${zigduck.baseTopic}/ducktrace/homie/error";
+            actions  = [ "skicka en notis om [🦆📜] ❌ERROR❌ homie: $MQTT_PAYLOAD" ];
+          };
+
+          nasty_error  = {
+            enable      = true;
+            description = "Notify about error logs for host nasty";
+            topic       = "${zigduck.baseTopic}/ducktrace/nasty/error";
+            actions  = [ "skicka en notis om [🦆📜] ❌ERROR❌ nasty: $MQTT_PAYLOAD" ];
+          };
+
 
       # 🦆 says ⮞ below are used to create cards
       # 🦆 says ⮞ cards are read & displayed by the frontend
@@ -548,7 +594,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 2. room action automations
+        # 🦆 says ⮞ 4. room action automations
         room_actions = {
           hallway = { # 🦆 says ⮞ while door is open say something fun until door closes.
             door_opened = [ "skicka en notis om 🚪 DÖRR ÖPPEN! sedan medans dörren är öppen så säg tittut! tittut!" ];
@@ -557,23 +603,54 @@ in { # 🦆 duck say ⮞ house config
 
           kitchen = {
             motion_not_detected = [
-              # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
-              "om fläkten drar mer än tjugo watt så stäng den om etthundraåttio sekunder sedan släck köket långsamt"
+              {
+                type = "shell";
+                command = ''
+                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+                  # 🦆 says ⮞ no need 2 turn off if it'z not on
+                  if (( power > 20 )); then
+                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 180}'
+                  fi
+                '';
+              } # 🦆 says ⮞  slow go light go bye bye
+              { type = "scene"; scene = "kitchenFadeOff"; }
             ];
 
             motion_detected = [
-              # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
-              # 🦆 ⮞ 1: start lights.
-              # 🦆 ⮞ 2: cancel the off-countdown on fan.
-              # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
-              "stäng fläkten om noll sekunder samt om fläkten är av så sätt på den"
-              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan sedan säg nu börjar match klant"
+              { type = "shell";
+                command = ''
+                  { type = "scene"; scene = "kitchenInstant"; }
+                  # 🦆 ⮞ 1: start lights.
+                  # 🦆 ⮞ 2: cancel the off-countdown on fan.
+                  # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
+                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+                  if [ "$STATE" = "OFF" ]; then
+                    zigduck-cli --device "Fläkt" --state on
+                  fi
+
+                  GAME=$(yo duckPUCK-games \
+                    --team "IF Björklöven" \
+                    --type live)
+
+                  if [ "$GAME" != "true" ]; then
+                    exit 0
+                  fi
+
+                  zigduck-cli --scene löven
+                  STATE=$(yo state --device shield --state off)
+                  if [ "$STATE" != "true" ]; then
+                    exit 0
+                  fi
+                  yo tv-guide --search björklöven
+                  yo say "nu börjar matchen klant"
+                '';
+              }
             ];
           };
         };
 
-        # 🦆 says ⮞ 3. global actions automations
+        # 🦆 says ⮞ 5. global actions automations
         global_actions  = {
           leak_detected = [
             # 🦆 ⮞ flash lights, notify and TTS and pling all devices with sound
@@ -588,7 +665,7 @@ in { # 🦆 duck say ⮞ house config
           ];
         };
 
-        # 🦆 says ⮞ 4. dimmer actions automations
+        # 🦆 says ⮞ 6. dimmer actions automations
         dimmer_actions = {
           bedroom      = {
             off_hold_release   = {
@@ -622,7 +699,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 5. time based automations
+        # 🦆 says ⮞ 7. time based automations
         time_based = {
           morning_wakeup = {
             enable       = true;
@@ -668,7 +745,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 6. presence based automations
+        # 🦆 says ⮞ 8. presence based automations
         presence_based = {};
       };
 
@@ -1222,21 +1299,21 @@ in { # 🦆 duck say ⮞ house config
           historyField  = "history";
         };
       };
-
-      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
-      pages  = {
-        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
-        "4"     = {
-          icon  = "fas fa-comments";
-          title = "chat";
-          css   = css.chat;
-          # 🦆 says ⮞ symlink TTS audio to frontend webserver
-          files = { tts = "${zigduck.stateDir}/tts"; };
-          code  = pages.chat;
-        };
-      };
     };
   };
+
+
+      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
+#      pages  = {
+        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
+#        "5"     = {
+#          icon  = "fas fa-comments";
+#          title = "chat";
+#          css   = css.chat;
+          # 🦆 says ⮞ symlink TTS audio to frontend webserver
+#          files = { tts = "${zigduck.stateDir}/tts"; };
+#          code  = pages.chat;
+#        };
 
   systemd.tmpfiles.rules = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) [
     "d  ${zigduck.stateDir}/.config/yo             0700 zigduck zigduck - -"
@@ -1523,7 +1600,10 @@ View All Scripts
 | [yo tv-scrape](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/tv-scrape.nix) [--dir] [--wildcard] |  | Scrape the web for TV-guide data and save data for frontend. | ✅ |
 | **Misc** | | | |
 | [yo alarm](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/alarm.nix) [--hours] [--minutes] [--minuteWord] [--prep] [--list] [--cancel] |  | Set an alarm for a specified time | ✅ |
+| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/notify.nix) [--message] [--tag] |  | Send a Zigduck notification. | ✅ |
+| [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
 | [yo timer](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/timer.nix) [--minutes] [--seconds] [--hours] [--list] [--sound] |  | Set a timer | ✅ |
+| [yo weather](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) [--location] [--day] [--condition] |  | Weather Assistant. Ask anything weather related (3 day forecast) | ✅ |
 | **Zigbee** | | | |
 | [yo compare](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/compare.nix) [--device] [--scope] [--metric] [--above] [--below] |  | Return true/false whether a device's numeric metric (power, battery, temperature, humidity, brightness, signal, lux) is above or below a threshold. | ✅ |
 | [yo countdown](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/countdown.nix) --device [--seconds] |  | Set a countdown on a Zigduck device (turns off after N seconds). | ✅ |
@@ -1539,8 +1619,9 @@ View All Scripts
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
 | [yo ci-report](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/ci-report.nix) [--running] [--percent] --repo | cir | CI checks check-ups | 📛 |
 | [yo clip2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/clip2phone.nix) --copy |  | Send clipboard to an iPhone, for quick copy paste | ✅ |
+| [yo find](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/find.nix)  | f | Interactive fzf file search with preview & quick edit | 📛 |
 | [yo fr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fr.nix) --find --replace |  | find and replace in .nix files and subdirs | ✅ |
-| [yo fzf](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix)  | f | Interactive fzf search for file content with quick edit & jump to line | 📛 |
+| [yo fzf](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix)  |  | Interactive fzf search for file content with quick edit & jump to line | 📛 |
 | [yo hitta](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/hitta.nix) --search |  | Locate a persons address with help of Hitta.se | ✅ |
 | [yo img2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/img2phone.nix) --image |  | Send images to an iPhone | 📛 |
 | [yo pr-release](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/pr-release.nix) [--confirm] |  | Creates PR dev > main to release, changelog as description. | 📛 |
@@ -1555,7 +1636,6 @@ View All Scripts
 | **🌍 Localization** | | | |
 | [yo stores](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/stores.nix) --store_name [--location] [--radius] | store, shop | Finds nearby stores using OpenStreetMap data with fuzzy name matching. Returns results with opening hours. | ✅ |
 | [yo travel](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/travel.nix) [--to] [--from] [--type] [--apikeyPath] |  | Public transportation helper. Fetches current bus, boat, train and air travel schedules. (Sweden) | ✅ |
-| [yo weather](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/weather.nix) [--location] [--day] [--condition] [--locationPath] | weat | Weather Assistant. Ask anything weather related (3 day forecast) | ✅ |
 | **🌐 Networking** | | | |
 | [yo block](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/block.nix) --url [--blocklist] | ad | Block URLs using DNS | 📛 |
 | [yo esp-get](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/network/esp-get.nix)  | get-esp | Microcontroller control script - enabling full device configuration on the fly with voice commands. | 📛 |
@@ -1592,7 +1672,6 @@ View All Scripts
 | [yo flash\_lights](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/flash_lights.nix)  |  | Flash lights 3 times then restore previous state. | ✅ |
 | [yo leaving](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/leaving.nix)  |  | Run when leaving house to set away state | 📛 |
 | [yo mqtt2history](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/mqtt2history.nix) --field --file |  | Save an MQTT payload field into a JSON history file for the frontend. | ✅ |
-| [yo notify](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/notify.nix) [--message] [--tag] |  | Send a desktop notification. | ✅ |
 | [yo ping](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/ping.nix) [--device] |  | Turns kitchen fan on/off | ✅ |
 | [yo returned](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/returned.nix)  |  | Run when returned home to set home state | 📛 |
 | [yo robobot](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/home/robobot.nix) --device [--mode] [--state] [--delay] [--reverse] [--lower] [--upper] [--touch] [--user] [--passwordfile] |  | Designed to simplify configuring the Zigbee Fingerbot Plus | 📛 |
@@ -1604,6 +1683,7 @@ View All Scripts
 | [yo duckPUCK-games](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-games.nix) [--type] [--days] [--league] [--team] [--home] [--away] [--json] [--dataDir] [--debug] [--check] | hockeyGames, hag | Hockey Game Assistant. Fetches game schedule/results from SHL or HockeyAllsvenskan and delivers analyzed natural-language responses (TTS). | ✅ |
 | [yo duckPUCK-ha](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-ha.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck-ha | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Hockey Allsvenskan (SWE). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
 | [yo duckPUCK-shl](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/duckPUCK-shl.nix) [--mode] [--team] [--stat] [--count] [--dataDir] | puck, shl | \[🏒🦆\] - Your Personal Hockey Assistant! - Expert commentary and analyzer specialized on Swedish Hockey League (SHL). Analyzing games, scraping scoreboards and keeping track of all dates and numbers. | ✅ |
+| [yo extract](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/extract.nix) [--x] [--y] [--variable] |  | Extract the value between two segments in MQTT\_TOPIC and overwrite it. | ✅ |
 | [yo invokeai](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/invokeai.nix) --prompt [--host] [--port] [--outputDir] [--width] [--height] [--steps] [--cfgScale] [--seed] [--model] | genimg | AI generated images powered by InvokeAI | ✅ |
 | [yo joke](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/joke.nix) [--jokeFile] |  | Duck says s funny joke. | ✅ |
 | [yo pokemon](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/pokemon.nix) [--pokemon] [--ball] [--dex] [--iv] [--ev] [--stats] [--level] [--many] [--question] [--ribbon] [--eggMoves] [--move] [--ability] [--shiny] [--ha] [--em] [--ribbons] [--listMissing] [--shinyLeft] [--speak] |  | Search user defined Pokémon using PokéNix. | ✅ |
@@ -1612,7 +1692,7 @@ View All Scripts
 | [yo reminder](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/reminder.nix) [--about] [--list] [--clear] [--user] [--pwfile] | remind | Reminder Assistant | ✅ |
 | [yo shop-list](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/shop-list.nix) [--operation] [--item] [--list] [--mqttUser] [--mqttPWFile] |  | Shopping list management | ✅ |
 | [yo suno](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/suno.nix) --prompt [--genre] | mg | AI generated lyrics and music files powered by Suno | ✅ |
-| [yo time](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/time.nix)  |  | Tells time, day, date & week | ✅ |
+| [yo testy](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/testy.nix)  |  | test | 📛 |
 | [yo xmr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/xmr.nix) [--filePath] [--user] [--pwfile] |  | Crypto currency XMR price tracker | ✅ |
 | [yo yo](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/misc/yo.nix) --phrase |  | Say after me | ✅ |
 | **🧹 Maintenance** | | | |

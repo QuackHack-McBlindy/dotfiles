@@ -393,7 +393,7 @@
 
         {
           code = {
-            title   = "yo shl när möter löven lule?";
+            title   = "yo när möter löven lule?";
             lang    = "bash";
             content = ''
               🦆🏠  HOME via 🐍 v3.14.10 via 🦀 v1.98.0
@@ -405,6 +405,25 @@
                  └─ ⏰ do took 46.346035ms
               På Lördag den fem December spelar Björklöven hemma match mot Luleå i Visionite Arena.
               På Torsdag den elva Mars spelar Björklöven hemma match mot Luleå i Visionite Arena.
+            '';
+          };
+        }
+
+        {
+          code = {
+            title   = "yo analysera Färjestad";
+            lang    = "bash";
+            content = ''
+              14:17:00 ❯ yo do "shl analysera Färjestad"
+                 ┌─(yo-duckPUCK-shl)
+                 │ 🦆 quack! shl analysera färjestad
+                 └─⮞ --team Färjestad BK
+                 └─ ⏰ do took 3.127475ms
+              Det går jättebra för Färjestad BK just nu!
+              Dom leder SHL med 47 poäng efter arton matcher.
+              Med fjorton vinster och bara ett förluster är dom klara serieledare.
+              Dom har överlägset bäst målskillnad på 43 och släpper sällan in mål med bara 24 insläppta.
+              Dom har en imponerande målskillnad som visar att dom dominerar sina motståndare.
             '';
           };
         }
@@ -459,7 +478,7 @@
         }
 
         {
-          duck = "dis waz fun huh . stay safe // NcBLindy";
+          duck = "Hope you had fun, until next time! // NcBLindy";
         }
       ];
     };

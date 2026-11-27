@@ -59,7 +59,7 @@
             hostname = "pinephone";
             interface = [ "wlan0" ]; # 🦆 duck say ⮞ don't forget your card yo
             ip = "192.168.1.23";
-           # wgip = "10.0.0.2";
+           # wgip = "10.0.0.5";
             # 🦆 duck say ⮞ modulez
             modules = {
                 hardware = [ "pinephone" ];

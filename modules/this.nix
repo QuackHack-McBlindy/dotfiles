@@ -9,7 +9,10 @@
     self,
     ...
 } : let
-  inherit (lib) types mkOption mkEnableOption mkMerge;
+  inherit (lib)
+    types mkOption mkEnableOption mkMerge
+    filterAttrs mapAttrsToList groupBy
+    optional attrNames concatStringsSep length;
 
   # beep when touch is required
   touchBeeper = pkgs.writeText "yubikey-beep.py" ''
@@ -82,6 +85,41 @@
             print(f"Detector socket unavailable: {e}", flush=True)
             time.sleep(1)
   '';
+
+
+  getHostIPEntries = option:
+    mapAttrsToList (hostName: host: {
+      name = hostName;
+      ip = host.${option};
+    }) (lib.genAttrs (attrNames self.nixosConfigurations) (name:
+      self.nixosConfigurations.${name}.config.this.host
+    ));
+
+  getDuplicateHostIPs = option:
+    let
+      entries = lib.filter (entry: entry.ip != null) (getHostIPEntries option);
+      grouped = lib.groupBy (entry: entry.ip) entries;
+    in
+      filterAttrs (_: hosts: length hosts > 1) grouped;
+
+  validateUniqueHostIPs = option:
+    let
+      duplicates = getDuplicateHostIPs option;
+
+      duplicateMessages = mapAttrsToList (ip: hosts:
+        "${ip} is assigned to hosts: ${
+          concatStringsSep ", " (map (host: host.name) hosts)
+        }"
+      ) duplicates;
+    in
+      optional (duplicateMessages != [ ]) {
+        assertion = false;
+        message = "🦆 duck say ⮞ fuck ❌ Duplicate this.host.${option} addresses detected: ${concatStringsSep "; " duplicateMessages}";
+      };
+
+  hostIPValidations =
+    validateUniqueHostIPs "ip"
+    ++ validateUniqueHostIPs "wgip";
 
 in {
     options.this = {
@@ -552,6 +590,9 @@ in {
             };
             _module.args.me       = { config, ... }: config.this.user.me;
             _module.args.devices  = config.house.devices;
+        }
+        {
+            assertions = hostIPValidations;
         }
 
     ];}

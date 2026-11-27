@@ -165,7 +165,7 @@ in { # 🦆 duck say ⮞ house config
         trigger.lights = {
           after        = 14;
           before       = 9;
-          duration     = 700;
+          duration     = 720;
           transition   = true;
         };
       };
@@ -183,8 +183,8 @@ in { # 🦆 duck say ⮞ house config
   # 🦆 ⮞ AUTOMATIONS ⮜
       automations = { # 🦆 says ⮞ here we start quackin'
         string.prefix = "yo do";
-        # 🦆 says ⮞ there are 6 different automation types
-        # 🦆 ⮞ + a greeting automation
+        # 🦆 says ⮞ there are 8 different automation types
+        # 🦆 ⮞ 1. greeting automation
         greeting  = {
           enable       = true;
           awayDuration = 7200;
@@ -193,7 +193,26 @@ in { # 🦆 duck say ⮞ house config
           actions = [ "säg välkommen hem idiot" ];
         };
 
-        # 🦆 says ⮞ 1. MQTT triggered automations
+        # 🦆 says ⮞ 2. state changed automations
+#        state_changed = {
+#          test_fan_logs_light = {
+#            enable = true;
+#            description = "When kitchen fan turns ON, log it + turn on kitchen light";
+#            device   = "Golvet";
+#            property = "state";
+#            from     = "ON";
+#            to       = "OFF";
+#            actions = [
+#              {
+#                type      = "device";
+#                device    = "Fläkt";
+#                operation = "off";
+#              }
+#            ];
+#          };
+#        };
+
+        # 🦆 says ⮞ 3. MQTT triggered automations
         mqtt_triggered  = {
 
           flash_lights  = {
@@ -268,6 +287,33 @@ in { # 🦆 duck say ⮞ house config
             ];
           };
 
+          desktop_error  = {
+            enable      = true;
+            description = "Notify about any error logs for desktop";
+            topic       = "${zigduck.baseTopic}/ducktrace/desktop/error";
+            actions  = [ # 🦆 says ⮞ notify if any machine has an error happening
+#              "skicka en notis om [🦆📜] ❌ERROR❌ desktop: $MQTT_PAYLOAD"
+              { type    = "shell"; command = ''
+                HOSTNAME=$(echo "$MQTT_TOPIC" | sed 's|.*/ducktrace/||; s|/error$||')
+                yo do "skicka en notis om [🦆📜] ❌ERROR❌ desktop: $MQTT_PAYLOAD"
+              ''; }
+            ];
+          };
+
+          homie_error  = {
+            enable      = true;
+            description = "Notify about error logs for host homie";
+            topic       = "${zigduck.baseTopic}/ducktrace/homie/error";
+            actions  = [ "skicka en notis om [🦆📜] ❌ERROR❌ homie: $MQTT_PAYLOAD" ];
+          };
+
+          nasty_error  = {
+            enable      = true;
+            description = "Notify about error logs for host nasty";
+            topic       = "${zigduck.baseTopic}/ducktrace/nasty/error";
+            actions  = [ "skicka en notis om [🦆📜] ❌ERROR❌ nasty: $MQTT_PAYLOAD" ];
+          };
+
 
       # 🦆 says ⮞ below are used to create cards
       # 🦆 says ⮞ cards are read & displayed by the frontend
@@ -320,7 +366,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 2. room action automations
+        # 🦆 says ⮞ 4. room action automations
         room_actions = {
           hallway = { # 🦆 says ⮞ while door is open say something fun until door closes.
             door_opened = [ "skicka en notis om 🚪 DÖRR ÖPPEN! sedan medans dörren är öppen så säg tittut! tittut!" ];
@@ -329,23 +375,54 @@ in { # 🦆 duck say ⮞ house config
 
           kitchen = {
             motion_not_detected = [
-              # 🦆 ⮞ if fan is on and consuming power, start countdown to turn fan off. and slowly fade off lights.
-              "om fläkten drar mer än tjugo watt så stäng den om etthundraåttio sekunder sedan släck köket långsamt"
+              {
+                type = "shell";
+                command = ''
+                  power=$(jq -r '."Fläkt".power' /var/lib/zigduck/state.json)
+                  # 🦆 says ⮞ no need 2 turn off if it'z not on
+                  if (( power > 20 )); then
+                    zigduck-cli --publish --topic "zigduck/Fläkt/set" --payload '{"countdown": 180}'
+                  fi
+                '';
+              } # 🦆 says ⮞  slow go light go bye bye
+              { type = "scene"; scene = "kitchenFadeOff"; }
             ];
 
             motion_detected = [
-              # 🦆 ⮞ "big" 20ms win - worth it here
               { type = "scene"; scene = "kitchenInstant"; }
-              # 🦆 ⮞ 1: start lights.
-              # 🦆 ⮞ 2: cancel the off-countdown on fan.
-              # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
-              "stäng fläkten om noll sekunder samt om fläkten är av så sätt på den"
-              "om björklöven spelar just nu så aktivera scenen löven och om tvn är av så släng igång lajv björklöven för fan sedan säg nu börjar match klant"
+              { type = "shell";
+                command = ''
+                  { type = "scene"; scene = "kitchenInstant"; }
+                  # 🦆 ⮞ 1: start lights.
+                  # 🦆 ⮞ 2: cancel the off-countdown on fan.
+                  # 🦆 ⮞ 3: if my team is playin' NOW activate scene & if tv is off start the game on TV and TTS dat the game is on now
+                  STATE=$(jq -r '."Fläkt".state' /var/lib/zigduck/state.json)
+                  if [ "$STATE" = "OFF" ]; then
+                    zigduck-cli --device "Fläkt" --state on
+                  fi
+
+                  GAME=$(yo duckPUCK-games \
+                    --team "IF Björklöven" \
+                    --type live)
+
+                  if [ "$GAME" != "true" ]; then
+                    exit 0
+                  fi
+
+                  zigduck-cli --scene löven
+                  STATE=$(yo state --device shield --state off)
+                  if [ "$STATE" != "true" ]; then
+                    exit 0
+                  fi
+                  yo tv-guide --search björklöven
+                  yo say "nu börjar matchen klant"
+                '';
+              }
             ];
           };
         };
 
-        # 🦆 says ⮞ 3. global actions automations
+        # 🦆 says ⮞ 5. global actions automations
         global_actions  = {
           leak_detected = [
             # 🦆 ⮞ flash lights, notify and TTS and pling all devices with sound
@@ -360,7 +437,7 @@ in { # 🦆 duck say ⮞ house config
           ];
         };
 
-        # 🦆 says ⮞ 4. dimmer actions automations
+        # 🦆 says ⮞ 6. dimmer actions automations
         dimmer_actions = {
           bedroom      = {
             off_hold_release   = {
@@ -394,7 +471,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 5. time based automations
+        # 🦆 says ⮞ 7. time based automations
         time_based = {
           morning_wakeup = {
             enable       = true;
@@ -440,7 +517,7 @@ in { # 🦆 duck say ⮞ house config
           };
         };
 
-        # 🦆 says ⮞ 6. presence based automations
+        # 🦆 says ⮞ 8. presence based automations
         presence_based = {};
       };
 
@@ -994,21 +1071,21 @@ in { # 🦆 duck say ⮞ house config
           historyField  = "history";
         };
       };
-
-      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
-      pages  = {
-        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
-        "4"     = {
-          icon  = "fas fa-comments";
-          title = "chat";
-          css   = css.chat;
-          # 🦆 says ⮞ symlink TTS audio to frontend webserver
-          files = { tts = "${zigduck.stateDir}/tts"; };
-          code  = pages.chat;
-        };
-      };
     };
   };
+
+
+      # 🦆 says ⮞ DASHBOARD PAGES (extra tabs)
+#      pages  = {
+        # 🦆says⮞ ChatBot (no LLM) - Less thinkin', more doin'!
+#        "5"     = {
+#          icon  = "fas fa-comments";
+#          title = "chat";
+#          css   = css.chat;
+          # 🦆 says ⮞ symlink TTS audio to frontend webserver
+#          files = { tts = "${zigduck.stateDir}/tts"; };
+#          code  = pages.chat;
+#        };
 
   systemd.tmpfiles.rules = lib.mkIf (lib.elem "zigduck" config.this.host.modules.services) [
     "d  ${zigduck.stateDir}/.config/yo             0700 zigduck zigduck - -"
