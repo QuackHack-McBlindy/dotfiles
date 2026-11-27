@@ -20,25 +20,10 @@
                 "virtio_rng"
             ];
             availableKernelModules = [
-                "9p"
-                "9pnet_virtio"
-                "ata_piix"
-                "nvme"
-                "sr_mod"
-                "uhci_hcd"
-                "virtio_blk"
-                "virtio_mmio"
-                "virtio_net"
-                "virtio_pci"
-                "virtio_scsi"
-                "xhci_pci"
+              "xhci_pci" "ehci_pci" "ahci" "sd_mod" "sr_mod"
             ];
-            #systemd.enable = true;
         };
         kernelPackages = pkgs.linuxPackages_6_1;
-#        extraModulePackages = [
-#            config.boot.kernelPackages.broadcom_sta
-#        ];
     };
 
 
@@ -119,9 +104,6 @@
     [ { device = "/dev/disk/by-uuid/cd86c28d-de55-4928-9066-e06be489a3b7"; }
     ];
 
-    hardware.enableAllFirmware = true;
-    virtualisation.libvirtd.enable = true;
-
 
     # This value determines the NixOS release from which the default
     # settings for stateful data, like file locations and database versions
@@ -129,5 +111,5 @@
     # this value at the release version of the first install of this system.
     # Before changing this value read the documentation for this option
     # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-    system.stateVersion = "25.05"; # Did you read the comment?
+    system.stateVersion = "24.05"; # Did you read the comment?
     }
