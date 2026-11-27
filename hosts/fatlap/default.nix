@@ -105,20 +105,18 @@
         };
     };
 
-
   fileSystems."/" =
-    { device = "/dev/disk/by-uuid/a5cae74b-f222-4a10-b254-63ab80a983ec";
+    { device = "/dev/disk/by-uuid/5aab4a05-d34d-4956-b491-c2e87fb5ee22";
       fsType = "ext4";
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/E803-F289";
+    { device = "/dev/disk/by-uuid/BEA5-1FB5";
       fsType = "vfat";
-      options = [ "fmask=0022" "dmask=0022" ];
     };
 
   swapDevices =
-    [ { device = "/dev/disk/by-uuid/6e281696-5985-4a6a-bf59-034a826e48dd"; }
+    [ { device = "/dev/disk/by-uuid/cd86c28d-de55-4928-9066-e06be489a3b7"; }
     ];
 
     hardware.enableAllFirmware = true;

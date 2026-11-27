@@ -8,7 +8,7 @@
   ...
 }: {
   yo.scripts.find = {
-    description = "Interactive fzf file search with preview & quick edit";
+    description = "Interactive fzf file search with quick jump";
     category = "⚡ Productivity";
     aliases = [ "f" ];
     code = ''
@@ -20,16 +20,18 @@
              --exclude result \
           | fzf --ansi \
                 --prompt 'files, yo 📁  ' \
-                --preview 'bat --color=always --style=numbers -- {}' \
-                --preview-window 'right,66%,border-bottom'
+                --no-preview \
+                --with-nth 1.. \
+                --print-query
         )
 
         if [ -n "$selected" ]; then
-          $EDITOR "$selected"
+          thunar "$selected"
         fi
       }
 
       main "$@"
     '';
+
   };
 }

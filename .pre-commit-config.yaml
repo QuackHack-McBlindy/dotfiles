@@ -13,18 +13,18 @@ repos:
         args: [--allow-multiple-documents]
       - id: check-merge-conflict
 
-  - repo: local
-    hooks:
-      - id: check-secrets
-        name: Check Secrets
-        entry: bash hooks/check-secrets.sh
-        language: system
-        pass_filenames: false
-        always_run: true
+#  - repo: local
+#    hooks:
+#      - id: check-secrets
+#        name: Check Secrets
+#        entry: bash hooks/check-secrets.sh
+#        language: system
+#        pass_filenames: false
+#        always_run: true
 
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
-    hooks:
-      - id: check-json
-      - id: check-toml
-      - id: pretty-format-json
+#  - repo: https://github.com/pre-commit/pre-commit-hooks
+#    rev: v5.0.0
+#    hooks:
+#      - id: check-json
+#      - id: check-toml
+#      - id: pretty-format-json

@@ -1619,7 +1619,7 @@ View All Scripts
 | [yo calendar](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/calendar.nix) [--operation] [--calenders] | kal | Calendar assistant. Provides easy calendar access. Interactive terminal calendar, or manage the calendar through yo commands or with voice. | ✅ |
 | [yo ci-report](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/ci-report.nix) [--running] [--percent] --repo | cir | CI checks check-ups | 📛 |
 | [yo clip2phone](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/clip2phone.nix) --copy |  | Send clipboard to an iPhone, for quick copy paste | ✅ |
-| [yo find](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/find.nix)  | f | Interactive fzf file search with preview & quick edit | 📛 |
+| [yo find](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/find.nix)  | f | Interactive fzf file search with quick jump | 📛 |
 | [yo fr](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fr.nix) --find --replace |  | find and replace in .nix files and subdirs | ✅ |
 | [yo fzf](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/fzf.nix)  |  | Interactive fzf search for file content with quick edit & jump to line | 📛 |
 | [yo hitta](https://github.com/QuackHack-McBlindy/dotfiles/blob/main/bin/productivity/hitta.nix) --search |  | Locate a persons address with help of Hitta.se | ✅ |
