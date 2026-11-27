@@ -8,10 +8,7 @@
 } : {
 
     boot = {
-        loader = {
-            systemd-boot.enable = true;
-            efi.canTouchEfiVariables = true;
-        };
+        loader.systemd-boot.enable = true;
         initrd = {
             kernelModules = [
                 "kvm-intel"
@@ -70,8 +67,8 @@
             modules = {
                 hardware = [ "cpu/intel" "audio" ];
                 system = [ "nix" "pkgs" "gnome" "crossEnv" "gtk" ];
-                networking = [ "default" "pool" "wg-client" ];
-                services = [ "ssh" "keyd" ];
+                networking = [ "wireless" "pool" "wg-client" ];
+                services = [ "ssh" "keyd" "yo-client" ];
                 programs = [ "default" "thunar" "firefox" "vesktop" ];
                 virtualisation = [  ];
             };

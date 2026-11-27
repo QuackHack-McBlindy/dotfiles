@@ -14,9 +14,10 @@
         # 🦆 says⮞ ONLY INSTALLED ON DESKTOP
             (lib.mkIf (config.networking.hostName == "desktop") [
                 inputs.zigduck-gnome.packages.${pkgs.system}.default
+                inputs.magnixify.packages.${pkgs.system}.default
                 pkgs.intel-vaapi-driver
                 pkgs.libva-utils
-                inputs.magnixify.packages.${pkgs.system}.default
+
                 pkgs.nix-prefetch-github
                 pkgs.element-desktop
                 pkgs.cargo
@@ -35,7 +36,11 @@
                 pkgs.terraform
                 pkgs.terraformer
 
-                pkgs.krita
+            ])
+        # 🦆 says⮞ FATLAP
+            (lib.mkIf (config.networking.hostName == "fatlap") [
+                inputs.zigduck-gnome.packages.${pkgs.system}.default
+                inputs.magnixify.packages.${pkgs.system}.default
             ])
         # 🦆 says⮞ NASTY
             (lib.mkIf (config.networking.hostName == "nasty") [ pkgs.hello ])
